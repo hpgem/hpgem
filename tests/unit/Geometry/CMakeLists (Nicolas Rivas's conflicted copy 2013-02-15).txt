@@ -1,0 +1,197 @@
+include_directories(${hpGEM_SOURCE_DIR}/src/ .)
+
+
+#First declare the rules that will form the executable tests#
+#############################################################
+
+#Define Polytope_UnitTest.out dependencies
+add_executable(PointReference_UnitTest.out
+               PointReference_UnitTest.cpp
+               ../../../src/Geometry/PointReference.hpp
+               ../../../src/Geometry/Point.hpp
+               ../../../src/Geometry/Point_Impl.hpp)
+
+add_executable(ReferencePointUnitTest.out
+               ../../../src/Geometry/ReferencePoint.cpp
+               ../../../src/Geometry/ReferencePoint.hpp
+               ../../../src/Geometry/ReferenceGeometry.hpp
+               ../../../src/Geometry/ReferenceGeometry_Impl.hpp
+               ../../../src/Geometry/Mappings/MappingReferenceToReference.hpp
+               ReferencePointUnitTest.cpp)
+
+add_executable(ReferenceLineUnitTest.out
+               ../../../src/Geometry/ReferencePoint.cpp
+               ../../../src/Geometry/ReferencePoint.hpp
+               ../../../src/Geometry/ReferenceLine.cpp
+               ../../../src/Geometry/ReferenceLine.hpp
+               ../../../src/Geometry/ReferenceGeometry.hpp
+               ../../../src/Geometry/ReferenceGeometry_Impl.hpp
+               ../../../src/Geometry/Point.hpp
+               ../../../src/Geometry/Point_Impl.hpp
+               ../../../src/Geometry/Mappings/MappingCodimensions.hpp
+               ../../../src/Geometry/Mappings/MappingPointToLine.cpp
+               ../../../src/Geometry/Mappings/MappingPointToLine.hpp
+               ../../../src/Geometry/Mappings/MappingLineToLine.cpp
+               ../../../src/Geometry/Mappings/MappingLineToLine.hpp
+               ReferenceLineUnitTest.cpp)
+
+add_executable(ReferenceSquareUnitTest.out
+               ../../../src/Geometry/ReferencePoint.cpp
+               ../../../src/Geometry/ReferencePoint.hpp
+               ../../../src/Geometry/ReferenceLine.cpp
+               ../../../src/Geometry/ReferenceLine.hpp
+               ../../../src/Geometry/ReferenceSquare.cpp
+               ../../../src/Geometry/ReferenceSquare.hpp
+               ../../../src/Geometry/ReferenceGeometry.hpp
+               ../../../src/Geometry/ReferenceGeometry_Impl.hpp
+               ../../../src/Geometry/Point.hpp
+               ../../../src/Geometry/Point_Impl.hpp
+               ../../../src/Geometry/Mappings/MappingCodimensions.hpp
+               ../../../src/Geometry/Mappings/MappingReferenceToReference.hpp
+               ../../../src/Geometry/Mappings/MappingPointToLine.cpp
+               ../../../src/Geometry/Mappings/MappingPointToLine.hpp
+               ../../../src/Geometry/Mappings/MappingLineToLine.cpp
+               ../../../src/Geometry/Mappings/MappingLineToLine.hpp
+               ../../../src/Geometry/Mappings/MappingLineToSquare.cpp
+               ../../../src/Geometry/Mappings/MappingLineToSquare.hpp
+               ../../../src/Geometry/Mappings/MappingSquareToSquare.cpp
+               ../../../src/Geometry/Mappings/MappingSquareToSquare.hpp
+               ReferenceSquareUnitTest.cpp)
+
+add_executable(TriangleTest.out ../../../src/Geometry/ReferenceTriangle.cpp ../../../src/Geometry/ReferenceTriangle.hpp ../../../src/Geometry/ReferenceGeometry.hpp  ../../../src/Geometry/ReferenceGeometry_Impl.hpp ../../../src/Geometry/Point.hpp ../../../src/Geometry/Point_Impl.hpp  ReferenceTriangleUnitTest.cpp)
+
+add_executable(PyramidTest.out ../../../src/Geometry/ReferencePyramid.cpp ../../../src/Geometry/ReferencePyramid.hpp ../../../src/Geometry/ReferenceGeometry.hpp  ../../../src/Geometry/ReferenceGeometry_Impl.hpp ../../../src/Geometry/Point.hpp ../../../src/Geometry/Point_Impl.hpp ReferencePyramidUnitTest.cpp)
+
+add_executable(TriangularPrismTest.out ../../../src/Geometry/ReferenceTriangularPrism.cpp ../../../src/Geometry/ReferenceTriangularPrism.hpp ../../../src/Geometry/ReferenceGeometry.hpp  ../../../src/Geometry/ReferenceGeometry_Impl.hpp ../../../src/Geometry/Point.hpp ../../../src/Geometry/Point_Impl.hpp ReferenceTriangularPrismUnitTest.cpp)
+
+add_executable(HypercubeTest.out ../../../src/Geometry/ReferenceHypercube.cpp ../../../src/Geometry/ReferenceHypercube.hpp ../../../src/Geometry/ReferenceGeometry.hpp  ../../../src/Geometry/ReferenceGeometry_Impl.hpp ../../../src/Geometry/Point.hpp ../../../src/Geometry/Point_Impl.hpp ReferenceHypercubeUnitTest.cpp)
+
+add_executable(TetrahedronTest.out ../../../src/Geometry/ReferenceTetrahedron.cpp ../../../src/Geometry/ReferenceTetrahedron.hpp ../../../src/Geometry/ReferenceGeometry.hpp  ../../../src/Geometry/ReferenceGeometry_Impl.hpp ../../../src/Geometry/Point.hpp ../../../src/Geometry/Point_Impl.hpp ReferenceTetrahedronUnitTest.cpp)
+
+add_executable(TetrahedronSampleTest.out  ../../../src/Geometry/ReferenceTetrahedron.hpp ../../../src/Geometry/ReferenceTetrahedron.cpp ReferenceTetrahedronUnitTest.cpp)
+
+add_executable(Point_UnitTest.out Point_UnitTest.cpp ../../../src/Geometry/Point.hpp ../../../src/Geometry/Point_Impl.hpp)
+
+add_executable(PhysicalPoint_UnitTest.out PointPhysical_UnitTest.cpp ../../../src/Geometry/Point.hpp ../../../src/Geometry/PointPhysical.hpp)
+
+add_executable(ElementGeometry_UnitTest.out
+               ElementGeometry_UnitTest.cpp
+               ../../../src/Geometry/Mappings/MappingHypercubeLinear.cpp
+               ../../../src/Geometry/Mappings/MappingHypercubeLinear.hpp
+               ../../../src/Geometry/Mappings/MappingReferenceToPhysical.hpp
+               ../../../src/Geometry/Mappings/MappingInterface.hpp
+               ../../../src/Geometry/ReferenceSquare.cpp
+               ../../../src/Geometry/ReferenceSquare.hpp
+               ../../../src/Geometry/Jacobian.hpp)
+               
+add_executable(MappingHypercubeLinear_UnitTest.out
+               MappingHypercubeLinear_UnitTest.cpp
+               ../../../src/Geometry/PointPhysical.hpp
+               ../../../src/Geometry/ReferenceLine.cpp
+               ../../../src/Geometry/PhysicalLine.cpp
+               ../../../src/Geometry/PhysicalLine.hpp
+               ../../../src/Geometry/ReferenceSquare.cpp
+               ../../../src/Geometry/ReferenceSquare.hpp
+               ../../../src/Geometry/PhysicalQuadrilateral.cpp
+               ../../../src/Geometry/PhysicalQuadrilateral.hpp
+               ../../../src/Geometry/ReferenceCube.cpp
+               ../../../src/Geometry/ReferenceCube.hpp
+               ../../../src/Geometry/PhysicalHexahedron.cpp
+               ../../../src/Geometry/PhysicalHexahedron.hpp
+               ../../../src/Geometry/Mappings/MappingLineToSquare.cpp
+               ../../../src/Geometry/Mappings/MappingLineToSquare.hpp
+               ../../../src/Geometry/Mappings/MappingSquareToSquare.cpp
+               ../../../src/Geometry/Mappings/MappingSquareToSquare.hpp
+               ../../../src/Geometry/Mappings/MappingHypercubeLinear.cpp
+               ../../../src/Geometry/Mappings/MappingHypercubeLinear.hpp)
+               
+add_executable(MappingSimplexLinear_UnitTest.out
+               MappingSimplexLinear_UnitTest.cpp
+               ../../../src/Geometry/PointPhysical.hpp
+               ../../../src/Geometry/ReferenceTriangle.cpp
+               ../../../src/Geometry/ReferenceTriangle.hpp
+               ../../../src/Geometry/PhysicalTriangle.cpp
+               ../../../src/Geometry/PhysicalTriangle.hpp
+               ../../../src/Geometry/ReferenceCube.cpp
+               ../../../src/Geometry/ReferenceCube.hpp
+               ../../../src/Geometry/PhysicalTetrahedron.cpp
+               ../../../src/Geometry/PhysicalTetrahedron.hpp              
+               ../../../src/Geometry/Mappings/MappingSimplexLinear_Impl.hpp
+               ../../../src/Geometry/Mappings/MappingSimplexLinear.hpp)
+               
+add_executable(MappingLineToSquare_UnitTest.out
+               MappingLineToSquare_UnitTest.cpp
+               ../../../src/Geometry/PointReference.hpp
+               ../../../src/Geometry/Mappings/MappingLineToSquare.cpp
+               ../../../src/Geometry/Mappings/MappingLineToSquare.hpp)
+                              
+add_executable(FaceGeometry.out
+               FaceGeometryUnitTest.cpp
+               ../../../src/LinearAlgebra/Matrix.cpp
+                ../../../src/Geometry/Mappings/MappingLineToSquare.cpp
+                ../../../src/Geometry/Mappings/OutwardNormalVectorSign.cpp)
+target_link_libraries(FaceGeometry.out gfortran)
+
+//target_link_libraries(MatrixTest.out gfortran)
+
+#Now create the actually tests#
+###############################
+#Test -2 - Simple FaceGeometry Test : Check it both complies and runs
+add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target FaceGeometry.out)
+add_test(FaceGeometry FaceGeometry.out)
+set_tests_properties(FaceGeometry PROPERTIES DEPENDS BuildTest)
+
+
+#Test 0 - Simple Hypercube Test : Check it both complies and runs
+add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target TetrahedronSampleTest.out)
+add_test(TetrahedronSampleTest TetrahedronSampleTest.out)
+set_tests_properties(TetrahedronSampleTest PROPERTIES DEPENDS BuildTest)
+
+#Test -1 - Simple Polytope Test : Check it both complies and runs
+add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target PolytopeTest.out)
+add_test(PolytopeTest PolytopeTest.out)
+set_tests_properties(PolytopeTest PROPERTIES DEPENDS BuildTest)
+
+#Test 1 - Simple Polytope Test : Check it both complies and runs
+add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target PolytopeTest.out)
+add_test(PolytopeTest PolytopeTest.out)
+set_tests_properties(PolytopeTest PROPERTIES DEPENDS BuildTest)
+
+#Test 2 - Simple Line Test : Check it both complies and runs
+add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target LineTest.out)
+add_test(LineTest LineTest.out)
+set_tests_properties(LineTest PROPERTIES DEPENDS BuildTest)
+
+#Test 3 - Simple Triangle Test : Check it both complies and runs
+add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target TriangleTest.out)
+add_test(TriangleTest TriangleTest.out)
+set_tests_properties(TriangleTest PROPERTIES DEPENDS BuildTest)
+
+#Test 4 - Simple Square Test : Check it both complies and runs
+add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target SquareTest.out)
+add_test(SquareTest SquareTest.out)
+set_tests_properties(SquareTest PROPERTIES DEPENDS BuildTest)
+
+#Test 5 - Simple Pyramid Test : Check it both complies and runs
+add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target PyramidTest.out)
+add_test(PyramidTest PyramidTest.out)
+set_tests_properties(PyramidTest PROPERTIES DEPENDS BuildTest)
+
+#Test 6 - Simple TriangularPrism Test : Check it both complies and runs
+add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target TriangularPrismTest.out)
+add_test(TriangularPrismTest TriangularPrismTest.out)
+set_tests_properties(TriangularPrismTest PROPERTIES DEPENDS BuildTest)
+
+#Test 7 - Simple Hypercube Test : Check it both complies and runs
+add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target HypercubeTest.out)
+add_test(HypercubeTest HypercubeTest.out)
+set_tests_properties(HypercubeTest PROPERTIES DEPENDS BuildTest)
+
+#Test 8 - Simple Hypercube Test : Check it both complies and runs
+add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target TetrahedronTest.out)
+add_test(TetrahedronTest TetrahedronTest.out)
+set_tests_properties(TetrahedronTest PROPERTIES DEPENDS BuildTest)
+
+
+
+

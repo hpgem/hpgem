@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/antRthorn/Dropbox/hpgem/Phoenix/tests/unit/LinearAlgebra/VectorTest.cpp
+iostream
+-
+stdlib.h
+-
+math.h
+-
+LinearAlgebra/NumericalVector.hpp
+/Users/antRthorn/Dropbox/hpgem/Phoenix/tests/unit/LinearAlgebra/LinearAlgebra/NumericalVector.hpp
+
+src/LinearAlgebra/GlobalNamespaceLinearAlgebra.hpp
+
+src/LinearAlgebra/NumericalVector.hpp
+GlobalNamespaceLinearAlgebra.hpp
+src/LinearAlgebra/GlobalNamespaceLinearAlgebra.hpp
+valarray
+-
+iostream
+-
+

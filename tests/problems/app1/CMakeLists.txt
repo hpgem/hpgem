@@ -1,0 +1,12 @@
+include_directories(. ${hpGEM_SOURCE_DIR}/src/)
+
+#First declare the rules that will form the executable tests#
+#############################################################
+
+#add_executable(app1.out i
+#        app1.cpp
+#        ${hpGEM_SOURCE_DIR}/src/Base/AssembleBasisFunctionSet.cpp
+#        ${hpGEM_SOURCE_DIR}/src/Base/L2Norm.cpp
+#      )
+#target_link_libraries(app1.out Geometry QuadratureRules Matrix)
+

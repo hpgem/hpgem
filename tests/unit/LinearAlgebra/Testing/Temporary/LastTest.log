@@ -1,0 +1,64 @@
+Start testing: Feb 16 13:03 WET
+----------------------------------------------------------
+1/3 Testing: BuildTest
+1/3 Test: BuildTest
+Command: "/Applications/CMake 2.8-10.app/Contents/bin/cmake" "--build" "/Users/antRthorn/Dropbox/hpgem/Phoenix" "--target" "MatrixTest.out"
+Directory: /Users/antRthorn/Dropbox/hpgem/Phoenix/tests/unit/LinearAlgebra
+"BuildTest" start time: Feb 16 13:03 WET
+Output:
+----------------------------------------------------------
+Scanning dependencies of target MatrixTest.out
+[  0%] Building Fortran object tests/unit/LinearAlgebra/CMakeFiles/MatrixTest.out.dir/__/__/__/src/LinearAlgebra/daxpy.f.o
+[ 25%] Building Fortran object tests/unit/LinearAlgebra/CMakeFiles/MatrixTest.out.dir/__/__/__/src/LinearAlgebra/lsame.f.o
+[ 25%] Building Fortran object tests/unit/LinearAlgebra/CMakeFiles/MatrixTest.out.dir/__/__/__/src/LinearAlgebra/xerbla.f.o
+[ 50%] Building Fortran object tests/unit/LinearAlgebra/CMakeFiles/MatrixTest.out.dir/__/__/__/src/LinearAlgebra/dgemm.f.o
+[ 75%] Building Fortran object tests/unit/LinearAlgebra/CMakeFiles/MatrixTest.out.dir/__/__/__/src/LinearAlgebra/dgemv.f.o
+[ 75%] Building CXX object tests/unit/LinearAlgebra/CMakeFiles/MatrixTest.out.dir/__/__/__/src/LinearAlgebra/Matrix.cpp.o
+[100%] Building CXX object tests/unit/LinearAlgebra/CMakeFiles/MatrixTest.out.dir/MatrixTest.cpp.o
+/Users/antRthorn/Dropbox/hpgem/Phoenix/src/LinearAlgebra/Matrix.hpp:52: warning: inline function ‘double& LinearAlgebra::Matrix::operator()(int, int)’ used but never defined
+Linking CXX executable MatrixTest.out
+[100%] Built target MatrixTest.out
+<end of output>
+Test time =   0.98 sec
+----------------------------------------------------------
+Test Passed.
+"BuildTest" end time: Feb 16 13:03 WET
+"BuildTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/3 Testing: MatrixTest
+2/3 Test: MatrixTest
+Command: "/Users/antRthorn/Dropbox/hpgem/Phoenix/tests/unit/LinearAlgebra/MatrixTest.out"
+Directory: /Users/antRthorn/Dropbox/hpgem/Phoenix/tests/unit/LinearAlgebra
+"MatrixTest" start time: Feb 16 13:03 WET
+Output:
+----------------------------------------------------------
+[(1,2),
+ (3,4)]
+[(1.5,1.5,1.5),
+ (1.5,1.5,1.5)]
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"MatrixTest" end time: Feb 16 13:03 WET
+"MatrixTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/3 Testing: VectorTest
+3/3 Test: VectorTest
+Command: "/Users/antRthorn/Dropbox/hpgem/Phoenix/tests/unit/LinearAlgebra/VectorTest.out"
+Directory: /Users/antRthorn/Dropbox/hpgem/Phoenix/tests/unit/LinearAlgebra
+"VectorTest" start time: Feb 16 13:03 WET
+Output:
+----------------------------------------------------------
+3
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"VectorTest" end time: Feb 16 13:03 WET
+"VectorTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Feb 16 13:03 WET

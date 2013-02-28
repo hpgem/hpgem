@@ -1,0 +1,195 @@
+
+#include <vector>
+#include<iostream>
+
+
+namespace LinearAlgebra
+{
+
+
+    extern "C" 
+	{
+		//int dgetf2_(int *m, int *n, double *a, int *lda, int *ipiv, int *info);
+		//int dgetrf_(int *m, int *n, double *a, int *lda, int *ipiv, int *info);
+		// you may need add int at the end to specify the lenght of trans
+		//int dgetrs_(const char *trans, int *n, int *nrhs, double *a, int *lda, int *ipiv, double *b, int *ldb, int *info);
+	
+		///This is the gernal matrix multiplication from blas level 3
+		int dgemm_(const char *transA, const char *transB, int *M, int *N, int *k, double *alpha, double *A, int *LDA, double *B, int *LDB, double *beta, double *C, int *LDC); 
+	
+		int daxpy_(unsigned int *N, double *DA, double *DX,unsigned int *INCX, double *DY, unsigned int *INCY);
+
+	
+	}
+
+
+	class Matrix
+	{	
+	public:
+		Matrix() : nr_(0), nc_(0) {}
+		Matrix(unsigned int nr, unsigned int nc) : data(nr*nc), nr_(nr), nc_(nc) {}
+		Matrix(unsigned int nr, unsigned int nc, double value) : data(nr*nc, value), nr_(nr), nc_(nc) {}
+
+		void resize(unsigned int nr, unsigned nc)
+		{nr_ = nr; nc_ = nc_; data.resize(nr*nc);}
+		
+		void reserve(unsigned nr, unsigned nc)
+		{data.reserve(nr*nc);}
+  
+		void clear()
+		{nr_ = nc_ = 0; data.clear();}
+
+		unsigned int NRows() const {return nr_;}
+  
+		unsigned int NCols() const {return nc_;}
+  
+		double& operator()(unsigned i, unsigned j){return data.operator[](i + j*nr_);}
+		
+		const double& operator()(unsigned int i, unsigned int j) const{return data.operator[](i + j*nr_);}
+	
+		///Output of the Matrix in the following format
+		///  <a_1,1> <tab>   <a_1,2> <tab> ...   <a_1,nc_>
+		///  <a_2,1> <tab>   <a_2,2> <tab> ...   <a_2,nc_>
+		///      .     .         .     .   ...       .    
+		///      .     .         .     .   ...       .
+		///      .     .         .     .   ...       .
+		///<a_nr_,1> <tab> <a_nr_,2> <tab> ... <a_nr_,nc_>
+		friend inline std::ostream& operator<<(std::ostream& os, Matrix &mat) 
+		{
+			for (int ii=0;ii<mat.nr_;ii++)
+			{
+				for (int jj=0;jj<mat.nc_;jj++)
+				{
+					os << mat(ii,jj) << "\t";
+				}
+			os<< std::endl;
+			}
+		
+			return os;
+		
+		}
+	
+	
+		///Multiplication operator
+		Matrix operator* (const Matrix &other )
+		{
+			if (nc_!=other.NRows())
+			{
+				/// \bug this need fixed when we have real error handling.
+				throw(10);
+			}
+	
+		
+			int i=nr_;
+			int j=nc_;
+			int k=other.NCols();
+		
+			///The result of the matrix is left.Nrows, right.NCols()
+			Matrix C(i,k);
+		
+			int i_one=1;
+			double d_one=1.0;
+			double d_zero=0.0;
+	
+	
+			dgemm_("N","N",&i,&k,&j,&d_one,&*data.begin(),&i,const_cast<double*>(&*other.data.begin()),&j,&d_zero,&*C.data.begin(),&i);
+
+	
+	
+			return C;
+			
+		}
+	
+		Matrix operator+ (const Matrix &other)
+		{
+			if ((nc_!=other.NCols()) && (nr_!=other.NRows()))
+			{
+				/// \bug this need to be fixed when we have a real error hangler
+				throw(10);
+			}
+		
+			unsigned int size=nc_*nr_;
+			double d_one=1.0;
+			unsigned int i_one=1;
+		
+			Matrix result(other);
+			
+			result+=*this;
+		
+			//for (int i=0;i<size;i++)
+			//{
+			//	result.data[i]=data[i]+other.data[i];
+			//}
+		
+			//daxpy_(&size, &d_one, &*data.begin(), &i_one, const_cast<double*>(&*result.data.begin()), &i_one);
+		
+			return result;
+		
+		}
+		
+		Matrix operator+= (const Matrix &other)
+			{
+				
+				if ((nc_!=other.NCols()) && (nr_!=other.NRows()))
+				{
+					/// \bug this need to be fixed when we have a real error hangler
+					throw(10);
+				}
+				
+				unsigned int size=nc_*nr_;
+				double d_one=1.0;
+				unsigned int i_one=1;
+				
+				
+				//for (int i=0;i<size;i++)
+				//{
+				//	result.data[i]=data[i]+other.data[i];
+				//}
+				
+				daxpy_(&size, &d_one, const_cast<double *>(&*other.data.begin()), &i_one, &*data.begin(), &i_one);
+				
+				return *this;
+				
+			}
+		
+			
+	
+	//Matrix operator+=(
+
+		
+	private:
+		unsigned int nr_;
+		unsigned int nc_;
+		std::vector<double> data;
+	};
+	
+}//end of linear algebra namespace
+
+//int dgetf2(Matrix &A, std::vector<int> &ipiv)
+//{
+//	int m = A.NRows();
+//	int n = A.NCols();
+//	int info;
+//	dgetf2_(&m, &n, &*A.begin(), &m, &*ipiv.begin(), &info);
+//	return info;
+//}
+
+//int dgetrf(Matrix &A, std::vector<int> &ipiv)
+//{
+//	int m = A.NRows();
+//	int n = A.NCols();
+//	int info;
+//	dgetrf_(&m, &n, &*A.begin(), &m, &*ipiv.begin(), &info);
+//	return info;
+//}
+
+//int dgetrs(Matrix &A, Matrix &B, std::vector<int> &ipiv)
+//{
+//	int m = A.NRows();
+//	int n = A.NCols();
+//	int nrhs = B.NCols();
+//	int info;
+//	dgetrs_("N", &m, &nrhs, &*A.begin(), &m, &*ipiv.begin(), &*B.begin(), &m, &info);
+//	return info;
+//}
+

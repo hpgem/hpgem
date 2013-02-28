@@ -1,0 +1,100 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green116\blue0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww19660\viewh9100\viewkind0
+\deftab560
+\pard\tx560\pardeftab560\ql\qnatural\pardirnatural
+
+\f0\fs22 \cf0 \CocoaLigature0 \
+                \cf2 //This is old Ant version of doing this\cf0 \
+                \cf2 /*if (DIM!=2)\
+                \{\
+                    std::cout << "Only implementated for two dimensions" << std::cout;\
+                    throw(10);   \
+                \}\
+                \
+                double min_x=TopLeft(0);\
+                double max_x=BottomRight(0);\
+                double min_y=BottomRight(1);\
+                double max_y=TopLeft(1);\
+                \
+                PointT current_point;\
+                \
+                double dx=(max_x-min_x)/static_cast<double>(LinearNoElementsInXDir-1);\
+                double dy=(max_y-min_y)/static_cast<double>(LinearNoElementsInYDir-1);\
+                \
+                \
+                //Create the tempory varibles I am going to need for the construction of the mesh\
+                pointT temp;\
+                std::vector<int> ElementPointIndexes;\
+                \
+                ReferenceGeometry<2>* referenceSquare = new Geometry::ReferenceSquare;\
+                \
+                \
+                \
+                ElementsCreatedCount=0;\
+                PointsCreatedCount=0;\
+                FacesCreateCount=0;\
+                \
+                /// This loop creates all nodes, all elements and all INTERNAL faces. Boundary faces have to treated seperatly. \
+                for (int i=0;i<LinearNoElementsInXDir; i++)\
+                    for (int j=0; j<LinearNoElementsInYDir;j++)\
+                    \{\
+                        //Top left corner this is a special element in 2D (Create 4 point 0 internal faces and 1 node)\
+                        if (i==0) && (j==0) \
+                        \{   \
+                        \
+                            //First create the four points in the first element\
+                            //Create top left point (special case)\
+                            temp(0)=min_x;\
+                            temp(1)=min_y+dy;\
+                            points_.push(temp);\
+                            \
+                            \
+                            //Create bottom left point of first element\
+                            temp(1)=min_y;\
+                            points_.push(temp);\
+                            \
+                            //Create bottom right point of the first elemnet\
+                            temp(1)=min_x+dx;\
+                            points_.push(temp);\
+                            \
+                            //Create bottom left point of the first element\
+                            temp(0)=min_x;\
+                            points_.push(temp)\
+                            PointsCreatedCount++4;\
+                            \
+                            ElementPointIndexes=[1,2,3,0];\
+                            \
+                            \
+                            \
+                            //Now create the element from these point, for this type of grid it will be a square\
+                            addElement(ElementPointIndexes,&referenceSquare);\
+                            ElementsCreatedCount++;\
+                            \
+                        \}\
+                        //Now do the rest of the top row (in each case one element one internal face and two new nodes)\
+                        else if (j==0)\
+                        \{\
+                            //First create the top right node (this is the first missing node)\
+                            temp(0)=x_min+(j+1)*dx;\
+                            temp(1)=y_min;\
+                            points_.push(temp)\
+                            \
+                            temp(1)=y_min+dy;\
+                            points_.push(temp)\
+                            PointsCreatedCount++2;\
+               \
+             \
+                            ElementPointIndexes=[j*2 j*2+2 j*2+3 j*2+1];\
+                            \
+                            //Now create the element from these points.\
+                            addElement(ElementPointIndexes,&referenceSquare);\
+                            \
+                            addFace(\
+                            \
+                        \}\
+                        \
+                    \}\
+                 \
+                 */\cf0                 }
