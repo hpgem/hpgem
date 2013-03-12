@@ -35,7 +35,9 @@ int main()
     
     cout << "Point<2>() vector constructor ((double []){1.2, 1.3, 1.4})" << endl;
     //Warning! This way Point class will truncate and take two points, because of the dimension
-    Geometry::Point<2> point2D((double []){1.01, 1.02, 1.5});
+    double dummy1[3]= {1.01, 1.02, 1.5};
+    
+    Geometry::Point<2> point2D(dummy1);
     cout << "Works :)" << endl;
     
     cout << point2D<<endl;
@@ -65,8 +67,12 @@ int main()
     cout << "Works :)" << endl;
     
     cout << "Operators:" << endl;
-    Geometry::Point<3> p1((double []){1.0,2.0,3.0});
-    Geometry::Point<3> p2((double []){1.0,2.0,3.0});
+    double dummy2[3]= {1.0,2.0,3.0};
+    
+    Geometry::Point<3> p1(dummy2);
+
+    double dummy3[3]= {1.0,2.0,3.0};
+    Geometry::Point<3> p2(dummy3);
     Geometry::Point<3> p3;
     cout << p1<<endl;
     cout << p2<<endl;

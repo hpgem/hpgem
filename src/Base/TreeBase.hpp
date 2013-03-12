@@ -34,15 +34,33 @@ namespace Base
     public:
         //! The constructor. 
         TreeBase() 
-                : level_(0), siblingIndex_(0), numSiblings_(1), 
-                  depth_(1), depthCounter_(1), dummy_(false)
-            { }
+                : level_(0), 
+                  siblingIndex_(0), 
+                  numSiblings_(1), 
+                  depth_(1), 
+                  depthCounter_(1), 
+                  dummy_(false)
+            {}
 
         //! The constructor. 
-        TreeBase(const int level, const int iBro, const int nBro) 
-                : level_(level), siblingIndex_(iBro), numSiblings_(nBro), 
-                  depth_(1), depthCounter_(1), dummy_(false) 
-            { }
+        TreeBase(const int level, const int iSibling, const int nSiblings) 
+                : level_(level), 
+                  siblingIndex_(iSibling), 
+                  numSiblings_(nSiblings), 
+                  depth_(1), 
+                  depthCounter_(1), 
+                  dummy_(false) 
+            {}
+
+        //! The copy constructor. 
+        TreeBase(const TreeBase& other) 
+                  : level_(other.level_), 
+                  siblingIndex_(other.siblingIndex_), 
+                  numSiblings_(other.numSiblings_), 
+                  depth_(other.depth_), 
+                  depthCounter_(other.depthCounter_), 
+                  dummy_(other.dummy_) 
+            {}
 
         Iterator getIterator() const
             {

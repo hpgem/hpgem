@@ -43,6 +43,8 @@ namespace Base
                     last_ = i.last_;   // the last valid position
                     traversalMethod_ = i.traversalMethod_;
                 }
+                else
+                  std::cout << "Gotcha!  TreeIterator trap.\n";
             }
 
         //! Copy constructor
@@ -76,7 +78,7 @@ namespace Base
 //             }
         referenceV operator*() const
             {      
-                return (*(**ptr_));
+                return ((**ptr_).getData());
             }
 
 
@@ -85,10 +87,6 @@ namespace Base
             {      
                 return (*ptr_);
             }
-//         valueVType operator->() const
-//             {      
-//                 return (**ptr_).hai();
-//             }
 
         //! Preincrement iterator
         iterator_ref operator++()

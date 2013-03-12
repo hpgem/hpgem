@@ -1,6 +1,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+using namespace std;
 
 #include "../../../src/Geometry/PointPhysical.hpp"
 #include "../../../src/Geometry/ReferenceLine.hpp"
@@ -26,8 +27,13 @@ int main()
 
     cout << "1D ~~~~~~~~~ 1D ~~~~~~~~~ 1D ~~~~~~~~~ 1D ~~~~~~~~~ 1D ~~~~~~~~~ 1D" << std::endl;
 
-    Geometry::PointPhysical<1> point1D_1((double []){2.0});
-    Geometry::PointPhysical<1> point1D_2((double []){4.0});
+    double dummy1[1]= {2.0};
+    
+    Geometry::PointPhysical<1> point1D_1(dummy1);
+
+    double dummy2[1]= {4.0};
+
+    Geometry::PointPhysical<1> point1D_2(dummy2);
     std::vector<Geometry::PointPhysical<1> > points1D;
     points1D.push_back(point1D_1);
     points1D.push_back(point1D_2);
@@ -71,10 +77,17 @@ int main()
     // The ordering of the vertices is fundamental.
     // See comment on PhysicalQuadrilateral.cpp
 
-    Geometry::PointPhysical<2> point2D_1((double []){2.0,2.0});
-    Geometry::PointPhysical<2> point2D_2((double []){4.0,2.0});
-    Geometry::PointPhysical<2> point2D_3((double []){2.0,4.0});
-    Geometry::PointPhysical<2> point2D_4((double []){4.0,4.0});
+    double dummy3[2]= {2.0,2.0};
+    Geometry::PointPhysical<2> point2D_1(dummy3);
+
+    double dummy4[2]= {4.0,2.0};
+    Geometry::PointPhysical<2> point2D_2(dummy4);
+   
+    double dummy5[2]= {2.0,4.0};
+    Geometry::PointPhysical<2> point2D_3(dummy5);
+    
+    double dummy6[2]= {4.0,4.0};
+    Geometry::PointPhysical<2> point2D_4(dummy6);
 
     //Geometry::PointPhysical<2> point2D_1((double []){2.3,2.0});
     //Geometry::PointPhysical<2> point2D_2((double []){4.7,2.8});
@@ -197,14 +210,29 @@ int main()
     // Geometry::PointPhysical<3> point3D_7((double []){2.0,4.0,4.0});
     // Geometry::PointPhysical<3> point3D_8((double []){4.0,4.0,4.0});
 
-    Geometry::PointPhysical<3> point3D_1((double []){1.0,2.5,2.0});
-    Geometry::PointPhysical<3> point3D_2((double []){4.0,2.5,2.0});
-    Geometry::PointPhysical<3> point3D_3((double []){1.0,4.2,2.0});
-    Geometry::PointPhysical<3> point3D_4((double []){4.0,4.2,2.0});
-    Geometry::PointPhysical<3> point3D_5((double []){2.0,2.5,4.8});
-    Geometry::PointPhysical<3> point3D_6((double []){4.0,2.5,4.8});
-    Geometry::PointPhysical<3> point3D_7((double []){1.0,4.2,4.0});
-    Geometry::PointPhysical<3> point3D_8((double []){4.0,4.2,4.0});
+    double dummy7[3]= {1.0,2.5,2.0};
+    Geometry::PointPhysical<3> point3D_1(dummy7);
+    
+    double dummy8[3]= {4.0,2.5,2.0};
+    Geometry::PointPhysical<3> point3D_2(dummy8);
+    
+    double dummy9[3]= {1.0,4.2,2.0};
+    Geometry::PointPhysical<3> point3D_3(dummy9);
+    
+    double dummy10[3]= {4.0,4.2,2.0};
+    Geometry::PointPhysical<3> point3D_4(dummy10);
+    
+    double dummy11[3]= {2.0,2.5,4.8};
+    Geometry::PointPhysical<3> point3D_5(dummy11);
+    
+    double dummy12[3]= {4.0,2.5,4.8};
+    Geometry::PointPhysical<3> point3D_6(dummy12);
+    
+    double dummy13[3]= {1.0,4.2,4.0};
+    Geometry::PointPhysical<3> point3D_7(dummy13);
+    
+    double dummy14[3]= {4.0,4.2,4.0};
+    Geometry::PointPhysical<3> point3D_8(dummy14);
 
     std::vector<Geometry::PointPhysical<3> > points3D;
     points3D.push_back(point3D_1);

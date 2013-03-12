@@ -32,9 +32,14 @@ int main()
     */
 
     // Physical geometry creation
-    Geometry::PointPhysical<2> point2D_1((double []){1.5,3.0});
-    Geometry::PointPhysical<2> point2D_2((double []){4.0,3.9});
-    Geometry::PointPhysical<2> point2D_3((double []){2.0,6.0});
+    double dummy1[2]= {1.5,3.0};
+    Geometry::PointPhysical<2> point2D_1(dummy1);
+    
+    double dummy2[2]= {4.0,3.9};
+    Geometry::PointPhysical<2> point2D_2(dummy2);
+    
+    double dummy3[2]= {2.0,6.0};
+    Geometry::PointPhysical<2> point2D_3(dummy3);
 
     std::vector<Geometry::PointPhysical<2> > points2D;
     points2D.push_back(point2D_1);
@@ -106,10 +111,17 @@ int main()
     std::ofstream file3D;
     file3D.open ("3DSimplexMapping.txt");
 
-    Geometry::PointPhysical<3> point3D_1((double []){2.0,2.0,2.0});
-    Geometry::PointPhysical<3> point3D_2((double []){4.0,2.0,2.0});
-    Geometry::PointPhysical<3> point3D_3((double []){2.0,4.0,2.0});
-    Geometry::PointPhysical<3> point3D_4((double []){2.0,2.0,4.0});
+    double dummy4[3]= {2.0,2.0,2.0};
+    Geometry::PointPhysical<3> point3D_1(dummy4);
+
+    double dummy5[3]= {4.0,2.0,2.0};
+    Geometry::PointPhysical<3> point3D_2(dummy5);
+
+    double dummy6[3]= {2.0,4.0,2.0};
+    Geometry::PointPhysical<3> point3D_3(dummy6);
+
+    double dummy7[3]= {2.0,2.0,4.0};
+    Geometry::PointPhysical<3> point3D_4(dummy7);
 
     std::vector<Geometry::PointPhysical<3> > points3D;
     points3D.push_back(point3D_1);

@@ -69,23 +69,38 @@ namespace Geometry
                         VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1,
                         VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const = 0;
 
-        //! \brief Number of sub-elements on a parent's face.
+        //! \brief Number of sub-elements on a particular parent's face.
         virtual DimT nrOfSubElementsOnFace(DimT faLocalIndex) const = 0;
 
-        //! \brief Get sub-elements' local index on a parent's face.
+        //! \brief Get sub-elements' local index on a particular parent's face.
         virtual void subElementsOnFace(DimT faLocalIndex, VectorOfIndicesT& LocalNodeIdx) const = 0;
 
-        //! \brief Get sub-face's local face number of on a parent's face.
+        //! \brief Get sub-face's local face number of on a particular parent's face.
         virtual DimT getLocalSubFaceNr(DimT localFaceNr, DimT subElementIdx) const = 0;
 
       protected:
         //! \brief Default constructor.
-        RefinementGeometry() : refineType_(-1), appliedRefineType_(-1), beingRefined_(false)
+        RefinementGeometry() 
+            : refineType_(-1), 
+              appliedRefineType_(-1), 
+              beingRefined_(false)
+        { std::cout << "RefinementGeometry()  "; }  
+
+        //! \brief Copy constructor.
+        RefinementGeometry(const RefinementGeometry& other) 
+            : refineType_(other.refineType_), 
+              appliedRefineType_(other.appliedRefineType_), 
+              beingRefined_(other.beingRefined_)
         { std::cout << "RefinementGeometry()  "; }  
 
       private:
-        int     refineType_;
+	//! this element is a result of previous refinement of this type 
         int     appliedRefineType_;
+	
+	//! type of refinement to be applied
+        int     refineType_;
+	
+	//! a flag for marking unfinished refinement proccess
         bool    beingRefined_;
     };
 }

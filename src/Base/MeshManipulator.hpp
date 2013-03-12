@@ -3,12 +3,15 @@
 
 #include "Base/LevelTree.hpp"
 #include "Base/Element.hpp"
+#include "Geometry/GlobalNamespaceGeometry.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
 #include "Geometry/PointPhysical.hpp"
 #include "Geometry/ReferenceSquare.hpp"
 #include "Geometry/ReferenceCube.hpp"
 #include "Geometry/ReferenceTriangle.hpp"
 #include "Geometry/ReferenceLine.hpp"
+#include "Geometry/RefinementGeometry.hpp"
 #include "Base/BasisFunctionSet.hpp"
 #include "Base/AssembleBasisFunctionSet.hpp"
 #include "Base/Face.hpp"
@@ -209,13 +212,13 @@ namespace Base
         void createNewMeshTree();
         
         //! Get the element container of a specific mesh-tree.
-        ElementLevelTreeT* ElCont(int meshTreeIdx = -1) const;
+        ElementLevelTreeT* ElCont(int meshTreeIdx) const;
         
         //! Get the face container of a specific mesh-tree.
-        FaceLevelTreeT* FaCont(int meshTreeIdx = -1) const;
+        FaceLevelTreeT* FaCont(int meshTreeIdx) const;
 
         //! Some mesh generator: centaur / rectangular / triangle / tetrahedra / triangular-prism.
-        void someMeshGenerator(int meshTreeIdx = -1);
+        void someMeshGenerator(int meshTreeIdx);
         
         //! Set active mesh-tree.
         void setActiveMeshTree(unsigned int meshTreeIdx);
@@ -227,22 +230,22 @@ namespace Base
         void resetActiveMeshTree();
         
         //! Get maximum h-level of a specific mesh-tree.
-        unsigned int getMaxLevel(int meshTreeIdx = -1) const;
+        unsigned int getMaxLevel(int meshTreeIdx) const;
 
         //! Set active level of a specific mesh-tree.
         void setActiveLevel(unsigned int meshTreeIdx, int level);
         
         //! Get active level of a specific mesh-tree.
-        int getActiveLevel(int meshTreeIdx = -1) const;
+        int getActiveLevel(int meshTreeIdx) const;
         
         //! Reset active level of a specific mesh-tree.
-        void resetActiveLevel(int meshTreeIdx = -1);
+        void resetActiveLevel(int meshTreeIdx);
         
         //! Duplicate mesh contents including all refined meshes.
-        void duplicate(unsigned int fromMeshIdx, unsigned int toMeshIdx, unsigned int upToLevel = 0);
+        void duplicate(unsigned int fromMeshTreeIdx, unsigned int toMeshTreeIdx, unsigned int upToLevel);
 
         //! Refine a specific mesh-tree.
-        void doRefinement(unsigned int meshTreeIdx, int refinementType = -1);
+        void doRefinement(unsigned int meshTreeIdx, int refinementType);
   //---------------------------------------------------------------------
     
 
