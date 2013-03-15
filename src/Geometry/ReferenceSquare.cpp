@@ -213,7 +213,7 @@ namespace Geometry
     {
         for (std::list<QuadratureRules::GaussQuadratureRule<TwoD>*>::const_iterator it = lstGaussQuadratureRules_.begin();
               it != lstGaussQuadratureRules_.end(); ++it)
-          if ((*it)->order() >= order) return *it;
+        if ((*it)->order() >= order) return *it;
 
         return NULL;
     }

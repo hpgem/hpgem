@@ -26,11 +26,12 @@ namespace Base
 
             virtual ~MeshMover() {};
 
-            void movePoint(PointPhysicalT* point) const
+            void movePoint(PointPhysicalT& point) const
             {
                 std::cout << "we are moving" << std::endl;
-                point->operator[](0) = (0.5-fabs(point->operator[](0)-0.5))/10.0;
-                point->operator[](1) = (0.5-fabs(point->operator[](1)-0.5))/10.0;
+               
+                point[0]=point[0];
+                point[1]=point[1]*(point[0]+0.5);
             }
     };
 };

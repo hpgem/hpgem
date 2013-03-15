@@ -8,7 +8,8 @@ namespace Geometry
     {
         public:
 
-            typedef PhysicalGeometry<ThreeD> PhysicalGeometry3D;
+            typedef PhysicalGeometry<ThreeD>        PhysicalGeometry3D;
+            
             using PhysicalGeometry3D::VectorOfPointIndexesT;
             using PhysicalGeometry3D::VectorOfPhysicalPointsT;
             using PhysicalGeometry3D::PointIndexT;

@@ -31,11 +31,12 @@ namespace Geometry
     class ReferenceCube: public ReferenceGeometry<ThreeD>
     {
     public:
-        typedef ReferenceGeometry<ThreeD> ReferenceGeometryT;
+        typedef         ReferenceGeometry<ThreeD> ReferenceGeometryT;
 
-        using typename ReferenceGeometryT::IndexT;
-        using typename ReferenceGeometryT::PointReferenceT;
-        using typename ReferenceGeometryT::VectorOfReferencePointsT;
+        using typename  ReferenceGeometryT::IndexT;
+        using typename  ReferenceGeometryT::PointReferenceT;
+        using typename  ReferenceGeometryT::VectorOfReferencePointsT;
+
         using ReferenceGeometryT::String;
 
     public:

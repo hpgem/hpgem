@@ -18,7 +18,7 @@ namespace Base
         elementLeft_(ptrElemL),
         elementRight_(ptrElemL)
     {
-       createQuadratureRules();
+        createQuadratureRules();
     }
     
     template<unsigned int DIM>
@@ -51,9 +51,10 @@ namespace Base
     void
     Face<DIM>::createQuadratureRules()
     {
-        unsigned int rightOrder = (elementRight_==NULL? 0:elementRight_->getGaussQuadratureRule()->order());
+        if (elementRight_->getGaussQuadratureRule()==NULL)
+            cout <<"MOTHERFUCKERRRR!"<<endl;
+        unsigned int rightOrder = (elementRight_==NULL? 0 : elementRight_->getGaussQuadratureRule()->order());
         unsigned int leftOrder  = elementLeft_->getGaussQuadratureRule()->order();
-        std::cout << "Face<DIM>::createQuadratureRules(): " << leftOrder << " " << rightOrder << std::endl;
         if (leftOrder >=rightOrder)
         {
              quadratureRule_ = elementLeft_->getReferenceGeometry()->getCodim1ReferenceGeometry(FaceGeometryT::localFaceNumberLeft_)->getGaussQuadratureRule(leftOrder);

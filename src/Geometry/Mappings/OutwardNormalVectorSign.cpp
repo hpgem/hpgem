@@ -1,22 +1,21 @@
 #include "OutwardNormalVectorSign.hpp"
 #include "MappingToRefLineToSquare.hpp"
 #include "MappingToRefSquareToSquare.hpp"
+#include "MappingToRefPointToLine.hpp"
 namespace Geometry
 {
 
     // Added by M.T. Julianto, Feb 16, 2010
-    /*
     template <>
-    double OutwardNormalVectorSign<1>(
-	const MappingReferenceToReference<0, 1>* const map)
+    double OutwardNormalVectorSign<1>(const MappingReferenceToReference<0, 1>* const map)
     {
-        if (dynamic_cast<const Point2LineMapping0*>(map))
+        if (dynamic_cast<const MappingToRefPointToLine0*>(map))
         {
             return -1.;
         }
         else
         {
-            if (dynamic_cast<const Point2LineMapping1*>(map))
+            if (dynamic_cast<const MappingToRefPointToLine1*>(map))
             {
                 return +1.;
             }
@@ -26,8 +25,7 @@ namespace Geometry
             }
         }
     }
-    */
-
+    
     template <>
     double OutwardNormalVectorSign<2>(
 	const MappingReferenceToReference<1, 2>* const map)

@@ -357,6 +357,14 @@ namespace Geometry
         referenceToPhysicalMapping_->transform(pointReference, pointPhysical);
     }
     
+    template<unsigned int DIM>
+    void
+    ElementGeometry<DIM>::referenceToPhysical(const PointReferenceT& pointReference,
+                                              PointPhysicalT& pointPhysical)const
+    {
+        referenceToPhysicalMapping_->transform(pointReference, pointPhysical);
+    }
+    
         /// This method gets a PointReference and returns the corresponding jacobian of the
         /// referenceToPhysicalMapping.
 

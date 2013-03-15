@@ -44,25 +44,24 @@ namespace Geometry {
 //        
 //        cout << "Element Left=" << ptrElemL->getReferenceGeometry() <<endl;
 //        cout << "Element Left Co dimension mapping=" << ptrElemL->getReferenceGeometry()->getCodim1ReferenceGeometry(localFaceNumberLeft_) <<endl;
- 
-        
+
+
         //leftElementGeom_->getReferenceGeometry()->getCodim1ReferenceGeometry(localFaceNumberLeft_);
-        
+
         std::vector<unsigned int> globalNodeNrsL;
         std::vector<unsigned int> globalNodeNrsR;
-        
-        const Geometry::PhysicalGeometry<DIM>* const leftPG = leftElementGeom_->getPhysicalGeometry();
-        Geometry::PhysicalGeometry<DIM>* rightPG;
-        
+
+        const Geometry::PhysicalGeometry<DIM>* const leftPG  = leftElementGeom_->getPhysicalGeometry();
+        const Geometry::PhysicalGeometry<DIM>* const rightPG = (rightElementGeom_ == NULL? NULL:rightElementGeom_->getPhysicalGeometry());
+
             // We try element left first because its the one we are sure exists.
         leftPG->getGlobalFaceNodeIndices(localFaceNumberLeft_, globalNodeNrsL);
-        
+
             // This means internal face in old hpGEM (only left element for non-boundary)
 
         if (rightElementGeom_ != NULL && faceType_==INTERNAL)
         {
-            rightPG = const_cast<Geometry::PhysicalGeometry<DIM>*>(rightElementGeom_->getPhysicalGeometry());
-            rightPG->getGlobalFaceNodeIndices(localFaceNumberRight_,globalNodeNrsR);
+           rightPG->getGlobalFaceNodeIndices(localFaceNumberRight_,globalNodeNrsR);
         }
         else
         {
@@ -82,25 +81,26 @@ namespace Geometry {
             //  sets are identical, the ReferenceGeometry determines from
             //  the permutation of the index vectors which
             //  RefFace2RefFaceMapping needs to be used.
-        
+
             //: The next to lines creating 2 std::sets, filling them with globalNodesL and globalNodesR. The sets are created via ctr which takes a to pointers and insert the data inbetween.
         cout<<"Left {";
         for(unsigned int i=0; i<globalNodeNrsL.size();++i)
         {
             cout<< globalNodeNrsL[i]<<" ";
         }
-        cout<<"Left }"<<endl;
-        
+        cout<<"}"<<endl;
+
         cout<<"Right {";
         for(unsigned int i=0; i<globalNodeNrsR.size();++i)
         {
             cout<< globalNodeNrsR[i]<<" ";
         }
-        cout<<"Right }"<<endl;
+        cout<<"}"<<endl;
+
         SetOfGlobalNodes sL(globalNodeNrsL.data(), globalNodeNrsL.data() + globalNodeNrsL.size());
         SetOfGlobalNodes sR(globalNodeNrsR.data(), globalNodeNrsR.data() + globalNodeNrsR.size());
 
-        
+
         if (sL == sR)// left set of global nodes for the face identical to right one. No periodicity detected!
         {
                 // ~OC~
@@ -114,7 +114,7 @@ namespace Geometry {
         else
         {
 //-MTJ-start--------------
-#ifdef MTJ
+//#ifdef MTJ
             //******************************
             // the connected elements are either refined or this is a periodic BC face
             //******************************
@@ -137,7 +137,7 @@ namespace Geometry {
                 {
                   PointPhysical<DIM> ppR;
                   rightPG->getGlobalNodeCoordinates(globalNodeNrsR[i], ppR);
-                  
+
                   SetOfGlobalNodes::iterator itFound = commNodes.find(globalNodeNrsR[i]);
                   if (itFound == commNodes.end())
                   {
@@ -146,14 +146,14 @@ namespace Geometry {
                     {
                       PointPhysical<DIM> pp0;
                       leftPG->getGlobalNodeCoordinates(*itCommon, pp0);
-                      
+
                       for (SetOfGlobalNodes::iterator itDiffL=diffNodesL.begin(); (itDiffL!=diffNodesL.end()); ++itDiffL)
                       {
                         if (diffNodesR.find(globalNodeNrsR[i]) == diffNodesR.end()) continue;
-                        
+
                         PointPhysical<DIM> ppL;
                         leftPG->getGlobalNodeCoordinates(*itDiffL, ppL);
-                        
+
                         PointPhysical<DIM> dL(ppL-pp0);
                         PointPhysical<DIM> dR(ppR-pp0);
 
@@ -195,41 +195,39 @@ namespace Geometry {
                 
                 if (!foundCollinear) throw "Face: incorrect pairs!";
             } // end if commNodes.size() > 0
-
             else
             {
-#endif
+//#endif
 //-MTJ-end--------------
                 // ~OC~
             VectorOfLocalNodes localNodeNrsL;
             VectorOfLocalNodes localNodeNrsR;
             leftPG->getLocalFaceNodeIndices(localFaceNumberLeft_, localNodeNrsL);
             rightPG->getLocalFaceNodeIndices(localFaceNumberRight_, localNodeNrsR);
-            
-            
+
             unsigned int periodicDim = Geometry::MaxInteger; // initialize to large value
-            
+
             PointPhysicalT pointPhysical;
-            
+
             std::vector<PointPhysicalT> projectedPointsL; // create empty!
             std::vector<PointPhysicalT> projectedPointsR;
-            
+
             for (unsigned int i = 0; i < localNodeNrsL.size(); ++i)
             {
                 leftPG->getNodeCoordinates(localNodeNrsL[i], pointPhysical);
-                
+
                 projectedPointsL.push_back(pointPhysical);
-                
+
                 rightPG->getNodeCoordinates(localNodeNrsR[i], pointPhysical);
-                
+
                 projectedPointsR.push_back(pointPhysical);
             }
-            
+
                 // We want to find which direction is the periodic one.
             unsigned int test[DIM];
-            
+
             for (unsigned int d = 0; d < DIM; ++d) { test[d] = 0; }
-            
+
             pointPhysical = projectedPointsL[0]; //Find out which one is peridoci by comparing all coordinates of one point to other points, for all dimension. If dimension is the same for every Point, than it is a face that dimension in question.
             for (unsigned int i = 0; i < localNodeNrsL.size(); ++i)
             {
@@ -252,11 +250,10 @@ namespace Geometry {
                 //  periodicDim should be our dimension, otherwise error!
             if (periodicDim==Geometry::MaxInteger)
                 cout << "Shit happened. Trained monkeys are on the way to fix the problem, probably." << std::endl;
-            
-            
+
             PhysicalPointOnTheFaceT ppL;
             PhysicalPointOnTheFaceT ppR;
-            
+
                 // next we eliminate the periodic dimension from a Point coordinates & a
             for(unsigned int i = 0; i < globalNodeNrsR.size(); ++i)
             {
@@ -268,7 +265,7 @@ namespace Geometry {
                 {
                     ppR[d-1] = projectedPointsR[i][d];
                 }
-                
+
                 for (unsigned int j = 0; j < globalNodeNrsL.size(); ++j)
                 {
                     for (unsigned int d = 0; d < periodicDim; ++d)
@@ -286,14 +283,14 @@ namespace Geometry {
                 }
             }
 //-MTJ-start--------------
-#ifdef MTJ
+//#ifdef MTJ
             }
-#endif
+//#endif
 //-MTJ-end--------------
             faceToFaceMapIndex_ = this->getReferenceGeometry()->getCodim0MappingIndex(globalNodeNrsL, globalNodeNrsR);
-            
+
 //-MTJ-start--------------
-#ifdef MTJ
+//#ifdef MTJ
             //------- 
             // Filling refinement matrix with a correct value.
             // Initially, refinement matrix consists only reorientation transformation 
@@ -312,7 +309,7 @@ namespace Geometry {
                 }
                 pRefFace[j]=1.;
                 mapRefFaceToRefFace(pRefFace, pRefFace);
-                
+
                 for (unsigned int i=0; i<DIM-1; ++i)
                 {
                   faceToFaceMapMatrix_(i,j) = pRefFace[i];
@@ -320,7 +317,7 @@ namespace Geometry {
                 // the last collumn
                 faceToFaceMapMatrix_(DIM-1,j) = 0.;
             }
-            
+
             // the last row
             for (unsigned int j=0; j<DIM-1; ++j)
             {
@@ -330,9 +327,9 @@ namespace Geometry {
             faceToFaceMapMatrix_(DIM-1,DIM-1) = 1.;
             //------- end-Filling refinement matrix
 
-#endif
+//#endif
 //-MTJ-end--------------
-          
+
         }
     }
 
@@ -361,10 +358,8 @@ namespace Geometry {
 //    {
 //                return _id;
 //    }
-    
- 
 
-                
+
         /*! \brief Return a wrapped elemental function which can be evaluated at
          *  reference face points. In this case the function is defined on the
          *  left element. */
@@ -414,7 +409,7 @@ namespace Geometry {
         ReferencePointOnTheFaceT pOtherSide(pRefFace);
         
 //-MTJ-start--------------
-#ifdef MTJ
+//#ifdef MTJ
         PointReference<DIM-1> pRefFaceR = pRefFace;
 
         // get reference face coordinates on the right side,
@@ -431,12 +426,12 @@ namespace Geometry {
 
         // get reference element coordinates
         rightElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_)->transform(pOtherSide, pRefEl);
-#else
+//#else
 //-MTJ-end--------------
         mapRefFaceToRefFace(pRefFace, pOtherSide);
         rightElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_)->transform(pOtherSide, pRefEl);
 //-MTJ-start--------------
-#endif
+//#endif
 //-MTJ-end--------------
 
     }
@@ -521,7 +516,7 @@ namespace Geometry {
     }
 
 //-MTJ-start--------------
-#ifdef MTJ
+//#ifdef MTJ
     template<unsigned int DIM>
     void FaceGeometry<DIM>::copyFromParent(const Face<DIM>& fa)
         {
@@ -572,6 +567,6 @@ namespace Geometry {
         {
             std::cout << "("<< faceToFaceMapIndex_ << ") refMatrix: " << faceToFaceMapMatrix_ << "\n";
         }
-#endif
+//#endif
 //-MTJ-end--------------
 };

@@ -67,7 +67,6 @@ MeshManipulator<3>::createBasisFunctions(unsigned int order)
 template<unsigned int DIM>
 void MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, const  std::vector<unsigned int> linearNoElements)
 {
-    
     if (linearNoElements.size() != DIM)
     {
         cout << "The number of Linear Intervals has to map the size of the problem and current it does not"<<endl;
@@ -225,7 +224,6 @@ void MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, Poin
 //    }
     
    // rectangularCreateFaces1D(&tempElementVector, &linearNoElements);
-
     switch (DIM)
     {
         case 1:
@@ -240,8 +238,8 @@ void MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, Poin
             rectangularCreateFaces3D(tempElementVector, linearNoElements);
             break;
        
-     //   default:
-     //       throw("Face generator not implemented in this DIMension");
+        default:
+            throw("Face generator not implemented in this DIMension");
             
     }//end case
     
@@ -358,6 +356,7 @@ void MeshManipulator<DIM>::rectangularCreateFaces2D(std::vector<Base::Element<DI
 template<unsigned int DIM>
 void MeshManipulator<DIM>::rectangularCreateFaces3D(std::vector<Base::Element<DIM>* >& tempElementVector, const std::vector<unsigned int>& linearNoElements)
 {
+    
     unsigned int index;
     //first do the faces in x-direction
     //counter in z

@@ -25,7 +25,7 @@ namespace Integration
     public:
         ~ElementIntegrandBase() {}
 
-        virtual void operator()(const ElementT& el, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) = 0;
+        virtual void operator()(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) = 0;
     };
 
 };

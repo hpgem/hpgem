@@ -102,7 +102,7 @@ namespace Integration
             Geometry::Jacobian<DIM,DIM> jac;
             qdrRuleLoc->getPoint(0, p);
             el.calcJacobian(p, jac);
-            integrand(el, p, result);
+            integrand(p, result);
             result *= (qdrRuleLoc->weight(0) * std::abs(jac.determinant()));
             
             cout <<"Result = "<<result<<endl;
@@ -116,7 +116,7 @@ namespace Integration
                 
                 cout << "p="<<p<<endl;
                 
-                integrand(el, p, value);
+                integrand(p, value);
                 
                     //Base::Axpy(qdrRuleLoc->weight(i) * std::abs(jac.determinant()), value, result);
                 
@@ -156,14 +156,14 @@ namespace Integration
             
                 // first Gauss point
             qdrRuleLoc->getPoint(0, p);
-            integrand(el, p, result);
+            integrand(p, result);
             result *= (qdrRuleLoc->weight(0) * vecCache[0].absDetJac_);
             
                 // next Gauss point(s)
             for (unsigned int i = 1; i < nrOfPoints; ++i)
             {
                 qdrRuleLoc->getPoint(i, p);
-                integrand(el, p, value);
+                integrand(p, value);
                     //Y = alpha * X + Y
                 result.axpy(qdrRuleLoc->weight(i) * vecCache[i].absDetJac_,value);
                     //Base::Axpy(qdrRuleLoc->weight(i) * vecCache[i].absDetJac_, value, result);

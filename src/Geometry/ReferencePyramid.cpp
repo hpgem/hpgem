@@ -39,13 +39,13 @@ namespace Geometry
         referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
         PointReferenceT p1, p2, p3, p4, p5;
-        
+
         p1[0] = +0.0; p1[1] = +0.0; p1[2] = +1.0;
         p2[0] = -1.0; p2[1] = -1.0; p2[2] = +0.0;
         p3[0] = +1.0; p3[1] = -1.0; p3[2] = +0.0;
         p4[0] = -1.0; p4[1] = +1.0; p4[2] = +0.0;
         p5[0] = +1.0; p5[1] = +1.0; p5[2] = +0.0;
-        
+
         points_[0] = p1;
         points_[1] = p2;
         points_[2] = p3;
@@ -61,7 +61,7 @@ namespace Geometry
         /// There are no MappingPyramidToPyramid. TODO: Implement.
         mappingsPyramidToPyramid_[0] = 0;
     }
-    
+
     ReferencePyramid::ReferencePyramid(const ReferencePyramid& copy):
         ReferenceGeometry<ThreeD>(copy),
         referenceGeometryCodim1TrianglePtr_(copy.referenceGeometryCodim1TrianglePtr_),

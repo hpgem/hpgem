@@ -1,6 +1,10 @@
 cmake_minimum_required (VERSION 2.8)
 project (hpGEM CXX Fortran)
 
+set(hpGEM_VERSION_MAJOR 2)
+set(hpGEM_VERSION_MINOR 0)
+
+
 enable_testing()
 
 add_subdirectory(src)

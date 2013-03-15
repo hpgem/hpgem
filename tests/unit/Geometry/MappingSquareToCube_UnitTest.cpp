@@ -1,13 +1,9 @@
-#include "../../../src/Geometry/PointReference.hpp"
-#include "../../../src/Geometry/Mappings/MappingToRefSquareToCube.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Mappings/MappingToRefSquareToCube.hpp"
 #include <vector>
+
 int main()
 {
-    /* Test of all four LineToSquare mappings.
-     *
-     *
-     */
-
     const Geometry::MappingToRefSquareToCube0& mappingSquareToCube0 = Geometry::MappingToRefSquareToCube0::Instance();
     const Geometry::MappingToRefSquareToCube1& mappingSquareToCube1 = Geometry::MappingToRefSquareToCube1::Instance();
     const Geometry::MappingToRefSquareToCube2& mappingSquareToCube2 = Geometry::MappingToRefSquareToCube2::Instance();
@@ -95,5 +91,6 @@ int main()
         }
         cout << "\n";
     }
+    
     return 0;
 }

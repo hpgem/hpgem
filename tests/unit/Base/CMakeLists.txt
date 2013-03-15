@@ -69,8 +69,8 @@ add_executable(CentaurMeshReaderTest.out
         )
 
 
-target_link_libraries(RectangularMeshGeneratorTest.out Geometry)
-target_link_libraries(CentaurMeshReaderTest.out Geometry)
+target_link_libraries(RectangularMeshGeneratorTest.out QuadratureRules Geometry)
+target_link_libraries(CentaurMeshReaderTest.out QuadratureRules Geometry)
 
 add_executable(LevelTreeTest.out LevelTreeUnitTest.cpp)
 

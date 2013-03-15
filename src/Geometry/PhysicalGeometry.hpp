@@ -98,12 +98,10 @@ namespace Geometry
             {coords = (nodes_)[globalIndex].getCoordinates();}
 
             /// \brief Given a local face index, return the global indices of the entities contained on that face.
-            virtual void                    getGlobalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&)
-                            const = 0;
+            virtual void                    getGlobalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const = 0;
 
             /// \brief Given a local face index, return the local indices of the entities contained on that face.
-            virtual void                    getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&)
-                            const = 0;
+            virtual void                    getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const = 0;
 
             /// \brief Returns the number of faces via a call to ReferenceGeometry->getNrOfCodim1Entities();
             virtual unsigned int            getNrOfFaces() const = 0;

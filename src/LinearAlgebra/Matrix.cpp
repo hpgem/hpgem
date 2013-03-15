@@ -44,12 +44,21 @@ namespace LinearAlgebra
     }
     
     
-    Matrix::Matrix() : nRows_(0), nCols_(0){}
+    Matrix::Matrix():
+    	nRows_(0),
+    	nCols_(0)
+    {
+    }
     
     
     /// \param[in]  n The number of rows the matrix will have
     /// \param[in]  m The number of columns the matrix will have
-    Matrix::Matrix(const int n, const int m) : data_(n*m), nRows_(n), nCols_(m){}
+    Matrix::Matrix(const int n, const int m):
+    	data_(n*m),
+    	nRows_(n),
+    	nCols_(m)
+    {
+    }
     
     
     /// \param[in]  n The number of rows the matrix will have
@@ -58,18 +67,32 @@ namespace LinearAlgebra
     ///
     /// \details
     /// Example usage : Matrix<double> A(4,3,2) with create a 4 by 3 matrix called A with entries equal to 2.
-    Matrix::Matrix(const int n, const int m, const double& c) : data_(c, n*m), nRows_(n), nCols_(m){}
+    Matrix::Matrix(const int n, const int m, const double& c):
+    	data_(c, n*m),
+    	nRows_(n),
+    	nCols_(m)
+    {
+    
+    }
     
     
     /// \param[in] Matrix A i.e. the matrix to be copies.
-    Matrix::Matrix(const Matrix& other) : data_(other.data_), nRows_(other.nRows_), nCols_(other.nCols_){}
+    Matrix::Matrix(const Matrix& other):
+    	data_(other.data_),
+    	nRows_(other.nRows_),
+    	nCols_(other.nCols_)
+    {
+    }
     
     
     /// \param[in] n The number of the row you want the element from
     /// \param[in] m The numebr of the column you want the element from
     /// \return double ref i.e. the value of the element you requested
     /// \bug Range checking has not been added yet.
-    inline double& Matrix::operator()(const int n, const int m){return data_[n + m*nRows_];}
+    inline double& Matrix::operator()(const int n, const int m)
+    {
+    	return data_[n + m*nRows_];
+    }
     
     
     /// \param[in] n The number of the row you want the element from

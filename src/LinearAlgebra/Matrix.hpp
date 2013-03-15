@@ -44,15 +44,15 @@ namespace LinearAlgebra
         Matrix(const Matrix& other);
     
         /// \brief defines the operator (n,m) to access the element on row n and column m
-        inline double& operator()(int n, int m);
+        double& operator()(int n, int m);
                 
         /// \brief defines the operator (n,m) to access the element on row n and column m
-        inline const double& operator() (int n, int m) const;
+        const double& operator() (int n, int m) const;
 
         /// \brief Access the n linear element in the matrix. 
-        inline double& operator[](const int n);
+        double& operator[](const int n);
         
-        inline const double& operator[](const int n) const {return data_[n];}
+        const double& operator[](const int n) const {return data_[n];}
         
         /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j
         NumericalVector operator*(NumericalVector& right);
@@ -91,19 +91,19 @@ namespace LinearAlgebra
         void resize(int n, int m);
         
         /// \brief Get total number of Matrix entries
-        inline const int size();
+        const int size();
         
         /// \brief Get the number of rows
-        inline const int getNRows();
+        const int getNRows();
         
         /// \brief Get the number of columns
-        inline const int getNCols();
+        const int getNCols();
         
         /// \brief Get the number of rows
-        inline const int getNRows() const;
+        const int getNRows() const;
         
         /// \brief Get the number of columns
-        inline const int getNCols() const;
+        const int getNCols() const;
         
     private:
         /// The actually data of the matrix class

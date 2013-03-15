@@ -22,8 +22,12 @@
 #include "Integration/ReturnTrait1.hpp"
 #include "Base/PhysicalSpaceEvaluator.hpp"
 
-template <unsigned int DIM>
-class Element;
+namespace Geometry
+{
+    template <unsigned int DIM>
+    class ElementGeometry;
+}
+
 
 namespace Base
 {
@@ -38,37 +42,42 @@ namespace Base
      * constructor. PhysicalSpaceFunction objects are integrable since they
      * offer the necessary typedefs and the evaluation operator.
      */
-    template <unsigned int DIM, class FType>
+    template <unsigned int DIM, typename FType>
     class PhysicalSpaceFunctor
     {
 
     public:
-        typedef typename Integration::ReturnTrait1<FType>::RetType RetType;
+        typedef typename Integration::ReturnTrait1<FType>::ReturnType ReturnType;
         
-        typedef Element<DIM>                                        ElementT;
+        typedef Geometry::ElementGeometry<DIM>                      ElementGeometryT;
 
         //! Ctor, type of the wrapped function is fixed by template argument.
-        PhysicalSpaceFunctor( ElementT* element, FType functor) :
+        PhysicalSpaceFunctor(const ElementGeometryT* const element, const FType& functor) :
             element_(element),
             functor_(functor)
         {}
+        
+        PhysicalSpaceFunctor(const PhysicalSpaceFunctor& other) :
+        element_(other.element_),
+        functor_(other.functor_)
+        {}
 
         //! Evaluation operator for _reference_ space coordinates.
-        void operator()(const Geometry::PointReference<DIM>& pRef, RetType& r)
+        void operator()(const Geometry::PointReference<DIM>& pRef, ReturnType& r)
         {
             Geometry::PointPhysical<DIM> pPhys;  // Declare and...
             element_->referenceToPhysical(pRef, pPhys); // ...transform the point.
             // PhysSpaceEvaluator enables us to query different types of
             // functions/functors (regarding their argument composition)
             // with one syntax:
-            PhysicalSpaceEvaluator<DIM, RetType, FType>::eval(functor_, pPhys, r);
+            PhysicalSpaceEvaluator<DIM, ReturnType, FType>::eval(functor_, pPhys, r);
         }
 
     private:
         //! The element we're on.
-        ElementT* element_;
+        const ElementGeometryT* const   element_;
         //! Physical space function/functor.
-        FType functor_;
+        FType                           functor_;
 
     };
 }

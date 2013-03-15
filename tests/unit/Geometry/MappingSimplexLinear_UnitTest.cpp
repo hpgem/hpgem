@@ -1,12 +1,14 @@
-#include "../../../src/Geometry/PointPhysical.hpp"
-#include "../../../src/Geometry/ReferenceTriangle.hpp"
-#include "../../../src/Geometry/PhysicalTriangle.hpp"
-#include "../../../src/Geometry/ReferenceCube.hpp"
-#include "../../../src/Geometry/PhysicalTetrahedron.hpp"
-#include "../../../src/Geometry/Mappings/MappingToPhysSimplexLinear.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/ReferenceTriangle.hpp"
+#include "Geometry/PhysicalTriangle.hpp"
+#include "Geometry/ReferenceCube.hpp"
+#include "Geometry/PhysicalTetrahedron.hpp"
+#include "Geometry/Mappings/MappingToPhysSimplexLinear.hpp"
+
 #include <vector>
 #include <iostream>
 #include <fstream>
+
 int main()
 {
     /* General test of simplex mappings.

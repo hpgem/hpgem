@@ -19,14 +19,13 @@ namespace Geometry
 
     void PhysicalLine::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
     {
-        indexes.resize(2);
+        indexes.resize(1);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
-        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,1)];
     }
 
     void PhysicalLine::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
     {
-        indexes.resize(2);
+        indexes.resize(1);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
     }
 }

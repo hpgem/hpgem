@@ -27,7 +27,7 @@ namespace Base {
 
         /// This pure virtual function should be implemented in the Problem that needs moving meshes,
         /// and is called by MeshManipulator on every point.
-        virtual void movePoint(PointPhysicalT* point) const {};
+        virtual void movePoint(PointPhysicalT& point) const {};
     };
 }
 

@@ -95,7 +95,7 @@ namespace Integration
                 // first Gauss point
             qdrRuleLoc->getPoint(0, p);
             fa.getNormalVector(p, Normal);
-            integrand(fa, Normal, p, result);
+            integrand(Normal, p, result);
             result *= (qdrRuleLoc->weight(0) * Base::L2Norm<DIM>(Normal));
             
                 // next Gauss points
@@ -103,7 +103,7 @@ namespace Integration
             {
                 qdrRuleLoc->getPoint(i, p);
                 fa.getNormalVector(p, Normal);
-                integrand(fa, Normal, p, value);
+                integrand(Normal, p, value);
                 
                  //Y = alpha * X + Y
                 result.axpy(qdrRuleLoc->weight(i) * Base::L2Norm<DIM>(Normal),value);
@@ -131,14 +131,14 @@ namespace Integration
             
                 // first Gauss point
             qdrRuleLoc->getPoint(0, p);
-            integrand(fa, vecCache[0].Normal, p, result);
+            integrand(vecCache[0].Normal, p, result);
             result *= (qdrRuleLoc->weight(0) * vecCache[0].L2Normal);
             
                 // next Gauss point(s)
             for (unsigned int i = 1; i < nrOfPoints; ++i)
             {
                 qdrRuleLoc->getPoint(i, p);
-                integrand(fa, vecCache[i].Normal, p, value);
+                integrand(vecCache[i].Normal, p, value);
                 
                     //Y = alpha * X + Y
                 result.axpy(qdrRuleLoc->weight(i) * vecCache[i].L2Normal,value);
@@ -175,7 +175,7 @@ namespace Integration
             Geometry::PointPhysical<1> Normal;
             
             fa.getNormalVector(p, Normal);
-            integrand(fa, Normal, p, result);
+            integrand(Normal, p, result);
         }
     };
     

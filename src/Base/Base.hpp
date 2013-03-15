@@ -16,29 +16,24 @@ namespace Base
         public:
 
             Base():
-                mesh_(0,0,0)
-            {
-
-            }
+                mesh_()
+            {}
 
             virtual ~Base() {};
 
             /// \brief Gives the pointer of meshMoverBase class to mesh.
-            bool initializeMeshMover(MeshMoverBaseT* meshMoverBase);
+            bool initialiseMeshMover(MeshMoverBaseT* meshMoverBase);
 
             /// \brief Creates mesh.
-            bool initializeMesh();
+            bool virtual initialiseMesh()=0;
 
             /// \brief Integrates, and other things.
             bool solve();
 
-            /// \brief Outputs solution data to file, for now, in tecplot format.
-            void output();
-
             /// \brief Virtual function that should be overwritten by specific problem, specifies initial conditions.
             //virtual void initialCondition() const;
 
-        private:
+        protected:
             MeshManipulatorT mesh_;
             //MeshMoverBaseT* meshMoverBase_;
 //            BasisFunctionT basisFunction_;

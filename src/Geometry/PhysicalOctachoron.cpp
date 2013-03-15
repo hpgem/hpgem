@@ -10,7 +10,7 @@ namespace Geometry
     {
     }
 
-    void PhysicalHexahedron::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalOctachoron::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
     {
         indexes.resize(6);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
@@ -19,10 +19,9 @@ namespace Geometry
         indexes[3] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,3)];
         indexes[4] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,4)];
         indexes[5] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,5)];
-        
     }
 
-    void PhysicalHexahedron::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalOctachoron::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
     {
         indexes.resize(6);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);

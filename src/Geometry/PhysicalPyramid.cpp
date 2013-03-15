@@ -5,7 +5,6 @@
  *      Author: nicorivas
  */
 #include "PhysicalPyramid.hpp"
-#include <vector>
 
 namespace Geometry
 {
@@ -19,19 +18,39 @@ namespace Geometry
 
     void PhysicalPyramid::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
     {
-        indexes.resize(5);
-        for (int i = 0; i < 5; ++i)
+        indexes.resize(4);
+        if (face==0)
         {
-            indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,i)];
+            for (int i = 0; i < 4; ++i)
+            {
+                indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,i)];
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,i)];
+            }
         }
     }
 
     void PhysicalPyramid::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
     {
-        indexes.resize(5);
-        for (int i = 0; i < 5; ++i)
+        indexes.resize(4);
+        if (face==0)
         {
-            indexes[i] = refGeometry_->getLocalNodeIndex(face,i);
+            for (int i = 0; i < 4; ++i)
+            {
+                 indexes[i] = refGeometry_->getLocalNodeIndex(face,i);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                indexes[i] = refGeometry_->getLocalNodeIndex(face,i);
+            }
         }
     }
 }

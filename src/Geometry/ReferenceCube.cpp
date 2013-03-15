@@ -266,7 +266,7 @@ namespace Geometry
     /// Get a valid quadrature for this geometry.
     QuadratureRules::GaussQuadratureRule<3>* const ReferenceCube::getGaussQuadratureRule(int order) const
     {
-        for (std::list<QuadratureRules::GaussQuadratureRule<3>*>::const_iterator it = lstGaussQuadratureRules_.begin();
+         for (std::list<QuadratureRules::GaussQuadratureRule<3>*>::const_iterator it = lstGaussQuadratureRules_.begin();
               it != lstGaussQuadratureRules_.end(); ++it)
           if ((*it)->order() >= order) return *it;
 

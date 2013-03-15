@@ -52,6 +52,9 @@ namespace Geometry
         /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
         /// given the mapping.
         void                                        referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical);
+        
+        void                                        referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical)const;
+        
         /// This method gets a PointReference and returns the corresponding jacobian of the
         /// referenceToPhysicalMapping.
         void                                        calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const;
@@ -62,13 +65,13 @@ namespace Geometry
             at reference space points we wrap it with a class that offers the
             necessary operator(), which takes care of the necessary
             transformations. */
-        /*
+        
         template <class FType>
-        Base::PhysicalSpaceFunctor<DIM, FType> transformToReferenceElement(FType f = FType()) const
+        Base::PhysicalSpaceFunctor<DIM, FType> transformToReferenceElement(const FType& f) const
         {
             return Base::PhysicalSpaceFunctor<DIM, FType>(this, f);
         }
-        */
+        
 
         void                                        enableRefinement();
         

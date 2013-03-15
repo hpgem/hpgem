@@ -1,7 +1,9 @@
 #include "Base/MeshManipulator.hpp"
+
 #include "Geometry/PointPhysical.hpp"
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
+
 #include "Integration/ElementIntegral.hpp"
 #include "Integration/FaceIntegral.hpp"
 #include "Integration/ElementIntegrandBase.hpp"
@@ -11,7 +13,9 @@
 template <unsigned int dim>
 class PhysicalFunction
 {
-    public:
+public:
+    typedef LinearAlgebra::NumericalVector ReturnType;
+public:
 
     void operator()(const Geometry::PointPhysical<dim>& normal,
                     LinearAlgebra::NumericalVector& ret)
@@ -20,7 +24,6 @@ class PhysicalFunction
         //ret[1] = p[1];
     }
 };
-
 
 int main()
 {
@@ -52,25 +55,25 @@ int main()
     bool isUseCache(false);
     Integration::ElementIntegral<dim> elIntegral(isUseCache);
     Integration::FaceIntegral<dim>    faIntegral(isUseCache);
-    
+
     LinearAlgebra::NumericalVector  result(1);
 
     PhysicalFunction<dim> physicalFunction;
 
-
     std::cout << "Integral over all elements....\n";
     unsigned int reqQuadratureOrder = 6;
-    for (ListOfElementsT::iterator el=elements.begin(); el!= elements.end(); ++el)
+    for (ListOfElementsT::iterator it=elements.begin(); it!= elements.end(); ++it)
     {
-        std::cout << (*el)->getReferenceGeometry()->getName() << std::endl;
+        std::cout << (*it)->getReferenceGeometry()->getName() << std::endl;
         // Integrate using a quadrature rule of the element
-        (*el)->transformToReferenceElement<PhysicalFunction<dim> >(physicalFunction);
-        elIntegral.integrate<PhysicalFunction<dim> >(*(*el), physicalFunction, result);
-        cout << result;
-        
-        cout<< "#####################################END of ELEMENT######"<<endl;
 
+        Base::PhysicalSpaceFunctor<dim, PhysicalFunction<dim> >  obj = (*it)->transformToReferenceElement(physicalFunction);
+        elIntegral.integrate(*(*it), obj , result);
+        cout << result;
+
+        cout<< "#####################################END of ELEMENT######"<<endl;
     }
     std::cout << "Finished: Integral over all elements....\n";
+
     return 0;
 }

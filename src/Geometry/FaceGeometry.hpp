@@ -96,7 +96,7 @@ namespace Geometry
      can easily access it via the reference geometry of its left neighbour
      and its local face number in that one. */
 
-  template <unsigned int DIM>
+    template <unsigned int DIM>
     class FaceGeometry
     {
     public:
@@ -112,95 +112,95 @@ namespace Geometry
         typedef PointReference<DIM-1>                                           ReferencePointOnTheFaceT;
         typedef unsigned int                                                    LocalFaceNrType;
         typedef std::auto_ptr<const MappingReferenceToReference<DIM-1, DIM> >   RefFaceToRefElementMapping;// doing new later and passing, should handle its own deletion.
-        
-        typedef       ReferenceGeometry<DIM-1>                                  ReferenceFaceGeometryT;
-        
-        typedef       ElementGeometry<DIM>                                      ElementGeometryT;
-        typedef       PhysicalGeometry<DIM>                                     PhysicalGeometryT;
-        
+
+        typedef ReferenceGeometry<DIM-1>                                        ReferenceFaceGeometryT;
+
+        typedef ElementGeometry<DIM>                                            ElementGeometryT;
+        typedef PhysicalGeometry<DIM>                                           PhysicalGeometryT;
+
 
     public:
             //FaceGeometry();
         FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType&  localFaceNumL, ElementGeometryT* ptrElemRight, const LocalFaceNrType&  localFaceNumR);
-        
+
             //! Ctor for boundary faces.
         FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType&localFaceNumL, const FaceType& boundaryLabel);
-        
-        
+
+
         virtual ~FaceGeometry(){}
-        
-        
-        
+
+
+
             // Sets.
-        virtual void setPtrElementLeft(ElementGeometryT* value)   {leftElementGeom_ = value;}
-        virtual void setPtrElementRight(ElementGeometryT* value)  {rightElementGeom_ = value;}
-        virtual void setFaceType(const FaceType& value)         {faceType_ = value;}
-        virtual void setFaceToFaceTransformation(int value)     {faceToFaceMapIndex_ = value;}
-        
+        virtual void                        setPtrElementLeft(ElementGeometryT* value)   {leftElementGeom_ = value;}
+        virtual void                        setPtrElementRight(ElementGeometryT* value)  {rightElementGeom_ = value;}
+        virtual void                        setFaceType(const FaceType& value)           {faceType_ = value;}
+        virtual void                        setFaceToFaceTransformation(int value)       {faceToFaceMapIndex_ = value;}
+
             // Gets.
             /// Return the pointer to the left element.
-        virtual ElementGeometryT*          getElementGLeft()            {return leftElementGeom_;}
+        virtual ElementGeometryT*           getElementGLeft()            {return leftElementGeom_;}
             /// Return the pointer to the right element, NULL if inexistent for boundaries.
-        virtual ElementGeometryT*          getPtrElementGRight()        {return rightElementGeom_;}
-        
+        virtual ElementGeometryT*           getPtrElementGRight()        {return rightElementGeom_;}
+
             /// Return local face number of the face in the left element.
-        virtual unsigned int              localFaceNumberLeft()        {return localFaceNumberLeft_;}
+        virtual unsigned int                localFaceNumberLeft()        {return localFaceNumberLeft_;}
             /// Return local face number of the face in the right element.
-        virtual unsigned int              localFaceNumberRight()       {return localFaceNumberRight_;}
-        
-        virtual FaceType                  getFaceType() const          {return faceType_;}
-        
-        virtual int                       getFaceToFaceMapIndex()const {return faceToFaceMapIndex_;}
-        
+        virtual unsigned int                localFaceNumberRight()       {return localFaceNumberRight_;}
+
+        virtual FaceType                    getFaceType() const          {return faceType_;}
+
+        virtual int                         getFaceToFaceMapIndex()const {return faceToFaceMapIndex_;}
+
         const ReferenceFaceGeometryT*       getReferenceGeometry() const;  // ElementGeometry use this interface!
 
-        
+
         /*! Map a point in coordinates of the reference geometry of the face to
          *  the reference geometry of the left (L) element. */
-        virtual void mapRefFaceToRefElemL(const ReferencePointOnTheFaceT& pRefFace, ReferencePointT& pRefEl) const;
-        
+        virtual void    mapRefFaceToRefElemL(const ReferencePointOnTheFaceT& pRefFace, ReferencePointT& pRefEl) const;
+
         /*! Map a point in coordinates of the reference geometry of the face to
          *  the reference geometry of the right (R) element. */
-        virtual void mapRefFaceToRefElemR(const ReferencePointOnTheFaceT& pRefFace, ReferencePointT& pRefEl) const;
+        virtual void    mapRefFaceToRefElemR(const ReferencePointOnTheFaceT& pRefFace, ReferencePointT& pRefEl) const;
         
         /*! Map from reference face coordinates on the left side to those on the
          *  right side. */
-        virtual void mapRefFaceToRefFace(const ReferencePointOnTheFaceT& pIn, ReferencePointOnTheFaceT& pOut) const;
+        virtual void    mapRefFaceToRefFace(const ReferencePointOnTheFaceT& pIn, ReferencePointOnTheFaceT& pOut) const;
             /// Get a normal at a given RefPoint
-        virtual void getNormalVector(const ReferencePointOnTheFaceT& pRefFace, PointPhysicalT& v) const;
+        virtual void    getNormalVector(const ReferencePointOnTheFaceT& pRefFace, PointPhysicalT& v) const;
 
             //! Return a Mapping (not pointer or reference! Ok, wrapped by auto_ptr) /bug why?
-        virtual RefFaceToRefElementMapping refFaceToRefElemMapL() const;
+        virtual         RefFaceToRefElementMapping refFaceToRefElemMapL() const;
         
             //! Return a mapping to the right reference element.
-        virtual RefFaceToRefElementMapping refFaceToRefElemMapR() const;
+        virtual         RefFaceToRefElementMapping refFaceToRefElemMapR() const;
         
 //-MTJ-start--------------
 // #define MTJ
-#ifdef MTJ
-        void copyFromParent(const Face<DIM>& fa);
+//#ifdef MTJ
+        void            copyFromParent(const Face<DIM>& fa);
         
-        void invertFaceToFaceMapMatrix();
+        void            invertFaceToFaceMapMatrix();
 
         // Q_new = R * Q_old * L
-        void recalculateRefinementMatrix(MatrixT& Lmat, MatrixT& Rmat);
+        void            recalculateRefinementMatrix(MatrixT& Lmat, MatrixT& Rmat);
         
-        void printRefMatrix() const;
+        void            printRefMatrix() const;
         
     protected:
-        MatrixT                 faceToFaceMapMatrix_;
-#endif
+        MatrixT                     faceToFaceMapMatrix_;
+//#endif
 //-MTJ-end--------------
 
     protected:
-        ElementGeometryT*        rightElementGeom_;
-        ElementGeometryT*        leftElementGeom_;
+        ElementGeometryT*           rightElementGeom_;
+        ElementGeometryT*           leftElementGeom_;
         
-        LocalFaceNrType         localFaceNumberLeft_;
-        LocalFaceNrType         localFaceNumberRight_;
+        LocalFaceNrType             localFaceNumberLeft_;
+        LocalFaceNrType             localFaceNumberRight_;
         
-        LocalFaceNrType         faceToFaceMapIndex_;
-        FaceType                faceType_;
+        LocalFaceNrType             faceToFaceMapIndex_;
+        FaceType                    faceType_;
         
     };
 };
