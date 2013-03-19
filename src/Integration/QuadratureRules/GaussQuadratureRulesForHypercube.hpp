@@ -11,75 +11,75 @@
 //---------------------------------------------------------------------------
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
-#include "Geometry/ReferenceHypercube.hpp"
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules
 {
-    using Integration::NumType;
     using Geometry::PointReference;
     using Geometry::ReferenceGeometry;
-    using Geometry::ReferenceHypercube;
-
 //---------------------------------------------------------------------------
-    class Cn4_1_1
-        : public GaussQuadratureRule<4>
+    class Cn4_1_1: public GaussQuadratureRule<4>
     {
+    public:    
+        typedef PointReference<4>       PointReferenceT;
+        typedef ReferenceGeometry<4>    ReferenceGeometryT;
     public:
         static Cn4_1_1& Instance()
-            {
-                static Cn4_1_1 theInstance;
-                return theInstance;
-            }
+        {
+            static Cn4_1_1 theInstance;
+            return theInstance;
+        }
 
-        virtual std::string getName() const;
-        virtual unsigned int order() const;
-        virtual unsigned int dimension() const;
-        virtual unsigned int nrOfPoints() const;
-        virtual NumType weight(unsigned int i) const;
-        virtual void getPoint(unsigned int i, PointReference<4>& p) const;
-        virtual ReferenceGeometry<4>* forReferenceGeometry() const;
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         Cn4_1_1();
         Cn4_1_1(const Cn4_1_1&);
         virtual ~Cn4_1_1();
-
-        const std::string name_;
-        NumType weight_[1];
-        ReferenceGeometry<4>* const refGeoPtr_;
-        PointReference<4> gp_[1];
+    private:
+        const std::string               name_;
+        double                          weight_[1];
+        ReferenceGeometryT* const       refGeoPtr_;
+        PointReferenceT                 gp_[1];
     };
 //---------------------------------------------------------------------------
-    class Cn4_3_4
-        : public GaussQuadratureRule<4>
+    class Cn4_3_4: public GaussQuadratureRule<4>
     {
+    public:    
+        typedef PointReference<4>       PointReferenceT;
+        typedef ReferenceGeometry<4>    ReferenceGeometryT;
     public:
         static Cn4_3_4& Instance()
-            {
-                static Cn4_3_4 theInstance;
-                return theInstance;
-            }
+        {
+            static Cn4_3_4 theInstance;
+            return theInstance;
+        }
 
-        virtual std::string getName() const;
-        virtual unsigned int order() const;
-        virtual unsigned int dimension() const;
-        virtual unsigned int nrOfPoints() const;
-        virtual NumType weight(unsigned int i) const;
-        virtual void getPoint(unsigned int i, PointReference<4>& p) const;
-        virtual ReferenceGeometry<4>* forReferenceGeometry() const;
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         Cn4_3_4();
         Cn4_3_4(const Cn4_3_4&);
         virtual ~Cn4_3_4();
-
-        const std::string name_;
-        NumType weight_[16];
-        ReferenceGeometry<4>* const refGeoPtr_;
-        PointReference<4> gp_[16];
+    private:
+        const std::string               name_;
+        double                          weight_[16];
+        ReferenceGeometryT* const       refGeoPtr_;
+        PointReferenceT                 gp_[16];
     };
 
 //---------------------------------------------------------------------------

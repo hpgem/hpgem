@@ -18,6 +18,8 @@
 #include "GlobalNamespaceGeometry.hpp"
 #include "Mappings/MappingToRefFaceToTriangularPrism.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRulesForTriangularPrism.hpp"//do not take this out, quadrature rules are
+
 
 
 namespace Geometry

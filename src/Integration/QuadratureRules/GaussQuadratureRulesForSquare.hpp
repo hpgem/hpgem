@@ -11,7 +11,6 @@
 //---------------------------------------------------------------------------
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
-#include "Geometry/ReferenceSquare.hpp"
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 
@@ -20,8 +19,7 @@ namespace QuadratureRules
 {
     using Geometry::PointReference;
     using Geometry::ReferenceGeometry;
-    using Geometry::ReferenceSquare;
-
+    
 //---------------------------------------------------------------------------
     class Cn2_1_1:public GaussQuadratureRule<2>
     {
@@ -76,19 +74,19 @@ namespace QuadratureRules
             return theInstance;
         }
 
-        virtual std::string         getName() const;
+        virtual std::string             getName() const;
         
-        virtual unsigned int        order() const;
+        virtual unsigned int            order() const;
         
-        virtual unsigned int        dimension() const;
+        virtual unsigned int            dimension() const;
         
-        virtual unsigned int        nrOfPoints() const;
+        virtual unsigned int            nrOfPoints() const;
         
-        virtual double              weight(unsigned int i) const;
+        virtual double                  weight(unsigned int i) const;
         
-        virtual void                getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
         
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         Cn2_3_4();
@@ -114,19 +112,19 @@ namespace QuadratureRules
                 return theInstance;
             }
 
-        virtual std::string         getName() const;
+        virtual std::string             getName() const;
         
-        virtual unsigned int        order() const;
+        virtual unsigned int            order() const;
         
-        virtual unsigned int        dimension() const;
+        virtual unsigned int            dimension() const;
         
-        virtual unsigned int        nrOfPoints() const;
+        virtual unsigned int            nrOfPoints() const;
         
-        virtual double              weight(unsigned int i) const;
+        virtual double                  weight(unsigned int i) const;
         
-        virtual void                getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
         
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         Cn2_5_9();
@@ -154,17 +152,17 @@ namespace QuadratureRules
 
         virtual std::string getName() const;
         
-        virtual unsigned int        order() const;
+        virtual unsigned int            order() const;
         
-        virtual unsigned int        dimension() const;
+        virtual unsigned int            dimension() const;
         
-        virtual unsigned int        nrOfPoints() const;
+        virtual unsigned int            nrOfPoints() const;
         
-        virtual double              weight(unsigned int i) const;
+        virtual double                  weight(unsigned int i) const;
         
-        virtual void                getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
         
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         C2_7_4();

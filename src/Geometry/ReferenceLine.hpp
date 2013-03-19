@@ -17,6 +17,8 @@ using std::ostream;
 #include "GlobalNamespaceGeometry.hpp"
 #include "Mappings/MappingReferenceToReference.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRulesForLine.hpp"//do not take this out, quadrature rules are
+                                                                      // created for the shape globally
 
 namespace Geometry
 {
@@ -36,9 +38,9 @@ namespace Geometry
         using ReferenceGeometryT::IndexT;
         using ReferenceGeometryT::String;
         using ReferenceGeometryT::const_iterator;
-        typedef std::vector<IndexT> ListOfIndexesT;
-        typedef MappingReferenceToReference<1,1> Ref1ToRef1MappingT; // Numbers indicate dim.
-        typedef MappingReferenceToReference<0,1> Ref0ToRef1MappingT;
+        typedef std::vector<IndexT>                 ListOfIndexesT;
+        typedef MappingReferenceToReference<1,1>    Ref1ToRef1MappingT; // Numbers indicate dim.
+        typedef MappingReferenceToReference<0,1>    Ref0ToRef1MappingT;
 
     public:
         static ReferenceLine& Instance()

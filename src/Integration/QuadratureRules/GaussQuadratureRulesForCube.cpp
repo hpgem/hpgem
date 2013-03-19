@@ -12,6 +12,9 @@
 // Package includes:
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.hpp"
+#include "Geometry/ReferenceCube.hpp"
+using Geometry::ReferenceCube;
+
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules
@@ -51,7 +54,7 @@ namespace QuadratureRules
     }
 
     void
-    Cn3_1_1::getPoint(unsigned int i, PointReference<3>& p) const
+    Cn3_1_1::getPoint(unsigned int i, PointReferenceT& p) const
     {
         if (i < 1)
             p=gp_[i];
@@ -59,7 +62,7 @@ namespace QuadratureRules
             throw name_ + "::getPoint -  wrong index!";
     }
 
-    Geometry::ReferenceGeometry<3>*
+    Cn3_1_1::ReferenceGeometryT*
     Cn3_1_1::forReferenceGeometry() const
     {
         return refGeoPtr_;
@@ -120,7 +123,7 @@ namespace QuadratureRules
     }
 
     void
-    Cn3_3_4::getPoint(unsigned int i, PointReference<3>& p) const
+    Cn3_3_4::getPoint(unsigned int i, PointReferenceT& p) const
     {
         if (i < 8)
            p=gp_[i];
@@ -128,7 +131,7 @@ namespace QuadratureRules
            throw name_ + "::getPoint -  wrong index!";
     }
 
-    Geometry::ReferenceGeometry<3>*
+    Cn3_3_4::ReferenceGeometryT*
     Cn3_3_4::forReferenceGeometry() const
     {
         return refGeoPtr_;
@@ -225,7 +228,7 @@ namespace QuadratureRules
     }
 
     void
-    Cn3_5_9::getPoint(unsigned int i, PointReference<3>& p) const
+    Cn3_5_9::getPoint(unsigned int i, PointReferenceT& p) const
     {
         if (i < 27)
             p=gp_[i];
@@ -424,7 +427,7 @@ namespace QuadratureRules
     }
 
     void
-    C3_7_2::getPoint(unsigned int i, PointReference<3>& p) const
+    C3_7_2::getPoint(unsigned int i, PointReferenceT& p) const
     {
         if (i < 34)
             p=gp_[i];

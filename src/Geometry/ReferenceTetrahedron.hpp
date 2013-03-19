@@ -17,6 +17,8 @@
 #include "GlobalNamespaceGeometry.hpp"
 #include "Mappings/MappingToRefTriangleToTetrahedron.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRulesForTetrahedron.hpp"//do not take this out, quadrature rules are
+                                                                      // created for the shape globally
 
 namespace Geometry
 {

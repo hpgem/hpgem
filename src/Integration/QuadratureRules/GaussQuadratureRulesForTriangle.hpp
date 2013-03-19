@@ -11,22 +11,21 @@
 //---------------------------------------------------------------------------
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
-#include "Geometry/ReferenceTriangle.hpp"
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules
 {
-    using Integration::NumType;
     using Geometry::PointReference;
     using Geometry::ReferenceGeometry;
-    using Geometry::ReferenceTriangle;
 
 //---------------------------------------------------------------------------
-    class Tn2_1_1
-        : public GaussQuadratureRule<2>
+    class Tn2_1_1: public GaussQuadratureRule<2>
     {
+    public:
+        typedef ReferenceGeometry<2>    ReferenceGeometryT;
+        typedef PointReference<2>       PointReferenceT;
     public:
         static Tn2_1_1& Instance()
             {
@@ -34,29 +33,31 @@ namespace QuadratureRules
                 return theInstance;
             }
 
-        virtual std::string getName() const;
-        virtual unsigned int order() const;
-        virtual unsigned int dimension() const;
-        virtual unsigned int nrOfPoints() const;
-        virtual NumType weight(unsigned int i) const;
-        virtual void getPoint(unsigned int i, PointReference<2>& p) const;
-        virtual ReferenceGeometry<2>* forReferenceGeometry() const;
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         Tn2_1_1();
         Tn2_1_1(const Tn2_1_1&);
         virtual ~Tn2_1_1();
-
-        const std::string name_;
-        NumType weight_[1];
-        ReferenceGeometry<2>* const refGeoPtr_;
-        PointReference<2> gp_[1];
+    private:
+        const std::string               name_;
+        double                          weight_[1];
+        ReferenceGeometryT* const       refGeoPtr_;
+        PointReferenceT                 gp_[1];
     };
 
 //---------------------------------------------------------------------------
-    class Tn2_2_1
-        : public GaussQuadratureRule<2>
+    class Tn2_2_1: public GaussQuadratureRule<2>
     {
+    public:
+        typedef ReferenceGeometry<2>    ReferenceGeometryT;
+        typedef PointReference<2>       PointReferenceT;
     public:
         static Tn2_2_1& Instance()
             {
@@ -64,29 +65,31 @@ namespace QuadratureRules
                 return theInstance;
             }
 
-        virtual std::string getName() const;
-        virtual unsigned int order() const;
-        virtual unsigned int dimension() const;
-        virtual unsigned int nrOfPoints() const;
-        virtual NumType weight(unsigned int i) const;
-        virtual void getPoint(unsigned int i, PointReference<2>& p) const;
-        virtual ReferenceGeometry<2>* forReferenceGeometry() const;
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         Tn2_2_1();
         Tn2_2_1(const Tn2_2_1&);
         virtual ~Tn2_2_1();
-
-        const std::string name_;
-        NumType weight_[3];
-        ReferenceGeometry<2>* const refGeoPtr_;
-        PointReference<2> gp_[3];
+    private:
+        const std::string               name_;
+        double                          weight_[3];
+        ReferenceGeometryT* const       refGeoPtr_;
+        PointReferenceT                 gp_[3];
     };
 
 //---------------------------------------------------------------------------
-    class Tn2_3_1
-        : public GaussQuadratureRule<2>
+    class Tn2_3_1: public GaussQuadratureRule<2>
     {
+    public:
+        typedef ReferenceGeometry<2>    ReferenceGeometryT;
+        typedef PointReference<2>       PointReferenceT;
     public:
         static Tn2_3_1& Instance()
             {
@@ -94,29 +97,31 @@ namespace QuadratureRules
                 return theInstance;
             }
 
-        virtual std::string getName() const;
-        virtual unsigned int order() const;
-        virtual unsigned int dimension() const;
-        virtual unsigned int nrOfPoints() const;
-        virtual NumType weight(unsigned int i) const;
-        virtual void getPoint(unsigned int i, PointReference<2>& p) const;
-        virtual ReferenceGeometry<2>* forReferenceGeometry() const;
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         Tn2_3_1();
         Tn2_3_1(const Tn2_3_1&);
         virtual ~Tn2_3_1();
-
-        const std::string name_;
-        NumType weight_[4];
-        ReferenceGeometry<2>* const refGeoPtr_;
-        PointReference<2> gp_[4];
+    private:
+        const std::string               name_;
+        double                          weight_[4];
+        ReferenceGeometryT* const       refGeoPtr_;
+        PointReferenceT                 gp_[4];
     };
 
 //---------------------------------------------------------------------------
-    class Tn2_4_1
-        : public GaussQuadratureRule<2>
+    class Tn2_4_1: public GaussQuadratureRule<2>
     {
+    public:
+        typedef ReferenceGeometry<2>    ReferenceGeometryT;
+        typedef PointReference<2>       PointReferenceT;
     public:
         static Tn2_4_1& Instance()
             {
@@ -124,29 +129,31 @@ namespace QuadratureRules
                 return theInstance;
             }
 
-        virtual std::string getName() const;
-        virtual unsigned int order() const;
-        virtual unsigned int dimension() const;
-        virtual unsigned int nrOfPoints() const;
-        virtual NumType weight(unsigned int i) const;
-        virtual void getPoint(unsigned int i, PointReference<2>& p) const;
-        virtual ReferenceGeometry<2>* forReferenceGeometry() const;
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         Tn2_4_1();
         Tn2_4_1(const Tn2_4_1&);
         virtual ~Tn2_4_1();
-
-        const std::string name_;
-        NumType weight_[6];
-        ReferenceGeometry<2>* const refGeoPtr_;
-        PointReference<2> gp_[6];
+    private:
+        const std::string               name_;
+        double                          weight_[6];
+        ReferenceGeometryT* const       refGeoPtr_;
+        PointReferenceT                 gp_[6];
     };
 
 //---------------------------------------------------------------------------
-    class T2_5_1
-        : public GaussQuadratureRule<2>
+    class T2_5_1: public GaussQuadratureRule<2>
     {
+    public:
+        typedef ReferenceGeometry<2>    ReferenceGeometryT;
+        typedef PointReference<2>       PointReferenceT;
     public:
         static T2_5_1& Instance()
             {
@@ -154,29 +161,31 @@ namespace QuadratureRules
                 return theInstance;
             }
 
-        virtual std::string getName() const;
-        virtual unsigned int order() const;
-        virtual unsigned int dimension() const;
-        virtual unsigned int nrOfPoints() const;
-        virtual NumType weight(unsigned int i) const;
-        virtual void getPoint(unsigned int i, PointReference<2>& p) const;
-        virtual ReferenceGeometry<2>* forReferenceGeometry() const;
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         T2_5_1();
         T2_5_1(const T2_5_1&);
         virtual ~T2_5_1();
 
-        const std::string name_;
-        NumType weight_[7];
-        ReferenceGeometry<2>* const refGeoPtr_;
-        PointReference<2> gp_[7];
+        const std::string               name_;
+        double                          weight_[7];
+        ReferenceGeometryT* const       refGeoPtr_;
+        PointReferenceT                 gp_[7];
     };
 
 //---------------------------------------------------------------------------
-    class T2_6_1
-        : public GaussQuadratureRule<2>
+    class T2_6_1: public GaussQuadratureRule<2>
     {
+    public:
+        typedef ReferenceGeometry<2>    ReferenceGeometryT;
+        typedef PointReference<2>       PointReferenceT;
     public:
         static T2_6_1& Instance()
             {
@@ -184,29 +193,31 @@ namespace QuadratureRules
                 return theInstance;
             }
 
-        virtual std::string getName() const;
-        virtual unsigned int order() const;
-        virtual unsigned int dimension() const;
-        virtual unsigned int nrOfPoints() const;
-        virtual NumType weight(unsigned int i) const;
-        virtual void getPoint(unsigned int i, PointReference<2>& p) const;
-        virtual ReferenceGeometry<2>* forReferenceGeometry() const;
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         T2_6_1();
         T2_6_1(const T2_6_1&);
         virtual ~T2_6_1();
-
-        const std::string name_;
-        NumType weight_[12];
-        ReferenceGeometry<2>* const refGeoPtr_;
-        PointReference<2> gp_[12];
+    private:
+        const std::string               name_;
+        double                          weight_[12];
+        ReferenceGeometryT* const       refGeoPtr_;
+        PointReferenceT                 gp_[12];
     };
 
 //---------------------------------------------------------------------------
-    class T2_7_1
-        : public GaussQuadratureRule<2>
+    class T2_7_1: public GaussQuadratureRule<2>
     {
+    public:
+        typedef ReferenceGeometry<2>    ReferenceGeometryT;
+        typedef PointReference<2>       PointReferenceT;
     public:
         static T2_7_1& Instance()
             {
@@ -214,29 +225,31 @@ namespace QuadratureRules
                 return theInstance;
             }
 
-        virtual std::string getName() const;
-        virtual unsigned int order() const;
-        virtual unsigned int dimension() const;
-        virtual unsigned int nrOfPoints() const;
-        virtual NumType weight(unsigned int i) const;
-        virtual void getPoint(unsigned int i, PointReference<2>& p) const;
-        virtual ReferenceGeometry<2>* forReferenceGeometry() const;
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         T2_7_1();
         T2_7_1(const T2_7_1&);
         virtual ~T2_7_1();
-
-        const std::string name_;
-        NumType weight_[13];
-        ReferenceGeometry<2>* const refGeoPtr_;
-        PointReference<2> gp_[13];
+    private:
+        const std::string               name_;
+        double                          weight_[13];
+        ReferenceGeometryT* const       refGeoPtr_;
+        PointReferenceT                 gp_[13];
     };
 
 //---------------------------------------------------------------------------
-    class T2_8_1
-        : public GaussQuadratureRule<2>
+    class T2_8_1: public GaussQuadratureRule<2>
     {
+    public:
+        typedef ReferenceGeometry<2>    ReferenceGeometryT;
+        typedef PointReference<2>       PointReferenceT;
     public:
         static T2_8_1& Instance()
             {
@@ -244,29 +257,31 @@ namespace QuadratureRules
                 return theInstance;
             }
 
-        virtual std::string getName() const;
-        virtual unsigned int order() const;
-        virtual unsigned int dimension() const;
-        virtual unsigned int nrOfPoints() const;
-        virtual NumType weight(unsigned int i) const;
-        virtual void getPoint(unsigned int i, PointReference<2>& p) const;
-        virtual ReferenceGeometry<2>* forReferenceGeometry() const;
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         T2_8_1();
         T2_8_1(const T2_8_1&);
         virtual ~T2_8_1();
-
-        const std::string name_;
-        NumType weight_[16];
-        ReferenceGeometry<2>* const refGeoPtr_;
-        PointReference<2> gp_[16];
+    private:
+        const std::string               name_;
+        double                          weight_[16];
+        ReferenceGeometryT* const       refGeoPtr_;
+        PointReferenceT                 gp_[16];
     };
 
 //---------------------------------------------------------------------------
-    class T2_9_1
-        : public GaussQuadratureRule<2>
+    class T2_9_1: public GaussQuadratureRule<2>
     {
+    public:
+        typedef ReferenceGeometry<2>    ReferenceGeometryT;
+        typedef PointReference<2>       PointReferenceT;
     public:
         static T2_9_1& Instance()
             {
@@ -274,29 +289,31 @@ namespace QuadratureRules
                 return theInstance;
             }
 
-        virtual std::string getName() const;
-        virtual unsigned int order() const;
-        virtual unsigned int dimension() const;
-        virtual unsigned int nrOfPoints() const;
-        virtual NumType weight(unsigned int i) const;
-        virtual void getPoint(unsigned int i, PointReference<2>& p) const;
-        virtual ReferenceGeometry<2>* forReferenceGeometry() const;
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         T2_9_1();
         T2_9_1(const T2_9_1&);
         virtual ~T2_9_1();
-
-        const std::string name_;
-        NumType weight_[19];
-        ReferenceGeometry<2>* const refGeoPtr_;
-        PointReference<2> gp_[19];
+    private:
+        const std::string               name_;
+        double                          weight_[19];
+        ReferenceGeometryT* const       refGeoPtr_;
+        PointReferenceT                 gp_[19];
     };
 
 //---------------------------------------------------------------------------
-    class T2_10_1
-        : public GaussQuadratureRule<2>
+    class T2_10_1: public GaussQuadratureRule<2>
     {
+    public:
+        typedef ReferenceGeometry<2>    ReferenceGeometryT;
+        typedef PointReference<2>       PointReferenceT;
     public:
         static T2_10_1& Instance()
             {
@@ -304,23 +321,23 @@ namespace QuadratureRules
                 return theInstance;
             }
 
-        virtual std::string getName() const;
-        virtual unsigned int order() const;
-        virtual unsigned int dimension() const;
-        virtual unsigned int nrOfPoints() const;
-        virtual NumType weight(unsigned int i) const;
-        virtual void getPoint(unsigned int i, PointReference<2>& p) const;
-        virtual ReferenceGeometry<2>* forReferenceGeometry() const;
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
         T2_10_1();
         T2_10_1(const T2_10_1&);
         virtual ~T2_10_1();
-
-        const std::string name_;
-        NumType weight_[25];
-        ReferenceGeometry<2>* const refGeoPtr_;
-        PointReference<2> gp_[25];
+    private:
+        const std::string               name_;
+        double                          weight_[25];
+        ReferenceGeometryT* const       refGeoPtr_;
+        PointReferenceT                 gp_[25];
     };
 
 //---------------------------------------------------------------------------

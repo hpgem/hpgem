@@ -15,7 +15,7 @@ class MeshMoverExampleProblem : public Base::Base<2>
     
 public:
     
-    bool initialiseMesh()
+    bool initialise()
     {
         Geometry::PointPhysical<2> bottomLeft, topLeft;
         std::vector<unsigned int> numElementsOneD(2);
@@ -38,18 +38,20 @@ public:
         out.write(mesh_,"holi",false);
     }
     
+    void elementIntegrand(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret){}
+    
+    void faceIntegrand(const PointPhysicalT& normal, 
+                       const PointReferenceT& p,  LinearAlgebra::NumericalVector& ret){}
+    
 };
 
 int main(int argc, char **argv)
 {
     MeshMoverExampleProblem problem;
 
-    problem.initialiseMesh();
-
     Base::MeshMover<2> meshMover;
 
     problem.initialiseMeshMover(&meshMover);
-
 
     problem.solve();
     

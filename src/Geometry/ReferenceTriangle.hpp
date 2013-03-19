@@ -17,6 +17,8 @@ using std::ostream;
 #include "Mappings/MappingToRefLineToTriangle.hpp"
 #include "Mappings/MappingToRefTriangleToTriangle.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRulesForTriangle.hpp"//do not take this out, quadrature rules are
+
 
 namespace Geometry
 {

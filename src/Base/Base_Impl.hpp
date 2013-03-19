@@ -7,7 +7,8 @@ namespace Base
     bool
     Base<DIM>::solve()
     {
-
+        initialise();
+        checkInitialisation();
         mesh_.move(); // just for testing
         return true;
     }
@@ -19,5 +20,12 @@ namespace Base
     {
         mesh_.setMeshMover(meshMoverBase);
         return true;
+    }
+    
+    template<unsigned int DIM>
+    bool
+    Base<DIM>::checkInitialisation()
+    {
+    return true;
     }
 }

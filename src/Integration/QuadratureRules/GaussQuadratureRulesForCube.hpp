@@ -11,7 +11,6 @@
 //---------------------------------------------------------------------------
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
-#include "Geometry/ReferenceCube.hpp"
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 
@@ -20,7 +19,6 @@ namespace QuadratureRules
 {
     using Geometry::PointReference;
     using Geometry::ReferenceGeometry;
-    using Geometry::ReferenceCube;
 
 //---------------------------------------------------------------------------
     class Cn3_1_1

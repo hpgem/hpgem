@@ -12,6 +12,8 @@
 // Package includes:
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForSquare.hpp"
+#include "Geometry/ReferenceSquare.hpp"
+using Geometry::ReferenceSquare;
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules
@@ -51,7 +53,7 @@ namespace QuadratureRules
     }
 
     void
-    Cn2_1_1::getPoint(unsigned int i, PointReference<2>& p) const
+    Cn2_1_1::getPoint(unsigned int i, PointReferenceT& p) const
     {
         if (i < 1)
             p=gp_[i];
@@ -119,7 +121,7 @@ namespace QuadratureRules
     }
 
     void
-    Cn2_3_4::getPoint(unsigned int i, PointReference<2>& p) const
+    Cn2_3_4::getPoint(unsigned int i, PointReferenceT& p) const
     {
         if (i < 4)
             p=gp_[i];
@@ -198,7 +200,7 @@ namespace QuadratureRules
     }
 
     void
-    Cn2_5_9::getPoint(unsigned int i, PointReference<2>& p) const
+    Cn2_5_9::getPoint(unsigned int i, PointReferenceT& p) const
     {
         if (i < 9)
             p=gp_[i];
@@ -299,7 +301,7 @@ namespace QuadratureRules
     }
 
     void
-    C2_7_4::getPoint(unsigned int i, PointReference<2>& p) const
+    C2_7_4::getPoint(unsigned int i, PointReferenceT& p) const
     {
         if (i < 16)
             p=gp_[i];

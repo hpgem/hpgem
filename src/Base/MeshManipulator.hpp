@@ -185,9 +185,7 @@ namespace Base
         {
             for (int i=0;i<points_.size();i++)
             {
-                cout << "Node " << i << " " << points_[i]; cout << endl;
                 meshMover_->movePoint(points_[i]);
-                cout << "Node " << i << " " << points_[i]; cout << endl;
             }
         }
 
