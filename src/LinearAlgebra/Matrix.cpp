@@ -191,6 +191,14 @@ namespace LinearAlgebra
         return C;
     }
     
+
+    /// \param[in] scale : A double that each element of the matrix is multiplied bu
+    /// \return Matrix
+    Matrix Matrix::operator*= (const double &scalar)
+    {
+        data_*=scalar;
+        return *this;
+    }
     
     
     Matrix& Matrix::operator/= (const double& scalar)

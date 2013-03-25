@@ -17,8 +17,6 @@
 #include "Mappings/MappingToRefCubeToHypercube.hpp"
 #include "GlobalNamespaceGeometry.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRulesForHypercube.hpp"//do not take this out, quadrature rules are
-                                                                      // created for the shape globally
 
 namespace Geometry
 {

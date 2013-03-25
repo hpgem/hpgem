@@ -63,6 +63,9 @@ namespace LinearAlgebra
         /// \brief Does matrix A_ij = B_ik * C_kj
         Matrix operator* (Matrix &other);
         
+        /// \brief Does matrix A_ij=scalar*A_ij
+        Matrix operator*= (const double &scalar);
+        
         /// \breif this does element by divived by a scalar 
         Matrix& operator/= (const double& scalar);
         

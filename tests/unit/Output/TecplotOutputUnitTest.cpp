@@ -40,6 +40,6 @@ int main()
     int dimensionsToWrite[2] = {0,1};
 
     Output::TecplotDiscontinuousSolutionWriter<2> out(file2D,"RectangularMesh",dimensionsToWrite,"xy");
-    out.write(myTwoDDemoMesh,"holi",false);
+    out.write(&myTwoDDemoMesh,"holi",false);
 
 }

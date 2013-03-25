@@ -108,11 +108,12 @@ namespace Base
         iterator eraseLastLeaf(iterator fci);
 
     private:
-        int noRootEntries_;
-        std::list<treeEntryT*> entries_;
-        int minLevel_, maxLevel_;
-        int activeLevel_;
-        bool coarsestEntriesSet_;
+        int                     noRootEntries_;
+        std::list<treeEntryT*>  entries_;
+        int                     minLevel_;
+        int                     maxLevel_;
+        int                     activeLevel_;
+        bool                    coarsestEntriesSet_;
     };
 
 } // close namespace Base

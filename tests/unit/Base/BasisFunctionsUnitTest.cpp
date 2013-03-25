@@ -20,7 +20,7 @@ int main()
   Base::AssembleBasisFunctionSet_1D_Ord1_A0(BFset1);
   for (unsigned int i=0; i<BFset1.size(); ++i)
   {
-      std::cout << BFset1.Eval(i,p1) << "\t";
+      std::cout << BFset1.eval(i,p1) << "\t";
   }
   std::cout << std::endl;
   
@@ -34,7 +34,7 @@ int main()
   Base::AssembleBasisFunctionSet_2D_Ord1_A1(BFset2);
   for (unsigned int i=0; i<BFset2.size(); ++i)
   {
-      std::cout << BFset2.Eval(i,p2) << "\t";
+      std::cout << BFset2.eval(i,p2) << "\t";
   }
   std::cout << std::endl;
   
@@ -43,7 +43,7 @@ int main()
   Base::AssembleBasisFunctionSet_2D_Ord2_A0(BFset3);
   for (unsigned int i=0; i<BFset3.size(); ++i)
   {
-      std::cout << BFset3.Eval(i,p2) << "\t";
+      std::cout << BFset3.eval(i,p2) << "\t";
   }
   std::cout << std::endl;
   
@@ -58,7 +58,7 @@ int main()
   Base::AssembleBasisFunctionSet_3D_Ord2_A0(BFset4);
   for (unsigned int i=0; i<BFset4.size(); ++i)
   {
-      std::cout << BFset4.Eval(i,p3) << "\t";
+      std::cout << BFset4.eval(i,p3) << "\t";
   }
   std::cout << std::endl;
   
@@ -67,7 +67,7 @@ int main()
   Base::AssembleBasisFunctionSet_3D_Ord2_A1(BFset5);
   for (unsigned int i=0; i<BFset5.size(); ++i)
   {
-      std::cout << BFset5.Eval(i,p3) << "\t";
+      std::cout << BFset5.eval(i,p3) << "\t";
   }
   std::cout << std::endl;
 }

@@ -48,7 +48,7 @@ namespace Output
 
         /// Write a zone with data from the current mesh to the stream held by the object.
         //template <class WriteFunctor>
-        void write(const Base::MeshManipulator<DIM>& mesh,
+        void write(const Base::MeshManipulator<DIM>* mesh,
                    const StringT& zoneTitle,
                    const bool sameGeometry//,
                    //WriteFunctor& writeDataFunc

@@ -17,7 +17,7 @@ public:
     typedef LinearAlgebra::NumericalVector ReturnType;
 public:
 
-    void operator()(const Geometry::PointPhysical<dim>& normal,
+    void operator()(const Base::Element<dim>& elem, const Geometry::PointPhysical<dim>& normal,
                     LinearAlgebra::NumericalVector& ret)
     {
         //ret[0] = p[0];

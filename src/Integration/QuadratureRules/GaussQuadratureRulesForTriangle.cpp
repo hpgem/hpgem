@@ -81,10 +81,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const Tn2_1_1& instantiateTn2_1_1 = Tn2_1_1::Instance();
-    }
+ 
 //---------------------------------------------------------------------------
     std::string
     Tn2_2_1::getName() const
@@ -157,10 +154,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const Tn2_2_1& instantiateTn2_2_1 = Tn2_2_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     Tn2_3_1::getName() const
@@ -237,10 +231,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const Tn2_3_1& instantiateTn2_3_1 = Tn2_3_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     Tn2_4_1::getName() const
@@ -325,10 +316,6 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const Tn2_4_1& instantiateTn2_4_1 = Tn2_4_1::Instance();
-    }
 //---------------------------------------------------------------------------
     std::string
     T2_5_1::getName() const
@@ -417,10 +404,6 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const T2_5_1& instantiateT2_5_1 = T2_5_1::Instance();
-    }
 //---------------------------------------------------------------------------
     std::string
     T2_6_1::getName() const
@@ -529,10 +512,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const T2_6_1& instantiateT2_6_1 = T2_6_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     T2_7_1::getName() const
@@ -645,10 +625,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const T2_7_1& instantiateT2_7_1 = T2_7_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     T2_8_1::getName() const
@@ -773,10 +750,6 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const T2_8_1& instantiateT2_8_1 = T2_8_1::Instance();
-    }
 //---------------------------------------------------------------------------
     std::string
     T2_9_1::getName() const
@@ -913,10 +886,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const T2_9_1& instantiateT2_9_1 = T2_9_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     T2_10_1::getName() const
@@ -1075,11 +1045,6 @@ namespace QuadratureRules
 
     T2_10_1::~T2_10_1()
     {
-    }
-
-    namespace
-    {
-        const T2_10_1& instantiateT2_10_1 = T2_10_1::Instance();
     }
 
 //---------------------------------------------------------------------------

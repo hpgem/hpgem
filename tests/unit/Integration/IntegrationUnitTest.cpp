@@ -14,7 +14,7 @@ class MyElementIntegrandType : public Integration::ElementIntegrandBase<dim>
 {
 public:
 
-    void operator()(const Geometry::PointReference<dim>& p, LinearAlgebra::NumericalVector& ret)
+    void operator()(const Base::Element<dim>& elem, const Geometry::PointReference<dim>& p, LinearAlgebra::NumericalVector& ret)
     {
         ret[0] = p[0];
     }
@@ -25,7 +25,7 @@ class MyFaceIntegrandType : public Integration::FaceIntegrandBase<dim>
 {
 public:
 
-    void operator()(const Geometry::PointPhysical<dim>& normal, const Geometry::PointReference<dim-1>& p, LinearAlgebra::NumericalVector& ret)
+    void operator()(const Base::Face<dim>& face, const Geometry::PointPhysical<dim>& normal, const Geometry::PointReference<dim-1>& p, LinearAlgebra::NumericalVector& ret)
     {
         //ret[0] = p[0];
         //ret[1] = p[1];
@@ -59,6 +59,7 @@ int main()
     ListOfFacesT& faces = myTwoDDemoMesh.getFacesList();
 
 
+    //Create a 
     bool isUseCache(false);
     Integration::ElementIntegral<dim> 	elIntegral(isUseCache);
     Integration::FaceIntegral<dim>    	faIntegral(isUseCache);

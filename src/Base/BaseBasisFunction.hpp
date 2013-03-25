@@ -13,10 +13,11 @@ namespace Base
     {
     public:
         typedef Geometry::PointReference<1> PointReferenceT;
+    public:
         virtual ~BaseBasisFunction() {};
 
-        virtual double Eval(const PointReferenceT& p) const = 0;
-        virtual double EvalDeriv0(const PointReferenceT& p) const = 0;
+        virtual double eval(const PointReferenceT& p) const = 0;
+        virtual double evalDeriv0(const PointReferenceT& p) const = 0;
     };
 
     template <>
@@ -24,11 +25,12 @@ namespace Base
     {
     public:
         typedef Geometry::PointReference<2> PointReferenceT;
+    public:
         virtual ~BaseBasisFunction() {};
 
-        virtual double Eval(const PointReferenceT& p) const = 0;
-        virtual double EvalDeriv0(const PointReferenceT& p) const = 0;
-        virtual double EvalDeriv1(const PointReferenceT& p) const = 0;
+        virtual double eval(const PointReferenceT& p) const = 0;
+        virtual double evalDeriv0(const PointReferenceT& p) const = 0;
+        virtual double evalDeriv1(const PointReferenceT& p) const = 0;
     };
 
     template <>
@@ -36,12 +38,13 @@ namespace Base
     {
     public:
         typedef Geometry::PointReference<3> PointReferenceT;
+    public:
         virtual ~BaseBasisFunction() {};
         
-        virtual double Eval(const PointReferenceT& p) const = 0;
-        virtual double EvalDeriv0(const PointReferenceT& p) const = 0;
-        virtual double EvalDeriv1(const PointReferenceT& p) const = 0;
-        virtual double EvalDeriv2(const PointReferenceT& p) const = 0;
+        virtual double eval(const PointReferenceT& p) const = 0;
+        virtual double evalDeriv0(const PointReferenceT& p) const = 0;
+        virtual double evalDeriv1(const PointReferenceT& p) const = 0;
+        virtual double evalDeriv2(const PointReferenceT& p) const = 0;
     };
 
     template <>
@@ -49,13 +52,14 @@ namespace Base
     {
     public:
         typedef Geometry::PointReference<4> PointReferenceT;
+    public:
         virtual ~BaseBasisFunction() {};
 
-        virtual double Eval(const PointReferenceT& p) const = 0;
-        virtual double EvalDeriv0(const PointReferenceT& p) const = 0;
-        virtual double EvalDeriv1(const PointReferenceT& p) const = 0;
-        virtual double EvalDeriv2(const PointReferenceT& p) const = 0;
-        virtual double EvalDeriv3(const PointReferenceT& p) const = 0;
+        virtual double eval(const PointReferenceT& p) const = 0;
+        virtual double evalDeriv0(const PointReferenceT& p) const = 0;
+        virtual double evalDeriv1(const PointReferenceT& p) const = 0;
+        virtual double evalDeriv2(const PointReferenceT& p) const = 0;
+        virtual double evalDeriv3(const PointReferenceT& p) const = 0;
 };
     
 };

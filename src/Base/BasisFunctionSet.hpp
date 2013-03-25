@@ -12,6 +12,11 @@ namespace Base
     class BasisFunctionSet
     {
     public:
+        typedef BaseBasisFunction<DIM>              BaseBasisFunctionT;
+        typedef std::vector<BaseBasisFunctionT*>    BaseBasisFunctions;
+        typedef Geometry::PointReference<DIM>       PointReferenceT;
+        
+    public:
         BasisFunctionSet(unsigned int order) : order_(order) {}
         
         ~BasisFunctionSet()
@@ -33,33 +38,33 @@ namespace Base
             return order_;
         }
         
-        void AddBasisFunction(BaseBasisFunction<DIM>* bf)
+        void addBasisFunction(BaseBasisFunctionT* bf)
         {
             vecOfBasisFcn_.push_back(bf);
         }
         
-        double Eval(unsigned int i, const Geometry::PointReference<DIM>& p) const
+        double eval(unsigned int i, const PointReferenceT& p) const
         {
-            return vecOfBasisFcn_[i]->Eval(p);
+            return vecOfBasisFcn_[i]->eval(p);
         }
         
-        double EvalDeriv(unsigned int i, unsigned int jDir, const Geometry::PointReference<DIM>& p) const
+        double evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const
         {
             TestErrorDebug((jDir<DIM),"Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
           
             switch (jDir)
             {
             case 0:
-              return vecOfBasisFcn_[i]->EvalDeriv0(p);
+              return vecOfBasisFcn_[i]->evalDeriv0(p);
               break;
             case 1:
-              return vecOfBasisFcn_[i]->EvalDeriv1(p);
+              return vecOfBasisFcn_[i]->evalDeriv1(p);
               break;
             case 2:
-              return vecOfBasisFcn_[i]->EvalDeriv2(p);
+              return vecOfBasisFcn_[i]->evalDeriv2(p);
               break;
             case 3:
-              return vecOfBasisFcn_[i]->EvalDeriv3(p);
+              return vecOfBasisFcn_[i]->evalDeriv3(p);
               break;
             }
 
@@ -68,11 +73,11 @@ namespace Base
 
     private:
         BasisFunctionSet();
-        BasisFunctionSet(BasisFunctionSet& other);
+        BasisFunctionSet(const BasisFunctionSet& other);
 
     private:
         unsigned int                          order_;
-        std::vector<BaseBasisFunction<DIM>*>  vecOfBasisFcn_;
+        BaseBasisFunctions                    vecOfBasisFcn_;
     };
 
 };

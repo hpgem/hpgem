@@ -10,15 +10,21 @@
 #define _PhysicalSpaceEvaluator_hpp
 
 #include "Geometry/PointPhysical.hpp"
+
+namespace Base
+{
+    template <unsigned int DIM>
+    class Element;
+}
     //! Default case: operator() with arguments Point and result type exists.
 template <unsigned int DIM, typename ResultType, class FuncType>
 struct PhysicalSpaceEvaluator
 {
 	typedef ResultType RetType;
     
-	static void eval(FuncType& f, const Geometry::PointPhysical<DIM>& p, RetType& r)
+	static void eval(const Base::Element<DIM>& el, FuncType& f, const Geometry::PointPhysical<DIM>& p, RetType& r)
     {
-		f(p, r);
+		f(el, p, r);
     }
 };
 
@@ -56,9 +62,9 @@ void (*)(const Geometry::PointPhysical<DIM>&, ResultType&)>
 {
 	typedef ResultType RetType;
 	static void eval(
-                     void (*funcPtr)(const Geometry::PointPhysical<DIM>&, ResultType&),
+                     void (*funcPtr)(const Base::Element<DIM>&, const Geometry::PointPhysical<DIM>&, ResultType&),
                      const Geometry::PointPhysical<DIM>& p,
-                     RetType& r)
+                     RetType& r)    
 	{
 	    funcPtr(p, r);
 	}

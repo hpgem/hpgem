@@ -117,6 +117,7 @@ namespace Geometry
 
         typedef ElementGeometry<DIM>                                            ElementGeometryT;
         typedef PhysicalGeometry<DIM>                                           PhysicalGeometryT;
+        typedef Face<DIM>                                                       FaceT;
 
 
     public:
@@ -176,9 +177,8 @@ namespace Geometry
         virtual         RefFaceToRefElementMapping refFaceToRefElemMapR() const;
         
 //-MTJ-start--------------
-// #define MTJ
-//#ifdef MTJ
-        void            copyFromParent(const Face<DIM>& fa);
+
+        void            copyFromParent(const FaceT& fa);
         
         void            invertFaceToFaceMapMatrix();
 
@@ -189,7 +189,6 @@ namespace Geometry
         
     protected:
         MatrixT                     faceToFaceMapMatrix_;
-//#endif
 //-MTJ-end--------------
 
     protected:

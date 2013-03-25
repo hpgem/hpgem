@@ -14,7 +14,7 @@ namespace Base
     
     template<unsigned int DIM>
     Face<DIM>::Face(ElementT*  ptrElemL, const LocalFaceNrTypeT& localFaceNumL, ElementT* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR) :
-        Geometry::FaceGeometry<DIM>((ElementGeometryT*)ptrElemL, localFaceNumL,(ElementGeometryT*)ptrElemRight,localFaceNumR),
+        FaceGeometryT((ElementGeometryT*)ptrElemL, localFaceNumL,(ElementGeometryT*)ptrElemRight,localFaceNumR),
         elementLeft_(ptrElemL),
         elementRight_(ptrElemL)
     {
@@ -23,7 +23,7 @@ namespace Base
     
     template<unsigned int DIM>
     Face<DIM>::Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType&  faceType):
-        Geometry::FaceGeometry<DIM>((ElementGeometryT*)ptrElemL, localFaceNumL, faceType),
+        FaceGeometryT((ElementGeometryT*)ptrElemL, localFaceNumL, faceType),
         elementLeft_(ptrElemL),
         elementRight_(ptrElemL)
     {

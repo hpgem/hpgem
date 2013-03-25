@@ -98,10 +98,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const Pyramid_1_1& instantiatePyramid_1_1 = Pyramid_1_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     Pyramid_3_1::getName() const
@@ -242,10 +239,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const Pyramid_3_1& instantiatePyramid_3_1 = Pyramid_3_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     Pyramid_5_1::getName() const
@@ -486,10 +480,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const Pyramid_5_1& instantiatePyramid_5_1 = Pyramid_5_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     Pyramid_7_1::getName() const
@@ -790,9 +781,5 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const Pyramid_7_1& instantiatePyramid_7_1 = Pyramid_7_1::Instance();
-    }
 //---------------------------------------------------------------------------
 } // close namespace IntegrationRules

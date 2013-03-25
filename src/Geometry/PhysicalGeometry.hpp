@@ -115,7 +115,7 @@ namespace Geometry
             {
                 os << "PhysicalGeometry=( ";
                 
-                for (int i = 0; i < physicalGeometry.getNumberOfPoints(); i++)
+                for (int i = 0; i < physicalGeometry.getNumberOfNodes(); i++)
                 {   
                     os << physicalGeometry.getNodeIndex(i) << " ";
                 }

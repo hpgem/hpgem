@@ -1,31 +1,39 @@
+#include "Base/Element.hpp"
+#include "Integration/ReturnTrait1.hpp"
+
 namespace Base
 {
     template<unsigned int DIM>
     class Base;
 
-    template<unsigned int DIM>
-    bool
-    Base<DIM>::solve()
-    {
-        initialise();
-        checkInitialisation();
-        mesh_.move(); // just for testing
-        return true;
-    }
 
 
     template<unsigned int DIM>
     bool
-    Base<DIM>::initialiseMeshMover(MeshMoverBaseT* meshMoverBase)
+    Base<DIM>::initialiseMeshMover(MeshMoverBaseT* meshMoverBase, int meshID=0)
     {
-        mesh_.setMeshMover(meshMoverBase);
+        meshes_[meshID]->setMeshMover(meshMoverBase);
         return true;
     }
     
+    
     template<unsigned int DIM>
-    bool
-    Base<DIM>::checkInitialisation()
+    void Base<DIM>::addMesh(std::string type, PointPhysicalT BottomLeft, PointPhysicalT TopRight, std::vector<unsigned int> linearNoElements)
     {
-    return true;
+        int numOfMeshes=meshes_.size();
+        MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>();
+        
+        if (type=="Rectangular")
+        {   
+            mesh->createRectangularMesh(BottomLeft, TopRight, linearNoElements);
+            meshes_.push_back(mesh);
+        }
+        else
+        {
+            std::cerr << "Error in addmesh command : Unknown mesh type " << type << std::endl;
+        }
+        cout<<"I just created a mesh!!!"<<endl;
+        mesh->outputMesh(std::cout);
     }
+
 }

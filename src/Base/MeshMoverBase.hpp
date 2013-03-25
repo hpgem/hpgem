@@ -13,7 +13,8 @@
 namespace Base {
 
     template <unsigned int DIM>
-    class MeshMoverBase {
+    class MeshMoverBase
+    {
 
     public:
 
@@ -21,13 +22,13 @@ namespace Base {
 
     public:
 
-        MeshMoverBase() {};
+        MeshMoverBase() {}
 
-        virtual ~MeshMoverBase() {};
+        virtual ~MeshMoverBase() {}
 
         /// This pure virtual function should be implemented in the Problem that needs moving meshes,
         /// and is called by MeshManipulator on every point.
-        virtual void movePoint(PointPhysicalT& point) const {};
+        virtual void movePoint(PointPhysicalT& point) const=0;
     };
 }
 

@@ -28,7 +28,7 @@ int main()
     int dimensionsToWrite[2] = {0,1};
     
     Output::TecplotDiscontinuousSolutionWriter<2> out(file2D,"QuadMinimum Test Mesh",dimensionsToWrite,"xy");
-    out.write(myTwoDDemoMesh,"holi",false);
+    out.write(&myTwoDDemoMesh,"holi",false);
     
     file2D.close();
     
@@ -49,7 +49,7 @@ int main()
     file2D.open ("SavedCentaurMinimum.dat");
     
     Output::TecplotDiscontinuousSolutionWriter<2> out2(file2D,"Minimum Test Mesh",dimensionsToWrite,"xy");
-    out2.write(triQuadTwoDDemoMesh,"holi",false);
+    out2.write(&triQuadTwoDDemoMesh,"holi",false);
     
     file2D.close();
     

@@ -1,20 +1,17 @@
-//bool Base::MeshManipulator:readMesh(FILE file)
-//{
-    // TODO Implement reading mesh files.
-    // For now, creating basic mesh for testing purposes
-//    createElement(new ElementT())
-//}
 
+//***********************************************************************************************************************
+//***********************************************************************************************************************
+//***********************************************************************************************************************
 
 //This is a small struct used for storing the halfFaces that are used 
-struct halfFaceDescription {
+///Half faces are used by the faceFactory. These are face which only know one element they are associated with
+
+struct HalfFaceDescription {
     unsigned int firstNode;
     unsigned int secondNode;
     unsigned int elementNum;
     unsigned int localFaceIndex;
 };
- ///Half faces are used by the faceFactory. These are face which only know one element they are associated with
-typedef struct halfFaceDescription halfFaceDescriptionT;
 
 /// \brief This is the function that checks if two halfFaces nned to swapped or not.
 /// \details 
@@ -22,7 +19,7 @@ typedef struct halfFaceDescription halfFaceDescriptionT;
  *  First checks the firstNode index and if this is the same, swap based on the secondNode index.
  *  Therefore in the end that will be sorted based on firstNode and secondly on secondNode.
  !*/
-bool compareHalfFace(halfFaceDescriptionT first, halfFaceDescriptionT second)
+bool compareHalfFace(HalfFaceDescription first, HalfFaceDescription second)
 {
     if (first.firstNode<second.firstNode) return true;
     
@@ -30,6 +27,9 @@ bool compareHalfFace(halfFaceDescriptionT first, halfFaceDescriptionT second)
     
     return false;
 }
+//***********************************************************************************************************************
+//***********************************************************************************************************************
+//***********************************************************************************************************************
 
 template<>
 void
@@ -65,7 +65,159 @@ MeshManipulator<3>::createBasisFunctions(unsigned int order)
 }
 
 template<unsigned int DIM>
-void MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, const  std::vector<unsigned int> linearNoElements)
+MeshManipulator<DIM>::MeshManipulator(bool xPer, bool yPer, bool zPer):
+    periodicX_(xPer),
+    periodicY_(yPer),
+    periodicZ_(zPer),
+    activeMeshTree_(0), 
+    numMeshTree_(0)
+{
+    unsigned int order =1;
+    std::cout << "I am in teh constructor" << std::endl;
+    createBasisFunctions(order);
+    createNewMeshTree();
+}
+
+template<unsigned int DIM>
+MeshManipulator<DIM>::MeshManipulator(const MeshManipulator& other):
+             elements_(other.elements_),
+             faces_(other.faces_),
+             points_(other.points_),
+             periodicX_(other.periodicX_),
+             periodicY_(other.periodicY_),
+             periodicZ_(other.periodicZ_),
+             meshMover_(other.meshMover_),
+             collBasisFSet_(other.collBasisFSet_),
+             activeMeshTree_(other.activeMeshTree_),
+             numMeshTree_(other.numMeshTree_),
+             vecOfElementTree_(other.vecOfElementTree_),
+             vecOfFaceTree_(other.vecOfFaceTree_)
+{
+
+}
+
+template<unsigned int DIM>
+MeshManipulator<DIM>::~MeshManipulator()
+{
+    for (typename ListOfElementsT::iterator it=elements_.begin(); it!=elements_.end();++it)
+    {
+        ElementT* el = *it;
+        delete el;
+    }
+    
+    for (typename CollectionOfBasisFunctionSets::iterator bit=collBasisFSet_.begin(); bit!=collBasisFSet_.end();++bit)
+    {
+        BasisFunctionSetT* bf = *bit;
+        delete bf;
+    }
+    
+    delete meshMover_;
+
+    // Kill all faces in all mesh-tree
+    while (!vecOfFaceTree_.empty())
+    {
+        delete vecOfFaceTree_.back();
+        vecOfFaceTree_.pop_back();
+    }
+
+    // Kill all elements in all mesh-tree
+    while (!vecOfElementTree_.empty())
+    {
+        delete vecOfElementTree_.back();
+        vecOfElementTree_.pop_back();
+    }
+}
+
+template<unsigned int DIM>
+Base::Element<DIM>* 
+MeshManipulator<DIM>::addElement(const VectorOfPointIndicesT& globalNodeIndexes)
+{
+    unsigned int numOfUnknowns      = 10;
+    unsigned int numOfTimeLevels    = 10;
+    unsigned int counter            = 10;
+    
+    const BasisFunctionSetT* const bf= collBasisFSet_[0];
+    
+    
+    ElementT*  myElement = new ElementT(globalNodeIndexes,bf, points_, numOfUnknowns, numOfTimeLevels, counter);
+    
+    
+    elements_.push_back(myElement);
+    
+    return myElement;
+}
+
+template<unsigned int DIM>
+void
+MeshManipulator<DIM>::move()
+{
+    for (int i=0;i<points_.size();i++)
+    {
+        if (meshMover_!=NULL)
+        {
+            meshMover_->movePoint(points_[i]);
+        }
+    }
+}
+
+template<unsigned int DIM>
+void
+MeshManipulator<DIM>::setMeshMover(MeshMoverBase<DIM>* meshMover)
+{
+    meshMover_ = meshMover;
+}
+
+template<unsigned int DIM>
+bool 
+MeshManipulator<DIM>::addFace(ElementT* leftElementPtr, unsigned int leftElementLocalFaceNo, ElementT* rightElementPtr, unsigned int rightElementLocalFaceNo, const Geometry::FaceType& faceType)
+{
+    //  std::cout << "-----------------------\n";
+    
+    //  std::cout << "{Left Element" << (*leftElementPtr) <<" , FaceIndex=" <<leftElementLocalFaceNo<<"}"<<endl;
+    if (rightElementPtr!=NULL)
+    {
+    //      std::cout << "{Right Element" << (*rightElementPtr) << " , FaceIndex=" <<rightElementLocalFaceNo<<"}"<<endl;
+        
+        Face<DIM> face(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo);
+        
+        faces_.push_back(face);
+    }
+    else 
+    {
+        //    std::cout << "This is a boundary face" << std::endl;
+        Face<DIM> bFace(leftElementPtr, leftElementLocalFaceNo, faceType);
+        faces_.push_back(bFace);
+    }
+    // std::cout << "-----------------------\n";
+}
+
+template<unsigned int DIM>
+void 
+MeshManipulator<DIM>::outputMesh(ostream& os)const
+{
+    for (int i=0;i<points_.size();i++){os<<"Node " <<i<<" "<<points_[i]<<endl;}
+    
+    int elementNum=0;
+    
+    for (typename ListOfElementsT::const_iterator cit=elements_.begin(); cit !=elements_.end(); ++cit)
+        {
+        os << "Element " <<elementNum <<" " <<*(*cit)<<endl;
+        elementNum++;
+        }
+    
+    int faceNum=0;
+    for (typename ListOfFacesT::const_iterator cit=faces_.begin(); cit !=faces_.end(); ++cit)
+    {
+        /// \bug need at output routine for the face to test this.
+        // os << "Face " <<faceNum <<" " <<(*cit)<<endl;
+        faceNum++;
+    }
+
+}
+
+template<unsigned int DIM>
+void 
+MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, const  VectorOfPointIndicesT& linearNoElements)
 {
     if (linearNoElements.size() != DIM)
     {
@@ -80,13 +232,13 @@ void MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, Poin
     PointPhysicalT delta_x(DIM);
     
     for (int i=0;i<DIM;i++)
-    {delta_x[i]=(TopRight[i]-BottomLeft[i])/(linearNoElements[i]);}
+    {
+        delta_x[i]=(TopRight[i]-BottomLeft[i])/(linearNoElements[i]);
+    }
 
-    
 
-    
     //This stores the number of nodes in each coDIMension i.e. if you have 2 by 2 element it is 3 nodes 
-    std::vector<int> numOfNodesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM);
+    std::vector<unsigned int> numOfNodesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM);
     
     numOfNodesInEachSubspace[0]=1;
     numOfElementsInEachSubspace[0]=1;
@@ -99,7 +251,7 @@ void MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, Poin
     verticesPerElement=2;
     int powerOf2;
     
-    for (int iDIM=1; iDIM<DIM;++iDIM)
+    for (unsigned int iDIM=1; iDIM<DIM;++iDIM)
     {
         totalNumOfNodes*=(linearNoElements[iDIM]+1);
         totalNumOfElements*=(linearNoElements[iDIM]);
@@ -116,13 +268,13 @@ void MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, Poin
     
     ///Stage 2 : Create the nodes
     //Now loop over all the nodes and calculate the coordinates for rach DIMension (this makes the algorithm independent of DIMension
-    for (int nodeIndex=0; nodeIndex<totalNumOfNodes; ++nodeIndex)
+    for (unsigned int nodeIndex=0; nodeIndex<totalNumOfNodes; ++nodeIndex)
     {
-        int nodeIndexRemain=nodeIndex;
+        unsigned int nodeIndexRemain=nodeIndex;
         
         
         
-        for (int iDIM=DIM-1;iDIM>-1;--iDIM)
+        for (unsigned int iDIM=DIM-1;iDIM>-1;--iDIM)
         {
             x[iDIM] = BottomLeft[iDIM] + (nodeIndexRemain/numOfNodesInEachSubspace[iDIM]*delta_x[iDIM]);
             nodeIndexRemain %=numOfNodesInEachSubspace[iDIM];
@@ -137,33 +289,8 @@ void MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, Poin
         
         
     //Stage 3 : Create the elements
-   
-    //Create an Instance of a referenceSquare
-   
-    
-    //Geometry::ReferenceGeometry<DIM>* referenceGeometry;
-    
-    void* referenceGeometryVoidPtr;
-    
-    Geometry::ReferenceGeometry<DIM>* referenceGeometry;
-    
-    if (DIM==1)
-    {
-        
-        referenceGeometryVoidPtr = &Geometry::ReferenceLine::Instance();
-    }
-    else if  (DIM==2)
-    {
-        referenceGeometryVoidPtr = &Geometry::ReferenceSquare::Instance();
-    }
-    else if (DIM==3)
-    {
-        referenceGeometryVoidPtr = &Geometry::ReferenceCube::Instance();
-    }
-    
-    referenceGeometry=static_cast<Geometry::ReferenceGeometry<DIM>* > (referenceGeometryVoidPtr);
-    
-    std::vector<Base::Element<DIM>* > tempElementVector(totalNumOfElements);
+       
+    VectorOfElementPtrT       tempElementVector(totalNumOfElements);
     
     std::vector<unsigned int> elementNdId(DIM), vertexNdId(DIM), globalVertexID(verticesPerElement);
     
@@ -173,23 +300,22 @@ void MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, Poin
     
   
     //elementNdId is DIM coordinate of the bottom left node i.e. in two (0,0), (1,0) ,(2,0) ... etc are the first three (if at least three elements in x)
-    for (int elementIndex=0; elementIndex<totalNumOfElements; ++elementIndex)
+    for (unsigned int elementIndex=0; elementIndex<totalNumOfElements; ++elementIndex)
     {
-        int numElementsRemaining=elementIndex;
+        unsigned int numElementsRemaining=elementIndex;
         
-        for (int iDIM=DIM-1; iDIM>-1;--iDIM)
+        for (unsigned int iDIM=DIM-1; iDIM>-1;--iDIM)
         {
             elementNdId[iDIM]=numElementsRemaining/numOfElementsInEachSubspace[iDIM];
             numElementsRemaining %= numOfElementsInEachSubspace[iDIM];
         }
-    //    allElementNdId[elementIndex].resize(DIM);
-    //    allElementNdId[elementIndex]=elementNdId;
+
         
         // vertexNdId are the DIM coordinate of each vertex in the element with vertexNdId[0] being the bottom left
-        for (int i=0; i<verticesPerElement; ++i)
+        for (unsigned int i=0; i<verticesPerElement; ++i)
         {
             powerOf2 = 1;
-            for (int iDIM=0; iDIM<DIM; ++iDIM)
+            for (unsigned int iDIM=0; iDIM<DIM; ++iDIM)
             {
                 vertexNdId[iDIM] = elementNdId[iDIM] + ((i & powerOf2) !=0);
                 powerOf2 *=2;
@@ -197,33 +323,15 @@ void MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, Poin
             globalVertexID[i]=vertexNdId[0];
                 
             //Now map to the one DIMensional global ID
-            for (int iDIM=1;iDIM<DIM;++iDIM){globalVertexID[i] += vertexNdId[iDIM]*numOfNodesInEachSubspace[iDIM];}
+            for (unsigned int iDIM=1;iDIM<DIM;++iDIM){globalVertexID[i] += vertexNdId[iDIM]*numOfNodesInEachSubspace[iDIM];}
         }
             
-        tempElementVector[elementIndex]=addElement(globalVertexID,referenceGeometry);
+        tempElementVector[elementIndex]=addElement(globalVertexID);
     }
     
     
-    //Stage 4 : Create the faces
-    /// \bug Only implemented for 1D and 2D at the momennt
-    // Note the linear number of faces in each direction is linearNoElements-1;
-    
-    //loop over all the elements
-    //for (int elementIndex=0;elementIndex<totalNumOfElements;elementIndex++)
-//    {
-//        //loop over the DIMensions of the element. Element create internal faces in possitive direction and boundary faces
-//        for (int DIMIndex=0; DIMIndex<DIM;DIMIndex++)
-//        {
-//            //Left x boundary
-//            if (allElementNdId[elementIndex][DIMIndex]==0)
-//            {
-//                addFace(tempElementVector[elementIndex],
-//            }
-//        
-//        }
-//    }
-    
-   // rectangularCreateFaces1D(&tempElementVector, &linearNoElements);
+//Stage 4 : Create the faces
+  
     switch (DIM)
     {
         case 1:
@@ -248,7 +356,7 @@ void MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, Poin
 
 
 template<unsigned int DIM>
-void MeshManipulator<DIM>::rectangularCreateFaces1D(std::vector<Base::Element<DIM>* >& tempElementVector, const std::vector<unsigned int>& linearNoElements)
+void MeshManipulator<DIM>::rectangularCreateFaces1D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements)
 {
     
     //First the internal faces
@@ -256,8 +364,7 @@ void MeshManipulator<DIM>::rectangularCreateFaces1D(std::vector<Base::Element<DI
     {
         addFace(tempElementVector[i],1,tempElementVector[i+1],0);
     }
-    
-    
+
     if (periodicX_==1)
         
     {
@@ -273,7 +380,7 @@ void MeshManipulator<DIM>::rectangularCreateFaces1D(std::vector<Base::Element<DI
 
 
 template<unsigned int DIM>
-void MeshManipulator<DIM>::rectangularCreateFaces2D(std::vector<Base::Element<DIM>* >& tempElementVector, const std::vector<unsigned int>& linearNoElements)
+void MeshManipulator<DIM>::rectangularCreateFaces2D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements)
 {
     
     //first do the faces with normals pointing in the x-direction
@@ -298,9 +405,7 @@ void MeshManipulator<DIM>::rectangularCreateFaces2D(std::vector<Base::Element<DI
         }
         else 
         {
-            
             //Left bounday face
-            
             cout<<"index1="<<index<<endl;
             addFace(tempElementVector[index],1,NULL,0);
             
@@ -318,8 +423,8 @@ void MeshManipulator<DIM>::rectangularCreateFaces2D(std::vector<Base::Element<DI
         for (int i=0; i<linearNoElements[1]-1;i++)
         {
             index=j+i*linearNoElements[0];
-            cout<<"index3="<<index<<endl;
-            cout<<"index3.5="<<index+linearNoElements[0]<<endl;
+            //cout<<"index3="<<index<<endl;
+            //cout<<"index3.5="<<index+linearNoElements[0]<<endl;
             
             addFace(tempElementVector[index],0,tempElementVector[index+linearNoElements[0]],3);
             
@@ -338,13 +443,13 @@ void MeshManipulator<DIM>::rectangularCreateFaces2D(std::vector<Base::Element<DI
             
             //Bottom boundary face
             
-            cout<<"index4="<<index<<endl;
+           // cout<<"index4="<<index<<endl;
             addFace(tempElementVector[index],0,NULL,0);
             
             //Top boundary face
             index =index+(linearNoElements[1]-1)*linearNoElements[0];
             
-            cout<<"index5="<<index<<endl;
+            //cout<<"index5="<<index<<endl;
             addFace(tempElementVector[index],3,NULL,0);
         }
         
@@ -354,7 +459,7 @@ void MeshManipulator<DIM>::rectangularCreateFaces2D(std::vector<Base::Element<DI
 }
 
 template<unsigned int DIM>
-void MeshManipulator<DIM>::rectangularCreateFaces3D(std::vector<Base::Element<DIM>* >& tempElementVector, const std::vector<unsigned int>& linearNoElements)
+void MeshManipulator<DIM>::rectangularCreateFaces3D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements)
 {
     
     unsigned int index;
@@ -385,12 +490,12 @@ void MeshManipulator<DIM>::rectangularCreateFaces3D(std::vector<Base::Element<DI
             
                 //Left boundary
             
-                cout<<"index1="<<index<<endl;
+               // cout<<"index1="<<index<<endl;
                 addFace(tempElementVector[index],2,NULL,0);
             
                 //Right boundary face
                 index =index+linearNoElements[0]-1;
-                cout<<"index2="<<index<<endl;
+               // cout<<"index2="<<index<<endl;
                 addFace(tempElementVector[index],3,NULL,0);
             } // end boundary cases
             
@@ -418,8 +523,7 @@ void MeshManipulator<DIM>::rectangularCreateFaces3D(std::vector<Base::Element<DI
             index=j+k*linearNoElements[0]*linearNoElements[1];
             if (periodicY_==1)
             {
-                cout << "Hmmm this is the problem " << endl;
-                cout << index << " , " << index+(linearNoElements[1]-1)*linearNoElements[0] << endl;
+             //   cout << index << " , " << index+(linearNoElements[1]-1)*linearNoElements[0] << endl;
                 addFace(tempElementVector[index],1,tempElementVector[(index+(linearNoElements[1]-1)*linearNoElements[0])],4);
             }
             else 
@@ -427,19 +531,17 @@ void MeshManipulator<DIM>::rectangularCreateFaces3D(std::vector<Base::Element<DI
                 
                 //front bounday face
                 
-                cout<<"index1="<<index<<endl;
+               // cout<<"index1="<<index<<endl;
                 addFace(tempElementVector[index],1,NULL,0);
                 
                 //Back boundary face
                 index =index+(linearNoElements[1]-1)*linearNoElements[0];
-                cout<<"index2="<<index<<endl;
+             //   cout<<"index2="<<index<<endl;
                 addFace(tempElementVector[index],4,NULL,0);
             } // end boundary cases
             
         } // end loop over y
     } //end loop over z
-    
-        
     
     //Now finally do the face in the z-direction
     
@@ -458,25 +560,21 @@ void MeshManipulator<DIM>::rectangularCreateFaces3D(std::vector<Base::Element<DI
                 
             }//end loop over x
             
-            
             index=k+j*linearNoElements[0];
             if (periodicZ_==1)
             {
-                cout << "This is the final problem " <<endl;
-                cout << index << " , ";
-                cout << index+(linearNoElements[2]-1)*linearNoElements[1]*linearNoElements[0] << endl;
                 addFace(tempElementVector[index],0,tempElementVector[index+(linearNoElements[2]-1)*linearNoElements[1]*linearNoElements[0]],5);
             }
             else 
             {
                 
                 //bottom boundary
-                cout<<"index1="<<index<<endl;
+                //cout<<"index1="<<index<<endl;
                 addFace(tempElementVector[index],0,NULL,0);
                 
                 //Top boundary face
                 index =index+(linearNoElements[2]-1)*linearNoElements[1]*linearNoElements[0];
-                cout<<"index2="<<index<<endl;
+                //cout<<"index2="<<index<<endl;
                 addFace(tempElementVector[index],5,NULL,0);
             } // end boundary cases
             
@@ -486,7 +584,8 @@ void MeshManipulator<DIM>::rectangularCreateFaces3D(std::vector<Base::Element<DI
 }
 
 template<unsigned int DIM>
-void MeshManipulator<DIM>::readCentaurMesh(std::string filename)
+void 
+MeshManipulator<DIM>::readCentaurMesh(const std::string& filename)
 {
 
     //First open the file
@@ -507,10 +606,8 @@ void MeshManipulator<DIM>::readCentaurMesh(std::string filename)
             std::cerr<<"Centaur mesh reader has not been implemented in this DIMension" << std::endl;
     }
     
-    
     //Finally close the file
     centaurFile.close();
-    
 }
 
 template<unsigned int DIM>
@@ -609,7 +706,7 @@ void MeshManipulator<DIM>::readCentaurMesh2D(std::ifstream& centaurFile)
                  centaurFile.read(reinterpret_cast<char*>(&triGlobalNodeIndexes[0]), sizeof(triGlobalNodeIndexes));
                 for (int j=0;j<3;j++){globalNodeIndexes[j]=triGlobalNodeIndexes[j]-1;}
                 
-                addElement(globalNodeIndexes,referenceTriangle);
+                addElement(globalNodeIndexes);
                 
             }
             
@@ -653,13 +750,17 @@ void MeshManipulator<DIM>::readCentaurMesh2D(std::ifstream& centaurFile)
                     for (int j=0; j < 4; j++)
                         globalNodeIndexes[j] = quadGlobalNodeIndexes[j]-1; 
       
-                    addElement(globalNodeIndexes,referenceSquare);
+                    addElement(globalNodeIndexes);
                 }
 
 	    }
         //Check the line was read correctly : each line in centaur start and end with the line size as a check
         centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-        if (checkInt!=sizeOfLine) {std::cerr << "Error in centaur file " << std::endl; return;}
+        if (checkInt!=sizeOfLine)
+        {
+            std::cerr << "Error in centaur file " << std::endl; 
+            return;
+        }
         
      
         faceFactory();
@@ -672,12 +773,7 @@ void MeshManipulator<DIM>::readCentaurMesh2D(std::ifstream& centaurFile)
         
     }
 
-    
-    
 }
-
-
-
 
 /// \bug does not do the bc flags yet or periodic mesh reads
 template<unsigned int DIM>
@@ -688,14 +784,14 @@ void MeshManipulator<DIM>::faceFactory()
     unsigned int numOfFaces;
     
     //Half face holds global node number of both nodes, the element number and the local face number in that element.
-    halfFaceDescriptionT halfFace;
+    HalfFaceDescription halfFace;
     
     //List to hold the half faces. List is used for the quick sorting of the halfFaces
-    std::list<halfFaceDescriptionT> halfFaceList;
+    std::list<HalfFaceDescription> halfFaceList;
     
-    VectorOfPointIndexesT globalFaceIndexes;
+    VectorOfPointIndicesT globalFaceIndexes;
     
-    std::vector<Base::Element<DIM>* > tempElementVector(elements_.size());
+    VectorOfElementPtrT tempElementVector(elements_.size());
     
     //first loop over the elements reading in all the data of the half faces
     unsigned int elementID=0;
@@ -731,31 +827,26 @@ void MeshManipulator<DIM>::faceFactory()
             //Add the halfFace to the list
             halfFaceList.push_front(halfFace);
 
-            
-           
-            
         }
             
         elementID++;
-  
-                 
     }
     
     //Now sort the list on the two value (firstNode, secondNode) so it order and the two pair internal halfFaces are next to each other
     halfFaceList.sort(compareHalfFace);
     
     //Writing out for testing
-    for (typename std::list<halfFaceDescriptionT>::const_iterator cit=halfFaceList.begin(); cit !=halfFaceList.end(); ++cit)
+    for (typename std::list<HalfFaceDescription>::const_iterator cit=halfFaceList.begin(); cit !=halfFaceList.end(); ++cit)
     {
         std::cout << (*cit).elementNum << " " << (*cit).localFaceIndex<< " "<< (*cit).firstNode<<" " << (*cit).secondNode<<" "<<  std::endl;
     }
     
     //Now create the faces
-    halfFaceDescriptionT current;
-    halfFaceDescriptionT next;
+    HalfFaceDescription current;
+    HalfFaceDescription next;
     
     //Loop over all the half faces
-     for (typename std::list<halfFaceDescriptionT>::const_iterator cit=halfFaceList.begin(); cit !=halfFaceList.end(); ++cit)
+     for (typename std::list<HalfFaceDescription>::const_iterator cit=halfFaceList.begin(); cit !=halfFaceList.end(); ++cit)
      {
          //For the first halfFace just read it in, as we cannot tell if is an internal or external yet.
          if (cit==halfFaceList.begin())
@@ -780,28 +871,20 @@ void MeshManipulator<DIM>::faceFactory()
                  {
                      break;
                  }
-                 
-                 
              }
              else //it is a boundary face 
              {
                  addFace(tempElementVector[current.elementNum],current.localFaceIndex,NULL,0);
                  current=next;
              }
-             
-             
 
          }
-
-         
-         
      }
 }
 
-
   //---------------------------------------------------------------------
 template<unsigned int DIM>
-int MeshManipulator<DIM>::size() const 
+int MeshManipulator<DIM>::getNumberOfMeshes() const 
 { 
     return vecOfElementTree_.size();
 }
@@ -818,7 +901,8 @@ void MeshManipulator<DIM>::createNewMeshTree()
 
 //! Get the element container of a specific mesh-tree.
 template<unsigned int DIM>
-typename MeshManipulator<DIM>::ElementLevelTreeT* MeshManipulator<DIM>::ElCont(int meshTreeIdx = -1) const
+typename MeshManipulator<DIM>::ElementLevelTreeT*
+MeshManipulator<DIM>::ElCont(int meshTreeIdx = -1) const
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -837,7 +921,8 @@ typename MeshManipulator<DIM>::ElementLevelTreeT* MeshManipulator<DIM>::ElCont(i
 
 //! Get the face container of a specific mesh-tree.
 template<unsigned int DIM>
-typename MeshManipulator<DIM>::FaceLevelTreeT* MeshManipulator<DIM>::FaCont(int meshTreeIdx = -1) const
+typename MeshManipulator<DIM>::FaceLevelTreeT* 
+MeshManipulator<DIM>::FaCont(int meshTreeIdx = -1) const
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -856,7 +941,8 @@ typename MeshManipulator<DIM>::FaceLevelTreeT* MeshManipulator<DIM>::FaCont(int 
 
 //! Some mesh generator: centaur / rectangular / triangle / tetrahedra / triangular-prism.
 template<unsigned int DIM>
-void MeshManipulator<DIM>::someMeshGenerator(int meshTreeIdx = -1)
+void
+MeshManipulator<DIM>::someMeshGenerator(int meshTreeIdx = -1)
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -889,7 +975,8 @@ void MeshManipulator<DIM>::someMeshGenerator(int meshTreeIdx = -1)
 
 //! Set active mesh-tree.
 template<unsigned int DIM>
-void MeshManipulator<DIM>::setActiveMeshTree(unsigned int meshTreeIdx)
+void
+MeshManipulator<DIM>::setActiveMeshTree(unsigned int meshTreeIdx)
 {
     if (meshTreeIdx < numMeshTree_)
         activeMeshTree_ = meshTreeIdx;
@@ -899,21 +986,24 @@ void MeshManipulator<DIM>::setActiveMeshTree(unsigned int meshTreeIdx)
 
 //! Get active mesh-tree index.
 template<unsigned int DIM>
-int MeshManipulator<DIM>::getActiveMeshTree() const
+int
+MeshManipulator<DIM>::getActiveMeshTree() const
 {
     return activeMeshTree_;
 }
 
 //! Reset active mesh-tree.
 template<unsigned int DIM>
-void MeshManipulator<DIM>::resetActiveMeshTree()
+void
+MeshManipulator<DIM>::resetActiveMeshTree()
 {
     activeMeshTree_ = -1;
 }
 
 //! Get maximum h-level of a specific mesh-tree.
 template<unsigned int DIM>
-unsigned int MeshManipulator<DIM>::getMaxLevel(int meshTreeIdx = -1) const
+unsigned int 
+MeshManipulator<DIM>::getMaxLevel(int meshTreeIdx = -1) const
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -932,7 +1022,8 @@ unsigned int MeshManipulator<DIM>::getMaxLevel(int meshTreeIdx = -1) const
 
 //! Set active level of a specific mesh-tree.
 template<unsigned int DIM>
-void MeshManipulator<DIM>::setActiveLevel(unsigned int meshTreeIdx, int level)
+void
+MeshManipulator<DIM>::setActiveLevel(unsigned int meshTreeIdx, int level)
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -958,7 +1049,8 @@ void MeshManipulator<DIM>::setActiveLevel(unsigned int meshTreeIdx, int level)
 
 //! Get active level of a specific mesh-tree.
 template<unsigned int DIM>
-int MeshManipulator<DIM>::getActiveLevel(int meshTreeIdx = -1) const
+int
+MeshManipulator<DIM>::getActiveLevel(int meshTreeIdx = -1) const
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -977,7 +1069,8 @@ int MeshManipulator<DIM>::getActiveLevel(int meshTreeIdx = -1) const
 
 //! Reset active level of a specific mesh-tree.
 template<unsigned int DIM>
-void MeshManipulator<DIM>::resetActiveLevel(int meshTreeIdx = -1)
+void
+MeshManipulator<DIM>::resetActiveLevel(int meshTreeIdx = -1)
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -997,14 +1090,16 @@ void MeshManipulator<DIM>::resetActiveLevel(int meshTreeIdx = -1)
 
 //! Duplicate mesh contents including all refined meshes.
 template<unsigned int DIM>
-void MeshManipulator<DIM>::duplicate(unsigned int fromMeshTreeIdx, unsigned int toMeshTreeIdx, unsigned int upToLevel = 0)
+void
+MeshManipulator<DIM>::duplicate(unsigned int fromMeshTreeIdx, unsigned int toMeshTreeIdx, unsigned int upToLevel = 0)
 {
     
 }
 
 //! Refine a specific mesh-tree.
 template<unsigned int DIM>
-void MeshManipulator<DIM>::doRefinement(unsigned int meshTreeIdx, int refinementType = -1)
+void
+MeshManipulator<DIM>::doRefinement(unsigned int meshTreeIdx, int refinementType = -1)
 {
     int level = getMaxLevel(meshTreeIdx);
     setActiveLevel(meshTreeIdx,level);
@@ -1048,7 +1143,8 @@ void MeshManipulator<DIM>::doRefinement(unsigned int meshTreeIdx, int refinement
 
 //! Do refinement on the elements.
 template<unsigned int DIM>
-void MeshManipulator<DIM>::doElementRefinement(unsigned int meshTreeIdx)
+void
+MeshManipulator<DIM>::doElementRefinement(unsigned int meshTreeIdx)
 {
     unsigned int needDummyFaceOnLevel = 0;
     std::vector<ElementT*> vecElementsToRefined;  // list of unrefined elements
@@ -1186,17 +1282,18 @@ void MeshManipulator<DIM>::doElementRefinement(unsigned int meshTreeIdx)
 
 //! Do refinement on the faces.
 template<unsigned int DIM>
-void MeshManipulator<DIM>::doFaceRefinement(unsigned int meshTreeIdx)
+void
+MeshManipulator<DIM>::doFaceRefinement(unsigned int meshTreeIdx)
 {
     
 }
 
 //! Check whether the two elements may be connected by a face or not.
 template<unsigned int DIM>
-void MeshManipulator<DIM>::pairingCheck(
-                  const ElementIteratorT elL, unsigned int locFaceNrL,
-                  const ElementIteratorT elR, unsigned int locFaceNrR,
-                  int& pairingValue, bool& sizeOrder)
+void
+MeshManipulator<DIM>::pairingCheck(const ElementIteratorT elL, unsigned int locFaceNrL,
+                                   const ElementIteratorT elR, unsigned int locFaceNrR,
+                                   int& pairingValue, bool& sizeOrder)
 // pairingValue: 0=not match, 1=partial match, 2=perfect match
 // sizeOrder: true = LR,  false = RL
 {
@@ -1489,10 +1586,11 @@ void MeshManipulator<DIM>::pairingCheck(
 
 //! Check whether the two elements may be connected by a face or not in periodic face case.
 template<unsigned int DIM>
-void MeshManipulator<DIM>::periodicPairingCheck(const FaceIteratorT fa, 
-                  const ElementIteratorT elL, unsigned int localFaceNrL,
-                  const ElementIteratorT elR, unsigned int localFaceNrR,
-                  int& pairingValue, bool& sizeOrder)
+void
+MeshManipulator<DIM>::periodicPairingCheck(const FaceIteratorT fa, 
+                                           const ElementIteratorT elL, unsigned int localFaceNrL,
+                                           const ElementIteratorT elR, unsigned int localFaceNrR,
+                                           int& pairingValue, bool& sizeOrder)
 {
     
 }

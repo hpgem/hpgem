@@ -24,7 +24,7 @@
 // #include "../Base/PhysGradientOfBasisFunction.hh"
 // using Base::PhysGradientOfBasisFunction;
 //------------------------------------------------------------------------------
-namespace Geometry
+namespace Base
 {
     template <unsigned int DIM>
     class Element;
@@ -42,7 +42,7 @@ namespace Base
 
 namespace Integration 
 {
-    using Geometry::Element;
+    using Base::Element;
     using Base::PhysicalSpaceFunction;
     using Base::PhysGradientOfBasisFunction;
     
@@ -53,13 +53,20 @@ namespace Integration
         typedef typename T::ReturnType ReturnType;
     };
 
-        // you can provide a function as a integrand
+    // you can provide a function as a integrand
     template <unsigned int DIM, typename T>
-    struct ReturnTrait1<void (*)(const Geometry::PointReference<DIM>&, T&)>
+    struct ReturnTrait1<void (*)(const Base::Element<DIM>&, const Geometry::PointReference<DIM>&, T&)>
     {
         typedef T ReturnType;
     };
-        // you can provide a function as a integrand ant return calcuclated value via return value
+    
+    template < template<unsigned int> class B, unsigned int DIM, typename T>
+    struct ReturnTrait1<void (B<DIM>::*)(const Base::Element<DIM>&, const Geometry::PointReference<DIM>&, T&)>
+    {
+        typedef T ReturnType;
+    };
+        
+    // you can provide a function as a integrand ant return calcuclated value via return value
     template <unsigned int DIM, typename T>
     struct ReturnTrait1<T (*)(const Geometry::PointReference<DIM>&)>
     {
@@ -81,8 +88,3 @@ namespace Integration
 } // close namespace Integration
 #endif
 //------------------------------------------------------------------------------
-// Local variables:
-// mode:c++
-// comment-column: 48
-// End:
-

@@ -27,8 +27,9 @@ namespace Integration
     public:
         ~FaceIntegrandBase() {}
 
-        virtual void operator()(const PointPhysicalT& normal, 
-                                const PointReferenceT& p,  ReturnType& ret) = 0;
+        virtual void operator()(const Base::Face<DIM>&      face,
+                                const PointPhysicalT&       normal, 
+                                const PointReferenceT& p,   ReturnType& ret) = 0;
     };
 
 };

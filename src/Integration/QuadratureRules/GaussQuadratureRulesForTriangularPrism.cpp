@@ -83,10 +83,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const TriPrism_1_1& instantiateTriPrism_1_1 = TriPrism_1_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string 
     TriPrism_3_1::getName() const
@@ -187,10 +184,6 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const TriPrism_3_1& instantiateTriPrism_3_1 = TriPrism_3_1::Instance();
-    }
 //---------------------------------------------------------------------------
     std::string
     TriPrism_5_1::getName() const
@@ -355,10 +348,6 @@ namespace QuadratureRules
     TriPrism_5_1::~TriPrism_5_1()
     {}
 
-    namespace
-    {
-        const TriPrism_5_1& instantiateTriPrism_5_1 = TriPrism_5_1::Instance();
-    }
 //---------------------------------------------------------------------------
     std::string
     TriPrism_7_1::getName() const
@@ -739,9 +728,5 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const TriPrism_7_1& instantiateTriPrism_7_1 = TriPrism_7_1::Instance();
-    }
 //---------------------------------------------------------------------------
 } // close namespace IntegrationRules

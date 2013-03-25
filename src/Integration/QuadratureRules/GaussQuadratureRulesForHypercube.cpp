@@ -85,10 +85,6 @@ namespace QuadratureRules
     
     }
 
-    namespace
-    {
-        const Cn4_1_1& instantiateCn4_1_1 = Cn4_1_1::Instance();
-    }
 //---------------------------------------------------------------------------
     std::string
     Cn4_3_4::getName() const
@@ -244,11 +240,5 @@ namespace QuadratureRules
     Cn4_3_4::~Cn4_3_4()
     {
     }
-
-    namespace
-    {
-        const Cn4_3_4& instantiateCn4_3_4 = Cn4_3_4::Instance();
-    }
-
 //---------------------------------------------------------------------------
 } // close namespace IntegrationRules

@@ -84,10 +84,7 @@ namespace QuadratureRules
     
     }
 
-    namespace
-    {
-        const Tn3_1_1& instantiateTn3_1_1 = Tn3_1_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     Tn3_2_1::getName() const
@@ -169,10 +166,6 @@ namespace QuadratureRules
     
     }
 
-    namespace
-    {
-        const Tn3_2_1& instantiateTn3_2_1 = Tn3_2_1::Instance();
-    }
 //---------------------------------------------------------------------------
     std::string
     Tn3_3_1::getName() const
@@ -258,10 +251,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const Tn3_3_1& instantiateTn3_3_1 = Tn3_3_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     Tn3_4_1::getName() const
@@ -376,10 +366,7 @@ namespace QuadratureRules
     Tn3_4_1::~Tn3_4_1()
     {}
 
-    namespace
-    {
-        const Tn3_4_1& instantiateTn3_4_1 = Tn3_4_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     T3_5_1::getName() const
@@ -510,10 +497,6 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const T3_5_1& instantiateT3_5_1 = T3_5_1::Instance();
-    }
 //---------------------------------------------------------------------------
     std::string
     T3_6_1::getName() const
@@ -694,10 +677,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const T3_6_1& instantiateT3_6_1 = T3_6_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     T3_7_1::getName() const
@@ -913,10 +893,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const T3_7_1& instantiateT3_7_1 = T3_7_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     T3_8_1::getName() const
@@ -1192,10 +1169,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const T3_8_1& instantiateT3_8_1 = T3_8_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     T3_9_1::getName() const
@@ -1521,10 +1495,7 @@ namespace QuadratureRules
     {
     }
 
-    namespace
-    {
-        const T3_9_1& instantiateT3_9_1 = T3_9_1::Instance();
-    }
+
 //---------------------------------------------------------------------------
     std::string
     T3_10_1::getName() const
@@ -2213,11 +2184,6 @@ namespace QuadratureRules
 
     T3_10_1::~T3_10_1()
     {
-    }
-
-    namespace
-    {
-        const T3_10_1& instantiateT3_10_1 = T3_10_1::Instance();
     }
 //---------------------------------------------------------------------------
 } // close namespace IntegrationRules

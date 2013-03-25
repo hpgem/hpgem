@@ -51,6 +51,9 @@ namespace Integration
         template <typename IntegrandT>
         void    integrate(ElementT& el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result,
                           const QuadratureRulesT* const qdrRule = NULL);
+             //! \brief Directly integrate the inegrand and return ReturnTraits1, member function version.
+        template <template<unsigned int> class OBJ, typename IntegrandT>
+        void    integrate(ElementT& el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ<DIM>* objPtr, const QuadratureRulesT* const qdrRule = NULL);
 
     
     private:

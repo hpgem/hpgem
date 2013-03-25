@@ -23,6 +23,7 @@ namespace Base
         typedef typename Base::FaceCacheData<DIM>                        CacheT;
         typedef std::vector<CacheT>                                      VecCacheT;
         typedef Geometry::FaceGeometry<DIM>                              FaceGeometryT;
+        typedef QuadratureRules::GaussQuadratureRule<DIM-1>              FaceQuadratureRule;
         
     public:
         
@@ -44,12 +45,12 @@ namespace Base
         
         void            createQuadratureRules();
     
-        void setGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<DIM-1>* quadratureRule)
+        void setGaussQuadratureRule(FaceQuadratureRule* quadratureRule)
         {
             quadratureRule_ = quadratureRule;
         }
 
-        QuadratureRules::GaussQuadratureRule<DIM-1>* getGaussQuadratureRule() const
+        FaceQuadratureRule* getGaussQuadratureRule() const
         {
             return quadratureRule_;
         }
@@ -59,7 +60,7 @@ namespace Base
     private:
         const ElementT*                                 elementLeft_;
         const ElementT*                                 elementRight_;
-        QuadratureRules::GaussQuadratureRule<DIM-1>*    quadratureRule_;
+        FaceQuadratureRule*                             quadratureRule_;
         VecCacheT                                       vecCacheData_;
     };
 };

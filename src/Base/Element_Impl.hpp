@@ -16,7 +16,7 @@ namespace Base
     
     template<unsigned int DIM>
     Element<DIM>::Element(const VectorOfPointIndexesT& globalNodeIndexes,
-                          const BasisFunctionSetT* const& basisFunctionSet,
+                          const BasisFunctionSetT* const basisFunctionSet,
                           const VectorOfPhysicalPointsT& allNodes,
                           unsigned int nrOfUnkowns,
                           unsigned int nrOfTimeLevels,
@@ -48,6 +48,38 @@ namespace Base
     Element<DIM>::~Element()
     {
         
+    }
+    
+    template<unsigned int DIM>
+    double
+    Element<DIM>::basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p)const
+    {
+        TestErrorDebug((jDir<DIM),"Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
+    
+        switch (jDir)
+        {
+        case 0:
+        return basisFunctionSet_->vecOfBasisFcn_[i]->EvalDeriv0(p);
+        break;
+        case 1:
+        return basisFunctionSet_->vecOfBasisFcn_[i]->EvalDeriv1(p);
+        break;
+        case 2:
+        return basisFunctionSet_->vecOfBasisFcn_[i]->EvalDeriv2(p);
+        break;
+        case 3:
+        return basisFunctionSet_->vecOfBasisFcn_[i]->EvalDeriv3(p);
+        break;
+        }
+
+        return -1.e50;
+    }
+    
+    template<unsigned int DIM>
+    double
+    Element<DIM>::basisFunction(unsigned int i, const PointReferenceT& p)const
+    {
+        return basisFunctionSet_->vecOfBasisFcn_[i]->Eval(p);
     }
     
     template<unsigned int DIM>
@@ -90,6 +122,25 @@ namespace Base
     Element<DIM>::getVecCacheData()
     {
         return vecCacheData_;
+    }
+    
+    
+    template<unsigned int DIM>
+    std::vector<double> 
+    Element<DIM>::getSolution(unsigned int timeLevel, const PointReferenceT& p)
+    {
+        std::vector<double> solution(ElementData<DIM>::getNrOfUnknows(),0);
+        for (int i=0;i++;i<ElementData<DIM>::getNrOfBasisFunctions())
+        {
+            
+            for (int k=0;k++;ElementData<DIM>::getNrOfUnknows())
+            {
+                solution[k]+=ElementData<DIM>::getData(timeLevel,k,i)*basisFunction(i,p);
+            }
+            
+            
+        }
+        
     }
 }
 #endif

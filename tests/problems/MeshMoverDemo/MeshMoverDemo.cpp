@@ -14,34 +14,42 @@ class MeshMoverExampleProblem : public Base::Base<2>
 {
     
 public:
+
     
     bool initialise()
     {
-        Geometry::PointPhysical<2> bottomLeft, topLeft;
+        Geometry::PointPhysical<2> bottomLeft, topRight;
         std::vector<unsigned int> numElementsOneD(2);
         bottomLeft[0] = 0;
         bottomLeft[1] = 0;
-        topLeft[0] = 1;
-        topLeft[1] = 1;
+        topRight[0] = 1;
+        topRight[1] = 1;
         numElementsOneD[0] = 8;
         numElementsOneD[1] = 8;
-        mesh_.createRectangularMesh(bottomLeft, topLeft, numElementsOneD);
+        addMesh("Rectangular",bottomLeft, topRight, numElementsOneD);
+        
+        //Set up the move of the mesh;
+        Base::MeshMover<2>* meshMover= new Base::MeshMover<2>;
+        initialiseMeshMover(meshMover);
+        
         return true;
     }
     
-  void output()
+    void output()
     {
         std::ofstream file2D;
         file2D.open ("out.dat");
         int dimensionsToWrite[2] = {0,1};
         Output::TecplotDiscontinuousSolutionWriter<2> out(file2D,"RectangularMesh",dimensionsToWrite,"xy");
-        out.write(mesh_,"holi",false);
+        out.write(meshes_[0],"holi",false);
     }
     
-    void elementIntegrand(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret){}
-    
-    void faceIntegrand(const PointPhysicalT& normal, 
-                       const PointReferenceT& p,  LinearAlgebra::NumericalVector& ret){}
+    void solve()
+    {
+     
+        meshes_[0]->move();
+        
+    }
     
 };
 
@@ -49,10 +57,8 @@ int main(int argc, char **argv)
 {
     MeshMoverExampleProblem problem;
 
-    Base::MeshMover<2> meshMover;
-
-    problem.initialiseMeshMover(&meshMover);
-
+    problem.initialise();
+    
     problem.solve();
     
     problem.output();

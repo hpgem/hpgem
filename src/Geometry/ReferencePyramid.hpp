@@ -17,7 +17,6 @@
 #include "Mappings/MappingReferenceToReference.hpp"
 #include "Mappings/MappingToRefFaceToPyramid.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRulesForPyramid.hpp"//do not take this out, quadrature rules are
                                                                       // created for the shape globally
 namespace Geometry
 {

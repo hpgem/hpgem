@@ -17,8 +17,6 @@ using std::ostream;
 #include "GlobalNamespaceGeometry.hpp"
 #include "Mappings/MappingReferenceToReference.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRulesForLine.hpp"//do not take this out, quadrature rules are
-                                                                      // created for the shape globally
 
 namespace Geometry
 {

@@ -1,63 +1,68 @@
+#ifndef BASE_HPP
+#define BASE_HPP
+
 #include "MeshMoverBase.hpp"
 #include "MeshManipulator.hpp"
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
+#include "Integration/ElementIntegral.hpp"
+
+#include "vector"
 
 namespace Base
 {
     template <unsigned int DIM>
     class Base
     {
+    public:
+        typedef typename MeshManipulator<DIM>::ConstElementIterator     ConstElementIterator;
+        typedef typename MeshManipulator<DIM>::ElementIterator          ElementIterator;
         
     public:
-        typedef MeshManipulator<DIM>    MeshManipulatorT;
-        typedef MeshMoverBase<DIM>      MeshMoverBaseT;
-        typedef Geometry::PointReference<DIM-1>     PointReferenceT;
+        
+        typedef std::vector<MeshManipulator<DIM>* > VectorOfMeshManipulatorT;
+        typedef MeshMoverBase<DIM>                  MeshMoverBaseT;
         typedef Geometry::PointPhysical<DIM>        PointPhysicalT;
+     
+        
         //typedef BasisFunctions<DIM>     BasisFunctionT;
         
 
 
-        /// \note You need the basis functions before creating the mesh, because the mesh manipulator
+        /// You need the basis functions before creating the mesh, because the mesh manipulator
         /// needs to create the elements, and they need some basis functions variables.
     public:
         
         
-        Base():
-            mesh_()
-        {std::cout << "What the fuck" <<std::endl;}
+        Base():meshes_()
+        {}
 
-        virtual ~Base() {};
+        virtual ~Base() 
+        {
+            for(int i = 0; i < meshes_.size() ; ++i)
+                delete meshes_[i];
+        }
 
         /// \brief Gives the pointer of meshMoverBase class to mesh.
-        bool initialiseMeshMover(MeshMoverBaseT* meshMoverBase);
+        bool initialiseMeshMover(MeshMoverBaseT* meshMoverBase, int meshID);
 
-        /// \brief Creates mesh.
-        bool virtual initialise()=0;
-    
-        /// \brief User-defined element integrand
-        virtual void elementIntegrand(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)=0;
-    
-        /// \brief User-defined face integrand
-        virtual void faceIntegrand(const PointPhysicalT& normal, 
-                                   const PointReferenceT& p,  LinearAlgebra::NumericalVector& ret)=0;
-
-        /// \brief Integrates, and other things.
-        bool solve();
+        
+        void addMesh(std::string type, PointPhysicalT bottomLeft, PointPhysicalT topRight, std::vector<unsigned int> LinearNoElements);
 
         /// \brief Virtual function that should be overwritten by specific problem, specifies initial conditions.
         //virtual void initialCondition() const;
 
     protected:
-        MeshManipulatorT mesh_;
+        /// \todo change this to a vector of meshes.
+        VectorOfMeshManipulatorT                meshes_;
             //MeshMoverBaseT* meshMoverBase_;
 //            BasisFunctionT basisFunction_;
 //            GlobalData globalData_;
 //            ConfigurationData configurationData_;
         
-    private:
         
-        //This is a function that checks the users defined initisation is fine.
-        bool  checkInitialisation();
+        
+        
     };
 };
 #include "Base_Impl.hpp"
+#endif

@@ -27,7 +27,11 @@ namespace Geometry
     template <unsigned int DIM>
     class ElementGeometry;
 }
-
+namespace Base
+{
+    template <unsigned int DIM>
+    class Element;
+}
 
 namespace Base
 {
@@ -63,14 +67,14 @@ namespace Base
         {}
 
         //! Evaluation operator for _reference_ space coordinates.
-        void operator()(const Geometry::PointReference<DIM>& pRef, ReturnType& r)
+        void operator()(const Element<DIM>& el, const Geometry::PointReference<DIM>& pRef, ReturnType& r)
         {
             Geometry::PointPhysical<DIM> pPhys;  // Declare and...
-            element_->referenceToPhysical(pRef, pPhys); // ...transform the point.
+            el.referenceToPhysical(pRef, pPhys); // ...transform the point.
             // PhysSpaceEvaluator enables us to query different types of
             // functions/functors (regarding their argument composition)
             // with one syntax:
-            PhysicalSpaceEvaluator<DIM, ReturnType, FType>::eval(functor_, pPhys, r);
+            PhysicalSpaceEvaluator<DIM, ReturnType, FType>::eval(el, functor_, pPhys, r);
         }
 
     private:

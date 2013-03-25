@@ -6,12 +6,14 @@ include_directories(${hpGEM_SOURCE_DIR}/src/ .)
 
 #Define Polytope_UnitTest.out dependencies
 
-#-----REFERNECE-GEOMETRIES-----REFERNECE-GEOMETRIES-----REFERNECE-GEOMETRIES-----REFERNECE-GEOMETRIE
-
+#-----REFERNECE-GEOMETRIES-----REFERNECE-GEOMETRIES-----REFERNECE-GEOMETRIES-----REFERNECE-GEOMETRIES
+#0-d#
 add_executable(ReferencePointUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferencePoint.cpp
                ReferencePointUnitTest.cpp)
+add_test(ReferencePointUnitTest ReferencePointUnitTest.out)
 
+#1-d#
 add_executable(ReferenceLineUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferencePoint.cpp
                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceLine.cpp
@@ -19,8 +21,9 @@ add_executable(ReferenceLineUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefLineToLine.cpp
                ReferenceLineUnitTest.cpp)
 target_link_libraries(ReferenceLineUnitTest.out Matrix)
+add_test(ReferenceLineUnitTest ReferenceLineUnitTest.out)
 
-
+#2-d#
 add_executable(ReferenceTriangleUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferencePoint.cpp
                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceLine.cpp
@@ -31,6 +34,7 @@ add_executable(ReferenceTriangleUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefTriangleToTriangle.cpp
                ReferenceTriangleUnitTest.cpp)
 target_link_libraries(ReferenceTriangleUnitTest.out Matrix)
+add_test(ReferenceTriangleUnitTest ReferenceTriangleUnitTest.out)
 
 add_executable(ReferenceSquareUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferencePoint.cpp
@@ -42,7 +46,9 @@ add_executable(ReferenceSquareUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefSquareToSquare.cpp
                ReferenceSquareUnitTest.cpp)
 target_link_libraries(ReferenceSquareUnitTest.out Matrix)
+add_test(ReferenceSquareUnitTest ReferenceSquareUnitTest.out)
 
+#3-d#
 add_executable(ReferenceTetrahedronUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferencePoint.cpp
                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceLine.cpp
@@ -55,21 +61,8 @@ add_executable(ReferenceTetrahedronUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefTriangleToTetrahedron.cpp
                ReferenceTetrahedronUnitTest.cpp)
 target_link_libraries(ReferenceTetrahedronUnitTest.out Matrix)
+add_test(ReferenceTetrahedronUnitTest ReferenceTetrahedronUnitTest.out)
 
-add_executable(ReferenceCubeUnitTest.out
-               ${hpGEM_SOURCE_DIR}/src/Geometry/ReferencePoint.cpp
-               ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceLine.cpp
-               ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceSquare.cpp
-               ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceCube.cpp
-               ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefPointToLine.cpp
-               ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefLineToLine.cpp
-               ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefLineToSquare.cpp
-               ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefSquareToSquare.cpp
-               ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefSquareToCube.cpp
-               ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefCubeToCube.cpp
-               ReferenceCubeUnitTest.cpp)
-target_link_libraries(ReferenceCubeUnitTest.out Matrix)
-               
 add_executable(ReferencePyramidUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferencePoint.cpp
                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceLine.cpp
@@ -85,6 +78,7 @@ add_executable(ReferencePyramidUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefFaceToPyramid.cpp
                ReferencePyramidUnitTest.cpp)
 target_link_libraries(ReferencePyramidUnitTest.out Matrix)
+add_test(ReferencePyramidUnitTest ReferencePyramidUnitTest.out)
 
 add_executable(ReferenceTriangularPrismUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferencePoint.cpp
@@ -101,7 +95,24 @@ add_executable(ReferenceTriangularPrismUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefFaceToTriangularPrism.cpp
                ReferenceTriangularPrismUnitTest.cpp)
 target_link_libraries(ReferenceTriangularPrismUnitTest.out Matrix)        
+add_test(ReferenceTriangularPrismUnitTest ReferenceTriangularPrismUnitTest.out)
 
+add_executable(ReferenceCubeUnitTest.out
+               ${hpGEM_SOURCE_DIR}/src/Geometry/ReferencePoint.cpp
+               ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceLine.cpp
+               ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceSquare.cpp
+               ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceCube.cpp
+               ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefPointToLine.cpp
+               ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefLineToLine.cpp
+               ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefLineToSquare.cpp
+               ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefSquareToSquare.cpp
+               ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefSquareToCube.cpp
+               ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefCubeToCube.cpp
+               ReferenceCubeUnitTest.cpp)
+target_link_libraries(ReferenceCubeUnitTest.out Matrix)
+add_test(ReferenceCubeUnitTest ReferenceCubeUnitTest.out)
+
+#4-d#
 add_executable(ReferenceHypercubeUnitTest.out 
                ReferenceHypercubeUnitTest.cpp
                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferencePoint.cpp
@@ -118,33 +129,29 @@ add_executable(ReferenceHypercubeUnitTest.out
                ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefCubeToHypercube.cpp
                ReferenceHypercubeUnitTest.cpp)
 target_link_libraries(ReferenceHypercubeUnitTest.out Matrix)
+add_test(ReferenceHypercubeUnitTest ReferenceHypercubeUnitTest.out)
 
-#add_executable(TriangularPrismTest.out
-#                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceTriangularPrism.cpp
-#                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceTriangularPrism.hpp
-#                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceGeometry.hpp
-#                ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceGeometry_Impl.hpp
-#                ${hpGEM_SOURCE_DIR}/src/Geometry/Point.hpp
-#                ${hpGEM_SOURCE_DIR}/src/Geometry/Point_Impl.hpp
-#                ReferenceTriangularPrismUnitTest.cpp)
 
 #---------POINTS---------POINTS---------POINTS---------POINTS---------POINTS---------POINTS---------
 
-add_executable(Point_UnitTest.out
-               Point_UnitTest.cpp
+add_executable(PointUnitTest.out
+               PointUnitTest.cpp
                ${hpGEM_SOURCE_DIR}/src/Geometry/Point.hpp
                ${hpGEM_SOURCE_DIR}/src/Geometry/Point_Impl.hpp)
+add_test(PointUnitTest PointUnitTest.out)
 
-add_executable(PointPhysical_UnitTest.out
-               PointPhysical_UnitTest.cpp
+add_executable(PointPhysicalUnitTest.out
+               PointPhysicalUnitTest.cpp
                ${hpGEM_SOURCE_DIR}/src/Geometry/Point.hpp
                ${hpGEM_SOURCE_DIR}/src/Geometry/PointPhysical.hpp)
+add_test(PointPhysicalUnitTest PointPhysicalUnitTest.out)
 
-add_executable(PointReference_UnitTest.out
-               PointReference_UnitTest.cpp
+add_executable(PointReferenceUnitTest.out
+               PointReferenceUnitTest.cpp
                ${hpGEM_SOURCE_DIR}/src/Geometry/PointReference.hpp
                ${hpGEM_SOURCE_DIR}/src/Geometry/Point.hpp
                ${hpGEM_SOURCE_DIR}/src/Geometry/Point_Impl.hpp)
+add_test(PointReferenceUnitTest PointReferenceUnitTest.out)
 
 #--------ELEMENT--------ELEMENTS--------ELEMENTS--------ELEMENTS--------ELEMENTS--------ELEMENTS----
 
@@ -222,67 +229,6 @@ target_link_libraries(MappingSquareToCube_UnitTest.out Matrix)
 add_executable(FaceGeometry.out
                FaceGeometryUnitTest.cpp)                
 target_link_libraries(FaceGeometry.out Geometry)
-
-
-
-#Now create the actually tests#
-###############################
-#Test -2 - Simple FaceGeometry Test : Check it both complies and runs
-add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target FaceGeometry.out)
-add_test(FaceGeometry FaceGeometry.out)
-set_tests_properties(FaceGeometry PROPERTIES DEPENDS BuildTest)
-
-
-#Test 0 - Simple Hypercube Test : Check it both complies and runs
-add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target TetrahedronSampleTest.out)
-add_test(TetrahedronSampleTest TetrahedronSampleTest.out)
-set_tests_properties(TetrahedronSampleTest PROPERTIES DEPENDS BuildTest)
-
-#Test -1 - Simple Polytope Test : Check it both complies and runs
-add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target PolytopeTest.out)
-add_test(PolytopeTest PolytopeTest.out)
-set_tests_properties(PolytopeTest PROPERTIES DEPENDS BuildTest)
-
-#Test 1 - Simple Polytope Test : Check it both complies and runs
-add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target PolytopeTest.out)
-add_test(PolytopeTest PolytopeTest.out)
-set_tests_properties(PolytopeTest PROPERTIES DEPENDS BuildTest)
-
-#Test 2 - Simple Line Test : Check it both complies and runs
-add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target LineTest.out)
-add_test(LineTest LineTest.out)
-set_tests_properties(LineTest PROPERTIES DEPENDS BuildTest)
-
-#Test 3 - Simple Triangle Test : Check it both complies and runs
-add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target TriangleTest.out)
-add_test(TriangleTest TriangleTest.out)
-set_tests_properties(TriangleTest PROPERTIES DEPENDS BuildTest)
-
-#Test 4 - Simple Square Test : Check it both complies and runs
-add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target SquareTest.out)
-add_test(SquareTest SquareTest.out)
-set_tests_properties(SquareTest PROPERTIES DEPENDS BuildTest)
-
-#Test 5 - Simple Pyramid Test : Check it both complies and runs
-add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target PyramidTest.out)
-add_test(PyramidTest PyramidTest.out)
-set_tests_properties(PyramidTest PROPERTIES DEPENDS BuildTest)
-
-#Test 6 - Simple TriangularPrism Test : Check it both complies and runs
-add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target TriangularPrismTest.out)
-add_test(TriangularPrismTest TriangularPrismTest.out)
-set_tests_properties(TriangularPrismTest PROPERTIES DEPENDS BuildTest)
-
-#Test 7 - Simple Hypercube Test : Check it both complies and runs
-add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target HypercubeTest.out)
-add_test(HypercubeTest HypercubeTest.out)
-set_tests_properties(HypercubeTest PROPERTIES DEPENDS BuildTest)
-
-#Test 8 - Simple Hypercube Test : Check it both complies and runs
-add_test(BuildTest "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target TetrahedronTest.out)
-add_test(TetrahedronTest TetrahedronTest.out)
-set_tests_properties(TetrahedronTest PROPERTIES DEPENDS BuildTest)
-
 
 
 

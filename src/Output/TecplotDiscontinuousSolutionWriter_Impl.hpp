@@ -1,4 +1,6 @@
 #include "TecplotDiscontinuousSolutionWriter.hpp"
+#include "Base/Element.hpp"
+
 
 namespace Output
 {
@@ -59,7 +61,7 @@ namespace Output
     //template <class WriteFunctor>
     template<unsigned int DIM>
     void TecplotDiscontinuousSolutionWriter<DIM>::write(
-            const Base::MeshManipulator<DIM>& mesh,
+            const Base::MeshManipulator<DIM>* mesh,
             const StringT& zoneTitle,
             const bool sameGeometry//,
             //WriteFunctor& writeDataFunc
@@ -118,20 +120,22 @@ namespace Output
         unsigned int nrOfNodes; // i.e. on one element
         TecplotPhysicalGeometryIterator& nodeIt = TecplotPhysicalGeometryIterator::Instance();
 
-        const ListOfElementsT& elements = mesh.getElementsList();
+        const ListOfElementsT& elements = mesh->getElementsList();
 
         // 1. Element cycle, print physical coordinates.
+        
+       // mesh->outputMesh(std::cout);
+        cout <<"size="<<elements.size()<<endl;
         for (typename ListOfElementsT::const_iterator iterator = elements.begin(), end = elements.end();
                 iterator != end;
                 ++iterator)
         {
             totalNrOfElements++;
             nrOfNodes = 0;
-
             // Tell the TecplotPhysicalGeometryIterator which shape is to be iterated next
-
+            Base::Element<DIM>   el = *(*iterator);
             nodeIt.acceptG((*iterator)->getPhysicalGeometry());
-
+        
             // Cycle through nodes
             while (nodeIt.more())
             {

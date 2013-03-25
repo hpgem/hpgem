@@ -22,6 +22,7 @@ namespace Base
     {
     public:
         typedef Geometry::PointPhysical<DIM>                PointPhysicalT;
+        typedef Geometry::PointReference<DIM>               PointReferenceT;
         typedef Geometry::ReferenceGeometry<DIM>            ReferenceGeometryT;
         typedef Geometry::MappingReferenceToPhysical<DIM>   MappingReferenceToPhysicalT;
         typedef Geometry::ElementGeometry<DIM>              ElementGeometryT;
@@ -38,7 +39,7 @@ namespace Base
     public:
         
         Element(const VectorOfPointIndexesT& globalNodeIndexes,
-                const BasisFunctionSetT* const& basisFunctionSet,
+                const BasisFunctionSetT* const basisFunctionSet,
                 const VectorOfPhysicalPointsT& allNodes,
                 unsigned int nrOfUnkowns,
                 unsigned int nrOfTimeLevels,
@@ -60,7 +61,13 @@ namespace Base
 
         VecCacheT&                      getVecCacheData();
         
-    
+        double                          basisFunction(unsigned int i, const PointReferenceT& p) const;
+ 
+        double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
+        
+        std::vector<double>             getSolution(unsigned int timeLevel, const PointReferenceT& p);
+        
+        
     public:
             /// Output operator.
         friend ostream& operator<<(ostream& os, const Element& element)
