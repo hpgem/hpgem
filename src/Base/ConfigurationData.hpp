@@ -8,10 +8,20 @@
 #ifndef CONFIGURATIONDATA_H_
 #define CONFIGURATIONDATA_H_
 
-class ConfigurationData {
-public:
-	ConfigurationData();
-	virtual ~ConfigurationData();
-};
+namespace Base
+{
+    struct ConfigurationData
+    {
+    
+        ConfigurationData(){}
+        
+        virtual ~ConfigurationData(){}
+    
+    
+        unsigned int numberOfUnknowns_;
+        unsigned int numberOfTimeLevels_;
+        unsigned int numberOfBasisFunctions_;
+    };
+}
 
 #endif /* CONFIGURATIONDATA_H_ */

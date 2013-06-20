@@ -10,30 +10,27 @@
 
 #include "Base/MeshMoverBase.hpp"
 
-namespace Base
-{
-    template <unsigned int DIM>
-    class MeshMover : public MeshMoverBase<DIM>
+template <unsigned int DIM>
+class MeshMover : public Base::MeshMoverBase<DIM>
     {
 
-        public:
+    public:
 
-            typedef Geometry::PointPhysical<DIM> PointPhysicalT;
+        typedef Geometry::PointPhysical<DIM> PointPhysicalT;
 
-        public:
+    public:
 
-            MeshMover() {}
+        MeshMover() {}
 
-            virtual ~MeshMover() {};
+        virtual ~MeshMover() {};
 
-            void movePoint(PointPhysicalT& point) const
-            {
-                std::cout << "we are moving" << std::endl;
-               
-                point[0]=point[0];
-                point[1]=point[1]*(point[0]+0.5);
-            }
-    };
+        void movePoint(PointPhysicalT& point) const
+        {
+            std::cout << "we are moving" << std::endl;
+            
+            point[0]=point[0];
+            point[1]=point[1]*(point[0]+0.5);
+        }
 };
 
 #endif /* MESHMOVER_HPP_ */

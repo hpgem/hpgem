@@ -1,17 +1,18 @@
 #ifndef BaseSimplifiedHPP
 #define BaseSimplifiedHPP
 
-#include "Base/Base.hpp"
+#include "Base/HpgemUI.hpp"
 
 namespace Base
 {
     template <unsigned int DIM>
-    class BaseSimplified : public Base<DIM>
+    class HpgemUISimplified : public HpgemUI<DIM>
     {
     
     public:
         
-        typedef Element<DIM>                                            ElementT;
+        typedef Base::Element<DIM>                                      ElementT;
+        typedef Base::Face<DIM>                                         FaceT;
         typedef Geometry::PointPhysical<DIM>                            PointPhysicalT;
         typedef Geometry::PointReference<DIM>                           PointReferenceT;
         typedef typename MeshManipulator<DIM>::ConstElementIterator    ConstElementIterator;
@@ -50,6 +51,6 @@ namespace Base
         
     };
 }
-#include "BaseSimplified_Imp.hpp"
+#include "HpgemUISimplified_Imp.hpp"
 
 #endif

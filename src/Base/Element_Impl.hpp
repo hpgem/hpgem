@@ -20,13 +20,13 @@ namespace Base
                           const VectorOfPhysicalPointsT& allNodes,
                           unsigned int nrOfUnkowns,
                           unsigned int nrOfTimeLevels,
-                          unsigned int counter):
+                          unsigned int id):
         ElementGeometryT(globalNodeIndexes, allNodes),
         ElementDataT(nrOfTimeLevels, nrOfUnkowns, basisFunctionSet->size()),
         basisFunctionSet_(basisFunctionSet),
         quadratureRule_(NULL),
         vecCacheData_(),
-        id_(counter)
+        id_(id)
     {
         orderCoeff_ = 2;
         setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->getOrder());
@@ -49,6 +49,19 @@ namespace Base
     {
         
     }
+//    template<unsigned int DIM>
+//    unsigned int
+//    Element<DIM>::getNumberOfDegreesOfFreedom()
+//    {
+//        return basisFunctionSet_.size();
+//    }
+//    
+//    template<unsigned int DIM>
+//    unsigned int 
+//    Element<DIM>::getNumberOfDegreesOfFreedom()const
+//    {
+//        return basisFunctionSet_.size();
+//    }
     
     template<unsigned int DIM>
     double
@@ -126,21 +139,20 @@ namespace Base
     
     
     template<unsigned int DIM>
-    std::vector<double> 
-    Element<DIM>::getSolution(unsigned int timeLevel, const PointReferenceT& p)
+    void
+    Element<DIM>::getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution)
     {
-        std::vector<double> solution(ElementData<DIM>::getNrOfUnknows(),0);
-        for (int i=0;i++;i<ElementData<DIM>::getNrOfBasisFunctions())
-        {
-            
-            for (int k=0;k++;ElementData<DIM>::getNrOfUnknows())
-            {
-                solution[k]+=ElementData<DIM>::getData(timeLevel,k,i)*basisFunction(i,p);
-            }
-            
-            
-        }
+        unsigned int numberOfUnknows = ElementData<DIM>::getNrOfUnknows();
+        solution.resize(numberOfUnknows);
         
+        LinearAlgebra::Matrix& data = ElementData<DIM>::getTimeLevelData(0);
+        for (int i=0; i < ElementData<DIM>::getNrOfBasisFunctions(); ++i)
+        {
+            for (int k=0; k < numberOfUnknows; ++k)
+            {
+                solution[k] += data(k, i) * basisFunction(i, p);
+            }
+        }
     }
 }
 #endif

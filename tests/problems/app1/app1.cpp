@@ -5,34 +5,40 @@
  *      Author: the ghost of nicorivas
  */
 
-#include "Base/BaseSimplified.hpp"
+#include "Base/HpgemUISimplified.hpp"
+#include "Base/RectangularMeshDescriptor.hpp"
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "Output/TecplotPhysicalGeometryIterator.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+using Base::RectangularMeshDescriptor;
+using Base::HpgemUISimplified;
 
-class SimpleDemoProblem : public Base::BaseSimplified<2>
+const unsigned int DIM = 2;
+class SimpleDemoProblem : public HpgemUISimplified<DIM>
 {
     
 public:
     
     bool initialise()
     {
-        Geometry::PointPhysical<2> bottomLeft, topLeft;
-        std::vector<unsigned int> numElementsOneD(2);
-        bottomLeft[0] = 0;
-        bottomLeft[1] = 0;
-        topLeft[0] = 1;
-        topLeft[1] = 1;
-        numElementsOneD[0] = 8;
-        numElementsOneD[1] = 8;
-        addMesh("Rectangular",bottomLeft, topLeft, numElementsOneD);
+        RectangularMeshDescriptor<DIM> rectangularMesh;
+        
+        rectangularMesh.bottomLeft_[0] = 0;
+        rectangularMesh.bottomLeft_[1] = 0;
+        rectangularMesh.topLeft_[0] = 1;
+        rectangularMesh.topLeft_[1] = 1;
+        rectangularMesh.numElementsInDIM_[0] = 8;
+        rectangularMesh.numElementsInDIM_[1] = 8;
+        
+        addMesh(rectangularMesh);
+        
         return true;
     }
 
     void elementIntegrand(const ElementT& element, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
     {
         
-//         double phi=element.getData(0,0)
+     //   double phi=element.getSolution(0);
 //         ret[0]=
         
         

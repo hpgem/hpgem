@@ -48,7 +48,13 @@ int main()
     numElementsOneD[0] = 2;
     numElementsOneD[1] = 2;
 
-    Base::MeshManipulator<dim> myTwoDDemoMesh(1,1);
+    Base::ConfigurationData config;
+    
+    config.numberOfUnknowns_       = 1;
+    config.numberOfTimeLevels_     = 1;
+    config.numberOfBasisFunctions_ = 1;
+    
+    Base::MeshManipulator<dim> myTwoDDemoMesh(&config, 1,1);
 
     myTwoDDemoMesh.createRectangularMesh(bottomLeft,topLeft,numElementsOneD);
 

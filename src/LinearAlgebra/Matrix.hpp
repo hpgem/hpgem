@@ -108,6 +108,15 @@ namespace LinearAlgebra
         /// \brief Get the number of columns
         const int getNCols() const;
         
+        /// \brief Return the LUfactorisation of the matrix
+        Matrix LUfactorisation() const;
+        
+        /// \brief return the inverse in the vector result. The size of result must match the matrix.
+        void inverse(Matrix& result) const;
+        
+        /// \brief solves Ax=B where A is the current matrix and B is passed in. The result is returned in B.
+        void solve(Matrix& B) const;
+        
     private:
         /// The actually data of the matrix class
         valarray<double> data_;
@@ -120,6 +129,7 @@ namespace LinearAlgebra
         
     };
     
+    /// Writes nices format enteries of the Matrix A to the stream os.
     ostream& operator<<(ostream& os, const Matrix& A);
     
 }

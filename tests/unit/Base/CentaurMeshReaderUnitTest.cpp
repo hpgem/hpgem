@@ -10,8 +10,13 @@ using namespace std;
 
 int main()
 {
+    Base::ConfigurationData config;
     
-    Base::MeshManipulator<2> myTwoDDemoMesh(1,1);
+    config.numberOfUnknowns_       = 1;
+    config.numberOfTimeLevels_     = 1;
+    config.numberOfBasisFunctions_ = 1;
+    
+    Base::MeshManipulator<2> myTwoDDemoMesh(&config, 1,1);
     
     std::stringstream filename;
     
@@ -34,7 +39,7 @@ int main()
     
     //Now do it again with a more complicated mesh
     
-    Base::MeshManipulator<2> triQuadTwoDDemoMesh(1,1);
+    Base::MeshManipulator<2> triQuadTwoDDemoMesh(&config,1,1);
     
     std::stringstream filename2;
     

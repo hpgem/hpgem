@@ -10,14 +10,13 @@
 
 namespace Base
 {
-    class GlobalData
+    struct GlobalData
     {
-        public:
-	        GlobalData();
-	        virtual ~GlobalData();
-        private:
-	        int numberOfUnknowns;
-	        int numberOfTimeLevels;
+        virtual ~GlobalData(){}
+    
+        unsigned int numberOfUnknowns_;
+        unsigned int numberOfTimeLevels_;
+        
     };
 };
 

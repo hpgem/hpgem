@@ -78,9 +78,45 @@ int main(int argc, char* argv[])
     
     CC1.axpy(2.0,CC2);
     
+    
+    
     cout << CC1;
     
+
+    CC3=BB1;
+    CC3=BB1.LUfactorisation();
     
+    cout << "\n Now the LU factorisation \n";
+    
+    cout << "Before : \n";
+    
+    cout << BB1;
+     
+    cout << "After : \n";
+    cout << CC3;
+    
+    cout << "\n Now the inverse"  <<endl;
+    
+    CC3(0,0)=1;
+    CC3(0,1)=2;
+    CC3(1,0)=3;
+    CC3(1,1)=4;
+    
+    LinearAlgebra::Matrix CC4(2,2);
+    
+    CC3.inverse(CC4);
+    
+    cout << CC4; 
+    
+    CC3=CC3*CC4;
+    
+    cout << CC3;
+    
+    cout << "\n Now test the solution of Ax=B \n ";
+    
+    CC3.solve(CC4);
+    
+    cout << CC4;
     
     
 

@@ -5,32 +5,47 @@
  *      Author: nicorivas
  */
 
-#include "Base/Base.hpp"
+#include "Base/HpgemUI.hpp"
+#include "Base/RectangularMeshDescriptor.hpp"
 #include "MeshMover.hpp"
+#include "Base/GlobalData.hpp"
+#include "Base/ConfigurationData.hpp"
+
+
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "Output/TecplotPhysicalGeometryIterator.hpp"
+using Base::RectangularMeshDescriptor;
+using Base::ConfigurationData;
+using Base::GlobalData;
 
-class MeshMoverExampleProblem : public Base::Base<2>
+const unsigned int DIM = 2;
+class MeshMoverExampleProblem : public Base::HpgemUI<DIM>
 {
     
 public:
-
+    MeshMoverExampleProblem(const GlobalData* global, const ConfigurationData* config):
+        HpgemUI(global, config)
+    {
+    }
     
     bool initialise()
     {
-        Geometry::PointPhysical<2> bottomLeft, topRight;
-        std::vector<unsigned int> numElementsOneD(2);
-        bottomLeft[0] = 0;
-        bottomLeft[1] = 0;
-        topRight[0] = 1;
-        topRight[1] = 1;
-        numElementsOneD[0] = 8;
-        numElementsOneD[1] = 8;
-        addMesh("Rectangular",bottomLeft, topRight, numElementsOneD);
+        
+        RectangularMeshDescriptor<DIM> rectangularMesh;
+        
+        rectangularMesh.bottomLeft_[0] = 0;
+        rectangularMesh.bottomLeft_[1] = 0;
+        rectangularMesh.topLeft_[0] = 1;
+        rectangularMesh.topLeft_[1] = 1;
+        rectangularMesh.numElementsInDIM_[0] = 8;
+        rectangularMesh.numElementsInDIM_[1] = 8;
+        
+        typename HpgemUI<DIM>::MeshId id = addMesh(rectangularMesh);
+
         
         //Set up the move of the mesh;
-        Base::MeshMover<2>* meshMover= new Base::MeshMover<2>;
-        initialiseMeshMover(meshMover);
+        const MeshMover<2>* meshMover= new MeshMover<2>;
+        initialiseMeshMover(meshMover, id);
         
         return true;
     }
@@ -55,8 +70,20 @@ public:
 
 int main(int argc, char **argv)
 {
-    MeshMoverExampleProblem problem;
+   
+    Base::GlobalData globalData;
+    
+    Base::ConfigurationData config;
+    
+    config.numberOfUnknowns_       = 1;
+    config.numberOfTimeLevels_     = 1;
+    config.numberOfBasisFunctions_ = 1;
+    
+    globalData.numberOfUnknowns_=10;
+    globalData.numberOfTimeLevels_=1;
 
+    MeshMoverExampleProblem problem(&globalData, &config);
+    
     problem.initialise();
     
     problem.solve();

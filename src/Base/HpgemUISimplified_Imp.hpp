@@ -4,17 +4,17 @@
 namespace Base
 {
     template<unsigned int DIM>
-    class BaseSimplified;
+    class HpgemUISimplified;
     
     template<unsigned int DIM>
     bool
-    BaseSimplified<DIM>::solve()
+    HpgemUISimplified<DIM>::solve()
     {
         initialise();
         checkInitialisation();
-        for (int i=0; i<Base<DIM>::meshes_.size();i++)
+        for (int i=0; i < HpgemUI<DIM>::meshes_.size();i++)
         {
-            Base<DIM>::meshes_[i]->move(); // just for testing
+            HpgemUI<DIM>::meshes_[i]->move(); // just for testing
         }
         doAllElementIntegration();
         
@@ -28,11 +28,11 @@ namespace Base
     
     template<unsigned int DIM>
     void
-    BaseSimplified<DIM>::doAllElementIntegration(unsigned int meshID)
+    HpgemUISimplified<DIM>::doAllElementIntegration(unsigned int meshID)
     {
         LinearAlgebra::Matrix  	matrix(1,1);
-        typedef void  (BaseSimplified<DIM>::*Function)(const Element<DIM>& , const PointReferenceT&, LinearAlgebra::Matrix&);
-        Function f = &BaseSimplified<DIM>::elementIntegrand;
+        typedef void  (HpgemUISimplified<DIM>::*Function)(const Element<DIM>& , const PointReferenceT&, LinearAlgebra::Matrix&);
+        Function f = &HpgemUISimplified<DIM>::elementIntegrand;
         
      //void  (BaseSimplified<DIM>::*f)(const Element<DIM>& , const Geometry::PointReference<DIM>&, LinearAlgebra::NumericalVector&)= &BaseSimplified<DIM>::elementIntegrand;
      //typedef  void (Base<DIM>::*Function)(const Element<DIM>& , const Geometry::PointReference<DIM>&, LinearAlgebra::NumericalVector&);
@@ -44,7 +44,7 @@ namespace Base
         bool isUseCache(false);
         Integration::ElementIntegral<DIM> 	elIntegral(isUseCache);
         
-        for (ElementIterator it=Base<DIM>::meshes_[meshID]->elementColBegin(); it!= Base<DIM>::meshes_[meshID]->elementColEnd(); ++it)
+        for (ElementIterator it=HpgemUI<DIM>::meshes_[meshID]->elementColBegin(); it!= HpgemUI<DIM>::meshes_[meshID]->elementColEnd(); ++it)
         {
             
             elIntegral.integrate(*(*it), f, matrix, this);
@@ -56,9 +56,9 @@ namespace Base
     
     template<unsigned int DIM>
     bool
-    BaseSimplified<DIM>::checkInitialisation()
+    HpgemUISimplified<DIM>::checkInitialisation()
     {
-        if (Base<DIM>::meshes_.size()==0)
+        if (HpgemUI<DIM>::meshes_.size()==0)
         {
 
             std::cerr << "Error no mesh created : You need to create at least one mesh to solve a problem" << std::endl;

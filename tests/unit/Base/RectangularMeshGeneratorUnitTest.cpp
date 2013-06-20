@@ -10,6 +10,13 @@ int main()
 {
     //first 1D test
     {//
+        
+        Base::ConfigurationData config;
+        
+        config.numberOfUnknowns_       = 1;
+        config.numberOfTimeLevels_     = 1;
+        config.numberOfBasisFunctions_ = 1;
+
         Geometry::PointPhysical<1> bottomLeft, topLeft;
         std::vector<unsigned int> numElementsOneD(1);
 
@@ -19,7 +26,7 @@ int main()
     
         numElementsOneD[0]=2;
     
-        Base::MeshManipulator<1> myOneDDemoMesh(1);
+        Base::MeshManipulator<1> myOneDDemoMesh(&config, 1);
     
     
     

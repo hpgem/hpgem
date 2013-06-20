@@ -22,19 +22,30 @@ namespace LinearAlgebra
         ///This is the gernal matrix multiplication from blas level 3
         int dgemm_(const char *transA, const char *transB, int *M, int *N, int *k, double *alpha, double *A, int *LDA, double *B, int *LDB, double *beta, double *C, int *LDC); 
         
-        ///This is the gernal scale times vector + vector from blas, hence from blas level 1. Here we also use on a matrix by treating as a vector
+        ///This is the gerneral scalar times vector + vector from blas, hence from blas level 1. Here we also use on a matrix by treating as a vector
         int daxpy_(unsigned int* N, double* DA, double* DX,unsigned int* INCX, double* DY, unsigned int* INCY);
+        
+        /// This is LU factorisation of the matrix A. This has been taken from LAPACK 
+        void dgetrf_(int* M, int *N, double* A, int* lda, int* IPIV, int* INFO);
+        
+        /// This is the inverse calulation also from LAPACK. Calculates inverse if you pass it the LU factorisation.
+        void dgetri_(int* N, double* A, int* lda, int* IPIV, double* WORK, int* lwork, int* INFO);
+        
+        /// This is used for solve Ax=B for x. Again this is from LAPACK.
+        void dgesv_(int* N, int* NRHS, double* A, int* lda,  int* IPIV, double* B, int* LDB, int* INFO);
         
         
         //Tito's def
         void sgetrf_(const int*, const int*, float*, const int*, int*, int*);
-        void dgetrf_(const int*, const int*, double*, const int*, int*, int*);
+        //void dgetrf_(const int*, const int*, double*, const int*, int*, int*);
         
         void sgetrs_(const char*, const int*, const int*, const float*, const int*, const int*, float*, const int*, int*);
         void dgetrs_(const char*, const int*, const int*, const double*, const int*, const int*, double*, const int*, int*);
         
         void sgesv_(const int*, const int*, float*, const int*, int*, float*, const int*, int*);
-        void dgesv_(const int*, const int*, double*, const int*, int*, double*, const int*, int*);
+       // void dgesv_(const int*, const int*, double*, const int*, int*, double*, const int*, int*);
+        
+        
         
         
         // call dgemv(trans, m, n, alpha, a, lda, x, incx, beta, y, incy)
@@ -411,6 +422,68 @@ namespace LinearAlgebra
     /// \return int : the number of columns
     const int Matrix::getNCols() const {return nCols_;}
     
+    /// return Matrix which is the LUfactorisation of the current matrix
+    Matrix Matrix::LUfactorisation() const
+    {
+        
+        int nr=nRows_;
+        int nc=nCols_; 
+        int nPivot=std::min(nRows_,nCols_);
+        
+        Matrix result(*this);
+    
+        int info;
+        
+        dgetrf_(&nr,&nc,&result[0],&nr,&nPivot,&info);
+        
+        
+        return result;
+    }
+    
+    /// \param[out] result this is the inverse of the current matrix
+    /// \bug if the dimensations of result are correct is not checked.
+    void Matrix::inverse(Matrix& result) const
+    {
+     
+        result=(*this);
+        
+        int nr=nRows_;
+        int nc=nCols_;
+        
+        int nPivot=std::min(nRows_,nCols_);
+        
+        int info;
+        
+        dgetrf_(&nr,&nc,&result[0],&nr,&nPivot,&info);
+        
+        int lwork = nRows_*nCols_;
+        
+        double *work = new double[lwork];
+        
+        
+        dgetri_(&nc,&result[0],&nc,&nPivot,work,&lwork,&info);
+        
+        
+        
+    }
+    
+    /// \param[in,out] B. On enter is B in Ax=B and on exit is x.
+    void Matrix::solve(Matrix& B) const
+    {
+        
+        
+        int n=nRows_;
+        int nrhs=B.getNCols();
+        int info;
+        
+        int IPIV;
+    
+        
+        dgesv_(&n,&nrhs,&((*(const_cast<Matrix *> (this)))[0]),&n,&IPIV,&B[0],&n,&info);
+    
+        
+    }
+    
     
     ostream& operator<<(ostream& os, const Matrix& A)
     {
@@ -434,7 +507,7 @@ namespace LinearAlgebra
     }
     
     
-    
+
     
     
     

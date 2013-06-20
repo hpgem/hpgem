@@ -9,13 +9,9 @@
 namespace Base
 {
     
-    
-   
-    
-    
-   
-    
-    
-     
+    enum   MeshType {
+                     RECTANGULAR,
+                     TRIANGULAR
+                    };
    
 };

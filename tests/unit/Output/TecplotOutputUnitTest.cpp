@@ -15,6 +15,12 @@
 
 int main()
 {
+    Base::ConfigurationData config;
+    
+    config.numberOfUnknowns_       = 1;
+    config.numberOfTimeLevels_     = 1;
+    config.numberOfBasisFunctions_ = 1;
+
     // Create a mesh
     Geometry::PointPhysical<2> bottomLeft, topLeft;
     std::vector<unsigned int> numElementsOneD(2);
@@ -28,7 +34,7 @@ int main()
     numElementsOneD[0]=8;
     numElementsOneD[1]=8;
 
-    Base::MeshManipulator<2> myTwoDDemoMesh;
+    Base::MeshManipulator<2> myTwoDDemoMesh(&config);
 
     myTwoDDemoMesh.createRectangularMesh(bottomLeft,topLeft,numElementsOneD);
     myTwoDDemoMesh.outputMesh(std::cout);

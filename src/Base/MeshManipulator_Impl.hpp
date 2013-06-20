@@ -30,56 +30,59 @@ bool compareHalfFace(HalfFaceDescription first, HalfFaceDescription second)
 //***********************************************************************************************************************
 //***********************************************************************************************************************
 //***********************************************************************************************************************
-
+  
 template<>
 void
-MeshManipulator<1>::createBasisFunctions(unsigned int order)
+MeshManipulator<1>::createDefaultBasisFunctions(unsigned int order)
 {
     Base::BasisFunctionSet<1>* bFset1 = new Base::BasisFunctionSet<1>(order);
     
     Base::AssembleBasisFunctionSet_1D_Ord3_A0(*bFset1);
     
-    collBasisFSet_.push_back(bFset1);
+    defaultSetOfBasisFunctions_ = bFset1;
 }
 
 template<>
 void
-MeshManipulator<2>::createBasisFunctions(unsigned int order)
+MeshManipulator<2>::createDefaultBasisFunctions(unsigned int order)
 {
     Base::BasisFunctionSet<2>* bFset1 = new Base::BasisFunctionSet<2>(order);
     
     Base::AssembleBasisFunctionSet_2D_Ord2_A1(*bFset1);
     
-    collBasisFSet_.push_back(bFset1);
+    defaultSetOfBasisFunctions_ = bFset1;
 }
 
 template<>
 void
-MeshManipulator<3>::createBasisFunctions(unsigned int order)
+MeshManipulator<3>::createDefaultBasisFunctions(unsigned int order)
 {
     Base::BasisFunctionSet<3>* bFset1 = new Base::BasisFunctionSet<3>(order);
     
     Base::AssembleBasisFunctionSet_3D_Ord2_A1(*bFset1);
     
-    collBasisFSet_.push_back(bFset1);
+    defaultSetOfBasisFunctions_ = bFset1;
 }
 
 template<unsigned int DIM>
-MeshManipulator<DIM>::MeshManipulator(bool xPer, bool yPer, bool zPer):
+MeshManipulator<DIM>::MeshManipulator(const ConfigurationData* config, bool xPer, bool yPer, bool zPer, unsigned int orderOfFEM, unsigned int idRangeBegin):
+    configData_(config),
     periodicX_(xPer),
     periodicY_(yPer),
     periodicZ_(zPer),
+    counter_(idRangeBegin),
     activeMeshTree_(0), 
     numMeshTree_(0)
 {
-    unsigned int order =1;
-    std::cout << "I am in teh constructor" << std::endl;
-    createBasisFunctions(order);
+    std::cout << "I am in the constructor" << std::endl;
+    createDefaultBasisFunctions(orderOfFEM);
     createNewMeshTree();
 }
 
 template<unsigned int DIM>
 MeshManipulator<DIM>::MeshManipulator(const MeshManipulator& other):
+             configData_(other.configData_),
+             counter_(other.counter_),
              elements_(other.elements_),
              faces_(other.faces_),
              points_(other.points_),
@@ -87,6 +90,7 @@ MeshManipulator<DIM>::MeshManipulator(const MeshManipulator& other):
              periodicY_(other.periodicY_),
              periodicZ_(other.periodicZ_),
              meshMover_(other.meshMover_),
+             defaultSetOfBasisFunctions_(other.defaultSetOfBasisFunctions_),
              collBasisFSet_(other.collBasisFSet_),
              activeMeshTree_(other.activeMeshTree_),
              numMeshTree_(other.numMeshTree_),
@@ -112,6 +116,7 @@ MeshManipulator<DIM>::~MeshManipulator()
     }
     
     delete meshMover_;
+    delete defaultSetOfBasisFunctions_;
 
     // Kill all faces in all mesh-tree
     while (!vecOfFaceTree_.empty())
@@ -132,14 +137,14 @@ template<unsigned int DIM>
 Base::Element<DIM>* 
 MeshManipulator<DIM>::addElement(const VectorOfPointIndicesT& globalNodeIndexes)
 {
-    unsigned int numOfUnknowns      = 10;
-    unsigned int numOfTimeLevels    = 10;
-    unsigned int counter            = 10;
     
-    const BasisFunctionSetT* const bf= collBasisFSet_[0];
+    unsigned int numOfUnknowns      = configData_->numberOfUnknowns_;
+    unsigned int numOfTimeLevels    = configData_->numberOfTimeLevels_;
+    unsigned int id                 = ++counter_;
     
     
-    ElementT*  myElement = new ElementT(globalNodeIndexes,bf, points_, numOfUnknowns, numOfTimeLevels, counter);
+    
+    ElementT*  myElement = new ElementT(globalNodeIndexes, defaultSetOfBasisFunctions_, points_, numOfUnknowns, numOfTimeLevels, id);
     
     
     elements_.push_back(myElement);
@@ -162,7 +167,7 @@ MeshManipulator<DIM>::move()
 
 template<unsigned int DIM>
 void
-MeshManipulator<DIM>::setMeshMover(MeshMoverBase<DIM>* meshMover)
+MeshManipulator<DIM>::setMeshMover(const MeshMoverBase<DIM>* meshMover)
 {
     meshMover_ = meshMover;
 }
@@ -195,15 +200,18 @@ template<unsigned int DIM>
 void 
 MeshManipulator<DIM>::outputMesh(ostream& os)const
 {
-    for (int i=0;i<points_.size();i++){os<<"Node " <<i<<" "<<points_[i]<<endl;}
+    for (int i=0;i<points_.size();i++)
+    {
+        os<<"Node " <<i<<" "<<points_[i]<<endl;
+    }
     
     int elementNum=0;
     
     for (typename ListOfElementsT::const_iterator cit=elements_.begin(); cit !=elements_.end(); ++cit)
-        {
+    {
         os << "Element " <<elementNum <<" " <<*(*cit)<<endl;
         elementNum++;
-        }
+    }
     
     int faceNum=0;
     for (typename ListOfFacesT::const_iterator cit=faces_.begin(); cit !=faces_.end(); ++cit)
@@ -217,7 +225,7 @@ MeshManipulator<DIM>::outputMesh(ostream& os)const
 
 template<unsigned int DIM>
 void 
-MeshManipulator<DIM>::createRectangularMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, const  VectorOfPointIndicesT& linearNoElements)
+MeshManipulator<DIM>::createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const  VectorOfPointIndicesT& linearNoElements)
 {
     if (linearNoElements.size() != DIM)
     {
@@ -902,7 +910,7 @@ void MeshManipulator<DIM>::createNewMeshTree()
 //! Get the element container of a specific mesh-tree.
 template<unsigned int DIM>
 typename MeshManipulator<DIM>::ElementLevelTreeT*
-MeshManipulator<DIM>::ElCont(int meshTreeIdx = -1) const
+MeshManipulator<DIM>::ElCont(int meshTreeIdx) const
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -922,7 +930,7 @@ MeshManipulator<DIM>::ElCont(int meshTreeIdx = -1) const
 //! Get the face container of a specific mesh-tree.
 template<unsigned int DIM>
 typename MeshManipulator<DIM>::FaceLevelTreeT* 
-MeshManipulator<DIM>::FaCont(int meshTreeIdx = -1) const
+MeshManipulator<DIM>::FaCont(int meshTreeIdx) const
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -942,7 +950,7 @@ MeshManipulator<DIM>::FaCont(int meshTreeIdx = -1) const
 //! Some mesh generator: centaur / rectangular / triangle / tetrahedra / triangular-prism.
 template<unsigned int DIM>
 void
-MeshManipulator<DIM>::someMeshGenerator(int meshTreeIdx = -1)
+MeshManipulator<DIM>::someMeshGenerator(int meshTreeIdx)
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -1003,7 +1011,7 @@ MeshManipulator<DIM>::resetActiveMeshTree()
 //! Get maximum h-level of a specific mesh-tree.
 template<unsigned int DIM>
 unsigned int 
-MeshManipulator<DIM>::getMaxLevel(int meshTreeIdx = -1) const
+MeshManipulator<DIM>::getMaxLevel(int meshTreeIdx) const
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -1050,7 +1058,7 @@ MeshManipulator<DIM>::setActiveLevel(unsigned int meshTreeIdx, int level)
 //! Get active level of a specific mesh-tree.
 template<unsigned int DIM>
 int
-MeshManipulator<DIM>::getActiveLevel(int meshTreeIdx = -1) const
+MeshManipulator<DIM>::getActiveLevel(int meshTreeIdx) const
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -1070,7 +1078,7 @@ MeshManipulator<DIM>::getActiveLevel(int meshTreeIdx = -1) const
 //! Reset active level of a specific mesh-tree.
 template<unsigned int DIM>
 void
-MeshManipulator<DIM>::resetActiveLevel(int meshTreeIdx = -1)
+MeshManipulator<DIM>::resetActiveLevel(int meshTreeIdx)
 {
     int onIndex;
     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
@@ -1091,7 +1099,7 @@ MeshManipulator<DIM>::resetActiveLevel(int meshTreeIdx = -1)
 //! Duplicate mesh contents including all refined meshes.
 template<unsigned int DIM>
 void
-MeshManipulator<DIM>::duplicate(unsigned int fromMeshTreeIdx, unsigned int toMeshTreeIdx, unsigned int upToLevel = 0)
+MeshManipulator<DIM>::duplicate(unsigned int fromMeshTreeIdx, unsigned int toMeshTreeIdx, unsigned int upToLevel)
 {
     
 }
@@ -1099,7 +1107,7 @@ MeshManipulator<DIM>::duplicate(unsigned int fromMeshTreeIdx, unsigned int toMes
 //! Refine a specific mesh-tree.
 template<unsigned int DIM>
 void
-MeshManipulator<DIM>::doRefinement(unsigned int meshTreeIdx, int refinementType = -1)
+MeshManipulator<DIM>::doRefinement(unsigned int meshTreeIdx, int refinementType)
 {
     int level = getMaxLevel(meshTreeIdx);
     setActiveLevel(meshTreeIdx,level);

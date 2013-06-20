@@ -35,6 +35,8 @@ namespace Base
         typedef QuadratureRules::GaussQuadratureRule<DIM>   GaussQuadratureRuleT;
         typedef Base::ElementData<DIM>                      ElementDataT;
         typedef std::vector<CacheT>                         VecCacheT;
+        typedef std::vector<double>                         SolutionVector;
+        
     
     public:
         
@@ -43,7 +45,7 @@ namespace Base
                 const VectorOfPhysicalPointsT& allNodes,
                 unsigned int nrOfUnkowns,
                 unsigned int nrOfTimeLevels,
-                unsigned int counter);
+                unsigned int id);
     
         Element(const Element& other);
         
@@ -63,9 +65,12 @@ namespace Base
         
         double                          basisFunction(unsigned int i, const PointReferenceT& p) const;
  
+            /// jDir=0 means x, and etc.
         double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
+            //unsigned int                    getNumberOfDegreesOfFreedom()const;
+            //unsigned int                    getNumberOfDegreesOfFreedom();
         
-        std::vector<double>             getSolution(unsigned int timeLevel, const PointReferenceT& p);
+        void                            getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution);
         
         
     public:

@@ -13,6 +13,7 @@
 #include "Base/Face.hpp"
 #include "Base/MeshMoverBase.hpp"
 #include "Base/LevelTree.hpp"
+#include "Base/GlobalData.hpp"
 #include "Base/Element.hpp"
 
 #include "Integration/QuadratureRules/AllGaussQuadratureRules.hpp"
@@ -25,7 +26,6 @@
 
 namespace Base
 {
-
     template <unsigned int DIM>
     class MeshManipulator //: public MeshRefiner <DIM>
     {
@@ -59,15 +59,17 @@ namespace Base
 
         
     public:
-        MeshManipulator(bool xPer=0, bool yPer=0, bool zPer=0);
+            /// idRangeBegin is the begining of the range, from where the Element's ids should be assigned.
+            /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
+        MeshManipulator(const ConfigurationData* configData, bool xPer=0, bool yPer=0, bool zPer=0, unsigned int orderOfFEM=1, unsigned int idRangeBegin=0);
 
         MeshManipulator(const MeshManipulator& other);
 
         virtual ~MeshManipulator();
 
+  
 
-
-        void                            createBasisFunctions(unsigned int order);
+        void                            createDefaultBasisFunctions(unsigned int order);
 
         ElementT*                       addElement(const VectorOfPointIndicesT& globalNodeIndexes);
 
@@ -84,7 +86,7 @@ namespace Base
         ElementIterator                 elementColEnd(){return elements_.end();}
         /// *****************Iteration through the Elements*******************
 
-        void                            createRectangularMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, const VectorOfPointIndicesT& LinearNoElements);
+        void                            createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const VectorOfPointIndicesT& LinearNoElements);
 
         void                            readCentaurMesh(const std::string& filename);
 
@@ -92,7 +94,7 @@ namespace Base
 
 
         //! Set MeshMoverBase object pointer, for moving meshes if needed
-        void                            setMeshMover(MeshMoverBaseT* meshMover);
+        void                            setMeshMover(const MeshMoverBaseT* const meshMover);
 
         void                            move();
 
@@ -185,6 +187,9 @@ namespace Base
   //---------------------------------------------------------------------
     private:
         
+        const ConfigurationData*        configData_;
+
+        unsigned int                    counter_;
         //! List of all elements. TODO: this should be replaced by the mesh-tree structure
         ListOfElementsT                 elements_;
         
@@ -204,9 +209,11 @@ namespace Base
         bool                            periodicZ_;
         
         /// Pointer to MeshMoverBase, in order to move points in the mesh, when needed by user.
-        MeshMoverBase<DIM>*             meshMover_;
+        const MeshMoverBaseT*           meshMover_;
         
-        //! Collection of basis function set.
+        
+        BasisFunctionSetT*              defaultSetOfBasisFunctions_;
+        //! Collection of additional basis function set, if p-refinement is applied
         CollectionOfBasisFunctionSets   collBasisFSet_;
         
         //! Active mesh-tree.
