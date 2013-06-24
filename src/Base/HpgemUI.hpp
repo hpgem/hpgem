@@ -20,23 +20,27 @@ namespace Base
         typedef typename MeshManipulator<DIM>::ElementIterator          ElementIterator;
         
     public:
-        typedef unsigned int                                            MeshId;
-        typedef std::vector<unsigned int>                               VectorOfUIntegers;
+        typedef Base::Element<DIM>                                      ElementT;
+        typedef Base::Face<DIM>                                         FaceT;
         typedef RectangularMeshDescriptor<DIM>                          RectangularMeshDescriptorT;
         typedef MeshManipulator<DIM>                                    MeshManipulatorT;
-        typedef std::vector<MeshManipulatorT* >                         VectorOfMeshManipulatorT;
-        typedef std::string                                             String;
         typedef MeshMoverBase<DIM>                                      MeshMoverBaseT;
         typedef Geometry::PointPhysical<DIM>                            PointPhysicalT;
-     
-        
+        typedef Geometry::PointReference<DIM>                           PointReferenceT;
+
+        typedef unsigned int                                            MeshId;
+        typedef std::vector<unsigned int>                               VectorOfUIntegers;
+       
+        typedef std::vector<MeshManipulatorT* >                         VectorOfMeshManipulatorT;
+        typedef std::string                                             String;
+                
         //typedef BasisFunctions<DIM>     BasisFunctionT;
         
 
     public:
         
         
-        HpgemUI(const GlobalData* global, const ConfigurationData* config);
+        HpgemUI(GlobalData* const global, const ConfigurationData* config);
 
         virtual ~HpgemUI() ;
 
@@ -55,8 +59,8 @@ namespace Base
     protected:
         VectorOfMeshManipulatorT                meshes_;
        
-        const GlobalData*                       globalData_;
-        const ConfigurationData*                configData_;
+        GlobalData* const                       globalData_;
+        const ConfigurationData* const          configData_;
     };
 };
 #include "HpgemUI_Impl.hpp"

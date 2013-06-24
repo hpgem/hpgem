@@ -48,6 +48,18 @@ namespace Base
     }
     
     template<unsigned int DIM>
+    bool
+    Face<DIM>::isInternal()const
+    {
+        bool internal;
+        if((FaceGeometryT::faceType_==Geometry::INTERNAL && elementRight_==NULL)||(FaceGeometryT::faceType_!=Geometry::INTERNAL && elementRight_!=NULL))
+            cout << "Something wrong with boundaries";
+            
+            
+        return (FaceGeometryT::faceType_==Geometry::INTERNAL? true: false);
+    }
+    
+    template<unsigned int DIM>
     void
     Face<DIM>::createQuadratureRules()
     {

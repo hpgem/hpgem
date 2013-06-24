@@ -1,2 +1,3 @@
 add_subdirectory(MeshMoverDemo)
 add_subdirectory(app1)
+add_subdirectory(HamiltonianEuler)

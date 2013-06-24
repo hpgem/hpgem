@@ -52,23 +52,25 @@ namespace Base
         {
             TestErrorDebug((jDir<DIM),"Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
           
+            double (BaseBasisFunction<DIM>::*evalDeriv)(const PointReferenceT&)const;
+            
             switch (jDir)
             {
-            case 0:
-              return vecOfBasisFcn_[i]->evalDeriv0(p);
-              break;
-            case 1:
-              return vecOfBasisFcn_[i]->evalDeriv1(p);
-              break;
-            case 2:
-              return vecOfBasisFcn_[i]->evalDeriv2(p);
-              break;
-            case 3:
-              return vecOfBasisFcn_[i]->evalDeriv3(p);
-              break;
+                case 0:
+                    evalDeriv=&BaseBasisFunction<DIM>::evalDeriv0;
+                  break;
+                case 1:
+                    evalDeriv=&BaseBasisFunction<DIM>::evalDeriv1;
+                    break;
+                case 2:
+                    evalDeriv=&BaseBasisFunction<DIM>::evalDeriv2;
+                  break;
+                case 3:
+                        //evalDeriv=&BaseBasisFunction<DIM>::evalDeriv3;
+                  break;
+                default: evalDeriv=NULL;
             }
-
-            return -1.e50;
+            return (vecOfBasisFcn_[i]->*evalDeriv)(p);
         }
 
     private:

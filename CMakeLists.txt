@@ -4,6 +4,9 @@ project (hpGEM CXX Fortran)
 set(hpGEM_VERSION_MAJOR 2)
 set(hpGEM_VERSION_MINOR 0)
 
+#Directory were the external cmake modules are stored
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
 
 enable_testing()
 
@@ -18,39 +21,11 @@ configure_file(conf/CMakeDefinitions.conf
 		${PROJECT_BINARY_DIR}/conf/CMakeDefinitions.hpp)
 
 
-#Extra gfortran checks
-#######################
-
-
-	########
-		#Check for propery gfortran lib
-
-		#find_library(GFORTRAN_LIBRARY gfortran)
-		#
-		#find_program(_GFORTRAN_EXECUTABLES NAMES gfortran)
-		#
-		#if (_GFORTRAN_EXECUTABLE)
-		#EXECUTE_PROCESS(COMMAND ${_GFORTRAN_EXECUTABLE} -print-file-name=libgfortran.so
-		#OUTPUT_VARIABLE _libgfortran_path
-		#OUTPUT_STRIP_TRAILING_WHITESPACE																				)
-		#endif()
-
-		#if(EXISTS ${_libgfortran_path})
-		#	set(GFORTRAN_LIBRARY ${_libgfortran_path})
-			#else()
-			#find_library(GFORTRAN_LIBRARY gfortran)
-			#endif()
-
-			#if (NOT GFORTRAN_LIBRARY)
-			#message(FATAL_ERROR "gfortran is need but some of library could not be found, please install correctly")
-			#endif()
-
-
-
 #This section is about the build of documentation#
 ##############################################
+
 option(hpGEM_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
-option(hpGEM_DOCUMENTATION_INCLUDE_UML_DIAGRAMS "Generate UML diagrams in the doxygen output, require DOT to be installed",OFF)
+option(hpGEM_INCLUDE_PETSC_SUPPORT "Include PETSC this is required for GlobalAssemble" OFF)
 if(hpGEM_BUILD_DOCUMENTATION)
     FIND_PACKAGE(Doxygen)
     if (NOT DOXYGEN_FOUND)
@@ -60,15 +35,6 @@ if(hpGEM_BUILD_DOCUMENTATION)
 
   if (DOXYGEN_FOUND)
 
-	  #	  FIND_PACKAGE(GraphViz)
-
-	  # THis package does not exist but there is help on the web to find it  
-	#if (GRAPHVIZ_FOUND)
-	#	message(FATAL_ERROR
-	#		"Graph Viz is required to generate diagrams for the documentation")
-	#	endif()
-  
-    #Copy the doxygen configuration file in the build directory
     configure_file(conf/doxygen.conf 
         	 	${PROJECT_BINARY_DIR}/conf/doxygen.conf  @ONLY IMMEDIATE)
     #-- Add custom targets to both make and clean (delete) the documentation
@@ -80,4 +46,17 @@ if(hpGEM_BUILD_DOCUMENTATION)
                         COMMAND rm -r ${PROJECT_BINARY_DIR}/docs/*
 		       	COMMENT "Cleaning (deleting) the documentation"	) 
   endif()
+endif()
+
+if(hpGEM_INCLUDE_PETSC_SUPPORT)
+	FIND_PACKAGE(PETSc REQUIRED)
+	if (NOT PETSC_FOUND)
+		message(FATAL_ERROR
+			"The option you have choosen requires PETSc and you do not have this installed. Please install")
+	endif()
+
+	message(FATAL_ERROR 
+		"You should not ahve choose this option")
+
+#endif PETSc required
 endif()

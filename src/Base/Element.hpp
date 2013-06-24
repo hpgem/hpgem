@@ -35,7 +35,7 @@ namespace Base
         typedef QuadratureRules::GaussQuadratureRule<DIM>   GaussQuadratureRuleT;
         typedef Base::ElementData<DIM>                      ElementDataT;
         typedef std::vector<CacheT>                         VecCacheT;
-        typedef std::vector<double>                         SolutionVector;
+        typedef LinearAlgebra::NumericalVector              SolutionVector;
         
     
     public:
@@ -70,7 +70,7 @@ namespace Base
             //unsigned int                    getNumberOfDegreesOfFreedom()const;
             //unsigned int                    getNumberOfDegreesOfFreedom();
         
-        void                            getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution);
+        void                            getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const;
         
         
     public:

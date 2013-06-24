@@ -23,7 +23,7 @@ class MeshMoverExampleProblem : public Base::HpgemUI<DIM>
 {
     
 public:
-    MeshMoverExampleProblem(const GlobalData* global, const ConfigurationData* config):
+    MeshMoverExampleProblem(GlobalData* global, const ConfigurationData* config):
         HpgemUI(global, config)
     {
     }
@@ -42,7 +42,6 @@ public:
         
         typename HpgemUI<DIM>::MeshId id = addMesh(rectangularMesh);
 
-        
         //Set up the move of the mesh;
         const MeshMover<2>* meshMover= new MeshMover<2>;
         initialiseMeshMover(meshMover, id);

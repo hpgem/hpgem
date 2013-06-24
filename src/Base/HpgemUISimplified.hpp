@@ -15,7 +15,7 @@ namespace Base
         typedef Base::Face<DIM>                                         FaceT;
         typedef Geometry::PointPhysical<DIM>                            PointPhysicalT;
         typedef Geometry::PointReference<DIM>                           PointReferenceT;
-        typedef typename MeshManipulator<DIM>::ConstElementIterator    ConstElementIterator;
+        typedef typename MeshManipulator<DIM>::ConstElementIterator     ConstElementIterator;
         typedef typename MeshManipulator<DIM>::ElementIterator          ElementIterator;
         
 

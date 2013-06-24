@@ -37,10 +37,11 @@ public:
 
     void elementIntegrand(const ElementT& element, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
     {
-        
-     //   double phi=element.getSolution(0);
-//         ret[0]=
-        
+       
+	LinearAlgebra::NumericalVector sol;
+     	element.getSolution(0,p,sol);
+	//ret=sol;
+        //HERE
         
     }
     

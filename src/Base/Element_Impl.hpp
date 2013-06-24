@@ -68,31 +68,18 @@ namespace Base
     Element<DIM>::basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p)const
     {
         TestErrorDebug((jDir<DIM),"Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
-    
-        switch (jDir)
-        {
-        case 0:
-        return basisFunctionSet_->vecOfBasisFcn_[i]->EvalDeriv0(p);
-        break;
-        case 1:
-        return basisFunctionSet_->vecOfBasisFcn_[i]->EvalDeriv1(p);
-        break;
-        case 2:
-        return basisFunctionSet_->vecOfBasisFcn_[i]->EvalDeriv2(p);
-        break;
-        case 3:
-        return basisFunctionSet_->vecOfBasisFcn_[i]->EvalDeriv3(p);
-        break;
-        }
 
-        return -1.e50;
+        if (jDir>= DIM)
+            return -1.e50;
+        else
+            return basisFunctionSet_->evalDeriv(i, jDir, p);
     }
     
     template<unsigned int DIM>
     double
     Element<DIM>::basisFunction(unsigned int i, const PointReferenceT& p)const
     {
-        return basisFunctionSet_->vecOfBasisFcn_[i]->Eval(p);
+        return basisFunctionSet_->eval(i,p);
     }
     
     template<unsigned int DIM>
@@ -140,12 +127,12 @@ namespace Base
     
     template<unsigned int DIM>
     void
-    Element<DIM>::getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution)
+    Element<DIM>::getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const
     {
         unsigned int numberOfUnknows = ElementData<DIM>::getNrOfUnknows();
         solution.resize(numberOfUnknows);
         
-        LinearAlgebra::Matrix& data = ElementData<DIM>::getTimeLevelData(0);
+        const LinearAlgebra::Matrix& data = ElementData<DIM>::getTimeLevelData(0);
         for (int i=0; i < ElementData<DIM>::getNrOfBasisFunctions(); ++i)
         {
             for (int k=0; k < numberOfUnknows; ++k)

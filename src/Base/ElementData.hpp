@@ -32,17 +32,17 @@ namespace Base
         
         
             /// Specify a time level index, return a vector containing the data for that time level.
-        LinearAlgebra::Matrix&    getTimeLevelData(unsigned int timeLevel);
+        const LinearAlgebra::Matrix&    getTimeLevelData(unsigned int timeLevel) const;
         
             /// Specify a time level index, an unknown and a basis function nr, return data (double)
-        double                    getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction);
+        double                    getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const;
 
         
-        int                       getNrOfUnknows();
+        int                       getNrOfUnknows() const;
         
-        int                       getNrOfBasisFunctions();
+        int                       getNrOfBasisFunctions() const;
         
-        VectorOfDoubles&          getResidue();
+        VectorOfDoubles&          getResidue() const;
         
         void                      setResidue(VectorOfDoubles& residue);
         

@@ -7,7 +7,7 @@ namespace Base
     class HpgemUI;
 
     template<unsigned int DIM>
-    HpgemUI<DIM>::HpgemUI(const GlobalData* global, const ConfigurationData* config):
+    HpgemUI<DIM>::HpgemUI(GlobalData* const global, const ConfigurationData* config):
         meshes_(),
         globalData_(global),
         configData_(config)

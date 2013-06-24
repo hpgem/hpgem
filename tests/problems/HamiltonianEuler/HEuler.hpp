@@ -1,22 +1,34 @@
+#include "cstring"
+using std::string;
 
-#include "Base/Base.hpp"
+
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "Output/TecplotPhysicalGeometryIterator.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include "Base/GlobalData.hpp"
+#include "Base/ConfigurationData.hpp"
+#include "Base/HpgemUI.hpp"
+#include "Base/Norm2.hpp"
 using Base::RectangularMeshDescriptor;
-using Base::Base;
+using Base::HpgemUI;
+using Base::GlobalData;
+using Base::ConfigurationData;
+
+
 
 typedef std::vector<LinearAlgebra::Matrix>   VectorOfMatrices;
-struct FluxData
-{
-    VectorOfMatrices
-}
+//struct FluxData
+//{
+//    VectorOfMatrices
+//}
 const unsigned int  DIM = 3;
 
-struct HEulerGlobalVariables: public GlobalVariables
+struct HEulerGlobalVariables: public GlobalData
 {
-   
+    
 };
+
+
 
 struct HEulerConfigurationData: public ConfigurationData
 {
@@ -51,8 +63,14 @@ struct HEulerConfigurationData: public ConfigurationData
 class HEuler: public HpgemUI<DIM>
 {
 public:
-    HEuler(const SolutionType& type, const string& fileName):
-        HpgemUI(new HEulerGlobalVariables(), new HEulerConfigurationData(fileName, type))
+    typedef HpgemUI<DIM>    HpgemUIT;
+    
+        //using HpgemUIT::ElementT;
+        //    using HpgemUIT::PointReferenceT;
+    
+public:
+    HEuler(HEulerGlobalVariables* global, const HEulerConfigurationData* config):
+        HpgemUI(global, config)
     {
         
     }
@@ -79,7 +97,7 @@ public:
 
     void calculateMassMatrix(const ElementT& element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix)
     {
-        unsigned int numOfDegreesOfFreedom = getNrOfBasisFunctions;
+        unsigned int numOfDegreesOfFreedom = element.getNrOfBasisFunctions();
         
         massMatrix.resize(numOfDegreesOfFreedom, numOfDegreesOfFreedom);
 
@@ -87,9 +105,7 @@ public:
         {
             for (unsigned int j=0; j < numOfDegreesOfFreedom; ++j)
             {
-                xDerReturnData(i,j) = element.basisFunction(j,p) * element.basisFunctionDeriv(i,0);
-                yDerReturnData(i,j) = element.basisFunction(j,p) * element.basisFunctionDeriv(i,1);
-                zDerReturnData(i,j) = element.basisFunction(j,p) * element.basisFunctionDeriv(i,2);
+                massMatrix(i,j) = element.basisFunction(j,p) * element.basisFunction(i,p);
             }
         }
     }
@@ -97,13 +113,13 @@ public:
     void calculateLocalEnergy(const ElementT& element, const PointReferenceT& p, double& returnValue)
     {
         double extra=0;
-        SolutionVector  solution;
+        ElementT::SolutionVector  solution;
         
-        getSolution(0, p, solution);
+        element.getSolution(0, p, solution);
         
-        SolutionType sType = configData_->solutionType;
+        HEulerConfigurationData::SolutionType sType = static_cast<const HEulerConfigurationData*>(configData_)->solutionType_;
         
-        if (sType  == HEulerGlobalVariables::COMPRESSIBLE_WALLS || sType  == HEulerGlobalVariables::COMPRESSIBLE_PERIODIC)
+        if (sType  == HEulerConfigurationData::COMPRESSIBLE_WALLS || sType  == HEulerConfigurationData::COMPRESSIBLE_PERIODIC)
         {
             extra =0.5*(solution[0]*solution[0]);
         }
@@ -114,7 +130,7 @@ public:
     {
         returnObject.resize(DIM);
         
-        unsigned int numberOfDegreesOfFreedom = getNrOfBasisFunctions;
+        unsigned int numberOfDegreesOfFreedom = element.getNrOfBasisFunctions();
         
         LinearAlgebra::Matrix& xDerReturnData = returnObject[0];
         LinearAlgebra::Matrix& yDerReturnData = returnObject[1];
@@ -125,26 +141,25 @@ public:
         zDerReturnData.resize(numberOfDegreesOfFreedom, numberOfDegreesOfFreedom);
         
         
-        unsigned int numOfDegreesOfFreedom = getNumberOfDegreesOfFreedom;
-        for (unsigned int i=0; i < numOfDegreesOfFreedom; ++i)
+        for (unsigned int i=0; i < numberOfDegreesOfFreedom; ++i)
         {
-            for (unsigned int j=0; j < numOfDegreesOfFreedom; ++j)
+            for (unsigned int j=0; j < numberOfDegreesOfFreedom; ++j)
             {
-                xDerReturnData(i,j) = element.basisFunction(j,p) * element.basisFunctionDeriv(i,0);
-                yDerReturnData(i,j) = element.basisFunction(j,p) * element.basisFunctionDeriv(i,1);
-                zDerReturnData(i,j) = element.basisFunction(j,p) * element.basisFunctionDeriv(i,2);
+                xDerReturnData(i,j) = element.basisFunction(j,p) * element.basisFunctionDeriv(i,0, p);
+                yDerReturnData(i,j) = element.basisFunction(j,p) * element.basisFunctionDeriv(i,1, p);
+                zDerReturnData(i,j) = element.basisFunction(j,p) * element.basisFunctionDeriv(i,2, p);
             }
         }
     }
     
-    void faceIntegrand(const Face& face,          const PointPhysicalT& normal,
+    void faceIntegrand(const FaceT& face,          const PointPhysicalT& normal,
                        const PointReferenceT& p,  VectorOfMatrices& ret)
     {
         if (face.isInternal())
 		{
             const double magn = Utilities::norm2<DIM>(normal);
             
-            double theta = configData_->theta_;
+            double theta = static_cast<const HEulerConfigurationData*>(configData_)->theta_;
             double nx    = normal[0]/magn;
             double ny    = normal[1]/magn;
             double nz    = normal[2]/magn;
@@ -152,36 +167,36 @@ public:
             LinearAlgebra::Matrix& leftReturnData = ret[0];
             LinearAlgebra::Matrix& rightReturnData = ret[1];
             
-            BFevalL
-                /// provide numerical fluxes for 
-            leftReturnData(0,i) = 	BFevalL*nx*(1-theta)*bFLu;
-            leftReturnData(1,i) = 	BFevalL*ny*(1-theta)*bFLv;
-            leftReturnData(2,i) = 	BFevalL*nz*(1-theta)*bFL;
-            leftReturnData(3,i) = 	BFevalR*nx*(theta)*bFLu;
-            leftReturnData(4,i) = 	BFevalR*ny*(theta)*bFLv;
-            leftReturnData(5,i) = 	BFevalR*nz*(theta)*bFL;
-            
-            leftReturnData(6,i) = 	bFL*nx*(1-theta)*BFevalLu;
-            leftReturnData(7,i) = 	bFL*ny*(1-theta)*BFevalLv;
-            leftReturnData(8,i) = 	bFL*nz*(1-theta)*BFevalL;
-            leftReturnData(9,i) = 	bFL*nx*(theta)*BFevalRu;
-            leftReturnData(10,i) = 	bFL*ny*(theta)*BFevalRv;
-            leftReturnData(11,i) = 	bFL*nz*(theta)*BFevalR;
-            
-            
-            rightReturnData(0,i) = 	BFevalL*nx*(1-theta)*bFRu;
-            rightReturnData(1,i) = 	BFevalL*ny*(1-theta)*bFRv;
-            rightReturnData(2,i) = 	BFevalL*nz*(1-theta)*bFR;
-            rightReturnData(3,i) = 	BFevalR*nx*(theta)*bFRu;
-            rightReturnData(4,i) = 	BFevalR*ny*(theta)*bFRv;
-            rightReturnData(5,i) = 	BFevalR*nz*(theta)*bFR;
-            
-            rightReturnData(6,i) = 	bFR*nx*(1-theta)*BFevalLu;
-            rightReturnData(7,i) = 	bFR*ny*(1-theta)*BFevalLv;
-            rightReturnData(8,i) = 	bFR*nz*(1-theta)*BFevalL;
-            rightReturnData(9,i) = 	bFR*nx*(theta)*BFevalRu;
-            rightReturnData(10,i) = bFR*ny*(theta)*BFevalRv;
-            rightReturnData(11,i) = bFR*nz*(theta)*BFevalR;
+//            BFevalL
+//                /// provide numerical fluxes for 
+//            leftReturnData(0,i) = 	BFevalL*nx*(1-theta)*bFLu;
+//            leftReturnData(1,i) = 	BFevalL*ny*(1-theta)*bFLv;
+//            leftReturnData(2,i) = 	BFevalL*nz*(1-theta)*bFL;
+//            leftReturnData(3,i) = 	BFevalR*nx*(theta)*bFLu;
+//            leftReturnData(4,i) = 	BFevalR*ny*(theta)*bFLv;
+//            leftReturnData(5,i) = 	BFevalR*nz*(theta)*bFL;
+//            
+//            leftReturnData(6,i) = 	bFL*nx*(1-theta)*BFevalLu;
+//            leftReturnData(7,i) = 	bFL*ny*(1-theta)*BFevalLv;
+//            leftReturnData(8,i) = 	bFL*nz*(1-theta)*BFevalL;
+//            leftReturnData(9,i) = 	bFL*nx*(theta)*BFevalRu;
+//            leftReturnData(10,i) = 	bFL*ny*(theta)*BFevalRv;
+//            leftReturnData(11,i) = 	bFL*nz*(theta)*BFevalR;
+//            
+//            
+//            rightReturnData(0,i) = 	BFevalL*nx*(1-theta)*bFRu;
+//            rightReturnData(1,i) = 	BFevalL*ny*(1-theta)*bFRv;
+//            rightReturnData(2,i) = 	BFevalL*nz*(1-theta)*bFR;
+//            rightReturnData(3,i) = 	BFevalR*nx*(theta)*bFRu;
+//            rightReturnData(4,i) = 	BFevalR*ny*(theta)*bFRv;
+//            rightReturnData(5,i) = 	BFevalR*nz*(theta)*bFR;
+//            
+//            rightReturnData(6,i) = 	bFR*nx*(1-theta)*BFevalLu;
+//            rightReturnData(7,i) = 	bFR*ny*(1-theta)*BFevalLv;
+//            rightReturnData(8,i) = 	bFR*nz*(1-theta)*BFevalL;
+//            rightReturnData(9,i) = 	bFR*nx*(theta)*BFevalRu;
+//            rightReturnData(10,i) = bFR*ny*(theta)*BFevalRv;
+//            rightReturnData(11,i) = bFR*nz*(theta)*BFevalR;
         }
     }
     

@@ -12,7 +12,7 @@ namespace Base
     /// Face consists of FaceGeometry and probably FaceData, if needed. FaceGeometry holds all FaceReference related data and appropriate mappings
 
     template <unsigned int DIM>
-    class Face :public Geometry::FaceGeometry<DIM>
+    class Face: public Geometry::FaceGeometry<DIM>
     {
 
     public:
@@ -34,6 +34,7 @@ namespace Base
         Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType&  ftype);
 
         void            setPtrElementLeft(const ElementT* value);
+        
 
         void            setPtrElementRight(const ElementT* value);
 
@@ -54,6 +55,8 @@ namespace Base
         {
             return quadratureRule_;
         }
+        
+        bool             isInternal()const;
 
         VecCacheT&       getVecCacheData() { return vecCacheData_; }
 

@@ -18,8 +18,8 @@ namespace Base
     }
 
     template<unsigned int DIM>
-    LinearAlgebra::Matrix&
-    ElementData<DIM>::getTimeLevelData(unsigned int timeLevel)
+    const LinearAlgebra::Matrix&
+    ElementData<DIM>::getTimeLevelData(unsigned int timeLevel) const
     {
         if (timeLevel < timeLevels_)
         {
@@ -34,7 +34,7 @@ namespace Base
 
     template<unsigned int DIM>
     double
-    ElementData<DIM>::getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction)
+    ElementData<DIM>::getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
         {
@@ -48,21 +48,21 @@ namespace Base
     
     template<unsigned int DIM>
     int
-    ElementData<DIM>::getNrOfUnknows()
+    ElementData<DIM>::getNrOfUnknows() const
     {
         return nrOfUnkowns_;
     }
         
     template<unsigned int DIM>
     int
-    ElementData<DIM>::getNrOfBasisFunctions()
+    ElementData<DIM>::getNrOfBasisFunctions() const
     {
         return nrOfBasisFunctions_;
     }
     
     template<unsigned int DIM>
     typename ElementData<DIM>::VectorOfDoubles&
-    ElementData<DIM>::getResidue()
+    ElementData<DIM>::getResidue() const
     {
         return residue_;
     }
