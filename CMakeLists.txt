@@ -52,11 +52,9 @@ if(hpGEM_INCLUDE_PETSC_SUPPORT)
 	FIND_PACKAGE(PETSc REQUIRED)
 	if (NOT PETSC_FOUND)
 		message(FATAL_ERROR
-			"The option you have choosen requires PETSc and you do not have this installed. Please install")
+			"The option you have chosen requires PETSc and you do not have this installed. Please install")
 	endif()
 
-	message(FATAL_ERROR 
-		"You should not ahve choose this option")
 
 #endif PETSc required
 endif()
