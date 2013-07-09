@@ -49,6 +49,7 @@ if(hpGEM_BUILD_DOCUMENTATION)
 endif()
 
 if(hpGEM_INCLUDE_PETSC_SUPPORT)
+        enable_language(C)
 	FIND_PACKAGE(PETSc REQUIRED)
 	if (NOT PETSC_FOUND)
 		message(FATAL_ERROR
