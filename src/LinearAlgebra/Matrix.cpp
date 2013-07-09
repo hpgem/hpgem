@@ -429,12 +429,13 @@ namespace LinearAlgebra
         int nr=nRows_;
         int nc=nCols_; 
         int nPivot=std::min(nRows_,nCols_);
+        int iPivot[nPivot];
         
         Matrix result(*this);
     
         int info;
         
-        dgetrf_(&nr,&nc,&result[0],&nr,&nPivot,&info);
+        dgetrf_(&nr,&nc,&result[0],&nr,iPivot,&info);
         
         
         return result;
@@ -451,17 +452,18 @@ namespace LinearAlgebra
         int nc=nCols_;
         
         int nPivot=std::min(nRows_,nCols_);
+        int iPivot[nPivot];
         
         int info;
         
-        dgetrf_(&nr,&nc,&result[0],&nr,&nPivot,&info);
+        dgetrf_(&nr,&nc,&result[0],&nr,iPivot,&info);
         
         int lwork = nRows_*nCols_;
         
         double *work = new double[lwork];
         
         
-        dgetri_(&nc,&result[0],&nc,&nPivot,work,&lwork,&info);
+        dgetri_(&nc,&result[0],&nc,iPivot,work,&lwork,&info);
         
         
         
