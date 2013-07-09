@@ -172,7 +172,7 @@ show :
 
   include (CheckCSourceRuns)
   macro (PETSC_TEST_RUNS includes libraries runs)
-    multipass_c_source_runs ("${includes}" "${libraries}" "
+    multipass_c_source_runs (name "${includes}" "${libraries}" "
 static const char help[] = \"PETSc test program.\";
 #include \"petscts.h\"
 int main(int argc,char *argv[]) {
@@ -182,7 +182,7 @@ int main(int argc,char *argv[]) {
   ierr = PetscInitialize(&argc,&argv,0,help);CHKERRQ(ierr);
   ierr = TSCreate(PETSC_COMM_WORLD,&ts);CHKERRQ(ierr);
   ierr = TSSetFromOptions(ts);CHKERRQ(ierr);
-  ierr = TSDestroy(ts);CHKERRQ(ierr);
+  ierr = TSDestroy(&ts);CHKERRQ(ierr);
   ierr = PetscFinalize();CHKERRQ(ierr);
   return 0;
 }
@@ -198,7 +198,7 @@ int main(int argc,char *argv[]) {
   mark_as_advanced (PETSC_INCLUDE_DIR PETSC_INCLUDE_CONF)
   set (petsc_includes_minimal ${PETSC_INCLUDE_CONF} ${PETSC_INCLUDE_DIR})
 
-  petsc_test_runs ("${petsc_includes_minimal}" "${PETSC_LIBRARIES_TS}" petsc_works_minimal)
+  petsc_test_runs ("${petsc_includes_minimal}" ${PETSC_LIBRARIES_TS} petsc_works_minimal)
   if (petsc_works_minimal)
     message (STATUS "Minimal PETSc includes and libraries work.  This probably means we are building with shared libs.")
     set (petsc_includes_needed "${petsc_includes_minimal}")
