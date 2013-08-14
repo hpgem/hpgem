@@ -13,14 +13,18 @@ namespace Base
     struct ConfigurationData
     {
     
-        ConfigurationData(){}
+        ConfigurationData(unsigned int numberOfUnknowns, unsigned int numberOfBasisFunctions, unsigned int  numberOfTimeLevels=1):
+            numberOfUnknowns_(numberOfUnknowns),
+            numberOfBasisFunctions_(numberOfBasisFunctions),
+            numberOfTimeLevels_(numberOfTimeLevels)
+        {}
         
         virtual ~ConfigurationData(){}
     
     
         unsigned int numberOfUnknowns_;
-        unsigned int numberOfTimeLevels_;
         unsigned int numberOfBasisFunctions_;
+        unsigned int numberOfTimeLevels_;
     };
 }
 

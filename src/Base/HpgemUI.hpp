@@ -7,6 +7,7 @@
 #include "Base/RectangularMeshDescriptor.hpp"
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "Integration/ElementIntegral.hpp"
+#include "Integration/FaceIntegral.hpp"
 
 #include "vector"
 
@@ -18,6 +19,8 @@ namespace Base
     public:
         typedef typename MeshManipulator<DIM>::ConstElementIterator     ConstElementIterator;
         typedef typename MeshManipulator<DIM>::ElementIterator          ElementIterator;
+        typedef typename MeshManipulator<DIM>::ConstFaceIterator        ConstFaceIterator;
+        typedef typename MeshManipulator<DIM>::FaceIterator             FaceIterator;
         
     public:
         typedef Base::Element<DIM>                                      ElementT;
@@ -38,20 +41,35 @@ namespace Base
         
 
     public:
-        
-        
+             
         HpgemUI(GlobalData* const global, const ConfigurationData* config);
 
         virtual ~HpgemUI() ;
+        
+        
 
         /// \brief Gives the pointer of meshMoverBase class to mesh.
         virtual bool initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, unsigned int meshID);
 
             /// Creating a mesh with in-house remesher.
-        virtual MeshId addMesh(const RectangularMeshDescriptorT& meshDescriptor, const MeshType& meshType = RECTANGULAR);
+        MeshId addMesh(const RectangularMeshDescriptorT& meshDescriptor, const MeshType& meshType = RECTANGULAR);
             /// Reading a mesh from a file, currently only Centaur is supported.
-        virtual MeshId addMesh(const String& fileName){}
-
+        MeshId addMesh(const String& fileName){}
+        
+        unsigned int getNumberOfElements(MeshId id)const {return meshes_[id]->getNumberOfElements();}
+        
+        ConstElementIterator    elementColBegin(MeshId mId=0)const;
+        ConstElementIterator    elementColEnd(MeshId mId=0)const;
+        
+        ElementIterator         elementColBegin(MeshId mId=0);
+        ElementIterator         elementColEnd(MeshId mId=0);
+        
+        ConstFaceIterator       faceColBegin(MeshId mId=0)const;
+        ConstFaceIterator       faceColEnd(MeshId mId=0)const;
+        
+        FaceIterator            faceColBegin(MeshId mId=0);
+        FaceIterator            faceColEnd(MeshId mId=0);
+        
 
         /// \brief Virtual function that should be overwritten by specific problem, specifies initial conditions.
         //virtual void initialCondition() const;

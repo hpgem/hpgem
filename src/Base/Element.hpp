@@ -72,6 +72,7 @@ namespace Base
         
         void                            getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const;
         
+        void                            initialiseSolution(unsigned int timeLevel, unsigned int solutionId, const SolutionVector& solution);
         
     public:
             /// Output operator.

@@ -20,10 +20,10 @@ namespace Base
         public:
 
         // calculate the cache data
-        void operator()(const Base::Element<dim>& el, const Geometry::PointReference<dim>& p)
+        void operator()(const Base::Element<dim>* el, const Geometry::PointReference<dim>& p)
         {
             Geometry::Jacobian<dim,dim> jac;
-            el.calcJacobian(p, jac);
+            el->calcJacobian(p, jac);
             absDetJac_ = std::abs(jac.determinant());
         }
 

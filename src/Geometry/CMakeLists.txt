@@ -3,7 +3,7 @@ add_subdirectory(Mappings)
 include_directories(. ${hpGEM_SOURCE_DIR}/src/)
 
 add_library(Reference_geometries SHARED
-	    ${hpGEM_SOURCE_DIR}/src/Geometry/ReferencePoint.cpp
+	${hpGEM_SOURCE_DIR}/src/Geometry/ReferencePoint.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceLine.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceTriangle.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceSquare.cpp
@@ -20,7 +20,7 @@ add_library(Reference_geometries SHARED
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefTriangleToTetrahedron.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefSquareToSquare.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefSquareToCube.cpp
-	    ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefCubeToCube.cpp
+	${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefCubeToCube.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefTriangleToTriangle.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefLineToSquare.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefLineToTriangle.cpp
@@ -32,6 +32,7 @@ add_library(Reference_geometries SHARED
 
 add_library(Geometry SHARED
 
+        ${hpGEM_SOURCE_DIR}/src/Geometry/ElementGeometry.cpp
         # Physical geometries
         ${hpGEM_SOURCE_DIR}/src/Geometry/PhysicalLine.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/PhysicalTriangle.cpp
@@ -55,6 +56,7 @@ add_library(Geometry SHARED
         ${hpGEM_SOURCE_DIR}/src/Geometry/RefinementQuadrilateral.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/RefinementTriangularPrism.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/RefinementHexahedron.cpp
+
       )
 
 target_link_libraries(Reference_geometries Matrix)

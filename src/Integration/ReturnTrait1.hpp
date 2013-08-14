@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 // Package includes:
 #include "../Geometry/PointReference.hpp"
+#include "../Geometry/PointPhysical.hpp"
 
 // #include "../Geometry/PhysSpacePoint.hh"
 // using Geometry::PhysSpacePoint;
@@ -28,6 +29,9 @@ namespace Base
 {
     template <unsigned int DIM>
     class Element;
+    
+    template <unsigned int DIM>
+    class Face;
 }
 
 namespace Base
@@ -35,8 +39,8 @@ namespace Base
     template <unsigned int DIM, class FType>
     class PhysicalSpaceFunction;
 
-    template <unsigned int DIM, class EType>
-    struct PhysGradientOfBasisFunction;
+        // template <unsigned int DIM, class EType>
+//    struct PhysGradientOfBasisFunction;
 }
 
 
@@ -44,7 +48,7 @@ namespace Integration
 {
     using Base::Element;
     using Base::PhysicalSpaceFunction;
-    using Base::PhysGradientOfBasisFunction;
+//      using Base::PhysGradientOfBasisFunction;
     
     // this is now the default.... it requires the T class to define ReturnType
     template <class T>
@@ -55,13 +59,25 @@ namespace Integration
 
     // you can provide a function as a integrand
     template <unsigned int DIM, typename T>
-    struct ReturnTrait1<void (*)(const Base::Element<DIM>&, const Geometry::PointReference<DIM>&, T&)>
+    struct ReturnTrait1<void (*)(const Base::Element<DIM>*, const Geometry::PointReference<DIM>&, T&)>
+    {
+        typedef T ReturnType;
+    };
+
+    template <class B, unsigned int DIM, typename T>
+    struct ReturnTrait1<void (B::*)(const Base::Element<DIM>*, const Geometry::PointReference<DIM>&, T&)>
+    {
+        typedef T ReturnType;
+    };
+    
+    template <typename B, unsigned int DIM, typename T>
+    struct ReturnTrait1<void (B::*)(const Base::Face<DIM>*, const Geometry::PointPhysical<DIM>&, const Geometry::PointReference<DIM-1>&, T&)>
     {
         typedef T ReturnType;
     };
     
     template < template<unsigned int> class B, unsigned int DIM, typename T>
-    struct ReturnTrait1<void (B<DIM>::*)(const Base::Element<DIM>&, const Geometry::PointReference<DIM>&, T&)>
+    struct ReturnTrait1<void (B<DIM>::*)(const Base::Element<DIM>*, const Geometry::PointReference<DIM-1>&, T&)>
     {
         typedef T ReturnType;
     };

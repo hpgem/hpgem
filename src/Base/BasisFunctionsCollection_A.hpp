@@ -187,9 +187,16 @@ namespace Base
         virtual double evalDeriv1(const PointReferenceT& p) const   { return p[2]; }
         virtual double evalDeriv2(const PointReferenceT& p) const   { return p[1]; }
     };
-
-    //! Basis function on 3D: u(x,y,z) = x^2
+    //! Basis function on 3D: u(x,y,z) = x*y*z
     struct Basis_A7_3D: public Base::BaseBasisFunction<3>
+    {
+        virtual double eval(const PointReferenceT& p) const         { return p[0]*p[1]*p[2]; }
+        virtual double evalDeriv0(const PointReferenceT& p) const   { return p[1]*p[2]; }
+        virtual double evalDeriv1(const PointReferenceT& p) const   { return p[0]*p[2]; }
+        virtual double evalDeriv2(const PointReferenceT& p) const   { return p[0]*p[1]; }
+    };
+    //! Basis function on 3D: u(x,y,z) = x^2
+    struct Basis_A8_3D: public Base::BaseBasisFunction<3>
     {
         virtual double eval(const PointReferenceT& p) const         { return p[0]*p[0]; }
         virtual double evalDeriv0(const PointReferenceT& p) const   { return 2.*p[0]; }
@@ -198,7 +205,7 @@ namespace Base
     };
 
     //! Basis function on 3D: u(x,y,z) = y^2
-    struct Basis_A8_3D: public Base::BaseBasisFunction<3>
+    struct Basis_A9_3D: public Base::BaseBasisFunction<3>
     {
         virtual double eval(const PointReferenceT& p) const         { return p[1]*p[1]; }
         virtual double evalDeriv0(const PointReferenceT& p) const   { return 0.; }
@@ -207,7 +214,7 @@ namespace Base
     };
 
     //! Basis function on 3D: u(x,y,z) = z^2
-    struct Basis_A9_3D: public Base::BaseBasisFunction<3>
+    struct Basis_A10_3D: public Base::BaseBasisFunction<3>
     {
         virtual double eval(const PointReferenceT& p) const         { return p[2]*p[2]; }
         virtual double evalDeriv0(const PointReferenceT& p) const   { return 0.; }
@@ -215,14 +222,8 @@ namespace Base
         virtual double evalDeriv2(const PointReferenceT& p) const   { return 2.*p[2]; }
     };
 
-    //! Basis function on 3D: u(x,y,z) = x*y*z
-    struct Basis_A10_3D: public Base::BaseBasisFunction<3>
-    {
-        virtual double eval(const PointReferenceT& p) const         { return p[0]*p[1]*p[2]; }
-        virtual double evalDeriv0(const PointReferenceT& p) const   { return p[1]*p[2]; }
-        virtual double evalDeriv1(const PointReferenceT& p) const   { return p[0]*p[2]; }
-        virtual double evalDeriv2(const PointReferenceT& p) const   { return p[0]*p[1]; }
-    };
+    
+
 
     //! Basis function on 3D: u(x,y,z) = y*x^2
     struct Basis_A11_3D: public Base::BaseBasisFunction<3>

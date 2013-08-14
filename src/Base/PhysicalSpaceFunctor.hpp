@@ -62,8 +62,8 @@ namespace Base
         {}
         
         PhysicalSpaceFunctor(const PhysicalSpaceFunctor& other) :
-        element_(other.element_),
-        functor_(other.functor_)
+            element_(other.element_),
+            functor_(other.functor_)
         {}
 
         //! Evaluation operator for _reference_ space coordinates.

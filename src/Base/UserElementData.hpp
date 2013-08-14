@@ -10,9 +10,9 @@
 #define _UserElementData_hpp
 
     ///Just a place holder, for polymorphism
-class UserElementData
+struct UserElementData
 {
-    
+    virtual ~UserElementData(){}
 };
 
 #endif

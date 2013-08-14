@@ -5,16 +5,17 @@
 namespace Output
 {
     template<unsigned int DIM>
+    class TecplotDiscontinuousSolutionWriter;
+    
+    template<unsigned int DIM>
     TecplotDiscontinuousSolutionWriter<DIM>::TecplotDiscontinuousSolutionWriter(
-            ostream& output,
-            const StringT& fileTitle,
-            int* dimensionsToWrite,
-            const StringT& variableString):
+            ostream& output, const std::string& fileTitle,
+            const std::string& dimensionsToWrite,
+            const std::string& variableString):
                 output_(output),
                 previousNrOfElements_(0),
                 previousNrOfNodes_(0),
-                dimensionsToWrite_(dimensionsToWrite),
-                nDimensionsToWrite_(sizeof(dimensionsToWrite)/sizeof(dimensionsToWrite[0]))
+                nDimensionsToWrite_(dimensionsToWrite.length())
     {
         // element type for a given dimension as index
         elementType_[0] = "UNKNOWN";
@@ -28,17 +29,20 @@ namespace Output
         {
             throw "TecplotDiscontinuousSolutionWriter: Printing more dimensions that there are";
         }
+        dimNrs = new unsigned int[nDimensionsToWrite_];
         for (int i = 0; i < nDimensionsToWrite_; ++i)
         {
-            if (dimensionsToWrite_[0] > DIM)
-                throw "TecplotDiscontinuousSolutionWriter: Requested an invalid dimension to print";
+            std::istringstream istr(dimensionsToWrite.substr(i, 1));
+		    istr >> dimNrs[i];
+                //            if (dimensionsToWrite_[0] > DIM)
+                //throw "TecplotDiscontinuousSolutionWriter: Requested an invalid dimension to print";
         }
 
         output_ << "TITLE = \"" << fileTitle << "\"\n";
         output_ << "VARIABLES = ";
         for (unsigned int i = 0; i < nDimensionsToWrite_; ++i)
         {
-            output_ << "\"x" << dimensionsToWrite_[i] << "\", ";
+            output_ << "\"x" << dimNrs[i] << "\", ";
         }
         output_ << makeTecplotVariableString(variableString) << "\n";
     }
@@ -58,15 +62,15 @@ namespace Output
      * given to it is in the coordinates of the reference element.
      *
      */
-    //template <class WriteFunctor>
     template<unsigned int DIM>
+    template <class WriteFunctor>
     void TecplotDiscontinuousSolutionWriter<DIM>::write(
             const Base::MeshManipulator<DIM>* mesh,
-            const StringT& zoneTitle,
-            const bool sameGeometry//,
-            //WriteFunctor& writeDataFunc
-            )
+            const std::string& zoneTitle,
+            const bool sameGeometry,
+            WriteFunctor& writeDataFunc)
     {
+       
         long int posNumberOfNodes(0);
         long int posNumberOfElements(0);
 
@@ -125,7 +129,6 @@ namespace Output
         // 1. Element cycle, print physical coordinates.
         
        // mesh->outputMesh(std::cout);
-        cout <<"size="<<elements.size()<<endl;
         for (typename ListOfElementsT::const_iterator iterator = elements.begin(), end = elements.end();
                 iterator != end;
                 ++iterator)
@@ -133,7 +136,7 @@ namespace Output
             totalNrOfElements++;
             nrOfNodes = 0;
             // Tell the TecplotPhysicalGeometryIterator which shape is to be iterated next
-            Base::Element<DIM>   el = *(*iterator);
+            const Base::Element<DIM>&   el = *(*iterator);
             nodeIt.acceptG((*iterator)->getPhysicalGeometry());
         
             // Cycle through nodes
@@ -153,7 +156,7 @@ namespace Output
                     {
                         output_.precision(6);
                         output_.width(12);
-                        output_ << pPhys[dimensionsToWrite_[i]] << ' ';
+                        output_ << pPhys[dimNrs[i]] << ' ';
                     }
                 }
 
@@ -165,8 +168,8 @@ namespace Output
                 // function
                 output_.precision(8);
                 output_.width(16);
-                output_ << "0.0";
-                //writeDataFunc(*it, pRef, output_); // TODO: ?
+                    //output_ << "0.0";
+                writeDataFunc(**iterator, pRef, output_);
                 output_ << "\n";
 
             } // 'nodes of element' loop

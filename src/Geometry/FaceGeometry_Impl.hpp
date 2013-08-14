@@ -83,19 +83,19 @@ namespace Geometry {
             //  RefFace2RefFaceMapping needs to be used.
 
             //: The next to lines creating 2 std::sets, filling them with globalNodesL and globalNodesR. The sets are created via ctr which takes a to pointers and insert the data inbetween.
-        cout<<"Left {";
-        for(unsigned int i=0; i<globalNodeNrsL.size();++i)
-        {
-            cout<< globalNodeNrsL[i]<<" ";
-        }
-        cout<<"}"<<endl;
-
-        cout<<"Right {";
-        for(unsigned int i=0; i<globalNodeNrsR.size();++i)
-        {
-            cout<< globalNodeNrsR[i]<<" ";
-        }
-        cout<<"}"<<endl;
+//        cout<<"Left {";
+//        for(unsigned int i=0; i<globalNodeNrsL.size();++i)
+//        {
+//            cout<< globalNodeNrsL[i]<<" ";
+//        }
+//        cout<<"}"<<endl;
+//
+//        cout<<"Right {";
+//        for(unsigned int i=0; i<globalNodeNrsR.size();++i)
+//        {
+//            cout<< globalNodeNrsR[i]<<" ";
+//        }
+//        cout<<"}"<<endl;
 
         SetOfGlobalNodes sL(globalNodeNrsL.data(), globalNodeNrsL.data() + globalNodeNrsL.size());
         SetOfGlobalNodes sR(globalNodeNrsR.data(), globalNodeNrsR.data() + globalNodeNrsR.size());
@@ -114,7 +114,7 @@ namespace Geometry {
         else
         {
 //-MTJ-start--------------
-//#ifdef MTJ
+#ifdef MTJ
             //******************************
             // the connected elements are either refined or this is a periodic BC face
             //******************************
@@ -197,7 +197,7 @@ namespace Geometry {
             } // end if commNodes.size() > 0
             else
             {
-//#endif
+#endif
 //-MTJ-end--------------
                 // ~OC~
             VectorOfLocalNodes localNodeNrsL;
@@ -283,14 +283,16 @@ namespace Geometry {
                 }
             }
 //-MTJ-start--------------
-//#ifdef MTJ
+#ifdef MTJ
             }
-//#endif
+#endif
 //-MTJ-end--------------
+            
+                //cout << this->getReferenceGeometry()->getName()<<endl;
             faceToFaceMapIndex_ = this->getReferenceGeometry()->getCodim0MappingIndex(globalNodeNrsL, globalNodeNrsR);
 
 //-MTJ-start--------------
-//#ifdef MTJ
+#ifdef MTJ
             //------- 
             // Filling refinement matrix with a correct value.
             // Initially, refinement matrix consists only reorientation transformation 
@@ -327,7 +329,7 @@ namespace Geometry {
             faceToFaceMapMatrix_(DIM-1,DIM-1) = 1.;
             //------- end-Filling refinement matrix
 
-//#endif
+#endif
 //-MTJ-end--------------
 
         }
@@ -409,7 +411,7 @@ namespace Geometry {
         ReferencePointOnTheFaceT pOtherSide(pRefFace);
         
 //-MTJ-start--------------
-//#ifdef MTJ
+#ifdef MTJ
         PointReference<DIM-1> pRefFaceR = pRefFace;
 
         // get reference face coordinates on the right side,
@@ -426,12 +428,12 @@ namespace Geometry {
 
         // get reference element coordinates
         rightElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_)->transform(pOtherSide, pRefEl);
-//#else
+#else
 //-MTJ-end--------------
         mapRefFaceToRefFace(pRefFace, pOtherSide);
         rightElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_)->transform(pOtherSide, pRefEl);
 //-MTJ-start--------------
-//#endif
+#endif
 //-MTJ-end--------------
 
     }
@@ -511,8 +513,15 @@ namespace Geometry {
         double det = j2.determinant();
                 
         //sgn==(x > 0) - (x < 0)
-        v *= ((det>0)-(det<0)) *
-        OutwardNormalVectorSign<DIM>(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_));
+//        cout << "det="<<det<<endl;
+//        cout << "localFaceNumberLeft_="<<localFaceNumberLeft_<<endl;
+//        cout << "v="<<v<<endl;
+        
+        double sign =OutwardNormalVectorSign<DIM>(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_));
+//        cout << "sign="<<sign<<endl;
+        v *= ((det>0)-(det<0))*sign;
+        
+        
     }
 
 //-MTJ-start--------------

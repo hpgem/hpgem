@@ -49,9 +49,11 @@ namespace LinearAlgebra
         /// \brief defines the operator (n,m) to access the element on row n and column m
         const double& operator() (int n, int m) const;
 
+        /// WRONG!!
         /// \brief Access the n linear element in the matrix. 
         double& operator[](const int n);
         
+            /// WRONG!!
         const double& operator[](const int n) const {return data_[n];}
         
         /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j
@@ -60,16 +62,21 @@ namespace LinearAlgebra
         /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j (constant version)
         NumericalVector operator*(NumericalVector& right) const;
         
+        
+            /// NEED ONE WITHOUT COPY!!!!
         /// \brief Does matrix A_ij = B_ik * C_kj
         Matrix operator* (Matrix &other);
+        Matrix operator* (const Matrix &other)const;
         
         /// \brief Does matrix A_ij=scalar*A_ij
+        //THIS SHOULD NOT RETURN ANYTHING, in PLACE S.N
         Matrix operator*= (const double &scalar);
         
+        //THIS SHOULD NOT RETURN ANYTHING, in PLACE S.N
         /// \breif this does element by divived by a scalar 
         Matrix& operator/= (const double& scalar);
         
-        /// \breif this does element by divived by a scalar 
+        /// \breif this does element by divived by a scalar
         Matrix operator/   (const double& scalar);
         
         /// \brief Assigns the Matrix by a scalar

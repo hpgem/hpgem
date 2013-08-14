@@ -13,10 +13,10 @@ namespace Base
     class Face;
     
     template<unsigned int DIM>
-    Face<DIM>::Face(ElementT*  ptrElemL, const LocalFaceNrTypeT& localFaceNumL, ElementT* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR) :
-        FaceGeometryT((ElementGeometryT*)ptrElemL, localFaceNumL,(ElementGeometryT*)ptrElemRight,localFaceNumR),
+    Face<DIM>::Face(ElementT*  ptrElemL, const LocalFaceNrTypeT& localFaceNumL, ElementT* ptrElemR, const LocalFaceNrTypeT& localFaceNumR) :
+        FaceGeometryT((ElementGeometryT*)ptrElemL, localFaceNumL,(ElementGeometryT*)ptrElemR,localFaceNumR),
         elementLeft_(ptrElemL),
-        elementRight_(ptrElemL)
+        elementRight_(ptrElemR)
     {
         createQuadratureRules();
     }
@@ -25,7 +25,7 @@ namespace Base
     Face<DIM>::Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType&  faceType):
         FaceGeometryT((ElementGeometryT*)ptrElemL, localFaceNumL, faceType),
         elementLeft_(ptrElemL),
-        elementRight_(ptrElemL)
+        elementRight_(NULL)
     {
        createQuadratureRules();
     }

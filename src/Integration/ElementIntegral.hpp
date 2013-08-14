@@ -49,11 +49,16 @@ namespace Integration
 
             //! \brief Directly integrate the inegrand and return ReturnTraits1.
         template <typename IntegrandT>
-        void    integrate(ElementT& el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result,
+        void    integrate(ElementT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result,
                           const QuadratureRulesT* const qdrRule = NULL);
              //! \brief Directly integrate the inegrand and return ReturnTraits1, member function version.
-        template <template<unsigned int> class OBJ, typename IntegrandT>
-        void    integrate(ElementT& el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ<DIM>* objPtr, const QuadratureRulesT* const qdrRule = NULL);
+        template <typename OBJ, typename IntegrandT>
+        void    integrate(ElementT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = NULL);
+        
+        
+            /// Probably not needed, this is for classes which are template!
+//        template <class OBJ, typename IntegrandT>
+//        void    integrate(ElementT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = NULL);
 
     
     private:

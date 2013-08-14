@@ -67,16 +67,16 @@ namespace Integration
     template<unsigned int DIM>
     template <typename IntegrandT>
     void
-    FaceIntegral<DIM>::integrate(FaceT&                                           fa,
+    FaceIntegral<DIM>::integrate(FaceT*                                           fa,
                                  IntegrandT&                                      integrand,
                                  typename ReturnTrait1<IntegrandT>::ReturnType&   result,
                                  const QuadratureRulesT* const                    qdrRule )
     {
-        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==NULL? fa.getGaussQuadratureRule(): qdrRule);
+        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==NULL? fa->getGaussQuadratureRule(): qdrRule);
         
             // check whether the GaussIntegrationRule is actually for the
             // Element's ReferenceGeometry
-        TestErrorDebug((qdrRuleLoc->forReferenceGeometry() == fa.getReferenceGeometry()),
+        TestErrorDebug((qdrRuleLoc->forReferenceGeometry() == fa->getReferenceGeometry()),
                        "FaceIntegral: " + qdrRuleLoc->getName() + " rule is not for THIS ReferenceGeometry!");
         
             // value returned by the integrand
@@ -94,7 +94,7 @@ namespace Integration
             
                 // first Gauss point
             qdrRuleLoc->getPoint(0, p);
-            fa.getNormalVector(p, Normal);
+            fa->getNormalVector(p, Normal);
             integrand(fa, Normal, p, result);
             result *= (qdrRuleLoc->weight(0) * Base::L2Norm<DIM>(Normal));
             
@@ -102,7 +102,7 @@ namespace Integration
             for (unsigned int i = 1; i < nrOfPoints; ++i)
             {
                 qdrRuleLoc->getPoint(i, p);
-                fa.getNormalVector(p, Normal);
+                fa->getNormalVector(p, Normal);
                 integrand(fa, Normal, p, value);
                 
                  //Y = alpha * X + Y
@@ -113,7 +113,7 @@ namespace Integration
         else  // useCache_
         {
                 // get vector of cache data
-            VecCacheT vecCache = fa.getVecCacheData();
+            VecCacheT vecCache = fa->getVecCacheData();
             
                 // Calculate the cache
             if ((vecCache.size()!=nrOfPoints) || recomputeCache_)
@@ -125,7 +125,7 @@ namespace Integration
                 for (unsigned int i=0; i<nrOfPoints; ++i)
                 {
                     qdrRuleLoc->getPoint(i, p);
-                    vecCache[i](fa,p);
+                    vecCache[i](*fa,p);
                 }
             }
             
@@ -146,6 +146,93 @@ namespace Integration
             } // for integration points
         } // if cached data (else)
     } // function
+    
+    template <unsigned int DIM>
+    template <typename OBJ, typename IntegrandT>
+    void
+    FaceIntegral<DIM>::integrate(FaceT* fa,
+                                  IntegrandT& integrand,
+                                  typename ReturnTrait1<IntegrandT>::ReturnType& result,
+                                  OBJ*                objPtr,
+                                  const QuadratureRulesT* const qdrRule)
+    {
+        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==NULL? fa->getGaussQuadratureRule(): qdrRule);
+        
+            // check whether the GaussIntegrationRule is actually for the
+            // Element's ReferenceGeometry
+        TestErrorDebug((qdrRuleLoc->forReferenceGeometry() == fa->getReferenceGeometry()),
+                       "FaceIntegral: " + qdrRuleLoc->getName() + " rule is not for THIS ReferenceGeometry!");
+        
+            // value returned by the integrand
+        typename ReturnTrait1<IntegrandT>::ReturnType value(result);
+        
+            // number of Gauss quadrature points
+        unsigned int nrOfPoints = qdrRuleLoc->nrOfPoints();
+        
+            // Gauss quadrature point
+        Geometry::PointReference<DIM-1> p;
+        
+        if (!useCache_)
+        {
+            Geometry::PointPhysical<DIM> Normal;
+            
+                // first Gauss point
+            qdrRuleLoc->getPoint(0, p);
+            fa->getNormalVector(p, Normal);
+            
+                //cout <<"NORMAL="<<Normal<<endl;
+            (objPtr->*integrand)(fa, Normal, p, result);
+            result *= (qdrRuleLoc->weight(0) * Base::L2Norm<DIM>(Normal));
+            
+                // next Gauss points
+            for (unsigned int i = 1; i < nrOfPoints; ++i)
+            {
+                qdrRuleLoc->getPoint(i, p);
+                fa->getNormalVector(p, Normal);
+                (objPtr->*integrand)(fa, Normal, p, value);
+                
+                    //Y = alpha * X + Y
+                result.axpy(qdrRuleLoc->weight(i) * Base::L2Norm<DIM>(Normal),value);
+                
+            }
+        }
+        else  // useCache_
+        {
+                // get vector of cache data
+            VecCacheT vecCache = fa->getVecCacheData();
+            
+                // Calculate the cache
+            if ((vecCache.size()!=nrOfPoints) || recomputeCache_)
+            {
+                std::cout << qdrRuleLoc->getName() << " ";
+                std::cout << "FaceIntegral: filling up the cache (" << nrOfPoints << "points)!\n";
+                
+                vecCache.resize(nrOfPoints);
+                for (unsigned int i=0; i<nrOfPoints; ++i)
+                {
+                    qdrRuleLoc->getPoint(i, p);
+                    vecCache[i](*fa,p);/// SHOULD BE CHANGED TO RECIEVE POINTERS!!!
+                }
+            }
+            
+                // first Gauss point
+            qdrRuleLoc->getPoint(0, p);
+            (objPtr->*integrand)(fa, vecCache[0].Normal, p, result);
+            result *= (qdrRuleLoc->weight(0) * vecCache[0].L2Normal);
+            
+                // next Gauss point(s)
+            for (unsigned int i = 1; i < nrOfPoints; ++i)
+            {
+                qdrRuleLoc->getPoint(i, p);
+                (objPtr->*integrand)(fa, vecCache[i].Normal, p, value);
+                
+                    //Y = alpha * X + Y
+                result.axpy(qdrRuleLoc->weight(i) * vecCache[i].L2Normal,value);
+                
+            } // for integration points
+        } // if cached data (else)
+    } // function
+
 
     
     /*! \brief Integration class for face integrals, a specialization for 1D case
@@ -166,7 +253,7 @@ namespace Integration
         {}
         
         template <class IntegrandT>
-        void integrate(Base::Face<1>& fa,
+        void integrate(Base::Face<1>* fa,
                        IntegrandT& integrand,
                        typename ReturnTrait1<IntegrandT>::ReturnType& result,
                        const QuadratureRules::GaussQuadratureRule<0>* qdrRule = NULL)
@@ -174,7 +261,7 @@ namespace Integration
             Geometry::PointReference<0> p;
             Geometry::PointPhysical<1> Normal;
             
-            fa.getNormalVector(p, Normal);
+            fa->getNormalVector(p, Normal);
             integrand(fa, Normal, p, result);
         }
     };

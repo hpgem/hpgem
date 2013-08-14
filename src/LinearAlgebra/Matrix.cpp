@@ -202,6 +202,37 @@ namespace LinearAlgebra
         return C;
     }
     
+    Matrix Matrix::operator* (const Matrix &other )const
+    {
+        
+        if (nCols_!=other.nRows_)
+        {
+                /// \bug this need fixed when we have real error handling.
+            throw(10);
+        }
+        
+        
+        int i=nRows_;
+        int j=nCols_;
+        int k=other.getNCols();
+        
+            ///The result of the matrix is left.Nrows, right.NCols()
+        Matrix C(i,k);
+        
+        int i_one=1;
+        double d_one=1.0;
+        double d_zero=0.0;
+        
+        
+        
+        
+        dgemm_("N","N",&i,&k,&j,&d_one,&((*(const_cast<Matrix *> (this)))[0]),&i,&(((const_cast<Matrix&> (other)))[0]),&j,&d_zero,&C[0],&i);
+        
+        
+        
+        return C;
+    }
+    
 
     /// \param[in] scale : A double that each element of the matrix is multiplied bu
     /// \return Matrix
@@ -454,18 +485,21 @@ namespace LinearAlgebra
         int nPivot=std::min(nRows_,nCols_);
         int iPivot[nPivot];
         
-        int info;
+        int info=0;
         
         dgetrf_(&nr,&nc,&result[0],&nr,iPivot,&info);
         
         int lwork = nRows_*nCols_;
         
-        double *work = new double[lwork];
+        double work[lwork];
+        
+        dgetri_(&nc,&result[0],&nc,iPivot,&work[0],&lwork,&info);
+
         
         
-        dgetri_(&nc,&result[0],&nc,iPivot,work,&lwork,&info);
+            //std::cout << "Mautrix="<<result<<std::endl;
         
-        
+//        std::cout << "ENDINVERSE"<<std::endl;
         
     }
     
@@ -491,20 +525,31 @@ namespace LinearAlgebra
     {
         unsigned int nRows=A.getNRows();
         unsigned int nCols=A.getNCols();
-    for (int i=0; i<nRows-1; ++i) 
-    {
-        os << "[(";
-        for(int j=0; j<nCols-1; ++j)
-            os<< A(i,j) <<",";
-        os << A(i, nCols-1) << "),\n ";
-    }
-    
-        os << "(";
-        for(int j=0; j<nCols-1; ++j)
-            os<< A(nRows-1,j) <<",";
-        os << A(nRows-1, nCols-1) << ")";
+        os << "["<<std::endl;
+        for (int i=0; i<nRows; ++i)
+        {
+            os << "(";
+
+             for(int j=0; j<nCols; ++j)
+                os<< A(i,j) <<"\t ";
+            os << ")"<<std::endl;
+        }
+         os << "]";
         
-        os << "]";
+//        for (int i=0; i<nRows-1; ++i) 
+//        {
+//            os << "[(";
+//            for(int j=0; j<nCols-1; ++j)
+//                os<< A(i,j) <<",";
+//            os << A(i, nCols-1) << "),\n ";
+//        }
+//    
+//        os << "(";
+//        for(int j=0; j<nCols-1; ++j)
+//            os<< A(nRows-1,j) <<",";
+//        os << A(nRows-1, nCols-1) << ")";
+//        
+//        os << "]";
         return os;
     }
     

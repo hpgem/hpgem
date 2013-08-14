@@ -56,10 +56,10 @@ namespace Integration
 
         //! \brief Do the face integration using given Gauss integration rule.
         template <typename IntegrandT>
-        void integrate(Base::Face<DIM>& fa,
-                       IntegrandT& integrand,
-                       typename ReturnTrait1<IntegrandT>::ReturnType& result,
-                       const QuadratureRules::GaussQuadratureRule<DIM-1>* qdrRule = NULL);
+        void integrate(FaceT* fa, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, const QuadratureRulesT* qdrRule = NULL);
+        
+        template <typename OBJ, typename IntegrandT>
+        void    integrate(FaceT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = NULL);
     private:
         
         bool        useCache_;

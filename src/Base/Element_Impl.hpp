@@ -22,13 +22,15 @@ namespace Base
                           unsigned int nrOfTimeLevels,
                           unsigned int id):
         ElementGeometryT(globalNodeIndexes, allNodes),
-        ElementDataT(nrOfTimeLevels, nrOfUnkowns, basisFunctionSet->size()),
+        ElementDataT(nrOfTimeLevels, nrOfUnkowns, 11),
         basisFunctionSet_(basisFunctionSet),
         quadratureRule_(NULL),
         vecCacheData_(),
         id_(id)
     {
         orderCoeff_ = 2;
+        
+//        cout<<"order quad="<<basisFunctionSet_->getOrder()<<endl;
         setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->getOrder());
     }
 
@@ -100,7 +102,9 @@ namespace Base
     void
     Element<DIM>::setQuadratureRulesWithOrder(unsigned int quadrROrder)
     {
+        
         quadratureRule_ =  Geometry::ElementGeometry<DIM>::referenceGeometry_->getGaussQuadratureRule(quadrROrder);
+            //cout << "quad="<<quadratureRule_->getName()<<endl;
     }
     
     template<unsigned int DIM>
@@ -140,6 +144,15 @@ namespace Base
                 solution[k] += data(k, i) * basisFunction(i, p);
             }
         }
+    }
+    
+    template<unsigned int DIM>
+    void
+    Element<DIM>::initialiseSolution(unsigned int timeLevel, unsigned int solutionId, const SolutionVector& solution)
+    {
+            //LinearAlgebra::Matrix& data = ElementData<DIM>::getTimeLevelData(0);
+        
+            //data = solution;
     }
 }
 #endif

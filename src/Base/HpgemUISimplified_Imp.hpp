@@ -6,6 +6,7 @@ namespace Base
     template<unsigned int DIM>
     class HpgemUISimplified;
     
+    
     template<unsigned int DIM>
     bool
     HpgemUISimplified<DIM>::solve()
@@ -30,7 +31,8 @@ namespace Base
     void
     HpgemUISimplified<DIM>::doAllElementIntegration(unsigned int meshID)
     {
-        LinearAlgebra::Matrix  	matrix(1,1);
+        unsigned int ndof = HpgemUI<DIM>::configData_->numberOfBasisFunctions_;
+        LinearAlgebra::Matrix  	matrix(ndof, ndof);
         typedef void  (HpgemUISimplified<DIM>::*Function)(const Element<DIM>& , const PointReferenceT&, LinearAlgebra::Matrix&);
         Function f = &HpgemUISimplified<DIM>::elementIntegrand;
         
@@ -47,7 +49,7 @@ namespace Base
         for (ElementIterator it=HpgemUI<DIM>::meshes_[meshID]->elementColBegin(); it!= HpgemUI<DIM>::meshes_[meshID]->elementColEnd(); ++it)
         {
             
-            elIntegral.integrate(*(*it), f, matrix, this);
+            elIntegral.integrate((*it), f, matrix, this);
             //cout << result;
             
             cout<< "#####################################END of ELEMENT######"<<endl;

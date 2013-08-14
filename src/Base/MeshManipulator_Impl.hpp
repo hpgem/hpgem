@@ -140,13 +140,14 @@ MeshManipulator<DIM>::addElement(const VectorOfPointIndicesT& globalNodeIndexes)
     
     unsigned int numOfUnknowns      = configData_->numberOfUnknowns_;
     unsigned int numOfTimeLevels    = configData_->numberOfTimeLevels_;
-    unsigned int id                 = ++counter_;
+    unsigned int id                 = counter_++;
     
     
     
     ElementT*  myElement = new ElementT(globalNodeIndexes, defaultSetOfBasisFunctions_, points_, numOfUnknowns, numOfTimeLevels, id);
     
     
+        //cout << "Element= "<<*myElement;
     elements_.push_back(myElement);
     
     return myElement;
@@ -183,14 +184,14 @@ MeshManipulator<DIM>::addFace(ElementT* leftElementPtr, unsigned int leftElement
     {
     //      std::cout << "{Right Element" << (*rightElementPtr) << " , FaceIndex=" <<rightElementLocalFaceNo<<"}"<<endl;
         
-        Face<DIM> face(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo);
+        Face<DIM>* face = new Face<DIM>(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo);
         
         faces_.push_back(face);
     }
     else 
     {
         //    std::cout << "This is a boundary face" << std::endl;
-        Face<DIM> bFace(leftElementPtr, leftElementLocalFaceNo, faceType);
+        Face<DIM>* bFace = new Face<DIM>(leftElementPtr, leftElementLocalFaceNo, faceType);
         faces_.push_back(bFace);
     }
     // std::cout << "-----------------------\n";
@@ -244,7 +245,6 @@ MeshManipulator<DIM>::createRectangularMesh(const PointPhysicalT& BottomLeft, co
         delta_x[i]=(TopRight[i]-BottomLeft[i])/(linearNoElements[i]);
     }
 
-
     //This stores the number of nodes in each coDIMension i.e. if you have 2 by 2 element it is 3 nodes 
     std::vector<unsigned int> numOfNodesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM);
     
@@ -255,7 +255,9 @@ MeshManipulator<DIM>::createRectangularMesh(const PointPhysicalT& BottomLeft, co
     unsigned int totalNumOfNodes,totalNumOfElements, verticesPerElement;
     
     totalNumOfNodes=(linearNoElements[0]+1);
+    
     totalNumOfElements=(linearNoElements[0]);
+    
     verticesPerElement=2;
     int powerOf2;
     
@@ -282,13 +284,12 @@ MeshManipulator<DIM>::createRectangularMesh(const PointPhysicalT& BottomLeft, co
         
         
         
-        for (unsigned int iDIM=DIM-1;iDIM>-1;--iDIM)
+        for (int iDIM=DIM-1;iDIM>-1;--iDIM)
         {
             x[iDIM] = BottomLeft[iDIM] + (nodeIndexRemain/numOfNodesInEachSubspace[iDIM]*delta_x[iDIM]);
             nodeIndexRemain %=numOfNodesInEachSubspace[iDIM];
         }
     
-                                          
         //actally add the point
         points_.push_back(x);
 
@@ -312,7 +313,7 @@ MeshManipulator<DIM>::createRectangularMesh(const PointPhysicalT& BottomLeft, co
     {
         unsigned int numElementsRemaining=elementIndex;
         
-        for (unsigned int iDIM=DIM-1; iDIM>-1;--iDIM)
+        for (int iDIM=DIM-1; iDIM>-1;--iDIM)
         {
             elementNdId[iDIM]=numElementsRemaining/numOfElementsInEachSubspace[iDIM];
             numElementsRemaining %= numOfElementsInEachSubspace[iDIM];
@@ -331,9 +332,12 @@ MeshManipulator<DIM>::createRectangularMesh(const PointPhysicalT& BottomLeft, co
             globalVertexID[i]=vertexNdId[0];
                 
             //Now map to the one DIMensional global ID
-            for (unsigned int iDIM=1;iDIM<DIM;++iDIM){globalVertexID[i] += vertexNdId[iDIM]*numOfNodesInEachSubspace[iDIM];}
+            for (unsigned int iDIM=1;iDIM<DIM;++iDIM)
+            {
+                globalVertexID[i] += vertexNdId[iDIM]*numOfNodesInEachSubspace[iDIM];
+            }
         }
-            
+    
         tempElementVector[elementIndex]=addElement(globalVertexID);
     }
     

@@ -23,19 +23,24 @@ namespace Base
         
     public:
 // MTJ: default constructor, just for a moment; to be removed later!  Soon!
-        ElementData() {}
+        ElementData() {userData_=NULL;}
 	      
         ElementData(unsigned int timeLevels, unsigned nrOfUnkowns, unsigned int nrOfBasisFunctions);
 
        
-        virtual ~ElementData() {delete userData_;}
+        virtual ~ElementData() {}
         
         
             /// Specify a time level index, return a vector containing the data for that time level.
         const LinearAlgebra::Matrix&    getTimeLevelData(unsigned int timeLevel) const;
         
+        void                            setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown);
+        
             /// Specify a time level index, an unknown and a basis function nr, return data (double)
         double                    getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const;
+
+            /// Specify a time level index, an unknown and a basis function nr, return data (double)
+        void                      setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val);
 
         
         int                       getNrOfUnknows() const;
@@ -48,7 +53,7 @@ namespace Base
         
         void                      setUserData(UserElementData* data);
         
-        UserElementData*          getUserData();
+        UserElementData*          getUserData(){return userData_;}
             
     private:
         unsigned int              timeLevels_;

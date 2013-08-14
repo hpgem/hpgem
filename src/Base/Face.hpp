@@ -39,10 +39,15 @@ namespace Base
         void            setPtrElementRight(const ElementT* value);
 
         /// Return the pointer to the left element.
-        ElementT*       getPtrElementLeft()     {return elementLeft_;}
+        const ElementT*       getPtrElementLeft()     {return elementLeft_;}
 
         /// Return the pointer to the right element, NULL if inexistent for boundaries.
-        ElementT*       getPtrElementRight()    {return elementRight_;}
+        const ElementT*       getPtrElementRight()    {return elementRight_;}
+        
+        const ElementT*       getPtrElementLeft()const     {return elementLeft_;}
+        
+            /// Return the pointer to the right element, NULL if inexistent for boundaries.
+        const ElementT*       getPtrElementRight()const    {return elementRight_;}
         
         void            createQuadratureRules();
     

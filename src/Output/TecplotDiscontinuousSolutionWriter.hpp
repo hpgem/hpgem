@@ -15,7 +15,7 @@ using std::vector;
 #include <utility>
 using std::pair;
 #include <string>
-
+using std::string;
 // Package includes:
 #include "Geometry/PointPhysical.hpp"
 //using Geometry::PhysSpacePoint;
@@ -42,16 +42,16 @@ namespace Output
 
         TecplotDiscontinuousSolutionWriter(
                 ostream& output,
-                const StringT& fileTitle,
-                int* dimensionsToWrite,
-                const StringT& variableString);
+                const std::string& fileTitle,
+                const std::string& dimensionsToWrite,
+                const std::string& variableString);
 
         /// Write a zone with data from the current mesh to the stream held by the object.
-        //template <class WriteFunctor>
+        template <class WriteFunctor>
         void write(const Base::MeshManipulator<DIM>* mesh,
-                   const StringT& zoneTitle,
-                   const bool sameGeometry//,
-                   //WriteFunctor& writeDataFunc
+                   const std::string& zoneTitle,
+                   const bool sameGeometry,
+                   WriteFunctor& writeDataFunc
                    );
 
         /// TODO: Perfect this deconstructor.
@@ -70,11 +70,13 @@ namespace Output
 
         unsigned int previousNrOfNodes_;
 
-        StringT elementType_[5];
+        std::string elementType_[5];
 
         int* dimensionsToWrite_;
 
         const unsigned int nDimensionsToWrite_;
+        
+        unsigned int* dimNrs;
     };
 }
 #include "TecplotDiscontinuousSolutionWriter_Impl.hpp"

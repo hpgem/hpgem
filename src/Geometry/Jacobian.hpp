@@ -34,7 +34,7 @@ namespace Geometry
         
         virtual ~Jacobian(){}
         
-//            void operator *=(const Jacobian& j2)
+//        void operator *=(const Jacobian& j2)
 //            {
 //                    //((LinearAlgebra::Matrix)(*this)) *= ((LinearAlgebra::Matrix)(j2));
 //            }
@@ -44,12 +44,16 @@ namespace Geometry
          the function multiplyJacobiansInto. */
         
         template <unsigned int dim3>
-        void multiplyJacobiansInto(const Jacobian<dim3, dimFrom>& mat2,
+        void multiplyJacobiansInto(const Jacobian<dim3, dimFrom>& jac2,
                                    Jacobian<dim3, dimTo>& jres)
         {
-                // TODO: This is very inefficient, because of Anthony's code.
-                //jres =  mat1;
-                //jres *= mat2;
+                // TODO: This is very inefficient, because of Anthony's code in LinearAlgebra.
+                LinearAlgebra::Matrix& matThis= *this;
+                LinearAlgebra::Matrix& matRes= jres;
+                                             
+                const LinearAlgebra::Matrix& mat2=jac2;
+            
+                matRes = matThis.operator*(mat2);
             
         }
         

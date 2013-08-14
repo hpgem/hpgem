@@ -16,62 +16,21 @@ namespace Base
         typedef std::vector<BaseBasisFunctionT*>    BaseBasisFunctions;
         typedef Geometry::PointReference<DIM>       PointReferenceT;
         
+        
     public:
-        BasisFunctionSet(unsigned int order) : order_(order) {}
+        BasisFunctionSet(unsigned int order);
         
-        ~BasisFunctionSet()
-        {
-            while(!vecOfBasisFcn_.empty()) 
-            {
-                delete vecOfBasisFcn_.back();
-                vecOfBasisFcn_.pop_back();
-            }
-        }
+        ~BasisFunctionSet();
         
-        unsigned int size() const
-        {
-            return vecOfBasisFcn_.size();
-        }
+        inline unsigned int size() const;
         
-        unsigned int getOrder() const
-        {
-            return order_;
-        }
+        inline unsigned int getOrder() const;
         
-        void addBasisFunction(BaseBasisFunctionT* bf)
-        {
-            vecOfBasisFcn_.push_back(bf);
-        }
+        inline void         addBasisFunction(BaseBasisFunctionT* bf);
         
-        double eval(unsigned int i, const PointReferenceT& p) const
-        {
-            return vecOfBasisFcn_[i]->eval(p);
-        }
+        inline double       eval(unsigned int i, const PointReferenceT& p) const;
         
-        double evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const
-        {
-            TestErrorDebug((jDir<DIM),"Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
-          
-            double (BaseBasisFunction<DIM>::*evalDeriv)(const PointReferenceT&)const;
-            
-            switch (jDir)
-            {
-                case 0:
-                    evalDeriv=&BaseBasisFunction<DIM>::evalDeriv0;
-                  break;
-                case 1:
-                    evalDeriv=&BaseBasisFunction<DIM>::evalDeriv1;
-                    break;
-                case 2:
-                    evalDeriv=&BaseBasisFunction<DIM>::evalDeriv2;
-                  break;
-                case 3:
-                        //evalDeriv=&BaseBasisFunction<DIM>::evalDeriv3;
-                  break;
-                default: evalDeriv=NULL;
-            }
-            return (vecOfBasisFcn_[i]->*evalDeriv)(p);
-        }
+        inline double       evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
 
     private:
         BasisFunctionSet();
@@ -81,7 +40,7 @@ namespace Base
         unsigned int                          order_;
         BaseBasisFunctions                    vecOfBasisFcn_;
     };
-
-};
+}
+#include "BasisFunctionSet_Impl.hpp"
 
 #endif

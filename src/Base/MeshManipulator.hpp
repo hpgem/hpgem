@@ -41,7 +41,7 @@ namespace Base
         typedef LevelTree<ElementT>                         ElementLevelTreeT;
         typedef LevelTree<FaceT>                            FaceLevelTreeT;
         
-        typedef std::list<FaceT>                            ListOfFacesT;
+        typedef std::list<FaceT*>                           ListOfFacesT;
         typedef std::list<ElementT*>                        ListOfElementsT;
         typedef std::vector<ElementT* >                     VectorOfElementPtrT;
         typedef std::vector<PointPhysicalT >                VectorOfPhysicalPointsT;
@@ -56,6 +56,9 @@ namespace Base
         
         typedef typename ListOfElementsT::const_iterator    ConstElementIterator;
         typedef typename ListOfElementsT::iterator          ElementIterator;
+        
+        typedef typename ListOfFacesT::const_iterator       ConstFaceIterator;
+        typedef typename ListOfFacesT::iterator             FaceIterator;
 
         
     public:
@@ -76,6 +79,8 @@ namespace Base
         bool                            addFace(ElementT* leftElementPtr, unsigned int leftElementLocalFaceNo, 
                                                 ElementT* rightElementPtr, unsigned int rightElementLocalFaceNo,
                                                 const Geometry::FaceType& faceType=Geometry::INTERNAL);
+        
+        unsigned int                    getNumberOfElements(unsigned int meshId=0) const {return elements_.size(); }
 
         /// *****************Iteration through the Elements*******************
         ConstElementIterator            elementColBegin()const{return elements_.begin();}
@@ -84,6 +89,13 @@ namespace Base
 
         ElementIterator                 elementColBegin(){return elements_.begin();}
         ElementIterator                 elementColEnd(){return elements_.end();}
+        
+        ConstFaceIterator               faceColBegin()const{return faces_.begin();}
+        
+        ConstFaceIterator              faceColEnd()const{return faces_.end();}
+        
+        FaceIterator                    faceColBegin(){return faces_.begin();}
+        FaceIterator                    faceColEnd(){return faces_.end();}
         /// *****************Iteration through the Elements*******************
 
         void                            createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const VectorOfPointIndicesT& LinearNoElements);
@@ -100,7 +112,7 @@ namespace Base
 
         // ******************THESE SHOULD BE DELETED LATER***********************
         //! Get const list of elements
-        const ListOfElementsT&          getElementsList() const { return elements_; }
+        const ListOfElementsT&          getElementsList() const {return elements_; }
 
         //! Get non-const list of elements
         ListOfElementsT&                getElementsList() { return elements_; }

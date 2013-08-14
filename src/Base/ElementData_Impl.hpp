@@ -14,7 +14,7 @@ namespace Base
         expansionCoefficients_(timeLevels_)
     {
         for (typename VectorOfMatrices::iterator cit=expansionCoefficients_.begin(); cit!=expansionCoefficients_.end(); ++cit)
-            cit->resize(nrOfBasisFunctions, nrOfUnkowns_);
+            cit->resize(nrOfUnkowns_, nrOfBasisFunctions);
     }
 
     template<unsigned int DIM>
@@ -38,7 +38,47 @@ namespace Base
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
         {
-            return expansionCoefficients_[timeLevel](unknown,basisFunction);
+            return expansionCoefficients_[timeLevel](unknown, basisFunction);
+        }
+        else
+        {
+            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
+        }
+    }
+    template<unsigned int DIM>
+    void
+    ElementData<DIM>::setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val)
+    {
+        if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
+        {
+            expansionCoefficients_[timeLevel](unknown, basisFunction)=val;
+        }
+        else
+        {
+            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
+        }
+    }
+    
+
+    
+        ///Rewrite with swap!!! and for all variables immediately
+    template<unsigned int DIM>
+    void
+    ElementData<DIM>::setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown)
+    {
+        if (timeLevel < timeLevels_ && solutionId < nrOfUnkowns_)
+        {
+                //cout << "came here with "<< "solutionId="<<solutionId<< ",unknown="<<unknown[0]<<endl;
+            LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
+                // cout << mat<<"before setting"<<endl;
+    
+            for (int i = 0; i < unknown.size(); ++i)
+            {
+                mat(solutionId, i) = unknown[i];
+//                cout << "was here"<<solutionId<<endl;
+            }
+            
+                // cout << mat<<"after setting"<<endl;
         }
         else
         {
@@ -72,5 +112,11 @@ namespace Base
     ElementData<DIM>::setResidue(VectorOfDoubles& residue)
     {
         residue_=residue;
+    }
+    template<unsigned int DIM>
+    void
+    ElementData<DIM>::setUserData(UserElementData* data)
+    {
+        userData_=data;
     }
 }

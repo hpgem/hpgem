@@ -22,7 +22,7 @@ namespace Output
         template<unsigned int DIM>
         void acceptG(const Geometry::PhysicalGeometry<DIM>* geo)
         {
-            std::cout<<(*geo);
+                //std::cout<<(*geo);
             const Geometry::PhysicalLine* line= dynamic_cast<const Geometry::PhysicalLine*>(geo);
             if (line)
             {

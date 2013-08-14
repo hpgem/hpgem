@@ -23,6 +23,9 @@ namespace Geometry
         NumericalVector&      v((NumericalVector&)p);
         
         const LinearAlgebra::Matrix& jac=*this;
+
+            //cout << "jacobian="<<jac<<endl;
+
         jac.computeWedgeStuffVector(v);
     }
 
