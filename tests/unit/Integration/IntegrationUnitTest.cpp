@@ -14,7 +14,7 @@ class MyElementIntegrandType : public Integration::ElementIntegrandBase<dim>
 {
 public:
 
-    void operator()(const Base::Element<dim>& elem, const Geometry::PointReference<dim>& p, LinearAlgebra::NumericalVector& ret)
+    void operator()(const Base::Element<dim>* elem, const Geometry::PointReference<dim>& p, LinearAlgebra::NumericalVector& ret)
     {
         ret[0] = p[0];
     }
@@ -25,7 +25,7 @@ class MyFaceIntegrandType : public Integration::FaceIntegrandBase<dim>
 {
 public:
 
-    void operator()(const Base::Face<dim>& face, const Geometry::PointPhysical<dim>& normal, const Geometry::PointReference<dim-1>& p, LinearAlgebra::NumericalVector& ret)
+    void operator()(const Base::Face<dim>* face, const Geometry::PointPhysical<dim>& normal, const Geometry::PointReference<dim-1>& p, LinearAlgebra::NumericalVector& ret)
     {
         //ret[0] = p[0];
         //ret[1] = p[1];
@@ -48,7 +48,7 @@ int main()
     numElementsOneD[0] = 2;
     numElementsOneD[1] = 2;
 
-    Base::ConfigurationData config;
+    Base::ConfigurationData config(1,1,1);
     
     config.numberOfUnknowns_       = 1;
     config.numberOfTimeLevels_     = 1;
@@ -59,7 +59,7 @@ int main()
     myTwoDDemoMesh.createRectangularMesh(bottomLeft,topLeft,numElementsOneD);
 
     typedef std::list<Base::Element<dim>*> ListOfElementsT;
-    typedef std::list<Base::Face<dim> >    ListOfFacesT;
+    typedef std::list<Base::Face<dim>*>    ListOfFacesT;
 
     ListOfElementsT& elements = myTwoDDemoMesh.getElementsList();
     ListOfFacesT& faces = myTwoDDemoMesh.getFacesList();
@@ -81,7 +81,7 @@ int main()
     {
         std::cout << (*el)->getReferenceGeometry()->getName() << std::endl;
         // Integrate using a quadrature rule of the element
-        elIntegral.integrate(*(*el), myElIntegrand, result);
+        elIntegral.integrate((*el), myElIntegrand, result);
         cout << result;
 
         cout<< "#####################################END of ELEMENT######"<<endl;
@@ -93,7 +93,7 @@ int main()
 
     for (ListOfFacesT::iterator fa=faces.begin(); fa!= faces.end(); ++fa)
     {
-        std::cout << fa->getReferenceGeometry()->getName() << std::endl;
+        std::cout << (*fa)->getReferenceGeometry()->getName() << std::endl;
         // Integrate using a quadrature rule of the element
         faIntegral.integrate(*fa, myFaIntegrand, result);
     }

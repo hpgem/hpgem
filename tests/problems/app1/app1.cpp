@@ -14,6 +14,15 @@ using Base::RectangularMeshDescriptor;
 using Base::HpgemUISimplified;
 
 const unsigned int DIM = 2;
+class Dummy
+{
+public:
+    Dummy(){}
+    void operator()(const Base::Element<2>& el, const Geometry::PointReference<2>& p, ostream& os)
+    {
+    }
+};
+
 class SimpleDemoProblem : public HpgemUISimplified<DIM>
 {
     
@@ -60,8 +69,9 @@ public:
         std::ofstream file2D;
         file2D.open ("out.dat");
         int dimensionsToWrite[2] = {0,1};
-        Output::TecplotDiscontinuousSolutionWriter<2> out(file2D,"RectangularMesh",dimensionsToWrite,"xy");
-        out.write(meshes_[0],"holi",false);
+        Output::TecplotDiscontinuousSolutionWriter<2> out(file2D,"RectangularMesh","01","xy");
+        Dummy d;
+        out.write(meshes_[0],"holi",false, d);
     }
     
 };

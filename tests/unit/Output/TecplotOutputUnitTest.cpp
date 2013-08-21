@@ -12,10 +12,18 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+class Dummy
+{
+public:
+    Dummy(){}
+    void operator()(const Base::Element<2>& el, const Geometry::PointReference<2>& p, ostream& os)
+    {
+    }
+};
 
 int main()
 {
-    Base::ConfigurationData config;
+    Base::ConfigurationData config(1,1,1);
     
     config.numberOfUnknowns_       = 1;
     config.numberOfTimeLevels_     = 1;
@@ -45,7 +53,8 @@ int main()
 
     int dimensionsToWrite[2] = {0,1};
 
-    Output::TecplotDiscontinuousSolutionWriter<2> out(file2D,"RectangularMesh",dimensionsToWrite,"xy");
-    out.write(&myTwoDDemoMesh,"holi",false);
+    Output::TecplotDiscontinuousSolutionWriter<2> out(file2D,"RectangularMesh","01","xy");
+    Dummy d;
+    out.write(&myTwoDDemoMesh,"holi",false, d);
 
 }

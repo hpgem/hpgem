@@ -9,48 +9,51 @@ using namespace std;
 int main()
 {
     //first 1D test
-    {//
+//    {//
+//        
+//        Base::ConfigurationData config(1,1,1);
+//        
+//        config.numberOfUnknowns_       = 1;
+//        config.numberOfTimeLevels_     = 1;
+//        config.numberOfBasisFunctions_ = 1;
+//
+//        Geometry::PointPhysical<1> bottomLeft, topLeft;
+//        std::vector<unsigned int> numElementsOneD(1);
+//
+//        bottomLeft[0]=0;
+//
+//        topLeft[0]=1;
+//    
+//        numElementsOneD[0]=10;
+//    
+//        Base::MeshManipulator<1> myOneDDemoMesh(&config, 1);
+//    
+//    
+//    
+//        myOneDDemoMesh.createRectangularMesh(bottomLeft,topLeft,numElementsOneD);
+//    
+//        myOneDDemoMesh.outputMesh(std::cout);
         
-        Base::ConfigurationData config;
-        
-        config.numberOfUnknowns_       = 1;
-        config.numberOfTimeLevels_     = 1;
-        config.numberOfBasisFunctions_ = 1;
-
-        Geometry::PointPhysical<1> bottomLeft, topLeft;
-        std::vector<unsigned int> numElementsOneD(1);
-
-        bottomLeft[0]=0;
-
-        topLeft[0]=2;
-    
-        numElementsOneD[0]=2;
-    
-        Base::MeshManipulator<1> myOneDDemoMesh(&config, 1);
-    
-    
-    
-        myOneDDemoMesh.createRectangularMesh(bottomLeft,topLeft,numElementsOneD);
-    
-        myOneDDemoMesh.outputMesh(std::cout);
-        
-    }
+//    }
       //Now 2D test
     {
-//  	  Geometry::PointPhysical<2> bottomLeft, topLeft;
+        
+//        Base::ConfigurationData config(1,1,1);
+//        
+//        Geometry::PointPhysical<2> bottomLeft, topLeft;
 //        std::vector<unsigned int> numElementsTwoD(2);
 //    
 //        bottomLeft[0]=0;
 //        bottomLeft[1]=0;
 //    
-//        topLeft[0]=2;
-//        topLeft[1]=2;
+//        topLeft[0]=1;
+//        topLeft[1]=1;
 //    
-//        numElementsTwoD[0]=30;
-//        numElementsTwoD[1]=20;
+//        numElementsTwoD[0]=2;
+//        numElementsTwoD[1]=2;
 //    
 //    
-//        Base::MeshManipulator<2> myTwoDDemoMesh(1,1);
+//        Base::MeshManipulator<2> myTwoDDemoMesh(&config, 1,1);
 //    
 //        myTwoDDemoMesh.createRectangularMesh(bottomLeft,topLeft,numElementsTwoD);
 //    
@@ -60,26 +63,32 @@ int main()
     
     //Now 3D test
     {
-//         Geometry::PointPhysical<3> bottomLeft, topRight;
-//         std::vector<unsigned int> numElementsThreeD(3);
-//   
-//         bottomLeft[0]=0;
-//         bottomLeft[1]=0;
-//         bottomLeft[2]=0;
-//         
-//         topRight[0]=2;
-//         topRight[1]=2;
-//         topRight[2]=2;
-//         
-//         numElementsThreeD[0]=3;
-//         numElementsThreeD[1]=3;
-//         numElementsThreeD[2]=1;
-// 
-//         Base::MeshManipulator<3> myThreeDDemoMesh(1,1,1);
-//         myThreeDDemoMesh.createRectangularMesh(bottomLeft,topRight,numElementsThreeD);
-//     
-//         myThreeDDemoMesh.outputMesh(std::cout);
-//     
+        Base::ConfigurationData config(1,1,1);
+            //
+            //        config.numberOfUnknowns_       = 1;
+            //        config.numberOfTimeLevels_     = 1;
+            //        config.numberOfBasisFunctions_ = 1;
+        
+         Geometry::PointPhysical<3> bottomLeft, topRight;
+         std::vector<unsigned int> numElementsThreeD(3);
+   
+         bottomLeft[0]=0;
+         bottomLeft[1]=0;
+         bottomLeft[2]=0;
+         
+         topRight[0]=1;
+         topRight[1]=1;
+         topRight[2]=1;
+         
+         numElementsThreeD[0]=3;
+         numElementsThreeD[1]=3;
+         numElementsThreeD[2]=3;
+ 
+         Base::MeshManipulator<3> myThreeDDemoMesh(&config, 1,1,1);
+         myThreeDDemoMesh.createRectangularMesh(bottomLeft,topRight,numElementsThreeD);
+     
+         myThreeDDemoMesh.outputMesh(std::cout);
+//
     }
 
 }

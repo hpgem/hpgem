@@ -1,5 +1,8 @@
 #include "Base/MeshManipulator.hpp"
 #include "Geometry/PointPhysical.hpp"
+#include "Base/Element.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
+
 #include <vector>
 #include "CMakeDefinitions.hpp"
 #include <sstream>
@@ -7,10 +10,18 @@
 
 using namespace std;
 
+class Dummy
+{
+public:
+    Dummy(){}
+    void operator()(const Base::Element<2>& el, const Geometry::PointReference<2>& p, ostream& os)
+    {
+    }
+};
 
 int main()
 {
-    Base::ConfigurationData config;
+    Base::ConfigurationData config(3,1,1);
     
     config.numberOfUnknowns_       = 1;
     config.numberOfTimeLevels_     = 1;
@@ -30,10 +41,10 @@ int main()
     std::ofstream file2D;
     file2D.open ("SavedCentaurQuadMinimum.dat");
     
-    int dimensionsToWrite[2] = {0,1};
     
-    Output::TecplotDiscontinuousSolutionWriter<2> out(file2D,"QuadMinimum Test Mesh",dimensionsToWrite,"xy");
-    out.write(&myTwoDDemoMesh,"holi",false);
+    Output::TecplotDiscontinuousSolutionWriter<2> out(file2D,"QuadMinimum Test Mesh","01","xy");
+    Dummy d;
+    out.write(&myTwoDDemoMesh,"holi",false, d);
     
     file2D.close();
     
@@ -53,8 +64,8 @@ int main()
     
     file2D.open ("SavedCentaurMinimum.dat");
     
-    Output::TecplotDiscontinuousSolutionWriter<2> out2(file2D,"Minimum Test Mesh",dimensionsToWrite,"xy");
-    out2.write(&triQuadTwoDDemoMesh,"holi",false);
+    Output::TecplotDiscontinuousSolutionWriter<2> out2(file2D,"Minimum Test Mesh","01","x,y");
+    out2.write(&triQuadTwoDDemoMesh,"holi",false,d);
     
     file2D.close();
     

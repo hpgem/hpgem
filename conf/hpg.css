@@ -1,0 +1,8 @@
+.title {
+	font-family:'Droid Sans';
+	color:#0f073f;
+	font-size:15px;
+}
+div.tabs > ul li:first-child {
+	display:none;
+ }

@@ -97,10 +97,10 @@ int main(int argc, char* argv[])
     
     cout << "\n Now the inverse"  <<endl;
     
-    CC3(0,0)=1;
-    CC3(0,1)=2;
-    CC3(1,0)=3;
-    CC3(1,1)=4;
+    CC3(0,0)=0.8147;
+    CC3(0,1)=0.1270;
+    CC3(1,0)=0.9058;
+    CC3(1,1)=0.9134;
     
     LinearAlgebra::Matrix CC4(2,2);
     
@@ -112,12 +112,33 @@ int main(int argc, char* argv[])
     
     cout << CC3;
     
+    
     cout << "\n Now test the solution of Ax=B \n ";
     
     CC3.solve(CC4);
     
     cout << CC4;
     
+    cout << "\n Now test the inverse of a 3 by3 \n";
+    
+    LinearAlgebra::Matrix DD(3,3);
+    
+    
+    DD(0,0)=0.6324;
+    DD(0,1)=0.5469;
+    DD(0,2)=0.1576;
+    DD(1,0)=0.0975;
+    DD(1,1)=0.9575;
+    DD(1,2)=0.9706;
+    DD(2,0)=0.2785;
+    DD(2,1)=0.9649;
+    DD(2,2)=0.9572;
+    
+    LinearAlgebra::Matrix ans(3,3);
+    
+    DD.inverse(ans);
+    
+    cout << ans;
     
 
 }
