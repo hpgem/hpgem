@@ -45,6 +45,7 @@ namespace Base
                 const VectorOfPhysicalPointsT& allNodes,
                 unsigned int nrOfUnkowns,
                 unsigned int nrOfTimeLevels,
+                unsigned int nrOfBasisFunc,
                 unsigned int id);
     
         Element(const Element& other);

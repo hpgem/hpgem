@@ -2,6 +2,7 @@
 #define BaseSimplifiedHPP
 
 #include "Base/HpgemUI.hpp"
+//#include "Base/MeshManipulator.hpp"
 
 namespace Base
 {
@@ -11,12 +12,16 @@ namespace Base
     
     public:
         
+        typedef typename MeshManipulator<DIM>::ConstElementIterator     ConstElementIterator;
+        typedef typename MeshManipulator<DIM>::ElementIterator          ElementIterator;
+        typedef typename MeshManipulator<DIM>::ConstFaceIterator        ConstFaceIterator;
+        
         typedef Base::Element<DIM>                                      ElementT;
         typedef Base::Face<DIM>                                         FaceT;
         typedef Geometry::PointPhysical<DIM>                            PointPhysicalT;
         typedef Geometry::PointReference<DIM>                           PointReferenceT;
-        typedef typename MeshManipulator<DIM>::ConstElementIterator     ConstElementIterator;
-        typedef typename MeshManipulator<DIM>::ElementIterator          ElementIterator;
+        typedef Geometry::PointReference<DIM-1>                         PointReferenceOnTheFaceT;
+        typedef Integration::FaceIntegral<DIM>                          FaceIntegralT;
         
 
         /// You need the basis functions before creating the mesh, because the mesh manipulator
@@ -27,7 +32,7 @@ namespace Base
         bool virtual initialise()=0;
         
         /// \brief User-defined element integrand
-        virtual void elementIntegrand(const ElementT& element, const PointReferenceT& p, LinearAlgebra::Matrix& ret)=0;
+        virtual void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& ret)=0;
     
         /// \brief User-defined face integrand
         virtual void faceIntegrand(const PointPhysicalT& normal, 
@@ -41,6 +46,7 @@ namespace Base
         
         ///Preforms all the element integrations
         void doAllElementIntegration(unsigned int meshID=0);
+        void doAllFaceIntegration(unsigned int meshID=0);
 
 
     private:

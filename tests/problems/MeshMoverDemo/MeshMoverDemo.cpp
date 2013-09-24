@@ -50,7 +50,7 @@ public:
         rectangularMesh.numElementsInDIM_[0] = 8;
         rectangularMesh.numElementsInDIM_[1] = 8;
         
-        typename HpgemUI<DIM>::MeshId id = addMesh(rectangularMesh);
+        HpgemUI<DIM>::MeshId id = addMesh(rectangularMesh);
 
         //Set up the move of the mesh;
         const MeshMover<2>* meshMover= new MeshMover<2>;

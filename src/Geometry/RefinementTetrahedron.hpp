@@ -5,8 +5,8 @@
 #include "Geometry/PhysicalGeometry.hpp"
 #include "Geometry/PointReference.hpp"
 #include "Geometry/PointPhysical.hpp"
-#include "LinearAlgebra/Matrix.hpp"
 #include "Geometry/RefinementGeometry.hpp"
+#include "LinearAlgebra/Matrix.hpp"
 
 namespace Geometry
 {

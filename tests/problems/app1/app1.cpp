@@ -3,6 +3,8 @@
  *
  *  Created on: March 15, 2013
  *      Author: the ghost of nicorivas
+ *
+ * This a simple 1D advection example.
  */
 
 #include "Base/HpgemUISimplified.hpp"
@@ -10,6 +12,8 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "Output/TecplotPhysicalGeometryIterator.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include "Base/PhysGradientOfBasisFunction.hpp"
+#include "Base/Norm2.hpp"
 using Base::RectangularMeshDescriptor;
 using Base::HpgemUISimplified;
 
@@ -44,21 +48,45 @@ public:
         return true;
     }
 
-    void elementIntegrand(const ElementT& element, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
+    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
     {
+        
+        unsigned int numberOfDegreesOfFreedom=element->getNrOfBasisFunctions();
        
-	LinearAlgebra::NumericalVector sol;
-     	element.getSolution(0,p,sol);
-	//ret=sol;
-        //HERE
+        LinearAlgebra::NumericalVector sol;
+        element->getSolution(0,p,sol);
+        
+        //This is the grad of the basic function.
+        NumericalVector grads(2);
+        
+        for (unsigned int i=0; i < numberOfDegreesOfFreedom; ++i)
+        {
+            Utilities::PhysGradientOfBasisFunction<DIM, ElementT> obj(element, i);
+            obj(p, grads);
+            
+            ret(i,0) = sol(i) * grads[i];
+            
+        }
+    
         
     }
     
-    void faceIntegrand(const PointPhysicalT& normal, 
+    void faceIntegrand(const FaceT* face, const PointPhysicalT& normal, 
                        const PointReferenceT& p,  LinearAlgebra::NumericalVector& ret)
     {
-    
         
+        if (face->isInternal())
+        {
+         
+            const double magn                     = Utilities::norm2<DIM>(normal);
+            unsigned int numberOfDegreesOfFreedom = face->getPtrElementLeft()->getNrOfBasisFunctions();
+            
+        }
+        else
+        {
+            //here you have to implement the boundary conditions
+        }
+
     
     }
     

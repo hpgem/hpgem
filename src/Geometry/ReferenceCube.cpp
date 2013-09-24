@@ -4,6 +4,8 @@
 #include "Mappings/MappingReferenceToReference.hpp"
 #include "Mappings/MappingToRefSquareToCube.hpp"
 #include "Mappings/MappingToRefCubeToCube.hpp"
+#include "LinearAlgebra/Matrix.hpp"
+
 
 namespace Geometry
 {

@@ -92,7 +92,7 @@ namespace Base
         
         ConstFaceIterator               faceColBegin()const{return faces_.begin();}
         
-        ConstFaceIterator              faceColEnd()const{return faces_.end();}
+        ConstFaceIterator               faceColEnd()const{return faces_.end();}
         
         FaceIterator                    faceColBegin(){return faces_.begin();}
         FaceIterator                    faceColEnd(){return faces_.end();}
@@ -240,10 +240,10 @@ namespace Base
         //! Vector faces LevelTree.
         VecOfFaceLevelTreePtrT          vecOfFaceTree_;
     };
-     
+}
 #include "MeshManipulator_Impl.hpp"
 
-}
+
 
 
 

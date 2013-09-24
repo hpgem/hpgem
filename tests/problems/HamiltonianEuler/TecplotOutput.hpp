@@ -6,20 +6,18 @@
 //
 //
 
-#ifndef ____TecplotOutput__
-#define ____TecplotOutput__
-
-#include <iostream>
 #ifndef TECPLOTOUTPUT_HH
 #define TECPLOTOUTPUT_HH
     // To declare Physical and reference space points
 #include "Geometry/PointPhysical.hpp"
 #include "Geometry/PointReference.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include "InitialConditions.hpp"
+
 using Geometry::PointPhysical;
 using Geometry::PointReference;
-#include "InitialConditions.hpp"
 #include <iomanip>
+#include <iostream>
 #include <fstream>
 using std::ofstream;
 using std::ifstream;
@@ -190,4 +188,3 @@ private:
 
 #endif
 
-#endif /* defined(____TecplotOutput__) */

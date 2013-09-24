@@ -20,15 +20,16 @@ namespace Base
                           const VectorOfPhysicalPointsT& allNodes,
                           unsigned int nrOfUnkowns,
                           unsigned int nrOfTimeLevels,
+                          unsigned int nrOfBasisFunc,
                           unsigned int id):
         ElementGeometryT(globalNodeIndexes, allNodes),
-        ElementDataT(nrOfTimeLevels, nrOfUnkowns, 11),
+        ElementDataT(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc),
         basisFunctionSet_(basisFunctionSet),
         quadratureRule_(NULL),
         vecCacheData_(),
         id_(id)
     {
-        orderCoeff_ = 2;
+        orderCoeff_ = 2;// for safety
         
 //        cout<<"order quad="<<basisFunctionSet_->getOrder()<<endl;
         setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->getOrder());

@@ -4,6 +4,7 @@ add_executable(MeshMoverDemo.out
             MeshMoverDemo.cpp
             ${hpGEM_SOURCE_DIR}/src/Base/MeshMoverBase.hpp
             ${hpGEM_SOURCE_DIR}/src/Base/AssembleBasisFunctionSet.cpp
+            ${hpGEM_SOURCE_DIR}/src/Base/MeshManipulator.cpp
             ${hpGEM_SOURCE_DIR}/src/Output/TecplotPhysicalGeometryIterator.cpp
   
 	    #miscellaneous required stuff

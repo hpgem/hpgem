@@ -10,4 +10,4 @@ add_library(Matrix SHARED
 		dgesv.f dgetrs.f
 		
 		Matrix.cpp)
-
+target_link_libraries(Matrix)

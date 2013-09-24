@@ -18,6 +18,7 @@ namespace Base
             HpgemUI<DIM>::meshes_[i]->move(); // just for testing
         }
         doAllElementIntegration();
+        doAllFaceIntegration();
         
         return true;
     }
@@ -29,19 +30,36 @@ namespace Base
     
     template<unsigned int DIM>
     void
+    HpgemUISimplified<DIM>::doAllFaceIntegration(unsigned int meshID)
+    {
+        bool useCache   = false;
+        unsigned int nb = 1;//put something in here
+        
+        
+        typedef void  (HpgemUISimplified::*FaceIntegrand)(const FaceT*, const PointPhysicalT& normal, const PointReferenceOnTheFaceT&, LinearAlgebra::Matrix&);
+        
+        LinearAlgebra::NumericalVector fData(nb);//do not know if this is the one you want
+        FaceIntegrand faceInteg = &HpgemUISimplified<DIM>::faceIntegrand;
+        FaceIntegralT   faceIntegral(useCache);
+        
+        for (ConstFaceIterator citFe = Base::HpgemUI<DIM>::faceColBegin(); citFe != Base::HpgemUI<DIM>::faceColEnd(); ++citFe)
+        {
+            
+            
+            faceIntegral.integrate((*citFe), faceInteg, fData, this);
+            
+        }
+    }
+    
+    template<unsigned int DIM>
+    void
     HpgemUISimplified<DIM>::doAllElementIntegration(unsigned int meshID)
     {
         unsigned int ndof = HpgemUI<DIM>::configData_->numberOfBasisFunctions_;
-        LinearAlgebra::Matrix  	matrix(ndof, ndof);
+        LinearAlgebra::Matrix  	eData(ndof, ndof);
         typedef void  (HpgemUISimplified<DIM>::*Function)(const Element<DIM>& , const PointReferenceT&, LinearAlgebra::Matrix&);
         Function f = &HpgemUISimplified<DIM>::elementIntegrand;
         
-     //void  (BaseSimplified<DIM>::*f)(const Element<DIM>& , const Geometry::PointReference<DIM>&, LinearAlgebra::NumericalVector&)= &BaseSimplified<DIM>::elementIntegrand;
-     //typedef  void (Base<DIM>::*Function)(const Element<DIM>& , const Geometry::PointReference<DIM>&, LinearAlgebra::NumericalVector&);
-     //Function f= &Base<DIM>::elementIntegrand;
-        
-     //   void  (*f)(const Element<DIM>& , const Geometry::PointReference<DIM>&, LinearAlgebra::NumericalVector&) = &ElementIntegrand;
-     //typename Integration::ReturnTrait1<Function>::ReturnType result;
         
         bool isUseCache(false);
         Integration::ElementIntegral<DIM> 	elIntegral(isUseCache);
@@ -49,7 +67,7 @@ namespace Base
         for (ElementIterator it=HpgemUI<DIM>::meshes_[meshID]->elementColBegin(); it!= HpgemUI<DIM>::meshes_[meshID]->elementColEnd(); ++it)
         {
             
-            elIntegral.integrate((*it), f, matrix, this);
+            elIntegral.integrate((*it), f, eData, this);
             //cout << result;
             
             cout<< "#####################################END of ELEMENT######"<<endl;

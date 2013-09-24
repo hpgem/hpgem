@@ -96,21 +96,24 @@ namespace LinearAlgebra
     }
     
     
-    /// \param[in] n The number of the row you want the element from
-    /// \param[in] m The numebr of the column you want the element from
-    /// \return double ref i.e. the value of the element you requested
-    /// \bug Range checking has not been added yet.
-    inline double& Matrix::operator()(const int n, const int m)
-    {
-    	return data_[n + m*nRows_];
-    }
+//    /// \param[in] n The number of the row you want the element from
+//    /// \param[in] m The numebr of the column you want the element from
+//    /// \return double ref i.e. the value of the element you requested
+//    /// \bug Range checking has not been added yet.
+//*****S.N need to be brought to the hpp, due to compiling error in realease mode. Strange bug, need to be revistied
+
+//    inline double& Matrix::operator()(int n, int m)
+//    {
+//    	return data_[n + m*nRows_];
+//    }
     
     
     /// \param[in] n The number of the row you want the element from
     /// \param[in] m The numebr of the column you want the element from
     /// \return double ref i.e. the value of the element you requested
     /// \bug Range checking has not been added yet.
-    inline const double& Matrix::operator() (const int n, const int m) const {return data_[n + m*nRows_];}
+    //*****S.N need to be brought to the hpp, due to compiling error in realease mode. Strange bug, need to be revistied
+    //inline const double& Matrix::operator() (int n, int m) const {return data_[n + m*nRows_];}
     
     
     /// \param[in] n The number of the row you want the element from
@@ -158,7 +161,6 @@ namespace LinearAlgebra
         
         NumericalVector result(nc);
         
-
         dgemv_("N", &nr, &nc, &d_one, &((*(const_cast<Matrix *> (this)))[0]), &nr,&right[0],&i_one, &d_zero, &result[0], &i_one);
         return result;
     }

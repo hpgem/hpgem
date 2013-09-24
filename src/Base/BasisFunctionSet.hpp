@@ -16,7 +16,6 @@ namespace Base
         typedef std::vector<BaseBasisFunctionT*>    BaseBasisFunctions;
         typedef Geometry::PointReference<DIM>       PointReferenceT;
         
-        
     public:
         BasisFunctionSet(unsigned int order);
         

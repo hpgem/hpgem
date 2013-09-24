@@ -204,7 +204,7 @@ InitialVelocityConstructorTaylor::InitialVelocityConstructorTaylor(double lx, do
 	lx_(lx),
 	ly_(ly),
 	lz_(lz),
-	sigma_(0.6946),//sigma eigenfrequency calculated in Matlab code
+	sigma_(0.6570),//sigma eigenfrequency calculated in Matlab code
 	a_(lx_/(Pi*sigma_)),
 	size_(50),//N=10 in Matlab code
 	muj_(size_+1),
@@ -216,7 +216,7 @@ InitialVelocityConstructorTaylor::InitialVelocityConstructorTaylor(double lx, do
 			
 			
 			cout <<"Lx= "<<lx_<<" Ly= "<<ly_<<" Lz= "<<lz_<<endl;
-			ifstream bCoeff("bCoeff.txt");
+			ifstream bCoeff("bCoeff.txt");// do some checking with existence!!!
 			
 			std::copy(IstreamIterator(bCoeff), IstreamIterator(), std::back_inserter(b_));
 			

@@ -28,7 +28,8 @@ namespace LinearAlgebra
     /// Note, valarry was speed tested and was shown to be quicker than stl vector and it very light weight
     /// It only store doubles as this is the main type linear algebra is done on in hpGEM
     /// It stores the matrix in fortran style to give quicker access to extern BLAS libaries.
-    class Matrix{
+    class Matrix
+    {
     public:
         
         /// \brief Default Matrix constructor : Simply creates a zero size matrix
@@ -44,10 +45,16 @@ namespace LinearAlgebra
         Matrix(const Matrix& other);
     
         /// \brief defines the operator (n,m) to access the element on row n and column m
-        double& operator()(int n, int m);
+        double& operator()(int n, int m)
+            {
+                return data_[n + m*nRows_];
+            }
                 
         /// \brief defines the operator (n,m) to access the element on row n and column m
-        const double& operator() (int n, int m) const;
+        const double& operator() (int n, int m) const
+        {
+            return data_[n + m*nRows_];
+        }
 
         /// WRONG!!
         /// \brief Access the n linear element in the matrix. 

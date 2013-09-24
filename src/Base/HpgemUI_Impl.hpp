@@ -36,7 +36,7 @@ namespace Base
     HpgemUI<DIM>::addMesh(const RectangularMeshDescriptorT& meshDscr, const MeshType& meshType)
     {
         unsigned int numOfMeshes=meshes_.size();
-        MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_,1,1,1,2);
+        MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_,meshDscr.boundaryConditions_[0],meshDscr.boundaryConditions_[1],meshDscr.boundaryConditions_[2],2);//
         
         if (meshType== RECTANGULAR)
         {   
@@ -56,50 +56,50 @@ namespace Base
     typename HpgemUI<DIM>::ConstElementIterator
     HpgemUI<DIM>::elementColBegin(MeshId mId)const
     {
-        meshes_[mId]->elementColBegin();
+        return meshes_[mId]->elementColBegin();
     }
     template<unsigned int DIM>
     typename HpgemUI<DIM>::ConstElementIterator
     HpgemUI<DIM>::elementColEnd(MeshId mId)const
     {
-        meshes_[mId]->elementColEnd();
+        return meshes_[mId]->elementColEnd();
     }
     template<unsigned int DIM>
     typename HpgemUI<DIM>::ElementIterator
     HpgemUI<DIM>::elementColBegin(MeshId mId)
     {
-        meshes_[mId]->elementColBegin();
+        return meshes_[mId]->elementColBegin();
     }
     template<unsigned int DIM>
     typename HpgemUI<DIM>::ElementIterator
     HpgemUI<DIM>::elementColEnd(MeshId mId)
     {
-        meshes_[mId]->elementColEnd();
+        return meshes_[mId]->elementColEnd();
     }
     
     template<unsigned int DIM>
     typename HpgemUI<DIM>::ConstFaceIterator
     HpgemUI<DIM>::faceColBegin(MeshId mId)const
     {
-        meshes_[mId]->faceColBegin();
+        return meshes_[mId]->faceColBegin();
     }
     template<unsigned int DIM>
     typename HpgemUI<DIM>::ConstFaceIterator
     HpgemUI<DIM>::faceColEnd(MeshId mId)const
     {
-        meshes_[mId]->faceColEnd();
+        return meshes_[mId]->faceColEnd();
     }
     template<unsigned int DIM>
     typename HpgemUI<DIM>::FaceIterator
     HpgemUI<DIM>::faceColBegin(MeshId mId)
     {
-        meshes_[mId]->faceColBegin();
+        return meshes_[mId]->faceColBegin();
     }
     template<unsigned int DIM>
     typename HpgemUI<DIM>::FaceIterator
     HpgemUI<DIM>::faceColEnd(MeshId mId)
     {
-        meshes_[mId]->faceColEnd();
+        return meshes_[mId]->faceColEnd();
     }
 
 }

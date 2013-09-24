@@ -2,6 +2,7 @@ include_directories(. ${hpGEM_SOURCE_DIR}/src/)
 
 add_library(QuadratureRules SHARED
         # Gauss quadrature rules
+        ${hpGEM_SOURCE_DIR}/src/Integration/QuadratureRules/AllGaussQuadratureRules.cpp
         ${hpGEM_SOURCE_DIR}/src/Integration/QuadratureRules/GaussQuadratureRulesForLine.cpp
         ${hpGEM_SOURCE_DIR}/src/Integration/QuadratureRules/GaussQuadratureRulesForTriangle.cpp
         ${hpGEM_SOURCE_DIR}/src/Integration/QuadratureRules/GaussQuadratureRulesForSquare.cpp

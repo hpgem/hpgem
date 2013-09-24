@@ -52,7 +52,7 @@ int main()
     const BasisFunctionSetT* const bf= collBasisFSet_[0];
     
     
-    Base::Element<2>  myElement(PointsIndexes, bf, points, numOfUnknowns, numOfTimeLevels, counter);
+    Base::Element<2>  myElement(PointsIndexes, bf, points, numOfUnknowns, numOfTimeLevels, 11, counter);
 
  
     return 0;

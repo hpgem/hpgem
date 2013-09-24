@@ -2,6 +2,8 @@
 
 #include "Base/TestErrorDebug.hpp"
 #include "Geometry/RefinementTriangle.hpp"
+#include "LinearAlgebra/Matrix.hpp"
+
 
 namespace Geometry
 {
