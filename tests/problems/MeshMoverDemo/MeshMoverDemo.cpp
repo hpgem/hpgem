@@ -33,7 +33,7 @@ class MeshMoverExampleProblem : public Base::HpgemUI<DIM>
 {
     
 public:
-    MeshMoverExampleProblem(GlobalData* global, const ConfigurationData* config):
+    MeshMoverExampleProblem(GlobalData* const global, const ConfigurationData* config):
         HpgemUI(global, config)
     {
     }
