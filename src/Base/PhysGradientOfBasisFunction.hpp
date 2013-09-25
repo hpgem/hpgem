@@ -97,7 +97,7 @@ namespace Utilities
                 //myDeriveFunctionPtr_[myFunctionNumber_*1](P);
             
                 // get the jacobian at P:
-            typename Geometry::ElementGeometry<1>::JacobianT jac;
+            Geometry::ElementGeometry<1>::JacobianT jac;
             
             myElement_->calcJacobian(p, jac);
             
@@ -117,7 +117,7 @@ namespace Utilities
     {
         typedef Geometry::PointReference<2>             PointReferenceT;
             // typedef double (*DerivativeOfBasisFuncPtr)(const Geometry::PointReference<2>&);
-        typedef typename LinearAlgebra::NumericalVector RetType;
+        typedef LinearAlgebra::NumericalVector RetType;
         
         PhysGradientOfBasisFunction(const Base::Element<2>* e, unsigned int bFuncNr):
             myElement_(e),
@@ -168,7 +168,7 @@ namespace Utilities
     {
         typedef Geometry::PointReference<3>             PointReferenceT;
             //  typedef double (*DerivativeOfBasisFuncPtr)(const Geometry::PointReference<3>&);
-          typedef typename LinearAlgebra::NumericalVector RetType;
+          typedef LinearAlgebra::NumericalVector RetType;
         
         
         PhysGradientOfBasisFunction(const Base::Element<3>* e, unsigned int bFuncNr):
