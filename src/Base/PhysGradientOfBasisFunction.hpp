@@ -190,7 +190,7 @@ namespace Utilities
                     //myDeriveFunctionPtr_[myFunctionNumber_*3+d](P);
 	    	    
                     // get the jacobian at P:
-            typename  Geometry::ElementGeometry<3>::JacobianT jac;
+            Geometry::ElementGeometry<3>::JacobianT jac;
             
             myElement_->calcJacobian(p, jac);
             
