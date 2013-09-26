@@ -970,8 +970,8 @@ HEuler::createIncompressibleSystem()
 	printFullMatrixInfo(Ah, "Ah");
 	printFullMatrixInfo(A, "A");
 	
-    outputMatrix(Ah, "Ah,dat");
-   	outputMatrix(A, "A.dat");
+        //outputMatrix(Ah, "Ah,dat");
+        //outputMatrix(A, "A.dat");
 	
 	printFullMatrixInfo(C1, "C1");
 	printFullMatrixInfo(BF1, "BF1");
