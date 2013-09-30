@@ -42,8 +42,9 @@ HEuler::HEuler(HEulerGlobalVariables* global, const HEulerConfigurationData* con
 HEuler::~HEuler()
 {
     
-    MatDestroy(&P_);
-    MatDestroy(&Q_);
+        MatDestroy(&P_);
+        MatDestroy(&Q_);
+        PetscFinalize();
 }
 
 void
@@ -1838,7 +1839,6 @@ HEuler::solve()
     VecDestroy(&Lambda);
     VecDestroy(&RH);
     
-    PetscFinalize();
     cout << "The end of the time loop"<<endl;
     
 }

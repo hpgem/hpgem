@@ -10,9 +10,10 @@ if(hpGEM_INCLUDE_PETSC_SUPPORT)
 			${PROJECT_BINARY_DIR}/bCoeff.txt @ONLY IMMEDIATE)
 
 
-	include_directories(${PETSC_DIR}/include)
-	include_directories(${PETSC_DIR}/${PETSC_ARCH}/include)
-	include_directories(${PETSC_DIR}/include/mpiuni)
+	#include_directories(${PETSC_DIR}/include)
+	#include_directories(${PETSC_DIR}/${PETSC_ARCH}/include)
+	#include_directories(${PETSC_DIR}/include/mpiuni)
+    include_directories(${PETSC_INCLUDES})
    # add_library(heulerlib HEuler.cpp)
 
 	add_executable(hEulerApp.out
