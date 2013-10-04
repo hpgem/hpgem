@@ -10,7 +10,7 @@
 
 
 HEuler::HEuler(HEulerGlobalVariables* global, const HEulerConfigurationData* config):
-    HpgemUI(global, config),
+    Base::HpgemUI<DIM>(global, config),
     P_(),
     Q_()
 {
