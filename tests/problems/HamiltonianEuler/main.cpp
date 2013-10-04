@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 
         //    unsigned int numberOfUnknowns, unsigned int numberOfBasisFunctions, unsigned int  numberOfTimeLevels=1,
     
-    HEulerConfigurationData config(4, 11, 1, fileName, HEulerConfigurationData::INCOMPRESSIBLE_WALLS);
+    HEulerConfigurationData config(4, 11, 1, fileName, HEulerConfigurationData::COMPRESSIBLE_WALLS);
     HEulerGlobalVariables globalVar;
 
     
