@@ -129,7 +129,7 @@ namespace Base
     typename LevelTree<V>::iterator LevelTree<V>::addDummyEntry(iterator it)
         {
             // update some statistics of the LevelTree
-            const int level = it->getBasicLevel() + it->getDepth() - 1;
+            const int level = (*it)->getBasicLevel() + (*it)->getDepth() - 1;
             if (minLevel_ > level) minLevel_ = level;
             else if (maxLevel_ < level) maxLevel_ = level;
 
@@ -153,9 +153,9 @@ namespace Base
             int numRoots = 0;
             for (iterator it=begin(); it!=end(); ++it)
             {
-                if (it->getLevel() == 0)
+                if ((*it)->getLevel() == 0)
                 {
-                    it->setSiblingIndex(numRoots);
+                    (*it)->setSiblingIndex(numRoots);
                     ++numRoots;
                 }
                 else break;
@@ -163,9 +163,9 @@ namespace Base
             
             for (iterator it=begin(); it!=end(); ++it)
             {
-                if (it->getLevel() == 0)
+                if ((*it)->getLevel() == 0)
                 {
-                    it->setNumSiblings(numRoots);
+                    (*it)->setNumSiblings(numRoots);
                 }
                 else break;
             }
@@ -342,7 +342,7 @@ namespace Base
                 te->setNumSiblings(numSubEntries);
                 iterator it = addTreeEntry(te);
 
-                it->setParent(parentIt);
+                (*it)->setParent(parentIt);
                 if (i == 0) 
                 {
                     parentIt->setChild(it);
@@ -368,8 +368,8 @@ namespace Base
                 it.LastLeaf();
                 it.setPreOrderTraversal();
                 do {
-                    eraseLastLeaf(it--);
-                } while (!(it->id() == fci->id()));
+                    eraseLastLeaf((*it)--);
+                } while (!((*it)->id() == fci->id()));
             }
         }
 

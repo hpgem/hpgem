@@ -60,6 +60,14 @@ namespace Integration
         
         template <typename OBJ, typename IntegrandT>
         void    integrate(FaceT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = NULL);
+	
+	//FIXME member version version
+	template <template<unsigned int> class OBJ, typename IntegrandT>
+	void integrate(Base::Face<DIM>& fa,
+		      IntegrandT& integrand,
+		      typename ReturnTrait1<IntegrandT>::ReturnType& result,
+		      OBJ<DIM>* objPtr,
+		      const QuadratureRules::GaussQuadratureRule<DIM-1>* qdrRule = NULL);
     private:
         
         bool        useCache_;

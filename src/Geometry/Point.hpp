@@ -48,6 +48,8 @@ namespace Geometry
 
         bool                operator== (const Point& right){return coordinates_==right.coordinates_;}
         
+        bool                operator< (const Point& right) const {return coordinates_<right.coordinates_;}
+        
         PointT&             operator+= (const Point& right){coordinates_+=right.coordinates_; return *this;}
 
         PointT&             operator-= (const Point& right){coordinates_-=right.coordinates_; return *this;}

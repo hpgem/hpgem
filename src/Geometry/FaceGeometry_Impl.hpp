@@ -69,6 +69,7 @@ namespace Geometry {
                 // \bug: WTF is trafo?
                 // (S.N) I bet, trafo is something connected to peridocity. This line will cause a creation of a boundary which has equal sets of PhysicalPoints (permutation included) from left and right. Thus the codimmappings are set accordingly.
                 //
+            cout<<"WARNING (in ctor of an internal face): rightGeometry is NULL or facetype is not internal"<<endl;
             globalNodeNrsR = globalNodeNrsL;
         }
             //  ~OC~

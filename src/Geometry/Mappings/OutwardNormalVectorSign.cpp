@@ -4,6 +4,7 @@
 #include "MappingToRefPointToLine.hpp"
 #include "MappingToRefCubeToCube.hpp"
 #include "MappingToRefSquareToCube.hpp"
+#include "MappingToRefTriangleToTetrahedron.hpp"
     //#include "MappingToRefFaceToPyramid.hpp"
 namespace Geometry
 {
@@ -69,7 +70,11 @@ namespace Geometry
         {
             if (dynamic_cast<const MappingToRefSquareToCube1*>(map) ||
                 dynamic_cast<const MappingToRefSquareToCube3*>(map) ||
-                dynamic_cast<const MappingToRefSquareToCube5*>(map)
+                dynamic_cast<const MappingToRefSquareToCube5*>(map) ||
+		dynamic_cast<const MappingToRefTriangleToTetrahedron0*>(map) ||
+		dynamic_cast<const MappingToRefTriangleToTetrahedron1*>(map) ||
+		dynamic_cast<const MappingToRefTriangleToTetrahedron2*>(map) ||
+		dynamic_cast<const MappingToRefTriangleToTetrahedron3*>(map)
                 //||
 //                dynamic_cast<const MappingToRefFaceToPyramid0*>(map) ||
 //                dynamic_cast<const MappingToRefFaceToPyramid1*>(map) ||
@@ -94,7 +99,7 @@ namespace Geometry
                 throw "outwardNormalVectorSign<3> - don't know this face2el-map";
             }
         }
-        return 0;
+        return 1;
     }
 
 	// Added by Vijaya for 4D Normal vector.
@@ -125,6 +130,6 @@ namespace Geometry
             }
         }
         */
-        return 0;
+        return 1;
     }
 }

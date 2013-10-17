@@ -51,6 +51,7 @@ namespace Base
         Element(const Element& other);
         
         ~Element();
+	
 
         unsigned int                    getID()const;
 
@@ -71,6 +72,13 @@ namespace Base
             //unsigned int                    getNumberOfDegreesOfFreedom()const;
             //unsigned int                    getNumberOfDegreesOfFreedom();
         
+	///\brief returns the value of the i-th basisfunction at point p in ret
+	void                            basisFunction(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+	
+	///\brief returns the curl of the i-th basisfunction at point p in ret
+	///\TODO other differential operators are not supported
+	void                            basisFunctionCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+	
         void                            getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const;
         
         void                            initialiseSolution(unsigned int timeLevel, unsigned int solutionId, const SolutionVector& solution);
@@ -88,8 +96,8 @@ namespace Base
     
     
     private:
-        const BasisFunctionSetT* const              basisFunctionSet_;
         GaussQuadratureRuleT*                       quadratureRule_;
+        const BasisFunctionSetT* const              basisFunctionSet_;
         VecCacheT                                   vecCacheData_;
         UId                                         id_;
         double                                      orderCoeff_;

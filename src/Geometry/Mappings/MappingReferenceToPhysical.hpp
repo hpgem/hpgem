@@ -27,7 +27,7 @@ namespace Geometry
     mappings can index into that one with the global node numbers of the
     elements.
 
-    The reinit-function is meant to alert an object of a change of the layout
+    The rein(*it)-function is meant to alert an object of a change of the layout
     of the Element in physical space. Since the reference geometry of the
     Element does not change, but rather only (some of) the vertex positions,
     the Mapping can be adjusted to the new layout.*/

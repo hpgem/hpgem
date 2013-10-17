@@ -28,8 +28,15 @@ namespace Base
         inline void         addBasisFunction(BaseBasisFunctionT* bf);
         
         inline double       eval(unsigned int i, const PointReferenceT& p) const;
+	
+	///\brief returns the value of the i-th basisfunction at point p in ret
+	inline void         eval(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
         
         inline double       evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
+	
+	///\brief returns the curl of the i-th basisfunction at point p in ret
+	inline void         evalCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+	
 
     private:
         BasisFunctionSet();

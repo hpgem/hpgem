@@ -17,7 +17,13 @@ namespace Base
         virtual ~BaseBasisFunction() {};
 
         virtual double eval(const PointReferenceT& p) const = 0;
+        virtual void   eval(const PointReferenceT& p, NumericalVector& ret) const
+        {
+	    ret.resize(1);
+	    ret[0]=eval(p);
+	}
         virtual double evalDeriv0(const PointReferenceT& p) const = 0;
+	virtual void   evalCurl(const PointReferenceT& p, NumericalVector& ret) const {throw "The curl of a scalar valued basisfunction is not implemented. Perhaps you meant evalDeriv?";}
     };
 
     template <>
@@ -29,8 +35,14 @@ namespace Base
         virtual ~BaseBasisFunction() {};
 
         virtual double eval(const PointReferenceT& p) const = 0;
+        virtual void   eval(const PointReferenceT& p, NumericalVector& ret) const
+        {
+	    ret.resize(1);
+	    ret[0]=eval(p);
+	}
         virtual double evalDeriv0(const PointReferenceT& p) const = 0;
         virtual double evalDeriv1(const PointReferenceT& p) const = 0;
+	virtual void   evalCurl(const PointReferenceT& p, NumericalVector& ret) const {throw "The curl of a scalar valued basisfunction is not implemented. Perhaps you meant evalDeriv?";}
     };
 
     template <>
@@ -42,9 +54,15 @@ namespace Base
         virtual ~BaseBasisFunction() {};
         
         virtual double eval(const PointReferenceT& p) const = 0;
+        virtual void   eval(const PointReferenceT& p, NumericalVector& ret) const
+        {
+	    ret.resize(1);
+	    ret[0]=eval(p);
+	}
         virtual double evalDeriv0(const PointReferenceT& p) const = 0;
         virtual double evalDeriv1(const PointReferenceT& p) const = 0;
         virtual double evalDeriv2(const PointReferenceT& p) const = 0;
+	virtual void   evalCurl(const PointReferenceT& p, NumericalVector& ret) const {throw "The curl of a scalar valued basisfunction is not implemented. Perhaps you meant evalDeriv?";}
     };
 
     template <>
@@ -56,11 +74,17 @@ namespace Base
         virtual ~BaseBasisFunction() {};
 
         virtual double eval(const PointReferenceT& p) const = 0;
+        virtual void   eval(const PointReferenceT& p, NumericalVector& ret) const
+        {
+	    ret.resize(1);
+	    ret[0]=eval(p);
+	}
         virtual double evalDeriv0(const PointReferenceT& p) const = 0;
         virtual double evalDeriv1(const PointReferenceT& p) const = 0;
         virtual double evalDeriv2(const PointReferenceT& p) const = 0;
         virtual double evalDeriv3(const PointReferenceT& p) const = 0;
-};
+	virtual void   evalCurl(const PointReferenceT& p, NumericalVector& ret) const {throw "The curl of a scalar valued basisfunction is not implemented. Perhaps you meant evalDeriv?";}
+    };
     
 };
 

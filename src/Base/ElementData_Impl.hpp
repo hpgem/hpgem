@@ -11,7 +11,8 @@ namespace Base
         timeLevels_(timeLevels),
         nrOfUnkowns_(nrOfUnkowns),
         nrOfBasisFunctions_(nrOfBasisFunctions),
-        expansionCoefficients_(timeLevels_)
+        expansionCoefficients_(timeLevels_),
+        userData_(NULL)
     {
         for (typename VectorOfMatrices::iterator cit=expansionCoefficients_.begin(); cit!=expansionCoefficients_.end(); ++cit)
             cit->resize(nrOfUnkowns_, nrOfBasisFunctions);
