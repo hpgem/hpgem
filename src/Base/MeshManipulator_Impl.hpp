@@ -2408,7 +2408,7 @@ void MeshManipulator<DIM>::faceFactory()
                 continue;
             }
 
-            //********* Add new nodes to the container
+            // ********* Add new nodes to the container
             //----------------------------------------
             RG->getAllNodes(refineType, VectorOfPointPhysicalsT& nodes);
             unsigned int nrNewNodes = nrOfNewNodes(refineType);
@@ -2452,7 +2452,7 @@ void MeshManipulator<DIM>::faceFactory()
             // Now we already have all nodes: being used by this element and
             // to be used by the new sub-elements.
 
-            //********* Add sub-elements to the container
+            // ********* Add sub-elements to the container
             //----------------------------------------
             unsigned int nrNewElements = PG->nrOfSubElements(refineType);
             std::vector<ElementBase*> vecSubElements;
@@ -2480,7 +2480,7 @@ void MeshManipulator<DIM>::faceFactory()
             nodesIdx.clear();  // clear vector of global index
 
             
-            //********* Add sub-Internal Faces to the container
+            // ********* Add sub-Internal Faces to the container
             //----------------------------------------
             VectorOfPointIndexesT elementIdx1;
             VectorOfPointIndexesT elementIdx2;

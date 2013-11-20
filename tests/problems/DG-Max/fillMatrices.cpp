@@ -31,9 +31,7 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
         matrixContainer->ierr_=MatSetUp(matrixContainer->M_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
         matrixContainer->ierr_=MatSetUp(matrixContainer->S_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 
-        //TODO make this consist of a bit less code repetitions...
-        //TODO check if it is faster to do all the integrations in one element loop and one face loop
-        //(but requires a lot of changing of integrands, also connot communicate data that is not yet needed)
+        //once it is finished this code should make use of the global assembly interface
         LinearAlgebra::Matrix matrix(1,1);
         PetscScalar tempComplexArray[4*matrixContainer->getConfigData()->numberOfBasisFunctions_*matrixContainer->getConfigData()->numberOfBasisFunctions_];
         hpGemUIExtentions<3>::ElementFunction elF = &hpGemUIExtentions<3>::elementMassIntegrand;
@@ -43,14 +41,14 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
 	oldTime=newTime;
         for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
             if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-                matrix.resize((*it)->getNrOfUnknows(),(*it)->getNrOfUnknows());
+                matrix.resize((*it)->getNrOfBasisFunctions(),(*it)->getNrOfBasisFunctions());
                 elIntegral.integrate((*it),elF,matrix,matrixContainer);
                 if(matrixContainer->MHasToBeInverted_) {
                     matrix.inverse(matrix);
                 }
                 int places[]= {(*it)->getID()-1};
-                for(int i=0; i<(*it)->getNrOfUnknows()*(*it)->getNrOfUnknows(); ++i) {
-                    tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+                for(int i=0; i<(*it)->getNrOfBasisFunctions()*(*it)->getNrOfBasisFunctions(); ++i) {
+                    tempComplexArray[i]=matrix[i];//the real<->complex conflict should probably be solved in some other way
                 }
                 matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->M_,1,places,1,places,&tempComplexArray[0],INSERT_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
             }//the & and the [0] are still here for easy conversion back to &matrix[0]
@@ -63,11 +61,11 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
         elF=&hpGemUIExtentions<3>::elementStiffnessIntegrand;
         for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
             if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-                matrix.resize((*it)->getNrOfUnknows(),(*it)->getNrOfUnknows());
+                matrix.resize((*it)->getNrOfBasisFunctions(),(*it)->getNrOfBasisFunctions());
                 elIntegral.integrate((*it),elF,matrix,matrixContainer);
                 int places[]= {(*it)->getID()-1};
-                for(int i=0; i<(*it)->getNrOfUnknows()*(*it)->getNrOfUnknows(); ++i) {
-                    tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+                for(int i=0; i<(*it)->getNrOfBasisFunctions()*(*it)->getNrOfBasisFunctions(); ++i) {
+                    tempComplexArray[i]=matrix[i];
                 }
                 matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,1,places,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
             }
@@ -78,19 +76,19 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
             //faces dont have an ID; pick an arbitrary processor to do the work
             if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
                 if((*it)->isInternal()) {
-                    matrix.resize((*it)->getPtrElementLeft()->getNrOfUnknows()+(*it)->getPtrElementRight()->getNrOfUnknows(),(*it)->getPtrElementLeft()->getNrOfUnknows()+(*it)->getPtrElementRight()->getNrOfUnknows());
+                    matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions(),(*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions());
                     int places[]= {(*it)->getPtrElementLeft()->getID()-1,(*it)->getPtrElementRight()->getID()-1};
                     faIntegral.integrate(*it,faF,matrix,matrixContainer);
-                    for(int i=0; i<4*(*it)->getPtrElementLeft()->getNrOfUnknows()*(*it)->getPtrElementLeft()->getNrOfUnknows(); ++i) {
-                        tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+                    for(int i=0; i<4*(*it)->getPtrElementLeft()->getNrOfBasisFunctions()*(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
+                        tempComplexArray[i]=matrix[i];
                     }
                     matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,2,places,2,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
                 } else {
-                    matrix.resize((*it)->getPtrElementLeft()->getNrOfUnknows(),(*it)->getPtrElementLeft()->getNrOfUnknows());
+                    matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(),(*it)->getPtrElementLeft()->getNrOfBasisFunctions());
                     int places[]= {(*it)->getPtrElementLeft()->getID()-1};
                     faIntegral.integrate(*it,faF,matrix,matrixContainer);
-                    for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfUnknows()*(*it)->getPtrElementLeft()->getNrOfUnknows(); ++i) {
-                        tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+                    for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfBasisFunctions()*(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
+                        tempComplexArray[i]=matrix[i];
                     }
                     matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,1,places,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
                 }
@@ -100,19 +98,19 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
         for(hpGemUIExtentions<3>::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
             if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
                 if((*it)->isInternal()) {
-                    matrix.resize((*it)->getPtrElementLeft()->getNrOfUnknows()+(*it)->getPtrElementRight()->getNrOfUnknows(),(*it)->getPtrElementLeft()->getNrOfUnknows()+(*it)->getPtrElementRight()->getNrOfUnknows());
+                    matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions(),(*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions());
                     int places[]= {(*it)->getPtrElementLeft()->getID()-1,(*it)->getPtrElementRight()->getID()-1};
                     faIntegral.integrate(*it,faF,matrix,matrixContainer);
-                    for(int i=0; i<4*(*it)->getPtrElementLeft()->getNrOfUnknows()*(*it)->getPtrElementLeft()->getNrOfUnknows(); ++i) {
-                        tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+                    for(int i=0; i<4*(*it)->getPtrElementLeft()->getNrOfBasisFunctions()*(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
+                        tempComplexArray[i]=matrix[i];
                     }
                     matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,2,places,2,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
                 } else {
-                    matrix.resize((*it)->getPtrElementLeft()->getNrOfUnknows(),(*it)->getPtrElementLeft()->getNrOfUnknows());
+                    matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(),(*it)->getPtrElementLeft()->getNrOfBasisFunctions());
                     int places[]= {(*it)->getPtrElementLeft()->getID()-1};
                     faIntegral.integrate(*it,faF,matrix,matrixContainer);
-                    for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfUnknows()*(*it)->getPtrElementLeft()->getNrOfUnknows(); ++i) {
-                        tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+                    for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfBasisFunctions()*(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
+                        tempComplexArray[i]=matrix[i];
                     }
                     matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,1,places,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
                 }
@@ -125,11 +123,11 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
         elF=&hpGemUIExtentions<3>::sourceTerm;
         for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
             if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-                matrix.resize((*it)->getNrOfUnknows(),1);
+                matrix.resize((*it)->getNrOfBasisFunctions(),1);
                 elIntegral.integrate((*it),elF,matrix,matrixContainer);
                 int places[]= {(*it)->getID()-1};
-                for(int i=0; i<(*it)->getNrOfUnknows(); ++i) {
-                    tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+                for(int i=0; i<(*it)->getNrOfBasisFunctions(); ++i) {
+                    tempComplexArray[i]=matrix[i];
                 }
                 matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->RHS_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
             }
@@ -137,11 +135,11 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
         elF=&hpGemUIExtentions<3>::initialConditions;
         for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
             if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-                matrix.resize((*it)->getNrOfUnknows(),1);
+                matrix.resize((*it)->getNrOfBasisFunctions(),1);
                 elIntegral.integrate((*it),elF,matrix,matrixContainer);
                 int places[]= {(*it)->getID()-1};
-                for(int i=0; i<(*it)->getNrOfUnknows(); ++i) {
-                    tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+                for(int i=0; i<(*it)->getNrOfBasisFunctions(); ++i) {
+                    tempComplexArray[i]=matrix[i];
                 }
                 matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->x_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
             }
@@ -150,11 +148,11 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
         elF=&hpGemUIExtentions<3>::initialConditionsDeriv;
         for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
             if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-                matrix.resize((*it)->getNrOfUnknows(),1);
+                matrix.resize((*it)->getNrOfBasisFunctions(),1);
                 elIntegral.integrate((*it),elF,matrix,matrixContainer);
                 int places[]= {(*it)->getID()-1};
-                for(int i=0; i<(*it)->getNrOfUnknows(); ++i) {
-                    tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+                for(int i=0; i<(*it)->getNrOfBasisFunctions(); ++i) {
+                    tempComplexArray[i]=matrix[i];
                 }
                 matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->derivative_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
             }
@@ -166,11 +164,11 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
                 if((*it)->isInternal()) {
                     //internal faces dont produce boundary contributions to the RHS
                 } else {
-                    matrix.resize((*it)->getPtrElementLeft()->getNrOfUnknows(),1);
+                    matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(),1);
                     int places[]= {(*it)->getPtrElementLeft()->getID()-1};
                     faIntegral.integrate(*it,faF,matrix,matrixContainer);
-                    for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfUnknows(); ++i) {
-                        tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+                    for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
+                        tempComplexArray[i]=matrix[i];
                     }
                     matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->RHS_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
                 }
@@ -228,18 +226,18 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
     cout<<"preparation took "<<difftime(newTime,oldTime)<<" seconds"<<endl;
     oldTime=newTime;
     for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-	    matrix.resize((*it)->getNrOfUnknows(),(*it)->getNrOfUnknows());
+//	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+	    matrix.resize((*it)->getNrOfBasisFunctions(),(*it)->getNrOfBasisFunctions());
 	    elIntegral.integrate((*it),elF,matrix,matrixContainer);
 	    if(matrixContainer->MHasToBeInverted_) {
 		matrix.inverse(matrix);
 	    }
 	    int places[]= {(*it)->getID()-1};
-	    for(int i=0; i<(*it)->getNrOfUnknows()*(*it)->getNrOfUnknows(); ++i) {
-		tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+	    for(int i=0; i<(*it)->getNrOfBasisFunctions()*(*it)->getNrOfBasisFunctions(); ++i) {
+		tempComplexArray[i]=matrix[i];
 	    }
 	    matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->M_,1,places,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-	}
+//	}
     }
     time(&newTime);
     cout<<"filling the mass matrix took "<<difftime(newTime,oldTime)<<" seconds"<<endl;
@@ -248,43 +246,43 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
     matrixContainer->ierr_=MatAssemblyBegin(matrixContainer->M_,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
     elF=&hpGemUIExtentions<3>::elementStiffnessIntegrand;
     for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-	    matrix.resize((*it)->getNrOfUnknows(),(*it)->getNrOfUnknows());
+//	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+	    matrix.resize((*it)->getNrOfBasisFunctions(),(*it)->getNrOfBasisFunctions());
 	    elIntegral.integrate((*it),elF,matrix,matrixContainer);
 	    int places[]= {(*it)->getID()-1};
-	    for(int i=0; i<(*it)->getNrOfUnknows()*(*it)->getNrOfUnknows(); ++i) {
-		tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+	    for(int i=0; i<(*it)->getNrOfBasisFunctions()*(*it)->getNrOfBasisFunctions(); ++i) {
+		tempComplexArray[i]=matrix[i];
 	    }
 	    matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,1,places,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-	}
+//	}
     }
     hpGemUIExtentions<3>::FaceFunction faF = &hpGemUIExtentions<3>::faceIntegrand;
     Integration::FaceIntegral<3> faIntegral(false);
     for(hpGemUIExtentions<3>::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
-	if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+//	if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
 	    if((*it)->isInternal()) {
-		matrix.resize((*it)->getPtrElementLeft()->getNrOfUnknows()+(*it)->getPtrElementRight()->getNrOfUnknows(),(*it)->getPtrElementLeft()->getNrOfUnknows()+(*it)->getPtrElementRight()->getNrOfUnknows());
+		matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions(),(*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions());
 		int places[]= {(*it)->getPtrElementLeft()->getID()-1,(*it)->getPtrElementRight()->getID()-1};
 		faIntegral.integrate(*it,faF,matrix,matrixContainer);
-		for(int i=0; i<4*(*it)->getPtrElementLeft()->getNrOfUnknows()*(*it)->getPtrElementLeft()->getNrOfUnknows(); ++i) {
-		    tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+		for(int i=0; i<4*(*it)->getPtrElementLeft()->getNrOfBasisFunctions()*(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
+		    tempComplexArray[i]=matrix[i];
 		}
 		matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,2,places,2,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 	    } else {
-		matrix.resize((*it)->getPtrElementLeft()->getNrOfUnknows(),(*it)->getPtrElementLeft()->getNrOfUnknows());
+		matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(),(*it)->getPtrElementLeft()->getNrOfBasisFunctions());
 		int places[]= {(*it)->getPtrElementLeft()->getID()-1};
 		faIntegral.integrate(*it,faF,matrix,matrixContainer);
-		for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfUnknows()*(*it)->getPtrElementLeft()->getNrOfUnknows(); ++i) {
-		    tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+		for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfBasisFunctions()*(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
+		    tempComplexArray[i]=matrix[i];
 		}
 		matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,1,places,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 	    }
-	}
+//	}
     }
     //we will be needing a few entries of M so assembly should be done by now
     matrixContainer->ierr_=MatAssemblyEnd(matrixContainer->M_,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
     
-    //make some assistant matrices //TODO look if both are neccecary
+    //make some assistant matrices 
     Mat DInternal,DBoundary,MLocal,dummy,dummy2;
     matrixContainer->ierr_=MatCreateDense(PETSC_COMM_SELF,PETSC_DECIDE,PETSC_DECIDE,2*matrixContainer->getConfigData()->numberOfBasisFunctions_,2*matrixContainer->getConfigData()->numberOfBasisFunctions_,NULL,&DInternal);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
     matrixContainer->ierr_=MatCreateDense(PETSC_COMM_SELF,PETSC_DECIDE,PETSC_DECIDE,matrixContainer->getConfigData()->numberOfBasisFunctions_,matrixContainer->getConfigData()->numberOfBasisFunctions_,NULL,&DBoundary);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
@@ -297,37 +295,37 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
 	int placesBlocked[]= {(*it)->getPtrElementLeft()->getID()-1,-1};
 	if((*it)->isInternal()) {
 	    localnElements=2;
-	    dimension=(*it)->getPtrElementLeft()->getNrOfUnknows()+(*it)->getPtrElementRight()->getNrOfUnknows();
+	    dimension=(*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions();
 	    placesBlocked[1]=(*it)->getPtrElementRight()->getID()-1;
 	} else {
 	    localnElements=1;
-	    dimension=(*it)->getPtrElementLeft()->getNrOfUnknows();
+	    dimension=(*it)->getPtrElementLeft()->getNrOfBasisFunctions();
 	}
 
 	//PETSc likes to have only unique values in an IS when loacing from a submatrix so create some unique bogus
 	//in the parts that are not needed
-	if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)!=localProcessorNumber) {
-	    int temp1=placesBlocked[0];
-	    placesBlocked[0]=4*localProcessorNumber;
-	    while(temp1==placesBlocked[0]||placesBlocked[1]==placesBlocked[0]) {
-		placesBlocked[0]++;
-		placesBlocked[0]%=numberOfElements;
-	    }
-	    int temp2=placesBlocked[1];
-	    placesBlocked[1]=placesBlocked[0]+1;
-	    while(temp1==placesBlocked[1]||temp2==placesBlocked[1]) {
-		placesBlocked[1]++;
-		placesBlocked[1]%=numberOfElements;
-	    }
-	}
+//	if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)!=localProcessorNumber) {
+// 	    int temp1=placesBlocked[0];
+// 	    placesBlocked[0]=4*localProcessorNumber;
+// 	    while(temp1==placesBlocked[0]||placesBlocked[1]==placesBlocked[0]) {
+// 		placesBlocked[0]++;
+// 		placesBlocked[0]%=numberOfElements;
+// 	    }
+// 	    int temp2=placesBlocked[1];
+// 	    placesBlocked[1]=placesBlocked[0]+1;
+// 	    while(temp1==placesBlocked[1]||temp2==placesBlocked[1]) {
+// 		placesBlocked[1]++;
+// 		placesBlocked[1]%=numberOfElements;
+// 	    }
+// //	}
 	IS ISplaces;
-	matrixContainer->ierr_=ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),localnElements,placesBlocked,PETSC_COPY_VALUES,&ISplaces);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
+	matrixContainer->ierr_=ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfBasisFunctions(),localnElements,placesBlocked,PETSC_COPY_VALUES,&ISplaces);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 	matrixContainer->ierr_=MatGetSubMatrix(matrixContainer->M_,ISplaces,ISplaces,MAT_INITIAL_MATRIX,&MLocal);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-	if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+//	if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
 	    matrix.resize(dimension,dimension);
 	    faIntegral.integrate(*it,faF,matrix,matrixContainer);
 	    for(int i=0; i<dimension*dimension; ++i) {
-		tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+		tempComplexArray[i]=matrix[i];
 	    }
 
 	    //make sure to throw away the bogus parts again
@@ -384,7 +382,7 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
 		matrix.resize(dimension,1);
 		faIntegral.integrate(*it,faF,matrix,matrixContainer);
 		for(int i=0; i<dimension; ++i) {
-		    tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+		    tempComplexArray[i]=matrix[i];
 		}
 		matrixContainer->ierr_=VecSetValues(DRHS,dimension,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 		matrixContainer->ierr_=VecAssemblyBegin(DRHS);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
@@ -408,65 +406,65 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
 	    matrixContainer->ierr_=MatDestroy(&dummy);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 	    matrixContainer->ierr_=MatDestroy(&dummy2);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 	    matrixContainer->ierr_=ISDestroy(&ISplaces);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-	}
+//	}
     }
     time(&newTime);
     cout<<"filling the stiffness matrix took "<<difftime(newTime,oldTime)<<" seconds"<<endl;
     oldTime=newTime;
     elF=&hpGemUIExtentions<3>::sourceTerm;
     for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-	    matrix.resize((*it)->getNrOfUnknows(),1);
+//	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+	    matrix.resize((*it)->getNrOfBasisFunctions(),1);
 	    elIntegral.integrate((*it),elF,matrix,matrixContainer);
 	    int places[]= {(*it)->getID()-1};
-	    for(int i=0; i<(*it)->getNrOfUnknows(); ++i) {
-		tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+	    for(int i=0; i<(*it)->getNrOfBasisFunctions(); ++i) {
+		tempComplexArray[i]=matrix[i];
 	    }
 	    matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->RHS_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-	}
+//	}
     }
     matrixContainer->ierr_=MatAssemblyBegin(matrixContainer->S_,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
     elF=&hpGemUIExtentions<3>::initialConditions;
     for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-	    matrix.resize((*it)->getNrOfUnknows(),1);
+//	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+	    matrix.resize((*it)->getNrOfBasisFunctions(),1);
 	    elIntegral.integrate((*it),elF,matrix,matrixContainer);
 	    int places[]= {(*it)->getID()-1};
-	    for(int i=0; i<(*it)->getNrOfUnknows(); ++i) {
-		tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+	    for(int i=0; i<(*it)->getNrOfBasisFunctions(); ++i) {
+		tempComplexArray[i]=matrix[i];
 	    }
 	    matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->x_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-	}
+//	}
     }
     matrixContainer->ierr_=VecAssemblyBegin(matrixContainer->x_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
     elF=&hpGemUIExtentions<3>::initialConditionsDeriv;
     for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-	    matrix.resize((*it)->getNrOfUnknows(),1);
+//	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+	    matrix.resize((*it)->getNrOfBasisFunctions(),1);
 	    elIntegral.integrate((*it),elF,matrix,matrixContainer);
 	    int places[]= {(*it)->getID()-1};
-	    for(int i=0; i<(*it)->getNrOfUnknows(); ++i) {
-		tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+	    for(int i=0; i<(*it)->getNrOfBasisFunctions(); ++i) {
+		tempComplexArray[i]=matrix[i];
 	    }
 	    matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->derivative_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-	}
+//	}
     }
     matrixContainer->ierr_=VecAssemblyBegin(matrixContainer->derivative_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
     faF = &hpGemUIExtentions<3>::sourceTermBoundary;
     for(hpGemUIExtentions<3>::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it){
-	if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+//	if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
 	    if((*it)->isInternal()) {
 		//internal faces have no boundary contributions
 	    } else {
-		matrix.resize((*it)->getPtrElementLeft()->getNrOfUnknows(),1);
+		matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(),1);
 		int places[]= {(*it)->getPtrElementLeft()->getID()-1};
 		faIntegral.integrate(*it,faF,matrix,matrixContainer);
-		for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfUnknows(); ++i) {
-		    tempComplexArray[i]=matrix[i];//TODO Make complex PETSc read reals
+		for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
+		    tempComplexArray[i]=matrix[i];
 		}
 		matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->RHS_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 	    }
-	}
+//	}
     }
     time(&newTime);
     cout<<"filling vectors took "<<difftime(newTime,oldTime)<<" seconds"<<endl;

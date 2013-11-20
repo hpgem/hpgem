@@ -7,13 +7,19 @@
 #include "Base/Element.hpp"
 #include "Base/Face.hpp"
 #include "BasisFunctionCollection_Curl.hpp"
-#include <map>//actually unorderered_map, but without the c++11 support
+typedef Geometry::PointReference<3> PointElementReferenceT;
+#if __cplusplus<=199711L
+#include "map"
+typedef std::map<PointElementReferenceT,std::vector<NumericalVector> > myMap;
+#else
+#include "unordered_map"
+typedef std::unordered_map<PointElementReferenceT,std::vector<NumericalVector> > myMap;//the unordered_map trades functionality for speed
+#endif
 
 typedef Base::threeDBasisFunction basisFunctionT;
-typedef Geometry::PointReference<3> PointElementReferenceT;
 typedef Geometry::PointReference<2> PointFaceReferenceT;
 
-//FIXME this struct does not belong in this file
+//one there is a default way in hpGEM to configure code without haveing to recompile this and some other things should be grouped in another file
 /**
  * Stores some parameters that should be available everywhere. 
  * Attributes need not be constant since this struct will be stored in a constant field.
@@ -42,8 +48,8 @@ void InvertAndTranspose(Geometry::Jacobian<3,3>& orig, Geometry::Jacobian<3,3>& 
  */
 class FunctionCache{
   
-    static std::map<PointElementReferenceT,std::vector<NumericalVector> > valueCache_;
-    static std::map<PointElementReferenceT,std::vector<NumericalVector> > curlCache_;
+    static myMap valueCache_;
+    static myMap curlCache_;
   
 public:
     

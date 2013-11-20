@@ -9,6 +9,7 @@ add_executable( DG-Max.out
                 DG-Max.cpp
                 fillMatrices.cpp
                 ElementInfos.cpp
+                kspaceData.cpp
                 BasisFunctionCollection_Curl.cpp
                 BaseExtended.cpp
 		${hpGEM_SOURCE_DIR}/src/Output/TecplotPhysicalGeometryIterator.cpp				  

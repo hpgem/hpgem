@@ -204,13 +204,15 @@ public:
      */
     void initialConditionsDeriv(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret); 
 
+    typedef void (hpGemUIExtentions::*writeFunction)(const ElementT&,const PointElementReferenceT&,ostream&);
+    
     /**
      * Expand the solution back from the expansion coefficients and write them to an output stream
      * \param [in] element,p the point where the solution should be computed, given as element/reference point pair.
      * \param [in] t the timelevel that is wanted in the output.
      * \param output an output stream ready to accept the solution values
      */
-    void writeFieldValues(const ElementT& element, const PointElementReferenceT& p, const int t, ostream& output); 
+    void writeFieldValues(const ElementT& element, const PointElementReferenceT& p, ostream& output); 
 
     //FIXME temporary, pending fixed (member function version) tecplotwriter (function is specialized for this case)
     void writeTecplotFile(const MeshManipulatorT& mesh, const char* zonetitle, const int timelevel, std::ofstream& file, const bool existingFile); 
@@ -225,6 +227,8 @@ public:
      */
     void faceErrorIntegrand(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret);
 
+    void LDOSIntegrand(const ElementT *element, const PointElementReferenceT &p, double &ret);
+    
     /**
      * Function for the computation of some usefull errors measures. Currently computes the L2 norm, the HCurl and the DG norm norm.
      * This function does not guarantee correct results if the exact solution is not known
@@ -269,7 +273,7 @@ public:
      * the 6 vecors are ordered as first x-direction, then y-direction, then z-direction and per direction
      * with rows first and then columns
      */
-    void findBoundaryBlocks(std::vector<IS> xRow,std::vector<IS> xCol,std::vector<IS> yRow,std::vector<IS> yCol,std::vector<IS> zRow,std::vector<IS> zCol); 
+    void findBoundaryBlocks(std::vector<IS>& xRow,std::vector<IS>& xCol,std::vector<IS>& yRow,std::vector<IS>& yCol,std::vector<IS>& zRow,std::vector<IS>& zCol); 
 
     /**
      * Call after setting up the mesh. This will arrange that the matrices are assembled and then solve Sx+omegaEpsilon*Mderivative=RHS using a leap-frog time-stepping method
@@ -277,12 +281,24 @@ public:
     void solveTimeDependant(); 
 
     /**
-     * Call after setting up the mesh. This will arrange that the matrices are assembled and then solve Sx-omegaEpsilon*Mx=RHS using a krylov-subspace solver
+     * Call after setting up the mesh. This will arrange that the matrices are assembled and then solve Sx-omega*Mx=RHS using a krylov-subspace solver
      */
     void solveHarmonic(); 
 
-    //eigenvalue computations only support domains with pairwise orthogonal or parralel boundaries
+    /**
+     * Call after setting up the mesh. This will arrange that the matrices are assembled and then solve a series of eigenvalue problems in k-space
+     */
     void solveEigenvalues(); 
+    
+    /**
+     * Call after setting up the mesh. This will arrange that the matrices are assembled and then find the Density of States using eigenfunction expansions
+     */
+    void solveDOS();
+    
+    /**
+     * given an eigenvector, prepare an expression for f(x) in int(f(x)*delta(omega) dx)
+     */
+    void makeFunctionValue(Vec eigenVector, NumericalVector& result);
 };
 
 #endif

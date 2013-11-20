@@ -80,6 +80,6 @@ void ElementInfos::makeFunctionCurlsVector(const Base::Element< 3 >* element, co
 MaxwellData::MaxwellData(int numberOfIntervals, int polynomialOrder):Sigma_(0),
     StabCoeff_(1.4),
     StartTime_(0),
-    EndTime_(2.5),
+    EndTime_(0.1),
     NumberOfIntervals_(numberOfIntervals),
     PolynomialOrder_(polynomialOrder){}

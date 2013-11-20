@@ -56,15 +56,16 @@ public:
         numElementsOneD[1] = n;
         numElementsOneD[2] = n;
 	
-	//FIXME workaround voor het maken van eigen basisfuncties
+	//at some point kernel support for non-default basisfunctions should be finalized
 	BaseMeshManipulatorT* mesh = new MyMeshManipulator(getConfigData(),getData()->PolynomialOrder_,true,true,true);
 	
 	//The number of unknowns per element in the maxwell equations is equal to the number of basis functions.
 	const_cast<MaxwellData*>(getData())->numberOfUnknowns_=mesh->collBasisFSet_[0]->size();
 	setConfigData();
-	mesh->readCentaurMesh("Cylinder2.hyb");
+	//mesh->readCentaurMesh("Cylinder2.hyb");
 	//mesh->readCentaurMesh("input_basic2.hyb");
-	//mesh->createTriangularMesh(bottomLeft,topRight,numElementsOneD);
+	//mesh->readCentaurMesh("FicheraGlobRefine3.hyb");
+	mesh->createTriangularMesh(bottomLeft,topRight,numElementsOneD);
 	addMesh(mesh);
         //addMesh("Triangular",bottomLeft, topRight, numElementsOneD);
 	
@@ -82,6 +83,8 @@ public:
      * returns the contibutions at this gauss point to the entire element matrix in one go
      */
     void elementStiffnessIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret){
+        //cout<<"\nIn the element integrand for the stiffness matrix for element id: "<<element->getID();
+        ret.resize(element->getNrOfBasisFunctions(),element->getNrOfBasisFunctions());        
         ElementInfos* info = static_cast<ElementInfos*> (const_cast<ElementT*>(element)->getUserData());
 	NumericalVector phi_i(3),phi_j(3);
 	std::vector<NumericalVector> functionCurls;
@@ -101,6 +104,8 @@ public:
      * returns the contibutions at this gauss point to the entire element matrix in one go
      */
     void elementMassIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret){
+        ret.resize(element->getNrOfBasisFunctions(),element->getNrOfBasisFunctions());
+        //cout<<"\nIn the element integrand for the mass matrix for element id: "<<element->getID();
         ElementInfos* info = static_cast<ElementInfos*> (const_cast<ElementT*>(element)->getUserData());
 	NumericalVector phi_i(3),phi_j(3);
 	std::vector<NumericalVector> functionValues;
@@ -121,6 +126,7 @@ public:
      * returns the contibutions at this gauss point to the entire face matrix in one go
      */
     void faceIntegrand(const FaceT* face, const PointPhysicalT& normal, const PointFaceReferenceT& p, LinearAlgebra::Matrix& ret){	
+        //cout<<"\nIn the face integrand for the stiffness matrix for element id: "<<face->getPtrElementLeft()->getID();
 	ElementT* right;
 	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
 	ElementInfos* leftInfo = static_cast<ElementInfos*> (left->getUserData());
@@ -137,6 +143,7 @@ public:
 	int leftSize=left->getNrOfBasisFunctions();
 	int dimension=left->getNrOfBasisFunctions();
 	if(face->isInternal()){
+	    //cout<<" and element id: "<<face->getPtrElementRight()->getID();
 	    right=const_cast<ElementT*>(face->getPtrElementRight());
 	    face->mapRefFaceToRefElemR(p,pRight);
 	    rightInfo = static_cast<ElementInfos*> (right->getUserData());
@@ -144,7 +151,7 @@ public:
 	    rightInfo->makeFunctionValuesVector(right,pRight,rightValues);
 	    rightInfo->makeFunctionCurlsVector(right,pRight,rightCurls);
 	}
-//	ret.resize(dimension,dimension);
+	ret.resize(dimension,dimension);
 	NumericalVector phi_i(3),phi_j(3),phi_i_curl(3),phi_j_curl(3),dummy(3);
 	for(int i=0;i<dimension;++i){
 	    if(i<leftSize){
@@ -189,6 +196,7 @@ public:
      * returns the contibutions at this gauss point to the entire face matrix in one go
      */
     void faceIntegrandIPPart(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret){
+        //cout<<"\nIn the face integrand for the stiffness matrix (IP-only part) for element id: "<<face->getPtrElementLeft()->getID();
         ElementT* right;
 	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
 	ElementInfos* leftInfo = static_cast<ElementInfos*> (left->getUserData());
@@ -205,13 +213,14 @@ public:
 	int dimension=left->getNrOfBasisFunctions();
 	NumericalVector phi_i(3),phi_j(3),dummy(3);
 	if(face->isInternal()){
+	    //cout<<" and element id: "<<face->getPtrElementRight()->getID();
 	    right=const_cast<ElementT*>(face->getPtrElementRight());
 	    face->mapRefFaceToRefElemR(p,pRight);
 	    rightInfo = static_cast<ElementInfos*> (right->getUserData());
 	    dimension+=right->getNrOfBasisFunctions();
 	    rightInfo->makeFunctionValuesVector(right,pRight,rightValues);
 	}
-//	ret.resize(dimension,dimension);
+	ret.resize(dimension,dimension);
 	for(int i=0;i<dimension;++i){
 	    if(i<leftSize){
 	        dummy=leftValues[i];
@@ -240,6 +249,7 @@ public:
      * returns the contibutions at this gauss point to the entire face matrix in one go
      */
     void faceIntegrandBRPart(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret){
+        //cout<<"\nIn the face integrand for the stiffness matrix (BR-only part) for element id: "<<face->getPtrElementLeft()->getID();
         ElementT* right;
         ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
 	ElementInfos* leftInfo = static_cast<ElementInfos*> (left->getUserData());
@@ -257,13 +267,14 @@ public:
 	int dimension=left->getNrOfBasisFunctions();
 	NumericalVector phi_i(3),phi_j(3),dummy(3);
 	if(face->isInternal()){
+	    //cout<<" and element id: "<<face->getPtrElementRight()->getID();
 	    right=const_cast<ElementT*>(face->getPtrElementRight());
 	    face->mapRefFaceToRefElemR(p,pRight);
 	    rightInfo = static_cast<ElementInfos*> (right->getUserData());
 	    dimension+=right->getNrOfBasisFunctions();
 	    rightInfo->makeFunctionValuesVector(right,pRight,rightValues);
 	}
-//	ret.resize(dimension,dimension);
+	ret.resize(dimension,dimension);
 	for(int i=0;i<dimension;++i){
 	    if(i<leftSize){
 	        phi_i=leftValues[i];
@@ -378,11 +389,11 @@ int main(int argc,char** argv){
         cout<<"usage:./Maxwell.out <elements> <order> [<petsc-args>]";
 	exit(1);
     }
-    DomokosProblem problem(argc-2,&argv[2],new MaxwellData(elements,order),new Base::ConfigurationData(0,0,1),new matrixFillerBR);
+    DomokosProblem problem(argc-2,&argv[2],new MaxwellData(elements,order),new Base::ConfigurationData(0,0,25),new matrixFillerBR);
     try{
         problem.initialise();
 	time(&initialised);
-        problem.solveHarmonic();
+        problem.solveDOS();
 	time(&solved);
 	char filename[]="output.dat";
 	problem.makeOutput(filename);

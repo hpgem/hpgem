@@ -88,6 +88,17 @@ namespace Base
     }
     
     template<unsigned int DIM>
+    void
+    ElementData<DIM>::setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::Matrix& unknown)
+    {
+	if(timeLevel<timeLevels_){
+	    expansionCoefficients_[timeLevel]=LinearAlgebra::Matrix(unknown);
+	}else{
+            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";	    
+	}
+    }
+    
+    template<unsigned int DIM>
     int
     ElementData<DIM>::getNrOfUnknows() const
     {

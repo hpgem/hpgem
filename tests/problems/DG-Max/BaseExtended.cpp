@@ -1,4 +1,5 @@
 #include "BaseExtended.hpp"
+#include "kspaceData.hpp"
 
 template<>
 void hpGemUIExtentions<3>::setConfigData() {
@@ -19,7 +20,7 @@ const MaxwellData* hpGemUIExtentions<3>::getData() const {
 
 template<>
 void hpGemUIExtentions<3>::initialConditions(const Base::HpgemUI< 3 >::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret) {
-//        ret.resize(element.basisFunctionSet_->size(),1);
+    ret.resize(element->getNrOfBasisFunctions(),1);
     ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
     PointPhysicalT pPhys;
     element->referenceToPhysical(p,pPhys);
@@ -35,7 +36,7 @@ void hpGemUIExtentions<3>::initialConditions(const Base::HpgemUI< 3 >::ElementT*
 
 template<>
 void hpGemUIExtentions<3>::sourceTerm(const Base::HpgemUI< 3 >::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret) {
-//        ret.resize(element.basisFunctionSet_->size(),1);
+    ret.resize(element->getNrOfBasisFunctions(),1);
     ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
     PointPhysicalT pPhys;
     element->referenceToPhysical(p,pPhys);
@@ -53,7 +54,7 @@ template<>
 void hpGemUIExtentions<3>::sourceTermBoundaryIP(const Base::HpgemUI< 3 >::FaceT* face, const Base::HpgemUI< 3 >::PointPhysicalT& normal, const PointFaceReferenceT& p, Matrix& ret){
     ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
     ElementInfos* info = static_cast<ElementInfos*>(left->getUserData());
-//	ret.resize(left->basisFunctionSet_->size(),1);
+    ret.resize(left->getNrOfBasisFunctions(),1);
     PointReferenceT PLeft;
     face->mapRefFaceToRefElemL(p,PLeft);
     std::vector<NumericalVector> functionValues,functionCurls;
@@ -81,7 +82,7 @@ template<>
 void hpGemUIExtentions<3>::sourceTermBoundary(const Base::HpgemUI< 3 >::FaceT* face, const Base::HpgemUI< 3 >::PointPhysicalT& normal, const PointFaceReferenceT& p, Matrix& ret) {
     ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
     ElementInfos* info = static_cast<ElementInfos*>(left->getUserData());
-//	ret.resize(left->basisFunctionSet_->size(),1);
+    ret.resize(left->getNrOfBasisFunctions(),1);
     PointElementReferenceT PLeft;
     face->mapRefFaceToRefElemL(p,PLeft);
     std::vector<NumericalVector> functionCurls;
@@ -105,7 +106,7 @@ template<>
 void hpGemUIExtentions<3>::sourceTermBoundaryBR(const Base::HpgemUI< 3 >::FaceT* face, const Base::HpgemUI< 3 >::PointPhysicalT& normal, const PointFaceReferenceT& p, Matrix& ret) {
     ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
     ElementInfos* info = static_cast<ElementInfos*>(left->getUserData());
-//	ret.resize(left->basisFunctionSet_->size(),1);
+    ret.resize(left->getNrOfBasisFunctions(),1);
     PointElementReferenceT PLeft;
     face->mapRefFaceToRefElemL(p,PLeft);
     std::vector<NumericalVector> functionValues;
@@ -127,7 +128,7 @@ void hpGemUIExtentions<3>::sourceTermBoundaryBR(const Base::HpgemUI< 3 >::FaceT*
 
 template<>
 void hpGemUIExtentions<3>::initialConditionsDeriv(const Base::HpgemUI< 3 >::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret){
-//        ret.resize(element.basisFunctionSet_->size(),1);
+    ret.resize(element->getNrOfBasisFunctions(),1);
     ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
     PointPhysicalT pPhys;
     element->referenceToPhysical(p,pPhys);
@@ -142,9 +143,9 @@ void hpGemUIExtentions<3>::initialConditionsDeriv(const Base::HpgemUI< 3 >::Elem
 }
 
 template<>
-void hpGemUIExtentions<3>::writeFieldValues(const Base::HpgemUI< 3 >::ElementT& element, const PointElementReferenceT& p, const int t, ostream& output){
+void hpGemUIExtentions<3>::writeFieldValues(const Base::HpgemUI< 3 >::ElementT& element, const PointElementReferenceT& p, ostream& output){
     ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(&element)->getUserData());
-    LinearAlgebra::Matrix data=const_cast<ElementT*>(&element)->getTimeLevelData(t);
+    LinearAlgebra::Matrix data=const_cast<ElementT*>(&element)->getTimeLevelData(timelevel_);
     NumericalVector results(3),curls(3),waveDirection(3),Eorth(3),Horth(3);
     vector<NumericalVector> values,curlsVec;
     info->makeFunctionValuesVector(&element,p,values);
@@ -181,7 +182,8 @@ void hpGemUIExtentions<3>::writeTecplotFile(const Base::HpgemUI< 3 >::MeshManipu
 	    (*it)->getReferenceGeometry()->getNode(i,p);
 	    (*it)->referenceToPhysical(p,pPhys);
 	    file<<pPhys[0]<<" "<<pPhys[1]<<" "<<pPhys[2]<<" ";
-	    writeFieldValues(*(*it),p,timelevel,file);
+	    timelevel_=timelevel;
+	    writeFieldValues(*(*it),p,file);
 	}
 	file<<"\n";
     }
@@ -318,15 +320,17 @@ void hpGemUIExtentions<3>::makeOutput(char* filename) {
     std::ofstream fileWriter;
     fileWriter.open(filename);
     int dimensions[3]= {0,1,2};
-    //Output::TecplotDiscontinuousSolutionWriter<3> tecplotWriter(fileWriter,"The electric field",dimensions,"E0,E1,E2");
+    Output::TecplotDiscontinuousSolutionWriter<3> tecplotWriter(fileWriter,"The electric field","012","E0,E1,E2,H0,H1,H2");
     std::stringstream string;
     char parsed[20]="";
     string.readsome(parsed,20);//clean storage
     string<<"t="<<measureTimes_[0];
     int read=string.readsome(parsed,20);
     string.readsome(&parsed[read],20-read);//readsome doen't want to read in one go on the first try :(
-    //tecplotWriter.write(meshes_[0],parsed,false);//FIXME member function edition of write is not written yet
-    writeTecplotFile(*meshes_[0],parsed,0,fileWriter,false);
+    writeFunction writeDataFunction=&hpGemUIExtentions<3>::writeFieldValues;
+    timelevel_=0;
+    tecplotWriter.write(meshes_[0],parsed,false,writeDataFunction,this);
+    //writeTecplotFile(*meshes_[0],parsed,0,fileWriter,false);
 
     //compute errors
     computeErrors(*meshes_[0],0,L2NormEntry,InfNormEntry,HCurlNormEntry,DGNormEntry);
@@ -334,14 +338,15 @@ void hpGemUIExtentions<3>::makeOutput(char* filename) {
     VecSetValue(HCurlNorm,0,HCurlNormEntry,ADD_VALUES);
     VecSetValue(DGNorm,0,DGNormEntry,ADD_VALUES);
     for(int i=0; i<getData()->numberOfTimeLevels_-1; ++i) {
-	computeErrors(*meshes_[0],i+1,L2NormEntry,InfNormEntry,HCurlNormEntry,DGNormEntry);
+	timelevel_=i;
+	computeErrors(*meshes_[0],i+1,L2NormEntry,InfNormEntry,HCurlNormEntry,DGNormEntry);//also updates the timelevel_
 	VecSetValue(L2Norm,i+1,L2NormEntry,ADD_VALUES);
 	VecSetValue(HCurlNorm,i+1,HCurlNormEntry,ADD_VALUES);
 	VecSetValue(DGNorm,i+1,DGNormEntry,ADD_VALUES);
 	string<<"t="<<measureTimes_[i+1];
 	string.readsome(parsed,20);
-	//.write(meshes_[0],parsed,true);
-	writeTecplotFile(*meshes_[0],parsed,i+1,fileWriter,true);
+	tecplotWriter.write(meshes_[0],parsed,true,writeDataFunction,this);
+	//writeTecplotFile(*meshes_[0],parsed,i+1,fileWriter,true);
     }
     ierr_=VecAssemblyBegin(L2Norm);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
     ierr_=VecAssemblyBegin(HCurlNorm);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
@@ -424,7 +429,7 @@ void hpGemUIExtentions<3>::makeShiftMatrix(NumericalVector& direction, Vec& wave
 }
 
 template<>
-void hpGemUIExtentions<3>::findBoundaryBlocks(vector< IS > xRow, vector< IS > xCol, vector< IS > yRow, vector< IS > yCol, vector< IS > zRow, vector< IS > zCol){
+void hpGemUIExtentions<3>::findBoundaryBlocks(vector< IS >& xRow, vector< IS >& xCol, vector< IS >& yRow, vector< IS >& yCol, vector< IS >& zRow, vector< IS >& zCol){
     int nx(0),ny(0),nz(0);
     int places[]= {0};
     int blocksize=0;
@@ -442,40 +447,94 @@ void hpGemUIExtentions<3>::findBoundaryBlocks(vector< IS > xRow, vector< IS > xC
 	if(Base::L2Norm(pLeftPhys-pRightPhys)>1e-3){//pretty lousy tolerance, but this norm should be either 1 or 0
 	    //cout<<pLeftPhys<<endl<<pRightPhys<<endl<<pLeftPhys-pRightPhys<<endl<<(pLeftPhys[0]-pRightPhys[0])*(pLeftPhys[0]-pRightPhys[0])<<endl;;
 	    if((pLeftPhys[0]-pRightPhys[0])*(pLeftPhys[0]-pRightPhys[0])>1e-3) {
+	        //cout<<"X!"<<endl;
 		xRow.resize(nx+2);
 		xCol.resize(nx+2);
 		places[0]=(*it)->getPtrElementLeft()->getID()-1;
-		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),1,places,PETSC_COPY_VALUES,&xRow[nx]);
-		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),1,places,PETSC_COPY_VALUES,&xCol[nx+1]);
+		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfBasisFunctions(),1,places,PETSC_COPY_VALUES,&xRow[nx]);
+		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfBasisFunctions(),1,places,PETSC_COPY_VALUES,&xCol[nx+1]);
 		places[0]=(*it)->getPtrElementRight()->getID()-1;
-		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),1,places,PETSC_COPY_VALUES,&xRow[nx+1]);
-		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),1,places,PETSC_COPY_VALUES,&xCol[nx]);
-		blocksize=(*it)->getPtrElementLeft()->getNrOfUnknows();
+		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementRight()->getNrOfBasisFunctions(),1,places,PETSC_COPY_VALUES,&xRow[nx+1]);
+		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementRight()->getNrOfBasisFunctions(),1,places,PETSC_COPY_VALUES,&xCol[nx]);
+		blocksize=(*it)->getPtrElementLeft()->getNrOfBasisFunctions();
 		nx+=2;
 	    }else if((pLeftPhys[1]-pRightPhys[1])*(pLeftPhys[1]-pRightPhys[1])>1e-3) {
+	        //cout<<"Y!"<<endl;
 		yRow.resize(ny+2);
 		yCol.resize(ny+2);
 		places[0]=(*it)->getPtrElementLeft()->getID()-1;
-		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),1,places,PETSC_COPY_VALUES,&yRow[ny]);
-		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),1,places,PETSC_COPY_VALUES,&yCol[ny+1]);
+		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfBasisFunctions(),1,places,PETSC_COPY_VALUES,&yRow[ny]);
+		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfBasisFunctions(),1,places,PETSC_COPY_VALUES,&yCol[ny+1]);
 		places[0]=(*it)->getPtrElementRight()->getID()-1;
-		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),1,places,PETSC_COPY_VALUES,&yRow[ny+1]);
-		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),1,places,PETSC_COPY_VALUES,&yCol[ny]);
+		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementRight()->getNrOfBasisFunctions(),1,places,PETSC_COPY_VALUES,&yRow[ny+1]);
+		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementRight()->getNrOfBasisFunctions(),1,places,PETSC_COPY_VALUES,&yCol[ny]);
 		ny+=2;
 	    } else {
+	        //cout<<"Z!"<<endl;
 		zRow.resize(nz+2);
 		zCol.resize(nz+2);
 		assert((pLeftPhys[2]-pRightPhys[2])*(pLeftPhys[2]-pRightPhys[2])>(1.e-3));
 		places[0]=(*it)->getPtrElementLeft()->getID()-1;
-		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),1,places,PETSC_COPY_VALUES,&zRow[nz]);
-		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),1,places,PETSC_COPY_VALUES,&zCol[nz+1]);
+		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfBasisFunctions(),1,places,PETSC_COPY_VALUES,&zRow[nz]);
+		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfBasisFunctions(),1,places,PETSC_COPY_VALUES,&zCol[nz+1]);
 		places[0]=(*it)->getPtrElementRight()->getID()-1;
-		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),1,places,PETSC_COPY_VALUES,&zRow[nz+1]);
-		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfUnknows(),1,places,PETSC_COPY_VALUES,&zCol[nz]);
+		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementRight()->getNrOfBasisFunctions(),1,places,PETSC_COPY_VALUES,&zRow[nz+1]);
+		ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementRight()->getNrOfBasisFunctions(),1,places,PETSC_COPY_VALUES,&zCol[nz]);
 		nz+=2;
 	    }
 	}
     }
+}
+
+template<>
+void hpGemUIExtentions<3>::LDOSIntegrand(const Base::HpgemUI< 3 >::ElementT* element, const PointElementReferenceT& p, double& ret)
+{//currently LDOS is computed by evaluation at a point so integrand is a bit of a misnomer
+    ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
+    NumericalVector PhiRealI(3),PhiRealJ(3),PhiImagI(3),PhiImagJ(3);
+    std::vector<NumericalVector> functionValues(element->getNrOfBasisFunctions());
+    info->makeFunctionValuesVector(element,p,functionValues);
+    for(int i=0;i<element->getNrOfBasisFunctions();++i){
+	PhiRealI+=functionValues[i]*element->getData(0,0,i);
+	PhiImagI+=functionValues[i]*element->getData(1,0,i);
+	PhiRealJ+=functionValues[i]*element->getData(2,0,i);
+	PhiImagJ+=functionValues[i]*element->getData(3,0,i);
+    }
+    //current implementation: orientation averaged LDOS; modify the next expression for other orientations
+    ret=PhiRealI[0]*PhiRealJ[0]+PhiRealI[1]*PhiRealJ[1]+PhiRealI[2]*PhiRealJ[2]+PhiImagI[0]*PhiImagJ[0]+PhiImagI[1]*PhiImagJ[1]+PhiImagI[2]*PhiImagJ[2];
+    //cout<<ret<<endl;
+}
+
+
+template<>
+void hpGemUIExtentions<3>::makeFunctionValue(Vec eigenVector, NumericalVector& result){
+    Vec scaledVec;
+    double partialResult;
+    int index(0);
+    ierr_=VecDuplicate(eigenVector,&scaledVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=MatMult(M_,eigenVector,scaledVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    result.resize(4*meshes_[0]->getNumberOfElements());
+    for(ElementIterator it=meshes_[0]->elementColBegin(); it!=meshes_[0]->elementColEnd(); ++it) {
+	ierr_=VecGetArrayRead(eigenVector,storage_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	for(int i=0;i<(*it)->getNrOfBasisFunctions();++i){
+	    (*it)->setData(0,0,i,(*storage_)[(*it)->getNrOfBasisFunctions()*((*it)->getID()-1)+i].real());
+	    (*it)->setData(1,0,i,(*storage_)[(*it)->getNrOfBasisFunctions()*((*it)->getID()-1)+i].imag());
+	}
+	ierr_=VecRestoreArrayRead(eigenVector,storage_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	ierr_=VecGetArrayRead(scaledVec,storage_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	for(int i=0;i<(*it)->getNrOfBasisFunctions();++i){
+	    (*it)->setData(2,0,i,(*storage_)[(*it)->getNrOfBasisFunctions()*((*it)->getID()-1)+i].real());
+	    (*it)->setData(3,0,i,(*storage_)[(*it)->getNrOfBasisFunctions()*((*it)->getID()-1)+i].imag());
+	}
+	ierr_=VecRestoreArrayRead(scaledVec,storage_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	for(int i=0;i<4;++i){
+	    PointElementReferenceT p;
+	    (*it)->getReferenceGeometry()->getCenter(p);
+	    LDOSIntegrand(*it,p,partialResult);
+	    result[index]=partialResult;
+	    ++index;
+	}
+    }    
+    ierr_=VecDestroy(&scaledVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 }
 
 template<>
@@ -527,6 +586,7 @@ void hpGemUIExtentions<3>::solveTimeDependant(){
 	    ierr_=VecGetArrayRead(dummy4,storage_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    for(ElementIterator it=meshes_[0]->elementColBegin(); it!=meshes_[0]->elementColEnd(); ++it) {
 		for(int j=0; j<(*it)->getNrOfBasisFunctions(); ++j) {
+		    //remnant from before timelevelData was nice and allowed you to set things, should be made less ugly
 		    const_cast<LinearAlgebra::Matrix*>(&(*it)->getTimeLevelData(measureAmount))->operator[](j)=(*storage_)[(*it)->getNrOfBasisFunctions()*((*it)->getID()-1)+j].real();
 		}
 	    }
@@ -633,7 +693,7 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
     MHasToBeInverted_=true;
     assembler->fillMatrixes(this);
 
-    //Divide the eigenvalues by pi^2 (because some people can do that by heart and the useful info shouldn't be hidden)
+    //Divide the eigenvalues by pi^2 (because some people cant do that by heart and the useful info shouldn't be hidden)
     ierr_=MatScale(M_,1/M_PI/M_PI);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 
     //The eigensolver doesn't like block structures
@@ -660,7 +720,7 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
     //everything that is set in the code, but before this line is overridden by command-line options
     ierr_=EPSSetFromOptions(eigenSolver_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
     //everything that is set in the code, but after this line overrides the comand-line options
-
+    
     ierr_=EPSSolve(eigenSolver_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
     
     
@@ -671,8 +731,8 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
 // 	ierr_=EPSGetEigenvector(eigenSolver_,1,x_,derivative_);//actually eps,nr,real(x),imag(x)
 // 	ierr_=VecGetArrayRead(x_,storage_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 // 	for(ElementIterator it=meshes_[0]->elementColBegin();it!=meshes_[0]->elementColEnd();++it){
-// 	    for(int j=0;j<(*it)->basisFunctionSet_->size();++j){
-// 		const_cast<LinearAlgebra::Matrix*>(&(*it)->getTimeLevelData(0))->operator[](j)=creal((*storage_)[(*it)->basisFunctionSet_->size()*((*it)->getID()-1)+j]);
+// 	    for(int j=0;j<(*it)->getNrOfBasisFunctions();++j){
+// 		const_cast<LinearAlgebra::Matrix*>(&(*it)->getTimeLevelData(0))->operator[](j)=(*storage_)[(*it)->getNrOfBasisFunctions()*((*it)->getID()-1)+j].real();
 // 	    }
 // 	}
 // 	measureTimes_[0]=0;
@@ -683,17 +743,17 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
     //create some storage vectors
     PetscScalar neededOnlyForRealPetsc,eigenvalue;
     Vec *eigenvalues,example,*eigenVectors;
-    eigenvalues=new Vec[20];
+    eigenvalues=new Vec[24];
     eigenVectors=new Vec[40];//a few extra in case SLEPc finds more than the requested amount of eigenvalues
     ierr_=VecCreate(PETSC_COMM_WORLD,&example);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
     ierr_=VecSetSizes(example,PETSC_DECIDE,61);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
     ierr_=VecSetUp(example);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
-    ierr_=VecDuplicateVecs(example,20,&eigenvalues);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecDuplicateVecs(example,24,&eigenvalues);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
     ierr_=VecDuplicateVecs(x_,40,&eigenVectors);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
     ierr_=VecDestroy(&example);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
     int converged;
     ierr_=EPSGetConverged(eigenSolver_,&converged);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
-    for(int i=0;i<converged&&i<20;++i){
+    for(int i=0;i<converged&&i<24;++i){
 	ierr_=EPSGetEigenvalue(eigenSolver_,i,&eigenvalue,&neededOnlyForRealPetsc);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	ierr_=VecSetValue(eigenvalues[i],0,eigenvalue,ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
     }
@@ -706,7 +766,7 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
     ierr_=VecSetSizes(waveVec,PETSC_DECIDE,globalData_->numberOfUnknowns_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
     ierr_=VecSetUp(waveVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
     NumericalVector k(3);
-    k[0]=M_PI/20;k[1]=0;k[2]=0;
+    k[0]=M_PI/20.;k[1]=0;k[2]=0;
     makeShiftMatrix(k,waveVec);
     ierr_=VecAssemblyBegin(waveVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
     ierr_=VecAssemblyEnd(waveVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
@@ -726,7 +786,7 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
 	cout<<i<<endl;
 	if(i==21){
 	    //these are only increments, actually this make the wavevector move from pi,0,0 to pi,pi,0
-	    k[0]=0;k[1]=M_PI/20;
+	    k[0]=0;k[1]=M_PI/20.;
 
 	    //recompute the shifts
 	    makeShiftMatrix(k,waveVec);
@@ -735,7 +795,7 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
 	    ierr_=VecCopy(waveVec,waveVecConjugate);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    ierr_=VecConjugate(waveVecConjugate);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	}else if(i==41){
-	    k[1]=0;k[2]=M_PI/20;
+	    k[1]=0;k[2]=M_PI/20.;
 	    makeShiftMatrix(k,waveVec);
 	    ierr_=VecAssemblyBegin(waveVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    ierr_=VecAssemblyEnd(waveVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
@@ -745,17 +805,17 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
 	ierr_=EPSGetInvariantSubspace(eigenSolver_,eigenVectors);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	ierr_=MatDiagonalScale(product,waveVec,waveVecConjugate);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 
-	//TODO iets beters verzinnen
+	//this is probably not the best way to do this
 	//a cleaner set-up can be made using two iterators
 	for(int j=0;j<xboundaryCol.size();++j){
 	    ierr_=ISGetIndices(xboundaryRow[j],&rows);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    ierr_=ISGetIndices(xboundaryCol[j],&columns);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    PetscLayoutFindOwner(distribution,rows[0],&blockProcessorNumber);
-	    if(blockProcessorNumber==localProcessorNumber){
+	    //if(blockProcessorNumber==localProcessorNumber){
 		ierr_=MatGetValues(product,degreesOfFreedomPerElement,rows,degreesOfFreedomPerElement,columns,&blockvalues[0]);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 		blockvalues*=exp(std::complex<double>(0,k[0]*(j%2==0?-1:1)));
 		ierr_=MatSetValues(product,degreesOfFreedomPerElement,rows,degreesOfFreedomPerElement,columns,&blockvalues[0],INSERT_VALUES);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
-	    }
+	    //}
 	    ierr_=MatAssemblyBegin(product,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    ierr_=MatAssemblyEnd(product,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    ierr_=ISRestoreIndices(xboundaryRow[j],&rows);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
@@ -765,11 +825,11 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
 	    ierr_=ISGetIndices(yboundaryRow[j],&rows);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    ierr_=ISGetIndices(yboundaryCol[j],&columns);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    PetscLayoutFindOwner(distribution,rows[0],&blockProcessorNumber);
-	    if(blockProcessorNumber==localProcessorNumber){
+	    //if(blockProcessorNumber==localProcessorNumber){
 		ierr_=MatGetValues(product,degreesOfFreedomPerElement,rows,degreesOfFreedomPerElement,columns,&blockvalues[0]);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 		blockvalues*=exp(std::complex<double>(0,k[1]*(j%2==0?-1:1)));
 		ierr_=MatSetValues(product,degreesOfFreedomPerElement,rows,degreesOfFreedomPerElement,columns,&blockvalues[0],INSERT_VALUES);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
-	    }
+	    //}
 	    ierr_=MatAssemblyBegin(product,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    ierr_=MatAssemblyEnd(product,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    ierr_=ISRestoreIndices(yboundaryRow[j],&rows);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
@@ -779,11 +839,11 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
 	    ierr_=ISGetIndices(zboundaryRow[j],&rows);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    ierr_=ISGetIndices(zboundaryCol[j],&columns);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    PetscLayoutFindOwner(distribution,rows[0],&blockProcessorNumber);
-	    if(blockProcessorNumber==localProcessorNumber){
+	    //if(blockProcessorNumber==localProcessorNumber){
 		ierr_=MatGetValues(product,degreesOfFreedomPerElement,rows,degreesOfFreedomPerElement,columns,&blockvalues[0]);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 		blockvalues*=exp(std::complex<double>(0,k[2]*(j%2==0?-1:1)));
 		ierr_=MatSetValues(product,degreesOfFreedomPerElement,rows,degreesOfFreedomPerElement,columns,&blockvalues[0],INSERT_VALUES);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
-	    }
+	    //}
 	    ierr_=MatAssemblyBegin(product,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    ierr_=MatAssemblyEnd(product,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    ierr_=ISRestoreIndices(zboundaryRow[j],&rows);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
@@ -821,7 +881,7 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
 	ierr_=EPSSolve(eigenSolver_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	ierr_=EPSGetConverged(eigenSolver_,&converged);CHKERRABORT(PETSC_COMM_WORLD,ierr_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 
-	for(int j=0;j<converged&&j<20;++j){
+	for(int j=0;j<converged&&j<24;++j){
 	    ierr_=EPSGetEigenvalue(eigenSolver_,j,&eigenvalue,&neededOnlyForRealPetsc);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    ierr_=VecSetValue(eigenvalues[j],i,eigenvalue,INSERT_VALUES);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	}
@@ -873,4 +933,220 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
     
     //always clean up after you are done
     ierr_=MatDestroy(&product);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+}
+
+template<>
+void hpGemUIExtentions<3>::solveDOS()
+{
+    cout<<"finding the local density of states"<<endl;
+    const MaxwellData* actualdata = getData();
+    int degreesOfFreedomPerElement=meshes_[0]->collBasisFSet_[0]->size();
+    valarray<PetscScalar> blockvalues(degreesOfFreedomPerElement*degreesOfFreedomPerElement);
+    int measureAmount=0;
+    std::vector<double> eigenvalues;
+    std::vector<NumericalVector> functionValues;
+    std::vector<IS> xboundaryRow,xboundaryCol,yboundaryRow,yboundaryCol,zboundaryRow,zboundaryCol;
+    findBoundaryBlocks(xboundaryRow,xboundaryCol,yboundaryRow,yboundaryCol,zboundaryRow,zboundaryCol);
+    KspaceData brillouinZone(9);
+
+    //For IP-DG solving a general eigenproblem is slightly faster,
+    //but the Brezzi formulation needs an inverse of each block in the mass matrix anyway
+    //so there the general eigenproblem is just more work
+    MHasToBeInverted_=true;
+    assembler->fillMatrixes(this);
+
+    //Divide the eigenvalues by pi^2 (because some people cant do that by heart and the useful info shouldn't be hidden)
+    ierr_=MatScale(M_,1/M_PI/M_PI);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+
+    //The eigensolver doesn't like block structures
+    ierr_=MatConvert(M_,"aij",MAT_REUSE_MATRIX,&M_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=MatConvert(S_,"aij",MAT_REUSE_MATRIX,&S_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    Mat product,dummy;
+    ierr_=MatMatMult(M_,S_,MAT_INITIAL_MATRIX,1.0,&product);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+
+//    ierr_=EPSSetProblemType(eigenSolver_,EPS_HEP);
+    ierr_=EPSSetOperators(eigenSolver_,product,NULL);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=EPSSetUp(eigenSolver_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=EPSSetDimensions(eigenSolver_,24,PETSC_DECIDE,PETSC_DECIDE);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+// 	ierr_=EPSSetType(eigenSolver_,"jd");CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+// 	ST transformation;
+// 	KSP spectralProblem;
+// 	PC preconditioner;
+// 	ierr_=EPSGetST(eigenSolver_,&transformation);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+// 	ierr_=STSetType(transformation,"precond");CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+// 	ierr_=STGetKSP(transformation,&spectralProblem);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+// 	ierr_=KSPGetPC(spectralProblem,&preconditioner);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+// 	ierr_=PCSetType(preconditioner,"ilu");CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+// 	ierr_=EPSSetST(eigenSolver_,transformation);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+
+    //everything that is set in the code, but before this line is overridden by command-line options
+    ierr_=EPSSetFromOptions(eigenSolver_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    //everything that is set in the code, but after this line overrides the comand-line options
+    
+    PetscScalar target;    
+    ierr_=EPSGetTarget(eigenSolver_,&target);CHKERRABORT(PETSC_COMM_WORLD,ierr_);    
+
+    ierr_=EPSSolve(eigenSolver_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+
+    
+    
+    PetscScalar neededOnlyForRealPetsc,eigenvalue;
+    Vec example,*eigenVectors;
+    eigenVectors=new Vec[40];//a few extra in case SLEPc finds more than the requested amount of eigenvalues
+    ierr_=VecCreate(PETSC_COMM_WORLD,&example);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecSetSizes(example,PETSC_DECIDE,61);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecSetUp(example);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecDuplicateVecs(x_,40,&eigenVectors);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecDestroy(&example);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    int converged;
+    ierr_=EPSGetConverged(eigenSolver_,&converged);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    
+    ierr_=EPSGetInvariantSubspace(eigenSolver_,eigenVectors);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    for(int i=0;i<converged&&i<24;++i){
+	ierr_=EPSGetEigenvalue(eigenSolver_,i,&eigenvalue,&neededOnlyForRealPetsc);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	//SLEPSc sorts the eigenvalues by closest to the target first, this reorders them for the better smallest first
+	//if SLEPSc manages to find some of the zero eigenvalues they should be skipped
+	if(eigenvalue.real()>1e-6){
+	    NumericalVector functionvalue;
+	    makeFunctionValue(eigenVectors[i],functionvalue);
+	    if(eigenvalue.real()<target.real()){
+		eigenvalues.insert(eigenvalues.begin(),sqrt(eigenvalue.real()));
+		functionValues.insert(functionValues.begin(),functionvalue);
+	    }else{
+		eigenvalues.push_back(sqrt(eigenvalue.real()));
+		functionValues.push_back(functionvalue);
+	    }
+	}
+    }
+    //eigenvalues.insert(eigenvalues.begin(),2,0);//at the infinite wavelength limit the two constant functions also contribute to the DOS
+    brillouinZone.setOmega(eigenvalues);
+    brillouinZone.setFunctionValues(functionValues);
+
+    Vec waveVec,waveVecConjugate;
+    const int *rows,*columns;
+    ierr_=VecCreate(PETSC_COMM_WORLD,&waveVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecSetType(waveVec,"mpi");CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecSetBlockSize(waveVec,meshes_[0]->collBasisFSet_[0]->size());
+    ierr_=VecSetSizes(waveVec,PETSC_DECIDE,globalData_->numberOfUnknowns_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecSetUp(waveVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    NumericalVector k(3);
+    k[0]=M_PI/60;k[1]=0;k[2]=0;
+    makeShiftMatrix(k,waveVec);
+    ierr_=VecAssemblyBegin(waveVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecAssemblyEnd(waveVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecDuplicate(waveVec,&waveVecConjugate);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecCopy(waveVec,waveVecConjugate);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecConjugate(waveVecConjugate);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+
+    PetscLayout distribution;
+    int localProcessorNumber,blockProcessorNumber,localsize;
+    MPI_Comm_rank(PETSC_COMM_WORLD,&localProcessorNumber);
+    ierr_=PetscLayoutCreate(PETSC_COMM_WORLD,&distribution);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=MatGetLocalSize(product,&localsize,NULL);
+    ierr_=PetscLayoutSetLocalSize(distribution,localsize);
+    ierr_=PetscLayoutSetUp(distribution);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+
+    while(brillouinZone.hasNextPoint()){
+	k=brillouinZone.nextPoint();
+	ierr_=MatDiagonalScale(product,waveVec,waveVecConjugate);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+
+	//find a better strategy -- at least there is no communication in this set-up so MatAssemblyBegin should be reasonably fast
+	//a cleaner set-up can be made using two iterators
+	for(int j=0;j<xboundaryCol.size();++j){
+	    ierr_=ISGetIndices(xboundaryRow[j],&rows);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    ierr_=ISGetIndices(xboundaryCol[j],&columns);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    PetscLayoutFindOwner(distribution,rows[0],&blockProcessorNumber);
+	    if(blockProcessorNumber==localProcessorNumber){
+		ierr_=MatGetValues(product,degreesOfFreedomPerElement,rows,degreesOfFreedomPerElement,columns,&blockvalues[0]);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+		blockvalues*=exp(std::complex<double>(0,k[0]*(j%2==0?-1:1)));
+		ierr_=MatSetValues(product,degreesOfFreedomPerElement,rows,degreesOfFreedomPerElement,columns,&blockvalues[0],INSERT_VALUES);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    }
+	    ierr_=MatAssemblyBegin(product,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    ierr_=MatAssemblyEnd(product,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    ierr_=ISRestoreIndices(xboundaryRow[j],&rows);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    ierr_=ISRestoreIndices(xboundaryCol[j],&columns);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	}
+	for(int j=0;j<yboundaryCol.size();++j){
+	    ierr_=ISGetIndices(yboundaryRow[j],&rows);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    ierr_=ISGetIndices(yboundaryCol[j],&columns);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    PetscLayoutFindOwner(distribution,rows[0],&blockProcessorNumber);
+	    if(blockProcessorNumber==localProcessorNumber){
+		ierr_=MatGetValues(product,degreesOfFreedomPerElement,rows,degreesOfFreedomPerElement,columns,&blockvalues[0]);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+		blockvalues*=exp(std::complex<double>(0,k[1]*(j%2==0?-1:1)));
+		ierr_=MatSetValues(product,degreesOfFreedomPerElement,rows,degreesOfFreedomPerElement,columns,&blockvalues[0],INSERT_VALUES);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    }
+	    ierr_=MatAssemblyBegin(product,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    ierr_=MatAssemblyEnd(product,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    ierr_=ISRestoreIndices(yboundaryRow[j],&rows);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    ierr_=ISRestoreIndices(yboundaryCol[j],&columns);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	}
+	for(int j=0;j<zboundaryCol.size();++j){
+	    ierr_=ISGetIndices(zboundaryRow[j],&rows);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    ierr_=ISGetIndices(zboundaryCol[j],&columns);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    PetscLayoutFindOwner(distribution,rows[0],&blockProcessorNumber);
+	    if(blockProcessorNumber==localProcessorNumber){
+		ierr_=MatGetValues(product,degreesOfFreedomPerElement,rows,degreesOfFreedomPerElement,columns,&blockvalues[0]);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+		blockvalues*=exp(std::complex<double>(0,k[2]*(j%2==0?-1:1)));
+		ierr_=MatSetValues(product,degreesOfFreedomPerElement,rows,degreesOfFreedomPerElement,columns,&blockvalues[0],INSERT_VALUES);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    }
+	    ierr_=MatAssemblyBegin(product,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    ierr_=MatAssemblyEnd(product,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    ierr_=ISRestoreIndices(zboundaryRow[j],&rows);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    ierr_=ISRestoreIndices(zboundaryCol[j],&columns);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	}
+	
+
+	ierr_=EPSSetOperators(eigenSolver_,product,NULL);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	ierr_=EPSSetInitialSpace(eigenSolver_,converged,eigenVectors);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	ierr_=EPSSetUp(eigenSolver_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	ierr_=EPSSolve(eigenSolver_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	ierr_=EPSGetInvariantSubspace(eigenSolver_,eigenVectors);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	ierr_=EPSGetConverged(eigenSolver_,&converged);CHKERRABORT(PETSC_COMM_WORLD,ierr_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+
+	eigenvalues.clear();
+	functionValues.clear();
+	for(int j=0;j<converged&&j<24;++j){
+	    ierr_=EPSGetEigenvalue(eigenSolver_,j,&eigenvalue,&neededOnlyForRealPetsc);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+	    if(eigenvalue.real()>1e-6){
+		NumericalVector functionvalue;
+		makeFunctionValue(eigenVectors[j],functionvalue);
+		if(eigenvalue.real()<target.real()){
+		    eigenvalues.insert(eigenvalues.begin(),sqrt(eigenvalue.real()));
+		    functionValues.insert(functionValues.begin(),functionvalue);
+		}else{
+		    eigenvalues.push_back(sqrt(eigenvalue.real()));
+		    functionValues.push_back(functionvalue);
+		}
+	    }
+	}
+	brillouinZone.setOmega(eigenvalues);
+	brillouinZone.setFunctionValues(functionValues);
+    }
+    for(int i=0;i<xboundaryCol.size();++i){
+	ISDestroy(&xboundaryCol[i]);
+	ISDestroy(&xboundaryRow[i]);
+    }
+    for(int i=0;i<yboundaryCol.size();++i){
+	ISDestroy(&yboundaryCol[i]);
+	ISDestroy(&yboundaryRow[i]);
+    }
+    for(int i=0;i<zboundaryCol.size();++i){
+	ISDestroy(&zboundaryCol[i]);
+	ISDestroy(&zboundaryRow[i]);
+    }   
+
+    ierr_=VecDestroy(&waveVec);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    ierr_=VecDestroy(&waveVecConjugate);CHKERRABORT(PETSC_COMM_WORLD,ierr_);    
+    
+    //always clean up after you are done
+    ierr_=MatDestroy(&product);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    
+    NumericalVector result(meshes_[0]->getNumberOfElements());
+    for(int i=0;i<1001;++i){
+        brillouinZone.getIntegral(double(i)/100.,result);
+        cout<<result[0]<<" "<<result[6]<<" "<<result[10]<<endl;
+	result[0]=0;
+	result[6]=0;
+	result[10]=0;
+    }
 }

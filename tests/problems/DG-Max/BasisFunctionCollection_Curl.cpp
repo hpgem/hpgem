@@ -1,6 +1,7 @@
 #include "BasisFunctionCollection_Curl.hpp"
 
 void OuterProduct(const NumericalVector& a, const NumericalVector& b, NumericalVector& ret){
+    ret.resize(3);
     //direct computation using the definition
     ret[0]=a[1]*b[2]-a[2]*b[1];
     ret[1]=a[2]*b[0]-a[0]*b[2];

@@ -6,7 +6,7 @@
 #include "Base/BaseBasisFunction.hpp"
 #include "Base/MeshManipulator.hpp"
 
-//should probably be moved to the utilities namespace at some point
+//should probably be moved to the utilities namespace and another file at some point
 /**
  * Computes the 3D outer product of 2 vectors
  * \param [in] a,b The 2 vectors that you want the outer product of.
