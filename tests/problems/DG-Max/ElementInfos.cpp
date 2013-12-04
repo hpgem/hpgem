@@ -47,9 +47,9 @@ ElementInfos::ElementInfos(const Base::Element< 3 >& element){
     element.getReferenceGeometry()->getCenter(p);
     element.referenceToPhysical(p,pPhys);
     //not quite sure about the best way to implement this; this works for now
-    //if((pPhys[1]-0.5)*(pPhys[1]-0.5)+(pPhys[2]-0.5)*(pPhys[2]-0.5)<.25*.25){
+    if((pPhys[1]-0.5)*(pPhys[1]-0.5)+(pPhys[2]-0.5)*(pPhys[2]-0.5)<.25*.25){
     ///\bug Does not check that there are element boundaries at any of the discontinuities
-    if((pPhys[0]<0.3)||pPhys[0]>0.7||pPhys[1]<0.3||pPhys[1]>0.7){
+    //if((pPhys[0]<0.3)||pPhys[0]>0.7||pPhys[1]<0.3||pPhys[1]>0.7){
 	epsilon_=1;
     }else{
 	epsilon_=1;

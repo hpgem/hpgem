@@ -156,7 +156,7 @@ void hpGemUIExtentions<3>::writeFieldValues(const Base::HpgemUI< 3 >::ElementT& 
     }
     output<<results[0]<<" "<<results[1]<<" "<<results[2]<<" "<<curls[0]<<" "<<curls[1]<<" "<<curls[2]<<endl;
 }
-
+/*
 template<>
 void hpGemUIExtentions<3>::writeTecplotFile(const Base::HpgemUI< 3 >::MeshManipulatorT& mesh, const char* zonetitle, const int timelevel, std::ofstream& file, const bool existingFile){
     int numberOfNodes;
@@ -201,7 +201,7 @@ void hpGemUIExtentions<3>::writeTecplotFile(const Base::HpgemUI< 3 >::MeshManipu
     }
     file<<endl;
 }
-
+*/
 template<>
 void hpGemUIExtentions<3>::elementErrorIntegrand(const Base::HpgemUI< 3 >::ElementT* element, const PointElementReferenceT& p, Matrix& ret){
     ret.resize(2,1);
@@ -272,6 +272,8 @@ void hpGemUIExtentions<3>::faceErrorIntegrand(const Base::HpgemUI< 3 >::FaceT* f
 
 template<>
 void hpGemUIExtentions<3>::computeErrors(Base::HpgemUI< 3 >::MeshManipulatorT& Mesh, int timelevel, double& L2Norm, double& InfNorm, double& HCurlNorm, double& DGNorm){
+    //this should probalby be toggled off when the exact solution is not known
+    //alternatively something based on richardson extrapolation can be done
     int TotalAmountOfProcessors,localProcessorNumber,numberOfElements;
     MPI_Comm_size(PETSC_COMM_WORLD,&TotalAmountOfProcessors);
     MPI_Comm_rank(PETSC_COMM_WORLD,&localProcessorNumber);
@@ -501,6 +503,7 @@ void hpGemUIExtentions<3>::LDOSIntegrand(const Base::HpgemUI< 3 >::ElementT* ele
     }
     //current implementation: orientation averaged LDOS; modify the next expression for other orientations
     ret=PhiRealI[0]*PhiRealJ[0]+PhiRealI[1]*PhiRealJ[1]+PhiRealI[2]*PhiRealJ[2]+PhiImagI[0]*PhiImagJ[0]+PhiImagI[1]*PhiImagJ[1]+PhiImagI[2]*PhiImagJ[2];
+    ret*=48;//assume computation is done only in the irreducible brillouin zone
     //cout<<ret<<endl;
 }
 
@@ -693,8 +696,8 @@ void hpGemUIExtentions<3>::solveEigenvalues(){
     MHasToBeInverted_=true;
     assembler->fillMatrixes(this);
 
-    //Divide the eigenvalues by pi^2 (because some people cant do that by heart and the useful info shouldn't be hidden)
-    ierr_=MatScale(M_,1/M_PI/M_PI);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    // optionally divide the eigenvalues by pi^2 (for debugging / visual error tracking)
+    //ierr_=MatScale(M_,1/M_PI/M_PI);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 
     //The eigensolver doesn't like block structures
     ierr_=MatConvert(M_,"aij",MAT_REUSE_MATRIX,&M_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
@@ -956,7 +959,7 @@ void hpGemUIExtentions<3>::solveDOS()
     assembler->fillMatrixes(this);
 
     //Divide the eigenvalues by pi^2 (because some people cant do that by heart and the useful info shouldn't be hidden)
-    ierr_=MatScale(M_,1/M_PI/M_PI);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    //ierr_=MatScale(M_,1/M_PI/M_PI);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 
     //The eigensolver doesn't like block structures
     ierr_=MatConvert(M_,"aij",MAT_REUSE_MATRIX,&M_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
@@ -1008,7 +1011,7 @@ void hpGemUIExtentions<3>::solveDOS()
 	//if SLEPSc manages to find some of the zero eigenvalues they should be skipped
 	if(eigenvalue.real()>1e-6){
 	    NumericalVector functionvalue;
-	    makeFunctionValue(eigenVectors[i],functionvalue);
+	    //makeFunctionValue(eigenVectors[i],functionvalue);
 	    if(eigenvalue.real()<target.real()){
 		eigenvalues.insert(eigenvalues.begin(),sqrt(eigenvalue.real()));
 		functionValues.insert(functionValues.begin(),functionvalue);
@@ -1020,7 +1023,7 @@ void hpGemUIExtentions<3>::solveDOS()
     }
     //eigenvalues.insert(eigenvalues.begin(),2,0);//at the infinite wavelength limit the two constant functions also contribute to the DOS
     brillouinZone.setOmega(eigenvalues);
-    brillouinZone.setFunctionValues(functionValues);
+    //brillouinZone.setFunctionValues(functionValues);
 
     Vec waveVec,waveVecConjugate;
     const int *rows,*columns;
@@ -1109,7 +1112,7 @@ void hpGemUIExtentions<3>::solveDOS()
 	    ierr_=EPSGetEigenvalue(eigenSolver_,j,&eigenvalue,&neededOnlyForRealPetsc);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
 	    if(eigenvalue.real()>1e-6){
 		NumericalVector functionvalue;
-		makeFunctionValue(eigenVectors[j],functionvalue);
+		//makeFunctionValue(eigenVectors[j],functionvalue);
 		if(eigenvalue.real()<target.real()){
 		    eigenvalues.insert(eigenvalues.begin(),sqrt(eigenvalue.real()));
 		    functionValues.insert(functionValues.begin(),functionvalue);
@@ -1120,7 +1123,7 @@ void hpGemUIExtentions<3>::solveDOS()
 	    }
 	}
 	brillouinZone.setOmega(eigenvalues);
-	brillouinZone.setFunctionValues(functionValues);
+	//brillouinZone.setFunctionValues(functionValues);
     }
     for(int i=0;i<xboundaryCol.size();++i){
 	ISDestroy(&xboundaryCol[i]);
@@ -1146,7 +1149,7 @@ void hpGemUIExtentions<3>::solveDOS()
         brillouinZone.getIntegral(double(i)/100.,result);
         cout<<result[0]<<" "<<result[6]<<" "<<result[10]<<endl;
 	result[0]=0;
-	result[6]=0;
-	result[10]=0;
+	//result[6]=0;
+	//result[10]=0;
     }
 }

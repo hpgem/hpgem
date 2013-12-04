@@ -214,8 +214,8 @@ public:
      */
     void writeFieldValues(const ElementT& element, const PointElementReferenceT& p, ostream& output); 
 
-    //FIXME temporary, pending fixed (member function version) tecplotwriter (function is specialized for this case)
-    void writeTecplotFile(const MeshManipulatorT& mesh, const char* zonetitle, const int timelevel, std::ofstream& file, const bool existingFile); 
+    //tecplotwriter is also avaiable in the hpGEM core
+    //void writeTecplotFile(const MeshManipulatorT& mesh, const char* zonetitle, const int timelevel, std::ofstream& file, const bool existingFile); 
 
     /**
      * Integrand for the computation of the L^2 and the Hcurl error

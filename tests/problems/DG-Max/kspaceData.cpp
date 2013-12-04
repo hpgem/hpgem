@@ -106,7 +106,7 @@ NumericalVector& KspaceData::nextPoint()
     cout<<current_++<<endl;
     if(functionValuesAtKpoints_.size()<current_){
         LinearAlgebra::NumericalVector one(1);
-	one[0]=1;
+	one[0]=48;
 	std::vector<LinearAlgebra::NumericalVector> data(minimumsize_,one);
 	functionValuesAtKpoints_.push_back(data);
     }
@@ -136,7 +136,7 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
     assert(omegaAtKpoints_.size()==kpoints_.size());
     if(functionValuesAtKpoints_.size()<=current_){
         LinearAlgebra::NumericalVector one(1);
-	one[0]=1;
+	one[0]=48;
 	std::vector<LinearAlgebra::NumericalVector> data(minimumsize_,one);
 	functionValuesAtKpoints_.push_back(data);
     }
@@ -261,5 +261,6 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
 	    result+=localFunctionValue;
 	}
     }
+    result/=double(8)*M_PI*M_PI*M_PI;
 }
 

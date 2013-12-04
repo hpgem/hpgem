@@ -62,7 +62,7 @@ public:
 	//The number of unknowns per element in the maxwell equations is equal to the number of basis functions.
 	const_cast<MaxwellData*>(getData())->numberOfUnknowns_=mesh->collBasisFSet_[0]->size();
 	setConfigData();
-	//mesh->readCentaurMesh("Cylinder2.hyb");
+	//mesh->readCentaurMesh("Cylinder3.hyb");
 	//mesh->readCentaurMesh("input_basic2.hyb");
 	//mesh->readCentaurMesh("FicheraGlobRefine3.hyb");
 	mesh->createTriangularMesh(bottomLeft,topRight,numElementsOneD);
@@ -338,14 +338,14 @@ public:
      * this will only have an effect on the accuracy of your error estimates
      */
     void exactSolution(const PointPhysicalT& p, const double t, NumericalVector &ret){
-        ret[0]=sin(M_PI*2*p[1])*sin(M_PI*2*p[2]);
-        ret[1]=sin(M_PI*2*p[2])*sin(M_PI*2*p[0]);
-        ret[2]=sin(M_PI*2*p[0])*sin(M_PI*2*p[1]);
-	ret*=cos(sqrt(2)*2*M_PI*t);
-//         ret[0]=sin(M_PI*p[1])*sin(M_PI*p[2]);
-//         ret[1]=sin(M_PI*p[2])*sin(M_PI*p[0]);
-//         ret[2]=sin(M_PI*p[0])*sin(M_PI*p[1]);
-// 	ret*=cos(sqrt(2)*M_PI*t);
+//         ret[0]=sin(M_PI*2*p[1])*sin(M_PI*2*p[2]);
+//         ret[1]=sin(M_PI*2*p[2])*sin(M_PI*2*p[0]);
+//         ret[2]=sin(M_PI*2*p[0])*sin(M_PI*2*p[1]);
+// 	ret*=cos(sqrt(2)*2*M_PI*t);
+        ret[0]=sin(M_PI*p[1])*sin(M_PI*p[2]);
+        ret[1]=sin(M_PI*p[2])*sin(M_PI*p[0]);
+        ret[2]=sin(M_PI*p[0])*sin(M_PI*p[1]);
+	ret*=cos(sqrt(2)*M_PI*t);
 //            ret[0]=p[0]*(1-p[0]);
 //            ret[1]=0;
 // 	   ret[2]=0;
@@ -356,14 +356,14 @@ public:
      * this will only have an effect on the accuracy of your error estimates
      */  
     void exactSolutionCurl(const PointPhysicalT& p, const double t, NumericalVector &ret){
-        ret[0]=sin(M_PI*2*p[0])*(cos(M_PI*2*p[1])-cos(M_PI*2*p[2]));
-        ret[1]=sin(M_PI*2*p[1])*(cos(M_PI*2*p[2])-cos(M_PI*2*p[0]));
-        ret[2]=sin(M_PI*2*p[2])*(cos(M_PI*2*p[0])-cos(M_PI*2*p[1]));
-	ret*=cos(sqrt(2)*2*M_PI*t)*2*M_PI;
-//         ret[0]=sin(M_PI*p[0])*(cos(M_PI*p[1])-cos(M_PI*p[2]));
-//         ret[1]=sin(M_PI*p[1])*(cos(M_PI*p[2])-cos(M_PI*p[0]));
-//         ret[2]=sin(M_PI*p[2])*(cos(M_PI*p[0])-cos(M_PI*p[1]));
-// 	ret*=cos(sqrt(2)*M_PI*t)*M_PI;
+//         ret[0]=sin(M_PI*2*p[0])*(cos(M_PI*2*p[1])-cos(M_PI*2*p[2]));
+//         ret[1]=sin(M_PI*2*p[1])*(cos(M_PI*2*p[2])-cos(M_PI*2*p[0]));
+//         ret[2]=sin(M_PI*2*p[2])*(cos(M_PI*2*p[0])-cos(M_PI*2*p[1]));
+// 	ret*=cos(sqrt(2)*2*M_PI*t)*2*M_PI;
+        ret[0]=sin(M_PI*p[0])*(cos(M_PI*p[1])-cos(M_PI*p[2]));
+        ret[1]=sin(M_PI*p[1])*(cos(M_PI*p[2])-cos(M_PI*p[0]));
+        ret[2]=sin(M_PI*p[2])*(cos(M_PI*p[0])-cos(M_PI*p[1]));
+	ret*=cos(sqrt(2)*M_PI*t)*M_PI;
 //          ret[0]=0;ret[1]=0;ret[2]=0;
     }
 };
@@ -373,9 +373,11 @@ public:
  */
 int main(int argc,char** argv){
   
-  
+    //set up timings
     time_t start,end,initialised,solved;
     time(&start);
+    
+    //read input data
     int elements = 1;
     if(argc>1){
         elements=std::atoi(argv[1]);
@@ -389,15 +391,20 @@ int main(int argc,char** argv){
         cout<<"usage:./Maxwell.out <elements> <order> [<petsc-args>]";
 	exit(1);
     }
-    DomokosProblem problem(argc-2,&argv[2],new MaxwellData(elements,order),new Base::ConfigurationData(0,0,25),new matrixFillerBR);
+    //set up problem and decide flux type
+    DomokosProblem problem(argc-2,&argv[2],new MaxwellData(elements,order),new Base::ConfigurationData(0,0,41),new matrixFillerBR);
     try{
         problem.initialise();
 	time(&initialised);
+	
+	//choose what problem to solve
         problem.solveDOS();
 	time(&solved);
 	char filename[]="output.dat";
 	problem.makeOutput(filename);
 	time(&end);
+	
+	//display timing data
 	cout<<"Initialisation took "<<difftime(initialised,start)<<" seconds."<<endl;
 	cout<<"Solving the problem took "<<difftime(solved,initialised)<<" seconds."<<endl;
 	cout<<"The rest took "<<difftime(end,solved)<<" seconds."<<endl;
