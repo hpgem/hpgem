@@ -32,6 +32,6 @@ if(hpGEM_INCLUDE_PETSC_SUPPORT)
 
 else() 
 	add_custom_target(hEulerApp.out 
-		COMMENT "\t ERROR:: You need PETSC to compile hEuler.out. \n\t ERROR:: Please rerun cmake and enable PETSC support")
+		COMMENT "\t ERROR:: You need PETSC to compile hEuler.out. \n\t ERROR:: Please rerun cmake and enable PETSC support \n\t ERROR:: If using raw cmake add the flag -DhpGEM_INCLUDE_PETSC_SUPPORT='on'")
 endif()
 

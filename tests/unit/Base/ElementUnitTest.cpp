@@ -15,7 +15,7 @@ typedef std::vector<BasisFunctionSetT*>                 CollectionOfBasisFunctio
 
 int main()
 {
-
+/*
     std::vector<unsigned int> PointsIndexes(4);
     for (int i=0;i<4;i++) {PointsIndexes[i]=i;}
     
@@ -54,6 +54,6 @@ int main()
     
     Base::Element<2>  myElement(PointsIndexes, bf, points, numOfUnknowns, numOfTimeLevels, 11, counter);
 
- 
+ */
     return 0;
 }
