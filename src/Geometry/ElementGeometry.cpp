@@ -210,6 +210,7 @@ namespace Geometry
         {
 //            std::cout <<"I am a tetrahedron" << std::endl;
                 //return &ReferenceTetrahedron::Instance(); can not find this one
+            return new  Geometry::MappingToPhysSimplexLinear<3>(pGeo);
         }
         else if (size==5)
         {

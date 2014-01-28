@@ -30,9 +30,7 @@ namespace Base
         id_(id)
     {
         orderCoeff_ = 2;// for safety
-        
-//        cout<<"order quad="<<basisFunctionSet_->getOrder()<<endl;
-        setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->getOrder());
+        setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->getOrder()+1);//FIXME a bit more accuracy
     }
 
     template<unsigned int DIM>
@@ -103,9 +101,7 @@ namespace Base
     void
     Element<DIM>::setQuadratureRulesWithOrder(unsigned int quadrROrder)
     {
-        
         quadratureRule_ =  Geometry::ElementGeometry<DIM>::referenceGeometry_->getGaussQuadratureRule(quadrROrder);
-            //cout << "quad="<<quadratureRule_->getName()<<endl;
     }
     
     template<unsigned int DIM>
@@ -149,11 +145,16 @@ namespace Base
     
     template<unsigned int DIM>
     void
-    Element<DIM>::initialiseSolution(unsigned int timeLevel, unsigned int solutionId, const SolutionVector& solution)
+    Element<DIM>::basisFunction(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
     {
-            //LinearAlgebra::Matrix& data = ElementData<DIM>::getTimeLevelData(0);
-        
-            //data = solution;
+        basisFunctionSet_->eval(i,p,ret);
+    }
+    
+    template<unsigned int DIM>
+    void
+    Element<DIM>::basisFunctionCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
+    {
+        basisFunctionSet_->evalCurl(i,p,ret);
     }
 }
 #endif

@@ -147,6 +147,19 @@ namespace Base {
         }
         
     }   
+    
+    template<unsigned int DIM>
+    inline void
+    BasisFunctionSet<DIM>::eval(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
+    {
+        vecOfBasisFcn_[i]->eval(p,ret);
+    }
 
+    template<unsigned int DIM>
+    inline void
+    BasisFunctionSet<DIM>::evalCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
+    {
+        vecOfBasisFcn_[i]->evalCurl(p,ret);
+    }
 }
 

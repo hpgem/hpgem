@@ -26,6 +26,13 @@
 
 namespace Base
 {
+    struct HalfFaceDescription {
+        std::vector<unsigned int> nodeList;
+        unsigned int elementNum;
+        unsigned int localFaceIndex;
+    };
+    
+    
     template <unsigned int DIM>
     class MeshManipulator //: public MeshRefiner <DIM>
     {
@@ -69,6 +76,8 @@ namespace Base
         MeshManipulator(const MeshManipulator& other);
 
         virtual ~MeshManipulator();
+	
+        CollectionOfBasisFunctionSets   collBasisFSet_;//FIXME need to set the basis functions
 
   
 
@@ -100,6 +109,16 @@ namespace Base
 
         void                            createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const VectorOfPointIndicesT& LinearNoElements);
 
+	/**
+	 * Crates a mesh of simplices for the specified cube
+	 * \param [in] BottomLeft the bottomleft corner of the cube
+	 * \param [in] TopRight The topRight corner of the cube
+	 * \param [in] LinearNoElements A vector detailing the amount of refinement you want per direction
+	 * This routine generates the same mesh structure as createRectangularMesh, but then refines each of the cubes into
+	 * (DIM-1)^2+1 tetrahedra
+	 */
+        void                            createTriangularMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, const VectorOfPointIndicesT& LinearNoElements);
+	
         void                            readCentaurMesh(const std::string& filename);
 
         void                            outputMesh(ostream& os)const;
@@ -169,16 +188,37 @@ namespace Base
   //---------------------------------------------------------------------
     private:
         
-        //Does the actually reading for 2D centaur meshes
+        //!Does the actual reading for 2D centaur meshes
         void                            readCentaurMesh2D(std::ifstream& centaurFile);
         
+        //!Does the actual reading for 3D centaur meshes
+        void                            readCentaurMesh3D(std::ifstream& centaurFile);
+	
         void                            faceFactory();
+	
+	//!Fills the element and face parts of a HalfFaceDescription based on lists of elements connected to three of the face nodes and one list connected to an opposing node
+	//!\bug 1,2 and 4 dimenstional variants require a different amount of arguments but I don't know how to code that
+	
+	//someone thinks its a good idea to declare HalfFaceDescription in an implemetnation file
+	void                            findElementNumber(std::list<int>& a, std::list<int>& b, std::list<int>& c,int aNumber, int bNumber, int cNumber, std::list<int>& notOnFace, HalfFaceDescription& face, std::vector<Element<DIM>*>& vectorOfElements);
+	
+	//!An alternative to faceFactory that only iterates over internal faces, use the boundary face information in the centaur file to construct the boundary faces
+	void                            constructInternalFaces(std::vector<std::list<int> >& listOfElementsForEachNode, std::vector<Element<DIM>*>& vectorOfElements);
         
         void                            rectangularCreateFaces1D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
         
         void                            rectangularCreateFaces2D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
         
         void                            rectangularCreateFaces3D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
+ 
+	//! Make faces for the 1D contrarotating mesh
+        void                            triangularCreateFaces1D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
+ 
+	//!Make faces for the 2D triangular mesh
+        void                            triangularCreateFaces2D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
+ 
+	//!Make faces for the 3D tetrahedral mesh
+        void                            triangularCreateFaces3D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
         
         //! Do refinement on the elements.
         void                            doElementRefinement(unsigned int meshTreeIdx);
@@ -226,7 +266,6 @@ namespace Base
         
         BasisFunctionSetT*              defaultSetOfBasisFunctions_;
         //! Collection of additional basis function set, if p-refinement is applied
-        CollectionOfBasisFunctionSets   collBasisFSet_;
         
         //! Active mesh-tree.
         int                             activeMeshTree_;
@@ -240,6 +279,8 @@ namespace Base
         //! Vector faces LevelTree.
         VecOfFaceLevelTreePtrT          vecOfFaceTree_;
     };
+    
+    
 }
 #include "MeshManipulator_Impl.hpp"
 

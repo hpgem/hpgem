@@ -142,7 +142,7 @@ public:
 //        double totalErrorP=0;
 //        for (ElItType it = mesh.pubElCo.begin(); it != mesh.pubElCo.end(); ++it)
 //        {
-//            ElementData& elData = data[it->id()];
+//            ElementData& elData = data[(*it)->id()];
 //            
 //            totalEnergy 	+= 	elData.getEnergy();
 //            totalEnergyEx 	+= 	elData.getExactEnergy();

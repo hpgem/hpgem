@@ -9,7 +9,6 @@ add_executable(RectangularMeshGeneratorUnitTest.out
         RectangularMeshGeneratorUnitTest.cpp
         # Miscellaneous
         ${hpGEM_SOURCE_DIR}/src/Base/AssembleBasisFunctionSet.cpp
-        ${hpGEM_SOURCE_DIR}/src/Base/MeshManipulator.cpp
         ${hpGEM_SOURCE_DIR}/src/Base/L2Norm.cpp
         )
 target_link_libraries(RectangularMeshGeneratorUnitTest.out Geometry QuadratureRules)
@@ -17,11 +16,10 @@ add_test(RectangularMeshGeneratorUnitTest RectangularMeshGeneratorUnitTest.out)
 
 add_executable(CentaurMeshReaderUnitTest.out
         CentaurMeshReaderUnitTest.cpp
-
+        ${hpGEM_SOURCE_DIR}/src/Base/MeshManipulator.cpp
         # Miscellaneous
         ${hpGEM_SOURCE_DIR}/src/Base/AssembleBasisFunctionSet.cpp
         ${hpGEM_SOURCE_DIR}/src/Base/L2Norm.cpp
-        ${hpGEM_SOURCE_DIR}/src/Base/MeshManipulator.cpp
         ${hpGEM_SOURCE_DIR}/src/Output/TecplotPhysicalGeometryIterator.cpp
         )
 target_link_libraries(CentaurMeshReaderUnitTest.out QuadratureRules Geometry)

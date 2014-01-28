@@ -47,13 +47,23 @@ namespace Output
                 const std::string& variableString);
 
         /// Write a zone with data from the current mesh to the stream held by the object.
-        template <class WriteFunctor>
+        template <typename WriteFunctor>
         void write(const Base::MeshManipulator<DIM>* mesh,
                    const std::string& zoneTitle,
                    const bool sameGeometry,
                    WriteFunctor& writeDataFunc
                    );
 
+	/// Write a zone with data from the current mesh to the stream held by the object. (class member write function)
+	/// Has the exact same behaviour as the other write function except it uses OBJ::writeDataFunc() as the write function
+        template <typename OBJ, typename WriteFunction>
+        void write(const Base::MeshManipulator<DIM>* mesh,
+                   const std::string& zoneTitle,
+                   const bool sameGeometry,
+                   WriteFunction& writeDataFunc,
+                   OBJ* objPtr                   
+                   );
+	
         /// TODO: Perfect this deconstructor.
         ~TecplotDiscontinuousSolutionWriter()
         {

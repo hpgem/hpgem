@@ -15,7 +15,6 @@ add_executable(IntegrationUnitTest.out
 
         # Miscellaneous
         ${hpGEM_SOURCE_DIR}/src/Base/AssembleBasisFunctionSet.cpp
-        ${hpGEM_SOURCE_DIR}/src/Base/MeshManipulator.cpp
         ${hpGEM_SOURCE_DIR}/src/Base/L2Norm.cpp
         )
 target_link_libraries(IntegrationUnitTest.out Geometry QuadratureRules Matrix)

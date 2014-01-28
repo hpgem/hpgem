@@ -21,8 +21,8 @@ namespace Geometry
     {
         indexes.resize(3);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
-        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
-        indexes[2] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
+        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,1)];
+        indexes[2] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,2)];
     }
 
     void PhysicalTetrahedron::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const

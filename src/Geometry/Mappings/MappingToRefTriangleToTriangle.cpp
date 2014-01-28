@@ -88,7 +88,7 @@ namespace Geometry
                                                     Geometry::Jacobian<2,2>& jacobian) const
     {
         jacobian(0,0) = -1.0; jacobian(0,1) = -1.0;
-        jacobian(1,0) =  0.0; jacobian(1,1) =  0.0;
+        jacobian(1,0) =  1.0; jacobian(1,1) =  0.0;
     }
 
     MappingToRefTriangleToTriangle2::MappingToRefTriangleToTriangle2() { }

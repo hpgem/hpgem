@@ -34,12 +34,15 @@ namespace Base
             /// Specify a time level index, return a vector containing the data for that time level.
         const LinearAlgebra::Matrix&    getTimeLevelData(unsigned int timeLevel) const;
         
+	/// Specify a time level index, an unknown (as solutionId), set the data for that unknown
+	/// //why is this setter not symmetric with the getter with the same name? -FB
         void                            setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown);
+	void                            setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::Matrix& unknown);
         
             /// Specify a time level index, an unknown and a basis function nr, return data (double)
         double                    getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const;
 
-            /// Specify a time level index, an unknown and a basis function nr, return data (double)
+            /// Specify a time level index, an unknown and a basis function nr, set the data (double)
         void                      setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val);
 
         

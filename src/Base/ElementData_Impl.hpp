@@ -11,7 +11,8 @@ namespace Base
         timeLevels_(timeLevels),
         nrOfUnkowns_(nrOfUnkowns),
         nrOfBasisFunctions_(nrOfBasisFunctions),
-        expansionCoefficients_(timeLevels_)
+        expansionCoefficients_(timeLevels_),
+        userData_(NULL)
     {
         for (typename VectorOfMatrices::iterator cit=expansionCoefficients_.begin(); cit!=expansionCoefficients_.end(); ++cit)
             cit->resize(nrOfUnkowns_, nrOfBasisFunctions);
@@ -84,6 +85,17 @@ namespace Base
         {
             throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
         }
+    }
+    
+    template<unsigned int DIM>
+    void
+    ElementData<DIM>::setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::Matrix& unknown)
+    {
+	if(timeLevel<timeLevels_){
+	    expansionCoefficients_[timeLevel]=LinearAlgebra::Matrix(unknown);
+	}else{
+            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";	    
+	}
     }
     
     template<unsigned int DIM>

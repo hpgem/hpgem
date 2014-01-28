@@ -153,6 +153,14 @@ namespace LinearAlgebra
             }
             return true;
         }
+        
+        bool operator< (const NumericalVector& right) const{
+	    for(int i=0;i<data_.size();++i){
+	        if(data_[i]<right.data_[i]) return true;
+	        if(data_[i]>right.data_[i]) return false;
+	    }
+	    return false;
+	}
 
         NumericalVector& operator+= (const NumericalVector& right){data_+=right.data_; return *this;}
         

@@ -17,14 +17,26 @@ namespace Base
      *  First checks the firstNode index and if this is the same, swap based on the secondNode index.
      *  Therefore in the end that will be sorted based on firstNode and secondly on secondNode.
      !*/
-    bool compareHalfFace(HalfFaceDescription first, HalfFaceDescription second)
-    {
-        if (first.firstNode<second.firstNode) return true;
-        
-        if ((first.secondNode<second.secondNode) && (first.firstNode==second.firstNode)) return true;
-        
-        return false;
+    bool compareHalfFace(HalfFaceDescription first, HalfFaceDescription second){
+        assert(first.nodeList.size()==second.nodeList.size());
+        for(int i=0;i<first.nodeList.size();++i){
+	    if(first.nodeList[i]>second.nodeList[i]){
+	        return true;
+	    }else if(second.nodeList[i]>first.nodeList[i]){
+	        return false;
+	    }
+	}
+	//give a consistent return value
+	return first.elementNum>second.elementNum;
     }
+//     bool compareHalfFace(HalfFaceDescription first, HalfFaceDescription second)
+//     {
+//         if (first.firstNode<second.firstNode) return true;
+//         
+//         if ((first.secondNode<second.secondNode) && (first.firstNode==second.firstNode)) return true;
+//         
+//         return false;
+//     }
         //***********************************************************************************************************************
         //***********************************************************************************************************************
         //***********************************************************************************************************************
