@@ -78,7 +78,7 @@ endif()
 if(hpGEM_INCLUDE_PETSC_SUPPORT)
         enable_language(C)
 	FIND_PACKAGE(PETSc REQUIRED)
-	FIND_PACKAGE(SLEPc REQUIRED)
+	#FIND_PACKAGE(SLEPc REQUIRED)
         if (NOT PETSC_FOUND)
 		message(FATAL_ERROR
 			"The option you have choosen requires PETSc and you do not have this installed. Please install")
