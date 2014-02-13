@@ -40,7 +40,7 @@ namespace Base
      * Linear scalar nodal basis functions, with nodes on the element vertices. They are used to give a consistent 
      * coordinate system for the elements.
      */
-    struct Basis_Curl_Bari : public BaseBasisFunction<3>
+    struct Basis_Curl_Bari : public BaseBasisFunction
     {
         int VertexNr;
         Basis_Curl_Bari(int vertex);
@@ -64,7 +64,7 @@ namespace Base
     /**
      * Base class for 3D vector valued functions
      */
-    struct threeDBasisFunction : public BaseBasisFunction<3>{  
+    struct threeDBasisFunction : public BaseBasisFunction{
       
         //this class has to be derived from basebasisfunctions but we have no use for a scalar eval or the evaluation of a gradient
 	/// Function not supported
@@ -81,7 +81,7 @@ namespace Base
 	 * integral(||exp(ik*x)phi||^2) is approximately integral(||exp(ik*node)phi||^2) for all k,
 	 * but usually a decent guess is returned
 	 */
-	virtual void getReasonableNode(const Element<3>& element, Geometry::PointPhysical<3> node)=0;
+	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical node)=0;
 	
 	/**
 	 * Computes the value of the basis function.
@@ -108,7 +108,7 @@ namespace Base
 
         virtual void evalCurl(const PointReferenceT& p,NumericalVector& ret) const;
 	
-	virtual void getReasonableNode(const Element<3>& element, Geometry::PointPhysical<3> node);
+	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical node);
     };
     
     //! Curl conforming edge based face functions.
@@ -121,7 +121,7 @@ namespace Base
         
         virtual void evalCurl(const PointReferenceT& p, NumericalVector& ret) const;
 	
-	virtual void getReasonableNode(const Element<3>& element, Geometry::PointPhysical<3> node);
+	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical node);
     };
     
     //! Curl conforming face functions.
@@ -134,7 +134,7 @@ namespace Base
 
         virtual void evalCurl(const PointReferenceT& p, NumericalVector& ret) const;
 	
-	virtual void getReasonableNode(const Element<3>& element, Geometry::PointPhysical<3> node);
+	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical node);
     };
     
     //! Curl conforming face based interior functions.
@@ -147,7 +147,7 @@ namespace Base
 
         virtual void evalCurl(const PointReferenceT& p, NumericalVector& ret) const;
 	
-	virtual void getReasonableNode(const Element<3>& element, Geometry::PointPhysical<3> node);
+	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical node);
     };
     
     //! curl conforming interior functions
@@ -160,14 +160,14 @@ namespace Base
 
         virtual void evalCurl(const PointReferenceT& p, NumericalVector& ret) const;
 	
-	virtual void getReasonableNode(const Element<3>& element, Geometry::PointPhysical<3> node);
+	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical node);
     };
 };
 
 /**
  * A small extension to allow overriding \ref createBasisFunctions. (Will probably be redundand in the release version of hpGEM2)
  */
-class MyMeshManipulator : public Base::MeshManipulator <3> {
+class MyMeshManipulator : public Base::MeshManipulator  {
     
 public:
     MyMeshManipulator (const Base::ConfigurationData* data , int order, bool xPer = 0, bool yPer = 0, bool zPer = 0);

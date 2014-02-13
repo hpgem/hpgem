@@ -16,24 +16,23 @@
 
 namespace Base
 {
-    template <unsigned int DIM>
-    class Element: public Geometry::ElementGeometry<DIM>,
-                   public ElementData<DIM>
+    class Element: public Geometry::ElementGeometry,
+                   public ElementData
     {
     public:
-        typedef Geometry::PointPhysical<DIM>                PointPhysicalT;
-        typedef Geometry::PointReference<DIM>               PointReferenceT;
-        typedef Geometry::ReferenceGeometry<DIM>            ReferenceGeometryT;
-        typedef Geometry::MappingReferenceToPhysical<DIM>   MappingReferenceToPhysicalT;
-        typedef Geometry::ElementGeometry<DIM>              ElementGeometryT;
+        typedef Geometry::PointPhysical                PointPhysicalT;
+        typedef Geometry::PointReference               PointReferenceT;
+        typedef Geometry::ReferenceGeometry            ReferenceGeometryT;
+        typedef Geometry::MappingReferenceToPhysical   MappingReferenceToPhysicalT;
+        typedef Geometry::ElementGeometry              ElementGeometryT;
         typedef unsigned int                                PointIndexT;
         typedef unsigned int                                UId;
         typedef std::vector<PointPhysicalT>                 VectorOfPhysicalPointsT;
         typedef std::vector<PointIndexT>                    VectorOfPointIndexesT;
-        typedef Base::ElementCacheData<DIM>                 CacheT;
-        typedef Base::BasisFunctionSet<DIM>                 BasisFunctionSetT;
-        typedef QuadratureRules::GaussQuadratureRule<DIM>   GaussQuadratureRuleT;
-        typedef Base::ElementData<DIM>                      ElementDataT;
+        typedef Base::ElementCacheData                 CacheT;
+        typedef Base::BasisFunctionSet                 BasisFunctionSetT;
+        typedef QuadratureRules::GaussQuadratureRule   GaussQuadratureRuleT;
+        typedef Base::ElementData                      ElementDataT;
         typedef std::vector<CacheT>                         VecCacheT;
         typedef LinearAlgebra::NumericalVector              SolutionVector;
         
@@ -46,7 +45,9 @@ namespace Base
                 unsigned int nrOfUnkowns,
                 unsigned int nrOfTimeLevels,
                 unsigned int nrOfBasisFunc,
-                unsigned int id);
+                unsigned int id,
+                unsigned int numberOfElementMatrices=0,
+                unsigned int numberOfElementVectors=0);
     
         Element(const Element& other);
         
@@ -61,23 +62,28 @@ namespace Base
 
         void                            setGaussQuadratureRule(GaussQuadratureRuleT* const quadR);
 
+        void							setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet);
+
         const GaussQuadratureRuleT*     getGaussQuadratureRule() const;
 
         VecCacheT&                      getVecCacheData();
         
         double                          basisFunction(unsigned int i, const PointReferenceT& p) const;
+
+		///\brief returns the value of the i-th basisfunction at point p in ret
+		void                            basisFunction(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
  
             /// jDir=0 means x, and etc.
         double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
             //unsigned int                    getNumberOfDegreesOfFreedom()const;
             //unsigned int                    getNumberOfDegreesOfFreedom();
         
-	///\brief returns the value of the i-th basisfunction at point p in ret
-	void                            basisFunction(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+        ///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
+        void                           basisFunctionDeriv(unsigned int i,const PointReferenceT& p, NumericalVector& ret) const;
 	
-	///\brief returns the curl of the i-th basisfunction at point p in ret
-	///\TODO other differential operators are not supported
-	void                            basisFunctionCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+		///\brief returns the curl of the i-th basisfunction at point p in ret
+		///\TODO other differential operators are not supported
+		void                            basisFunctionCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
 	
         void                            getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const;
         
@@ -88,7 +94,7 @@ namespace Base
         friend ostream& operator<<(ostream& os, const Element& element)
         {
             os << '(' ;
-            const Geometry::ElementGeometry<DIM>& elemG = static_cast<const Geometry::ElementGeometry<DIM>&>(element);
+            const Geometry::ElementGeometry& elemG = static_cast<const Geometry::ElementGeometry&>(element);
             operator<<(os, elemG);
             os<<endl;
             return os;
@@ -97,12 +103,11 @@ namespace Base
     
     private:
         GaussQuadratureRuleT*                       quadratureRule_;
-        const BasisFunctionSetT* const              basisFunctionSet_;
+        const BasisFunctionSetT*                    basisFunctionSet_;
         VecCacheT                                   vecCacheData_;
         UId                                         id_;
         double                                      orderCoeff_;
     };
 }
-#include "Element_Impl.hpp"
 
 #endif

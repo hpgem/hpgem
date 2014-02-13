@@ -26,6 +26,7 @@ configure_file(conf/CMakeDefinitions.conf
 
 option(hpGEM_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 option(hpGEM_INCLUDE_PETSC_SUPPORT "Include PETSC this is required for GlobalAssemble" OFF)
+option(hpGEM_INCLUDE_SLEPC_SUPPORT "Include SLEPC this is needed for some applications" OFF)
 if(hpGEM_BUILD_DOCUMENTATION)
     FIND_PACKAGE(Doxygen)
     if (NOT DOXYGEN_FOUND)
@@ -78,7 +79,7 @@ endif()
 if(hpGEM_INCLUDE_PETSC_SUPPORT)
         enable_language(C)
 	FIND_PACKAGE(PETSc REQUIRED)
-	FIND_PACKAGE(SLEPc REQUIRED)
+	#FIND_PACKAGE(SLEPc REQUIRED)
         if (NOT PETSC_FOUND)
 		message(FATAL_ERROR
 			"The option you have choosen requires PETSc and you do not have this installed. Please install")
@@ -89,3 +90,18 @@ if(hpGEM_INCLUDE_PETSC_SUPPORT)
 
 #endif PETSc required
 endif()
+
+if(hpGEM_INCLUDE_SLEPC_SUPPORT)
+        enable_language(C)
+        if(NOT hpGEM_INCLUDE_PETSC_SUPPORT)
+               message(FATAL_ERROR
+                       "SLEPc depends on PETSc, please also enable PETSc support")
+        endif()
+        FIND_PACKAGE(SLEPc REQUIRED)
+        if(NOT SLEPC_FOUND)
+               message(FATAL_ERROR
+                       "The option you have chosen requires SLEPc and you do not have this installed. Please install")
+        endif()
+endif()
+
+

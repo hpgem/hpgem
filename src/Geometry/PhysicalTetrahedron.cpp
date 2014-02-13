@@ -13,7 +13,7 @@ namespace Geometry
         const VectorOfPointIndexesT& globalNodeIndexes,
         const VectorOfPhysicalPointsT& nodes,
         const ReferenceCube* const cube) :
-        PhysicalGeometry<3>(globalNodeIndexes,nodes, cube)
+        PhysicalGeometry(globalNodeIndexes,nodes, cube)
     {
     }
 

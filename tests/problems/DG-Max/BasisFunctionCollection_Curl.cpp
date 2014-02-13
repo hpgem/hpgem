@@ -36,13 +36,13 @@ double Base::LegendrePolynomialDerivative(int degree, double x){
     }
 }
 
-Base::Basis_Curl_Bari::Basis_Curl_Bari(int vertex):BaseBasisFunction< 3  >(),VertexNr(vertex){}
-double Base::Basis_Curl_Bari::eval(const Base::BaseBasisFunction< 3 >::PointReferenceT& p) const       { return (VertexNr==0)?(1-p[0]-p[1]-p[2]):(p[VertexNr-1]); }
-double Base::Basis_Curl_Bari::evalDeriv0(const Base::BaseBasisFunction< 3 >::PointReferenceT& p) const { return (VertexNr==1)-(VertexNr==0); }
-double Base::Basis_Curl_Bari::evalDeriv1(const Base::BaseBasisFunction< 3 >::PointReferenceT& p) const { return (VertexNr==2)-(VertexNr==0); }
-double Base::Basis_Curl_Bari::evalDeriv2(const Base::BaseBasisFunction< 3 >::PointReferenceT& p) const { return (VertexNr==3)-(VertexNr==0); }
+Base::Basis_Curl_Bari::Basis_Curl_Bari(int vertex):BaseBasisFunction(),VertexNr(vertex){}
+double Base::Basis_Curl_Bari::eval(const Base::BaseBasisFunction::PointReferenceT& p) const       { return (VertexNr==0)?(1-p[0]-p[1]-p[2]):(p[VertexNr-1]); }
+double Base::Basis_Curl_Bari::evalDeriv0(const Base::BaseBasisFunction::PointReferenceT& p) const { return (VertexNr==1)-(VertexNr==0); }
+double Base::Basis_Curl_Bari::evalDeriv1(const Base::BaseBasisFunction::PointReferenceT& p) const { return (VertexNr==2)-(VertexNr==0); }
+double Base::Basis_Curl_Bari::evalDeriv2(const Base::BaseBasisFunction::PointReferenceT& p) const { return (VertexNr==3)-(VertexNr==0); }
 
-void Base::Basis_Curl_Bari::evalDeriv(const Base::BaseBasisFunction< 3 >::PointReferenceT& p, NumericalVector& ret){
+void Base::Basis_Curl_Bari::evalDeriv(const Base::BaseBasisFunction::PointReferenceT& p, NumericalVector& ret){
     ret.resize(3);
     if(VertexNr==0){
 	ret[0]=-1;ret[1]=-1;ret[2]=-1;
@@ -55,14 +55,14 @@ void Base::Basis_Curl_Bari::evalDeriv(const Base::BaseBasisFunction< 3 >::PointR
 
 Base::Basis_Curl_Bari Base::Basis_Curl_Bari::barycentricFunctions[]={Basis_Curl_Bari(0), Basis_Curl_Bari(1), Basis_Curl_Bari(2), Basis_Curl_Bari(3)};
 
-double Base::threeDBasisFunction::eval(const Base::BaseBasisFunction< 3 >::PointReferenceT& p) const       { std::cout << "This type of basisfunctions expects to return vectors, but the return type of this function expects scalars"; exit(-1); }
-double Base::threeDBasisFunction::evalDeriv0(const Base::BaseBasisFunction< 3 >::PointReferenceT& p) const { std::cout << "The derivative of a vector-function is not implemented. Perhaps you meant evalCurl?"; exit(-1); }
-double Base::threeDBasisFunction::evalDeriv1(const Base::BaseBasisFunction< 3 >::PointReferenceT& p) const { std::cout << "The derivative of a vector-function is not implemented. Perhaps you meant evalCurl?"; exit(-1); }
-double Base::threeDBasisFunction::evalDeriv2(const Base::BaseBasisFunction< 3 >::PointReferenceT& p) const { std::cout << "The derivative of a vector-function is not implemented. Perhaps you meant evalCurl?"; exit(-1); }
+double Base::threeDBasisFunction::eval(const Base::BaseBasisFunction::PointReferenceT& p) const       { std::cout << "This type of basisfunctions expects to return vectors, but the return type of this function expects scalars"; exit(-1); }
+double Base::threeDBasisFunction::evalDeriv0(const Base::BaseBasisFunction::PointReferenceT& p) const { std::cout << "The derivative of a vector-function is not implemented. Perhaps you meant evalCurl?"; exit(-1); }
+double Base::threeDBasisFunction::evalDeriv1(const Base::BaseBasisFunction::PointReferenceT& p) const { std::cout << "The derivative of a vector-function is not implemented. Perhaps you meant evalCurl?"; exit(-1); }
+double Base::threeDBasisFunction::evalDeriv2(const Base::BaseBasisFunction::PointReferenceT& p) const { std::cout << "The derivative of a vector-function is not implemented. Perhaps you meant evalCurl?"; exit(-1); }
 
 Base::Basis_Curl_Edge::Basis_Curl_Edge(int degree, int localFirstVertex, int localSecondVertex):deg(degree),o(localFirstVertex),i(localSecondVertex){}
 
-void Base::Basis_Curl_Edge::eval(const Base::BaseBasisFunction< 3 >::PointReferenceT& p, NumericalVector& ret) const {
+void Base::Basis_Curl_Edge::eval(const Base::BaseBasisFunction::PointReferenceT& p, NumericalVector& ret) const {
     NumericalVector dummy(3);//dummy vectors are used to store parial results
     Basis_Curl_Bari::barycentricFunctions[o].evalDeriv(p,ret);
     Basis_Curl_Bari::barycentricFunctions[i].evalDeriv(p,dummy);
@@ -89,7 +89,7 @@ void Base::Basis_Curl_Edge::eval(const Base::BaseBasisFunction< 3 >::PointRefere
     }
 }
 
-void Base::Basis_Curl_Edge::evalCurl(const Base::BaseBasisFunction< 3 >::PointReferenceT& p, NumericalVector& ret) const {
+void Base::Basis_Curl_Edge::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, NumericalVector& ret) const {
     NumericalVector dummy(3),dummy2(3);
     ret.resize(3);
     switch(deg){
@@ -125,8 +125,8 @@ void Base::Basis_Curl_Edge::evalCurl(const Base::BaseBasisFunction< 3 >::PointRe
     }
 }
 
-void Base::Basis_Curl_Edge::getReasonableNode(const Base::Element< 3 >& element, Geometry::PointPhysical< 3 > node){
-    PointReferenceT leftnode,rightnode;
+void Base::Basis_Curl_Edge::getReasonableNode(const Base::Element& element, Geometry::PointPhysical node){
+    PointReferenceT leftnode(3),rightnode(3);
     element.getReferenceGeometry()->getNode(i,leftnode);
     element.getReferenceGeometry()->getNode(o,rightnode);
     element.referenceToPhysical((leftnode+rightnode)*.5,node);
@@ -145,14 +145,14 @@ Base::Basis_Curl_Edge_Face::Basis_Curl_Edge_Face(int degree, int localOpposingVe
     }
 }
 
-void Base::Basis_Curl_Edge_Face::eval(const Base::BaseBasisFunction< 3 >::PointReferenceT& p, NumericalVector& ret) const {
+void Base::Basis_Curl_Edge_Face::eval(const Base::BaseBasisFunction::PointReferenceT& p, NumericalVector& ret) const {
     Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p,ret);
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)),
 	    valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p));
     ret*=valA*valB*LegendrePolynomial(deg-2,valB-valA);
 }
 
-void Base::Basis_Curl_Edge_Face::evalCurl(const Base::BaseBasisFunction< 3 >::PointReferenceT& p, NumericalVector& ret) const {
+void Base::Basis_Curl_Edge_Face::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, NumericalVector& ret) const {
     NumericalVector dummy(3),dummy2(3),dummy3(3);
     ret.resize(3);
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)),
@@ -167,8 +167,8 @@ void Base::Basis_Curl_Edge_Face::evalCurl(const Base::BaseBasisFunction< 3 >::Po
     ret+=dummy;
 }
 
-void Base::Basis_Curl_Edge_Face::getReasonableNode(const Base::Element< 3 >& element, Geometry::PointPhysical< 3 > node){
-    PointReferenceT leftnode,rightnode;
+void Base::Basis_Curl_Edge_Face::getReasonableNode(const Base::Element& element, Geometry::PointPhysical node){
+    PointReferenceT leftnode(3),rightnode(3);
     element.getReferenceGeometry()->getNode(a,leftnode);
     element.getReferenceGeometry()->getNode(b,rightnode);
     element.referenceToPhysical((leftnode+rightnode)*.5,node);
@@ -197,7 +197,7 @@ Base::Basis_Curl_Face::Basis_Curl_Face(int degree1, int degree2, int localOpposi
     }
 }
 
-void Base::Basis_Curl_Face::eval(const Base::BaseBasisFunction< 3 >::PointReferenceT& p, NumericalVector& ret) const {
+void Base::Basis_Curl_Face::eval(const Base::BaseBasisFunction::PointReferenceT& p, NumericalVector& ret) const {
     ret.resize(3);
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)),
 	    valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p)),
@@ -206,7 +206,7 @@ void Base::Basis_Curl_Face::eval(const Base::BaseBasisFunction< 3 >::PointRefere
     ret*=valA*valB*valC*LegendrePolynomial(deg1,valB-valA)*LegendrePolynomial(deg2,valC-valA);
 }
 
-void Base::Basis_Curl_Face::evalCurl(const Base::BaseBasisFunction< 3 >::PointReferenceT& p, NumericalVector& ret) const {
+void Base::Basis_Curl_Face::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, NumericalVector& ret) const {
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)),
 	    valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p)),
 	    valC(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
@@ -230,8 +230,8 @@ void Base::Basis_Curl_Face::evalCurl(const Base::BaseBasisFunction< 3 >::PointRe
     ret+=dummy3;
 }
 
-void Base::Basis_Curl_Face::getReasonableNode(const Base::Element< 3 >& element, Geometry::PointPhysical< 3 > node){
-    PointReferenceT leftnode,rightnode,Cnode;
+void Base::Basis_Curl_Face::getReasonableNode(const Base::Element& element, Geometry::PointPhysical node){
+    PointReferenceT leftnode(3),rightnode(3),Cnode(3);
     element.getReferenceGeometry()->getNode(a,leftnode);
     element.getReferenceGeometry()->getNode(b,rightnode);
     element.getReferenceGeometry()->getNode(c,Cnode);
@@ -255,7 +255,7 @@ Base::Basis_Curl_Face_interior::Basis_Curl_Face_interior(int degree1, int degree
     }
 }
 
-void Base::Basis_Curl_Face_interior::eval(const Base::BaseBasisFunction< 3 >::PointReferenceT& p, NumericalVector& ret) const {
+void Base::Basis_Curl_Face_interior::eval(const Base::BaseBasisFunction::PointReferenceT& p, NumericalVector& ret) const {
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)),
 	    valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p)),
 	    valC(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
@@ -263,7 +263,7 @@ void Base::Basis_Curl_Face_interior::eval(const Base::BaseBasisFunction< 3 >::Po
     ret*=valA*valB*valC*LegendrePolynomial(deg1,valB-valA)*LegendrePolynomial(deg2,valC-valA);
 }
 
-void Base::Basis_Curl_Face_interior::evalCurl(const Base::BaseBasisFunction< 3 >::PointReferenceT& p, NumericalVector& ret) const {
+void Base::Basis_Curl_Face_interior::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, NumericalVector& ret) const {
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)),
 	    valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p)),
 	    valC(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
@@ -287,8 +287,8 @@ void Base::Basis_Curl_Face_interior::evalCurl(const Base::BaseBasisFunction< 3 >
     ret+=dummy3;
 }
 
-void Base::Basis_Curl_Face_interior::getReasonableNode(const Base::Element< 3 >& element, Geometry::PointPhysical< 3 > node){
-    PointReferenceT leftnode,rightnode,Cnode;
+void Base::Basis_Curl_Face_interior::getReasonableNode(const Base::Element& element, Geometry::PointPhysical node){
+    PointReferenceT leftnode(3),rightnode(3),Cnode(3);
     element.getReferenceGeometry()->getNode(a,leftnode);
     element.getReferenceGeometry()->getNode(b,rightnode);
     element.getReferenceGeometry()->getNode(c,Cnode);
@@ -298,7 +298,7 @@ void Base::Basis_Curl_Face_interior::getReasonableNode(const Base::Element< 3 >&
 
 Base::Basis_Curl_interior::Basis_Curl_interior(int degree1, int degree2, int degree3, int direction):deg1(degree1),deg2(degree2),deg3(degree3),direction(direction){}
                 
-void Base::Basis_Curl_interior::eval(const Base::BaseBasisFunction< 3 >::PointReferenceT& p, NumericalVector& ret) const {
+void Base::Basis_Curl_interior::eval(const Base::BaseBasisFunction::PointReferenceT& p, NumericalVector& ret) const {
     ret.resize(3);
     ret[0]=0;ret[1]=0;ret[2]=0;ret[direction-1]=1;
     double val0(Basis_Curl_Bari::barycentricFunctions[0].eval(p)),
@@ -308,7 +308,7 @@ void Base::Basis_Curl_interior::eval(const Base::BaseBasisFunction< 3 >::PointRe
     ret*=val0*val1*val2*val3*LegendrePolynomial(deg1,val1-val0)*LegendrePolynomial(deg2,val2-val0)*LegendrePolynomial(deg3,val3-val0);
 }
 
-void Base::Basis_Curl_interior::evalCurl(const Base::BaseBasisFunction< 3 >::PointReferenceT& p, NumericalVector& ret) const {
+void Base::Basis_Curl_interior::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, NumericalVector& ret) const {
     double val0(Basis_Curl_Bari::barycentricFunctions[0].eval(p)),
 	    val1(Basis_Curl_Bari::barycentricFunctions[1].eval(p)),
 	    val2(Basis_Curl_Bari::barycentricFunctions[2].eval(p)),
@@ -339,19 +339,19 @@ void Base::Basis_Curl_interior::evalCurl(const Base::BaseBasisFunction< 3 >::Poi
     ret+=dummy3;
 }
 
-void Base::Basis_Curl_interior::getReasonableNode(const Base::Element< 3 >& element, Geometry::PointPhysical< 3 > node){
-    PointReferenceT center;
+void Base::Basis_Curl_interior::getReasonableNode(const Base::Element& element, Geometry::PointPhysical node){
+    PointReferenceT center(3);
     element.getReferenceGeometry()->getCenter(center);
     element.referenceToPhysical(center,node);
 }
 
 
-MyMeshManipulator::MyMeshManipulator(const Base::ConfigurationData* data, int order, bool xPer, bool yPer, bool zPer):Base::MeshManipulator<3>(data,xPer,yPer,zPer,order,1){
+MyMeshManipulator::MyMeshManipulator(const Base::ConfigurationData* data, int order, bool xPer, bool yPer, bool zPer):Base::MeshManipulator(data,xPer,yPer,zPer,order){
     createBasisFunctions(order);
 }
 
 void MyMeshManipulator::createBasisFunctions(unsigned int order){
-    Base::BasisFunctionSet<3>* bFset = new Base::BasisFunctionSet<3>(order);
+    Base::BasisFunctionSet* bFset = new Base::BasisFunctionSet(order);
     for(int p=0;p<=order;++p){
 	//constructor takes first the degree of the function then the two vertices on the edge
 	bFset->addBasisFunction(new Base::Basis_Curl_Edge(p,0,1));
@@ -408,5 +408,5 @@ void MyMeshManipulator::createBasisFunctions(unsigned int order){
 	    }
 	}
     }
-    collBasisFSet_.push_back(bFset);
+    setDefaultBasisFunctionSet(bFset);
 }

@@ -1,7 +1,140 @@
 #include "fillMatrices.hpp"
 #include "BaseExtended.hpp"
 
-void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
+/**
+ * this is where you choose the solution of your problem
+ * this will only have an effect on the accuracy of your error estimates
+ * as a temporary solution remember to also update the exact solution in DG-Max.cpp
+ */
+void matrixFiller::initialExactSolution(const PointPhysicalT& p, NumericalVector &ret){
+	 ret[0]=sin(M_PI*2*p[1])*sin(M_PI*2*p[2]);
+	 ret[1]=sin(M_PI*2*p[2])*sin(M_PI*2*p[0]);
+	 ret[2]=sin(M_PI*2*p[0])*sin(M_PI*2*p[1]);
+//        ret[0]=sin(M_PI*p[1])*sin(M_PI*p[2]);
+//        ret[1]=sin(M_PI*p[2])*sin(M_PI*p[0]);
+//        ret[2]=sin(M_PI*p[0])*sin(M_PI*p[1]);
+//            ret[0]=p[0]*(1-p[0]);
+//            ret[1]=0;
+// 	  		  ret[2]=0;
+}
+
+/**
+ * Computes element contributions to the stiffness matrix i.e. (nabla x phi_i) * (nabla x phi_j)
+ * returns the contibutions at this gauss point to the entire element matrix in one go
+ */
+void matrixFiller::elementIntegrand(const ElementT* element, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
+	//cout<<"\nIn the element integrand for the stiffness matrix for element id: "<<element->getID();
+	ret.resize(element->getNrOfBasisFunctions(),element->getNrOfBasisFunctions());
+	ElementInfos* info = static_cast<ElementInfos*> (const_cast<ElementT*>(element)->getUserData());
+	NumericalVector phi_i(3),phi_j(3);
+	std::vector<NumericalVector> functionCurls;
+	info->makeFunctionCurlsVector(element,p,functionCurls);
+	for(int i=0;i<element->getNrOfBasisFunctions();++i){
+		phi_i=functionCurls[i];
+		for(int j=i;j<element->getNrOfBasisFunctions();++j){
+		phi_j=functionCurls[j];
+		ret(i,j)=phi_i[0]*phi_j[0]+phi_i[1]*phi_j[1]+phi_i[2]*phi_j[2];
+			ret(j,i)=ret(i,j);
+		}
+	}
+}
+
+void matrixFiller::elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
+	ret.resize(element->getNrOfBasisFunctions());
+	ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
+	PointPhysicalT pPhys(3);
+	element->referenceToPhysical(p,pPhys);
+	NumericalVector val(3),phi(3);
+	std::vector<NumericalVector> functionValues;
+	info->makeFunctionValuesVector(element,p,functionValues);
+	sourceTerm(pPhys,val);
+	for(int i=0; i<element->getNrOfBasisFunctions(); ++i) {
+	phi=functionValues[i];
+	ret(i)=phi[0]*val[0]+phi[1]*val[1]+phi[2]*val[2];
+	}
+}
+
+/**
+ * Computes the bits of the face contributions that are only used in the IP method
+ * i.e. eta_F( (n x phi_i) * (n x phi_j) )
+ * returns the contibutions at this gauss point to the entire face matrix in one go
+ */
+void matrixFillerIP::faceIntegrand(const FaceT* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
+	//cout<<"\nIn the face integrand for the stiffness matrix (IP-only part) for element id: "<<face->getPtrElementLeft()->getID();
+	ElementT* right;
+	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
+	ElementInfos* leftInfo = static_cast<ElementInfos*> (left->getUserData());
+	ElementInfos* rightInfo;
+	PointElementReferenceT pLeft(3),pRight(3);
+	face->mapRefFaceToRefElemL(p,pLeft);
+	std::vector<NumericalVector> leftValues,rightValues;
+	leftInfo->makeFunctionValuesVector(left,pLeft,leftValues);
+	NumericalVector normedNormal(3);
+	normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
+	normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
+	normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
+	int leftSize=left->getNrOfBasisFunctions();
+	int dimension=left->getNrOfBasisFunctions();
+	NumericalVector phi_i(3),phi_j(3),dummy(3);
+	if(face->isInternal()){
+		//cout<<" and element id: "<<face->getPtrElementRight()->getID();
+		right=const_cast<ElementT*>(face->getPtrElementRight());
+		face->mapRefFaceToRefElemR(p,pRight);
+		rightInfo = static_cast<ElementInfos*> (right->getUserData());
+		dimension+=right->getNrOfBasisFunctions();
+		rightInfo->makeFunctionValuesVector(right,pRight,rightValues);
+	}
+	ret.resize(dimension,dimension);
+	for(int i=0;i<dimension;++i){
+		if(i<leftSize){
+			dummy=leftValues[i];
+		}else{
+			dummy=rightValues[i-leftSize];
+		dummy*=-1;
+		}
+		OuterProduct(normedNormal,dummy,phi_i);
+		for(int j=i;j<dimension;++j){
+		if(j<leftSize){
+			dummy=leftValues[j];
+		}else{
+			dummy=rightValues[j-leftSize];
+			dummy*=-1;
+		}
+		OuterProduct(normedNormal,dummy,phi_j);
+		ret(i,j)=stabCoeff_*(phi_i[0]*phi_j[0]+phi_i[1]*phi_j[1]+phi_i[2]*phi_j[2]);
+			ret(j,i)=ret(i,j);
+		}
+	}
+}
+
+void matrixFillerIP::faceIntegrand(const Base::Face* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
+	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
+	ElementInfos* info = static_cast<ElementInfos*>(left->getUserData());
+	ret.resize(left->getNrOfBasisFunctions());
+	Geometry::PointReference PLeft(3);
+	face->mapRefFaceToRefElemL(p,PLeft);
+	std::vector<NumericalVector> functionValues,functionCurls;
+	info->makeFunctionValuesVector(left,PLeft,functionValues);
+	info->makeFunctionCurlsVector(left,PLeft,functionCurls);
+	PointPhysicalT PPhys(3);
+	left->referenceToPhysical(PLeft,PPhys);
+	NumericalVector normedNormal(3);
+	normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
+	normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
+	normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
+	NumericalVector val(3),phi(3),phi_curl(3),dummy(3);
+	boundaryConditions(PPhys,dummy);//assumes the initial conditions and the boundary conditions match
+	OuterProduct(normedNormal,dummy,val);
+	for(int i=0; i<left->getNrOfBasisFunctions(); ++i) {
+	dummy=functionValues[i];
+	phi_curl=functionCurls[i];
+	OuterProduct(normedNormal,dummy,phi);
+	ret(i)=-(phi_curl[0]*val[0]+phi_curl[1]*val[1]+phi_curl[2]*val[2])+
+		  stabCoeff_*(phi[0]*val[0]+phi[1]*val[1]+phi[2]*val[2]);
+	}
+}
+
+void matrixFillerIP::fillMatrixes(hpGemUIExtentions* matrixContainer){
         time_t oldTime,newTime;
 	time(&oldTime);
         cout<<"using an IP-DG method with penalty parameter "<<matrixContainer->getData()->StabCoeff_<<endl;
@@ -33,20 +166,21 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
 
         //once it is finished this code should make use of the global assembly interface
         LinearAlgebra::Matrix matrix(1,1);
-        PetscScalar tempComplexArray[4*matrixContainer->getConfigData()->numberOfBasisFunctions_*matrixContainer->getConfigData()->numberOfBasisFunctions_];
-        hpGemUIExtentions<3>::ElementFunction elF = &hpGemUIExtentions<3>::elementMassIntegrand;
-        Integration::ElementIntegral<3> elIntegral(false);
+        LinearAlgebra::NumericalVector vector(1);
+        PetscScalar *tempComplexArray= new PetscScalar[4*matrixContainer->getConfigData()->numberOfBasisFunctions_*matrixContainer->getConfigData()->numberOfBasisFunctions_];
+        //hpGemUIExtentions::ElementFunction elF = &hpGemUIExtentions::elementMassIntegrand;
+        Integration::ElementIntegral elIntegral(false);
 	time(&newTime);
 	cout<<"filling the matrices; preparation took "<<difftime(newTime,oldTime)<<" seconds"<<endl;
 	oldTime=newTime;
-        for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-            if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+        for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
+            if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
                 matrix.resize((*it)->getNrOfBasisFunctions(),(*it)->getNrOfBasisFunctions());
-                elIntegral.integrate((*it),elF,matrix,matrixContainer);
+                elIntegral.integrate<Matrix>((*it),matrixContainer,matrix);
                 if(matrixContainer->MHasToBeInverted_) {
                     matrix.inverse(matrix);
                 }
-                int places[]= {(*it)->getID()-1};
+                int places[]= {(*it)->getID()};
                 for(int i=0; i<(*it)->getNrOfBasisFunctions()*(*it)->getNrOfBasisFunctions(); ++i) {
                     tempComplexArray[i]=matrix[i];//the real<->complex conflict should probably be solved in some other way
                 }
@@ -58,35 +192,35 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
 	time(&newTime);
 	cout<<"filling the mass matrix took "<<difftime(newTime,oldTime)<<" seconds"<<endl;
 	oldTime=newTime;                                              
-        elF=&hpGemUIExtentions<3>::elementStiffnessIntegrand;
-        for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-            if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+        //elF=&hpGemUIExtentions::elementStiffnessIntegrand;
+        for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
+            if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
                 matrix.resize((*it)->getNrOfBasisFunctions(),(*it)->getNrOfBasisFunctions());
-                elIntegral.integrate((*it),elF,matrix,matrixContainer);
-                int places[]= {(*it)->getID()-1};
+                elIntegral.integrate<Matrix>((*it),this,matrix);
+                int places[]= {(*it)->getID()};
                 for(int i=0; i<(*it)->getNrOfBasisFunctions()*(*it)->getNrOfBasisFunctions(); ++i) {
                     tempComplexArray[i]=matrix[i];
                 }
                 matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,1,places,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
             }
         }
-        hpGemUIExtentions<3>::FaceFunction faF = &hpGemUIExtentions<3>::faceIntegrand;
-        Integration::FaceIntegral<3> faIntegral(false);
-        for(hpGemUIExtentions<3>::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
+        hpGemUIExtentions::FaceFunction faF = &hpGemUIExtentions::faceIntegrand;
+        Integration::FaceIntegral faIntegral(false);
+        for(hpGemUIExtentions::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
             //faces dont have an ID; pick an arbitrary processor to do the work
-            if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+            if(((*it)->getPtrElementLeft()->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
                 if((*it)->isInternal()) {
                     matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions(),(*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions());
-                    int places[]= {(*it)->getPtrElementLeft()->getID()-1,(*it)->getPtrElementRight()->getID()-1};
-                    faIntegral.integrate(*it,faF,matrix,matrixContainer);
+                    int places[]= {(*it)->getPtrElementLeft()->getID(),(*it)->getPtrElementRight()->getID()};
+                    faIntegral.integrate<Matrix>(*it,matrixContainer,matrix);
                     for(int i=0; i<4*(*it)->getPtrElementLeft()->getNrOfBasisFunctions()*(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
                         tempComplexArray[i]=matrix[i];
                     }
                     matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,2,places,2,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
                 } else {
                     matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(),(*it)->getPtrElementLeft()->getNrOfBasisFunctions());
-                    int places[]= {(*it)->getPtrElementLeft()->getID()-1};
-                    faIntegral.integrate(*it,faF,matrix,matrixContainer);
+                    int places[]= {(*it)->getPtrElementLeft()->getID()};
+                    faIntegral.integrate<Matrix>(*it,matrixContainer,matrix);
                     for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfBasisFunctions()*(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
                         tempComplexArray[i]=matrix[i];
                     }
@@ -94,21 +228,21 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
                 }
             }
         }
-        faF = &hpGemUIExtentions<3>::faceIntegrandIPPart;
-        for(hpGemUIExtentions<3>::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
-            if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+        //faF = &hpGemUIExtentions::faceIntegrandIPPart;
+        for(hpGemUIExtentions::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
+            if(((*it)->getPtrElementLeft()->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
                 if((*it)->isInternal()) {
                     matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions(),(*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions());
-                    int places[]= {(*it)->getPtrElementLeft()->getID()-1,(*it)->getPtrElementRight()->getID()-1};
-                    faIntegral.integrate(*it,faF,matrix,matrixContainer);
+                    int places[]= {(*it)->getPtrElementLeft()->getID(),(*it)->getPtrElementRight()->getID()};
+                    faIntegral.integrate<Matrix>(*it,this,matrix);
                     for(int i=0; i<4*(*it)->getPtrElementLeft()->getNrOfBasisFunctions()*(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
                         tempComplexArray[i]=matrix[i];
                     }
                     matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,2,places,2,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
                 } else {
                     matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(),(*it)->getPtrElementLeft()->getNrOfBasisFunctions());
-                    int places[]= {(*it)->getPtrElementLeft()->getID()-1};
-                    faIntegral.integrate(*it,faF,matrix,matrixContainer);
+                    int places[]= {(*it)->getPtrElementLeft()->getID()};
+                    faIntegral.integrate<Matrix>(*it,this,matrix);
                     for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfBasisFunctions()*(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
                         tempComplexArray[i]=matrix[i];
                     }
@@ -120,55 +254,55 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
 	cout<<"filling the stiffness matrix took "<<difftime(newTime,oldTime)<<" seconds"<<endl;
 	oldTime=newTime;
         matrixContainer->ierr_=MatAssemblyBegin(matrixContainer->S_,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-        elF=&hpGemUIExtentions<3>::sourceTerm;
-        for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-            if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-                matrix.resize((*it)->getNrOfBasisFunctions(),1);
-                elIntegral.integrate((*it),elF,matrix,matrixContainer);
-                int places[]= {(*it)->getID()-1};
+        //elF=&hpGemUIExtentions::sourceTerm;
+        for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
+            if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+                vector.resize((*it)->getNrOfBasisFunctions());
+                elIntegral.integrate<NumericalVector>((*it),this,vector);
+                int places[]= {(*it)->getID()};
                 for(int i=0; i<(*it)->getNrOfBasisFunctions(); ++i) {
-                    tempComplexArray[i]=matrix[i];
+                    tempComplexArray[i]=vector[i];
                 }
                 matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->RHS_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
             }
         }
-        elF=&hpGemUIExtentions<3>::initialConditions;
-        for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-            if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-                matrix.resize((*it)->getNrOfBasisFunctions(),1);
-                elIntegral.integrate((*it),elF,matrix,matrixContainer);
-                int places[]= {(*it)->getID()-1};
+        //elF=&hpGemUIExtentions::initialConditions;
+        for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
+            if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+                vector.resize((*it)->getNrOfBasisFunctions());
+                elIntegral.integrate<NumericalVector>((*it),matrixContainer,vector);
+                int places[]= {(*it)->getID()};
                 for(int i=0; i<(*it)->getNrOfBasisFunctions(); ++i) {
-                    tempComplexArray[i]=matrix[i];
+                    tempComplexArray[i]=vector[i];
                 }
                 matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->x_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
             }
         }
         matrixContainer->ierr_=VecAssemblyBegin(matrixContainer->x_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-        elF=&hpGemUIExtentions<3>::initialConditionsDeriv;
-        for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-            if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-                matrix.resize((*it)->getNrOfBasisFunctions(),1);
-                elIntegral.integrate((*it),elF,matrix,matrixContainer);
-                int places[]= {(*it)->getID()-1};
+        /*elF=&hpGemUIExtentions::initialConditionsDeriv;
+        for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
+            if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+                vector.resize((*it)->getNrOfBasisFunctions());
+                elIntegral.integrate((*it),elF,vector,matrixContainer);
+                int places[]= {(*it)->getID()};
                 for(int i=0; i<(*it)->getNrOfBasisFunctions(); ++i) {
                     tempComplexArray[i]=matrix[i];
                 }
                 matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->derivative_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
             }
         }
-        matrixContainer->ierr_=VecAssemblyBegin(matrixContainer->derivative_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-        faF = &hpGemUIExtentions<3>::sourceTermBoundaryIP;
-        for(hpGemUIExtentions<3>::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
-            if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+        matrixContainer->ierr_=VecAssemblyBegin(matrixContainer->derivative_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);*/
+        //faF = &hpGemUIExtentions::sourceTermBoundaryIP;
+        for(hpGemUIExtentions::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
+            if(((*it)->getPtrElementLeft()->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
                 if((*it)->isInternal()) {
                     //internal faces dont produce boundary contributions to the RHS
                 } else {
-                    matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(),1);
-                    int places[]= {(*it)->getPtrElementLeft()->getID()-1};
-                    faIntegral.integrate(*it,faF,matrix,matrixContainer);
+                    vector.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions());
+                    int places[]= {(*it)->getPtrElementLeft()->getID()};
+                    faIntegral.integrate<NumericalVector>(*it,this,vector);
                     for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
-                        tempComplexArray[i]=matrix[i];
+                        tempComplexArray[i]=vector[i];
                     }
                     matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->RHS_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
                 }
@@ -187,10 +321,86 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
         matrixContainer->ierr_=VecAssemblyEnd(matrixContainer->RHS_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 	time(&newTime);
 	cout<<"communication took "<<difftime(newTime,oldTime)<<" extra seconds"<<endl;
-
+    delete[] tempComplexArray;
 }
 
-void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
+/**
+ * Computes the bits of the face contributions that are only used in the BR formulation
+ * more accurately only returns phi_i * (n x phi_j) the matrix product should be done elsewhere
+ * returns the contibutions at this gauss point to the entire face matrix in one go
+ */
+void matrixFillerBR::faceIntegrand(const FaceT* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, Matrix& ret){
+	//cout<<"\nIn the face integrand for the stiffness matrix (BR-only part) for element id: "<<face->getPtrElementLeft()->getID();
+	ElementT* right;
+	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
+	ElementInfos* leftInfo = static_cast<ElementInfos*> (left->getUserData());
+	ElementInfos* rightInfo;
+	PointElementReferenceT pLeft(3),pRight(3);
+	double localepsilon;
+	face->mapRefFaceToRefElemL(p,pLeft);
+	std::vector<NumericalVector> leftValues,rightValues;
+	leftInfo->makeFunctionValuesVector(left,pLeft,leftValues);
+	NumericalVector normedNormal(3);
+	normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
+	normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
+	normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
+	int leftSize=left->getNrOfBasisFunctions();
+	int dimension=left->getNrOfBasisFunctions();
+	NumericalVector phi_i(3),phi_j(3),dummy(3);
+	if(face->isInternal()){
+		//cout<<" and element id: "<<face->getPtrElementRight()->getID();
+		right=const_cast<ElementT*>(face->getPtrElementRight());
+		face->mapRefFaceToRefElemR(p,pRight);
+		rightInfo = static_cast<ElementInfos*> (right->getUserData());
+		dimension+=right->getNrOfBasisFunctions();
+		rightInfo->makeFunctionValuesVector(right,pRight,rightValues);
+	}
+	ret.resize(dimension,dimension);
+	for(int i=0;i<dimension;++i){
+		if(i<leftSize){
+			phi_i=leftValues[i];
+		localepsilon=leftInfo->epsilon_;
+		}else{
+			phi_i=rightValues[i-leftSize];
+		localepsilon=rightInfo->epsilon_;
+		}
+		for(int j=0;j<dimension;++j){
+		if(j<leftSize){
+			dummy=leftValues[j];
+		}else{
+			dummy=rightValues[j-leftSize];
+			dummy*=-1;
+		}
+		OuterProduct(normedNormal,dummy,phi_j);
+		ret(j,i)=(face->isInternal()?1:2)*(phi_i[0]*phi_j[0]+phi_i[1]*phi_j[1]+phi_i[2]*phi_j[2])*sqrt(localepsilon);
+		}
+	}
+}
+
+void matrixFillerBR::faceIntegrand(const Base::Face* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
+	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
+	ElementInfos* info = static_cast<ElementInfos*>(left->getUserData());
+	ret.resize(left->getNrOfBasisFunctions());
+	PointElementReferenceT PLeft(3);
+	face->mapRefFaceToRefElemL(p,PLeft);
+	std::vector<NumericalVector> functionValues;
+	info->makeFunctionValuesVector(left,PLeft,functionValues);
+	PointPhysicalT PPhys(3);
+	left->referenceToPhysical(PLeft,PPhys);
+	NumericalVector normedNormal(3);
+	normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
+	normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
+	normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
+	NumericalVector val(3),dummy(3),phi(3);
+	boundaryConditions(PPhys,dummy);
+	OuterProduct(normedNormal,dummy,val);
+	for(int i=0; i<left->getNrOfBasisFunctions(); ++i) {
+	phi=functionValues[i];
+	ret(i)=2*(phi[0]*val[0]+phi[1]*val[1]+phi[2]*val[2]);
+	}
+}
+
+void matrixFillerBR::fillMatrixes(hpGemUIExtentions* matrixContainer){
     time_t oldTime,newTime;
     time(&oldTime);
     cout<<"using a Brezzi-flux with penalty parameter "<<matrixContainer->getData()->StabCoeff_<<endl;
@@ -219,20 +429,21 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
     matrixContainer->ierr_=MatSetUp(matrixContainer->M_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
     matrixContainer->ierr_=MatSetUp(matrixContainer->S_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
     LinearAlgebra::Matrix matrix(1,1);
-    hpGemUIExtentions<3>::ElementFunction elF = &hpGemUIExtentions<3>::elementMassIntegrand;
-    PetscScalar tempComplexArray[4*matrixContainer->getConfigData()->numberOfBasisFunctions_*matrixContainer->getConfigData()->numberOfBasisFunctions_];
-    Integration::ElementIntegral<3> elIntegral(false);
+    LinearAlgebra::NumericalVector vector(1);
+    //hpGemUIExtentions::ElementFunction elF = &hpGemUIExtentions::elementMassIntegrand;
+    PetscScalar *tempComplexArray=new PetscScalar[4*matrixContainer->getConfigData()->numberOfBasisFunctions_*matrixContainer->getConfigData()->numberOfBasisFunctions_];
+    Integration::ElementIntegral elIntegral(false);
     time(&newTime);
     cout<<"preparation took "<<difftime(newTime,oldTime)<<" seconds"<<endl;
     oldTime=newTime;
-    for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-//	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+    for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
+//	if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
 	    matrix.resize((*it)->getNrOfBasisFunctions(),(*it)->getNrOfBasisFunctions());
-	    elIntegral.integrate((*it),elF,matrix,matrixContainer);
+	    elIntegral.integrate<Matrix>((*it),matrixContainer,matrix);
 	    if(matrixContainer->MHasToBeInverted_) {
 		matrix.inverse(matrix);
 	    }
-	    int places[]= {(*it)->getID()-1};
+	    int places[]= {(*it)->getID()};
 	    for(int i=0; i<(*it)->getNrOfBasisFunctions()*(*it)->getNrOfBasisFunctions(); ++i) {
 		tempComplexArray[i]=matrix[i];
 	    }
@@ -244,34 +455,34 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
     oldTime=newTime;
     //we are done filling M. PETSc may start assembling M in the background
     matrixContainer->ierr_=MatAssemblyBegin(matrixContainer->M_,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-    elF=&hpGemUIExtentions<3>::elementStiffnessIntegrand;
-    for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-//	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+    //elF=&hpGemUIExtentions::elementStiffnessIntegrand;
+    for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
+//	if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
 	    matrix.resize((*it)->getNrOfBasisFunctions(),(*it)->getNrOfBasisFunctions());
-	    elIntegral.integrate((*it),elF,matrix,matrixContainer);
-	    int places[]= {(*it)->getID()-1};
+	    elIntegral.integrate<Matrix>((*it),this,matrix);
+	    int places[]= {(*it)->getID()};
 	    for(int i=0; i<(*it)->getNrOfBasisFunctions()*(*it)->getNrOfBasisFunctions(); ++i) {
 		tempComplexArray[i]=matrix[i];
 	    }
 	    matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,1,places,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 //	}
     }
-    hpGemUIExtentions<3>::FaceFunction faF = &hpGemUIExtentions<3>::faceIntegrand;
-    Integration::FaceIntegral<3> faIntegral(false);
-    for(hpGemUIExtentions<3>::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
-//	if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+    hpGemUIExtentions::FaceFunction faF = &hpGemUIExtentions::faceIntegrand;
+    Integration::FaceIntegral faIntegral(false);
+    for(hpGemUIExtentions::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
+//	if(((*it)->getPtrElementLeft()->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
 	    if((*it)->isInternal()) {
 		matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions(),(*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions());
-		int places[]= {(*it)->getPtrElementLeft()->getID()-1,(*it)->getPtrElementRight()->getID()-1};
-		faIntegral.integrate(*it,faF,matrix,matrixContainer);
+		int places[]= {(*it)->getPtrElementLeft()->getID(),(*it)->getPtrElementRight()->getID()};
+		faIntegral.integrate<Matrix>(*it,matrixContainer,matrix);
 		for(int i=0; i<4*(*it)->getPtrElementLeft()->getNrOfBasisFunctions()*(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
 		    tempComplexArray[i]=matrix[i];
 		}
 		matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,2,places,2,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 	    } else {
 		matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(),(*it)->getPtrElementLeft()->getNrOfBasisFunctions());
-		int places[]= {(*it)->getPtrElementLeft()->getID()-1};
-		faIntegral.integrate(*it,faF,matrix,matrixContainer);
+		int places[]= {(*it)->getPtrElementLeft()->getID()};
+		faIntegral.integrate<Matrix>(*it,matrixContainer,matrix);
 		for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfBasisFunctions()*(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
 		    tempComplexArray[i]=matrix[i];
 		}
@@ -290,40 +501,24 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
     matrixContainer->ierr_=MatSetUp(DBoundary);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
     int localnElements;
     int dimension,skip(0);
-    faF = &hpGemUIExtentions<3>::faceIntegrandBRPart;
-    for(hpGemUIExtentions<3>::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
-	int placesBlocked[]= {(*it)->getPtrElementLeft()->getID()-1,-1};
+    //faF = &hpGemUIExtentions::faceIntegrandBRPart;
+    for(hpGemUIExtentions::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
+	int placesBlocked[]= {(*it)->getPtrElementLeft()->getID(),-1};
 	if((*it)->isInternal()) {
 	    localnElements=2;
 	    dimension=(*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions();
-	    placesBlocked[1]=(*it)->getPtrElementRight()->getID()-1;
+	    placesBlocked[1]=(*it)->getPtrElementRight()->getID();
 	} else {
 	    localnElements=1;
 	    dimension=(*it)->getPtrElementLeft()->getNrOfBasisFunctions();
 	}
 
-	//PETSc likes to have only unique values in an IS when loacing from a submatrix so create some unique bogus
-	//in the parts that are not needed
-//	if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)!=localProcessorNumber) {
-// 	    int temp1=placesBlocked[0];
-// 	    placesBlocked[0]=4*localProcessorNumber;
-// 	    while(temp1==placesBlocked[0]||placesBlocked[1]==placesBlocked[0]) {
-// 		placesBlocked[0]++;
-// 		placesBlocked[0]%=numberOfElements;
-// 	    }
-// 	    int temp2=placesBlocked[1];
-// 	    placesBlocked[1]=placesBlocked[0]+1;
-// 	    while(temp1==placesBlocked[1]||temp2==placesBlocked[1]) {
-// 		placesBlocked[1]++;
-// 		placesBlocked[1]%=numberOfElements;
-// 	    }
-// //	}
 	IS ISplaces;
 	matrixContainer->ierr_=ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfBasisFunctions(),localnElements,placesBlocked,PETSC_COPY_VALUES,&ISplaces);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 	matrixContainer->ierr_=MatGetSubMatrix(matrixContainer->M_,ISplaces,ISplaces,MAT_INITIAL_MATRIX,&MLocal);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-//	if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+//	if(((*it)->getPtrElementLeft()->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
 	    matrix.resize(dimension,dimension);
-	    faIntegral.integrate(*it,faF,matrix,matrixContainer);
+	    faIntegral.integrate<Matrix>(*it,this,matrix);
 	    for(int i=0; i<dimension*dimension; ++i) {
 		tempComplexArray[i]=matrix[i];
 	    }
@@ -378,11 +573,11 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
 		matrixContainer->ierr_=VecSetSizes(DRHS,PETSC_DECIDE,dimension);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 		matrixContainer->ierr_=VecSetUp(DRHS);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 		matrixContainer->ierr_=VecDuplicate(DRHS,&dummy3);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-		faF = &hpGemUIExtentions<3>::sourceTermBoundaryBR;
-		matrix.resize(dimension,1);
-		faIntegral.integrate(*it,faF,matrix,matrixContainer);
+		//faF = &hpGemUIExtentions::sourceTermBoundaryBR;
+		vector.resize(dimension);
+		faIntegral.integrate<NumericalVector>(*it,this,vector);
 		for(int i=0; i<dimension; ++i) {
-		    tempComplexArray[i]=matrix[i];
+		    tempComplexArray[i]=vector[i];
 		}
 		matrixContainer->ierr_=VecSetValues(DRHS,dimension,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 		matrixContainer->ierr_=VecAssemblyBegin(DRHS);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
@@ -395,7 +590,7 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
 		matrixContainer->ierr_=VecRestoreArrayRead(dummy3,&arrayLoc);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 		matrixContainer->ierr_=VecDestroy(&DRHS);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 		matrixContainer->ierr_=VecDestroy(&dummy3);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-		faF = &hpGemUIExtentions<3>::faceIntegrandBRPart;
+		//faF = &hpGemUIExtentions::faceIntegrandBRPart;
 	    }
 	    matrixContainer->ierr_=MatConvert(dummy2,"seqdense",MAT_REUSE_MATRIX,&dummy2);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 	    PetscScalar* arrayLoc;
@@ -411,56 +606,56 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
     time(&newTime);
     cout<<"filling the stiffness matrix took "<<difftime(newTime,oldTime)<<" seconds"<<endl;
     oldTime=newTime;
-    elF=&hpGemUIExtentions<3>::sourceTerm;
-    for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-//	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-	    matrix.resize((*it)->getNrOfBasisFunctions(),1);
-	    elIntegral.integrate((*it),elF,matrix,matrixContainer);
-	    int places[]= {(*it)->getID()-1};
+    //elF=&hpGemUIExtentions::sourceTerm;
+    for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
+//	if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+	    vector.resize((*it)->getNrOfBasisFunctions());
+	    elIntegral.integrate<NumericalVector>((*it),this,vector);
+	    int places[]= {(*it)->getID()};
 	    for(int i=0; i<(*it)->getNrOfBasisFunctions(); ++i) {
-		tempComplexArray[i]=matrix[i];
+		tempComplexArray[i]=vector[i];
 	    }
 	    matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->RHS_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 //	}
     }
     matrixContainer->ierr_=MatAssemblyBegin(matrixContainer->S_,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-    elF=&hpGemUIExtentions<3>::initialConditions;
-    for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-//	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-	    matrix.resize((*it)->getNrOfBasisFunctions(),1);
-	    elIntegral.integrate((*it),elF,matrix,matrixContainer);
-	    int places[]= {(*it)->getID()-1};
+    //elF=&hpGemUIExtentions::initialConditions;
+    for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
+//	if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+	    vector.resize((*it)->getNrOfBasisFunctions());
+	    elIntegral.integrate<NumericalVector>((*it),matrixContainer,vector);
+	    int places[]= {(*it)->getID()};
 	    for(int i=0; i<(*it)->getNrOfBasisFunctions(); ++i) {
-		tempComplexArray[i]=matrix[i];
+		tempComplexArray[i]=vector[i];
 	    }
 	    matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->x_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 //	}
     }
     matrixContainer->ierr_=VecAssemblyBegin(matrixContainer->x_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-    elF=&hpGemUIExtentions<3>::initialConditionsDeriv;
-    for(hpGemUIExtentions<3>::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
-//	if(((*it)->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
-	    matrix.resize((*it)->getNrOfBasisFunctions(),1);
-	    elIntegral.integrate((*it),elF,matrix,matrixContainer);
-	    int places[]= {(*it)->getID()-1};
+    /*elF=&hpGemUIExtentions::initialConditionsDeriv;
+    for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
+//	if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+	    vector.resize((*it)->getNrOfBasisFunctions());
+	    elIntegral.integrate((*it),elF,vector,matrixContainer);
+	    int places[]= {(*it)->getID()};
 	    for(int i=0; i<(*it)->getNrOfBasisFunctions(); ++i) {
 		tempComplexArray[i]=matrix[i];
 	    }
 	    matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->derivative_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 //	}
     }
-    matrixContainer->ierr_=VecAssemblyBegin(matrixContainer->derivative_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-    faF = &hpGemUIExtentions<3>::sourceTermBoundary;
-    for(hpGemUIExtentions<3>::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it){
-//	if(((*it)->getPtrElementLeft()->getID()-1)/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
+    matrixContainer->ierr_=VecAssemblyBegin(matrixContainer->derivative_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);*/
+    //faF = &hpGemUIExtentions::sourceTermBoundary;
+    for(hpGemUIExtentions::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it){
+//	if(((*it)->getPtrElementLeft()->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
 	    if((*it)->isInternal()) {
 		//internal faces have no boundary contributions
 	    } else {
-		matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(),1);
-		int places[]= {(*it)->getPtrElementLeft()->getID()-1};
-		faIntegral.integrate(*it,faF,matrix,matrixContainer);
+		vector.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions());
+		int places[]= {(*it)->getPtrElementLeft()->getID()};
+		faIntegral.integrate<NumericalVector>(*it,matrixContainer,vector);
 		for(int i=0; i<(*it)->getPtrElementLeft()->getNrOfBasisFunctions(); ++i) {
-		    tempComplexArray[i]=matrix[i];
+		    tempComplexArray[i]=vector[i];
 		}
 		matrixContainer->ierr_=VecSetValuesBlocked(matrixContainer->RHS_,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 	    }
@@ -479,4 +674,5 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions< 3 >* matrixContainer){
     matrixContainer->ierr_=MatDestroy(&DBoundary);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
     time(&newTime);
     cout<<"communication took "<<difftime(newTime,oldTime)<<" extra seconds"<<endl;
+    delete[] tempComplexArray;
 }

@@ -171,7 +171,7 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
 		OuterProduct(deltakLocal[1],deltakLocal[2],reciprocalk[0]);
 		OuterProduct(deltakLocal[2],deltakLocal[0],reciprocalk[1]);
 		
-		localResult=Base::L2Norm<3>(reciprocalk[0]*deltaOmega[0]+reciprocalk[1]*deltaOmega[1]+reciprocalk[2]*deltaOmega[2]);
+		localResult=Base::L2Norm(reciprocalk[0]*deltaOmega[0]+reciprocalk[1]*deltaOmega[1]+reciprocalk[2]*deltaOmega[2]);
 		localResult=fabs(reciprocalk[0][0]*deltakLocal[0][0]+reciprocalk[0][1]*deltakLocal[0][1]+reciprocalk[0][2]*deltakLocal[0][2])/localResult;
 	      
 		//find the three corners of the intersection
@@ -188,7 +188,7 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
 		}
 		
 		//and compute the local contribution to the DOS
-		localResult*=Base::L2Norm<3>(area)/6;
+		localResult*=Base::L2Norm(area)/6;
 		
 		localFunctionValue*=localResult;
 	    }else if(kpointsWithHigherOmega.size()==2){
@@ -203,7 +203,7 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
 		OuterProduct(deltakLocal[1],deltakLocal[2],reciprocalk[0]);
 		OuterProduct(deltakLocal[2],deltakLocal[0],reciprocalk[1]);
 		
-		localResult=Base::L2Norm<3>(reciprocalk[0]*deltaOmega[0]+reciprocalk[1]*deltaOmega[1]+reciprocalk[2]*deltaOmega[2]);
+		localResult=Base::L2Norm(reciprocalk[0]*deltaOmega[0]+reciprocalk[1]*deltaOmega[1]+reciprocalk[2]*deltaOmega[2]);
 		localResult=fabs(reciprocalk[0][0]*deltakLocal[0][0]+reciprocalk[0][1]*deltakLocal[0][1]+reciprocalk[0][2]*deltakLocal[0][2])/localResult;
 		
 		//find the four corners of the intersection
@@ -222,9 +222,9 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
 		
 		//split the quadrilateral in triangles so the barycentre is a bit easier to find when the LDOS is computed
 		OuterProduct(corner[1]-corner[0],corner[2]-corner[0],area);
-		NumericalVector temp=Base::L2Norm<3>(area)*(f[0]+f[1]+f[2])*localResult/6;
+		NumericalVector temp=Base::L2Norm(area)*(f[0]+f[1]+f[2])*localResult/6;
 		OuterProduct(corner[2]-corner[1],corner[3]-corner[1],area);
-		localResult*=(Base::L2Norm<3>(area))/6;
+		localResult*=(Base::L2Norm(area))/6;
 		localFunctionValue=(f[1]+f[2]+f[3])*localResult;
 		localFunctionValue+=temp;
 	    }else if(kpointsWithHigherOmega.size()==3){
@@ -237,7 +237,7 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
 		OuterProduct(deltakLocal[1],deltakLocal[2],reciprocalk[0]);
 		OuterProduct(deltakLocal[2],deltakLocal[0],reciprocalk[1]);
 		
-		localResult=Base::L2Norm<3>(reciprocalk[0]*deltaOmega[0]+reciprocalk[1]*deltaOmega[1]+reciprocalk[2]*deltaOmega[2]);
+		localResult=Base::L2Norm(reciprocalk[0]*deltaOmega[0]+reciprocalk[1]*deltaOmega[1]+reciprocalk[2]*deltaOmega[2]);
 		localResult=fabs(reciprocalk[0][0]*deltakLocal[0][0]+reciprocalk[0][1]*deltakLocal[0][1]+reciprocalk[0][2]*deltakLocal[0][2])/localResult;
 		
 		//find the three corners of the intersection
@@ -254,7 +254,7 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
 		}
 		
 		//and compute the local contribution to the DOS
-		localResult*=Base::L2Norm<3>(area)/6;
+		localResult*=Base::L2Norm(area)/6;
 		
 		localFunctionValue*=localResult;
 	    }//else there is no intersection so contribution 0 for this element

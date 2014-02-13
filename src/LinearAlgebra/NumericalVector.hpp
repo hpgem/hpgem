@@ -44,7 +44,7 @@ namespace LinearAlgebra
         
         //NumericalVector(double* array, int size) : data_(array,size){}
         
-        NumericalVector(double array[], int size) : data_(array,size){}
+        NumericalVector(const double array[], int size) : data_(array,size){}
         
         void resize(unsigned int size) { data_.resize(size); }
 
@@ -110,6 +110,18 @@ namespace LinearAlgebra
             return result;
         }
         
+        double operator* (const NumericalVector& right) const
+		{
+        	///\TODO replace with BLAS (I dont know where to find them)
+        	if(this->size()!=right.size())
+        		throw "vector \\cdot vector product only defined for vectors of the same sizes";
+        	double result(0);
+        	for(int i=0;i<right.size();++i){
+        		result+=data_[i]*right[i];
+        	}
+        	return result;
+		}
+
         NumericalVector& operator/= (const double& right)
         {
             data_/=right;

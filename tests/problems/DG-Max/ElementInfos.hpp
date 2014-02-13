@@ -7,7 +7,7 @@
 #include "Base/Element.hpp"
 #include "Base/Face.hpp"
 #include "BasisFunctionCollection_Curl.hpp"
-typedef Geometry::PointReference<3> PointElementReferenceT;
+typedef Geometry::PointReference PointElementReferenceT;
 #if __cplusplus<=199711L
 #include "map"
 typedef std::map<PointElementReferenceT,std::vector<NumericalVector> > myMap;
@@ -17,7 +17,7 @@ typedef std::unordered_map<PointElementReferenceT,std::vector<NumericalVector> >
 #endif
 
 typedef Base::threeDBasisFunction basisFunctionT;
-typedef Geometry::PointReference<2> PointFaceReferenceT;
+typedef Geometry::PointReference PointFaceReferenceT;
 
 //one there is a default way in hpGEM to configure code without haveing to recompile this and some other things should be grouped in another file
 /**
@@ -40,7 +40,7 @@ struct MaxwellData: public Base::GlobalData{
  * \param [in] orig The matrix to be inverted
  * \param [out] inverse The inverse of the transpose of orig. This may not be the same matrix as orig.
  */
-void InvertAndTranspose(Geometry::Jacobian<3,3>& orig, Geometry::Jacobian<3,3>& inverse);
+void InvertAndTranspose(Geometry::Jacobian& orig, Geometry::Jacobian& inverse);
 
 /**
  * store the basisfunction values for the reference element (i.e. without any transformations) for later reuse
@@ -56,12 +56,12 @@ public:
     /**
      * gets the function values of the function on the reference element
      */
-    static void getFunctionValuesVector(const Base::Element<3>* element, const PointElementReferenceT& point, std::vector<NumericalVector>& values);
+    static void getFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<NumericalVector>& values);
     
     /**
      * gets the curl of the function on the reference element
      */
-    static void getFunctionCurlsVector(const Base::Element<3>* element, const PointElementReferenceT& point, std::vector<NumericalVector>& curls);
+    static void getFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<NumericalVector>& curls);
 };
 
 /**
@@ -71,20 +71,20 @@ public:
 class ElementInfos:public UserElementData{
 public:
     double determinant_;
-    Geometry::Jacobian<3,3> Jacobian_,inverse_;
+    Geometry::Jacobian Jacobian_,inverse_;
     double epsilon_;
     
-    ElementInfos(const Base::Element<3>& element);
+    ElementInfos(const Base::Element& element);
     
     /**
      * gets the basisfunction values on one mantissa from the reference element and transforms them based on the current element
      */
-    void makeFunctionValuesVector(const Base::Element<3>* element, const PointElementReferenceT& point, std::vector<NumericalVector>& values);
+    void makeFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<NumericalVector>& values);
     
     /**
      * gets the curls of the baisfunction values on one mantissa from the reference element and transforms them based on the current element
      */
-    void makeFunctionCurlsVector(const Base::Element<3>* element, const PointElementReferenceT& point, std::vector<NumericalVector>& curls);
+    void makeFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<NumericalVector>& curls);
 };
 
 

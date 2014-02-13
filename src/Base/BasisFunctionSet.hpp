@@ -8,34 +8,33 @@
 
 namespace Base
 {
-    template <unsigned int DIM>
     class BasisFunctionSet
     {
     public:
-        typedef BaseBasisFunction<DIM>              BaseBasisFunctionT;
+        typedef BaseBasisFunction              BaseBasisFunctionT;
         typedef std::vector<BaseBasisFunctionT*>    BaseBasisFunctions;
-        typedef Geometry::PointReference<DIM>       PointReferenceT;
+        typedef Geometry::PointReference       PointReferenceT;
         
     public:
         BasisFunctionSet(unsigned int order);
         
         ~BasisFunctionSet();
         
-        inline unsigned int size() const;
+         unsigned int size() const;
         
-        inline unsigned int getOrder() const;
+         unsigned int getOrder() const;
         
-        inline void         addBasisFunction(BaseBasisFunctionT* bf);
+         void         addBasisFunction(BaseBasisFunctionT* bf);
         
-        inline double       eval(unsigned int i, const PointReferenceT& p) const;
+         double       eval(unsigned int i, const PointReferenceT& p) const;
 	
 	///\brief returns the value of the i-th basisfunction at point p in ret
-	inline void         eval(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+	 void         eval(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
         
-        inline double       evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
+         double       evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
 	
 	///\brief returns the curl of the i-th basisfunction at point p in ret
-	inline void         evalCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+	 void         evalCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
 	
 
     private:
@@ -47,6 +46,5 @@ namespace Base
         BaseBasisFunctions                    vecOfBasisFcn_;
     };
 }
-#include "BasisFunctionSet_Impl.hpp"
 
 #endif

@@ -32,26 +32,25 @@ namespace Geometry
     Element does not change, but rather only (some of) the vertex positions,
     the Mapping can be adjusted to the new layout.*/
 
-    template <unsigned int dimFrom, unsigned int dimTo = dimFrom>
-    class MappingReferenceToPhysical: public MappingInterface<dimFrom,dimTo>
+    class MappingReferenceToPhysical: public MappingInterface
     {
         public:
             /// \bug This is a work around for g++ bug 14258 which is fixed in modern compliers so at some point change back
-            typedef typename MappingInterface<dimFrom,dimTo>::PointToT           PointToT;
-            typedef typename MappingInterface<dimFrom,dimTo>::PointPhysicalT     PointPhysicalT;
-            typedef typename MappingInterface<dimFrom,dimTo>::PointReferenceT    PointReferenceT;
-            typedef typename MappingInterface<dimFrom,dimTo>::JacobianT          JacobianT;
+            typedef typename MappingInterface::PointToT           PointToT;
+            typedef typename MappingInterface::PointPhysicalT     PointPhysicalT;
+            typedef typename MappingInterface::PointReferenceT    PointReferenceT;
+            typedef typename MappingInterface::JacobianT          JacobianT;
 
-            typedef PhysicalGeometry<dimTo>  PhysicalGeometryT;
+            typedef PhysicalGeometry  PhysicalGeometryT;
 
             typedef std::vector<PointPhysicalT>*    VectorOfPointsT;
         
 
         public:
-            MappingReferenceToPhysical(): MappingInterface<dimFrom,dimTo>(){ }
+            MappingReferenceToPhysical(): MappingInterface(){ }
 
             // Sets.
-            void setNodesPtr(VectorOfPointsT* nodes) {nodes_ = nodes;}
+            void setNodesPtr(VectorOfPointsT nodes) {nodes_ = nodes;}
 
             // Methods.
             //! ~OC~ Transform a point from reference space to physical space.
@@ -62,11 +61,9 @@ namespace Geometry
                 {coords = (*nodes_)[index].getCoordinates();}
 
         private:
-            static std::vector<PointPhysical<dimFrom> >* nodes_; /// Pointer to the global node container.
+            static std::vector<PointPhysical >* nodes_; /// Pointer to the global node container.
     };
 
-    template <unsigned int dimFrom, unsigned int dimTo>
-    std::vector<Geometry::PointPhysical<dimFrom> >* MappingReferenceToPhysical<dimFrom, dimTo>::nodes_;
 };
 
 #endif /* REFERENCETOPHYSICALM_H_ */
