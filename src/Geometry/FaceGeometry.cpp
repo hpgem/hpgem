@@ -482,7 +482,7 @@ namespace Geometry {
      returned normal vector.
      </UL> */
     void
-    FaceGeometry::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, PointPhysicalT& v) const
+    FaceGeometry::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, NumericalVector& v) const
     {
     	unsigned int DIM=v.size();
     	if(DIM>1){
@@ -528,7 +528,7 @@ namespace Geometry {
 
     		//but if someone has mirrored the physical line
     		//we also have to also mirror the normal vector
-    		//the face cant be make larger or smaller so
+    		//the face cant be made larger or smaller so
     		//the vector should have length one
 
     		Jacobian j(DIM,DIM);
@@ -539,6 +539,14 @@ namespace Geometry {
     	}
         
         
+    }
+
+    void
+    FaceGeometry::referenceToPhysical(const PointReference& p,PointPhysical& pPhys) const
+    {
+    	PointReference pElement(p.size()+1);
+    	mapRefFaceToRefElemL(p,pElement);
+    	getElementGLeft()->referenceToPhysical(pElement,pPhys);
     }
 
 //-MTJ-start--------------

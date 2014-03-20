@@ -143,14 +143,14 @@ namespace Geometry
 
             // Gets.
             /// Return the pointer to the left element.
-        virtual const ElementGeometryT*           getElementGLeft()            {return leftElementGeom_;}
+        virtual const ElementGeometryT*           getElementGLeft()       const     {return leftElementGeom_;}
             /// Return the pointer to the right element, NULL if inexistent for boundaries.
-        virtual const ElementGeometryT*           getPtrElementGRight()        {return rightElementGeom_;}
+        virtual const ElementGeometryT*           getPtrElementGRight()   const     {return rightElementGeom_;}
 
             /// Return local face number of the face in the left element.
-        virtual unsigned int                localFaceNumberLeft()        {return localFaceNumberLeft_;}
+        virtual unsigned int                localFaceNumberLeft()  const      {return localFaceNumberLeft_;}
             /// Return local face number of the face in the right element.
-        virtual unsigned int                localFaceNumberRight()       {return localFaceNumberRight_;}
+        virtual unsigned int                localFaceNumberRight()   const    {return localFaceNumberRight_;}
 
         virtual FaceType                    getFaceType() const          {return faceType_;}
 
@@ -171,7 +171,7 @@ namespace Geometry
          *  right side. */
         virtual void    mapRefFaceToRefFace(const ReferencePointOnTheFaceT& pIn, ReferencePointOnTheFaceT& pOut) const;
             /// Get a normal at a given RefPoint
-        virtual void    getNormalVector(const ReferencePointOnTheFaceT& pRefFace, PointPhysicalT& v) const;
+        virtual void    getNormalVector(const ReferencePointOnTheFaceT& pRefFace, NumericalVector& v) const;
 
             //! Return a Mapping (not pointer or reference! Ok, wrapped by auto_ptr) /bug why?
         virtual         RefFaceToRefElementMapping refFaceToRefElemMapL() const;
@@ -179,6 +179,9 @@ namespace Geometry
             //! Return a mapping to the right reference element.
         virtual         RefFaceToRefElementMapping refFaceToRefElemMapR() const;
         
+
+        void            referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical)const;
+
 //-MTJ-start--------------
 
         void            copyFromParent(const FaceT& fa);

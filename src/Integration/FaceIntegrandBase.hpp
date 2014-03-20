@@ -20,7 +20,7 @@ namespace Integration
     class FaceIntegrandBase
     {
     public:
-        virtual void faceIntegrand(const Base::Face* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, T& ret) = 0;
+        virtual void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, T& ret) = 0;
     };
 
 };

@@ -21,6 +21,10 @@ namespace QuadratureRules
     const Cn1_5_9& InstantiateCn1_5_9 = Cn1_5_9::Instance();
     
     const C1_7_x& InstantiateC1_7_x = C1_7_x::Instance();
+
+    const C1_9_25& InstantiateC1_9_25 = C1_9_25::Instance();
+
+    const C1_11_36& InstantiateC1_11_36 = C1_11_36::Instance();
         //*************************SQUARE QUADRATURES*****************************
     
     const Cn2_1_1& InstantiateCn2_1_1 = Cn2_1_1::Instance();
@@ -28,8 +32,10 @@ namespace QuadratureRules
     const Cn2_3_4& InstantiateCn2_3_4 = Cn2_3_4::Instance();
     
     const Cn2_5_9& InstantiateCn2_5_9 = Cn2_5_9::Instance();
-    
+
     const C2_7_4& InstantiateC2_7_4 = C2_7_4::Instance();
+    const C2_9_5& InstantiateC2_9_5 = C2_9_5::Instance();
+    const C2_11_6& InstantiateC2_11_6 = C2_11_6::Instance();
         //*************************TRIANGLE QUADRATURES*****************************
     const Tn2_1_1& InstantiateTn2_1_1 = Tn2_1_1::Instance();
     
@@ -57,8 +63,10 @@ namespace QuadratureRules
     const Cn3_3_4& InstantiateCn3_3_4 = Cn3_3_4::Instance();
     
     const Cn3_5_9& InstantiateCn3_5_9 = Cn3_5_9::Instance();
-    
+
     const C3_7_2& InstantiateC3_7_2 = C3_7_2::Instance();
+    const C3_9_2& InstantiateC3_9_2 = C3_9_2::Instance();
+    const C3_11_2& InstantiateC3_11_2 = C3_11_2::Instance();
         //*************************PYRAMID QUADRATURES*****************************
     
     const Pyramid_1_1& InstantiatePyramid_1_1 = Pyramid_1_1::Instance();

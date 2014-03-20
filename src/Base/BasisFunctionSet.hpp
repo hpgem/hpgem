@@ -18,24 +18,25 @@ namespace Base
     public:
         BasisFunctionSet(unsigned int order);
         
-        ~BasisFunctionSet();
+        virtual ~BasisFunctionSet();
         
-         unsigned int size() const;
+         virtual unsigned int size() const;
         
-         unsigned int getOrder() const;
+         virtual unsigned int getOrder() const;
         
-         void         addBasisFunction(BaseBasisFunctionT* bf);
+         virtual void         addBasisFunction(BaseBasisFunctionT* bf);
         
-         double       eval(unsigned int i, const PointReferenceT& p) const;
+         virtual double       eval(unsigned int i, const PointReferenceT& p) const;
 	
 	///\brief returns the value of the i-th basisfunction at point p in ret
-	 void         eval(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+	 virtual void         eval(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
         
-         double       evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
+         virtual double       evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
 	
 	///\brief returns the curl of the i-th basisfunction at point p in ret
-	 void         evalCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+	 virtual void         evalCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
 	
+	    virtual const BaseBasisFunction* operator[](int i) const {return vecOfBasisFcn_[i];}
 
     private:
         BasisFunctionSet();

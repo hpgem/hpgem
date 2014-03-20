@@ -31,13 +31,18 @@ namespace Base
     typename HpgemUI::MeshId
     HpgemUI::addMesh(const RectangularMeshDescriptorT& meshDscr, const MeshType& meshType,int nrOfElementMatrixes, int nrOfElementVectors, int nrOfFaceMatrixes, int nrOfFaceVectors)
     {
-        unsigned int numOfMeshes=meshes_.size();                                  ///\bug will alway set the order of the method to two
-        MeshManipulator* mesh = new MeshManipulator(configData_,meshDscr.boundaryConditions_[0],meshDscr.boundaryConditions_[1],meshDscr.boundaryConditions_[2],2,0,nrOfElementMatrixes,nrOfElementVectors,nrOfFaceMatrixes,nrOfFaceVectors);//
+        unsigned int numOfMeshes=meshes_.size();
+        MeshManipulator* mesh = new MeshManipulator(configData_,meshDscr.boundaryConditions_[0],meshDscr.boundaryConditions_[1],meshDscr.boundaryConditions_[2],configData_->polynomialOrder_,0,nrOfElementMatrixes,nrOfElementVectors,nrOfFaceMatrixes,nrOfFaceVectors);//
         
         if (meshType== RECTANGULAR)
         {   
             mesh->createRectangularMesh(meshDscr.bottomLeft_, meshDscr.topRight_, meshDscr.numElementsInDIM_);
             meshes_.push_back(mesh);
+        }
+        else if (meshType==TRIANGULAR)
+        {
+        	mesh->createTriangularMesh(meshDscr.bottomLeft_,meshDscr.topRight_,meshDscr.numElementsInDIM_);
+        	meshes_.push_back(mesh);
         }
         else
         {

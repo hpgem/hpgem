@@ -28,7 +28,7 @@ typedef Base::threeDBasisFunction basisFunctionT;
 /**
  * This class should provide problem specific information about the maxwell equations. 
  */
-class DomokosProblem : public hpGemUIExtentions
+class DGMax : public hpGemUIExtentions
 {
 private:
 
@@ -40,7 +40,7 @@ private:
 
 public:
 
-    DomokosProblem(int argc,char** argv, MaxwellData* globalConfig, Base::ConfigurationData* elementConfig,matrixFiller* fill):hpGemUIExtentions(argc,argv,globalConfig,elementConfig,fill){}
+    DGMax(int argc,char** argv, MaxwellData* globalConfig, Base::ConfigurationData* elementConfig,matrixFiller* fill):hpGemUIExtentions(argc,argv,globalConfig,elementConfig,fill){}
 
     /**
      * set up the mesh and complete initialisation of the global data and the configuration data
@@ -105,7 +105,7 @@ public:
      * i.e. -.5( (nabla x phi_i) * phi_j + phi_i * (nabla x phi_j) )
      * returns the contibutions at this gauss point to the entire face matrix in one go
      */
-    void faceIntegrand(const FaceT* face, const PointPhysicalT& normal, const PointFaceReferenceT& p, LinearAlgebra::Matrix& ret){	
+    void faceIntegrand(const FaceT* face, const NumericalVector& normal, const PointFaceReferenceT& p, LinearAlgebra::Matrix& ret){
         //cout<<"\nIn the face integrand for the stiffness matrix for element id: "<<face->getPtrElementLeft()->getID();
 		ElementT* right;
 		ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
@@ -259,7 +259,7 @@ int main(int argc,char** argv){
 	exit(1);
     }
     //set up problem and decide flux type
-    DomokosProblem problem(argc-2,&argv[2],new MaxwellData(elements,order),new Base::ConfigurationData(3,1,0,2),new matrixFillerBR(125));
+    DGMax problem(argc-2,&argv[2],new MaxwellData(elements,order),new Base::ConfigurationData(3,1,0,2),new matrixFillerBR(125));
     try{
         problem.initialise();
 	time(&initialised);

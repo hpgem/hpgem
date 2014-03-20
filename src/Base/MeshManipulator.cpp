@@ -4,6 +4,7 @@
 
 #include "Geometry/PhysicalGeometry.hpp"
 #include "Geometry/ReferenceTriangle.hpp"
+#include "Edge.hpp"
 
 //
 //  MeshManipulator.cpp
@@ -17,7 +18,6 @@
 
 namespace Base
 {
-
         /// \brief This is the function that checks if two halfFaces nned to swapped or not.
         /// \details
     /*!
@@ -48,6 +48,9 @@ namespace Base
         //***********************************************************************************************************************
         //***********************************************************************************************************************
 
+    unsigned int MeshManipulator::faceCounter_(0);
+    unsigned int MeshManipulator::edgeCounter_(0);
+
     ///\bug ignores order parameter and creates a set of fixed order
     void
     MeshManipulator::createDefaultBasisFunctions(unsigned int order)
@@ -55,19 +58,75 @@ namespace Base
         Base::BasisFunctionSet* bFset1 = new Base::BasisFunctionSet(order);
         switch(configData_->dimension_){
         case 1:
-        	Base::AssembleBasisFunctionSet_1D_Ord2_A0(*bFset1);
+        	switch(order){
+        	case 1:
+        		Base::AssembleBasisFunctionSet_1D_Ord1_A0(*bFset1);
+        		break;
+        	default:
+        		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
+        	case 2:
+        		Base::AssembleBasisFunctionSet_1D_Ord2_A0(*bFset1);
+        		break;
+        	case 3:
+        		Base::AssembleBasisFunctionSet_1D_Ord3_A0(*bFset1);
+        		break;
+        	case 4:
+        		Base::AssembleBasisFunctionSet_1D_Ord4_A0(*bFset1);
+        		break;
+        	case 5:
+        		Base::AssembleBasisFunctionSet_1D_Ord5_A0(*bFset1);
+        		break;
+        	}
         	break;
         case 2:
-        	Base::AssembleBasisFunctionSet_2D_Ord2_A1(*bFset1);
+        	switch(order){
+        	case 1:
+        		Base::AssembleBasisFunctionSet_2D_Ord1_A1(*bFset1);
+        		break;
+        	default:
+        		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
+        	case 2:
+        		Base::AssembleBasisFunctionSet_2D_Ord2_A1(*bFset1);
+        		break;
+        	case 3:
+        		Base::AssembleBasisFunctionSet_2D_Ord3_A1(*bFset1);
+        		break;
+        	case 4:
+        		Base::AssembleBasisFunctionSet_2D_Ord4_A1(*bFset1);
+        		break;
+        	case 5:
+        		Base::AssembleBasisFunctionSet_2D_Ord5_A1(*bFset1);
+        		break;
+        	}
         	break;
         case 3:
-        	Base::AssembleBasisFunctionSet_3D_Ord2_A1(*bFset1);
+        	switch(order){
+        	case 1:
+        		Base::AssembleBasisFunctionSet_3D_Ord1_A1(*bFset1);
+        		break;
+        	default:
+        		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
+        	case 2:
+        		Base::AssembleBasisFunctionSet_3D_Ord2_A1(*bFset1);
+        		break;
+        	case 3:
+        		Base::AssembleBasisFunctionSet_3D_Ord3_A1(*bFset1);
+        		break;
+        	case 4:
+        		Base::AssembleBasisFunctionSet_3D_Ord4_A1(*bFset1);
+        		break;
+        	case 5:
+        		Base::AssembleBasisFunctionSet_3D_Ord5_A1(*bFset1);
+        		break;
+        	}
         	break;
         default:
         	throw "No basisfunctions exist in this dimension";
         }
-
-        defaultSetOfBasisFunctions_ = bFset1;
+        if(collBasisFSet_.size()==0){
+        	collBasisFSet_.resize(1);
+        }
+        collBasisFSet_[0] = bFset1;
     }
 
     /*template<>
@@ -102,7 +161,7 @@ namespace Base
         periodicX_(xPer),
         periodicY_(yPer),
         periodicZ_(zPer),
-        counter_(idRangeBegin),
+        elementcounter_(idRangeBegin),
         activeMeshTree_(0), 
         numMeshTree_(0),
         numberOfElementMatrixes_(nrOfElementMatrixes),
@@ -122,13 +181,15 @@ namespace Base
                 cout <<"Boundries: " << (periodicZ_? "Periodic ":"Solid Wall")<<" in Z direction"<<endl;
         }
         createDefaultBasisFunctions(orderOfFEM);
+        const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_=collBasisFSet_[0]->size();
+
         createNewMeshTree();
         cout << "******Mesh creation is finished!**********"<<endl;
     }
 
     MeshManipulator::MeshManipulator(const MeshManipulator& other):
                  configData_(other.configData_),
-                 counter_(other.counter_),
+                 elementcounter_(other.elementcounter_),
                  elements_(other.elements_),
                  faces_(other.faces_),
                  points_(other.points_),
@@ -136,7 +197,7 @@ namespace Base
                  periodicY_(other.periodicY_),
                  periodicZ_(other.periodicZ_),
                  meshMover_(other.meshMover_),
-                 defaultSetOfBasisFunctions_(other.defaultSetOfBasisFunctions_),
+                 //defaultSetOfBasisFunctions_(other.defaultSetOfBasisFunctions_),
                  collBasisFSet_(other.collBasisFSet_),
                  activeMeshTree_(other.activeMeshTree_),
                  numMeshTree_(other.numMeshTree_),
@@ -160,12 +221,12 @@ namespace Base
         
         for (typename CollectionOfBasisFunctionSets::iterator bit=collBasisFSet_.begin(); bit!=collBasisFSet_.end();++bit)
         {
-            BasisFunctionSetT* bf = *bit;
+            const BasisFunctionSetT* bf = *bit;
             delete bf;
         }
         
         delete meshMover_;
-        delete defaultSetOfBasisFunctions_;
+        //delete defaultSetOfBasisFunctions_;
 
 
         // Kill all elements in all mesh-tree
@@ -179,12 +240,84 @@ namespace Base
     void
     MeshManipulator::setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet)
     {
-    	delete defaultSetOfBasisFunctions_;
-    	defaultSetOfBasisFunctions_=bFSet;
-    	for(ElementIterator it=elementColBegin();it!=elementColEnd();++it){
-    		(*it)->setDefaultBasisFunctionSet(bFSet);
-    	}
+    	delete collBasisFSet_[0];
+    	collBasisFSet_[0]=bFSet;
     	const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_=bFSet->size();
+    	for(Base::Face* face:faces_){
+    		face->setLocalNrOfBasisFunctions(0);
+    	}
+    	for(Base::Edge* edge:edges_){
+    		edge->setLocalNrOfBasisFunctions(0);
+    	}
+    	for(ElementIterator it=elementColBegin();it!=elementColEnd();++it){
+    		(*it)->setDefaultBasisFunctionSet(0);
+    	}
+    }
+
+    void
+    MeshManipulator::addVertexBasisFunctionSet(CollectionOfBasisFunctionSets& bFsets)
+    {
+    	int firstNewEntry=collBasisFSet_.size();
+    	for(CollectionOfBasisFunctionSets::iterator it=bFsets.begin();it!=bFsets.end();++it){
+    		collBasisFSet_.push_back(*it);
+    	}
+    	for(ElementIterator it=elementColBegin();it!=elementColEnd();++it){
+    		for(unsigned int i=0;i<(*it)->getNrOfNodes();++i){
+    			(*it)->setVertexBasisFunctionSet(firstNewEntry+i,i);
+    		}
+    	}
+    	const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_+=(*elementColBegin())->getNrOfNodes()*bFsets[0]->size();
+    }
+
+    void
+    MeshManipulator::addFaceBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets)
+    {
+    	int firstNewEntry=collBasisFSet_.size();
+    	for(const BasisFunctionSet* it:bFsets){
+    		collBasisFSet_.push_back(it);
+    	}
+    	for(Face* face:faces_){
+    		int faceNr=face->localFaceNumberLeft();
+    		for(int i=0;i<bFsets.size();++i){
+    			if(bFsets[i]->checkOrientation(0,faceNr)){
+    				face->getPtrElementLeft()->setFaceBasisFunctionSet(firstNewEntry+i,faceNr);
+    				//cout<<0<<faceNr<<endl;
+    			}
+    		}
+    		if(face->isInternal()){
+    			faceNr=face->localFaceNumberRight();
+    			int orientation=face->getFaceToFaceMapIndex();
+    			for(int i=0;i<bFsets.size();++i){
+    				if(bFsets[i]->checkOrientation(orientation,faceNr)){
+    					face->getPtrElementRight()->setFaceBasisFunctionSet(firstNewEntry+i,faceNr);
+        				//cout<<orientation<<faceNr<<endl;
+    				}
+    			}
+    		}
+    		face->setLocalNrOfBasisFunctions(bFsets[0]->size());
+    	}
+		const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_+=(*elementColBegin())->getPhysicalGeometry()->getNrOfFaces()*bFsets[0]->size();
+    }
+
+    void
+    MeshManipulator::addEdgeBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets)
+    {
+    	int firstNewEntry=collBasisFSet_.size();
+    	for(const BasisFunctionSet* it:bFsets){
+    		collBasisFSet_.push_back(it);
+    	}
+    	for(Edge* edge:edges_){
+    		for(int i=0;i<edge->getNrOfElements();++i){
+    			for(int j=0;j<bFsets.size();++j){
+    				if(bFsets[j]->checkOrientation(edge->getOrientation(i),edge->getEdgeNr(i))){
+    					edge->getElement(i)->setEdgeBasisFunctionSet(firstNewEntry+j,edge->getEdgeNr(i));
+    					//cout<<edge->getOrientation(i)<<edge->getEdgeNr(i)<<bFsets[j]->size()<<endl;
+    				}
+    			}
+    		}
+    		edge->setLocalNrOfBasisFunctions(bFsets[0]->size());
+    	}
+		const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_+=(*elementColBegin())->getPhysicalGeometry()->getNrOfFaces()*bFsets[0]->size();
     }
 
     Base::Element*
@@ -195,11 +328,11 @@ namespace Base
         unsigned int numOfTimeLevels     = configData_->numberOfTimeLevels_;
         unsigned int numOfBasisFunctions = configData_->numberOfBasisFunctions_;
         
-        unsigned int id                 = counter_++;
+        unsigned int id                 = elementcounter_++;
         
         
         
-        ElementT*  myElement = new ElementT(globalNodeIndexes, defaultSetOfBasisFunctions_, points_, numOfUnknowns, numOfTimeLevels, numOfBasisFunctions, id,numberOfElementMatrixes_,numberOfElementVectors_);
+        ElementT*  myElement = new ElementT(globalNodeIndexes, &collBasisFSet_, points_, numOfUnknowns, numOfTimeLevels, numOfBasisFunctions, id,numberOfElementMatrixes_,numberOfElementVectors_);
         
         
             //cout << "Element= "<<*myElement;
@@ -236,17 +369,27 @@ namespace Base
         {
             //std::cout << "{Right Element" << (*rightElementPtr) << " , FaceIndex=" <<rightElementLocalFaceNo<<"}"<<endl;
             
-            Face* face = new Face(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo,numberOfFaceMatrixes_,numberOfFaceVectors_);
+            Face* face = new Face(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo,faceCounter_,numberOfFaceMatrixes_,numberOfFaceVectors_);
             
             faces_.push_back(face);
+            ++faceCounter_;
         }
         else 
         {
             //std::cout << "This is a boundary face" << std::endl;
-            Face* bFace = new Face(leftElementPtr, leftElementLocalFaceNo, faceType,numberOfFaceMatrixes_,numberOfFaceVectors_);
+            Face* bFace = new Face(leftElementPtr, leftElementLocalFaceNo, faceType,faceCounter_,numberOfFaceMatrixes_,numberOfFaceVectors_);
             faces_.push_back(bFace);
+            ++faceCounter_;
         }
         // std::cout << "-----------------------\n";
+    }
+
+    void
+    MeshManipulator::addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs)
+    {
+    	Edge* edge = new Edge(elements,localEdgeNrs,edgeCounter_);
+    	edges_.push_back(edge);
+    	++edgeCounter_;
     }
 
     void 
@@ -278,12 +421,12 @@ namespace Base
     void 
     MeshManipulator::createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const  VectorOfPointIndicesT& linearNoElements)
     {
-    	unsigned int DIM=linearNoElements.size();
-        /*if ( != DIM)
+    	unsigned int DIM=configData_->dimension_;
+        if (linearNoElements.size() != DIM)
         {
             cout << "The number of Linear Intervals has to map the size of the problem and current it does not"<<endl;
             throw(10);
-        }*/
+        }
         ///\TODO replace the consistency check
         //Stage 1 : Precompute some required values;
         ///////
@@ -467,12 +610,12 @@ namespace Base
             else 
             {
                 //Left bounday face
-                cout<<"index1="<<index<<endl;
+                //cout<<"index1="<<index<<endl;
                 addFace(tempElementVector[index],1,NULL,0);
                 
                 //Right boundary face
                 index =index+linearNoElements[0]-1;
-                cout<<"index2="<<index<<endl;
+                //cout<<"index2="<<index<<endl;
                 addFace(tempElementVector[index],2,NULL,0);
             }
         }
@@ -521,14 +664,13 @@ namespace Base
 
     void MeshManipulator::rectangularCreateFaces3D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements)
     {
-        
         unsigned int index;
         //first do the faces in x-direction
-        //counter in z
-        for(int k=0;k<linearNoElements[2];k++)
+        //counter in y
+        for(int j=0;j<linearNoElements[1];j++)
         {
-            //counter in y
-            for (int j=0; j<linearNoElements[1]; j++)
+            //counter in z
+            for (int k=0; k<linearNoElements[2]; k++)
             {
                 //counter in x
                 for (int i=0; i<linearNoElements[0]-1;i++)
@@ -559,8 +701,8 @@ namespace Base
                     addFace(tempElementVector[index],3,NULL,0);
                 } // end boundary cases
                 
-            } // end loop over y
-        } //end loop over z
+            } // end loop over z
+        } //end loop over y
         
         
         //Now do the faces pointing in the y-direction
@@ -577,7 +719,7 @@ namespace Base
                     index=j+i*linearNoElements[0]+k*linearNoElements[0]*linearNoElements[1];
                     addFace(tempElementVector[index],4,tempElementVector[index+linearNoElements[0]],1);
                     
-                }//end loop over x
+                }//end loop over y
                 
                 
                 index=j+k*linearNoElements[0]*linearNoElements[1];
@@ -600,7 +742,7 @@ namespace Base
                     addFace(tempElementVector[index],4,NULL,0);
                 } // end boundary cases
                 
-            } // end loop over y
+            } // end loop over x
         } //end loop over z
         
         //Now finally do the face in the z-direction
@@ -618,7 +760,7 @@ namespace Base
                     index=k+j*linearNoElements[0]+i*linearNoElements[0]*linearNoElements[1];
                     addFace(tempElementVector[index],5,tempElementVector[index+linearNoElements[0]*linearNoElements[1]],0);
                     
-                }//end loop over x
+                }//end loop over z
                 
                 index=k+j*linearNoElements[0];
                 if (periodicZ_==1)
@@ -639,8 +781,8 @@ namespace Base
                 } // end boundary cases
                 
             } // end loop over y
-        } //end loop over z
-        
+        } //end loop over x
+        edgeFactory();
     }
  
 //createTrianglularMesh follows the same structure as createRectangularMesh. Where createRectangularMesh makes rectangular elements, createTrianglularMesh splits the elements into a partition of triangles.
@@ -648,7 +790,7 @@ namespace Base
 void MeshManipulator::createTriangularMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, const VectorOfPointIndicesT& linearNoElements)
 {
     //Stage 0 : Check for required requirements
-    unsigned int DIM=linearNoElements.size();///\todo put back consistency check
+    unsigned int DIM=configData_->dimension_;
     if (linearNoElements.size() != DIM)
     {
 	cout << "The number of Linear Intervals has to map the size of the problem and current it does not" << endl;
@@ -993,121 +1135,131 @@ void MeshManipulator::triangularCreateFaces3D(std::vector<Base::Element*>& tempE
     for (int k = 0; k < linearNoElements[2]; k++)
     {
 	//counter in y
-	for (int j = 0; j < linearNoElements[1]; j++)
-	{
-	    //counter in x
-	    for (int i = 0; i+1 < linearNoElements[0]; i++)
-	    {
-// 	        cout<<"("<<i<<","<<j<<","<<k<<")"<<endl;
-	        //hard-coded number of triangles per rectangle, being able to change a constant is not going to make this easier to change
-		index = 5 * (i + j * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1]);
-		rotate = (i + j + k) % 2;
-		addFace(tempElementVector[index + 2], 3 * rotate,tempElementVector[index + 5], 2 - 2 * rotate);
-		addFace(tempElementVector[index + 1 + 2 * rotate], 1 + 2 * rotate,tempElementVector[index + 6 + 2 * rotate], 2);	
-	    } //end loop over x
-      
-	    index = 5 * (j * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1]);
-	    rotate = (j + k + linearNoElements[0] - 1) % 2;
-	    if (periodicX_ == 1)
-	    {
-		addFace(tempElementVector[index], 2 * ((k + j) % 2),
-		tempElementVector[index + 5 * linearNoElements[0] - 3],3 * rotate);
-		addFace(tempElementVector[index + 3 - 2 * ((k + j) % 2)], 2,
-		tempElementVector[index + 5 * linearNoElements[0] - 4 + 2 * rotate], 1 + 2 * rotate);
-	    }else
-	    {	
-		//Left boundary	
-// 	        cout << "index1=" << index << endl;
-		addFace(tempElementVector[index], 2 * ((k + j) % 2), NULL,0, WALL_BC);
-		addFace(tempElementVector[index + 3 - 2 * ((k + j) % 2)], 2, NULL,0,WALL_BC );
-		//Right boundary face
-		index = index + 5 * linearNoElements[0] - 5;
+		for (int j = 0; j < linearNoElements[1]; j++)
+		{
+			//counter in x
+			for (int i = 0; i+1 < linearNoElements[0]; i++)
+			{
+	// 	        cout<<"("<<i<<","<<j<<","<<k<<")"<<endl;
+				//hard-coded number of triangles per rectangle, being able to change a constant is not going to make this easier to change
+				index = 5 * (i + j * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1]);
+				rotate = (i + j + k) % 2;
+				addFace(tempElementVector[index + 2], 3 * rotate,
+						tempElementVector[index + 5], 2 - 2 * rotate);
+				addFace(tempElementVector[index + 1 + 2 * rotate], 1 + 2 * rotate,
+						tempElementVector[index + 6 + 2 * rotate], 2);
+			} //end loop over x
+
+			index = 5 * (j * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1]);
+			rotate = (j + k + linearNoElements[0] - 1) % 2;
+			if (periodicX_ == 1)
+			{
+				addFace(tempElementVector[index], 2 * ((k + j) % 2),
+						tempElementVector[index + 5 * linearNoElements[0] - 3],3 * rotate);
+				addFace(tempElementVector[index + 3 - 2 * ((k + j) % 2)], 2,
+						tempElementVector[index + 5 * linearNoElements[0] - 4 + 2 * rotate], 1 + 2 * rotate);
+			}else
+			{
+				//Left boundary
+	// 	        cout << "index1=" << index << endl;
+				addFace(tempElementVector[index], 2 * ((k + j) % 2), NULL,0, WALL_BC);
+				addFace(tempElementVector[index + 3 - 2 * ((k + j) % 2)], 2, NULL,0,WALL_BC );
+				//Right boundary face
+				index = index + 5 * linearNoElements[0] - 5;
 //              cout << "index2=" << index << endl;
-		addFace(tempElementVector[index + 2], 3 * rotate, NULL,0,WALL_BC);
-		addFace(tempElementVector[index + 1 + 2 * rotate], 1 + 2 * rotate, NULL, 0,WALL_BC);
-	    } // end boundary cases    
-	} // end loop over y
+				addFace(tempElementVector[index + 2], 3 * rotate, NULL,0,WALL_BC);
+				addFace(tempElementVector[index + 1 + 2 * rotate], 1 + 2 * rotate, NULL, 0,WALL_BC);
+			} // end boundary cases
+		} // end loop over y
     } //end loop over z
     
     //Now do the faces pointing in the y-direction
     //count in z
     for (int k = 0; k < linearNoElements[2]; k++)
     {
-	//counter in x
-	for (int j = 0; j < linearNoElements[0]; j++)
-	{
-	    //counter in y
-	    for (int i = 0; i+1 < linearNoElements[1]; i++)
-	    {
-// 		cout<<"("<<i<<","<<j<<","<<k<<")"<<endl;	      
-		index = 5 * (j + i * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1]);
-		rotate = (i + j + k) % 2;
-		addFace(tempElementVector[index + 1], 3, tempElementVector[index + 5 * linearNoElements[0] + 2 - 2 * rotate], 2 - rotate);
-		addFace(tempElementVector[index + 3], 1, tempElementVector[index + 5 * linearNoElements[0] + 2 * rotate], 1 + rotate);
-	    } //end loop over x
-	  
-	    index = 5 * (j + k * linearNoElements[0] * linearNoElements[1]);
-	    rotate = (j + k) % 2;
-	    if (periodicY_ == 1)
-	    {
-		//cout << "Hmmm this is the problem " << endl;
-// 		cout << index << " , " << index + 5 * (linearNoElements[1] - 1) * linearNoElements[0] << endl;
-		addFace(tempElementVector[index + 2 * rotate], 1 + rotate, tempElementVector[(index + 5 * (linearNoElements[1] - 1) * linearNoElements[0]) + 1], 3);
-		addFace(tempElementVector[index + 2 - 2 * rotate], 2 - rotate, tempElementVector[(index + 5 * (linearNoElements[1] - 1) * linearNoElements[0]) + 3], 1);
-	    }else
-	    {	  
-		//front bounday face	  
-// 		cout << "index1=" << index << endl;
-		addFace(tempElementVector[index + 2 - 2 * rotate], 2 - rotate, NULL,0, WALL_BC);
-		addFace(tempElementVector[index + 2 * rotate], 1 + rotate, NULL,0, WALL_BC);	  
-		//Back boundary face
-		index = index + 5 * (linearNoElements[1] - 1) * linearNoElements[0];
-// 		cout << "index2=" << index << endl;
-		addFace(tempElementVector[index + 1], 3, NULL, 0,WALL_BC);
-		addFace(tempElementVector[index + 3], 1, NULL, 0,WALL_BC);
-	    } // end boundary cases	  
-	} // end loop over y
+		//counter in x
+		for (int j = 0; j < linearNoElements[0]; j++)
+		{
+			//counter in y
+			for (int i = 0; i+1 < linearNoElements[1]; i++)
+			{
+		// 		cout<<"("<<i<<","<<j<<","<<k<<")"<<endl;
+				index = 5 * (j + i * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1]);
+				rotate = (i + j + k) % 2;
+				addFace(tempElementVector[index + 1], 3,
+						tempElementVector[index + 5 * linearNoElements[0] + 2 - 2 * rotate], 2 - rotate);
+				addFace(tempElementVector[index + 3], 1,
+						tempElementVector[index + 5 * linearNoElements[0] + 2 * rotate], 1 + rotate);
+			} //end loop over x
+
+			index = 5 * (j + k * linearNoElements[0] * linearNoElements[1]);
+			rotate = (j + k) % 2;
+			if (periodicY_ == 1)
+			{
+				//cout << "Hmmm this is the problem " << endl;
+		// 		cout << index << " , " << index + 5 * (linearNoElements[1] - 1) * linearNoElements[0] << endl;
+				addFace(tempElementVector[index + 2 * rotate], 1 + rotate,
+						tempElementVector[(index + 5 * (linearNoElements[1] - 1) * linearNoElements[0]) + 1], 3);
+				addFace(tempElementVector[index + 2 - 2 * rotate], 2 - rotate,
+						tempElementVector[(index + 5 * (linearNoElements[1] - 1) * linearNoElements[0]) + 3], 1);
+			}else
+			{
+				//front bounday face
+		// 		cout << "index1=" << index << endl;
+				addFace(tempElementVector[index + 2 - 2 * rotate], 2 - rotate, NULL,0, WALL_BC);
+				addFace(tempElementVector[index + 2 * rotate], 1 + rotate, NULL,0, WALL_BC);
+				//Back boundary face
+				index = index + 5 * (linearNoElements[1] - 1) * linearNoElements[0];
+		// 		cout << "index2=" << index << endl;
+				addFace(tempElementVector[index + 1], 3, NULL, 0,WALL_BC);
+				addFace(tempElementVector[index + 3], 1, NULL, 0,WALL_BC);
+			} // end boundary cases
+		} // end loop over y
     } //end loop over z
   
     //Now do the face in the z-direction
     //count in x direction
     for (int k = 0; k < linearNoElements[0]; k++)
     {
-	//counter in y
-	for (int j = 0; j < linearNoElements[1]; j++)
-	{
-	    //counter in z
-	    for (int i = 0; i +1< linearNoElements[2]; i++)
-	    {
-// 		cout<<"("<<i<<","<<j<<","<<k<<")"<<endl;	      
-		index = 5 * (k + j * linearNoElements[0] + i * linearNoElements[0] * linearNoElements[1]);
-		rotate = (i + j + k) % 2;
-		addFace(tempElementVector[index + 2 - 2 * rotate], 3 - 3 * rotate, tempElementVector[index + 5*linearNoElements[0] * linearNoElements[1] + 2 - 2 * rotate], 2 * rotate);
-		addFace(tempElementVector[index + 3], 3 - rotate, tempElementVector[index + 5*linearNoElements[0] * linearNoElements[1] + 1], 1 + rotate);	  
-	    } //end loop over x
-	  
-	    index = 5 * (k + j * linearNoElements[0]);
-	    rotate = (k + j + linearNoElements[2] - 1) % 2;
-	    if (periodicZ_ == 1)
-	    {
-// 		cout << "This is the final problem " << endl;
-// 		cout << index << " , ";
-// 		cout << index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0] << endl;
-		addFace(tempElementVector[index + 1 + ((j + k) % 2)], 2-2*((j + k) % 2),tempElementVector[index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0] + 2 + rotate], 3 - rotate);
-		addFace(tempElementVector[index + (j + k) % 2], 2 - (j+k)%2 ,tempElementVector[index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0] + 3-3*rotate], 3-3*rotate);
-	    }else
-	    {	  
-		//bottom boundary
-// 		cout << "index1=" << index << endl;
-		addFace(tempElementVector[index+2*((j+k)%2)], 2 - 2*((j+k)%2), NULL,0,WALL_BC );
-		addFace(tempElementVector[index + 1], 2-(j+k)%2, NULL,0, WALL_BC);	  
-		//Top boundary face
-		index = index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0];
-// 		cout << "index2=" << index << endl;
-		addFace(tempElementVector[index + 2 - 2 * rotate], 3 - 3 * rotate, NULL, 0,WALL_BC);
-		addFace(tempElementVector[index + 3], 3 - rotate, NULL, 0,WALL_BC);
-	    } // end boundary cases      
-	} // end loop over y
+		//counter in y
+		for (int j = 0; j < linearNoElements[1]; j++)
+		{
+			//counter in z
+			for (int i = 0; i +1< linearNoElements[2]; i++)
+			{
+		// 		cout<<"("<<i<<","<<j<<","<<k<<")"<<endl;
+				index = 5 * (k + j * linearNoElements[0] + i * linearNoElements[0] * linearNoElements[1]);
+				rotate = (i + j + k) % 2;
+				addFace(tempElementVector[index + 2 - 2 * rotate], 3 - 3 * rotate,
+						tempElementVector[index + 5*linearNoElements[0] * linearNoElements[1] + 2 - 2 * rotate], 2 * rotate);
+				addFace(tempElementVector[index + 3], 3 - rotate,
+						tempElementVector[index + 5*linearNoElements[0] * linearNoElements[1] + 1], 1 + rotate);
+			} //end loop over x
+
+			index = 5 * (k + j * linearNoElements[0]);
+			rotate = (k + j + linearNoElements[2] - 1) % 2;
+			if (periodicZ_ == 1)
+			{
+		// 		cout << "This is the final problem " << endl;
+		// 		cout << index << " , ";
+		// 		cout << index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0] << endl;
+				addFace(tempElementVector[index + 1 + ((j + k) % 2)], 2-2*((j + k) % 2),
+						tempElementVector[index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0] + 2 + rotate], 3 - rotate);
+				addFace(tempElementVector[index + (j + k) % 2], 2 - (j+k)%2 ,
+						tempElementVector[index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0] + 3-3*rotate], 3-3*rotate);
+			}else
+			{
+				//bottom boundary
+		// 		cout << "index1=" << index << endl;
+				addFace(tempElementVector[index+2*((j+k)%2)], 2 - 2*((j+k)%2), NULL,0,WALL_BC );
+				addFace(tempElementVector[index + 1 ], 2-((j+k)%2), NULL,0, WALL_BC);
+				//Top boundary face
+				index = index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0];
+		// 		cout << "index2=" << index << endl;
+				addFace(tempElementVector[index + 2 - 2 * rotate], 3 - 3 * rotate, NULL, 0,WALL_BC);
+				addFace(tempElementVector[index + 3], 3 - rotate, NULL, 0,WALL_BC);
+			} // end boundary cases
+		} // end loop over y
     } //end loop over z
     //Now do the diagonal faces
     //counter in z
@@ -1128,6 +1280,7 @@ void MeshManipulator::triangularCreateFaces3D(std::vector<Base::Element*>& tempE
 	    } //end loop over x
 	} //end loop over y
     } //end loop over z  
+    edgeFactory();
 }
 
 void 
@@ -1975,6 +2128,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 	cout<<"begin constructing internal faces"<<endl;
 	constructInternalFaces(listOfElementsForEachNode,tempElementVector);	
         
+	edgeFactory();
 	
     delete[] boundarFaces;
     }else{
@@ -2123,23 +2277,23 @@ void MeshManipulator::faceFactory()
             //Loop over the faces on the element
             for (int i=0; i<numOfFaces; i++)
             {
-	        halfFace.nodeList.clear();
-		halfFace.nodeList.resize(DIM);
+            	halfFace.nodeList.clear();
+            	halfFace.nodeList.resize(DIM);
                 myPhysicalGeometry->getGlobalFaceNodeIndices(i,globalFaceIndexes);
                 
                 halfFace.elementNum=elementID;
                 halfFace.localFaceIndex=i;
                 //make sure the node numbers in the face description are sorted
-		for(int j=0; j<globalFaceIndexes.size();++j){
-		    while(insertposition<DIM&&halfFace.nodeList[insertposition]<globalFaceIndexes[j]){
-			halfFace.nodeList[insertposition]=halfFace.nodeList[insertposition+1];
-			++insertposition;
-		    }
-		    if(insertposition<=DIM){
-			halfFace.nodeList[insertposition-1]=globalFaceIndexes[j];
-		    }
-		    insertposition=0;
-		}	
+                for(int j=0; j<globalFaceIndexes.size();++j){
+                	while(insertposition<DIM&&halfFace.nodeList[insertposition]<globalFaceIndexes[j]){
+                		halfFace.nodeList[insertposition]=halfFace.nodeList[insertposition+1];
+                		++insertposition;
+                	}
+                	if(insertposition<=DIM){
+                		halfFace.nodeList[insertposition-1]=globalFaceIndexes[j];
+                	}
+                	insertposition=0;
+                }
                 //Make sure the firstNode number is the smaller of the two global node number, required for the sorting.
 //                 if (globalFaceIndexes[0]<globalFaceIndexes[1])
 //                 {
@@ -2210,6 +2364,100 @@ void MeshManipulator::faceFactory()
          }
     cout<<"Total number of Faces: "<<faces_.size()<<endl;
     }
+
+	//the algorithm for the edge factory is based on that of the face factory
+	//with some minor adaptation to account for the fact that there may be
+    //more than two elements per edge
+	///\bug does not do periodic meshes yet
+	void MeshManipulator::edgeFactory()
+	{
+		unsigned int DIM(configData_->dimension_),numberOfEdges(0);
+		//the halfFaceDescription is designed to store partial information for objects that still need to be linked, so it will also work for edges
+		HalfFaceDescription halfEdge;
+
+	    std::list<HalfFaceDescription> halfEdgeList;
+	    VectorOfElementPtrT tempElementVector(elements_.size());
+
+	    VectorOfPointIndicesT globalEdgeIndexes;
+	    int insertposition=0;
+	    unsigned int temp,dummy;
+
+	    for (typename ListOfElementsT::iterator it=elements_.begin(); it !=elements_.end(); ++it)
+		{
+			const Geometry::PhysicalGeometry* const myPhysicalGeometry = (*it)->getPhysicalGeometry();
+			const Geometry::ReferenceGeometry* const myReferenceGeometry = (*it)->getReferenceGeometry();
+			tempElementVector[(*it)->getID()]=&(**it);
+			bool inserted(false);
+
+			numberOfEdges = myReferenceGeometry->getNrOfCodim2Entities();
+
+			//Loop over the edges on the element
+			for (int i=0; i<numberOfEdges; ++i)
+			{
+				halfEdge.nodeList.clear();
+				myReferenceGeometry->getCodim2EntityLocalIndices(i,globalEdgeIndexes);
+				for(int j=0;j<globalEdgeIndexes.size();++j)
+					globalEdgeIndexes[j]=myPhysicalGeometry->getNodeIndex(globalEdgeIndexes[j]);
+
+				halfEdge.elementNum=(*it)->getID();
+				halfEdge.localFaceIndex=i;
+				//make sure the node numbers in the edge description are sorted
+				halfEdge.nodeList.push_back(globalEdgeIndexes[0]);
+				for(int j=1; j<globalEdgeIndexes.size();++j){
+					for(auto iit = halfEdge.nodeList.begin();iit!=halfEdge.nodeList.end();++iit){
+						if(!inserted&&(*iit)>globalEdgeIndexes[j]){
+							halfEdge.nodeList.insert(iit,globalEdgeIndexes[j]);
+							inserted=true;
+						}
+					}
+					if(!inserted){
+						halfEdge.nodeList.push_back(globalEdgeIndexes[j]);
+					}
+					inserted=false;
+				}
+				//Add the halfFace to the list
+				halfEdgeList.push_front(halfEdge);
+			}
+		}
+        halfEdgeList.sort(compareHalfFace);
+        HalfFaceDescription current;
+
+        std::vector<Element*> elements;
+        std::vector<unsigned int> edgeNrs;
+
+        for (typename std::list<HalfFaceDescription>::const_iterator cit=halfEdgeList.begin(); cit !=halfEdgeList.end(); ++cit)
+        {
+            //For the first halfFace just read it in, as we cannot tell if is an internal or external yet.
+            if (elements.empty())
+            {
+            	elements.push_back(tempElementVector[cit->elementNum]);
+            	edgeNrs.push_back(cit->localFaceIndex);
+            	current=*cit;
+            }
+            else
+            {
+                //This edge is not complete yet
+                if ((current.nodeList[0]==cit->nodeList[0]) && (current.nodeList[1]==cit->nodeList[1]))
+                {
+                	elements.push_back(tempElementVector[cit->elementNum]);
+                	edgeNrs.push_back(cit->localFaceIndex);
+                }
+                else //cit point to a new edge
+                {
+                	addEdge(elements,edgeNrs);
+                	elements.clear();
+                	edgeNrs.clear();
+                	elements.push_back(tempElementVector[cit->elementNum]);
+                	edgeNrs.push_back(cit->localFaceIndex);
+                	current=*cit;
+                }
+            }
+        }
+        //dont forget to add the final edge
+    	addEdge(elements,edgeNrs);
+	}
+
+
 
       //---------------------------------------------------------------------
     int MeshManipulator::getNumberOfMeshes() const

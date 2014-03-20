@@ -12,7 +12,7 @@ namespace Geometry
     PhysicalTetrahedron::PhysicalTetrahedron(
         const VectorOfPointIndexesT& globalNodeIndexes,
         const VectorOfPhysicalPointsT& nodes,
-        const ReferenceCube* const cube) :
+        const ReferenceTetrahedron* const cube) :
         PhysicalGeometry(globalNodeIndexes,nodes, cube)
     {
     }

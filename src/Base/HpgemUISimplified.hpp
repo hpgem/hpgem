@@ -30,7 +30,7 @@ namespace Base
         /// needs to create the elements, and they need some basis functions variables.
     public:
 
-        HpgemUISimplified(unsigned int DIMension);
+        HpgemUISimplified(unsigned int DIMension,int polynomialOrder=2);
 
         /// \brief Where the user creates a mesh
         bool virtual initialise()=0;
@@ -41,14 +41,14 @@ namespace Base
         virtual void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)=0;
     
         /// \brief User-defined face integrand
-        virtual void faceIntegrand(const FaceT* face, const PointPhysicalT& normal,
+        virtual void faceIntegrand(const FaceT* face, const NumericalVector& normal,
                                    const PointReferenceT& p,  LinearAlgebra::Matrix& ret)=0;
         
-        virtual void faceIntegrand(const FaceT* face, const PointPhysicalT& normal,
+        virtual void faceIntegrand(const FaceT* face, const NumericalVector& normal,
                 				   const PointReferenceT& p,  LinearAlgebra::NumericalVector& ret)=0;
 
         /// \brief User-defined initial conditions
-        virtual void initialConditions(const PointPhysicalT& p)=0;
+        virtual double initialConditions(const PointPhysicalT& p)=0;
 
         /// \brief Integrates, and other things.
         bool solve();

@@ -83,6 +83,27 @@ namespace Base
         virtual double evalDeriv2(const PointReferenceT& p) const {throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";};
         virtual double evalDeriv3(const PointReferenceT& p) const {throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";};
         virtual void   evalCurl(const PointReferenceT& p, NumericalVector& ret) const {throw "The curl of a scalar valued basisfunction is not implemented. Perhaps you meant evalDeriv?";}
+        virtual void   evalDeriv(const PointReferenceT& p, NumericalVector& ret) const
+        {
+        	for(int i=0;i<ret.size();++i){
+        		switch(i){
+        		case 0:
+        			ret[i]=evalDeriv0(p);
+        			break;
+        		case 1:
+        			ret[i]=evalDeriv1(p);
+        			break;
+        		case 2:
+        			ret[i]=evalDeriv2(p);
+        			break;
+        		case 3:
+        			ret[i]=evalDeriv3(p);
+        			break;
+        		default:
+        			throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";
+        		}
+        	}
+        }
     };
     
 };

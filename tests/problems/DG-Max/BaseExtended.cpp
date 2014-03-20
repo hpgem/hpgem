@@ -30,7 +30,7 @@ void hpGemUIExtentions::elementIntegrand(const Base::HpgemUI::ElementT* element,
     }
 }
 
-void hpGemUIExtentions::faceIntegrand(const Base::HpgemUI::FaceT* face, const Base::HpgemUI::PointPhysicalT& normal, const PointFaceReferenceT& p, NumericalVector& ret) {
+void hpGemUIExtentions::faceIntegrand(const Base::HpgemUI::FaceT* face, const NumericalVector& normal, const PointFaceReferenceT& p, NumericalVector& ret) {
     ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
     ElementInfos* info = static_cast<ElementInfos*>(left->getUserData());
     ret.resize(left->getNrOfBasisFunctions());
@@ -153,7 +153,7 @@ void hpGemUIExtentions::elementIntegrand(const Base::HpgemUI::ElementT* element,
     ret[1]=Base::L2Norm(errorCurl)*Base::L2Norm(errorCurl);
 }
 
-void hpGemUIExtentions::faceIntegrand(const Base::HpgemUI::FaceT* face, const Base::HpgemUI::PointPhysicalT& normal, const PointFaceReferenceT& p, errorData& ret) {
+void hpGemUIExtentions::faceIntegrand(const Base::HpgemUI::FaceT* face, const NumericalVector& normal, const PointFaceReferenceT& p, errorData& ret) {
     ElementT* element=const_cast<ElementT*>(face->getPtrElementLeft());
     ElementInfos* info = static_cast<ElementInfos*>(element->getUserData());
     PointElementReferenceT pElement(3);

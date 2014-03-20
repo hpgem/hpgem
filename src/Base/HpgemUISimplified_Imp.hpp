@@ -5,7 +5,7 @@ namespace Base
 {
     class HpgemUISimplified;
     
-    HpgemUISimplified::HpgemUISimplified(unsigned int DIM):HpgemUI(new GlobalData,new ConfigurationData(DIM,1,11,1)){}
+    HpgemUISimplified::HpgemUISimplified(unsigned int DIM,int polynomialOrder):HpgemUI(new GlobalData,new ConfigurationData(DIM,1,polynomialOrder,1)){}
     
     bool
     HpgemUISimplified::solve()
@@ -42,6 +42,7 @@ namespace Base
         	if((*citFe)->isInternal())
         		n+=(*citFe)->getPtrElementRight()->getNrOfUnknows()*(*citFe)->getPtrElementRight()->getNrOfBasisFunctions();
         	fMatrixData.resize(n,n);
+        	fVectorData.resize(n);
             faceIntegral.integrate<LinearAlgebra::Matrix>((*citFe), this, fMatrixData);
             (*citFe)->setFaceMatrix(fMatrixData);
             faceIntegral.integrate<LinearAlgebra::NumericalVector>((*citFe), this, fVectorData);

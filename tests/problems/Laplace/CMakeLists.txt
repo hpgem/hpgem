@@ -9,7 +9,14 @@ if(hpGEM_INCLUDE_PETSC_SUPPORT)
     
 add_executable(Laplace.out 
 		main.cpp
-		GlobalAssembly.cpp
+		${hpGEM_SOURCE_DIR}/src/Utilities/GlobalMatrix.cpp
+		${hpGEM_SOURCE_DIR}/src/Utilities/GlobalVector.cpp
+		${hpGEM_SOURCE_DIR}/src/Utilities/BasisFunctions1DH1ConformingLine.cpp
+		${hpGEM_SOURCE_DIR}/src/Utilities/BasisFunctions2DH1ConformingSquare.cpp
+		${hpGEM_SOURCE_DIR}/src/Utilities/BasisFunctions2DH1ConformingTriangle.cpp
+		${hpGEM_SOURCE_DIR}/src/Utilities/BasisFunctions3DH1ConformingCube.cpp
+		${hpGEM_SOURCE_DIR}/src/Utilities/BasisFunctions3DH1ConformingTetrahedron.cpp
+		${hpGEM_SOURCE_DIR}/src/Utilities/helperFunctions.cpp
 		
         	${hpGEM_SOURCE_DIR}/src/Base/MeshManipulator.cpp
 		${hpGEM_SOURCE_DIR}/src/Output/TecplotPhysicalGeometryIterator.cpp

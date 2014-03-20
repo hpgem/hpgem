@@ -28,6 +28,6 @@ namespace Geometry
     {
         indexes.resize(2);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
-        indexes[1] = refGeometry_->getLocalNodeIndex(face,0);
+        indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
     }
 }

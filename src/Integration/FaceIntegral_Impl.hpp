@@ -35,7 +35,7 @@ template <class ReturnTrait1>
 
         if (!useCache_)
         {
-            Geometry::PointPhysical Normal(qdrRuleLoc->dimension()+1);
+            LinearAlgebra::NumericalVector Normal(qdrRuleLoc->dimension()+1);
 
                 // first Gauss point
             qdrRuleLoc->getPoint(0, p);

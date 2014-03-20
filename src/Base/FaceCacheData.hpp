@@ -19,7 +19,7 @@ namespace Base
     {
     	FaceCacheData(unsigned int DIM):Normal(DIM){}
       // cache data
-      Geometry::PointPhysical Normal;
+      LinearAlgebra::NumericalVector Normal;
       double L2Normal;
 
       // calculate the cache data

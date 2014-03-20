@@ -211,8 +211,9 @@ HEuler::elementIntegrand(const ElementT* element, const PointReferenceT& p, Elem
     
     for (unsigned int i=0; i < numberOfDegreesOfFreedom; ++i)
     {
-        Utilities::PhysGradientOfBasisFunction obj(element, i);
-        obj(p, grads);
+    	element->basisFunctionDeriv(i,p,grads);
+        //Utilities::PhysGradientOfBasisFunction obj(element, i);
+        //obj(p, grads);
         
         for (unsigned int j=0; j < numberOfDegreesOfFreedom; ++j)
         {
@@ -224,7 +225,7 @@ HEuler::elementIntegrand(const ElementT* element, const PointReferenceT& p, Elem
 }
 
 void
-HEuler::faceIntegrand(const FaceT* face,          const PointPhysicalT& normal,
+HEuler::faceIntegrand(const FaceT* face,          const NumericalVector& normal,
                    const PointReferenceOnTheFaceT& p,  FluxData& ret)
 {
     if (face->isInternal())
@@ -805,8 +806,8 @@ HEuler::createIncompressibleSystem()
         //
         //
     FluxData fData(nb);
-    typedef void  (HEuler::*FaceIntegrand)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
-    FaceIntegrand faceInteg = &HEuler::faceIntegrand;
+    //typedef void  (HEuler::*FaceIntegrand)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
+    //FaceIntegrand faceInteg = &HEuler::faceIntegrand;
     FaceIntegralT   faceIntegral(useCache);
     
 
@@ -1285,8 +1286,8 @@ HEuler::createCompressibleSystem()
         //
         //
     FluxData fData(nb);
-    typedef void  (HEuler::*FaceIntegrand)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
-    FaceIntegrand faceInteg = &HEuler::faceIntegrand;
+    //typedef void  (HEuler::*FaceIntegrand)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
+    //FaceIntegrand faceInteg = &HEuler::faceIntegrand;
     FaceIntegralT   faceIntegral(useCache);
     
     for (ConstFaceIterator citFe = faceColBegin(); citFe != faceColEnd(); ++citFe)
@@ -1546,7 +1547,7 @@ HEuler::initialConditions()
         LinearAlgebra::Matrix& massMatrix = elemData->massMatrix_;
         LinearAlgebra::Matrix& invMassM   = elemData->invMassMatrix_;
         
-        elIntegral.integrate(elem, this, massMatrix);
+        elIntegral.integrate<LinearAlgebra::Matrix>(elem, this, massMatrix);
      
         massMatrix.inverse(invMassM);
         

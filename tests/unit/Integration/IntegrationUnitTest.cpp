@@ -23,7 +23,7 @@ class MyFaceIntegrandType : public Integration::FaceIntegrandBase<LinearAlgebra:
 {
 public:
 
-    void faceIntegrand(const Base::Face* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+    void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
     {
         //ret[0] = p[0];
         //ret[1] = p[1];
@@ -46,7 +46,7 @@ int main()
     numElementsOneD[0] = 2;
     numElementsOneD[1] = 2;
 
-    Base::ConfigurationData config(1,1,1);
+    Base::ConfigurationData config(dim,1,1,1);
     
     config.numberOfUnknowns_       = 1;
     config.numberOfTimeLevels_     = 1;

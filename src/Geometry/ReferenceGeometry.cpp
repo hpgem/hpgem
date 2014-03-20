@@ -32,5 +32,29 @@ namespace Geometry
     {
         
     }
+
+    double
+    ReferenceGeometry::getBasisFunctionValue(const Base::BaseBasisFunction* function,const PointReference& p)
+    {//really needs unordered_map
+    /*	try{
+    		return basisfunctionValues_[function].at(p);
+    	}catch(std::out_of_range&){
+    		basisfunctionValues_[function][p]=function->eval(p);
+    		return basisfunctionValues_[function].at(p);
+    	}*/
+    	return function->eval(p);
+    }
+
+    void
+    ReferenceGeometry::getBasisFunctionDerivative(const Base::BaseBasisFunction* function,const PointReference& p, NumericalVector& ret)
+    {
+    //	try{
+    //		ret=basisfunctionDerivatives_[function].at(p);
+    //	}catch(std::out_of_range&){
+    //		basisfunctionDerivatives_[function][p].resize(ret.size());
+    		function->evalDeriv(p,ret);
+    //		basisfunctionDerivatives_[function].at(p)=ret;
+    //	}
+    }
 };
 #endif

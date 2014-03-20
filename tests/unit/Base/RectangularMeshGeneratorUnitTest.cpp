@@ -63,7 +63,7 @@ int main()
     
     //Now 3D test
     {
-        Base::ConfigurationData config(1,1,1);
+        Base::ConfigurationData config(3,1,1,1);
             //
             //        config.numberOfUnknowns_       = 1;
             //        config.numberOfTimeLevels_     = 1;

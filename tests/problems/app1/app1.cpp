@@ -64,8 +64,7 @@ public:
         
         for (unsigned int i=0; i < numberOfDegreesOfFreedom; ++i)
         {
-            Utilities::PhysGradientOfBasisFunction obj(element, i);
-            obj(p, grads);
+            element->basisFunctionDeriv(i,p,grads);
             
             ret(i,0) = sol(i) * grads[i];
             
@@ -93,7 +92,7 @@ public:
     
     }
     
-    void initialConditions(const PointPhysicalT& p){}
+    double initialConditions(const PointPhysicalT& p){return 0;}
     
     void output()
     {

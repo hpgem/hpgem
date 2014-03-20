@@ -124,7 +124,7 @@ struct HEulerConfigurationData: public ConfigurationData
     enum  SolutionType 		{INCOMPRESSIBLE_WALLS, INCOMPRESSIBLE_ONETHIRDPERIODIC, INCOMPRESSIBLE_PERIODIC, COMPRESSIBLE_WALLS, COMPRESSIBLE_PERIODIC};
 
     HEulerConfigurationData(unsigned int numberOfUnknowns, unsigned int numberOfBasisFunctions, unsigned int  numberOfTimeLevels=1, const string& fileName="in.txt", SolutionType type=COMPRESSIBLE_PERIODIC):
-        ConfigurationData(3,numberOfUnknowns, numberOfBasisFunctions, numberOfTimeLevels=1),
+        ConfigurationData(3,numberOfUnknowns, 2, numberOfTimeLevels=1),
         solutionType_(type)
     {
             /// reading from a file
@@ -186,7 +186,7 @@ public:
     
     void elementIntegrand(const ElementT* element, const PointReferenceT& p, ElementIntegralData& returnObject);
     
-    void faceIntegrand(const FaceT* face,          const PointPhysicalT& normal,
+    void faceIntegrand(const FaceT* face,          const NumericalVector& normal,
                        const PointReferenceOnTheFaceT& p,  FluxData& ret);
     
     void createCompressibleSystem();

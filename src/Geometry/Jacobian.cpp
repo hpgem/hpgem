@@ -15,7 +15,7 @@ namespace Geometry
     }
 
     void
-    Jacobian::computeWedgeStuffVector(PhysicalPointT& p)const
+    Jacobian::computeWedgeStuffVector(NumericalVector& p)const
     {
         NumericalVector&      v((NumericalVector&)p);
         

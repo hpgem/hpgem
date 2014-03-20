@@ -119,7 +119,7 @@ namespace Geometry
 				return new Geometry::PhysicalQuadrilateral(globalNodeIndexes, nodes, static_cast<const ReferenceSquare* const>(geo));
     		}else if(nodes[0].size()==3){
 	//            std::cout <<"I am a tetrahedron" << std::endl;
-				return new Geometry::PhysicalTetrahedron(globalNodeIndexes, nodes, static_cast<const ReferenceCube* const>(geo));
+				return new Geometry::PhysicalTetrahedron(globalNodeIndexes, nodes, static_cast<const ReferenceTetrahedron* const>(geo));
     		}else{
     			throw "This DIMension does not contain entities with 4 nodes";
     		}
@@ -258,6 +258,11 @@ namespace Geometry
         referenceToPhysicalMapping_->calcJacobian(pointReference,jacobian);
     }
 
+    unsigned int
+    ElementGeometry::getNrOfNodes() const
+    {
+    	return physicalGeometry_->getNumberOfNodes();
+    }
     
 }
 

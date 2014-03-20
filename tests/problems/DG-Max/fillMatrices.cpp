@@ -59,7 +59,7 @@ void matrixFiller::elementIntegrand(const Base::Element* element, const Geometry
  * i.e. eta_F( (n x phi_i) * (n x phi_j) )
  * returns the contibutions at this gauss point to the entire face matrix in one go
  */
-void matrixFillerIP::faceIntegrand(const FaceT* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
+void matrixFillerIP::faceIntegrand(const FaceT* face, const NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
 	//cout<<"\nIn the face integrand for the stiffness matrix (IP-only part) for element id: "<<face->getPtrElementLeft()->getID();
 	ElementT* right;
 	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
@@ -107,7 +107,7 @@ void matrixFillerIP::faceIntegrand(const FaceT* face, const Geometry::PointPhysi
 	}
 }
 
-void matrixFillerIP::faceIntegrand(const Base::Face* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
+void matrixFillerIP::faceIntegrand(const Base::Face* face, const NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
 	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
 	ElementInfos* info = static_cast<ElementInfos*>(left->getUserData());
 	ret.resize(left->getNrOfBasisFunctions());
@@ -204,7 +204,7 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions* matrixContainer){
                 matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,1,places,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
             }
         }
-        hpGemUIExtentions::FaceFunction faF = &hpGemUIExtentions::faceIntegrand;
+        //hpGemUIExtentions::FaceFunction faF = &hpGemUIExtentions::faceIntegrand;
         Integration::FaceIntegral faIntegral(false);
         for(hpGemUIExtentions::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
             //faces dont have an ID; pick an arbitrary processor to do the work
@@ -329,7 +329,7 @@ void matrixFillerIP::fillMatrixes(hpGemUIExtentions* matrixContainer){
  * more accurately only returns phi_i * (n x phi_j) the matrix product should be done elsewhere
  * returns the contibutions at this gauss point to the entire face matrix in one go
  */
-void matrixFillerBR::faceIntegrand(const FaceT* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, Matrix& ret){
+void matrixFillerBR::faceIntegrand(const FaceT* face, const  NumericalVector& normal, const Geometry::PointReference& p, Matrix& ret){
 	//cout<<"\nIn the face integrand for the stiffness matrix (BR-only part) for element id: "<<face->getPtrElementLeft()->getID();
 	ElementT* right;
 	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
@@ -377,7 +377,7 @@ void matrixFillerBR::faceIntegrand(const FaceT* face, const Geometry::PointPhysi
 	}
 }
 
-void matrixFillerBR::faceIntegrand(const Base::Face* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
+void matrixFillerBR::faceIntegrand(const Base::Face* face, const NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
 	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
 	ElementInfos* info = static_cast<ElementInfos*>(left->getUserData());
 	ret.resize(left->getNrOfBasisFunctions());
@@ -467,7 +467,7 @@ void matrixFillerBR::fillMatrixes(hpGemUIExtentions* matrixContainer){
 	    matrixContainer->ierr_=MatSetValuesBlocked(matrixContainer->S_,1,places,1,places,&tempComplexArray[0],ADD_VALUES);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
 //	}
     }
-    hpGemUIExtentions::FaceFunction faF = &hpGemUIExtentions::faceIntegrand;
+    //hpGemUIExtentions::FaceFunction faF = &hpGemUIExtentions::faceIntegrand;
     Integration::FaceIntegral faIntegral(false);
     for(hpGemUIExtentions::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
 //	if(((*it)->getPtrElementLeft()->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {

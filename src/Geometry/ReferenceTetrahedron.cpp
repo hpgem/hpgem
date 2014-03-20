@@ -128,7 +128,7 @@ namespace Geometry
             faceNodesLocal.resize(3); // 3 nodes per face
             faceNodesLocal[0] = (IndexT) localNodeIndexes_[faceIndex][0];
             faceNodesLocal[1] = (IndexT) localNodeIndexes_[faceIndex][1];
-            faceNodesLocal[2] = (IndexT) localNodeIndexes_[faceIndex][1];
+            faceNodesLocal[2] = (IndexT) localNodeIndexes_[faceIndex][2];
         }
         else
         {

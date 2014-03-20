@@ -5,6 +5,8 @@
 #include "Geometry/Mappings/MappingCodimensions.hpp"
 #include "Geometry/Mappings/RefinementMapping.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <map>///\todo make a hasher for pointreference and change this back to unordered_map
+#include "Base/BaseBasisFunction.hpp"
 
 #include <iostream>
 #include <vector>
@@ -89,6 +91,20 @@ namespace Geometry
         /// \brief Get a valid quadrature for this geometry.
         virtual typename QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const = 0;
 
+        ///\bug getBasisFunctionValue does some lazy initialization, so it can't be const, unless you consider the state to
+        /// contain the values of all basisFunctions at all reference points
+        double getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p);
+
+        double getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p) const
+        {return const_cast<ReferenceGeometry*>(this)->getBasisFunctionValue(function,p);}
+
+        ///\bug getBasisFunctionDerivative does some lazy initialization, so it can't be const, unless you consider the state to
+        /// contain the values of all basisFunctions at all reference points
+        void getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p,NumericalVector& ret);
+
+        void getBasisFunctionDerivative(const  Base::BaseBasisFunction* function, const PointReference& p,NumericalVector& ret) const
+        {const_cast<ReferenceGeometry*>(this)->getBasisFunctionDerivative(function,p,ret);}
+
     protected:
         ReferenceGeometry(const TypeOfReferenceGeometry& geoT);
         ReferenceGeometry(unsigned int numberOfNodes, unsigned int DIM, const TypeOfReferenceGeometry& geoT);
@@ -100,6 +116,11 @@ namespace Geometry
         /// An identifier of the type of referenceGeometry, that some say shouldn't be used.
         const TypeOfReferenceGeometry   geometryType_;
         
+    private:
+
+        std::map<const Base::BaseBasisFunction*,std::map<Geometry::PointReference,double> > basisfunctionValues_;
+        std::map<const Base::BaseBasisFunction*,std::map<Geometry::PointReference,NumericalVector> > basisfunctionDerivatives_;
+
     };
 };
 #endif

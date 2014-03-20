@@ -2,8 +2,12 @@
 #define TECPLOTSINGLEELEMENTWRITER_HPP
 
 //forward declarations
-class Base::Element;
-class Geometry::PointReference;
+namespace Base{
+class Element;
+}
+namespace Geometry{
+class PointReference;
+}
 
 namespace Output{
 

@@ -61,13 +61,13 @@ public:
      * \param [out] ret the contributions to the stifness matrix from this point. This should not yet be scaled down with the weight of this point!
      * For internal faces the integration expects that this matrix contains first contributions associated with the left element and then with the right element
      */
-    void faceIntegrand(const Base::Face* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret);
+    void faceIntegrand(const Base::Face* face, const NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret);
 
     /**
      * Integrand used for the computation of the boundary contributions to the RHS. This will be scaled by the same time dependent factor as in the source therm, just like in the original code by Domokos.
      * This version is specialized for the Interior Penalty method. It also computes the terms that are common to both the Interior Penalty method and the Brezzi method because it safes some loops over elements where no work needs to be done
      */
-    void faceIntegrand(const Base::Face* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret);
+    void faceIntegrand(const Base::Face* face, const NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret);
 };
 
 /**
@@ -87,13 +87,13 @@ public:
      * \param [out] ret the contributions to the stifness matrix from this point. This should not yet be scaled down with the weight of this point!
      * For internal faces the integration expects that this matrix contains first contributions associated with the left element and then with the right element
      */
-    void faceIntegrand(const Base::Face* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret);
+    void faceIntegrand(const Base::Face* face, const NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret);
 
     /**
      * Integrand used for the computation of the boundary contributions to the RHS. This will be scaled by the same time dependent factor as in the source therm, just like in the original code by Domokos.
      * This version is used in the computation of D_i=integral(phi_i*(n x u_0))
      */
-    void faceIntegrand(const Base::Face* face, const Geometry::PointPhysical& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret);
+    void faceIntegrand(const Base::Face* face, const NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret);
 
 };
 

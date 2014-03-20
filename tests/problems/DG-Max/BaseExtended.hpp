@@ -111,7 +111,7 @@ public:
      * \param [out] ret the contributions to the stifness matrix from this point. This should not yet be scaled down with the weight of this point!
      * For internal faces the integration expects that this matrix contains first contributions associated with the left element and then with the right element
      */
-    virtual void faceIntegrand(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
+    virtual void faceIntegrand(const FaceT *face, const NumericalVector &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
 
     //virtual void faceIntegrandIPPart(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
 
@@ -161,7 +161,7 @@ public:
      * Integrand used for the computation of the boundary contributions to the RHS. This will be scaled by the same time dependent factor as in the source therm, just like in the original code by Domokos.
      * This version computes the terms that are common to both the Brezzi flux and the Interior Penalty flux
      */
-    void faceIntegrand(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::NumericalVector &ret);
+    void faceIntegrand(const FaceT *face, const NumericalVector &normal, const PointFaceReferenceT &p, LinearAlgebra::NumericalVector &ret);
 
     //void sourceTermBoundaryBR(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret);
 
@@ -199,7 +199,7 @@ public:
     /**
      * Integrand for the comutation of the jump part of the DG error
      */
-    void faceIntegrand(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, errorData &ret);
+    void faceIntegrand(const FaceT *face, const NumericalVector &normal, const PointFaceReferenceT &p, errorData &ret);
 
     void LDOSIntegrand(const ElementT *element, const PointElementReferenceT &p, double &ret);
     

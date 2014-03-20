@@ -5,6 +5,7 @@
 #include <vector>
 #include "FaceCacheData.hpp"
 #include "LinearAlgebra/Matrix.hpp"
+#include "UserData.hpp"
 
 namespace Base
 {
@@ -36,8 +37,12 @@ namespace Base
 
         virtual ~FaceData() {;}
 
+        UserFaceData* getUserData(){return userData_;}
+        void          setUserData(UserFaceData* data){userData_=data;}
+
       private:
         VecCacheT vecCacheData_;
+        UserFaceData* userData_;
         std::vector<LinearAlgebra::Matrix> faceMatrix_;
         std::vector<LinearAlgebra::NumericalVector> faceVector_;
     };

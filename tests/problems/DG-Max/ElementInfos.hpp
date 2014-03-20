@@ -3,7 +3,7 @@
 #ifndef Elementinfos_hpp
 #define Elementinfos_hpp
 
-#include "Base/UserElementData.hpp"
+#include "Base/UserData.hpp"
 #include "Base/Element.hpp"
 #include "Base/Face.hpp"
 #include "BasisFunctionCollection_Curl.hpp"

@@ -13,9 +13,9 @@ namespace Base
     struct ConfigurationData
     {
     
-        ConfigurationData(unsigned int DIMension, unsigned int numberOfUnknowns, unsigned int numberOfBasisFunctions, unsigned int  numberOfTimeLevels=1):
+        ConfigurationData(unsigned int DIMension, unsigned int numberOfUnknowns, unsigned int polynomialOrder, unsigned int  numberOfTimeLevels=1):
             numberOfUnknowns_(numberOfUnknowns),
-            numberOfBasisFunctions_(numberOfBasisFunctions),
+            polynomialOrder_(polynomialOrder),
             numberOfTimeLevels_(numberOfTimeLevels),
             dimension_(DIMension)
         {}
@@ -26,6 +26,7 @@ namespace Base
         unsigned int numberOfUnknowns_;
         unsigned int numberOfBasisFunctions_;
         unsigned int numberOfTimeLevels_;
+        unsigned int polynomialOrder_;
     };
 }
 

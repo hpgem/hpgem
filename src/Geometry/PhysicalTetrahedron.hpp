@@ -1,7 +1,7 @@
 #ifndef PHYSICALTETRAHEDRON_HH
 #define PHYSICALTETRAHEDRON_HH
 #include "PhysicalGeometry.hpp"
-#include "ReferenceCube.hpp"
+#include "ReferenceTetrahedron.hpp"
 namespace Geometry
 {
     class PhysicalTetrahedron: public PhysicalGeometry
@@ -18,7 +18,7 @@ namespace Geometry
             PhysicalTetrahedron(
                     const VectorOfPointIndexesT&,
                     const VectorOfPhysicalPointsT&,
-                    const ReferenceCube* const cube);
+                    const ReferenceTetrahedron* const cube);
 
             ~PhysicalTetrahedron() {}
 

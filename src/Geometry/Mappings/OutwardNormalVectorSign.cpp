@@ -1,5 +1,6 @@
 #include "OutwardNormalVectorSign.hpp"
 #include "MappingToRefLineToSquare.hpp"
+#include "MappingToRefLineToTriangle.hpp"
 #include "MappingToRefSquareToSquare.hpp"
 #include "MappingToRefPointToLine.hpp"
 #include "MappingToRefCubeToCube.hpp"
@@ -13,8 +14,8 @@ namespace Geometry
     double OutwardNormalVectorSign(const MappingReferenceToReference* const map)
     {
         if (dynamic_cast<const MappingToRefPointToLine0*>(map) ||
-        	//dynamic_cast<const Line2TriangleMapping0*>(map) ||
-	        //dynamic_cast<const Line2TriangleMapping2*>(map) ||
+        	dynamic_cast<const MappingToRefLineToTriangle0*>(map) ||
+	        dynamic_cast<const MappingToRefLineToTriangle2*>(map) ||
 	        dynamic_cast<const MappingToRefLineToSquare0*>(map)   ||
 	        dynamic_cast<const MappingToRefLineToSquare2*>(map) ||
         	dynamic_cast<const MappingToRefSquareToCube0*>(map) ||
@@ -26,7 +27,7 @@ namespace Geometry
         else
         {
             if (dynamic_cast<const MappingToRefPointToLine1*>(map) ||
-            	//dynamic_cast<const Line2TriangleMapping1*>(map) ||
+            	dynamic_cast<const MappingToRefLineToTriangle1*>(map) ||
                 dynamic_cast<const MappingToRefLineToSquare1*>(map)   ||
                 dynamic_cast<const MappingToRefLineToSquare3*>(map) ||
                 dynamic_cast<const MappingToRefSquareToCube1*>(map) ||

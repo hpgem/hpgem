@@ -28,9 +28,9 @@ namespace Utilities
             //typedef double (*DerivativeOfBasisFuncPtr)(const PointReferenceT&);
         typedef LinearAlgebra::NumericalVector RetType;
         
-        PhysGradientOfBasisFunction(const Base::Element* e, unsigned int bFuncNr):
+        PhysGradientOfBasisFunction(const Base::Element* e,const Base::BaseBasisFunction* function):
             myElement_(e),
-            myFunctionNumber_(bFuncNr)
+            myFunction_(function)
 	    {
             
         }
@@ -38,13 +38,11 @@ namespace Utilities
             //! Evaluation operator, also compatible with integration routines.
         void operator()(const PointReferenceT& p, RetType& r) const
 	    {
-        	RetType dummy(r.size());
+        	static RetType dummy(r.size());
         	unsigned int DIM=p.size();
-        	Geometry::Jacobian jac(DIM,DIM);
+        	static Geometry::Jacobian jac(DIM,DIM);
         	myElement_->calcJacobian(p,jac);
-        	for(int i=0;i<DIM;++i){
-        		dummy[i]=myElement_->basisFunctionDeriv(myFunctionNumber_,i,p);
-        	}
+        	myElement_->getReferenceGeometry()->getBasisFunctionDerivative(myFunction_,p,dummy);
         	jac.inverse(jac);
         	//r*=jac;///\todo can someone who knows BLAS update the linAlg routines?
         	for(int i=0;i<DIM;++i){
@@ -85,7 +83,7 @@ namespace Utilities
         
     private:
         const Base::Element*                        myElement_;
-        const unsigned int                  myFunctionNumber_;
+        const Base::BaseBasisFunction*                  myFunction_;
     };
     
         // Fixed for 1D case: M.T.Julianto Feb 14, 2010

@@ -17,8 +17,9 @@ namespace Geometry
      *
      */
     ReferencePoint::ReferencePoint():
-         ReferenceGeometry(POINT)
-    { mappingsPointToPoint_=&MappingToRefPointToPoint::Instance();}
+         ReferenceGeometry(1,0,POINT)
+    { mappingsPointToPoint_=&MappingToRefPointToPoint::Instance();
+    	points_[0]=Geometry::PointReference(0);}
 
     ReferencePoint::ReferencePoint(const ReferencePoint& copy):
         ReferenceGeometry(copy),mappingsPointToPoint_(copy.mappingsPointToPoint_)

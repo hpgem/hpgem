@@ -26,6 +26,7 @@ Base::FaceData::setFaceMatrix(const LinearAlgebra::Matrix& matrix, unsigned int 
 		std::cout<<"Warning: Setting a face matrix that was not preallocated. If this is expected, please allocate more face matrixes in the constructor";
 		faceMatrix_.resize(matrixID+1);
 	}
+	faceMatrix_[matrixID].resize(matrix.getNRows(),matrix.getNCols());
 	faceMatrix_[matrixID]=matrix;
 }
 
@@ -43,6 +44,7 @@ Base::FaceData::setFaceVector(const LinearAlgebra::NumericalVector& vector, unsi
 		std::cout<<"Warning: Setting a face vector that was not preallocated. If this is expected, please allocate more face vectors in the constructor";
 		faceVector_.resize(vectorID+1);
 	}
+	faceVector_[vectorID].resize(vector.size());
 	faceVector_[vectorID]=vector;
 }
 

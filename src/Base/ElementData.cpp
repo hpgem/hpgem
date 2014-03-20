@@ -70,6 +70,10 @@ namespace Base
     	residue_.resize(number);
     	for(VectorOfMatrices::iterator cit=expansionCoefficients_.begin();cit!=expansionCoefficients_.end();++cit)
     		cit->resize(nrOfUnkowns_,nrOfBasisFunctions_);
+    	for(VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
+    		cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
+        for(std::vector<LinearAlgebra::NumericalVector>::iterator it=elementVector_.begin();it!=elementVector_.end();++it)
+        	it->resize(nrOfUnkowns_*nrOfBasisFunctions_);
     }
 
     const LinearAlgebra::Matrix&
