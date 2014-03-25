@@ -56,6 +56,8 @@ namespace QuadratureRules
     const T2_9_1& InstantiateT2_9_1 = T2_9_1::Instance();
     
     const T2_10_1& InstantiateT2_10_1 = T2_10_1::Instance();
+
+    const T2_11_1& InstantiateT2_11_1 = T2_11_1::Instance();
         //*************************CUBE QUADRATURES*****************************
     
     const Cn3_1_1& InstantiateCn3_1_1 = Cn3_1_1::Instance();

@@ -341,5 +341,37 @@ namespace QuadratureRules
     };
 
 //---------------------------------------------------------------------------
+    class T2_11_1: public GaussQuadratureRule
+    {
+    public:
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
+    public:
+        static T2_11_1& Instance()
+            {
+                static T2_11_1 theInstance;
+                return theInstance;
+            }
+
+        virtual std::string             getName() const;
+        virtual unsigned int            order() const;
+        virtual unsigned int            dimension() const;
+        virtual unsigned int            nrOfPoints() const;
+        virtual double                  weight(unsigned int i) const;
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
+
+    private:
+        T2_11_1();
+        T2_11_1(const T2_11_1&);
+        virtual ~T2_11_1();
+    private:
+        const std::string               name_;
+        double                          weight_[28];
+        ReferenceGeometryT* const       refGeoPtr_;
+        std::vector<PointReferenceT>                   gp_;
+    };
+
+//---------------------------------------------------------------------------
 } // close namespace QuadratureRules
 #endif

@@ -130,11 +130,11 @@ namespace Utilities{
 			for(Base::MeshManipulator::FaceIterator it=theMesh_->faceColBegin();it!=theMesh_->faceColEnd();++it){
 				const Base::Element* elLeft((*it)->getPtrElementLeft()),*elRight((*it)->getPtrElementRight());
 				int nLeft(elLeft->getNrOfBasisFunctions()),n(nLeft);
-				if(elRight!=NULL)
+				if((*it)->isInternal())
 					n+=elRight->getNrOfBasisFunctions();
 				int positions[n];
-				makePositionsInMatrix(nLeft,elLeft,positions);
 				makePositionsInMatrix(n-nLeft,elRight,positions+nLeft);
+				makePositionsInMatrix(nLeft,elLeft,positions);
 				elementMatrix.resize(n,n);
 				(*it)->getFaceMatrix(elementMatrix,faceMatrixID_);
 				ierr=MatSetValues(A_,n,positions,n,positions,&elementMatrix[0],ADD_VALUES);
@@ -188,7 +188,7 @@ namespace Utilities{
 
 		for(Base::Element* element:theMesh_->getElementsList()){
 			for(int j=0;j<element->getLocalNrOfBasisFunctions();++j){
-				numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()]+j]=element->getNrOfBasisFunctions();
+				numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()]+j]+=element->getNrOfBasisFunctions();
 			}
 			for(int i=0;i<element->getReferenceGeometry()->getNrOfCodim1Entities();++i){
 				for(int j=0;j<element->getFace(i)->getLocalNrOfBasisFunctions();++j){
