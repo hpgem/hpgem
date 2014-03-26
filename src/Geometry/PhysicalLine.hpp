@@ -4,12 +4,12 @@
 #include "ReferenceLine.hpp"
 namespace Geometry
 {
-    class PhysicalLine: public PhysicalGeometry<OneD>
+    class PhysicalLine: public PhysicalGeometry
     {
 
     public:
 
-        typedef PhysicalGeometry<OneD> PhysicalGeometry1D;
+        typedef PhysicalGeometry PhysicalGeometry1D;
         using PhysicalGeometry1D::VectorOfPointIndexesT;
         using PhysicalGeometry1D::VectorOfPhysicalPointsT;
         using PhysicalGeometry1D::PointIndexT;

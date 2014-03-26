@@ -42,7 +42,7 @@ namespace Base
 
         int maxLevel() const;
 
-      protected:
+      //protected:
         void setActiveLevel(const DimT level);
 
         void resetActiveLevel();

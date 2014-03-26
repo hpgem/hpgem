@@ -30,17 +30,14 @@ namespace Geometry
     There is no need for reinit function, as the ReferenceToPhysicalMappings. Also transform can be
     declared here because, in contrast to Ref2PhysSpaceMapping, it concerns RefSpacePoint objects
     as both arguments. */
-    template <unsigned int dimFrom, unsigned int dimTo>
-    class MappingInterface;
     
         //typedef MappingInterface<unsigned int dimFrom, unsigned int dimTo> shit;
     
-    template <unsigned int dimFrom, unsigned int dimTo>
-    class MappingReferenceToReference: public MappingInterface <dimFrom, dimTo>
+    class MappingReferenceToReference: public MappingInterface
     {
         public:
-            virtual void transform(const Geometry::PointReference<dimFrom>&,
-                                         Geometry::PointReference<dimTo>&) const = 0;
+            virtual void transform(const Geometry::PointReference&,
+                                         Geometry::PointReference&) const = 0;
     };
 };
 #endif /* REFERENCETOPHYSICALM_H_ */

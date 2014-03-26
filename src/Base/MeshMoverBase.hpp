@@ -12,13 +12,12 @@
 
 namespace Base {
 
-    template <unsigned int DIM>
     class MeshMoverBase
     {
 
     public:
 
-        typedef Geometry::PointPhysical<DIM> PointPhysicalT;
+        typedef Geometry::PointPhysical PointPhysicalT;
 
     public:
 

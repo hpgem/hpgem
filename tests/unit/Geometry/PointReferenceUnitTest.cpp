@@ -7,20 +7,20 @@ using namespace std;
 int main()
 {
     const unsigned int dim = 2;
-    Geometry::PointReference<dim> p;
-    Geometry::PointReference<dim> q(p);
+    Geometry::PointReference p(dim);
+    Geometry::PointReference q(p);
     p[0] = 1.;  p[1] = 1.8;
     
-    Geometry::PointReference<dim> r(p);
-    Geometry::PointReference<dim> s;
+    Geometry::PointReference r(p);
+    Geometry::PointReference s(dim);
     s = p;      // assign PointT into PointT?
 
 
-    Geometry::PointReference<dim>::VectorOfCoordsT t(2);
+    Geometry::PointReference::VectorOfCoordsT t(2);
     t[0] = 9.;  t[1] = 1.;
-    Geometry::PointReference<dim> u(t);
+    Geometry::PointReference u(t);
     cout<<"9, 1 "<<u<<endl;
-    Geometry::PointReference<dim> pp(t);
+    Geometry::PointReference pp(t);
     pp[0] = 100.;
     cout<<pp<<endl;
     
@@ -48,7 +48,7 @@ int main()
         //    cout << p3<<endl;
     cout <<"______________________"<<endl;
     cout << u<< " * "<<22.0 << endl;
-    s = (Geometry::PointReference<dim>)u*22.0;
+    s = (Geometry::PointReference)u*22.0;
     cout << s<<endl;
         //    cout << "Point += double" << endl;
         //    p3 += 2.0;

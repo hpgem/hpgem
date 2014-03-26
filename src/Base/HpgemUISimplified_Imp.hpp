@@ -3,19 +3,18 @@
 
 namespace Base
 {
-    template<unsigned int DIM>
     class HpgemUISimplified;
     
+    HpgemUISimplified::HpgemUISimplified(unsigned int DIM,int polynomialOrder):HpgemUI(new GlobalData,new ConfigurationData(DIM,1,polynomialOrder,1)){}
     
-    template<unsigned int DIM>
     bool
-    HpgemUISimplified<DIM>::solve()
+    HpgemUISimplified::solve()
     {
         initialise();
         checkInitialisation();
-        for (int i=0; i < HpgemUI<DIM>::meshes_.size();i++)
+        for (int i=0; i < HpgemUI::meshes_.size();i++)
         {
-            HpgemUI<DIM>::meshes_[i]->move(); // just for testing
+            HpgemUI::meshes_[i]->move(); // just for testing
         }
         doAllElementIntegration();
         doAllFaceIntegration();
@@ -28,57 +27,55 @@ namespace Base
         void aas(T& a){}
     };
     
-    template<unsigned int DIM>
     void
-    HpgemUISimplified<DIM>::doAllFaceIntegration(unsigned int meshID)
+    HpgemUISimplified::doAllFaceIntegration(unsigned int meshID)
     {
         bool useCache   = false;
-        unsigned int nb = 1;//put something in here
         
-        
-        typedef void  (HpgemUISimplified::*FaceIntegrand)(const FaceT*, const PointPhysicalT& normal, const PointReferenceOnTheFaceT&, LinearAlgebra::Matrix&);
-        
-        LinearAlgebra::NumericalVector fData(nb);//do not know if this is the one you want
-        FaceIntegrand faceInteg = &HpgemUISimplified<DIM>::faceIntegrand;
+        LinearAlgebra::Matrix fMatrixData;
+        LinearAlgebra::NumericalVector fVectorData;
         FaceIntegralT   faceIntegral(useCache);
         
-        for (ConstFaceIterator citFe = Base::HpgemUI<DIM>::faceColBegin(); citFe != Base::HpgemUI<DIM>::faceColEnd(); ++citFe)
+        for (MeshManipulator::FaceIterator citFe = Base::HpgemUI::faceColBegin(); citFe != Base::HpgemUI::faceColEnd(); ++citFe)
         {
-            
-            
-            faceIntegral.integrate((*citFe), faceInteg, fData, this);
-            
+        	int n=(*citFe)->getPtrElementLeft()->getNrOfUnknows()*(*citFe)->getPtrElementLeft()->getNrOfBasisFunctions();
+        	if((*citFe)->isInternal())
+        		n+=(*citFe)->getPtrElementRight()->getNrOfUnknows()*(*citFe)->getPtrElementRight()->getNrOfBasisFunctions();
+        	fMatrixData.resize(n,n);
+        	fVectorData.resize(n);
+            faceIntegral.integrate<LinearAlgebra::Matrix>((*citFe), this, fMatrixData);
+            (*citFe)->setFaceMatrix(fMatrixData);
+            faceIntegral.integrate<LinearAlgebra::NumericalVector>((*citFe), this, fVectorData);
+            (*citFe)->setFaceVector(fVectorData);
         }
     }
     
-    template<unsigned int DIM>
     void
-    HpgemUISimplified<DIM>::doAllElementIntegration(unsigned int meshID)
+    HpgemUISimplified::doAllElementIntegration(unsigned int meshID)
     {
-        unsigned int ndof = HpgemUI<DIM>::configData_->numberOfBasisFunctions_;
-        LinearAlgebra::Matrix  	eData(ndof, ndof);
-        typedef void  (HpgemUISimplified<DIM>::*Function)(const Element<DIM>& , const PointReferenceT&, LinearAlgebra::Matrix&);
-        Function f = &HpgemUISimplified<DIM>::elementIntegrand;
-        
+        unsigned int ndof = HpgemUI::configData_->numberOfBasisFunctions_*HpgemUI::configData_->numberOfUnknowns_;
+        LinearAlgebra::Matrix  	eMatrixData(ndof, ndof);
+        LinearAlgebra::NumericalVector eVectorData(ndof);
         
         bool isUseCache(false);
-        Integration::ElementIntegral<DIM> 	elIntegral(isUseCache);
+        Integration::ElementIntegral 	elIntegral(isUseCache);
         
-        for (ElementIterator it=HpgemUI<DIM>::meshes_[meshID]->elementColBegin(); it!= HpgemUI<DIM>::meshes_[meshID]->elementColEnd(); ++it)
+        for (ElementIterator it=HpgemUI::meshes_[meshID]->elementColBegin(); it!= HpgemUI::meshes_[meshID]->elementColEnd(); ++it)
         {
-            
-            elIntegral.integrate((*it), f, eData, this);
+            elIntegral.integrate<LinearAlgebra::Matrix>((*it), this, eMatrixData);
+            (*it)->setElementMatrix(eMatrixData);
+            elIntegral.integrate<LinearAlgebra::NumericalVector>((*it), this, eVectorData);
+            (*it)->setElementVector(eVectorData);
+
             //cout << result;
-            
-            cout<< "#####################################END of ELEMENT######"<<endl;
+            //cout<< "#####################################END of ELEMENT######"<<endl;
         }
     }
     
-    template<unsigned int DIM>
     bool
-    HpgemUISimplified<DIM>::checkInitialisation()
+    HpgemUISimplified::checkInitialisation()
     {
-        if (HpgemUI<DIM>::meshes_.size()==0)
+        if (HpgemUI::meshes_.size()==0)
         {
 
             std::cerr << "Error no mesh created : You need to create at least one mesh to solve a problem" << std::endl;

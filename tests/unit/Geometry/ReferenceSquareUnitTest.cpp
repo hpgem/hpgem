@@ -23,11 +23,11 @@ int main ()
     cout << "cout << square: ";
     cout << square;
 
-    Geometry::PointReference<2> pCenter;
+    Geometry::PointReference pCenter(2);
     square.getCenter(pCenter);
     cout << "square.getCenter(Geometry::Point<2>): " << pCenter;
     
-    Geometry::PointReference<2> p;
+    Geometry::PointReference p(2);
     square.getNode(0, p);
     cout << "square.getVertexPoint(0, p): " << p;
     
@@ -42,7 +42,7 @@ int main ()
     
     cout << "square.isInternalPoint({0,0}): " << square.isInternalPoint(pCenter) << endl;
     
-    Geometry::PointReference<2> pOut;
+    Geometry::PointReference pOut(2);
     
     pOut[0] = -2.0;
     pOut[1] = -2.0;
@@ -67,20 +67,20 @@ int main ()
         cout << ")" << endl;
     }
 
-    const Geometry::ReferenceGeometry<1>* referenceGeometry;
+    const Geometry::ReferenceGeometry* referenceGeometry;
     for (int face=0; face < square.getNrOfCodim1Entities(); ++face)
     {
         referenceGeometry = square.getCodim1ReferenceGeometry(face);
         cout << "square.getCodim1ReferenceGeometry("<<face<<"): " << referenceGeometry->getName() << endl;
     }
 
-    const Geometry::MappingReferenceToReference<2,2>* ref2ToRef2Mapping;
+    const Geometry::MappingReferenceToReference* ref2ToRef2Mapping;
     for (int index=0; index < 8; ++index)
     {
         ref2ToRef2Mapping = square.getCodim0MappingPtr(index);
     }
 
-    const Geometry::MappingReferenceToReference<1,2>* ref1ToRef2Mapping;
+    const Geometry::MappingReferenceToReference* ref1ToRef2Mapping;
     for (int face=0; face < square.getNrOfCodim1Entities(); ++face)
     {
         ref1ToRef2Mapping = square.getCodim1MappingPtr(face);

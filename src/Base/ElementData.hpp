@@ -3,13 +3,12 @@
 #define ElementData_hpp
 //----------------------------------------------------------------
 #include <vector>
-#include "Base/Element.hpp"
-#include "Base/UserElementData.hpp"
+//#include "Base/Element.hpp"
+#include "Base/UserData.hpp"
 #include "LinearAlgebra/Matrix.hpp"
 
 namespace Base
 {
-    template <unsigned int DIM>
 	class ElementData
 	{
         /*!
@@ -22,12 +21,25 @@ namespace Base
         typedef typename std::vector<LinearAlgebra::Matrix>  VectorOfMatrices;
         
     public:
+
+#ifdef MTJ
 // MTJ: default constructor, just for a moment; to be removed later!  Soon!
         ElementData() {userData_=NULL;}
+#endif
 	      
-        ElementData(unsigned int timeLevels, unsigned nrOfUnkowns, unsigned int nrOfBasisFunctions);
+        ElementData(unsigned int timeLevels, unsigned nrOfUnkowns, unsigned int nrOfBasisFunctions, unsigned int nrOfElementMatrixes=0, unsigned int nrOfElementVectors=0);
 
-       
+        ///Set/update the element matrix. Routines in hpGEM will assume that for every element, expansioncoefficients of unknowns belonging the the same basisfunctions
+        ///appear consecutively in the matrix.
+        void setElementMatrix(const LinearAlgebra::Matrix&, int matrixID=0);
+
+        void getElementMatrix(LinearAlgebra::Matrix&, int matrixID=0) const;
+
+        ///If it not appropriate to use the timeleveldata for your vector information (for example because it is the source term in a time dependent problem)
+        void setElementVector(const LinearAlgebra::NumericalVector&, int vectorID=0);
+
+        void getElementVector(LinearAlgebra::NumericalVector&, int vectorID=0) const;
+
         virtual ~ElementData() {}
         
         
@@ -35,7 +47,6 @@ namespace Base
         const LinearAlgebra::Matrix&    getTimeLevelData(unsigned int timeLevel) const;
         
 	/// Specify a time level index, an unknown (as solutionId), set the data for that unknown
-	/// //why is this setter not symmetric with the getter with the same name? -FB
         void                            setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown);
 	void                            setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::Matrix& unknown);
         
@@ -44,20 +55,22 @@ namespace Base
 
             /// Specify a time level index, an unknown and a basis function nr, set the data (double)
         void                      setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val);
-
         
         int                       getNrOfUnknows() const;
         
         int                       getNrOfBasisFunctions() const;
         
-        VectorOfDoubles&          getResidue() const;
+        const VectorOfDoubles&          getResidue() const;
         
         void                      setResidue(VectorOfDoubles& residue);
         
         void                      setUserData(UserElementData* data);
         
         UserElementData*          getUserData(){return userData_;}
-            
+
+    protected:
+        void setNumberOfBasisFunctions(unsigned int number);
+
     private:
         unsigned int              timeLevels_;
         unsigned int              nrOfUnkowns_;
@@ -68,7 +81,11 @@ namespace Base
         VectorOfDoubles           residue_;
         ///Stores polymorphic pointer to UserDefined Data, internally not used! Used only outside of the Kernel!!!
         UserElementData*          userData_;
+
+        ///Stores element matrix(es) for this element
+        VectorOfMatrices          elementMatrix_;
+
+        std::vector<LinearAlgebra::NumericalVector> elementVector_;
 	};
 }
-#include "ElementData_Impl.hpp"
 #endif

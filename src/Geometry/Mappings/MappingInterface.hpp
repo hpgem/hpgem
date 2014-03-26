@@ -76,14 +76,13 @@ namespace Geometry
              am not sure at the current stage (depends on whether some
              mappings can be used for different kinds of geometries).
     </ul> */
-    template <unsigned int dimFrom, unsigned int dimTo>
     class MappingInterface
     {
         public:
-            typedef Point<dimTo>                        PointToT;
-            typedef PointPhysical<dimTo>                PointPhysicalT;
-            typedef PointReference<dimFrom>             PointReferenceT;
-            typedef Jacobian<dimFrom, dimTo>            JacobianT;
+            typedef Point                        PointToT;
+            typedef PointPhysical                PointPhysicalT;
+            typedef PointReference             PointReferenceT;
+            typedef Jacobian            JacobianT;
 
         public:
             /*! (OC): Jacobian has a gradient in each line, hence as many lines as target
@@ -92,6 +91,9 @@ namespace Geometry
             virtual void calcJacobian(const PointReferenceT&, JacobianT&) const = 0;
             MappingInterface() { }
             virtual ~MappingInterface() { };
+
+            ///concatenated mapping needs to know what kind of intermedeate point to create
+            virtual int getTargetDimension() const =0;
     };
 };
 #endif /* MAP_H_ */

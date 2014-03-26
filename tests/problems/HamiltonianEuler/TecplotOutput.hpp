@@ -12,6 +12,7 @@
 #include "Geometry/PointPhysical.hpp"
 #include "Geometry/PointReference.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include "Output/TecplotSingleElementWriter.hpp"
 #include "InitialConditions.hpp"
 
 using Geometry::PointPhysical;
@@ -27,7 +28,7 @@ using std::ostream;
 
 
 
-class TecplotWriteFunction
+class TecplotWriteFunction:public Output::TecplotSingleElementWriter
 {
 	
     
@@ -56,7 +57,7 @@ class TecplotWriteFunction
     
 public:
     
-    TecplotWriteFunction(ofstream* energyFile, ofstream* divFile, ofstream* energyExfile, const ExactSolutionBase<3>* vel, ofstream* file1Dx, ofstream* file1D, ofstream* file1DEx, ofstream* l2File):
+    TecplotWriteFunction(ofstream* energyFile, ofstream* divFile, ofstream* energyExfile, const ExactSolutionBase* vel, ofstream* file1Dx, ofstream* file1D, ofstream* file1DEx, ofstream* l2File):
     velocity_(vel),
     maxError_(0),
     maxErrorU_(0),
@@ -66,18 +67,19 @@ public:
     energyFile_(energyFile),
     divFile_(divFile),
     energyExfile_(energyExfile),
-    l2errorfile_(l2File)
+    l2errorfile_(l2File),
+    maxErrorPoint_(3)
     {
         *energyFile_ 	<< "Time"<<" , "<< "Energy" <<endl;
         *energyExfile_ 	<< "Time"<<" , "<< "EnergyEx" <<endl;
         *divFile_ 		<< "Time"<<" , "<< "DIV" <<endl;
     }
-    void operator()(const Base::Element<3>& element, const PointReference<3>& pRef, ostream& os)
+    void writeToTecplotFile(const Base::Element* element, const PointReference& pRef, ostream& os)
     {
         double lambda, u, uExact, lambdaExact, v, w, energy, vExact, wExact;
         double energyExact, uError, vError, wError;
         LinearAlgebra::NumericalVector sol;
-        element.getSolution(0,pRef, sol);
+        element->getSolution(0,pRef, sol);
 //        data.extractState(p, s);
 //        
         lambda      = sol[3];
@@ -90,8 +92,8 @@ public:
        energy      = 0;
 //        energyExact = 0;//data.energyExact_;
 //        
-        PointPhysical<3> pPhys;      // point in physical space
-        element.referenceToPhysical(pRef, pPhys);
+        PointPhysical pPhys(3);      // point in physical space
+        element->referenceToPhysical(pRef, pPhys);
 //        
         uExact      = velocity_->getU(pPhys, time_);//exactSolutionU(pPhys);
         vExact      = velocity_->getV(pPhys, time_);//exactSolutionV(pPhys);
@@ -169,13 +171,13 @@ public:
 	double 									maxErrorV_;
 	double 									maxErrorW_;
     
-	PointPhysical<3>						maxErrorPoint_;
+	PointPhysical						maxErrorPoint_;
     
 	
 	void setOutputFiles(ofstream* file1Dx, ofstream* file1D, ofstream* file1DEx){file1Dx_=file1Dx;file1D_=file1D;file1DEx_=file1DEx;}
     
 private:
-	const ExactSolutionBase<3>*  		     velocity_;
+	const ExactSolutionBase*  		     velocity_;
 	ofstream*                                file1Dx_;
 	ofstream*                                file1D_;
 	ofstream*                                file1DEx_;

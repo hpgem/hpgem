@@ -12,24 +12,19 @@
 namespace Base
 {
     // forward declaration
-    template <unsigned int DIM>
     class Face;
 
   
-    template <unsigned int dim>
     struct FaceCacheData
     {
+    	FaceCacheData(unsigned int DIM):Normal(DIM){}
       // cache data
-      Geometry::PointPhysical<dim> Normal;
+      LinearAlgebra::NumericalVector Normal;
       double L2Normal;
 
       // calculate the cache data
-      void operator()(const Base::Face<dim>& fa,
-                      const Geometry::PointReference<dim-1>& p)
-      {
-          fa.getNormalVector(p, Normal);
-          L2Normal = Base::L2Norm<dim>(Normal);
-      }
+      void operator()(const Base::Face& fa,
+                      const Geometry::PointReference& p);
 
     };
 }

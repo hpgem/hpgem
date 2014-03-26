@@ -22,11 +22,11 @@ int main ()
     cout << "cout << pyramid: ";
     cout << pyramid;
 
-    Geometry::PointReference<3> pCenter;
+    Geometry::PointReference pCenter(3);
     pyramid.getCenter(pCenter);
     cout << "pyramid.getCenter(Geometry::Point<3>): " << pCenter; cout << endl;;
 
-    Geometry::PointReference<3> p;
+    Geometry::PointReference p(3);
     pyramid.getNode(0, p);
     cout << "pyramid.getNode(0, p): " << p; cout << endl;
 
@@ -44,7 +44,7 @@ int main ()
 
     cout << "pyramid.isInternalPoint({0,0}): " << pyramid.isInternalPoint(pCenter) << endl;
     
-    Geometry::PointReference<3> pOut;
+    Geometry::PointReference pOut(3);
 
         pOut[0] = -2.0;
         pOut[1] = -2.0;
@@ -84,14 +84,14 @@ int main ()
         cout << ")" << endl;
     }
     
-    const Geometry::ReferenceGeometry<2>* referenceGeometry2D;
+    const Geometry::ReferenceGeometry* referenceGeometry2D;
     for (int face=0; face < pyramid.getNrOfCodim1Entities(); ++face)
     {
         referenceGeometry2D = pyramid.getCodim1ReferenceGeometry(face);
         cout << "pyramid.getCodim1ReferenceGeometry("<<face<<"): " << referenceGeometry2D->getName() << endl;
     }
 
-    const Geometry::ReferenceGeometry<1>* referenceGeometry1D;
+    const Geometry::ReferenceGeometry* referenceGeometry1D;
     for (int edge=0; edge < pyramid.getNrOfCodim2Entities(); ++edge)
     {
         referenceGeometry1D = pyramid.getCodim2ReferenceGeometry(edge);
@@ -107,7 +107,7 @@ int main ()
     }
     */
 
-    const Geometry::MappingReferenceToReference<2,3>* ref2ToRef3Mapping;
+    const Geometry::MappingReferenceToReference* ref2ToRef3Mapping;
     for (int face=0; face < pyramid.getNrOfCodim1Entities(); ++face)
     {
         ref2ToRef3Mapping = pyramid.getCodim1MappingPtr(face);

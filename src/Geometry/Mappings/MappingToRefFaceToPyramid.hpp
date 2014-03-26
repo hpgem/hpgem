@@ -19,14 +19,15 @@ namespace Geometry
 
     // ~~~ index 0 ~~~==============================================================================
 
-    class MappingToRefFaceToPyramid0: public MappingReferenceToReference<2,3>
+    class MappingToRefFaceToPyramid0: public MappingReferenceToReference
     {
         public:
             static const MappingToRefFaceToPyramid0& Instance();
-            virtual void transform(const Geometry::PointReference<2>& p1,
-                                         Geometry::PointReference<3>& p2) const;
-            virtual void calcJacobian(const Geometry::PointReference<2>&,
-                                            Geometry::Jacobian<2,3>&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToPyramid0();
             MappingToRefFaceToPyramid0(const MappingToRefFaceToPyramid0&);
@@ -36,14 +37,15 @@ namespace Geometry
 
     // ~~~ index 1 ~~~==============================================================================
 
-    class MappingToRefFaceToPyramid1: public MappingReferenceToReference<2,3>
+    class MappingToRefFaceToPyramid1: public MappingReferenceToReference
     {
         public:
             static const MappingToRefFaceToPyramid1& Instance();
-            virtual void transform(const Geometry::PointReference<2>&,
-                                         Geometry::PointReference<3>&) const;
-            virtual void calcJacobian(const Geometry::PointReference<2>&,
-                                            Geometry::Jacobian<2,3>&) const;
+            virtual void transform(const Geometry::PointReference&,
+                                         Geometry::PointReference&) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToPyramid1();
             MappingToRefFaceToPyramid1(const MappingToRefFaceToPyramid1&);
@@ -53,14 +55,15 @@ namespace Geometry
 
     // ~~~ index 2 ~~~==============================================================================
 
-    class MappingToRefFaceToPyramid2: public MappingReferenceToReference<2,3>
+    class MappingToRefFaceToPyramid2: public MappingReferenceToReference
     {
         public:
             static const MappingToRefFaceToPyramid2& Instance();
-            virtual void transform(const Geometry::PointReference<2>& p1,
-                                         Geometry::PointReference<3>& p2) const;
-            virtual void calcJacobian(const Geometry::PointReference<2>&,
-                                            Geometry::Jacobian<2,3>&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToPyramid2();
             MappingToRefFaceToPyramid2(const MappingToRefFaceToPyramid2&);
@@ -70,14 +73,15 @@ namespace Geometry
 
     // ~~~ index 3 ~~~==============================================================================
 
-    class MappingToRefFaceToPyramid3: public MappingReferenceToReference<2,3>
+    class MappingToRefFaceToPyramid3: public MappingReferenceToReference
     {
         public:
             static const MappingToRefFaceToPyramid3& Instance();
-            virtual void transform(const Geometry::PointReference<2>& p1,
-                                         Geometry::PointReference<3>& p2) const;
-            virtual void calcJacobian(const Geometry::PointReference<2>&,
-                                            Geometry::Jacobian<2,3>&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToPyramid3();
             MappingToRefFaceToPyramid3(const MappingToRefFaceToPyramid3&);
@@ -87,14 +91,15 @@ namespace Geometry
 
     // ~~~ index 4 ~~~==============================================================================
 
-    class MappingToRefFaceToPyramid4: public MappingReferenceToReference<2,3>
+    class MappingToRefFaceToPyramid4: public MappingReferenceToReference
     {
         public:
             static const MappingToRefFaceToPyramid4& Instance();
-            virtual void transform(const Geometry::PointReference<2>& p1,
-                                         Geometry::PointReference<3>& p2) const;
-            virtual void calcJacobian(const Geometry::PointReference<2>&,
-                                            Geometry::Jacobian<2,3>&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToPyramid4();
             MappingToRefFaceToPyramid4(const MappingToRefFaceToPyramid4&);

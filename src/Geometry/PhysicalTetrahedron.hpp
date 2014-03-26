@@ -1,14 +1,14 @@
 #ifndef PHYSICALTETRAHEDRON_HH
 #define PHYSICALTETRAHEDRON_HH
 #include "PhysicalGeometry.hpp"
-#include "ReferenceCube.hpp"
+#include "ReferenceTetrahedron.hpp"
 namespace Geometry
 {
-    class PhysicalTetrahedron: public PhysicalGeometry<ThreeD>
+    class PhysicalTetrahedron: public PhysicalGeometry
     {
         public:
 
-            typedef PhysicalGeometry<ThreeD> PhysicalGeometry3D;
+            typedef PhysicalGeometry PhysicalGeometry3D;
             using PhysicalGeometry3D::VectorOfPointIndexesT;
             using PhysicalGeometry3D::VectorOfPhysicalPointsT;
             using PhysicalGeometry3D::PointIndexT;
@@ -18,7 +18,7 @@ namespace Geometry
             PhysicalTetrahedron(
                     const VectorOfPointIndexesT&,
                     const VectorOfPhysicalPointsT&,
-                    const ReferenceCube* const cube);
+                    const ReferenceTetrahedron* const cube);
 
             ~PhysicalTetrahedron() {}
 

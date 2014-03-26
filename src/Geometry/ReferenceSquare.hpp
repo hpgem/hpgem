@@ -31,11 +31,11 @@ namespace Geometry
      * (-1,-1) 0---0---1 (+1,-1)
      *
      */
-    class ReferenceSquare: public ReferenceGeometry<TwoD>
+    class ReferenceSquare: public ReferenceGeometry
     {
 
     public:
-        typedef ReferenceGeometry<TwoD>                     ReferenceGeometryT;
+        typedef ReferenceGeometry                     ReferenceGeometryT;
 //         typedef QuadratureRules::GaussQuadratureRule<TwoD>  GaussQuadratureRuleT;
 //         typedef std::list<QuadratureRules::GaussQuadratureRule<TwoD>*>            ListOfGaussQuadratureRulePtrT;
         using ReferenceGeometryT::IndexT;
@@ -82,7 +82,7 @@ namespace Geometry
         int                                      getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
 
         //! (see MappingCodimensions.hpp)
-        const MappingReferenceToReference<2, 2>* getCodim0MappingPtr(const IndexT) const;
+        const MappingReferenceToReference* getCodim0MappingPtr(const IndexT) const;
 
         // ================================== Codimension 1 ========================================
 
@@ -93,25 +93,25 @@ namespace Geometry
         void                                     getCodim1EntityLocalIndices(const IndexT, ListOfIndexesT& faceNodesLocal) const;
 
         //! (see MappingCodimensions.hpp)
-        const MappingReferenceToReference<1, 2>* getCodim1MappingPtr(const IndexT) const;
+        const MappingReferenceToReference* getCodim1MappingPtr(const IndexT) const;
         
         //! (see MappingCodimensions.hpp)
-        const ReferenceGeometry<1>*              getCodim1ReferenceGeometry(const IndexT) const;
+        const ReferenceGeometry*              getCodim1ReferenceGeometry(const IndexT) const;
 
         // ================================== Codimension 2 ========================================
 
         //! (see MappingCodimensions.hpp)
-        int                                      getNrOfCodim2Entities() const {return 4;};
+        unsigned int                                      getNrOfCodim2Entities() const {return 4;};
 
         void                                     getCodim2EntityLocalIndices(const int, std::vector<unsigned int>&) const {return;}
 
         // ========================= Quadrature rules for this geometry  ===========================
         
         /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<2>* const qr);
+        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr);
 
         /// Get a valid quadrature for this geometry.
-        virtual QuadratureRules::GaussQuadratureRule<2>* const getGaussQuadratureRule(int order) const;
+        virtual QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
         
         // =============================== Refinement mappings =====================================
         
@@ -143,16 +143,16 @@ namespace Geometry
         static int                                  localNodeIndexes_[4][2];
 
         //! Codimension 1 mappings, from a line to a square. TODO: Where is this used? clarify here.
-        const MappingReferenceToReference<1, 2>*    mappingsLineToSquare_[4];
+        const MappingReferenceToReference*    mappingsLineToSquare_[4];
 
         //! Codimension 0 mappings, from a square to a square. TODO: Where is this used? clarifiy here.
-        const MappingReferenceToReference<2, 2>*    mappingsSquareToSquare_[8];
+        const MappingReferenceToReference*    mappingsSquareToSquare_[8];
 
         //! Pointer to the Codimension 1 reference geometry, in this case, to ReferenceLine.
-        ReferenceGeometry<1>* const                 referenceGeometryCodim1Ptr_;
+        ReferenceGeometry* const                 referenceGeometryCodim1Ptr_;
         
         //! List of valid quadrature rules for this reference geometry
-        std::list<QuadratureRules::GaussQuadratureRule<2>*> lstGaussQuadratureRules_;
+        std::list<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
     };
 };
 #endif

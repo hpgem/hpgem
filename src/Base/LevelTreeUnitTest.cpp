@@ -4,9 +4,6 @@
 #include <vector>
 #include <typeinfo>
 #include "LevelTree.hpp"
-#include "Element_FAKE.hpp"
-#include "Face_FAKE.hpp"
-#include "MeshManipulator_FAKE.hpp"
 
 
 //===================================================== Displaying container contents
@@ -31,15 +28,15 @@ int main()
     srand ( seed );
 //     std::cout << "random number seed = " << seed << std::endl;
 
-    typedef Base::LevelTree<Base::Element<dim> > LevelTreeT;
+    typedef Base::LevelTree<Base::Element > LevelTreeT;
     typedef std::vector<LevelTreeT*>  vecLevelTreePtrT;
     
     std::cout << "\nInitial test: adding people into a LevelTree and display them.\n";
     std::cout << "----------------------------------------------------------------\n";
     
-    Base::Element<dim> Cathy(-1);
-    Base::Element<dim> Denny(-2);
-    Base::Element<dim> Victor(-3);
+    Base::Element Cathy(-1);
+    Base::Element Denny(-2);
+    Base::Element Victor(-3);
     LevelTreeT treeElement;
     
     std::cout << "Before any people are added...";
@@ -73,7 +70,7 @@ int main()
         const int startId = (i+1)*1000;
         for (int i=startId; i<startId+numberOfElement; ++i)
         {
-          Base::Element<dim> student(i);
+          Base::Element student(i);
           myTree.addEntry(student);
         }
         display<LevelTreeT>(myTree);
@@ -92,13 +89,13 @@ int main()
     
     int meshTreeIdx;
     
-    Base::MeshManipulator<dim> myMesh;
+    Base::MeshManipulator myMesh;
     std::cout << "Number of mesh-tree: " << myMesh.size() << std::endl;
-    myMesh.someMeshGenerator();
+    myMesh.someMeshGenerator(0);
     
     meshTreeIdx = 0;
     std::cout << "Number of elements in mesh-tree-" << meshTreeIdx << " is " << myMesh.size() << std::endl;
-    for (Base::MeshManipulator<dim>::ElementIterator it=myMesh.ElCont()->begin(); it!=myMesh.ElCont()->end(); ++it)
+    for (Base::MeshManipulator::ElementIterator it=myMesh.ElCont()->begin(); it!=myMesh.ElCont()->end(); ++it)
     {
       std::cout << (*it).getId() << " ";
     }
@@ -106,9 +103,9 @@ int main()
 
     myMesh.createNewMeshTree();
     meshTreeIdx = 1;
-    myMesh.someMeshGenerator();
+    myMesh.someMeshGenerator(0);
     std::cout << "Number of elements in mesh-tree-" << meshTreeIdx << " is " << myMesh.size() << std::endl;
-    for (Base::MeshManipulator<dim>::ElementIterator it=myMesh.ElCont(meshTreeIdx)->begin(); 
+    for (Base::MeshManipulator::ElementIterator it=myMesh.ElCont(meshTreeIdx)->begin();
                       it!=myMesh.ElCont(meshTreeIdx)->end(); ++it)
     {
       std::cout << (*it).getId() << " ";

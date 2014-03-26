@@ -28,10 +28,10 @@ namespace Geometry
      *  0o---------o1
      *
      */
-    class ReferenceCube: public ReferenceGeometry<ThreeD>
+    class ReferenceCube: public ReferenceGeometry
     {
     public:
-        typedef         ReferenceGeometry<ThreeD> ReferenceGeometryT;
+        typedef         ReferenceGeometry ReferenceGeometryT;
 
         using typename  ReferenceGeometryT::IndexT;
         using typename  ReferenceGeometryT::PointReferenceT;
@@ -77,7 +77,7 @@ namespace Geometry
         int getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
 
         //! (see MappingCodimensions.hpp)
-        const MappingReferenceToReference<3, 3>* getCodim0MappingPtr(const IndexT) const;
+        const MappingReferenceToReference* getCodim0MappingPtr(const IndexT) const;
 
         // ================================== Codimension 1 ========================================
 
@@ -88,10 +88,10 @@ namespace Geometry
         void                                        getCodim1EntityLocalIndices(const IndexT, ListOfIndexesT& faceNodesLocal) const;
 
         //! (see MappingCodimensions.hpp)
-        const MappingReferenceToReference<2, 3>*    getCodim1MappingPtr(const IndexT) const;
+        const MappingReferenceToReference*    getCodim1MappingPtr(const IndexT) const;
 
         //! (see MappingCodimensions.hpp)
-        const ReferenceGeometry<2>*                 getCodim1ReferenceGeometry(const IndexT) const;
+        const ReferenceGeometry*                 getCodim1ReferenceGeometry(const IndexT) const;
 
         // ================================== Codimension 2 ========================================
 
@@ -102,10 +102,10 @@ namespace Geometry
         void                                        getCodim2EntityLocalIndices(const IndexT, ListOfIndexesT& faceNodesLocal) const;
 
         //! (see MappingCodimensions.hpp)
-        const MappingReferenceToReference<1, 3>*    getCodim2MappingPtr(const IndexT) const;
+        const MappingReferenceToReference*    getCodim2MappingPtr(const IndexT) const;
 
         //! (see MappingCodimensions.hpp)
-        const ReferenceGeometry<1>*                 getCodim2ReferenceGeometry(const IndexT) const;
+        const ReferenceGeometry*                 getCodim2ReferenceGeometry(const IndexT) const;
 
         // ================================== Codimension 3 ========================================
 
@@ -118,10 +118,10 @@ namespace Geometry
         // ================================== Quadrature rules =====================================
 
         /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<3>* const qr); 
+        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr);
 
         /// Get a valid quadrature for this geometry.
-        virtual QuadratureRules::GaussQuadratureRule<3>* const getGaussQuadratureRule(int order) const;
+        virtual QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
 
         // =============================== Refinement mappings =====================================
         
@@ -154,19 +154,19 @@ namespace Geometry
         static int                                          localNodesOnEdge_[12][2]; //!< 12 edges with 2 nodes
 
         //! Codimension 1 mappings, from a line to a square. TODO: Where is this used? clarify here.
-        const MappingReferenceToReference<2, 3>*            mappingsSquareToCube_[6];
+        const MappingReferenceToReference*            mappingsSquareToCube_[6];
 
         //! Codimension 0 mappings, from a square to a square. TODO: Where is this used? clarifiy here.
-        const MappingReferenceToReference<3, 3>*            mappingsCubeToCube_[8];
+        const MappingReferenceToReference*            mappingsCubeToCube_[8];
 
         //! Pointer to the Codimension 1 reference geometry, in this case, to ReferenceSquare.
-        ReferenceGeometry<2>* const                         referenceGeometryCodim1Ptr_;
+        ReferenceGeometry* const                         referenceGeometryCodim1Ptr_;
 
         //! Pointer to the Codimension 2 reference geometry, in this case, to ReferenceLine.
-        ReferenceGeometry<1>* const                         referenceGeometryCodim2Ptr_;
+        ReferenceGeometry* const                         referenceGeometryCodim2Ptr_;
         
         //! List of valid quadrature rules for this reference geometry
-        std::list<QuadratureRules::GaussQuadratureRule<3>*> lstGaussQuadratureRules_;
+        std::list<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
     };
 };
 #endif

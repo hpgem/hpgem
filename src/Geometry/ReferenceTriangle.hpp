@@ -29,11 +29,11 @@ namespace Geometry
      *   (0,0) 0---0---1 (1,0)
      *
      */
-    class ReferenceTriangle: public ReferenceGeometry<TwoD>
+    class ReferenceTriangle: public ReferenceGeometry
     {
 
     public:
-        typedef ReferenceGeometry<TwoD> ReferenceGeometryT;
+        typedef ReferenceGeometry ReferenceGeometryT;
         
         using ReferenceGeometryT::IndexT;
         using ReferenceGeometryT::PointReferenceT;
@@ -76,7 +76,7 @@ namespace Geometry
         int                                      getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
 
         //! (see MappingCodimensions.hpp)
-        const MappingReferenceToReference<2, 2>* getCodim0MappingPtr(const IndexT) const;
+        const MappingReferenceToReference* getCodim0MappingPtr(const IndexT) const;
 
         // ================================== Codimension 1 ========================================
 
@@ -87,15 +87,15 @@ namespace Geometry
         void                                     getCodim1EntityLocalIndices(const IndexT, ListOfIndexesT& faceNodesLocal) const;
 
         //! (see MappingCodimensions.hpp)
-        const MappingReferenceToReference<1, 2>* getCodim1MappingPtr(const IndexT) const;
+        const MappingReferenceToReference* getCodim1MappingPtr(const IndexT) const;
 
         //! (see MappingCodimensions.hpp)
-        const ReferenceGeometry<1>*              getCodim1ReferenceGeometry(const IndexT) const;
+        const ReferenceGeometry*              getCodim1ReferenceGeometry(const IndexT) const;
 
         // ================================== Codimension 2 ========================================
 
         //! (see MappingCodimensions.hpp)
-        int                                      getNrOfCodim2Entities() const {return 3;};
+        unsigned int                                      getNrOfCodim2Entities() const {return 3;};
 
         void                                     getCodim2EntityLocalIndices(const int, std::vector<unsigned int>&) const {return;}
   
@@ -103,10 +103,10 @@ namespace Geometry
         // ================================== Quadrature rules =====================================
 
         /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<2>* const qr);
+        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr);
 
         /// Get a valid quadrature for this geometry.
-        virtual QuadratureRules::GaussQuadratureRule<2>* const getGaussQuadratureRule(int order) const;
+        virtual QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
             
         // =============================== Refinement mappings =====================================
         
@@ -139,16 +139,16 @@ namespace Geometry
         static int                                          localNodeIndexes_[3][2];
 
         //! Codimension 1 mappings, from a line to a triangle. TODO: Where is this used? clarify here.
-        const MappingReferenceToReference<1, 2>*            mappingsLineToTriangle_[3];
+        const MappingReferenceToReference*            mappingsLineToTriangle_[3];
 
         //! Codimension 0 mappings, from a triangle to a triangle. TODO: Where is this used? clarifiy here.
-        const MappingReferenceToReference<2, 2>*            mappingsTriangleToTriangle_[6];
+        const MappingReferenceToReference*            mappingsTriangleToTriangle_[6];
 
         //! Pointer to the Codimension 1 reference geometry, in this case, to ReferenceLine.
-        ReferenceGeometry<1>* const                         referenceGeometryCodim1Ptr_;
+        ReferenceGeometry* const                         referenceGeometryCodim1Ptr_;
         
         //! List of valid quadrature rules for this reference geometry
-        std::list<QuadratureRules::GaussQuadratureRule<2>*> lstGaussQuadratureRules_;
+        std::list<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
     };
 };
 #endif /* defined(____ReferenceTriangle__) */

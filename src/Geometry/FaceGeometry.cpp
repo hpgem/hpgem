@@ -6,13 +6,14 @@
 //
 //
 
+#include "Base/Face.hpp"
+#include "FaceGeometry.hpp"
+
 namespace Geometry {
 
-    template<unsigned int DIM>
     class FaceGeometry;
 
-    template<unsigned int DIM>
-    FaceGeometry<DIM>::FaceGeometry(ElementGeometryT*       ptrElemL,
+    FaceGeometry::FaceGeometry(ElementGeometryT*       ptrElemL,
                                     const LocalFaceNrType&  localFaceNumL,
                                     ElementGeometryT*       ptrElemR,
                                     const LocalFaceNrType&  localFaceNumR) :
@@ -51,8 +52,8 @@ namespace Geometry {
         std::vector<unsigned int> globalNodeNrsL;
         std::vector<unsigned int> globalNodeNrsR;
 
-        const Geometry::PhysicalGeometry<DIM>* const leftPG  = leftElementGeom_->getPhysicalGeometry();
-        const Geometry::PhysicalGeometry<DIM>* const rightPG = (rightElementGeom_ == NULL? NULL:rightElementGeom_->getPhysicalGeometry());
+        const Geometry::PhysicalGeometry* const leftPG  = leftElementGeom_->getPhysicalGeometry();
+        const Geometry::PhysicalGeometry* const rightPG = (rightElementGeom_ == NULL? NULL:rightElementGeom_->getPhysicalGeometry());
 
             // We try element left first because its the one we are sure exists.
         leftPG->getGlobalFaceNodeIndices(localFaceNumberLeft_, globalNodeNrsL);
@@ -208,7 +209,9 @@ namespace Geometry {
 
             unsigned int periodicDim = Geometry::MaxInteger; // initialize to large value
 
-            PointPhysicalT pointPhysical;
+            unsigned int DIM = leftPG->getNodePtr(0)->size();
+
+            PointPhysicalT pointPhysical(DIM);
 
             std::vector<PointPhysicalT> projectedPointsL; // create empty!
             std::vector<PointPhysicalT> projectedPointsR;
@@ -252,8 +255,8 @@ namespace Geometry {
             if (periodicDim==Geometry::MaxInteger)
                 cout << "Shit happened. Trained monkeys are on the way to fix the problem, probably." << std::endl;
 
-            PhysicalPointOnTheFaceT ppL;
-            PhysicalPointOnTheFaceT ppR;
+            PhysicalPointOnTheFaceT ppL(DIM-1);
+            PhysicalPointOnTheFaceT ppR(DIM-1);
 
                 // next we eliminate the periodic dimension from a Point coordinates & a
             for(unsigned int i = 0; i < globalNodeNrsR.size(); ++i)
@@ -337,8 +340,7 @@ namespace Geometry {
     }
 
         //! Ctor for boundary faces.
-        template<unsigned int DIM>
-    FaceGeometry<DIM>::FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, const FaceType& boundaryLabel):
+    FaceGeometry::FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, const FaceType& boundaryLabel):
     leftElementGeom_(ptrElemL),
     rightElementGeom_(NULL),
     localFaceNumberLeft_(localFaceNumL),
@@ -348,9 +350,8 @@ namespace Geometry {
     { }
         /// The referenceGeometry is returned. It is taken from left element, to always ensure its existence
         // should use the same interface as in the Element!
-    template<unsigned int DIM>
-    const ReferenceGeometry<DIM-1>*
-    FaceGeometry<DIM>::getReferenceGeometry()const
+    const ReferenceGeometry*
+    FaceGeometry::getReferenceGeometry()const
     {
         return leftElementGeom_->getReferenceGeometry()->getCodim1ReferenceGeometry(localFaceNumberLeft_);
     }
@@ -387,9 +388,8 @@ namespace Geometry {
         
         /*! Map a point in coordinates of the reference geometry of the face to
          *  the reference geometry of the left (L) element. */
-    template<unsigned int DIM>
     void
-    FaceGeometry<DIM>::mapRefFaceToRefElemL(const ReferencePointOnTheFaceT& pRefFace,
+    FaceGeometry::mapRefFaceToRefElemL(const ReferencePointOnTheFaceT& pRefFace,
                                      ReferencePointT& pRefEl) const
     {
         leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_)->transform(pRefFace, pRefEl);
@@ -397,9 +397,8 @@ namespace Geometry {
         
         /*! Map a point in coordinates of the reference geometry of the face to
          *  the reference geometry of the right (R) element. */
-    template<unsigned int DIM>
     void
-    FaceGeometry<DIM>::mapRefFaceToRefElemR(const ReferencePointOnTheFaceT& pRefFace,
+    FaceGeometry::mapRefFaceToRefElemR(const ReferencePointOnTheFaceT& pRefFace,
                                      ReferencePointT& pRefEl) const
     {
         // In the L function we have assumed the point pRefFace to be
@@ -441,9 +440,8 @@ namespace Geometry {
         
         /*! Map from reference face coordinates on the left side to those on the
          *  right side. */
-        template<unsigned int DIM>
     void
-    FaceGeometry<DIM>::mapRefFaceToRefFace(const ReferencePointOnTheFaceT& pIn,
+    FaceGeometry::mapRefFaceToRefFace(const ReferencePointOnTheFaceT& pIn,
                                      ReferencePointOnTheFaceT& pOut) const
     {
         getReferenceGeometry()->getCodim0MappingPtr(faceToFaceMapIndex_)->transform(pIn, pOut);
@@ -453,22 +451,20 @@ namespace Geometry {
 //        RefFace2RefElementMapping;
         
     //! Return a Mapping (not pointer or reference! Ok, wrapped by auto_ptr)
-    template<unsigned int DIM>
-    typename FaceGeometry<DIM>::RefFaceToRefElementMapping
-    FaceGeometry<DIM>::refFaceToRefElemMapL() const
+    typename FaceGeometry::RefFaceToRefElementMapping
+    FaceGeometry::refFaceToRefElemMapL() const
     {
         return RefFaceToRefElementMapping(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_));
     }
     
     //! Return a mapping to the right reference element.
-    template<unsigned int DIM>
-    typename FaceGeometry<DIM>::RefFaceToRefElementMapping 
-    FaceGeometry<DIM>::refFaceToRefElemMapR() const
+    typename FaceGeometry::RefFaceToRefElementMapping
+    FaceGeometry::refFaceToRefElemMapR() const
     {
-        const MappingReferenceToReference<DIM-1, DIM-1>* const m1Ptr = this->getReferenceGeometry()->getCodim0MappingPtr(faceToFaceMapIndex_);
-        const MappingReferenceToReference<DIM-1, DIM>* const m2Ptr =  leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_);
+        const MappingReferenceToReference* const m1Ptr = this->getReferenceGeometry()->getCodim0MappingPtr(faceToFaceMapIndex_);
+        const MappingReferenceToReference* const m2Ptr =  leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_);
         
-        return RefFaceToRefElementMapping(new ConcatenatedMapping<DIM-1, DIM-1, DIM>(*m1Ptr, *m2Ptr));
+        return RefFaceToRefElementMapping(new ConcatenatedMapping(*m1Ptr, *m2Ptr));
     }
     
     /*!Compute the normal vector at a given point (in face coords).
@@ -485,57 +481,84 @@ namespace Geometry {
      face and physical space: this scalar is given by the 2-norm of the
      returned normal vector.
      </UL> */
-    template<unsigned int DIM>
     void
-    FaceGeometry<DIM>::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, PointPhysicalT& v) const
+    FaceGeometry::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, NumericalVector& v) const
     {
-        // first Jacobian (mapping reference face -> reference element)
-        Jacobian<DIM-1, DIM>    j1;
-        
-        leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_) // this is the refFace2RefElemMap
-        ->calcJacobian(pRefFace, j1);
-        
-        // second Jacobian (mapping reference element -> phys. element),
-        // for this we first need the points coordinates on the
-        // reference element
-        ReferencePointT pRefElement;
-        mapRefFaceToRefElemL(pRefFace, pRefElement);
-        
-        Jacobian<DIM, DIM> j2;
-        
-        leftElementGeom_->calcJacobian(pRefElement, j2);
+    	unsigned int DIM=v.size();
+    	if(DIM>1){
+			// first Jacobian (mapping reference face -> reference element)
+			Jacobian    j1(DIM-1,DIM);
 
-        Jacobian<DIM-1, DIM> j3;
-        
-        j2.multiplyJacobiansInto(j1, j3);
-        
-        j3.computeWedgeStuffVector(v);
-        
-        double det = j2.determinant();
-                
-        //sgn==(x > 0) - (x < 0)
-//        cout << "det="<<det<<endl;
-//        cout << "localFaceNumberLeft_="<<localFaceNumberLeft_<<endl;
-//        cout << "v="<<v<<endl;
-        
-        double sign =OutwardNormalVectorSign<DIM>(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_));
-//        cout << "sign="<<sign<<endl;
-        v *= ((det>0)-(det<0))*sign;
+			leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_) // this is the refFace2RefElemMap
+			->calcJacobian(pRefFace, j1);
+
+			// second Jacobian (mapping reference element -> phys. element),
+			// for this we first need the points coordinates on the
+			// reference element
+			ReferencePointT pRefElement(DIM);
+			mapRefFaceToRefElemL(pRefFace, pRefElement);
+
+			Jacobian j2(DIM,DIM);
+
+			leftElementGeom_->calcJacobian(pRefElement, j2);
+
+			Jacobian j3(DIM-1,DIM);
+
+			j2.multiplyJacobiansInto(j1, j3);
+
+			j3.computeWedgeStuffVector(v);
+
+			double det = j2.determinant();
+
+			//sgn==(x > 0) - (x < 0)
+	//        cout << "det="<<det<<endl;
+	//        cout << "localFaceNumberLeft_="<<localFaceNumberLeft_<<endl;
+	//        cout << "v="<<v<<endl;
+
+			double sign =OutwardNormalVectorSign(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_));
+	//        cout << "sign="<<sign<<endl;
+			v *= ((det>0)-(det<0))*sign;
+    	}else{//if DIM==1
+    		//for one dimension the fancy wedge stuff wont work
+    		//but we know the left point has outward pointing vector -1
+    		//and the right point has outward pointing vector 1
+    		//so this is the same as the physical point
+    		PointReference pRefElement(DIM);
+    		mapRefFaceToRefElemL(pRefFace,pRefElement);
+
+    		//but if someone has mirrored the physical line
+    		//we also have to also mirror the normal vector
+    		//the face cant be made larger or smaller so
+    		//the vector should have length one
+
+    		Jacobian j(DIM,DIM);
+
+    		leftElementGeom_->calcJacobian(pRefElement,j);
+    		int sgn=(j[0]>0)-(j[0]<0);
+    		v[0]=pRefElement[0]*sgn;
+    	}
         
         
     }
 
+    void
+    FaceGeometry::referenceToPhysical(const PointReference& p,PointPhysical& pPhys) const
+    {
+    	PointReference pElement(p.size()+1);
+    	mapRefFaceToRefElemL(p,pElement);
+    	getElementGLeft()->referenceToPhysical(pElement,pPhys);
+    }
+
 //-MTJ-start--------------
 //#ifdef MTJ
-    template<unsigned int DIM>
-    void FaceGeometry<DIM>::copyFromParent(const Face<DIM>& fa)
+    ///(@tito) why ask for a face when you only copy fields of the faceGeometry???
+    void FaceGeometry::copyFromParent(const FaceT& fa)
         {
             faceToFaceMapIndex_ = fa.faceToFaceMapIndex_;
             faceToFaceMapMatrix_ = fa.faceToFaceMapMatrix_;
         }
 
-    template<unsigned int DIM>
-    void FaceGeometry<DIM>::invertFaceToFaceMapMatrix()
+    void FaceGeometry::invertFaceToFaceMapMatrix()
         {
 
             // invert the matrix
@@ -563,8 +586,7 @@ namespace Geometry {
         }
 
     // Q_new = R * Q_old * L
-    template<unsigned int DIM>
-    void FaceGeometry<DIM>::recalculateRefinementMatrix(MatrixT& Lmat, MatrixT& Rmat)
+    void FaceGeometry::recalculateRefinementMatrix(MatrixT& Lmat, MatrixT& Rmat)
         {
             MatrixT aa(faceToFaceMapMatrix_.getNRows(),faceToFaceMapMatrix_.getNCols());
 
@@ -572,8 +594,7 @@ namespace Geometry {
 //             Base::matrix_prod(Rmat, aa, faceToFaceMapMatrix_);
         }
     
-    template<unsigned int DIM>
-    void FaceGeometry<DIM>::printRefMatrix() const
+    void FaceGeometry::printRefMatrix() const
         {
             std::cout << "("<< faceToFaceMapIndex_ << ") refMatrix: " << faceToFaceMapMatrix_ << "\n";
         }

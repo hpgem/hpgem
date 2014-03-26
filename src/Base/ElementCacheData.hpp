@@ -11,21 +11,14 @@
 namespace Base
 {
     // forward declaration
-    template <unsigned int DIM>
     class Element;
 
-    template <unsigned int dim>
     class ElementCacheData
     {
         public:
 
         // calculate the cache data
-        void operator()(const Base::Element<dim>* el, const Geometry::PointReference<dim>& p)
-        {
-            Geometry::Jacobian<dim,dim> jac;
-            el->calcJacobian(p, jac);
-            absDetJac_ = std::abs(jac.determinant());
-        }
+        void operator()(const Base::Element* el, const Geometry::PointReference& p);
 
         // cache data
         double absDetJac_;

@@ -12,7 +12,8 @@
 
 namespace Geometry
 {
-    MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(const PhysicalGeometryT* const physicalGeometry)
+    MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(const PhysicalGeometryT* const physicalGeometry):
+    		a0(3),a1(3),a2(3),a3(3),a4(3),a5(3)
     {
         reinit(physicalGeometry);
     }
@@ -41,7 +42,7 @@ namespace Geometry
             f2[4] = 0.5 * (t1 + pR[0]);
             f2[5] = 0.5 * (t2 + pR[1]);
 
-            PointPhysicalT p;
+            PointPhysicalT p(3);
 
             pP[0] = pP[1] = pP[2] = 0.;
 
@@ -98,9 +99,9 @@ namespace Geometry
             df_dxi2[4] = +0.5 * pR[0];
             df_dxi2[5] = +0.5 * pR[1];
 
-            Geometry::PointPhysical<3> d_dxi0;
-            Geometry::PointPhysical<3> d_dxi1;
-            Geometry::PointPhysical<3> d_dxi2;
+            Geometry::PointPhysical d_dxi0(3);
+            Geometry::PointPhysical d_dxi1(3);
+            Geometry::PointPhysical d_dxi2(3);
 
             for (int i = 0; i < 3; ++i)
             {
@@ -109,7 +110,7 @@ namespace Geometry
                 d_dxi2[i] = 0.;
             }
 
-            Geometry::PointPhysical<3> p;
+            Geometry::PointPhysical p(3);
 
             for (int i = 0; i < 6; ++i)
             {

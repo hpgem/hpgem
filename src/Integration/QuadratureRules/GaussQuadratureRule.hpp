@@ -21,13 +21,11 @@
 namespace Geometry
 {
     // forward declaration
-    template <unsigned int DIM>
     class ReferenceGeometry;
 }
 
 namespace QuadratureRules
 {
-    template <unsigned int DIM>
     class GaussQuadratureRule
     {
       public:
@@ -47,10 +45,10 @@ namespace QuadratureRules
         virtual Integration::NumType weight(unsigned int) const = 0;
 
         //! Return the coordinates of the point with the given index.
-        virtual void getPoint(unsigned int, Geometry::PointReference<DIM>&) const = 0;
+        virtual void getPoint(unsigned int, Geometry::PointReference&) const = 0;
 
         //! Each rule also knows which ReferenceGeometry it is meant for.
-        virtual Geometry::ReferenceGeometry<DIM>* forReferenceGeometry() const = 0;
+        virtual Geometry::ReferenceGeometry* forReferenceGeometry() const = 0;
         
         virtual ~GaussQuadratureRule() {}
     };

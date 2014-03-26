@@ -4,11 +4,11 @@
 #include "ReferenceTriangularPrism.hpp"
 namespace Geometry
 {
-    class PhysicalTriangularPrism: public PhysicalGeometry<ThreeD>
+    class PhysicalTriangularPrism: public PhysicalGeometry
     {
     public:
 
-        typedef PhysicalGeometry<ThreeD> PhysicalGeometry3D;
+        typedef PhysicalGeometry PhysicalGeometry3D;
         using PhysicalGeometry3D::VectorOfPointIndexesT;
         using PhysicalGeometry3D::VectorOfPhysicalPointsT;
         using PhysicalGeometry3D::PointIndexT;
@@ -23,6 +23,8 @@ namespace Geometry
         ~PhysicalTriangularPrism() {}
 
         virtual std::string     getName() const { return "PhysicalTriangularPrism";}
+
+        unsigned int            getNrOfFaces() const {return 5;}
 
         void                    getGlobalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
 

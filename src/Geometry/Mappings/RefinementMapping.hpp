@@ -9,12 +9,11 @@
              
 namespace Geometry
 {
-    template <unsigned int DIM>
     class RefinementMapping
     {
     public:
         typedef unsigned int                    DimT;
-        typedef PointReference<DIM>             PointReferenceT;
+        typedef PointReference             PointReferenceT;
 
         //! Default constructor.
         RefinementMapping() {}  

@@ -6,11 +6,11 @@
 
 namespace Geometry
 {
-    class PhysicalQuadrilateral: public PhysicalGeometry<TwoD>
+    class PhysicalQuadrilateral: public PhysicalGeometry
     {
         public:
 
-            typedef PhysicalGeometry<TwoD> PhysicalGeometry2D;
+            typedef PhysicalGeometry PhysicalGeometry2D;
             using PhysicalGeometry2D::VectorOfPointIndexesT;
             using PhysicalGeometry2D::VectorOfPhysicalPointsT;
             using PhysicalGeometry2D::PointIndexT;

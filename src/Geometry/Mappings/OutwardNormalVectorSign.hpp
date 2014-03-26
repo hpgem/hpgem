@@ -22,7 +22,6 @@ namespace Geometry
      *
      * TODO: Switch old mappings to be outward.
      */
-    template <unsigned int DIM>
-    double OutwardNormalVectorSign(const MappingReferenceToReference<DIM-1, DIM>* const map);
+    double OutwardNormalVectorSign(const MappingReferenceToReference* const map);
 }
 #endif

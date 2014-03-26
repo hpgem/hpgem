@@ -61,7 +61,7 @@ namespace LinearAlgebra
         double& operator[](const int n);
         
             /// WRONG!!
-        const double& operator[](const int n) const {return data_[n];}
+        const double& operator[](const int n) const;
         
         /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j
         NumericalVector operator*(NumericalVector& right);

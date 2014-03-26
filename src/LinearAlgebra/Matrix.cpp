@@ -122,8 +122,9 @@ namespace LinearAlgebra
     ///
     /// \details
     /// Recall that the matrix is stored in fortran style i.e. columns first and then rows
-    inline double& Matrix::operator[](const int n){return data_[n];}
+    double& Matrix::operator[](const int n){return data_[n];}
     
+    const double& Matrix::operator[](const int n) const  {return data_[n];}
     
     /// \details
     /*! Computes Matrix * vector and return the vector

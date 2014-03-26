@@ -10,7 +10,7 @@
 
 namespace Utilities
 {
-    template <>
+    /*template <>
     double norm2<1>(const Geometry::PointPhysical<1>& p)
     {
         return std::abs(p[0]);
@@ -26,12 +26,15 @@ namespace Utilities
     double norm2<3>(const Geometry::PointPhysical<3>& p)
     {
         return std::sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
-    }
+    }*/
     
-    template <>
-    double norm2<4>(const Geometry::PointPhysical<4>& p)
+    double norm2(const Geometry::PointPhysical& p)
     {
-        return std::sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2] + p[3] * p[3]);
+    	double retSquared(0);
+    	for(int i=0;i<p.size();++i){
+    		retSquared+=p[i]*p[i];
+    	}
+        return std::sqrt(retSquared);
     }
 }
     //------------------------------------------------------------------------------

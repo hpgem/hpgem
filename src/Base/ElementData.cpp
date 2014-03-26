@@ -1,0 +1,184 @@
+#include "ElementData.hpp"
+#include "TestErrorDebug.hpp"
+
+namespace Base
+{
+    
+    ElementData::ElementData(unsigned int timeLevels,
+                                  unsigned int nrOfUnkowns,
+                                  unsigned int nrOfBasisFunctions,
+                                  unsigned int nrOfElementMatrixes,
+                                  unsigned int nrOfElementVectors):
+        timeLevels_(timeLevels),
+        nrOfUnkowns_(nrOfUnkowns),
+        nrOfBasisFunctions_(nrOfBasisFunctions),
+        expansionCoefficients_(timeLevels_),
+        userData_(NULL),
+        elementMatrix_(nrOfElementMatrixes),
+        elementVector_(nrOfElementVectors)
+    {
+        for (typename VectorOfMatrices::iterator cit=expansionCoefficients_.begin(); cit!=expansionCoefficients_.end(); ++cit)
+            cit->resize(nrOfUnkowns_, nrOfBasisFunctions);
+        for(typename VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
+        	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
+        for(std::vector<LinearAlgebra::NumericalVector>::iterator it=elementVector_.begin();it!=elementVector_.end();++it)
+        	it->resize(nrOfUnkowns*nrOfBasisFunctions);
+    }
+
+    void
+    ElementData::setElementMatrix(const LinearAlgebra::Matrix& matrix,int matrixID)
+    {
+    	if(matrixID>=elementMatrix_.size()){
+    		std::cout<<"Warning: Setting an element matrix that was not preallocated. If this is expected, please allocate more element matrixes in the constructor";
+    		elementMatrix_.resize(matrixID+1);
+            for(typename VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
+            	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
+    	}
+    	elementMatrix_[matrixID]=matrix;
+    }
+
+    void
+    ElementData::getElementMatrix(LinearAlgebra::Matrix& matrix, int matrixID) const
+    {
+    	TestErrorDebug(matrixID<elementMatrix_.size(),"insufficient element matrixes stored");
+    	matrix=elementMatrix_[matrixID];
+    }
+
+    void
+    ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, int vectorID)
+    {
+    	if(vectorID>=elementVector_.size()){
+    		std::cout<<"Warning: Setting an element vector that was not preallocated. If this is expected, please allocate more element vector in the constructor";
+    		elementVector_.resize(vectorID+1);
+            for(std::vector<LinearAlgebra::NumericalVector>::iterator cit=elementVector_.begin();cit!=elementVector_.end();++cit)
+            	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_);
+    	}
+    	elementVector_[vectorID]=vector;
+    }
+
+    void
+    ElementData::getElementVector(LinearAlgebra::NumericalVector& vector, int vectorID) const
+    {
+    	TestErrorDebug(vectorID<elementVector_.size(),"insufficient element vectors stored");
+    	vector=elementVector_[vectorID];
+    }
+
+    void
+    ElementData::setNumberOfBasisFunctions(unsigned int number)
+    {
+    	nrOfBasisFunctions_=number;
+    	residue_.resize(number);
+    	for(VectorOfMatrices::iterator cit=expansionCoefficients_.begin();cit!=expansionCoefficients_.end();++cit)
+    		cit->resize(nrOfUnkowns_,nrOfBasisFunctions_);
+    	for(VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
+    		cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
+        for(std::vector<LinearAlgebra::NumericalVector>::iterator it=elementVector_.begin();it!=elementVector_.end();++it)
+        	it->resize(nrOfUnkowns_*nrOfBasisFunctions_);
+    }
+
+    const LinearAlgebra::Matrix&
+    ElementData::getTimeLevelData(unsigned int timeLevel) const
+    {
+        if (timeLevel < timeLevels_)
+        {
+            return expansionCoefficients_[timeLevel];
+        }
+        else
+        {
+            throw "Error: Asked for a time level greater than the amount of time levels";
+        }
+    }
+
+
+    double
+    ElementData::getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const
+    {
+        if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
+        {
+            return expansionCoefficients_[timeLevel](unknown, basisFunction);
+        }
+        else
+        {
+            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
+        }
+    }
+
+    void
+    ElementData::setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val)
+    {
+        if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
+        {
+            expansionCoefficients_[timeLevel](unknown, basisFunction)=val;
+        }
+        else
+        {
+            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
+        }
+    }
+    
+
+    
+        ///Rewrite with swap!!! and for all variables immediately
+    void
+    ElementData::setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown)
+    {
+        if (timeLevel < timeLevels_ && solutionId < nrOfUnkowns_)
+        {
+                //cout << "came here with "<< "solutionId="<<solutionId<< ",unknown="<<unknown[0]<<endl;
+            LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
+                // cout << mat<<"before setting"<<endl;
+    
+            for (int i = 0; i < unknown.size(); ++i)
+            {
+                mat(solutionId, i) = unknown[i];
+//                cout << "was here"<<solutionId<<endl;
+            }
+            
+                // cout << mat<<"after setting"<<endl;
+        }
+        else
+        {
+            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
+        }
+    }
+    
+    void
+    ElementData::setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::Matrix& unknown)
+    {
+	if(timeLevel<timeLevels_){
+	    expansionCoefficients_[timeLevel]=LinearAlgebra::Matrix(unknown);
+	}else{
+            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";	    
+	}
+    }
+    
+    int
+    ElementData::getNrOfUnknows() const
+    {
+        return nrOfUnkowns_;
+    }
+        
+    int
+    ElementData::getNrOfBasisFunctions() const
+    {
+        return nrOfBasisFunctions_;
+    }
+    
+    const typename ElementData::VectorOfDoubles&
+    ElementData::getResidue() const
+    {
+        return residue_;
+    }
+    
+    void
+    ElementData::setResidue(VectorOfDoubles& residue)
+    {
+        residue_=residue;
+    }
+
+    void
+    ElementData::setUserData(UserElementData* data)
+    {
+        userData_=data;
+    }
+}

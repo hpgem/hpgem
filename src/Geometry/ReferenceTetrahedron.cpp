@@ -39,11 +39,11 @@ namespace Geometry
      };
 
     ReferenceTetrahedron::ReferenceTetrahedron():/// Tetrahedron has four nodes 3D + 1
-        ReferenceGeometry<ThreeD>(ThreeD+1,TETRAHEDRON),
+        ReferenceGeometry(ThreeD+1,3,TETRAHEDRON),
         referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()),
         referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
-        PointReferenceT p1, p2, p3, p4;
+        PointReferenceT p1(3), p2(3), p3(3), p4(3);
         
         p1[0] = +0.0; p1[1] = +0.0; p1[2] = +0.0;
         p2[0] = +1.0; p2[1] = +0.0; p2[2] = +0.0;
@@ -65,7 +65,7 @@ namespace Geometry
     }
     
     ReferenceTetrahedron::ReferenceTetrahedron(const ReferenceTetrahedron& copy):
-        ReferenceGeometry<ThreeD>(copy),
+        ReferenceGeometry(copy),
         referenceGeometryCodim1Ptr_(copy.referenceGeometryCodim1Ptr_),
         referenceGeometryCodim2Ptr_(copy.referenceGeometryCodim2Ptr_)
     {
@@ -111,7 +111,7 @@ namespace Geometry
         throw "ERROR: Tetrahedron to tetrahedron mappings do not exist";
     }
 
-    const MappingReferenceToReference<3, 3>*
+    const MappingReferenceToReference*
     ReferenceTetrahedron::getCodim0MappingPtr(const IndexT i) const
     {
         /// TODO: Implement tetrahedron to tetrahedron mappings.
@@ -128,7 +128,7 @@ namespace Geometry
             faceNodesLocal.resize(3); // 3 nodes per face
             faceNodesLocal[0] = (IndexT) localNodeIndexes_[faceIndex][0];
             faceNodesLocal[1] = (IndexT) localNodeIndexes_[faceIndex][1];
-            faceNodesLocal[2] = (IndexT) localNodeIndexes_[faceIndex][1];
+            faceNodesLocal[2] = (IndexT) localNodeIndexes_[faceIndex][2];
         }
         else
         {
@@ -136,7 +136,7 @@ namespace Geometry
         }
     }
 
-    const ReferenceGeometry<2>*
+    const ReferenceGeometry*
     ReferenceTetrahedron::getCodim1ReferenceGeometry(const IndexT faceIndex) const
     {
         if (faceIndex < 4)
@@ -149,7 +149,7 @@ namespace Geometry
         }
     }
 
-    const MappingReferenceToReference<2, 3>*
+    const MappingReferenceToReference*
     ReferenceTetrahedron::getCodim1MappingPtr(const IndexT faceIndex) const
     {
         if (faceIndex < 4)
@@ -179,7 +179,7 @@ namespace Geometry
         }
     }
 
-    const ReferenceGeometry<1>*
+    const ReferenceGeometry*
     ReferenceTetrahedron::getCodim2ReferenceGeometry(const IndexT edgeIndex) const
     {
         if (edgeIndex < 6)
@@ -192,7 +192,7 @@ namespace Geometry
         }
     }
 
-    const MappingReferenceToReference<1, 3>*
+    const MappingReferenceToReference*
     ReferenceTetrahedron::getCodim2MappingPtr(const IndexT faceIndex) const
     {
         /// TODO: Implement line to tetrahedron mappings.
@@ -219,9 +219,9 @@ namespace Geometry
     // ================================== Quadrature rules =====================================
 
     /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceTetrahedron::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<3>* const qr) 
+    void ReferenceTetrahedron::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
     {
-        std::list<QuadratureRules::GaussQuadratureRule<3>*>::iterator it = lstGaussQuadratureRules_.begin();
+        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
         while (it != lstGaussQuadratureRules_.end())
         {
           if ((*it)->order() < qr->order()) ++it;
@@ -231,9 +231,9 @@ namespace Geometry
     }
 
     /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule<3>* const ReferenceTetrahedron::getGaussQuadratureRule(int order) const 
+    QuadratureRules::GaussQuadratureRule* const ReferenceTetrahedron::getGaussQuadratureRule(int order) const
     {
-        for (std::list<QuadratureRules::GaussQuadratureRule<3>*>::const_iterator it = lstGaussQuadratureRules_.begin();
+        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
               it != lstGaussQuadratureRules_.end(); ++it)
           if ((*it)->order() >= order) return *it;
 

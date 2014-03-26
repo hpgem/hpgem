@@ -69,7 +69,7 @@ namespace QuadratureRules
 
     Cn4_1_1::Cn4_1_1():
         name_("Cn4_1_1"),
-        refGeoPtr_(&ReferenceHypercube::Instance())
+        refGeoPtr_(&ReferenceHypercube::Instance()),gp_(1,4)
     {
         weight_[0] = 16.0;
         gp_[0][0] = 0.0;
@@ -136,7 +136,7 @@ namespace QuadratureRules
 
     Cn4_3_4::Cn4_3_4():
         name_("Cn4_3_4"),
-        refGeoPtr_(&ReferenceHypercube::Instance())
+        refGeoPtr_(&ReferenceHypercube::Instance()),gp_(16,4)
     {
         weight_[0] = 1.0;
         gp_[0][0] = -sqrt(3.0) / 3.0;

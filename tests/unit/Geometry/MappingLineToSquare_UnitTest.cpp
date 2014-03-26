@@ -13,8 +13,8 @@ int main()
     const Geometry::MappingToRefLineToSquare2& mappingLineToSquare2 = Geometry::MappingToRefLineToSquare2::Instance();
     const Geometry::MappingToRefLineToSquare3& mappingLineToSquare3 = Geometry::MappingToRefLineToSquare3::Instance();
 
-    Geometry::PointReference<1> pr1;
-    Geometry::PointReference<2> pr2;
+    Geometry::PointReference pr1(1);
+    Geometry::PointReference pr2(2);
 
     cout << "Geometry::MappingLineToSquare0";
     for (double x=-1.0; x<1.0; x+=0.1)

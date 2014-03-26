@@ -10,14 +10,14 @@
 #include "../LinearAlgebra/NumericalVector.hpp"
 #include "Geometry/PointPhysical.hpp"
 //------------------------------------------------------------------------------
+
+///\todo merge with duplicate file Norm2.hpp
 namespace Base
 {
     /*! Compute the 2 norm of a vector. */
-    template<unsigned int dim>
     double L2Norm(const LinearAlgebra::NumericalVector&);
 
-    template<unsigned int dim>
-    double L2Norm(const Geometry::PointPhysical<dim>&);
+    double L2Norm(const Geometry::PointPhysical&);
 }
 #endif
 //------------------------------------------------------------------------------

@@ -16,16 +16,16 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefTriangleToTetrahedron0::transform(const Geometry::PointReference<2>& p1,
-                                                        Geometry::PointReference<3>& p2) const
+    void MappingToRefTriangleToTetrahedron0::transform(const Geometry::PointReference& p1,
+                                                        Geometry::PointReference& p2) const
     {
         p2[0] = 0.0;
         p2[1] = p1[1];
         p2[2] = p1[0];
     }
 
-    void MappingToRefTriangleToTetrahedron0::calcJacobian(const Geometry::PointReference<2>& p1,
-                                                           Geometry::Jacobian<2,3>& jacobian) const
+    void MappingToRefTriangleToTetrahedron0::calcJacobian(const Geometry::PointReference& p1,
+                                                           Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) = 0.0;
         jacobian(1,0) = 0.0;
@@ -47,16 +47,16 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefTriangleToTetrahedron1::transform(const Geometry::PointReference<2>& p1,
-                                                        Geometry::PointReference<3>& p2) const
+    void MappingToRefTriangleToTetrahedron1::transform(const Geometry::PointReference& p1,
+                                                        Geometry::PointReference& p2) const
     {
         p2[0] = p1[0];
         p2[1] = 0.0;
         p2[2] = p1[1];
     }
 
-    void MappingToRefTriangleToTetrahedron1::calcJacobian(const Geometry::PointReference<2>& p1,
-                                                           Geometry::Jacobian<2,3>& jacobian) const
+    void MappingToRefTriangleToTetrahedron1::calcJacobian(const Geometry::PointReference& p1,
+                                                           Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) = 1.0;
         jacobian(1,0) = 0.0;
@@ -78,16 +78,16 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefTriangleToTetrahedron2::transform(const Geometry::PointReference<2>& p1,
-                                                        Geometry::PointReference<3>& p2) const
+    void MappingToRefTriangleToTetrahedron2::transform(const Geometry::PointReference& p1,
+                                                        Geometry::PointReference& p2) const
     {
         p2[0] = p1[1];
         p2[1] = p1[0];
         p2[2] = 0.0;
     }
 
-    void MappingToRefTriangleToTetrahedron2::calcJacobian(const Geometry::PointReference<2>& p1,
-                                                           Geometry::Jacobian<2,3>& jacobian) const
+    void MappingToRefTriangleToTetrahedron2::calcJacobian(const Geometry::PointReference& p1,
+                                                           Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) = 0.0;
         jacobian(1,0) = 1.0;
@@ -109,16 +109,16 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefTriangleToTetrahedron3::transform(const Geometry::PointReference<2>& p1,
-                                                        Geometry::PointReference<3>& p2) const
+    void MappingToRefTriangleToTetrahedron3::transform(const Geometry::PointReference& p1,
+                                                        Geometry::PointReference& p2) const
     {
         p2[0] = 1.0 - p1[0] - p1[1];
         p2[1] = p1[0];
         p2[2] = p1[1];
     }
 
-    void MappingToRefTriangleToTetrahedron3::calcJacobian(const Geometry::PointReference<2>& p1,
-                                                           Geometry::Jacobian<2,3>& jacobian) const
+    void MappingToRefTriangleToTetrahedron3::calcJacobian(const Geometry::PointReference& p1,
+                                                           Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) = -1.0;
         jacobian(1,0) =  1.0;

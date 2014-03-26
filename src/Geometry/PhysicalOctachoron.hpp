@@ -3,10 +3,10 @@
 #include "PhysicalGeometry.hpp"
 namespace Geometry
 {
-    class PhysicalHexahedron: public PhysicalGeometry<4>
+    class PhysicalHexahedron: public PhysicalGeometry
     {
         public:
-            typedef PhysicalGeometry<FourD> PhysicalGeometry4D;
+            typedef PhysicalGeometry PhysicalGeometry4D;
             using PhysicalGeometry3D::VectorOfPointIndexesT;
             using PhysicalGeometry3D::VectorOfPhysicalPointsT;
             using PhysicalGeometry3D::PointIndexT;

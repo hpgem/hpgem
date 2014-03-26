@@ -12,21 +12,21 @@
 #include "Base/TestErrorDebug.hpp"
 #include "Geometry/Jacobian.hpp"
 #include "Geometry/PointReference.hpp"
-#include "Integration/ReturnTrait1.hpp"
+//#include "Integration/ReturnTrait1.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include "ElementIntegrandBase.hpp"
 //------------------------------------------------------------------------------
 
 namespace Integration 
 {
 
-    template <unsigned int DIM>
     class ElementIntegral
     {
      public:
-        typedef typename Base::Element<DIM>::CacheT                 CacheT;
-        typedef typename Base::Element<DIM>::VecCacheT              VecCacheT;
-        typedef typename QuadratureRules::GaussQuadratureRule<DIM>  QuadratureRulesT;
-        typedef typename Base::Element<DIM>                         ElementT;
+        typedef typename Base::Element::CacheT                 CacheT;
+        typedef typename Base::Element::VecCacheT              VecCacheT;
+        typedef typename QuadratureRules::GaussQuadratureRule  QuadratureRulesT;
+        typedef typename Base::Element                         ElementT;
 
     public:
         
@@ -47,13 +47,14 @@ namespace Integration
             //! \brief Set recompute the cache OFF.
         void    recomputeCacheOff();
 
-            //! \brief Directly integrate the inegrand and return ReturnTraits1.
-        template <typename IntegrandT>
-        void    integrate(ElementT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result,
+            //! \brief Directly integrate the integrand and return ReturnTraits1.
+            //! ReturnTrait1 needs to have the function axpy() implemented
+        template<class ReturnTrait1>
+        void    integrate(ElementT* el, ElementIntegrandBase<ReturnTrait1>* integrand, ReturnTrait1& result,
                           const QuadratureRulesT* const qdrRule = NULL);
-             //! \brief Directly integrate the inegrand and return ReturnTraits1, member function version.
-        template <typename OBJ, typename IntegrandT>
-        void    integrate(ElementT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = NULL);
+             // \brief Directly integrate the inegrand and return ReturnTraits1, member function version.
+        /*template <typename OBJ, typename IntegrandT>
+        void    integrate(ElementT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = NULL);*/
         
         
             /// Probably not needed, this is for classes which are template!

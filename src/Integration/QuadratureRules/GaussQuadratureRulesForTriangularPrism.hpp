@@ -21,11 +21,11 @@ namespace QuadratureRules
     using Geometry::ReferenceGeometry;
 
 //---------------------------------------------------------------------------
-    class TriPrism_1_1: public GaussQuadratureRule<3>
+    class TriPrism_1_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static TriPrism_1_1& Instance()
             {
@@ -49,15 +49,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[1];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[1];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class TriPrism_3_1: public GaussQuadratureRule<3>
+    class TriPrism_3_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static TriPrism_3_1& Instance()
             {
@@ -81,15 +81,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[8];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[8];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class TriPrism_5_1: public GaussQuadratureRule<3>
+    class TriPrism_5_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static TriPrism_5_1& Instance()
             {
@@ -113,15 +113,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[21];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[21];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class TriPrism_7_1: public GaussQuadratureRule<3>
+    class TriPrism_7_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static TriPrism_7_1& Instance()
             {
@@ -145,7 +145,7 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[64];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[64];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------

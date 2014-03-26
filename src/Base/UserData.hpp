@@ -15,4 +15,9 @@ struct UserElementData
     virtual ~UserElementData(){}
 };
 
+struct UserFaceData
+{
+	virtual ~UserFaceData(){}
+};
+
 #endif

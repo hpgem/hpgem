@@ -11,7 +11,6 @@ namespace Geometry
 {
 
 
-    template <unsigned int DIM>
     class PhysicalGeometry
     {
         /*! \class PhysicalGeometry
@@ -34,12 +33,12 @@ namespace Geometry
             typedef unsigned int                    PointIndexT;
             typedef unsigned int                    LocalNodeIndexT;
             typedef double                          CoordT;
-            typedef ReferenceGeometry<DIM>          ReferenceGeometryT;
-            typedef PointPhysical<DIM>              PointPhysicalT;
+            typedef ReferenceGeometry          ReferenceGeometryT;
+            typedef PointPhysical              PointPhysicalT;
             typedef std::vector<PointIndexT>        VectorOfPointIndexesT;
             typedef std::vector<CoordT >            VectorOfCoordsT;
             typedef std::vector<PointPhysicalT>     VectorOfPhysicalPointsT;
-            typedef PhysicalGeometry<DIM>           PhysicalGeometryT;
+            typedef PhysicalGeometry           PhysicalGeometryT;
             typedef std::vector<unsigned int>       GlobalNodeSetOnTheFace;
         
 
@@ -64,7 +63,7 @@ namespace Geometry
             const VectorOfPointIndexesT&    getNodeIndexes() const {return globalNodeIndexes_;}
 
             /// \brief Returns a pointer to the global container of nodes.
-            VectorOfPhysicalPointsT&        getNodes() {return nodes_;}
+            const VectorOfPhysicalPointsT&        getNodes() {return nodes_;}
 
             /// \brief Returns a constant pointer of the global container of nodes
             const VectorOfPhysicalPointsT&  getNodes() const {return nodes_;}
@@ -77,8 +76,8 @@ namespace Geometry
                                             {return globalNodeIndexes_[localIndex];}
 
             /// \brief Given a global index, returns a pointer to the corresponding point.
-            PointPhysicalT*                 getNodePtr(const int globalIndex) const
-                                            {return &(*nodes_)[globalIndex];}
+            const PointPhysicalT*                 getNodePtr(const int globalIndex) const
+                                            {return &(nodes_[globalIndex]);}
 
             /// \brief Returns the number of nodes of this geometry.
             unsigned int                    getNumberOfNodes() const
@@ -111,7 +110,7 @@ namespace Geometry
         
             /// \brief Output operator
             friend std::ostream& operator<<(std::ostream& os,
-                    const PhysicalGeometry<DIM>& physicalGeometry)
+                    const PhysicalGeometry& physicalGeometry)
             {
                 os << "PhysicalGeometry=( ";
                 
@@ -129,7 +128,7 @@ namespace Geometry
             const VectorOfPhysicalPointsT&  nodes_;
 
             /// Reference to the container of global indexes of the nodes, relative to nodes_.
-            const VectorOfPointIndexesT     globalNodeIndexes_;
+            VectorOfPointIndexesT     globalNodeIndexes_;
         
             const ReferenceGeometryT* const refGeometry_;
     };

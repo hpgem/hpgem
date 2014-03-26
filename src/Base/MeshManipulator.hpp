@@ -10,11 +10,13 @@
 
 #include "Base/BasisFunctionSet.hpp"
 #include "Base/AssembleBasisFunctionSet.hpp"
+#include "OrientedBasisFunctionSet.hpp"
 #include "Base/Face.hpp"
 #include "Base/MeshMoverBase.hpp"
 #include "Base/LevelTree.hpp"
 #include "Base/GlobalData.hpp"
 #include "Base/Element.hpp"
+#include "Base/ConfigurationData.hpp"
 
 #include "Integration/QuadratureRules/AllGaussQuadratureRules.hpp"
 
@@ -33,17 +35,16 @@ namespace Base
     };
     
     
-    template <unsigned int DIM>
     class MeshManipulator //: public MeshRefiner <DIM>
     {
     public:
         
         typedef unsigned int                                PointIndexT;
-        typedef Element<DIM>                                ElementT;
-        typedef Face<DIM>                                   FaceT;
-        typedef MeshMoverBase<DIM>                          MeshMoverBaseT;
-        typedef Geometry::PointPhysical<DIM>                PointPhysicalT;
-        typedef Base::BasisFunctionSet<DIM>                 BasisFunctionSetT;
+        typedef Element                                ElementT;
+        typedef Face                                   FaceT;
+        typedef MeshMoverBase                          MeshMoverBaseT;
+        typedef Geometry::PointPhysical                PointPhysicalT;
+        typedef Base::BasisFunctionSet                 BasisFunctionSetT;
         
         typedef LevelTree<ElementT>                         ElementLevelTreeT;
         typedef LevelTree<FaceT>                            FaceLevelTreeT;
@@ -53,7 +54,7 @@ namespace Base
         typedef std::vector<ElementT* >                     VectorOfElementPtrT;
         typedef std::vector<PointPhysicalT >                VectorOfPhysicalPointsT;
         typedef std::vector<PointIndexT>                    VectorOfPointIndicesT;
-        typedef std::vector<BasisFunctionSetT*>             CollectionOfBasisFunctionSets;
+        typedef std::vector<const BasisFunctionSetT*>       CollectionOfBasisFunctionSets;
         typedef std::vector<ElementLevelTreeT*>             VecOfElementLevelTreePtrT;
         typedef std::vector<FaceLevelTreeT*>                VecOfFaceLevelTreePtrT;
 
@@ -71,13 +72,12 @@ namespace Base
     public:
             /// idRangeBegin is the begining of the range, from where the Element's ids should be assigned.
             /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
-        MeshManipulator(const ConfigurationData* configData, bool xPer=0, bool yPer=0, bool zPer=0, unsigned int orderOfFEM=1, unsigned int idRangeBegin=0);
+        MeshManipulator(const ConfigurationData* configData, bool xPer=0, bool yPer=0, bool zPer=0, unsigned int orderOfFEM=1, unsigned int idRangeBegin=0,
+        		int nrOfElementMatrixes=0, int nrOfElementVectors=0, int nrOfFaceMatrixes=0, int nrOfFaceVectors=0);
 
         MeshManipulator(const MeshManipulator& other);
 
         virtual ~MeshManipulator();
-	
-        CollectionOfBasisFunctionSets   collBasisFSet_;//FIXME need to set the basis functions
 
   
 
@@ -87,9 +87,14 @@ namespace Base
 
         bool                            addFace(ElementT* leftElementPtr, unsigned int leftElementLocalFaceNo, 
                                                 ElementT* rightElementPtr, unsigned int rightElementLocalFaceNo,
-                                                const Geometry::FaceType& faceType=Geometry::INTERNAL);
+                                                const Geometry::FaceType& faceType=Geometry::WALL_BC);
         
+        void                            addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs);
+
         unsigned int                    getNumberOfElements(unsigned int meshId=0) const {return elements_.size(); }
+        unsigned int                    getNumberOfFaces(unsigned int meshId=0) const {return faces_.size();}
+        unsigned int                    getNumberOfEdges(unsigned int meshId=0) const {return edges_.size();}
+        unsigned int                    getNumberOfNodes()const {return points_.size();}
 
         /// *****************Iteration through the Elements*******************
         ConstElementIterator            elementColBegin()const{return elements_.begin();}
@@ -105,6 +110,13 @@ namespace Base
         
         FaceIterator                    faceColBegin(){return faces_.begin();}
         FaceIterator                    faceColEnd(){return faces_.end();}
+
+       std::list< Edge*>::const_iterator edgeColBegin()const{return edges_.begin();}
+
+       std::list< Edge*>::const_iterator edgeColEnd()const{return edges_.end();}
+
+        std::list< Edge*>::iterator      edgeColBegin(){return edges_.begin();}
+        std::list< Edge*>::iterator      edgeColEnd(){return edges_.end();}
         /// *****************Iteration through the Elements*******************
 
         void                            createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const VectorOfPointIndicesT& LinearNoElements);
@@ -129,7 +141,7 @@ namespace Base
 
         void                            move();
 
-        // ******************THESE SHOULD BE DELETED LATER***********************
+        // ******************THESE SHOULD BE DELETED LATER***********************//actually, these should be replaced by iterable editions of the levelTree -FB
         //! Get const list of elements
         const ListOfElementsT&          getElementsList() const {return elements_; }
 
@@ -141,6 +153,10 @@ namespace Base
 
         //! Get non-const list of faces
         ListOfFacesT&                   getFacesList() { return faces_; }
+
+        const std::list<Edge*>&         getEdgesList() const {return edges_;}
+
+        std::list<Edge*>&               getEdgesList() {return edges_;}
         // ************************************************************************
 
   //---------------------------------------------------------------------
@@ -185,6 +201,22 @@ namespace Base
 
         //! Refine a specific mesh-tree.
         void                            doRefinement(unsigned int meshTreeIdx, int refinementType);
+
+        //! Changes the default set of basisFunctions for this mesh and all of its elements. Ignores any conforming basisFunctionset that nay be linked to faces/edges/...
+        void							setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet);
+
+        //! Adds vertex based degrees of freedom to the set of basisfunctions for this mesh and all of its vertices. This routine will assume that the first basisfunctionset connects to the first vertex (local numbering) and so on
+        void                            addVertexBasisFunctionSet(CollectionOfBasisFunctionSets& bFsets);///\TODO support for mixed meshes
+
+        //! Adds face based degrees of freedom to the set of basisfunctions for this mesh and all of its faces. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
+        void                            addFaceBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets);///\TODO support for mixed meshes
+
+        //! Adds edge based degrees of freedom to the set of basisfunctions for this mesh and all of its edges. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
+        void                            addEdgeBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets);///\TODO support for mixed meshes
+
+        int                             dimension(){return configData_->dimension_;}
+
+        const std::vector<PointPhysicalT> getNodes(){return points_;}
   //---------------------------------------------------------------------
     private:
         
@@ -195,15 +227,13 @@ namespace Base
         void                            readCentaurMesh3D(std::ifstream& centaurFile);
 	
         void                            faceFactory();
-	
-	//!Fills the element and face parts of a HalfFaceDescription based on lists of elements connected to three of the face nodes and one list connected to an opposing node
-	//!\bug 1,2 and 4 dimenstional variants require a different amount of arguments but I don't know how to code that
+        void                            edgeFactory();
 	
 	//someone thinks its a good idea to declare HalfFaceDescription in an implemetnation file
-	void                            findElementNumber(std::list<int>& a, std::list<int>& b, std::list<int>& c,int aNumber, int bNumber, int cNumber, std::list<int>& notOnFace, HalfFaceDescription& face, std::vector<Element<DIM>*>& vectorOfElements);
+	void                            findElementNumber(std::list<int>& a, std::list<int>& b, std::list<int>& c,int aNumber, int bNumber, int cNumber, std::list<int>& notOnFace, HalfFaceDescription& face, std::vector<Element*>& vectorOfElements);
 	
 	//!An alternative to faceFactory that only iterates over internal faces, use the boundary face information in the centaur file to construct the boundary faces
-	void                            constructInternalFaces(std::vector<std::list<int> >& listOfElementsForEachNode, std::vector<Element<DIM>*>& vectorOfElements);
+	void                            constructInternalFaces(std::vector<std::list<int> >& listOfElementsForEachNode, std::vector<Element*>& vectorOfElements);
         
         void                            rectangularCreateFaces1D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
         
@@ -227,8 +257,8 @@ namespace Base
         void                            doFaceRefinement(unsigned int meshTreeIdx);
         
         //! Check whether the two elements may be connected by a face or not.
-        void                            pairingCheck(const ElementIteratorT elL, unsigned int locFaceNrL,
-                                                     const ElementIteratorT elR, unsigned int locFaceNrR,
+        void                            pairingCheck(const ElementIterator elL, unsigned int locFaceNrL,
+                                                     const ElementIterator elR, unsigned int locFaceNrR,
                                                      int& pairingValue, bool& sizeOrder);
                           
         //! Check whether the two elements may be connected by a face or not in periodic face case.
@@ -241,13 +271,19 @@ namespace Base
         
         const ConfigurationData*        configData_;
 
-        unsigned int                    counter_;
+        unsigned int                    elementcounter_;
+
+        static unsigned int             faceCounter_;
+        static unsigned int             edgeCounter_;
         //! List of all elements. TODO: this should be replaced by the mesh-tree structure
         ListOfElementsT                 elements_;
         
         //! List of all faces. TODO: this should be replaced by the mesh-tree structure
         ListOfFacesT                    faces_;
         
+        //! List of all edges.
+        std::list< Edge*>                edges_;
+
         //! Global vector of physical nodes.
         VectorOfPhysicalPointsT         points_;
 
@@ -262,9 +298,10 @@ namespace Base
         
         /// Pointer to MeshMoverBase, in order to move points in the mesh, when needed by user.
         const MeshMoverBaseT*           meshMover_;
+
+        CollectionOfBasisFunctionSets   collBasisFSet_;
         
-        
-        BasisFunctionSetT*              defaultSetOfBasisFunctions_;
+        //const BasisFunctionSetT*        defaultSetOfBasisFunctions_;
         //! Collection of additional basis function set, if p-refinement is applied
         
         //! Active mesh-tree.
@@ -278,11 +315,15 @@ namespace Base
         
         //! Vector faces LevelTree.
         VecOfFaceLevelTreePtrT          vecOfFaceTree_;
+
+        int                             numberOfElementMatrixes_;
+        int                             numberOfFaceMatrixes_;
+        int                             numberOfElementVectors_;
+        int                             numberOfFaceVectors_;
     };
     
     
 }
-#include "MeshManipulator_Impl.hpp"
 
 
 

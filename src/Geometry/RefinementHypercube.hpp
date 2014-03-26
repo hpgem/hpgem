@@ -10,15 +10,15 @@
 
 namespace Geometry
 {
-    class RefinementHypercube : public Geometry::RefinementGeometry<4>
+    class RefinementHypercube : public Geometry::RefinementGeometry
     {
     public:
         typedef unsigned int                    DimT;
-        typedef Point<4>                        PointT;
-        typedef PointPhysical<4>                PointPhysicalT;
-        typedef PointReference<4>               PointReferenceT;
-        typedef PhysicalGeometry<4>             PhysicalGeometryT;
-        typedef ReferenceGeometry<4>            ReferenceGeometryT;
+        typedef Point                        PointT;
+        typedef PointPhysical                PointPhysicalT;
+        typedef PointReference               PointReferenceT;
+        typedef PhysicalGeometry             PhysicalGeometryT;
+        typedef ReferenceGeometry            ReferenceGeometryT;
         typedef std::vector<PointPhysicalT>     VectorOfPointPhysicalsT;
         typedef std::vector<unsigned int>       VectorOfIndicesT;
 

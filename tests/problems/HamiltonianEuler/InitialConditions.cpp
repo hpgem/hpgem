@@ -1,8 +1,10 @@
 #include"InitialConditions.hpp"
 
 
+const double ExactSolutionBase::Pi = 3.14159265;
+
 Compressible3DOneThirdPeriodic::Compressible3DOneThirdPeriodic(double lx, double ly, double lz):
-    ExactSolutionBase<3>(),
+    ExactSolutionBase(),
     iComplex_(0,-1),
     lx_(lx),
     ly_(ly),
@@ -100,7 +102,7 @@ Compressible3DOneThirdPeriodic::getP(const PointPhysicalT& pPhys, double t)const
 }	
 
 Compressible3DPeriodic::Compressible3DPeriodic():
-ExactSolutionBase<3>()
+ExactSolutionBase()
 {
 }
 
@@ -133,7 +135,7 @@ Compressible3DPeriodic::getP(const PointPhysicalT& pPhys, double t)const
 }
 
 Compressible3DWalls::Compressible3DWalls():
-ExactSolutionBase<3>()
+ExactSolutionBase()
 {
 }
 
@@ -165,7 +167,7 @@ Compressible3DWalls::getP(const PointPhysicalT& pPhys, double t)const
 
 
 Incompressible3DPeriodic::Incompressible3DPeriodic():
-	ExactSolutionBase<3>()
+	ExactSolutionBase()
 {
 }
 
@@ -194,13 +196,13 @@ Incompressible3DPeriodic::getP(const PointPhysicalT& pPhys, double t)const
 }
 
 InitialVelocityConstructorTaylor::InitialVelocityConstructorTaylor():
-    ExactSolutionBase<3>()
+    ExactSolutionBase()
 {
     
 }
 
 InitialVelocityConstructorTaylor::InitialVelocityConstructorTaylor(double lx, double ly, double lz):
-	ExactSolutionBase<3>(),
+	ExactSolutionBase(),
 	lx_(lx),
 	ly_(ly),
 	lz_(lz),
@@ -356,7 +358,7 @@ InitialVelocityConstructorTaylor::getP(const PointPhysicalT& pPhys, double t)con
 	return real(p);
 }
 
-InitCondU::InitCondU(const ExactSolutionBase<3>* init) :
+InitCondU::InitCondU(const ExactSolutionBase* init) :
     InitCond(init)
 {
 }
@@ -365,7 +367,7 @@ void
 InitCondU::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::NumericalVector& r) const
 {
 
-    PointPhysicalT                    pPhys;  // Declare and...
+    PointPhysicalT                    pPhys(3);  // Declare and...
     
     element->referenceToPhysical(pRef, pPhys); // ...transform the point.
 //
@@ -384,7 +386,7 @@ InitCondU::operator()(const ElementT* element, const PointReferenceT& pRef, Line
 }
 
 // initial condition for v
-InitCondV::InitCondV(const ExactSolutionBase<3>* init) :
+InitCondV::InitCondV(const ExactSolutionBase* init) :
     InitCond(init)
 {
 }
@@ -392,7 +394,7 @@ InitCondV::InitCondV(const ExactSolutionBase<3>* init) :
 void 
 InitCondV::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::NumericalVector& r) const
 {
-    PointPhysicalT                    pPhys;  // Declare and...
+    PointPhysicalT                    pPhys(3);  // Declare and...
     
     element->referenceToPhysical(pRef, pPhys); // ...transform the point.
     
@@ -407,7 +409,7 @@ InitCondV::operator()(const ElementT* element, const PointReferenceT& pRef, Line
 }
 
 // initial condition for w
-InitCondW::InitCondW(const ExactSolutionBase<3>* init) :
+InitCondW::InitCondW(const ExactSolutionBase* init) :
     InitCond(init)
 {
 }
@@ -416,7 +418,7 @@ void
 InitCondW::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::NumericalVector& r) const
 {
     
-    PointPhysicalT                    pPhys;  // Declare and...
+    PointPhysicalT                    pPhys(3);  // Declare and...
     
     element->referenceToPhysical(pRef, pPhys); // ...transform the point.
     
@@ -430,7 +432,7 @@ InitCondW::operator()(const ElementT* element, const PointReferenceT& pRef, Line
     }
 }
 
-InitCondLambda::InitCondLambda(const ExactSolutionBase<3>* init) :
+InitCondLambda::InitCondLambda(const ExactSolutionBase* init) :
     InitCond(init)
 {
 }
@@ -438,7 +440,7 @@ InitCondLambda::InitCondLambda(const ExactSolutionBase<3>* init) :
 void
 InitCondLambda::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::NumericalVector& r) const
 {
-    PointPhysicalT                    pPhys;  // Declare and...
+    PointPhysicalT                    pPhys(3);  // Declare and...
     
     element->referenceToPhysical(pRef, pPhys); // ...transform the point.
     

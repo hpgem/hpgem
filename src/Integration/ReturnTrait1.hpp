@@ -27,16 +27,14 @@
 //------------------------------------------------------------------------------
 namespace Base
 {
-    template <unsigned int DIM>
     class Element;
     
-    template <unsigned int DIM>
     class Face;
 }
 
 namespace Base
 {
-    template <unsigned int DIM, class FType>
+    template <class FType>
     class PhysicalSpaceFunction;
 
         // template <unsigned int DIM, class EType>
@@ -58,33 +56,33 @@ namespace Integration
     };
 
     // you can provide a function as a integrand
-    template <unsigned int DIM, typename T>
-    struct ReturnTrait1<void (*)(const Base::Element<DIM>*, const Geometry::PointReference<DIM>&, T&)>
+    template < typename T>
+    struct ReturnTrait1<void (*)(const Base::Element*, const Geometry::PointReference&, T&)>
     {
         typedef T ReturnType;
     };
 
-    template <class B, unsigned int DIM, typename T>
-    struct ReturnTrait1<void (B::*)(const Base::Element<DIM>*, const Geometry::PointReference<DIM>&, T&)>
+    template <class B, typename T>
+    struct ReturnTrait1<void (B::*)(const Base::Element*, const Geometry::PointReference&, T&)>
     {
         typedef T ReturnType;
     };
     
-    template <typename B, unsigned int DIM, typename T>
-    struct ReturnTrait1<void (B::*)(const Base::Face<DIM>*, const Geometry::PointPhysical<DIM>&, const Geometry::PointReference<DIM-1>&, T&)>
+    template <typename B, typename T>
+    struct ReturnTrait1<void (B::*)(const Base::Face*, const Geometry::PointPhysical&, const Geometry::PointReference&, T&)>
     {
         typedef T ReturnType;
     };
     
-    template < template<unsigned int> class B, unsigned int DIM, typename T>
-    struct ReturnTrait1<void (B<DIM>::*)(const Base::Element<DIM>*, const Geometry::PointReference<DIM-1>&, T&)>
+    /*template < template<unsigned int> class B, typename T>
+    struct ReturnTrait1<void (B<DIM>::*)(const Base::Element*, const Geometry::PointReference&, T&)>
     {
         typedef T ReturnType;
-    };
+    };*/
         
     // you can provide a function as a integrand ant return calcuclated value via return value
-    template <unsigned int DIM, typename T>
-    struct ReturnTrait1<T (*)(const Geometry::PointReference<DIM>&)>
+    template < typename T>
+    struct ReturnTrait1<T (*)(const Geometry::PointReference&)>
     {
         typedef T ReturnType;
     };

@@ -13,7 +13,7 @@ namespace Geometry
         const VectorOfPointIndexesT& globalNodeIndexes,
         const VectorOfPhysicalPointsT& nodes,
         const ReferenceLine* const line) :
-        PhysicalGeometry<OneD>(globalNodeIndexes,nodes, line)
+        PhysicalGeometry(globalNodeIndexes,nodes, line)
     {
     }
 

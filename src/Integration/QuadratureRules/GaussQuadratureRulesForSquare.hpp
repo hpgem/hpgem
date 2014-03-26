@@ -21,11 +21,11 @@ namespace QuadratureRules
     using Geometry::ReferenceGeometry;
     
 //---------------------------------------------------------------------------
-    class Cn2_1_1:public GaussQuadratureRule<2>
+    class Cn2_1_1:public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<2>    ReferenceGeometryT;
-        typedef PointReference<2>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
         
     public:
         static Cn2_1_1& Instance()
@@ -58,15 +58,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[1];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[1];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class Cn2_3_4: public GaussQuadratureRule<2>
+    class Cn2_3_4: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<2>    ReferenceGeometryT;
-        typedef PointReference<2>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static Cn2_3_4& Instance()
         {
@@ -96,15 +96,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[4];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[4];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class Cn2_5_9: public GaussQuadratureRule<2>
+    class Cn2_5_9: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<2>    ReferenceGeometryT;
-        typedef PointReference<2>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static Cn2_5_9& Instance()
             {
@@ -134,15 +134,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[9];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[9];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class C2_7_4:public GaussQuadratureRule<2>
+    class C2_7_4:public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<2>    ReferenceGeometryT;
-        typedef PointReference<2>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static C2_7_4& Instance()
         {
@@ -172,7 +172,81 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[16];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[16];
+        std::vector<PointReferenceT>                   gp_;
+    };
+//---------------------------------------------------------------------------
+    class C2_9_5:public GaussQuadratureRule
+    {
+    public:
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
+    public:
+        static C2_9_5& Instance()
+        {
+            static C2_9_5 theInstance;
+            return theInstance;
+        }
+
+        virtual std::string getName() const;
+
+        virtual unsigned int            order() const;
+
+        virtual unsigned int            dimension() const;
+
+        virtual unsigned int            nrOfPoints() const;
+
+        virtual double                  weight(unsigned int i) const;
+
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
+
+    private:
+        C2_9_5();
+        C2_9_5(const C2_9_5&);
+        virtual ~C2_9_5();
+    private:
+        const std::string               name_;
+        double                          weight_[25];
+        ReferenceGeometryT* const       refGeoPtr_;
+        std::vector<PointReferenceT>                   gp_;
+    };
+//---------------------------------------------------------------------------
+    class C2_11_6:public GaussQuadratureRule
+    {
+    public:
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
+    public:
+        static C2_11_6& Instance()
+        {
+            static C2_11_6 theInstance;
+            return theInstance;
+        }
+
+        virtual std::string getName() const;
+
+        virtual unsigned int            order() const;
+
+        virtual unsigned int            dimension() const;
+
+        virtual unsigned int            nrOfPoints() const;
+
+        virtual double                  weight(unsigned int i) const;
+
+        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+
+        virtual ReferenceGeometryT*     forReferenceGeometry() const;
+
+    private:
+        C2_11_6();
+        C2_11_6(const C2_11_6&);
+        virtual ~C2_11_6();
+    private:
+        const std::string               name_;
+        double                          weight_[36];
+        ReferenceGeometryT* const       refGeoPtr_;
+        std::vector<PointReferenceT>                   gp_;
     };
 //---------------------------------------------------------------------------
 } // close namespace QuadratureRules

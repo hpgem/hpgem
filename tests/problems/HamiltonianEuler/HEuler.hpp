@@ -19,6 +19,8 @@ using std::string;
 
 #include "InitialConditions.hpp"
 #include "TecplotOutput.hpp"
+#include "Integration/ElementIntegrandBase.hpp"
+#include "Integration/FaceIntegrandBase.hpp"
 using Base::RectangularMeshDescriptor;
 using Base::HpgemUI;
 using Base::GlobalData;
@@ -122,7 +124,7 @@ struct HEulerConfigurationData: public ConfigurationData
     enum  SolutionType 		{INCOMPRESSIBLE_WALLS, INCOMPRESSIBLE_ONETHIRDPERIODIC, INCOMPRESSIBLE_PERIODIC, COMPRESSIBLE_WALLS, COMPRESSIBLE_PERIODIC};
 
     HEulerConfigurationData(unsigned int numberOfUnknowns, unsigned int numberOfBasisFunctions, unsigned int  numberOfTimeLevels=1, const string& fileName="in.txt", SolutionType type=COMPRESSIBLE_PERIODIC):
-        ConfigurationData(numberOfUnknowns, numberOfBasisFunctions, numberOfTimeLevels=1),
+        ConfigurationData(3,numberOfUnknowns, 2, numberOfTimeLevels=1),
         solutionType_(type)
     {
             /// reading from a file
@@ -153,14 +155,14 @@ public:
     double          onePeriod_;
 };
 
-class HEuler: public HpgemUI<DIM>
+class HEuler: public HpgemUI,public Integration::ElementIntegrandBase<ElementIntegralData>,public Integration::FaceIntegrandBase<FluxData>,public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
 {
 public:
-    typedef HpgemUI<DIM>                        HpgemUIT;
-    typedef Integration::ElementIntegral<DIM>   ElementIntegralT;
-    typedef Integration::FaceIntegral<DIM>      FaceIntegralT;
-    typedef ExactSolutionBase<DIM>              ExactSolutionT;
-    typedef PointReference<DIM-1>               PointReferenceOnTheFaceT;
+    typedef HpgemUI                        HpgemUIT;
+    typedef Integration::ElementIntegral   ElementIntegralT;
+    typedef Integration::FaceIntegral      FaceIntegralT;
+    typedef ExactSolutionBase              ExactSolutionT;
+    typedef PointReference               PointReferenceOnTheFaceT;
     
         //using HpgemUIT::ElementT;
         //    using HpgemUIT::PointReferenceT;
@@ -176,12 +178,15 @@ public:
     
     bool initialiseMesh();
 
-    void calculateMassMatrix(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix);
+    ///calculates mass matrix
+    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix);
+
+
     void calculateLocalEnergy(const ElementT& element, const PointReferenceT& p, double& returnValue);
     
     void elementIntegrand(const ElementT* element, const PointReferenceT& p, ElementIntegralData& returnObject);
     
-    void faceIntegrand(const FaceT* face,          const PointPhysicalT& normal,
+    void faceIntegrand(const FaceT* face,          const NumericalVector& normal,
                        const PointReferenceOnTheFaceT& p,  FluxData& ret);
     
     void createCompressibleSystem();

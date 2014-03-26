@@ -16,16 +16,16 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefFaceToPyramid0::transform(const Geometry::PointReference<2>& p1,
-                                                        Geometry::PointReference<3>& p2) const
+    void MappingToRefFaceToPyramid0::transform(const Geometry::PointReference& p1,
+                                                        Geometry::PointReference& p2) const
     {
         p2[0] =  p1[0];
         p2[1] = -p1[1];
         p2[2] =  0.0;
     }
 
-    void MappingToRefFaceToPyramid0::calcJacobian(const Geometry::PointReference<2>& p1,
-                                                           Geometry::Jacobian<2,3>& jacobian) const
+    void MappingToRefFaceToPyramid0::calcJacobian(const Geometry::PointReference& p1,
+                                                           Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) = 0.0;
         jacobian(1,0) = 1.0;
@@ -47,16 +47,16 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefFaceToPyramid1::transform(const Geometry::PointReference<2>& p1,
-                                                        Geometry::PointReference<3>& p2) const
+    void MappingToRefFaceToPyramid1::transform(const Geometry::PointReference& p1,
+                                                        Geometry::PointReference& p2) const
     {
         p2[0] = -1.0 + p1[1];
         p2[1] = +1.0 - 2.0 * p1[0] - p1[1];
         p2[2] = p1[1];
     }
 
-    void MappingToRefFaceToPyramid1::calcJacobian(const Geometry::PointReference<2>& p1,
-                                                           Geometry::Jacobian<2,3>& jacobian) const
+    void MappingToRefFaceToPyramid1::calcJacobian(const Geometry::PointReference& p1,
+                                                           Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) =  0.0;
         jacobian(1,0) = -2.0;
@@ -78,16 +78,16 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefFaceToPyramid2::transform(const Geometry::PointReference<2>& p1,
-                                                        Geometry::PointReference<3>& p2) const
+    void MappingToRefFaceToPyramid2::transform(const Geometry::PointReference& p1,
+                                                        Geometry::PointReference& p2) const
     {
         p2[0] =  1.0 - p1[1];
         p2[1] = -1.0 + 2.0 * p1[0] + p1[1];
         p2[2] =  p1[1];
     }
 
-    void MappingToRefFaceToPyramid2::calcJacobian(const Geometry::PointReference<2>& p1,
-                                                           Geometry::Jacobian<2,3>& jacobian) const
+    void MappingToRefFaceToPyramid2::calcJacobian(const Geometry::PointReference& p1,
+                                                           Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) = 0.0;
         jacobian(1,0) = 2.0;
@@ -109,16 +109,16 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefFaceToPyramid3::transform(const Geometry::PointReference<2>& p1,
-                                                        Geometry::PointReference<3>& p2) const
+    void MappingToRefFaceToPyramid3::transform(const Geometry::PointReference& p1,
+                                                        Geometry::PointReference& p2) const
     {
         p2[0] = -1.0 + 2.0 * p1[0] + p1[1];
         p2[1] = -1.0 + p1[1];
         p2[2] = p1[1];
     }
 
-    void MappingToRefFaceToPyramid3::calcJacobian(const Geometry::PointReference<2>& p1,
-                                                           Geometry::Jacobian<2,3>& jacobian) const
+    void MappingToRefFaceToPyramid3::calcJacobian(const Geometry::PointReference& p1,
+                                                           Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) =  2.0;
         jacobian(1,0) =  0.0;
@@ -140,16 +140,16 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefFaceToPyramid4::transform(const Geometry::PointReference<2>& p1,
-                                                Geometry::PointReference<3>& p2) const
+    void MappingToRefFaceToPyramid4::transform(const Geometry::PointReference& p1,
+                                                Geometry::PointReference& p2) const
     {
         p2[0] = 1.0 - 2.0 * p1[0] - p1[1];
         p2[1] = 1.0 - p1[1];
         p2[2] = p1[1];
     }
 
-    void MappingToRefFaceToPyramid4::calcJacobian(const Geometry::PointReference<2>& p1,
-                                                   Geometry::Jacobian<2,3>& jacobian) const
+    void MappingToRefFaceToPyramid4::calcJacobian(const Geometry::PointReference& p1,
+                                                   Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) = -2.0;
         jacobian(1,0) =  0.0;

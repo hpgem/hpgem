@@ -10,15 +10,15 @@
 
 namespace Geometry
 {
-    class RefinementPyramid : public Geometry::RefinementGeometry<3>
+    class RefinementPyramid : public Geometry::RefinementGeometry
     {
     public:
         typedef unsigned int                    DimT;
-        typedef Point<3>                        PointT;
-        typedef PointPhysical<3>                PointPhysicalT;
-        typedef PointReference<3>               PointReferenceT;
-        typedef PhysicalGeometry<3>             PhysicalGeometryT;
-        typedef ReferenceGeometry<3>            ReferenceGeometryT;
+        typedef Point                        PointT;
+        typedef PointPhysical                PointPhysicalT;
+        typedef PointReference               PointReferenceT;
+        typedef PhysicalGeometry             PhysicalGeometryT;
+        typedef ReferenceGeometry            ReferenceGeometryT;
         typedef std::vector<PointPhysicalT>     VectorOfPointPhysicalsT;
         typedef std::vector<unsigned int>       VectorOfIndicesT;
 

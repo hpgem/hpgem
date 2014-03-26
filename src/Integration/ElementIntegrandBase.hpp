@@ -14,18 +14,19 @@
 namespace Integration
 {
 
-    template <unsigned int DIM, typename T=LinearAlgebra::NumericalVector>
+	/**
+	 * If you want to integrate over elements it is likely you already have the functions
+	 * elementIntegrand(const Base::Element*, const Geometry::PointReference&, LinearAlgebra::Matrix) and
+	 * elementIntegrand(const Base::Element*, const Geometry::PointReference&, LinearAlgebra::NumericalVector)
+	 * implemented in some class already, so that class can simply inherit from ElementIntegrandBase<LinearAlgebra::Matrix>
+	 * and ElementIntegrandBase<LinearAlgebra::NumericalVector> to signal the integrators that it does so
+	 */
+    template <class T>
     class ElementIntegrandBase
     {
     public:
-        typedef T                               ReturnType;
-        typedef Geometry::PointReference<DIM>   PointReferenceT;
-        typedef Base::Element<DIM>              ElementT;
-        
-    public:
-        ~ElementIntegrandBase() {}
-
-        virtual void operator()(const Base::Element<DIM>* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) = 0;
+    	///compute the contribution to the returntype of this reference point
+        virtual void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, T& ret) = 0;
     };
 };
 

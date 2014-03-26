@@ -53,7 +53,7 @@ namespace QuadratureRules
     }
 
     void
-    TriPrism_1_1::getPoint(unsigned int i, PointReference<3>& p) const
+    TriPrism_1_1::getPoint(unsigned int i, PointReferenceT& p) const
     {
         if (i < 1)
             p=gp_[i];
@@ -69,7 +69,7 @@ namespace QuadratureRules
 
     TriPrism_1_1::TriPrism_1_1():
         name_("TriPrism_1_1"),
-        refGeoPtr_(&ReferenceTriangularPrism::Instance())
+        refGeoPtr_(&ReferenceTriangularPrism::Instance()),gp_(1,3)
     {
         weight_[0] = ( 0.5 ) * ( 2.0 );
         gp_[0][0] = 1.0 / 3.0;
@@ -135,7 +135,7 @@ namespace QuadratureRules
 
     TriPrism_3_1::TriPrism_3_1():
         name_("TriPrism_3_1"),
-        refGeoPtr_(&ReferenceTriangularPrism::Instance())
+        refGeoPtr_(&ReferenceTriangularPrism::Instance()),gp_(8,3)
     {
         weight_[0] = ( -9. / 32. ) * ( 1.0 );
         gp_[0][0] = 1. / 3.;
@@ -235,7 +235,7 @@ namespace QuadratureRules
 
     TriPrism_5_1::TriPrism_5_1():
         name_("TriPrism_5_1"),
-        refGeoPtr_(&ReferenceTriangularPrism::Instance())
+        refGeoPtr_(&ReferenceTriangularPrism::Instance()),gp_(21,3)
     {
         weight_[0] = ( 9. / 80. ) * ( 5. / 9. );
         gp_[0][0] = 1. / 3.;
@@ -383,7 +383,7 @@ namespace QuadratureRules
     }
 
     void
-    TriPrism_7_1::getPoint(unsigned int i, PointReference<3>& p) const
+    TriPrism_7_1::getPoint(unsigned int i, PointReferenceT& p) const
     {
         if (i < 64)
             p=gp_[i];
@@ -399,7 +399,7 @@ namespace QuadratureRules
 
     TriPrism_7_1::TriPrism_7_1():
         name_("TriPrism_7_1"),
-        refGeoPtr_(&ReferenceTriangularPrism::Instance())
+        refGeoPtr_(&ReferenceTriangularPrism::Instance()),gp_(64,3)
     {
         weight_[0] = ( (0.1739274226) * (0.1355069134) ) * ( (2. * 0.1739274226) );
         gp_[0][0] = ((-0.861136312 + 1.) / 2.) * (1. - (0.0571041961));

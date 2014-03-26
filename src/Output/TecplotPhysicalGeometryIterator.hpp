@@ -19,8 +19,7 @@ namespace Output
             return theInstance;
         }
 
-        template<unsigned int DIM>
-        void acceptG(const Geometry::PhysicalGeometry<DIM>* geo)
+        void acceptG(const Geometry::PhysicalGeometry* geo)
         {
                 //std::cout<<(*geo);
             const Geometry::PhysicalLine* line= dynamic_cast<const Geometry::PhysicalLine*>(geo);

@@ -17,20 +17,19 @@
 
 namespace Geometry
 {
-    template <unsigned int dimFrom, unsigned int dimTo>
     class Jacobian: public LinearAlgebra::Matrix
     {
         public:
-        typedef Jacobian<dimFrom, dimTo>            JacobianT;
-        typedef PointPhysical<dimTo>                PhysicalPointT;
+        typedef Jacobian            JacobianT;
+        typedef PointPhysical                PhysicalPointT;
 
         public:
             // Constructors.
-        Jacobian();
+        Jacobian(unsigned int dimTo,unsigned int dimFrom);
         Jacobian(const JacobianT& jacobian);
        
         double determinant()const;
-        void   computeWedgeStuffVector(PhysicalPointT& p)const;
+        void   computeWedgeStuffVector(NumericalVector& p)const;
         
         virtual ~Jacobian(){}
         
@@ -43,9 +42,8 @@ namespace Geometry
          Jacobians of two (successively applied) mappings. Therefore we provide
          the function multiplyJacobiansInto. */
         
-        template <unsigned int dim3>
-        void multiplyJacobiansInto(const Jacobian<dim3, dimFrom>& jac2,
-                                   Jacobian<dim3, dimTo>& jres)
+        void multiplyJacobiansInto(const Jacobian& jac2,
+                                   Jacobian& jres)
         {
                 // TODO: This is very inefficient, because of Anthony's code in LinearAlgebra.
                 LinearAlgebra::Matrix& matThis= *this;
@@ -62,5 +60,4 @@ namespace Geometry
         /// \bug create as a part of Jacobian class
  
 }
-#include "Jacobian_Impl.hpp"
 #endif /* JACOBIAN_HPP_ */

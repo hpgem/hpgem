@@ -12,10 +12,11 @@ add_executable( DG-Max.out
                 kspaceData.cpp
                 BasisFunctionCollection_Curl.cpp
                 BaseExtended.cpp
-		${hpGEM_SOURCE_DIR}/src/Output/TecplotPhysicalGeometryIterator.cpp				  
+		${hpGEM_SOURCE_DIR}/src/Output/TecplotPhysicalGeometryIterator.cpp		
+		${hpGEM_SOURCE_DIR}/src/Output/TecplotDiscontinuousSolutionWriter.cpp		  
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/src/Base/AssembleBasisFunctionSet.cpp
                 ${hpGEM_SOURCE_DIR}/src/Integration/QuadratureRules/AllGaussQuadratureRules.cpp
                 ${hpGEM_SOURCE_DIR}/src/Base/L2Norm.cpp
       		)
-target_link_libraries(DG-Max.out Geometry QuadratureRules Matrix ${PETSC_LIBRARIES} ${SLEPC_LIBRARIES} )
+target_link_libraries(DG-Max.out hpGEM_Base Geometry QuadratureRules Matrix ${PETSC_LIBRARIES} ${SLEPC_LIBRARIES} )

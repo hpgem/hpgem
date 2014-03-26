@@ -37,11 +37,11 @@ namespace Geometry
     };
 
     ReferenceCube::ReferenceCube():
-        ReferenceGeometry<ThreeD>(ThreeD+5, CUBE),
+        ReferenceGeometry(ThreeD+5,3, CUBE),
         referenceGeometryCodim1Ptr_(&ReferenceSquare::Instance()),
         referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
-        PointReferenceT p1,p2,p3,p4,p5,p6,p7,p8;
+        PointReferenceT p1(3),p2(3),p3(3),p4(3),p5(3),p6(3),p7(3),p8(3);
         
         p1[0] = -1.0; p1[1] = -1.0; p1[2] = -1.0;
         p2[0] = +1.0; p2[1] = -1.0; p2[2] = -1.0;
@@ -157,7 +157,7 @@ namespace Geometry
         return -1;
     }
 
-    const MappingReferenceToReference<3, 3>*
+    const MappingReferenceToReference*
     ReferenceCube::getCodim0MappingPtr(const IndexT i) const
     {
         if (i < 8)
@@ -172,7 +172,7 @@ namespace Geometry
 
     // ================================== Codimension 1 ============================================
 
-    const MappingReferenceToReference<2, 3>*
+    const MappingReferenceToReference*
     ReferenceCube::getCodim1MappingPtr(const IndexT faceIndex) const
     {
         if (faceIndex < 6)
@@ -185,7 +185,7 @@ namespace Geometry
         }
     }
 
-    const ReferenceGeometry<2>*
+    const ReferenceGeometry*
     ReferenceCube::getCodim1ReferenceGeometry(const IndexT e) const
     {
         if (e < 8)
@@ -217,13 +217,13 @@ namespace Geometry
 
     // ================================== Codimension 2 ============================================
 
-    const MappingReferenceToReference<1, 3>*
+    const MappingReferenceToReference*
     ReferenceCube::getCodim2MappingPtr(const IndexT lineIndex) const
     {
         return 0;
     }
 
-    const ReferenceGeometry<1>*
+    const ReferenceGeometry*
     ReferenceCube::getCodim2ReferenceGeometry(const IndexT e) const
     {
         if (e < 12)
@@ -254,9 +254,9 @@ namespace Geometry
     // ================================== Quadrature rules =====================================
 
     /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceCube::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<3>* const qr)
+    void ReferenceCube::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
     {
-        std::list<QuadratureRules::GaussQuadratureRule<3>*>::iterator it = lstGaussQuadratureRules_.begin();
+        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
         while (it != lstGaussQuadratureRules_.end())
         {
           if ((*it)->order() < qr->order()) ++it;
@@ -266,9 +266,9 @@ namespace Geometry
     }
 
     /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule<3>* const ReferenceCube::getGaussQuadratureRule(int order) const
+    QuadratureRules::GaussQuadratureRule* const ReferenceCube::getGaussQuadratureRule(int order) const
     {
-         for (std::list<QuadratureRules::GaussQuadratureRule<3>*>::const_iterator it = lstGaussQuadratureRules_.begin();
+         for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
               it != lstGaussQuadratureRules_.end(); ++it)
           if ((*it)->order() >= order) return *it;
 

@@ -13,6 +13,7 @@
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.hpp"
 #include "Geometry/ReferenceCube.hpp"
+#include "GaussQuadratureRulesForLine.hpp"
 using Geometry::ReferenceCube;
 
 
@@ -70,7 +71,7 @@ namespace QuadratureRules
 
     Cn3_1_1::Cn3_1_1():
        name_("Cn3_1_1"),
-       refGeoPtr_(&ReferenceCube::Instance())
+       refGeoPtr_(&ReferenceCube::Instance()),gp_(1,3)
     {
         weight_[0] = ( ( 2.0 ) * ( 2.0 ) ) * ( 2.0 );
         gp_[0][0] = 0.0;
@@ -136,7 +137,7 @@ namespace QuadratureRules
 
     Cn3_3_4::Cn3_3_4():
         name_("Cn3_3_4"),
-        refGeoPtr_(&ReferenceCube::Instance())
+        refGeoPtr_(&ReferenceCube::Instance()),gp_(8,3)
     {
         weight_[0] = ( ( 1.0 ) * ( 1.0 ) ) * ( 1.0 );
         gp_[0][0] = -sqrt(3.0) / 3.0;
@@ -237,7 +238,7 @@ namespace QuadratureRules
 
     Cn3_5_9::Cn3_5_9():
        name_("Cn3_5_9"),
-       refGeoPtr_(&ReferenceCube::Instance())
+       refGeoPtr_(&ReferenceCube::Instance()),gp_(27,3)
     {
         weight_[0] = ( ( 5. / 9. ) * ( 5. / 9. ) ) * ( 5. / 9. );
         gp_[0][0] = -sqrt(3.0 / 5.0);
@@ -432,7 +433,7 @@ namespace QuadratureRules
 
     C3_7_2::C3_7_2():
         name_("C3_7_2"),
-        refGeoPtr_(&ReferenceCube::Instance())
+        refGeoPtr_(&ReferenceCube::Instance()),gp_(34,3)
     {
         weight_[0] = 1078. / 3645.;
         gp_[0][0] = +sqrt((6. / 7.));
@@ -611,6 +612,160 @@ namespace QuadratureRules
     {
     }
 
+
+//---------------------------------------------------------------------------
+    std::string
+    C3_9_2::getName() const
+    {
+        return name_;
+    }
+
+    unsigned int
+    C3_9_2::order() const
+    {
+        return 9;
+    }
+
+    unsigned int
+    C3_9_2::dimension() const
+    {
+        return 3;
+    }
+
+    unsigned int
+    C3_9_2::nrOfPoints() const
+    {
+        return 125;
+    }
+
+    double
+    C3_9_2::weight(unsigned int i) const
+    {
+        if (i < 125)
+            return weight_[i];
+        else
+            throw name_ + "::weight - wrong index!";
+    }
+
+    void
+    C3_9_2::getPoint(unsigned int i, PointReferenceT& p) const
+    {
+        if (i < 125)
+            p=gp_[i];
+        else
+            throw name_ + "::getPoint -  wrong index!";
+    }
+
+    C3_9_2::ReferenceGeometryT*
+    C3_9_2::forReferenceGeometry() const
+    {
+        return refGeoPtr_;
+    }
+
+    C3_9_2::C3_9_2():
+       name_("C3_9_2"),
+       refGeoPtr_(&ReferenceCube::Instance()),gp_(125,3)
+    {
+    	int position(0);
+    	C1_9_25& ruleForLine =C1_9_25::Instance();
+    	Geometry::PointReference point1D(1);
+        refGeoPtr_->addGaussQuadratureRule(this);
+        for(int i=0;i<ruleForLine.nrOfPoints();++i){
+        	for(int j=0;j<ruleForLine.nrOfPoints();++j){
+        		for(int k=0;k<ruleForLine.nrOfPoints();++k){
+					weight_[position]=ruleForLine.weight(i)*ruleForLine.weight(j)*ruleForLine.weight(k);
+					ruleForLine.getPoint(i,point1D);
+					gp_[position][0]=point1D[0];
+					ruleForLine.getPoint(j,point1D);
+					gp_[position][1]=point1D[0];
+					ruleForLine.getPoint(k,point1D);
+					gp_[position][2]=point1D[0];
+					++position;
+        		}
+        	}
+        }
+    }
+
+    C3_9_2::~C3_9_2()
+    {
+    }
+
+//---------------------------------------------------------------------------
+    std::string
+    C3_11_2::getName() const
+    {
+        return name_;
+    }
+
+    unsigned int
+    C3_11_2::order() const
+    {
+        return 11;
+    }
+
+    unsigned int
+    C3_11_2::dimension() const
+    {
+        return 3;
+    }
+
+    unsigned int
+    C3_11_2::nrOfPoints() const
+    {
+        return 216;
+    }
+
+    double
+    C3_11_2::weight(unsigned int i) const
+    {
+        if (i < 216)
+            return weight_[i];
+        else
+            throw name_ + "::weight - wrong index!";
+    }
+
+    void
+    C3_11_2::getPoint(unsigned int i, PointReferenceT& p) const
+    {
+        if (i < 216)
+            p=gp_[i];
+        else
+            throw name_ + "::getPoint -  wrong index!";
+    }
+
+    C3_11_2::ReferenceGeometryT*
+    C3_11_2::forReferenceGeometry() const
+    {
+        return refGeoPtr_;
+    }
+
+    C3_11_2::C3_11_2():
+       name_("C3_11_2"),
+       refGeoPtr_(&ReferenceCube::Instance()),gp_(216,3)
+    {
+    	int position(0);
+    	C1_11_36& ruleForLine =C1_11_36::Instance();
+    	Geometry::PointReference point1D(1);
+        refGeoPtr_->addGaussQuadratureRule(this);
+        for(int i=0;i<ruleForLine.nrOfPoints();++i){
+        	for(int j=0;j<ruleForLine.nrOfPoints();++j){
+        		for(int k=0;k<ruleForLine.nrOfPoints();++k){
+					weight_[position]=ruleForLine.weight(i)*ruleForLine.weight(j)*ruleForLine.weight(k);
+					ruleForLine.getPoint(i,point1D);
+					gp_[position][0]=point1D[0];
+					ruleForLine.getPoint(j,point1D);
+					gp_[position][1]=point1D[0];
+					ruleForLine.getPoint(k,point1D);
+					gp_[position][2]=point1D[0];
+					++position;
+        		}
+        	}
+        }
+    }
+
+    C3_11_2::~C3_11_2()
+    {
+    }
 
 //---------------------------------------------------------------------------
 } // close namespace QuadratureRules

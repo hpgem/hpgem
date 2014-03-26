@@ -11,8 +11,8 @@ int main()
     const Geometry::MappingToRefPointToLine0& mappingPointToLine0 = Geometry::MappingToRefPointToLine0::Instance();
     const Geometry::MappingToRefPointToLine1& mappingPointToLine1 = Geometry::MappingToRefPointToLine1::Instance();
 
-    Geometry::PointReference<0> pr1;
-    Geometry::PointReference<1> pr2;
+    Geometry::PointReference pr1(0);
+    Geometry::PointReference pr2(1);
 
     cout << "Geometry::MappingPointToLine0";
     mappingPointToLine0.transform(pr1,pr2);

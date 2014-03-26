@@ -6,51 +6,46 @@
 //
 //
 #include <iostream>
+#include "point.hpp"
 using std::cout;
 using std::endl;
 
 namespace Geometry
 {
-    template<unsigned int DIM>
     class Point;
     
-    template<unsigned int DIM>
-    Point<DIM>::Point():
+    Point::Point(unsigned int DIM):
         coordinates_(DIM)
     {
     }
     
-    template<unsigned int DIM>
-    Point<DIM>::Point( CoordTypeT coords[]):
-        coordinates_(coords, DIM)
+    Point::Point( CoordTypeT coords[],unsigned int DIM):
+        coordinates_(coords,DIM)
     {
     }
 
-    template<unsigned int DIM>
-    Point<DIM>::Point(const PointT& other):
+    Point::Point(const PointT& other):
         coordinates_(other.coordinates_)
     {
             if (this->size() != other.size())
-            {
+            {///\bug this should be checked BEFORE data is copied
                 std::cout<<"ERROR HANDLER!!!!"<<"Sizes do not coincide."<<endl;
                     //throw exception;
             }
     }
     
-    template<unsigned int DIM>
-    Point<DIM>::Point(const VectorOfCoordsT& coord):
+    Point::Point(const VectorOfCoordsT& coord):
         coordinates_(coord)
     {
         if (coord.size()!=this->size())
-        {
+        {///\bug this should be checked BEFORE data is copied
             std::cout<<"ERROR HANDLER!!!!"<<"Sizes do not coincide."<<endl;
                 //throw exception;
         }
     }
 
-    template<unsigned int DIM>
-    typename Point<DIM>::CoordTypeT
-    Point<DIM>::getCoordinate(IndexT n)const
+    typename Point::CoordTypeT
+    Point::getCoordinate(IndexT n)const
     {
         if (n<this->size())
         {
@@ -64,17 +59,15 @@ namespace Geometry
         }
     }
 
-    template<unsigned int DIM>
-    typename Point<DIM>::VectorOfCoordsT
-    Point<DIM>::getCoordinates() const
+    typename Point::VectorOfCoordsT
+    Point::getCoordinates() const
     {
         //cout << "###################" << coordinates_;
         return coordinates_;
     }
 
-    template<unsigned int DIM>
     void
-    Point<DIM>::setCoordinate(IndexT n, const CoordTypeT& coord)
+    Point::setCoordinate(IndexT n, const CoordTypeT& coord)
     {
         if (n<this->size())
         {
@@ -87,9 +80,8 @@ namespace Geometry
         }
     }
 
-    template<unsigned int DIM>
     void
-    Point<DIM>::setCoordinates(const VectorOfCoordsT& coord)
+    Point::setCoordinates(const VectorOfCoordsT& coord)
     {
         if (coord.size()==this->size())
         {
@@ -104,24 +96,21 @@ namespace Geometry
     }
 
 
-    template<unsigned int DIM>
-    typename Point<DIM>::CoordTypeT&
-    Point<DIM>::operator [] (IndexT n)
-    {
+    typename Point::CoordTypeT&
+    Point::operator [] (IndexT n)
+    {///\bug no size checking
         return coordinates_[n];
     }
     
-    template<unsigned int DIM>
-    const typename Point<DIM>::CoordTypeT&
-    Point<DIM>::operator [] (IndexT n)const
-    {
+    const typename Point::CoordTypeT&
+    Point::operator [] (IndexT n)const
+    {///\bug no size checking
         return coordinates_[n];
     }
     
-    template<unsigned int DIM>
-    Point<DIM>&
-    Point<DIM>::operator = (const PointT& rhs)
-    {
+    Point&
+    Point::operator = (const PointT& rhs)
+    {///\bug no size checking
         coordinates_ = rhs.coordinates_;return *this;
     }
 };

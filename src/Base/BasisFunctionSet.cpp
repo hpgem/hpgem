@@ -5,19 +5,19 @@
 //  Created by Shavarsh Nurijanyan on 6/24/13.
 //
 //
+
+#include "Base/BasisFunctionSet.hpp"
+
 namespace Base {
 
-    template<unsigned int DIM>
-    class BasisFunctionSet;
+    //class BasisFunctionSet;
 
-    template<unsigned int DIM>
-    BasisFunctionSet<DIM>::BasisFunctionSet(unsigned int order):
+    BasisFunctionSet::BasisFunctionSet(unsigned int order):
     order_(order)
     {
     }
             
-    template<unsigned int DIM>
-    BasisFunctionSet<DIM>::~BasisFunctionSet()
+    BasisFunctionSet::~BasisFunctionSet()
     {
         while(!vecOfBasisFcn_.empty())
         {
@@ -26,36 +26,31 @@ namespace Base {
         }
     }
 
-    template<unsigned int DIM>
     unsigned int
-    BasisFunctionSet<DIM>::size() const
+    BasisFunctionSet::size() const
     {
         return vecOfBasisFcn_.size();
     }
 
-    template<unsigned int DIM>
     unsigned int
-    BasisFunctionSet<DIM>::getOrder() const
+    BasisFunctionSet::getOrder() const
     {
         return order_;
     }
-    template<unsigned int DIM>
     void
-    BasisFunctionSet<DIM>::addBasisFunction(BaseBasisFunctionT* bf)
+    BasisFunctionSet::addBasisFunction(BaseBasisFunctionT* bf)
     {
         vecOfBasisFcn_.push_back(bf);
     }
 
-    template<unsigned int DIM>
     double
-    BasisFunctionSet<DIM>::eval(unsigned int i, const PointReferenceT& p) const
+    BasisFunctionSet::eval(unsigned int i, const PointReferenceT& p) const
     {
         return vecOfBasisFcn_[i]->eval(p);
     }
     
-    template<unsigned int DIM>
-    double
-    BasisFunctionSet<DIM>::evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const
+    /*double
+    BasisFunctionSet::evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const
     {
         TestErrorDebug((jDir<1),"Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
                    
@@ -122,10 +117,9 @@ namespace Base {
             default: -1.e50;
         }
         
-    }
-    template<>
-    inline double
-    BasisFunctionSet<4>::evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const
+    }*/
+     double
+    BasisFunctionSet::evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const
     {
         TestErrorDebug((jDir<4),"Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
         
@@ -143,21 +137,19 @@ namespace Base {
             case 3:
                 return vecOfBasisFcn_[i]->evalDeriv3(p);;
                 break;
-            default: -1.e50;
+            default: return -1.e50;
         }
         
     }   
     
-    template<unsigned int DIM>
-    inline void
-    BasisFunctionSet<DIM>::eval(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
+     void
+    BasisFunctionSet::eval(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
     {
         vecOfBasisFcn_[i]->eval(p,ret);
     }
 
-    template<unsigned int DIM>
-    inline void
-    BasisFunctionSet<DIM>::evalCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
+     void
+    BasisFunctionSet::evalCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
     {
         vecOfBasisFcn_[i]->evalCurl(p,ret);
     }

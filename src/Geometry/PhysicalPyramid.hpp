@@ -6,10 +6,10 @@
 
 namespace Geometry
 {
-    class PhysicalPyramid: public PhysicalGeometry<ThreeD>
+    class PhysicalPyramid: public PhysicalGeometry
     {
         public:
-            typedef PhysicalGeometry<ThreeD> PhysicalGeometry3D;
+            typedef PhysicalGeometry PhysicalGeometry3D;
             using PhysicalGeometry3D::VectorOfPointIndexesT;
             using PhysicalGeometry3D::VectorOfPhysicalPointsT;
             using PhysicalGeometry3D::PointIndexT;
@@ -29,6 +29,8 @@ namespace Geometry
             virtual void getGlobalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
 
             virtual void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
+
+            unsigned int getNrOfFaces() const {return 5;}
 
             //PhysicalGeometries getId() const {return id_;}
 

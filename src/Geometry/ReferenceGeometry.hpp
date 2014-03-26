@@ -5,6 +5,8 @@
 #include "Geometry/Mappings/MappingCodimensions.hpp"
 #include "Geometry/Mappings/RefinementMapping.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <map>///\todo make a hasher for pointreference and change this back to unordered_map
+#include "Base/BaseBasisFunction.hpp"
 
 #include <iostream>
 #include <vector>
@@ -14,7 +16,6 @@ using std::endl;
 namespace QuadratureRules
 {
     // forward declaration
-    template <unsigned int dim>
     class GaussQuadratureRule;
 }
 
@@ -34,10 +35,9 @@ namespace Geometry
         HYPERCUBE
     };
     
-    template <unsigned int DIM>
     class ReferenceGeometry :
-            public RefinementMapping<DIM>,
-            public MappingCodimensions<DIM>
+            public RefinementMapping,
+            public MappingCodimensions
     {
     /*! \class ReferenceGeometry
      * \brief ReferenceGeometry stores a the information of a unitary geometry where the integration is made.
@@ -54,7 +54,7 @@ namespace Geometry
         /// \bug this is a workaround for a g++ bug. Should read using typenames;
         typedef std::string                                         String;
         typedef unsigned int                                        IndexT;
-        typedef typename Geometry::PointReference<DIM>              PointReferenceT;
+        typedef typename Geometry::PointReference              PointReferenceT;
         typedef typename std::vector<PointReferenceT >              VectorOfReferencePointsT;
         typedef typename VectorOfReferencePointsT::iterator         iterator;
         typedef typename VectorOfReferencePointsT::const_iterator   const_iterator;
@@ -86,14 +86,28 @@ namespace Geometry
         // ================================== Quadrature rules =====================================
         
         /// \brief Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(typename QuadratureRules::GaussQuadratureRule<DIM>* const qr) = 0;
+        virtual void addGaussQuadratureRule(typename QuadratureRules::GaussQuadratureRule* const qr) = 0;
         
         /// \brief Get a valid quadrature for this geometry.
-        virtual typename QuadratureRules::GaussQuadratureRule<DIM>* const getGaussQuadratureRule(int order) const = 0;
+        virtual typename QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const = 0;
+
+        ///\bug getBasisFunctionValue does some lazy initialization, so it can't be const, unless you consider the state to
+        /// contain the values of all basisFunctions at all reference points
+        double getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p);
+
+        double getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p) const
+        {return const_cast<ReferenceGeometry*>(this)->getBasisFunctionValue(function,p);}
+
+        ///\bug getBasisFunctionDerivative does some lazy initialization, so it can't be const, unless you consider the state to
+        /// contain the values of all basisFunctions at all reference points
+        void getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p,NumericalVector& ret);
+
+        void getBasisFunctionDerivative(const  Base::BaseBasisFunction* function, const PointReference& p,NumericalVector& ret) const
+        {const_cast<ReferenceGeometry*>(this)->getBasisFunctionDerivative(function,p,ret);}
 
     protected:
         ReferenceGeometry(const TypeOfReferenceGeometry& geoT);
-        ReferenceGeometry(unsigned int numberOfNodes, const TypeOfReferenceGeometry& geoT);
+        ReferenceGeometry(unsigned int numberOfNodes, unsigned int DIM, const TypeOfReferenceGeometry& geoT);
         ReferenceGeometry(const ReferenceGeometry& other);
         
     protected:
@@ -102,7 +116,11 @@ namespace Geometry
         /// An identifier of the type of referenceGeometry, that some say shouldn't be used.
         const TypeOfReferenceGeometry   geometryType_;
         
+    private:
+
+        std::map<const Base::BaseBasisFunction*,std::map<Geometry::PointReference,double> > basisfunctionValues_;
+        std::map<const Base::BaseBasisFunction*,std::map<Geometry::PointReference,NumericalVector> > basisfunctionDerivatives_;
+
     };
 };
-#include "ReferenceGeometry_Impl.hpp"
 #endif

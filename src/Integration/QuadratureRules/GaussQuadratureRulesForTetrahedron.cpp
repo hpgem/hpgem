@@ -69,7 +69,7 @@ namespace QuadratureRules
 
     Tn3_1_1::Tn3_1_1():
         name_("Tn3_1_1"),
-        refGeoPtr_(&ReferenceTetrahedron::Instance())
+        refGeoPtr_(&ReferenceTetrahedron::Instance()),gp_(1,3)
     {
         weight_[0] = 1.6666666666666663e-01;
         gp_[0][0] = 2.5000000000000000e-01;
@@ -136,7 +136,7 @@ namespace QuadratureRules
 
     Tn3_2_1::Tn3_2_1():
         name_("Tn3_2_1"),
-        refGeoPtr_(&ReferenceTetrahedron::Instance())
+        refGeoPtr_(&ReferenceTetrahedron::Instance()),gp_(4,3)
     {
         weight_[0] = 4.1666666666666623e-02;
         gp_[0][0] = 1.3819660112501048e-01;
@@ -217,7 +217,7 @@ namespace QuadratureRules
 
     Tn3_3_1::Tn3_3_1():
         name_("Tn3_3_1"),
-        refGeoPtr_(&ReferenceTetrahedron::Instance())
+        refGeoPtr_(&ReferenceTetrahedron::Instance()),gp_(5,3)
     {
         weight_[0] = -1.3333333333333339e-01;
         gp_[0][0] = 2.5000000000000000e-01;
@@ -303,7 +303,7 @@ namespace QuadratureRules
 
     Tn3_4_1::Tn3_4_1():
         name_("Tn3_4_1"),
-        refGeoPtr_(&ReferenceTetrahedron::Instance())
+        refGeoPtr_(&ReferenceTetrahedron::Instance()),gp_(11,3)
     {
         weight_[0] = -1.3155555555555500e-02;
         gp_[0][0] = 2.5000000000000000e-01;
@@ -418,7 +418,7 @@ namespace QuadratureRules
 
     T3_5_1::T3_5_1():
         name_("T3_5_1"),
-        refGeoPtr_(&ReferenceTetrahedron::Instance())
+        refGeoPtr_(&ReferenceTetrahedron::Instance()),gp_(14,3)
     {
         weight_[0] = 1.2248840519393626e-02;
         gp_[0][0] = 9.2735250310891026e-02;
@@ -548,7 +548,7 @@ namespace QuadratureRules
 
     T3_6_1::T3_6_1():
         name_("T3_6_1"),
-        refGeoPtr_(&ReferenceTetrahedron::Instance())
+        refGeoPtr_(&ReferenceTetrahedron::Instance()),gp_(24,3)
     {
         weight_[0] = 6.6537917096946252e-03;
         gp_[0][0] = 2.1460287125915201e-01;
@@ -729,7 +729,7 @@ namespace QuadratureRules
 
     T3_7_1::T3_7_1():
         name_("T3_7_1"),
-        refGeoPtr_(&ReferenceTetrahedron::Instance())
+        refGeoPtr_(&ReferenceTetrahedron::Instance()),gp_(31,3)
     {
         weight_[0] = 9.7001763668425002e-04;
         gp_[0][0] = 5.0000000000000000e-01;
@@ -945,7 +945,7 @@ namespace QuadratureRules
 
     T3_8_1::T3_8_1():
         name_("T3_8_1"),
-        refGeoPtr_(&ReferenceTetrahedron::Instance())
+        refGeoPtr_(&ReferenceTetrahedron::Instance()),gp_(43,3)
     {
         weight_[0] = -2.0500188658639874e-02;
         gp_[0][0] = 2.5000000000000000e-01;
@@ -1221,7 +1221,7 @@ namespace QuadratureRules
 
     T3_9_1::T3_9_1():
         name_("T3_9_1"),
-        refGeoPtr_(&ReferenceTetrahedron::Instance())
+        refGeoPtr_(&ReferenceTetrahedron::Instance()),gp_(53,3)
     {
         weight_[0] = -1.3779903832610862e-01;
         gp_[0][0] = 2.5000000000000000e-01;
@@ -1547,7 +1547,7 @@ namespace QuadratureRules
 
     T3_10_1::T3_10_1():
         name_("T3_10_1"),
-        refGeoPtr_(&ReferenceTetrahedron::Instance())
+        refGeoPtr_(&ReferenceTetrahedron::Instance()),gp_(126,3)
     {
         weight_[0] = 4.5362824065080999e-02;
         gp_[0][0] = 7.1428571428571508e-02;

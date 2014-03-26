@@ -33,12 +33,12 @@ namespace Geometry
     };
 
     ReferenceTriangularPrism::ReferenceTriangularPrism():
-        ReferenceGeometry<ThreeD>(ThreeD+3, TRIANGULARPRISM),
+        ReferenceGeometry(ThreeD+3,3, TRIANGULARPRISM),
         referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()),
         referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()),
         referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
-        PointReferenceT p1, p2, p3, p4, p5, p6;
+        PointReferenceT p1(3), p2(3), p3(3), p4(3), p5(3), p6(3);
         
         p1[0] = +0.0; p1[1] = +0.0; p1[2] = -1.0;
         p2[0] = +1.0; p2[1] = +0.0; p2[2] = -1.0;
@@ -65,7 +65,7 @@ namespace Geometry
     }
     
     ReferenceTriangularPrism::ReferenceTriangularPrism(const ReferenceTriangularPrism& copy):
-        ReferenceGeometry<ThreeD>(copy),
+        ReferenceGeometry(copy),
         referenceGeometryCodim1TrianglePtr_(copy.referenceGeometryCodim1TrianglePtr_),
         referenceGeometryCodim1SquarePtr_(copy.referenceGeometryCodim1SquarePtr_),
         referenceGeometryCodim2Ptr_(copy.referenceGeometryCodim2Ptr_)
@@ -112,7 +112,7 @@ namespace Geometry
         throw "ReferenceTriangularPrism::getCodim0MappingIndex: T.p to t.p mappings do not exist";
     }
 
-    const MappingReferenceToReference<3, 3>*
+    const MappingReferenceToReference*
     ReferenceTriangularPrism::getCodim0MappingPtr(const IndexT i) const
     {
         /// TODO: Implement tetrahedron to tetrahedron mappings.
@@ -145,7 +145,7 @@ namespace Geometry
         }
     }
 
-    const ReferenceGeometry<2>*
+    const ReferenceGeometry*
     ReferenceTriangularPrism::getCodim1ReferenceGeometry(const IndexT faceIndex) const
     {
         if (faceIndex < 2)
@@ -162,7 +162,7 @@ namespace Geometry
         }
     }
 
-    const MappingReferenceToReference<2, 3>*
+    const MappingReferenceToReference*
     ReferenceTriangularPrism::getCodim1MappingPtr(const IndexT faceIndex) const
     {
         if (faceIndex < 5)
@@ -192,7 +192,7 @@ namespace Geometry
         }
     }
 
-    const ReferenceGeometry<1>*
+    const ReferenceGeometry*
     ReferenceTriangularPrism::getCodim2ReferenceGeometry(const IndexT edgeIndex) const
     {
         if (edgeIndex < 9)
@@ -205,7 +205,7 @@ namespace Geometry
         }
     }
 
-    const MappingReferenceToReference<1, 3>*
+    const MappingReferenceToReference*
     ReferenceTriangularPrism::getCodim2MappingPtr(const IndexT faceIndex) const
     {
         /// TODO: Implement line to t.p. mappings.
@@ -231,9 +231,9 @@ namespace Geometry
     // ================================== Quadrature rules =====================================
 
     /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceTriangularPrism::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<3>* const qr) 
+    void ReferenceTriangularPrism::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
     {
-        std::list<QuadratureRules::GaussQuadratureRule<3>*>::iterator it = lstGaussQuadratureRules_.begin();
+        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
         while (it != lstGaussQuadratureRules_.end())
         {
           if ((*it)->order() < qr->order()) ++it;
@@ -243,9 +243,9 @@ namespace Geometry
     }
 
     /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule<3>* const ReferenceTriangularPrism::getGaussQuadratureRule(int order) const 
+    QuadratureRules::GaussQuadratureRule* const ReferenceTriangularPrism::getGaussQuadratureRule(int order) const
     {
-        for (std::list<QuadratureRules::GaussQuadratureRule<3>*>::const_iterator it = lstGaussQuadratureRules_.begin();
+        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
               it != lstGaussQuadratureRules_.end(); ++it)
           if ((*it)->order() >= order) return *it;
 

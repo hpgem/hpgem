@@ -9,8 +9,8 @@
 
 using namespace std;
 
-typedef std::vector<Geometry::PointPhysical<2> >        VectorOfPhysicalPointsT;
-typedef Base::BasisFunctionSet<2>                       BasisFunctionSetT;
+typedef std::vector<Geometry::PointPhysical >        VectorOfPhysicalPointsT;
+typedef Base::BasisFunctionSet                      BasisFunctionSetT;
 typedef std::vector<BasisFunctionSetT*>                 CollectionOfBasisFunctionSets;
 
 int main()

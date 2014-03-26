@@ -21,11 +21,11 @@ namespace QuadratureRules
     using Geometry::ReferenceGeometry;
 
 //---------------------------------------------------------------------------
-    class Tn3_1_1: public GaussQuadratureRule<3>
+    class Tn3_1_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static Tn3_1_1& Instance()
             {
@@ -49,15 +49,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[1];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[1];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class Tn3_2_1: public GaussQuadratureRule<3>
+    class Tn3_2_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static Tn3_2_1& Instance()
             {
@@ -81,15 +81,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[4];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[4];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class Tn3_3_1: public GaussQuadratureRule<3>
+    class Tn3_3_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static Tn3_3_1& Instance()
             {
@@ -113,15 +113,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[5];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[5];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class Tn3_4_1: public GaussQuadratureRule<3>
+    class Tn3_4_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static Tn3_4_1& Instance()
             {
@@ -145,15 +145,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[11];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[11];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class T3_5_1: public GaussQuadratureRule<3>
+    class T3_5_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static T3_5_1& Instance()
             {
@@ -177,15 +177,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[14];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[14];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class T3_6_1: public GaussQuadratureRule<3>
+    class T3_6_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static T3_6_1& Instance()
             {
@@ -209,15 +209,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[24];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[24];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class T3_7_1: public GaussQuadratureRule<3>
+    class T3_7_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference      PointReferenceT;
     public:
         static T3_7_1& Instance()
             {
@@ -241,15 +241,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[31];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[31];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class T3_8_1: public GaussQuadratureRule<3>
+    class T3_8_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static T3_8_1& Instance()
             {
@@ -273,15 +273,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[43];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[43];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class T3_9_1: public GaussQuadratureRule<3>
+    class T3_9_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static T3_9_1& Instance()
             {
@@ -305,15 +305,15 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[53];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[53];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------
-    class T3_10_1: public GaussQuadratureRule<3>
+    class T3_10_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry<3>    ReferenceGeometryT;
-        typedef PointReference<3>       PointReferenceT;
+        typedef ReferenceGeometry    ReferenceGeometryT;
+        typedef PointReference       PointReferenceT;
     public:
         static T3_10_1& Instance()
             {
@@ -337,7 +337,7 @@ namespace QuadratureRules
         const std::string               name_;
         double                          weight_[126];
         ReferenceGeometryT* const       refGeoPtr_;
-        PointReferenceT                 gp_[126];
+        std::vector<PointReferenceT>                   gp_;
     };
 
 //---------------------------------------------------------------------------

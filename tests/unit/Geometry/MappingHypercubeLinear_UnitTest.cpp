@@ -25,16 +25,16 @@ int main()
      *       in the old version of hpGEM. See their comments.
      */
 
-    cout << "1D ~~~~~~~~~ 1D ~~~~~~~~~ 1D ~~~~~~~~~ 1D ~~~~~~~~~ 1D ~~~~~~~~~ 1D" << std::endl;
+    /*cout << "1D ~~~~~~~~~ 1D ~~~~~~~~~ 1D ~~~~~~~~~ 1D ~~~~~~~~~ 1D ~~~~~~~~~ 1D" << std::endl;
 
     double dummy1[1]= {2.0};
     
-    Geometry::PointPhysical<1> point1D_1(dummy1);
+    Geometry::PointPhysical point1D_1(dummy1);///\bug PointPhysical does not have an array based initialization!!(see point instead)
 
     double dummy2[1]= {4.0};
 
-    Geometry::PointPhysical<1> point1D_2(dummy2);
-    std::vector<Geometry::PointPhysical<1> > points1D;
+    Geometry::PointPhysical point1D_2(dummy2);
+    std::vector<Geometry::PointPhysical > points1D;
     points1D.push_back(point1D_1);
     points1D.push_back(point1D_2);
 
@@ -51,8 +51,8 @@ int main()
     Geometry::MappingToPhysHypercubeLinear<1> mapping1D(lala1D);
 
     cout << "mapping.transform(PointReference,PointPhysical)" << std::endl;
-    Geometry::PointReference<1> pointReference1D_1;
-    Geometry::PointPhysical<1> pointPhysical1D_1;
+    Geometry::PointReference pointReference1D_1;
+    Geometry::PointPhysical pointPhysical1D_1(1);
 
     pointReference1D_1[0] = -1.0;
     cout << "pointReference: " << pointReference1D_1; cout << std::endl;
@@ -78,23 +78,23 @@ int main()
     // See comment on PhysicalQuadrilateral.cpp
 
     double dummy3[2]= {2.0,2.0};
-    Geometry::PointPhysical<2> point2D_1(dummy3);
+    Geometry::PointPhysical point2D_1(dummy3);
 
     double dummy4[2]= {4.0,2.0};
-    Geometry::PointPhysical<2> point2D_2(dummy4);
+    Geometry::PointPhysical point2D_2(dummy4);
    
     double dummy5[2]= {2.0,4.0};
-    Geometry::PointPhysical<2> point2D_3(dummy5);
+    Geometry::PointPhysical point2D_3(dummy5);
     
     double dummy6[2]= {4.0,4.0};
-    Geometry::PointPhysical<2> point2D_4(dummy6);
+    Geometry::PointPhysical point2D_4(dummy6);
 
     //Geometry::PointPhysical<2> point2D_1((double []){2.3,2.0});
     //Geometry::PointPhysical<2> point2D_2((double []){4.7,2.8});
     //Geometry::PointPhysical<2> point2D_3((double []){2.1,4.4});
     //Geometry::PointPhysical<2> point2D_4((double []){4.4,4.2});
 
-    std::vector<Geometry::PointPhysical<2> > points2D;
+    std::vector<Geometry::PointPhysical > points2D;
     points2D.push_back(point2D_1);
     points2D.push_back(point2D_2);
     points2D.push_back(point2D_3);
@@ -117,8 +117,8 @@ int main()
     Geometry::MappingToPhysHypercubeLinear<2> mapping2D(lala);
 
     cout << "mapping.transform(PointReference,PointPhysical)" << std::endl;
-    Geometry::PointReference<2> pointReference2D_1;
-    Geometry::PointPhysical<2> pointPhysical2D_1;
+    Geometry::PointReference pointReference2D_1(2);
+    Geometry::PointPhysical pointPhysical2D_1(2);
 
     pointReference2D_1[0] = -1.0;
     pointReference2D_1[1] = -1.0;
@@ -340,5 +340,5 @@ int main()
     file3D << pointReference3D_1;
     file3D << pointPhysical3D_1;
 
-    return 0;
+    return 0;*/
 }

@@ -4,25 +4,23 @@
 #include "ReferenceGeometry.hpp"
 #include "PhysicalGeometry.hpp"
 #include "RefinementGeometry.hpp"
-#include "Base/PhysicalSpaceFunctor.hpp"
 #include "Mappings/MappingReferenceToPhysical.hpp"
 
              
 namespace Geometry
 {
-    template <unsigned int DIM>
     class ElementGeometry
     {
     public:
-        typedef Point<DIM>                              PointT;
-        typedef PointPhysical<DIM>                      PointPhysicalT;
-        typedef PointReference<DIM>                     PointReferenceT;
-        typedef PhysicalGeometry<DIM>                   PhysicalGeometryT;
-        typedef ReferenceGeometry<DIM>                  ReferenceGeometryT;
-        typedef RefinementGeometry<DIM>                 RefinementGeometryT;
-        typedef MappingReferenceToPhysical<DIM, DIM>    MappingReferenceToPhysicalT;
+        typedef Point                              PointT;
+        typedef PointPhysical                     PointPhysicalT;
+        typedef PointReference                     PointReferenceT;
+        typedef PhysicalGeometry                   PhysicalGeometryT;
+        typedef ReferenceGeometry                  ReferenceGeometryT;
+        typedef RefinementGeometry                 RefinementGeometryT;
+        typedef MappingReferenceToPhysical    MappingReferenceToPhysicalT;
         typedef LinearAlgebra::Matrix                   MatrixT;
-        typedef Jacobian<DIM, DIM>                      JacobianT;
+        typedef Jacobian                      JacobianT;
         typedef unsigned int                            PointIndexT;
         typedef std::vector<PointPhysicalT>             VectorOfPhysicalPointsT;
         typedef std::vector<PointIndexT>                VectorOfPointIndexesT;
@@ -66,11 +64,11 @@ namespace Geometry
             necessary operator(), which takes care of the necessary
             transformations. */
         
-        template <class FType>
-        Base::PhysicalSpaceFunctor<DIM, FType> transformToReferenceElement(const FType& f) const
+        /*template <class FType>///\todo put this function in a proper class
+        Base::PhysicalSpaceFunctor<FType> transformToReferenceElement(const FType& f) const
         {
-            return Base::PhysicalSpaceFunctor<DIM, FType>(this, f);
-        }
+            return Base::PhysicalSpaceFunctor<FType>(this, f);
+        }*/
         
 
         void                                        enableRefinement();
@@ -91,13 +89,13 @@ namespace Geometry
         }
     private:
         
-        static const ReferenceGeometryT* const          createReferenceGeometry(unsigned int size);
+        static const ReferenceGeometryT* const          createReferenceGeometry(unsigned int size,unsigned int DIM);
         
         static const PhysicalGeometryT* const           createPhysicalGeometry(const VectorOfPointIndexesT&      globalNodeIndexes,
                                                                                const VectorOfPhysicalPointsT&    nodes,
                                                                                const ReferenceGeometryT* const   geo);
         
-        static const MappingReferenceToPhysicalT* const createMappings(unsigned int size, const PhysicalGeometryT* const pGeo);
+        static const MappingReferenceToPhysicalT* const createMappings(unsigned int size,unsigned int DIM, const PhysicalGeometryT* const pGeo);
         
     
     protected:
@@ -116,5 +114,4 @@ namespace Geometry
         RefinementGeometryT*                         refinementGeometry_;
     };
 }
-#include "ElementGeometry_Impl.hpp"
 #endif

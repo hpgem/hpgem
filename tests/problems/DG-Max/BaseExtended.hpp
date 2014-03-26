@@ -1,7 +1,7 @@
 #ifndef BASEEXTENDED_HPP
 #define BASEEXTENDED_HPP
 
-//This file contains all the fiddly bits about interpolation en filling matrices and stuff
+//This file contains all the fiddly bits about interpolation and filling matrices and stuff
 
 #include "Base/MeshManipulator.hpp"
 #include "Integration/FaceIntegral.hpp"
@@ -11,18 +11,18 @@
 #include <slepceps.h>
 #include <fstream>
 #include <sstream>
-#include <ctime>//c++11 has better timers...
+#include <ctime>
 #include "ElementInfos.hpp"
 #include "fillMatrices.hpp"
 
 #include "BasisFunctionCollection_Curl.hpp"//TODO fix project set-up
 typedef Base::threeDBasisFunction basisFunctionT;
 
-typedef Base::Element<3> ElementT;
-typedef Base::Face<3> FaceT;
-typedef Geometry::PointPhysical<3> PointPhysicalT;
-typedef Geometry::PointReference<3> PointElementReferenceT;
-typedef Geometry::PointReference<2> PointFaceReferenceT;
+typedef Base::Element ElementT;
+typedef Base::Face FaceT;
+typedef Geometry::PointPhysical PointPhysicalT;
+typedef Geometry::PointReference PointElementReferenceT;
+typedef Geometry::PointReference PointFaceReferenceT;
 //typedef std::list<Base::Face<3>* >::iterator FaceIteratorT;
 
 namespace Integration {
@@ -30,23 +30,37 @@ namespace Integration {
 //Tell the integrators that these functions are valid as integrands
 
 //face-integrand
-template <template<unsigned int> class B, typename T>
-struct ReturnTrait1<void (B<3>::*)(const FaceT*, const PointPhysicalT&, const PointFaceReferenceT&, T& )> {
+/*template <template<unsigned int> class B, typename T>
+struct ReturnTrait1<void (B::*)(const FaceT*, const PointPhysicalT&, const PointFaceReferenceT&, T& )> {
     typedef T ReturnType;
 };
 
 //element-integrand
 template <template<unsigned int> class B, typename T>
-struct ReturnTrait1<void (B<3>::*)(const ElementT*, const PointElementReferenceT&, T&)> {
+struct ReturnTrait1<void (B::*)(const ElementT*, const PointElementReferenceT&, T&)> {
     typedef T ReturnType;
-};
+};*/
 }
 
+struct errorData{
+public:
+	double& operator[](int n){return data_[n];}
+	void reset(){data_[0]=0;data_[1]=0;}
+	errorData& operator*=(double rhs){data_[0]*=rhs;data_[1]*=rhs;return *this;};
+	void axpy(double a, const errorData& data){data_[0]+=a*data.data_[0];data_[1]+=a*data.data_[1];};
+private:
+	double data_[2];
+};
+
+
+
 /**
- * This class provides some significant extentions to HpgemUI that may also be usefull for other problems
+ * This class provides some significant extentions to HpgemUI that may also be useful for other problems
  */
-template <unsigned int DIM>
-class hpGemUIExtentions : public Base::HpgemUI<3> {
+class hpGemUIExtentions : public Base::HpgemUI,public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>,
+						  public Integration::FaceIntegrandBase<LinearAlgebra::Matrix>, Output::TecplotSingleElementWriter,
+						  public Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>, public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>,
+						  Integration::ElementIntegrandBase<errorData>, Integration::FaceIntegrandBase<errorData>{
 public:
 
     Vec x_,RHS_,derivative_;
@@ -84,15 +98,9 @@ public:
      * \param [in] p the gauss point
      * \param [out] ret the contributions to the mass matrix from this point. This should not yet be scaled down with the weight of this point!
      */
-    virtual void elementMassIntegrand(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret)=0;
+    virtual void elementIntegrand(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret)=0;
 
-    /**
-     * integrand for the filling of the element contibutions to the stiffness matrix S
-     * \param [in] element the element that is currently being integrated on
-     * \param [in] p the gauss point
-     * \param [out] ret the contributions to the stifness matrix from this point. This should not yet be scaled down with the weight of this point!
-     */
-    virtual void elementStiffnessIntegrand(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret)=0;
+    //virtual void elementStiffnessIntegrand(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret)=0;
 
     typedef void (hpGemUIExtentions::*FaceFunction)(const FaceT* , const PointPhysicalT&, const PointFaceReferenceT&, LinearAlgebra::Matrix&);
 
@@ -103,26 +111,11 @@ public:
      * \param [out] ret the contributions to the stifness matrix from this point. This should not yet be scaled down with the weight of this point!
      * For internal faces the integration expects that this matrix contains first contributions associated with the left element and then with the right element
      */
-    virtual void faceIntegrand(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
+    virtual void faceIntegrand(const FaceT *face, const NumericalVector &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
 
-    /**
-     * integrand for the filling of the penalty contibutions to the stiffness matrix S, for the Interior Penalty method.
-     * The penalty parameter will be multiplied in later
-     * \param [in] element the element that is currently being integrated on
-     * \param [in] p the gauss point
-     * \param [out] ret the contributions to the stifness matrix from this point. This should not yet be scaled down with the weight of this point!
-     * For internal faces the integration expects that this matrix contains first contributions associated with the left element and then with the right element
-     */
-    virtual void faceIntegrandIPPart(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
+    //virtual void faceIntegrandIPPart(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
 
-    /**
-     * integrand for the filling of a matrix of the form D_ij=integral(phi_i*(n x phi_j)), to enable computation of the penalty contributions to the stiffness matrix S
-     * \param [in] element the element that is currently being integrated on
-     * \param [in] p the gauss point
-     * \param [out] ret the contributions to the stifness matrix from this point. This should not yet be scaled down with the weight of this point!
-     * For internal faces the integration expects that this matrix contains first contributions associated with the left element and then with the right element
-     */
-    virtual void faceIntegrandBRPart(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
+    //virtual void faceIntegrandBRPart(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
 
     /**
      * provides the exact solution, for comparison purposes. If no exact solution is implemented this function produces nonsense.
@@ -151,7 +144,7 @@ public:
      * integrand used for the computation of the initial expansion coefficients
      * maps the reference point and the element to physical coordinates and then uses this to call the user provided initial conditions
      */
-    void initialConditions(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret);
+    void elementIntegrand(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::NumericalVector &ret);
 
     /**
      * Computes the time-dependent part of the source term. This assumes that the source term can be uncoupled in a time dependent part and a space dependent part
@@ -160,36 +153,17 @@ public:
      */
     virtual double sourceTermTime(const double t)=0;
 
-    /**
-     * Computes the space-dependent part of the source term. This assumes that the source term can be uncoupled in a time dependent part and a space dependent part
-     * \param [in] p The point in space where the source is to be evaluated.
-     * \param [out] ret The value of the source term.
-     */
-    virtual void sourceTerm(const PointPhysicalT &p, NumericalVector &ret)=0;
+    //void sourceTerm(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret);
 
-    /**
-      * integrand used for the computation of the space dependent source term
-      * maps the reference point and the element to physical coordinates and then uses this to call the user provided initial conditions
-      */
-    void sourceTerm(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret);
-
-    /**
-     * Integrand used for the computation of the boundary contributions to the RHS. This will be scaled by the same time dependent factor as in the source therm, just like in the original code by Domokos.
-     * This version is specialized for the Interior Penalty method. It also computes the terms that are common to both the Interior Penalty method and the Brezzi method because it safes some loops over elements where no work needs to be done
-     */
-    void sourceTermBoundaryIP(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret); 
+    //void sourceTermBoundaryIP(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret);
 
     /**
      * Integrand used for the computation of the boundary contributions to the RHS. This will be scaled by the same time dependent factor as in the source therm, just like in the original code by Domokos.
      * This version computes the terms that are common to both the Brezzi flux and the Interior Penalty flux
      */
-    void sourceTermBoundary(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret);
+    void faceIntegrand(const FaceT *face, const NumericalVector &normal, const PointFaceReferenceT &p, LinearAlgebra::NumericalVector &ret);
 
-    /**
-     * Integrand used for the computation of the boundary contributions to the RHS. This will be scaled by the same time dependent factor as in the source therm, just like in the original code by Domokos.
-     * This version is used in the computation of D_i=integral(phi_i*(n x u_0))
-     */
-    void sourceTermBoundaryBR(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret);
+    //void sourceTermBoundaryBR(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret);
 
     /**
      * Provides the time derivative of the initial solution
@@ -212,20 +186,20 @@ public:
      * \param [in] t the timelevel that is wanted in the output.
      * \param output an output stream ready to accept the solution values
      */
-    void writeFieldValues(const ElementT& element, const PointElementReferenceT& p, ostream& output); 
+    void writeToTecplotFile(const ElementT* element, const PointElementReferenceT& p, ostream& output);
 
-    //tecplotwriter is also avaiable in the hpGEM core
+    //tecplotwriter is also avaiable in the hpGEM kernel
     //void writeTecplotFile(const MeshManipulatorT& mesh, const char* zonetitle, const int timelevel, std::ofstream& file, const bool existingFile); 
 
     /**
      * Integrand for the computation of the L^2 and the Hcurl error
      */
-    void elementErrorIntegrand(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret);
+    void elementIntegrand(const ElementT *element, const PointElementReferenceT &p, errorData &ret);
 
     /**
      * Integrand for the comutation of the jump part of the DG error
      */
-    void faceErrorIntegrand(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret);
+    void faceIntegrand(const FaceT *face, const NumericalVector &normal, const PointFaceReferenceT &p, errorData &ret);
 
     void LDOSIntegrand(const ElementT *element, const PointElementReferenceT &p, double &ret);
     

@@ -16,20 +16,11 @@
 namespace Integration
 {
 
-    template <unsigned int DIM, typename T=LinearAlgebra::NumericalVector>
+    template < typename T>
     class FaceIntegrandBase
     {
     public:
-        typedef T                                   ReturnType;
-        typedef Geometry::PointReference<DIM-1>     PointReferenceT;
-        typedef Geometry::PointPhysical<DIM>        PointPhysicalT;
-       
-    public:
-        ~FaceIntegrandBase() {}
-
-        virtual void operator()(const Base::Face<DIM>*      face,
-                                const PointPhysicalT&       normal, 
-                                const PointReferenceT& p,   ReturnType& ret) = 0;
+        virtual void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, T& ret) = 0;
     };
 
 };

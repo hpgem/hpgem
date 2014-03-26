@@ -4,7 +4,7 @@
 #include "../../../src/Geometry/PhysicalGeometry.hpp"
 #include "../../../src/Geometry/ReferenceSquare.hpp"
 #include "../../../src/LinearAlgebra/NumericalVector.hpp"
-#include "../../../src/Geometry/Mappings/MappingHypercubeLinear.hpp"
+#include "../../../src/Geometry/Mappings/MappingToPhysHypercubeLinear.hpp"
 #include <vector>
 
 

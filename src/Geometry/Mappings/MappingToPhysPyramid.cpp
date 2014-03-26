@@ -33,7 +33,7 @@ namespace Geometry
             f8[3] = 0.25 * ( 1. - pR[0] + pR[1] - t1 - pR[2] - t2 );
             f8[4] = 0.25 * ( 1. + pR[0] + pR[1] + t1 - pR[2] + t2 );
 
-            PointPhysicalT p;
+            PointPhysicalT p(3);
 
             pP[0] = pP[1] = pP[2] = 0.0;
 
@@ -76,9 +76,9 @@ namespace Geometry
             df_dxi2[3] = 0.25 * (-1. - dt6dx2);
             df_dxi2[4] = 0.25 * (-1. + dt6dx2);
 
-            PointPhysicalT d_dxi0;
-            PointPhysicalT d_dxi1;
-            PointPhysicalT d_dxi2;
+            PointPhysicalT d_dxi0(3);
+            PointPhysicalT d_dxi1(3);
+            PointPhysicalT d_dxi2(3);
 
             for (unsigned int i = 0; i < 3; ++i)
             {
@@ -87,7 +87,7 @@ namespace Geometry
                 d_dxi2[i] = 0.;
             }
 
-            PointPhysicalT p;
+            PointPhysicalT p(3);
 
             for (int i = 0; i < 5; ++i)
             {

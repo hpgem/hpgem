@@ -7,6 +7,7 @@
 //
 
 #include "ReferencePoint.hpp"
+#include "Mappings/MappingToRefPointToPoint.hpp"
 
 namespace Geometry
 {
@@ -16,38 +17,39 @@ namespace Geometry
      *
      */
     ReferencePoint::ReferencePoint():
-         ReferenceGeometry<0>(POINT)
-    { }
+         ReferenceGeometry(1,0,POINT)
+    { mappingsPointToPoint_=&MappingToRefPointToPoint::Instance();
+    	points_[0]=Geometry::PointReference(0);}
 
     ReferencePoint::ReferencePoint(const ReferencePoint& copy):
-        ReferenceGeometry<0>(copy)
+        ReferenceGeometry(copy),mappingsPointToPoint_(copy.mappingsPointToPoint_)
     { }
 
-    bool ReferencePoint::isInternalPoint(const PointReference<0>& p) const
+    bool ReferencePoint::isInternalPoint(const PointReference& p) const
     {
         return true;
     }
 
-    void ReferencePoint::getCenter(PointReference<0>& p) const { }
+    void ReferencePoint::getCenter(PointReference& p) const { }
 
-    void ReferencePoint::getNode(const IndexT& i, PointReference<0>& point) const { }
+    void ReferencePoint::getNode(const IndexT& i, PointReference& point) const { }
 
     int ReferencePoint::getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const
     {
         return 0;
     }
 
-    const MappingReferenceToReference<0,0>* ReferencePoint::getCodim0MappingPtr(const IndexT a) const
+    const MappingReferenceToReference* ReferencePoint::getCodim0MappingPtr(const IndexT a) const
     {
-        return 0;
+        return mappingsPointToPoint_;
     }
 
     // ================================== Quadrature rules =====================================
 
     /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferencePoint::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<0>* const qr) 
+    void ReferencePoint::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
     {
-        std::list<QuadratureRules::GaussQuadratureRule<0>*>::iterator it = lstGaussQuadratureRules_.begin();
+        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
         while (it != lstGaussQuadratureRules_.end())
         {
           if ((*it)->order() < qr->order()) ++it;
@@ -57,9 +59,9 @@ namespace Geometry
     }
 
     /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule<0>* const ReferencePoint::getGaussQuadratureRule(int order) const
+    QuadratureRules::GaussQuadratureRule* const ReferencePoint::getGaussQuadratureRule(int order) const
     {
-        for (std::list<QuadratureRules::GaussQuadratureRule<0>*>::const_iterator it = lstGaussQuadratureRules_.begin();
+        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
               it != lstGaussQuadratureRules_.end(); ++it)
           if ((*it)->order() >= order) return *it;
 

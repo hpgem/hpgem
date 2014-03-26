@@ -38,14 +38,15 @@ namespace Geometry
      */
 
     // ~~~ index 0 ~~~==============================================================================
-    class MappingToRefLineToSquare0: public MappingReferenceToReference<1,2>
+    class MappingToRefLineToSquare0: public MappingReferenceToReference
     {
         public:
             static const MappingToRefLineToSquare0& Instance();
-            virtual void transform(const Geometry::PointReference<1>& p1,
-                                         Geometry::PointReference<2>& p2) const;
-            virtual void calcJacobian(const Geometry::PointReference<1>&,
-                                            Geometry::Jacobian<1,2>&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 2;}
         private:
             MappingToRefLineToSquare0();
             MappingToRefLineToSquare0(const MappingToRefLineToSquare0&);
@@ -53,14 +54,15 @@ namespace Geometry
             virtual ~MappingToRefLineToSquare0();
     };
     // ~~~ index 1 ~~~==============================================================================
-    class MappingToRefLineToSquare1: public MappingReferenceToReference<1,2>
+    class MappingToRefLineToSquare1: public MappingReferenceToReference
     {
         public:
             static const MappingToRefLineToSquare1& Instance();
-            virtual void transform(const Geometry::PointReference<1>&,
-                                         Geometry::PointReference<2>&) const;
-            virtual void calcJacobian(const Geometry::PointReference<1>&,
-                                            Geometry::Jacobian<1,2>&) const;
+            virtual void transform(const Geometry::PointReference&,
+                                         Geometry::PointReference&) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 2;}
         private:
             MappingToRefLineToSquare1();
             MappingToRefLineToSquare1(const MappingToRefLineToSquare1&);
@@ -68,14 +70,15 @@ namespace Geometry
             virtual ~MappingToRefLineToSquare1();
     };
     // ~~~ index 2 ~~~==============================================================================
-    class MappingToRefLineToSquare2: public MappingReferenceToReference<1,2>
+    class MappingToRefLineToSquare2: public MappingReferenceToReference
     {
         public:
             static const MappingToRefLineToSquare2& Instance();
-            virtual void transform(const Geometry::PointReference<1>& p1,
-                                         Geometry::PointReference<2>& p2) const;
-            virtual void calcJacobian(const Geometry::PointReference<1>&,
-                                            Geometry::Jacobian<1,2>&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 2;}
         private:
             MappingToRefLineToSquare2();
             MappingToRefLineToSquare2(const MappingToRefLineToSquare2&);
@@ -83,14 +86,15 @@ namespace Geometry
             virtual ~MappingToRefLineToSquare2();
     };
     // ~~~ index 3 ~~~==============================================================================
-    class MappingToRefLineToSquare3: public MappingReferenceToReference<1,2>
+    class MappingToRefLineToSquare3: public MappingReferenceToReference
     {
         public:
             static const MappingToRefLineToSquare3& Instance();
-            virtual void transform(const Geometry::PointReference<1>& p1,
-                                         Geometry::PointReference<2>& p2) const;
-            virtual void calcJacobian(const Geometry::PointReference<1>&,
-                                            Geometry::Jacobian<1,2>&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 2;}
         private:
             MappingToRefLineToSquare3();
             MappingToRefLineToSquare3(const MappingToRefLineToSquare3&);

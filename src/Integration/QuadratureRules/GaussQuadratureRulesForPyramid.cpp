@@ -69,7 +69,7 @@ namespace QuadratureRules
 
     Pyramid_1_1::Pyramid_1_1():
         name_("Pyramid_1_1"),
-        refGeoPtr_(&ReferencePyramid::Instance())
+        refGeoPtr_(&ReferencePyramid::Instance()),gp_(4,3)
     {
         weight_[0] = (( 2.0 ) * ( 2.0 )) * (0.1108884156);
         gp_[0][0] = (0.0) * (1. - (0.4850054945e-1));
@@ -150,7 +150,7 @@ namespace QuadratureRules
 
     Pyramid_3_1::Pyramid_3_1():
         name_("Pyramid_3_1"),
-        refGeoPtr_(&ReferencePyramid::Instance())
+        refGeoPtr_(&ReferencePyramid::Instance()),gp_(16,3)
     {
         weight_[0] = (( 1.0 ) * ( 1.0 )) * (0.1108884156);
         gp_[0][0] = (-sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1));
@@ -291,7 +291,7 @@ namespace QuadratureRules
 
     Pyramid_5_1::Pyramid_5_1():
         name_("Pyramid_5_1"),
-        refGeoPtr_(&ReferencePyramid::Instance())
+        refGeoPtr_(&ReferencePyramid::Instance()),gp_(36,3)
     {
         weight_[0] = (( 5. / 9. ) * ( 5. / 9. )) * (0.1108884156);
         gp_[0][0] = (-sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1));
@@ -532,7 +532,7 @@ namespace QuadratureRules
 
     Pyramid_7_1::Pyramid_7_1():
         name_("Pyramid_7_1"),
-        refGeoPtr_(&ReferencePyramid::Instance())
+        refGeoPtr_(&ReferencePyramid::Instance()),gp_(48,3)
     {
         weight_[0] = (98. / 405.) * (0.1108884156);
         gp_[0][0] = (+(sqrt(6. / 7.))) * (1. - (0.4850054945e-1));

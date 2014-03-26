@@ -13,23 +13,22 @@
 
 namespace Base
 {
-    template <unsigned int DIM>
     class HpgemUI
     {
     public:
-        typedef typename MeshManipulator<DIM>::ConstElementIterator     ConstElementIterator;
-        typedef typename MeshManipulator<DIM>::ElementIterator          ElementIterator;
-        typedef typename MeshManipulator<DIM>::ConstFaceIterator        ConstFaceIterator;
-        typedef typename MeshManipulator<DIM>::FaceIterator             FaceIterator;
+        typedef typename MeshManipulator::ConstElementIterator     ConstElementIterator;
+        typedef typename MeshManipulator::ElementIterator          ElementIterator;
+        typedef typename MeshManipulator::ConstFaceIterator        ConstFaceIterator;
+        typedef typename MeshManipulator::FaceIterator             FaceIterator;
         
     public:
-        typedef Base::Element<DIM>                                      ElementT;
-        typedef Base::Face<DIM>                                         FaceT;
-        typedef RectangularMeshDescriptor<DIM>                          RectangularMeshDescriptorT;
-        typedef MeshManipulator<DIM>                                    MeshManipulatorT;
-        typedef MeshMoverBase<DIM>                                      MeshMoverBaseT;
-        typedef Geometry::PointPhysical<DIM>                            PointPhysicalT;
-        typedef Geometry::PointReference<DIM>                           PointReferenceT;
+        typedef Base::Element                                      ElementT;
+        typedef Base::Face                                         FaceT;
+        typedef RectangularMeshDescriptor                          RectangularMeshDescriptorT;
+        typedef MeshManipulator                                    MeshManipulatorT;
+        typedef MeshMoverBase                                      MeshMoverBaseT;
+        typedef Geometry::PointPhysical                            PointPhysicalT;
+        typedef Geometry::PointReference                           PointReferenceT;
 
         typedef unsigned int                                            MeshId;
         typedef std::vector<unsigned int>                               VectorOfUIntegers;
@@ -52,7 +51,7 @@ namespace Base
         virtual bool initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, unsigned int meshID);
 
             /// Creating a mesh with in-house remesher.
-        MeshId addMesh(const RectangularMeshDescriptorT& meshDescriptor, const MeshType& meshType = RECTANGULAR);
+        MeshId addMesh(const RectangularMeshDescriptorT& meshDescriptor, const MeshType& meshType = RECTANGULAR, int nrOfElementMatrixes=0, int nrOfElementVectors=0,int nrOfFaceMatrixes=0, int nrOfFaceVectors=0);
             /// Reading a mesh from a file, currently only Centaur is supported.
         MeshId addMesh(const String& fileName){}
         
@@ -81,5 +80,4 @@ namespace Base
         const ConfigurationData* const          configData_;
     };
 };
-#include "HpgemUI_Impl.hpp"
 #endif

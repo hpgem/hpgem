@@ -11,12 +11,12 @@
 
 namespace Geometry
 {
-    class RefinementTriangle : public Geometry::RefinementGeometry<2>
+    class RefinementTriangle : public Geometry::RefinementGeometry
     {
     public:
-        typedef PointPhysical<2>                PointPhysicalT;
-        typedef PhysicalGeometry<2>             PhysicalGeometryT;
-        typedef ReferenceGeometry<2>            ReferenceGeometryT;
+        typedef PointPhysical                PointPhysicalT;
+        typedef PhysicalGeometry             PhysicalGeometryT;
+        typedef ReferenceGeometry            ReferenceGeometryT;
         typedef std::vector<PointPhysicalT>     VectorOfPointPhysicalsT;
         typedef std::vector<unsigned int>       VectorOfIndicesT;
 

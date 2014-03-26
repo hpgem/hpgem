@@ -34,7 +34,7 @@ int main()
     */
 
     // Physical geometry creation
-    double dummy1[2]= {1.5,3.0};
+    /*double dummy1[2]= {1.5,3.0};
     Geometry::PointPhysical<2> point2D_1(dummy1);
     
     double dummy2[2]= {4.0,3.9};
@@ -187,5 +187,5 @@ int main()
     file3D << pointReference3D_1;
     file3D << pointPhysical3D_1;
 
-    return 0;
+    return 0;*/
 }

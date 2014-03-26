@@ -8,35 +8,35 @@
 
 namespace Base
 {
-    template <unsigned int DIM>
     class BasisFunctionSet
     {
     public:
-        typedef BaseBasisFunction<DIM>              BaseBasisFunctionT;
+        typedef BaseBasisFunction              BaseBasisFunctionT;
         typedef std::vector<BaseBasisFunctionT*>    BaseBasisFunctions;
-        typedef Geometry::PointReference<DIM>       PointReferenceT;
+        typedef Geometry::PointReference       PointReferenceT;
         
     public:
         BasisFunctionSet(unsigned int order);
         
-        ~BasisFunctionSet();
+        virtual ~BasisFunctionSet();
         
-        inline unsigned int size() const;
+         virtual unsigned int size() const;
         
-        inline unsigned int getOrder() const;
+         virtual unsigned int getOrder() const;
         
-        inline void         addBasisFunction(BaseBasisFunctionT* bf);
+         virtual void         addBasisFunction(BaseBasisFunctionT* bf);
         
-        inline double       eval(unsigned int i, const PointReferenceT& p) const;
+         virtual double       eval(unsigned int i, const PointReferenceT& p) const;
 	
 	///\brief returns the value of the i-th basisfunction at point p in ret
-	inline void         eval(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+	 virtual void         eval(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
         
-        inline double       evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
+         virtual double       evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
 	
 	///\brief returns the curl of the i-th basisfunction at point p in ret
-	inline void         evalCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+	 virtual void         evalCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
 	
+	    virtual const BaseBasisFunction* operator[](int i) const {return vecOfBasisFcn_[i];}
 
     private:
         BasisFunctionSet();
@@ -47,6 +47,5 @@ namespace Base
         BaseBasisFunctions                    vecOfBasisFcn_;
     };
 }
-#include "BasisFunctionSet_Impl.hpp"
 
 #endif

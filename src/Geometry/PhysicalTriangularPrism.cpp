@@ -12,7 +12,7 @@ namespace Geometry
             const VectorOfPointIndexesT& globalNodeIndexes,
             const VectorOfPhysicalPointsT& nodes,
             const ReferenceTriangularPrism* const triangularPrism) :
-            PhysicalGeometry<3>(globalNodeIndexes, nodes, triangularPrism)
+            PhysicalGeometry(globalNodeIndexes, nodes, triangularPrism)
     {
     }
 

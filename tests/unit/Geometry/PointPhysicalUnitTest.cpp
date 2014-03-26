@@ -14,20 +14,20 @@ using namespace std;
 int main()
 {
     const unsigned int dim = 2;
-    Geometry::PointPhysical<dim> p;
-    Geometry::PointPhysical<dim> q(p);
+    Geometry::PointPhysical p(dim);
+    Geometry::PointPhysical q(p);
     p[0] = 1.;  p[1] = 1.8;
     
-    Geometry::PointPhysical<dim> r(p);
-    Geometry::PointPhysical<dim> s;
+    Geometry::PointPhysical r(p);
+    Geometry::PointPhysical s(dim);
     s = p;      // assign PointT into PointT?
     
     
-    Geometry::PointPhysical<dim>::VectorOfCoordsT t(2);
+    Geometry::PointPhysical::VectorOfCoordsT t(2);
     t[0] = 9.;  t[1] = 1.;
-    Geometry::PointPhysical<dim> u(t);
+    Geometry::PointPhysical u(t);
     cout<<"9, 1 "<<u<<endl;
-    Geometry::PointPhysical<dim> pp(t);
+    Geometry::PointPhysical pp(t);
     pp[0] = 100.;
     cout<<pp<<endl;
     
@@ -62,7 +62,7 @@ int main()
         //    cout << p3<<endl;
     cout <<"______________________"<<endl;
     cout << u<< " * "<<22.0 << endl;
-    s = (Geometry::PointPhysical<dim>)u*22.0;
+    s = (Geometry::PointPhysical)u*22.0;
     cout << s<<endl;
         //    cout << "Point += double" << endl;
         //    p3 += 2.0;

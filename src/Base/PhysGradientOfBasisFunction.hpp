@@ -21,24 +21,38 @@ namespace Utilities
      *  derivatives of basis functions). Hence this class computes the
      *  reference space gradient, transforms it with the Jacobian of the mapping
      *  and thus yields the physical space gradient. */
-    template <unsigned int DIM, class EType>
     struct PhysGradientOfBasisFunction
     {
-        typedef Geometry::PointReference<DIM>             PointReferenceT;
+        typedef Geometry::PointReference             PointReferenceT;
         
             //typedef double (*DerivativeOfBasisFuncPtr)(const PointReferenceT&);
         typedef LinearAlgebra::NumericalVector RetType;
         
-        PhysGradientOfBasisFunction(const EType* e, unsigned int bFuncNr):
+        PhysGradientOfBasisFunction(const Base::Element* e,const Base::BaseBasisFunction* function):
             myElement_(e),
-            myFunctionNumber_(bFuncNr)
+            myFunction_(function)
 	    {
             
         }
         
             //! Evaluation operator, also compatible with integration routines.
-        void operator()(const PointReferenceT* p, RetType& r) const
+        void operator()(const PointReferenceT& p, RetType& r) const
 	    {
+        	static RetType dummy(r.size());
+        	unsigned int DIM=p.size();
+        	static Geometry::Jacobian jac(DIM,DIM);
+        	myElement_->calcJacobian(p,jac);
+        	myElement_->getReferenceGeometry()->getBasisFunctionDerivative(myFunction_,p,dummy);
+        	jac.inverse(jac);
+        	//r*=jac;///\todo can someone who knows BLAS update the linAlg routines?
+        	for(int i=0;i<DIM;++i){
+        		r[i]=0;
+        		for(int j=0;j<DIM;++j){
+        			r[i]+=dummy[j]*jac(j,i);
+        		}
+        	}
+
+
                 ////SHOULD BE OPENED AFTER MATRIX FIX!!!!
             
             
@@ -68,12 +82,12 @@ namespace Utilities
 	    }
         
     private:
-        const EType*                        myElement_;
-        const unsigned int                  myFunctionNumber_;
+        const Base::Element*                        myElement_;
+        const Base::BaseBasisFunction*                  myFunction_;
     };
     
         // Fixed for 1D case: M.T.Julianto Feb 14, 2010
-    template <>
+ /*   template <>
     struct PhysGradientOfBasisFunction<1, Base::Element<1> >
     {
         
@@ -229,7 +243,7 @@ namespace Utilities
         const Base::Element<3>*                    myElement_;
             //const DerivativeOfBasisFuncPtr*     myDeriveFunctionPtr_; // a pointer to the derivatives
         const unsigned int                  myFunctionNumber_;
-    };
+    };*/
     
 } // namespace
 

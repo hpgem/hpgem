@@ -37,8 +37,8 @@ namespace Geometry
 
     void MappingToPhysHypercubeLinear<1>::reinit(const PhysicalGeometryT*const physicalGeometry)
     {
-        PointPhysicalT p0;
-        PointPhysicalT p1;
+        PointPhysicalT p0(1);
+        PointPhysicalT p1(1);
         physicalGeometry->getNodeCoordinates(0, p0);
         physicalGeometry->getNodeCoordinates(1, p1);
         mid   = 0.5 * (p1[0] + p0[0]);
@@ -53,9 +53,9 @@ namespace Geometry
             return true;
     }
 
-    void MappingToPhysHypercubeLinear<1>::calcJacobian(const PointReferenceT&, JacobianT&) const
+    void MappingToPhysHypercubeLinear<1>::calcJacobian(const PointReferenceT&, JacobianT& jac) const
     {
-        // No Jacobian in 1D.
+        jac[0] = slope;
     }
 
     // =============================================================================================
@@ -64,7 +64,7 @@ namespace Geometry
 
     MappingToPhysHypercubeLinear<2>::
     MappingToPhysHypercubeLinear(const PhysicalGeometryT*const& physicalGeometry):
-    MappingReferenceToPhysical<2,2>()
+    MappingReferenceToPhysical(),a0(2),a1(2),a12(2),a2(2)
     {
         reinit(physicalGeometry);
     }
@@ -100,7 +100,7 @@ namespace Geometry
 
     void MappingToPhysHypercubeLinear<2>::reinit(const PhysicalGeometryT*const physicalGeometry)
     {
-        PointPhysicalT p0,p1,p2,p3;
+        PointPhysicalT p0(2),p1(2),p2(2),p3(2);
         physicalGeometry->getNodeCoordinates(0, p0);
         physicalGeometry->getNodeCoordinates(1, p1);
         physicalGeometry->getNodeCoordinates(2, p2);
@@ -127,7 +127,8 @@ namespace Geometry
     // =============================================================================================
 
     MappingToPhysHypercubeLinear<3>
-    ::MappingToPhysHypercubeLinear(const PhysicalGeometryT*const& physicalGeometry)
+    ::MappingToPhysHypercubeLinear(const PhysicalGeometryT*const& physicalGeometry):
+     a1(3),a12(3),a13(3),a123(3),a0(3),a2(3),a23(3),a3(3)
     {
         reinit(physicalGeometry);
     }
@@ -180,7 +181,7 @@ namespace Geometry
     void MappingToPhysHypercubeLinear<3>::
     reinit(const PhysicalGeometryT*const physicalGeometry)
     {
-        PointPhysicalT p0,p1,p2,p3,p4,p5,p6,p7;
+        PointPhysicalT p0(3),p1(3),p2(3),p3(3),p4(3),p5(3),p6(3),p7(3);
 
         physicalGeometry->getNodeCoordinates(0, p0);
         physicalGeometry->getNodeCoordinates(1, p1);
@@ -217,7 +218,8 @@ namespace Geometry
     // =============================================================================================
 
     MappingToPhysHypercubeLinear<4>::
-    MappingToPhysHypercubeLinear(const PhysicalGeometryT* const& physicalGeometry)
+    MappingToPhysHypercubeLinear(const PhysicalGeometryT* const& physicalGeometry):
+    abar(4),a0(4),a01(4),a02(4),a03(4),a012(4),a013(4),a0123(4),a1(4),a12(4),a13(4),a123(4),a2(4),a23(4),a230(4),a3(4)
     {
         reinit(physicalGeometry);
     }
@@ -267,7 +269,7 @@ namespace Geometry
 
     void MappingToPhysHypercubeLinear<4>::reinit(const PhysicalGeometryT* const physicalGeometry)
     {
-        PointPhysicalT P[16];
+        std::vector<PointPhysicalT> P(16,4);
         for (int i = 0; i < 16; ++i) physicalGeometry->getNodeCoordinates(i, P[i]);
 
         abar = 0.0625 *

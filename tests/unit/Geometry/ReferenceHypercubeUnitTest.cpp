@@ -21,11 +21,11 @@ int main ()
     cout << "cout << hypercube: ";
     cout << hypercube;
 
-    Geometry::PointReference<4> pCenter;
+    Geometry::PointReference pCenter(4);
     hypercube.getCenter(pCenter);
     cout << "hypercube.getCenter(Geometry::ReferencePoint<4>): " << pCenter; cout << endl;
     
-    Geometry::PointReference<4> p;
+    Geometry::PointReference p(4);
     for (int i = 0; i < 16; ++i)
     {
         hypercube.getNode(i, p);
@@ -34,7 +34,7 @@ int main ()
     
     cout << "hypercube.isInternalPoint({0,0,0,0}): " << hypercube.isInternalPoint(pCenter) << endl;
     
-    Geometry::PointReference<4> pOut;
+    Geometry::PointReference pOut(4);
     
     pOut[0] = -2.0;
     pOut[1] = -2.0;
@@ -100,7 +100,7 @@ int main ()
         cout << ")" << endl;
     }
     */
-    const Geometry::ReferenceGeometry<3>* referenceGeometry3D;
+    const Geometry::ReferenceGeometry* referenceGeometry3D;
     for (int face=0; face < hypercube.getNrOfCodim1Entities(); ++face)
     {
         referenceGeometry3D = hypercube.getCodim1ReferenceGeometry(face);
@@ -133,7 +133,7 @@ int main ()
     }
     */
 
-    const Geometry::MappingReferenceToReference<3,4>* ref3ToRef4Mapping;
+    const Geometry::MappingReferenceToReference* ref3ToRef4Mapping;
     for (int face=0; face < hypercube.getNrOfCodim1Entities(); ++face)
     {
         ref3ToRef4Mapping = hypercube.getCodim1MappingPtr(face);

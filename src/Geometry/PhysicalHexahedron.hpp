@@ -4,11 +4,11 @@
 #include "ReferenceCube.hpp"
 namespace Geometry
 {
-    class PhysicalHexahedron: public PhysicalGeometry<3>
+    class PhysicalHexahedron: public PhysicalGeometry
     {
         public:
 
-            typedef PhysicalGeometry<ThreeD>        PhysicalGeometry3D;
+            typedef PhysicalGeometry        PhysicalGeometry3D;
             
             using PhysicalGeometry3D::VectorOfPointIndexesT;
             using PhysicalGeometry3D::VectorOfPhysicalPointsT;

@@ -33,12 +33,12 @@ namespace Geometry
     };
 
     ReferencePyramid::ReferencePyramid():/// pyramid has three nodes 3D + 2
-        ReferenceGeometry<ThreeD>(ThreeD+2, PYRAMID),
+        ReferenceGeometry(ThreeD+2,3, PYRAMID),
         referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()),
         referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()),
         referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
-        PointReferenceT p1, p2, p3, p4, p5;
+        PointReferenceT p1(3), p2(3), p3(3), p4(3), p5(3);
 
         p1[0] = +0.0; p1[1] = +0.0; p1[2] = +1.0;
         p2[0] = -1.0; p2[1] = -1.0; p2[2] = +0.0;
@@ -63,7 +63,7 @@ namespace Geometry
     }
 
     ReferencePyramid::ReferencePyramid(const ReferencePyramid& copy):
-        ReferenceGeometry<ThreeD>(copy),
+        ReferenceGeometry(copy),
         referenceGeometryCodim1TrianglePtr_(copy.referenceGeometryCodim1TrianglePtr_),
         referenceGeometryCodim1SquarePtr_(copy.referenceGeometryCodim1SquarePtr_),
         referenceGeometryCodim2Ptr_(copy.referenceGeometryCodim2Ptr_) { }
@@ -116,14 +116,14 @@ namespace Geometry
         throw "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 mappings for Pyramid.";
     }
 
-    const MappingReferenceToReference<3, 3>* ReferencePyramid::getCodim0MappingPtr(const IndexT i) const
+    const MappingReferenceToReference* ReferencePyramid::getCodim0MappingPtr(const IndexT i) const
     {
         throw "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 mappings for Pyramid.";
     }
 
     // ================================== Codimension 1 ============================================
 
-    const MappingReferenceToReference<2, 3>*
+    const MappingReferenceToReference*
     ReferencePyramid::getCodim1MappingPtr(const IndexT faceIndex) const
     {
         if (faceIndex < 5)
@@ -136,7 +136,7 @@ namespace Geometry
         }
     }
 
-    const ReferenceGeometry<2>*
+    const ReferenceGeometry*
     ReferencePyramid::getCodim1ReferenceGeometry(const IndexT faceIndex) const
     {
         if (faceIndex < 5)
@@ -181,13 +181,13 @@ namespace Geometry
 
     // ================================== Codimension 2 ============================================
 
-    const MappingReferenceToReference<1, 3>*
+    const MappingReferenceToReference*
     ReferencePyramid::getCodim2MappingPtr(const IndexT edgeIndex) const
     {
         throw "ERROR: There are no edge to pyramid mappings.";
     }
 
-    const ReferenceGeometry<1>*
+    const ReferenceGeometry*
     ReferencePyramid::getCodim2ReferenceGeometry(const IndexT edgeIndex) const
     {
         if (edgeIndex < 8)
@@ -234,9 +234,9 @@ namespace Geometry
     // ================================== Quadrature rules =====================================
 
     /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferencePyramid::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<3>* const qr)
+    void ReferencePyramid::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
     {
-        std::list<QuadratureRules::GaussQuadratureRule<3>*>::iterator it = lstGaussQuadratureRules_.begin();
+        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
         while (it != lstGaussQuadratureRules_.end())
         {
           if ((*it)->order() < qr->order()) ++it;
@@ -246,9 +246,9 @@ namespace Geometry
     }
 
     /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule<3>* const ReferencePyramid::getGaussQuadratureRule(int order) const
+    QuadratureRules::GaussQuadratureRule* const ReferencePyramid::getGaussQuadratureRule(int order) const
     {
-        for (std::list<QuadratureRules::GaussQuadratureRule<3>*>::const_iterator it = lstGaussQuadratureRules_.begin();
+        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
               it != lstGaussQuadratureRules_.end(); ++it)
           if ((*it)->order() >= order) return *it;
 

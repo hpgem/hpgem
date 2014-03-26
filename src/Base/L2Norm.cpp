@@ -8,7 +8,7 @@
 //------------------------------------------------------------------------------
 namespace Base
 {
-    template <>
+    /*template <>
     double L2Norm<1>(const LinearAlgebra::NumericalVector& v)
     {
         return std::abs(v[0]);
@@ -24,15 +24,18 @@ namespace Base
     double L2Norm<3>(const LinearAlgebra::NumericalVector& v)
     {
         return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-    }
+    }*/
 
-    template <>
-    double L2Norm<4>(const LinearAlgebra::NumericalVector& v)
+    double L2Norm(const LinearAlgebra::NumericalVector& v)
     {
-        return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3]);
+    	double retSquared(0);
+    	for(int i=0;i<v.size();++i){
+    		retSquared+=v[i]*v[i];
+    	}
+    	return std::sqrt(retSquared);
     }
     
-    template <>
+    /*template <>
     double L2Norm<1>(const Geometry::PointPhysical<1>& v)
     {
         return std::abs(v[0]);
@@ -48,12 +51,16 @@ namespace Base
     double L2Norm<3>(const Geometry::PointPhysical<3>& v)
     {
         return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-    }
+    }*/
 
-    template <>
-    double L2Norm<4>(const Geometry::PointPhysical<4>& v)
+    ///\deprecated
+    double L2Norm(const Geometry::PointPhysical& v)
     {
-        return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3]);
+    	double retSquared(0);
+    	for(int i=0;i<v.size();++i){
+    		retSquared+=v[i]*v[i];
+    	}
+    	return std::sqrt(retSquared);
     }
 };
 

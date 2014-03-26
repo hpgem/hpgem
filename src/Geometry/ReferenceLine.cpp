@@ -24,10 +24,10 @@ namespace Geometry
     };
 
     ReferenceLine::ReferenceLine():
-        ReferenceGeometry<OneD>(OneD+1, LINE),/// Line has two points 1+1
+        ReferenceGeometry(OneD+1,1, LINE),/// Line has two points 1+1
         referenceGeometryCodim1Ptr_(&ReferencePoint::Instance())
     {
-        PointReferenceT p1, p2;
+        PointReferenceT p1(1), p2(1);
         p1[0] = -1.0;
         p2[0] = 1.0;
         points_[0] = p1;
@@ -42,7 +42,7 @@ namespace Geometry
     }
 
     ReferenceLine::ReferenceLine(const ReferenceLine& copy):
-        ReferenceGeometry<OneD>(copy),
+        ReferenceGeometry(copy),
         referenceGeometryCodim1Ptr_(&ReferencePoint::Instance())
     {
     }
@@ -93,7 +93,7 @@ namespace Geometry
         }
     }
 
-    const MappingReferenceToReference<1, 1>*
+    const MappingReferenceToReference*
     ReferenceLine::getCodim0MappingPtr(const IndexT i) const
     {
         if (i < 2)
@@ -117,7 +117,7 @@ namespace Geometry
             faceNodesLocal[0] = (IndexT) localNodeIndexes_[faceIndex][0];
         }
     }
-    const ReferenceGeometry<0>* ReferenceLine::getCodim1ReferenceGeometry(const IndexT faceIndex) const
+    const ReferenceGeometry* ReferenceLine::getCodim1ReferenceGeometry(const IndexT faceIndex) const
     {
         if (faceIndex < 2)
         {
@@ -128,7 +128,7 @@ namespace Geometry
             throw "ERROR: Asked for a line face index larger than 1. There are only 2 'faces' in a line!";
         }
     }
-    const MappingReferenceToReference<0, 1>*
+    const MappingReferenceToReference*
     ReferenceLine::getCodim1MappingPtr(const IndexT faceIndex) const
     {
         if (faceIndex < 2)
@@ -145,9 +145,9 @@ namespace Geometry
     // ================================== Quadrature rules =====================================
 
     /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceLine::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<1>* const qr) 
+    void ReferenceLine::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
     {
-        std::list<QuadratureRules::GaussQuadratureRule<1>*>::iterator it = lstGaussQuadratureRules_.begin();
+        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
         while (it != lstGaussQuadratureRules_.end())
         {
           if ((*it)->order() < qr->order()) ++it;
@@ -157,9 +157,9 @@ namespace Geometry
     }
 
     /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule<1>* const ReferenceLine::getGaussQuadratureRule(int order) const
+    QuadratureRules::GaussQuadratureRule* const ReferenceLine::getGaussQuadratureRule(int order) const
     {
-        for (std::list<QuadratureRules::GaussQuadratureRule<1>*>::const_iterator it = lstGaussQuadratureRules_.begin();
+        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
               it != lstGaussQuadratureRules_.end(); ++it)
           if ((*it)->order() >= order) return *it;
 

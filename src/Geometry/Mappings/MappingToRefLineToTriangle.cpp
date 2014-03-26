@@ -18,15 +18,15 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefLineToTriangle0::transform(const Geometry::PointReference<1>& p1,
-                                                 Geometry::PointReference<2>& p2) const
+    void MappingToRefLineToTriangle0::transform(const Geometry::PointReference& p1,
+                                                 Geometry::PointReference& p2) const
     {
         p2[0] = 0.5 * (p1[0] + 1.0);
         p2[1] = 0.0;
     }
 
-    void MappingToRefLineToTriangle0::calcJacobian(const Geometry::PointReference<1>& p1,
-                                                    Geometry::Jacobian<1,2>& jacobian) const
+    void MappingToRefLineToTriangle0::calcJacobian(const Geometry::PointReference& p1,
+                                                    Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) = 0.5;
         jacobian(1,0) = 0.0;
@@ -45,15 +45,15 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefLineToTriangle1::transform(const Geometry::PointReference<1>& p1,
-                                               Geometry::PointReference<2>& p2) const
+    void MappingToRefLineToTriangle1::transform(const Geometry::PointReference& p1,
+                                               Geometry::PointReference& p2) const
     {
         p2[0] = 0.0;
         p2[1] = 0.5 * (p1[0] + 1.0);
     }
 
-    void MappingToRefLineToTriangle1::calcJacobian(const Geometry::PointReference<1>& p1,
-                                                  Geometry::Jacobian<1,2>& jacobian) const
+    void MappingToRefLineToTriangle1::calcJacobian(const Geometry::PointReference& p1,
+                                                  Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) = 0.0;
         jacobian(1,0) = 0.5;
@@ -72,15 +72,15 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefLineToTriangle2::transform(const Geometry::PointReference<1>& p1,
-                                               Geometry::PointReference<2>& p2) const
+    void MappingToRefLineToTriangle2::transform(const Geometry::PointReference& p1,
+                                               Geometry::PointReference& p2) const
     {
         p2[0] = 0.5 * (-p1[0] + 1.0);
         p2[1] = 0.5 * ( p1[0] + 1.0);
     }
 
-    void MappingToRefLineToTriangle2::calcJacobian(const Geometry::PointReference<1>& p1,
-                                                  Geometry::Jacobian<1,2>& jacobian) const
+    void MappingToRefLineToTriangle2::calcJacobian(const Geometry::PointReference& p1,
+                                                  Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) = -0.5;
         jacobian(1,0) =  0.5;

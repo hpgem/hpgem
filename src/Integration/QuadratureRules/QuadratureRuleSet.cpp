@@ -69,165 +69,144 @@ namespace QuadratureRules
                 listOfQR_Pyramid.size() + listOfQR_Cube.size() + listOfQR_Hypercube.size();
     }
     
-    void QuadratureRuleSet::AddRule(GaussQuadratureRule<1>* qr)
+    void QuadratureRuleSet::AddRule(GaussQuadratureRule* qr)
     {
-        listOfQR_1DType::iterator it = listOfQR_Line.begin();
-        while (it != listOfQR_Line.end())
-        {
-          if (((GaussQuadratureRule<1>*)*it)->order() < qr->order()) ++it;
-          else break;
-        }
-        listOfQR_Line.insert(it,qr);
-    }
-    
-    void QuadratureRuleSet::AddRule(GaussQuadratureRule<2>* qr)
-    {
-        if (qr->forReferenceGeometry() == &Geometry::ReferenceTriangle::Instance())
-        {
-          listOfQR_2DType::iterator it = listOfQR_Triangle.begin();
-          while (it != listOfQR_Triangle.end())
-          {
-            if (((GaussQuadratureRule<2>*)*it)->order() < qr->order()) ++it;
-            else break;
-          }
-          listOfQR_Triangle.insert(it,qr);
-        }
-        else
-        {
-          listOfQR_2DType::iterator it = listOfQR_Square.begin();
-          while (it != listOfQR_Square.end())
-          {
-            if (((GaussQuadratureRule<2>*)*it)->order() < qr->order()) ++it;
-            else break;
-          }
-          listOfQR_Square.insert(it,qr);
-        }
-    }
-
-    void QuadratureRuleSet::AddRule(GaussQuadratureRule<3>* qr)
-    {
-        if (qr->forReferenceGeometry() == &Geometry::ReferenceTetrahedron::Instance())
-        {
-          listOfQR_3DType::iterator it = listOfQR_Tetrahedron.begin();
-          while (it != listOfQR_Tetrahedron.end())
-          {
-            if (((GaussQuadratureRule<3>*)*it)->order() < qr->order()) ++it;
-            else break;
-          }
-          listOfQR_Tetrahedron.insert(it,qr);
-        }
-        else if (qr->forReferenceGeometry() == &Geometry::ReferencePyramid::Instance())
-        {
-          listOfQR_3DType::iterator it = listOfQR_Pyramid.begin();
-          while (it != listOfQR_Pyramid.end())
-          {
-            if (((GaussQuadratureRule<3>*)*it)->order() < qr->order()) ++it;
-            else break;
-          }
-          listOfQR_Pyramid.insert(it,qr);
-        }
-        else if (qr->forReferenceGeometry() == &Geometry::ReferenceTriangularPrism::Instance())
-        {
-          listOfQR_3DType::iterator it = listOfQR_TriangularPrism.begin();
-          while (it != listOfQR_TriangularPrism.end())
-          {
-            if (((GaussQuadratureRule<3>*)*it)->order() < qr->order()) ++it;
-            else break;
-          }
-          listOfQR_TriangularPrism.insert(it,qr);
-        }
-        else
-        {
-          listOfQR_3DType::iterator it = listOfQR_Cube.begin();
-          while (it != listOfQR_Cube.end())
-          {
-            if (((GaussQuadratureRule<3>*)*it)->order() < qr->order()) ++it;
-            else break;
-          }
-          listOfQR_Cube.insert(it,qr);
-        }
-    }
-    
-    void QuadratureRuleSet::AddRule(GaussQuadratureRule<4>* qr)
-    {
-        listOfQR_4DType::iterator it = listOfQR_Hypercube.begin();
-        while (it != listOfQR_Hypercube.end())
-        {
-          if (((GaussQuadratureRule<4>*)*it)->order() < qr->order()) ++it;
-          else break;
-        }
-        listOfQR_Hypercube.insert(it,qr);
+    	if(qr->forReferenceGeometry()==&Geometry::ReferenceLine::Instance()){
+			listOfQR_1DType::iterator it = listOfQR_Line.begin();
+			while (it != listOfQR_Line.end())
+			{
+			  if (((GaussQuadratureRule*)*it)->order() < qr->order()) ++it;
+			  else break;
+			}
+			listOfQR_Line.insert(it,qr);
+    	}else if(qr->forReferenceGeometry()==&Geometry::ReferenceTriangle::Instance()){
+			listOfQR_2DType::iterator it = listOfQR_Triangle.begin();
+			while (it != listOfQR_Triangle.end())
+			{
+			if (((GaussQuadratureRule*)*it)->order() < qr->order()) ++it;
+			else break;
+			}
+			listOfQR_Triangle.insert(it,qr);
+    	}else if(qr->forReferenceGeometry()== &Geometry::ReferenceSquare::Instance()){
+			listOfQR_2DType::iterator it = listOfQR_Square.begin();
+			while (it != listOfQR_Square.end())
+			{
+			if (((GaussQuadratureRule*)*it)->order() < qr->order()) ++it;
+			else break;
+			}
+			listOfQR_Square.insert(it,qr);
+    	}else if(qr->forReferenceGeometry()== &Geometry::ReferenceTetrahedron::Instance()){
+            listOfQR_3DType::iterator it = listOfQR_Tetrahedron.begin();
+			while (it != listOfQR_Tetrahedron.end())
+			{
+			if (((GaussQuadratureRule*)*it)->order() < qr->order()) ++it;
+			else break;
+			}
+			listOfQR_Tetrahedron.insert(it,qr);
+		}else if(qr->forReferenceGeometry()== &Geometry::ReferencePyramid::Instance()){
+			listOfQR_3DType::iterator it = listOfQR_Pyramid.begin();
+			while (it != listOfQR_Pyramid.end())
+			{
+			if (((GaussQuadratureRule*)*it)->order() < qr->order()) ++it;
+			else break;
+			}
+			listOfQR_Pyramid.insert(it,qr);
+		}else if(qr->forReferenceGeometry()== &Geometry::ReferenceTriangularPrism::Instance()){
+			listOfQR_3DType::iterator it = listOfQR_TriangularPrism.begin();
+			while (it != listOfQR_TriangularPrism.end())
+			{
+			if (((GaussQuadratureRule*)*it)->order() < qr->order()) ++it;
+			else break;
+			}
+			listOfQR_TriangularPrism.insert(it,qr);
+		}else if(qr->forReferenceGeometry()== &Geometry::ReferenceCube::Instance()){
+			listOfQR_3DType::iterator it = listOfQR_Cube.begin();
+			while (it != listOfQR_Cube.end())
+			{
+			if (((GaussQuadratureRule*)*it)->order() < qr->order()) ++it;
+			else break;
+			}
+			listOfQR_Cube.insert(it,qr);
+		}else if(qr->forReferenceGeometry()== &Geometry::ReferenceHypercube::Instance()){
+			listOfQR_4DType::iterator it = listOfQR_Hypercube.begin();
+			while (it != listOfQR_Hypercube.end())
+			{
+			  if (((GaussQuadratureRule*)*it)->order() < qr->order()) ++it;
+			  else break;
+			}
+			listOfQR_Hypercube.insert(it,qr);
+			}else throw "QuadratureRuleSet::AddRule: unknown reference geometry!";
     }
 
-    GaussQuadratureRule<1>* QuadratureRuleSet::GetRule(Geometry::ReferenceLine* refGeo, int order)
+    GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferenceLine* refGeo, int order)
     {
         for (listOfQR_1DType::iterator it = listOfQR_Line.begin(); 
               it != listOfQR_Line.end(); ++it)
-          if (((GaussQuadratureRule<1>*)*it)->order() >= order) return *it;
+          if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
         return NULL;
     }
     
-    GaussQuadratureRule<2>* QuadratureRuleSet::GetRule(Geometry::ReferenceTriangle* refGeo, int order)
+    GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferenceTriangle* refGeo, int order)
     {
         for (listOfQR_2DType::iterator it = listOfQR_Triangle.begin(); 
               it != listOfQR_Triangle.end(); ++it)
-          if (((GaussQuadratureRule<1>*)*it)->order() >= order) return *it;
+          if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
         return NULL;
     }
 
-    GaussQuadratureRule<2>* QuadratureRuleSet::GetRule(Geometry::ReferenceSquare* refGeo, int order)
+    GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferenceSquare* refGeo, int order)
     {
         for (listOfQR_2DType::iterator it = listOfQR_Square.begin();
               it != listOfQR_Square.end(); ++it)
-          if (((GaussQuadratureRule<1>*)*it)->order() >= order) return *it;
+          if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
         return NULL;
     }
 
 
-    GaussQuadratureRule<3>* QuadratureRuleSet::GetRule(Geometry::ReferenceTetrahedron* refGeo, int order)
+    GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferenceTetrahedron* refGeo, int order)
     {
         for (listOfQR_3DType::iterator it = listOfQR_Tetrahedron.begin();
               it != listOfQR_Tetrahedron.end(); ++it)
-          if (((GaussQuadratureRule<1>*)*it)->order() >= order) return *it;
+          if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
         return NULL;
     }
     
-    GaussQuadratureRule<3>* QuadratureRuleSet::GetRule(Geometry::ReferencePyramid* refGeo, int order)
+    GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferencePyramid* refGeo, int order)
     {
         for (listOfQR_3DType::iterator it = listOfQR_Pyramid.begin();
               it != listOfQR_Pyramid.end(); ++it)
-          if (((GaussQuadratureRule<1>*)*it)->order() >= order) return *it;
+          if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
         return NULL;
     }
     
-    GaussQuadratureRule<3>* QuadratureRuleSet::GetRule(Geometry::ReferenceTriangularPrism* refGeo, int order)
+    GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferenceTriangularPrism* refGeo, int order)
     {
         for (listOfQR_3DType::iterator it = listOfQR_TriangularPrism.begin();
               it != listOfQR_TriangularPrism.end(); ++it)
-          if (((GaussQuadratureRule<1>*)*it)->order() >= order) return *it;
+          if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
         return NULL;
     }
     
-    GaussQuadratureRule<3>* QuadratureRuleSet::GetRule(Geometry::ReferenceCube* refGeo, int order)
+    GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferenceCube* refGeo, int order)
     {
         for (listOfQR_3DType::iterator it = listOfQR_Cube.begin();
               it != listOfQR_Cube.end(); ++it)
-          if (((GaussQuadratureRule<1>*)*it)->order() >= order) return *it;
+          if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
         return NULL;
     }
     
-    GaussQuadratureRule<4>* QuadratureRuleSet::GetRule(Geometry::ReferenceHypercube* refGeo, int order)
+    GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferenceHypercube* refGeo, int order)
     {
         for (listOfQR_4DType::iterator it = listOfQR_Hypercube.begin();
               it != listOfQR_Hypercube.end(); ++it)
-          if (((GaussQuadratureRule<1>*)*it)->order() >= order) return *it;
+          if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
         return NULL;
     }

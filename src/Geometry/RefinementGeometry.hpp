@@ -8,12 +8,11 @@
              
 namespace Geometry
 {
-    template <unsigned int DIM>
     class RefinementGeometry
     {
     public:
         typedef unsigned int                    DimT;
-        typedef PointPhysical<DIM>              PointPhysicalT;
+        typedef PointPhysical              PointPhysicalT;
         typedef std::vector<PointPhysicalT>     VectorOfPointPhysicalsT;
         typedef std::vector<unsigned int>       VectorOfIndicesT;
 

@@ -22,13 +22,13 @@ namespace Geometry
      * This class defines the mappings between reference and physical pyramids.
      */
 
-    class MappingToPhysPyramid: public MappingReferenceToPhysical<3,3>
+    class MappingToPhysPyramid: public MappingReferenceToPhysical
     {
         private:
-            typedef Geometry::PhysicalGeometry<3> PhysicalGeometryT;
-            typedef Geometry::PointReference<3> PointReferenceT;
-            typedef Geometry::PointPhysical<3> PointPhysicalT;
-            typedef Geometry::Jacobian<3,3> JacobianT;
+            typedef Geometry::PhysicalGeometry PhysicalGeometryT;
+            typedef Geometry::PointReference PointReferenceT;
+            typedef Geometry::PointPhysical PointPhysicalT;
+            typedef Geometry::Jacobian JacobianT;
 
         public:
             MappingToPhysPyramid(const PhysicalGeometryT*const physicalGeometry);
@@ -40,6 +40,7 @@ namespace Geometry
             virtual void reinit(const PhysicalGeometryT*const);
 
             bool isValidPoint(const PointReferenceT&) const;
+            virtual int getTargetDimension() const {return 3;}
 
         private:
             // ~OC~ Only undefined version is tested

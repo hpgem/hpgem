@@ -10,7 +10,7 @@
 #include "MeshMover.hpp"
 #include "Base/GlobalData.hpp"
 #include "Base/ConfigurationData.hpp"
-
+#include "Output/TecplotSingleElementWriter.hpp"
 
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "Output/TecplotPhysicalGeometryIterator.hpp"
@@ -20,40 +20,41 @@ using Base::GlobalData;
 
 const unsigned int DIM = 2;
 
-class Dummy
+//Note: the intended use of the prototype classes is to merge Dummy with MeshMoverExampleProblem
+class Dummy:public Output::TecplotSingleElementWriter
 {
 public:
     Dummy(){}
-    void operator()(const Base::Element<2>& el, const Geometry::PointReference<2>& p, ostream& os)
+    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, ostream& os)
     {
     }
 };
 
-class MeshMoverExampleProblem : public Base::HpgemUI<DIM>
+class MeshMoverExampleProblem : public Base::HpgemUI
 {
     
 public:
     MeshMoverExampleProblem(GlobalData* const global, const ConfigurationData* config):
-        Base::HpgemUI<DIM>(global, config)
+        Base::HpgemUI(global, config)
     {
     }
     
     bool initialise()
     {
         
-        RectangularMeshDescriptor<DIM> rectangularMesh;
+        RectangularMeshDescriptor rectangularMesh(2);
         
         rectangularMesh.bottomLeft_[0] = 0;
         rectangularMesh.bottomLeft_[1] = 0;
-        rectangularMesh.topLeft_[0] = 1;
-        rectangularMesh.topLeft_[1] = 1;
+        rectangularMesh.topRight_[0] = 1;
+        rectangularMesh.topRight_[1] = 1;
         rectangularMesh.numElementsInDIM_[0] = 8;
         rectangularMesh.numElementsInDIM_[1] = 8;
         
-        Base::HpgemUI<DIM>::MeshId id = addMesh(rectangularMesh);
+        Base::HpgemUI::MeshId id = addMesh(rectangularMesh);
 
         //Set up the move of the mesh;
-        const MeshMover<2>* meshMover= new MeshMover<2>;
+        const MeshMover* meshMover= new MeshMover;
         initialiseMeshMover(meshMover, id);
         
         return true;
@@ -64,10 +65,10 @@ public:
         std::ofstream file2D;
         file2D.open ("out.dat");
         int dimensionsToWrite[2] = {0,1};
-        Output::TecplotDiscontinuousSolutionWriter<2> out(file2D,"RectangularMesh","01","xy");
+        Output::TecplotDiscontinuousSolutionWriter out(file2D,"RectangularMesh","01","xy");
         
         Dummy d;
-        out.write(meshes_[0],"holi",false, d);
+        out.write(meshes_[0],"holi",false, &d);
     }
     
     void solve()

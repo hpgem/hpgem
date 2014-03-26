@@ -11,6 +11,7 @@ add_library(QuadratureRules SHARED
         ${hpGEM_SOURCE_DIR}/src/Integration/QuadratureRules/GaussQuadratureRulesForTriangularPrism.cpp
         ${hpGEM_SOURCE_DIR}/src/Integration/QuadratureRules/GaussQuadratureRulesForCube.cpp
         ${hpGEM_SOURCE_DIR}/src/Integration/QuadratureRules/GaussQuadratureRulesForHypercube.cpp
+        
         )
 target_link_libraries(QuadratureRules Reference_geometries)
 

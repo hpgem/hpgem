@@ -22,11 +22,11 @@ int main ()
     cout << "cout << line: ";
     cout << line;
 
-    Geometry::PointReference<1> pCenter;
+    Geometry::PointReference pCenter(1);
     line.getCenter(pCenter);
     cout << "line.getCenter(Geometry::PointReference<1>): " << pCenter << endl;
 
-    Geometry::PointReference<1> p;
+    Geometry::PointReference p(1);
     line.getNode(0, p);
     cout << "line.getNode(0, p): " << p << endl;
     
@@ -79,14 +79,14 @@ int main ()
     cout << "line.getCodim0MappingIndex() = " << map << endl;
 
     cout << "line.getCodim0MappingPtr(0)" <<  endl;
-    const Geometry::MappingReferenceToReference<1,1>* mappingReferenceToReference11;
+    const Geometry::MappingReferenceToReference* mappingReferenceToReference11;
     mappingReferenceToReference11 = line.getCodim0MappingPtr(0);
     cout << "line.getCodim0MappingPtr(1)" <<  endl;
     mappingReferenceToReference11 = line.getCodim0MappingPtr(1);
 
 
     cout << "line.getCodim1MappingPtr(0)" <<  endl;
-    const Geometry::MappingReferenceToReference<0,1>* mappingReferenceToReference01;
+    const Geometry::MappingReferenceToReference* mappingReferenceToReference01;
     mappingReferenceToReference01 = line.getCodim1MappingPtr(0);
     cout << "line.getCodim1MappingPtr(1)" <<  endl;
     mappingReferenceToReference01 = line.getCodim1MappingPtr(1);

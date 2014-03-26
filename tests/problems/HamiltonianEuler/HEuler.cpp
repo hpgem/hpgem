@@ -10,7 +10,7 @@
 
 
 HEuler::HEuler(HEulerGlobalVariables* global, const HEulerConfigurationData* config):
-    Base::HpgemUI<DIM>(global, config),
+    Base::HpgemUI(global, config),
     P_(),
     Q_()
 {
@@ -111,35 +111,35 @@ HEuler::printFullMatrixInfo(Mat& matrix, const string& name)
 bool
 HEuler::initialiseMesh()
 {
-    RectangularMeshDescriptor<DIM> rectangularMesh;
+    RectangularMeshDescriptor rectangularMesh(3);
     
     const HEulerConfigurationData* config = static_cast<const HEulerConfigurationData*>(configData_);
     
    
     if(config->solutionType_==HEulerConfigurationData::COMPRESSIBLE_WALLS || config->solutionType_==HEulerConfigurationData::INCOMPRESSIBLE_WALLS)
     {
-        rectangularMesh.boundaryConditions_[0] = RectangularMeshDescriptor<DIM>::SOLID_WALL;
-        rectangularMesh.boundaryConditions_[1] = RectangularMeshDescriptor<DIM>::SOLID_WALL;
-        rectangularMesh.boundaryConditions_[2] = RectangularMeshDescriptor<DIM>::SOLID_WALL;
+        rectangularMesh.boundaryConditions_[0] = RectangularMeshDescriptor::SOLID_WALL;
+        rectangularMesh.boundaryConditions_[1] = RectangularMeshDescriptor::SOLID_WALL;
+        rectangularMesh.boundaryConditions_[2] = RectangularMeshDescriptor::SOLID_WALL;
     }
     else if(config->solutionType_==HEulerConfigurationData::COMPRESSIBLE_PERIODIC || config->solutionType_==HEulerConfigurationData::INCOMPRESSIBLE_PERIODIC)
     {
-        rectangularMesh.boundaryConditions_[0] = RectangularMeshDescriptor<DIM>::PERIODIC;
-        rectangularMesh.boundaryConditions_[1] = RectangularMeshDescriptor<DIM>::PERIODIC;
-        rectangularMesh.boundaryConditions_[2] = RectangularMeshDescriptor<DIM>::PERIODIC;
+        rectangularMesh.boundaryConditions_[0] = RectangularMeshDescriptor::PERIODIC;
+        rectangularMesh.boundaryConditions_[1] = RectangularMeshDescriptor::PERIODIC;
+        rectangularMesh.boundaryConditions_[2] = RectangularMeshDescriptor::PERIODIC;
     }
     else if(config->solutionType_==HEulerConfigurationData::INCOMPRESSIBLE_ONETHIRDPERIODIC)
     {
-        rectangularMesh.boundaryConditions_[0] = RectangularMeshDescriptor<DIM>::SOLID_WALL;
-        rectangularMesh.boundaryConditions_[1] = RectangularMeshDescriptor<DIM>::PERIODIC;
-        rectangularMesh.boundaryConditions_[2] = RectangularMeshDescriptor<DIM>::SOLID_WALL;
+        rectangularMesh.boundaryConditions_[0] = RectangularMeshDescriptor::SOLID_WALL;
+        rectangularMesh.boundaryConditions_[1] = RectangularMeshDescriptor::PERIODIC;
+        rectangularMesh.boundaryConditions_[2] = RectangularMeshDescriptor::SOLID_WALL;
     }
     rectangularMesh.bottomLeft_[0]       = 0;
     rectangularMesh.bottomLeft_[1]       = 0;
     rectangularMesh.bottomLeft_[2]       = 0;
-    rectangularMesh.topLeft_[0]          = config->lx_;
-    rectangularMesh.topLeft_[1]          = config->ly_;
-    rectangularMesh.topLeft_[2]          = config->lz_;
+    rectangularMesh.topRight_[0]          = config->lx_;
+    rectangularMesh.topRight_[1]          = config->ly_;
+    rectangularMesh.topRight_[2]          = config->lz_;
     rectangularMesh.numElementsInDIM_[0] = config->nx_;
     rectangularMesh.numElementsInDIM_[1] = config->ny_;
     rectangularMesh.numElementsInDIM_[2] = config->nz_;
@@ -155,8 +155,8 @@ HEuler::initialiseMesh()
     return true;
 }
 
-void
-HEuler::calculateMassMatrix(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix)
+void//computes the mass matrix
+HEuler::elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix)
 {
     unsigned int numOfDegreesOfFreedom = element->getNrOfBasisFunctions();
     
@@ -211,8 +211,9 @@ HEuler::elementIntegrand(const ElementT* element, const PointReferenceT& p, Elem
     
     for (unsigned int i=0; i < numberOfDegreesOfFreedom; ++i)
     {
-        Utilities::PhysGradientOfBasisFunction<DIM, ElementT> obj(element, i);
-        obj(p, grads);
+    	element->basisFunctionDeriv(i,p,grads);
+        //Utilities::PhysGradientOfBasisFunction obj(element, i);
+        //obj(p, grads);
         
         for (unsigned int j=0; j < numberOfDegreesOfFreedom; ++j)
         {
@@ -224,15 +225,15 @@ HEuler::elementIntegrand(const ElementT* element, const PointReferenceT& p, Elem
 }
 
 void
-HEuler::faceIntegrand(const FaceT* face,          const PointPhysicalT& normal,
+HEuler::faceIntegrand(const FaceT* face,          const NumericalVector& normal,
                    const PointReferenceOnTheFaceT& p,  FluxData& ret)
 {
     if (face->isInternal())
     {
-        const double magn                     = Utilities::norm2<DIM>(normal);
+        const double magn                     = Utilities::norm2(normal);
         unsigned int numberOfDegreesOfFreedom = face->getPtrElementLeft()->getNrOfBasisFunctions();
         
-        PointReferenceT 	pL, pR;
+        PointReferenceT 	pL(3), pR(3);
         double              bFL, bFR, BFevalL, BFevalR;
         
         double theta = 0.5;//static_cast<const HEulerConfigurationData*>(configData_)->theta_;
@@ -566,7 +567,7 @@ HEuler::calculatePressure(const Mat& A, const Mat& Ah,const Vec& UCorrected)
     
     for (ConstElementIterator cit = elementColBegin(); cit != elementColEnd(); ++cit)
     {
-        Base::Element<DIM>* element= *cit;
+        Base::Element* element= *cit;
         int k = element->getID();
         
         unsigned int pos = k*nb;
@@ -718,7 +719,7 @@ HEuler::createIncompressibleSystem()
         
         ElementT* element =(*cit);
         
-        elIntegral.integrate(element, gradMassInteg, gradMass, this);
+        elIntegral.integrate<ElementIntegralData>(element, this, gradMass);
 		
 		for (unsigned int i = 0; i<nb;++i)
  		{
@@ -805,8 +806,8 @@ HEuler::createIncompressibleSystem()
         //
         //
     FluxData fData(nb);
-    typedef void  (HEuler::*FaceIntegrand)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
-    FaceIntegrand faceInteg = &HEuler::faceIntegrand;
+    //typedef void  (HEuler::*FaceIntegrand)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
+    //FaceIntegrand faceInteg = &HEuler::faceIntegrand;
     FaceIntegralT   faceIntegral(useCache);
     
 
@@ -825,7 +826,7 @@ HEuler::createIncompressibleSystem()
             
             posL  = eL*nb;
             
-            faceIntegral.integrate((*citFe), faceInteg, fData, this);
+            faceIntegral.integrate((*citFe), this, fData);
             
             for (unsigned int j=0;j<nb;++j)
             {
@@ -1234,7 +1235,7 @@ HEuler::createCompressibleSystem()
         HEulerElementData* elementData = static_cast<HEulerElementData*>((*cit)->getUserData());
 
         ElementT* elem =(*cit);
-        elIntegral.integrate(elem, gradMassInteg, gradMass, this);
+        elIntegral.integrate<ElementIntegralData>(elem, this, gradMass);
         
         for (unsigned int j = 0; j<nb;++j)
         {
@@ -1285,8 +1286,8 @@ HEuler::createCompressibleSystem()
         //
         //
     FluxData fData(nb);
-    typedef void  (HEuler::*FaceIntegrand)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
-    FaceIntegrand faceInteg = &HEuler::faceIntegrand;
+    //typedef void  (HEuler::*FaceIntegrand)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
+    //FaceIntegrand faceInteg = &HEuler::faceIntegrand;
     FaceIntegralT   faceIntegral(useCache);
     
     for (ConstFaceIterator citFe = faceColBegin(); citFe != faceColEnd(); ++citFe)
@@ -1304,7 +1305,7 @@ HEuler::createCompressibleSystem()
             
             posL  = eL*nb;
             
-            faceIntegral.integrate((*citFe), faceInteg, fData, this);
+            faceIntegral.integrate((*citFe), this, fData);
 
             for (unsigned int j=0;j<nb;++j)
             {
@@ -1519,7 +1520,7 @@ HEuler::initialConditions()
     ElementIntegralT   elIntegral(useCache);
     
     typedef void  (HEuler::*Integrand)(const ElementT* , const PointReferenceT&, LinearAlgebra::Matrix&);
-    Integrand massMatrixIntegrand = &HEuler::calculateMassMatrix;
+    //Integrand massMatrixIntegrand = &HEuler::calculateMassMatrix;
     
     LinearAlgebra::NumericalVector rightHand(ldof);
     
@@ -1546,32 +1547,32 @@ HEuler::initialConditions()
         LinearAlgebra::Matrix& massMatrix = elemData->massMatrix_;
         LinearAlgebra::Matrix& invMassM   = elemData->invMassMatrix_;
         
-        elIntegral.integrate(elem, massMatrixIntegrand, massMatrix, this);
+        elIntegral.integrate<LinearAlgebra::Matrix>(elem, this, massMatrix);
      
         massMatrix.inverse(invMassM);
         
         elem->setUserData(elemData);
         
-        elIntegral.integrate(elem, uEx, rightHand);
+        elIntegral.integrate(elem, &uEx, rightHand);
         
         numerical = invMassM*rightHand;// projection of U
         
         
         elem->setTimeLevelData(0,0,numerical);
         
-        elIntegral.integrate(elem, vEx, rightHand);
+        elIntegral.integrate(elem, &vEx, rightHand);
         
         numerical = invMassM*rightHand;// projection of V
         
         elem->setTimeLevelData(0,1,numerical);
         
         
-        elIntegral.integrate(elem, wEx, rightHand);
+        elIntegral.integrate(elem, &wEx, rightHand);
         
         numerical = invMassM*rightHand;// projection of W
         elem->setTimeLevelData(0,2,numerical);
         
-        elIntegral.integrate(elem, pOrRhoEx, rightHand);
+        elIntegral.integrate(elem, &pOrRhoEx, rightHand);
         
         numerical = invMassM*rightHand;// projection of P
         
@@ -1625,7 +1626,7 @@ HEuler::solve()
     
     for (ConstElementIterator cit = elementColBegin(); cit != elementColEnd(); ++cit)
     {
-        Base::Element<DIM>* element= *cit;
+        Base::Element* element= *cit;
         int m = element->getID();
         
         unsigned int pos = m*nb;
@@ -1796,7 +1797,7 @@ HEuler::solve()
         currTime+=globalData->dt_;
         for (ConstElementIterator cit = elementColBegin(); cit != elementColEnd(); ++cit)
         {
-            Base::Element<DIM>* element= *cit;
+            Base::Element* element= *cit;
             int k = element->getID();
             
             unsigned int pos = k*nb;
@@ -1868,7 +1869,7 @@ HEuler::output(double time)
     std::ofstream file3D;
     file3D.open (outFile.c_str());
     
-    Output::TecplotDiscontinuousSolutionWriter<DIM> out(file3D,"RectangularMesh","012",outputFormat);
+    Output::TecplotDiscontinuousSolutionWriter out(file3D,"RectangularMesh","012",outputFormat);
     
     
     TecplotWriteFunction userWriteFunction(&energyFile, &divFile, &energyExfile, exactSolution_, &file1Dx0, &file1D0,&file1DEx0, &l2ErrorFile);
@@ -1877,7 +1878,7 @@ HEuler::output(double time)
     cout <<"OUTPUTING...."<<endl;
     ostringstream ostr;
     ostr << "t = " << time;
-    out.write(meshes_[0],std::string(ostr.str()),false, userWriteFunction);
+    out.write(meshes_[0],std::string(ostr.str()),false, &userWriteFunction);
     cout <<"FINISH OUTPUTING...."<<endl;
  
     file1Dx0.close();

@@ -24,12 +24,10 @@
 
 namespace Geometry
 {
-    template <unsigned int DIM>
     class ElementGeometry;
 }
 namespace Base
 {
-    template <unsigned int DIM>
     class Element;
 }
 
@@ -46,14 +44,14 @@ namespace Base
      * constructor. PhysicalSpaceFunction objects are integrable since they
      * offer the necessary typedefs and the evaluation operator.
      */
-    template <unsigned int DIM, typename FType>
+    template <typename FType>
     class PhysicalSpaceFunctor
     {
 
     public:
         typedef typename Integration::ReturnTrait1<FType>::ReturnType ReturnType;
         
-        typedef Geometry::ElementGeometry<DIM>                      ElementGeometryT;
+        typedef Geometry::ElementGeometry                      ElementGeometryT;
 
         //! Ctor, type of the wrapped function is fixed by template argument.
         PhysicalSpaceFunctor(const ElementGeometryT* const element, const FType& functor) :
@@ -67,14 +65,14 @@ namespace Base
         {}
 
         //! Evaluation operator for _reference_ space coordinates.
-        void operator()(const Element<DIM>& el, const Geometry::PointReference<DIM>& pRef, ReturnType& r)
+        void operator()(const Element& el, const Geometry::PointReference& pRef, ReturnType& r)
         {
-            Geometry::PointPhysical<DIM> pPhys;  // Declare and...
+            Geometry::PointPhysical pPhys(pRef.size());  // Declare and...
             el.referenceToPhysical(pRef, pPhys); // ...transform the point.
             // PhysSpaceEvaluator enables us to query different types of
             // functions/functors (regarding their argument composition)
             // with one syntax:
-            PhysicalSpaceEvaluator<DIM, ReturnType, FType>::eval(el, functor_, pPhys, r);
+            PhysicalSpaceEvaluator<ReturnType, FType>::eval(el, functor_, pPhys, r);
         }
 
     private:

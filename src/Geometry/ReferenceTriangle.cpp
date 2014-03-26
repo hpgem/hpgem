@@ -27,7 +27,7 @@ namespace Geometry
     };
 
     ReferenceTriangle::ReferenceTriangle():
-        ReferenceGeometry<TwoD>(TwoD+1,TRIANGLE),
+        ReferenceGeometry(TwoD+1,2,TRIANGLE),
         referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
 
@@ -44,7 +44,7 @@ namespace Geometry
         mappingsTriangleToTriangle_[4] = &MappingToRefTriangleToTriangle4::Instance(); // (x,y) -> (x,-y)
         mappingsTriangleToTriangle_[5] = &MappingToRefTriangleToTriangle5::Instance(); // (x,y) -> (-x,y)
 
-        PointReferenceT p1, p2, p3;
+        PointReferenceT p1(2), p2(2), p3(2);
         p1[0] = 0.0; p1[1] = 0.0;
         p2[0] = 1.0; p2[1] = 0.0;
         p3[0] = 0.0; p3[1] = 1.0;
@@ -55,7 +55,7 @@ namespace Geometry
     }
     
     ReferenceTriangle::ReferenceTriangle(const ReferenceTriangle& copy):
-        ReferenceGeometry<TwoD>(copy),
+        ReferenceGeometry(copy),
         referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {}
     
@@ -106,7 +106,7 @@ namespace Geometry
                 if (list1[0] == list2[1])
                 {
                     if (list1[1] == list2[2])
-                        return 2; // 1.2.0.
+                        return 5; // 1.2.0.
                     else
                         return 3; // 1.0.2.
                 }
@@ -115,7 +115,7 @@ namespace Geometry
                     if (list1[1] == list2[1])
                         return 4; // 2.1.0.
                     else
-                        return 5; // 2.0.1.
+                        return 2; // 2.0.1.
                 }
             }
         }
@@ -125,7 +125,7 @@ namespace Geometry
         }
     }
 
-    const MappingReferenceToReference<2, 2>*
+    const MappingReferenceToReference*
     ReferenceTriangle::getCodim0MappingPtr(const IndexT i) const
     {
         if (i < 6)
@@ -148,7 +148,7 @@ namespace Geometry
             faceNodesLocal[1] = (IndexT) localNodeIndexes_[faceIndex][1];
         }
     }
-    const ReferenceGeometry<1>* ReferenceTriangle::getCodim1ReferenceGeometry(const IndexT faceIndex) const
+    const ReferenceGeometry* ReferenceTriangle::getCodim1ReferenceGeometry(const IndexT faceIndex) const
     {
         if (faceIndex < 3)
         {
@@ -159,7 +159,7 @@ namespace Geometry
             throw "ERROR: Asked for a triangle face index larger than 2. There are only 3 faces in a triangle!";
         }
     }
-    const MappingReferenceToReference<1, 2>*
+    const MappingReferenceToReference*
     ReferenceTriangle::getCodim1MappingPtr(const IndexT faceIndex) const
     {
         if (faceIndex < 3)
@@ -176,9 +176,9 @@ namespace Geometry
     // ================================== Quadrature rules =====================================
 
     /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceTriangle::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<2>* const qr)
+    void ReferenceTriangle::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
     {
-        std::list<QuadratureRules::GaussQuadratureRule<2>*>::iterator it = lstGaussQuadratureRules_.begin();
+        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
         while (it != lstGaussQuadratureRules_.end())
         {
           if ((*it)->order() < qr->order()) ++it;
@@ -188,9 +188,9 @@ namespace Geometry
     }
 
     /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule<2>* const ReferenceTriangle::getGaussQuadratureRule(int order) const
+    QuadratureRules::GaussQuadratureRule* const ReferenceTriangle::getGaussQuadratureRule(int order) const
     {
-        for (std::list<QuadratureRules::GaussQuadratureRule<2>*>::const_iterator it = lstGaussQuadratureRules_.begin();
+        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
               it != lstGaussQuadratureRules_.end(); ++it)
           if ((*it)->order() >= order) return *it;
 

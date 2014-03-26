@@ -36,36 +36,35 @@ namespace Geometry
      *  the ConcatenatedMapping must not exceed the one of the component
      *  mappings, but this is hardly possible for reasons in the mathematical
      *  usage. */
-    template <unsigned int dFrom, unsigned int dIntermediate, unsigned int dTo = dIntermediate>
-    class ConcatenatedMapping: public MappingReferenceToReference<dFrom, dTo>
+    class ConcatenatedMapping: public MappingReferenceToReference
     {
        public:
             //! Ctor gets two references to existing mappings.
-        ConcatenatedMapping(const MappingReferenceToReference<dFrom, dIntermediate>& m1,
-                            const MappingReferenceToReference<dIntermediate, dTo>& m2):
+        ConcatenatedMapping(const MappingReferenceToReference& m1,
+                            const MappingReferenceToReference& m2):
             map1_(m1),
             map2_(m2)
 	    {
         }
         
             //! Transformation is simply via the intermediate space.
-        virtual void transform(const PointReference<dFrom>& pIn, PointReference<dTo>& pOut) const
+        virtual void transform(const PointReference& pIn, PointReference& pOut) const
 	    {
-            PointReference<dIntermediate> pLoc;
+            PointReference pLoc(map1_.getTargetDimension());
             
             map1_.transform(pIn, pLoc);
             map2_.transform(pLoc, pOut);
 	    }
         
             //! To compute the Jacobian, the two component ones have to multiplied.
-        virtual void calcJacobian(const PointReference<dFrom>& p, Jacobian<dFrom, dTo>& jac) const
+        virtual void calcJacobian(const PointReference& p, Jacobian& jac) const
 	    {
-            PointReference<dIntermediate> pIntermediate;
+            PointReference pIntermediate(map1_.getTargetDimension());
             map1_.transform(p, pIntermediate);
             
                 
-            Jacobian<dFrom, dIntermediate> j1;
-            Jacobian<dIntermediate, dTo> j2;
+            Jacobian j1(jac.getNRows(),map1_.getTargetDimension());
+            Jacobian j2(map1_.getTargetDimension(),jac.getNCols());
             
             map1_.calcJacobian(p, j1);
             map2_.calcJacobian(pIntermediate, j2);
@@ -73,9 +72,12 @@ namespace Geometry
             j2.multiplyJacobiansInto(j1, jac);
 	    }
         
+
+        virtual int getTargetDimension() const {return map2_.getTargetDimension();}
+
     private:
-        const MappingReferenceToReference<dFrom, dIntermediate>&    map1_;
-        const MappingReferenceToReference<dIntermediate, dTo>&      map2_;
+        const MappingReferenceToReference&    map1_;
+        const MappingReferenceToReference&      map2_;
     };
 } // close namespace Geometry
 

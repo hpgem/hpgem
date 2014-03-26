@@ -22,11 +22,11 @@ int main ()
     cout << "cout << cube: ";
     cout << cube;
 
-    Geometry::PointReference<3> pCenter;
+    Geometry::PointReference pCenter(3);
     cube.getCenter(pCenter);
     cout << "cube.getCenter(Geometry::ReferencePoint<3>): " << pCenter << endl;
     
-    Geometry::PointReference<3> p;
+    Geometry::PointReference p(3);
     for (int i = 0; i < 8; i++)
     {
         cube.getNode(i, p);
@@ -35,7 +35,7 @@ int main ()
 
     cout << "cube.isInternalPoint({0,0,0}): " << cube.isInternalPoint(pCenter) << endl;
     
-    Geometry::PointReference<3> pOut;
+    Geometry::PointReference pOut(3);
     
     pOut[0] = -2.0;
     pOut[1] = -2.0;
@@ -89,7 +89,7 @@ int main ()
 
     // ------------------------------------------------------------------------------------------ \\
 
-    const Geometry::ReferenceGeometry<2>* referenceGeometry2D;
+    const Geometry::ReferenceGeometry* referenceGeometry2D;
     for (int face=0; face < cube.getNrOfCodim1Entities(); ++face)
     {
         referenceGeometry2D = cube.getCodim1ReferenceGeometry(face);
@@ -97,7 +97,7 @@ int main ()
         //cout << "cube.getCodim1ReferenceGeometry("<<face<<"): " << *((Geometry::ReferenceSquare*)(referenceGeometry2D));
     }
 
-    const Geometry::ReferenceGeometry<1>* referenceGeometry1D;
+    const Geometry::ReferenceGeometry* referenceGeometry1D;
     for (int face=0; face < cube.getNrOfCodim2Entities(); ++face)
     {
         referenceGeometry1D = cube.getCodim2ReferenceGeometry(face);
@@ -107,19 +107,19 @@ int main ()
 
     // ------------------------------------------------------------------------------------------ \\
 
-    const Geometry::MappingReferenceToReference<3,3>* ref3ToRef3Mapping;
+    const Geometry::MappingReferenceToReference* ref3ToRef3Mapping;
     for (int index=0; index < 8; ++index)
     {
         ref3ToRef3Mapping = cube.getCodim0MappingPtr(index);
     }
 
-    const Geometry::MappingReferenceToReference<2,3>* ref2ToRef3Mapping;
+    const Geometry::MappingReferenceToReference* ref2ToRef3Mapping;
     for (int face=0; face < cube.getNrOfCodim1Entities(); ++face)
     {
         ref2ToRef3Mapping = cube.getCodim1MappingPtr(face);
     }
 
-    const Geometry::MappingReferenceToReference<1,3>* ref1ToRef3Mapping;
+    const Geometry::MappingReferenceToReference* ref1ToRef3Mapping;
     for (int face=0; face < cube.getNrOfCodim1Entities(); ++face)
     {
         ref1ToRef3Mapping = cube.getCodim2MappingPtr(face);

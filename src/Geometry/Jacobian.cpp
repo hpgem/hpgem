@@ -1,24 +1,21 @@
-
+#include "Jacobian.hpp"
 
 namespace Geometry
 {
-    template <unsigned int dimFrom, unsigned int dimTo>
     class Jacobian;
     
-    template <unsigned int dimFrom, unsigned int dimTo>
-    Jacobian<dimFrom, dimTo>::Jacobian():
+    Jacobian::Jacobian(unsigned int dimFrom,unsigned int dimTo):
         LinearAlgebra::Matrix(dimTo,dimFrom)
     {
     }
-    template <unsigned int dimFrom, unsigned int dimTo>
-    Jacobian<dimFrom, dimTo>::Jacobian(const JacobianT& jacobian):
+
+    Jacobian::Jacobian(const JacobianT& jacobian):
         LinearAlgebra::Matrix(jacobian)
     {
     }
 
-    template <unsigned int dimFrom, unsigned int dimTo>
     void
-    Jacobian<dimFrom, dimTo>::computeWedgeStuffVector(PhysicalPointT& p)const
+    Jacobian::computeWedgeStuffVector(NumericalVector& p)const
     {
         NumericalVector&      v((NumericalVector&)p);
         
@@ -30,10 +27,11 @@ namespace Geometry
     }
 
         /// The computation of Jacobians are harcoded up until 4D, to make it faster.
-    template <unsigned int dimFrom, unsigned int dimTo>
     double
-    Jacobian<dimFrom, dimTo>::determinant()const
+    Jacobian::determinant()const
     {
+    	unsigned int dimTo(getNRows()),dimFrom(getNCols());
+
         if (dimFrom!=dimTo)
         {
             cout<<"Jacobian should be square to have a determinant!"<<endl;

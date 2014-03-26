@@ -17,7 +17,7 @@ namespace Geometry
     {
         // get all element's nodes
         nodes.clear();
-        PointPhysicalT p;
+        PointPhysicalT p(2);
         for (unsigned int i=0; i<referenceGeometry_->getNumberOfNodes(); ++i)
         {
             physicalGeometry_->getLocalNodeCoordinates(i, p);

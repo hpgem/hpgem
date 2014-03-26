@@ -12,7 +12,7 @@ namespace Geometry
         const VectorOfPointIndexesT& globalNodeIndexes,
         const VectorOfPhysicalPointsT& nodes,
         const ReferencePyramid* const refPyramid) :
-        PhysicalGeometry<3>(globalNodeIndexes,nodes, refPyramid)
+        PhysicalGeometry(globalNodeIndexes,nodes, refPyramid)
     {
     }
 

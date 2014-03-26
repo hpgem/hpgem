@@ -24,10 +24,10 @@ namespace Geometry
     /// \brief Reference geometry of dimensions 0.
     /// \details
     /// Most of the codimension functions are not well defined for dimension 0, so be careful.
-    class ReferencePoint : public ReferenceGeometry<0>
+    class ReferencePoint : public ReferenceGeometry
     {
     public:
-        typedef ReferenceGeometry<ZeroD> ReferenceGeometryT;
+        typedef ReferenceGeometry ReferenceGeometryT;
         
         using ReferenceGeometryT::PointReferenceT;
         using ReferenceGeometryT::VectorOfReferencePointsT;
@@ -67,15 +67,15 @@ namespace Geometry
         int                                         getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
 
         /// \brief Returns 0.
-        const MappingReferenceToReference<0,0>*     getCodim0MappingPtr(const IndexT a) const;
+        const MappingReferenceToReference*     getCodim0MappingPtr(const IndexT a) const;
         
         // ================================== Quadrature rules =====================================
 
         /// \brief Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<0>* const qr);
+        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr);
 
         /// \brief Get a valid quadrature for this geometry.
-        virtual QuadratureRules::GaussQuadratureRule<0>* const getGaussQuadratureRule(int order) const;
+        virtual QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
 
         // =============================== Refinement mappings =====================================
         
@@ -102,7 +102,10 @@ namespace Geometry
                                 DimT faLocalIndex, LinearAlgebra::Matrix& Q) const {}
 
         /// \brief List of valid quadrature rules for this reference geometry
-        std::list<QuadratureRules::GaussQuadratureRule<0>*> lstGaussQuadratureRules_;
+        std::list<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
+
+        //! Codimension 1 mappings, from a line to a line. TODO: Where is this used? clarify here.
+        const MappingReferenceToReference*                           mappingsPointToPoint_; //!< codim0
     };
 };
 #endif

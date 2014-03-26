@@ -16,13 +16,13 @@ using namespace std;
 #include "Geometry/PointReference.hpp"
 #include "Base/Element.hpp"
 #include  "LinearAlgebra/NumericalVector.hpp"
+#include "Integration/ElementIntegrandBase.hpp"
 
 
-template<unsigned int DIM>
 class ExactSolutionBase
 {
 public:
-    typedef Geometry::PointPhysical<DIM>		PointPhysicalT;
+    typedef Geometry::PointPhysical		PointPhysicalT;
 public:
     ExactSolutionBase(){}
     ~ExactSolutionBase(){}
@@ -36,8 +36,6 @@ public:
 public:
     static const double 			Pi;
 };
-template<unsigned int DIM>
-const double ExactSolutionBase<DIM>::Pi = 3.14159265;
 
 // class ExternalSolution:public ExactSolutionBase
 // {
@@ -55,7 +53,7 @@ const double ExactSolutionBase<DIM>::Pi = 3.14159265;
 // 		
 // };
 		
-class Compressible3DOneThirdPeriodic: public ExactSolutionBase<3>
+class Compressible3DOneThirdPeriodic: public ExactSolutionBase
 {
 public:	
     typedef  complex<double>                   	ComplexNumber;
@@ -80,7 +78,7 @@ private:
 };
 		
 		
-class Compressible3DPeriodic: public ExactSolutionBase<3>
+class Compressible3DPeriodic: public ExactSolutionBase
 {
     
 public:
@@ -92,7 +90,7 @@ public:
     double getP(const PointPhysicalT& pPhys, double t)const;
 };
 
-class Compressible3DWalls: public ExactSolutionBase<3>
+class Compressible3DWalls: public ExactSolutionBase
 {
     
 public:
@@ -105,7 +103,7 @@ public:
 };
 
 
-class Incompressible3DPeriodic: public ExactSolutionBase<3>
+class Incompressible3DPeriodic: public ExactSolutionBase
 {
     
 public:
@@ -117,7 +115,7 @@ public:
     double getP(const PointPhysicalT& pPhys, double t)const;
 };
 
-class InitialVelocityConstructorTaylor: public ExactSolutionBase<3>
+class InitialVelocityConstructorTaylor: public ExactSolutionBase
 {
 public:
     typedef  complex<double>                   	ComplexNumber;
@@ -126,8 +124,8 @@ public:
     typedef std::vector<double>                	Vector;
     typedef istream_iterator<double>      		IstreamIterator;
     
-    using ExactSolutionBase<3>::PointPhysicalT;
-    using ExactSolutionBase<3>::Pi;
+    using ExactSolutionBase::PointPhysicalT;
+    using ExactSolutionBase::Pi;
     
 
 public:
@@ -490,63 +488,66 @@ class InitCond
 {
 public:
         
-  		typedef   ExactSolutionBase<3>::PointPhysicalT	PointPhysicalT;
-        typedef   Base::Element<3>                      ElementT;
-        typedef   Geometry::PointReference<3>           PointReferenceT;
+  		typedef   ExactSolutionBase::PointPhysicalT	PointPhysicalT;
+        typedef   Base::Element                      ElementT;
+        typedef   Geometry::PointReference           PointReferenceT;
         typedef   LinearAlgebra::NumericalVector        ReturnType;
 public:
 
-  		InitCond(const ExactSolutionBase<3>* init):
+  		InitCond(const ExactSolutionBase* init):
             velocity_(init) {}
 
         virtual void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r) const = 0;
 		
 protected:
-		const ExactSolutionBase<3>* const  	velocity_;
+		const ExactSolutionBase* const  	velocity_;
 };
 
 
-class InitCondU: public InitCond
+class InitCondU: public InitCond,public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
 {
 public:
     typedef   LinearAlgebra::NumericalVector        ReturnType;
 public:
-  		InitCondU(const ExactSolutionBase<3>* init);
+  		InitCondU(const ExactSolutionBase* init);
     
         void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r) const;
-
+        void elementIntegrand(const ElementT* element,const PointReferenceT& p, LinearAlgebra::NumericalVector& r){operator()(element,p,r);}
 };
 
 
 // initial condition for v
-class InitCondV: public InitCond
+class InitCondV: public InitCond,public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
 {
 public:
 	
-		InitCondV(const ExactSolutionBase<3>* init);
+		InitCondV(const ExactSolutionBase* init);
     
         void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r) const;
+        void elementIntegrand(const ElementT* element,const PointReferenceT& p, LinearAlgebra::NumericalVector& r){operator()(element,p,r);}
 };
 // 
 
 // initial condition for w
-class InitCondW: public InitCond
+class InitCondW: public InitCond,public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
 {
 public:
-        InitCondW(const ExactSolutionBase<3>* init);
+        InitCondW(const ExactSolutionBase* init);
 
         void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r) const;
+        void elementIntegrand(const ElementT* element,const PointReferenceT& p, LinearAlgebra::NumericalVector& r){operator()(element,p,r);}
   
 };
 
 // initial condition for Lambda, in the compressible set-up used as densitu /rho
-class InitCondLambda: public InitCond
+class InitCondLambda: public InitCond,public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
 {
 	public:
   
-		InitCondLambda(const ExactSolutionBase<3>* init);
+		InitCondLambda(const ExactSolutionBase* init);
   
         void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r) const;
+        void elementIntegrand(const ElementT* element,const PointReferenceT& p, LinearAlgebra::NumericalVector& r){operator()(element,p,r);}
 
 };
 

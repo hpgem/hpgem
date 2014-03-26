@@ -32,9 +32,9 @@ calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const
 
 /*! For the simplices it actually saves computations to save the coefficients.*/
 template<unsigned int DIM>
-void MappingToPhysSimplexLinear<DIM>::reinit(const PhysicalGeometry<DIM>*const physicalGeometry)
+void MappingToPhysSimplexLinear<DIM>::reinit(const PhysicalGeometry*const physicalGeometry)
 {
-    PointPhysicalT p0,pi;
+    PointPhysicalT p0(DIM),pi(DIM);
     physicalGeometry->getNodeCoordinates(0, p0);
     a[0]=p0;
     for (unsigned int i=1; i <= DIM; ++i)

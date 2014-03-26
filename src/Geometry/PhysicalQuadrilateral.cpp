@@ -13,7 +13,7 @@ namespace Geometry
         const VectorOfPointIndexesT& globalNodeIndexes,
         const VectorOfPhysicalPointsT& nodes,
         const ReferenceSquare* const square) :
-        PhysicalGeometry<2>(globalNodeIndexes,nodes, square)
+        PhysicalGeometry(globalNodeIndexes,nodes, square)
     {
     }
 

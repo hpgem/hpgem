@@ -14,32 +14,35 @@
 #include "LinearAlgebra/NumericalVector.hpp"
 #include "Base/PhysGradientOfBasisFunction.hpp"
 #include "Base/Norm2.hpp"
+#include "Output/TecplotSingleElementWriter.hpp"
 using Base::RectangularMeshDescriptor;
 using Base::HpgemUISimplified;
 
 const unsigned int DIM = 2;
-class Dummy
+
+//Note: the intended use of the prototype classes is to merge Dummy with SimpleDemoProblem
+class Dummy: public Output::TecplotSingleElementWriter
 {
 public:
     Dummy(){}
-    void operator()(const Base::Element<2>& el, const Geometry::PointReference<2>& p, ostream& os)
+    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, ostream& os)
     {
     }
 };
 
-class SimpleDemoProblem : public HpgemUISimplified<DIM>
+class SimpleDemoProblem : public HpgemUISimplified
 {
     
 public:
     
     bool initialise()
     {
-        RectangularMeshDescriptor<DIM> rectangularMesh;
+        RectangularMeshDescriptor rectangularMesh(2);
         
         rectangularMesh.bottomLeft_[0] = 0;
         rectangularMesh.bottomLeft_[1] = 0;
-        rectangularMesh.topLeft_[0] = 1;
-        rectangularMesh.topLeft_[1] = 1;
+        rectangularMesh.topRight_[0] = 1;
+        rectangularMesh.topRight_[1] = 1;
         rectangularMesh.numElementsInDIM_[0] = 8;
         rectangularMesh.numElementsInDIM_[1] = 8;
         
@@ -61,8 +64,7 @@ public:
         
         for (unsigned int i=0; i < numberOfDegreesOfFreedom; ++i)
         {
-            Utilities::PhysGradientOfBasisFunction<DIM, ElementT> obj(element, i);
-            obj(p, grads);
+            element->basisFunctionDeriv(i,p,grads);
             
             ret(i,0) = sol(i) * grads[i];
             
@@ -78,7 +80,7 @@ public:
         if (face->isInternal())
         {
          
-            const double magn                     = Utilities::norm2<DIM>(normal);
+            const double magn                     = Utilities::norm2(normal);
             unsigned int numberOfDegreesOfFreedom = face->getPtrElementLeft()->getNrOfBasisFunctions();
             
         }
@@ -90,16 +92,16 @@ public:
     
     }
     
-    void initialConditions(const PointPhysicalT& p){}
+    double initialConditions(const PointPhysicalT& p){return 0;}
     
     void output()
     {
         std::ofstream file2D;
         file2D.open ("out.dat");
         int dimensionsToWrite[2] = {0,1};
-        Output::TecplotDiscontinuousSolutionWriter<2> out(file2D,"RectangularMesh","01","xy");
+        Output::TecplotDiscontinuousSolutionWriter out(file2D,"RectangularMesh","01","xy");
         Dummy d;
-        out.write(meshes_[0],"holi",false, d);
+        out.write(meshes_[0],"holi",false, &d);
     }
     
 };

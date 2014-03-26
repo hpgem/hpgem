@@ -28,7 +28,7 @@ namespace Geometry
     };
 
     ReferenceSquare::ReferenceSquare():
-        ReferenceGeometry<TwoD>(TwoD+2, SQUARE),
+        ReferenceGeometry(TwoD+2,2, SQUARE),
         referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
         // See MappingLineToSquare.hpp for further info.                 Ref.Line     Ref.Sqr.Side
@@ -48,7 +48,7 @@ namespace Geometry
         mappingsSquareToSquare_[7] = &MappingToRefSquareToSquare7::Instance(); // (x,y)    -> (y,-x)
 
         // We set the actual coordinates (see top comment for drawing).
-        PointReferenceT p1, p2, p3, p4;
+        PointReferenceT p1(2), p2(2), p3(2), p4(2);
 
         p1[0] = -1.0; p1[1] = -1.0;
         p2[0] = +1.0; p2[1] = -1.0;
@@ -62,7 +62,7 @@ namespace Geometry
     }
     
     ReferenceSquare::ReferenceSquare(const ReferenceSquare& copy):
-        ReferenceGeometry<TwoD>(copy),
+        ReferenceGeometry(copy),
         referenceGeometryCodim1Ptr_(copy.referenceGeometryCodim1Ptr_)
     {
     }
@@ -146,7 +146,7 @@ namespace Geometry
         }
     }
 
-    const MappingReferenceToReference<2, 2>*
+    const MappingReferenceToReference*
     ReferenceSquare::getCodim0MappingPtr(const IndexT i) const
     {
         if (i < 8)
@@ -169,7 +169,7 @@ namespace Geometry
             faceNodesLocal[1] = (IndexT) localNodeIndexes_[faceIndex][1];
         }
     }
-    const ReferenceGeometry<1>* ReferenceSquare::getCodim1ReferenceGeometry(const IndexT faceIndex) const
+    const ReferenceGeometry* ReferenceSquare::getCodim1ReferenceGeometry(const IndexT faceIndex) const
     {
         if (faceIndex < 4)
         {
@@ -180,7 +180,7 @@ namespace Geometry
             throw "ERROR: Asked for a square face index larger than 3. There are only 4 faces in a square!";
         }
     }
-    const MappingReferenceToReference<1, 2>*
+    const MappingReferenceToReference*
     ReferenceSquare::getCodim1MappingPtr(const IndexT faceIndex) const
     {
         if (faceIndex < 4)
@@ -197,9 +197,9 @@ namespace Geometry
     // ========================= Quadrature rules for this geometry  ===========================
     
     /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceSquare::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<2>* const qr) 
+    void ReferenceSquare::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
     {
-        std::list<QuadratureRules::GaussQuadratureRule<2>*>::iterator it = lstGaussQuadratureRules_.begin();
+        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
         while (it != lstGaussQuadratureRules_.end())
         {
           if ((*it)->order() < qr->order()) ++it;
@@ -209,9 +209,9 @@ namespace Geometry
     }
 
     /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule<2>* const ReferenceSquare::getGaussQuadratureRule(int order) const 
+    QuadratureRules::GaussQuadratureRule* const ReferenceSquare::getGaussQuadratureRule(int order) const
     {
-        for (std::list<QuadratureRules::GaussQuadratureRule<TwoD>*>::const_iterator it = lstGaussQuadratureRules_.begin();
+        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
               it != lstGaussQuadratureRules_.end(); ++it)
         if ((*it)->order() >= order) return *it;
 

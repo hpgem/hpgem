@@ -18,7 +18,7 @@ int main ()
 
     cout << "point.getName() "<< point.getName() << endl;
 
-    Geometry::PointReference<0> p;
+    Geometry::PointReference p(0);
     cout << "point.isInternalPoint() "<< point.isInternalPoint(p) << endl;
     
     std::vector<unsigned int> gi1;

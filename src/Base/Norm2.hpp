@@ -15,8 +15,7 @@
 namespace Utilities
 {
     /*! Compute the 2 norm of a point-vector. */
-    template<unsigned int DIM>
-    double norm2(const Geometry::PointPhysical<DIM>& v);
+    double norm2(const Geometry::PointPhysical& v);
 }
 
 #endif /* defined(____Norm2__) */

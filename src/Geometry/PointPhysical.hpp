@@ -12,24 +12,23 @@
 
 namespace Geometry
 {
-    template<unsigned int DIM>
-    class PointPhysical: public Point<DIM>
+    class PointPhysical: public Point
     {
 
     public:
 
-        typedef Point<DIM>                          PointT;
-        typedef PointPhysical<DIM>                  PointPhysicalT;
+        typedef Point                          PointT;
+        typedef PointPhysical                  PointPhysicalT;
         typedef double                              CoordTypeT;
-        typedef typename PointT::VectorOfCoordsT    VectorOfCoordsT;
+        typedef PointT::VectorOfCoordsT    VectorOfCoordsT;
 
     public:
 
-        PointPhysical(): PointT() {}
+        PointPhysical(unsigned int DIM): PointT(DIM) {}
 
         PointPhysical(const PointT& p): PointT(p) {}
 
-        PointPhysical(const VectorOfCoordsT& coord):Point<DIM>(coord) {}
+        PointPhysical(const VectorOfCoordsT& coord):Point(coord) {}
     
         PointPhysical  operator* (double right) const
                 {return PointPhysical(PointT::coordinates_ * right);}

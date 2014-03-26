@@ -10,13 +10,12 @@
 
 #include "Base/MeshMoverBase.hpp"
 
-template <unsigned int DIM>
-class MeshMover : public Base::MeshMoverBase<DIM>
+class MeshMover : public Base::MeshMoverBase
     {
 
     public:
 
-        typedef Geometry::PointPhysical<DIM> PointPhysicalT;
+        typedef Geometry::PointPhysical PointPhysicalT;
 
     public:
 

@@ -11,7 +11,6 @@ using namespace LinearAlgebra;
 
 namespace Geometry
 {
-	template <unsigned int DIM>
 	class Point
 	{
     public:
@@ -19,15 +18,15 @@ namespace Geometry
     public:
 	    /// Typedefs.
 	    typedef double                         CoordTypeT;
-        typedef Geometry::Point<DIM>           PointT;
+        typedef Geometry::Point                PointT;
         typedef NumericalVector                VectorOfCoordsT;
         typedef unsigned int                   IndexT;
 
 	public:
         /// Constructors.
-        Point();
+        Point(unsigned int DIM);
         /// Warning!!! This way Point ctr will truncate and take sizeof(dimension) points and will not give any warning. Be sure you took the right dimension.
-        Point(CoordTypeT coords[]);
+        Point(CoordTypeT coords[],unsigned int DIM);
         
         Point(const Point& other);
         
@@ -103,5 +102,5 @@ namespace Geometry
         VectorOfCoordsT coordinates_;
 	};
 };
-#include "Point_Impl.hpp"
+
 #endif /* defined(_NODE_HPP) */

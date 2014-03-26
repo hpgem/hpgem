@@ -17,6 +17,7 @@
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTriangularPrism.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForHypercube.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRulesForPoint.hpp"
 
 // This File should go into Utility folder, one day. S.N
 

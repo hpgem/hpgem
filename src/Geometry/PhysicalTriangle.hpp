@@ -4,11 +4,11 @@
 #include "ReferenceTriangle.hpp"
 namespace Geometry
 {
-    class PhysicalTriangle: public PhysicalGeometry<TwoD>
+    class PhysicalTriangle: public PhysicalGeometry
     {
         public:
 
-            typedef PhysicalGeometry<TwoD> PhysicalGeometry2D;
+            typedef PhysicalGeometry PhysicalGeometry2D;
             using PhysicalGeometry2D::VectorOfPointIndexesT;
             using PhysicalGeometry2D::VectorOfPhysicalPointsT;
             using PhysicalGeometry2D::PointIndexT;

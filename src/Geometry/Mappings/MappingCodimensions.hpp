@@ -7,15 +7,13 @@
 #ifndef MAPPINGCODIMENSIONS_HPP_
 #define MAPPINGCODIMENSIONS_HPP_
 
-#include "MappingReferenceToReference.hpp"
+//#include "MappingReferenceToReference.hpp"
 #include <vector>
 
 namespace Geometry
 {
-    template <unsigned int DIM>
     class ReferenceGeometry;
 
-    template <unsigned int dimFrom,unsigned int dimTo>
     class MappingReferenceToReference;
 
 
@@ -32,7 +30,7 @@ namespace Geometry
      *  derivation also becomes very hard to manage (relicts of that may still
      *  be found in old cvs versions).  */
 
-    template <unsigned int dim>
+    /*template <unsigned int dim>
     class MappingCodimensions;
 
     template <>
@@ -190,10 +188,9 @@ namespace Geometry
         virtual void getCodim3EntityLocalIndices(const unsigned int, std::vector<unsigned int>&) const = 0;
 
     	virtual ~MappingCodimensions() {}
-    };
+    };*/
 
-    template <>
-    class MappingCodimensions<4>
+    class MappingCodimensions
     {
         public:
 
@@ -201,34 +198,34 @@ namespace Geometry
         getCodim0MappingIndex(const std::vector<unsigned int>&, const std::vector<unsigned int>&)
         const = 0;
 
-        virtual const MappingReferenceToReference<4, 4>* getCodim0MappingPtr(const unsigned int) const = 0;
+        virtual const MappingReferenceToReference* getCodim0MappingPtr(const unsigned int) const = 0;
 
-        virtual const MappingReferenceToReference<4, 4>* getCodim0MappingPtr(
+        virtual const MappingReferenceToReference* getCodim0MappingPtr(
                 const std::vector<unsigned int>& n1,
                 const std::vector<unsigned int>& n2) const
 	    {
             return getCodim0MappingPtr(getCodim0MappingIndex(n1, n2));
 	    }
 
-        virtual unsigned int getNrOfCodim1Entities() const = 0;
+        virtual unsigned int getNrOfCodim1Entities() const {return 0;}
 
-        virtual void getCodim1EntityLocalIndices(const unsigned int, std::vector<unsigned int>&) const = 0;
+        virtual void getCodim1EntityLocalIndices(const unsigned int, std::vector<unsigned int>&) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
 
-        virtual const MappingReferenceToReference<3, 4>* getCodim1MappingPtr(const unsigned int) const = 0;
+        virtual const MappingReferenceToReference* getCodim1MappingPtr(const unsigned int) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
 
-        virtual const ReferenceGeometry<3>* getCodim1ReferenceGeometry(const unsigned int) const = 0;
+        virtual const ReferenceGeometry* getCodim1ReferenceGeometry(const unsigned int) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
 
-        virtual unsigned int getNrOfCodim2Entities() const = 0;
+        virtual unsigned int getNrOfCodim2Entities() const {return 0;}
 
-        virtual void getCodim2EntityLocalIndices(const unsigned int, std::vector<unsigned int>&) const = 0;
+        virtual void getCodim2EntityLocalIndices(const unsigned int, std::vector<unsigned int>&) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
 
-        virtual const MappingReferenceToReference<2, 4>* getCodim2MappingPtr(const unsigned int) const = 0;
+        virtual const MappingReferenceToReference* getCodim2MappingPtr(const unsigned int) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
 
-        virtual const ReferenceGeometry<2>* getCodim2ReferenceGeometry(const unsigned int) const = 0;
+        virtual const ReferenceGeometry* getCodim2ReferenceGeometry(const unsigned int) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
 
-        virtual unsigned int getNrOfCodim3Entities() const = 0;
+        virtual unsigned int getNrOfCodim3Entities() const {return 0;}
 
-        virtual void getCodim3EntityLocalIndices(const unsigned int, std::vector<unsigned int>&) const = 0;
+        virtual void getCodim3EntityLocalIndices(const unsigned int, std::vector<unsigned int>&) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
 
     	virtual ~MappingCodimensions() {}
     };

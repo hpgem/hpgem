@@ -10,5 +10,5 @@
 
 int main()
 {
-    Geometry::FaceGeometry<2> face(NULL, 3, NULL, 4);
+    Geometry::FaceGeometry face(NULL, 3, NULL, 4);
 }

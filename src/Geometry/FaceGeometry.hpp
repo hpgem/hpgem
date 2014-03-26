@@ -62,13 +62,17 @@
 // handled in the code.)
 //--------------------------------------------------------------------------------------------------
 
+
+namespace Base{
+
+	class Face;
+}
+
 namespace Geometry
 {
     
     enum  FaceType { OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL};
 
-    template <unsigned int DIM>
-    class Face;
     
     /*!
      \brief Class to represent the geometry and topology of a face.
@@ -96,28 +100,27 @@ namespace Geometry
      can easily access it via the reference geometry of its left neighbour
      and its local face number in that one. */
 
-    template <unsigned int DIM>
     class FaceGeometry
     {
     public:
-        typedef PointPhysical<DIM>                                              PointPhysicalT;
+        typedef PointPhysical                                              PointPhysicalT;
         typedef LinearAlgebra::Matrix                                           MatrixT;
         typedef std::list<PointPhysicalT* >                                     ListOfPointPtrsT;
-        typedef Geometry::MappingReferenceToPhysical<DIM>                       MappingReferenceToPhysicalT;
+        typedef Geometry::MappingReferenceToPhysical                       MappingReferenceToPhysicalT;
         typedef std::set<unsigned int>                                          SetOfGlobalNodes;
         typedef std::vector<unsigned int>                                       VectorOfLocalNodes;
-        typedef PointPhysical<DIM>                                              PhysicalPointT;
-        typedef PointPhysical<DIM-1>                                            PhysicalPointOnTheFaceT;
-        typedef PointReference<DIM>                                             ReferencePointT;
-        typedef PointReference<DIM-1>                                           ReferencePointOnTheFaceT;
+        typedef PointPhysical                                              PhysicalPointT;
+        typedef PointPhysical                                            PhysicalPointOnTheFaceT;
+        typedef PointReference                                             ReferencePointT;
+        typedef PointReference                                           ReferencePointOnTheFaceT;
         typedef unsigned int                                                    LocalFaceNrType;
-        typedef std::auto_ptr<const MappingReferenceToReference<DIM-1, DIM> >   RefFaceToRefElementMapping;// doing new later and passing, should handle its own deletion.
+        typedef std::auto_ptr<const MappingReferenceToReference >   RefFaceToRefElementMapping;// doing new later and passing, should handle its own deletion.
 
-        typedef ReferenceGeometry<DIM-1>                                        ReferenceFaceGeometryT;
+        typedef ReferenceGeometry                                        ReferenceFaceGeometryT;
 
-        typedef ElementGeometry<DIM>                                            ElementGeometryT;
-        typedef PhysicalGeometry<DIM>                                           PhysicalGeometryT;
-        typedef Face<DIM>                                                       FaceT;
+        typedef ElementGeometry                                            ElementGeometryT;
+        typedef PhysicalGeometry                                           PhysicalGeometryT;
+        typedef Base::Face                                                      FaceT;
 
 
     public:
@@ -133,21 +136,21 @@ namespace Geometry
 
 
             // Sets.
-        virtual void                        setPtrElementLeft(ElementGeometryT* value)   {leftElementGeom_ = value;}
-        virtual void                        setPtrElementRight(ElementGeometryT* value)  {rightElementGeom_ = value;}
+        virtual void                        setPtrElementLeft(const ElementGeometryT* value)   {leftElementGeom_ = value;}
+        virtual void                        setPtrElementRight(const ElementGeometryT* value)  {rightElementGeom_ = value;}
         virtual void                        setFaceType(const FaceType& value)           {faceType_ = value;}
         virtual void                        setFaceToFaceTransformation(int value)       {faceToFaceMapIndex_ = value;}
 
             // Gets.
             /// Return the pointer to the left element.
-        virtual ElementGeometryT*           getElementGLeft()            {return leftElementGeom_;}
+        virtual const ElementGeometryT*           getElementGLeft()       const     {return leftElementGeom_;}
             /// Return the pointer to the right element, NULL if inexistent for boundaries.
-        virtual ElementGeometryT*           getPtrElementGRight()        {return rightElementGeom_;}
+        virtual const ElementGeometryT*           getPtrElementGRight()   const     {return rightElementGeom_;}
 
             /// Return local face number of the face in the left element.
-        virtual unsigned int                localFaceNumberLeft()        {return localFaceNumberLeft_;}
+        virtual unsigned int                localFaceNumberLeft()  const      {return localFaceNumberLeft_;}
             /// Return local face number of the face in the right element.
-        virtual unsigned int                localFaceNumberRight()       {return localFaceNumberRight_;}
+        virtual unsigned int                localFaceNumberRight()   const    {return localFaceNumberRight_;}
 
         virtual FaceType                    getFaceType() const          {return faceType_;}
 
@@ -168,7 +171,7 @@ namespace Geometry
          *  right side. */
         virtual void    mapRefFaceToRefFace(const ReferencePointOnTheFaceT& pIn, ReferencePointOnTheFaceT& pOut) const;
             /// Get a normal at a given RefPoint
-        virtual void    getNormalVector(const ReferencePointOnTheFaceT& pRefFace, PointPhysicalT& v) const;
+        virtual void    getNormalVector(const ReferencePointOnTheFaceT& pRefFace, NumericalVector& v) const;
 
             //! Return a Mapping (not pointer or reference! Ok, wrapped by auto_ptr) /bug why?
         virtual         RefFaceToRefElementMapping refFaceToRefElemMapL() const;
@@ -176,6 +179,9 @@ namespace Geometry
             //! Return a mapping to the right reference element.
         virtual         RefFaceToRefElementMapping refFaceToRefElemMapR() const;
         
+
+        void            referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical)const;
+
 //-MTJ-start--------------
 
         void            copyFromParent(const FaceT& fa);
@@ -192,8 +198,8 @@ namespace Geometry
 //-MTJ-end--------------
 
     protected:
-        ElementGeometryT*           rightElementGeom_;
-        ElementGeometryT*           leftElementGeom_;
+        const ElementGeometryT*           rightElementGeom_;
+        const ElementGeometryT*           leftElementGeom_;
         
         LocalFaceNrType             localFaceNumberLeft_;
         LocalFaceNrType             localFaceNumberRight_;
@@ -203,5 +209,4 @@ namespace Geometry
         
     };
 };
-#include"FaceGeometry_Impl.hpp"
 #endif /* defined(____FaceGeometry__) */

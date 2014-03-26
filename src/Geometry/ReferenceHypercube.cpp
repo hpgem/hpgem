@@ -20,14 +20,14 @@ namespace Geometry
     };
 
     ReferenceHypercube::ReferenceHypercube():
-        ReferenceGeometry<FourD>(FourD+12, HYPERCUBE),
+        ReferenceGeometry(FourD+12,4, HYPERCUBE),
         referenceGeometryCodim1Ptr_(&ReferenceCube::Instance()),
         referenceGeometryCodim2Ptr_(&ReferenceSquare::Instance()),
         referenceGeometryCodim3Ptr_(&ReferenceLine::Instance())
 
     {
-        PointReferenceT p0, p1, p2, p3, p4, p5, p6, p7, p8;
-        PointReferenceT p9, p10, p11, p12, p13, p14, p15;
+        PointReferenceT p0(4), p1(4), p2(4), p3(4), p4(4), p5(4), p6(4), p7(4), p8(4);
+        PointReferenceT p9(4), p10(4), p11(4), p12(4), p13(4), p14(4), p15(4);
 
         p0[0] = -1.0;   p0[1] = -1.0;   p0[2] = -1.0;   p0[3] = -1.0;
         p1[0] = +1.0;   p1[1] = -1.0;   p1[2] = -1.0;   p1[3] = -1.0;
@@ -117,7 +117,7 @@ namespace Geometry
         throw "ReferenceCube::getCodim0MappingIndex not implemented";
     }
 
-    const MappingReferenceToReference<4, 4>*
+    const MappingReferenceToReference*
     ReferenceHypercube::getCodim0MappingPtr(const IndexT i) const
     {
         throw "ReferenceCube::getCodim0MappingPtr not implemented";
@@ -125,7 +125,7 @@ namespace Geometry
 
     // ================================== Codimension 1 ============================================
 
-    const MappingReferenceToReference<3, 4>*
+    const MappingReferenceToReference*
     ReferenceHypercube::getCodim1MappingPtr(const IndexT faceIndex) const
     {
         if (faceIndex < 8)
@@ -138,7 +138,7 @@ namespace Geometry
         }
     }
 
-    const ReferenceGeometry<3>*
+    const ReferenceGeometry*
     ReferenceHypercube::getCodim1ReferenceGeometry(const IndexT faceIndex) const
     {
         if (faceIndex < 8)
@@ -174,14 +174,14 @@ namespace Geometry
 
     // ================================== Codimension 2 ============================================
 
-    const MappingReferenceToReference<2, 4>*
+    const MappingReferenceToReference*
     ReferenceHypercube::getCodim2MappingPtr(const IndexT lineIndex) const
     {
         /// TODO: Implement face to hypercube mappings.
         throw "ERROR: ReferenceHypercube::getCodim2MappingPtr: face to hypercube mappings not implemented";
     }
 
-    const ReferenceGeometry<2>*
+    const ReferenceGeometry*
     ReferenceHypercube::getCodim2ReferenceGeometry(const IndexT e) const
     {
         if (e < 12)
@@ -225,9 +225,9 @@ namespace Geometry
     // ================================== Quadrature rules =====================================
 
     /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceHypercube::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule<4>* const qr) 
+    void ReferenceHypercube::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
     {
-        std::list<QuadratureRules::GaussQuadratureRule<4>*>::iterator it = lstGaussQuadratureRules_.begin();
+        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
         while (it != lstGaussQuadratureRules_.end())
         {
           if ((*it)->order() < qr->order()) ++it;
@@ -237,9 +237,9 @@ namespace Geometry
     }
 
     /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule<4>* const ReferenceHypercube::getGaussQuadratureRule(int order) const
+    QuadratureRules::GaussQuadratureRule* const ReferenceHypercube::getGaussQuadratureRule(int order) const
     {
-        for (std::list<QuadratureRules::GaussQuadratureRule<4>*>::const_iterator it = lstGaussQuadratureRules_.begin();
+        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
               it != lstGaussQuadratureRules_.end(); ++it)
           if ((*it)->order() >= order) return *it;
 

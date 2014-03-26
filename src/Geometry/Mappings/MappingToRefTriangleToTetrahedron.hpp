@@ -31,14 +31,15 @@ namespace Geometry
 
     // ~~~ index 0 ~~~==============================================================================
 
-    class MappingToRefTriangleToTetrahedron0: public MappingReferenceToReference<2,3>
+    class MappingToRefTriangleToTetrahedron0: public MappingReferenceToReference
     {
         public:
             static const MappingToRefTriangleToTetrahedron0& Instance();
-            virtual void transform(const Geometry::PointReference<2>& p1,
-                                         Geometry::PointReference<3>& p2) const;
-            virtual void calcJacobian(const Geometry::PointReference<2>&,
-                                            Geometry::Jacobian<2,3>&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 3;}
         private:
             MappingToRefTriangleToTetrahedron0();
             MappingToRefTriangleToTetrahedron0(const MappingToRefTriangleToTetrahedron0&);
@@ -48,14 +49,15 @@ namespace Geometry
 
     // ~~~ index 1 ~~~==============================================================================
 
-    class MappingToRefTriangleToTetrahedron1: public MappingReferenceToReference<2,3>
+    class MappingToRefTriangleToTetrahedron1: public MappingReferenceToReference
     {
         public:
             static const MappingToRefTriangleToTetrahedron1& Instance();
-            virtual void transform(const Geometry::PointReference<2>&,
-                                         Geometry::PointReference<3>&) const;
-            virtual void calcJacobian(const Geometry::PointReference<2>&,
-                                            Geometry::Jacobian<2,3>&) const;
+            virtual void transform(const Geometry::PointReference&,
+                                         Geometry::PointReference&) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 3;}
         private:
             MappingToRefTriangleToTetrahedron1();
             MappingToRefTriangleToTetrahedron1(const MappingToRefTriangleToTetrahedron1&);
@@ -65,14 +67,15 @@ namespace Geometry
 
     // ~~~ index 2 ~~~==============================================================================
 
-    class MappingToRefTriangleToTetrahedron2: public MappingReferenceToReference<2,3>
+    class MappingToRefTriangleToTetrahedron2: public MappingReferenceToReference
     {
         public:
             static const MappingToRefTriangleToTetrahedron2& Instance();
-            virtual void transform(const Geometry::PointReference<2>& p1,
-                                         Geometry::PointReference<3>& p2) const;
-            virtual void calcJacobian(const Geometry::PointReference<2>&,
-                                            Geometry::Jacobian<2,3>&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 3;}
         private:
             MappingToRefTriangleToTetrahedron2();
             MappingToRefTriangleToTetrahedron2(const MappingToRefTriangleToTetrahedron2&);
@@ -82,14 +85,15 @@ namespace Geometry
 
     // ~~~ index 3 ~~~==============================================================================
 
-    class MappingToRefTriangleToTetrahedron3: public MappingReferenceToReference<2,3>
+    class MappingToRefTriangleToTetrahedron3: public MappingReferenceToReference
     {
         public:
             static const MappingToRefTriangleToTetrahedron3& Instance();
-            virtual void transform(const Geometry::PointReference<2>& p1,
-                                         Geometry::PointReference<3>& p2) const;
-            virtual void calcJacobian(const Geometry::PointReference<2>&,
-                                            Geometry::Jacobian<2,3>&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
+            virtual int getTargetDimension() const {return 3;}
         private:
             MappingToRefTriangleToTetrahedron3();
             MappingToRefTriangleToTetrahedron3(const MappingToRefTriangleToTetrahedron3&);

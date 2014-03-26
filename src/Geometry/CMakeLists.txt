@@ -13,6 +13,9 @@ add_library(Reference_geometries SHARED
         ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceCube.cpp 
         ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceHypercube.cpp 
 	
+        ${hpGEM_SOURCE_DIR}/src/Geometry/Jacobian.cpp
+        ${hpGEM_SOURCE_DIR}/src/Geometry/ReferenceGeometry.cpp
+        ${hpGEM_SOURCE_DIR}/src/Geometry/point.cpp 
 	# Mappings
 
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefFaceToPyramid.cpp
@@ -26,6 +29,7 @@ add_library(Reference_geometries SHARED
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefLineToTriangle.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefLineToLine.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefPointToLine.cpp
+        ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefPointToPoint.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefCubeToHypercube.cpp)
 
 
@@ -33,6 +37,7 @@ add_library(Reference_geometries SHARED
 add_library(Geometry SHARED
 
         ${hpGEM_SOURCE_DIR}/src/Geometry/ElementGeometry.cpp
+ 		${hpGEM_SOURCE_DIR}/src/Geometry/FaceGeometry.cpp
         # Physical geometries
         ${hpGEM_SOURCE_DIR}/src/Geometry/PhysicalLine.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/PhysicalTriangle.cpp
@@ -49,6 +54,7 @@ add_library(Geometry SHARED
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToRefCubeToHypercube.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingToPhysTriangularPrism.cpp
         ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/OutwardNormalVectorSign.cpp
+        ${hpGEM_SOURCE_DIR}/src/Geometry/Mappings/MappingReferenceToPhysical.cpp
 
         # Refinements
         ${hpGEM_SOURCE_DIR}/src/Geometry/RefinementLine.cpp

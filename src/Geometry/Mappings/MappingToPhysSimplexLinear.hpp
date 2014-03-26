@@ -25,26 +25,27 @@ namespace Geometry
      */
 
     template <unsigned int DIM>
-    class MappingToPhysSimplexLinear: public MappingReferenceToPhysical<DIM,DIM>
+    class MappingToPhysSimplexLinear: public MappingReferenceToPhysical
     {
         private:
-            typedef Geometry::PhysicalGeometry<DIM> PhysicalGeometryT;
-            typedef Geometry::PointReference<DIM> PointReferenceT;
-            typedef Geometry::PointPhysical<DIM> PointPhysicalT;
-            typedef Geometry::Jacobian<DIM,DIM> JacobianT;
+            typedef Geometry::PhysicalGeometry PhysicalGeometryT;
+            typedef Geometry::PointReference PointReferenceT;
+            typedef Geometry::PointPhysical PointPhysicalT;
+            typedef Geometry::Jacobian JacobianT;
 
         public:
-            MappingToPhysSimplexLinear(const PhysicalGeometryT*const& pG) { reinit(pG); };
+            MappingToPhysSimplexLinear(const PhysicalGeometryT*const& pG):a(DIM+1,DIM){ reinit(pG); };
             virtual void transform(const PointReferenceT&, PointPhysicalT&) const;
             virtual void calcJacobian(const PointReferenceT&, JacobianT&) const;
             virtual void reinit(const PhysicalGeometryT*const);
+            virtual int getTargetDimension() const {return DIM;}
 
         private:
             //bool isValidPoint(const PointReferenceT&) const; //TODO: Implement this function.
             //! ~OC~
             //! In this case it is worth using an array for the mapping factors,
             //! since they are just difference vectors (see loop in reinit)
-            PointPhysicalT a[DIM+1];
+            std::vector<PointPhysicalT> a;
     };
     #include "MappingToPhysSimplexLinear_Impl.hpp"
 };

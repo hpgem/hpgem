@@ -20,12 +20,12 @@ int main ()
     cout << "cout << triangle";
     cout << triangle;
 
-    Geometry::PointReference<2> pCenter;
+    Geometry::PointReference pCenter(2);
     triangle.getCenter(pCenter);
     cout << "triangle.getCenter(Geometry::Point<2>): " << pCenter << endl;
     
     
-    Geometry::PointReference<2> p;
+    Geometry::PointReference p(2);
     triangle.getNode(0, p);
     cout << "triangle.getVertexPoint(0, p): " << p << endl;
     
@@ -37,7 +37,7 @@ int main ()
 
     cout << "triangle.isInternalPoint({center}): " << triangle.isInternalPoint(pCenter) << endl;
 
-    Geometry::PointReference<2> pOut;
+    Geometry::PointReference pOut(2);
     
     pOut[0] = -1.0;
     pOut[1] = -1.0;
@@ -62,20 +62,20 @@ int main ()
         cout << ")" << endl;
     }
 
-    const Geometry::ReferenceGeometry<1>* referenceGeometry;
+    const Geometry::ReferenceGeometry* referenceGeometry;
     for (int face=0; face < triangle.getNrOfCodim1Entities(); ++face)
     {
         referenceGeometry = triangle.getCodim1ReferenceGeometry(face);
         cout << "triangle.getCodim1ReferenceGeometry("<<face<<"): " << referenceGeometry->getName() << endl;
     }
 
-    const Geometry::MappingReferenceToReference<2,2>* ref2ToRef2Mapping;
+    const Geometry::MappingReferenceToReference* ref2ToRef2Mapping;
     for (int index=0; index < triangle.getNrOfCodim2Entities(); ++index)
     {
         ref2ToRef2Mapping = triangle.getCodim0MappingPtr(index);
     }
 
-    const Geometry::MappingReferenceToReference<1,2>* ref1ToRef2Mapping;
+    const Geometry::MappingReferenceToReference* ref1ToRef2Mapping;
     for (int face=0; face < triangle.getNrOfCodim1Entities(); ++face)
     {
         ref1ToRef2Mapping = triangle.getCodim1MappingPtr(face);

@@ -22,11 +22,11 @@ int main ()
     cout << "cout << tetrahedron: ";
     cout << tetrahedron;
 
-    Geometry::PointReference<3> pCenter;
+    Geometry::PointReference pCenter(3);
     tetrahedron.getCenter(pCenter);
     cout << "tetrahedron.getCenter(Geometry::Point<3>): " << pCenter;
 
-    Geometry::PointReference<3> p;
+    Geometry::PointReference p(3);
     tetrahedron.getNode(0, p);
     cout << "tetrahedron.getNode(0, p): " << p;
 
@@ -41,7 +41,7 @@ int main ()
 
     cout << "tetrahedron.isInternalPoint({0,0}): " << tetrahedron.isInternalPoint(pCenter) << endl;
     
-    Geometry::PointReference<3> pOut;
+    Geometry::PointReference pOut(3);
 
         pOut[0] = -2.0;
         pOut[1] = -2.0;
@@ -79,14 +79,14 @@ int main ()
         cout << ")" << endl;
     }
     
-    const Geometry::ReferenceGeometry<2>* referenceGeometry2D;
+    const Geometry::ReferenceGeometry* referenceGeometry2D;
     for (int face=0; face < tetrahedron.getNrOfCodim1Entities(); ++face)
     {
         referenceGeometry2D = tetrahedron.getCodim1ReferenceGeometry(face);
         cout << "tetrahedron.getCodim1ReferenceGeometry("<<face<<"): " << referenceGeometry2D->getName() << endl;
     }
 
-    const Geometry::ReferenceGeometry<1>* referenceGeometry1D;
+    const Geometry::ReferenceGeometry* referenceGeometry1D;
     for (int edge=0; edge < tetrahedron.getNrOfCodim2Entities(); ++edge)
     {
         referenceGeometry1D = tetrahedron.getCodim2ReferenceGeometry(edge);
@@ -102,7 +102,7 @@ int main ()
     }
     */
 
-    const Geometry::MappingReferenceToReference<2,3>* ref2ToRef3Mapping;
+    const Geometry::MappingReferenceToReference* ref2ToRef3Mapping;
     for (int face=0; face < tetrahedron.getNrOfCodim1Entities(); ++face)
     {
         ref2ToRef3Mapping = tetrahedron.getCodim1MappingPtr(face);

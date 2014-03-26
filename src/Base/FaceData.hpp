@@ -4,29 +4,47 @@
 //----------------------------------------------------------------
 #include <vector>
 #include "FaceCacheData.hpp"
+#include "LinearAlgebra/Matrix.hpp"
+#include "UserData.hpp"
 
 namespace Base
 {
-    template <unsigned int DIM>
     class FaceData
     {
       public:
-        typedef FaceCacheData<DIM> CacheT;
+        typedef FaceCacheData CacheT;
         typedef std::vector<CacheT> VecCacheT;
 
       public:
-        FaceData() {}
+        FaceData(unsigned int numberOfDOF, unsigned int numberOfFaceMatrices=0, unsigned int numberOfFaceVactors=0);
         
-        VecCacheT& getVecCacheData() const
+        void
+        setFaceMatrix(const LinearAlgebra::Matrix& matrix, unsigned int matrixID=0);
+
+        void
+        getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID=0) const;
+
+        void
+        setFaceVector(const LinearAlgebra::NumericalVector& vector, unsigned int vectorID=0);
+
+        void
+        getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID=0) const;
+
+        const VecCacheT& getVecCacheData() const
         {
           return vecCacheData_;
         }
 
         virtual ~FaceData() {;}
 
+        UserFaceData* getUserData(){return userData_;}
+        void          setUserData(UserFaceData* data){userData_=data;}
+
       private:
         VecCacheT vecCacheData_;
+        UserFaceData* userData_;
+        std::vector<LinearAlgebra::Matrix> faceMatrix_;
+        std::vector<LinearAlgebra::NumericalVector> faceVector_;
     };
 };
-#include "FaceData_Impl.hpp"
 #endif

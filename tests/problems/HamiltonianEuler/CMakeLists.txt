@@ -20,7 +20,9 @@ if(hpGEM_INCLUDE_PETSC_SUPPORT)
         main.cpp
         HEuler.cpp
         InitialConditions.cpp
-		${hpGEM_SOURCE_DIR}/src/Output/TecplotPhysicalGeometryIterator.cpp				  
+		${hpGEM_SOURCE_DIR}/src/Output/TecplotPhysicalGeometryIterator.cpp	
+		${hpGEM_SOURCE_DIR}/src/Output/TecplotDiscontinuousSolutionWriter.cpp
+		${hpGEM_SOURCE_DIR}/src/Integration/QuadratureRules/allGaussQuadratureRules.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/src/Base/MeshManipulator.cpp
         ${hpGEM_SOURCE_DIR}/src/Base/AssembleBasisFunctionSet.cpp
@@ -28,7 +30,7 @@ if(hpGEM_INCLUDE_PETSC_SUPPORT)
         ${hpGEM_SOURCE_DIR}/src/Base/Norm2.cpp
         )
 	
-		target_link_libraries(hEulerApp.out Geometry QuadratureRules Matrix ${PETSC_LIBRARIES})
+		target_link_libraries(hEulerApp.out hpGEM_Base Geometry QuadratureRules Matrix ${PETSC_LIBRARIES})
 
 else() 
 	add_custom_target(hEulerApp.out 

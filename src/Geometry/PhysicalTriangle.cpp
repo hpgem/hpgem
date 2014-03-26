@@ -13,7 +13,7 @@ namespace Geometry
             const VectorOfPointIndexesT& globalNodeIndexes,
             const VectorOfPhysicalPointsT& nodes,
             const ReferenceTriangle* const triangle) :
-        PhysicalGeometry<2>(globalNodeIndexes,nodes, triangle)
+        PhysicalGeometry(globalNodeIndexes,nodes, triangle)
     {
     }
 
@@ -28,6 +28,6 @@ namespace Geometry
     {
         indexes.resize(2);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
-        indexes[1] = refGeometry_->getLocalNodeIndex(face,0);
+        indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
     }
 }

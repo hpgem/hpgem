@@ -11,8 +11,8 @@ int main()
     const Geometry::MappingToRefSquareToCube4& mappingSquareToCube4 = Geometry::MappingToRefSquareToCube4::Instance();
     const Geometry::MappingToRefSquareToCube5& mappingSquareToCube5 = Geometry::MappingToRefSquareToCube5::Instance();
 
-    Geometry::PointReference<2> pr1;
-    Geometry::PointReference<3> pr2;
+    Geometry::PointReference pr1(2);
+    Geometry::PointReference pr2(3);
 
     cout << "Geometry::MappingSquareToCube0 ~ o ~ Geometry::MappingSquareToCube0" << "\n";
     for (double x=-1.0; x<=1.0; x+=0.5)

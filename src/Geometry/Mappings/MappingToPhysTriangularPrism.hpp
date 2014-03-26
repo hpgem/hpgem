@@ -20,13 +20,13 @@ namespace Geometry
      *  purpose of individual methods see the documentation of the base classes,
      *  Ref2PhysSpaceMapping and Mapping. */
 
-    class MappingToPhysTriangularPrism: public MappingReferenceToPhysical<3,3>
+    class MappingToPhysTriangularPrism: public MappingReferenceToPhysical
     {
         public:
-            typedef Geometry::PhysicalGeometry<3> PhysicalGeometryT;
-            typedef Geometry::PointReference<3> PointReferenceT;
-            typedef Geometry::PointPhysical<3> PointPhysicalT;
-            typedef Geometry::Jacobian<3,3> JacobianT;
+            typedef Geometry::PhysicalGeometry PhysicalGeometryT;
+            typedef Geometry::PointReference PointReferenceT;
+            typedef Geometry::PointPhysical PointPhysicalT;
+            typedef Geometry::Jacobian JacobianT;
 
         public:
             MappingToPhysTriangularPrism(const PhysicalGeometryT*const);
@@ -38,6 +38,7 @@ namespace Geometry
             virtual void reinit(const PhysicalGeometryT*const);
 
             bool isValidPoint(const PointReferenceT&) const;
+            virtual int getTargetDimension() const {return 3;}
 
         private:
             PointPhysicalT a0, a1, a2, a3, a4, a5;

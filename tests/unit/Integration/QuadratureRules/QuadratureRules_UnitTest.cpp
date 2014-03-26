@@ -6,8 +6,7 @@
 #include "Base/TestErrorDebug.hpp"
 
 // forward declarations
-template <unsigned int dim>
-void DescribeRule(const QuadratureRules::GaussQuadratureRule<dim>* qr);
+void DescribeRule(const QuadratureRules::GaussQuadratureRule* qr);
 void CollectAllRules(QuadratureRules::QuadratureRuleSet& QRset);
 
 int main()
@@ -103,8 +102,7 @@ int main()
 }
 
 //! Detaily describe a quadrature.
-template <unsigned int dim>
-void DescribeRule(const QuadratureRules::GaussQuadratureRule<dim>* qr)
+void DescribeRule(const QuadratureRules::GaussQuadratureRule* qr)
 {
   if (qr!=NULL)
   {
@@ -119,7 +117,7 @@ void DescribeRule(const QuadratureRules::GaussQuadratureRule<dim>* qr)
     
     for (unsigned int i=0; i<nrPoints; ++i)
     {
-      Geometry::PointReference<dim> p;
+      Geometry::PointReference p(qr->dimension());
       qr->getPoint(i, p);
       std::cout << "\t" << p << " weight=" << qr->weight(i) << "\n";
     }

@@ -5,25 +5,24 @@
 
 namespace Geometry
 {
-    template<unsigned int DIM>
-    class PointReference: public Point<DIM>
+    class PointReference: public Point
     {
 
     public:
 
         typedef double                                  CoordTypeT;
-        typedef Point<DIM>                              PointT;
-        typedef PointReference<DIM>                     PointReferenceT;
-        typedef typename PointT::VectorOfCoordsT        VectorOfCoordsT;
-        typedef typename PointT::IndexT                 IndexT;
+        typedef Point                                   PointT;
+        typedef PointReference                          PointReferenceT;
+        typedef PointT::VectorOfCoordsT        VectorOfCoordsT;
+        typedef PointT::IndexT                 IndexT;
 
     public:
 
-        PointReference() {}
+        PointReference(unsigned int DIM):PointT(DIM) {}
 
         PointReference(const PointT& p): PointT(p) {}
 
-        PointReference(CoordTypeT coords[]): Point<DIM>(coords) {}
+        PointReference(CoordTypeT coords[],unsigned int DIM): Point(coords,DIM) {}
 
         PointReference(const VectorOfCoordsT& coord): PointT(coord){}
         
