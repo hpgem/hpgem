@@ -12,13 +12,13 @@ enable_testing()
 
 add_subdirectory(kernel)
 add_subdirectory(tests)
-
+add_subdirectory(applications)
 
 #This section generates a configuration file that contains the CMake varibles#
 #############################################
 
-configure_file(conf/CMakeDefinitions.conf
-		${PROJECT_BINARY_DIR}/conf/CMakeDefinitions.hpp)
+configure_file(conf/cmake/CMakeDefinitions.conf
+		${PROJECT_BINARY_DIR}/kernel/CMakeDefinitions.hpp)
 
 
 #This section is about the build of documentation#
@@ -37,21 +37,21 @@ if(hpGEM_BUILD_DOCUMENTATION)
   if (DOXYGEN_FOUND)
     
     #This is the configure file for normal doxygen builds	
-    configure_file(conf/doxygen.conf 
-        	 	${PROJECT_BINARY_DIR}/conf/doxygen.conf  @ONLY IMMEDIATE)
+    configure_file(conf/doxygen/doxygen.conf 
+        	 	${PROJECT_BINARY_DIR}/conf/doxygen/doxygen.conf  @ONLY IMMEDIATE)
 
     #The next four and for website doxygen builds. The should be hinded from the public cmake at some point
-    configure_file(conf/web_doxygen.conf
-	    		${PROJECT_BINARY_DIR}/conf/web_doxygen.conf @ONLY IMMEDIATE)
+    configure_file(conf/doxygen/web_doxygen.conf
+	    		${PROJECT_BINARY_DIR}/conf/doxygen/web_doxygen.conf @ONLY IMMEDIATE)
 
-    configure_file(conf/hpg.css
-	    		${PROJECT_BINARY_DIR}/conf/hpg.css @ONLY IMMEDIATE)
+    configure_file(conf/doxygen/hpg.css
+	    		${PROJECT_BINARY_DIR}/conf/doxygen/hpg.css @ONLY IMMEDIATE)
 
-    configure_file(conf/new_footer.html
-	    		${PROJECT_BINARY_DIR}/conf/new_footer.html @ONLY IMMEDIATE)
+    configure_file(conf/doxygen/new_footer.html
+	    		${PROJECT_BINARY_DIR}/conf/doxygen/new_footer.html @ONLY IMMEDIATE)
 
-    configure_file(conf/new_header.html
-	    		${PROJECT_BINARY_DIR}/conf/new_header.html @ONLY IMMEDIATE)
+    configure_file(conf/doxygen/new_header.html
+	    		${PROJECT_BINARY_DIR}/conf/doxygen/new_header.html @ONLY IMMEDIATE)
 
 
 
@@ -59,16 +59,16 @@ if(hpGEM_BUILD_DOCUMENTATION)
 
     #-- Add custom targets to both make and clean (delete) the documentation
         add_custom_target 	(doc
-                            COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/conf/doxygen.conf
-                            SOURCES ${PROJECT_BINARY_DIR}/conf/doxygen.conf)
+                            COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/conf/doxygen/doxygen.conf
+                            SOURCES ${PROJECT_BINARY_DIR}/conf/doxygen/doxygen.conf)
 
 	add_custom_target	(docClean
                         COMMAND rm -r ${PROJECT_BINARY_DIR}/docs/*
 			COMMENT "Cleaning (deleting) the documentation"	) 
 
 	add_custom_target	(docWeb
-			COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/conf/web_doxygen.conf
-			SOURCES ${PROJECT_BINARY_DIR}/conf/web_doxygen.conf)
+			COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/conf/doxygen/web_doxygen.conf
+			SOURCES ${PROJECT_BINARY_DIR}/conf/doxygen/web_doxygen.conf)
 
 	add_custom_target	(docPublishAlpha
 			COMMAND rsync -vr docs/html/* WebAdmin@einder.ewi.utwente.nl:/home/www/html/hpGEM/assets/doxygen/alpha/

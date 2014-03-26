@@ -1,4 +1,4 @@
-include_directories(. ${hpGEM_SOURCE_DIR}/src/)
+include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
 #First declare the rules that will form the executable tests#
 #############################################################
@@ -6,11 +6,11 @@ include_directories(. ${hpGEM_SOURCE_DIR}/src/)
 add_executable(app1.out 
 		app1.cpp
 
-		${hpGEM_SOURCE_DIR}/src/Base/AssembleBasisFunctionSet.cpp
-		${hpGEM_SOURCE_DIR}/src/Output/TecplotPhysicalGeometryIterator.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp
 							  
 		#miscellaneous required stuff
-		${hpGEM_SOURCE_DIR}/src/Base/AssembleBasisFunctionSet.cpp
-		${hpGEM_SOURCE_DIR}/src/Base/L2Norm.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
       		)
 target_link_libraries(app1.out hpGEM_Base)
