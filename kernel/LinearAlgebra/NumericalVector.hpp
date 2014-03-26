@@ -5,20 +5,11 @@
 #include <valarray>
 #include <iostream>
 
+
 #define IAMNICO
 
 namespace LinearAlgebra
 {
-    extern "C"
-    
-    {
-     
-        
-        ///This is the gernal scale times vector + vector from blas, hence from blas level 1. Here we also use on a matrix by treating as a vector
-        int daxpy_(unsigned int* N, double* DA, double* DX,unsigned int* INCX, double* DY, unsigned int* INCY);
-        
-        
-    }
     
     //This is dervied from valarray so import that information
     using std::valarray;
@@ -35,152 +26,51 @@ namespace LinearAlgebra
         
     public:
         
-        NumericalVector() : data_() {}
+        NumericalVector();
         
-        NumericalVector(int m) : data_(m){}
+        NumericalVector(int m);
         
-        NumericalVector(const NumericalVector& other) : data_(other.data_){}
-     
+        NumericalVector(const NumericalVector& other);
         
-        //NumericalVector(double* array, int size) : data_(array,size){}
+        NumericalVector(const double array[], int size);
         
-        NumericalVector(const double array[], int size) : data_(array,size){}
-        
-        void resize(unsigned int size) { data_.resize(size); }
+        void resize(unsigned int size);
 
-        NumericalVector& operator= (const NumericalVector& right){data_=right.data_; return *this;}
+        NumericalVector& operator= (const NumericalVector& right);
         
-        NumericalVector operator+ (const NumericalVector& right)
-        {
-            NumericalVector result(*this);
-            result.data_+=right.data_; 
-            #ifndef IAMNIC0
-              //  std::cout << "Nico you are using a slow operator be warned of the Numerical Vector, please try and rewrite to use += not +" << std::endl;
-            #endif
-            return result;
-        }
+        NumericalVector operator+ (const NumericalVector& right);
         
-        NumericalVector operator+ (const NumericalVector& right) const
-        {
-            NumericalVector result(*this);
-            result.data_+=right.data_; 
-            #ifndef IAMNICO
-             //   std::cout << "Nico you are using a slow operator be warned of the Numerical Vector, please try and rewrite to use += not +" << std::endl;
-            #endif
-            return result;
-        }
+        NumericalVector operator+ (const NumericalVector& right) const;
         
-       NumericalVector operator- (const NumericalVector& right)
-        {
-            NumericalVector result(*this);
-            result.data_-=right.data_;
-            #ifndef IAMNICO
-             //   std::cout << "Nico you are using a slow operator be warned of the Numerical Vector, please try and rewrite to use -= not -" << std::endl;
-            #endif
-            return result;
-        }
+        NumericalVector operator- (const NumericalVector& right);
         
-        NumericalVector operator- (const NumericalVector& right) const
-        {
-            NumericalVector result(*this);
-            result.data_-=right.data_;
-            #ifndef IAMNICO
-              //  std::cout << "Nico you are using a slow operator be warned of the Numerical Vector, please try and rewrite to use -= not -" << std::endl;
-            #endif
-            return result;
-        }
+        NumericalVector operator- (const NumericalVector& right) const;
         
-        NumericalVector operator* (const double& right)
-        {
-            NumericalVector result(*this);
-            result.data_*=right;
-            #ifndef IAMNICO
-             //   std::cout << "Nico You are using a slow operator be warned of the Numerical Vector, please try and rewrite to use *= not *" << std::endl;
-            #endif
-            return result;
-        }
+        NumericalVector operator* (const double& right);
         
-        NumericalVector operator* (const double& right) const
-        {
-            NumericalVector result(*this);
-            result.data_*=right;
-            #ifndef IAMNICO
-              //  std::cout << "Nico you are using a slow operator be warned of the Numerical Vector, please try and rewrite to use *= not *" << std::endl;
-            #endif
-            return result;
-        }
+        NumericalVector operator* (const double& right) const;
         
-        double operator* (const NumericalVector& right) const
-		{
-        	///\TODO replace with BLAS (I dont know where to find them)
-        	if(this->size()!=right.size())
-        		throw "vector \\cdot vector product only defined for vectors of the same sizes";
-        	double result(0);
-        	for(int i=0;i<right.size();++i){
-        		result+=data_[i]*right[i];
-        	}
-        	return result;
-		}
+        double operator* (const NumericalVector& right) const;
 
-        NumericalVector& operator/= (const double& right)
-        {
-            data_/=right;
-            return *this;
-        }
+        NumericalVector& operator/= (const double& right);
         
-        NumericalVector operator/ (const double& right)
-        {
-            NumericalVector result(*this);
-            return (result/=right);
-            
-        }
+        NumericalVector operator/ (const double& right);
         
-        void axpy(double a, const NumericalVector& x)
-        {
-            
-            unsigned int size=data_.size();
-            
-            unsigned int i_one=1;
-            
-            
-            daxpy_(&size, &a, &((*(const_cast<NumericalVector *> (&x)))[0]), &i_one, &((*this)[0]) , &i_one);
-            
-            
-        }
+        void axpy(double a, const NumericalVector& x);
         
-        bool operator== (const NumericalVector& right)
-        {
-            for (int i = 0; i < data_.size(); ++i)
-            {
-                if (data_[i] != right.data_[i]) return false;
-            }
-            return true;
-        }
+        bool operator== (const NumericalVector& right);
 
-        bool operator== (const NumericalVector& right) const
-        {
-            for (int i = 0; i < data_.size(); ++i)
-            {
-                if (data_[i] != right.data_[i]) return false;
-            }
-            return true;
-        }
+        bool operator== (const NumericalVector& right) const;
         
-        bool operator< (const NumericalVector& right) const{
-	    for(int i=0;i<data_.size();++i){
-	        if(data_[i]<right.data_[i]) return true;
-	        if(data_[i]>right.data_[i]) return false;
-	    }
-	    return false;
-	}
+        bool operator< (const NumericalVector& right) const;
 
-        NumericalVector& operator+= (const NumericalVector& right){data_+=right.data_; return *this;}
+        NumericalVector& operator+= (const NumericalVector& right);
         
-        NumericalVector& operator-= (const NumericalVector& right){data_-=right.data_; return *this;}
+        NumericalVector& operator-= (const NumericalVector& right);
         
-        NumericalVector& operator*= (const double& right){data_*=right; return *this;}
+        NumericalVector& operator*= (const double& right);
         
-        inline double& operator[] (const unsigned int n) {return data_[n];}
+        double& operator[] (const unsigned int n);
         
         inline const double&  operator[] (const unsigned int n) const {return data_[n];}
         
@@ -192,23 +82,11 @@ namespace LinearAlgebra
         
         int size() {return data_.size();}
         
-        friend NumericalVector operator*(const double& left, const NumericalVector& right)
-        {
-            NumericalVector result(right);
-            result.data_*=left;
-            return result;
-        }
+        friend NumericalVector operator*(const double& left, const NumericalVector& right);
         
-        friend NumericalVector   operator-(const NumericalVector& right){return NumericalVector(right * -1.0);}
+        friend NumericalVector   operator-(const NumericalVector& right);
  
-        friend ostream& operator<<(ostream& os, const NumericalVector& A)
-        {
-            os<< '[';
-            for (int i=0;i<A.data_.size()-1;i++){os<< A(i)<<',';}
-            os<< A(A.data_.size()-1)<<']';
-            return os;
-        }
-        
+        friend ostream& operator<<(ostream& os, const NumericalVector& A);
         
    
     private:

@@ -16,7 +16,7 @@
 namespace LinearAlgebra
 {
     
-    //We need the ostream for outputting and we inhert from valarray is importing this saves a lot of typing
+    //We need the ostream for outputting and we encapulate from valarray.
     using std::ostream;
     using std::valarray;
     /// \class Matrix

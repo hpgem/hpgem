@@ -8,6 +8,6 @@ add_library(Matrix SHARED
 		
 		#These are the extra from LAPACK for solve Ax=B
 		dgesv.f dgetrs.f
-		
+		NumericalVector.cpp
 		Matrix.cpp)
 target_link_libraries(Matrix)
