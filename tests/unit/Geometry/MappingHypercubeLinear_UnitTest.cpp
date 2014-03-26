@@ -3,14 +3,14 @@
 #include <fstream>
 using namespace std;
 
-#include "../../../src/Geometry/PointPhysical.hpp"
-#include "../../../src/Geometry/ReferenceLine.hpp"
-#include "../../../src/Geometry/PhysicalLine.hpp"
-#include "../../../src/Geometry/ReferenceSquare.hpp"
-#include "../../../src/Geometry/PhysicalQuadrilateral.hpp"
-#include "../../../src/Geometry/ReferenceCube.hpp"
-#include "../../../src/Geometry/PhysicalHexahedron.hpp"
-#include "../../../src/Geometry/Mappings/MappingToPhysHypercubeLinear.hpp"
+#include "../../../kernel/Geometry/PointPhysical.hpp"
+#include "../../../kernel/Geometry/ReferenceLine.hpp"
+#include "../../../kernel/Geometry/PhysicalLine.hpp"
+#include "../../../kernel/Geometry/ReferenceSquare.hpp"
+#include "../../../kernel/Geometry/PhysicalQuadrilateral.hpp"
+#include "../../../kernel/Geometry/ReferenceCube.hpp"
+#include "../../../kernel/Geometry/PhysicalHexahedron.hpp"
+#include "../../../kernel/Geometry/Mappings/MappingToPhysHypercubeLinear.hpp"
 
 int main()
 {

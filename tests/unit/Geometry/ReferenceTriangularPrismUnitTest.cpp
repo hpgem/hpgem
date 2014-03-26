@@ -6,7 +6,7 @@
 //
 //
 
-#include "../../../src/Geometry/ReferenceTriangularPrism.hpp"
+#include "../../../kernel/Geometry/ReferenceTriangularPrism.hpp"
 using namespace std;
 
 

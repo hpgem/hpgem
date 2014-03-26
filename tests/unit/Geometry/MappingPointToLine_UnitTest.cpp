@@ -1,5 +1,5 @@
-#include "../../../src/Geometry/PointReference.hpp"
-#include "../../../src/Geometry/Mappings/MappingToRefPointToLine.hpp"
+#include "../../../kernel/Geometry/PointReference.hpp"
+#include "../../../kernel/Geometry/Mappings/MappingToRefPointToLine.hpp"
 #include <vector>
 int main()
 {

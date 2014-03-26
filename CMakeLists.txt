@@ -5,12 +5,12 @@ set(hpGEM_VERSION_MAJOR 2)
 set(hpGEM_VERSION_MINOR 0)
 
 #Directory were the external cmake modules are stored
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/conf/cmake/Modules/")
 
 
 enable_testing()
 
-add_subdirectory(src)
+add_subdirectory(kernel)
 add_subdirectory(tests)
 
 

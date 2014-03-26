@@ -6,7 +6,7 @@
 //
 //
 
-#include "../../../src/Geometry/ReferenceTetrahedron.hpp"
+#include "../../../kernel/Geometry/ReferenceTetrahedron.hpp"
 using namespace std;
 
 

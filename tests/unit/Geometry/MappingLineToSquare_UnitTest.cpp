@@ -1,5 +1,5 @@
-#include "../../../src/Geometry/PointReference.hpp"
-#include "../../../src/Geometry/Mappings/MappingToRefLineToSquare.hpp"
+#include "../../../kernel/Geometry/PointReference.hpp"
+#include "../../../kernel/Geometry/Mappings/MappingToRefLineToSquare.hpp"
 #include <vector>
 int main()
 {

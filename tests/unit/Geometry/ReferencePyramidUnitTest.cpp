@@ -6,7 +6,7 @@
 //
 //
 
-#include "../../../src/Geometry/ReferencePyramid.hpp"
+#include "../../../kernel/Geometry/ReferencePyramid.hpp"
 using namespace std;
 
 
