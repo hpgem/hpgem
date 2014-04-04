@@ -149,6 +149,7 @@ add_executable(PointUnitTest.out
                #${hpGEM_SOURCE_DIR}/kernel/Geometry/Point.hpp //headers go in source files
                ${hpGEM_SOURCE_DIR}/kernel/Geometry/Point.cpp
                )
+target_link_libraries(PointUnitTest.out Matrix)
 add_test(PointUnitTest PointUnitTest.out)
 
 add_executable(PointPhysicalUnitTest.out
@@ -157,7 +158,10 @@ add_executable(PointPhysicalUnitTest.out
                ${hpGEM_SOURCE_DIR}/kernel/Geometry/Point.cpp
                #${hpGEM_SOURCE_DIR}/kernel/Geometry/PointPhysical.hpp
                )
+       target_link_libraries(PointPhysicalUnitTest.out Matrix)
+       
 add_test(PointPhysicalUnitTest PointPhysicalUnitTest.out)
+
 
 add_executable(PointReferenceUnitTest.out
                PointReferenceUnitTest.cpp
@@ -165,6 +169,8 @@ add_executable(PointReferenceUnitTest.out
                #${hpGEM_SOURCE_DIR}/kernel/Geometry/Point.hpp
                ${hpGEM_SOURCE_DIR}/kernel/Geometry/Point.cpp
                )
+       target_link_libraries(PointReferenceUnitTest.out Matrix)
+
 add_test(PointReferenceUnitTest PointReferenceUnitTest.out)
 
 #--------ELEMENT--------ELEMENTS--------ELEMENTS--------ELEMENTS--------ELEMENTS--------ELEMENTS----

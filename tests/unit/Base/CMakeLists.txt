@@ -38,6 +38,7 @@ add_executable(BasisFunctionsUnitTest.out
 	       ${hpGEM_SOURCE_DIR}/kernel/Geometry/Point.cpp
            #${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp
            )
+target_link_libraries(BasisFunctionsUnitTest.out Matrix)
 add_test(BasisFunctionsUnitTest BasisFunctionsUnitTest.out)
 
 add_executable(ElementUnitTest.out
