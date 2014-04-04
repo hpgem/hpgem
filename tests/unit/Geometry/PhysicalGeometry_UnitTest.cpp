@@ -1,6 +1,7 @@
-#include "../Geometry/PhysicalGeometry.hpp"
+#include "../../../kernel/Geometry/PhysicalGeometry.hpp"
 int main()
 {
-    Geometry::PhysicalGeometry physicalGeometry();
+	//Geometry::PhysicalGeometry physicalGeometry();
 
 }
+

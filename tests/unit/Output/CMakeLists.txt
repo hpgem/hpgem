@@ -1,9 +1,18 @@
-include_directories(${hpGEM_SOURCE_DIR}/kernel/ .)
+include(${CMAKE_SOURCE_DIR}/conf/cmake/MasterMake.cmake)
 
-add_executable(TecplotOutputUnitTest.out
-               TecplotOutputUnitTest.cpp
-               ${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp
-               ${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter.cpp
-               ${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp)
-target_link_libraries(TecplotOutputUnitTest.out hpGEM_Base Geometry QuadratureRules)
-add_test(TecplotOutputUnitTest TecplotOutputUnitTest.out)
+#Part 1 : All cpp files will be made to exec files
+#########################################
+#Collect all the names of the cpp, note at the moment limited to demos, but will be fixed later
+file(GLOB CPPFILES  "*.cpp")
+#for every cpp found
+foreach(CPPFILE ${CPPFILES})
+	#extract the actually file name
+	get_filename_component(FILENAME ${CPPFILE} NAME)
+	#extract the filename minus the cpp. This will be the name of exe file
+	get_filename_component(EXECNAME ${CPPFILE} NAME_WE)
+	#Make the exe
+	add_executable(${EXECNAME} ${FILENAME})
+
+	target_link_libraries(${EXECNAME}  Output)
+endforeach()
+

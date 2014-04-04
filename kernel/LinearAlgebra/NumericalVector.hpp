@@ -72,11 +72,11 @@ namespace LinearAlgebra
         
         double& operator[] (const unsigned int n);
         
-        inline const double&  operator[] (const unsigned int n) const {return data_[n];}
+        const double&  operator[] (const unsigned int n) const {return data_[n];}
         
-        inline double& operator() (const unsigned int n) {return data_[n];}
+        double& operator() (const unsigned int n) {return data_[n];}
         
-        inline const double&  operator() (const unsigned int n) const {return data_[n];}
+        const double&  operator() (const unsigned int n) const {return data_[n];}
         
         int size() const {return data_.size();}
         

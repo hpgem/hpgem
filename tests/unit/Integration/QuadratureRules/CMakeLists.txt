@@ -8,4 +8,4 @@ add_executable (QuadratureRules_UnitTest.out
         ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/QuadratureRuleSet.cpp 
       )
 
-target_link_libraries(QuadratureRules_UnitTest.out Matrix Geometry QuadratureRules)
+target_link_libraries(QuadratureRules_UnitTest.out Geometry QuadratureRules)

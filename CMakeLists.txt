@@ -21,6 +21,23 @@ configure_file(conf/cmake/CMakeDefinitions.conf
 		${PROJECT_BINARY_DIR}/kernel/CMakeDefinitions.hpp)
 
 
+#Make the default build release is this in what a normal user wants
+###################################################################
+if(NOT CMAKE_BUILD_TYPE)
+	        set(CMAKE_BUILD_TYPE "Release" CACHE 
+		STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
+#Add the custom target make fullTest, that clean and check the whole build system
+#################################################################################
+add_custom_target(fullTest
+	        COMMAND make rebuild_cache      
+		COMMAND make clean
+		COMMAND make
+		COMMAND make test
+		COMMENT "This will clean the project, rebuild and test." )
+
+
 #This section is about the build of documentation#
 ##############################################
 

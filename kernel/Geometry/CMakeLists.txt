@@ -65,6 +65,6 @@ add_library(Geometry SHARED
 
       )
 
-target_link_libraries(Reference_geometries Matrix)
-target_link_libraries(Geometry Reference_geometries Matrix)
+target_link_libraries(Reference_geometries LinearAlgebra)
+target_link_libraries(Geometry Reference_geometries LinearAlgebra)
 

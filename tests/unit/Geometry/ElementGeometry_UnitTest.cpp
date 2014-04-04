@@ -1,10 +1,10 @@
-#include "../../../src/Geometry/Point.hpp"
-#include "../../../src/Geometry/PointPhysical.hpp"
-#include "../../../src/Geometry/ElementGeometry.hpp"
-#include "../../../src/Geometry/PhysicalGeometry.hpp"
-#include "../../../src/Geometry/ReferenceSquare.hpp"
-#include "../../../src/LinearAlgebra/NumericalVector.hpp"
-#include "../../../src/Geometry/Mappings/MappingToPhysHypercubeLinear.hpp"
+#include "../../../kernel/Geometry/Point.hpp"
+#include "../../../kernel/Geometry/PointPhysical.hpp"
+#include "../../../kernel/Geometry/ElementGeometry.hpp"
+#include "../../../kernel/Geometry/PhysicalGeometry.hpp"
+#include "../../../kernel/Geometry/ReferenceSquare.hpp"
+#include "../../../kernel/LinearAlgebra/NumericalVector.hpp"
+#include "../../../kernel/Geometry/Mappings/MappingToPhysHypercubeLinear.hpp"
 #include <vector>
 
 

@@ -1,4 +1,4 @@
-add_library(Matrix SHARED 
+add_library(LinearAlgebra SHARED 
 		daxpy.f lsame.f xerbla.f dgemm.f dgemv.f 
 		#Next line for LAPACK stuff inverse and LU factorisation
 		#First the BLAS required parts
@@ -10,4 +10,3 @@ add_library(Matrix SHARED
 		dgesv.f dgetrs.f
 		NumericalVector.cpp
 		Matrix.cpp)
-target_link_libraries(Matrix)

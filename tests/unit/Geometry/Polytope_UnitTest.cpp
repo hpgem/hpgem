@@ -1,6 +1,7 @@
-#include "../../../src/Geometry/ReferenceCube.hpp"
+#include "../../../kernel/Geometry/ReferenceCube.hpp"
 int main()
 {
+	/*
     //Geometry::Polytope<3> polytope = new Geometry::Polytope<3>(3);
     Geometry::ReferenceCube cube;
     cout << "getName(): "<< cube.getName() << std::endl;
@@ -49,6 +50,6 @@ int main()
     }
 
         // cout << "\t" << "calcElementDiameter(1,point)=" << cube.calcElementDiameter() << std::endl;
-
+*/
     return 0;
 }

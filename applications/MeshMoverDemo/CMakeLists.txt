@@ -12,4 +12,4 @@ add_executable(MeshMoverDemo.out
 	    ${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
 	    )
 
-target_link_libraries(MeshMoverDemo.out hpGEM_Base Geometry Matrix QuadratureRules)                
+target_link_libraries(MeshMoverDemo.out hpGEM_Base Geometry QuadratureRules)                

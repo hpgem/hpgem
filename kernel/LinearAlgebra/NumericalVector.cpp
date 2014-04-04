@@ -165,7 +165,7 @@ namespace LinearAlgebra
     
     NumericalVector& NumericalVector::operator*= (const double& right){data_*=right; return *this;}
     
-    inline double& NumericalVector::operator[] (const unsigned int n) {return data_[n];}
+    double& NumericalVector::operator[] (const unsigned int n) {return data_[n];}
     
     NumericalVector operator*(const double& left, const NumericalVector& right)
     {
