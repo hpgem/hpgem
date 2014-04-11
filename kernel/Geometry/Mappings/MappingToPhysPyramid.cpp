@@ -14,16 +14,17 @@ namespace Geometry
 {
     MappingToPhysPyramid::MappingToPhysPyramid(const PhysicalGeometryT*const physicalGeometry)
     {
+        MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
 
     void MappingToPhysPyramid::
     transform(const PointReferenceT& pR, PointPhysicalT& pP) const
     {
-        if (isValidPoint(pR))
-        {
+        //if (isValidPoint(pR))
+        //{
             const double t1 = pR[0] * pR[1];
-            const double t2 = pR[0] * pR[1]  * pR[2] / (1 - pR[2]);
+            const double t2 = pR[0] * pR[1]  * pR[2] / (1 - pR[2]+1e-50);//prevents trouble at the tip of the pyramid
 
             std::vector<double> f8;
             f8.resize(5);
@@ -42,17 +43,17 @@ namespace Geometry
                 getNodeCoordinates(globalNodeIndices_[i], p);
                 pP += f8[i] * p;
             }
-        }
-        else
-        {
-            throw "ERROR: MappingToPhysPyramid::transform, mapping point outside geometry.";
-        }
+        //}
+        //else  //while I agree this is a bad situation I dont want a mapping deciding for me that a crappy quadrature rule is illegal
+        //{
+        //    throw "ERROR: MappingToPhysPyramid::transform, mapping point outside geometry.";
+        //}
     }
     void MappingToPhysPyramid::calcJacobian(const PointReferenceT& pR, JacobianT& jacobian) const
     {
-        if (isValidPoint(pR))
-        {
-            std::vector<double> df_dxi0, df_dxi1, df_dxi2;
+        //if (isValidPoint(pR))
+        //{
+            std::vector<double> df_dxi0(5), df_dxi1(5), df_dxi2(5);
 
             const double dt6dx0 = pR[1] * pR[2] / (1. - pR[2]);
             const double dt6dx1 = pR[0] * pR[2] / (1. - pR[2]);
@@ -104,15 +105,16 @@ namespace Geometry
                 jacobian(i,1) = d_dxi1[i];
                 jacobian(i,2) = d_dxi2[i];
             }
-        }
-        else
-        {
-            throw "ERROR: MappingToPhysPyramid::calcJacobian, mapping point outside geometry.";
-        }
+        //}
+        //else
+        //{
+        //    throw "ERROR: MappingToPhysPyramid::calcJacobian, mapping point outside geometry.";
+        //}
     }
 
     void MappingToPhysPyramid::reinit(const PhysicalGeometryT*const physicalGeometry)
     {
+    	globalNodeIndices_.resize(5);
         for (int i = 0; i < 5; ++i)
         {
             globalNodeIndices_[i] = physicalGeometry->getNodeIndex(i);

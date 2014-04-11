@@ -14,7 +14,7 @@ namespace Geometry
     {
     }
 
-    void
+    /*void
     Jacobian::computeWedgeStuffVector(NumericalVector& p)const
     {
         NumericalVector&      v((NumericalVector&)p);
@@ -24,7 +24,7 @@ namespace Geometry
             //cout << "jacobian="<<jac<<endl;
 
         jac.computeWedgeStuffVector(v);
-    }
+    }*/
 
         /// The computation of Jacobians are harcoded up until 4D, to make it faster.
     double

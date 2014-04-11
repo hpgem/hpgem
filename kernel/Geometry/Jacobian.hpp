@@ -29,7 +29,7 @@ namespace Geometry
         Jacobian(const JacobianT& jacobian);
        
         double determinant()const;
-        void   computeWedgeStuffVector(NumericalVector& p)const;
+        //void   computeWedgeStuffVector(NumericalVector& p)const;
         
         virtual ~Jacobian(){}
         

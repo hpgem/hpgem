@@ -59,6 +59,10 @@ namespace Geometry
             //! To compute the Jacobian, the two component ones have to multiplied.
         virtual void calcJacobian(const PointReference& p, Jacobian& jac) const
 	    {
+        	if(jac.getNRows()==0){
+        		return;
+        	}
+
             PointReference pIntermediate(map1_.getTargetDimension());
             map1_.transform(p, pIntermediate);
             

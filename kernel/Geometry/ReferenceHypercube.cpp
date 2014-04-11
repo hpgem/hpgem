@@ -184,7 +184,7 @@ namespace Geometry
     const ReferenceGeometry*
     ReferenceHypercube::getCodim2ReferenceGeometry(const IndexT e) const
     {
-        if (e < 12)
+        if (e < 24)
         {
             return referenceGeometryCodim2Ptr_;
         }
@@ -210,7 +210,7 @@ namespace Geometry
 
     void ReferenceHypercube::getCodim3EntityLocalIndices(const IndexT i, ListOfIndexesT& edgeNodesLocal) const
     {
-        if (i < 16)
+        if (i < 32)
         {
             throw "ReferenceHypercube::getCodim3EntityLocalIndices not implemented";
         }

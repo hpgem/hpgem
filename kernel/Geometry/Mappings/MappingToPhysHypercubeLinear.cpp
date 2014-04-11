@@ -9,6 +9,7 @@
 #define MAPPINGHYPERCUBELINEAR_CPP_
 
 #include "MappingToPhysHypercubeLinear.hpp"
+#include <vector>
 
 namespace Geometry
 {
@@ -19,6 +20,7 @@ namespace Geometry
     MappingToPhysHypercubeLinear(const PhysicalGeometryT*const& physicalGeometry)
     {
         mid = slope = 0.0;
+        MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
 
@@ -31,7 +33,8 @@ namespace Geometry
         }
         else
         {
-            // ERROR
+            // ERROR ///\TODO emit a warning at a non-deadly priority level
+            pointPhysical[0] = mid + pointReference[0] * slope;
         }
     }
 
@@ -66,11 +69,13 @@ namespace Geometry
     MappingToPhysHypercubeLinear(const PhysicalGeometryT*const& physicalGeometry):
     MappingReferenceToPhysical(),a0(2),a1(2),a12(2),a2(2)
     {
+        MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
     void MappingToPhysHypercubeLinear<2>::
     transform(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical) const
     {
+    	//assert(L2norm(a1)>1e-14&&L2norm(a2 + pointReference[0] * a12)>1e-14);
         if (isValidPoint(pointReference))
         {
             pointPhysical = a0 + pointReference[0] * a1
@@ -78,24 +83,26 @@ namespace Geometry
         }
         else
         {
-            // ERROR
+            // ERROR///\TODO emit a warning at a non-deadly priority level
+            pointPhysical = a0 + pointReference[0] * a1
+                               + pointReference[1] * (a2 + pointReference[0] * a12);
         }
     }
 
     void MappingToPhysHypercubeLinear<2>::
     calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const
     {
-        if (isValidPoint(pointReference))
-        {
+        //if (isValidPoint(pointReference))
+        //{
             jacobian(0,0) = a1[0] + pointReference[1] * a12[0];
             jacobian(0,1) = a2[0] + pointReference[0] * a12[0];
             jacobian(1,0) = a1[1] + pointReference[1] * a12[1];
             jacobian(1,1) = a2[1] + pointReference[0] * a12[1];
-        }
-        else
-        {
-            // ERROR
-        }
+        //}
+        //else
+        //{
+        //    // ERROR///\TODO emit a warning at a non-deadly priority level
+        //}
     }
 
     void MappingToPhysHypercubeLinear<2>::reinit(const PhysicalGeometryT*const physicalGeometry)
@@ -130,12 +137,14 @@ namespace Geometry
     ::MappingToPhysHypercubeLinear(const PhysicalGeometryT*const& physicalGeometry):
      a1(3),a12(3),a13(3),a123(3),a0(3),a2(3),a23(3),a3(3)
     {
+        MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
 
     void MappingToPhysHypercubeLinear<3>::
     transform(const PointReferenceT& pR, PointPhysicalT& pointPhysical) const
     {
+    	//assert(L2norm(a3)>1e-14&&L2norm(a2 + pR[2] * a23)>1e-14&&L2norm(a1 + pR[1]*(a12+pR[2]*a123) pR[2] * a23)>1e-14);
         if (isValidPoint(pR))
         {
             pointPhysical = a0 + pR[0] * (a1 + pR[1] * (a12 +  pR[2] * a123) + pR[2] * a13)
@@ -145,14 +154,17 @@ namespace Geometry
         else
         {
             // ERROR
+            pointPhysical = a0 + pR[0] * (a1 + pR[1] * (a12 +  pR[2] * a123) + pR[2] * a13)
+                               + pR[1] * (a2 + pR[2] * a23)
+                               + pR[2] * a3;
         }
     }
 
     void MappingToPhysHypercubeLinear<3>::
     calcJacobian(const PointReferenceT& pR, JacobianT& jacobian) const
     {
-        if (isValidPoint(pR))
-        {
+        //if (isValidPoint(pR))
+        //{
             for(int i = 0; i < 3; ++i)
             {
                 double pR01 = pR[0] * pR[1];
@@ -171,11 +183,11 @@ namespace Geometry
                 jacobian(2,1) = a2[2] + pR[0] * a12[2] + pR[2] * a23[2] + pR02 * a123[2];
                 jacobian(2,2) = a3[2] + pR[0] * a13[2] + pR[1] * a23[2] + pR01 * a123[2];
             }
-        }
-        else
-        {
-            // ERROR
-        }
+        //}
+        //else
+        //{
+        //    // ERROR
+        //}
     }
 
     void MappingToPhysHypercubeLinear<3>::
@@ -221,27 +233,29 @@ namespace Geometry
     MappingToPhysHypercubeLinear(const PhysicalGeometryT* const& physicalGeometry):
     abar(4),a0(4),a01(4),a02(4),a03(4),a012(4),a013(4),a0123(4),a1(4),a12(4),a13(4),a123(4),a2(4),a23(4),a230(4),a3(4)
     {
+        MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
 
     void MappingToPhysHypercubeLinear<4>::
     transform(const PointReferenceT& pR, PointPhysicalT& pointPhysical) const
     {
-        if (isValidPoint(pR))
-        {
+        //if (isValidPoint(pR))
+        //{
             pointPhysical = abar + pR[0] * a0 + pR[1] * a1 + pR[2] * a2 + pR[3] * a3;
-        }
-        else
-        {
+        //}
+        //else
+        //{
             // ERROR
-        }
+        //}
     }
 
     void MappingToPhysHypercubeLinear<4>::
     calcJacobian(const PointReferenceT& pR, JacobianT& jacobian) const
     {
-        if (isValidPoint(pR))
-        {
+    	//assert(...)
+        //if (isValidPoint(pR))
+        //{
             for(int i = 0; i < 4; ++i)
             {
                 jacobian(i,0) = a0[i]   + a01[i] * pR[1] + a02[i]   * pR[2] + a03[i] * pR[3]
@@ -260,11 +274,11 @@ namespace Geometry
                               + a013[i] * pR[0]  * pR[1] + a230[i]  * pR[0] * pR[2]
                               + a123[i] * pR[1]  * pR[2] + a0123[i] * pR[0] * pR[1]  * pR[2];
             }
-        }
-        else
-        {
-            // ERROR
-        }
+        //}
+        //else
+        //{
+        //    // ERROR
+        //}
     }
 
     void MappingToPhysHypercubeLinear<4>::reinit(const PhysicalGeometryT* const physicalGeometry)

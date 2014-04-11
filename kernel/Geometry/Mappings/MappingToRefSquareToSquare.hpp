@@ -34,7 +34,7 @@ namespace Geometry
      *      index 7: (x,y)->(-y,-x)  (Mirror in the line y=-x)
      *      index 8: (x,y)->(y,x)    (Mirror in the line y=x)
      *
-     * These correspond to the node mutations : (1)(2)(3)(4), (1234), (14)(23),
+     * These correspond to the node mutations : (1)(2)(3)(4), (1243), (14)(23),
      * (1342), (13)(24), (12)(34), (14)(2)(3) and (1)(4)(23). The first 4
      * are rotations, while the last 4 are mirrorings.
      *

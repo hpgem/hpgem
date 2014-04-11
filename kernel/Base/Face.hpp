@@ -33,10 +33,10 @@ namespace Base
 
         Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType&  ftype,int faceID, unsigned int numberOfFaceMatrixes=0, unsigned int numberOfFaceVectors=0);
 
-        void            setPtrElementLeft( ElementT* value);
+        //void            setPtrElementLeft( ElementT* value);
         
 
-        void            setPtrElementRight( ElementT* value);
+        //void            setPtrElementRight( ElementT* value);
 
         /// Return the pointer to the left element.
          ElementT*       getPtrElementLeft()     {return elementLeft_;}

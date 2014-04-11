@@ -38,10 +38,10 @@ namespace Geometry
         jacobian(2,1) = 0.0;
         jacobian(3,1) = 0.0;
 
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 1.0;
-        jacobian(3,1) = 0.0;
+        jacobian(0,2) = 0.0;
+        jacobian(1,2) = 0.0;
+        jacobian(2,2) = 1.0;
+        jacobian(3,2) = 0.0;
     }
 
     MappingToRefCubeToHypercube0::MappingToRefCubeToHypercube0() { }
@@ -77,10 +77,10 @@ namespace Geometry
         jacobian(2,1) = 0.0;
         jacobian(3,1) = 0.0;
 
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 0.0;
-        jacobian(3,1) = 1.0;
+        jacobian(0,2) = 0.0;
+        jacobian(1,2) = 0.0;
+        jacobian(2,2) = 0.0;
+        jacobian(3,2) = 1.0;
     }
 
     MappingToRefCubeToHypercube1::MappingToRefCubeToHypercube1() { }
@@ -116,10 +116,10 @@ namespace Geometry
         jacobian(2,1) = 1.0;
         jacobian(3,1) = 0.0;
 
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 0.0;
-        jacobian(3,1) = 1.0;
+        jacobian(0,2) = 0.0;
+        jacobian(1,2) = 0.0;
+        jacobian(2,2) = 0.0;
+        jacobian(3,2) = 1.0;
     }
 
     MappingToRefCubeToHypercube2::MappingToRefCubeToHypercube2() { }
@@ -155,10 +155,10 @@ namespace Geometry
         jacobian(2,1) = 1.0;
         jacobian(3,1) = 0.0;
 
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 0.0;
-        jacobian(3,1) = 1.0;
+        jacobian(0,2) = 0.0;
+        jacobian(1,2) = 0.0;
+        jacobian(2,2) = 0.0;
+        jacobian(3,2) = 1.0;
     }
 
     MappingToRefCubeToHypercube3::MappingToRefCubeToHypercube3() { }
@@ -194,10 +194,10 @@ namespace Geometry
         jacobian(2,1) = 1.0;
         jacobian(3,1) = 0.0;
 
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 0.0;
-        jacobian(3,1) = 1.0;
+        jacobian(0,2) = 0.0;
+        jacobian(1,2) = 0.0;
+        jacobian(2,2) = 0.0;
+        jacobian(3,2) = 1.0;
     }
 
     MappingToRefCubeToHypercube4::MappingToRefCubeToHypercube4() { }
@@ -233,10 +233,10 @@ namespace Geometry
         jacobian(2,1) = 1.0;
         jacobian(3,1) = 0.0;
 
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 0.0;
-        jacobian(3,1) = 1.0;
+        jacobian(0,2) = 0.0;
+        jacobian(1,2) = 0.0;
+        jacobian(2,2) = 0.0;
+        jacobian(3,2) = 1.0;
     }
 
     MappingToRefCubeToHypercube5::MappingToRefCubeToHypercube5() { }
@@ -272,10 +272,10 @@ namespace Geometry
         jacobian(2,1) = 0.0;
         jacobian(3,1) = 0.0;
 
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 0.0;
-        jacobian(3,1) = 1.0;
+        jacobian(0,2) = 0.0;
+        jacobian(1,2) = 0.0;
+        jacobian(2,2) = 0.0;
+        jacobian(3,2) = 1.0;
     }
 
     MappingToRefCubeToHypercube6::MappingToRefCubeToHypercube6() { }
@@ -312,10 +312,10 @@ namespace Geometry
         jacobian(2,1) = 0.0;
         jacobian(3,1) = 0.0;
 
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 1.0;
-        jacobian(3,1) = 0.0;
+        jacobian(0,2) = 0.0;
+        jacobian(1,2) = 0.0;
+        jacobian(2,2) = 1.0;
+        jacobian(3,2) = 0.0;
     }
 
     MappingToRefCubeToHypercube7::MappingToRefCubeToHypercube7() { }

@@ -79,7 +79,7 @@ namespace Geometry
     {
         p[0] = 0.;
         p[1] = 0.;
-        p[2] = 1. / 5.;
+        p[2] = 1. / 4.;
     }
     
     void ReferencePyramid::getNode(const IndexT& nodeIndex, PointReferenceT& point) const

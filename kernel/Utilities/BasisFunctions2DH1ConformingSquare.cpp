@@ -109,7 +109,7 @@ void createVertexBasisFunctionSet2DH1Square(int order, std::vector<const Base::B
 }
 
 void createFaceBasisFunctionSet2DH1Square(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
-	Geometry::ReferenceSquare square = Geometry::ReferenceSquare::Instance();
+	Geometry::ReferenceSquare& square = Geometry::ReferenceSquare::Instance();
 	Base::OrientedBasisFunctionSet* set;
 	std::vector<unsigned int> vertexindices(2);
 	for (int i = 0; i < 4; ++i) {

@@ -38,10 +38,14 @@ namespace Geometry
             return theInstance;
         }
         
+    private:
+
         ReferenceHypercube();
 
         ReferenceHypercube(const ReferenceHypercube& copy);
         
+    public:
+
         //! (see ReferenceGeometry.hpp)
         bool            isInternalPoint(const PointReferenceT& point) const;
         
@@ -68,6 +72,8 @@ namespace Geometry
 
         //! (see MappingCodimensions.hpp)
         const MappingReferenceToReference* getCodim0MappingPtr(const IndexT) const;
+
+        using MappingCodimensions::getCodim0MappingPtr;
 
         // ================================== Codimension 1 ========================================
 
@@ -100,7 +106,7 @@ namespace Geometry
         // ================================== Codimension 3 ========================================
 
         //! (see MappingCodimensions.hpp)
-        unsigned int                             getNrOfCodim3Entities() const {return 16;} // 'vertices' (edges)
+        unsigned int                             getNrOfCodim3Entities() const {return 32;} // 'vertices' (edges)
 
         //! (see MappingCodimensions.hpp)
         void                                     getCodim3EntityLocalIndices(const IndexT, ListOfIndexesT&) const;
@@ -141,8 +147,8 @@ namespace Geometry
         //! Local node indexes contains the numbering of the vertex of the shape, ordered by faces.
         static int                                          localNodeIndexes_[8][8]; // 8 'faces' (cubes) with 8 vertex.
 
-        //! The nodes on edge contains the local index of the two nodes in every edge.
-        static int                                          localNodesOnEdge_[24][2]; //!< 24 edges with 2 nodes
+        //! The nodes on edge contains the local index of the two nodes in every edge.//has the wrong numers and isnt used
+        //static int                                          localNodesOnEdge_[24][2]; //!< 24 edges with 2 nodes
 
         //! Codimension 1 mappings, from a cube to a hypercube. TODO: Where is this used? clarify here.
         const MappingReferenceToReference*            mappingsCubeToHypercube_[8];

@@ -8,5 +8,4 @@
 #include "MappingReferenceToPhysical.hpp"
 
 
-std::vector<Geometry::PointPhysical >* Geometry::MappingReferenceToPhysical::nodes_;
 

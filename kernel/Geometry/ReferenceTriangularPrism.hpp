@@ -23,7 +23,7 @@ namespace Geometry
 {
     /* TriangularPrism:
      *
-     *
+     * \TODO write documentation
      *
      *
      *
@@ -48,10 +48,14 @@ namespace Geometry
             return theInstance;
         }
 
+    private:
+
         ReferenceTriangularPrism();
 
         ReferenceTriangularPrism(const ReferenceTriangularPrism& copy);
         
+    public:
+
         //! (see ReferenceGeometry.hpp)
         bool                                    isInternalPoint(const PointReferenceT& point) const;
         
@@ -79,6 +83,8 @@ namespace Geometry
 
         //! (see MappingCodimensions.hpp)
         const MappingReferenceToReference* getCodim0MappingPtr(const IndexT) const;
+
+        using MappingCodimensions::getCodim0MappingPtr;
 
         // ================================== Codimension 1 ========================================
 

@@ -57,7 +57,7 @@ namespace Geometry
             virtual ~PhysicalGeometry() {}
 
             /// \brief Returns a pointer to the container of the global node indexes.
-            VectorOfPointIndexesT&          getNodeIndexes() {return globalNodeIndexes_;}
+            //VectorOfPointIndexesT&          getNodeIndexes() {return globalNodeIndexes_;}
 
             /// \brief Returns a constant pointer to the container of the global node indexes.
             const VectorOfPointIndexesT&    getNodeIndexes() const {return globalNodeIndexes_;}
@@ -85,6 +85,7 @@ namespace Geometry
 
             /// \brief Given a local index, assigns the physical coordinates of the corresponding point.
             // MTJ: TODO: this should be renamed to getLocalNodeCoordinates.............
+            ///\TODO remove duplicate code
             void                            getNodeCoordinates(const int localIndex, PointPhysicalT& coords) const
             {coords = (nodes_)[globalNodeIndexes_[localIndex]].getCoordinates();}
 

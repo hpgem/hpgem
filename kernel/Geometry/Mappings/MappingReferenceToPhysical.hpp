@@ -43,25 +43,26 @@ namespace Geometry
 
             typedef PhysicalGeometry  PhysicalGeometryT;
 
-            typedef std::vector<PointPhysicalT>*    VectorOfPointsT;
+            typedef const std::vector<PointPhysicalT>*    VectorOfPointsT;
         
 
         public:
             MappingReferenceToPhysical(): MappingInterface(){ }
 
             // Sets.
-            void setNodesPtr(VectorOfPointsT nodes) {nodes_ = nodes;}
+            void setNodesPtr( VectorOfPointsT nodes) {nodes_ = nodes;}
 
             // Methods.
             //! ~OC~ Transform a point from reference space to physical space.
             virtual void transform(const PointReferenceT&, PointPhysicalT&) const = 0;
             //! ~OC~ Recompute mapping after physical nodes have moved.
+            ///\BUG will horribly break everything unless you happen to pass the same  physicalGeometry that you used to construct this mapping
             virtual void reinit(const PhysicalGeometryT* const) = 0;
             void getNodeCoordinates(const int index, PointPhysicalT& coords) const
                 {coords = (*nodes_)[index].getCoordinates();}
 
-        private:
-            static std::vector<PointPhysical >* nodes_; /// Pointer to the global node container.
+        private:///\TODO fix this properly (for now just made it working)
+             const std::vector<PointPhysical >* nodes_; /// Pointer to the global node container.
     };
 
 };

@@ -47,10 +47,14 @@ namespace Geometry
             return theInstance;
         }
 
+    private:
+
         ReferenceLine();
 
         ReferenceLine(const ReferenceLine&);
         
+    public:
+
         //! (see ReferenceGeometry.hpp)
         bool            isInternalPoint(const PointReferenceT&) const;
 
@@ -65,7 +69,7 @@ namespace Geometry
 
         //! Given a face index, and an index of the node position relative to the face,
         //! return the local index of the node.
-        int             getLocalNodeIndex(int face, int node) const {return localNodeIndexes_[face][node];}
+        int             getLocalNodeIndex(int face, int node) const {return localNodeIndexes_[face][node];}///\bug this name makes me expect a map from a global node index to a local one
 
         //! Output routine.
         friend ostream& operator<<(ostream& os, const ReferenceLine& point);
@@ -77,6 +81,8 @@ namespace Geometry
 
         //! (see MappingCodimensions.hpp)
         const MappingReferenceToReference*    getCodim0MappingPtr(const IndexT) const;
+
+        using MappingCodimensions::getCodim0MappingPtr;
 
         // ================================== Codimension 1 ========================================
 

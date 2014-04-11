@@ -40,7 +40,7 @@ namespace Base
     }
 
     
-    void
+   /* void
     Face::setPtrElementLeft( ElementT* left)
     {
         elementLeft_ = left;
@@ -53,8 +53,8 @@ namespace Base
     {
         elementRight_ = right;
         FaceGeometry::setPtrElementRight(right);
-        //setElementGLeft(right);
-    }
+        //setElementGRight(right);
+    }*/
     
     bool
     Face::isInternal()const

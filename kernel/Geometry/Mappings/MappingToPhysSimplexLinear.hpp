@@ -22,6 +22,7 @@ namespace Geometry
      * vertex of each simplex, an order which is kept by the mappings.
      * No specialization is needed because the mapping is general for geometries of vertex number
      * (vn) one greater than dimension (d), that is, vn = d+1;
+     * \BUG this mapping does not work for DIM=1 (use MappingToPhysHypercubeLinear<1> instead)
      */
 
     template <unsigned int DIM>
@@ -34,7 +35,8 @@ namespace Geometry
             typedef Geometry::Jacobian JacobianT;
 
         public:
-            MappingToPhysSimplexLinear(const PhysicalGeometryT*const& pG):a(DIM+1,DIM){ reinit(pG); };
+            MappingToPhysSimplexLinear(const PhysicalGeometryT*const& pG):a(DIM+1,DIM){
+                MappingReferenceToPhysical::setNodesPtr(&pG->getNodes()); reinit(pG); };
             virtual void transform(const PointReferenceT&, PointPhysicalT&) const;
             virtual void calcJacobian(const PointReferenceT&, JacobianT&) const;
             virtual void reinit(const PhysicalGeometryT*const);

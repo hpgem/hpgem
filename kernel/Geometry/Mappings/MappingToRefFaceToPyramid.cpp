@@ -27,13 +27,13 @@ namespace Geometry
     void MappingToRefFaceToPyramid0::calcJacobian(const Geometry::PointReference& p1,
                                                            Geometry::Jacobian& jacobian) const
     {
-        jacobian(0,0) = 0.0;
-        jacobian(1,0) = 1.0;
+        jacobian(0,0) = 1.0;
+        jacobian(1,0) = 0.0;
         jacobian(2,0) = 0.0;
 
-        jacobian(0,1) = 1.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 0.0;
+        jacobian(0,1) =  0.0;
+        jacobian(1,1) = -1.0;
+        jacobian(2,1) =  0.0;
     }
 
     MappingToRefFaceToPyramid0::MappingToRefFaceToPyramid0() { }

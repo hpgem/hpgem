@@ -76,8 +76,8 @@ void hpGemUIExtentions::writeToTecplotFile(const Base::HpgemUI::ElementT* elemen
     info->makeFunctionValuesVector(element,p,values);
     info->makeFunctionCurlsVector(element,p,curlsVec);
     for(int i=0; i<element->getNrOfBasisFunctions(); ++i) {
-	results+=values[i]*data[i];
-	curls+=curlsVec[i]*data[i];
+    	results+=values[i]*data[i];
+    	curls+=curlsVec[i]*data[i];
     }
     output<<results[0]<<" "<<results[1]<<" "<<results[2]<<" "<<curls[0]<<" "<<curls[1]<<" "<<curls[2]<<endl;
 }

@@ -115,7 +115,7 @@ namespace Geometry
         typedef PointReference                                           ReferencePointOnTheFaceT;
         typedef unsigned int                                                    LocalFaceNrType;
         typedef std::auto_ptr<const MappingReferenceToReference >   RefFaceToRefElementMapping;// doing new later and passing, should handle its own deletion.
-
+        																				//the ref->ref mappings are all singletons and should never be deleted (bug?) -FB
         typedef ReferenceGeometry                                        ReferenceFaceGeometryT;
 
         typedef ElementGeometry                                            ElementGeometryT;
@@ -136,10 +136,10 @@ namespace Geometry
 
 
             // Sets.
-        virtual void                        setPtrElementLeft(const ElementGeometryT* value)   {leftElementGeom_ = value;}
+        /*virtual void                        setPtrElementLeft(const ElementGeometryT* value)   {leftElementGeom_ = value;}
         virtual void                        setPtrElementRight(const ElementGeometryT* value)  {rightElementGeom_ = value;}
         virtual void                        setFaceType(const FaceType& value)           {faceType_ = value;}
-        virtual void                        setFaceToFaceTransformation(int value)       {faceToFaceMapIndex_ = value;}
+        virtual void                        setFaceToFaceTransformation(int value)       {faceToFaceMapIndex_ = value;}*/
 
             // Gets.
             /// Return the pointer to the left element.
@@ -156,7 +156,7 @@ namespace Geometry
 
         virtual int                         getFaceToFaceMapIndex()const {return faceToFaceMapIndex_;}
 
-        const ReferenceFaceGeometryT*       getReferenceGeometry() const;  // ElementGeometry use this interface!
+        const ReferenceFaceGeometryT*       getReferenceGeometry() const;
 
 
         /*! Map a point in coordinates of the reference geometry of the face to

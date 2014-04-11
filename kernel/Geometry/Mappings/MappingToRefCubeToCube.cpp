@@ -60,8 +60,8 @@ namespace Geometry
                                                 Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) =  1.0; jacobian(0,1) =  0.0; jacobian(0,2) =  0.0;
-        jacobian(1,0) =  0.0; jacobian(1,1) =  0.0; jacobian(1,2) =  1.0;
-        jacobian(2,0) =  0.0; jacobian(2,1) = -1.0; jacobian(2,2) =  0.0;
+        jacobian(1,0) =  0.0; jacobian(1,1) =  0.0; jacobian(1,2) = -1.0;
+        jacobian(2,0) =  0.0; jacobian(2,1) =  1.0; jacobian(2,2) =  0.0;
     }
 
     MappingToRefCubeToCube1::MappingToRefCubeToCube1() { }
@@ -114,8 +114,8 @@ namespace Geometry
                                                 Geometry::Jacobian& jacobian) const
     {
         jacobian(0,0) =  1.0; jacobian(0,1) =  0.0; jacobian(0,2) =  0.0;
-        jacobian(1,0) =  0.0; jacobian(1,1) =  0.0; jacobian(1,2) = -1.0;
-        jacobian(2,0) =  0.0; jacobian(2,1) =  1.0; jacobian(2,2) =  0.0;
+        jacobian(1,0) =  0.0; jacobian(1,1) =  0.0; jacobian(1,2) =  1.0;
+        jacobian(2,0) =  0.0; jacobian(2,1) = -1.0; jacobian(2,2) =  0.0;
     }
 
     MappingToRefCubeToCube3::MappingToRefCubeToCube3() { }

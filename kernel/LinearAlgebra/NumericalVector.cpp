@@ -133,6 +133,8 @@ namespace LinearAlgebra
     
     bool NumericalVector::operator== (const NumericalVector& right)
     {
+    	if(data_.size()!=right.data_.size())
+    		return false;
         for (int i = 0; i < data_.size(); ++i)
         {
             if (data_[i] != right.data_[i]) return false;
@@ -142,6 +144,8 @@ namespace LinearAlgebra
     
     bool NumericalVector::operator== (const NumericalVector& right) const
     {
+    	if(data_.size()!=right.data_.size())
+    		return false;
         for (int i = 0; i < data_.size(); ++i)
         {
             if (data_[i] != right.data_[i]) return false;

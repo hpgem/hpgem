@@ -30,7 +30,7 @@ namespace Geometry
      * ~OC~
      * \todo I don't understand what is 't', and why do we use the same mappings as in a square
      *
-     * There are 8 possible mappings:
+     * There are 8 implemented mappings:
      *
      *      index 1: (t,x,y)->(t,x,y)    (Identity)
      *      index 2: (t,x,y)->(t,-y,x)   (Right rotation)
@@ -41,7 +41,8 @@ namespace Geometry
      *      index 7: (t,x,y)->(t,-y,-x)  (Mirror in the line y=-x)
      *      index 8: (t,x,y)->(t,y,x)    (Mirror in the line y=x)
      *
-     * These correspond to the node mutations : (1)(2)(3)(4)(5)(6)(7)(8), (1234)(5678),
+     * WARNING: Following permutations contain the wrong numbers
+     * These correspond to the node mutations : (1)(2)(3)(4)(5)(6)(7)(8), (1243)(5687),
      * (14)(23)(58)(67), (1342) (5786), (13)(24)(57)(68), (12)(34)(56)(78),
      * (14)(2)(3)(58)(6)(7)   and (1)(4)(23) (5)(8)(67). The first 4 are rotations,
      * while the last 4 are mirrorings.

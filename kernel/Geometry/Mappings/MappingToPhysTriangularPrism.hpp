@@ -42,7 +42,7 @@ namespace Geometry
 
         private:
             PointPhysicalT a0, a1, a2, a3, a4, a5;
-        
+            int globalNodeIndices_[6];
             //PhysicalGeometryT* physicalGeometry_;
 
     };

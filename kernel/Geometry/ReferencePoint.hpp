@@ -41,10 +41,14 @@ namespace Geometry
             return theInstance;
         }
 
+    private:
+
         ReferencePoint();
 
         ReferencePoint(const ReferencePoint&);
         
+    public:
+
         /// \brief Return true. TODO: Why?
         bool                                    isInternalPoint(const PointReferenceT& p) const;
 
@@ -68,7 +72,9 @@ namespace Geometry
 
         /// \brief Returns 0.
         const MappingReferenceToReference*     getCodim0MappingPtr(const IndexT a) const;
-        
+
+        using MappingCodimensions::getCodim0MappingPtr;
+
         // ================================== Quadrature rules =====================================
 
         /// \brief Add a quadrature rule into the list of valid quadrature rules for this geometry.

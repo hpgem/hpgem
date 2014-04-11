@@ -28,12 +28,12 @@ namespace Geometry
      *
      * TODO: Proper mapping documentation missing here
      *
-     *      index 0: (x,y)->(x,y)     (Identity)
-     *      index 1: (x,y)->(y,x)     ((021) Rotation with respect to x = y)
-     *      index 2: (x,y)->(1-x-y,x) ((120) Counter-clockwise rotation)
-     *      index 3: (x,y)->(1-x-y,y) ((102) Something weird)
-     *      index 4: (x,y)->(x,1-x-y) ((210) Something weird)
-     *      index 5: (x,y)->(y,1-x-y) ((201) Clockwise rotation)
+     *      index 0: (x,y)->(x,y)     ((0)(1)(2) Identity)
+     *      index 1: (x,y)->(y,x)     ((0)(12) Rotation with respect to x = y)
+     *      index 2: (x,y)->(1-x-y,x) ((012) Counter-clockwise rotation)
+     *      index 3: (x,y)->(1-x-y,y) ((01)(2) Something weird)
+     *      index 4: (x,y)->(x,1-x-y) ((02)(1) Something weird)
+     *      index 5: (x,y)->(y,1-x-y) ((021) Clockwise rotation)
      */
 
     // ~~~ index 0 ~~~==============================================================================

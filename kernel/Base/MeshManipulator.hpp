@@ -216,7 +216,7 @@ namespace Base
 
         int                             dimension(){return configData_->dimension_;}
 
-        const std::vector<PointPhysicalT> getNodes(){return points_;}
+        const std::vector<PointPhysicalT>& getNodes(){return points_;}
   //---------------------------------------------------------------------
     private:
         

@@ -27,7 +27,6 @@ namespace Geometry
     public:
     
         /// New style constructor with one less pass
-        /// \bug This will only work for cubes
         ElementGeometry(const VectorOfPointIndexesT&   globalNodeIndexes, const VectorOfPhysicalPointsT& nodes);
         
         /// Copy constructor

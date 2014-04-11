@@ -299,7 +299,7 @@ namespace LinearAlgebra
     void Matrix::computeWedgeStuffVector(NumericalVector& result)
     {
         
-        if (nRows_ != nCols_){throw("Wedge product only defined for square matrices");}
+        //if (nRows_ != nCols_){throw("Wedge product only defined for square matrices");}///Wrong...
         
         if (nRows_ != result.size()){throw("Passed vector is the wrong size for a wedge product");}
         

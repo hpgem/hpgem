@@ -1,4 +1,4 @@
-include_directories(. ${hpGEM_SOURCE_DIR}/src/)
+include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
 #First declare the rules that will form the executable tests#
 #############################################################
@@ -20,17 +20,17 @@ if(hpGEM_INCLUDE_PETSC_SUPPORT)
         main.cpp
         HEuler.cpp
         InitialConditions.cpp
-		${hpGEM_SOURCE_DIR}/src/Output/TecplotPhysicalGeometryIterator.cpp	
-		${hpGEM_SOURCE_DIR}/src/Output/TecplotDiscontinuousSolutionWriter.cpp
-		${hpGEM_SOURCE_DIR}/src/Integration/QuadratureRules/allGaussQuadratureRules.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp	
+		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/allGaussQuadratureRules.cpp
 		#miscellaneous required stuff
-		${hpGEM_SOURCE_DIR}/src/Base/MeshManipulator.cpp
-        ${hpGEM_SOURCE_DIR}/src/Base/AssembleBasisFunctionSet.cpp
-		${hpGEM_SOURCE_DIR}/src/Base/L2Norm.cpp
-        ${hpGEM_SOURCE_DIR}/src/Base/Norm2.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp
+        ${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
+        ${hpGEM_SOURCE_DIR}/kernel/Base/Norm2.cpp
         )
 	
-		target_link_libraries(hEulerApp.out hpGEM_Base Geometry QuadratureRules Matrix ${PETSC_LIBRARIES})
+		target_link_libraries(hEulerApp.out hpGEM_Base Geometry QuadratureRules LinearAlgebra ${PETSC_LIBRARIES})
 
 else() 
 	add_custom_target(hEulerApp.out 

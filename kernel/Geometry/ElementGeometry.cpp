@@ -36,7 +36,7 @@
 #include "PhysicalPyramid.hpp"
 #include "PhysicalTriangularPrism.hpp"
 #include "PhysicalHexahedron.hpp"
-    //#include "PhysicalOcot...hpp"
+#include "PhysicalOctachoron.hpp"
 
 #include "Mappings/MappingReferenceToPhysical.hpp"
 #include "Mappings/MappingToPhysHypercubeLinear.hpp"
@@ -135,7 +135,7 @@ namespace Geometry
     	case 16:
 //            std::cout <<"I am a hypercube" << std::endl;
     		///\todo can not find this one
-            //return new Geometry::PhysicalHypercube(globalNodeIndexes, nodes, static_cast<const ReferenceHypercube* const>(geo));
+            return new Geometry::PhysicalOctachoron(globalNodeIndexes, nodes, static_cast<const ReferenceHypercube* const>(geo));
     	default:
     		throw "No known entities contain this many nodes";
 

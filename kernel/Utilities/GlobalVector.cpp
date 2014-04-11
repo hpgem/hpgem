@@ -168,6 +168,10 @@ namespace Utilities{
 			//coefficients belonging to conforming basisfunctions appear in multiple elements so don't add
 			int ierr=VecSetValues(b_,n,positions,&elementData[0],INSERT_VALUES);
 		}
+
+		int ierr=VecAssemblyBegin(b_);
+		ierr=VecAssemblyEnd(b_);
+		CHKERRV(ierr);
 	}
 
 	void GlobalPetscVector::writeTimeLevelData(int timeLevel){

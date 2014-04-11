@@ -41,11 +41,11 @@ namespace Geometry
         mappingsSquareToSquare_[0] = &MappingToRefSquareToSquare0::Instance(); // (x,y)    -> (x,y)
         mappingsSquareToSquare_[1] = &MappingToRefSquareToSquare1::Instance(); // (x,y)    -> (-y,x)
         mappingsSquareToSquare_[2] = &MappingToRefSquareToSquare2::Instance(); // (x,y)    -> (-x,-y)
-        mappingsSquareToSquare_[3] = &MappingToRefSquareToSquare3::Instance(); // (x,y)    -> (y,x)
+        mappingsSquareToSquare_[3] = &MappingToRefSquareToSquare3::Instance(); // (x,y)    -> (y,-x)
         mappingsSquareToSquare_[4] = &MappingToRefSquareToSquare4::Instance(); // (x,y)    -> (x,-y)
         mappingsSquareToSquare_[5] = &MappingToRefSquareToSquare5::Instance(); // (x,y)    -> (-x,y)
         mappingsSquareToSquare_[6] = &MappingToRefSquareToSquare6::Instance(); // (x,y)    -> (-y,-x)
-        mappingsSquareToSquare_[7] = &MappingToRefSquareToSquare7::Instance(); // (x,y)    -> (y,-x)
+        mappingsSquareToSquare_[7] = &MappingToRefSquareToSquare7::Instance(); // (x,y)    -> (y,x)
 
         // We set the actual coordinates (see top comment for drawing).
         PointReferenceT p1(2), p2(2), p3(2), p4(2);
@@ -117,7 +117,7 @@ namespace Geometry
                 if (list1[1] == list2[0])
                     return 5;
                 else if (list1[1] == list2[3])
-                    return 1;
+                    return 3;
                 else
                     throw "ERROR: reference square indexes where given in impossible order.";
             }
@@ -126,7 +126,7 @@ namespace Geometry
                 if (list1[2] == list2[0])
                     return 4;
                 else if (list1[2] == list2[3])
-                    return 3;
+                    return 1;
                 else
                     throw "ERROR: reference square indexes where given in impossible order.";
             }

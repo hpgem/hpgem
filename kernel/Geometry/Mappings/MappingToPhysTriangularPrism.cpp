@@ -15,14 +15,15 @@ namespace Geometry
     MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(const PhysicalGeometryT* const physicalGeometry):
     		a0(3),a1(3),a2(3),a3(3),a4(3),a5(3)
     {
+        MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
 
     void MappingToPhysTriangularPrism::
     transform(const PointReferenceT& pR, PointPhysicalT& pP) const
     {
-        if (isValidPoint(pR))
-        {
+        //if (isValidPoint(pR))
+        //{
 #if SAVECOEFFS
             pointPhysical = a0
                           + a1 * xi[0]
@@ -48,22 +49,22 @@ namespace Geometry
 
             for (int i = 0; i < 6; ++i)
             {
-                    // physicalGeometry_->getNodeCoordinates(i,p);
-                    //pP += f2[i] * p;
+                    getNodeCoordinates(globalNodeIndices_[i],p);
+                    pP += f2[i] * p;
             }
 #endif
-        }
-        else
-        {
-            throw "ERROR: MappingToPhysTriangularPrism::transform, mapping point outside geometry.";
-        }
+        //}
+        //else
+        //{
+        //    throw "ERROR: MappingToPhysTriangularPrism::transform, mapping point outside geometry.";
+        //}
     }
 
     void MappingToPhysTriangularPrism::
     calcJacobian(const PointReferenceT& pR, JacobianT& jacobian) const
     {
-        if (isValidPoint(pR))
-        {
+        //if (isValidPoint(pR))
+        //{
 #ifdef SAVECOEFFS
             Geometry::PointPhysical<3> d_dxi0(a1 + xi[2] * a4);
             Geometry::PointPhysical<3> d_dxi1(a2 + xi[2] * a5);
@@ -114,7 +115,7 @@ namespace Geometry
 
             for (int i = 0; i < 6; ++i)
             {
-                    //physicalGeometry_->getNodeCoordinates(i,p);
+                    getNodeCoordinates(globalNodeIndices_[i],p);
 
                 d_dxi0 += df_dxi0[i] * p;
                 d_dxi1 += df_dxi1[i] * p;
@@ -127,11 +128,11 @@ namespace Geometry
                 jacobian(i,1) = d_dxi1[i];
                 jacobian(i,2) = d_dxi2[i];
             }
-        }
-        else
-        {
-            // ERROR
-        }
+        //}
+        //else
+        //{
+        //    // ERROR
+        //}
 #endif
     }
 
@@ -156,6 +157,11 @@ namespace Geometry
 #else
             //  physicalGeometry_ = physicalGeometry;
 #endif
+
+        for (int i = 0; i < 6; ++i)
+        {
+            globalNodeIndices_[i] = physicalGeometry->getNodeIndex(i);
+        }
     }
 
     bool MappingToPhysTriangularPrism::isValidPoint(const PointReferenceT& pointReference) const

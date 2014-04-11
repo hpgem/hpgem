@@ -18,6 +18,7 @@ add_library(Reference_geometries SHARED
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/point.cpp 
 	# Mappings
 
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefCubeToHypercube.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefFaceToPyramid.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefFaceToTriangularPrism.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefTriangleToTetrahedron.cpp
@@ -29,8 +30,7 @@ add_library(Reference_geometries SHARED
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefLineToTriangle.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefLineToLine.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefPointToLine.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefPointToPoint.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefCubeToHypercube.cpp)
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefPointToPoint.cpp)
 
 
 
@@ -46,12 +46,12 @@ add_library(Geometry SHARED
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalTriangularPrism.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalTetrahedron.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalHexahedron.cpp
-#         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalOctachoron.cpp
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalOctachoron.cpp
 
         # Mappings
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysHypercubeLinear.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysPyramid.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefCubeToHypercube.cpp
+       # ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefCubeToHypercube.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysTriangularPrism.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/OutwardNormalVectorSign.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingReferenceToPhysical.cpp

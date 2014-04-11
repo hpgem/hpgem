@@ -47,10 +47,14 @@ namespace Geometry
             return theInstance;
         }
 
+    private:
+
         ReferenceTriangle();
 
         ReferenceTriangle(const ReferenceTriangle& copy);
         
+    public:
+
         /// /see (see ReferenceGeometry.hpp)
         bool            isInternalPoint(const PointReferenceT& point) const;
         
@@ -78,6 +82,8 @@ namespace Geometry
         //! (see MappingCodimensions.hpp)
         const MappingReferenceToReference* getCodim0MappingPtr(const IndexT) const;
 
+        using MappingCodimensions::getCodim0MappingPtr;
+
         // ================================== Codimension 1 ========================================
 
         //! (see MappingCodimensions.hpp)
@@ -97,8 +103,9 @@ namespace Geometry
         //! (see MappingCodimensions.hpp)
         unsigned int                                      getNrOfCodim2Entities() const {return 3;};
 
-        void                                     getCodim2EntityLocalIndices(const int, std::vector<unsigned int>&) const {return;}
-  
+        void                                     getCodim2EntityLocalIndices(const unsigned int node, std::vector<unsigned int>& ret) const {ret[0]=node;return;}
+
+        const ReferenceGeometry*           getCodim2ReferenceGeometry(const unsigned int)const {return &Geometry::ReferencePoint::Instance();}
         
         // ================================== Quadrature rules =====================================
 

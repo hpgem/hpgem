@@ -3,30 +3,34 @@
 #include "PhysicalGeometry.hpp"
 namespace Geometry
 {
-    class PhysicalHexahedron: public PhysicalGeometry
+	class ReferenceHypercube;
+
+    class PhysicalOctachoron: public PhysicalGeometry
     {
         public:
             typedef PhysicalGeometry PhysicalGeometry4D;
-            using PhysicalGeometry3D::VectorOfPointIndexesT;
-            using PhysicalGeometry3D::VectorOfPhysicalPointsT;
-            using PhysicalGeometry3D::PointIndexT;
+            using PhysicalGeometry4D::VectorOfPointIndexesT;
+            using PhysicalGeometry4D::VectorOfPhysicalPointsT;
+            using PhysicalGeometry4D::PointIndexT;
 
         public:
 
-            PhysicalHexahedron(
+            PhysicalOctachoron(
                     const VectorOfPointIndexesT&,
                     const VectorOfPhysicalPointsT&,
                     const ReferenceHypercube* const);
 
-            ~PhysicalHexahedron() {}
+            ~PhysicalOctachoron() {}
 
             /// Returns the name of this geometry.
             virtual std::string             getName() const { return "PhysicalOctachron";}
 
             virtual void getGlobalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
 
-            virtual void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const
+            virtual void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
             
+            virtual unsigned int getNrOfFaces() const {return getRefGeometry()->getNrOfCodim1Entities();}
+
         private:
                
     };
