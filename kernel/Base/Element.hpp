@@ -94,7 +94,7 @@ namespace Base
 	
         void                            getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const;
         
-        void                            initialiseSolution(unsigned int timeLevel, unsigned int solutionId, const SolutionVector& solution);
+        void                            initialiseSolution(unsigned int timeLevel, unsigned int solutionId, const SolutionVector& solution);///\TODO not implemented
         
         void                            setFace(int localFaceNr, const Face* face);
 

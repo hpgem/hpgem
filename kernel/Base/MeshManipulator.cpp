@@ -62,8 +62,6 @@ namespace Base
         	case 1:
         		Base::AssembleBasisFunctionSet_1D_Ord1_A0(*bFset1);
         		break;
-        	default:
-        		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
         	case 2:
         		Base::AssembleBasisFunctionSet_1D_Ord2_A0(*bFset1);
         		break;
@@ -76,6 +74,8 @@ namespace Base
         	case 5:
         		Base::AssembleBasisFunctionSet_1D_Ord5_A0(*bFset1);
         		break;
+        	default:
+        		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
         	}
         	break;
         case 2:
@@ -83,8 +83,6 @@ namespace Base
         	case 1:
         		Base::AssembleBasisFunctionSet_2D_Ord1_A1(*bFset1);
         		break;
-        	default:
-        		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
         	case 2:
         		Base::AssembleBasisFunctionSet_2D_Ord2_A1(*bFset1);
         		break;
@@ -97,6 +95,8 @@ namespace Base
         	case 5:
         		Base::AssembleBasisFunctionSet_2D_Ord5_A1(*bFset1);
         		break;
+        	default:
+        		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
         	}
         	break;
         case 3:
@@ -104,8 +104,6 @@ namespace Base
         	case 1:
         		Base::AssembleBasisFunctionSet_3D_Ord1_A1(*bFset1);
         		break;
-        	default:
-        		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
         	case 2:
         		Base::AssembleBasisFunctionSet_3D_Ord2_A1(*bFset1);
         		break;
@@ -118,6 +116,8 @@ namespace Base
         	case 5:
         		Base::AssembleBasisFunctionSet_3D_Ord5_A1(*bFset1);
         		break;
+        	default:
+        		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
         	}
         	break;
         default:

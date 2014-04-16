@@ -87,7 +87,7 @@ template <class ReturnTrait1>
                 for (unsigned int i=0; i<nrOfPoints; ++i)
                 {
                     qdrRuleLoc->getPoint(i, p);
-                    vecCache[i](el,p);///\BUG there is no speed gain from storing reference points for each element
+                    vecCache[i](el,p);//this non-intuitive bit of notation computes and stores the jacobian and its determinant
                 }
             }
 

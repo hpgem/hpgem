@@ -70,7 +70,7 @@ template <class ReturnTrait1>
                 for (unsigned int i=0; i<nrOfPoints; ++i)
                 {
                     qdrRuleLoc->getPoint(i, p);
-                    vecCache[i](*fa,p);
+                    vecCache[i](*fa,p);//this non-intuitive bit of notation computes and stores the outward-pointing normal vector and its norm
                 }
             }
 

@@ -123,24 +123,24 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Tetrahedron(int order) {
 	for (int i = 0; i < 4; ++i) {
 		result->addBasisFunction(new BasisFunction3DVertexTetrahedron(i));
 	}
-	for (int i = 0; i < 6; ++i) {
-		tetrahedron.getCodim2EntityLocalIndices(i, vectorOfPointIndexes);
-		for (int j = 0; j <= order - 2; ++j) {
+	for (int j = 0; j <= order - 2; ++j) {
+		for (int i = 0; i < 6; ++i) {
+			tetrahedron.getCodim2EntityLocalIndices(i, vectorOfPointIndexes);
 			result->addBasisFunction(new BasisFunction3DEdgeTetrahedron(vectorOfPointIndexes[0], vectorOfPointIndexes[1], j));
 		}
-	}
-	for (int i = 0; i < 4; ++i) {
-		tetrahedron.getCodim1EntityLocalIndices(i, vectorOfPointIndexes);
-		for (int j = 0; j <= order - 3; ++j) {
-			for (int k = 0; j + k <= order - 3; ++k) {
-				result->addBasisFunction(new BasisFunction3DFaceTetrahedron(vectorOfPointIndexes[0], vectorOfPointIndexes[1], vectorOfPointIndexes[2], j, k));
+		if(j>0){
+			for (int i = 0; i < 4; ++i) {
+			tetrahedron.getCodim1EntityLocalIndices(i, vectorOfPointIndexes);
+				for (int k = 0; k <= j-1; ++k) {
+					result->addBasisFunction(new BasisFunction3DFaceTetrahedron(vectorOfPointIndexes[0], vectorOfPointIndexes[1], vectorOfPointIndexes[2], j-k-1, k));
+				}
 			}
 		}
-	}
-	for (int i = 0; i <= order - 4; ++i) {
-		for (int j = 0; i + j <= order - 4; ++j) {
-			for (int k = 0; i + j + k <= order - 4; ++k) {
-				result->addBasisFunction(new BasisFunction3DInteriorTetrahedron(i, j, k));
+		if(j>1){
+			for (int i = 0; i <= j-2; ++i) {
+				for (int k = 0; (i + k) <= j-2; ++k) {
+					result->addBasisFunction(new BasisFunction3DInteriorTetrahedron(i, j-i-k-2, k));
+				}
 			}
 		}
 	}

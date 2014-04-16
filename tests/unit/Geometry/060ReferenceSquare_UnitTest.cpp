@@ -58,10 +58,10 @@ int main(){
 	cout<<test.getName();
 
 	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,0)==0));//the nodes of the face must always be specified IN THIS SPECIFIC ORDER
-	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,1)==1));//im not sure if I like this myself, but this should at least verify
-	assert(("getLocalNodeIndex 1",test.getLocalNodeIndex(1,0)==0));//that all face nodes are specified, none are specified twice
-	assert(("getLocalNodeIndex 1",test.getLocalNodeIndex(1,1)==2));//and only face nodes are specified and the ordering of the nodes is consistent
-	assert(("getLocalNodeIndex 2",test.getLocalNodeIndex(2,0)==1));//across function calls
+	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,1)==1));//this is needed because the outward pointing normal vector
+	assert(("getLocalNodeIndex 1",test.getLocalNodeIndex(1,0)==0));//will automatically point outward when compute it using this node ordering
+	assert(("getLocalNodeIndex 1",test.getLocalNodeIndex(1,1)==2));///\BUG some orderings are wrong
+	assert(("getLocalNodeIndex 2",test.getLocalNodeIndex(2,0)==1));
 	assert(("getLocalNodeIndex 2",test.getLocalNodeIndex(2,1)==3));
 	assert(("getLocalNodeIndex 3",test.getLocalNodeIndex(3,0)==2));
 	assert(("getLocalNodeIndex 3",test.getLocalNodeIndex(3,1)==3));

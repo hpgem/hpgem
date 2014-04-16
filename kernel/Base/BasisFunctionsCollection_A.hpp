@@ -547,7 +547,7 @@ namespace Base
     struct Basis_A35_3D: public Base::BaseBasisFunction
     {
         virtual double eval(const PointReferenceT& p) const         { return p[0]*p[0]*p[0]*p[1]*p[2]; }
-        virtual double evalDeriv0(const PointReferenceT& p) const   { return 3.*p[0]*p[0]*p[1]*p[1]; }
+        virtual double evalDeriv0(const PointReferenceT& p) const   { return 3.*p[0]*p[0]*p[1]*p[2]; }
         virtual double evalDeriv1(const PointReferenceT& p) const   { return p[0]*p[0]*p[0]*p[2]; }
         virtual double evalDeriv2(const PointReferenceT& p) const   { return p[0]*p[0]*p[0]*p[1]; }
     };

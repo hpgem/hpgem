@@ -200,38 +200,52 @@ namespace Utilities {
 		for (int i = 0; i < cube.getNrOfCodim3Entities(); ++i) {
 			result->addBasisFunction(new BasisFunction3DVertexCube(i));
 		}
-		for (int i = 0; i < 4; ++i) {
-			cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
-			for (int j = 0; j <= order - 2; ++j) {
+		for (int j = 0; j <= order - 2; ++j) {
+			for (int i = 0; i < 4; ++i) {
+				cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
 				result->addBasisFunction(new BasisFunction3DEdgeCube_0(vectorOfPointIndices[0], vectorOfPointIndices[1], j));
 			}
-		}
-		for (int i = 4; i < 8; ++i) {
-			cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
-			for (int j = 0; j <= order - 2; ++j) {
+			for (int i = 4; i < 8; ++i) {
+				cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
 				result->addBasisFunction(new BasisFunction3DEdgeCube_1(vectorOfPointIndices[0], vectorOfPointIndices[1], j));
 			}
-		}
-		for (int i = 8; i < 12; ++i) {
-			cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
-			for (int j = 0; j <= order - 2; ++j) {
+			for (int i = 8; i < 12; ++i) {
+				cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
 				result->addBasisFunction(new BasisFunction3DEdgeCube_2(vectorOfPointIndices[0], vectorOfPointIndices[1], j));
 			}
-		}
-		for (int i = 0; i <= order - 2; ++i) {
-			for (int j = 0; j <= order - 2; ++j) {
+			result->addBasisFunction(new BasisFunction3DFaceCube_2(0, 1, 2, j, j));
+			result->addBasisFunction(new BasisFunction3DFaceCube_1(0, 1, 4, j, j));
+			result->addBasisFunction(new BasisFunction3DFaceCube_0(0, 2, 4, j, j));
+			result->addBasisFunction(new BasisFunction3DFaceCube_0(1, 3, 5, j, j));
+			result->addBasisFunction(new BasisFunction3DFaceCube_1(2, 3, 6, j, j));
+			result->addBasisFunction(new BasisFunction3DFaceCube_2(4, 5, 6, j, j));
+			result->addBasisFunction(new BasisFunction3DInteriorCube(j, j, j));
+			for (int i = 0; i < j; ++i) {
 				result->addBasisFunction(new BasisFunction3DFaceCube_2(0, 1, 2, i, j));
 				result->addBasisFunction(new BasisFunction3DFaceCube_1(0, 1, 4, i, j));
 				result->addBasisFunction(new BasisFunction3DFaceCube_0(0, 2, 4, i, j));
 				result->addBasisFunction(new BasisFunction3DFaceCube_0(1, 3, 5, i, j));
 				result->addBasisFunction(new BasisFunction3DFaceCube_1(2, 3, 6, i, j));
 				result->addBasisFunction(new BasisFunction3DFaceCube_2(4, 5, 6, i, j));
-			}
-		}
-		for (int i = 0; i <= order - 2; ++i) {
-			for (int j = 0; j <= order - 2; ++j) {
-				for (int k = 0; k <= order - 2; ++k) {
+				result->addBasisFunction(new BasisFunction3DFaceCube_2(0, 1, 2, j, i));
+				result->addBasisFunction(new BasisFunction3DFaceCube_1(0, 1, 4, j, i));
+				result->addBasisFunction(new BasisFunction3DFaceCube_0(0, 2, 4, j, i));
+				result->addBasisFunction(new BasisFunction3DFaceCube_0(1, 3, 5, j, i));
+				result->addBasisFunction(new BasisFunction3DFaceCube_1(2, 3, 6, j, i));
+				result->addBasisFunction(new BasisFunction3DFaceCube_2(4, 5, 6, j, i));
+				result->addBasisFunction(new BasisFunction3DInteriorCube(i, i, j));
+				result->addBasisFunction(new BasisFunction3DInteriorCube(i, j, i));
+				result->addBasisFunction(new BasisFunction3DInteriorCube(j, i, i));
+				result->addBasisFunction(new BasisFunction3DInteriorCube(j, j, i));
+				result->addBasisFunction(new BasisFunction3DInteriorCube(j, i, j));
+				result->addBasisFunction(new BasisFunction3DInteriorCube(i, j, j));
+				for (int k = 0; k < i; ++k) {
 					result->addBasisFunction(new BasisFunction3DInteriorCube(i, j, k));
+					result->addBasisFunction(new BasisFunction3DInteriorCube(i, k, j));
+					result->addBasisFunction(new BasisFunction3DInteriorCube(j, i, k));
+					result->addBasisFunction(new BasisFunction3DInteriorCube(j, k, i));
+					result->addBasisFunction(new BasisFunction3DInteriorCube(k, i, j));
+					result->addBasisFunction(new BasisFunction3DInteriorCube(k, j, i));
 				}
 			}
 		}

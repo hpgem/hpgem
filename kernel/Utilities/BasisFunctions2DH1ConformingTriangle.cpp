@@ -65,15 +65,17 @@ namespace Utilities {
 		Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
 		for (int i = 0; i < 3; ++i) {
 			result->addBasisFunction(new BasisFunction2DVertexTriangle(i));
-			for (int j = 0; j < i; ++j) {
-				for (int k = 0; k <= order - 2; ++k) {
+		}
+		for (int k = 0; k <= order - 2; ++k) {
+			for(int i=0;i<3;++i){
+				for (int j = 0; j < i; ++j) {
 					result->addBasisFunction(new BasisFunction2DFaceTriangle(i, j, k));
 				}
 			}
-		}
-		for (int i = 0; i <= order - 3; ++i) {
-			for (int j = 0; i + j <= order - 3; ++j) {
-				result->addBasisFunction(new BasisFunction2DInteriorTriangle(i, j));
+			if(k<=order-3){
+				for (int j = 0; j <= k; ++j) {
+					result->addBasisFunction(new BasisFunction2DInteriorTriangle(k-j, j));
+				}
 			}
 		}
 		return result;

@@ -148,13 +148,9 @@ public:
     }
 
     void writeToTecplotFile(const ElementT* element,const  PointReferenceT& p, ostream& out){
-    	double value(0);
-    	Geometry::PointPhysical pPhys(DIM);
-    	element->referenceToPhysical(p,pPhys);
-    	for(int i=0;i<element->getNrOfBasisFunctions();++i){
-    		value+=element->basisFunction(i,p)*element->getData(0,0,i);
-    	}
-    	out<<value;
+    	NumericalVector value(1);
+    	element->getSolution(0,p,value);
+    	out<<value[0];
     }
 
     ///guarantees the linear system keeps the dirichlet boundary conditions in place. Assumes x already contains expansion coefficients for

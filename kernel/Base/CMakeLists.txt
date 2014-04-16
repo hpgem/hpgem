@@ -11,6 +11,7 @@ add_library(hpGEM_Base SHARED
  		FaceData.cpp
  		FaceCacheData.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Integration/FaceIntegral.cpp
+ 		Edge.cpp
  		HpgemUI.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp

@@ -5,7 +5,7 @@ include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
 add_executable(app1.out 
 		app1.cpp
-
+		#add extra cpp-s here
 		${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp
 							  
@@ -13,4 +13,4 @@ add_executable(app1.out
 		${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
       		)
-target_link_libraries(app1.out hpGEM_Base)
+target_link_libraries(app1.out hpGEM_Base) # add extra libraries here

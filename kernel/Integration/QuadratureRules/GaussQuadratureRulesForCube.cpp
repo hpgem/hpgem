@@ -404,13 +404,13 @@ namespace QuadratureRules
     unsigned int
     C3_7_2::nrOfPoints() const
     {
-        return 34;
+        return 64;
     }
 
     double
     C3_7_2::weight(unsigned int i) const
     {
-        if (i < 34)
+        if (i < 64)
             return weight_[i];
         else
             throw name_ + "::weight - wrong index!";
@@ -419,7 +419,7 @@ namespace QuadratureRules
     void
     C3_7_2::getPoint(unsigned int i, PointReferenceT& p) const
     {
-        if (i < 34)
+        if (i < 64)
             p=gp_[i];
         else
             throw name_ + "::getPoint -  wrong index!";
@@ -433,10 +433,28 @@ namespace QuadratureRules
 
     C3_7_2::C3_7_2():
         name_("C3_7_2"),
-        refGeoPtr_(&ReferenceCube::Instance()),gp_(34,3)
+        refGeoPtr_(&ReferenceCube::Instance()),gp_(64,3)
     {
-        weight_[0] = 1078. / 3645.;
-        gp_[0][0] = +sqrt((6. / 7.));
+    	int position(0);
+		C1_7_x& ruleForLine =C1_7_x::Instance();
+		Geometry::PointReference point1D(1);
+		refGeoPtr_->addGaussQuadratureRule(this);
+		for(int i=0;i<ruleForLine.nrOfPoints();++i){
+			for(int j=0;j<ruleForLine.nrOfPoints();++j){
+				for(int k=0;k<ruleForLine.nrOfPoints();++k){
+					weight_[position]=ruleForLine.weight(i)*ruleForLine.weight(j)*ruleForLine.weight(k);
+					ruleForLine.getPoint(i,point1D);
+					gp_[position][0]=point1D[0];
+					ruleForLine.getPoint(j,point1D);
+					gp_[position][1]=point1D[0];
+					ruleForLine.getPoint(k,point1D);
+					gp_[position][2]=point1D[0];
+					++position;
+				}
+			}
+		}
+        /*weight_[0] = 1078. / 3645.;//rule breaks for (1-z)(1-x^2)(1-y^2)(5x^2-1)(5y^2-1)
+        gp_[0][0] = +sqrt((6. / 7.));//and some others
         gp_[0][1] = 0.;
         gp_[0][2] = 0.;
 
@@ -605,7 +623,7 @@ namespace QuadratureRules
         gp_[33][1] = -sqrt(((960. + 3. * sqrt(28798.)) / 2726.));
         gp_[33][2] = -sqrt(((960. + 3. * sqrt(28798.)) / 2726.));
 
-        refGeoPtr_->addGaussQuadratureRule(this);
+        refGeoPtr_->addGaussQuadratureRule(this);*/
     }
 
     C3_7_2::~C3_7_2()

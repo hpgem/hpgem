@@ -151,7 +151,7 @@ namespace QuadratureRules
 
     private:
         const std::string               name_;
-        double                          weight_[34];
+        double                          weight_[64];
         ReferenceGeometryT* const       refGeoPtr_;
         std::vector<PointReferenceT>                   gp_;
     };
