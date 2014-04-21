@@ -1,21 +1,17 @@
-include_directories(${hpGEM_SOURCE_DIR}/src/ .)
+include(${CMAKE_SOURCE_DIR}/conf/cmake/MasterMake.cmake)
 
-
-#Test 1 - Simple Matrix Algebra Test : Check it both complies and runs
-add_executable(MatrixTest.out MatrixTest.cpp)
-target_link_libraries(MatrixTest.out Matrix)
-add_test(MatrixTest MatrixTest.out)
-
-
-
-#Test 2 - Numerical Vector test
-add_executable(VectorTest.out 
-	VectorTest.cpp 
-	${hpGEM_SOURCE_DIR}/src/Geometry/Point.hpp 
-	${hpGEM_SOURCE_DIR}/src/LinearAlgebra/daxpy.f
-	${hpGEM_SOURCE_DIR}/src/LinearAlgebra/lsame.f 
-	${hpGEM_SOURCE_DIR}/src/LinearAlgebra/xerbla.f 
-	${hpGEM_SOURCE_DIR}/src/LinearAlgebra/dgemv.f 
-	${hpGEM_SOURCE_DIR}/src/LinearAlgebra/NumericalVector.hpp)
-target_link_libraries(VectorTest.out gfortran)
-add_test(VectorTest VectorTest.out)  
+#Part 1 : All cpp files will be made to exec files
+#########################################
+#Collect all the names of the cpp, note at the moment limited to demos, but will be fixed later
+file(GLOB CPPFILES  "*.cpp")
+#for every cpp found
+foreach(CPPFILE ${CPPFILES})
+	#extract the actually file name
+	get_filename_component(FILENAME ${CPPFILE} NAME)
+	#extract the filename minus the cpp. This will be the name of exe file
+	get_filename_component(EXECNAME ${CPPFILE} NAME_WE)
+	#Make the exe
+	add_executable(${EXECNAME} ${FILENAME})
+							        
+	target_link_libraries(${EXECNAME}  LinearAlgebra)
+endforeach()

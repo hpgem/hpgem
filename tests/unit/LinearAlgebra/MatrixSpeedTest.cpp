@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
-#include "Matrix.hpp"
+#include "LinearAlgebra/Matrix.hpp"
 
 using namespace::std;
 

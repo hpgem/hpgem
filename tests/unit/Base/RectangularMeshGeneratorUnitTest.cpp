@@ -63,13 +63,13 @@ int main()
     
     //Now 3D test
     {
-        Base::ConfigurationData config(1,1,1);
+        Base::ConfigurationData config(3,1,1,1);
             //
             //        config.numberOfUnknowns_       = 1;
             //        config.numberOfTimeLevels_     = 1;
             //        config.numberOfBasisFunctions_ = 1;
         
-         Geometry::PointPhysical<3> bottomLeft, topRight;
+         Geometry::PointPhysical bottomLeft(3), topRight(3);
          std::vector<unsigned int> numElementsThreeD(3);
    
          bottomLeft[0]=0;
@@ -84,7 +84,7 @@ int main()
          numElementsThreeD[1]=3;
          numElementsThreeD[2]=3;
  
-         Base::MeshManipulator<3> myThreeDDemoMesh(&config, 1,1,1);
+         Base::MeshManipulator myThreeDDemoMesh(&config, 1,1,1);
          myThreeDDemoMesh.createRectangularMesh(bottomLeft,topRight,numElementsThreeD);
      
          myThreeDDemoMesh.outputMesh(std::cout);

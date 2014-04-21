@@ -10,7 +10,7 @@
 #include "Integration/FaceIntegrandBase.hpp"
 #include "Integration/QuadratureRules/AllGaussQuadratureRules.hpp"
 
-template <unsigned int dim>
+/*template <unsigned int dim>
 class PhysicalFunction
 {
 public:
@@ -25,9 +25,10 @@ public:
     }
 };
 
+*/
 int main()
 {
-    const unsigned int dim=2;
+  /*  const unsigned int dim=2;
 
     Geometry::PointPhysical<dim> bottomLeft, topLeft;
     std::vector<unsigned int> numElementsOneD(dim);
@@ -74,6 +75,6 @@ int main()
         cout<< "#####################################END of ELEMENT######"<<endl;
     }
     std::cout << "Finished: Integral over all elements....\n";
-
+*/
     return 0;
 }

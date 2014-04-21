@@ -8,24 +8,22 @@
 #include "Integration/ElementIntegrandBase.hpp"
 #include "Integration/FaceIntegrandBase.hpp"
 #include "Integration/QuadratureRules/AllGaussQuadratureRules.hpp"
-
-template <unsigned int dim>
-class MyElementIntegrandType : public Integration::ElementIntegrandBase<dim>
+//
+class MyElementIntegrandType : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
 {
 public:
 
-    void operator()(const Base::Element<dim>* elem, const Geometry::PointReference<dim>& p, LinearAlgebra::NumericalVector& ret)
+    void elementIntegrand(const Base::Element* elem, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
     {
         ret[0] = p[0];
     }
 };
 
-template <unsigned int dim>
-class MyFaceIntegrandType : public Integration::FaceIntegrandBase<dim>
+class MyFaceIntegrandType : public Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>
 {
 public:
 
-    void operator()(const Base::Face<dim>* face, const Geometry::PointPhysical<dim>& normal, const Geometry::PointReference<dim-1>& p, LinearAlgebra::NumericalVector& ret)
+    void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
     {
         //ret[0] = p[0];
         //ret[1] = p[1];
@@ -36,7 +34,7 @@ int main()
 {
     const unsigned int dim=2;
 
-    Geometry::PointPhysical<dim> bottomLeft, topLeft;
+    Geometry::PointPhysical bottomLeft(2), topLeft(2);
     std::vector<unsigned int> numElementsOneD(dim);
 
     bottomLeft[0] = 0;
@@ -48,18 +46,18 @@ int main()
     numElementsOneD[0] = 2;
     numElementsOneD[1] = 2;
 
-    Base::ConfigurationData config(1,1,1);
+    Base::ConfigurationData config(dim,1,1,1);
     
     config.numberOfUnknowns_       = 1;
     config.numberOfTimeLevels_     = 1;
     config.numberOfBasisFunctions_ = 1;
     
-    Base::MeshManipulator<dim> myTwoDDemoMesh(&config, 1,1);
+    Base::MeshManipulator myTwoDDemoMesh(&config, 1,1);
 
     myTwoDDemoMesh.createRectangularMesh(bottomLeft,topLeft,numElementsOneD);
 
-    typedef std::list<Base::Element<dim>*> ListOfElementsT;
-    typedef std::list<Base::Face<dim>*>    ListOfFacesT;
+    typedef std::list<Base::Element*> ListOfElementsT;
+    typedef std::list<Base::Face*>    ListOfFacesT;
 
     ListOfElementsT& elements = myTwoDDemoMesh.getElementsList();
     ListOfFacesT& faces = myTwoDDemoMesh.getFacesList();
@@ -67,11 +65,11 @@ int main()
 
     //Create a 
     bool isUseCache(false);
-    Integration::ElementIntegral<dim> 	elIntegral(isUseCache);
-    Integration::FaceIntegral<dim>    	faIntegral(isUseCache);
+    Integration::ElementIntegral 	elIntegral(isUseCache);
+    Integration::FaceIntegral    	faIntegral(isUseCache);
 
-    MyElementIntegrandType<dim>     	myElIntegrand;
-    MyFaceIntegrandType<dim>        	myFaIntegrand;
+    MyElementIntegrandType     	myElIntegrand;
+    MyFaceIntegrandType        	myFaIntegrand;
     LinearAlgebra::NumericalVector  	result(1);
 
     std::cout << "Integral over all elements....\n";
@@ -81,7 +79,7 @@ int main()
     {
         std::cout << (*el)->getReferenceGeometry()->getName() << std::endl;
         // Integrate using a quadrature rule of the element
-        elIntegral.integrate((*el), myElIntegrand, result);
+        elIntegral.integrate((*el), &myElIntegrand, result);
         cout << result;
 
         cout<< "#####################################END of ELEMENT######"<<endl;
@@ -95,7 +93,7 @@ int main()
     {
         std::cout << (*fa)->getReferenceGeometry()->getName() << std::endl;
         // Integrate using a quadrature rule of the element
-        faIntegral.integrate(*fa, myFaIntegrand, result);
+        faIntegral.integrate(*fa, &myFaIntegrand, result);
     }
     std::cout << "Finished: Integral over all faces....\n";
 

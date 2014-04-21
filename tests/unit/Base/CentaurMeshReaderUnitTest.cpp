@@ -14,7 +14,7 @@ class Dummy
 {
 public:
     Dummy(){}
-    void operator()(const Base::Element<2>& el, const Geometry::PointReference<2>& p, ostream& os)
+    void operator()(const Base::Element& el, const Geometry::PointReference& p, ostream& os)
     {
     }
 };
