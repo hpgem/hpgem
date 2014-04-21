@@ -11,6 +11,7 @@
 #include "GaussQuadratureRule.hpp"
 #include "Base/TestErrorDebug.hpp"
 #include "Geometry/ReferencePoint.hpp"
+#include <cstdint>
 
 namespace QuadratureRules {
 
