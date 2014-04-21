@@ -12,6 +12,8 @@
 #include "Base/TestErrorDebug.hpp"
 #include "Geometry/ReferencePoint.hpp"
 #include <cstdint>
+/// \bug This is done to make the code work on version 4.6.3 of gnu c++ compiler where INT32_MAX is currently not defined.
+#define INT32_MAX 4294967295
 
 namespace QuadratureRules {
 
