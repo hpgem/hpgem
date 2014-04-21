@@ -22,7 +22,7 @@ if(hpGEM_INCLUDE_PETSC_SUPPORT)
         InitialConditions.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp	
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/allGaussQuadratureRules.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/AllGaussQuadratureRules.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
