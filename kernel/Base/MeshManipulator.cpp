@@ -167,8 +167,10 @@ namespace Base
         numberOfElementMatrixes_(nrOfElementMatrixes),
         numberOfElementVectors_(nrOfElementVectors),
         numberOfFaceMatrixes_(nrOfFaceMatrtixes),
-        numberOfFaceVectors_(nrOfFaceVectors)
+        numberOfFaceVectors_(nrOfFaceVectors),
+	meshMover_(NULL)
     {
+
         cout << "******Mesh creation started!**************"<<endl;
         unsigned int DIM=configData_->dimension_;
         for (unsigned int i=0;i<DIM;++i)
