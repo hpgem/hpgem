@@ -15,7 +15,7 @@ add_library(Reference_geometries SHARED
 	
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Jacobian.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceGeometry.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/point.cpp 
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Point.cpp 
 	# Mappings
 
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefCubeToHypercube.cpp
