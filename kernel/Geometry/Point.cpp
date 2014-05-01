@@ -6,7 +6,7 @@
 //
 //
 #include <iostream>
-#include "point.hpp"
+#include "Point.hpp"
 using std::cout;
 using std::endl;
 

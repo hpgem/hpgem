@@ -11,7 +11,7 @@ foreach(CPPFILE ${CPPFILES})
 	#extract the filename minus the cpp. This will be the name of exe file
 	get_filename_component(EXECNAME ${CPPFILE} NAME_WE)
 	#Make the exe
-	add_executable(${EXECNAME} ${FILENAME})
+	add_executable(${EXECNAME} ${FILENAME} ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/AllGaussQuadratureRules.cpp)
 
 	target_link_libraries(${EXECNAME}  Output)
 endforeach()

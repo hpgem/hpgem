@@ -1,7 +1,7 @@
-include_directories(	${hpGEM_SOURCE_DIR}/Kernel
-			${hpGEM_BINARY_DIR}/Kernel
-			. )
-
+include_directories(	${hpGEM_SOURCE_DIR}/kernel
+			${hpGEM_BINARY_DIR}/kernel
+			.
+			)
 
 
 #Part 2 : Make run test for each of the demo files

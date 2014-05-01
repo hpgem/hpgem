@@ -11,6 +11,12 @@
 #include "GaussQuadratureRule.hpp"
 #include "Base/TestErrorDebug.hpp"
 #include "Geometry/ReferencePoint.hpp"
+#include <cstdint>
+
+/// \bug This is done to make the code work on version 4.6.3 of gnu c++ compiler where INT32_MAX is currently not defined.
+#ifndef INT32_MAX
+#define INT32_MAX 4294967295
+#endif
 
 namespace QuadratureRules {
 

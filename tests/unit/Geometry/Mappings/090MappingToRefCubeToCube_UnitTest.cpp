@@ -21,7 +21,7 @@ int main() {
 
 	Geometry::Jacobian jac(3,3);
 
-	std::vector<int> nodesAfterTransformation(4);
+	std::vector<int> nodesAfterTransformation(8);
 
 	const Geometry::MappingReferenceToReference* test = &Geometry::MappingToRefCubeToCube0::Instance();
 	nodesAfterTransformation[0]=0;
@@ -79,9 +79,9 @@ int main() {
 		geom.getNode(i,refPoint);
 		geom.getNode(nodesAfterTransformation[i],compare);
 		test->transform(refPoint,point);
-		assert(("transform",fabs(point[0]-compare[0])<1e-12));
-		assert(("transform",fabs(point[1]-compare[1])<1e-12));
-		assert(("transform",fabs(point[2]-compare[2])<1e-12));
+		assert(("transform",fabs(point[0]-compare[0])<1e-10 ));
+		assert(("transform",fabs(point[1]-compare[1])<1e-10));
+		assert(("transform",fabs(point[2]-compare[2])<1e-10));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==3));

@@ -11,7 +11,7 @@
 
 #include "Base/Element.hpp"
 #include "PhysGradientOfBasisFunction.hpp"
-#include "edge.hpp"
+#include "Edge.hpp"
 #include "Face.hpp"
 
 namespace Base

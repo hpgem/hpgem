@@ -594,9 +594,12 @@ int main(){
 	jac.resize(0,4);
 	nodesAfterTransformation.resize(1);
 	delete test;
-	test=new Geometry::ConcatenatedMapping(
-			Geometry::ConcatenatedMapping(Geometry::MappingToRefPointToLine1::Instance(),Geometry::MappingToRefLineToSquare1::Instance()),
-			Geometry::ConcatenatedMapping(Geometry::MappingToRefSquareToCube1::Instance(),Geometry::MappingToRefCubeToHypercube1::Instance()));
+
+	Geometry::ConcatenatedMapping map1(Geometry::MappingToRefPointToLine1::Instance(),Geometry::MappingToRefLineToSquare1::Instance());
+	Geometry::ConcatenatedMapping map2(Geometry::MappingToRefSquareToCube1::Instance(),Geometry::MappingToRefCubeToHypercube1::Instance());
+
+	
+	test=new Geometry::ConcatenatedMapping(map1,map2);
 	nodesAfterTransformation[0]=8;
 
 	test->transform(orig0D,point4D);

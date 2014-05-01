@@ -166,6 +166,8 @@ int main(){
 	assert(("number of nodes",test.getNumberOfNodes()==4));
 	assert(("type of geometry",test.getGeometryType()==Geometry::TETRAHEDRON));
 
+
+	return(0);
 	///\TODO if it is decided that getBasisFunctionValue and getBasisFucntionDerivative remain here, test them
 
 	///\TODO testing that the refinement maps behave exactly like the forwarded calls of this class
