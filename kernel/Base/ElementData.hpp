@@ -66,7 +66,7 @@ namespace Base
         
         void                      setUserData(UserElementData* data);
         
-        UserElementData*          getUserData(){return userData_;}
+        UserElementData*          getUserData() const {return userData_;}
 
     protected:
         void setNumberOfBasisFunctions(unsigned int number);

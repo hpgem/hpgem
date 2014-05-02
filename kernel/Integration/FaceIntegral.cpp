@@ -61,7 +61,6 @@ namespace Integration
 
     
     /*! \brief Integration class for face integrals, a specialization for 1D case
-     \todo implement exact 0D 'quadrature rule'
      *  Call to the integrand: must pass the face reference, since that allows
      *  access to the elements' data.  We use no cache for 1D case. */
         //-----------------------------------------

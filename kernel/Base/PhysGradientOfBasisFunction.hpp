@@ -38,9 +38,10 @@ namespace Utilities
             //! Evaluation operator, also compatible with integration routines.
         void operator()(const PointReferenceT& p, RetType& r) const
 	    {
-        	static RetType dummy(r.size());
+        	r.resize(p.size());
+        	RetType dummy(r.size());
         	unsigned int DIM=p.size();
-        	static Geometry::Jacobian jac(DIM,DIM);
+        	Geometry::Jacobian jac(DIM,DIM);
         	myElement_->calcJacobian(p,jac);
         	myElement_->getReferenceGeometry()->getBasisFunctionDerivative(myFunction_,p,dummy);
         	jac.inverse(jac);
@@ -51,7 +52,6 @@ namespace Utilities
         			r[i]+=dummy[j]*jac(j,i);
         		}
         	}
-
 
                 ////SHOULD BE OPENED AFTER MATRIX FIX!!!!
             

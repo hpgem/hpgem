@@ -273,8 +273,8 @@ namespace Base
 
         unsigned int                    elementcounter_;
 
-        static unsigned int             faceCounter_;
-        static unsigned int             edgeCounter_;
+        unsigned int             faceCounter_;
+        unsigned int             edgeCounter_;
         //! List of all elements. TODO: this should be replaced by the mesh-tree structure
         ListOfElementsT                 elements_;
         

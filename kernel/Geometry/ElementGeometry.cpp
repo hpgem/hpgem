@@ -134,7 +134,6 @@ namespace Geometry
             return new Geometry::PhysicalHexahedron(globalNodeIndexes, nodes, static_cast<const ReferenceCube* const>(geo));
     	case 16:
 //            std::cout <<"I am a hypercube" << std::endl;
-    		///\todo can not find this one
             return new Geometry::PhysicalOctachoron(globalNodeIndexes, nodes, static_cast<const ReferenceHypercube* const>(geo));
     	default:
     		throw "No known entities contain this many nodes";

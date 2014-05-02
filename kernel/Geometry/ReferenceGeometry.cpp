@@ -35,7 +35,7 @@ namespace Geometry
 
     double
     ReferenceGeometry::getBasisFunctionValue(const Base::BaseBasisFunction* function,const PointReference& p)
-    {//really needs unordered_map
+    {//not faster than just computing (until we do high precision computations)
     /*	try{
     		return basisfunctionValues_[function].at(p);
     	}catch(std::out_of_range&){

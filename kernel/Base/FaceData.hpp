@@ -7,44 +7,45 @@
 #include "LinearAlgebra/Matrix.hpp"
 #include "UserData.hpp"
 
-namespace Base
-{
-    class FaceData
-    {
-      public:
-        typedef FaceCacheData CacheT;
-        typedef std::vector<CacheT> VecCacheT;
+namespace Base {
+	class FaceData {
+	public:
+		typedef FaceCacheData CacheT;
+		typedef std::vector<CacheT> VecCacheT;
 
-      public:
-        FaceData(unsigned int numberOfDOF, unsigned int numberOfFaceMatrices=0, unsigned int numberOfFaceVactors=0);
-        
-        void
-        setFaceMatrix(const LinearAlgebra::Matrix& matrix, unsigned int matrixID=0);
+	public:
+		FaceData(unsigned int numberOfDOF, unsigned int numberOfFaceMatrices = 0, unsigned int numberOfFaceVactors = 0);
 
-        void
-        getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID=0) const;
+		void setFaceMatrix(const LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0);
 
-        void
-        setFaceVector(const LinearAlgebra::NumericalVector& vector, unsigned int vectorID=0);
+		void getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0) const;
 
-        void
-        getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID=0) const;
+		void setFaceVector(const LinearAlgebra::NumericalVector& vector, unsigned int vectorID = 0);
 
-        const VecCacheT& getVecCacheData() const
-        {
-          return vecCacheData_;
-        }
+		void getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID = 0) const;
 
-        virtual ~FaceData() {;}
+		const VecCacheT& getVecCacheData() const {
+			return vecCacheData_;
+		}
 
-        UserFaceData* getUserData(){return userData_;}
-        void          setUserData(UserFaceData* data){userData_=data;}
+		virtual ~FaceData() {
+			;
+		}
 
-      private:
-        VecCacheT vecCacheData_;
-        UserFaceData* userData_;
-        std::vector<LinearAlgebra::Matrix> faceMatrix_;
-        std::vector<LinearAlgebra::NumericalVector> faceVector_;
-    };
-};
+		UserFaceData* getUserData() const {
+			return userData_;
+		}
+
+		void setUserData(UserFaceData* data) {
+			userData_ = data;
+		}
+
+	private:
+		VecCacheT vecCacheData_;
+		UserFaceData* userData_;
+		std::vector<LinearAlgebra::Matrix> faceMatrix_;
+		std::vector<LinearAlgebra::NumericalVector> faceVector_;
+	};
+}
+;
 #endif

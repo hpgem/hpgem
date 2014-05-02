@@ -100,7 +100,7 @@ namespace Base
     double
     Face::basisFunction(unsigned int i, const Geometry::PointReference& p) const
     {
-    	static Geometry::PointReference pElement(p.size()+1);
+    	Geometry::PointReference pElement(p.size()+1);
     	int n(getPtrElementLeft()->getNrOfBasisFunctions());
     	if(i<n){
     		mapRefFaceToRefElemL(p,pElement);
@@ -114,7 +114,7 @@ namespace Base
     void
     Face::basisFunction(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const
     {
-    	static Geometry::PointReference pElement(p.size()+1);
+    	Geometry::PointReference pElement(p.size()+1);
     	int n(getPtrElementLeft()->getNrOfBasisFunctions());
     	if(i<n){
     		mapRefFaceToRefElemL(p,pElement);
@@ -128,7 +128,7 @@ namespace Base
     void
     Face::basisFunctionNormal(unsigned int i, const NumericalVector& normal, const Geometry::PointReference& p, NumericalVector& ret) const
     {
-    	static Geometry::PointReference pElement(p.size()+1);
+    	Geometry::PointReference pElement(p.size()+1);
     	int n(getPtrElementLeft()->getNrOfBasisFunctions());
     	if(i<n){
     		mapRefFaceToRefElemL(p,pElement);
@@ -144,7 +144,7 @@ namespace Base
     double
     Face::basisFunctionDeriv(unsigned int i, unsigned int jDir, const Geometry::PointReference& p) const
     {
-    	static Geometry::PointReference pElement(p.size()+1);
+    	Geometry::PointReference pElement(p.size()+1);
     	int n(getPtrElementLeft()->getNrOfBasisFunctions());
     	if(i<n){
     		mapRefFaceToRefElemL(p,pElement);
@@ -158,7 +158,7 @@ namespace Base
     void
     Face::basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const
     {
-    	static Geometry::PointReference pElement(p.size()+1);
+    	Geometry::PointReference pElement(p.size()+1);
     	int n(getPtrElementLeft()->getNrOfBasisFunctions());
     	if(i<n){
     		mapRefFaceToRefElemL(p,pElement);
@@ -172,7 +172,7 @@ namespace Base
     void
     Face::basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const
     {
-    	static Geometry::PointReference pElement(p.size()+1);
+    	Geometry::PointReference pElement(p.size()+1);
     	int n(getPtrElementLeft()->getNrOfBasisFunctions());
     	if(i<n){
     		mapRefFaceToRefElemL(p,pElement);

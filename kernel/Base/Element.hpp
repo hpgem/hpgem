@@ -111,7 +111,7 @@ namespace Base
 		int                             getNrOfEdges() const{return edgesList_.size();}
 
 #ifndef NDEBUG
-		const Base::BaseBasisFunction*  getBasisFunction(int i);
+		const Base::BaseBasisFunction*  getBasisFunction(int i)const;
 #endif
     public:
             /// Output operator.

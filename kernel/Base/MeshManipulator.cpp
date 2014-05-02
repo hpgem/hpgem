@@ -48,9 +48,6 @@ namespace Base
         //***********************************************************************************************************************
         //***********************************************************************************************************************
 
-    unsigned int MeshManipulator::faceCounter_(0);
-    unsigned int MeshManipulator::edgeCounter_(0);
-
     ///\bug ignores order parameter and creates a set of fixed order
     void
     MeshManipulator::createDefaultBasisFunctions(unsigned int order)
@@ -76,12 +73,13 @@ namespace Base
         		break;
         	default:
         		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
+        		Base::AssembleBasisFunctionSet_1D_Ord2_A0(*bFset1);
         	}
         	break;
         case 2:
         	switch(order){
         	case 1:
-        		Base::AssembleBasisFunctionSet_2D_Ord1_A1(*bFset1);
+        		Base::AssembleBasisFunctionSet_2D_Ord1_A0(*bFset1);
         		break;
         	case 2:
         		Base::AssembleBasisFunctionSet_2D_Ord2_A1(*bFset1);
@@ -97,6 +95,7 @@ namespace Base
         		break;
         	default:
         		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
+        		Base::AssembleBasisFunctionSet_2D_Ord2_A1(*bFset1);
         	}
         	break;
         case 3:
@@ -118,6 +117,7 @@ namespace Base
         		break;
         	default:
         		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
+        		Base::AssembleBasisFunctionSet_3D_Ord2_A1(*bFset1);
         	}
         	break;
         default:
@@ -162,6 +162,8 @@ namespace Base
         periodicY_(yPer),
         periodicZ_(zPer),
         elementcounter_(idRangeBegin),
+        faceCounter_(0),
+        edgeCounter_(0),
         activeMeshTree_(0), 
         numMeshTree_(0),
         numberOfElementMatrixes_(nrOfElementMatrixes),
@@ -221,6 +223,14 @@ namespace Base
             delete el;
         }
         
+        for(Base::Face* face:getFacesList()){
+        	delete face;
+        }
+
+        for(Base::Edge* edge:getEdgesList()){
+        	delete edge;
+        }
+
         for (typename CollectionOfBasisFunctionSets::iterator bit=collBasisFSet_.begin(); bit!=collBasisFSet_.end();++bit)
         {
             const BasisFunctionSetT* bf = *bit;
@@ -429,7 +439,6 @@ namespace Base
             cout << "The number of Linear Intervals has to map the size of the problem and current it does not"<<endl;
             throw(10);
         }
-        ///\TODO replace the consistency check
         //Stage 1 : Precompute some required values;
         ///////
         

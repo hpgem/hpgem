@@ -5,7 +5,7 @@
 #include "Geometry/Mappings/MappingCodimensions.hpp"
 #include "Geometry/Mappings/RefinementMapping.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-#include <map>///\todo make a hasher for pointreference and change this back to unordered_map
+#include <map>
 #include "Base/BaseBasisFunction.hpp"
 
 #include <iostream>

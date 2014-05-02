@@ -41,10 +41,9 @@ namespace Geometry
      *      index 7: (t,x,y)->(t,-y,-x)  (Mirror in the line y=-x)
      *      index 8: (t,x,y)->(t,y,x)    (Mirror in the line y=x)
      *
-     * \BUG: Following permutations contain the wrong numbers
-     * These correspond to the node mutations : (1)(2)(3)(4)(5)(6)(7)(8), (1243)(5687),
-     * (14)(23)(58)(67), (1342) (5786), (13)(24)(57)(68), (12)(34)(56)(78),
-     * (14)(2)(3)(58)(6)(7)   and (1)(4)(23) (5)(8)(67). The first 4 are rotations,
+     * These correspond to the node mutations : (1)(2)(3)(4)(5)(6)(7)(0), (0264)(1375),
+     * (06)(17)(24)(35), (0462)(1573), (04)(15)(26)(37), (02)(13)(46)(57),
+     * (06)(2)(3)(17)(4)(5)   and (0)(6)(24)(1)(7)(35). The first 4 are rotations,
      * while the last 4 are mirrorings.
      */
 

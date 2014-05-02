@@ -291,7 +291,7 @@ namespace Base
 
 #ifndef NDEBUG
     const Base::BaseBasisFunction*
-    Element::getBasisFunction(int i)
+    Element::getBasisFunction(int i) const
     {
     	int basePosition(0);
     	for(int j:basisFunctionSetPositions_){

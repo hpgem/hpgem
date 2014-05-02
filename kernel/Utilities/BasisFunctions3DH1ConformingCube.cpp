@@ -102,7 +102,7 @@ namespace Utilities {
 
 	BasisFunction3DFaceCube_0::BasisFunction3DFaceCube_0(int node0, int node1, int node2, int polynomialOrder1, int polynomialOrder2) :
 			polynomialOrder1_(polynomialOrder1), polynomialOrder2_(polynomialOrder2) {
-		mirroring1_ = node0 < node1 ? 1 : -1;
+		mirroring1_ = node0 < node1 ? 1 : -1;//choices about mirroring need only be consistent for one face
 		mirroring2_ = node0 < node2 ? 1 : -1;
 		facePosition_ = (node0 % 2) * 2 - 1;
 	}
@@ -334,28 +334,28 @@ namespace Utilities {
 		set = new Base::OrientedBasisFunctionSet(order, 1, 0);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[1], vectorOfPointIndices[2], vectorOfPointIndices[3], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[1], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 2, 0);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[2], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[3], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 3, 0);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[3], vectorOfPointIndices[0], vectorOfPointIndices[1], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[2], vectorOfPointIndices[0], vectorOfPointIndices[3], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 4, 0);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[3], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[2], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
 			}
 		}
 		result.push_back(set);
@@ -369,14 +369,14 @@ namespace Utilities {
 		set = new Base::OrientedBasisFunctionSet(order, 6, 0);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[2], vectorOfPointIndices[1], vectorOfPointIndices[0], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[3], vectorOfPointIndices[1], vectorOfPointIndices[2], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 7, 0);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[0], vectorOfPointIndices[3], vectorOfPointIndices[2], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[0], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
 			}
 		}
 		result.push_back(set);
@@ -391,28 +391,28 @@ namespace Utilities {
 		set = new Base::OrientedBasisFunctionSet(order, 1, 1);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[1], vectorOfPointIndices[2], vectorOfPointIndices[3], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[1], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 2, 1);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[2], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[3], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 3, 1);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[3], vectorOfPointIndices[0], vectorOfPointIndices[1], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[2], vectorOfPointIndices[0], vectorOfPointIndices[3], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 4, 1);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[3], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[2], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
 			}
 		}
 		result.push_back(set);
@@ -426,14 +426,14 @@ namespace Utilities {
 		set = new Base::OrientedBasisFunctionSet(order, 6, 1);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[2], vectorOfPointIndices[1], vectorOfPointIndices[0], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[3], vectorOfPointIndices[1], vectorOfPointIndices[2], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 7, 1);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[0], vectorOfPointIndices[3], vectorOfPointIndices[2], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[0], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
 			}
 		}
 		result.push_back(set);
@@ -448,28 +448,28 @@ namespace Utilities {
 		set = new Base::OrientedBasisFunctionSet(order, 1, 2);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[1], vectorOfPointIndices[2], vectorOfPointIndices[3], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[1], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 2, 2);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[2], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[3], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 3, 2);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[3], vectorOfPointIndices[0], vectorOfPointIndices[1], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[2], vectorOfPointIndices[0], vectorOfPointIndices[3], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 4, 2);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[3], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[2], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
 			}
 		}
 		result.push_back(set);
@@ -483,14 +483,14 @@ namespace Utilities {
 		set = new Base::OrientedBasisFunctionSet(order, 6, 2);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[2], vectorOfPointIndices[1], vectorOfPointIndices[0], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[3], vectorOfPointIndices[1], vectorOfPointIndices[2], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 7, 2);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[0], vectorOfPointIndices[3], vectorOfPointIndices[2], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[0], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
 			}
 		}
 		result.push_back(set);
@@ -505,28 +505,28 @@ namespace Utilities {
 		set = new Base::OrientedBasisFunctionSet(order, 1, 3);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[1], vectorOfPointIndices[2], vectorOfPointIndices[3], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[1], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 2, 3);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[2], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[3], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 3, 3);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[3], vectorOfPointIndices[0], vectorOfPointIndices[1], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[2], vectorOfPointIndices[0], vectorOfPointIndices[3], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 4, 3);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[3], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[2], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
 			}
 		}
 		result.push_back(set);
@@ -540,14 +540,14 @@ namespace Utilities {
 		set = new Base::OrientedBasisFunctionSet(order, 6, 3);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[2], vectorOfPointIndices[1], vectorOfPointIndices[0], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[3], vectorOfPointIndices[1], vectorOfPointIndices[2], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 7, 3);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[0], vectorOfPointIndices[3], vectorOfPointIndices[2], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_0(vectorOfPointIndices[0], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
 			}
 		}
 		result.push_back(set);
@@ -562,28 +562,28 @@ namespace Utilities {
 		set = new Base::OrientedBasisFunctionSet(order, 1, 4);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[1], vectorOfPointIndices[2], vectorOfPointIndices[3], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[1], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 2, 4);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[2], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[3], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 3, 4);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[3], vectorOfPointIndices[0], vectorOfPointIndices[1], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[2], vectorOfPointIndices[0], vectorOfPointIndices[3], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 4, 4);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction( new BasisFunction3DFaceCube_1(vectorOfPointIndices[3], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
+				set->addBasisFunction( new BasisFunction3DFaceCube_1(vectorOfPointIndices[2], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
 			}
 		}
 		result.push_back(set);
@@ -597,14 +597,14 @@ namespace Utilities {
 		set = new Base::OrientedBasisFunctionSet(order, 6, 4);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[2], vectorOfPointIndices[1], vectorOfPointIndices[0], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[3], vectorOfPointIndices[1], vectorOfPointIndices[2], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 7, 4);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[0], vectorOfPointIndices[3], vectorOfPointIndices[2], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_1(vectorOfPointIndices[0], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
 			}
 		}
 		result.push_back(set);
@@ -619,28 +619,28 @@ namespace Utilities {
 		set = new Base::OrientedBasisFunctionSet(order, 1, 5);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[1], vectorOfPointIndices[2], vectorOfPointIndices[3], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[1], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 2, 5);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[2], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[3], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 3, 5);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[3], vectorOfPointIndices[0], vectorOfPointIndices[1], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[2], vectorOfPointIndices[0], vectorOfPointIndices[3], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 4, 5);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[3], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[2], vectorOfPointIndices[3], vectorOfPointIndices[0], i, j));
 			}
 		}
 		result.push_back(set);
@@ -654,14 +654,14 @@ namespace Utilities {
 		set = new Base::OrientedBasisFunctionSet(order, 6, 5);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[2], vectorOfPointIndices[1], vectorOfPointIndices[0], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[3], vectorOfPointIndices[1], vectorOfPointIndices[2], i, j));
 			}
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 7, 5);
 		for (int i = 0; i <= order - 2; ++i) {
 			for (int j = 0; j <= order - 2; ++j) {
-				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[0], vectorOfPointIndices[3], vectorOfPointIndices[2], i, j));
+				set->addBasisFunction(new BasisFunction3DFaceCube_2(vectorOfPointIndices[0], vectorOfPointIndices[2], vectorOfPointIndices[1], i, j));
 			}
 		}
 		result.push_back(set);
