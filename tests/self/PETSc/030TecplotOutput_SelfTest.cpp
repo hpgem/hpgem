@@ -171,7 +171,7 @@ public:
 
     	x.writeTimeLevelData(0);
 
-    	std::ofstream outFile("080TecplotOutput_SelfTest_output.dat");
+    	std::ofstream outFile("030TecplotOutput_SelfTest_output.dat");
 		Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile,"test","01","value");
 		writeFunc.write(meshes_[0],"monomial solution",false,this);
 	}
