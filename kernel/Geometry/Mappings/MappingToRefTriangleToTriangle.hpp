@@ -26,7 +26,6 @@ namespace Geometry
      * This implements the linear mappings of a ReferenceTriangle [0,1]^2 onto itself.
      * There are 6 possible mappings.
      *
-     * TODO: Proper mapping documentation missing here
      *
      *      index 0: (x,y)->(x,y)     ((0)(1)(2) Identity)
      *      index 1: (x,y)->(y,x)     ((0)(12) Rotation with respect to x = y)
