@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -29,12 +29,13 @@ namespace Integration
         //! \brief Construct an FaceIntegral with cache on.
     FaceIntegral::FaceIntegral(bool useCache):
         useCache_(useCache),
-        recomputeCache_(false)
+        localFace_(NULL)
     {}
 
         //! \brief Free the memory used for the data storage.
     FaceIntegral::~FaceIntegral()
     {
+    	delete localFace_;
     }
 
         //! \brief Start caching (geometry) information now.
@@ -42,29 +43,37 @@ namespace Integration
     FaceIntegral::cacheOn()
     {
         useCache_ = true;
-        recomputeCache_ = false;
+        if(localFace_!=NULL){
+        	localFace_->cacheOn();
+        }
     }
 
         //! \brief Stop using cache.
     void
     FaceIntegral::cacheOff()
     {
-        useCache_ = true;
-        recomputeCache_ = false;
+        useCache_ = false;
+        if(localFace_!=NULL){
+        	localFace_->cacheOff();
+        }
     }
 
-        //! \brief Stop using cache.
+        //! \brief Force a recomputation of the cache, the next time it is needed
     void
     FaceIntegral::recomputeCacheOn()
     {
-        recomputeCache_ = true;
+        if(localFace_!=NULL){
+        	localFace_->recomputeCacheOn();
+        }
     }
 
-        //! \brief Stop using cache.
+        //! \brief Stop forcing a recomputation of the cache
     void
     FaceIntegral::recomputeCacheOff()
     {
-        recomputeCache_ = false;
+        if(localFace_!=NULL){
+        	localFace_->recomputeCacheOff();
+        }
     }
 
         //! \brief Do the face integration using given Gauss integration rule.
@@ -115,4 +124,15 @@ namespace Integration
 		}
     };*/
     
+
+}
+
+void Integration::FaceIntegral::setStorageWrapper(Base::ShortTermStorageFaceBase* transform) {
+	delete localFace_;
+	localFace_=transform;
+	if(useCache_){
+		localFace_->cacheOn();
+	}else{
+		localFace_->cacheOff();
+	}
 }

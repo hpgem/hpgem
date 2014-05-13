@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -169,7 +169,7 @@ namespace Geometry
 
         virtual int                         getFaceToFaceMapIndex()const {return faceToFaceMapIndex_;}
 
-        const ReferenceFaceGeometryT*       getReferenceGeometry() const;
+        virtual const ReferenceFaceGeometryT*       getReferenceGeometry() const;
 
 
         /*! Map a point in coordinates of the reference geometry of the face to
@@ -193,7 +193,7 @@ namespace Geometry
         virtual         RefFaceToRefElementMapping refFaceToRefElemMapR() const;
         
 
-        void            referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical)const;
+        virtual void            referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical)const;
 
 //-MTJ-start--------------
 
@@ -209,6 +209,11 @@ namespace Geometry
     protected:
         MatrixT                     faceToFaceMapMatrix_;
 //-MTJ-end--------------
+
+    protected:
+
+        ///\brief default constructor - for use with wrapper classes
+        FaceGeometry():rightElementGeom_(NULL),leftElementGeom_(NULL){}
 
     protected:
         const ElementGeometryT*           rightElementGeom_;

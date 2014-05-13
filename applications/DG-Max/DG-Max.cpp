@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -280,13 +280,13 @@ int main(int argc,char** argv){
 	exit(1);
     }
     //set up problem and decide flux type
-    DGMax problem(argc-2,&argv[2],new MaxwellData(elements,order),new Base::ConfigurationData(3,1,0,2),new matrixFillerBR(125));
+    DGMax problem(argc-2,&argv[2],new MaxwellData(elements,order),new Base::ConfigurationData(3,1,0,2),new matrixFillerIP(3*elements*order*(order+2)+1));
     try{
         problem.initialise();
 	time(&initialised);
 	
 	//choose what problem to solve
-        problem.solveHarmonic();
+        problem.exportMatrixes();
 	time(&solved);
 	char filename[]="output.dat";
 	problem.makeOutput(filename);

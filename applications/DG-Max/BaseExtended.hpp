@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -290,6 +290,11 @@ public:
      */
     void solveDOS();
     
+    /**
+     * If you just want to dump the matrixes for some testing in matlab, this is your routine
+     */
+    void exportMatrixes();
+
     /**
      * given an eigenvector, prepare an expression for f(x) in int(f(x)*delta(omega) dx)
      */

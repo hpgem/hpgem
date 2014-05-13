@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -36,6 +36,7 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 #include "FaceIntegrandBase.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include "Base/ShortTermStorageFaceBase.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -68,6 +69,12 @@ namespace Integration
         //! \brief Stop using cache.
         void recomputeCacheOff();
 
+        ///\brief provide a Face wrapper that can be used to store transformed function data
+        ///this wrapper is responsible for transforming the functions to the reference coordinates
+        ///the default is suitable for 2D H1 conforming bases (no transformation for values and multiply with Jac^-T for derivatives)
+        ///this class will take over responsibility for the data management
+        void setStorageWrapper(Base::ShortTermStorageFaceBase *transform);
+
         //! \brief Do the face integration using given Gauss integration rule.
         template <class ReturnTrait1>
         void integrate(FaceT* fa, FaceIntegrandBase<ReturnTrait1>* integrand, ReturnTrait1& result, const QuadratureRulesT* qdrRule = NULL);
@@ -78,7 +85,8 @@ namespace Integration
     private:
         
         bool        useCache_;
-        bool        recomputeCache_;
+
+        Base::ShortTermStorageFaceBase *localFace_;
 
     };  // class FaceIntegral
    

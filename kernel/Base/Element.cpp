@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -166,10 +166,11 @@ namespace Base
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
         	if(j!=-1){
-				if(i-basePosition<basisFunctionSet_->at(j)->size()){
+        		int n=basisFunctionSet_->at(j)->size();
+				if(i-basePosition<n){
 					return basisFunctionSet_->at(j)->evalDeriv(i-basePosition, jDir, p);
 				}else{
-					basePosition+=basisFunctionSet_->at(j)->size();
+					basePosition+=n;
 				}
         	}
         }
@@ -183,11 +184,12 @@ namespace Base
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
         	if(j!=-1){
-				if(i-basePosition<basisFunctionSet_->at(j)->size()){
+        		int n=basisFunctionSet_->at(j)->size();
+				if(i-basePosition<n){
 					function=basisFunctionSet_->at(j)->operator[](i-basePosition);
-					basePosition+=basisFunctionSet_->at(j)->size();
+					basePosition+=n;
 				}else{
-					basePosition+=basisFunctionSet_->at(j)->size();
+					basePosition+=n;
 				}
         	}
         }
@@ -254,11 +256,12 @@ namespace Base
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
         	if(j!=-1){
-				if(i-basePosition<basisFunctionSet_->at(j)->size()){
+        		int n=basisFunctionSet_->at(j)->size();
+				if(i-basePosition<n){
 					basisFunctionSet_->at(j)->eval(i-basePosition,p,ret);
 					return;
 				}else{
-					basePosition+=basisFunctionSet_->at(j)->size();
+					basePosition+=n;
 				}
         	}
         }
@@ -271,11 +274,12 @@ namespace Base
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
         	if(j!=-1){
-				if(i-basePosition<basisFunctionSet_->at(j)->size()){
+        		int n=basisFunctionSet_->at(j)->size();
+				if(i-basePosition<n){
 					basisFunctionSet_->at(j)->evalCurl(i-basePosition,p,ret);
 					return;
 				}else{
-					basePosition+=basisFunctionSet_->at(j)->size();
+					basePosition+=n;
 				}
         	}
         }
@@ -283,21 +287,25 @@ namespace Base
     }
 
     void
-    Element::basisFunctionDeriv(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
+    Element::basisFunctionDeriv(unsigned int i, const PointReferenceT& p, NumericalVector& ret,const Element* wrapper) const
     {
+    	if(wrapper==NULL){
+    		wrapper=this;//Apparently you can't default to this
+    	}
     	const Base::BaseBasisFunction* function;
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
         	if(j!=-1){
-				if(i-basePosition<basisFunctionSet_->at(j)->size()){
+        		unsigned int n=basisFunctionSet_->at(j)->size();
+				if(i-basePosition<n){
 					function=basisFunctionSet_->at(j)->operator[](i-basePosition);
-					basePosition+=basisFunctionSet_->at(j)->size();
+					basePosition+=n;
 				}else{
-					basePosition+=basisFunctionSet_->at(j)->size();
+					basePosition+=n;
 				}
         	}
         }
-    	Utilities::PhysGradientOfBasisFunction functionGradient(this,function);
+    	Utilities::PhysGradientOfBasisFunction functionGradient(wrapper,function);
     	functionGradient(p,ret);
     }
 

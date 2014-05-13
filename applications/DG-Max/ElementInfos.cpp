@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -59,8 +59,8 @@ void FunctionCache::getFunctionCurlsVector(const Base::Element* element, const P
     }
 }
 
-std::map<PointElementReferenceT,std::vector<NumericalVector> > FunctionCache::valueCache_;
-std::map<PointElementReferenceT,std::vector<NumericalVector> > FunctionCache::curlCache_;
+myMap FunctionCache::valueCache_;
+myMap FunctionCache::curlCache_;
 
 ElementInfos::ElementInfos(const Base::Element& element):inverse_(3,3),Jacobian_(3,3){
     PointElementReferenceT p(3);
@@ -99,7 +99,7 @@ void ElementInfos::makeFunctionCurlsVector(const Base::Element* element, const P
 }
 
 MaxwellData::MaxwellData(int numberOfIntervals, int polynomialOrder):Sigma_(0),
-    StabCoeff_(1.4),
+    StabCoeff_(3*numberOfIntervals*polynomialOrder*(polynomialOrder+2)+1),
     StartTime_(0),
     EndTime_(0.1),
     NumberOfIntervals_(numberOfIntervals),

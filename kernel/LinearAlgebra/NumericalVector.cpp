@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -112,13 +112,7 @@ namespace LinearAlgebra
     double NumericalVector::operator* (const NumericalVector& right) const
     {
         ///\TODO replace with BLAS (I dont know where to find them)
-        if(this->size()!=right.size())
-            throw "vector \\cdot vector product only defined for vectors of the same sizes";
-        double result(0);
-        for(int i=0;i<right.size();++i){
-            result+=data_[i]*right[i];
-        }
-        return result;
+        return (data_*right.data_).sum();
     }
     
     NumericalVector& NumericalVector::operator/= (const double& right)

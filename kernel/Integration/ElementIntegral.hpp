@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@
 //#include "Integration/ReturnTrait1.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 #include "ElementIntegrandBase.hpp"
+#include "Base/ShortTermStorageElementBase.hpp"
 //------------------------------------------------------------------------------
 
 namespace Integration 
@@ -55,7 +56,7 @@ namespace Integration
             //! \brief Start caching (geometry) information now.
         void    cacheOn();
         
-            //! \brief Stop using cache.
+            //! \brief Stop using cache. This routine is not required to delete any stored data.
         void    cacheOff();
         
             //! \brief Set recompute the cache ON.
@@ -63,6 +64,12 @@ namespace Integration
         
             //! \brief Set recompute the cache OFF.
         void    recomputeCacheOff();
+
+        ///\brief provide an Element wrapper that can be used to store transformed function data
+        ///this wrapper is responsible for transforming the functions to the reference coordinates
+        ///the default is suitable for 2D H1 conforming bases (no transformation for values and multiply with Jac^-T for derivatives)
+        ///this class will take over responsibility for the data management
+        void setStorageWrapper(Base::ShortTermStorageElementBase *transform);
 
             //! \brief Directly integrate the integrand and return ReturnTraits1.
             //! ReturnTrait1 needs to have the function axpy() implemented
@@ -82,7 +89,8 @@ namespace Integration
     private:
        
         bool useCache_;
-        bool recomputeCache_;
+
+        Base::ShortTermStorageElementBase* localElement_;
     };
 
 } // close namespace Integration

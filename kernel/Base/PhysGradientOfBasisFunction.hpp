@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -51,9 +51,9 @@ namespace Utilities
             //! Evaluation operator, also compatible with integration routines.
         void operator()(const PointReferenceT& p, RetType& r) const
 	    {
-        	r.resize(p.size());
-        	RetType dummy(r.size());
         	unsigned int DIM=p.size();
+        	r.resize(DIM);
+        	RetType dummy(DIM);
         	Geometry::Jacobian jac(DIM,DIM);
         	myElement_->calcJacobian(p,jac);
         	myElement_->getReferenceGeometry()->getBasisFunctionDerivative(myFunction_,p,dummy);

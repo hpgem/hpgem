@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -39,13 +39,13 @@ namespace Base {
 
 		void setFaceMatrix(const LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0);
 
-		void getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0) const;
+		virtual void getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0) const;
 
 		void setFaceVector(const LinearAlgebra::NumericalVector& vector, unsigned int vectorID = 0);
 
-		void getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID = 0) const;
+		virtual void getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID = 0) const;
 
-		const VecCacheT& getVecCacheData() const {
+		virtual const VecCacheT& getVecCacheData() const {
 			return vecCacheData_;
 		}
 
@@ -53,7 +53,7 @@ namespace Base {
 			;
 		}
 
-		UserFaceData* getUserData() const {
+		virtual UserFaceData* getUserData() const {
 			return userData_;
 		}
 

@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -611,6 +611,21 @@ void hpGemUIExtentions::solveHarmonic(){
     }
     measureTimes_[0]=0;
     ierr_=VecRestoreArrayRead(x_,storage_);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+}
+
+void hpGemUIExtentions::exportMatrixes(){
+	cout<<"genereting Matlab scripts to load the matrixes"<<endl;
+	MHasToBeInverted_=false;
+	assembler->fillMatrixes(this);
+	PetscViewer viewM, viewS;
+	PetscViewerASCIIOpen(MPI_COMM_WORLD,"M.m", &viewM);
+	PetscViewerASCIIOpen(MPI_COMM_WORLD,"S.m", &viewS);
+	PetscViewerSetFormat(viewM,PETSC_VIEWER_ASCII_MATLAB);
+	PetscViewerSetFormat(viewS,PETSC_VIEWER_ASCII_MATLAB);
+	MatView(M_,viewM);
+	MatView(S_,viewS);
+	PetscViewerDestroy(&viewM);
+	PetscViewerDestroy(&viewS);
 }
 
 void hpGemUIExtentions::solveEigenvalues(){

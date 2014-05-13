@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -20,6 +20,7 @@
  */
 #ifndef FACEINTEGRAL_IMPL_HPP_
 #define FACEINTEGRAL_IMPL_HPP_
+#include "Base/ShortTermStorageFaceH1.hpp"
 
 namespace Integration{
 
@@ -30,11 +31,15 @@ template <class ReturnTrait1>
                                   ReturnTrait1&   result,
                                  const QuadratureRulesT* const                    qdrRule )
     {
-        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==NULL? fa->getGaussQuadratureRule(): qdrRule);
+		if(localFace_==NULL){
+			localFace_=new Base::ShortTermStorageFaceH1(fa->getGaussQuadratureRule()->dimension()+1);
+		}
+		*localFace_=*fa;
+        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==NULL? localFace_->getGaussQuadratureRule(): qdrRule);
 
             // check whether the GaussIntegrationRule is actually for the
             // Element's ReferenceGeometry
-        TestErrorDebug((qdrRuleLoc->forReferenceGeometry() == fa->getReferenceGeometry()),
+        TestErrorDebug((qdrRuleLoc->forReferenceGeometry() == localFace_->getReferenceGeometry()),
                        "FaceIntegral: " + qdrRuleLoc->getName() + " rule is not for THIS ReferenceGeometry!");
 
             // value returned by the integrand
@@ -46,30 +51,30 @@ template <class ReturnTrait1>
             // Gauss quadrature point
         Geometry::PointReference p(qdrRuleLoc->dimension());
 
-        if (!useCache_)
-        {
+        //if (!useCache_)//caching of transformation data is delegated to ShortTermStorageBase
+        //{
             LinearAlgebra::NumericalVector Normal(qdrRuleLoc->dimension()+1);
 
                 // first Gauss point
             qdrRuleLoc->getPoint(0, p);
-            fa->getNormalVector(p, Normal);
-            integrand->faceIntegrand(fa, Normal, p, result);
+            localFace_->getNormalVector(p, Normal);
+            integrand->faceIntegrand(localFace_, Normal, p, result);
             result *= (qdrRuleLoc->weight(0) * Base::L2Norm(Normal));
 
                 // next Gauss points
             for (unsigned int i = 1; i < nrOfPoints; ++i)
             {
                 qdrRuleLoc->getPoint(i, p);
-                fa->getNormalVector(p, Normal);
-                integrand->faceIntegrand(fa, Normal, p, value);
+                localFace_->getNormalVector(p, Normal);
+                integrand->faceIntegrand(localFace_, Normal, p, value);
 
                  //Y = alpha * X + Y
                 result.axpy(qdrRuleLoc->weight(i) * Base::L2Norm(Normal),value);
 
             }
-        }
-        else  // useCache_
-        {
+        //}
+        /*else  // useCache_
+        {///\TODO long term cache dont work well with short term cache
                 // get vector of cache data
             VecCacheT vecCache = fa->getVecCacheData();
 
@@ -102,7 +107,7 @@ template <class ReturnTrait1>
                 result.axpy(qdrRuleLoc->weight(i) * vecCache[i].L2Normal,value);
 
             } // for integration points
-        } // if cached data (else)
+        } // if cached data (else)*/
     } // function
 
 }
