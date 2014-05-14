@@ -154,7 +154,7 @@ namespace Base
     
     
     private:
-        GaussQuadratureRuleT*                        quadratureRule_;
+        const GaussQuadratureRuleT*                        quadratureRule_;
         const std::vector<const BasisFunctionSetT*>* basisFunctionSet_;
         VecCacheT                                    vecCacheData_;
         UId                                          id_;

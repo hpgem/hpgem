@@ -77,7 +77,7 @@ namespace Base
             quadratureRule_ = quadratureRule;
         }
 
-        virtual FaceQuadratureRule* getGaussQuadratureRule() const
+        virtual const FaceQuadratureRule* getGaussQuadratureRule() const
         {
             return quadratureRule_;
         }
@@ -117,7 +117,7 @@ namespace Base
     private:
          ElementT*                                 elementLeft_;
          ElementT*                                 elementRight_;
-        FaceQuadratureRule*                             quadratureRule_;
+        const FaceQuadratureRule*                             quadratureRule_;
         VecCacheT                                       vecCacheData_;
 
         unsigned int                                    nrOfConformingDOFOnTheFace_;

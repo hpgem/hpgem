@@ -104,7 +104,6 @@ namespace QuadratureRules
         gp_[3][1] = (0.0) * (1. - (0.7958514179));
         gp_[3][2] = 0.7958514179;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Pyramid_1_1::~Pyramid_1_1()
@@ -245,7 +244,6 @@ namespace QuadratureRules
         gp_[15][1] = (+sqrt(3.0) / 3.0) * (1. - (0.7958514179));
         gp_[15][2] = 0.7958514179;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Pyramid_3_1::~Pyramid_3_1()
@@ -486,7 +484,6 @@ namespace QuadratureRules
         gp_[35][1] = (+sqrt(3.0 / 5.0)) * (1. - (0.7958514179));
         gp_[35][2] = 0.7958514179;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Pyramid_5_1::~Pyramid_5_1()
@@ -787,7 +784,6 @@ namespace QuadratureRules
         gp_[47][1] = (-(sqrt((114. + 3. * sqrt(583.)) / 287.))) * (1. - (0.7958514179));
         gp_[47][2] = 0.7958514179;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Pyramid_7_1::~Pyramid_7_1()

@@ -89,7 +89,6 @@ namespace QuadratureRules
         gp_[0][1] = 1.0 / 3.0;
         gp_[0][2] = 0.0;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     TriPrism_1_1::~TriPrism_1_1()
@@ -190,7 +189,6 @@ namespace QuadratureRules
         gp_[7][1] = 1. / 5.;
         gp_[7][2] = +sqrt(3.0) / 3.0;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     TriPrism_3_1::~TriPrism_3_1()
@@ -355,7 +353,6 @@ namespace QuadratureRules
         gp_[20][1] = (9. - 2. * sqrt(15.)) / 21.;
         gp_[20][2] = +sqrt(3.0 / 5.0);
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     TriPrism_5_1::~TriPrism_5_1()
@@ -734,7 +731,6 @@ namespace QuadratureRules
         gp_[63][1] = 0.8602401357;
         gp_[63][2] = (+0.861136312);
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     TriPrism_7_1::~TriPrism_7_1()

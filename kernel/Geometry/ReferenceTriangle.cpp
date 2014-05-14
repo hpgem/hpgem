@@ -184,30 +184,5 @@ namespace Geometry
             throw "ERROR: Asked for a triangle point index larger than 3. There are only 3 nodes in a triangle!";
         }
     }
-
-
-    // ================================== Quadrature rules =====================================
-
-    /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceTriangle::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
-    {
-        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
-        while (it != lstGaussQuadratureRules_.end())
-        {
-          if ((*it)->order() < qr->order()) ++it;
-          else break;
-        }
-        lstGaussQuadratureRules_.insert(it,qr);
-    }
-
-    /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule* const ReferenceTriangle::getGaussQuadratureRule(int order) const
-    {
-        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
-              it != lstGaussQuadratureRules_.end(); ++it)
-          if ((*it)->order() >= order) return *it;
-
-        return NULL;
-    }
             
 };

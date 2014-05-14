@@ -124,14 +124,6 @@ namespace Geometry
         //! (see MappingCodimensions.hpp)
         void                                     getCodim3EntityLocalIndices(const IndexT, ListOfIndexesT&) const;
 
-        // ================================== Quadrature rules =====================================
-
-        /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr);
-
-        /// Get a valid quadrature for this geometry.
-        virtual QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
-
         // =============================== Refinement mappings =====================================
         
         //! Transform a reference point using refinement mapping

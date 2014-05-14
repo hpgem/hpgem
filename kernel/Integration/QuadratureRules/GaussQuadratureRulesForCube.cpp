@@ -99,7 +99,6 @@ namespace QuadratureRules
         gp_[0][1] = 0.0;
         gp_[0][2] = 0.0;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Cn3_1_1::~Cn3_1_1()
@@ -200,7 +199,6 @@ namespace QuadratureRules
         gp_[7][1] = +sqrt(3.0) / 3.0;
         gp_[7][2] = +sqrt(3.0) / 3.0;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Cn3_3_4::~Cn3_3_4()
@@ -396,7 +394,6 @@ namespace QuadratureRules
         gp_[26][1] = +sqrt(3.0 / 5.0);
         gp_[26][2] = +sqrt(3.0 / 5.0);
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Cn3_5_9::~Cn3_5_9()
@@ -459,7 +456,6 @@ namespace QuadratureRules
     	int position(0);
 		C1_7_x& ruleForLine =C1_7_x::Instance();
 		Geometry::PointReference point1D(1);
-		refGeoPtr_->addGaussQuadratureRule(this);
 		for(int i=0;i<ruleForLine.nrOfPoints();++i){
 			for(int j=0;j<ruleForLine.nrOfPoints();++j){
 				for(int k=0;k<ruleForLine.nrOfPoints();++k){
@@ -643,8 +639,7 @@ namespace QuadratureRules
         gp_[33][0] = -sqrt(((960. + 3. * sqrt(28798.)) / 2726.));
         gp_[33][1] = -sqrt(((960. + 3. * sqrt(28798.)) / 2726.));
         gp_[33][2] = -sqrt(((960. + 3. * sqrt(28798.)) / 2726.));
-
-        refGeoPtr_->addGaussQuadratureRule(this);*/
+*/
     }
 
     C3_7_2::~C3_7_2()
@@ -708,7 +703,6 @@ namespace QuadratureRules
     	int position(0);
     	C1_9_25& ruleForLine =C1_9_25::Instance();
     	Geometry::PointReference point1D(1);
-        refGeoPtr_->addGaussQuadratureRule(this);
         for(int i=0;i<ruleForLine.nrOfPoints();++i){
         	for(int j=0;j<ruleForLine.nrOfPoints();++j){
         		for(int k=0;k<ruleForLine.nrOfPoints();++k){
@@ -785,7 +779,6 @@ namespace QuadratureRules
     	int position(0);
     	C1_11_36& ruleForLine =C1_11_36::Instance();
     	Geometry::PointReference point1D(1);
-        refGeoPtr_->addGaussQuadratureRule(this);
         for(int i=0;i<ruleForLine.nrOfPoints();++i){
         	for(int j=0;j<ruleForLine.nrOfPoints();++j){
         		for(int k=0;k<ruleForLine.nrOfPoints();++k){

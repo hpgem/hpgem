@@ -87,7 +87,6 @@ namespace QuadratureRules
         weight_[0] = 2.0;
         gp_[0][0] = 0.0;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Cn1_1_1::~Cn1_1_1()
@@ -152,7 +151,6 @@ namespace QuadratureRules
         weight_[1] = 1.0;
         gp_[1][0] = +sqrt(3.0) / 3.0;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Cn1_3_4::~Cn1_3_4()
@@ -221,7 +219,6 @@ namespace QuadratureRules
         weight_[2] = 5. / 9.;
         gp_[2][0] = +sqrt(3.0 / 5.0);
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Cn1_5_9::~Cn1_5_9()
@@ -294,7 +291,6 @@ namespace QuadratureRules
         weight_[3] = (0.347854845137453);
         gp_[3][0] = (+0.861136311594053);
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     C1_7_x::~C1_7_x()
@@ -370,8 +366,6 @@ namespace QuadratureRules
         weight_[4] = ( 0.236926885056189);
         gp_[4][0] = (0.906179845938663);
 
-
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     C1_9_25::~C1_9_25()
@@ -450,9 +444,6 @@ namespace QuadratureRules
         weight_[5] = ( 0.171324492379170);
         gp_[5][0] = (0.932469514203152);
 
-
-
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     C1_11_36::~C1_11_36()

@@ -119,14 +119,6 @@ namespace Geometry
         void                                     getCodim2EntityLocalIndices(const unsigned int node, std::vector<unsigned int>& ret) const {ret[0]=node;return;}
 
         const ReferenceGeometry*           getCodim2ReferenceGeometry(const unsigned int)const {return &Geometry::ReferencePoint::Instance();}
-        
-        // ================================== Quadrature rules =====================================
-
-        /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr);
-
-        /// Get a valid quadrature for this geometry.
-        virtual QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
             
         // =============================== Refinement mappings =====================================
         

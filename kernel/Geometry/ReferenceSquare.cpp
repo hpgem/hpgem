@@ -206,32 +206,6 @@ namespace Geometry
         }
     }
 
-
-    // ========================= Quadrature rules for this geometry  ===========================
-    
-    /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceSquare::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
-    {
-        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
-        while (it != lstGaussQuadratureRules_.end())
-        {
-          if ((*it)->order() < qr->order()) ++it;
-          else break;
-        }
-        lstGaussQuadratureRules_.insert(it,qr);
-    }
-
-    /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule* const ReferenceSquare::getGaussQuadratureRule(int order) const
-    {
-        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
-              it != lstGaussQuadratureRules_.end(); ++it)
-        if ((*it)->order() >= order) return *it;
-
-        return NULL;
-    }
-
-
     // =============================== Refinement mappings =====================================
     
     //! Transform a reference point using refinement mapping

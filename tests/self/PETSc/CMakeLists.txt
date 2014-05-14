@@ -14,7 +14,7 @@ foreach(CPPFILE ${CPPFILES})
 	#extract the filename minus the cpp. This will be the name of exe file
 	get_filename_component(EXECNAME ${CPPFILE} NAME_WE)
 	#Make the exe
-	add_executable(${EXECNAME} ${FILENAME} ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/AllGaussQuadratureRules.cpp
+	add_executable(${EXECNAME} ${FILENAME} 
 	
 	#temporary hack because I want to also test these basis functions and the Global assembly
 	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions1DH1ConformingLine.cpp

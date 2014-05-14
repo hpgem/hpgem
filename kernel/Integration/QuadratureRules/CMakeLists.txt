@@ -1,6 +1,6 @@
 include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
-add_library(QuadratureRules SHARED
+add_library(QuadratureRules STATIC
         # Gauss quadrature rules
         ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/AllGaussQuadratureRules.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/GaussQuadratureRulesForLine.cpp
@@ -11,7 +11,6 @@ add_library(QuadratureRules SHARED
         ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/GaussQuadratureRulesForTriangularPrism.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/GaussQuadratureRulesForCube.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/GaussQuadratureRulesForHypercube.cpp
-        
         )
 target_link_libraries(QuadratureRules Reference_geometries)
 

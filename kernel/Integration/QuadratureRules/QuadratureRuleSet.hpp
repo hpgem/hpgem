@@ -22,6 +22,8 @@
 #ifndef QuadratureRuleSet_hpp
 #define QuadratureRuleSet_hpp
 
+///\TODO (flagged for deletion) this appears to be a partially finished solution for the quadrature rule problem that is recently resolved. There is no interaction with the rest of the kernel -FB
+
 #include <list>
 #include <iostream>
 using std::cerr;

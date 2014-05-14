@@ -120,11 +120,8 @@ namespace Geometry
         
         // ================================== Quadrature rules =====================================
         
-        /// \brief Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(typename QuadratureRules::GaussQuadratureRule* const qr) = 0;
-        
         /// \brief Get a valid quadrature for this geometry.
-        virtual typename QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const = 0;
+        virtual const QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
 
         ///\bug getBasisFunctionValue and getBasisFunctionDerivative have functionality that is completely independent from the rest of ReferenceGeometry
         ///\bug getBasisFunctionValue does some lazy initialization, so it can't be const, unless you consider the state to

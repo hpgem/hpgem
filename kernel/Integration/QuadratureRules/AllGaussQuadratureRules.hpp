@@ -32,10 +32,31 @@
 #include "Integration/QuadratureRules/GaussQuadratureRulesForHypercube.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForPoint.hpp"
 
-// This File should go into Utility folder, one day. S.N
-
 namespace QuadratureRules
 {
+	//solves the problem the singletons are causing by adding more singletons ;)
+	/**
+	 * Storage class for all the quadrature rules. If you add a rule, make sure to also add it here in the constructor.
+	 * If you are integrating and want a quadrature rule, this is the appropriate place to get one
+	 */
+	class AllGaussQuadratureRules{
+	public:
+		static AllGaussQuadratureRules& instance();
+
+		//it is possible to call this from an external location, but it is nicer to list all the rules inside this class
+		void addRule(const GaussQuadratureRule* rule);
+
+		const GaussQuadratureRule* getRule(const Geometry::ReferenceGeometry* referenceGeometry, int order);
+
+	private:
+		AllGaussQuadratureRules();
+
+		AllGaussQuadratureRules(AllGaussQuadratureRules&);//this will generate a linker error if you try to copy
+		void operator=(AllGaussQuadratureRules&);
+
+		std::map<const Geometry::ReferenceGeometry*,std::list<const GaussQuadratureRule*>> listOfRules_;
+	};
+
 }
 //---------------------------------------------------------------------------
 #endif

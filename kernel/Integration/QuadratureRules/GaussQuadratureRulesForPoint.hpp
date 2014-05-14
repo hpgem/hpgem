@@ -62,7 +62,6 @@ private:
     	name_("Cn0_inf_1")
 	{
     	weight_[0]=1;
-    	refGeoPtr_->addGaussQuadratureRule(this);
 	}
     Cn0_inf_1(const Cn0_inf_1&):refGeoPtr_(NULL){}
     virtual ~Cn0_inf_1(){}

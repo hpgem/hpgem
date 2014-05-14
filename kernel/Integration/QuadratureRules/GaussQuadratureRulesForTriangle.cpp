@@ -87,7 +87,6 @@ namespace QuadratureRules
         gp_[0][0] = 3.3333333333333348e-01;
         gp_[0][1] = 3.3333333333333348e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Tn2_1_1::~Tn2_1_1()
@@ -160,7 +159,6 @@ namespace QuadratureRules
         gp_[2][0] = 6.6666666666666652e-01;
         gp_[2][1] = 1.6666666666666652e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
      }
 
     Tn2_2_1::~Tn2_2_1()
@@ -237,7 +235,6 @@ namespace QuadratureRules
         gp_[3][0] = 5.9999999999999998e-01;
         gp_[3][1] = 2.0000000000000001e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Tn2_3_1::~Tn2_3_1()
@@ -322,7 +319,6 @@ namespace QuadratureRules
         gp_[5][0] = 8.1684757298045896e-01;
         gp_[5][1] = 9.1576213509771021e-02;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Tn2_4_1::~Tn2_4_1()
@@ -410,7 +406,6 @@ namespace QuadratureRules
         gp_[6][0] = 7.9742698535308698e-01;
         gp_[6][1] = 1.0128650732345601e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T2_5_1::~T2_5_1()
@@ -518,7 +513,6 @@ namespace QuadratureRules
         gp_[11][0] = 5.3145049844816994e-02;
         gp_[11][1] = 6.3650249912139900e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T2_6_1::~T2_6_1()
@@ -631,7 +625,6 @@ namespace QuadratureRules
         gp_[12][0] = 4.8690315425315989e-02;
         gp_[12][1] = 6.3844418856981000e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T2_7_1::~T2_7_1()
@@ -756,7 +749,6 @@ namespace QuadratureRules
         gp_[15][0] = 8.3947774099579764e-03;
         gp_[15][1] = 7.2849239295540402e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T2_8_1::~T2_8_1()
@@ -892,7 +884,6 @@ namespace QuadratureRules
         gp_[18][0] = 3.6838412054735981e-02;
         gp_[18][1] = 7.4119859878449801e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T2_9_1::~T2_9_1()
@@ -1053,7 +1044,6 @@ namespace QuadratureRules
         gp_[24][0] = 9.5408154002989964e-03;
         gp_[24][1] = 9.2365593358749998e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T2_10_1::~T2_10_1()
@@ -1225,7 +1215,6 @@ namespace QuadratureRules
         gp_[27][0] = 1.-1.614188489108937e-01-1.56544537223683037837e-02;
         gp_[27][1] = 1.56544537223683037837e-02;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T2_11_1::~T2_11_1()

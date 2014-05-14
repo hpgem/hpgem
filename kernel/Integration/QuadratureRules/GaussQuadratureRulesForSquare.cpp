@@ -89,7 +89,6 @@ namespace QuadratureRules
         gp_[0][0] = 0.0;
         gp_[0][1] = 0.0;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Cn2_1_1::~Cn2_1_1()
@@ -166,7 +165,6 @@ namespace QuadratureRules
         gp_[3][0] = +sqrt(3.0) / 3.0;
         gp_[3][1] = +sqrt(3.0) / 3.0;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Cn2_3_4::~Cn2_3_4()
@@ -262,7 +260,6 @@ namespace QuadratureRules
         gp_[8][0] = +sqrt(3.0 / 5.0);
         gp_[8][1] = +sqrt(3.0 / 5.0);
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Cn2_5_9::~Cn2_5_9()
@@ -388,7 +385,6 @@ namespace QuadratureRules
         gp_[15][0] = -sqrt((15. + 2. * sqrt(30.)) / 35.);
         gp_[15][1] = -sqrt((15. - 2. * sqrt(30.)) / 35.);
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     C2_7_4::~C2_7_4()
@@ -463,7 +459,6 @@ namespace QuadratureRules
         	}
         }
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     C2_9_5::~C2_9_5()
@@ -538,7 +533,6 @@ namespace QuadratureRules
         	}
         }
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     C2_11_6::~C2_11_6()

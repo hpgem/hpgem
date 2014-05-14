@@ -121,7 +121,7 @@ namespace Base {
 			return face_->getPtrElementRight();
 		}
 
-		virtual FaceQuadratureRule* getGaussQuadratureRule() const {
+		virtual const FaceQuadratureRule* getGaussQuadratureRule() const {
 			return face_->getGaussQuadratureRule();
 		}
 

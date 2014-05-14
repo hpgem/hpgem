@@ -227,31 +227,6 @@ namespace Geometry
             throw "ERROR: Index out of range. Tetrahedron has only 4 nodes.";
         }
     }
-
-
-    // ================================== Quadrature rules =====================================
-
-    /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceTetrahedron::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
-    {
-        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
-        while (it != lstGaussQuadratureRules_.end())
-        {
-          if ((*it)->order() < qr->order()) ++it;
-          else break;
-        }
-        lstGaussQuadratureRules_.insert(it,qr);
-    }
-
-    /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule* const ReferenceTetrahedron::getGaussQuadratureRule(int order) const
-    {
-        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
-              it != lstGaussQuadratureRules_.end(); ++it)
-          if ((*it)->order() >= order) return *it;
-
-        return NULL;
-    }
             
 };
 

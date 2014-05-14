@@ -88,14 +88,6 @@ namespace Geometry
 
         using MappingCodimensions::getCodim0MappingPtr;
 
-        // ================================== Quadrature rules =====================================
-
-        /// \brief Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr);
-
-        /// \brief Get a valid quadrature for this geometry.
-        virtual QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
-
         // =============================== Refinement mappings =====================================
         
         /// \brief Transform a reference point using refinement mapping

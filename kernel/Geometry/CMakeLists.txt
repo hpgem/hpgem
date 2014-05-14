@@ -2,7 +2,7 @@ add_subdirectory(Mappings)
 
 include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
-add_library(Reference_geometries SHARED
+add_library(Reference_geometries STATIC
 	${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferencePoint.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceLine.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceTriangle.cpp
@@ -65,6 +65,6 @@ add_library(Geometry SHARED
 
       )
 
-target_link_libraries(Reference_geometries LinearAlgebra)
+target_link_libraries(Reference_geometries LinearAlgebra QuadratureRules)
 target_link_libraries(Geometry Reference_geometries LinearAlgebra)
 
