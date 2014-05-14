@@ -1,4 +1,4 @@
-include_directories(. ${hpGEM_SOURCE_DIR}/src/ ${PETSC_INCLUDES} ${SLEPC_INCLUDE_DIRS} ${hpGEM_SOURCE_DIR})
+include_directories(. ${hpGEM_SOURCE_DIR}/kernel/ ${PETSC_INCLUDES} ${SLEPC_INCLUDE_DIRS} ${hpGEM_SOURCE_DIR})
 
 
 #First declare the rules that will form the executable tests#
@@ -12,11 +12,11 @@ add_executable( DG-Max.out
                 kspaceData.cpp
                 BasisFunctionCollection_Curl.cpp
                 BaseExtended.cpp
-		${hpGEM_SOURCE_DIR}/src/Output/TecplotPhysicalGeometryIterator.cpp		
-		${hpGEM_SOURCE_DIR}/src/Output/TecplotDiscontinuousSolutionWriter.cpp		  
+		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp		
+		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter.cpp		  
 		#miscellaneous required stuff
-		${hpGEM_SOURCE_DIR}/src/Base/AssembleBasisFunctionSet.cpp
-                ${hpGEM_SOURCE_DIR}/src/Integration/QuadratureRules/AllGaussQuadratureRules.cpp
-                ${hpGEM_SOURCE_DIR}/src/Base/L2Norm.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
+                ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/AllGaussQuadratureRules.cpp
+                ${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
       		)
-target_link_libraries(DG-Max.out hpGEM_Base Geometry QuadratureRules Matrix ${PETSC_LIBRARIES} ${SLEPC_LIBRARIES} )
+target_link_libraries(DG-Max.out Output ${PETSC_LIBRARIES} ${SLEPC_LIBRARIES} )

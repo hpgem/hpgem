@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -56,26 +56,26 @@ namespace Geometry
         virtual ~ElementGeometry();
 
         /// Returns a pointer to the referenceToPhysicalMapping
-        const MappingReferenceToPhysicalT* const    getReferenceToPhysicalMap() const;
+        virtual const MappingReferenceToPhysicalT* const    getReferenceToPhysicalMap() const;
 
         /// Returns a pointer to the physicalGeometry object.
-        const PhysicalGeometryT* const              getPhysicalGeometry() const;
+        virtual const PhysicalGeometryT* const              getPhysicalGeometry() const;
             /// Returns a pointer to the physicalGeometry object.
-        unsigned int                                getNrOfNodes() const;
+        virtual unsigned int                                getNrOfNodes() const;
         /// Returns a pointer to the referenceGeometry object.
-        const ReferenceGeometryT* const             getReferenceGeometry() const;
+        virtual const ReferenceGeometryT* const             getReferenceGeometry() const;
         /// Returns a pointer to the refinementGeometry object.
-        const RefinementGeometryT*                  getRefinementGeometry() const;
+        virtual const RefinementGeometryT*                  getRefinementGeometry() const;
         /// This method gets a PointReference, which specifies a coordinate in the ReferenceGeometry,
         /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
         /// given the mapping.
-        void                                        referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical);
+        virtual void                                        referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical);
         
-        void                                        referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical)const;
+        virtual void                                        referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical)const;
         
         /// This method gets a PointReference and returns the corresponding jacobian of the
         /// referenceToPhysicalMapping.
-        void                                        calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const;
+        virtual void                                        calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const;
 
         /*! \brief Transform a physical space function on the reference element.
 
@@ -107,6 +107,11 @@ namespace Geometry
             os << '}' << std::endl;
             return os;
         }
+    protected:
+
+        ///\brief default constructor - for use with wrapper classes (that can delegate functionality of ElementGeometry in another way)
+        ElementGeometry():referenceGeometry_(NULL),physicalGeometry_(NULL),referenceToPhysicalMapping_(NULL),refinementGeometry_(NULL) {}
+
     private:
         
         static const ReferenceGeometryT* const          createReferenceGeometry(unsigned int size,unsigned int DIM);

@@ -79,7 +79,7 @@ class Logger {
      */     
      template<typename... Args>
      void log(const Log loglevel, const std::string& format, Args&&... arg) {
-       if (loglevel <= L || loglevel < LOG_LEVEL) {
+       if (loglevel <= L || loglevel <= LOG_LEVEL) {
          std::stringstream msgstream;
          createMessage(msgstream, format.c_str(), arg...);
          if        (loglevel <= Log::FATAL) {

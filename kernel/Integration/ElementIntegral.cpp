@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -25,45 +25,52 @@ namespace Integration
     
         //! \brief Construct an ElementIntegral with cache on.
     ElementIntegral::ElementIntegral(bool useCache):
-        useCache_(useCache),
-        recomputeCache_(false)
+        useCache_(useCache)
     {
-        
+        localElement_=NULL;
     }
     
         //! \brief Class destructor
     ElementIntegral::~ElementIntegral()
     {
-        
+        delete localElement_;
     }
         //! \brief Start caching (geometry) information now.
     void
     ElementIntegral::cacheOn()
     {
         useCache_ = true;
-        recomputeCache_ = false;
+        if(localElement_!=NULL){
+        	localElement_->cacheOn();
+        }
     }
     
         //! \brief Stop using cache.
     void
     ElementIntegral::cacheOff()
     {
-        useCache_ = true;
-        recomputeCache_ = false;
+        useCache_ = false;
+        if(localElement_!=NULL){
+        	localElement_->cacheOff();
+        }
     }
     
         //! \brief Set recompute the cache ON.
     void
     ElementIntegral::recomputeCacheOn()
     {
-        recomputeCache_ = true;
+        if(localElement_!=NULL){
+        	localElement_->recomputeCacheOn();
+        }
     }
     
         //! \brief Set recompute the cache OFF.
     void
     ElementIntegral::recomputeCacheOff()
     {
-        recomputeCache_ = false;
+        if(localElement_!=NULL){
+        	localElement_->recomputeCacheOff();
+        }
     }
     
     /*!
@@ -178,6 +185,16 @@ namespace Integration
 //            
 //        }
 //    }
+}
+
+void Integration::ElementIntegral::setStorageWrapper(Base::ShortTermStorageElementBase* transform) {
+	delete localElement_;
+	localElement_=transform;
+	if(useCache_){
+		localElement_->cacheOn();
+	}else{
+		localElement_->cacheOff();
+	}
 }
     //! \brief AXPY operation, i.e. Y = alpha * X + Y, for various data type
     //        template <typename T>

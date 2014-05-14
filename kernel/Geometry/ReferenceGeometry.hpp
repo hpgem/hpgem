@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,12 +27,26 @@
 #include "Geometry/Mappings/RefinementMapping.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 #include <map>
+#include <unordered_map>
 #include "Base/BaseBasisFunction.hpp"
 
 #include <iostream>
 #include <vector>
 using std::cout;
 using std::endl;
+
+template<>
+class std::__1::hash<Geometry::PointReference>{
+public:
+	size_t operator()(const Geometry::PointReference& point) const{
+		static std::__1::hash<double> hasher;
+		size_t ret=0;
+		for(int i=0;i<point.size();++i){
+			ret^=hasher(point[i])+0x9e3779b9+(ret<<6)+(ret>>2);
+		}
+		return ret;
+	}
+};
 
 namespace QuadratureRules
 {
@@ -140,8 +154,8 @@ namespace Geometry
         
     private:
 
-        std::map<const Base::BaseBasisFunction*,std::map<Geometry::PointReference,double> > basisfunctionValues_;
-        std::map<const Base::BaseBasisFunction*,std::map<Geometry::PointReference,NumericalVector> > basisfunctionDerivatives_;
+        std::map<const Base::BaseBasisFunction*,std::unordered_map<Geometry::PointReference,double> > basisfunctionValues_;
+        std::map<const Base::BaseBasisFunction*,std::unordered_map<Geometry::PointReference,NumericalVector> > basisfunctionDerivatives_;
 
     };
 };

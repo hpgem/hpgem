@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -21,6 +21,8 @@
 
 #include"Integration/ReturnTrait1.hpp"
 #include"Base/Element.hpp"
+#include "Base/ShortTermStorageElementH1.hpp"
+#include "Base/ShortTermStorageFaceH1.hpp"
 
 namespace Base
 {
@@ -56,6 +58,7 @@ namespace Base
         LinearAlgebra::Matrix fMatrixData;
         LinearAlgebra::NumericalVector fVectorData;
         FaceIntegralT   faceIntegral(useCache);
+        faceIntegral.setStorageWrapper(new Base::ShortTermStorageFaceH1(meshes_[meshID]->dimension()));
         
         for (MeshManipulator::FaceIterator citFe = Base::HpgemUI::faceColBegin(); citFe != Base::HpgemUI::faceColEnd(); ++citFe)
         {
@@ -80,6 +83,7 @@ namespace Base
         
         bool isUseCache(false);
         Integration::ElementIntegral 	elIntegral(isUseCache);
+        elIntegral.setStorageWrapper(new ShortTermStorageElementH1(meshes_[meshID]->dimension()));
         
         for (ElementIterator it=HpgemUI::meshes_[meshID]->elementColBegin(); it!= HpgemUI::meshes_[meshID]->elementColEnd(); ++it)
         {

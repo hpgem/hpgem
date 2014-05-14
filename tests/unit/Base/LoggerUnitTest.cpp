@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include "Base/Logger.h"
+
 
 // --- Declaring a logger.
 // --- This allows you to redefine LogLevels based on command line options.

@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -54,40 +54,40 @@ namespace Base
         ///appear consecutively in the matrix.
         void setElementMatrix(const LinearAlgebra::Matrix&, int matrixID=0);
 
-        void getElementMatrix(LinearAlgebra::Matrix&, int matrixID=0) const;
+        virtual void getElementMatrix(LinearAlgebra::Matrix&, int matrixID=0) const;
 
         ///If it not appropriate to use the timeleveldata for your vector information (for example because it is the source term in a time dependent problem)
         void setElementVector(const LinearAlgebra::NumericalVector&, int vectorID=0);
 
-        void getElementVector(LinearAlgebra::NumericalVector&, int vectorID=0) const;
+        virtual void getElementVector(LinearAlgebra::NumericalVector&, int vectorID=0) const;
 
         virtual ~ElementData() {}
         
         
             /// Specify a time level index, return a vector containing the data for that time level.
-        const LinearAlgebra::Matrix&    getTimeLevelData(unsigned int timeLevel) const;
+        virtual const LinearAlgebra::Matrix&    getTimeLevelData(unsigned int timeLevel) const;
         
 	/// Specify a time level index, an unknown (as solutionId), set the data for that unknown
         void                            setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown);
 	void                            setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::Matrix& unknown);
         
             /// Specify a time level index, an unknown and a basis function nr, return data (double)
-        double                    getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const;
+	virtual double                    getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const;
 
             /// Specify a time level index, an unknown and a basis function nr, set the data (double)
         void                      setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val);
         
-        int                       getNrOfUnknows() const;
+        virtual int                       getNrOfUnknows() const;
         
-        int                       getNrOfBasisFunctions() const;
+        virtual int                       getNrOfBasisFunctions() const;
         
-        const VectorOfDoubles&          getResidue() const;
+        virtual const VectorOfDoubles&          getResidue() const;
         
         void                      setResidue(VectorOfDoubles& residue);
         
         void                      setUserData(UserElementData* data);
         
-        UserElementData*          getUserData() const {return userData_;}
+        virtual UserElementData*          getUserData() const {return userData_;}
 
     protected:
         void setNumberOfBasisFunctions(unsigned int number);

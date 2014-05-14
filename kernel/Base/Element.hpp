@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -79,9 +79,9 @@ namespace Base
         ~Element();
 	
 
-        unsigned int                    getID()const;
+        virtual unsigned int                    getID()const;
 
-        unsigned int                    getID();
+        virtual unsigned int                    getID();
 
         void                            setQuadratureRulesWithOrder(unsigned int quadrROrder);
 
@@ -93,27 +93,28 @@ namespace Base
         void                            setEdgeBasisFunctionSet(unsigned int position,int localIndex);
         void                            setFaceBasisFunctionSet(unsigned int position,int localIndex);
 
-        const GaussQuadratureRuleT*     getGaussQuadratureRule() const;
+        virtual const GaussQuadratureRuleT*     getGaussQuadratureRule() const;
 
-        VecCacheT&                      getVecCacheData();
+        virtual VecCacheT&                      getVecCacheData();
         
-        double                          basisFunction(unsigned int i, const PointReferenceT& p) const;
+        virtual double                          basisFunction(unsigned int i, const PointReferenceT& p) const;
 
 		///\brief returns the value of the i-th basisfunction at point p in ret
-		void                            basisFunction(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+        virtual void                            basisFunction(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
  
             /// jDir=0 means x, and etc.
-        double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
+        virtual double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
             //unsigned int                    getNumberOfDegreesOfFreedom()const;
             //unsigned int                    getNumberOfDegreesOfFreedom();
         
         ///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
-        void                            basisFunctionDeriv(unsigned int i,const PointReferenceT& p, NumericalVector& ret) const;
+        ///if some of the data needed for this mapping is already stored on a wrapper class, you can pass the class to this function for more efficient computation
+        virtual void                            basisFunctionDeriv(unsigned int i,const PointReferenceT& p, NumericalVector& ret,const Element* wrapper=NULL) const;
 	
 		///\brief returns the curl of the i-th basisfunction at point p in ret
-		void                            basisFunctionCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+        virtual void                            basisFunctionCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
 	
-        void                            getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const;
+        virtual void                            getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const;
         
         void                            initialiseSolution(unsigned int timeLevel, unsigned int solutionId, const SolutionVector& solution);///\TODO not implemented
         
@@ -121,19 +122,25 @@ namespace Base
 
         void                            setEdge(int localEdgeNr, const Edge* edge);
 
-		int                             getLocalNrOfBasisFunctions() const{return nrOfDOFinTheElement_;}
+        virtual int                             getLocalNrOfBasisFunctions() const{return nrOfDOFinTheElement_;}
 
-		int                             getLocalNrOfBasisFunctionsVertex() const{return nrOfDOFperVertex_;}
+        virtual int                             getLocalNrOfBasisFunctionsVertex() const{return nrOfDOFperVertex_;}
 
-		const Face*                     getFace(int localFaceNr)const {return facesList_[localFaceNr];}
+        virtual const Face*                     getFace(int localFaceNr)const {return facesList_[localFaceNr];}
 
-		const Edge*                     getEdge(int localEdgeNr)const {return edgesList_[localEdgeNr];}
+        virtual const Edge*                     getEdge(int localEdgeNr)const {return edgesList_[localEdgeNr];}
 
-		int                             getNrOfEdges() const{return edgesList_.size();}
+        virtual int                             getNrOfEdges() const{return edgesList_.size();}
 
 #ifndef NDEBUG
-		const Base::BaseBasisFunction*  getBasisFunction(int i)const;
+        virtual const Base::BaseBasisFunction*  getBasisFunction(int i)const;
 #endif
+
+    protected:
+
+        ///\brief default constructor - for use with wrapper classes (that can delegate functionality of Element in another way)
+        Element():ElementData(0,0,0,0,0),ElementGeometry(),quadratureRule_(NULL),basisFunctionSet_(NULL){}
+
     public:
             /// Output operator.
         friend ostream& operator<<(ostream& os, const Element& element)

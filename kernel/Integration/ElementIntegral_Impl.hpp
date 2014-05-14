@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -21,6 +21,7 @@
 
 #ifndef ELEMENTINTEGRAL_IMPL_HPP_
 #define ELEMENTINTEGRAL_IMPL_HPP_
+#include "Base/ShortTermStorageElementH1.hpp"
 
 namespace Integration{
 
@@ -31,11 +32,20 @@ template <class ReturnTrait1>
                                     ReturnTrait1& result,
                                     const QuadratureRulesT* const qdrRule)
     {
-        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==NULL? el->getGaussQuadratureRule(): qdrRule);
+		if(localElement_==NULL){
+			localElement_=new Base::ShortTermStorageElementH1(el->getGaussQuadratureRule()->dimension());
+			if(useCache_){
+				localElement_->cacheOn();
+			}else{
+				localElement_->cacheOff();
+			}
+		}
+		*localElement_=*el;
+        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==NULL? localElement_->getGaussQuadratureRule(): qdrRule);
 
             // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
-        TestErrorDebug((qdrRuleLoc->forReferenceGeometry() == el->getReferenceGeometry()),
-                       "ElementIntegral: " + qdrRuleLoc->getName() + " rule is not for " + el->getReferenceGeometry()->getName() + "!");
+        TestErrorDebug((qdrRuleLoc->forReferenceGeometry() == localElement_->getReferenceGeometry()),
+                       "ElementIntegral: " + qdrRuleLoc->getName() + " rule is not for " + localElement_->getReferenceGeometry()->getName() + "!");
 
             // value returned by the integrand
         ReturnTrait1 value(result);
@@ -47,13 +57,13 @@ template <class ReturnTrait1>
             // Gauss quadrature point
             Geometry::PointReference p(qdrRuleLoc->dimension());
 
-        if (!useCache_)
-        {
+        //if (!useCache_)//caching of transformation data is delegated to ShortTermStorageBase
+        //{
                 // first Gauss point
             Geometry::Jacobian jac(qdrRuleLoc->dimension(),qdrRuleLoc->dimension());
             qdrRuleLoc->getPoint(0, p);
-            el->calcJacobian(p, jac);
-            integrand->elementIntegrand(el, p, result);
+            localElement_->calcJacobian(p, jac);
+            integrand->elementIntegrand(localElement_, p, result);
             result *= (qdrRuleLoc->weight(0) * std::abs(jac.determinant()));
 
 //            cout <<"Result = "<<result<<endl;
@@ -63,11 +73,11 @@ template <class ReturnTrait1>
             {
                 qdrRuleLoc->getPoint(i, p);
 
-                el->calcJacobian(p, jac);
+                localElement_->calcJacobian(p, jac);
 
 //                cout << "p="<<p<<endl;
 
-                integrand->elementIntegrand(el, p, value);
+                integrand->elementIntegrand(localElement_, p, value);
 
                     //Base::Axpy(qdrRuleLoc->weight(i) * std::abs(jac.determinant()), value, result);
 
@@ -84,8 +94,8 @@ template <class ReturnTrait1>
 //                cout <<"Result2 = "<<result<<endl;
 //                cout <<"*******************************************"<<endl;
             }
-        }
-        else
+        //}
+        /*else
         {
 
                 // get vector of cache data
@@ -120,7 +130,7 @@ template <class ReturnTrait1>
                     //Base::Axpy(qdrRuleLoc->weight(i) * vecCache[i].absDetJac_, value, result);
             }
 
-        }
+        }*/
     }
 
 

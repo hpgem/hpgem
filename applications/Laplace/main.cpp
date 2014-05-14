@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,12 +33,52 @@
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
 #include "Utilities/BasisFunctions3DH1ConformingCube.hpp"
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.hpp"
+#include <chrono>
 
-const unsigned int DIM=2;
-//penaltyParameter>3np(p+dim-1) - set in the code
+const unsigned int DIM=3;
+//penaltyParameter>2p^2/h=2np^2
 double penaltyParameter=-3.141;
 
-class Laplace : public Base::HpgemUISimplified,Output::TecplotSingleElementWriter{
+void viewBasisFunctionInTecplot(const Base::BaseBasisFunction* function, const Geometry::ReferenceGeometry& geometry, ostream& file)
+{//manually adapt this function to your needs
+//	file<<"TITLE= \"BasisFunction\"\nVARIABLES= x,y,z,value"<<endl;
+	file<<"ZONE I="<<40 <<" J= "<<40<<" K= "<<1<<endl;
+	Geometry::PointReference p(3);
+	for(p[0]=-0.975;p[0]<1.;p[0]+=0.05){
+		for(p[1]=-.975;p[1]<1.;p[1]+=0.05){
+		//	for(p[2]=-.975;p[2]<1.;p[2]+=0.05){
+				file<<p[0]<<" "<<p[1]<<" ";//<<p[2]<<" ";
+				if(geometry.isInternalPoint(p)){
+					file<<function->eval(p)<<" "<<function->evalDeriv0(p)<<" "<<function->evalDeriv1(p)<</*" "<<function->evalDeriv2(p)<<*/endl;
+				}else{
+					file<<"0.0 0.0 0.0"<<endl;
+				}
+		//	}
+		}
+	}
+}
+
+///\bug integration only work with classes that have axpy defined, but I want to use double
+class dummyDouble{
+public:
+	dummyDouble(double d):d_(d){}
+	void axpy(double a,dummyDouble x){
+		d_+=a*x.d_;
+	}
+	void operator*=(dummyDouble d){
+		d_*=d.d_;
+	}
+	void operator+=(dummyDouble d){
+		d_+=d.d_;
+	}
+	operator double(){
+		return d_;
+	}
+private:
+	double d_;
+};
+
+class Laplace : public Base::HpgemUISimplified,Output::TecplotSingleElementWriter,public Integration::ElementIntegrandBase<dummyDouble>{
 
 public:
 	Laplace(int n,int p):HpgemUISimplified(DIM,p),n_(n),p_(p){
@@ -54,17 +94,18 @@ public:
     		description.numElementsInDIM_[i]=n_;
     		description.boundaryConditions_[i]=RectangularMeshDescriptorT::SOLID_WALL;
     	}
-    	addMesh(description,Base::TRIANGULAR,1,1,1,1);
-    	meshes_[0]->setDefaultBasisFunctionSet(Utilities::createInteriorBasisFunctionSet2DH1Triangle(p_));
+    	addMesh(description,Base::RECTANGULAR,1,1,1,1);
+    	meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(p_));
+    	/*meshes_[0]->setDefaultBasisFunctionSet(Utilities::createInteriorBasisFunctionSet3DH1Cube(p_));
     	std::vector<const Base::BasisFunctionSet*> bFsets;
-    	Utilities::createVertexBasisFunctionSet2DH1Triangle(p_,bFsets);
+    	Utilities::createVertexBasisFunctionSet3DH1Cube(p_,bFsets);
     	meshes_[0]->addVertexBasisFunctionSet(bFsets);
     	std::vector<const Base::OrientedBasisFunctionSet*> oBFsets;
-    	Utilities::createFaceBasisFunctionSet2DH1Triangle(p_,oBFsets);
+    	Utilities::createFaceBasisFunctionSet3DH1Cube(p_,oBFsets);
     	meshes_[0]->addFaceBasisFunctionSet(oBFsets);
-    	//oBFsets.clear();
-    	//Utilities::createEdgeBasisFunctionSet3DH1Tetrahedron(p_,oBFsets);
-    	//meshes_[0]->addEdgeBasisFunctionSet(oBFsets);
+    	oBFsets.clear();
+    	Utilities::createEdgeBasisFunctionSet3DH1Cube(p_,oBFsets);
+    	meshes_[0]->addEdgeBasisFunctionSet(oBFsets);*/
     	return true;
     }
 
@@ -102,10 +143,10 @@ public:
         		//if(face->faceType_==(...))
     			if(face->isInternal()){
     				ret(j,i)=-(phiNormalI*phiDerivJ+phiNormalJ*phiDerivI)/2+
-    							penaltyParameter*phiNormalI*phiNormalJ;
+    							penaltyParameter*(phiNormalI*phiNormalJ);
     			}else if(fabs(pPhys[0])<1e-9||fabs(pPhys[0]-1.)<1e-9){//Dirichlet
     				ret(j,i)=-(phiNormalI*phiDerivJ+phiNormalJ*phiDerivI)+
-    							penaltyParameter*phiNormalI*phiNormalJ*2;
+    							penaltyParameter*(phiNormalI*phiNormalJ)*2;
     			//}else if(fabs(pPhys[0]-1)<1e-9){//Robin
     			//	ret(j,i)=-phiNormalI*phiNormalJ*0;
     			}else{//homogeneous Neumann
@@ -145,11 +186,25 @@ public:
     }
 
     double sourceTerm(const PointPhysicalT& p){
-    	return sin(2*M_PI*p[0])*(4*M_PI*M_PI)*cos(2*M_PI*p[1]);//*cos(2*M_PI*p[2])*3;
+    	return sin(2*M_PI*p[0])*(4*M_PI*M_PI)*cos(2*M_PI*p[1])*cos(2*M_PI*p[2])*3;
+    	//return 2*p[1]*p[1]*(1-p[1])*(1-p[1])+(8*p[1]*(1-p[1])-2*p[1]*p[1]-2*(1-p[1])*(1-p[1]))*p[0]*(1-p[0]);
+    }
+
+    ///computes the L2 error
+    virtual void elementIntegrand(const ElementT* element, const PointReferenceT& p, dummyDouble& ret){
+    	PointPhysicalT pPhys(DIM);
+    	element->referenceToPhysical(p,pPhys);
+    	ret=0;
+    	for(int i=0;i<element->getNrOfBasisFunctions();++i){
+    		ret+=element->basisFunction(i,p)*element->getData(0,0,i);
+    	}
+    	ret+=-sourceTerm(pPhys)/(4*M_PI*M_PI)/(DIM);
+    	//ret +=-pPhys[0]*(1-pPhys[0])*pPhys[1]*pPhys[1]*(1-pPhys[1])*(1-pPhys[1]);
+    	ret*=ret;
     }
 
     ///interpolates the source term
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret){
+    virtual void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret){
     	PointPhysicalT pPhys(DIM);
     	element->referenceToPhysical(p,pPhys);
     	ret.resize(element->getNrOfBasisFunctions());
@@ -158,10 +213,14 @@ public:
     	}
     }
 
-    void writeToTecplotFile(const ElementT* element,const  PointReferenceT& p, ostream& out){
-    	NumericalVector value(1);
-    	element->getSolution(0,p,value);
-    	out<<value[0];
+    virtual void writeToTecplotFile(const ElementT* element,const  PointReferenceT& p, ostream& out){
+    	double value(0);
+    	Geometry::PointPhysical pPhys(DIM);
+    	element->referenceToPhysical(p,pPhys);
+    	for(int i=0;i<element->getNrOfBasisFunctions();++i){
+    		value+=element->basisFunction(i,p)*element->getData(0,0,i);
+    	}
+    	out<<value;
     }
 
     ///guarantees the linear system keeps the dirichlet boundary conditions in place. Assumes x already contains expansion coefficients for
@@ -184,14 +243,15 @@ public:
     }
 
     bool solve(){
+    	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     	doAllElementIntegration();
-    	//doAllFaceIntegration();
-    	Utilities::GlobalPetscMatrix A(HpgemUI::meshes_[0],0,-1);
-    	Utilities::GlobalPetscVector b(HpgemUI::meshes_[0],0,-1),x(HpgemUI::meshes_[0]);
+    	doAllFaceIntegration();
+    	Utilities::GlobalPetscMatrix A(HpgemUI::meshes_[0],0,0);
+    	Utilities::GlobalPetscVector b(HpgemUI::meshes_[0],0,0),x(HpgemUI::meshes_[0]);
 
     	b.assemble();
     	VecSet(x,0);
-    	insertDirichletBoundary(A,b,x);
+    	//insertDirichletBoundary(A,b,x);
 
     	KSP ksp;
     	KSPCreate(MPI_COMM_WORLD,&ksp);
@@ -202,13 +262,68 @@ public:
     	KSPGetConvergedReason(ksp,&conferge);
     	int iterations;
     	KSPGetIterationNumber(ksp,&iterations);
+    	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     	cout<<"KSP solver ended because of "<<KSPConvergedReasons[conferge]<<" in "<<iterations<<" iterations."<<endl;
 
+    	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double> >(end-start);
+    	cout<<"This took "<<time_span.count()<<" seconds."<<endl;
     	x.writeTimeLevelData(0);
 
     	std::ofstream outFile("output.dat");
-		Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile,"test","01","value");
-		writeFunc.write(meshes_[0],"continuous solution",false,this);
+		Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile,"test","012","value");
+		writeFunc.write(meshes_[0],"monomial solution",false,this);
+
+    	Integration::ElementIntegral elIntegral(false);
+    	elIntegral.setStorageWrapper(new Base::ShortTermStorageElementH1(DIM));
+    	dummyDouble error(0),elError(0);
+    	for(Base::Element* el:meshes_[0]->getElementsList()){
+    		elIntegral.integrate<dummyDouble>(el,this,elError);
+    		error+=elError;
+    		elError=0;
+    	}
+    	cout.precision(8);
+    	cout<<"The L2-error in the conforming case is: "<<sqrt(error)<<endl;
+
+    	/*meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(p_));
+
+    	VecSet(x,0);//no cheating with pre-converged solutions
+
+    	start = std::chrono::steady_clock::now();
+
+    	doAllElementIntegration();
+    	doAllFaceIntegration();
+    	Utilities::GlobalPetscMatrix DGA(HpgemUI::meshes_[0],0,0);
+    	Utilities::GlobalPetscVector DGb(HpgemUI::meshes_[0],0,0);
+    	DGb.assemble();
+    	x.reset();
+
+    	KSPDestroy(&ksp);//stupid stubborn ksp...
+    	KSPCreate(MPI_COMM_WORLD,&ksp);
+    	KSPSetOperators(ksp,DGA,DGA,DIFFERENT_NONZERO_PATTERN);
+    	KSPSetFromOptions(ksp);
+    	KSPSolve(ksp,DGb,x);
+    	KSPGetConvergedReason(ksp,&conferge);
+    	KSPGetIterationNumber(ksp,&iterations);
+    	end=std::chrono::steady_clock::now();
+    	cout<<"KSP solver ended because of "<<KSPConvergedReasons[conferge]<<" in "<<iterations<<" iterations."<<endl;
+    	time_span=std::chrono::duration_cast<std::chrono::duration<double> >(end-start);
+    	cout<<"This took "<<time_span.count()<<" seconds."<<endl;
+    	x.writeTimeLevelData(0);
+
+		writeFunc.write(meshes_[0],"Discontinuous solution",false,this);
+		for(int i=0;i<(*elementColBegin())->getNrOfBasisFunctions();++i){
+			//viewBasisFunctionInTecplot((*elementColBegin())->getBasisFunction(i),Geometry::ReferenceSquare::Instance(),outFile);
+		}
+    	//viewBasisFunctionInTecplot((*elementColBegin())->getBasisFunction(13),Geometry::ReferenceTetrahedron::Instance(),outFile);
+
+		error=0;
+		elError=0;
+    	for(Base::Element* el:meshes_[0]->getElementsList()){
+    		elIntegral.integrate<dummyDouble>(el,this,elError);
+    		error+=elError;
+    		elError=0;
+    	}
+    	cout<<"The L2-error in the DG case is: "<<sqrt(error)<<endl;*/
 		return true;
     }
 

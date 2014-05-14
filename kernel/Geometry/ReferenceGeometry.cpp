@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -47,26 +47,26 @@ namespace Geometry
 
     double
     ReferenceGeometry::getBasisFunctionValue(const Base::BaseBasisFunction* function,const PointReference& p)
-    {//not faster than just computing (until we do high precision computations)
-    /*	try{
+    {
+    	try{
     		return basisfunctionValues_[function].at(p);
     	}catch(std::out_of_range&){
     		basisfunctionValues_[function][p]=function->eval(p);
     		return basisfunctionValues_[function].at(p);
-    	}*/
+    	}
     	return function->eval(p);
     }
 
     void
     ReferenceGeometry::getBasisFunctionDerivative(const Base::BaseBasisFunction* function,const PointReference& p, NumericalVector& ret)
     {
-    //	try{
-    //		ret=basisfunctionDerivatives_[function].at(p);
-    //	}catch(std::out_of_range&){
-    //		basisfunctionDerivatives_[function][p].resize(ret.size());
+    	try{
+    		ret=basisfunctionDerivatives_[function].at(p);
+    	}catch(std::out_of_range&){
+    		basisfunctionDerivatives_[function][p].resize(ret.size());
     		function->evalDeriv(p,ret);
-    //		basisfunctionDerivatives_[function].at(p)=ret;
-    //	}
+    		basisfunctionDerivatives_[function].at(p)=ret;
+    	}
     }
 };
 #endif

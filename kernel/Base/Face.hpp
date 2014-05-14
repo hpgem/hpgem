@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -60,15 +60,15 @@ namespace Base
         //void            setPtrElementRight( ElementT* value);
 
         /// Return the pointer to the left element.
-         ElementT*       getPtrElementLeft()     {return elementLeft_;}
+        virtual ElementT*       getPtrElementLeft()     {return elementLeft_;}
 
         /// Return the pointer to the right element, NULL if inexistent for boundaries.
-         ElementT*       getPtrElementRight()    {return elementRight_;}
+        virtual ElementT*       getPtrElementRight()    {return elementRight_;}
         
-        const ElementT*       getPtrElementLeft()const     {return elementLeft_;}
+        virtual const ElementT*       getPtrElementLeft()const     {return elementLeft_;}
         
             /// Return the pointer to the right element, NULL if inexistent for boundaries.
-        const ElementT*       getPtrElementRight()const    {return elementRight_;}
+        virtual const ElementT*       getPtrElementRight()const    {return elementRight_;}
         
         void            createQuadratureRules();
     
@@ -77,37 +77,42 @@ namespace Base
             quadratureRule_ = quadratureRule;
         }
 
-        FaceQuadratureRule* getGaussQuadratureRule() const
+        virtual FaceQuadratureRule* getGaussQuadratureRule() const
         {
             return quadratureRule_;
         }
         
-        bool             isInternal()const;
+        virtual bool             isInternal()const;
 
-        VecCacheT&       getVecCacheData() { return vecCacheData_; }
+        virtual VecCacheT&       getVecCacheData() { return vecCacheData_; }
 
-        double                          basisFunction(unsigned int i, const Geometry::PointReference& p) const;
+        virtual double                          basisFunction(unsigned int i, const Geometry::PointReference& p) const;
 
 		///\brief returns the value of the i-th basisfunction at point p in ret
-		void                            basisFunction(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const;
+        virtual void                            basisFunction(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const;
 
-		void                            basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, NumericalVector& ret) const;
+        virtual void                            basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, NumericalVector& ret) const;
 
         /// jDir=0 means x, and etc.
-		double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const Geometry::PointReference& p) const;
+        virtual double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const Geometry::PointReference& p) const;
 
 		///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
-		void                            basisFunctionDeriv(unsigned int i,const Geometry::PointReference& p, NumericalVector& ret) const;
+        virtual void                            basisFunctionDeriv(unsigned int i,const Geometry::PointReference& p, NumericalVector& ret) const;
 
-		void                            basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const;
+        virtual void                            basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const;
 
-		int                             getNrOfBasisFunctions() const;
+        virtual int                             getNrOfBasisFunctions() const;
 
-		int                             getLocalNrOfBasisFunctions() const{return nrOfConformingDOFOnTheFace_;}
+        virtual int                             getLocalNrOfBasisFunctions() const{return nrOfConformingDOFOnTheFace_;}
 
 		void                            setLocalNrOfBasisFunctions(int number){nrOfConformingDOFOnTheFace_=number;}
 
-		int getID()const{return faceID_;}
+		virtual int getID()const{return faceID_;}
+
+    protected:
+
+		///\brief default constructor - for use with wrapper classes
+		Face():FaceData(0,0,0),FaceGeometry(),elementLeft_(NULL),elementRight_(NULL),quadratureRule_(NULL){}
 
     private:
          ElementT*                                 elementLeft_;
