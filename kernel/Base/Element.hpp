@@ -24,22 +24,27 @@
 #define Element_hpp
 //----------------------------------------------------------------
 #include "Base/ElementData.hpp"
-#include "Base/BasisFunctionSet.hpp"
 #include "Geometry/ElementGeometry.hpp"
-#include "Geometry/PointPhysical.hpp"
-#include "Geometry/ReferenceSquare.hpp"
-#include "Geometry/PointPhysical.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-#include "Base/ElementCacheData.hpp"
 
 
 #include <vector>
 #include <iostream>
 
+
+namespace Geometry{
+	class PointReference;
+}
+
+namespace QuadratureRules{
+	class GaussQuadratureRule;
+}
+
 namespace Base
 {
 	class Edge;
 	class Face;
+	class BasisFunctionSet;
+	class ElementCacheData;
 
     class Element: public Geometry::ElementGeometry,
                    public ElementData
@@ -100,7 +105,7 @@ namespace Base
         virtual double                          basisFunction(unsigned int i, const PointReferenceT& p) const;
 
 		///\brief returns the value of the i-th basisfunction at point p in ret
-        virtual void                            basisFunction(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+        virtual void                            basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
  
             /// jDir=0 means x, and etc.
         virtual double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
@@ -109,10 +114,10 @@ namespace Base
         
         ///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
         ///if some of the data needed for this mapping is already stored on a wrapper class, you can pass the class to this function for more efficient computation
-        virtual void                            basisFunctionDeriv(unsigned int i,const PointReferenceT& p, NumericalVector& ret,const Element* wrapper=NULL) const;
+        virtual void                            basisFunctionDeriv(unsigned int i,const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* wrapper=NULL) const;
 	
 		///\brief returns the curl of the i-th basisfunction at point p in ret
-        virtual void                            basisFunctionCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+        virtual void                            basisFunctionCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 	
         virtual void                            getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const;
         
@@ -143,12 +148,12 @@ namespace Base
 
     public:
             /// Output operator.
-        friend ostream& operator<<(ostream& os, const Element& element)
+        friend std::ostream& operator<<(std::ostream& os, const Element& element)
         {
             os << '(' ;
             const Geometry::ElementGeometry& elemG = static_cast<const Geometry::ElementGeometry&>(element);
             operator<<(os, elemG);
-            os<<endl;
+            os<<std::endl;
             return os;
         }
     

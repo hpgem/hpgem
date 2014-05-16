@@ -25,6 +25,10 @@
 
 #include "Base/Face.hpp"
 
+///\bug resolves field has incomplete type
+#include "Geometry/PointReference.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
+
 namespace Base {
 
 	/**
@@ -74,25 +78,25 @@ namespace Base {
 			//keep the face alive!
 		}
 
-		virtual void getNormalVector(const ReferencePointOnTheFaceT& pRefFace, NumericalVector& v) const;
-		virtual void getNormalVector(const ReferencePointOnTheFaceT& pRefFace, NumericalVector& v);
+		virtual void getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v) const;
+		virtual void getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v);
 
 		virtual double basisFunction(unsigned int i, const Geometry::PointReference& p) const {throw "No storage functionality was implemented! Are you working in a vector valued function space?";}
 		virtual double basisFunction(unsigned int i, const Geometry::PointReference& p) {throw "No storage functionality was implemented! Are you working in a vector valued function space?";}
 
-		virtual void basisFunction(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const {throw "No storage functionality was implemented! Are you working in a scalar function space?";}
-		virtual void basisFunction(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) {throw "No storage functionality was implemented! Are you working in a scalar function space?";}
+		virtual void basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {throw "No storage functionality was implemented! Are you working in a scalar function space?";}
+		virtual void basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Are you working in a scalar function space?";}
 
-		virtual void basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, NumericalVector& ret) const {throw "No storage functionality was implemented! Are you working in an unusual function space?";}
-		virtual void basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, NumericalVector& ret) {throw "No storage functionality was implemented! Are you working in an unusual function space?";}
+		virtual void basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {throw "No storage functionality was implemented! Are you working in an unusual function space?";}
+		virtual void basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Are you working in an unusual function space?";}
 
 		virtual double basisFunctionDeriv(unsigned int i, unsigned int jDir, const Geometry::PointReference& p) const {throw "No storage functionality was implemented! Why are you calling this anyway?";}
 
-		virtual void basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}
-		virtual void basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}
+		virtual void basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}
+		virtual void basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}
 
-		virtual void basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const {throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";}
-		virtual void basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) {throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";}
+		virtual void basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";}
+		virtual void basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";}
 
 		//if this is needed a lot, also store this
 		virtual void referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical) const;

@@ -26,6 +26,7 @@
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTriangle.hpp"
 #include "Geometry/ReferenceTriangle.hpp"
+#include "Geometry/PointReference.hpp"
 using Geometry::ReferenceTriangle;
 //---------------------------------------------------------------------------
 namespace QuadratureRules

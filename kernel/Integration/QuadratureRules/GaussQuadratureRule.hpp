@@ -35,14 +35,11 @@
 
 #include <string>
 
-#include "Geometry/PointReference.hpp"
-#include "Geometry/ReferenceGeometry.hpp"
-#include "Integration/GlobalNamespaceIntegration.hpp"
-
 namespace Geometry
 {
     // forward declaration
     class ReferenceGeometry;
+    class PointReference;
 }
 
 namespace QuadratureRules
@@ -63,7 +60,7 @@ namespace QuadratureRules
         virtual unsigned int nrOfPoints() const = 0;
 
         //! Return the weight attached to the function value of the requested point number.
-        virtual Integration::NumType weight(unsigned int) const = 0;
+        virtual double weight(unsigned int) const = 0;
 
         //! Return the coordinates of the point with the given index.
         virtual void getPoint(unsigned int, Geometry::PointReference&) const = 0;

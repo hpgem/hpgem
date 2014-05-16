@@ -24,7 +24,6 @@
 #define MAPPINGSQUARETOSQUARE_H_
 
 #include "MappingReferenceToReference.hpp"
-#include "../Jacobian.hpp"
 
 namespace Geometry
 {

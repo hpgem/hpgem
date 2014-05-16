@@ -23,32 +23,30 @@
 #define MESHMANIPULATOR_H_
 
 
-#include "Geometry/GlobalNamespaceGeometry.hpp"
-#include "Geometry/ReferenceGeometry.hpp"
-#include "Geometry/PhysicalGeometry.hpp"
-#include "Geometry/PointPhysical.hpp"
-#include "Geometry/RefinementGeometry.hpp"
-
-#include "Base/BasisFunctionSet.hpp"
-#include "Base/AssembleBasisFunctionSet.hpp"
-#include "OrientedBasisFunctionSet.hpp"
-#include "Base/Face.hpp"
-#include "Base/MeshMoverBase.hpp"
-#include "Base/LevelTree.hpp"
-#include "Base/GlobalData.hpp"
-#include "Base/Element.hpp"
-#include "Base/ConfigurationData.hpp"
-
-#include "Integration/QuadratureRules/AllGaussQuadratureRules.hpp"
-
-
-
 #include <vector>
 #include <list>
 #include <fstream>
 
+//for enum support...
+#include "Geometry/FaceGeometry.hpp"
+
+namespace Geometry{
+	class PointPhysical;
+	class PointReference;
+}
+
 namespace Base
 {
+	class BasisFunctionSet;
+	class OrientedBasisFunctionSet;
+	class Face;
+	class MeshMoverBase;
+	template<class V>
+	class LevelTree;
+	class Element;
+	class ConfigurationData;
+	class Edge;
+
     struct HalfFaceDescription {
         std::vector<unsigned int> nodeList;
         unsigned int elementNum;
@@ -80,8 +78,8 @@ namespace Base
         typedef std::vector<FaceLevelTreeT*>                VecOfFaceLevelTreePtrT;
 
         
-        typedef typename ElementLevelTreeT::iterator        ElementIteratorT;
-        typedef typename FaceLevelTreeT::iterator           FaceIteratorT;
+        //typedef typename ElementLevelTreeT::iterator        ElementIteratorT;
+        //typedef typename FaceLevelTreeT::iterator           FaceIteratorT;
         
         typedef typename ListOfElementsT::const_iterator    ConstElementIterator;
         typedef typename ListOfElementsT::iterator          ElementIterator;
@@ -154,7 +152,7 @@ namespace Base
 	
         void                            readCentaurMesh(const std::string& filename);
 
-        void                            outputMesh(ostream& os)const;
+        void                            outputMesh(std::ostream& os)const;
 
 
         //! Set MeshMoverBase object pointer, for moving meshes if needed
@@ -235,7 +233,7 @@ namespace Base
         //! Adds edge based degrees of freedom to the set of basisfunctions for this mesh and all of its edges. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
         void                            addEdgeBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets);///\TODO support for mixed meshes
 
-        int                             dimension(){return configData_->dimension_;}
+		int dimension();
 
         const std::vector<PointPhysicalT>& getNodes(){return points_;}
   //---------------------------------------------------------------------
@@ -283,10 +281,10 @@ namespace Base
                                                      int& pairingValue, bool& sizeOrder);
                           
         //! Check whether the two elements may be connected by a face or not in periodic face case.
-        void                            periodicPairingCheck(const FaceIteratorT fa, 
-                                                             const ElementIteratorT elL, unsigned int localFaceNrL,
-                                                             const ElementIteratorT elR, unsigned int localFaceNrR,
-                                                             int& pairingValue, bool& sizeOrder);
+        //void                            periodicPairingCheck(const FaceIteratorT fa,
+        //                                                     const ElementIteratorT elL, unsigned int localFaceNrL,
+        //                                                     const ElementIteratorT elR, unsigned int localFaceNrR,
+        //                                                     int& pairingValue, bool& sizeOrder);
   //---------------------------------------------------------------------
     private:
         
@@ -342,8 +340,7 @@ namespace Base
         int                             numberOfElementVectors_;
         int                             numberOfFaceVectors_;
     };
-    
-    
+
 }
 
 

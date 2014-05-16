@@ -16,6 +16,7 @@ add_library(Reference_geometries STATIC
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Jacobian.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceGeometry.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Point.cpp 
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointReference.cpp 
 	# Mappings
 
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefCubeToHypercube.cpp
@@ -30,6 +31,7 @@ add_library(Reference_geometries STATIC
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefLineToTriangle.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefLineToLine.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefPointToLine.cpp
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/ConcatenatedMapping.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefPointToPoint.cpp)
 
 
@@ -39,6 +41,7 @@ add_library(Geometry SHARED
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ElementGeometry.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Geometry/FaceGeometry.cpp
         # Physical geometries
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalGeometry.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalLine.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalTriangle.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalQuadrilateral.cpp

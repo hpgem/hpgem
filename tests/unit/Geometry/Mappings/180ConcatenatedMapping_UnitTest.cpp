@@ -40,6 +40,9 @@
 #include "Geometry/ReferenceSquare.hpp"
 #include "Geometry/ReferenceCube.hpp"
 #include "Geometry/ReferenceHypercube.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 
 int main(){
 

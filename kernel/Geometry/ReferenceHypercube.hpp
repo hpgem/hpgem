@@ -23,13 +23,7 @@
 #define REFERENCEHYPERCUBE_HH
 
 #include "ReferenceGeometry.hpp"
-#include "ReferenceLine.hpp"
-#include "ReferenceSquare.hpp"
-#include "ReferenceCube.hpp"
-#include "Mappings/MappingReferenceToReference.hpp"
-#include "Mappings/MappingToRefCubeToHypercube.hpp"
-#include "GlobalNamespaceGeometry.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <list>
 
 namespace Geometry
 {

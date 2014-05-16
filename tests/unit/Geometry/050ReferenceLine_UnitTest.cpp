@@ -55,12 +55,12 @@ int main(){
 	assert(("getNode 0",fabs(pTest[0]+1)<1e-12));
 	test.getNode(1,pTest);
 	assert(("getNode 1",fabs(pTest[0]-1)<1e-12));
-	cout<<test.getName();
+	std::cout<<test.getName();
 
 	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,0)==0));
 	assert(("getLocalNodeIndex 1",test.getLocalNodeIndex(1,0)==1));
 
-	cout<<test;
+	std::cout<<test;
 
 	//testing mappings and quadrature rules
 

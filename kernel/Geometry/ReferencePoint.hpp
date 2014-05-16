@@ -23,13 +23,9 @@
 #define ____ReferencePoint__
 
 #include <iostream>
-using std::ostream;
 
-#include "PointReference.hpp"
 #include "ReferenceGeometry.hpp"
-#include "GlobalNamespaceGeometry.hpp"
-#include "Mappings/MappingReferenceToReference.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <list>
 
 namespace Geometry
 {

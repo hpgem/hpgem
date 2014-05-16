@@ -20,6 +20,10 @@
  */
 #include "PhysicalTriangularPrism.hpp"
 
+#include "ReferenceTriangularPrism.hpp"
+#include "PointPhysical.hpp"
+#include "PointReference.hpp"
+
 namespace Geometry
 {
     PhysicalTriangularPrism::PhysicalTriangularPrism(

@@ -21,9 +21,12 @@
 #ifndef FaceCacheData_hpp
 #define FaceCacheData_hpp
 
-#include "Base/L2Norm.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/PointPhysical.hpp"
+///\bug resolves field has incomplete type
+#include "LinearAlgebra/NumericalVector.hpp"
+
+namespace Geometry{
+	class PointReference;
+}
 
 namespace Base
 {

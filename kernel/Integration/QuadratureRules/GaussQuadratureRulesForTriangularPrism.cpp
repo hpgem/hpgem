@@ -26,6 +26,7 @@
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTriangularPrism.hpp"
 #include "Geometry/ReferenceTriangularPrism.hpp"
+#include "Geometry/PointReference.hpp"
 using Geometry::ReferenceTriangularPrism;
 
 //---------------------------------------------------------------------------

@@ -47,33 +47,25 @@ namespace Geometry
 
         PointReference(const VectorOfCoordsT& coord): PointT(coord){}
         
-        PointReferenceT  operator* (double right)
-                {return PointReferenceT(PointT::coordinates_ * right);}
+        PointReference operator *(double right);
         
-        PointReferenceT  operator* (double right) const
-                {return PointReferenceT(PointT::coordinates_ * right);}
+        PointReference operator *(double right) const;
         
-        PointReferenceT  operator+ (const PointReferenceT& right)
-                {return PointReferenceT(PointT::coordinates_  + right.coordinates_);}
+        PointReference operator +(const PointReferenceT& right);
         
-        PointReferenceT  operator+ (const PointReferenceT& right) const
-                {return PointReferenceT(PointT::coordinates_  + right.coordinates_);}
+        PointReference operator +(const PointReferenceT& right) const;
         
-        PointReferenceT  operator- (const PointReferenceT& right)
-                {return PointReferenceT(PointT::coordinates_  - right.coordinates_);}
+        PointReference operator -(const PointReferenceT& right);
         
-        PointReferenceT  operator- (const PointReferenceT& right) const
-                {return PointReferenceT(PointT::coordinates_  - right.coordinates_);}
+        PointReference operator -(const PointReferenceT& right) const;
         
-        PointReferenceT& operator = (const PointReferenceT& rhs)
-        {
-            this->coordinates_ = rhs.coordinates_;
-            return *this;
-        }
+        PointReference& operator =(const PointReferenceT& rhs);
         
 //        friend PointT operator*(const double& left, const PointReferenceT& right){return PointReferenceT(right.coordinates_*left)}
         
     };
-};
+
+}
+;
 
 #endif /* POINTREFERENCE_HPP_ */

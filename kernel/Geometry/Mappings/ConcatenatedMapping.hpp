@@ -23,14 +23,7 @@
 #ifndef ____ConcatenatedMapping__
 #define ____ConcatenatedMapping__
 
-
-#include "../PointReference.hpp"
-#include "../ReferencePoint.hpp"
-#include "../PhysicalGeometry.hpp"
 #include "MappingReferenceToReference.hpp"
-#include "MappingReferenceToPhysical.hpp"
-#include "../Jacobian.hpp"
-    //using Geometry::multiplyJacobiansInto;
     //------------------------------------------------------------------------------
 
 namespace Geometry
@@ -62,41 +55,19 @@ namespace Geometry
         }
         
             //! Transformation is simply via the intermediate space.
-        virtual void transform(const PointReference& pIn, PointReference& pOut) const
-	    {
-            PointReference pLoc(map1_.getTargetDimension());
-            
-            map1_.transform(pIn, pLoc);
-            map2_.transform(pLoc, pOut);
-	    }
+		virtual void transform(const PointReference& pIn, PointReference& pOut) const;
         
             //! To compute the Jacobian, the two component ones have to multiplied.
-        virtual void calcJacobian(const PointReference& p, Jacobian& jac) const
-	    {
-        	if(jac.getNRows()==0){
-        		return;
-        	}
-
-            PointReference pIntermediate(map1_.getTargetDimension());
-            map1_.transform(p, pIntermediate);
-            
-                
-            Jacobian j1(jac.getNRows(),map1_.getTargetDimension());
-            Jacobian j2(map1_.getTargetDimension(),jac.getNCols());
-            
-            map1_.calcJacobian(p, j1);
-            map2_.calcJacobian(pIntermediate, j2);
-            
-            j2.multiplyJacobiansInto(j1, jac);
-	    }
+		virtual void calcJacobian(const PointReference& p, Jacobian& jac) const;
         
 
-        virtual int getTargetDimension() const {return map2_.getTargetDimension();}
+        virtual int getTargetDimension() const;
 
     private:
         const MappingReferenceToReference&    map1_;
         const MappingReferenceToReference&      map2_;
     };
+
 } // close namespace Geometry
 
 

@@ -20,6 +20,10 @@
  */
 #include "FaceData.hpp"
 #include "TestErrorDebug.hpp"
+#include "LinearAlgebra/Matrix.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
+#include <iostream>
+#include "FaceCacheData.hpp"
 
 Base::FaceData::FaceData(unsigned int numberOfDOF, unsigned int numberOfFaceMatrices, unsigned int numberOfFaceVectors):
 	faceMatrix_(numberOfFaceMatrices),faceVector_(numberOfFaceVectors)

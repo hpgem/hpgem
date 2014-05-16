@@ -84,7 +84,7 @@ int main(){
 		test->calcJacobian(orig1D,jac);
 		assert(("calcJacobian",(jac[0]-jaccompare[0])<1e-12));
 	}
-	cout<<*test<<endl;
+	std::cout<<*test<<std::endl;
 
 	//dim2
 	std::vector<Geometry::PointPhysical> nodes2D;
@@ -132,7 +132,7 @@ int main(){
 			assert(("calcJacobian",(jac[3]-jaccompare[3])<1e-12));
 		}
 	}
-	cout<<*test<<endl;
+	std::cout<<*test<<std::endl;
 
 	pointIndexes.push_back(11);
 
@@ -159,7 +159,7 @@ int main(){
 			assert(("calcJacobian",(jac[3]-jaccompare[3])<1e-12));
 		}
 	}
-	cout<<*test<<endl;
+	std::cout<<*test<<std::endl;
 
 	//dim 3
 
@@ -233,7 +233,7 @@ int main(){
 			}
 		}
 	}
-	cout<<*test<<endl;
+	std::cout<<*test<<std::endl;
 
 	pointIndexes.push_back(12);
 
@@ -268,7 +268,7 @@ int main(){
 			}
 		}
 	}
-	cout<<*test<<endl;
+	std::cout<<*test<<std::endl;
 
 	pointIndexes.push_back(13);
 
@@ -303,7 +303,7 @@ int main(){
 			}
 		}
 	}
-	cout<<*test<<endl;
+	std::cout<<*test<<std::endl;
 
 	pointIndexes.push_back(14);
 	pointIndexes.push_back(15);
@@ -339,7 +339,7 @@ int main(){
 			}
 		}
 	}
-	cout<<*test<<endl;
+	std::cout<<*test<<std::endl;
 
 	std::vector<Geometry::PointPhysical> nodes4D;
 
@@ -476,8 +476,8 @@ int main(){
 			}
 		}
 	}
-	cout<<*test<<endl;
-	cout<<copy<<endl;
+	std::cout<<*test<<std::endl;
+	std::cout<<copy<<std::endl;
 
 	return 0;
 }

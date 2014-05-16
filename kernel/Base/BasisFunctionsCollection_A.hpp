@@ -25,6 +25,9 @@
 #include "BaseBasisFunction.hpp"
 #include <vector>
 
+//treated as a source file
+#include "Geometry/PointReference.hpp"
+
 namespace Base
 {
 

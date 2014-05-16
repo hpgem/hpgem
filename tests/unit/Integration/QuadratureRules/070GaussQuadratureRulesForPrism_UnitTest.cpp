@@ -29,16 +29,17 @@
 #include "Utilities/BasisFunctions3DH1ConformingPrism.hpp"
 #include "Geometry/ReferenceTriangularPrism.hpp"
 #include "Base/BasisFunctionSet.hpp"
+#include "Geometry/PointReference.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 
 void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
-	cout<<test.getName()<<endl;
+	std::cout<<test.getName()<<std::endl;
 	assert(("dimension",test.dimension()==3));
 	assert(("order",test.order()>=expectedOrder));
 	assert(("forReferenceGeometry",typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferenceTriangularPrism)));
 	Geometry::PointReference point(3);
-	cout.precision(14);
+	std::cout.precision(14);
 	Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet3DH1ConformingPrism(expectedOrder);
-	cout.precision(14);
 	for(int i=0;i<functions->size();++i){
 		double integrated=0;
 		for(int j=0;j<test.nrOfPoints();++j){

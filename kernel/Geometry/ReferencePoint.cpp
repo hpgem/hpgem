@@ -20,6 +20,7 @@
  */
 #include "ReferencePoint.hpp"
 #include "Mappings/MappingToRefPointToPoint.hpp"
+#include "PointReference.hpp"
 
 namespace Geometry
 {

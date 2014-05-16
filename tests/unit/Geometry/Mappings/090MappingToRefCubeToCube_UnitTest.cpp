@@ -28,6 +28,9 @@
 #include "cassert"
 
 #include "Geometry/ReferenceCube.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 int main() {
 
 	Geometry::PointReference refPoint(3),point(3),compare(3);

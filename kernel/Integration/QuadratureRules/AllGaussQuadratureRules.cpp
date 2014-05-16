@@ -20,6 +20,15 @@
  */
 
 #include "AllGaussQuadratureRules.hpp"
+#include "GaussQuadratureRulesForCube.hpp"
+#include "GaussQuadratureRulesForHypercube.hpp"
+#include "GaussQuadratureRulesForLine.hpp"
+#include "GaussQuadratureRulesForPoint.hpp"
+#include "GaussQuadratureRulesForPyramid.hpp"
+#include "GaussQuadratureRulesForSquare.hpp"
+#include "GaussQuadratureRulesForTetrahedron.hpp"
+#include "GaussQuadratureRulesForTriangle.hpp"
+#include "GaussQuadratureRulesForTriangularPrism.hpp"
 
 namespace QuadratureRules
 {

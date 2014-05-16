@@ -24,6 +24,7 @@
 #include "Base/BasisFunctionSet.hpp"
 #include "Base/OrientedBasisFunctionSet.hpp"
 #include "Geometry/ReferenceTetrahedron.hpp"
+#include "Geometry/PointReference.hpp"
 
 namespace Utilities {
 

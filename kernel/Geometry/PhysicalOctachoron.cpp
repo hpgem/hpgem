@@ -21,6 +21,8 @@
 
 #include "PhysicalOctachoron.hpp"
 #include "ReferenceHypercube.hpp"
+#include "PointPhysical.hpp"
+#include "PointReference.hpp"
 
 namespace Geometry
 {
@@ -57,4 +59,9 @@ namespace Geometry
         indexes[6] = refGeometry_->getLocalNodeIndex(face,6);
         indexes[7] = refGeometry_->getLocalNodeIndex(face,7);
     }
+
+	unsigned int PhysicalOctachoron::getNrOfFaces() const {
+		return getRefGeometry()->getNrOfCodim1Entities();
+	}
+
 }

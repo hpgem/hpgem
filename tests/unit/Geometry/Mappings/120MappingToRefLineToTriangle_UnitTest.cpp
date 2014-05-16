@@ -24,11 +24,14 @@
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
 
-#include "Geometry/Mappings/MappingToRefLineToSquare.hpp"
+#include "Geometry/Mappings/MappingToRefLineToTriangle.hpp"
 #include "cassert"
 
 #include "Geometry/ReferenceLine.hpp"
 #include "Geometry/ReferenceTriangle.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 int main() {
 
 	Geometry::PointReference refPoint(1),point(2),compare(2);
@@ -106,7 +109,7 @@ int main() {
 
 	for(refPoint[0]=-2.8189;refPoint[0]<3.141;refPoint[0]+=0.1) {
 		test->transform(refPoint,point);
-		cout<<refPoint<<" "<<point<<endl;//truncation errors break this assertion
+		std::cout<<refPoint<<" "<<point<<std::endl;//truncation errors break this assertion
 		//assert(("transform",fGeom.isInternalPoint(refPoint)==eGeom.isInternalPoint(point)));
 
 		refPoint[0]+=-1.e-8;

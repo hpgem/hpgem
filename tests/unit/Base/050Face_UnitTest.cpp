@@ -32,6 +32,13 @@
 #include "Base/AssembleBasisFunctionSet.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForSquare.hpp"
 
+#include "Geometry/PointPhysical.hpp"
+#include "Base/BasisFunctionSet.hpp"
+#include "Base/Element.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Base/FaceCacheData.hpp"
+#include "Base/ElementCacheData.hpp"
+
 int main() {
 
 	std::vector<unsigned int> pointIndexes;

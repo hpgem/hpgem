@@ -20,6 +20,8 @@
  */
 #include "FaceIntegral.hpp"
 
+#include "FaceCacheData.hpp"
+
 namespace Integration
 {
     

@@ -22,6 +22,11 @@
 
 #include "Base/ShortTermStorageFaceH1.hpp"
 #include "Base/ShortTermStorageElementH1.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
+#include "L2Norm.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "FaceCacheData.hpp"
+#include "ElementCacheData.hpp"
 
 void Base::ShortTermStorageFaceH1::computeData() {
 	ShortTermStorageFaceBase::computeData();
@@ -74,13 +79,13 @@ double Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometr
 
 double Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometry::PointReference& p) const {
 	if(!(currentPoint_==p)){
-		cout<<"Warning: you are using slow data access";
+		std::cout<<"Warning: you are using slow data access";
 		return face_->basisFunction(i,p);
 	}
 	return basisFunctionValues_[i][0];
 }
 
-void Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) {
+void Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {
 	if(!(currentPoint_==p)){
 		currentPoint_=p;
 		computeData();
@@ -88,15 +93,15 @@ void Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometry:
 	ret=basisFunctionValues_[i];
 }
 
-void Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const {
+void Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {
 	ret=basisFunctionValues_[i];
 	if(!(currentPoint_==p)){
-		cout<<"Warning: you are using slow data access";
+		std::cout<<"Warning: you are using slow data access";
 		face_->basisFunction(i,p,ret);
 	}
 }
 
-void Base::ShortTermStorageFaceH1::basisFunctionNormal(unsigned int i, const NumericalVector& normal, const Geometry::PointReference& p, NumericalVector& ret) {
+void Base::ShortTermStorageFaceH1::basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {
 	if(!(currentPoint_==p)){
 		currentPoint_=p;
 		computeData();
@@ -105,15 +110,15 @@ void Base::ShortTermStorageFaceH1::basisFunctionNormal(unsigned int i, const Num
 	ret=basisFunctionsTimesNormal_[i];
 }
 
-void Base::ShortTermStorageFaceH1::basisFunctionNormal(unsigned int i, const NumericalVector& normal, const Geometry::PointReference& p, NumericalVector& ret) const {
+void Base::ShortTermStorageFaceH1::basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {
 	ret=basisFunctionsTimesNormal_[i];
 	if(!(currentPoint_==p)){
-		cout<<"Warning: you are using slow data access";
+		std::cout<<"Warning: you are using slow data access";
 		face_->basisFunctionNormal(i,normal,p,ret);
 	}
 }
 
-void Base::ShortTermStorageFaceH1::basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) {
+void Base::ShortTermStorageFaceH1::basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {
 	if(!(currentPoint_==p)){
 		currentPoint_=p;
 		computeData();
@@ -121,10 +126,10 @@ void Base::ShortTermStorageFaceH1::basisFunctionDeriv(unsigned int i, const Geom
 	ret=basisFunctionDerivatives_[i];
 }
 
-void Base::ShortTermStorageFaceH1::basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const {
+void Base::ShortTermStorageFaceH1::basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {
 	ret=basisFunctionDerivatives_[i];
 	if(!(currentPoint_==p)){
-		cout<<"Warning: you are using slow data access";
+		std::cout<<"Warning: you are using slow data access";
 		face_->basisFunctionDeriv(i,p,ret);
 	}
 }

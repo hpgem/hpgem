@@ -22,10 +22,26 @@
 #ifndef meshmanipulator_impl_h_
 #define meshmanipulator_impl_h_
 
+#include "MeshManipulator.hpp"
 
 #include "Geometry/PhysicalGeometry.hpp"
 #include "Geometry/ReferenceTriangle.hpp"
 #include "Edge.hpp"
+#include "Base/BasisFunctionSet.hpp"
+#include "ConfigurationData.hpp"
+#include "Element.hpp"
+#include "Face.hpp"
+#include "MeshMoverBase.hpp"
+#include "AssembleBasisFunctionSet.hpp"
+#include "OrientedBasisFunctionSet.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/ReferenceSquare.hpp"
+#include "Geometry/GlobalNamespaceGeometry.hpp"
+#include "Geometry/PointReference.hpp"
+#include "ElementCacheData.hpp"
+#include "FaceCacheData.hpp"
+
+#include <cassert>
 
 //
 //  MeshManipulator.cpp
@@ -35,7 +51,6 @@
 //
 //
 
-#include "MeshManipulator.hpp"
 
 namespace Base
 {
@@ -93,7 +108,7 @@ namespace Base
         		Base::AssembleBasisFunctionSet_1D_Ord5_A0(*bFset1);
         		break;
         	default:
-        		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
+        		std::cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<std::endl;
         		Base::AssembleBasisFunctionSet_1D_Ord2_A0(*bFset1);
         	}
         	break;
@@ -115,7 +130,7 @@ namespace Base
         		Base::AssembleBasisFunctionSet_2D_Ord5_A1(*bFset1);
         		break;
         	default:
-        		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
+        		std::cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<std::endl;
         		Base::AssembleBasisFunctionSet_2D_Ord2_A1(*bFset1);
         	}
         	break;
@@ -137,7 +152,7 @@ namespace Base
         		Base::AssembleBasisFunctionSet_3D_Ord5_A1(*bFset1);
         		break;
         	default:
-        		cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<endl;
+        		std::cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<std::endl;
         		Base::AssembleBasisFunctionSet_3D_Ord2_A1(*bFset1);
         	}
         	break;
@@ -194,22 +209,22 @@ namespace Base
 	meshMover_(NULL)
     {
 
-        cout << "******Mesh creation started!**************"<<endl;
+        std::cout << "******Mesh creation started!**************"<<std::endl;
         unsigned int DIM=configData_->dimension_;
         for (unsigned int i=0;i<DIM;++i)
         {
             if (i==0)
-                cout <<"Boundries: " <<(periodicX_? "Periodic  ":"Solid Wall")<<" in X direction"<<endl;
+                std::cout <<"Boundries: " <<(periodicX_? "Periodic  ":"Solid Wall")<<" in X direction"<<std::endl;
             if (i==1)
-                cout <<"Boundries: " << (periodicY_? "Periodic ":"Solid Wall")<<" in Y direction"<<endl;
+                std::cout <<"Boundries: " << (periodicY_? "Periodic ":"Solid Wall")<<" in Y direction"<<std::endl;
             if (i==2)
-                cout <<"Boundries: " << (periodicZ_? "Periodic ":"Solid Wall")<<" in Z direction"<<endl;
+                std::cout <<"Boundries: " << (periodicZ_? "Periodic ":"Solid Wall")<<" in Z direction"<<std::endl;
         }
         createDefaultBasisFunctions(orderOfFEM);
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_=collBasisFSet_[0]->size();
 
         createNewMeshTree();
-        cout << "******Mesh creation is finished!**********"<<endl;
+        std::cout << "******Mesh creation is finished!**********"<<std::endl;
     }
 
     MeshManipulator::MeshManipulator(const MeshManipulator& other):
@@ -265,8 +280,8 @@ namespace Base
         // Kill all elements in all mesh-tree
         while (!vecOfElementTree_.empty())
         {
-            delete vecOfElementTree_.back();
-            vecOfElementTree_.pop_back();
+            //delete vecOfElementTree_.back();
+            //vecOfElementTree_.pop_back();
         }
     }
 
@@ -426,18 +441,18 @@ namespace Base
     }
 
     void 
-    MeshManipulator::outputMesh(ostream& os)const
+    MeshManipulator::outputMesh(std::ostream& os)const
     {
         for (int i=0;i<points_.size();i++)
         {
-            os<<"Node " <<i<<" "<<points_[i]<<endl;
+            os<<"Node " <<i<<" "<<points_[i]<<std::endl;
         }
         
         int elementNum=0;
         
         for (typename ListOfElementsT::const_iterator cit=elements_.begin(); cit !=elements_.end(); ++cit)
         {
-            os << "Element " <<elementNum <<" " <<*(*cit)<<endl;
+            os << "Element " <<elementNum <<" " <<*(*cit)<<std::endl;
             elementNum++;
         }
         
@@ -457,7 +472,7 @@ namespace Base
     	unsigned int DIM=configData_->dimension_;
         if (linearNoElements.size() != DIM)
         {
-            cout << "The number of Linear Intervals has to map the size of the problem and current it does not"<<endl;
+        	std::cout << "The number of Linear Intervals has to map the size of the problem and current it does not"<<std::endl;
             throw(10);
         }
         //Stage 1 : Precompute some required values;
@@ -825,7 +840,7 @@ void MeshManipulator::createTriangularMesh(PointPhysicalT BottomLeft, PointPhysi
     unsigned int DIM=configData_->dimension_;
     if (linearNoElements.size() != DIM)
     {
-	cout << "The number of Linear Intervals has to map the size of the problem and current it does not" << endl;
+    	std::cout << "The number of Linear Intervals has to map the size of the problem and current it does not" << std::endl;
 	throw(10);
     }
   
@@ -1590,7 +1605,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
             nodeCoordPointFormat[0]=nodeCoord[0];
             nodeCoordPointFormat[1]=nodeCoord[1];
 	    nodeCoordPointFormat[2]=nodeCoord[2];
-	    cout<<nodeCoordPointFormat<<endl;
+	    std::cout<<nodeCoordPointFormat<<std::endl;
             points_.push_back(nodeCoordPointFormat);
            
 	}
@@ -2013,67 +2028,67 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 	for(int i=0;i<numberOfBoundaryGroups;++i){
 	    centaurFile.read(reinterpret_cast<char*>(&centaurBCType), sizeof(centaurBCType));
 	    if(centaurBCType<1001){
-	       cout<<"Viscous Wall boundary for group "<<i<<" assigned as WALL_BC"<<endl;
+	    	std::cout<<"Viscous Wall boundary for group "<<i<<" assigned as WALL_BC"<<std::endl;
 	       for(int j=0;j<facesForEachBoundaryGroup[i].size();++j){
 		   //big assumption on the nature of elementIDs here...
                    addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum],boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex,NULL,0,Geometry::WALL_BC);
 	       }
 	    }else if(centaurBCType<2001){
-	       cout<<"Inviscid Wall boundary for group "<<i<<" assigned as WALL_BC"<<endl;
+	    	std::cout<<"Inviscid Wall boundary for group "<<i<<" assigned as WALL_BC"<<std::endl;
 	       for(int j=0;j<facesForEachBoundaryGroup[i].size();++j){
 		   //big assumption on the nature of elementIDs here...
                    addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum],boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex,NULL,0,Geometry::WALL_BC);
 	       }
 	    }else if(centaurBCType<3001){
-	       cout<<"symmetry plane boundary for group "<<i<<" assigned as WALL_BC"<<endl;
+	    	std::cout<<"symmetry plane boundary for group "<<i<<" assigned as WALL_BC"<<std::endl;
 	       for(int j=0;j<facesForEachBoundaryGroup[i].size();++j){
 		   //big assumption on the nature of elementIDs here...
                    addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum],boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex,NULL,0,Geometry::WALL_BC);
 	       }
 	    }else if(centaurBCType<4001){
-	       cout<<"inlet pipe boundary for group "<<i<<" assigned as OPEN_BC"<<endl;
+	    	std::cout<<"inlet pipe boundary for group "<<i<<" assigned as OPEN_BC"<<std::endl;
 	       for(int j=0;j<facesForEachBoundaryGroup[i].size();++j){
 		   //big assumption on the nature of elementIDs here...
                    addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum],boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex,NULL,0,Geometry::OPEN_BC);
 	       }
 	    }else if(centaurBCType<5001){
-	       cout<<"outlet pipe boundary for group "<<i<<" assigned as OPEN_BC"<<endl;
+	    	std::cout<<"outlet pipe boundary for group "<<i<<" assigned as OPEN_BC"<<std::endl;
 	       for(int j=0;j<facesForEachBoundaryGroup[i].size();++j){
 		   //big assumption on the nature of elementIDs here...
                    addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum],boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex,NULL,0,Geometry::OPEN_BC);
 	       }
 	    }else if(centaurBCType<6001){
-	       cout<<"farfield boundary for group "<<i<<" assigned as OPEN_BC"<<endl;
+	    	std::cout<<"farfield boundary for group "<<i<<" assigned as OPEN_BC"<<std::endl;
 	       for(int j=0;j<facesForEachBoundaryGroup[i].size();++j){
 		   //big assumption on the nature of elementIDs here...
                    addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum],boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex,NULL,0,Geometry::OPEN_BC);
 	       }
 	    }else if(centaurBCType<7001){
-	       cout<<"periodic boundary for group "<<i<<" ignored for being internal; node connections will be assigned later"<<endl;
+	    	std::cout<<"periodic boundary for group "<<i<<" ignored for being internal; node connections will be assigned later"<<std::endl;
 	    }else if(centaurBCType<8001){
-	       cout<<"shadow boundary for group "<<i<<" ignored for being internal; node connections will be assigned later"<<endl;
+	    	std::cout<<"shadow boundary for group "<<i<<" ignored for being internal; node connections will be assigned later"<<std::endl;
 	    }else if(centaurBCType<8501){
-	       cout<<"interface boundary for group "<<i<<" ignored for being internal"<<endl;
+	    	std::cout<<"interface boundary for group "<<i<<" ignored for being internal"<<std::endl;
 	    }else if(centaurBCType<9001){
-	       cout<<"wake boundary for group "<<i<<" assigned as OPEN_BC"<<endl;
+	    	std::cout<<"wake boundary for group "<<i<<" assigned as OPEN_BC"<<std::endl;
 	       for(int j=0;j<facesForEachBoundaryGroup[i].size();++j){
 		   //big assumption on the nature of elementIDs here...
                    addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum],boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex,NULL,0,Geometry::OPEN_BC);
 	       }
 	    }else if(centaurBCType<10001){
-	       cout<<"moving wall boundary for group "<<i<<" assigned as WALL_BC"<<endl;
+	    	std::cout<<"moving wall boundary for group "<<i<<" assigned as WALL_BC"<<std::endl;
 	       for(int j=0;j<facesForEachBoundaryGroup[i].size();++j){
 		   //big assumption on the nature of elementIDs here...
                    addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum],boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex,NULL,0,Geometry::WALL_BC);
 	       }
 	    }else{
-	       cout<<"alternative boundary condition for group "<<i<<" assigned as WALL_BC"<<endl;
+	    	std::cout<<"alternative boundary condition for group "<<i<<" assigned as WALL_BC"<<std::endl;
 	       for(int j=0;j<facesForEachBoundaryGroup[i].size();++j){
 		   //big assumption on the nature of elementIDs here...
                    addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum],boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex,NULL,0,Geometry::WALL_BC);
 	       }
 	    }
-	    cout<<"total number of boundary faces: "<<faces_.size()<<endl;
+	    std::cout<<"total number of boundary faces: "<<faces_.size()<<std::endl;
 	}
 	centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
 	if (checkInt!=sizeOfLine) {std::cerr << "Error in centaur file " << std::endl; return;}
@@ -2082,7 +2097,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
         centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
 	for(int i=0;i<numberOfBoundaryGroups;++i){
 	    centaurFile.read(reinterpret_cast<char*>(&nameOfBoundaryCondition[0]), sizeof(nameOfBoundaryCondition));
-	    cout<<"boundary condition "<<i<<" is called "<<nameOfBoundaryCondition<<endl;
+	    std::cout<<"boundary condition "<<i<<" is called "<<nameOfBoundaryCondition<<std::endl;
 	}
 	centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
 	if (checkInt!=sizeOfLine) {std::cerr << "Error in centaur file " << std::endl; return;}
@@ -2098,7 +2113,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 	    int numberOfPeriodicTransformations;
 	    centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
 	    centaurFile.read(reinterpret_cast<char*>(&numberOfPeriodicTransformations), sizeof(numberOfPeriodicTransformations));
-	    cout<<"There are "<<numberOfPeriodicTransformations<<" periodic boundary -> shadow boundary transformation(s)"<<endl;
+	    std::cout<<"There are "<<numberOfPeriodicTransformations<<" periodic boundary -> shadow boundary transformation(s)"<<std::endl;
 	    centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
 	    if (checkInt!=sizeOfLine) {std::cerr << "Error in centaur file " << std::endl; return;}
 	    for(int i=0;i<numberOfPeriodicTransformations;++i){
@@ -2120,7 +2135,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 	        //now read the amount of periodic nodes
 		centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
 		centaurFile.read(reinterpret_cast<char*>(&numberOfPeriodicNodes), sizeof(numberOfPeriodicNodes));
-		cout<<"transformation group "<<i<<" contains "<<numberOfPeriodicNodes<<" node -> node matching(s)"<<endl;
+		std::cout<<"transformation group "<<i<<" contains "<<numberOfPeriodicNodes<<" node -> node matching(s)"<<std::endl;
 		centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
 		if (checkInt!=sizeOfLine) {std::cerr << "Error in centaur file " << std::endl; return;}
 		
@@ -2141,7 +2156,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 	        //now read the amount of periodic nodes
 		centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
 		centaurFile.read(reinterpret_cast<char*>(&numberOfPeriodicNodes), sizeof(numberOfPeriodicNodes));
-		cout<<"the transformation group contains "<<numberOfPeriodicNodes<<" node -> node matching(s)"<<endl;
+		std::cout<<"the transformation group contains "<<numberOfPeriodicNodes<<" node -> node matching(s)"<<std::endl;
 		centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
 		if (checkInt!=sizeOfLine) {std::cerr << "Error in centaur file " << std::endl; return;}
 		
@@ -2157,7 +2172,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 		if (checkInt!=sizeOfLine) {std::cerr << "Error in centaur file " << std::endl; return;}
 	}
 	
-	cout<<"begin constructing internal faces"<<endl;
+	std::cout<<"begin constructing internal faces"<<std::endl;
 	constructInternalFaces(listOfElementsForEachNode,tempElementVector);	
         
 	edgeFactory();
@@ -2273,7 +2288,7 @@ void MeshManipulator::constructInternalFaces(std::vector<std::list<int> >& listO
 	    }
 	}
     }
-    cout<<"Total number of Faces: "<<faces_.size()<<endl;
+    std::cout<<"Total number of Faces: "<<faces_.size()<<std::endl;
 }
 
 
@@ -2394,7 +2409,7 @@ void MeshManipulator::faceFactory()
 
              }
          }
-    cout<<"Total number of Faces: "<<faces_.size()<<endl;
+         std::cout<<"Total number of Faces: "<<faces_.size()<<std::endl;
     }
 
 	//the algorithm for the edge factory is based on that of the face factory
@@ -2500,10 +2515,10 @@ void MeshManipulator::faceFactory()
     //! Create a new (empty) mesh-tree.
     void MeshManipulator::createNewMeshTree()
     {
-      vecOfElementTree_.push_back(new ElementLevelTreeT);
-      vecOfFaceTree_.push_back(new FaceLevelTreeT);
-      ++numMeshTree_;
-      setActiveMeshTree(numMeshTree_ - 1);
+      //vecOfElementTree_.push_back(new ElementLevelTreeT);
+      //vecOfFaceTree_.push_back(new FaceLevelTreeT);
+      //++numMeshTree_;
+      //setActiveMeshTree(numMeshTree_ - 1);
     }
 
     //! Get the element container of a specific mesh-tree.
@@ -2605,7 +2620,7 @@ void MeshManipulator::faceFactory()
     unsigned int 
     MeshManipulator::getMaxLevel(int meshTreeIdx) const
     {
-        int onIndex;
+        /*int onIndex;
         if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
         {
           onIndex = meshTreeIdx;
@@ -2617,7 +2632,7 @@ void MeshManipulator::faceFactory()
         else
           throw "MeshManipulator::getMaxLevel(): invalid mesh-tree index or no active mesh-tree.";
         
-        return vecOfElementTree_[onIndex]->maxLevel();
+        return vecOfElementTree_[onIndex]->maxLevel();*/
     }
 
     //! Set active level of a specific mesh-tree.
@@ -2636,12 +2651,12 @@ void MeshManipulator::faceFactory()
         else
           throw "MeshManipulator::setActiveLevel(): invalid mesh-tree index or no active mesh-tree.";
 
-        if ((level >= 0) && (level <= vecOfElementTree_[onIndex]->maxLevel()))
-        {
-          vecOfElementTree_[onIndex]->setActiveLevel(level);
-          vecOfFaceTree_[onIndex]->setActiveLevel(level);
-        }
-        else
+        //if ((level >= 0) && (level <= vecOfElementTree_[onIndex]->maxLevel()))
+        //{
+        //  vecOfElementTree_[onIndex]->setActiveLevel(level);
+        //  vecOfFaceTree_[onIndex]->setActiveLevel(level);
+        //}
+        //else
           throw "MeshManipulator::setActiveLevel(): invalid level.";
         
     }
@@ -2662,7 +2677,7 @@ void MeshManipulator::faceFactory()
         else
           throw "MeshManipulator::getActiveLevel(): invalid mesh-tree index or no active mesh-tree.";
 
-        return vecOfElementTree_[onIndex]->getActiveLevel();
+        //return vecOfElementTree_[onIndex]->getActiveLevel();
     }
 
     //! Reset active level of a specific mesh-tree.
@@ -2681,8 +2696,8 @@ void MeshManipulator::faceFactory()
         else
           throw "MeshManipulator::resetActiveLevel(): invalid mesh-tree index or no active mesh-tree.";
 
-        vecOfElementTree_[onIndex]->resetActiveLevel();
-        vecOfFaceTree_[onIndex]->resetActiveLevel();
+        //vecOfElementTree_[onIndex]->resetActiveLevel();
+        //vecOfFaceTree_[onIndex]->resetActiveLevel();
     }
 
     //! Duplicate mesh contents including all refined meshes.
@@ -2705,7 +2720,7 @@ void MeshManipulator::faceFactory()
             std::cout << "MeshManipulator::doRefinement(Mesh(" << meshTreeIdx << "))\n";
             doElementRefinement(meshTreeIdx);
             doFaceRefinement(meshTreeIdx);
-            for (ElementIteratorT it=ElCont(meshTreeIdx)->beginLevel(level); it != ElCont(meshTreeIdx)->end(); ++it)
+            //for (ElementIteratorT it=ElCont(meshTreeIdx)->beginLevel(level); it != ElCont(meshTreeIdx)->end(); ++it)
             {
                 // reset element's marking for refinement
     //           it->unsetRefineType();
@@ -2742,7 +2757,7 @@ void MeshManipulator::faceFactory()
     {
         unsigned int needDummyFaceOnLevel = 0;
         std::vector<ElementT*> vecElementsToRefined;  // list of unrefined elements
-        for (ElementIteratorT el=ElCont(meshTreeIdx)->begin(); el != ElCont(meshTreeIdx)->end(); ++el)
+        //for (ElementIteratorT el=ElCont(meshTreeIdx)->begin(); el != ElCont(meshTreeIdx)->end(); ++el)
         {
         /*    Geometry::RefinementGeometry* RG = el->getRefinementGeometry();
             
@@ -3180,15 +3195,21 @@ void MeshManipulator::faceFactory()
     }  // end pairingCheck
 
     //! Check whether the two elements may be connected by a face or not in periodic face case.
-    void
+    /*void
     MeshManipulator::periodicPairingCheck(const FaceIteratorT fa,
                                                const ElementIteratorT elL, unsigned int localFaceNrL,
                                                const ElementIteratorT elR, unsigned int localFaceNrR,
                                                int& pairingValue, bool& sizeOrder)
     {
         
-    }
+    }*/
       //---------------------------------------------------------------------
+
+	int MeshManipulator //: public MeshRefiner <DIM>
+	::dimension() {
+		return configData_->dimension_;
+	}
+
 }
 
 #endif

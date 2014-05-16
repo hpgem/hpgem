@@ -22,36 +22,32 @@
 #ifndef REFERENCEGEOMETRY_HH
 #define REFERENCEGEOMETRY_HH
 
-#include "Geometry/PointReference.hpp"
 #include "Geometry/Mappings/MappingCodimensions.hpp"
 #include "Geometry/Mappings/RefinementMapping.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+
 #include <map>
 #include <unordered_map>
-#include "Base/BaseBasisFunction.hpp"
-
 #include <iostream>
 #include <vector>
-using std::cout;
-using std::endl;
 
 template<>
 class std::__1::hash<Geometry::PointReference>{
 public:
-	size_t operator()(const Geometry::PointReference& point) const{
-		static std::__1::hash<double> hasher;
-		size_t ret=0;
-		for(int i=0;i<point.size();++i){
-			ret^=hasher(point[i])+0x9e3779b9+(ret<<6)+(ret>>2);
-		}
-		return ret;
-	}
+	size_t operator ()(const Geometry::PointReference& point) const;
 };
+
+namespace LinearAlgebra {
+	class NumericalVector;
+}
 
 namespace QuadratureRules
 {
     // forward declaration
     class GaussQuadratureRule;
+}
+
+namespace Base {
+	class BaseBasisFunction;
 }
 
 namespace Geometry
@@ -110,8 +106,7 @@ namespace Geometry
         TypeOfReferenceGeometry getGeometryType() const  {return geometryType_;}
 
         /// \brief Given a local index, return (assign to point) the corresponding node.
-        virtual void            getNode(const IndexT& localIndex, PointReferenceT& node) const
-                                {node = points_[localIndex];}
+		virtual void getNode(const IndexT& localIndex, PointReferenceT& node) const;
 
         virtual int             getLocalNodeIndex(int face, int node)const = 0;
 
@@ -133,9 +128,9 @@ namespace Geometry
 
         ///\bug getBasisFunctionDerivative does some lazy initialization, so it can't be const, unless you consider the state to
         /// contain the values of all basisFunctions at all reference points
-        void getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p,NumericalVector& ret);
+        void getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p,LinearAlgebra::NumericalVector& ret);
 
-        void getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p,NumericalVector& ret) const
+        void getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p,LinearAlgebra::NumericalVector& ret) const
         {const_cast<ReferenceGeometry*>(this)->getBasisFunctionDerivative(function,p,ret);}
 
     protected:
@@ -152,8 +147,12 @@ namespace Geometry
     private:
 
         std::map<const Base::BaseBasisFunction*,std::unordered_map<Geometry::PointReference,double> > basisfunctionValues_;
-        std::map<const Base::BaseBasisFunction*,std::unordered_map<Geometry::PointReference,NumericalVector> > basisfunctionDerivatives_;
+        std::map<const Base::BaseBasisFunction*,std::unordered_map<Geometry::PointReference,LinearAlgebra::NumericalVector> > basisfunctionDerivatives_;
 
     };
-};
+
+}
+;
+
+
 #endif

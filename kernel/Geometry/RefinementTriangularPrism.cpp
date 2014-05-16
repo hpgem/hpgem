@@ -24,6 +24,11 @@
 #include "Base/TestErrorDebug.hpp"
 #include "Geometry/RefinementTriangularPrism.hpp"
 
+#include "PointPhysical.hpp"
+#include "PointReference.hpp"
+#include "ReferenceGeometry.hpp"
+#include "PhysicalGeometry.hpp"
+
 namespace Geometry
 {
     unsigned int RefinementTriangularPrism::nrOfNewNodes(int refineType) const 

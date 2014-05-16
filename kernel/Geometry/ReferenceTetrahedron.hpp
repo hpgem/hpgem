@@ -26,11 +26,7 @@
 #include <iostream>
 
 #include "ReferenceGeometry.hpp"
-#include "ReferenceLine.hpp"
-#include "ReferenceTriangle.hpp"
-#include "GlobalNamespaceGeometry.hpp"
-#include "Mappings/MappingToRefTriangleToTetrahedron.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <list>
 
 namespace Geometry
 {

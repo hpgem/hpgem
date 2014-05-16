@@ -25,6 +25,9 @@
 
 #include "Geometry/PhysicalTriangle.hpp"
 #include "cassert"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferenceTriangle.hpp"
 
 using Geometry::PhysicalTriangle;
 
@@ -51,7 +54,7 @@ int main(){
 
 	PhysicalTriangle test(pointIndexes,nodes,&Geometry::ReferenceTriangle::Instance());
 
-	cout<<test;
+	std::cout<<test;
 
 	pointIndexes = test.getNodeIndexes();
 
@@ -59,7 +62,7 @@ int main(){
 	assert(("getNodes",nodes==test.getNodes()));
 	assert(("getNodeIndex",test.getNodeIndex(0)==4&&test.getNodeIndex(1)==7&&test.getNodeIndex(2)==10));
 
-	cout<<test.getName();
+	std::cout<<test.getName();
 
 	point = *test.getNodePtr(test.getNodeIndex(0));
 	assert(("getNodePtr",fabs(point[0]-1.4)<1e-12));

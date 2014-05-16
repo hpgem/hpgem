@@ -35,6 +35,7 @@
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.hpp"
 #include "Geometry/ReferenceCube.hpp"
 #include "GaussQuadratureRulesForLine.hpp"
+#include "Geometry/PointReference.hpp"
 using Geometry::ReferenceCube;
 
 

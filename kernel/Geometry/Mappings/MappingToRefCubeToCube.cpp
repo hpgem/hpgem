@@ -23,7 +23,8 @@
 #define MAPPINGCUBETOCUBE_C_
 
 #include "MappingToRefCubeToCube.hpp"
-#include "../Jacobian.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "Geometry/PointReference.hpp"
 
 namespace Geometry
 {

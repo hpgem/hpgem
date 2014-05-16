@@ -39,7 +39,7 @@ class Dummy:public Output::TecplotSingleElementWriter
 {
 public:
     Dummy(){}
-    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, ostream& os)
+    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, std::ostream& os)
     {
     }
 };

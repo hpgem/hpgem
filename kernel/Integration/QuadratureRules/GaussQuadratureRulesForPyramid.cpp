@@ -26,6 +26,7 @@
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForPyramid.hpp"
 #include "Geometry/ReferencePyramid.hpp"
+#include "Geometry/PointReference.hpp"
 using Geometry::ReferencePyramid;
 
 //---------------------------------------------------------------------------

@@ -22,14 +22,10 @@
 #ifndef ____ReferenceTriangle__
 #define ____ReferenceTriangle__
 
-#include <iostream>
-using std::ostream;
+#include "ReferenceGeometry.hpp"
 
-#include "GlobalNamespaceGeometry.hpp"
-#include "ReferenceLine.hpp"
-#include "Mappings/MappingToRefLineToTriangle.hpp"
-#include "Mappings/MappingToRefTriangleToTriangle.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <iostream>
+#include <list>
 
 namespace Geometry
 {
@@ -118,7 +114,7 @@ namespace Geometry
 
         void                                     getCodim2EntityLocalIndices(const unsigned int node, std::vector<unsigned int>& ret) const {ret[0]=node;return;}
 
-        const ReferenceGeometry*           getCodim2ReferenceGeometry(const unsigned int)const {return &Geometry::ReferencePoint::Instance();}
+		const ReferenceGeometry* getCodim2ReferenceGeometry(const unsigned int) const;
             
         // =============================== Refinement mappings =====================================
         
@@ -162,5 +158,7 @@ namespace Geometry
         //! List of valid quadrature rules for this reference geometry
         std::list<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
     };
-};
+
+}
+;
 #endif /* defined(____ReferenceTriangle__) */

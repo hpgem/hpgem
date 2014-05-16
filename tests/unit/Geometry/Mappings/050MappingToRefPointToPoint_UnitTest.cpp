@@ -25,9 +25,12 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/Mappings/MappingToRefPointToPoint.hpp"
-#include "cassert"
+#include <cassert>
 
 #include "Geometry/ReferencePoint.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 
 int main() {//The 0D case is mostly testing if there are any crashing functions
 

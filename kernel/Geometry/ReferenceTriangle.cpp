@@ -20,6 +20,11 @@
  */
 
 #include "ReferenceTriangle.hpp"
+#include "ReferenceLine.hpp"
+#include "Mappings/MappingToRefLineToTriangle.hpp"
+#include "Mappings/MappingToRefTriangleToTriangle.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferencePoint.hpp"
 
 namespace Geometry
 {
@@ -40,7 +45,7 @@ namespace Geometry
     };
 
     ReferenceTriangle::ReferenceTriangle():
-        ReferenceGeometry(TwoD+1,2,TRIANGLE),
+        ReferenceGeometry(3,2,TRIANGLE),
         referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
 
@@ -184,5 +189,9 @@ namespace Geometry
             throw "ERROR: Asked for a triangle point index larger than 3. There are only 3 nodes in a triangle!";
         }
     }
-            
+
+	const ReferenceGeometry* ReferenceTriangle::getCodim2ReferenceGeometry(const unsigned int) const {
+		return &Geometry::ReferencePoint::Instance();
+	}
+
 };

@@ -25,6 +25,11 @@
 
 #include "MappingToPhysTriangularPrism.hpp"
 
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
+#include "Geometry/Jacobian.hpp"
+
 namespace Geometry
 {
     MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(const PhysicalGeometryT* const physicalGeometry):

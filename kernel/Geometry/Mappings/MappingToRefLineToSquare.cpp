@@ -20,6 +20,8 @@
  */
 
 #include "MappingToRefLineToSquare.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "Geometry/PointReference.hpp"
 
 namespace Geometry
 {

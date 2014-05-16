@@ -23,14 +23,18 @@
 #ifndef Face_hpp
 #define Face_hpp
 //----------------------------------------------------------------
-#include "Geometry/GlobalNamespaceGeometry.hpp"
 #include "Geometry/FaceGeometry.hpp"
-#include "Base/FaceCacheData.hpp"
-#include "Base/Element.hpp"
 #include "Base/FaceData.hpp"
+
+namespace QuadratureRules {
+	class GaussQuadratureRule;
+}
 
 namespace Base
 {
+	class Element;
+	class FaceCacheData;
+
     /// Face consists of FaceGeometry and probably FaceData, if needed. FaceGeometry holds all FaceReference related data and appropriate mappings
 
     class Face: public Geometry::FaceGeometry,public FaceData
@@ -89,17 +93,17 @@ namespace Base
         virtual double                          basisFunction(unsigned int i, const Geometry::PointReference& p) const;
 
 		///\brief returns the value of the i-th basisfunction at point p in ret
-        virtual void                            basisFunction(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const;
+        virtual void                            basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual void                            basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, NumericalVector& ret) const;
+        virtual void                            basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
         /// jDir=0 means x, and etc.
         virtual double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const Geometry::PointReference& p) const;
 
 		///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
-        virtual void                            basisFunctionDeriv(unsigned int i,const Geometry::PointReference& p, NumericalVector& ret) const;
+        virtual void                            basisFunctionDeriv(unsigned int i,const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual void                            basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const;
+        virtual void                            basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
         virtual int                             getNrOfBasisFunctions() const;
 

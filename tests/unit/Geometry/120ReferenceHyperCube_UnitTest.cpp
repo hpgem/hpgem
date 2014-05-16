@@ -129,7 +129,7 @@ int main(){
 	assert(("getNode 14",fabs(pTest[0]+1)<1e-12&&fabs(pTest[1]-1)<1e-12&&fabs(pTest[2]-1)<1e-12&&fabs(pTest[3]-1)<1e-12));
 	test.getNode(15,pTest);
 	assert(("getNode 15",fabs(pTest[0]-1)<1e-12&&fabs(pTest[1]-1)<1e-12&&fabs(pTest[2]-1)<1e-12&&fabs(pTest[3]-1)<1e-12));
-	cout<<test.getName();
+	std::cout<<test.getName();
 
 	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,0)==0));//the nodes of the face must always be specified IN THIS SPECIFIC ORDER
 	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,1)==1));//im not sure if I like this myself, but this should at least verify
@@ -196,7 +196,7 @@ int main(){
 	assert(("getLocalNodeIndex 7",test.getLocalNodeIndex(7,6)==14));
 	assert(("getLocalNodeIndex 7",test.getLocalNodeIndex(7,7)==15));
 
-	cout<<test;
+	std::cout<<test;
 
 	//testing mappings and quadrature rules
 

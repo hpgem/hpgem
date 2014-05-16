@@ -27,6 +27,7 @@
 #include "Integration/QuadratureRules/GaussQuadratureRulesForLine.hpp"
 
 #include "Geometry/ReferenceLine.hpp"
+#include "Geometry/PointReference.hpp"
 using Geometry::ReferenceLine;
 
 //---------------------------------------------------------------------------

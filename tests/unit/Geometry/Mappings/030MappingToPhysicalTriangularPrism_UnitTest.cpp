@@ -29,6 +29,8 @@
 
 #include "Geometry/ReferenceTriangularPrism.hpp"
 #include "Geometry/PhysicalTriangularPrism.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
 //transformations should map internal points to internal points, external points to external points
 //and nodes to nodes so construct the physical geometries such that this can be checked :(
 

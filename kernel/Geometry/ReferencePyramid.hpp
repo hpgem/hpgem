@@ -22,14 +22,8 @@
 #define ____ReferencePyramid__
 
 #include "ReferenceGeometry.hpp"
-#include "ReferenceLine.hpp"
-#include "ReferenceTriangle.hpp"
-#include "ReferenceSquare.hpp"
-#include "GlobalNamespaceGeometry.hpp"
-#include "Mappings/MappingReferenceToReference.hpp"
-#include "Mappings/MappingToRefFaceToPyramid.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-                                                                      // created for the shape globally
+#include <list>
+// created for the shape globally
 namespace Geometry
 {
     /** \TODO: Document

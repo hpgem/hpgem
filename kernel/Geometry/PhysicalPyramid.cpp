@@ -20,6 +20,10 @@
  */
 #include "PhysicalPyramid.hpp"
 
+#include "ReferencePyramid.hpp"
+#include "PointPhysical.hpp"
+#include "PointReference.hpp"
+
 namespace Geometry
 {
     PhysicalPyramid::PhysicalPyramid(

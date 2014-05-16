@@ -29,6 +29,9 @@
 
 #include "Geometry/ReferencePyramid.hpp"
 #include "Geometry/PhysicalPyramid.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "Geometry/PointReference.hpp"
 //transformations should map internal points to internal points, external points to external points
 //and nodes to nodes so construct the physical geometries such that this can be checked :(
 

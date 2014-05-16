@@ -29,6 +29,9 @@
 
 #include "Geometry/ReferenceLine.hpp"
 #include "Geometry/ReferenceSquare.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 int main() {
 
 	Geometry::PointReference refPoint(1),point(2),compare(2);

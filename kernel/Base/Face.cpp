@@ -21,6 +21,16 @@
 #include "Face.hpp"
 #include "Element.hpp"
 
+#include "TestErrorDebug.hpp"
+#include <iostream>
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include "Geometry/ReferenceGeometry.hpp"
+#include "Geometry/PointReference.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
+#include "L2Norm.hpp"
+#include "FaceCacheData.hpp"
+#include "ElementCacheData.hpp"
+
 namespace Base
 {
     
@@ -73,7 +83,7 @@ namespace Base
     {
         bool internal;
         if((FaceGeometryT::faceType_==Geometry::INTERNAL && elementRight_==NULL)||(FaceGeometryT::faceType_!=Geometry::INTERNAL && elementRight_!=NULL))
-            cout << "Something wrong with boundaries";
+            std::cout << "Something wrong with boundaries";
             
             
         return (FaceGeometryT::faceType_==Geometry::INTERNAL? true: false);
@@ -124,7 +134,7 @@ namespace Base
     }
 
     void
-    Face::basisFunction(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const
+    Face::basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
     {
     	Geometry::PointReference pElement(p.size()+1);
     	int n(getPtrElementLeft()->getNrOfBasisFunctions());
@@ -138,7 +148,7 @@ namespace Base
     }
 
     void
-    Face::basisFunctionNormal(unsigned int i, const NumericalVector& normal, const Geometry::PointReference& p, NumericalVector& ret) const
+    Face::basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
     {
     	Geometry::PointReference pElement(p.size()+1);
     	int n(getPtrElementLeft()->getNrOfBasisFunctions());
@@ -168,7 +178,7 @@ namespace Base
     }
 
     void
-    Face::basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const
+    Face::basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
     {
     	Geometry::PointReference pElement(p.size()+1);
     	int n(getPtrElementLeft()->getNrOfBasisFunctions());
@@ -182,7 +192,7 @@ namespace Base
     }
 
     void
-    Face::basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const
+    Face::basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
     {
     	Geometry::PointReference pElement(p.size()+1);
     	int n(getPtrElementLeft()->getNrOfBasisFunctions());

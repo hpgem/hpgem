@@ -20,6 +20,8 @@
  */
 #include "ReferenceGeometry.hpp"
 #include "Integration/QuadratureRules/AllGaussQuadratureRules.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Base/BaseBasisFunction.hpp"
 
 #ifndef _ReferenceGeometry_Impl_hpp
 #define _ReferenceGeometry_Impl_hpp
@@ -64,7 +66,7 @@ namespace Geometry
     }
 
     void
-    ReferenceGeometry::getBasisFunctionDerivative(const Base::BaseBasisFunction* function,const PointReference& p, NumericalVector& ret)
+    ReferenceGeometry::getBasisFunctionDerivative(const Base::BaseBasisFunction* function,const PointReference& p, LinearAlgebra::NumericalVector& ret)
     {
     	try{
     		ret=basisfunctionDerivatives_[function].at(p);
@@ -74,5 +76,20 @@ namespace Geometry
     		basisfunctionDerivatives_[function].at(p)=ret;
     	}
     }
+
+	void ReferenceGeometry::getNode(const IndexT& localIndex, PointReferenceT& node) const {
+		node = points_[localIndex];
+	}
+
 };
+
+size_t std::__1::hash<Geometry::PointReference>::operator ()(const Geometry::PointReference& point) const
+{
+	static std::__1::hash<double> hasher;
+	size_t ret = 0;
+	for (int i = 0;i < point.size();++i) {
+		ret ^= hasher(point[i]) + 0x9e3779b9 + (ret << 6) + (ret >> 2);
+	}
+	return ret;
+}
 #endif

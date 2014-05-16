@@ -21,6 +21,10 @@
 #include "PhysicalQuadrilateral.hpp"
 #include <vector>
 
+#include "Geometry/ReferenceSquare.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PointReference.hpp"
+
 namespace Geometry
 {
     PhysicalQuadrilateral::PhysicalQuadrilateral(
@@ -44,4 +48,9 @@ namespace Geometry
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
         indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
     }
+
+	unsigned int PhysicalQuadrilateral::getNrOfFaces() const {
+		return refGeometry_->getNrOfCodim1Entities();
+	}
+
 }

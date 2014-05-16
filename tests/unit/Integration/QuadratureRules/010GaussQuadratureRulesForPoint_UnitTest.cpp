@@ -24,9 +24,12 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Integration/QuadratureRules/GaussQuadratureRulesForPoint.hpp"
+#include <cassert>
+#include <iostream>
+#include "Geometry/PointReference.hpp"
 
 void testRule(QuadratureRules::GaussQuadratureRule& test){
-	cout<<test.getName();
+	std::cout<<test.getName();
 	assert(("dimension",test.dimension()==0));
 	assert(("order",test.order()>11));
 	assert(("forReferenceGeometry",typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferencePoint)));

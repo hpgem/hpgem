@@ -25,7 +25,8 @@
 #include <vector>
 #include <typeinfo>
 #include "Base/LevelTree.hpp"
-
+#include "Base/TreeIterator.hpp"
+#include "Base/TreeEntry.hpp"
 
 //=========================================================== Element class definition
 template <unsigned int dim>

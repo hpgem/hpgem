@@ -21,6 +21,17 @@
 
 
 #include "TecplotPhysicalGeometryIterator.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
+#include "Geometry/PointPhysical.hpp"
+
+#include "Geometry/PhysicalHexahedron.hpp"
+#include "Geometry/PhysicalLine.hpp"
+#include "Geometry/PhysicalOctachoron.hpp"
+#include "Geometry/PhysicalPyramid.hpp"
+#include "Geometry/PhysicalQuadrilateral.hpp"
+#include "Geometry/PhysicalTetrahedron.hpp"
+#include "Geometry/PhysicalTriangle.hpp"
+#include "Geometry/PhysicalTriangularPrism.hpp"
 
 namespace Output
 {
@@ -105,63 +116,62 @@ namespace Output
         lineNodes.push_back(0);
     }
 
-//    template<unsigned int DIM>
-//    void TecplotPhysicalGeometryIterator::acceptG(const Geometry::PhysicalGeometry<DIM>* geo)
-//    {
-//        const Geometry::PhysicalLine* line= dynamic_cast<const Geometry::PhysicalLine*>(geo);
-//        if (line)
-//        {
-//            acceptLineGeometry(line);
-//        }
-//        else
-//        {
-//            const Geometry::PhysicalTriangle* triangle= dynamic_cast<const Geometry::PhysicalTriangle*>(geo);
-//            if (triangle)
-//            {
-//                acceptTriangleGeometry(triangle);
-//            }
-//            else
-//            {
-//                const Geometry::PhysicalQuadrilateral* quad= dynamic_cast<const Geometry::PhysicalQuadrilateral*>(geo);
-//                if (quad)
-//                {
-//                    acceptQuadrilateralGeometry(quad);
-//                }
-//                else
-//                {
-//                    const Geometry::PhysicalTetrahedron* tetr= dynamic_cast<const Geometry::PhysicalTetrahedron*>(geo);
-//                    if (tetr)
-//                    {
-//                        acceptTetrahedronGeometry(tetr);
-//                    }
-//                    else
-//                    {
-//                        const Geometry::PhysicalPyramid* pyr= dynamic_cast<const Geometry::PhysicalPyramid*>(geo);
-//                        if (pyr)
-//                        {
-//                            acceptPyramidGeometry(pyr);
-//                        }
-//                        else
-//                        {
-//                            const Geometry::PhysicalTriangularPrism* trPrism= dynamic_cast<const Geometry::PhysicalTriangularPrism*>(geo);
-//                            if (trPrism)
-//                            {
-//                                acceptTriangularPrismGeometry(trPrism);
-//                            }
-//                            else
-//                            {
-//                                const Geometry::PhysicalHexahedron* hex= dynamic_cast<const Geometry::PhysicalHexahedron*>(geo);
-//                                if (hex)
-//                                {
-//                                    acceptHexahedronGeometry(hex);
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+    void TecplotPhysicalGeometryIterator::acceptG(const Geometry::PhysicalGeometry* geo)
+    {
+        const Geometry::PhysicalLine* line= dynamic_cast<const Geometry::PhysicalLine*>(geo);
+        if (line)
+        {
+            acceptLineGeometry(line);
+        }
+        else
+        {
+            const Geometry::PhysicalTriangle* triangle= dynamic_cast<const Geometry::PhysicalTriangle*>(geo);
+            if (triangle)
+            {
+                acceptTriangleGeometry(triangle);
+            }
+            else
+            {
+                const Geometry::PhysicalQuadrilateral* quad= dynamic_cast<const Geometry::PhysicalQuadrilateral*>(geo);
+                if (quad)
+                {
+                    acceptQuadrilateralGeometry(quad);
+                }
+                else
+                {
+                    const Geometry::PhysicalTetrahedron* tetr= dynamic_cast<const Geometry::PhysicalTetrahedron*>(geo);
+                    if (tetr)
+                    {
+                        acceptTetrahedronGeometry(tetr);
+                    }
+                    else
+                    {
+                        const Geometry::PhysicalPyramid* pyr= dynamic_cast<const Geometry::PhysicalPyramid*>(geo);
+                        if (pyr)
+                        {
+                            acceptPyramidGeometry(pyr);
+                        }
+                        else
+                        {
+                            const Geometry::PhysicalTriangularPrism* trPrism= dynamic_cast<const Geometry::PhysicalTriangularPrism*>(geo);
+                            if (trPrism)
+                            {
+                                acceptTriangularPrismGeometry(trPrism);
+                            }
+                            else
+                            {
+                                const Geometry::PhysicalHexahedron* hex= dynamic_cast<const Geometry::PhysicalHexahedron*>(geo);
+                                if (hex)
+                                {
+                                    acceptHexahedronGeometry(hex);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     /*
     void TecplotPhysicalGeometryIterator::acceptHyperCubeGeometry(const Geometry::PhysicalHypercube&)

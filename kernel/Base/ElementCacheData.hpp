@@ -21,8 +21,9 @@
 #ifndef ElementCacheData_hpp
 #define ElementCacheData_hpp
 
-#include "Geometry/Jacobian.hpp"
-#include "Geometry/PointReference.hpp"
+namespace Geometry{
+	class PointReference;
+}
 
 namespace Base
 {

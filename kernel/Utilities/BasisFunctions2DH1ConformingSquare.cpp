@@ -24,6 +24,8 @@
 #include "Base/BasisFunctionSet.hpp"
 #include "Base/OrientedBasisFunctionSet.hpp"
 #include "Geometry/ReferenceSquare.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Base/TestErrorDebug.hpp"
 
 namespace Utilities {
 

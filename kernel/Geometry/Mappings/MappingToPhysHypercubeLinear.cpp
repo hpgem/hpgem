@@ -25,6 +25,9 @@
 
 #include "MappingToPhysHypercubeLinear.hpp"
 #include <vector>
+#include "Geometry/PhysicalGeometry.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
 
 namespace Geometry
 {

@@ -26,17 +26,6 @@
 
 #include <list>
 #include <iostream>
-using std::cerr;
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-#include "Geometry/ReferenceGeometry.hpp"
-#include "Geometry/ReferenceLine.hpp"
-#include "Geometry/ReferenceTriangle.hpp"
-#include "Geometry/ReferenceSquare.hpp"
-#include "Geometry/ReferenceTetrahedron.hpp"
-#include "Geometry/ReferencePyramid.hpp"
-#include "Geometry/ReferenceTriangularPrism.hpp"
-#include "Geometry/ReferenceCube.hpp"
-#include "Geometry/ReferenceHypercube.hpp"
 
 namespace QuadratureRules
 {

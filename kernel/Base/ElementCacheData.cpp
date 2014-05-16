@@ -21,6 +21,9 @@
 #include "ElementCacheData.hpp"
 #include "Element.hpp"
 
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+
 void Base::ElementCacheData::operator ()(const Element* el, const Geometry::PointReference& p){
     Geometry::Jacobian jac(p.size(),p.size());
     el->calcJacobian(p, jac);

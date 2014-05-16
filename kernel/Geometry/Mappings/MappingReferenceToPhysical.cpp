@@ -22,5 +22,12 @@
 
 #include "MappingReferenceToPhysical.hpp"
 
+#include "Geometry/PointPhysical.hpp"
 
+namespace Geometry {
 
+	void MappingReferenceToPhysical::getNodeCoordinates(const int index, PointPhysical& coords) const {
+		coords = (*nodes_)[index].getCoordinates();
+	}
+
+}

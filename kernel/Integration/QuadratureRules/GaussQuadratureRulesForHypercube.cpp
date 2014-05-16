@@ -34,6 +34,7 @@
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForHypercube.hpp"
 #include "Geometry/ReferenceHypercube.hpp"
+#include "Geometry/PointReference.hpp"
 using Geometry::ReferenceHypercube;
 
 //---------------------------------------------------------------------------

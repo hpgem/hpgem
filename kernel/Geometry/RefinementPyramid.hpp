@@ -22,11 +22,6 @@
 #ifndef RefinementPyramid_hpp
 #define RefinementPyramid_hpp
 
-#include "Geometry/ReferenceGeometry.hpp"
-#include "Geometry/PhysicalGeometry.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/PointPhysical.hpp"
-#include "LinearAlgebra/Matrix.hpp"
 #include "Geometry/RefinementGeometry.hpp"
 
 namespace Geometry

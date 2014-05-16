@@ -22,6 +22,8 @@
 #include "ReferenceTetrahedron.hpp"
 #include "ReferenceLine.hpp"
 #include "ReferenceTriangle.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Mappings/MappingToRefTriangleToTetrahedron.hpp"
 
 namespace Geometry
 {
@@ -52,7 +54,7 @@ namespace Geometry
      };
 
     ReferenceTetrahedron::ReferenceTetrahedron():/// Tetrahedron has four nodes 3D + 1
-        ReferenceGeometry(ThreeD+1,3,TETRAHEDRON),
+        ReferenceGeometry(4,3,TETRAHEDRON),
         referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()),
         referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {

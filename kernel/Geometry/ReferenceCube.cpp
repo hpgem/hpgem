@@ -26,6 +26,7 @@
 #include "Mappings/MappingToRefSquareToCube.hpp"
 #include "Mappings/MappingToRefCubeToCube.hpp"
 #include "LinearAlgebra/Matrix.hpp"
+#include "Geometry/PointReference.hpp"
 
 
 namespace Geometry
@@ -58,7 +59,7 @@ namespace Geometry
     };
 
     ReferenceCube::ReferenceCube():
-        ReferenceGeometry(ThreeD+5,3, CUBE),
+        ReferenceGeometry(8,3, CUBE),
         referenceGeometryCodim1Ptr_(&ReferenceSquare::Instance()),
         referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {

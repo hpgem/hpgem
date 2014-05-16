@@ -33,6 +33,8 @@
 #include "Geometry/PhysicalTriangle.hpp"
 #include "Geometry/ReferenceTetrahedron.hpp"
 #include "Geometry/PhysicalTetrahedron.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
 //transformations should map internal points to internal points, external points to external points
 //and nodes to nodes so construct the physical geometries such that this can be checked :(
 

@@ -21,7 +21,9 @@
 #ifndef _PhysicalSpaceEvaluator_hpp
 #define _PhysicalSpaceEvaluator_hpp
 
-#include "Geometry/PointPhysical.hpp"
+namespace Geometry{
+	class PointPhysical;
+}
 
 namespace Base
 {

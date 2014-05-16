@@ -24,11 +24,17 @@
 #define FaceData_hpp
 //----------------------------------------------------------------
 #include <vector>
-#include "FaceCacheData.hpp"
-#include "LinearAlgebra/Matrix.hpp"
-#include "UserData.hpp"
+
+namespace LinearAlgebra{
+	class Matrix;
+	class NumericalVector;
+}
 
 namespace Base {
+
+	class FaceCacheData;
+	class UserFaceData;
+
 	class FaceData {
 	public:
 		typedef FaceCacheData CacheT;

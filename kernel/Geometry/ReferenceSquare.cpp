@@ -20,6 +20,12 @@
  */
 
 #include "ReferenceSquare.hpp"
+#include "ReferenceLine.hpp"
+#include "Mappings/MappingToRefLineToSquare.hpp"
+#include "Mappings/MappingToRefSquareToSquare.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferencePoint.hpp"
+#include "LinearAlgebra/Matrix.hpp"
 
 namespace Geometry
 {
@@ -41,7 +47,7 @@ namespace Geometry
     };
 
     ReferenceSquare::ReferenceSquare():
-        ReferenceGeometry(TwoD+2,2, SQUARE),
+        ReferenceGeometry(4,2, SQUARE),
         referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
         // See MappingLineToSquare.hpp for further info.                 Ref.Line     Ref.Sqr.Side
@@ -205,6 +211,10 @@ namespace Geometry
             throw "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square!";
         }
     }
+
+	const ReferenceGeometry* ReferenceSquare::getCodim2ReferenceGeometry(const unsigned int) const {
+		return &Geometry::ReferencePoint::Instance();
+	}
 
     // =============================== Refinement mappings =====================================
     

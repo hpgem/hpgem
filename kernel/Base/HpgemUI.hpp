@@ -22,18 +22,18 @@
 #ifndef BASE_HPP
 #define BASE_HPP
 
-#include "Base/MeshMoverBase.hpp"
-#include "Base/MeshManipulator.hpp"
-#include "Base/GlobalNamespaceBase.hpp"
-#include "Base/RectangularMeshDescriptor.hpp"
-#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
-#include "Integration/ElementIntegral.hpp"
-#include "Integration/FaceIntegral.hpp"
+#include <vector>
 
-#include "vector"
+#include "MeshManipulator.hpp"
+#include "GlobalNamespaceBase.hpp"
 
 namespace Base
 {
+	class MeshMoverBase;
+	class RectangularMeshDescriptor;
+	class GlobalData;
+	class ConfigurationData;
+
     class HpgemUI
     {
     public:
@@ -57,7 +57,6 @@ namespace Base
         typedef std::vector<MeshManipulatorT* >                         VectorOfMeshManipulatorT;
         typedef std::string                                             String;
                 
-        //typedef BasisFunctions<DIM>     BasisFunctionT;
         
 
     public:

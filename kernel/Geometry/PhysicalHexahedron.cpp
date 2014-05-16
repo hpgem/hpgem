@@ -20,6 +20,10 @@
  */
 #include "PhysicalHexahedron.hpp"
 
+#include "ReferenceCube.hpp"
+#include "PointPhysical.hpp"
+#include "PointReference.hpp"
+
 namespace Geometry
 {
     PhysicalHexahedron::PhysicalHexahedron(
@@ -47,4 +51,9 @@ namespace Geometry
         indexes[2] = refGeometry_->getLocalNodeIndex(face,2);
         indexes[3] = refGeometry_->getLocalNodeIndex(face,3);
     }
+
+	unsigned int PhysicalHexahedron::getNrOfFaces() const {
+		return refGeometry_->getNrOfCodim1Entities();
+	}
+
 }

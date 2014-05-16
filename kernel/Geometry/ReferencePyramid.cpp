@@ -20,6 +20,11 @@
  */
 
 #include "ReferencePyramid.hpp"
+#include "ReferenceTriangle.hpp"
+#include "ReferenceSquare.hpp"
+#include "ReferenceLine.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Mappings/MappingToRefFaceToPyramid.hpp"
 
 namespace Geometry
 {
@@ -46,7 +51,7 @@ namespace Geometry
     };
 
     ReferencePyramid::ReferencePyramid():/// pyramid has three nodes 3D + 2
-        ReferenceGeometry(ThreeD+2,3, PYRAMID),
+        ReferenceGeometry(5,3, PYRAMID),
         referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()),
         referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()),
         referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())

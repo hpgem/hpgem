@@ -24,7 +24,8 @@
 #define MAPPINGSQUARETOSQUARE_C_
 
 #include "MappingToRefSquareToSquare.hpp"
-#include "../Jacobian.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "Geometry/PointReference.hpp"
 
 namespace Geometry
 {

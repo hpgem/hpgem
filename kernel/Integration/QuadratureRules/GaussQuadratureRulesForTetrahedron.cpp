@@ -26,6 +26,7 @@
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTetrahedron.hpp"
 #include "Geometry/ReferenceTetrahedron.hpp"
+#include "Geometry/PointReference.hpp"
 using Geometry::ReferenceTetrahedron;
 
 //---------------------------------------------------------------------------

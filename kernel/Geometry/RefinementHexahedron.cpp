@@ -24,6 +24,11 @@
 #include "Base/TestErrorDebug.hpp"
 #include "Geometry/RefinementHexahedron.hpp"
 
+#include "PointPhysical.hpp"
+#include "PointReference.hpp"
+#include "ReferenceGeometry.hpp"
+#include "PhysicalGeometry.hpp"
+
 namespace Geometry
 {
     unsigned int RefinementHexahedron::nrOfNewNodes(int refineType) const 

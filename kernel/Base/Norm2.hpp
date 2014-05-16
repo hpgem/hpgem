@@ -23,7 +23,9 @@
 #ifndef ____Norm2__
 #define ____Norm2__
 
-#include "Geometry/PointPhysical.hpp"
+namespace Geometry{
+	class PointPhysical;
+}
 
     //------------------------------------------------------------------------------
 namespace Utilities

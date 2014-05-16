@@ -22,7 +22,6 @@
 #ifndef BASISFUNCTIONS2DH1CONFORMINGSQUARE_HPP_
 #define BASISFUNCTIONS2DH1CONFORMINGSQUARE_HPP_
 
-#include "Base/TestErrorDebug.hpp"
 #include "Base/BaseBasisFunction.hpp"
 #include <vector>
 

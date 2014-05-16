@@ -22,6 +22,10 @@
 #define FACEINTEGRAL_IMPL_HPP_
 #include "Base/ShortTermStorageFaceH1.hpp"
 
+#include "QuadratureRules/GaussQuadratureRule.hpp"
+#include "Base/TestErrorDebug.hpp"
+#include "Base/L2Norm.hpp"
+
 namespace Integration{
 
 template <class ReturnTrait1>

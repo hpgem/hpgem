@@ -22,9 +22,11 @@
 #ifndef PHYSICALTRIANGULARPRISM_HH
 #define PHYSICALTRIANGULARPRISM_HH
 #include "PhysicalGeometry.hpp"
-#include "ReferenceTriangularPrism.hpp"
+
 namespace Geometry
 {
+	class ReferenceTriangularPrism;
+
     class PhysicalTriangularPrism: public PhysicalGeometry
     {
     public:

@@ -22,12 +22,7 @@
 #ifndef RefinementTetrahedron_hpp
 #define RefinementTetrahedron_hpp
 
-#include "Geometry/ReferenceGeometry.hpp"
-#include "Geometry/PhysicalGeometry.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/PointPhysical.hpp"
 #include "Geometry/RefinementGeometry.hpp"
-#include "LinearAlgebra/Matrix.hpp"
 
 namespace Geometry
 {

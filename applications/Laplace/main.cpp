@@ -34,24 +34,27 @@
 #include "Utilities/BasisFunctions3DH1ConformingCube.hpp"
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.hpp"
 #include <chrono>
+#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
+#include "Base/ElementCacheData.hpp"
+#include "Base/FaceCacheData.hpp"
 
 const unsigned int DIM=3;
 //penaltyParameter>2p^2/h=2np^2
 double penaltyParameter=-3.141;
 
-void viewBasisFunctionInTecplot(const Base::BaseBasisFunction* function, const Geometry::ReferenceGeometry& geometry, ostream& file)
+void viewBasisFunctionInTecplot(const Base::BaseBasisFunction* function, const Geometry::ReferenceGeometry& geometry, std::ostream& file)
 {//manually adapt this function to your needs
 //	file<<"TITLE= \"BasisFunction\"\nVARIABLES= x,y,z,value"<<endl;
-	file<<"ZONE I="<<40 <<" J= "<<40<<" K= "<<1<<endl;
+	file<<"ZONE I="<<40 <<" J= "<<40<<" K= "<<1<<std::endl;
 	Geometry::PointReference p(3);
 	for(p[0]=-0.975;p[0]<1.;p[0]+=0.05){
 		for(p[1]=-.975;p[1]<1.;p[1]+=0.05){
 		//	for(p[2]=-.975;p[2]<1.;p[2]+=0.05){
 				file<<p[0]<<" "<<p[1]<<" ";//<<p[2]<<" ";
 				if(geometry.isInternalPoint(p)){
-					file<<function->eval(p)<<" "<<function->evalDeriv0(p)<<" "<<function->evalDeriv1(p)<</*" "<<function->evalDeriv2(p)<<*/endl;
+					file<<function->eval(p)<<" "<<function->evalDeriv0(p)<<" "<<function->evalDeriv1(p)<</*" "<<function->evalDeriv2(p)<<*/std::endl;
 				}else{
-					file<<"0.0 0.0 0.0"<<endl;
+					file<<"0.0 0.0 0.0"<<std::endl;
 				}
 		//	}
 		}
@@ -113,7 +116,7 @@ public:
     ///so you wont have to do any transformations yourself
     virtual void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& ret){
     	int n=element->getNrOfBasisFunctions();
-    	NumericalVector phiDerivI(DIM),phiDerivJ(DIM);
+    	LinearAlgebra::NumericalVector phiDerivI(DIM),phiDerivJ(DIM);
     	ret.resize(n,n);
     	for(int i=0;i<n;++i){
 			element->basisFunctionDeriv(i,p,phiDerivI);
@@ -128,10 +131,10 @@ public:
     ///so you wont have to do any transformations yourself. If you expect 4 matrices here, you can assume that ret is block structured such
     ///that basisfunctions belonging to the left element are indexed first
     ///note that using a consistent flux has no effect if you also use conforming basisfunctions
-    virtual void faceIntegrand(const FaceT* face, const NumericalVector& normal, const PointReferenceOnTheFaceT& p,  LinearAlgebra::Matrix& ret){
+    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& p,  LinearAlgebra::Matrix& ret){
     	int n=face->getNrOfBasisFunctions();
     	ret.resize(n,n);
-    	NumericalVector phiNormalI(DIM),phiNormalJ(DIM),phiDerivI(DIM),phiDerivJ(DIM);
+    	LinearAlgebra::NumericalVector phiNormalI(DIM),phiNormalJ(DIM),phiDerivI(DIM),phiDerivJ(DIM);
 		PointPhysicalT pPhys(DIM);
 		face->referenceToPhysical(p,pPhys);
     	for(int i=0;i<n;++i){
@@ -157,7 +160,7 @@ public:
     }
 
     ///The vector edition of the face integrand is meant for implementation of boundary conditions
-    virtual void faceIntegrand(const FaceT* face, const NumericalVector& normal, const PointReferenceOnTheFaceT& p,  LinearAlgebra::NumericalVector& ret){
+    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& p,  LinearAlgebra::NumericalVector& ret){
 		int n=face->getNrOfBasisFunctions();
 		ret.resize(n);
 		PointPhysicalT pPhys(DIM);
@@ -213,7 +216,7 @@ public:
     	}
     }
 
-    virtual void writeToTecplotFile(const ElementT* element,const  PointReferenceT& p, ostream& out){
+    virtual void writeToTecplotFile(const ElementT* element,const  PointReferenceT& p, std::ostream& out){
     	double value(0);
     	Geometry::PointPhysical pPhys(DIM);
     	element->referenceToPhysical(p,pPhys);
@@ -263,10 +266,10 @@ public:
     	int iterations;
     	KSPGetIterationNumber(ksp,&iterations);
     	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    	cout<<"KSP solver ended because of "<<KSPConvergedReasons[conferge]<<" in "<<iterations<<" iterations."<<endl;
+    	std::cout<<"KSP solver ended because of "<<KSPConvergedReasons[conferge]<<" in "<<iterations<<" iterations."<<std::endl;
 
     	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double> >(end-start);
-    	cout<<"This took "<<time_span.count()<<" seconds."<<endl;
+    	std::cout<<"This took "<<time_span.count()<<" seconds."<<std::endl;
     	x.writeTimeLevelData(0);
 
     	std::ofstream outFile("output.dat");
@@ -281,8 +284,8 @@ public:
     		error+=elError;
     		elError=0;
     	}
-    	cout.precision(8);
-    	cout<<"The L2-error in the conforming case is: "<<sqrt(error)<<endl;
+    	std::cout.precision(8);
+    	std::cout<<"The L2-error in the conforming case is: "<<sqrt(error)<<std::endl;
 
     	/*meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(p_));
 
@@ -357,7 +360,7 @@ int main(int argc, char **argv){
 		return 0;
 	}
 	catch(const char* e){
-		cout<<e;
+		std::cout<<e;
 	}
 }
 

@@ -20,6 +20,8 @@
  */
 
 #include "MappingToRefCubeToHypercube.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
 
 namespace Geometry
 {

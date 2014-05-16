@@ -22,10 +22,8 @@
 #ifndef REFERENCECUBE_HH
 #define REFERENCECUBE_HH
 
-#include "GlobalNamespaceGeometry.hpp"
 #include "ReferenceGeometry.hpp"
-#include "Mappings/MappingReferenceToReference.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <list>
 
 namespace Geometry
 {

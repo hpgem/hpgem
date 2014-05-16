@@ -2,7 +2,9 @@ include_directories(${hpGEM_SOURCE_DIR}/kernel/ .)
 
 add_library(hpGEM_Base SHARED
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp	
- 		${hpGEM_SOURCE_DIR}/kernel/Base/BasisFunctionSet.cpp		  
+ 		${hpGEM_SOURCE_DIR}/kernel/Base/BasisFunctionSet.cpp	
+ 		BaseBasisFunction.cpp	  
+ 		PhysGradientOfBasisFunction.cpp
  		Element.cpp
  		ElementData.cpp
  		ElementCacheData.cpp

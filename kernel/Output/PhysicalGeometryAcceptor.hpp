@@ -22,17 +22,21 @@
 #ifndef PHYSICALGEOMETRYACCEPTOR_HPP_
 #define PHYSICALGEOMETRYACCEPTOR_HPP_
 
-#include "Geometry/PhysicalTetrahedron.hpp"
-#include "Geometry/PhysicalPyramid.hpp"
-#include "Geometry/PhysicalTriangularPrism.hpp"
-#include "Geometry/PhysicalHexahedron.hpp"
-#include "Geometry/PhysicalQuadrilateral.hpp"
-#include "Geometry/PhysicalTriangle.hpp"
-#include "Geometry/PhysicalLine.hpp"
 //class Geometry::PhysicalQuadrilateral;
+
+namespace Geometry{
+	class PhysicalHexahedron;
+	class PhysicalLine;
+	class PhysicalPyramid;
+	class PhysicalQuadrilateral;
+	class PhysicalTetrahedron;
+	class PhysicalTriangle;
+	class PhysicalTriangularPrism;
+}
 
 namespace Output
 {
+
     /// TODO: Implement other geometries.
     class PhysicalGeometryAcceptor
     {

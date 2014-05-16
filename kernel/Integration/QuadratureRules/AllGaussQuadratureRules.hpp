@@ -22,18 +22,17 @@
 #ifndef AllGaussQuadratureRules_hpp
 #define AllGaussQuadratureRules_hpp
 
-#include "Integration/QuadratureRules/GaussQuadratureRulesForLine.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRulesForTriangle.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRulesForSquare.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRulesForTetrahedron.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRulesForPyramid.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRulesForTriangularPrism.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRulesForCube.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRulesForHypercube.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRulesForPoint.hpp"
+#include <list>
+#include <map>
+
+namespace Geometry {
+	class ReferenceGeometry;
+}
 
 namespace QuadratureRules
 {
+	class GaussQuadratureRule;
+
 	//solves the problem the singletons are causing by adding more singletons ;)
 	/**
 	 * Storage class for all the quadrature rules. If you add a rule, make sure to also add it here in the constructor.

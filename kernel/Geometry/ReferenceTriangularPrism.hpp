@@ -25,12 +25,7 @@
 #include <iostream>
 
 #include "ReferenceGeometry.hpp"
-#include "ReferenceLine.hpp"
-#include "ReferenceTriangle.hpp"
-#include "ReferenceSquare.hpp"
-#include "GlobalNamespaceGeometry.hpp"
-#include "Mappings/MappingToRefFaceToTriangularPrism.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <list>
 
 namespace Geometry
 {

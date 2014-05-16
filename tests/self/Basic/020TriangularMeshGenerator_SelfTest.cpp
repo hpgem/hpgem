@@ -27,7 +27,15 @@
 
 #include "Base/MeshManipulator.hpp"
 #include "Base/Edge.hpp"
+#include "Base/Element.hpp"
+#include "Base/Face.hpp"
 #include "Base/RectangularMeshDescriptor.hpp"
+#include "Geometry/ReferenceGeometry.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Base/ElementCacheData.hpp"
+#include "Base/FaceCacheData.hpp"
+#include "Base/ConfigurationData.hpp"
 
 #include "unordered_set"
 #include "cassert"

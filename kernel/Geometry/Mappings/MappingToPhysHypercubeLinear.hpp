@@ -24,7 +24,9 @@
 #define MAPPINGHYPERCUBELINEAR_H_
 
 #include "MappingReferenceToPhysical.hpp"
-#include "../GlobalNamespaceGeometry.hpp"
+
+///\bug fix for private field has incomplete type
+#include "Geometry/PointPhysical.hpp"
 
 namespace Geometry
 {

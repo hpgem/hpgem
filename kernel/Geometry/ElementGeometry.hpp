@@ -22,25 +22,29 @@
 #ifndef ELEMENTGEOMETRY_H_
 #define ELEMENTGEOMETRY_H_
 
-#include "ReferenceGeometry.hpp"
-#include "PhysicalGeometry.hpp"
-#include "RefinementGeometry.hpp"
-#include "Mappings/MappingReferenceToPhysical.hpp"
-
+#include <vector>
              
 namespace Geometry
 {
+	class PointReference;
+	class PointPhysical;
+	class MappingReferenceToPhysical;
+	class PhysicalGeometry;
+	class ReferenceGeometry;
+	class RefinementGeometry;
+	class Jacobian;
+
     class ElementGeometry
     {
     public:
-        typedef Point                              PointT;
+        //typedef Point                              PointT;
         typedef PointPhysical                     PointPhysicalT;
         typedef PointReference                     PointReferenceT;
         typedef PhysicalGeometry                   PhysicalGeometryT;
         typedef ReferenceGeometry                  ReferenceGeometryT;
         typedef RefinementGeometry                 RefinementGeometryT;
         typedef MappingReferenceToPhysical    MappingReferenceToPhysicalT;
-        typedef LinearAlgebra::Matrix                   MatrixT;
+        //typedef LinearAlgebra::Matrix                   MatrixT;
         typedef Jacobian                      JacobianT;
         typedef unsigned int                            PointIndexT;
         typedef std::vector<PointPhysicalT>             VectorOfPhysicalPointsT;
@@ -96,17 +100,7 @@ namespace Geometry
         
     public:
             /// Output operator.
-        friend ostream& operator<<(ostream& os, const ElementGeometry& elementGeometry)
-        {
-            os << "PhysicalGeometry={";
-            
-            for (int i = 0; i < elementGeometry.physicalGeometry_->getNumberOfNodes(); i++)
-            {   
-                os << (elementGeometry.physicalGeometry_)->getNodeIndex(i) << " ";
-            }
-            os << '}' << std::endl;
-            return os;
-        }
+		friend std::ostream& operator <<(std::ostream& os, const ElementGeometry& elementGeometry);
     protected:
 
         ///\brief default constructor - for use with wrapper classes (that can delegate functionality of ElementGeometry in another way)
@@ -138,5 +132,6 @@ namespace Geometry
         /// The corresponding refinementGeometry object
         RefinementGeometryT*                         refinementGeometry_;
     };
+
 }
 #endif

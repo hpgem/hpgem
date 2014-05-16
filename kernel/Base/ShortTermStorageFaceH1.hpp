@@ -41,14 +41,14 @@ namespace Base{
 		virtual double basisFunction(unsigned int i, const Geometry::PointReference& p);
 		virtual double basisFunction(unsigned int i, const Geometry::PointReference& p) const;
 
-		virtual void   basisFunction(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret);
-		virtual void   basisFunction(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const;
+		virtual void   basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret);
+		virtual void   basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
-		virtual void   basisFunctionNormal(unsigned int i, const NumericalVector& normal, const Geometry::PointReference& p, NumericalVector& ret);
-		virtual void   basisFunctionNormal(unsigned int i, const NumericalVector& normal, const Geometry::PointReference& p, NumericalVector& ret) const;
+		virtual void   basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret);
+		virtual void   basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
-		virtual void   basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret);
-		virtual void   basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, NumericalVector& ret) const;
+		virtual void   basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret);
+		virtual void   basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
 	};
 }

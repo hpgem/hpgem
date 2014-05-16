@@ -23,8 +23,10 @@
 #define ____RectangularMeshDescriptor__
 
 #include <iostream>
-#include <Geometry/PointPhysical.hpp>
 #include <vector>
+
+///\bug resolves field has incomplete type
+#include "Geometry/PointPhysical.hpp"
 
 namespace Base
 {

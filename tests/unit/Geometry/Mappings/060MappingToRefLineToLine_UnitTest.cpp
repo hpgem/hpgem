@@ -25,9 +25,12 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/Mappings/MappingToRefLineToLine.hpp"
-#include "cassert"
+#include <cassert>
 
 #include "Geometry/ReferenceLine.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 int main() {
 
 	Geometry::PointReference refPoint(1),point(1),compare(1);

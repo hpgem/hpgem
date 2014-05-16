@@ -29,9 +29,11 @@
 #include "Utilities/BasisFunctions1DH1ConformingLine.hpp"
 #include "Geometry/ReferenceLine.hpp"
 #include "Base/BasisFunctionSet.hpp"
+#include "Geometry/PointReference.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 
 void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
-	cout<<test.getName();
+	std::cout<<test.getName();
 	assert(("dimension",test.dimension()==1));
 	assert(("order",test.order()>=expectedOrder));
 	assert(("forReferenceGeometry",typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferenceLine)));

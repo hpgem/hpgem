@@ -22,9 +22,11 @@
 #ifndef PHYSICALTETRAHEDRON_HH
 #define PHYSICALTETRAHEDRON_HH
 #include "PhysicalGeometry.hpp"
-#include "ReferenceTetrahedron.hpp"
+
 namespace Geometry
 {
+	class ReferenceTetrahedron;
+
     class PhysicalTetrahedron: public PhysicalGeometry
     {
         public:
@@ -49,7 +51,8 @@ namespace Geometry
 
             void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
         
-            unsigned int getNrOfFaces() const {return refGeometry_->getNrOfCodim1Entities();}
+            unsigned int getNrOfFaces() const;
     };
+
 }
 #endif

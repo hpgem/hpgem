@@ -22,14 +22,10 @@
 #ifndef ____ReferenceLine__
 #define ____ReferenceLine__
 
-#include <iostream>
-using std::ostream;
-
-#include "ReferencePoint.hpp"
 #include "ReferenceGeometry.hpp"
-#include "GlobalNamespaceGeometry.hpp"
-#include "Mappings/MappingReferenceToReference.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+
+#include <iostream>
+#include <list>
 
 namespace Geometry
 {
@@ -85,7 +81,7 @@ namespace Geometry
         int             getLocalNodeIndex(int face, int node) const {return localNodeIndexes_[face][node];}///\bug this name makes me expect a map from a global node index to a local one
 
         //! Output routine.
-        friend ostream& operator<<(ostream& os, const ReferenceLine& point);
+        friend std::ostream& operator<<(std::ostream& os, const ReferenceLine& point);
 
         // ================================== Codimension 0 ========================================
 

@@ -22,6 +22,8 @@
 #include "ReferenceLine.hpp"
 #include "Mappings/MappingToRefPointToLine.hpp"
 #include "Mappings/MappingToRefLineToLine.hpp"
+#include "Geometry/ReferencePoint.hpp"
+#include "Geometry/PointReference.hpp"
 
 namespace Geometry
 {
@@ -37,7 +39,7 @@ namespace Geometry
     };
 
     ReferenceLine::ReferenceLine():
-        ReferenceGeometry(OneD+1,1, LINE),/// Line has two points 1+1
+        ReferenceGeometry(2,1, LINE),/// Line has two points 1+1
         referenceGeometryCodim1Ptr_(&ReferencePoint::Instance())
     {
         PointReferenceT p1(1), p2(1);

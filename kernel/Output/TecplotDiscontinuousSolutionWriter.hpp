@@ -23,26 +23,18 @@
 
 #include <sstream>
 #include <ostream>
-using std::ostream;
 #include <vector>
-using std::vector;
 #include <utility>
-using std::pair;
 #include <string>
-using std::string;
-// Package includes:
-#include "Geometry/PointPhysical.hpp"
-//using Geometry::PhysSpacePoint;
-#include "Geometry/PointReference.hpp"
-//using Geometry::RefSpacePoint;
-#include "Base/MeshManipulator.hpp"
-//using Geometry::Mesh;
 
-#include "TecplotPhysicalGeometryIterator.hpp"
-#include "TecplotSingleElementWriter.hpp"
+namespace Base {
+	class MeshManipulator;
+}
 
 namespace Output
 {
+	class TecplotSingleElementWriter;
+
     class TecplotDiscontinuousSolutionWriter
     {
 
@@ -55,7 +47,7 @@ namespace Output
     public:
 
         TecplotDiscontinuousSolutionWriter(
-                ostream& output,
+        		std::ostream& output,
                 const std::string& fileTitle,
                 const std::string& dimensionsToWrite,
                 const std::string& variableString);
@@ -87,7 +79,7 @@ namespace Output
 
         StringT makeTecplotVariableString(const StringT& s) const;
 
-        ostream& output_;
+        std::ostream& output_;
 
         unsigned int previousNrOfElements_;
 
