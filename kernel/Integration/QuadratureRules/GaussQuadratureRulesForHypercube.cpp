@@ -34,6 +34,7 @@
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForHypercube.hpp"
 #include "Geometry/ReferenceHypercube.hpp"
+#include "Geometry/PointReference.hpp"
 using Geometry::ReferenceHypercube;
 
 //---------------------------------------------------------------------------
@@ -98,7 +99,6 @@ namespace QuadratureRules
         gp_[0][2] = 0.0;
         gp_[0][3] = 0.0;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Cn4_1_1::~Cn4_1_1()
@@ -255,7 +255,6 @@ namespace QuadratureRules
         gp_[15][2] = +sqrt(3.0) / 3.0;
         gp_[15][3] = +sqrt(3.0) / 3.0;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Cn4_3_4::~Cn4_3_4()

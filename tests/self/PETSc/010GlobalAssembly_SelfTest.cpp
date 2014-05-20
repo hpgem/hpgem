@@ -28,6 +28,8 @@
 #include "Utilities/GlobalVector.hpp"
 #include "Base/Norm2.hpp"
 #include "Base/ShortTermStorageElementH1.hpp"
+#include "Base/FaceCacheData.hpp"
+#include "Base/ElementCacheData.hpp"
 
 //If this test ever breaks it is not a bad thing per se. However, once this breaks a thorough convergence analysis needs to be done.
 //If the results still show the theoretically optimal order of convergence, and you are convinced that your changes improved the code,
@@ -198,7 +200,7 @@ int main(){
 	PetscInitializeNoArguments();
 	Laplace test0(1,2,1,Base::RECTANGULAR);
 	test0.initialise();
-	cout<<test0.solve()<<endl;
+	std::cout<<test0.solve()<<std::endl;
 	assert(("comparison to old results",(test0.solve()-0.35188045)<1e-8));
 	Laplace test1(2,3,1,Base::RECTANGULAR);
 	test1.initialise();

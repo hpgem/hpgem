@@ -57,20 +57,74 @@ namespace Geometry
         }
     }
 
-    typename Point::CoordTypeT
-    Point::getCoordinate(IndexT n)const
-    {
-        if (n<this->size())
-        {
-            return coordinates_[n];
-        }
-        else
-        {
-            std::cout<<"ERROR HANDLER!!!!"<<"Sizes do not coincide."<<endl;
-                //throw exception;
-            return 0.0;
-        }
-    }
+	bool Point::operator ==(const Point& right) {
+		return coordinates_ == right.coordinates_;
+	}
+
+	bool Point::operator ==(const Point& right) const {
+		return coordinates_ == right.coordinates_;
+	}
+
+	bool Point::operator <(const Point& right) const {
+		return coordinates_ < right.coordinates_;
+	}
+
+	Point& Point::operator +=(const Point& right) {
+		coordinates_ += right.coordinates_;
+		return *this;
+	}
+
+	Point& Point::operator -=(const Point& right) {
+		coordinates_ -= right.coordinates_;
+		return *this;
+	}
+
+	Point& Point::operator *=(double right) {
+		coordinates_.operator *=(right);
+		return *this;
+	}
+
+	Point Point::operator *(double right) const {
+		return PointT(coordinates_ * right);
+	}
+
+	Point Point::operator *(double right) {
+		return PointT(coordinates_ * right);
+	}
+
+	Point Point::operator +(const Point& right) const {
+		return PointT(coordinates_ + right.coordinates_);
+	}
+
+	Point Point::operator +(const Point& right) {
+		return PointT(coordinates_ + right.coordinates_);
+	}
+
+	Point Point::operator -(const Point& right) const {
+		return PointT(coordinates_ - right.coordinates_);
+	}
+
+	Point Point::operator -(const Point& right) {
+		return PointT(coordinates_ - right.coordinates_);
+	}
+
+	unsigned int Point::size() {
+		return coordinates_.size();
+	}
+
+	unsigned int Point::size() const {
+		return coordinates_.size();
+	}
+
+	typename Point::CoordTypeT Point::getCoordinate(IndexT n) const {
+		if (n < this->size()) {
+			return coordinates_[n];
+		} else {
+			std::cout << "ERROR HANDLER!!!!" << "Sizes do not coincide." << endl;
+			//throw exception;
+			return 0.0;
+		}
+	}
 
     typename Point::VectorOfCoordsT
     Point::getCoordinates() const
@@ -126,4 +180,24 @@ namespace Geometry
     {///\bug no size checking
         coordinates_ = rhs.coordinates_;return *this;
     }
+
+
+	std::ostream& operator <<(std::ostream& os, const Point& point) {
+		// cout << "Size in ostream="<< point.coordinates_.size()<<endl;
+		os << "point={";
+		for (unsigned int i = 0; i < point.coordinates_.size(); i++) {
+			if (i < point.coordinates_.size() - 1)
+				os << point.coordinates_[i] << ',';
+			else
+				os << point.coordinates_[i];
+		}
+		os << "} ";
+		return os;
+	}
+
+
+
+	Point operator *(const double& left, const Point& right) {
+		return Point(right.coordinates_ * left);
+	}
 };

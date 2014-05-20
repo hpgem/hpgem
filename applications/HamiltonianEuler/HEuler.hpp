@@ -16,11 +16,16 @@ using std::string;
 #include "Base/HpgemUI.hpp"
 #include "Base/Norm2.hpp"
 #include "Base/PhysGradientOfBasisFunction.hpp"
+#include "Base/UserData.hpp"
+#include "Integration/ElementIntegral.hpp"
+#include "Integration/FaceIntegral.hpp"
 
 #include "InitialConditions.hpp"
 #include "TecplotOutput.hpp"
 #include "Integration/ElementIntegrandBase.hpp"
 #include "Integration/FaceIntegrandBase.hpp"
+#include "Base/FaceCacheData.hpp"
+#include "Base/ElementCacheData.hpp"
 using Base::RectangularMeshDescriptor;
 using Base::HpgemUI;
 using Base::GlobalData;
@@ -186,7 +191,7 @@ public:
     
     void elementIntegrand(const ElementT* element, const PointReferenceT& p, ElementIntegralData& returnObject);
     
-    void faceIntegrand(const FaceT* face,          const NumericalVector& normal,
+    void faceIntegrand(const FaceT* face,          const LinearAlgebra::NumericalVector& normal,
                        const PointReferenceOnTheFaceT& p,  FluxData& ret);
     
     void createCompressibleSystem();

@@ -19,12 +19,14 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Element.hpp"
-
 #ifndef EDGE_HPP_
 #define EDGE_HPP_
 
+#include <vector>
+
 namespace Base {
+
+	class Element;
 
 /**
  * generic class that contains entities of codimension 2 or greater that are not vertexes.
@@ -42,9 +44,9 @@ public:
 
 	int getID()const{return ID_;}
 
-	int getNrOfElements(){return elements_.size();}
+		int getNrOfElements();
 
-	Element* getElement(int i){return elements_[i];}
+		Element* getElement(int i);
 	unsigned int getEdgeNr(int i){return localEdgeNrs_[i];}
 	unsigned int getOrientation(int i){return orientation_[i];}
 

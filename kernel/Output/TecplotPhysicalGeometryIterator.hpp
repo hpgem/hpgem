@@ -25,8 +25,13 @@
 #include <vector>
 #include "PhysicalGeometryAcceptor.hpp"
 
+namespace Geometry {
+	class PhysicalGeometry;
+}
+
 namespace Output
 {
+
     /// TODO: Implement other geometries. For that we need the physical geometries.
     class TecplotPhysicalGeometryIterator: public PhysicalGeometryAcceptor
     {
@@ -40,63 +45,7 @@ namespace Output
             return theInstance;
         }
 
-        void acceptG(const Geometry::PhysicalGeometry* geo)
-        {
-                //std::cout<<(*geo);
-            const Geometry::PhysicalLine* line= dynamic_cast<const Geometry::PhysicalLine*>(geo);
-            if (line)
-            {
-                acceptLineGeometry(line);
-            }
-            else
-            {
-                const Geometry::PhysicalTriangle* triangle= dynamic_cast<const Geometry::PhysicalTriangle*>(geo);
-                if (triangle)
-                {
-                    acceptTriangleGeometry(triangle);
-                }
-                else
-                {
-                    const Geometry::PhysicalQuadrilateral* quad= dynamic_cast<const Geometry::PhysicalQuadrilateral*>(geo);
-                    if (quad)
-                    {
-                        acceptQuadrilateralGeometry(quad);
-                    }
-                    else
-                    {
-                        const Geometry::PhysicalTetrahedron* tetr= dynamic_cast<const Geometry::PhysicalTetrahedron*>(geo);
-                        if (tetr)
-                        {
-                            acceptTetrahedronGeometry(tetr);
-                        }
-                        else
-                        {
-                            const Geometry::PhysicalPyramid* pyr= dynamic_cast<const Geometry::PhysicalPyramid*>(geo);
-                            if (pyr)
-                            {
-                                acceptPyramidGeometry(pyr);
-                            }
-                            else
-                            {
-                                const Geometry::PhysicalTriangularPrism* trPrism= dynamic_cast<const Geometry::PhysicalTriangularPrism*>(geo);
-                                if (trPrism)
-                                {
-                                    acceptTriangularPrismGeometry(trPrism);
-                                }
-                                else
-                                {
-                                    const Geometry::PhysicalHexahedron* hex= dynamic_cast<const Geometry::PhysicalHexahedron*>(geo);
-                                    if (hex)
-                                    {
-                                        acceptHexahedronGeometry(hex);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+		void acceptG(const Geometry::PhysicalGeometry* geo);
 
         /// \brief Choose node sequence for the hypercube.
         //virtual void acceptHyperCubeGeometry(const Geometry::PhysicalHypercube&);
@@ -149,5 +98,6 @@ namespace Output
         VectorOfNodeIndexes* currentSequencePtr;
         InternalIndexType currentNode;
     };
-}
+
+		}
 #endif

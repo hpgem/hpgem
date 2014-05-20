@@ -24,10 +24,15 @@
 
 #include <iostream>
 #include "TreeBase.hpp"
-#include "TreeIterator.hpp"
 
 namespace Base
 {
+	template<class V>
+	class TreeEntry;
+
+	template<class V,class T>
+	class TreeIterator;
+
     template <class V>
     class TreeEntry : public Base::TreeBase<Base::TreeIterator<V,TreeEntry<V> > >
     {

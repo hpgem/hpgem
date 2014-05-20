@@ -25,9 +25,12 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/Mappings/MappingToRefSquareToSquare.hpp"
-#include "cassert"
+#include <cassert>
 
 #include "Geometry/ReferenceSquare.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 int main() {
 
 	Geometry::PointReference refPoint(2),point(2),compare(2);

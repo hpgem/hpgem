@@ -22,6 +22,7 @@
 #include "BasisFunctions1DH1ConformingLine.hpp"
 #include "helperFunctions.hpp"
 #include "Base/BasisFunctionSet.hpp"
+#include "Geometry/PointReference.hpp"
 
 namespace Utilities {
 

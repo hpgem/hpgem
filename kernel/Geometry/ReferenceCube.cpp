@@ -26,6 +26,7 @@
 #include "Mappings/MappingToRefSquareToCube.hpp"
 #include "Mappings/MappingToRefCubeToCube.hpp"
 #include "LinearAlgebra/Matrix.hpp"
+#include "Geometry/PointReference.hpp"
 
 
 namespace Geometry
@@ -58,7 +59,7 @@ namespace Geometry
     };
 
     ReferenceCube::ReferenceCube():
-        ReferenceGeometry(ThreeD+5,3, CUBE),
+        ReferenceGeometry(8,3, CUBE),
         referenceGeometryCodim1Ptr_(&ReferenceSquare::Instance()),
         referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
@@ -270,30 +271,6 @@ namespace Geometry
             throw "ERROR: Cube200";
         }
 
-    }
-    
-    // ================================== Quadrature rules =====================================
-
-    /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceCube::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
-    {
-        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
-        while (it != lstGaussQuadratureRules_.end())
-        {
-          if ((*it)->order() < qr->order()) ++it;
-          else break;
-        }
-        lstGaussQuadratureRules_.insert(it,qr);
-    }
-
-    /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule* const ReferenceCube::getGaussQuadratureRule(int order) const
-    {
-         for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
-              it != lstGaussQuadratureRules_.end(); ++it)
-          if ((*it)->order() >= order) return *it;
-
-        return NULL;
     }
 
     // =============================== Refinement mappings =====================================

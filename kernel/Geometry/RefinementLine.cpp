@@ -25,6 +25,10 @@
 #include "Geometry/RefinementLine.hpp"
 #include "LinearAlgebra/Matrix.hpp"
 
+#include "PointPhysical.hpp"
+#include "ReferenceLine.hpp"
+#include "PhysicalGeometry.hpp"
+#include "PointReference.hpp"
 
 namespace Geometry
 {

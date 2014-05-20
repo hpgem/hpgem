@@ -50,10 +50,11 @@ namespace Geometry
 
             virtual void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
             
-            virtual unsigned int getNrOfFaces() const {return getRefGeometry()->getNrOfCodim1Entities();}
+            virtual unsigned int getNrOfFaces() const;
 
         private:
                
     };
+
 }
 #endif

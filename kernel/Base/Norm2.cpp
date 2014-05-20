@@ -21,6 +21,8 @@
 
 #include "Norm2.hpp"
 
+#include "Geometry/PointPhysical.hpp"
+
 namespace Utilities
 {
     /*template <>

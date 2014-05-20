@@ -22,6 +22,9 @@
 
 #include "ShortTermStorageElementBase.hpp"
 
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include "ElementCacheData.hpp"
+
 void Base::ShortTermStorageElementBase::referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical) const {
 			element_->referenceToPhysical(pointReference,pointPhysical);
 }

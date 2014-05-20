@@ -26,6 +26,10 @@
 #include "Utilities/GlobalMatrix.hpp"
 #include "Utilities/GlobalVector.hpp"
 #include "Base/Norm2.hpp"
+#include "Output/TecplotSingleElementWriter.hpp"
+#include "Base/ElementCacheData.hpp"
+#include "Base/FaceCacheData.hpp"
+#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 
 //If this test ever breaks it is not a bad thing per se.
 //If the results are still readable by tecplot, and you are convinced that your changes improved the code,
@@ -161,7 +165,7 @@ public:
 		return 0;
 	}
 
-    void writeToTecplotFile(const ElementT* element,const  PointReferenceT& p, ostream& out){
+    void writeToTecplotFile(const ElementT* element,const  PointReferenceT& p, std::ostream& out){
     	LinearAlgebra::NumericalVector value(1);
     	element->getSolution(0,p,value);
     	out<<value[0];

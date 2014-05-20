@@ -24,8 +24,10 @@
 #define MAPPINGSIMPLEXLINEAR_H_
 
 #include "MappingReferenceToPhysical.hpp"
-#include "../GlobalNamespaceGeometry.hpp"
-#include "../Jacobian.hpp"
+
+//maybe it is a better idea to specialize this template in a source file even though it can be coded up generally in a header
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
 
 namespace Geometry
 {
@@ -64,6 +66,6 @@ namespace Geometry
             //! since they are just difference vectors (see loop in reinit)
             std::vector<PointPhysicalT> a;
     };
-    #include "MappingToPhysSimplexLinear_Impl.hpp"
 };
+    #include "MappingToPhysSimplexLinear_Impl.hpp"
 #endif

@@ -22,10 +22,16 @@
 #define L2Norm_hpp
 //------------------------------------------------------------------------------
 // Package includes:
-#include "../LinearAlgebra/NumericalVector.hpp"
-#include "Geometry/PointPhysical.hpp"
+
 //------------------------------------------------------------------------------
 
+namespace LinearAlgebra{
+	class NumericalVector;
+}
+
+namespace Geometry{
+	class PointPhysical;
+}
 ///\todo merge with duplicate file Norm2.hpp
 namespace Base
 {

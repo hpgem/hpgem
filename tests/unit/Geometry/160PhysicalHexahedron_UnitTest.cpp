@@ -25,6 +25,9 @@
 
 #include "Geometry/PhysicalHexahedron.hpp"
 #include "cassert"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferenceCube.hpp"
 
 using Geometry::PhysicalHexahedron;
 
@@ -78,7 +81,7 @@ int main(){
 
 	PhysicalHexahedron test(pointIndexes,nodes,&Geometry::ReferenceCube::Instance());
 
-	cout<<test;
+	std::cout<<test;
 
 	pointIndexes = test.getNodeIndexes();
 
@@ -88,7 +91,7 @@ int main(){
 	assert(("getNodeIndex",test.getNodeIndex(0)==4&&test.getNodeIndex(1)==7&&test.getNodeIndex(2)==10&&test.getNodeIndex(3)==11&&
 						 test.getNodeIndex(4)==12&&test.getNodeIndex(5)==13&&test.getNodeIndex(6)==14&&test.getNodeIndex(7)==15));
 
-	cout<<test.getName();
+	std::cout<<test.getName();
 
 	point = *test.getNodePtr(test.getNodeIndex(0));
 	assert(("getNodePtr",fabs(point[0]-1.4)<1e-12));

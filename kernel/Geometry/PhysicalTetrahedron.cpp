@@ -21,6 +21,10 @@
 #include "PhysicalTetrahedron.hpp"
 #include <vector>
 
+#include "ReferenceTetrahedron.hpp"
+#include "PointPhysical.hpp"
+#include "PointReference.hpp"
+
 namespace Geometry
 {
     PhysicalTetrahedron::PhysicalTetrahedron(
@@ -46,4 +50,9 @@ namespace Geometry
         indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
         indexes[2] = refGeometry_->getLocalNodeIndex(face,2);
     }
+
+	unsigned int PhysicalTetrahedron::getNrOfFaces() const {
+		return refGeometry_->getNrOfCodim1Entities();
+	}
+
 }

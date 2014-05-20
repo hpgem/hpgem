@@ -20,6 +20,10 @@
  */
 #include "Base/BasisFunctionSet.hpp"
 
+#include "Base/BaseBasisFunction.hpp"
+#include "TestErrorDebug.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
+
 namespace Base {
 
     //class BasisFunctionSet;
@@ -155,13 +159,13 @@ namespace Base {
     }   
     
      void
-    BasisFunctionSet::eval(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
+    BasisFunctionSet::eval(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
         vecOfBasisFcn_[i]->eval(p,ret);
     }
 
      void
-    BasisFunctionSet::evalCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
+    BasisFunctionSet::evalCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
         vecOfBasisFcn_[i]->evalCurl(p,ret);
     }

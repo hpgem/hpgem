@@ -25,7 +25,13 @@
 
 #include "Base/Element.hpp"
 
+///\BUG resolves field has incomplete type
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+
 namespace Base{
+
+	class Element;
 
 	/**
 	 * An element that computes and stores all basis function values and derivatives.
@@ -76,18 +82,18 @@ namespace Base{
 
 		virtual double                          basisFunction(unsigned int i, const PointReferenceT& p)  {throw "No storage functionality was implemented! Are you working in a vector valued function space?";}
 
-		virtual void                            basisFunction(unsigned int i, const PointReferenceT& p, NumericalVector& ret) {throw "No storage functionality was implemented! Are you working in a scalar function space?";}
+		virtual void                            basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Are you working in a scalar function space?";}
 
 		virtual double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) {throw "No storage functionality was implemented! Why are you calling this anyway?";}
 
-		virtual void                            basisFunctionDeriv(unsigned int i,const PointReferenceT& p, NumericalVector& ret,const Element* =NULL) {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}
+		virtual void                            basisFunctionDeriv(unsigned int i,const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* =NULL) {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}
 
-		virtual void                            basisFunctionCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) {throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";}
+		virtual void                            basisFunctionCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";}
 
 		virtual double basisFunction(unsigned int i, const PointReferenceT& p) const {throw "No storage functionality was implemented! Are you working in a vector valued function space?";}
-		virtual void   basisFunction(unsigned int i, const PointReferenceT& p,NumericalVector& ret) const {throw "No storage functionality was implemented! Are you working in a scalar function space?";}
-		virtual void   basisFunctionDeriv(unsigned int i, const PointReferenceT& p, NumericalVector& ret,const Element* =NULL) const {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}
-		virtual void   basisFunctionCurl (unsigned int i, const PointReferenceT& p, NumericalVector& ret) const {throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";}
+		virtual void   basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const {throw "No storage functionality was implemented! Are you working in a scalar function space?";}
+		virtual void   basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* =NULL) const {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}
+		virtual void   basisFunctionCurl (unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const {throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";}
 
         virtual void                                        calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian);
 

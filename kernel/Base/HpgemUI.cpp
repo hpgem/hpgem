@@ -24,6 +24,12 @@
 #include "Base/Element.hpp"
 #include "Integration/ReturnTrait1.hpp"
 
+#include "RectangularMeshDescriptor.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
+#include "ElementCacheData.hpp"
+#include "ConfigurationData.hpp"
+
 namespace Base
 {
 
@@ -36,7 +42,7 @@ namespace Base
     
     HpgemUI::~HpgemUI()
     {
-        cout << "is this called yet?"<<endl;
+    	std::cout << "is this called yet?"<<std::endl;
             for(int i = 0; i < meshes_.size() ; ++i)
                 delete meshes_[i];
     }
@@ -69,7 +75,7 @@ namespace Base
         {
             std::cerr << "Other types are yet to be implemented! " << std::endl;
         }
-        cout<<"I just created a mesh!!!"<<endl;
+        std::cout<<"I just created a mesh!!!"<<std::endl;
             //mesh->outputMesh(std::cout);
         return numOfMeshes;
     }

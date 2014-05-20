@@ -33,6 +33,11 @@
 #include "Base/AssembleBasisFunctionSet.hpp"
 #include "cassert"
 
+#include "Base/BasisFunctionSet.hpp"
+#include "Geometry/PointReference.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
+#include "Base/BaseBasisFunction.hpp"
+
 int main() {
 
 	// 1D

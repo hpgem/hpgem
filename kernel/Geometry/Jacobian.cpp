@@ -55,7 +55,7 @@ namespace Geometry
 
         if (dimFrom!=dimTo)
         {
-            cout<<"Jacobian should be square to have a determinant!"<<endl;
+            std::cout<<"Jacobian should be square to have a determinant!"<<std::endl;
         }
         else
         {
@@ -91,7 +91,7 @@ namespace Geometry
                              // maybe even with LU (with pivoting, though...)
                     break;
                 default:
-                    cout<<"This dimension is not implemented"<<endl;
+                    std::cout<<"This dimension is not implemented"<<std::endl;
                     return -1;
             }
         }

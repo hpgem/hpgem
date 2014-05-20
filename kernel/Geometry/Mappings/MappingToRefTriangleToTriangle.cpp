@@ -24,7 +24,8 @@
 #define MappingToRefTriangleToTriangle_C_
 
 #include "MappingToRefTriangleToTriangle.hpp"
-#include "../Jacobian.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "Geometry/PointReference.hpp"
 
 namespace Geometry
 {

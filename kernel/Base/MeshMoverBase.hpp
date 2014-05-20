@@ -21,7 +21,9 @@
 #ifndef MESHMOVERBASE_HPP_
 #define MESHMOVERBASE_HPP_
 
-#include "../Geometry/PointPhysical.hpp"
+namespace Geometry{
+	class PointPhysical;
+}
 
 namespace Base {
 

@@ -24,12 +24,17 @@
 #define ElementData_hpp
 //----------------------------------------------------------------
 #include <vector>
-//#include "Base/Element.hpp"
-#include "Base/UserData.hpp"
-#include "LinearAlgebra/Matrix.hpp"
+
+namespace LinearAlgebra{
+	class Matrix;
+	class NumericalVector;
+}
+
+struct UserElementData;
 
 namespace Base
 {
+
 	class ElementData
 	{
         /*!

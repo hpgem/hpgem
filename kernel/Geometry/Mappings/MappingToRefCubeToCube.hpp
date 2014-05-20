@@ -24,7 +24,6 @@
 #define MAPPINGTOREFCUBETOCUBE_H_
 
 #include "MappingReferenceToReference.hpp"
-#include "../Jacobian.hpp"
 
 namespace Geometry
 {

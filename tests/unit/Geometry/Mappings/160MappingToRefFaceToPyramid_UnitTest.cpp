@@ -30,6 +30,9 @@
 #include "Geometry/ReferencePyramid.hpp"
 #include "Geometry/ReferenceTriangle.hpp"
 #include "Geometry/ReferenceSquare.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 int main() {
 
 	Geometry::PointReference refPoint(2),point(3),compare(3);

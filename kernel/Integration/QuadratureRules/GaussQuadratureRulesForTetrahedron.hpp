@@ -21,10 +21,8 @@
 #ifndef GaussQuadratureRulesForTetrahedron_hpp
 #define GaussQuadratureRulesForTetrahedron_hpp
 //---------------------------------------------------------------------------
-#include "Geometry/PointReference.hpp"
-#include "Geometry/ReferenceGeometry.hpp"
-#include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <vector>
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules

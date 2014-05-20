@@ -22,31 +22,32 @@
 #define FaceIntegral_hpp
 //------------------------------------------------------------------------------
 // Package configuration (namespace Integration):
-#include "GlobalNamespaceIntegration.hpp"
 //------------------------------------------------------------------------------
 // System includes and names imported from them:
 //------------------------------------------------------------------------------
 // Package includes:
-#include "Base/Face.hpp"
-#include "Base/L2Norm.hpp"
-#include "Base/TestErrorDebug.hpp"
-#include "Geometry/Jacobian.hpp"
-#include "Geometry/PointReference.hpp"
-//#include "Integration/ReturnTrait1.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-#include "FaceIntegrandBase.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
-#include "Base/ShortTermStorageFaceBase.hpp"
 
 //------------------------------------------------------------------------------
 
+namespace Base {
+	class Face;
+	class ShortTermStorageFaceBase;
+}
+
+namespace QuadratureRules {
+	class GaussQuadratureRule;
+}
+
 namespace Integration 
 {
+	template<class ReturnType1>
+	class FaceIntegrandBase;
+
     class FaceIntegral
     {
     public:
-        typedef typename Base::Face::CacheT                        CacheT;
-        typedef typename Base::Face::VecCacheT                     VecCacheT;
+        //typedef typename Base::Face::CacheT                        CacheT;
+        //typedef typename Base::Face::VecCacheT                     VecCacheT;
             
         typedef typename QuadratureRules::GaussQuadratureRule    QuadratureRulesT;
         typedef typename Base::Face                                FaceT;
@@ -77,7 +78,7 @@ namespace Integration
 
         //! \brief Do the face integration using given Gauss integration rule.
         template <class ReturnTrait1>
-        void integrate(FaceT* fa, FaceIntegrandBase<ReturnTrait1>* integrand, ReturnTrait1& result, const QuadratureRulesT* qdrRule = NULL);
+        void integrate(FaceT* fa, FaceIntegrandBase<ReturnTrait1>* integrand, ReturnTrait1& result, const QuadratureRulesT* qdrRule = nullptr);
         
         /*template <typename OBJ, typename IntegrandT>
         void    integrate(FaceT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = NULL);*/

@@ -24,12 +24,13 @@
 #define REFERENCETOPHYSICALM_H_
 
 #include "MappingInterface.hpp"
-#include "../PointReference.hpp"
-#include "../PointPhysical.hpp"
-#include "../PhysicalGeometry.hpp"
+#include <vector>
 
 namespace Geometry
 {
+	class PhysicalGeometry;
+	class PointPhysical;
+
 /*! ~OC~
     Second layer abstract base class (derived from Mapping) for mappings
     that go from a reference element to physical space (hence different point
@@ -42,7 +43,7 @@ namespace Geometry
     mappings can index into that one with the global node numbers of the
     elements.
 
-    The rein(*it)-function is meant to alert an object of a change of the layout
+    The reinit-function is meant to alert an object of a change of the layout
     of the Element in physical space. Since the reference geometry of the
     Element does not change, but rather only (some of) the vertex positions,
     the Mapping can be adjusted to the new layout.*/
@@ -51,14 +52,14 @@ namespace Geometry
     {
         public:
             /// \bug This is a work around for g++ bug 14258 which is fixed in modern compliers so at some point change back
-            typedef typename MappingInterface::PointToT           PointToT;
-            typedef typename MappingInterface::PointPhysicalT     PointPhysicalT;
+            //typedef typename MappingInterface::PointToT           PointToT;
+            //typedef typename MappingInterface::PointPhysicalT     PointPhysicalT;
             typedef typename MappingInterface::PointReferenceT    PointReferenceT;
             typedef typename MappingInterface::JacobianT          JacobianT;
 
             typedef PhysicalGeometry  PhysicalGeometryT;
 
-            typedef const std::vector<PointPhysicalT>*    VectorOfPointsT;
+            typedef const std::vector<PointPhysical>*    VectorOfPointsT;
         
 
         public:
@@ -69,12 +70,11 @@ namespace Geometry
 
             // Methods.
             //! ~OC~ Transform a point from reference space to physical space.
-            virtual void transform(const PointReferenceT&, PointPhysicalT&) const = 0;
+            virtual void transform(const PointReferenceT&, PointPhysical&) const = 0;
             //! ~OC~ Recompute mapping after physical nodes have moved.
             ///\BUG will horribly break everything unless you happen to pass the same  physicalGeometry that you used to construct this mapping
             virtual void reinit(const PhysicalGeometryT* const) = 0;
-            void getNodeCoordinates(const int index, PointPhysicalT& coords) const
-                {coords = (*nodes_)[index].getCoordinates();}
+		void getNodeCoordinates(const int index, PointPhysical& coords) const;
 
         private:///\TODO fix this properly (for now just made it working)
              const std::vector<PointPhysical >* nodes_; /// Pointer to the global node container.

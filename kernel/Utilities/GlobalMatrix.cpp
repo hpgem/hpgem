@@ -25,6 +25,15 @@
 #include <list>
 #include "Base/MeshManipulator.hpp"
 #include "Base/Edge.hpp"
+#include "Base/Face.hpp"
+#include "Base/Element.hpp"
+#include "Base/ElementCacheData.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
+#include "Base/FaceCacheData.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
+#include "Geometry/ReferenceGeometry.hpp"
+#include "Geometry/PointReference.hpp"
 
 namespace Utilities{
 
@@ -87,9 +96,9 @@ namespace Utilities{
 	}
 
 	GlobalPetscMatrix::operator Mat(){
-		if(meshLevel_!=theMesh_->getActiveLevel(0)){
-			std::cout<<"Warning: global matrix does not match currently active refinement level!";
-		}
+		//if(meshLevel_!=theMesh_->getActiveLevel(0)){
+		//	std::cout<<"Warning: global matrix does not match currently active refinement level!";
+		//}
 		//MatView(A_,PETSC_VIEWER_DRAW_WORLD);
 		return A_;
 	}
@@ -163,7 +172,7 @@ namespace Utilities{
 
 	void GlobalPetscMatrix::reAssemble(){
 		//if(meshLevel_!=theMesh_->getActiveLevel(0)){
-		meshLevel_=theMesh_->getActiveLevel(0);
+		//meshLevel_=theMesh_->getActiveLevel(0);
 		MatDestroy(&A_);
 
 		int maxNrOfDOF(0),totalNrOfDOF(0),DIM(theMesh_->dimension()),DOFForAVertex(0);

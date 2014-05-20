@@ -20,6 +20,12 @@
  */
 
 #include "ReferenceSquare.hpp"
+#include "ReferenceLine.hpp"
+#include "Mappings/MappingToRefLineToSquare.hpp"
+#include "Mappings/MappingToRefSquareToSquare.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferencePoint.hpp"
+#include "LinearAlgebra/Matrix.hpp"
 
 namespace Geometry
 {
@@ -41,7 +47,7 @@ namespace Geometry
     };
 
     ReferenceSquare::ReferenceSquare():
-        ReferenceGeometry(TwoD+2,2, SQUARE),
+        ReferenceGeometry(4,2, SQUARE),
         referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
         // See MappingLineToSquare.hpp for further info.                 Ref.Line     Ref.Sqr.Side
@@ -206,31 +212,9 @@ namespace Geometry
         }
     }
 
-
-    // ========================= Quadrature rules for this geometry  ===========================
-    
-    /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceSquare::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
-    {
-        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
-        while (it != lstGaussQuadratureRules_.end())
-        {
-          if ((*it)->order() < qr->order()) ++it;
-          else break;
-        }
-        lstGaussQuadratureRules_.insert(it,qr);
-    }
-
-    /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule* const ReferenceSquare::getGaussQuadratureRule(int order) const
-    {
-        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
-              it != lstGaussQuadratureRules_.end(); ++it)
-        if ((*it)->order() >= order) return *it;
-
-        return NULL;
-    }
-
+	const ReferenceGeometry* ReferenceSquare::getCodim2ReferenceGeometry(const unsigned int) const {
+		return &Geometry::ReferencePoint::Instance();
+	}
 
     // =============================== Refinement mappings =====================================
     

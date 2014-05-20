@@ -19,8 +19,18 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Base/Face.hpp"
 #include "FaceGeometry.hpp"
+
+#include "Geometry/PhysicalGeometry.hpp"
+#include "Geometry/ElementGeometry.hpp"
+#include "Geometry/GlobalNamespaceGeometry.hpp"
+#include "Geometry/ReferenceGeometry.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/Mappings/MappingReferenceToReference.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "Geometry/Mappings/OutwardNormalVectorSign.hpp"
+#include "Geometry/Mappings/ConcatenatedMapping.hpp"
 
 namespace Geometry {
 
@@ -83,7 +93,7 @@ namespace Geometry {
                 // \bug: WTF is trafo?
                 // (S.N) I bet, trafo is something connected to peridocity. This line will cause a creation of a boundary which has equal sets of PhysicalPoints (permutation included) from left and right. Thus the codimmappings are set accordingly.
                 //
-            cout<<"WARNING (in ctor of an internal face): rightGeometry is NULL or facetype is not internal"<<endl;
+            std::cout<<"WARNING (in ctor of an internal face): rightGeometry is NULL or facetype is not internal"<<std::endl;
             globalNodeNrsR = globalNodeNrsL;
         }
             //  ~OC~
@@ -266,7 +276,7 @@ namespace Geometry {
             }
                 //  periodicDim should be our dimension, otherwise error!
             if (periodicDim==Geometry::MaxInteger)
-                cout << "Shit happened. Trained monkeys are on the way to fix the problem, probably." << std::endl;
+                std::cout << "Shit happened. Trained monkeys are on the way to fix the problem, probably." << std::endl;
 
             PhysicalPointOnTheFaceT ppL(DIM-1);
             PhysicalPointOnTheFaceT ppR(DIM-1);
@@ -495,7 +505,7 @@ namespace Geometry {
      returned normal vector.
      </UL> */
     void
-    FaceGeometry::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, NumericalVector& v) const
+    FaceGeometry::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v) const
     {
     	unsigned int DIM=v.size();
     	if(DIM>1){

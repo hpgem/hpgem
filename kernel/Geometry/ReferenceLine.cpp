@@ -22,6 +22,8 @@
 #include "ReferenceLine.hpp"
 #include "Mappings/MappingToRefPointToLine.hpp"
 #include "Mappings/MappingToRefLineToLine.hpp"
+#include "Geometry/ReferencePoint.hpp"
+#include "Geometry/PointReference.hpp"
 
 namespace Geometry
 {
@@ -37,7 +39,7 @@ namespace Geometry
     };
 
     ReferenceLine::ReferenceLine():
-        ReferenceGeometry(OneD+1,1, LINE),/// Line has two points 1+1
+        ReferenceGeometry(2,1, LINE),/// Line has two points 1+1
         referenceGeometryCodim1Ptr_(&ReferencePoint::Instance())
     {
         PointReferenceT p1(1), p2(1);
@@ -152,31 +154,6 @@ namespace Geometry
         {
             throw "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square!";
         }
-    }
-
-
-    // ================================== Quadrature rules =====================================
-
-    /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceLine::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
-    {
-        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
-        while (it != lstGaussQuadratureRules_.end())
-        {
-          if ((*it)->order() < qr->order()) ++it;
-          else break;
-        }
-        lstGaussQuadratureRules_.insert(it,qr);
-    }
-
-    /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule* const ReferenceLine::getGaussQuadratureRule(int order) const
-    {
-        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
-              it != lstGaussQuadratureRules_.end(); ++it)
-          if ((*it)->order() >= order) return *it;
-
-        return NULL;
     }
 
 };

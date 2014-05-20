@@ -41,11 +41,11 @@ namespace Base{
 		virtual double basisFunction(unsigned int i, const PointReferenceT& p);
 		virtual double basisFunction(unsigned int i, const PointReferenceT& p) const;
 
-		virtual void   basisFunction(unsigned int i, const PointReferenceT& p, NumericalVector& ret);
-		virtual void   basisFunction(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+		virtual void   basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret);
+		virtual void   basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 
-		virtual void   basisFunctionDeriv(unsigned int i, const PointReferenceT& p, NumericalVector& ret,const Element* =NULL);
-		virtual void   basisFunctionDeriv(unsigned int i, const PointReferenceT& p, NumericalVector& ret,const Element* =NULL) const;
+		virtual void   basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* =NULL);
+		virtual void   basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* =NULL) const;
 
 	};
 }

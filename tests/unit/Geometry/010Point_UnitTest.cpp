@@ -336,7 +336,7 @@ int main(){
 		assert(("4D left multiplication",fabs((2.*pv4)[i]-2.8-2*i)<1e-12));
 	}
 
-	cout<<p0<<p1<<p2<<p3<<p4<<pr0<<pr1<<pr2<<pr3<<pr4<<endl;
+	std::cout<<p0<<p1<<p2<<p3<<p4<<pr0<<pr1<<pr2<<pr3<<pr4<<std::endl;
 
 	return 0;
 }

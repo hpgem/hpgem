@@ -22,6 +22,9 @@
 
 #include "Base/ShortTermStorageFaceBase.hpp"
 
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include "FaceCacheData.hpp"
+
 void Base::ShortTermStorageFaceBase::computeData() {
 	if(useCache_){
 		std::vector<FaceCacheData>& cache=const_cast<Face*>(face_)->getVecCacheData();
@@ -42,15 +45,15 @@ void Base::ShortTermStorageFaceBase::computeData() {
 }
 
 
-void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, NumericalVector& v) const {
+void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v) const {
 	v=normal_;
 	if(!(currentPoint_==pRefFace)){
-		cout<<"WARNING: you are using slow data access";
+		std::cout<<"WARNING: you are using slow data access";
 		face_->getNormalVector(pRefFace,v);
 	}
 }
 
-void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, NumericalVector& v) {
+void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v) {
 	if(!(currentPoint_==pRefFace)){
 		currentPoint_=pRefFace;
 		computeData();

@@ -22,17 +22,13 @@
 #ifndef ____FaceGeometry__
 #define ____FaceGeometry__
 
-#include "../LinearAlgebra/Matrix.hpp"
-#include "ElementGeometry.hpp"
-#include "Mappings/MappingReferenceToReference.hpp"
-#include "Mappings/ConcatenatedMapping.hpp"
-#include "Mappings/OutwardNormalVectorSign.hpp"
-#include "Geometry/GlobalNamespaceGeometry.hpp"
-#include "Geometry/PhysicalGeometry.hpp"
-
 #include <set>
 #include <vector>
 #include <memory>
+
+///\BUG resolves field has incomplete type
+#include "LinearAlgebra/Matrix.hpp"
+
 //--------------------------------------------------------------------------------------------------
 //
 // SHOULD THIS GO INTO THE DOXYGEN DOCUMENTATION?
@@ -81,9 +77,20 @@ namespace Base{
 	class Face;
 }
 
+namespace LinearAlgebra {
+	class Matrix;
+	class NumericalVector;
+}
+
 namespace Geometry
 {
     
+	class PointPhysical;
+	class PointReference;
+	class MappingReferenceToReference;
+	class ElementGeometry;
+	class ReferenceGeometry;
+
     enum  FaceType { OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL};
 
     
@@ -118,8 +125,8 @@ namespace Geometry
     public:
         typedef PointPhysical                                              PointPhysicalT;
         typedef LinearAlgebra::Matrix                                           MatrixT;
-        typedef std::list<PointPhysicalT* >                                     ListOfPointPtrsT;
-        typedef Geometry::MappingReferenceToPhysical                       MappingReferenceToPhysicalT;
+        //typedef std::list<PointPhysicalT* >                                     ListOfPointPtrsT;
+        //typedef Geometry::MappingReferenceToPhysical                       MappingReferenceToPhysicalT;
         typedef std::set<unsigned int>                                          SetOfGlobalNodes;
         typedef std::vector<unsigned int>                                       VectorOfLocalNodes;
         typedef PointPhysical                                              PhysicalPointT;
@@ -132,8 +139,10 @@ namespace Geometry
         typedef ReferenceGeometry                                        ReferenceFaceGeometryT;
 
         typedef ElementGeometry                                            ElementGeometryT;
-        typedef PhysicalGeometry                                           PhysicalGeometryT;
-        typedef Base::Face                                                      FaceT;
+        //typedef PhysicalGeometry                                           PhysicalGeometryT;
+
+        ///\BUG some of the previous developpers think this should be Base::Face...
+        typedef FaceGeometry                                                      FaceT;
 
 
     public:
@@ -184,7 +193,7 @@ namespace Geometry
          *  right side. */
         virtual void    mapRefFaceToRefFace(const ReferencePointOnTheFaceT& pIn, ReferencePointOnTheFaceT& pOut) const;
             /// Get a normal at a given RefPoint
-        virtual void    getNormalVector(const ReferencePointOnTheFaceT& pRefFace, NumericalVector& v) const;
+        virtual void    getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v) const;
 
             //! Return a Mapping (not pointer or reference! Ok, wrapped by auto_ptr) /bug why?
         virtual         RefFaceToRefElementMapping refFaceToRefElemMapL() const;

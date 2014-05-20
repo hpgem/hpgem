@@ -25,6 +25,9 @@
 
 #include "Geometry/PhysicalTriangularPrism.hpp"
 #include "cassert"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferenceTriangularPrism.hpp"
 
 using Geometry::PhysicalTriangularPrism;
 
@@ -68,7 +71,7 @@ int main(){
 
 	PhysicalTriangularPrism test(pointIndexes,nodes,&Geometry::ReferenceTriangularPrism::Instance());
 
-	cout<<test;
+	std::cout<<test;
 
 	pointIndexes = test.getNodeIndexes();
 
@@ -78,7 +81,7 @@ int main(){
 	assert(("getNodeIndex",test.getNodeIndex(0)==4&&test.getNodeIndex(1)==7&&test.getNodeIndex(2)==10&&
 						 test.getNodeIndex(3)==11&&test.getNodeIndex(4)==12&&test.getNodeIndex(5)==13));
 
-	cout<<test.getName();
+	std::cout<<test.getName();
 
 	point = *test.getNodePtr(test.getNodeIndex(0));
 	assert(("getNodePtr",fabs(point[0]-1.4)<1e-12));

@@ -35,6 +35,9 @@
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
 #include "Utilities/BasisFunctions3DH1ConformingCube.hpp"
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.hpp"
+#include "Base/ConfigurationData.hpp"
+#include "Base/L2Norm.hpp"
+#include "Base/ElementCacheData.hpp"
 
 void testMesh(Base::MeshManipulator* test) {
 	class:public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>{
@@ -78,7 +81,7 @@ void testMesh(Base::MeshManipulator* test) {
 			ret[0]=Base::L2Norm(temp1)*Base::L2Norm(temp1);
 		}
 	}integrating;
-	cout.precision(14);
+	std::cout.precision(14);
 	Integration::ElementIntegral elIntegral(false);
 	elIntegral.setStorageWrapper(new Base::ShortTermStorageElementH1(test->dimension()));
 	double total=0;
@@ -94,7 +97,7 @@ void testMesh(Base::MeshManipulator* test) {
 		total+=result[0];
 	}
 
-	cout<<total<<" "<<endl;
+	std::cout<<total<<" "<<std::endl;
 	assert(("derivatives",fabs(total-4./3.+1./3.*test->dimension())<1e-12));
 }
 

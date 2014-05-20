@@ -105,7 +105,7 @@ int main(){
 	assert(("getLocalNodeIndex 4",test.getLocalNodeIndex(4,1)==3));
 	assert(("getLocalNodeIndex 4",test.getLocalNodeIndex(4,2)==0));
 
-	cout<<test;
+	std::cout<<test;
 
 	//testing mappings and quadrature rules
 

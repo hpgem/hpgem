@@ -27,6 +27,8 @@
 #include "Base/RectangularMeshDescriptor.hpp"
 #include "Integration/ElementIntegral.hpp"
 #include "Base/ShortTermStorageElementH1.hpp"
+#include "Base/ConfigurationData.hpp"
+#include "Base/ElementCacheData.hpp"
 
 #include "unordered_set"
 #include "cassert"

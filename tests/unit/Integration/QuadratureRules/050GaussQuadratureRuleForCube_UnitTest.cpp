@@ -29,16 +29,18 @@
 #include "Utilities/BasisFunctions3DH1ConformingCube.hpp"
 #include "Geometry/ReferenceCube.hpp"
 #include "Base/BasisFunctionSet.hpp"
+#include "Geometry/PointReference.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 
 void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
-	cout<<test.getName()<<endl;
+	std::cout<<test.getName()<<std::endl;
 	assert(("dimension",test.dimension()==3));
 	assert(("order",test.order()>=expectedOrder));
 	assert(("forReferenceGeometry",typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferenceCube)));
 	Geometry::PointReference point(3);
 
 	Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet3DH1Cube(expectedOrder);
-	cout.precision(14);
+	std::cout.precision(14);
 	for(int i=0;i<functions->size();++i){
 		double integrated=0;
 		for(int j=0;j<test.nrOfPoints();++j){

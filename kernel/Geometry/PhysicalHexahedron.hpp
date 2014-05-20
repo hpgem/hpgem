@@ -22,9 +22,11 @@
 #ifndef PHYSICALHEXAHEDRON_HH
 #define PHYSICALHEXAHEDRON_HH
 #include "PhysicalGeometry.hpp"
-#include "ReferenceCube.hpp"
+
 namespace Geometry
 {
+	class ReferenceCube;
+
     class PhysicalHexahedron: public PhysicalGeometry
     {
         public:
@@ -50,7 +52,8 @@ namespace Geometry
 
             virtual void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
         
-            unsigned int getNrOfFaces() const {return refGeometry_->getNrOfCodim1Entities();}
+            unsigned int getNrOfFaces() const;
     };
+
 }
 #endif

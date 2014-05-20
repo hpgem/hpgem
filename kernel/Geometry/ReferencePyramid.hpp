@@ -22,14 +22,8 @@
 #define ____ReferencePyramid__
 
 #include "ReferenceGeometry.hpp"
-#include "ReferenceLine.hpp"
-#include "ReferenceTriangle.hpp"
-#include "ReferenceSquare.hpp"
-#include "GlobalNamespaceGeometry.hpp"
-#include "Mappings/MappingReferenceToReference.hpp"
-#include "Mappings/MappingToRefFaceToPyramid.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-                                                                      // created for the shape globally
+#include <list>
+// created for the shape globally
 namespace Geometry
 {
     /** \TODO: Document
@@ -133,14 +127,6 @@ namespace Geometry
 
         //! (see MappingCodimensions.hpp)
         void                                     getCodim3EntityLocalIndices(const unsigned int, std::vector<unsigned int>&) const;
-
-        // ================================== Quadrature rules =====================================
-
-        /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr);
-
-        /// Get a valid quadrature for this geometry.
-        virtual QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
 
         // =============================== Refinement mappings =====================================
         

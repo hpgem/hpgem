@@ -29,14 +29,16 @@
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
 #include "Geometry/ReferenceTriangle.hpp"
 #include "Base/BasisFunctionSet.hpp"
+#include "Geometry/PointReference.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 
 void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
-	cout<<test.getName()<<endl;
+	std::cout<<test.getName()<<std::endl;
 	assert(("dimension",test.dimension()==2));
 	assert(("order",test.order()>=expectedOrder));
 	assert(("forReferenceGeometry",typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferenceTriangle)));
 	Geometry::PointReference point(2);
-	cout.precision(14);
+	std::cout.precision(14);
 	Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet2DH1Triangle(expectedOrder);
 	for(int i=0;i<functions->size();++i){
 		double integrated=0;

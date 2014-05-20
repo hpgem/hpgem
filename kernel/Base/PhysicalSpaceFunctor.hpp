@@ -37,15 +37,11 @@
 #ifndef PHYSICALSPACEFUNCTION_HH
 #define PHYSICALSPACEFUNCTION_HH
 
-#include "ConfigurationData.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/PointPhysical.hpp"
-#include "Integration/ReturnTrait1.hpp"
-#include "Base/PhysicalSpaceEvaluator.hpp"
-
 namespace Geometry
 {
     class ElementGeometry;
+    class PointPhysical;
+    class PointReference;
 }
 namespace Base
 {
@@ -54,6 +50,10 @@ namespace Base
 
 namespace Base
 {
+
+	template<class returnType, typename FType>
+	class PhysicalSpaceEvaluator<returnType,FType>;
+
     /*! \class PhysicalSpaceFunction
      * \brief A function that can be evaluated in physical space.
      * \details

@@ -22,27 +22,29 @@
 #define ElementIntegral_hpp
 //------------------------------------------------------------------------------
 // Package configuration (namespace Integration):
-#include "Integration/GlobalNamespaceIntegration.hpp"
 //------------------------------------------------------------------------------
 // Package includes:
-#include "Base/Element.hpp"
-#include "Base/TestErrorDebug.hpp"
-#include "Geometry/Jacobian.hpp"
-#include "Geometry/PointReference.hpp"
-//#include "Integration/ReturnTrait1.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-#include "ElementIntegrandBase.hpp"
-#include "Base/ShortTermStorageElementBase.hpp"
 //------------------------------------------------------------------------------
+
+namespace Base{
+	class Element;
+	class ShortTermStorageElementBase;
+}
+
+namespace QuadratureRules {
+	class GaussQuadratureRule;
+}
 
 namespace Integration 
 {
+	template<class returntrait1>
+	class ElementIntegrandBase;
 
     class ElementIntegral
     {
      public:
-        typedef typename Base::Element::CacheT                 CacheT;
-        typedef typename Base::Element::VecCacheT              VecCacheT;
+        //typedef typename Base::Element::CacheT                 CacheT;
+        //typedef typename Base::Element::VecCacheT              VecCacheT;
         typedef typename QuadratureRules::GaussQuadratureRule  QuadratureRulesT;
         typedef typename Base::Element                         ElementT;
 
@@ -75,7 +77,7 @@ namespace Integration
             //! ReturnTrait1 needs to have the function axpy() implemented
         template<class ReturnTrait1>
         void    integrate(ElementT* el, ElementIntegrandBase<ReturnTrait1>* integrand, ReturnTrait1& result,
-                          const QuadratureRulesT* const qdrRule = NULL);
+                          const QuadratureRulesT* const qdrRule = nullptr);
              // \brief Directly integrate the inegrand and return ReturnTraits1, member function version.
         /*template <typename OBJ, typename IntegrandT>
         void    integrate(ElementT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = NULL);*/

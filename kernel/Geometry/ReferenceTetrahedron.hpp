@@ -26,11 +26,7 @@
 #include <iostream>
 
 #include "ReferenceGeometry.hpp"
-#include "ReferenceLine.hpp"
-#include "ReferenceTriangle.hpp"
-#include "GlobalNamespaceGeometry.hpp"
-#include "Mappings/MappingToRefTriangleToTetrahedron.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <list>
 
 namespace Geometry
 {
@@ -133,14 +129,6 @@ namespace Geometry
 
         //! (see MappingCodimensions.hpp)
         void                                     getCodim3EntityLocalIndices(const IndexT, ListOfIndexesT& faceNodesLocal) const;
-
-        // ================================== Quadrature rules =====================================
-
-        /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr);
-
-        /// Get a valid quadrature for this geometry.
-        virtual QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
             
         // =============================== Refinement mappings =====================================
         

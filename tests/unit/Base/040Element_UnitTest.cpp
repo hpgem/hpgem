@@ -32,6 +32,11 @@
 
 #include "Base/AssembleBasisFunctionSet.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Base/BasisFunctionSet.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Base/ElementCacheData.hpp"
+#include "LinearAlgebra/Matrix.hpp"
 
 int main() {
 
@@ -115,7 +120,7 @@ int main() {
 
 	//check setFace and setEdge without breaking preconditions...
 
-	cout<<test<<endl;
+	std::cout<<test<<std::endl;
 
 	return 0;
 }

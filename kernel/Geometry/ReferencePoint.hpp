@@ -23,13 +23,9 @@
 #define ____ReferencePoint__
 
 #include <iostream>
-using std::ostream;
 
-#include "PointReference.hpp"
 #include "ReferenceGeometry.hpp"
-#include "GlobalNamespaceGeometry.hpp"
-#include "Mappings/MappingReferenceToReference.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <list>
 
 namespace Geometry
 {
@@ -87,14 +83,6 @@ namespace Geometry
         const MappingReferenceToReference*     getCodim0MappingPtr(const IndexT a) const;
 
         using MappingCodimensions::getCodim0MappingPtr;
-
-        // ================================== Quadrature rules =====================================
-
-        /// \brief Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr);
-
-        /// \brief Get a valid quadrature for this geometry.
-        virtual QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
 
         // =============================== Refinement mappings =====================================
         

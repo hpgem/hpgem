@@ -23,10 +23,11 @@
 #define PHYSICALQUADRILATERAL_HH
 
 #include "PhysicalGeometry.hpp"
-#include "ReferenceSquare.hpp"
 
 namespace Geometry
 {
+	class ReferenceSquare;
+
     class PhysicalQuadrilateral: public PhysicalGeometry
     {
         public:
@@ -51,7 +52,8 @@ namespace Geometry
 
             void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
         
-            unsigned int getNrOfFaces() const {return refGeometry_->getNrOfCodim1Entities();}
+            unsigned int getNrOfFaces() const;
     };
+
 }
 #endif

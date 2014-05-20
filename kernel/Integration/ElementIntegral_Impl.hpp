@@ -23,6 +23,11 @@
 #define ELEMENTINTEGRAL_IMPL_HPP_
 #include "Base/ShortTermStorageElementH1.hpp"
 
+#include "ElementIntegrandBase.hpp"
+#include "QuadratureRules/GaussQuadratureRule.hpp"
+#include "Geometry/ReferenceGeometry.hpp"
+#include "Base/TestErrorDebug.hpp"
+
 namespace Integration{
 
 template <class ReturnTrait1>

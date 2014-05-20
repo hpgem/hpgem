@@ -25,6 +25,11 @@
 
 #include "MappingToPhysPyramid.hpp"
 
+#include "Geometry/PhysicalGeometry.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "Geometry/PointPhysical.hpp"
+
 namespace Geometry
 {
     MappingToPhysPyramid::MappingToPhysPyramid(const PhysicalGeometryT*const physicalGeometry)

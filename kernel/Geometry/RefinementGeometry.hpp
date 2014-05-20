@@ -24,11 +24,11 @@
 
 #include <string>
 #include <vector>
-
-#include "Geometry/PointPhysical.hpp"
              
 namespace Geometry
 {
+	class PointPhysical;
+
     class RefinementGeometry
     {
     public:

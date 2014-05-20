@@ -26,6 +26,16 @@
 #include "Edge.hpp"
 #include "Face.hpp"
 
+#include "BasisFunctionSet.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "FaceCacheData.hpp"
+#include "ElementCacheData.hpp"
+#include "Geometry/ReferenceGeometry.hpp"
+#include "Geometry/PointReference.hpp"
+#include "TestErrorDebug.hpp"
+
 namespace Base
 {
     //class Element;
@@ -251,7 +261,7 @@ namespace Base
     }
     
     void
-    Element::basisFunction(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
+    Element::basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
@@ -269,7 +279,7 @@ namespace Base
     }
     
     void
-    Element::basisFunctionCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
+    Element::basisFunctionCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
@@ -287,7 +297,7 @@ namespace Base
     }
 
     void
-    Element::basisFunctionDeriv(unsigned int i, const PointReferenceT& p, NumericalVector& ret,const Element* wrapper) const
+    Element::basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* wrapper) const
     {
     	if(wrapper==NULL){
     		wrapper=this;//Apparently you can't default to this

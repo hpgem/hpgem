@@ -25,6 +25,9 @@
 
 #include "Geometry/PhysicalQuadrilateral.hpp"
 #include "cassert"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferenceSquare.hpp"
 
 using Geometry::PhysicalQuadrilateral;
 
@@ -55,7 +58,7 @@ int main(){
 
 	PhysicalQuadrilateral test(pointIndexes,nodes,&Geometry::ReferenceSquare::Instance());
 
-	cout<<test;
+	std::cout<<test;
 
 	pointIndexes = test.getNodeIndexes();
 
@@ -63,7 +66,7 @@ int main(){
 	assert(("getNodes",nodes==test.getNodes()));
 	assert(("getNodeIndex",test.getNodeIndex(0)==4&&test.getNodeIndex(1)==7&&test.getNodeIndex(2)==10&&test.getNodeIndex(3)==11));
 
-	cout<<test.getName();
+	std::cout<<test.getName();
 
 	point = *test.getNodePtr(test.getNodeIndex(0));
 	assert(("getNodePtr",fabs(point[0]-1.4)<1e-12));

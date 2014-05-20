@@ -21,13 +21,22 @@
 
 #include "TecplotDiscontinuousSolutionWriter.hpp"
 #include "Base/Element.hpp"
+#include "TecplotPhysicalGeometryIterator.hpp"
+#include "Base/MeshManipulator.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
+#include "Geometry/ReferenceGeometry.hpp"
+#include "TecplotSingleElementWriter.hpp"
+#include "Base/ElementCacheData.hpp"
 
+#include <list>
 
 namespace Output
 {
     
     TecplotDiscontinuousSolutionWriter::TecplotDiscontinuousSolutionWriter(
-            ostream& output, const std::string& fileTitle,
+    		std::ostream& output, const std::string& fileTitle,
             const std::string& dimensionsToWrite,
             const std::string& variableString):
                 output_(output),

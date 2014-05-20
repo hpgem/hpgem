@@ -28,15 +28,18 @@
 #include <iostream>
 //------------------------------------------------------------------------------
 // Package includes:
-#include "TreeBase.hpp"
-#include "TreeIterator.hpp"
-#include "TreeEntry.hpp"
 
 //------------------------------------------------------------------------------
 
 
 namespace Base 
 {
+
+	template<class V>
+	class TreeEntry;
+
+	template<class V, class T >
+	class TreeIterator;
 
     template <class V>
     class LevelTree
@@ -46,7 +49,7 @@ namespace Base
         typedef V valueT;
         typedef TreeEntry<V> treeEntryT;
         //  this is our (rather special) iterator 
-        typedef Base::TreeIterator<V,TreeEntry<V> > iterator;
+        typedef TreeIterator<V,TreeEntry<V> > iterator;
         typedef unsigned int DimT;
 
         LevelTree();

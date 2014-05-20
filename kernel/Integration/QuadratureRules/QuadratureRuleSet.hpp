@@ -22,19 +22,10 @@
 #ifndef QuadratureRuleSet_hpp
 #define QuadratureRuleSet_hpp
 
+///\TODO (flagged for deletion) this appears to be a partially finished solution for the quadrature rule problem that is recently resolved. There is no interaction with the rest of the kernel -FB
+
 #include <list>
 #include <iostream>
-using std::cerr;
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-#include "Geometry/ReferenceGeometry.hpp"
-#include "Geometry/ReferenceLine.hpp"
-#include "Geometry/ReferenceTriangle.hpp"
-#include "Geometry/ReferenceSquare.hpp"
-#include "Geometry/ReferenceTetrahedron.hpp"
-#include "Geometry/ReferencePyramid.hpp"
-#include "Geometry/ReferenceTriangularPrism.hpp"
-#include "Geometry/ReferenceCube.hpp"
-#include "Geometry/ReferenceHypercube.hpp"
 
 namespace QuadratureRules
 {

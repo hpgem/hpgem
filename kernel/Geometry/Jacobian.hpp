@@ -22,12 +22,7 @@
 #ifndef JACOBIAN_HPP_
 #define JACOBIAN_HPP_
 
-#include "../LinearAlgebra/Matrix.hpp"
-#include "../LinearAlgebra/NumericalVector.hpp"
-#include "PointPhysical.hpp"
-
-
-
+#include "LinearAlgebra/Matrix.hpp"
 
 namespace Geometry
 {
@@ -35,7 +30,7 @@ namespace Geometry
     {
         public:
         typedef Jacobian            JacobianT;
-        typedef PointPhysical                PhysicalPointT;
+        //typedef PointPhysical                PhysicalPointT;
 
         public:
             // Constructors.

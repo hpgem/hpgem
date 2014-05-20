@@ -27,6 +27,8 @@
 #include "Base/PhysGradientOfBasisFunction.hpp"
 #include "Base/Norm2.hpp"
 #include "Output/TecplotSingleElementWriter.hpp"
+#include "Base/ElementCacheData.hpp"
+#include "Base/FaceCacheData.hpp"
 using Base::RectangularMeshDescriptor;
 using Base::HpgemUISimplified;
 
@@ -37,7 +39,7 @@ class Dummy: public Output::TecplotSingleElementWriter
 {
 public:
     Dummy(){}
-    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, ostream& os)
+    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, std::ostream& os)
     {
     }
 };
@@ -72,7 +74,7 @@ public:
         element->getSolution(0,p,sol);
         
         //This is the grad of the basic function.
-        NumericalVector grads(2);
+        LinearAlgebra::NumericalVector grads(2);
         
         for (unsigned int i=0; i < numberOfDegreesOfFreedom; ++i)
         {

@@ -21,7 +21,6 @@
 #ifndef TreeBase_hpp
 #define TreeBase_hpp
 
-#include "TreeIterator.hpp"
 
 namespace Base
 {

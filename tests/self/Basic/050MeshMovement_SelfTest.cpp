@@ -27,6 +27,10 @@
 #include "Base/RectangularMeshDescriptor.hpp"
 #include "Integration/ElementIntegral.hpp"
 #include "Base/ShortTermStorageElementH1.hpp"
+#include "Base/ConfigurationData.hpp"
+#include "Base/ElementCacheData.hpp"
+#include "Base/MeshMoverBase.hpp"
+#include "Geometry/Mappings/MappingReferenceToPhysical.hpp"
 
 #include "unordered_set"
 #include "cassert"

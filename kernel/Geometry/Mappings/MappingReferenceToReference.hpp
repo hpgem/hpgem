@@ -23,8 +23,6 @@
 #ifndef REFERENCETOREFERENCEM_H_
 #define REFERENCETOREFERENCEM_H_
 
-
-#include "../PointReference.hpp"
 #include "MappingInterface.hpp"
 
 namespace Geometry

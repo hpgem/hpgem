@@ -21,6 +21,10 @@
 #include "PhysicalLine.hpp"
 #include <vector>
 
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferenceLine.hpp"
+
 namespace Geometry
 {
     PhysicalLine::PhysicalLine(
@@ -42,4 +46,9 @@ namespace Geometry
         indexes.resize(1);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
     }
+
+	unsigned int PhysicalLine::getNrOfFaces() const {
+		return refGeometry_->getNrOfCodim1Entities();
+	}
+
 }

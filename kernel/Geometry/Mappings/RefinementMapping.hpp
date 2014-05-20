@@ -24,11 +24,14 @@
 #include <iostream>
 #include <string>
 
-#include "Geometry/PointReference.hpp"
-#include "LinearAlgebra/Matrix.hpp"
-             
+namespace LinearAlgebra {
+	class Matrix;
+}
+
 namespace Geometry
 {
+	class PointReference;
+
     class RefinementMapping
     {
     public:

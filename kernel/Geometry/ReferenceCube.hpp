@@ -22,10 +22,8 @@
 #ifndef REFERENCECUBE_HH
 #define REFERENCECUBE_HH
 
-#include "GlobalNamespaceGeometry.hpp"
 #include "ReferenceGeometry.hpp"
-#include "Mappings/MappingReferenceToReference.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <list>
 
 namespace Geometry
 {
@@ -133,14 +131,6 @@ namespace Geometry
 
         //! (see MappingCodimensions.hpp)
         void            getCodim3EntityLocalIndices(const unsigned int node, std::vector<unsigned int>& ret) const {ret[0]=node; return;}
-
-        // ================================== Quadrature rules =====================================
-
-        /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr);
-
-        /// Get a valid quadrature for this geometry.
-        virtual QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
 
         // =============================== Refinement mappings =====================================
         

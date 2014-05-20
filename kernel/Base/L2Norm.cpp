@@ -27,6 +27,8 @@
 #include <cmath>
 //------------------------------------------------------------------------------
 #include "L2Norm.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
+#include "Geometry/PointPhysical.hpp"
 //------------------------------------------------------------------------------
 namespace Base
 {

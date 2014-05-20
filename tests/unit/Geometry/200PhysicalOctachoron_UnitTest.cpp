@@ -27,6 +27,8 @@
 #include "cassert"
 
 #include "Geometry/ReferenceHypercube.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PointReference.hpp"
 using Geometry::PhysicalOctachoron;
 
 int main(){
@@ -134,7 +136,7 @@ int main(){
 
 	PhysicalOctachoron test(pointIndexes,nodes,&Geometry::ReferenceHypercube::Instance());
 
-	cout<<test;
+	std::cout<<test;
 
 	pointIndexes = test.getNodeIndexes();
 
@@ -148,7 +150,7 @@ int main(){
 					   test.getNodeIndex(8)==16&&test.getNodeIndex(9)==17&&test.getNodeIndex(10)==18&&test.getNodeIndex(11)==19&&
 					 test.getNodeIndex(12)==20&&test.getNodeIndex(13)==21&&test.getNodeIndex(14)==22&&test.getNodeIndex(15)==23));
 
-	cout<<test.getName();
+	std::cout<<test.getName();
 
 	point = *test.getNodePtr(test.getNodeIndex(0));
 	assert(("getNodePtr",fabs(point[0]-1.4)<1e-12));

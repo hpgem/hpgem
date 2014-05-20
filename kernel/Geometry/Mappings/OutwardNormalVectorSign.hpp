@@ -27,10 +27,11 @@
 //------------------------------------------------------------------------------
 #ifndef OUTWARDNORMALVECTORSIGN_HH
 #define OUTWARDNORMALVECTORSIGN_HH
-#include "MappingReferenceToReference.hpp"
 
 namespace Geometry
 {
+	class MappingReferenceToReference;
+
     /*!
      *  Welcome!, to the most ugly piece of code of hpGEM. Warning!, mental sanity in danger!
      *  ~OC~

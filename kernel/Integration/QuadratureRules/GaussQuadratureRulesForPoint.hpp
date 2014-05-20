@@ -22,14 +22,16 @@
 #define GAUSSQUADRATURERULESFORPOINT_H_
 
 #include "GaussQuadratureRule.hpp"
-#include "Base/TestErrorDebug.hpp"
-#include "Geometry/ReferencePoint.hpp"
 #include <cstdint>
 
 /// \bug This is done to make the code work on version 4.6.3 of gnu c++ compiler where INT32_MAX is currently not defined.
 #ifndef INT32_MAX
 #define INT32_MAX 4294967295
 #endif
+
+namespace Geometry {
+	class ReferencePoint;
+}
 
 namespace QuadratureRules {
 
@@ -50,20 +52,14 @@ public:
 
     virtual unsigned int            nrOfPoints() const{return 1;}
 
-    virtual double                  weight(unsigned int i) const{TestErrorDebug(i==0,"Cn0_inf_1: This quadrature rule only has one point!");return weight_[0];}
+		virtual double weight(unsigned int i) const;
 
-    virtual void                    getPoint(unsigned int i, Geometry::PointReference& p) const{TestErrorDebug(i==0,"Cn0_inf_1: This quadrature rule only has one point!");}
+		virtual void getPoint(unsigned int i, Geometry::PointReference& p) const;
 
     virtual Geometry::ReferenceGeometry*     forReferenceGeometry() const{return refGeoPtr_;}
 
 private:
-    Cn0_inf_1():
-    	refGeoPtr_(&Geometry::ReferencePoint::Instance()),
-    	name_("Cn0_inf_1")
-	{
-    	weight_[0]=1;
-    	refGeoPtr_->addGaussQuadratureRule(this);
-	}
+		Cn0_inf_1();
     Cn0_inf_1(const Cn0_inf_1&):refGeoPtr_(NULL){}
     virtual ~Cn0_inf_1(){}
 private:

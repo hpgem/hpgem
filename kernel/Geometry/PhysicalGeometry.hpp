@@ -22,15 +22,14 @@
 #ifndef PHYSICALGEOMETRY_H_
 #define PHYSICALGEOMETRY_H_
 
-#include "PointPhysical.hpp"
-#include "GlobalNamespaceGeometry.hpp"
-#include "ReferenceGeometry.hpp"
 #include <vector>
+#include <iostream>
 //#include "Output/PhysicalGeometryAcceptor.hpp"
 
 namespace Geometry
 {
-
+	class ReferenceGeometry;
+	class PointPhysical;
 
     class PhysicalGeometry
     {
@@ -107,16 +106,13 @@ namespace Geometry
             /// \brief Given a local index, assigns the physical coordinates of the corresponding point.
             // MTJ: TODO: this should be renamed to getLocalNodeCoordinates.............
             ///\TODO remove duplicate code
-            void                            getNodeCoordinates(const int localIndex, PointPhysicalT& coords) const
-            {coords = (nodes_)[globalNodeIndexes_[localIndex]].getCoordinates();}
+		void getNodeCoordinates(const int localIndex, PointPhysicalT& coords) const;
 
             /// \brief Given a local index, assigns the physical coordinates of the corresponding point.
-            void                            getLocalNodeCoordinates(const int localIndex, PointPhysicalT& coords) const
-            {coords = (nodes_)[globalNodeIndexes_[localIndex]].getCoordinates();}
+		void getLocalNodeCoordinates(const int localIndex, PointPhysicalT& coords) const;
 
             /// \brief Given a global index, assigns the physical coordinates of the corresponding point.
-            void                            getGlobalNodeCoordinates(const int globalIndex, PointPhysicalT& coords) const
-            {coords = (nodes_)[globalIndex].getCoordinates();}
+		void getGlobalNodeCoordinates(const int globalIndex, PointPhysicalT& coords) const;
 
             /// \brief Given a local face index, return the global indices of the entities contained on that face.
             virtual void                    getGlobalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const = 0;
@@ -154,5 +150,7 @@ namespace Geometry
         
             const ReferenceGeometryT* const refGeometry_;
     };
-};
+
+}
+;
 #endif /* PHYSICALGEOMETRY_H_ */

@@ -24,8 +24,6 @@
 #define MAPPINGPYRAMID_H_
 
 #include "MappingReferenceToPhysical.hpp"
-#include "../GlobalNamespaceGeometry.hpp"
-#include "../Jacobian.hpp"
 #include <vector>
 
 namespace Geometry

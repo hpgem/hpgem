@@ -24,8 +24,10 @@
 #define TRIANGULARPRISM_H_
 
 #include <vector>
-#include "../Jacobian.hpp"
 #include "MappingReferenceToPhysical.hpp"
+
+///\bug resolves field has incomplete type
+#include "Geometry/PointPhysical.hpp"
 
 namespace Geometry
 {

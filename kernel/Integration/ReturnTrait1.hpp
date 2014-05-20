@@ -24,13 +24,10 @@
 // Package configuration (namespace Integration):
 #ifndef RETURNRAIT1_HH
 #define RETURNRAIT1_HH
-#include "GlobalNamespaceIntegration.hpp"
 //------------------------------------------------------------------------------
 // System includes and names imported from them:
 //------------------------------------------------------------------------------
 // Package includes:
-#include "../Geometry/PointReference.hpp"
-#include "../Geometry/PointPhysical.hpp"
 
 // #include "../Geometry/PhysSpacePoint.hh"
 // using Geometry::PhysSpacePoint;

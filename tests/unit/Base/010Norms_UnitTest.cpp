@@ -24,6 +24,11 @@
 
 #include "Base/L2Norm.hpp"
 #include "Base/Norm2.hpp"
+
+#include <cmath>
+#include <iostream>
+#include "LinearAlgebra/NumericalVector.hpp"
+#include "Geometry/PointPhysical.hpp"
 #include "Base/Logger.h"
 //#include "cassert"
 

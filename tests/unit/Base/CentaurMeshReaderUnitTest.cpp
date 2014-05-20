@@ -28,6 +28,7 @@
 #include "CMakeDefinitions.hpp"
 #include <sstream>
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
+#include "Base/ElementCacheData.hpp"
 
 using namespace std;
 

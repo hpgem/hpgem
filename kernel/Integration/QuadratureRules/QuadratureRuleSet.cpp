@@ -36,6 +36,8 @@ using std::cerr;
 
 #include "QuadratureRuleSet.hpp"
 
+///\TODO (flagged for deletion) this appears to be a partially finished solution for the quadrature rule problem that is recently resolved. There is no interaction with the rest of the kernel -FB
+
 namespace QuadratureRules
 {
     unsigned int QuadratureRuleSet::size(Geometry::ReferenceLine* refGeo) const

@@ -20,6 +20,11 @@
  */
 
 #include "ReferenceTriangle.hpp"
+#include "ReferenceLine.hpp"
+#include "Mappings/MappingToRefLineToTriangle.hpp"
+#include "Mappings/MappingToRefTriangleToTriangle.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferencePoint.hpp"
 
 namespace Geometry
 {
@@ -40,7 +45,7 @@ namespace Geometry
     };
 
     ReferenceTriangle::ReferenceTriangle():
-        ReferenceGeometry(TwoD+1,2,TRIANGLE),
+        ReferenceGeometry(3,2,TRIANGLE),
         referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
 
@@ -185,29 +190,8 @@ namespace Geometry
         }
     }
 
+	const ReferenceGeometry* ReferenceTriangle::getCodim2ReferenceGeometry(const unsigned int) const {
+		return &Geometry::ReferencePoint::Instance();
+	}
 
-    // ================================== Quadrature rules =====================================
-
-    /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceTriangle::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
-    {
-        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
-        while (it != lstGaussQuadratureRules_.end())
-        {
-          if ((*it)->order() < qr->order()) ++it;
-          else break;
-        }
-        lstGaussQuadratureRules_.insert(it,qr);
-    }
-
-    /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule* const ReferenceTriangle::getGaussQuadratureRule(int order) const
-    {
-        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
-              it != lstGaussQuadratureRules_.end(); ++it)
-          if ((*it)->order() >= order) return *it;
-
-        return NULL;
-    }
-            
 };

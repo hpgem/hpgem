@@ -25,7 +25,10 @@
 #include "Base/HpgemUI.hpp"
 #include "Integration/ElementIntegrandBase.hpp"
 #include "Integration/FaceIntegrandBase.hpp"
-//#include "Base/MeshManipulator.hpp"
+
+namespace Integration {
+	class FaceIntegral;
+}
 
 namespace Base
 {
@@ -62,10 +65,10 @@ namespace Base
         virtual void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)=0;
     
         /// \brief User-defined face integrand
-        virtual void faceIntegrand(const FaceT* face, const NumericalVector& normal,
+        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
                                    const PointReferenceT& p,  LinearAlgebra::Matrix& ret)=0;
         
-        virtual void faceIntegrand(const FaceT* face, const NumericalVector& normal,
+        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
                 				   const PointReferenceT& p,  LinearAlgebra::NumericalVector& ret)=0;
 
         /// \brief User-defined initial conditions

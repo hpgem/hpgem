@@ -23,6 +23,11 @@
 #include"Base/Element.hpp"
 #include "Base/ShortTermStorageElementH1.hpp"
 #include "Base/ShortTermStorageFaceH1.hpp"
+#include "GlobalData.hpp"
+#include "Integration/FaceIntegral.hpp"
+#include "Integration/ElementIntegral.hpp"
+#include "ConfigurationData.hpp"
+#include "RectangularMeshDescriptor.hpp"
 
 namespace Base
 {

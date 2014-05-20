@@ -22,6 +22,10 @@
 #include "ElementData.hpp"
 #include "TestErrorDebug.hpp"
 
+#include "LinearAlgebra/Matrix.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
+#include <iostream>
+
 namespace Base
 {
     

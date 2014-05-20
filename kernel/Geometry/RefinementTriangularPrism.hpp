@@ -25,13 +25,13 @@
 #include <string>
 #include <vector>
 
-#include "Geometry/ReferenceGeometry.hpp"
-#include "Geometry/PhysicalGeometry.hpp"
-#include "Geometry/PointPhysical.hpp"
 #include "Geometry/RefinementGeometry.hpp"
 
 namespace Geometry
 {
+	class ReferenceGeometry;
+	class PhysicalGeometry;
+
     class RefinementTriangularPrism : public Geometry::RefinementGeometry
     {
     public:

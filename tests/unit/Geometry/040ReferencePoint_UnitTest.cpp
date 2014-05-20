@@ -41,7 +41,7 @@ int main(){
 	assert(("isInternalPoint",test.isInternalPoint(pTest)));
 	test.getCenter(pTest);
 	test.getNode(0,pTest);
-	cout<<test.getName();
+	std::cout<<test.getName();
 
 	//getLocalNodeIndex should always break since dimension -1 entities dont exist
 

@@ -23,12 +23,19 @@
 #define BasisFunctionSet_hpp
 
 #include <vector>
-#include "Base/BaseBasisFunction.hpp"
-#include "Base/TestErrorDebug.hpp"
-#include "Geometry/PointReference.hpp"
+
+namespace LinearAlgebra{
+	class NumericalVector;
+}
+
+namespace Geometry{
+	class PointReference;
+}
 
 namespace Base
 {
+	class BaseBasisFunction;
+
     class BasisFunctionSet
     {
     public:
@@ -50,12 +57,12 @@ namespace Base
          virtual double       eval(unsigned int i, const PointReferenceT& p) const;
 	
 	///\brief returns the value of the i-th basisfunction at point p in ret
-	 virtual void         eval(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+	 virtual void         eval(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
         
          virtual double       evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
 	
 	///\brief returns the curl of the i-th basisfunction at point p in ret
-	 virtual void         evalCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const;
+	 virtual void         evalCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 	
 	    virtual const BaseBasisFunction* operator[](int i) const {return vecOfBasisFcn_[i];}
 

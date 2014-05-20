@@ -26,6 +26,7 @@
 #include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTetrahedron.hpp"
 #include "Geometry/ReferenceTetrahedron.hpp"
+#include "Geometry/PointReference.hpp"
 using Geometry::ReferenceTetrahedron;
 
 //---------------------------------------------------------------------------
@@ -89,7 +90,6 @@ namespace QuadratureRules
         gp_[0][1] = 2.5000000000000000e-01;
         gp_[0][2] = 2.5000000000000000e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Tn3_1_1::~Tn3_1_1()
@@ -171,7 +171,6 @@ namespace QuadratureRules
         gp_[3][1] = 1.3819660112501048e-01;
         gp_[3][2] = 5.8541019662496852e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Tn3_2_1::~Tn3_2_1()
@@ -257,7 +256,6 @@ namespace QuadratureRules
         gp_[4][1] = 1.6666666666666652e-01;
         gp_[4][2] = 1.6666666666666652e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Tn3_3_1::~Tn3_3_1()
@@ -373,7 +371,6 @@ namespace QuadratureRules
         gp_[10][1] = 1.0059642383320100e-01;
         gp_[10][2] = 3.9940357616679900e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     Tn3_4_1::~Tn3_4_1()
@@ -503,7 +500,6 @@ namespace QuadratureRules
         gp_[13][1] = 4.5503704125649524e-02;
         gp_[13][2] = 4.5449629587435048e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T3_5_1::~T3_5_1()
@@ -683,7 +679,6 @@ namespace QuadratureRules
         gp_[23][1] = 2.6967233145831604e-01;
         gp_[23][2] = 6.3661001875017498e-02;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T3_6_1::~T3_6_1()
@@ -899,7 +894,6 @@ namespace QuadratureRules
         gp_[30][1] = 2.0000000000000001e-01;
         gp_[30][2] = 9.9999999999999978e-02;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T3_7_1::~T3_7_1()
@@ -1175,7 +1169,6 @@ namespace QuadratureRules
         gp_[42][1] = 1.9048604193463348e-01;
         gp_[42][2] = 3.6607749553197511e-02;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T3_8_1::~T3_8_1()
@@ -1501,7 +1494,6 @@ namespace QuadratureRules
         gp_[52][1] = 2.7655347263680752e-01;
         gp_[52][2] = -1.3762773181380528e-03;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T3_9_1::~T3_9_1()
@@ -2192,7 +2184,6 @@ namespace QuadratureRules
         gp_[125][1] = 2.5000000000000000e-01;
         gp_[125][2] = 2.5000000000000000e-01;
 
-        refGeoPtr_->addGaussQuadratureRule(this);
     }
 
     T3_10_1::~T3_10_1()

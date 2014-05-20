@@ -20,7 +20,9 @@
  */
 
 #include"InitialConditions.hpp"
-
+#include "Base/ElementCacheData.hpp"
+#include "Base/FaceCacheData.hpp"
+#include "LinearAlgebra/Matrix.hpp"
 
 const double ExactSolutionBase::Pi = 3.14159265;
 

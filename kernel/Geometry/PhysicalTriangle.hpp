@@ -22,9 +22,11 @@
 #ifndef PHYSICALTRIANGLE_HH
 #define PHYSICALTRIANGLE_HH
 #include "PhysicalGeometry.hpp"
-#include "ReferenceTriangle.hpp"
+
 namespace Geometry
 {
+	class ReferenceTriangle;
+
     class PhysicalTriangle: public PhysicalGeometry
     {
         public:
@@ -49,7 +51,8 @@ namespace Geometry
 
             virtual void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
         
-            unsigned int getNrOfFaces() const {return refGeometry_->getNrOfCodim1Entities();}
+            unsigned int getNrOfFaces() const;
     };
+
 }
 #endif

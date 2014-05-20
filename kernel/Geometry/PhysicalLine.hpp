@@ -22,9 +22,11 @@
 #ifndef PHYSICALLINE_HH
 #define PHYSICALLINE_HH
 #include "PhysicalGeometry.hpp"
-#include "ReferenceLine.hpp"
+
 namespace Geometry
 {
+	class ReferenceLine;
+
     class PhysicalLine: public PhysicalGeometry
     {
 
@@ -50,7 +52,8 @@ namespace Geometry
 
         void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
     
-        unsigned int getNrOfFaces() const {return refGeometry_->getNrOfCodim1Entities();}
+        unsigned int getNrOfFaces() const;
     };
+
 }
 #endif

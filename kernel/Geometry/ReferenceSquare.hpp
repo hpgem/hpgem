@@ -21,16 +21,10 @@
 #ifndef ____ReferenceSquare__
 #define ____ReferenceSquare__
 
+#include "ReferenceGeometry.hpp"
+
 #include <list>
 #include <iostream>
-using std::ostream;
-
-#include "GlobalNamespaceGeometry.hpp"
-#include "ReferenceLine.hpp"
-#include "Mappings/MappingToRefLineToSquare.hpp"
-#include "Mappings/MappingToRefSquareToSquare.hpp"
-#include "Geometry/Mappings/RefinementMapping.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 
 namespace Geometry
 {
@@ -123,15 +117,7 @@ namespace Geometry
 
         void                                     getCodim2EntityLocalIndices(const unsigned int vertex, std::vector<unsigned int>& vertexNodesLocal) const {vertexNodesLocal[0]=vertex;return;}
 
-        const ReferenceGeometry*           getCodim2ReferenceGeometry(const unsigned int)const {return &Geometry::ReferencePoint::Instance();}
-
-        // ========================= Quadrature rules for this geometry  ===========================
-        
-        /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-        virtual void addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr);
-
-        /// Get a valid quadrature for this geometry.
-        virtual QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
+		const ReferenceGeometry* getCodim2ReferenceGeometry(const unsigned int) const;
         
         // =============================== Refinement mappings =====================================
         
@@ -174,5 +160,7 @@ namespace Geometry
         //! List of valid quadrature rules for this reference geometry
         std::list<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
     };
-};
+
+}
+;
 #endif

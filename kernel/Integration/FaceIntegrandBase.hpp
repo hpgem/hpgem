@@ -21,11 +21,6 @@
 #ifndef FaceIntegrandBase_hpp
 #define FaceIntegrandBase_hpp
 
-#include "Base/Element.hpp"
-#include "Base/Face.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/PointPhysical.hpp"
-#include "Integration/GlobalNamespaceIntegration.hpp"
 
 namespace Integration
 {

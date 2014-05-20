@@ -23,10 +23,9 @@
 
 #include <list>
 #include <iostream>
-#include "../LinearAlgebra/NumericalVector.hpp"
-using std::cout;
-using std::endl;
-using namespace LinearAlgebra;
+
+///\bug the field in point forces this inclusion
+#include "LinearAlgebra/NumericalVector.hpp"
 
 namespace Geometry
 {
@@ -38,7 +37,7 @@ namespace Geometry
 	    /// Typedefs.
 	    typedef double                         CoordTypeT;
         typedef Geometry::Point                PointT;
-        typedef NumericalVector                VectorOfCoordsT;
+        typedef LinearAlgebra::NumericalVector                VectorOfCoordsT;
         typedef unsigned int                   IndexT;
 
 	public:
@@ -62,64 +61,50 @@ namespace Geometry
 //        const CoordTypeT&   operator () (IndexT n) const;
         PointT&             operator = (const Point& rhs);
         
-        bool                operator== (const Point& right) const {return coordinates_==right.coordinates_;}
+        bool operator ==(const Point& right) const;
 
-        bool                operator== (const Point& right){return coordinates_==right.coordinates_;}
+		bool operator ==(const Point& right);
         
-        bool                operator< (const Point& right) const {return coordinates_<right.coordinates_;}
+        bool operator <(const Point& right) const;
         
-        PointT&             operator+= (const Point& right){coordinates_+=right.coordinates_; return *this;}
+        Point& operator +=(const Point& right);
 
-        PointT&             operator-= (const Point& right){coordinates_-=right.coordinates_; return *this;}
+		Point& operator -=(const Point& right);
         
-        PointT&             operator*= (double right){coordinates_.operator *=(right); return *this;}
+        Point& operator *=(double right);
         
-        PointT              operator* (double right){return  PointT(coordinates_ * right);}
+        Point operator *(double right);
 
-        PointT              operator* (double right)const{return  PointT(coordinates_ * right);}
+		Point operator *(double right) const;
         
-        PointT              operator+ (const Point& right){return  PointT(coordinates_ + right.coordinates_);}
+        Point operator +(const Point& right);
         
-        PointT              operator+ (const Point& right)const{return  PointT(coordinates_ + right.coordinates_);}
+        Point operator +(const Point& right) const;
         
-        PointT              operator- (const Point& right){return  PointT(coordinates_ - right.coordinates_);}
+        Point operator -(const Point& right);
+        
+        Point operator -(const Point& right) const;
         
         
-        PointT              operator- (const Point& right)const{return  PointT(coordinates_ - right.coordinates_);}
+        unsigned int size() const;
         
-        
-        unsigned int        size()const{return coordinates_.size();}
-        
-        unsigned int        size(){return coordinates_.size();}
+        unsigned int size();
         
 
-        CoordTypeT          getCoordinate(IndexT n)const;
+        typename Point::CoordTypeT getCoordinate(IndexT n) const;
         VectorOfCoordsT     getCoordinates()const;
                     friend PointT       operator-(const Point& right){return PointT(right * -1.0);}
         
-        friend PointT       operator*(const double& left, const PointT& right){return PointT(right.coordinates_*left);}
+        friend Point operator *(const double& left, const Point& right);
         
             /// Output routine.
-        friend std::ostream& operator<<(std::ostream& os, const PointT& point)
-        {
-            
-                // cout << "Size in ostream="<< point.coordinates_.size()<<endl;
-            os <<"point={";
-
-            for (unsigned int i = 0; i < point.coordinates_.size(); i++)
-            {
-                if (i<point.coordinates_.size()-1)
-                    os << point.coordinates_[i]<< ',';
-                else
-                    os << point.coordinates_[i];
-            }
-            os <<"} ";
-            return os;
-        }
+		friend std::ostream& operator <<(std::ostream& os, const Point& point);
 
 	protected:
         VectorOfCoordsT coordinates_;
 	};
-};
+
+}
+;
 
 #endif /* defined(_NODE_HPP) */

@@ -25,13 +25,11 @@
 // System includes
 #include <iostream>
 #include <valarray>
-#include "NumericalVector.hpp"
 
 namespace LinearAlgebra
 {
-    
+    class NumericalVector;
     //We need the ostream for outputting and we encapulate from valarray.
-    using std::ostream;
     using std::valarray;
     /// \class Matrix
     /// \brief Data type for small dense matrix.
@@ -158,7 +156,7 @@ namespace LinearAlgebra
     };
     
     /// Writes nices format enteries of the Matrix A to the stream os.
-    ostream& operator<<(ostream& os, const Matrix& A);
+    std::ostream& operator<<(std::ostream& os, const Matrix& A);
     
 }
 #endif

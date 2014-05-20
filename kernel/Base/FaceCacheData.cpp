@@ -21,6 +21,7 @@
 #include "FaceCacheData.hpp"
 #include "Face.hpp"
 #include "Geometry/PointReference.hpp"
+#include "L2Norm.hpp"
 
 void Base::FaceCacheData::operator ()(const Base::Face& fa, const Geometry::PointReference& p)
 {

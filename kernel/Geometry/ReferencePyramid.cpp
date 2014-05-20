@@ -20,6 +20,11 @@
  */
 
 #include "ReferencePyramid.hpp"
+#include "ReferenceTriangle.hpp"
+#include "ReferenceSquare.hpp"
+#include "ReferenceLine.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Mappings/MappingToRefFaceToPyramid.hpp"
 
 namespace Geometry
 {
@@ -46,7 +51,7 @@ namespace Geometry
     };
 
     ReferencePyramid::ReferencePyramid():/// pyramid has three nodes 3D + 2
-        ReferenceGeometry(ThreeD+2,3, PYRAMID),
+        ReferenceGeometry(5,3, PYRAMID),
         referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()),
         referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()),
         referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
@@ -241,30 +246,5 @@ namespace Geometry
         {
             throw "ReferencePyramid::getCodim3EntityLocalIndices Index out of range. Pyramid has 5 nodes.";
         }
-    }
-
-
-    // ================================== Quadrature rules =====================================
-
-    /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferencePyramid::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
-    {
-        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
-        while (it != lstGaussQuadratureRules_.end())
-        {
-          if ((*it)->order() < qr->order()) ++it;
-          else break;
-        }
-        lstGaussQuadratureRules_.insert(it,qr);
-    }
-
-    /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule* const ReferencePyramid::getGaussQuadratureRule(int order) const
-    {
-        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
-              it != lstGaussQuadratureRules_.end(); ++it)
-          if ((*it)->order() >= order) return *it;
-
-        return NULL;
     }
 };

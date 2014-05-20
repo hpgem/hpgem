@@ -21,10 +21,13 @@
 #ifndef GaussQuadratureRulesForCube_hpp
 #define GaussQuadratureRulesForCube_hpp
 //---------------------------------------------------------------------------
-#include "Geometry/PointReference.hpp"
-#include "Geometry/ReferenceGeometry.hpp"
-#include "Integration/GlobalNamespaceIntegration.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <vector>
+
+namespace Geometry {
+	class PointReference;
+	class ReferenceGeometry;
+}
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules

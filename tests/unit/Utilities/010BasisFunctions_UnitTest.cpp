@@ -33,6 +33,8 @@
 
 #include "Base/BasisFunctionSet.hpp"
 #include "Base/L2Norm.hpp"
+#include "Geometry/PointReference.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 using Base::L2Norm;
 
 int main() {

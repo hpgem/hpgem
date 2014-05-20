@@ -191,7 +191,7 @@ namespace LinearAlgebra
     NumericalVector   operator-(const NumericalVector& right){return NumericalVector(right * -1.0);}
     
     
-    ostream& operator<<(ostream& os, const NumericalVector& A)
+    std::ostream& operator<<(std::ostream& os, const NumericalVector& A)
     {
         os<< '[';
         for (int i=0;i<A.data_.size()-1;i++){os<< A(i)<<',';}

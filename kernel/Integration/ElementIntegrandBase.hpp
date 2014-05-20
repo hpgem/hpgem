@@ -21,9 +21,6 @@
 #ifndef ElementIntegrandBase_hpp
 #define ElementIntegrandBase_hpp
 
-#include "Base/Element.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Integration/GlobalNamespaceIntegration.hpp"
 
 namespace Integration
 {

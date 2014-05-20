@@ -23,10 +23,11 @@
 #define PHYSICALPYRAMID_HH
 
 #include "PhysicalGeometry.hpp"
-#include "ReferencePyramid.hpp"
 
 namespace Geometry
 {
+	class ReferencePyramid;
+
     class PhysicalPyramid: public PhysicalGeometry
     {
         public:

@@ -19,6 +19,12 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "ReferenceTriangularPrism.hpp"
+#include "ReferenceTriangle.hpp"
+#include "ReferenceSquare.hpp"
+#include "ReferenceLine.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Mappings/MappingToRefFaceToTriangularPrism.hpp"
+#include "LinearAlgebra/Matrix.hpp"
 
 namespace Geometry
 {
@@ -45,7 +51,7 @@ namespace Geometry
     };
 
     ReferenceTriangularPrism::ReferenceTriangularPrism():
-        ReferenceGeometry(ThreeD+3,3, TRIANGULARPRISM),
+        ReferenceGeometry(6,3, TRIANGULARPRISM),
         referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()),
         referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()),
         referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
@@ -238,30 +244,6 @@ namespace Geometry
         {
             throw "ReferenceTriangularPrism::Index out of range. TP has only 6 nodes.";
         }
-    }
-
-    // ================================== Quadrature rules =====================================
-
-    /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceTriangularPrism::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
-    {
-        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
-        while (it != lstGaussQuadratureRules_.end())
-        {
-          if ((*it)->order() < qr->order()) ++it;
-          else break;
-        }
-        lstGaussQuadratureRules_.insert(it,qr);
-    }
-
-    /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule* const ReferenceTriangularPrism::getGaussQuadratureRule(int order) const
-    {
-        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
-              it != lstGaussQuadratureRules_.end(); ++it)
-          if ((*it)->order() >= order) return *it;
-
-        return NULL;
     }
             
     // =============================== Refinement mappings =====================================

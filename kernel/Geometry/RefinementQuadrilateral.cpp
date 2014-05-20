@@ -24,6 +24,11 @@
 #include "Base/TestErrorDebug.hpp"
 #include "Geometry/RefinementQuadrilateral.hpp"
 
+#include "PointPhysical.hpp"
+#include "PointReference.hpp"
+#include "PhysicalGeometry.hpp"
+#include "ReferenceGeometry.hpp"
+
 namespace Geometry
 {
     unsigned int RefinementQuadrilateral::nrOfNewNodes(int refineType) const 

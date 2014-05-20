@@ -23,13 +23,11 @@
 #ifndef MAPPINGINTERFACE_H_
 #define MAPPINGINTERFACE_H_
 
-#include "../Point.hpp"
-#include "../PointReference.hpp"
-#include "../ReferenceGeometry.hpp"
-#include "../Jacobian.hpp"
-
 namespace Geometry
 {
+	class PointReference;
+	class Jacobian;
+
     /*!
     \brief (OC): Base class that defines the functionality of a mapping between two coordinate systems.
 
@@ -94,8 +92,8 @@ namespace Geometry
     class MappingInterface
     {
         public:
-            typedef Point                        PointToT;
-            typedef PointPhysical                PointPhysicalT;
+            //typedef Point                        PointToT;
+            //typedef PointPhysical                PointPhysicalT;
             typedef PointReference             PointReferenceT;
             typedef Jacobian            JacobianT;
 

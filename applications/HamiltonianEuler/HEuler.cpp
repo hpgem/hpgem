@@ -20,7 +20,7 @@
  */
 
 #include "HEuler.hpp"
-
+#include "Base/RectangularMeshDescriptor.hpp"
 
 HEuler::HEuler(HEulerGlobalVariables* global, const HEulerConfigurationData* config):
     Base::HpgemUI(global, config),
@@ -220,7 +220,7 @@ HEuler::elementIntegrand(const ElementT* element, const PointReferenceT& p, Elem
     zDerReturnData.resize(numberOfDegreesOfFreedom, numberOfDegreesOfFreedom);
     
     
-    NumericalVector grads(3);
+    LinearAlgebra::NumericalVector grads(3);
     
     for (unsigned int i=0; i < numberOfDegreesOfFreedom; ++i)
     {
@@ -238,7 +238,7 @@ HEuler::elementIntegrand(const ElementT* element, const PointReferenceT& p, Elem
 }
 
 void
-HEuler::faceIntegrand(const FaceT* face,          const NumericalVector& normal,
+HEuler::faceIntegrand(const FaceT* face,          const LinearAlgebra::NumericalVector& normal,
                    const PointReferenceOnTheFaceT& p,  FluxData& ret)
 {
     if (face->isInternal())

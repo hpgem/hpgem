@@ -30,6 +30,9 @@
 #include "Geometry/ReferenceTriangularPrism.hpp"
 #include "Geometry/ReferenceTriangle.hpp"
 #include "Geometry/ReferenceSquare.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 int main() {
 
 	Geometry::PointReference refPoint(2),point(3),compare(3);
@@ -240,7 +243,7 @@ int main() {
 	for(refPoint[0]=-2.8189;refPoint[0]<3.141;refPoint[0]+=0.1) {
 		for(refPoint[1]=-2.8189;refPoint[1]<3.141;refPoint[1]+=0.1) {
 			test->transform(refPoint,point);
-			cout<<refPoint<<" "<<point<<endl;//truncation errors break this test
+			std::cout<<refPoint<<" "<<point<<std::endl;//truncation errors break this test
 			//assert(("transform",fGeom->isInternalPoint(refPoint)==eGeom.isInternalPoint(point)));
 
 			refPoint[0]+=-1.e-8;

@@ -22,7 +22,6 @@
 #ifndef NumericalVectorHPP
 #define NumericalVectorHPP
 
-#include "GlobalNamespaceLinearAlgebra.hpp"
 #include <valarray>
 #include <iostream>
 
@@ -34,7 +33,6 @@ namespace LinearAlgebra
     
     //This is dervied from valarray so import that information
     using std::valarray;
-    using std::ostream;
     
     /// \class NumericalVector
     /// \brief This is a vector of doubles
@@ -107,7 +105,7 @@ namespace LinearAlgebra
         
         friend NumericalVector   operator-(const NumericalVector& right);
  
-        friend ostream& operator<<(ostream& os, const NumericalVector& A);
+        friend std::ostream& operator<<(std::ostream& os, const NumericalVector& A);
         
    
     private:

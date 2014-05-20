@@ -27,6 +27,11 @@
 #include "cassert"
 
 #include "Geometry/ReferenceLine.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/ElementGeometry.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
 
 int main(){
 

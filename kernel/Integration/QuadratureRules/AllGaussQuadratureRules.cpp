@@ -20,110 +20,105 @@
  */
 
 #include "AllGaussQuadratureRules.hpp"
+#include "GaussQuadratureRulesForCube.hpp"
+#include "GaussQuadratureRulesForHypercube.hpp"
+#include "GaussQuadratureRulesForLine.hpp"
+#include "GaussQuadratureRulesForPoint.hpp"
+#include "GaussQuadratureRulesForPyramid.hpp"
+#include "GaussQuadratureRulesForSquare.hpp"
+#include "GaussQuadratureRulesForTetrahedron.hpp"
+#include "GaussQuadratureRulesForTriangle.hpp"
+#include "GaussQuadratureRulesForTriangularPrism.hpp"
 
 namespace QuadratureRules
 {
-	const Cn0_inf_1& InstantiateCn0_inf_1 = Cn0_inf_1::Instance();
+	//add all the rules here
+	AllGaussQuadratureRules::AllGaussQuadratureRules() {
+		//*************************POINT QUADRATURES****************************
+		addRule(&Cn0_inf_1::Instance());
+		//*************************LINE QUADRATURES*****************************
+		addRule(&Cn1_1_1::Instance());
+		addRule(&Cn1_3_4::Instance());
+		addRule(&Cn1_5_9::Instance());
+		addRule(&C1_7_x::Instance());
+		addRule(&C1_9_25::Instance());
+		addRule(&C1_11_36::Instance());
+		//*************************SQUARE QUADRATURES*****************************
+		addRule(&Cn2_1_1::Instance());
+		addRule(&Cn2_3_4::Instance());
+		addRule(&Cn2_5_9::Instance());
+		addRule(&C2_7_4::Instance());
+		addRule(&C2_9_5::Instance());
+		addRule(&C2_11_6::Instance());
+		//*************************TRIANGLE QUADRATURES*****************************
+		addRule(&Tn2_1_1::Instance());
+		addRule(&Tn2_2_1::Instance());
+		addRule(&Tn2_3_1::Instance());
+		addRule(&Tn2_4_1::Instance());
+		addRule(&T2_5_1::Instance());
+		addRule(&T2_6_1::Instance());
+		addRule(&T2_7_1::Instance());
+		addRule(&T2_8_1::Instance());
+		addRule(&T2_9_1::Instance());
+		addRule(&T2_10_1::Instance());
+		addRule(&T2_11_1::Instance());
+		//*************************CUBE QUADRATURES*****************************
+		addRule(&Cn3_1_1::Instance());
+		addRule(&Cn3_3_4::Instance());
+		addRule(&Cn3_5_9::Instance());
+		addRule(&C3_7_2::Instance());
+		addRule(&C3_9_2::Instance());
+		addRule(&C3_11_2::Instance());
+		//*************************PYRAMID QUADRATURES*****************************
+		addRule(&Pyramid_1_1::Instance());
+		addRule(&Pyramid_3_1::Instance());
+		addRule(&Pyramid_5_1::Instance());
+		addRule(&Pyramid_7_1::Instance());
+		//*************************TETRAHEDRON QUADRATURES*****************************
+		addRule(&Tn3_1_1::Instance());
+		addRule(&Tn3_2_1::Instance());
+		addRule(&Tn3_3_1::Instance());
+		addRule(&Tn3_4_1::Instance());
+		addRule(&T3_5_1::Instance());
+		addRule(&T3_6_1::Instance());
+		addRule(&T3_7_1::Instance());
+		addRule(&T3_8_1::Instance());
+		addRule(&T3_9_1::Instance());
+		addRule(&T3_10_1::Instance());
+		//*************************TRIANGULARPRISM QUADRATURES*****************************
+		addRule(&TriPrism_1_1::Instance());
+		addRule(&TriPrism_3_1::Instance());
+		addRule(&TriPrism_5_1::Instance());
+		addRule(&TriPrism_7_1::Instance());
+		//*************************HYPERCUBE QUADRATURES*****************************
+		addRule(&Cn4_1_1::Instance());
+		addRule(&Cn4_3_4::Instance());
+	}
 
-        //*************************LINE QUADRATURES*****************************
-    
-    const Cn1_1_1& InstantiateCn1_1_1 = Cn1_1_1::Instance();
-    
-    const Cn1_3_4& InstantiateCn1_3_4 = Cn1_3_4::Instance();
-    
-    const Cn1_5_9& InstantiateCn1_5_9 = Cn1_5_9::Instance();
-    
-    const C1_7_x& InstantiateC1_7_x = C1_7_x::Instance();
+	AllGaussQuadratureRules& AllGaussQuadratureRules::instance() {
+		static AllGaussQuadratureRules theInstance;
+		return theInstance;
+	}
 
-    const C1_9_25& InstantiateC1_9_25 = C1_9_25::Instance();
+	void AllGaussQuadratureRules::addRule(const GaussQuadratureRule* rule) {
+		std::list<const GaussQuadratureRule*>& listForGeometry = listOfRules_[rule->forReferenceGeometry()];
+		std::list<const GaussQuadratureRule*>::iterator it = listForGeometry.begin();
+		while (it != listForGeometry.end()) {
+			if ((*it)->order() < rule->order())
+				++it;
+			else
+				break;
+		}
+		listForGeometry.insert(it, rule);
+	}
 
-    const C1_11_36& InstantiateC1_11_36 = C1_11_36::Instance();
-        //*************************SQUARE QUADRATURES*****************************
-    
-    const Cn2_1_1& InstantiateCn2_1_1 = Cn2_1_1::Instance();
-    
-    const Cn2_3_4& InstantiateCn2_3_4 = Cn2_3_4::Instance();
-    
-    const Cn2_5_9& InstantiateCn2_5_9 = Cn2_5_9::Instance();
+	const GaussQuadratureRule* AllGaussQuadratureRules::getRule(const Geometry::ReferenceGeometry* referenceGeometry, int order) {
+		for (const GaussQuadratureRule* rule : listOfRules_[referenceGeometry]) {
+			if (rule->order() >= order) {
+				return rule;
+			}
+		}
+		throw "Tried to find a quadrature rule but didn't find one";
+	}
 
-    const C2_7_4& InstantiateC2_7_4 = C2_7_4::Instance();
-    const C2_9_5& InstantiateC2_9_5 = C2_9_5::Instance();
-    const C2_11_6& InstantiateC2_11_6 = C2_11_6::Instance();
-        //*************************TRIANGLE QUADRATURES*****************************
-    const Tn2_1_1& InstantiateTn2_1_1 = Tn2_1_1::Instance();
-    
-    const Tn2_2_1& InstantiateTn2_2_1 = Tn2_2_1::Instance();
-    
-    const Tn2_3_1& InstantiateTn2_3_1 = Tn2_3_1::Instance();
-    
-    const Tn2_4_1& InstantiateTn2_4_1 = Tn2_4_1::Instance();
-    
-    const T2_5_1& InstantiateT2_5_1 = T2_5_1::Instance();
-    
-    const T2_6_1& InstantiateT2_6_1 = T2_6_1::Instance();
-    
-    const T2_7_1& InstantiateT2_7_1 = T2_7_1::Instance();
-    
-    const T2_8_1& InstantiateT2_8_1 = T2_8_1::Instance();
-    
-    const T2_9_1& InstantiateT2_9_1 = T2_9_1::Instance();
-    
-    const T2_10_1& InstantiateT2_10_1 = T2_10_1::Instance();
-
-    const T2_11_1& InstantiateT2_11_1 = T2_11_1::Instance();
-        //*************************CUBE QUADRATURES*****************************
-    
-    const Cn3_1_1& InstantiateCn3_1_1 = Cn3_1_1::Instance();
-    
-    const Cn3_3_4& InstantiateCn3_3_4 = Cn3_3_4::Instance();
-    
-    const Cn3_5_9& InstantiateCn3_5_9 = Cn3_5_9::Instance();
-
-    const C3_7_2& InstantiateC3_7_2 = C3_7_2::Instance();
-    const C3_9_2& InstantiateC3_9_2 = C3_9_2::Instance();
-    const C3_11_2& InstantiateC3_11_2 = C3_11_2::Instance();
-        //*************************PYRAMID QUADRATURES*****************************
-    
-    const Pyramid_1_1& InstantiatePyramid_1_1 = Pyramid_1_1::Instance();
-    
-    const Pyramid_3_1& InstantiatePyramid_3_1 = Pyramid_3_1::Instance();
-    
-    const Pyramid_5_1& InstantiatePyramid_5_1 = Pyramid_5_1::Instance();
-    
-    const Pyramid_7_1& InstantiatePyramid_7_1 = Pyramid_7_1::Instance();
-        //*************************TETRAHEDRON QUADRATURES*****************************
-    
-    const Tn3_1_1& InstantiateTn3_1_1 = Tn3_1_1::Instance();
-    
-    const Tn3_2_1& InstantiateTn3_2_1 = Tn3_2_1::Instance();
-    
-    const Tn3_3_1& InstantiateTn3_3_1 = Tn3_3_1::Instance();
-    
-    const Tn3_4_1& InstantiateTn3_4_1 = Tn3_4_1::Instance();
-    
-    const T3_5_1& InstantiateT3_5_1 = T3_5_1::Instance();
-    
-    const T3_6_1& InstantiateT3_6_1 = T3_6_1::Instance();
-    
-    const T3_7_1& InstantiateT3_7_1 = T3_7_1::Instance();
-    
-    const T3_8_1& InstantiateT3_8_1 = T3_8_1::Instance();
-    
-    const T3_9_1& InstantiateT3_9_1 = T3_9_1::Instance();
-    
-    const T3_10_1& InstantiateT3_10_1 = T3_10_1::Instance();
-        //*************************TRIANGULARPRISM QUADRATURES*****************************
-    
-    const TriPrism_1_1& InstantiateTriPrism_1_1 = TriPrism_1_1::Instance();
-    
-    const TriPrism_3_1& InstantiateTriPrism_3_1 = TriPrism_3_1::Instance();
-    
-    const TriPrism_5_1& InstantiateTriPrism_5_1 = TriPrism_5_1::Instance();
-    
-    const TriPrism_7_1& InstantiateTriPrism_7_1 = TriPrism_7_1::Instance();
-        //*************************HYPERCUBE QUADRATURES*****************************
-    
-    const Cn4_1_1& InstantiateCn4_1_1 = Cn4_1_1::Instance();
-    
-    const Cn4_3_4& InstantiateCn4_3_4 = Cn4_3_4::Instance();
 }

@@ -22,10 +22,9 @@
 #ifndef AssembleBasisFunctionSet_hpp
 #define AssembleBasisFunctionSet_hpp
 
-#include "BasisFunctionSet.hpp"
-
 namespace Base
 {
+	class BasisFunctionSet;
 
     //! Assemble set of BasisFunctions on 1D: { 1, x }
     void AssembleBasisFunctionSet_1D_Ord1_A0(Base::BasisFunctionSet& myBFSet);

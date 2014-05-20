@@ -21,6 +21,10 @@
 #include "PhysicalTriangle.hpp"
 #include <vector>
 
+#include "Geometry/ReferenceTriangle.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PointReference.hpp"
+
 namespace Geometry
 {
     PhysicalTriangle::PhysicalTriangle(
@@ -44,4 +48,9 @@ namespace Geometry
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
         indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
     }
+
+	unsigned int PhysicalTriangle::getNrOfFaces() const {
+		return refGeometry_->getNrOfCodim1Entities();
+	}
+
 }
