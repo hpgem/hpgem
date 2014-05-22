@@ -23,6 +23,8 @@
 #include "kspaceData.hpp"
 #include "BasisFunctionCollection_Curl.hpp"
 #include "Base/L2Norm.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include <cassert>
 
 KspaceData::KspaceData ( int pointsPerDirection ):minimumsize_(999999),current_(0)
 {
@@ -120,11 +122,11 @@ bool KspaceData::hasNextPoint()
 }
 
 
-NumericalVector& KspaceData::nextPoint()
+LinearAlgebra::NumericalVector& KspaceData::nextPoint()
 {
     //make sure the user is really done at this k-point
     assert(omegaAtKpoints_.size()>current_);
-    cout<<current_++<<endl;
+    std::cout<<current_++<<std::endl;
     if(functionValuesAtKpoints_.size()<current_){
         LinearAlgebra::NumericalVector one(1);
 	one[0]=48;
@@ -143,7 +145,7 @@ void KspaceData::setOmega ( std::vector< double >& omega )
     omegaAtKpoints_.push_back(omega);
 }
 
-void KspaceData::setFunctionValues(std::vector< NumericalVector >& functionValues)
+void KspaceData::setFunctionValues(std::vector< LinearAlgebra::NumericalVector >& functionValues)
 {
     if(functionValues.size()<minimumsize_){
         minimumsize_=functionValues.size();
@@ -164,9 +166,9 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
     for(int i=0;i<elements_.size();++i){
         for(int k=0;k<minimumsize_;++k){
 	    double localResult=0;
-	    std::vector<NumericalVector> kpointsWithHigherOmega,kpointsWithLowerOmega,fAtHigherPoints,fAtLowerPoints;
+	    std::vector<LinearAlgebra::NumericalVector> kpointsWithHigherOmega,kpointsWithLowerOmega,fAtHigherPoints,fAtLowerPoints;
 	    std::vector<double> omegaAtHigherPoints,omegaAtLowerPoints;
-	    NumericalVector deltakLocal[3],reciprocalk[3],localFunctionValue(result.size());
+	    LinearAlgebra::NumericalVector deltakLocal[3],reciprocalk[3],localFunctionValue(result.size());
 	    double deltaOmega[3];
 	    
 	    //find the location of the omega is constant plane wrt. the corners of the tetrahedron
@@ -196,7 +198,7 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
 		localResult=fabs(reciprocalk[0][0]*deltakLocal[0][0]+reciprocalk[0][1]*deltakLocal[0][1]+reciprocalk[0][2]*deltakLocal[0][2])/localResult;
 	      
 		//find the three corners of the intersection
-		NumericalVector corner[3],area;
+		LinearAlgebra::NumericalVector corner[3],area;
 		for(int j=0;j<3;++j){
 		    corner[j]=(omegaAtHigherPoints[0]-omega)/(omegaAtHigherPoints[0]-omegaAtLowerPoints[j])*kpointsWithLowerOmega[j]+
 			      (omega-omegaAtLowerPoints[j])/(omegaAtHigherPoints[0]-omegaAtLowerPoints[j])*kpointsWithHigherOmega[0];
@@ -228,7 +230,7 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
 		localResult=fabs(reciprocalk[0][0]*deltakLocal[0][0]+reciprocalk[0][1]*deltakLocal[0][1]+reciprocalk[0][2]*deltakLocal[0][2])/localResult;
 		
 		//find the four corners of the intersection
-		NumericalVector corner[4],area,f[4];
+		LinearAlgebra::NumericalVector corner[4],area,f[4];
 		for(int j=0;j<2;++j){
 		    corner[2*j  ]=(omegaAtHigherPoints[0]-omega)/(omegaAtHigherPoints[0]-omegaAtLowerPoints[j])*kpointsWithLowerOmega[j]+
 				  (omega-omegaAtLowerPoints[j])/(omegaAtHigherPoints[0]-omegaAtLowerPoints[j])*kpointsWithHigherOmega[0];
@@ -243,7 +245,7 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
 		
 		//split the quadrilateral in triangles so the barycentre is a bit easier to find when the LDOS is computed
 		OuterProduct(corner[1]-corner[0],corner[2]-corner[0],area);
-		NumericalVector temp=Base::L2Norm(area)*(f[0]+f[1]+f[2])*localResult/6;
+		LinearAlgebra::NumericalVector temp=Base::L2Norm(area)*(f[0]+f[1]+f[2])*localResult/6;
 		OuterProduct(corner[2]-corner[1],corner[3]-corner[1],area);
 		localResult*=(Base::L2Norm(area))/6;
 		localFunctionValue=(f[1]+f[2]+f[3])*localResult;
@@ -262,7 +264,7 @@ void KspaceData::getIntegral ( double omega, LinearAlgebra::NumericalVector& res
 		localResult=fabs(reciprocalk[0][0]*deltakLocal[0][0]+reciprocalk[0][1]*deltakLocal[0][1]+reciprocalk[0][2]*deltakLocal[0][2])/localResult;
 		
 		//find the three corners of the intersection
-		NumericalVector corner[3],area;
+		LinearAlgebra::NumericalVector corner[3],area;
 		for(int j=0;j<3;++j){
 		    corner[j]=(omega-omegaAtLowerPoints[0])/(omegaAtHigherPoints[j]-omegaAtLowerPoints[0])*kpointsWithHigherOmega[j]+
 			      (omegaAtHigherPoints[j]-omega)/(omegaAtHigherPoints[j]-omegaAtLowerPoints[0])*kpointsWithLowerOmega[0];

@@ -39,6 +39,10 @@
 #include "Integration/ElementIntegrandBase.hpp"
 #include "Integration/FaceIntegrandBase.hpp"
 #include "Output/TecplotSingleElementWriter.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Base/FaceCacheData.hpp"
+#include "Base/ElementCacheData.hpp"
+#include "Base/ConfigurationData.hpp"
 
 typedef Base::MeshManipulator BaseMeshManipulatorT;
 typedef Base::threeDBasisFunction basisFunctionT;
@@ -84,8 +88,8 @@ public:
 	
 	//mesh->readCentaurMesh("Cylinder3.hyb");
 	//mesh->readCentaurMesh("input_basic2.hyb");
-	//mesh->readCentaurMesh("FicheraGlobRefine3.hyb");
-	mesh->createTriangularMesh(bottomLeft,topRight,numElementsOneD);
+	mesh->readCentaurMesh("Cube_final.hyb");
+	//mesh->createTriangularMesh(bottomLeft,topRight,numElementsOneD);
 	const_cast<MaxwellData*>(getData())->numberOfUnknowns_=(*mesh->elementColBegin())->getNrOfBasisFunctions();
 	setConfigData();
 	addMesh(mesh);
@@ -108,8 +112,8 @@ public:
         ret.resize(element->getNrOfBasisFunctions(),element->getNrOfBasisFunctions());
         //cout<<"\nIn the element integrand for the mass matrix for element id: "<<element->getID();
         ElementInfos* info = static_cast<ElementInfos*> (const_cast<ElementT*>(element)->getUserData());
-		NumericalVector phi_i(3),phi_j(3);
-		std::vector<NumericalVector> functionValues;
+		LinearAlgebra::NumericalVector phi_i(3),phi_j(3);
+		std::vector<LinearAlgebra::NumericalVector> functionValues;
 		info->makeFunctionValuesVector(element,p,functionValues);
 		for(int i=0;i<element->getNrOfBasisFunctions();++i){
 			phi_i=functionValues[i];
@@ -126,7 +130,7 @@ public:
      * i.e. -.5( (nabla x phi_i) * phi_j + phi_i * (nabla x phi_j) )
      * returns the contibutions at this gauss point to the entire face matrix in one go
      */
-    void faceIntegrand(const FaceT* face, const NumericalVector& normal, const PointFaceReferenceT& p, LinearAlgebra::Matrix& ret){
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointFaceReferenceT& p, LinearAlgebra::Matrix& ret){
         //cout<<"\nIn the face integrand for the stiffness matrix for element id: "<<face->getPtrElementLeft()->getID();
 		ElementT* right;
 		ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
@@ -134,10 +138,10 @@ public:
 		ElementInfos* rightInfo;
 		PointElementReferenceT pLeft(3),pRight(3);
 		face->mapRefFaceToRefElemL(p,pLeft);
-		std::vector<NumericalVector> leftValues,leftCurls,rightValues,rightCurls;
+		std::vector<LinearAlgebra::NumericalVector> leftValues,leftCurls,rightValues,rightCurls;
 		leftInfo->makeFunctionValuesVector(left,pLeft,leftValues);
 		leftInfo->makeFunctionCurlsVector(left,pLeft,leftCurls);
-		NumericalVector normedNormal(3);
+		LinearAlgebra::NumericalVector normedNormal(3);
 		normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
 		normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
 		normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
@@ -153,7 +157,7 @@ public:
 			rightInfo->makeFunctionCurlsVector(right,pRight,rightCurls);
 		}
 		ret.resize(dimension,dimension);
-		NumericalVector phi_i(3),phi_j(3),phi_i_curl(3),phi_j_curl(3),dummy(3);
+		LinearAlgebra::NumericalVector phi_i(3),phi_j(3),phi_i_curl(3),phi_j_curl(3),dummy(3);
 		for(int i=0;i<dimension;++i){
 			if(i<leftSize){
 				dummy=leftValues[i];
@@ -184,7 +188,7 @@ public:
     /**
      * this is where you specify an initial condition
      */
-    void initialConditions(const PointPhysicalT& p, NumericalVector& ret){
+    void initialConditions(const PointPhysicalT& p, LinearAlgebra::NumericalVector& ret){
         exactSolution(p,0,ret);
     }
     
@@ -193,7 +197,7 @@ public:
      *
      * support temporarily dropped
      */
-    void initialConditionsDeriv(const PointPhysicalT& p, NumericalVector& ret){
+    void initialConditionsDeriv(const PointPhysicalT& p, LinearAlgebra::NumericalVector& ret){
         ret[0]=0;
 	ret[1]=0;
 	ret[2]=0;
@@ -203,7 +207,7 @@ public:
      * this is where you specify the spatial part of the source Term
      * assumes that the source term can be split is a spatial part and a time part
      */
-    void sourceTerm(const PointPhysicalT& p, NumericalVector& ret){
+    void sourceTerm(const PointPhysicalT& p, LinearAlgebra::NumericalVector& ret){
 //         ret[0]=0;
 // 	ret[1]=0;
 // 	ret[2]=0;
@@ -225,7 +229,7 @@ public:
      * this will only have an effect on the accuracy of your error estimates
      * as a temporary solution remember to also update the exact solution in fillMatrices.cpp
      */
-    void exactSolution(const PointPhysicalT& p, const double t, NumericalVector &ret){
+    void exactSolution(const PointPhysicalT& p, const double t, LinearAlgebra::NumericalVector &ret){
          ret[0]=sin(M_PI*2*p[1])*sin(M_PI*2*p[2]);
          ret[1]=sin(M_PI*2*p[2])*sin(M_PI*2*p[0]);
          ret[2]=sin(M_PI*2*p[0])*sin(M_PI*2*p[1]);
@@ -243,7 +247,7 @@ public:
      * this is where you choose the curl of the solution of your problem
      * this will only have an effect on the accuracy of your error estimates
      */  
-    void exactSolutionCurl(const PointPhysicalT& p, const double t, NumericalVector &ret){
+    void exactSolutionCurl(const PointPhysicalT& p, const double t, LinearAlgebra::NumericalVector &ret){
          ret[0]=sin(M_PI*2*p[0])*(cos(M_PI*2*p[1])-cos(M_PI*2*p[2]));
          ret[1]=sin(M_PI*2*p[1])*(cos(M_PI*2*p[2])-cos(M_PI*2*p[0]));
          ret[2]=sin(M_PI*2*p[2])*(cos(M_PI*2*p[0])-cos(M_PI*2*p[1]));
@@ -269,14 +273,14 @@ int main(int argc,char** argv){
     int elements = 1;
     if(argc>1){
         elements=std::atoi(argv[1]);
-	cout<<"using "<<elements*elements*elements*5<<" elements"<<endl;
+	std::cout<<"using "<<elements*elements*elements*5<<" elements"<<std::endl;
     }
     int order = 1;
     if(argc>2){
         order=std::atoi(argv[2]);
-	cout<<"using polynomial order: "<<order<<endl;
+	std::cout<<"using polynomial order: "<<order<<std::endl;
     }else{
-        cout<<"usage:./Maxwell.out <elements> <order> [<petsc-args>]";
+        std::cout<<"usage:./Maxwell.out <elements> <order> [<petsc-args>]";
 	exit(1);
     }
     //set up problem and decide flux type
@@ -293,9 +297,9 @@ int main(int argc,char** argv){
 	time(&end);
 	
 	//display timing data
-	cout<<"Initialisation took "<<difftime(initialised,start)<<" seconds."<<endl;
-	cout<<"Solving the problem took "<<difftime(solved,initialised)<<" seconds."<<endl;
-	cout<<"The rest took "<<difftime(end,solved)<<" seconds."<<endl;
+	std::cout<<"Initialisation took "<<difftime(initialised,start)<<" seconds."<<std::endl;
+	std::cout<<"Solving the problem took "<<difftime(solved,initialised)<<" seconds."<<std::endl;
+	std::cout<<"The rest took "<<difftime(end,solved)<<" seconds."<<std::endl;
 	
     }catch(const char* message){
         std::cout << message;

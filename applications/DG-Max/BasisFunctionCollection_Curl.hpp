@@ -33,7 +33,7 @@
  * \param [in] a,b The 2 vectors that you want the outer product of.
  * \param [out] ret  a x b
  */
-void OuterProduct(const NumericalVector& a,const NumericalVector& b,NumericalVector& ret);
+void OuterProduct(const LinearAlgebra::NumericalVector& a,const LinearAlgebra::NumericalVector& b,LinearAlgebra::NumericalVector& ret);
 
 namespace Base
 {    
@@ -77,7 +77,7 @@ namespace Base
 	 * \param [in] p The point where the derivative should be evaluated.
 	 * \param [out] ret a length 3 vector equal to {\ref evalDeriv0(p),\ref evalDeriv1(p),\ref evalDeriv2(p)}
 	 */
-        virtual void evalDeriv(const PointReferenceT& p, NumericalVector& ret);
+        virtual void evalDeriv(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret);
         static Basis_Curl_Bari barycentricFunctions[];
     };
     
@@ -109,14 +109,14 @@ namespace Base
 	 * \param [in] p The point where the derivative should be evaluated.
 	 * \param [out] ret The value of the basis function
 	 */
-	virtual void eval(const PointReferenceT& p, NumericalVector& ret) const=0;
+	virtual void eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const=0;
 	
 	/**
 	 * Computes the curl of the basis functions. Implementations should prefer analytic derivation over numerical.
 	 * \param [in] p The point where the curl should be evaluated
 	 * \param [out] ret The curl of the basis function
 	 */
-	virtual void evalCurl(const PointReferenceT& p, NumericalVector& ret) const=0;
+	virtual void evalCurl(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const=0;
     };
     
     //! Curl conforming edge functions.
@@ -125,9 +125,9 @@ namespace Base
         const int deg,o,i;
         Basis_Curl_Edge(int degree, int localFirstVertex, int localSecondVertex);
         
-	virtual void eval(const PointReferenceT& p, NumericalVector& ret) const;
+	virtual void eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual void evalCurl(const PointReferenceT& p,NumericalVector& ret) const;
+        virtual void evalCurl(const PointReferenceT& p,LinearAlgebra::NumericalVector& ret) const;
 	
 	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical node);
     };
@@ -138,9 +138,9 @@ namespace Base
         int deg,a,b,c;
         Basis_Curl_Edge_Face(int degree, int localOpposingVertex, int localSpecialVertex);
         
-        virtual void eval(const PointReferenceT& p, NumericalVector& ret) const;
+        virtual void eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
         
-        virtual void evalCurl(const PointReferenceT& p, NumericalVector& ret) const;
+        virtual void evalCurl(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 	
 	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical node);
     };
@@ -151,9 +151,9 @@ namespace Base
         int deg1,deg2,a,b,c;
         Basis_Curl_Face(int degree1,int degree2, int localOpposingVertex, int direction);
         
-        virtual void eval(const PointReferenceT& p, NumericalVector& ret) const;
+        virtual void eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual void evalCurl(const PointReferenceT& p, NumericalVector& ret) const;
+        virtual void evalCurl(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 	
 	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical node);
     };
@@ -164,9 +164,9 @@ namespace Base
         int deg1,deg2,a,b,c,d;
         Basis_Curl_Face_interior(int degree1,int degree2, int localOpposingVertex);
         
-        virtual void eval(const PointReferenceT& p, NumericalVector& ret) const;
+        virtual void eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual void evalCurl(const PointReferenceT& p, NumericalVector& ret) const;
+        virtual void evalCurl(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 	
 	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical node);
     };
@@ -177,9 +177,9 @@ namespace Base
         const int deg1,deg2,deg3,direction;
         Basis_Curl_interior(int degree1,int degree2,int degree3, int direction);
                 
-        virtual void eval(const PointReferenceT& p, NumericalVector& ret) const;
+        virtual void eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual void evalCurl(const PointReferenceT& p, NumericalVector& ret) const;
+        virtual void evalCurl(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 	
 	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical node);
     };
