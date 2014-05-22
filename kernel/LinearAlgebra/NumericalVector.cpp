@@ -44,7 +44,7 @@ namespace LinearAlgebra
     
     NumericalVector::NumericalVector(const double array[], int size) : data_(array,size){}
     
-    void NumericalVector::resize(unsigned int size) { data_.resize(size); }
+    void NumericalVector::resize(unsigned int size) { if(size!=data_.size())data_.resize(size); }
     
     NumericalVector& NumericalVector::operator= (const NumericalVector& right){data_=right.data_; return *this;}
     
@@ -154,9 +154,10 @@ namespace LinearAlgebra
     
     bool NumericalVector::operator== (const NumericalVector& right) const
     {
-    	if(data_.size()!=right.data_.size())
+    	int n=data_.size();
+    	if(n!=right.data_.size())
     		return false;
-        for (int i = 0; i < data_.size(); ++i)
+        for (int i = 0; i < n; ++i)
         {
             if (data_[i] != right.data_[i]) return false;
         }

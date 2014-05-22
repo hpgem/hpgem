@@ -24,10 +24,17 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/ReferencePyramid.hpp"
+#include "Geometry/ReferenceSquare.hpp"
+#include "Geometry/ReferenceLine.hpp"
+#include "Geometry/ReferenceTriangle.hpp"
+#include "Geometry/ReferencePoint.hpp"
 #include <iostream>
 #include "cassert"
 
 #include "Geometry/PointReference.hpp"
+#include "Geometry/Mappings/MappingToRefFaceToPyramid.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 using Geometry::ReferencePyramid;
 
 int main(){

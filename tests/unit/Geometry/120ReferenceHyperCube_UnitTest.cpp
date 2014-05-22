@@ -24,10 +24,16 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/ReferenceHypercube.hpp"
+#include "Geometry/ReferenceCube.hpp"
+#include "Geometry/ReferenceSquare.hpp"
+#include "Geometry/ReferenceLine.hpp"
+#include "Geometry/ReferencePoint.hpp"
 #include <iostream>
 #include "cassert"
 
 #include "Geometry/PointReference.hpp"
+#include "Geometry/Mappings/MappingToRefCubeToHypercube.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 using Geometry::ReferenceHypercube;
 
 int main(){

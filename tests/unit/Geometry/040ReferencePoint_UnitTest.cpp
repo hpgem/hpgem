@@ -29,6 +29,8 @@
 
 #include "Geometry/PointReference.hpp"
 #include "Geometry/Mappings/MappingToRefPointToPoint.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+
 using Geometry::ReferencePoint;
 
 int main(){

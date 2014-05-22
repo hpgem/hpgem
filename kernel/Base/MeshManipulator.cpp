@@ -40,6 +40,7 @@
 #include "Geometry/PointReference.hpp"
 #include "ElementCacheData.hpp"
 #include "FaceCacheData.hpp"
+#include "BaseBasisFunction.hpp"
 
 #include <cassert>
 

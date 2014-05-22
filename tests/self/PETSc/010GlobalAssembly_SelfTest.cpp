@@ -200,11 +200,11 @@ int main(){
 	PetscInitializeNoArguments();
 	Laplace test0(1,2,1,Base::RECTANGULAR);
 	test0.initialise();
-	std::cout<<test0.solve()<<std::endl;
+        std::cout.precision(10);
 	assert(("comparison to old results",(test0.solve()-0.35188045)<1e-8));
 	Laplace test1(2,3,1,Base::RECTANGULAR);
 	test1.initialise();
-	assert(("comparison to old results",(test1.solve()-0.01607749)<1e-8));
+	assert(("comparison to old results",(test1.solve()-0.01607777)<1e-8));
 	Laplace test2(4,4,1,Base::RECTANGULAR);
 	test2.initialise();
 	assert(("comparison to old results",(test2.solve()-0.00007200)<1e-8));
@@ -213,13 +213,13 @@ int main(){
 	assert(("comparison to old results",(test3.solve()-0.00000008)<1e-8));
 	Laplace test4(16,1,1,Base::RECTANGULAR);
 	test4.initialise();
-	assert(("comparison to old results",(test4.solve()-0.00880380)<1e-8));
+	assert(("comparison to old results",(test4.solve()-0.00880382)<1e-8));
 	Laplace test5(1,2,2,Base::TRIANGULAR);
 	test5.initialise();
-	assert(("comparison to old results",(test5.solve()-0.17226144)<1e-8));
+	assert(("comparison to old results",(test5.solve()-0.18046613)<1e-8));
 	Laplace test6(2,3,2,Base::TRIANGULAR);
 	test6.initialise();
-	assert(("comparison to old results",(test6.solve()-0.01782337)<1e-8));
+	assert(("comparison to old results",(test6.solve()-0.01787805)<1e-8));
 	Laplace test7(4,4,2,Base::TRIANGULAR);
 	test7.initialise();
 	assert(("comparison to old results",(test7.solve()-0.00035302)<1e-8));
@@ -228,7 +228,7 @@ int main(){
 	assert(("comparison to old results",(test8.solve()-0.00000061)<1e-8));
 	Laplace test9(16,1,2,Base::TRIANGULAR);
 	test9.initialise();
-	assert(("comparison to old results",(test9.solve()-0.00448270)<1e-8));
+	assert(("comparison to old results",(test9.solve()-0.00448333)<1e-8));
 	PetscFinalize();
 	return 0;
 }

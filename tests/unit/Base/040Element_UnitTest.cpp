@@ -37,6 +37,7 @@
 #include "Geometry/PointReference.hpp"
 #include "Base/ElementCacheData.hpp"
 #include "LinearAlgebra/Matrix.hpp"
+#include "Base/BaseBasisFunction.hpp"
 
 int main() {
 
@@ -100,7 +101,7 @@ int main() {
 	copy.setGaussQuadratureRule(&QuadratureRules::Cn3_3_4::Instance());
 
 	assert(("setQuadratureRule",test.getGaussQuadratureRule()->order()>=8));
-	assert(("setQuadratureRule",typeid(*copy.getGaussQuadratureRule())==typeid(QuadratureRules::Cn3_3_4)));
+	assert(("setQuadratureRule",typeid(*copy.getGaussQuadratureRule())==typeid(QuadratureRules::Cn3_3_4::Instance())));
 
 	//check set*BasisFunctionSet without breaking preconditions...
 

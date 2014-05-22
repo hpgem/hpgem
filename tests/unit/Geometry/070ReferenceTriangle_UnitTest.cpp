@@ -24,10 +24,15 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/ReferenceTriangle.hpp"
+#include "Geometry/ReferenceLine.hpp"
+#include "Geometry/ReferencePoint.hpp"
 #include <iostream>
 #include "cassert"
 
 #include "Geometry/PointReference.hpp"
+#include "Geometry/Mappings/MappingToRefLineToTriangle.hpp"
+#include "Geometry/Mappings/MappingToRefTriangleToTriangle.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 using Geometry::ReferenceTriangle;
 
 int main(){

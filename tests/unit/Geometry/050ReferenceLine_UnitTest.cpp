@@ -24,12 +24,14 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/ReferenceLine.hpp"
+#include "Geometry/ReferencePoint.hpp"
 #include <iostream>
 #include "cassert"
 
 #include "Geometry/PointReference.hpp"
 #include "Geometry/Mappings/MappingToRefLineToLine.hpp"
 #include "Geometry/Mappings/MappingToRefPointToLine.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 using Geometry::ReferenceLine;
 
 int main(){

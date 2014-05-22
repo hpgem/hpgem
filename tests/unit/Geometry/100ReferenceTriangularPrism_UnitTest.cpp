@@ -23,10 +23,16 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/ReferenceTriangularPrism.hpp"
+#include "Geometry/ReferenceTriangle.hpp"
+#include "Geometry/ReferenceSquare.hpp"
+#include "Geometry/ReferenceLine.hpp"
+#include "Geometry/ReferencePoint.hpp"
 #include <iostream>
 #include "cassert"
 
 #include "Geometry/PointReference.hpp"
+#include "Geometry/Mappings/MappingToRefFaceToTriangularPrism.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 using Geometry::ReferenceTriangularPrism;
 
 int main(){

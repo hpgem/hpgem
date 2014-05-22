@@ -38,6 +38,7 @@
 #include "Geometry/PointReference.hpp"
 #include "Base/FaceCacheData.hpp"
 #include "Base/ElementCacheData.hpp"
+#include "Base/BaseBasisFunction.hpp"
 
 int main() {
 
@@ -101,7 +102,7 @@ int main() {
 
 	test.setGaussQuadratureRule(&QuadratureRules::Cn2_3_4::Instance());
 
-	assert(("setQuadratureRule",typeid(*test.getGaussQuadratureRule())==typeid(QuadratureRules::Cn2_3_4)));
+	assert(("setQuadratureRule",typeid(*test.getGaussQuadratureRule())==typeid(QuadratureRules::Cn2_3_4::Instance())));
 
 	//check set*BasisFunctionSet without breaking preconditions...
 

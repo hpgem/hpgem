@@ -24,10 +24,15 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/ReferenceTetrahedron.hpp"
+#include "Geometry/ReferenceTriangle.hpp"
+#include "Geometry/ReferenceLine.hpp"
+#include "Geometry/ReferencePoint.hpp"
 #include <iostream>
 #include "cassert"
 
 #include "Geometry/PointReference.hpp"
+#include "Geometry/Mappings/MappingToRefTriangleToTetrahedron.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 using Geometry::ReferenceTetrahedron;
 
 int main(){
