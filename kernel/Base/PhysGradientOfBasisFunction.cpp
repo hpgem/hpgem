@@ -188,7 +188,7 @@ namespace Utilities {
 	 const unsigned int                  myFunctionNumber_;
 	 };*/
 	void PhysGradientOfBasisFunction::operator ()(const PointReferenceT& p, RetType& r) const {
-		unsigned int DIM = p.size();
+		const unsigned int DIM = p.size();
 		r.resize(DIM);
 		RetType dummy(DIM);
 		Geometry::Jacobian jac(DIM, DIM);
@@ -197,11 +197,13 @@ namespace Utilities {
 		jac.inverse(jac);
 		//r*=jac;///\todo can someone who knows BLAS update the linAlg routines?
 		for (int i = 0; i < DIM; ++i) {
+                        //std::cout<<dummy[i]<<" ";
 			r[i] = 0;
 			for (int j = 0; j < DIM; ++j) {
 				r[i] += dummy[j] * jac(j, i);
 			}
 		}
+                //std::cout<<std::endl;
 	}
 
 }

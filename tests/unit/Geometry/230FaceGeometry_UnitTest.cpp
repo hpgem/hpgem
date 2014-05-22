@@ -27,6 +27,7 @@
 #include "cassert"
 
 #include "Geometry/ReferenceLine.hpp"
+#include "Geometry/ReferencePoint.hpp"
 #include "Geometry/PointPhysical.hpp"
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ElementGeometry.hpp"

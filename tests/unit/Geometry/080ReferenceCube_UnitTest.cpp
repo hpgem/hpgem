@@ -24,13 +24,16 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/ReferenceCube.hpp"
+#include "Geometry/ReferenceSquare.hpp"
+#include "Geometry/ReferenceLine.hpp"
+#include "Geometry/ReferencePoint.hpp"
 #include <iostream>
 #include "cassert"
 
 #include "Geometry/PointReference.hpp"
-#include "Geometry/ReferenceSquare.hpp"
 #include "Geometry/Mappings/MappingToRefSquareToCube.hpp"
 #include "Geometry/Mappings/MappingToRefCubeToCube.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 using Geometry::ReferenceCube;
 
 int main(){

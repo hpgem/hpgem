@@ -45,6 +45,7 @@ namespace Base
 	class Face;
 	class BasisFunctionSet;
 	class ElementCacheData;
+        class BaseBasisFunction;
 
     class Element: public Geometry::ElementGeometry,
                    public ElementData

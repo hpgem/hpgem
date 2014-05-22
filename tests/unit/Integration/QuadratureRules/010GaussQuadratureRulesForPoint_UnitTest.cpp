@@ -27,6 +27,7 @@
 #include <cassert>
 #include <iostream>
 #include "Geometry/PointReference.hpp"
+#include "Geometry/ReferencePoint.hpp"
 
 void testRule(QuadratureRules::GaussQuadratureRule& test){
 	std::cout<<test.getName();
