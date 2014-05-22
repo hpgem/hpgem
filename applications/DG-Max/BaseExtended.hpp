@@ -35,6 +35,7 @@
 #include <ctime>
 #include "ElementInfos.hpp"
 #include "fillMatrices.hpp"
+#include "Output/TecplotSingleElementWriter.hpp"
 
 #include "BasisFunctionCollection_Curl.hpp"//TODO fix project set-up
 typedef Base::threeDBasisFunction basisFunctionT;
@@ -132,7 +133,7 @@ public:
      * \param [out] ret the contributions to the stifness matrix from this point. This should not yet be scaled down with the weight of this point!
      * For internal faces the integration expects that this matrix contains first contributions associated with the left element and then with the right element
      */
-    virtual void faceIntegrand(const FaceT *face, const NumericalVector &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
+    virtual void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
 
     //virtual void faceIntegrandIPPart(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
 
@@ -144,7 +145,7 @@ public:
      * \param [in] t the time when the exact solution is wanted
      * \param [out] ret the exact field at p, accoriding to analytical predicions
      */
-    virtual void exactSolution(const PointPhysicalT& p, const double t, NumericalVector &ret) {}
+    virtual void exactSolution(const PointPhysicalT& p, const double t, LinearAlgebra::NumericalVector &ret) {}
 
     /**
      * provides the curl of the exact solution, for comparison purposes. If no exact curl is implemented this function produces nonsense.
@@ -152,14 +153,14 @@ public:
      * \param [in] t the time when the exact solution is wanted
      * \param [out] ret the exact field at p, accoriding to analytical predicions
      */
-    virtual void exactSolutionCurl(const PointPhysicalT& p, const double t, NumericalVector &ret) {}
+    virtual void exactSolutionCurl(const PointPhysicalT& p, const double t, LinearAlgebra::NumericalVector &ret) {}
 
     /**
      * provides the initial condition for the time dependent solution
      * \param [in] p the point where the initial condition is wanted
      * \param [out] ret the initial field at p
      */
-    virtual void initialConditions(const PointPhysicalT &p, NumericalVector &ret)=0;
+    virtual void initialConditions(const PointPhysicalT &p, LinearAlgebra::NumericalVector &ret)=0;
 
     /**
      * integrand used for the computation of the initial expansion coefficients
@@ -182,7 +183,7 @@ public:
      * Integrand used for the computation of the boundary contributions to the RHS. This will be scaled by the same time dependent factor as in the source therm, just like in the original code by Domokos.
      * This version computes the terms that are common to both the Brezzi flux and the Interior Penalty flux
      */
-    void faceIntegrand(const FaceT *face, const NumericalVector &normal, const PointFaceReferenceT &p, LinearAlgebra::NumericalVector &ret);
+    void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector &normal, const PointFaceReferenceT &p, LinearAlgebra::NumericalVector &ret);
 
     //void sourceTermBoundaryBR(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret);
 
@@ -191,7 +192,7 @@ public:
      * \param [in] p The point in space where the initial solution is to be evaluated.
      * \param [out] ret The time derivative of the source term.
      */
-    virtual void initialConditionsDeriv(const PointPhysicalT &p, NumericalVector &ret)=0;
+    virtual void initialConditionsDeriv(const PointPhysicalT &p, LinearAlgebra::NumericalVector &ret)=0;
 
     /**
      * Integrand used for the computation of the time derivative of the initial solution
@@ -199,7 +200,7 @@ public:
      */
     void initialConditionsDeriv(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret); 
 
-    typedef void (hpGemUIExtentions::*writeFunction)(const ElementT&,const PointElementReferenceT&,ostream&);
+    typedef void (hpGemUIExtentions::*writeFunction)(const ElementT&,const PointElementReferenceT&,std::ostream&);
     
     /**
      * Expand the solution back from the expansion coefficients and write them to an output stream
@@ -207,7 +208,7 @@ public:
      * \param [in] t the timelevel that is wanted in the output.
      * \param output an output stream ready to accept the solution values
      */
-    void writeToTecplotFile(const ElementT* element, const PointElementReferenceT& p, ostream& output);
+    void writeToTecplotFile(const ElementT* element, const PointElementReferenceT& p, std::ostream& output);
 
     //tecplotwriter is also avaiable in the hpGEM kernel
     //void writeTecplotFile(const MeshManipulatorT& mesh, const char* zonetitle, const int timelevel, std::ofstream& file, const bool existingFile); 
@@ -220,7 +221,7 @@ public:
     /**
      * Integrand for the comutation of the jump part of the DG error
      */
-    void faceIntegrand(const FaceT *face, const NumericalVector &normal, const PointFaceReferenceT &p, errorData &ret);
+    void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector &normal, const PointFaceReferenceT &p, errorData &ret);
 
     void LDOSIntegrand(const ElementT *element, const PointElementReferenceT &p, double &ret);
     
@@ -258,7 +259,7 @@ public:
     /**
      * makes a matrix with the shifts
      */
-    void makeShiftMatrix(NumericalVector& direction, Vec& waveVecMatrix);
+    void makeShiftMatrix(LinearAlgebra::NumericalVector& direction, Vec& waveVecMatrix);
 
     /**
      * Tell PETSc the places where special care must be taken because of periodic boundary conditions
@@ -298,7 +299,7 @@ public:
     /**
      * given an eigenvector, prepare an expression for f(x) in int(f(x)*delta(omega) dx)
      */
-    void makeFunctionValue(Vec eigenVector, NumericalVector& result);
+    void makeFunctionValue(Vec eigenVector, LinearAlgebra::NumericalVector& result);
 };
 
 #endif

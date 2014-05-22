@@ -21,6 +21,13 @@
 #ifndef FaceIntegrandBase_hpp
 #define FaceIntegrandBase_hpp
 
+namespace Base {
+    class Face;
+}
+
+namespace LinearAlgebra {
+    class NumericalVector;
+}
 
 namespace Integration
 {

@@ -28,14 +28,17 @@
 #include "Base/Element.hpp"
 #include "Base/Face.hpp"
 #include "BasisFunctionCollection_Curl.hpp"
+#include "Base/GlobalData.hpp"
+#include "Geometry/Jacobian.hpp"
+
 typedef Geometry::PointReference PointElementReferenceT;
-#if __cplusplus<=199711L
+//#if __cplusplus<=199711L
 #include "map"
-typedef std::map<PointElementReferenceT,std::vector<NumericalVector> > myMap;
-#else
-#include "unordered_map"
-typedef std::unordered_map<PointElementReferenceT,std::vector<NumericalVector> > myMap;//the unordered_map trades functionality for speed
-#endif
+typedef std::map<PointElementReferenceT,std::vector<LinearAlgebra::NumericalVector> > myMap;
+//#else
+//#include "unordered_map"
+//typedef std::unordered_map<PointElementReferenceT,std::vector<LinearAlgebra::NumericalVector> > myMap;//the unordered_map trades functionality for speed
+//#endif
 
 typedef Base::threeDBasisFunction basisFunctionT;
 typedef Geometry::PointReference PointFaceReferenceT;
@@ -77,12 +80,12 @@ public:
     /**
      * gets the function values of the function on the reference element
      */
-    static void getFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<NumericalVector>& values);
+    static void getFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& values);
     
     /**
      * gets the curl of the function on the reference element
      */
-    static void getFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<NumericalVector>& curls);
+    static void getFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& curls);
 };
 
 /**
@@ -100,12 +103,12 @@ public:
     /**
      * gets the basisfunction values on one mantissa from the reference element and transforms them based on the current element
      */
-    void makeFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<NumericalVector>& values);
+    void makeFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& values);
     
     /**
      * gets the curls of the baisfunction values on one mantissa from the reference element and transforms them based on the current element
      */
-    void makeFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<NumericalVector>& curls);
+    void makeFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& curls);
 };
 
 

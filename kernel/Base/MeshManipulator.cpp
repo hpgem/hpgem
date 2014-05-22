@@ -1673,7 +1673,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 		tempElementVector.push_back(newElement);
 		
 		for(int j=0;j<8;++j){
-		    listOfElementsForEachNode[globalNodeIndexes[j] ].push_back(newElement->getID()-1);
+		    listOfElementsForEachNode[globalNodeIndexes[j] ].push_back(newElement->getID());
 		}
 	    }
 	    centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
@@ -1722,7 +1722,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 		tempElementVector.push_back(newElement);
 		
 		for(int j=0;j<6;++j){
-		    listOfElementsForEachNode[globalNodeIndexes[j] ].push_back(newElement->getID()-1);
+		    listOfElementsForEachNode[globalNodeIndexes[j] ].push_back(newElement->getID());
 		}
 	}
 	centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
@@ -1812,7 +1812,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 		tempElementVector.push_back(newElement);
 		
 		for(int j=0;j<5;++j){
-		    listOfElementsForEachNode[globalNodeIndexes[j] ].push_back(newElement->getID()-1);
+		    listOfElementsForEachNode[globalNodeIndexes[j] ].push_back(newElement->getID());
 		}
 	    }
 	    centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
@@ -1860,7 +1860,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 	    tempElementVector.push_back(newElement);
 	    
 	    for(int j=0;j<4;++j){
-		listOfElementsForEachNode[globalNodeIndexes[j] ].push_back(newElement->getID()-1);
+		listOfElementsForEachNode[globalNodeIndexes[j] ].push_back(newElement->getID());
 	    }
 	}
 	centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
@@ -2192,6 +2192,7 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
     //step 1: the element should be connected to all of the given nodes
         
     std::list<int>::iterator aEntry(a.begin()), bEntry(b.begin()), cEntry(c.begin()), otherEntry(notOnFace.begin());
+    std::cout<<a.size()<<" "<<b.size()<<" "<<c.size()<<" "<<notOnFace.size()<<std::endl;
     
     //assumes the lists are already sorted
     while(!(*aEntry==*bEntry && *aEntry==*cEntry && *aEntry==*otherEntry)){
@@ -2199,11 +2200,13 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
         if(*bEntry    <*cEntry    ){bEntry++;}
         if(*cEntry    <*otherEntry){cEntry++;}
         if(*otherEntry<*aEntry    ){otherEntry++;}
+        std::cout<<*aEntry<<" "<<*bEntry<<" "<<*cEntry<<" "<<*otherEntry<<std::endl;
         assert(aEntry!=a.end());
 	assert(bEntry!=b.end());
 	assert(cEntry!=c.end());
 	assert(otherEntry!=notOnFace.end());
     }
+    std::cout<<*aEntry<<" "<<*bEntry<<" "<<*cEntry<<" "<<*otherEntry<<std::endl;
     
     face.elementNum=*aEntry;
     
@@ -2226,71 +2229,71 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
 }
 
 //in principle this will also work for 2D but fixing DIM makes the code a lot easier to read
-void MeshManipulator::constructInternalFaces(std::vector<std::list<int> >& listOfElementsForEachNode,std::vector<Element*>& vectorOfElements)
-{
-    for(typename std::list<Element* >::iterator currentElement=elements_.begin();currentElement!=elements_.end();++currentElement){
-        for(int currentFace=0;currentFace<(*currentElement)->getPhysicalGeometry()->getNrOfFaces();++currentFace){
-	  
-	    //step 1: find the other element
-	    std::list<int>::iterator elementListEntry[3];
-	    std::vector<unsigned int> faceNode;
-	    (*currentElement)->getPhysicalGeometry()->getGlobalFaceNodeIndices(currentFace,faceNode);
-	    for(int i=0;i<3;++i){
-	        elementListEntry[i]=listOfElementsForEachNode[faceNode[i]].begin();
-	    }
-	    while(!(*elementListEntry[0]==*elementListEntry[1] && *elementListEntry[0]==*elementListEntry[2])){
-	        if(*elementListEntry[0]<*elementListEntry[1]){elementListEntry[0]++;}
-	        if(*elementListEntry[1]<*elementListEntry[2]){elementListEntry[1]++;}
-	        if(*elementListEntry[2]<*elementListEntry[0]){elementListEntry[2]++;}
-	    }
-	    if(*elementListEntry[0]!=(*currentElement)->getID()-1){
-		//cout<<"found candidate matching "<<*elementListEntry[0]<<"->"<<(*currentElement)->getID()-1<<endl;
-	        
-	        //step 2: find the other face
-	        //the trick used for the boundary faces wont work because of periodic 'internal' faces
-	        for(int otherFace=0;otherFace<vectorOfElements[*elementListEntry[0]]->getPhysicalGeometry()->getNrOfFaces();++otherFace){
-		    
-		    //but we can just find the original element back
-		    std::list<int>::iterator otherElementListEntry[3];
-		    std::vector<unsigned int> otherFaceNode;
-		    vectorOfElements[*elementListEntry[0]]->getPhysicalGeometry()->getGlobalFaceNodeIndices(otherFace,otherFaceNode);
-		    for(int i=0;i<3;++i){
-			otherElementListEntry[i]=listOfElementsForEachNode[otherFaceNode[i]].begin();
-		    }
-		    while(!(*otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2])){
-			if(*otherElementListEntry[0]<*otherElementListEntry[1]){otherElementListEntry[0]++;}
-			if(*otherElementListEntry[1]<*otherElementListEntry[2]){otherElementListEntry[1]++;}
-			if(*otherElementListEntry[2]<*otherElementListEntry[0]){otherElementListEntry[2]++;}
-		    }
-		    //cout<<"finding the other element again("<<*otherElementListEntry[0]<<")"<<endl;
-		    //assert(*otherElementListEntry[0]==*elementListEntry[0]);//for other faces this element may not be the first match found
-		    if(*otherElementListEntry[0]==(*currentElement)->getID()-1 && *otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]){
-			//cout<<"found the fist element("<<*otherElementListEntry[0]<<")"<<endl;
-		        addFace(*currentElement,currentFace,vectorOfElements[*elementListEntry[0]],otherFace);
-		    }else{
-			otherElementListEntry[0]++;
-			while(!(*otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]) &&
-				otherElementListEntry[0]!=listOfElementsForEachNode[otherFaceNode[0]].end() &&
-				otherElementListEntry[1]!=listOfElementsForEachNode[otherFaceNode[1]].end() &&
-				otherElementListEntry[2]!=listOfElementsForEachNode[otherFaceNode[2]].end() ){
-			    if(*otherElementListEntry[0]<*otherElementListEntry[1]){otherElementListEntry[0]++;}
-			    if(*otherElementListEntry[1]<*otherElementListEntry[2]){otherElementListEntry[1]++;}
-			    if(*otherElementListEntry[2]<*otherElementListEntry[0]){otherElementListEntry[2]++;}
-			}
-			if(*otherElementListEntry[0]==(*currentElement)->getID()-1 && *otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]){
-			    //cout<<"found the fist element("<<*otherElementListEntry[0]<<")"<<endl;
-			    addFace(*currentElement,currentFace,vectorOfElements[*elementListEntry[0]],otherFace);
-			}
-		    }
-		}
-	      
-	    }else{
-	        //this face was already treated or it is a boundary face
-	    }
-	}
+    void MeshManipulator::constructInternalFaces(std::vector<std::list<int> >& listOfElementsForEachNode,std::vector<Element*>& vectorOfElements)
+    {
+        for(typename std::list<Element* >::iterator currentElement=elements_.begin();currentElement!=elements_.end();++currentElement){
+            for(int currentFace=0;currentFace<(*currentElement)->getPhysicalGeometry()->getNrOfFaces();++currentFace){
+                
+                //step 1: find the other element
+                std::list<int>::iterator elementListEntry[3];
+                std::vector<unsigned int> faceNode;
+                (*currentElement)->getPhysicalGeometry()->getGlobalFaceNodeIndices(currentFace,faceNode);
+                for(int i=0;i<3;++i){
+                    elementListEntry[i]=listOfElementsForEachNode[faceNode[i]].begin();
+                }
+                while(!(*elementListEntry[0]==*elementListEntry[1] && *elementListEntry[0]==*elementListEntry[2])){
+                    if(*elementListEntry[0]<*elementListEntry[1]){elementListEntry[0]++;}
+                    if(*elementListEntry[1]<*elementListEntry[2]){elementListEntry[1]++;}
+                    if(*elementListEntry[2]<*elementListEntry[0]){elementListEntry[2]++;}
+                }
+                if(*elementListEntry[0]!=(*currentElement)->getID()){
+                    //std::cout<<"found candidate matching "<<*elementListEntry[0]<<"->"<<(*currentElement)->getID()<<std::endl;
+                    
+                    //step 2: find the other face
+                    //the trick used for the boundary faces wont work because of periodic 'internal' faces
+                    for(int otherFace=0;otherFace<vectorOfElements[*elementListEntry[0]]->getPhysicalGeometry()->getNrOfFaces();++otherFace){
+                        
+                        //but we can just find the original element back
+                        std::list<int>::iterator otherElementListEntry[3];
+                        std::vector<unsigned int> otherFaceNode;
+                        vectorOfElements[*elementListEntry[0]]->getPhysicalGeometry()->getGlobalFaceNodeIndices(otherFace,otherFaceNode);
+                        for(int i=0;i<3;++i){
+                            otherElementListEntry[i]=listOfElementsForEachNode[otherFaceNode[i]].begin();
+                        }
+                        while(!(*otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2])){
+                            if(*otherElementListEntry[0]<*otherElementListEntry[1]){otherElementListEntry[0]++;}
+                            if(*otherElementListEntry[1]<*otherElementListEntry[2]){otherElementListEntry[1]++;}
+                            if(*otherElementListEntry[2]<*otherElementListEntry[0]){otherElementListEntry[2]++;}
+                        }
+                        //std::cout<<"finding the other element again("<<*otherElementListEntry[0]<<")"<<std::endl;
+                        //assert(*otherElementListEntry[0]==*elementListEntry[0]);//for other faces this element may not be the first match found
+                        if(*otherElementListEntry[0]==(*currentElement)->getID() && *otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]){
+                            //std::cout<<"found the fist element("<<*otherElementListEntry[0]<<")"<<std::endl;
+                            addFace(*currentElement,currentFace,vectorOfElements[*elementListEntry[0]],otherFace);
+                        }else{
+                            otherElementListEntry[0]++;
+                            while(!(*otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]) &&
+                                  otherElementListEntry[0]!=listOfElementsForEachNode[otherFaceNode[0]].end() &&
+                                  otherElementListEntry[1]!=listOfElementsForEachNode[otherFaceNode[1]].end() &&
+                                  otherElementListEntry[2]!=listOfElementsForEachNode[otherFaceNode[2]].end() ){
+                                if(*otherElementListEntry[0]<*otherElementListEntry[1]){otherElementListEntry[0]++;}
+                                if(*otherElementListEntry[1]<*otherElementListEntry[2]){otherElementListEntry[1]++;}
+                                if(*otherElementListEntry[2]<*otherElementListEntry[0]){otherElementListEntry[2]++;}
+                            }
+                            if(*otherElementListEntry[0]==(*currentElement)->getID() && *otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]){
+                                //std::cout<<"found the fist element("<<*otherElementListEntry[0]<<")"<<std::endl;
+                                addFace(*currentElement,currentFace,vectorOfElements[*elementListEntry[0]],otherFace);
+                            }
+                        }
+                    }
+                    
+                }else{
+                    //this face was already treated or it is a boundary face
+                }
+            }
+        }
+        std::cout<<"Total number of Faces: "<<faces_.size()<<std::endl;
     }
-    std::cout<<"Total number of Faces: "<<faces_.size()<<std::endl;
-}
 
 
 /// \bug does not do the bc flags yet or periodic mesh reads

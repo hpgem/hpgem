@@ -21,6 +21,13 @@
 #ifndef ElementIntegrandBase_hpp
 #define ElementIntegrandBase_hpp
 
+namespace Base {
+    class Element;
+}
+
+namespace Geometry {
+    class PointReference;
+}
 
 namespace Integration
 {

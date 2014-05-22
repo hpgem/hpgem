@@ -20,6 +20,11 @@
  */
 
 #include "ElementInfos.hpp"
+#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferenceGeometry.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Base/ElementCacheData.hpp"
+#include "Base/FaceCacheData.hpp"
 
 void InvertAndTranspose(Geometry::Jacobian& orig, Geometry::Jacobian& inverse){
     //direct computation using the definitions of the inverse and the transpose
@@ -35,10 +40,10 @@ void InvertAndTranspose(Geometry::Jacobian& orig, Geometry::Jacobian& inverse){
     inverse/=orig.determinant();
 }
 
-void FunctionCache::getFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector< NumericalVector >& values){
+void FunctionCache::getFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector< LinearAlgebra::NumericalVector >& values){
     values=valueCache_[point];
     if(values.empty()){
-	NumericalVector value(3);
+	LinearAlgebra::NumericalVector value(3);
 	for(int j=0;j<element->getNrOfBasisFunctions();++j){
 	    element->basisFunction(j,point,value);
 	    values.push_back(value);
@@ -47,10 +52,10 @@ void FunctionCache::getFunctionValuesVector(const Base::Element* element, const 
     }
 }
 
-void FunctionCache::getFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector< NumericalVector >& curls){
+void FunctionCache::getFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector< LinearAlgebra::NumericalVector >& curls){
     curls=curlCache_[point];
     if(curls.empty()){
-	NumericalVector curl(3);
+	LinearAlgebra::NumericalVector curl(3);
 	for(int j=0;j<element->getNrOfBasisFunctions();++j){
 	    element->basisFunctionCurl(j,point,curl);
 	    curls.push_back(curl);
@@ -82,7 +87,7 @@ ElementInfos::ElementInfos(const Base::Element& element):inverse_(3,3),Jacobian_
     //cout<<"element "<<element.getID()<<" has jacobean determinant "<<determinant_<<endl;
 }
 
-void ElementInfos::makeFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector< NumericalVector >& values){
+void ElementInfos::makeFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector< LinearAlgebra::NumericalVector >& values){
     FunctionCache::getFunctionValuesVector(element,point,values);
     for(int j=0;j<element->getNrOfBasisFunctions();++j){
 	//3D coordinate transformations -- something for a GPU?
@@ -90,7 +95,7 @@ void ElementInfos::makeFunctionValuesVector(const Base::Element* element, const 
     }        
 }
 
-void ElementInfos::makeFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector< NumericalVector >& curls){
+void ElementInfos::makeFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector< LinearAlgebra::NumericalVector >& curls){
     FunctionCache::getFunctionCurlsVector(element,point,curls);
     for(int j=0;j<element->getNrOfBasisFunctions();++j){
 	//3D coordinate transformations -- something for a GPU?
