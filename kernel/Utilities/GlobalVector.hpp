@@ -47,8 +47,8 @@ namespace Utilities{
 		GlobalVector(Base::MeshManipulator* theMesh,int elementVectorID=0,int faceVectorID=0);
 
 		///for post-processing: puts the solution in the time-level data of the elements
-		virtual void writeTimeLevelData(int timeLevel)=0;
-		virtual void constructFromTimeLevelData(int timelevel)=0;
+		virtual void writeTimeLevelData(int timeLevel,int variable=0)=0;
+		virtual void constructFromTimeLevelData(int timelevel,int variable=0)=0;
 
 		///(re-)collects element vectors and boundary information into this vector
 		virtual void assemble()=0;
@@ -80,8 +80,8 @@ namespace Utilities{
 		GlobalPetscVector(Base::MeshManipulator* theMesh,int elementVectorID=0,int faceVectorID=0);
 		~GlobalPetscVector();
 
-		void writeTimeLevelData(int timeLevel);
-		void constructFromTimeLevelData(int timelevel);
+		void writeTimeLevelData(int timeLevel,int variable=0);
+		void constructFromTimeLevelData(int timelevel,int variable=0);
 
 		void reset();
 

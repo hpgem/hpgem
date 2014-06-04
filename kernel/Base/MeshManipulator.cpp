@@ -2192,7 +2192,7 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
     //step 1: the element should be connected to all of the given nodes
         
     std::list<int>::iterator aEntry(a.begin()), bEntry(b.begin()), cEntry(c.begin()), otherEntry(notOnFace.begin());
-    std::cout<<a.size()<<" "<<b.size()<<" "<<c.size()<<" "<<notOnFace.size()<<std::endl;
+    //std::cout<<a.size()<<" "<<b.size()<<" "<<c.size()<<" "<<notOnFace.size()<<std::endl;
     
     //assumes the lists are already sorted
     while(!(*aEntry==*bEntry && *aEntry==*cEntry && *aEntry==*otherEntry)){
@@ -2200,13 +2200,13 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
         if(*bEntry    <*cEntry    ){bEntry++;}
         if(*cEntry    <*otherEntry){cEntry++;}
         if(*otherEntry<*aEntry    ){otherEntry++;}
-        std::cout<<*aEntry<<" "<<*bEntry<<" "<<*cEntry<<" "<<*otherEntry<<std::endl;
+        //std::cout<<*aEntry<<" "<<*bEntry<<" "<<*cEntry<<" "<<*otherEntry<<std::endl;
         assert(aEntry!=a.end());
 	assert(bEntry!=b.end());
 	assert(cEntry!=c.end());
 	assert(otherEntry!=notOnFace.end());
     }
-    std::cout<<*aEntry<<" "<<*bEntry<<" "<<*cEntry<<" "<<*otherEntry<<std::endl;
+    //std::cout<<*aEntry<<" "<<*bEntry<<" "<<*cEntry<<" "<<*otherEntry<<std::endl;
     
     face.elementNum=*aEntry;
     
