@@ -73,7 +73,7 @@ namespace Base
             /// Creating a mesh with in-house remesher.
         MeshId addMesh(const RectangularMeshDescriptorT& meshDescriptor, const MeshType& meshType = RECTANGULAR, int nrOfElementMatrixes=0, int nrOfElementVectors=0,int nrOfFaceMatrixes=0, int nrOfFaceVectors=0);
             /// Reading a mesh from a file, currently only Centaur is supported.
-        MeshId addMesh(const String& fileName){}
+        MeshId addMesh(const String& fileName, int nrOfElementMatrixes=0, int nrOfElementVectors=0,int nrOfFaceMatrixes=0, int nrOfFaceVectors=0);
         
         unsigned int getNumberOfElements(MeshId id)const {return meshes_[id]->getNumberOfElements();}
         

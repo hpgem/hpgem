@@ -57,7 +57,7 @@ namespace Utilities{
 		///After this it assembles the matrix to put it back in a legal state
 		virtual void reset()=0;
 
-		void getMatrixBCEntries(Base::Face* face, int& numberOfEntries, std::vector<int>& entries);
+		void getMatrixBCEntries(const Base::Face* face, int& numberOfEntries, std::vector<int>& entries);
 
 	protected:
 

@@ -40,7 +40,7 @@ namespace Utilities{
 	GlobalMatrix::GlobalMatrix(Base::MeshManipulator* theMesh, int elementMatrixID,  int faceMatrixID):
 		meshLevel_(-2),theMesh_(theMesh),elementMatrixID_(elementMatrixID),faceMatrixID_(faceMatrixID){}
 
-	void GlobalMatrix::getMatrixBCEntries(Base::Face* face, int& numberOfEntries, std::vector<int>& entries){
+	void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, int& numberOfEntries, std::vector<int>& entries){
 		int number=face->getLocalNrOfBasisFunctions();
 		numberOfEntries+=number;
 		for(int i=0;i<number;++i){
@@ -235,7 +235,10 @@ namespace Utilities{
 
 		for(int i=0;i<totalNrOfDOF;++i){
 			if(totalNrOfDOF<numberOfPositionsPerRow[i])
-				numberOfPositionsPerRow[i]=totalNrOfDOF;
+				numberOfPositionsPerRow[i]=2*totalNrOfDOF;
+                        else{
+                            numberOfPositionsPerRow[i]*=2;
+                        }
 		}
 
 

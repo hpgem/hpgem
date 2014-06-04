@@ -80,6 +80,18 @@ namespace Base
         return numOfMeshes;
     }
     
+    
+    HpgemUI::MeshId HpgemUI::addMesh(const HpgemUI::String& fileName, int nrOfElementMatrixes, int nrOfElementVectors,int nrOfFaceMatrixes, int nrOfFaceVectors)
+    {
+        unsigned int numOfMeshes=meshes_.size();
+        MeshManipulator* mesh = new MeshManipulator(configData_,false,false,false,configData_->polynomialOrder_,0,nrOfElementMatrixes,nrOfElementVectors,nrOfFaceMatrixes,nrOfFaceVectors);
+        mesh->readCentaurMesh(fileName);  //boundary information (^) is ignored
+        meshes_.push_back(mesh);
+        std::cout<<"I just read a mesh!!!"<<std::endl;
+            //mesh->outputMesh(std::cout);
+        return numOfMeshes;
+    }
+    
     typename HpgemUI::ConstElementIterator
     HpgemUI::elementColBegin(MeshId mId)const
     {

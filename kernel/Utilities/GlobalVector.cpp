@@ -179,17 +179,18 @@ namespace Utilities{
 		CHKERRV(ierr);
 	}
 
-	void GlobalPetscVector::constructFromTimeLevelData(int timelevel){
+	void GlobalPetscVector::constructFromTimeLevelData(int timelevel,int variable){
 		reset();
 
-		LinearAlgebra::Matrix elementData;
+		LinearAlgebra::NumericalVector elementData;
 		for(Base::MeshManipulator::ElementIterator it=theMesh_->elementColBegin();it!=theMesh_->elementColEnd();++it){
 			int n((*it)->getNrOfBasisFunctions()),positions[n];
 			makePositionsInVector(n,(*it),positions);
-			elementData.resize(n,1);
-			elementData=(*it)->getTimeLevelData(timelevel);
-			//coefficients belonging to conforming basisfunctions appear in multiple elements so don't add
-			int ierr=VecSetValues(b_,n,positions,&elementData[0],INSERT_VALUES);
+			elementData.resize(n);
+                        for(int i=0;i<n;++i){
+                            elementData[i]=(*it)->getData(timelevel,variable,i);
+                        }
+			int ierr=VecSetValues(b_,n,positions,&elementData[0],ADD_VALUES);
 		}
 
 		int ierr=VecAssemblyBegin(b_);
@@ -197,7 +198,7 @@ namespace Utilities{
 		CHKERRV(ierr);
 	}
 
-	void GlobalPetscVector::writeTimeLevelData(int timeLevel){
+	void GlobalPetscVector::writeTimeLevelData(int timeLevel,int variable){
 		double *data;
 		int ierr=VecGetArray(b_,&data);
 		CHKERRV(ierr);
@@ -224,7 +225,7 @@ namespace Utilities{
 					++runningTotal;
 				}
 			}
-			(*it)->setTimeLevelData(timeLevel,0,localData);
+			(*it)->setTimeLevelData(timeLevel,variable,localData);
 		}
 		ierr=VecRestoreArray(b_,&data);
 		CHKERRV(ierr);

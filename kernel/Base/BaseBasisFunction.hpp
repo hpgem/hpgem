@@ -101,11 +101,11 @@ namespace Base
 
         virtual double eval(const PointReferenceT& p) const = 0;
 		virtual void eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
-        virtual double evalDeriv0(const PointReferenceT& p) const {throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";};
-        virtual double evalDeriv1(const PointReferenceT& p) const {throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";};
-        virtual double evalDeriv2(const PointReferenceT& p) const {throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";};
-        virtual double evalDeriv3(const PointReferenceT& p) const {throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";};
-        virtual void   evalCurl(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const {throw "The curl of a scalar valued basisfunction is not implemented. Perhaps you meant evalDeriv?";}
+        virtual double evalDeriv0(const PointReferenceT& p) const {throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";};
+        virtual double evalDeriv1(const PointReferenceT& p) const {throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";};
+        virtual double evalDeriv2(const PointReferenceT& p) const {throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";};
+        virtual double evalDeriv3(const PointReferenceT& p) const {throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";};
+        virtual void   evalCurl(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const {throw "The curl of a scalar valued basis function is not implemented. Perhaps you meant evalDeriv?";}
 		virtual void evalDeriv(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
     };
 
