@@ -42,7 +42,19 @@ namespace LinearAlgebra
     
     NumericalVector::NumericalVector(const NumericalVector& other) : data_(other.data_){}
     
-    NumericalVector::NumericalVector(const double array[], int size) : data_(array,size){}
+    #ifdef LA_STL_VECTOR
+        /// \bug This constrcutor could be faster
+        NumericalVector::NumericalVector(const double array[], int size)
+        {
+            data_.resize(size);
+            for (int i=0;i<size;i++)
+            {
+                data_[i]=array[i];
+            }
+        }
+    #else
+        NumericalVector::NumericalVector(const double array[], int size) : data_(array,size){}
+    #endif
     
     void NumericalVector::resize(unsigned int size) { if(size!=data_.size())data_.resize(size); }
     
@@ -51,10 +63,12 @@ namespace LinearAlgebra
     NumericalVector NumericalVector::operator+ (const NumericalVector& right)
     {
         NumericalVector result(*this);
-        result.data_+=right.data_;
-        #ifndef IAMNIC0
-        //  std::cout << "Nico you are using a slow operator be warned of the Numerical Vector, please try and rewrite to use += not +" << std::endl;
+        #ifdef LA_STL_VECTOR
+            /// \bug operator not implemented
+        #else
+            result.data_+=right.data_;
         #endif
+        
         return result;
     }
     
@@ -62,62 +76,80 @@ namespace LinearAlgebra
     NumericalVector NumericalVector::operator+ (const NumericalVector& right) const
     {
         NumericalVector result(*this);
-        result.data_+=right.data_;
-#ifndef IAMNICO
-        //   std::cout << "Nico you are using a slow operator be warned of the Numerical Vector, please try and rewrite to use += not +" << std::endl;
-#endif
+        #ifdef LA_STL_VECTOR
+            /// \bug operator not implemented
+        #else
+            result.data_+=right.data_;
+        #endif
+        
         return result;
     }
     
     NumericalVector NumericalVector::operator- (const NumericalVector& right)
     {
         NumericalVector result(*this);
-        result.data_-=right.data_;
-#ifndef IAMNICO
-        //   std::cout << "Nico you are using a slow operator be warned of the Numerical Vector, please try and rewrite to use -= not -" << std::endl;
-#endif
+        #ifdef LA_STL_VECTOR
+            /// \bug operator not implemeted
+        #else
+            result.data_-=right.data_;
+        #endif
         return result;
     }
     
     NumericalVector NumericalVector::operator- (const NumericalVector& right) const
     {
         NumericalVector result(*this);
-        result.data_-=right.data_;
-#ifndef IAMNICO
-        //  std::cout << "Nico you are using a slow operator be warned of the Numerical Vector, please try and rewrite to use -= not -" << std::endl;
-#endif
+        #ifdef LA_STL_VECTOR
+            /// \bug operator not implemeted
+        #else
+            result.data_-=right.data_;
+        #endif
         return result;
     }
     
     NumericalVector NumericalVector::operator* (const double& right)
     {
         NumericalVector result(*this);
-        result.data_*=right;
-#ifndef IAMNICO
-        //   std::cout << "Nico You are using a slow operator be warned of the Numerical Vector, please try and rewrite to use *= not *" << std::endl;
-#endif
+        #ifdef LA_STL_VECTOR
+            /// \bug operator not implemented
+        #else
+            result.data_*=right;
+        #endif
+        
         return result;
     }
     
     NumericalVector NumericalVector::operator* (const double& right) const
     {
         NumericalVector result(*this);
-        result.data_*=right;
-#ifndef IAMNICO
-        //  std::cout << "Nico you are using a slow operator be warned of the Numerical Vector, please try and rewrite to use *= not *" << std::endl;
-#endif
+        #ifdef LA_STL_VECTOR
+            /// \bug operator not implemented
+        #else
+            result.data_*=right;
+        #endif
+
         return result;
     }
     
     double NumericalVector::operator* (const NumericalVector& right) const
     {
         ///\TODO replace with BLAS (I dont know where to find them)
-        return (data_*right.data_).sum();
+        #ifdef LA_STL_VECTOR
+            /// \bug operator not implemented
+            return 0;
+        #else
+            return (data_*right.data_).sum();
+        #endif
     }
     
     NumericalVector& NumericalVector::operator/= (const double& right)
     {
-        data_/=right;
+        #ifdef LA_STL_VECTOR
+            /// \big operator not implemented
+        #else
+            data_/=right;
+        #endif
+        
         return *this;
     }
     
@@ -174,18 +206,47 @@ namespace LinearAlgebra
 	    return false;
     }
     
-    NumericalVector& NumericalVector::operator+= (const NumericalVector& right){data_+=right.data_; return *this;}
+
+    NumericalVector& NumericalVector::operator+= (const NumericalVector& right)
+        {
+            #ifdef LA_STL_VECTOR
+            /// \bug operator not implemented
+            #else
+                data_+=right.data_;
+            #endif
+            return *this;
+        }
     
-    NumericalVector& NumericalVector::operator-= (const NumericalVector& right){data_-=right.data_; return *this;}
+    NumericalVector& NumericalVector::operator-= (const NumericalVector& right)
+        {
+            #ifdef LA_STL_VECTOR
+                /// \bug operator not implemented
+            #else
+                data_-=right.data_;
+            #endif
+            return *this;
+        }
     
-    NumericalVector& NumericalVector::operator*= (const double& right){data_*=right; return *this;}
+    NumericalVector& NumericalVector::operator*= (const double& right)
+        {
+            #ifdef LA_STL_VECTOR
+                /// \bug operator not implemented
+            #else
+                data_*=right;
+            #endif
+            return *this;
+        }
     
     double& NumericalVector::operator[] (const unsigned int n) {return data_[n];}
     
     NumericalVector operator*(const double& left, const NumericalVector& right)
     {
         NumericalVector result(right);
-        result.data_*=left;
+        #ifdef LA_STL_VECTOR
+            /// \bug operator not implemented
+        #else
+            result.data_*=left;
+        #endif
         return result;
     }
     

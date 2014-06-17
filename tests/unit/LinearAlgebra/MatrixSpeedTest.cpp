@@ -28,6 +28,10 @@ using namespace::std;
 
 int main(int argc, char* argv[])
 {
+    
+#ifdef LA_STL_VECTOR
+    std::cout << "Life is good" << std::endl;
+#endif
 	
     /*
 	

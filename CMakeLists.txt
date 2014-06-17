@@ -27,11 +27,6 @@ if (NOT CMAKE_CXX_FLAGS)
 endif(NOT CMAKE_CXX_FLAGS)
 
 
-add_subdirectory(kernel)
-add_subdirectory(tests)
-add_subdirectory(applications)
-
-
 
 
 #This section generates a configuration file that contains the CMake varibles#
@@ -64,6 +59,10 @@ add_custom_target(fullTest
 option(hpGEM_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 option(hpGEM_INCLUDE_PETSC_SUPPORT "Include PETSC this is required for GlobalAssemble" OFF)
 option(hpGEM_INCLUDE_SLEPC_SUPPORT "Include SLEPC this is needed for some applications" OFF)
+option(hpGEM_USE_STL_VECTOR_FOR_LA "Will swap the internal storage of the linear algebra from being based on valarray to STL vector" ON)
+if(hpGEM_USE_STL_VECTOR_FOR_LA)
+	add_definitions(-DLA_STL_VECTOR)
+endif(hpGEM_USE_STL_VECTOR_FOR_LA)
 if(hpGEM_BUILD_DOCUMENTATION)
     FIND_PACKAGE(Doxygen)
     if (NOT DOXYGEN_FOUND)
@@ -141,4 +140,8 @@ if(hpGEM_INCLUDE_SLEPC_SUPPORT)
         endif()
 endif()
 
+
+add_subdirectory(kernel)
+add_subdirectory(tests)
+add_subdirectory(applications)
 

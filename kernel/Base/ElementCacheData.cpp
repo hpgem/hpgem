@@ -27,7 +27,8 @@
 void Base::ElementCacheData::operator ()(const Element* el, const Geometry::PointReference& p){
     Geometry::Jacobian jac(p.size(),p.size());
     el->calcJacobian(p, jac);
-    absDetJac_ = std::abs(jac.determinant());
+    /// \bug Took out the std::abs and replace with abs for STL vector version (see other bug report.
+    absDetJac_ = abs(jac.determinant());
 
 }
 

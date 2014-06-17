@@ -22,7 +22,11 @@
 #ifndef NumericalVectorHPP
 #define NumericalVectorHPP
 
-#include <valarray>
+#ifdef LA_STL_VECTOR
+    #include <vector>
+#else
+    #include <valarray>
+#endif
 #include <iostream>
 
 
@@ -32,8 +36,11 @@ namespace LinearAlgebra
 {
     
     //This is dervied from valarray so import that information
-    using std::valarray;
-    
+    #ifdef LA_STL_VECTOR
+        using std::vector;
+    #else
+        using std::valarray;
+    #endif
     /// \class NumericalVector
     /// \brief This is a vector of doubles
     ///
@@ -109,8 +116,11 @@ namespace LinearAlgebra
         
    
     private:
-
-        valarray<double> data_;
+        #ifdef LA_STL_VECTOR
+            vector<double> data_;
+        #else
+            valarray<double> data_;
+        #endif
         
     };
     

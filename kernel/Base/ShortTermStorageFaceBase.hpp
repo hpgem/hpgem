@@ -66,7 +66,8 @@ namespace Base {
 			if(currentPoint_.size()==0){
 				computeData();
 			}else{
-				currentPoint_[0]=NAN;
+                 /// \bug This should go back to NAN at some point. Again to fix problems with math and STL::vector
+				currentPoint_[0]=0/0;
 			}
 			currentPointIndex_=-1;
 			return *this;

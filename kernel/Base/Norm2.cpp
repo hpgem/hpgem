@@ -23,6 +23,7 @@
 
 #include "Geometry/PointPhysical.hpp"
 
+#include <cmath>
 namespace Utilities
 {
     /*template <>

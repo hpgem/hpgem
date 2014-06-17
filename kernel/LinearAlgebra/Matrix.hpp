@@ -24,13 +24,21 @@
 
 // System includes
 #include <iostream>
-#include <valarray>
+#ifdef LA_STL_VECTOR
+    #include <vector>
+#else
+    #include <valarray>
+#endif
 
 namespace LinearAlgebra
 {
     class NumericalVector;
     //We need the ostream for outputting and we encapulate from valarray.
-    using std::valarray;
+    #ifdef LA_STL_VECTOR
+        using std::vector;
+    #else
+        using std::valarray;
+    #endif
     /// \class Matrix
     /// \brief Data type for small dense matrix.
     /// 
@@ -144,8 +152,14 @@ namespace LinearAlgebra
         void solve(Matrix& B) const;
         
     private:
-        /// The actually data of the matrix class
-        valarray<double> data_;
+         /// The actually data of the matrix class
+        #ifdef LA_STL_VECTOR
+            vector<double> data_;
+        #else
+            valarray<double> data_;
+        #endif
+       
+        
         
         /// Stores the number of rows of the matrix
         unsigned int nRows_;

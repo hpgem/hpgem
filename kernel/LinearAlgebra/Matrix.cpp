@@ -255,14 +255,22 @@ namespace LinearAlgebra
     /// \return Matrix
     Matrix Matrix::operator*= (const double &scalar)
     {
-        data_*=scalar;
+        #ifdef LA_STL_VECTOR
+            /// \bug operator not implemented
+        #else
+            data_*=scalar;
+        #endif
         return *this;
     }
     
     
     Matrix& Matrix::operator/= (const double& scalar)
     {
-        data_/=scalar;
+        #ifdef LA_STL_VECTOR
+            /// \bug operator not implemented
+        #else
+            data_/=scalar;
+        #endif
         return *this;
     }
     
@@ -280,7 +288,11 @@ namespace LinearAlgebra
     Matrix& Matrix::operator=(const double& c)
     {
         if (size()==1){nRows_=1; nCols_=1; data_.resize(1);}
-        data_=c;
+        #ifdef LA_STL_VECTOR
+            /// \bug operator not implemented
+        #else
+            data_=c;
+        #endif
         return *this;
     }
     
