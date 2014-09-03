@@ -46,7 +46,12 @@ namespace Base{
 
 		virtual void   basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* =NULL);
 		virtual void   basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* =NULL) const;
+                
+                ///special case derivative: compute individual components, then mix and match as desired !warning! this routine assumes the user wants to construct a specialized transformation and will not premultiply by the Jacobian
+                virtual double basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p);
+                virtual double basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
 
+                std::vector<LinearAlgebra::NumericalVector> basisFunctionIndividualDerivatives_;
 	};
 }
 

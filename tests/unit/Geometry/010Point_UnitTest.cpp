@@ -26,6 +26,8 @@
 #include "Geometry/Point.hpp"
 #include <iostream>
 #include "cassert"
+#include <cmath>
+using std::fabs;
 using Geometry::Point;
 
 int main(){

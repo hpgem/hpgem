@@ -83,9 +83,9 @@ namespace Geometry
 
 };
 
-size_t std::__1::hash<Geometry::PointReference>::operator ()(const Geometry::PointReference& point) const
+size_t Geometry::PointHasher::operator ()(const Geometry::PointReference& point) const
 {
-	static std::__1::hash<double> hasher;
+	std::__1::hash<double> hasher;
 	size_t ret = 0;
 	for (int i = 0;i < point.size();++i) {
 		ret ^= hasher(point[i]) + 0x9e3779b9 + (ret << 6) + (ret >> 2);

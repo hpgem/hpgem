@@ -54,7 +54,7 @@ namespace Base
     ElementData::setElementMatrix(const LinearAlgebra::Matrix& matrix,int matrixID)
     {
     	if(matrixID>=elementMatrix_.size()){
-    		std::cout<<"Warning: Setting an element matrix that was not preallocated. If this is expected, please allocate more element matrixes in the constructor";
+    		std::cout<<"Warning: Setting an element matrix that was not preallocated. If this is expected, please allocate more element matrixes in the mesh generator"<<std::endl;
     		elementMatrix_.resize(matrixID+1);
             for(typename VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
             	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
@@ -73,7 +73,7 @@ namespace Base
     ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, int vectorID)
     {
     	if(vectorID>=elementVector_.size()){
-    		std::cout<<"Warning: Setting an element vector that was not preallocated. If this is expected, please allocate more element vector in the constructor";
+    		std::cout<<"Warning: Setting an element vector that was not preallocated. If this is expected, please allocate more element vectors in the mesh generator"<<std::endl;
     		elementVector_.resize(vectorID+1);
             for(std::vector<LinearAlgebra::NumericalVector>::iterator cit=elementVector_.begin();cit!=elementVector_.end();++cit)
             	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_);

@@ -45,12 +45,13 @@ void Base::ShortTermStorageFaceH1::computeData() {
 	*elementwrapper=*getPtrElementLeft();
 	Geometry::PointReference pElement(currentPoint_.size()+1);
 	mapRefFaceToRefElemL(currentPoint_,pElement);
+        double norm=Base::L2Norm(normal_);
 	for(int i=0;i<leftFunctions;++i){
 		basisFunctionValues_[i].resize(1);
 		basisFunctionValues_[i][0]=elementwrapper->basisFunction(i,pElement);
 		basisFunctionsTimesNormal_[i].resize(currentPoint_.size()+1);
 		basisFunctionsTimesNormal_[i]=normal_;
-		basisFunctionsTimesNormal_[i]*=basisFunctionValues_[i][0]/Base::L2Norm(normal_);
+		basisFunctionsTimesNormal_[i]*=basisFunctionValues_[i][0]/norm;
 		basisFunctionDerivatives_[i].resize(currentPoint_.size()+1);
 		elementwrapper->basisFunctionDeriv(i,pElement,basisFunctionDerivatives_[i]);
 	}
@@ -63,7 +64,7 @@ void Base::ShortTermStorageFaceH1::computeData() {
 		basisFunctionValues_[i][0]=elementwrapper->basisFunction(i-leftFunctions,pElement);
 		basisFunctionsTimesNormal_[i].resize(currentPoint_.size()+1);
 		basisFunctionsTimesNormal_[i]=normal_;
-		basisFunctionsTimesNormal_[i]*=-basisFunctionValues_[i][0]/Base::L2Norm(normal_);
+		basisFunctionsTimesNormal_[i]*=-basisFunctionValues_[i][0]/norm;
 		basisFunctionDerivatives_[i].resize(currentPoint_.size()+1);
 		elementwrapper->basisFunctionDeriv(i-leftFunctions,pElement,basisFunctionDerivatives_[i]);
 	}

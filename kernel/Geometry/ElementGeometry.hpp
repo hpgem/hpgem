@@ -23,7 +23,8 @@
 #define ELEMENTGEOMETRY_H_
 
 #include <vector>
-             
+#include <iostream>
+
 namespace Geometry
 {
 	class PointReference;

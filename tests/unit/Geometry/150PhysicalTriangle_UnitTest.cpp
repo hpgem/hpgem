@@ -29,6 +29,8 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferenceTriangle.hpp"
 
+#include <cmath>
+using std::fabs;
 using Geometry::PhysicalTriangle;
 
 int main(){

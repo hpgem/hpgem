@@ -271,7 +271,7 @@ namespace Base
         for (typename CollectionOfBasisFunctionSets::iterator bit=collBasisFSet_.begin(); bit!=collBasisFSet_.end();++bit)
         {
             const BasisFunctionSetT* bf = *bit;
-            delete bf;
+            delete bf;///\bug segfaults when using two meshes with the same sets of basisfunctions
         }
         
         delete meshMover_;
@@ -2173,7 +2173,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 		if (checkInt!=sizeOfLine) {std::cerr << "Error in centaur file " << std::endl; return;}
 	}
 	
-	std::cout<<"begin constructing internal faces"<<std::endl;
+	std::cout<<"begin constructing internal faces and internal \"boundaries\""<<std::endl;
 	constructInternalFaces(listOfElementsForEachNode,tempElementVector);	
         
 	edgeFactory();
@@ -2407,7 +2407,7 @@ void MeshManipulator::faceFactory()
                  }
                  else //it is a boundary face 
                  {
-                     addFace(tempElementVector[current.elementNum],current.localFaceIndex,NULL,0,Geometry::OPEN_BC);
+                     addFace(tempElementVector[current.elementNum],current.localFaceIndex,NULL,0,Geometry::WALL_BC);
                      current=next;
                  }
 
@@ -2419,7 +2419,7 @@ void MeshManipulator::faceFactory()
 	//the algorithm for the edge factory is based on that of the face factory
 	//with some minor adaptation to account for the fact that there may be
     //more than two elements per edge
-	///\bug does not do periodic meshes yet
+	///\bug does not do periodic meshes yet (but periodic edges are matched in the global assembly)
 	void MeshManipulator::edgeFactory()
 	{
 		unsigned int DIM(configData_->dimension_),numberOfEdges(0);

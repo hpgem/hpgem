@@ -67,7 +67,7 @@ namespace Base {
 				computeData();
 			}else{
                  /// \bug This should go back to NAN at some point. Again to fix problems with math and STL::vector
-				currentPoint_[0]=0/0;
+				currentPoint_[0]=1./0.;
 			}
 			currentPointIndex_=-1;
 			return *this;
@@ -91,7 +91,7 @@ namespace Base {
 		virtual void basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {throw "No storage functionality was implemented! Are you working in an unusual function space?";}
 		virtual void basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Are you working in an unusual function space?";}
 
-		virtual double basisFunctionDeriv(unsigned int i, unsigned int jDir, const Geometry::PointReference& p) const {throw "No storage functionality was implemented! Why are you calling this anyway?";}
+		virtual double basisFunctionDeriv(unsigned int i, unsigned int jDir, const Geometry::PointReference& p) const {return face_->basisFunctionDeriv(i,jDir,p);}
 
 		virtual void basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}
 		virtual void basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}

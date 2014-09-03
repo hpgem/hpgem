@@ -33,6 +33,8 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/Mappings/MappingToRefFaceToTriangularPrism.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <cmath>
+using std::fabs;
 using Geometry::ReferenceTriangularPrism;
 
 int main(){

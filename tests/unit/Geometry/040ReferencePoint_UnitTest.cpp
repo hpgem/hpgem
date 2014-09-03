@@ -31,6 +31,8 @@
 #include "Geometry/Mappings/MappingToRefPointToPoint.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 
+#include <cmath>
+using std::fabs;
 using Geometry::ReferencePoint;
 
 int main(){

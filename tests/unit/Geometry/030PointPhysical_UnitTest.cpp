@@ -26,6 +26,8 @@
 #include "Geometry/PointPhysical.hpp"
 #include <iostream>
 #include "cassert"
+#include <cmath>
+using std::fabs;
 using Geometry::PointPhysical;
 
 int main(){

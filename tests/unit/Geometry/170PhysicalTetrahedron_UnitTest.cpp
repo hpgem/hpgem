@@ -29,6 +29,8 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferenceTetrahedron.hpp"
 
+#include <cmath>
+using std::fabs;
 using Geometry::PhysicalTetrahedron;
 
 int main(){

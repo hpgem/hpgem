@@ -35,6 +35,8 @@
 #include "Geometry/Mappings/MappingToRefFaceToPyramid.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <cmath>
+using std::fabs;
 using Geometry::ReferencePyramid;
 
 int main(){
