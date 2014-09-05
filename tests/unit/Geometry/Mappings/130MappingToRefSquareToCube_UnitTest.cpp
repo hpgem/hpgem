@@ -39,7 +39,7 @@ int main() {
 	Geometry::ReferenceCube& eGeom = Geometry::ReferenceCube::Instance();
 	Geometry::ReferenceSquare& fGeom = Geometry::ReferenceSquare::Instance();
 
-	Geometry::Jacobian jac(2,3);
+	Geometry::Jacobian jac(3,2);
 
 	std::vector<int> nodesAfterTransformation(4);
 

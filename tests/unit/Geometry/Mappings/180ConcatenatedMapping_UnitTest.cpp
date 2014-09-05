@@ -171,7 +171,7 @@ int main(){
 	//1->1->2
 
 	target = &Geometry::ReferenceSquare::Instance();
-	jac.resize(1,2);
+	jac.resize(2,1);
 	delete test;
 	test=new Geometry::ConcatenatedMapping(Geometry::MappingToRefLineToLine1::Instance(),Geometry::MappingToRefLineToSquare3::Instance());
 	nodesAfterTransformation[0]=3;
@@ -220,6 +220,7 @@ int main(){
 
 		orig1D[0]+=-1e-8;
 		test->calcJacobian(orig1D,jac);
+                //std::cout<<jac<<std::endl<<5.e7*(point2D-compare2D)<<std::endl;
 		assert(("jacobian",fabs(jac[0]-5.e7*(point2D[0]-compare2D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 		assert(("jacobian",fabs(jac[1]-5.e7*(point2D[1]-compare2D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 	}
@@ -237,7 +238,7 @@ int main(){
 	//1->2->3
 
 	target = &Geometry::ReferenceCube::Instance();
-	jac.resize(1,3);
+	jac.resize(3,1);
 	delete test;
 	test=new Geometry::ConcatenatedMapping(Geometry::MappingToRefLineToSquare1::Instance(),Geometry::MappingToRefSquareToCube2::Instance());
 	nodesAfterTransformation[0]=0;
@@ -321,7 +322,7 @@ int main(){
 	//2->2->3
 
 	target = &Geometry::ReferenceCube::Instance();
-	jac.resize(2,3);
+	jac.resize(3,2);
 	delete test;
 	test=new Geometry::ConcatenatedMapping(Geometry::MappingToRefSquareToSquare3::Instance(),Geometry::MappingToRefSquareToCube2::Instance());
 	nodesAfterTransformation[0]=4;
@@ -419,7 +420,7 @@ int main(){
 	assert(("getTargetDimension",test->getTargetDimension()==3));
 
 	//2->3->4
-	jac.resize(2,4);
+	jac.resize(4,2);
 
 	target = &Geometry::ReferenceHypercube::Instance();
 	delete test;
@@ -541,7 +542,7 @@ int main(){
 	//3->3->4
 
 	target = &Geometry::ReferenceHypercube::Instance();
-	jac.resize(3,4);
+	jac.resize(4,3);
 	delete test;
 	test=new Geometry::ConcatenatedMapping(Geometry::MappingToRefCubeToCube3::Instance(),Geometry::MappingToRefCubeToHypercube7::Instance());
 	nodesAfterTransformation[0]=4;
@@ -609,7 +610,7 @@ int main(){
 	//0(->1->)2(->3->)4 (chaining)
 
 	source = &Geometry::ReferencePoint::Instance();
-	jac.resize(0,4);
+	jac.resize(4,0);
 	nodesAfterTransformation.resize(1);
 	delete test;
 

@@ -145,7 +145,7 @@ namespace LinearAlgebra
     NumericalVector& NumericalVector::operator/= (const double& right)
     {
         #ifdef LA_STL_VECTOR
-            /// \big operator not implemented
+            /// \bug operator not implemented
         #else
             data_/=right;
         #endif

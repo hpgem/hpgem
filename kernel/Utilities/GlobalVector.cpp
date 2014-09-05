@@ -270,7 +270,7 @@ namespace Utilities{
                         for(int i=0;i<n;++i){
                             elementData[i]=(*it)->getData(timelevel,variable,i);
                         }
-			int ierr=VecSetValues(b_,n,positions,&elementData[0],ADD_VALUES);
+			int ierr=VecSetValues(b_,n,positions,&elementData[0],INSERT_VALUES);
 		}
 
 		int ierr=VecAssemblyBegin(b_);

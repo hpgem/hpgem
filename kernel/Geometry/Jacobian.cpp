@@ -26,7 +26,7 @@ namespace Geometry
     class Jacobian;
     
     Jacobian::Jacobian(unsigned int dimFrom,unsigned int dimTo):
-        LinearAlgebra::Matrix(dimTo,dimFrom)
+        LinearAlgebra::Matrix(dimFrom,dimTo)
     {
     }
 

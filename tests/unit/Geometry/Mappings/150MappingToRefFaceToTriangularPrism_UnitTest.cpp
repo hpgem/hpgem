@@ -40,7 +40,7 @@ int main() {
 	Geometry::ReferenceTriangularPrism& eGeom = Geometry::ReferenceTriangularPrism::Instance();
 	Geometry::ReferenceGeometry* fGeom = &Geometry::ReferenceTriangle::Instance();
 
-	Geometry::Jacobian jac(2,3);
+	Geometry::Jacobian jac(3,2);
 
 	std::vector<int> nodesAfterTransformation(3);
 

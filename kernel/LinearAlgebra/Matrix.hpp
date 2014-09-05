@@ -97,7 +97,7 @@ namespace LinearAlgebra
         
         /// \brief Does matrix A_ij=scalar*A_ij
         //THIS SHOULD NOT RETURN ANYTHING, in PLACE S.N
-        Matrix operator*= (const double &scalar);
+        Matrix& operator*= (const double &scalar);
         
         //THIS SHOULD NOT RETURN ANYTHING, in PLACE S.N
         /// \breif this does element by divived by a scalar 

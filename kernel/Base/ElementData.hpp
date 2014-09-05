@@ -24,9 +24,9 @@
 #define ElementData_hpp
 //----------------------------------------------------------------
 #include <vector>
+#include "LinearAlgebra/Matrix.hpp"
 
 namespace LinearAlgebra{
-	class Matrix;
 	class NumericalVector;
 }
 
@@ -43,7 +43,7 @@ namespace Base
          * and the second the number of unknowns times the number of basis functions.
          */
     public:
-        typedef typename std::vector<double>                 VectorOfDoubles;
+        typedef typename LinearAlgebra::Matrix               VectorOfDoubles;
         typedef typename std::vector<LinearAlgebra::Matrix>  VectorOfMatrices;
         
     public:
@@ -86,6 +86,7 @@ namespace Base
         
         virtual int                       getNrOfBasisFunctions() const;
         
+        //this needs to store information about all variables, so it needs to be a matrix (?)
         virtual const VectorOfDoubles&          getResidue() const;
         
         void                      setResidue(VectorOfDoubles& residue);

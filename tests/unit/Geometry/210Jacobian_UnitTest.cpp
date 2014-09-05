@@ -39,11 +39,11 @@ int main(){
 	dim1(0,0)=3.14;
 	assert(("1D determinant",fabs(dim1.determinant()-3.14)<1e-12));
 
-	dim1(0,0)=-2.81;
-	assert(("1D determinant",fabs(dim1.determinant()+2.81)<1e-12));
-
 	dim1(0,0)=0;
 	assert(("1D determinant",fabs(dim1.determinant())<1e-12));
+
+	dim1(0,0)=-2.81;
+	assert(("1D determinant",fabs(dim1.determinant()+2.81)<1e-12));
 
 	Jacobian dim2(2,2);
 
@@ -226,76 +226,77 @@ int main(){
 	Jacobian rectangle23(2,3);
 
 	rectangle21(0,0)=1.;
-	rectangle21(0,1)=2.;
+	rectangle21(1,0)=2.;
 	rectangle12(0,0)=3.;
-	rectangle12(1,0)=4.;
+	rectangle12(0,1)=4.;
 
 	rectangle32(0,0)=1.;
 	rectangle32(0,1)=2.;
-	rectangle32(0,2)=3.;
-	rectangle32(1,0)=4.;
-	rectangle32(1,1)=5.;
-	rectangle32(1,2)=6.;
+	rectangle32(1,0)=3.;
+	rectangle32(1,1)=4.;
+	rectangle32(2,0)=5.;
+	rectangle32(2,1)=6.;
 	rectangle23(0,0)=7.;
 	rectangle23(0,1)=8.;
-	rectangle23(1,0)=9.;
-	rectangle23(1,1)=10.;
-	rectangle23(2,0)=11.;
-	rectangle23(2,1)=12.;
+	rectangle23(0,2)=9.;
+	rectangle23(1,0)=10.;
+	rectangle23(1,1)=11.;
+	rectangle23(1,2)=12.;
 
 	product.resize(2,1);//not sure if Jacobians are meant to be able to do this
-
-	dim1.multiplyJacobiansInto(rectangle21,product);
+        
+	dim2.multiplyJacobiansInto(rectangle21,product);
 	assert(("multiply JacobiansInto - square & rectangular matrixes",product.getNCols()==1&&product.getNRows()==2));
-	rectangle21.multiplyJacobiansInto(dim2,product);
+	rectangle21.multiplyJacobiansInto(dim1,product);
 	assert(("multiply JacobiansInto - square & rectangular matrixes",product.getNCols()==1&&product.getNRows()==2));
 
 	product.resize(1,2);
 
-	dim2.multiplyJacobiansInto(rectangle12,product);
+	dim1.multiplyJacobiansInto(rectangle12,product);
 	assert(("multiply JacobiansInto - square & rectangular matrixes",product.getNCols()==2&&product.getNRows()==1));
-	rectangle12.multiplyJacobiansInto(dim1,product);
+	rectangle12.multiplyJacobiansInto(dim2,product);
 	assert(("multiply JacobiansInto - square & rectangular matrixes",product.getNCols()==2&&product.getNRows()==1));
 
 	product.resize(2,3);
 
-	dim3.multiplyJacobiansInto(rectangle23,product);
+	dim2.multiplyJacobiansInto(rectangle23,product);
 	assert(("multiply JacobiansInto - square & rectangular matrixes",product.getNCols()==3&&product.getNRows()==2));
-	rectangle23.multiplyJacobiansInto(dim2,product);
+	rectangle23.multiplyJacobiansInto(dim3,product);
 	assert(("multiply JacobiansInto - square & rectangular matrixes",product.getNCols()==3&&product.getNRows()==2));
 
 	product.resize(3,2);
 
-	dim2.multiplyJacobiansInto(rectangle32,product);
+	dim3.multiplyJacobiansInto(rectangle32,product);
 	assert(("multiply JacobiansInto - square & rectangular matrixes",product.getNCols()==2&&product.getNRows()==3));
-	rectangle32.multiplyJacobiansInto(dim3,product);
+	rectangle32.multiplyJacobiansInto(dim2,product);
 	assert(("multiply JacobiansInto - square & rectangular matrixes",product.getNCols()==2&&product.getNRows()==3));
 
 	product.resize(1,3);
 
-	rectangle21.multiplyJacobiansInto(rectangle32,product);
+	rectangle12.multiplyJacobiansInto(rectangle23,product);
 	assert(("multiply JacobiansInto - rectangular matrixes",product.getNCols()==3&&product.getNRows()==1));
 
 	product.resize(3,1);
 
-	rectangle23.multiplyJacobiansInto(rectangle12,product);
+	rectangle32.multiplyJacobiansInto(rectangle21,product);
 	assert(("multiply JacobiansInto - rectangular matrixes",product.getNCols()==1&&product.getNRows()==3));
 
 	product.resize(1,1);
 
-	rectangle21.multiplyJacobiansInto(rectangle12,product);
+	rectangle12.multiplyJacobiansInto(rectangle21,product);
+        std::cout<<rectangle12<<std::endl<<rectangle21<<std::endl<<product<<std::endl;
 	assert(("multiply JacobiansInto - rectangular matrixes",product.getNCols()==1&&product.getNRows()==1&&fabs(product.determinant()-11.)<1e-12));
 
 	product.resize(2,2);
 
-	rectangle12.multiplyJacobiansInto(rectangle21,product);
+	rectangle21.multiplyJacobiansInto(rectangle12,product);
 	assert(("multiply JacobiansInto - rectangular matrixes",product.getNCols()==2&&product.getNRows()==2&&fabs(product.determinant())<1e-12));
-	rectangle32.multiplyJacobiansInto(rectangle23,product);
+	rectangle23.multiplyJacobiansInto(rectangle32,product);
 	assert(("multiply JacobiansInto - rectangular matrixes",product.getNCols()==2&&product.getNRows()==2&&fabs(product.determinant()-36.)<1e-12));
 
 	product.resize(3,3);
 
-	rectangle23.multiplyJacobiansInto(rectangle32,product);
+	rectangle32.multiplyJacobiansInto(rectangle23,product);
 	assert(("multiply JacobiansInto - rectangular matrixes",product.getNCols()==3&&product.getNRows()==3&&fabs(product.determinant())<1e-12));
 
 	return 0;

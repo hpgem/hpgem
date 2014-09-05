@@ -39,7 +39,7 @@ int main() {
 	Geometry::ReferenceTetrahedron& eGeom = Geometry::ReferenceTetrahedron::Instance();
 	Geometry::ReferenceTriangle& fGeom = Geometry::ReferenceTriangle::Instance();
 
-	Geometry::Jacobian jac(2,3);
+	Geometry::Jacobian jac(3,2);
 
 	std::vector<int> nodesAfterTransformation(3);
 

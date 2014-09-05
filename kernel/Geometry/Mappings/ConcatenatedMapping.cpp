@@ -38,8 +38,8 @@ namespace Geometry {
 		}
 		PointReference pIntermediate(map1_.getTargetDimension());
 		map1_.transform(p, pIntermediate);
-		Jacobian j1(jac.getNRows(), map1_.getTargetDimension());
-		Jacobian j2(map1_.getTargetDimension(), jac.getNCols());
+		Jacobian j1(map1_.getTargetDimension(), jac.getNCols());
+		Jacobian j2(jac.getNRows(), map1_.getTargetDimension());
 		map1_.calcJacobian(p, j1);
 		map2_.calcJacobian(pIntermediate, j2);
 		j2.multiplyJacobiansInto(j1, jac);

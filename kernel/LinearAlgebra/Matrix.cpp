@@ -253,7 +253,7 @@ namespace LinearAlgebra
 
     /// \param[in] scale : A double that each element of the matrix is multiplied bu
     /// \return Matrix
-    Matrix Matrix::operator*= (const double &scalar)
+    Matrix& Matrix::operator*= (const double &scalar)
     {
         #ifdef LA_STL_VECTOR
             /// \bug operator not implemented
@@ -287,7 +287,7 @@ namespace LinearAlgebra
     /// Sets all the entries in the matrix equal to the scalar c.
     Matrix& Matrix::operator=(const double& c)
     {
-        if (size()==1){nRows_=1; nCols_=1; data_.resize(1);}
+        if (size()!=1){nRows_=1; nCols_=1; data_.resize(1);}
         #ifdef LA_STL_VECTOR
             /// \bug operator not implemented
         #else
@@ -302,6 +302,8 @@ namespace LinearAlgebra
     Matrix& Matrix::operator=(const Matrix& right) 
     	{
     	   data_=(right.data_);
+           nRows_=right.nRows_;
+           nCols_=right.nCols_;
      	   return *this;
     	};
     
@@ -457,7 +459,13 @@ namespace LinearAlgebra
     
     /// \param[in] n the number of row in the new matrix
     /// \param[in] m the number of columns in the new matrix
-    void Matrix::resize(int n, int m){nRows_=n; nCols_=m; data_.resize(nRows_*nCols_);}
+    void Matrix::resize(int n, int m){
+        nRows_=n; 
+        nCols_=m; 
+        if(n*m!=data_.size()){
+            data_.resize(nRows_*nCols_);
+        }
+    }
     
     
     /// \return int : the total number of entries
@@ -535,17 +543,16 @@ namespace LinearAlgebra
     /// \param[in,out] B. On enter is B in Ax=B and on exit is x.
     void Matrix::solve(Matrix& B) const
     {
-        
+        Matrix matThis=*this;
         
         int n=nRows_;
         int nrhs=B.getNCols();
         int info;
         
-        int IPIV;
-    
+        int IPIV[n];
         
-        dgesv_(&n,&nrhs,&((*(const_cast<Matrix *> (this)))[0]),&n,&IPIV,&B[0],&n,&info);
-    
+        dgesv_(&n,&nrhs,&matThis[0],&n,IPIV,&B[0],&n,&info);
+        
         
     }
     

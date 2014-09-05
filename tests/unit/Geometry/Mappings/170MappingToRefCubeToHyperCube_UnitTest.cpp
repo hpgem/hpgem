@@ -39,7 +39,7 @@ int main() {
 	Geometry::ReferenceHypercube& eGeom = Geometry::ReferenceHypercube::Instance();
 	Geometry::ReferenceCube& fGeom = Geometry::ReferenceCube::Instance();
 
-	Geometry::Jacobian jac(3,4);
+	Geometry::Jacobian jac(4,3);
 
 	std::vector<int> nodesAfterTransformation(8);
 

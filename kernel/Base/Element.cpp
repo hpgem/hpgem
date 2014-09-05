@@ -259,7 +259,7 @@ namespace Base
         {
             for (int k=0; k < numberOfUnknows; ++k)
             {
-                solution[k] += data(k, i) * basisFunction(i, p);
+                solution[k] += data(i, k) * basisFunction(i, p);
             }
         }
     }

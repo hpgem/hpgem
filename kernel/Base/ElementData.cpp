@@ -92,7 +92,7 @@ namespace Base
     ElementData::setNumberOfBasisFunctions(unsigned int number)
     {
     	nrOfBasisFunctions_=number;
-    	residue_.resize(number);
+    	residue_.resize(nrOfUnkowns_,number);
     	for(VectorOfMatrices::iterator cit=expansionCoefficients_.begin();cit!=expansionCoefficients_.end();++cit)
     		cit->resize(nrOfUnkowns_,nrOfBasisFunctions_);
     	for(VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
@@ -120,7 +120,7 @@ namespace Base
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
         {
-            return expansionCoefficients_[timeLevel](unknown, basisFunction);
+            return expansionCoefficients_[timeLevel](basisFunction, unknown);
         }
         else
         {
