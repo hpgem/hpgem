@@ -28,6 +28,7 @@
 #include "Geometry/PointPhysical.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
 #include "ElementCacheData.hpp"
+#include "FaceCacheData.hpp"
 #include "ConfigurationData.hpp"
 
 namespace Base

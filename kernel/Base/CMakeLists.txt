@@ -8,15 +8,18 @@ add_library(hpGEM_Base SHARED
  		Element.cpp
  		ElementData.cpp
  		ElementCacheData.cpp
+                ElementFactory.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Integration/ElementIntegral.cpp
  		Face.cpp
  		FaceData.cpp
  		FaceCacheData.cpp
+                FaceFactory.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Integration/FaceIntegral.cpp
  		Edge.cpp
  		HpgemUI.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp
+                mesh.cpp
         	${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Base/Norm2.cpp

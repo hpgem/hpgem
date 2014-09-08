@@ -41,6 +41,9 @@
 #include "ElementCacheData.hpp"
 #include "FaceCacheData.hpp"
 #include "BaseBasisFunction.hpp"
+#include "Geometry/Mappings/MappingReferenceToPhysical.hpp"
+#include "ElementFactory.hpp"
+#include "FaceFactory.hpp"
 
 #include <cassert>
 
@@ -198,9 +201,6 @@ namespace Base
         periodicX_(xPer),
         periodicY_(yPer),
         periodicZ_(zPer),
-        elementcounter_(idRangeBegin),
-        faceCounter_(0),
-        edgeCounter_(0),
         activeMeshTree_(0), 
         numMeshTree_(0),
         numberOfElementMatrixes_(nrOfElementMatrixes),
@@ -230,10 +230,7 @@ namespace Base
 
     MeshManipulator::MeshManipulator(const MeshManipulator& other):
                  configData_(other.configData_),
-                 elementcounter_(other.elementcounter_),
-                 elements_(other.elements_),
-                 faces_(other.faces_),
-                 points_(other.points_),
+                 theMesh_(other.theMesh_),
                  periodicX_(other.periodicX_),
                  periodicY_(other.periodicY_),
                  periodicZ_(other.periodicZ_),
@@ -254,19 +251,6 @@ namespace Base
 
     MeshManipulator::~MeshManipulator()
     {
-        for (typename ListOfElementsT::iterator it=elements_.begin(); it!=elements_.end();++it)
-        {
-            ElementT* el = *it;
-            delete el;
-        }
-        
-        for(Base::Face* face:getFacesList()){
-        	delete face;
-        }
-
-        for(Base::Edge* edge:getEdgesList()){
-        	delete edge;
-        }
 
         for (typename CollectionOfBasisFunctionSets::iterator bit=collBasisFSet_.begin(); bit!=collBasisFSet_.end();++bit)
         {
@@ -292,10 +276,10 @@ namespace Base
     	delete collBasisFSet_[0];
     	collBasisFSet_[0]=bFSet;
     	const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_=bFSet->size();
-    	for(Base::Face* face:faces_){
+    	for(Base::Face* face:getFacesList()){
     		face->setLocalNrOfBasisFunctions(0);
     	}
-    	for(Base::Edge* edge:edges_){
+    	for(Base::Edge* edge:getEdgesList()){
     		edge->setLocalNrOfBasisFunctions(0);
     	}
     	for(ElementIterator it=elementColBegin();it!=elementColEnd();++it){
@@ -325,7 +309,7 @@ namespace Base
     	for(const BasisFunctionSet* it:bFsets){
     		collBasisFSet_.push_back(it);
     	}
-    	for(Face* face:faces_){
+    	for(Face* face:getFacesList()){
     		int faceNr=face->localFaceNumberLeft();
     		for(int i=0;i<bFsets.size();++i){
     			if(bFsets[i]->checkOrientation(0,faceNr)){
@@ -355,7 +339,7 @@ namespace Base
     	for(const BasisFunctionSet* it:bFsets){
     		collBasisFSet_.push_back(it);
     	}
-    	for(Edge* edge:edges_){
+    	for(Edge* edge:getEdgesList()){
     		for(int i=0;i<edge->getNrOfElements();++i){
     			for(int j=0;j<bFsets.size();++j){
     				if(bFsets[j]->checkOrientation(edge->getOrientation(i),edge->getEdgeNr(i))){
@@ -372,34 +356,22 @@ namespace Base
     Base::Element*
     MeshManipulator::addElement(const VectorOfPointIndicesT& globalNodeIndexes)
     {
-        
-        unsigned int numOfUnknowns       = configData_->numberOfUnknowns_;
-        unsigned int numOfTimeLevels     = configData_->numberOfTimeLevels_;
-        unsigned int numOfBasisFunctions = configData_->numberOfBasisFunctions_;
-        
-        unsigned int id                 = elementcounter_++;
-        
-        
-        
-        ElementT*  myElement = new ElementT(globalNodeIndexes, &collBasisFSet_, points_, numOfUnknowns, numOfTimeLevels, numOfBasisFunctions, id,numberOfElementMatrixes_,numberOfElementVectors_);
-        
-        
-            //cout << "Element= "<<*myElement;
-        elements_.push_back(myElement);
-        
-        return myElement;
+        return theMesh_.addElement(globalNodeIndexes);
     }
 
     void
     MeshManipulator::move()
     {
-        for (int i=0;i<points_.size();i++)
+        for (Geometry::PointPhysical& p:theMesh_.getNodes())
         {
             if (meshMover_!=NULL)
             {
-                meshMover_->movePoint(points_[i]);
+                meshMover_->movePoint(p);
             }
         }
+        /*for(Base::Element* element:getElementsList()){
+            const_cast<Geometry::MappingReferenceToPhysical*>(element->getReferenceToPhysicalMap())->reinit(element->getPhysicalGeometry());
+        }*/
     }
 
     void
@@ -411,65 +383,53 @@ namespace Base
     bool 
     MeshManipulator::addFace(ElementT* leftElementPtr, unsigned int leftElementLocalFaceNo, ElementT* rightElementPtr, unsigned int rightElementLocalFaceNo, const Geometry::FaceType& faceType)
     {
-        //std::cout << "-----------------------\n";
-        
-        //std::cout << "{Left Element" << (*leftElementPtr) <<" , FaceIndex=" <<leftElementLocalFaceNo<<"}"<<endl;
-        if (rightElementPtr!=NULL)
-        {
-            //std::cout << "{Right Element" << (*rightElementPtr) << " , FaceIndex=" <<rightElementLocalFaceNo<<"}"<<endl;
-            
-            Face* face = new Face(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo,faceCounter_,numberOfFaceMatrixes_,numberOfFaceVectors_);
-            
-            faces_.push_back(face);
-            ++faceCounter_;
-        }
-        else 
-        {
-            //std::cout << "This is a boundary face" << std::endl;
-            Face* bFace = new Face(leftElementPtr, leftElementLocalFaceNo, faceType,faceCounter_,numberOfFaceMatrixes_,numberOfFaceVectors_);
-            faces_.push_back(bFace);
-            ++faceCounter_;
-        }
-        // std::cout << "-----------------------\n";
+        return theMesh_.addFace(leftElementPtr,leftElementLocalFaceNo,rightElementPtr,rightElementLocalFaceNo,faceType);
     }
 
     void
     MeshManipulator::addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs)
     {
-    	Edge* edge = new Edge(elements,localEdgeNrs,edgeCounter_);
-    	edges_.push_back(edge);
-    	++edgeCounter_;
+        theMesh_.addEdge(elements,localEdgeNrs);
     }
 
     void 
     MeshManipulator::outputMesh(std::ostream& os)const
     {
-        for (int i=0;i<points_.size();i++)
+        for (Geometry::PointPhysical p:getNodes())
         {
-            os<<"Node " <<i<<" "<<points_[i]<<std::endl;
+            os<<"Node " <<" "<<p<<std::endl;
         }
         
         int elementNum=0;
         
-        for (typename ListOfElementsT::const_iterator cit=elements_.begin(); cit !=elements_.end(); ++cit)
+        for (Element* element:getElementsList())
         {
-            os << "Element " <<elementNum <<" " <<*(*cit)<<std::endl;
+            os << "Element " <<element->getID() <<" " <<element<<std::endl;
             elementNum++;
         }
         
-        int faceNum=0;
+        /*int faceNum=0;
         for (typename ListOfFacesT::const_iterator cit=faces_.begin(); cit !=faces_.end(); ++cit)
         {
             /// \bug need at output routine for the face to test this.
             // os << "Face " <<faceNum <<" " <<(*cit)<<endl;
             faceNum++;
-        }
+        }*/
 
     }
 
     void 
     MeshManipulator::createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const  VectorOfPointIndicesT& linearNoElements)
     {
+        //set to correct value in case some other meshmanipulator changed things
+        ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
+        ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
+        
     	unsigned int DIM=configData_->dimension_;
         if (linearNoElements.size() != DIM)
         {
@@ -533,7 +493,7 @@ namespace Base
             }
         
             //actally add the point
-            points_.push_back(x);
+            theMesh_.addNode(x);
 
         }
             
@@ -837,6 +797,15 @@ namespace Base
 
 void MeshManipulator::createTriangularMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, const VectorOfPointIndicesT& linearNoElements)
 {
+        //set to correct value in case some other meshmanipulator changed things
+        ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
+        ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
+        
     //Stage 0 : Check for required requirements
     unsigned int DIM=configData_->dimension_;
     if (linearNoElements.size() != DIM)
@@ -915,7 +884,7 @@ void MeshManipulator::createTriangularMesh(PointPhysicalT BottomLeft, PointPhysi
 	    x[idim] = BottomLeft[idim] + (nodeIndexRemain / numOfNodesInEachSubspace[idim] * delta_x[idim]);
 	    nodeIndexRemain %= numOfNodesInEachSubspace[idim];
 	}
-	points_.push_back(x);
+        theMesh_.addNode(x);
     }
  
     //Stage 3 : Create the elements
@@ -1334,6 +1303,14 @@ void MeshManipulator::triangularCreateFaces3D(std::vector<Base::Element*>& tempE
 void 
 MeshManipulator::readCentaurMesh(const std::string& filename)
 {
+        //set to correct value in case some other meshmanipulator changed things
+        ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
+        ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
 
     //First open the file
     std::ifstream centaurFile;
@@ -1421,7 +1398,7 @@ MeshManipulator::readCentaurMesh(const std::string& filename)
                 //Covert from *double to hpGEM PointPhysical format
                 nodeCoordPointFormat[0]=nodeCoord[0];
                 nodeCoordPointFormat[1]=nodeCoord[1];
-                points_.push_back(nodeCoordPointFormat);
+                theMesh_.addNode(nodeCoordPointFormat);
                
             }
             //Now check the node line was read correctly : each line in centaur start and end with the line size as a check
@@ -1607,7 +1584,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
             nodeCoordPointFormat[1]=nodeCoord[1];
 	    nodeCoordPointFormat[2]=nodeCoord[2];
 	    std::cout<<nodeCoordPointFormat<<std::endl;
-            points_.push_back(nodeCoordPointFormat);
+            theMesh_.addNode(nodeCoordPointFormat);
            
 	}
         //Now check the node line was read correctly : each line in centaur start and end with the line size as a check
@@ -2089,7 +2066,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
                    addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum],boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex,NULL,0,Geometry::WALL_BC);
 	       }
 	    }
-	    std::cout<<"total number of boundary faces: "<<faces_.size()<<std::endl;
+	    std::cout<<"total number of boundary faces: "<<getFacesList().size()<<std::endl;
 	}
 	centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
 	if (checkInt!=sizeOfLine) {std::cerr << "Error in centaur file " << std::endl; return;}
@@ -2231,13 +2208,13 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
 //in principle this will also work for 2D but fixing DIM makes the code a lot easier to read
     void MeshManipulator::constructInternalFaces(std::vector<std::list<int> >& listOfElementsForEachNode,std::vector<Element*>& vectorOfElements)
     {
-        for(typename std::list<Element* >::iterator currentElement=elements_.begin();currentElement!=elements_.end();++currentElement){
-            for(int currentFace=0;currentFace<(*currentElement)->getPhysicalGeometry()->getNrOfFaces();++currentFace){
+        for(Element* currentElement:getElementsList()){
+            for(int currentFace=0;currentFace<(currentElement)->getPhysicalGeometry()->getNrOfFaces();++currentFace){
                 
                 //step 1: find the other element
                 std::list<int>::iterator elementListEntry[3];
                 std::vector<unsigned int> faceNode;
-                (*currentElement)->getPhysicalGeometry()->getGlobalFaceNodeIndices(currentFace,faceNode);
+                (currentElement)->getPhysicalGeometry()->getGlobalFaceNodeIndices(currentFace,faceNode);
                 for(int i=0;i<3;++i){
                     elementListEntry[i]=listOfElementsForEachNode[faceNode[i]].begin();
                 }
@@ -2246,7 +2223,7 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
                     if(*elementListEntry[1]<*elementListEntry[2]){elementListEntry[1]++;}
                     if(*elementListEntry[2]<*elementListEntry[0]){elementListEntry[2]++;}
                 }
-                if(*elementListEntry[0]!=(*currentElement)->getID()){
+                if(*elementListEntry[0]!=(currentElement)->getID()){
                     //std::cout<<"found candidate matching "<<*elementListEntry[0]<<"->"<<(*currentElement)->getID()<<std::endl;
                     
                     //step 2: find the other face
@@ -2267,9 +2244,9 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
                         }
                         //std::cout<<"finding the other element again("<<*otherElementListEntry[0]<<")"<<std::endl;
                         //assert(*otherElementListEntry[0]==*elementListEntry[0]);//for other faces this element may not be the first match found
-                        if(*otherElementListEntry[0]==(*currentElement)->getID() && *otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]){
+                        if(*otherElementListEntry[0]==(currentElement)->getID() && *otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]){
                             //std::cout<<"found the fist element("<<*otherElementListEntry[0]<<")"<<std::endl;
-                            addFace(*currentElement,currentFace,vectorOfElements[*elementListEntry[0]],otherFace);
+                            addFace(currentElement,currentFace,vectorOfElements[*elementListEntry[0]],otherFace);
                         }else{
                             otherElementListEntry[0]++;
                             while(!(*otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]) &&
@@ -2280,9 +2257,9 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
                                 if(*otherElementListEntry[1]<*otherElementListEntry[2]){otherElementListEntry[1]++;}
                                 if(*otherElementListEntry[2]<*otherElementListEntry[0]){otherElementListEntry[2]++;}
                             }
-                            if(*otherElementListEntry[0]==(*currentElement)->getID() && *otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]){
+                            if(*otherElementListEntry[0]==(currentElement)->getID() && *otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]){
                                 //std::cout<<"found the fist element("<<*otherElementListEntry[0]<<")"<<std::endl;
-                                addFace(*currentElement,currentFace,vectorOfElements[*elementListEntry[0]],otherFace);
+                                addFace(currentElement,currentFace,vectorOfElements[*elementListEntry[0]],otherFace);
                             }
                         }
                     }
@@ -2292,7 +2269,7 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
                 }
             }
         }
-        std::cout<<"Total number of Faces: "<<faces_.size()<<std::endl;
+        std::cout<<"Total number of Faces: "<<getFacesList().size()<<std::endl;
     }
 
 
@@ -2310,14 +2287,14 @@ void MeshManipulator::faceFactory()
     
     //List to hold the half faces. List is used for the quick sorting of the halfFaces
     std::list<HalfFaceDescription> halfFaceList;
-    VectorOfElementPtrT tempElementVector(elements_.size());
+    VectorOfElementPtrT tempElementVector(getElementsList().size());
     
     VectorOfPointIndicesT globalFaceIndexes;
     int insertposition=0;
         
         //first loop over the elements reading in all the data of the half faces
         unsigned int elementID=0;
-        for (typename ListOfElementsT::iterator it=elements_.begin(); it !=elements_.end(); ++it)
+        for (typename ListOfElementsT::iterator it=elementColBegin(); it !=elementColEnd(); ++it)
         {
             const Geometry::PhysicalGeometry* const myPhysicalGeometry = (*it)->getPhysicalGeometry();
             const Geometry::ReferenceGeometry* const myReferenceGeometry = (*it)->getReferenceGeometry();
@@ -2413,7 +2390,7 @@ void MeshManipulator::faceFactory()
 
              }
          }
-         std::cout<<"Total number of Faces: "<<faces_.size()<<std::endl;
+         std::cout<<"Total number of Faces: "<<getFacesList().size()<<std::endl;
     }
 
 	//the algorithm for the edge factory is based on that of the face factory
@@ -2427,13 +2404,13 @@ void MeshManipulator::faceFactory()
 		HalfFaceDescription halfEdge;
 
 	    std::list<HalfFaceDescription> halfEdgeList;
-	    VectorOfElementPtrT tempElementVector(elements_.size());
+	    VectorOfElementPtrT tempElementVector(getElementsList().size());
 
 	    VectorOfPointIndicesT globalEdgeIndexes;
 	    int insertposition=0;
 	    unsigned int temp,dummy;
 
-	    for (typename ListOfElementsT::iterator it=elements_.begin(); it !=elements_.end(); ++it)
+	    for (typename ListOfElementsT::iterator it=getElementsList().begin(); it !=getElementsList().end(); ++it)
 		{
 			const Geometry::PhysicalGeometry* const myPhysicalGeometry = (*it)->getPhysicalGeometry();
 			const Geometry::ReferenceGeometry* const myReferenceGeometry = (*it)->getReferenceGeometry();
@@ -2567,6 +2544,14 @@ void MeshManipulator::faceFactory()
     void
     MeshManipulator::someMeshGenerator(int meshTreeIdx)
     {
+        //set to correct value in case some other meshmanipulator changed things
+        ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
+        ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         /*int onIndex;
         if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
         {

@@ -29,6 +29,7 @@
 #include "Geometry/ReferenceGeometry.hpp"
 #include "TecplotSingleElementWriter.hpp"
 #include "Base/ElementCacheData.hpp"
+#include "Base/FaceCacheData.hpp"
 
 #include <list>
 

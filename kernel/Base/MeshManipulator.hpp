@@ -29,6 +29,8 @@
 
 //for enum support...
 #include "Geometry/FaceGeometry.hpp"
+#include "FaceCacheData.hpp"
+#include "Mesh.hpp"
 
 namespace Geometry{
 	class PointPhysical;
@@ -110,32 +112,29 @@ namespace Base
         
         void                            addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs);
 
-        unsigned int                    getNumberOfElements(unsigned int meshId=0) const {return elements_.size(); }
-        unsigned int                    getNumberOfFaces(unsigned int meshId=0) const {return faces_.size();}
-        unsigned int                    getNumberOfEdges(unsigned int meshId=0) const {return edges_.size();}
-        unsigned int                    getNumberOfNodes()const {return points_.size();}
+        unsigned int                    getNumberOfElements(unsigned int meshId=0) const {return theMesh_.getNumberOfElements(meshId);}
+        unsigned int                    getNumberOfFaces(unsigned int meshId=0) const {return theMesh_.getNumberOfFaces(meshId);}
+        unsigned int                    getNumberOfEdges(unsigned int meshId=0) const {return theMesh_.getNumberOfEdges(meshId);}
+        unsigned int                    getNumberOfNodes()const {return theMesh_.getNumberOfNodes();}
 
         /// *****************Iteration through the Elements*******************
-        ConstElementIterator            elementColBegin()const{return elements_.begin();}
+        ConstElementIterator            elementColBegin()const{return theMesh_.elementColBegin();}
+        ConstElementIterator            elementColEnd()const{return theMesh_.elementColEnd();}
 
-        ConstElementIterator            elementColEnd()const{return elements_.end();}
-
-        ElementIterator                 elementColBegin(){return elements_.begin();}
-        ElementIterator                 elementColEnd(){return elements_.end();}
+        ElementIterator                 elementColBegin(){return theMesh_.elementColBegin();}
+        ElementIterator                 elementColEnd(){return theMesh_.elementColEnd();}
         
-        ConstFaceIterator               faceColBegin()const{return faces_.begin();}
+        ConstFaceIterator               faceColBegin()const{return theMesh_.faceColBegin();}
+        ConstFaceIterator               faceColEnd()const{return theMesh_.faceColEnd();}
         
-        ConstFaceIterator               faceColEnd()const{return faces_.end();}
-        
-        FaceIterator                    faceColBegin(){return faces_.begin();}
-        FaceIterator                    faceColEnd(){return faces_.end();}
+        FaceIterator                    faceColBegin(){return theMesh_.faceColBegin();}
+        FaceIterator                    faceColEnd(){return theMesh_.faceColEnd();}
 
-       std::list< Edge*>::const_iterator edgeColBegin()const{return edges_.begin();}
+       std::list< Edge*>::const_iterator edgeColBegin()const{return theMesh_.edgeColBegin();}
+       std::list< Edge*>::const_iterator edgeColEnd()const{return theMesh_.edgeColEnd();}
 
-       std::list< Edge*>::const_iterator edgeColEnd()const{return edges_.end();}
-
-        std::list< Edge*>::iterator      edgeColBegin(){return edges_.begin();}
-        std::list< Edge*>::iterator      edgeColEnd(){return edges_.end();}
+        std::list< Edge*>::iterator      edgeColBegin(){return theMesh_.edgeColBegin();}
+        std::list< Edge*>::iterator      edgeColEnd(){return theMesh_.edgeColEnd();}
         /// *****************Iteration through the Elements*******************
 
         void                            createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const VectorOfPointIndicesT& LinearNoElements);
@@ -162,22 +161,39 @@ namespace Base
 
         // ******************THESE SHOULD BE DELETED LATER***********************//actually, these should be replaced by iterable editions of the levelTree -FB
         //! Get const list of elements
-        const ListOfElementsT&          getElementsList() const {return elements_; }
+        const ListOfElementsT&          getElementsList() const {return theMesh_.getElementsList(); }
 
         //! Get non-const list of elements
-        ListOfElementsT&                getElementsList() { return elements_; }
+        ListOfElementsT&                getElementsList() { return theMesh_.getElementsList(); }
 
         //! Get const list of faces
-        const ListOfFacesT&             getFacesList() const { return faces_; }
+        const ListOfFacesT&             getFacesList() const { return theMesh_.getFacesList(); }
 
         //! Get non-const list of faces
-        ListOfFacesT&                   getFacesList() { return faces_; }
+        ListOfFacesT&                   getFacesList() { return theMesh_.getFacesList(); }
 
-        const std::list<Edge*>&         getEdgesList() const {return edges_;}
+        const std::list<Edge*>&         getEdgesList() const {return theMesh_.getEdgesList();}
 
-        std::list<Edge*>&               getEdgesList() {return edges_;}
+        std::list<Edge*>&               getEdgesList() {return theMesh_.getEdgesList();}
         // ************************************************************************
 
+        //! Changes the default set of basisFunctions for this mesh and all of its elements. Ignores any conforming basisFunctionset that nay be linked to faces/edges/...
+        void							setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet);
+
+        //! Adds vertex based degrees of freedom to the set of basisfunctions for this mesh and all of its vertices. This routine will assume that the first basisfunctionset connects to the first vertex (local numbering) and so on
+        void                            addVertexBasisFunctionSet(CollectionOfBasisFunctionSets& bFsets);///\TODO support for mixed meshes
+
+        //! Adds face based degrees of freedom to the set of basisfunctions for this mesh and all of its faces. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
+        void                            addFaceBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets);///\TODO support for mixed meshes
+
+        //! Adds edge based degrees of freedom to the set of basisfunctions for this mesh and all of its edges. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
+        void                            addEdgeBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets);///\TODO support for mixed meshes
+
+		int dimension();
+
+        const std::vector<PointPhysicalT>& getNodes()const{return theMesh_.getNodes();}
+
+        //routines that deal with level trees
   //---------------------------------------------------------------------
         //! Get the number of mesh-tree.
         int                             getNumberOfMeshes() const;
@@ -220,22 +236,6 @@ namespace Base
 
         //! Refine a specific mesh-tree.
         void                            doRefinement(unsigned int meshTreeIdx, int refinementType);
-
-        //! Changes the default set of basisFunctions for this mesh and all of its elements. Ignores any conforming basisFunctionset that nay be linked to faces/edges/...
-        void							setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet);
-
-        //! Adds vertex based degrees of freedom to the set of basisfunctions for this mesh and all of its vertices. This routine will assume that the first basisfunctionset connects to the first vertex (local numbering) and so on
-        void                            addVertexBasisFunctionSet(CollectionOfBasisFunctionSets& bFsets);///\TODO support for mixed meshes
-
-        //! Adds face based degrees of freedom to the set of basisfunctions for this mesh and all of its faces. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
-        void                            addFaceBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets);///\TODO support for mixed meshes
-
-        //! Adds edge based degrees of freedom to the set of basisfunctions for this mesh and all of its edges. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
-        void                            addEdgeBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets);///\TODO support for mixed meshes
-
-		int dimension();
-
-        const std::vector<PointPhysicalT>& getNodes(){return points_;}
   //---------------------------------------------------------------------
     private:
         
@@ -288,24 +288,9 @@ namespace Base
   //---------------------------------------------------------------------
     private:
         
+        Mesh                            theMesh_;
+        
         const ConfigurationData*        configData_;
-
-        unsigned int                    elementcounter_;
-
-        unsigned int             faceCounter_;
-        unsigned int             edgeCounter_;
-        //! List of all elements. TODO: this should be replaced by the mesh-tree structure
-        ListOfElementsT                 elements_;
-        
-        //! List of all faces. TODO: this should be replaced by the mesh-tree structure
-        ListOfFacesT                    faces_;
-        
-        //! List of all edges.
-        std::list< Edge*>                edges_;
-
-        //! Global vector of physical nodes.
-        VectorOfPhysicalPointsT         points_;
-
         //! Periodicity in x-direction.
         bool                            periodicX_;
         
@@ -318,10 +303,10 @@ namespace Base
         /// Pointer to MeshMoverBase, in order to move points in the mesh, when needed by user.
         const MeshMoverBaseT*           meshMover_;
 
+        //! Collection of additional basis function set, if p-refinement is applied
         CollectionOfBasisFunctionSets   collBasisFSet_;
         
         //const BasisFunctionSetT*        defaultSetOfBasisFunctions_;
-        //! Collection of additional basis function set, if p-refinement is applied
         
         //! Active mesh-tree.
         int                             activeMeshTree_;
