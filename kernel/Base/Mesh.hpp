@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "Face.hpp"
+#include "Submesh.hpp"
 
 namespace Geometry{
     class PointPhysical;
@@ -52,63 +53,69 @@ public:
     
     void                                addNode(Geometry::PointPhysical node);
 
-    unsigned int                        getNumberOfElements(unsigned int meshId=0) const {return elements_.size(); }
-    unsigned int                        getNumberOfFaces(unsigned int meshId=0) const {return faces_.size();}
-    unsigned int                        getNumberOfEdges(unsigned int meshId=0) const {return edges_.size();}
-    unsigned int                        getNumberOfNodes()const {return points_.size();}
+    unsigned int                        getNumberOfElements(unsigned int meshId=0) const {return getElementsList().size(); }
+    unsigned int                        getNumberOfFaces(unsigned int meshId=0) const {return getFacesList().size();}
+    unsigned int                        getNumberOfEdges(unsigned int meshId=0) const {return getEdgesList().size();}
+    unsigned int                        getNumberOfNodes()const {return getNodes().size();}
     
     //! Get const list of elements
-    const std::list<Element*>&          getElementsList() const {return elements_; }
+    const std::list<Element*>&          getElementsList() const;
     //! Get non-const list of elements
-    std::list<Element*>&                getElementsList() { return elements_; }
+    std::list<Element*>&                getElementsList();
 
     //! Get const list of faces
-    const std::list<Face*>&             getFacesList() const { return faces_; }
+    const std::list<Face*>&             getFacesList() const;
     //! Get non-const list of faces
-    std::list<Face*>&                   getFacesList() { return faces_; }
+    std::list<Face*>&                   getFacesList();
 
-    const std::list<Edge*>&             getEdgesList() const {return edges_;}
-    std::list<Edge*>&                   getEdgesList() {return edges_;}
+    const std::list<Edge*>&             getEdgesList()const ;
+    std::list<Edge*>&                   getEdgesList();
     
-    const std::vector<Geometry::PointPhysical>&  getNodes()const{return points_;}
-    std::vector<Geometry::PointPhysical>&        getNodes(){return points_;}
+    const std::vector<Geometry::PointPhysical>&  getNodes()const;
+    std::vector<Geometry::PointPhysical>&        getNodes();
     
     //********************************************************************************
-    std::list<Element*>::const_iterator elementColBegin()const{return elements_.begin();}
-    std::list<Element*>::const_iterator elementColEnd()const{return elements_.end();}
+    std::list<Element*>::const_iterator elementColBegin()const{return getElementsList().begin();}
+    std::list<Element*>::const_iterator elementColEnd()const{return getElementsList().end();}
 
-    std::list<Element*>::iterator       elementColBegin(){return elements_.begin();}
-    std::list<Element*>::iterator       elementColEnd(){return elements_.end();}
+    std::list<Element*>::iterator       elementColBegin(){return getElementsList().begin();}
+    std::list<Element*>::iterator       elementColEnd(){return getElementsList().end();}
 
-    std::list<Face*>::const_iterator    faceColBegin()const{return faces_.begin();}
-    std::list<Face*>::const_iterator    faceColEnd()const{return faces_.end();}
+    std::list<Face*>::const_iterator    faceColBegin()const{return getFacesList().begin();}
+    std::list<Face*>::const_iterator    faceColEnd()const{return getFacesList().end();}
 
-    std::list<Face*>::iterator          faceColBegin(){return faces_.begin();}
-    std::list<Face*>::iterator          faceColEnd(){return faces_.end();}
+    std::list<Face*>::iterator          faceColBegin(){return getFacesList().begin();}
+    std::list<Face*>::iterator          faceColEnd(){return getFacesList().end();}
 
-    std::list< Edge*>::const_iterator   edgeColBegin()const{return edges_.begin();}
-    std::list< Edge*>::const_iterator   edgeColEnd()const{return edges_.end();}
+    std::list< Edge*>::const_iterator   edgeColBegin()const{return getEdgesList().begin();}
+    std::list< Edge*>::const_iterator   edgeColEnd()const{return getEdgesList().end();}
 
-    std::list< Edge*>::iterator         edgeColBegin(){return edges_.begin();}
-    std::list< Edge*>::iterator         edgeColEnd(){return edges_.end();}
+    std::list< Edge*>::iterator         edgeColBegin(){return getEdgesList().begin();}
+    std::list< Edge*>::iterator         edgeColEnd(){return getEdgesList().end();}
     //********************************************************************************
     
 private:
+    
+    void                                split();
+    
+    unsigned int                        localProcessorID_;
+    
+    std::vector<Submesh>                submeshes_;
 
-    unsigned int                         elementcounter_;
-    unsigned int                         faceCounter_;
-    unsigned int                         edgeCounter_;
+    unsigned int                        elementcounter_;
+    unsigned int                        faceCounter_;
+    unsigned int                        edgeCounter_;
     //! List of all elements. TODO: this should be replaced by the mesh-tree structure
-    std::list<Element*>                  elements_;
+    std::list<Element*>                 elements_;
 
     //! List of all faces. TODO: this should be replaced by the mesh-tree structure
-    std::list<Face*>                     faces_;
+    std::list<Face*>                    faces_;
 
     //! List of all edges.
-    std::list< Edge*>                    edges_;
+    std::list< Edge*>                   edges_;
 
     //! Global vector of physical nodes.
-    std::vector<Geometry::PointPhysical> points_;
+    std::vector<Geometry::PointPhysical>points_;
 };
 
 }

@@ -2208,7 +2208,8 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
 //in principle this will also work for 2D but fixing DIM makes the code a lot easier to read
     void MeshManipulator::constructInternalFaces(std::vector<std::list<int> >& listOfElementsForEachNode,std::vector<Element*>& vectorOfElements)
     {
-        for(Element* currentElement:getElementsList()){
+        int numberOfFaces(0);
+        for(Element* currentElement:vectorOfElements){
             for(int currentFace=0;currentFace<(currentElement)->getPhysicalGeometry()->getNrOfFaces();++currentFace){
                 
                 //step 1: find the other element
@@ -2247,6 +2248,7 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
                         if(*otherElementListEntry[0]==(currentElement)->getID() && *otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]){
                             //std::cout<<"found the fist element("<<*otherElementListEntry[0]<<")"<<std::endl;
                             addFace(currentElement,currentFace,vectorOfElements[*elementListEntry[0]],otherFace);
+                            numberOfFaces++;
                         }else{
                             otherElementListEntry[0]++;
                             while(!(*otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]) &&
@@ -2260,6 +2262,7 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
                             if(*otherElementListEntry[0]==(currentElement)->getID() && *otherElementListEntry[0]==*otherElementListEntry[1] && *otherElementListEntry[0]==*otherElementListEntry[2]){
                                 //std::cout<<"found the fist element("<<*otherElementListEntry[0]<<")"<<std::endl;
                                 addFace(currentElement,currentFace,vectorOfElements[*elementListEntry[0]],otherFace);
+                                numberOfFaces++;
                             }
                         }
                     }
@@ -2269,12 +2272,13 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
                 }
             }
         }
-        std::cout<<"Total number of Faces: "<<getFacesList().size()<<std::endl;
+        std::cout<<"Total number of Faces: "<<numberOfFaces<<std::endl;
     }
 
 
 /// \bug does not do the bc flags yet or periodic mesh reads
 /// \bug this routine implicitly requires 0 based global element numbering and will only work if list::iterator iterates the element list in the same order as the ordering of the element IDs
+/// \bug on parallel computation this routine will cause the distribution of elements before the faces are created, resulting in a mess
 void MeshManipulator::faceFactory()
 {
 	unsigned int DIM = configData_->dimension_;

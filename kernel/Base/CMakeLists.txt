@@ -20,6 +20,7 @@ add_library(hpGEM_Base SHARED
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp
                 mesh.cpp
+                submesh.cpp
         	${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Base/Norm2.cpp

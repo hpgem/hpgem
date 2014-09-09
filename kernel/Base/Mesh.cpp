@@ -34,7 +34,9 @@ namespace Base{
 Mesh::Mesh():
         elementcounter_(0),
         faceCounter_(0),
-        edgeCounter_(0)
+        edgeCounter_(0),
+        localProcessorID_(0),
+        submeshes_(1)//TODO get the last two initializers from MPI
 {
 }
 
@@ -62,31 +64,106 @@ Mesh::~Mesh() {
     
 }
 
-    Element*                            Mesh::addElement(const std::vector<unsigned int>& globalNodeIndexes){
-        elements_.push_back(ElementFactory::instance().makeElement(globalNodeIndexes,points_,elementcounter_));
-        ++elementcounter_;
-        return elements_.back();
-    }
+Element*                            Mesh::addElement(const std::vector<unsigned int>& globalNodeIndexes){
+    elements_.push_back(ElementFactory::instance().makeElement(globalNodeIndexes,points_,elementcounter_));
+    ++elementcounter_;
+    return elements_.back();
+}
 
-    bool                                Mesh::addFace(Element* leftElementPtr, unsigned int leftElementLocalFaceNo, 
-                                                Element* rightElementPtr, unsigned int rightElementLocalFaceNo,
-                                                const Geometry::FaceType& faceType){
-        if(rightElementPtr==NULL){
-            faces_.push_back(FaceFactory::instance().makeFace(leftElementPtr,leftElementLocalFaceNo,faceType,faceCounter_));
-        }else{
-            faces_.push_back(FaceFactory::instance().makeFace(leftElementPtr,leftElementLocalFaceNo,rightElementPtr,rightElementLocalFaceNo,faceCounter_));
+bool                                Mesh::addFace(Element* leftElementPtr, unsigned int leftElementLocalFaceNo, 
+                                            Element* rightElementPtr, unsigned int rightElementLocalFaceNo,
+                                            const Geometry::FaceType& faceType){
+    if(rightElementPtr==NULL){
+        faces_.push_back(FaceFactory::instance().makeFace(leftElementPtr,leftElementLocalFaceNo,faceType,faceCounter_));
+    }else{
+        faces_.push_back(FaceFactory::instance().makeFace(leftElementPtr,leftElementLocalFaceNo,rightElementPtr,rightElementLocalFaceNo,faceCounter_));
+    }
+    ++faceCounter_;
+    return true;
+}
+
+void                                Mesh::addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs){
+    edges_.push_back(new Edge(elements,localEdgeNrs,edgeCounter_));
+    ++edgeCounter_;
+}
+
+void                                Mesh::addNode(Geometry::PointPhysical node){
+    points_.push_back(node);
+}
+
+void Mesh::split(){
+        //split the mesh
+        while(!elements_.empty()){
+            //if this element belongs to this mesh
+            submeshes_[localProcessorID_].add(elements_.front());
+            elements_.pop_front();
         }
-        ++faceCounter_;
-        return true;
-    }
+        while(!faces_.empty()){
+            //if the left element OR the right element belongs to this mesh
+            submeshes_[localProcessorID_].add(faces_.front());
+            faces_.pop_front();
+            //if the left element XOR the right element belongs to this mesh
+            //do some fiddling with push and pull elements
+        }
+        while(!edges_.empty()){
+            //if one of the elements adjacent to this edge belong to this mesh
+            submeshes_[localProcessorID_].add(edges_.front());
+            edges_.pop_front();
+            //if above AND one of the elements adjacent to this edge belong to another mesh
+            //AND there are conforming basis functions
+            //do some fiddling with push and pull elements
+        }
+}
 
-    void                                Mesh::addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs){
-        edges_.push_back(new Edge(elements,localEdgeNrs,edgeCounter_));
-        ++edgeCounter_;
+const std::list<Element*>&          Mesh::getElementsList() const {
+    if(elements_.empty()){
+        return submeshes_[localProcessorID_].getElementsList();
+    }else{
+        throw "Please call getElementsList() on a modifiable mesh at least once before calling getElementsList() const";
     }
-    
-    void                                Mesh::addNode(Geometry::PointPhysical node){
-        points_.push_back(node);
+}
+std::list<Element*>&                Mesh::getElementsList() { 
+    if(!elements_.empty()){
+        split();
     }
+    return submeshes_[localProcessorID_].getElementsList();
+}
+
+const std::list<Face*>&             Mesh::getFacesList() const { 
+    if(faces_.empty()){
+        return submeshes_[localProcessorID_].getFacesList();
+    }else{
+        throw "Please call getFacesList() on a modifiable mesh at least once before calling getFacesList() const";
+    }
+}
+std::list<Face*>&                   Mesh::getFacesList() {
+    if(!faces_.empty()){
+        split();
+    }
+    return submeshes_[localProcessorID_].getFacesList();
+}
+
+const std::list<Edge*>&             Mesh::getEdgesList() const {
+    if(edges_.empty()){
+        return submeshes_[localProcessorID_].getEdgesList();
+    }else{
+        throw "Please call getEdgesList() on a modifiable mesh at least once before calling getEdgesList() const";
+    }
+}
+std::list<Edge*>&                   Mesh::getEdgesList() {
+    if(!edges_.empty()){
+        split();
+    }
+    return submeshes_[localProcessorID_].getEdgesList();
+}
+
+const std::vector<Geometry::PointPhysical>&  Mesh::getNodes()const{
+    //for historic reasons points_ is referenced directly during element creation and therefore cannot be distributed
+    return points_;
+}
+std::vector<Geometry::PointPhysical>&        Mesh::getNodes(){
+    //for historic reasons points_ is referenced directly during element creation and therefore cannot be distributed
+    return points_;
+}
 
 }
