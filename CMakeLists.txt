@@ -57,6 +57,7 @@ add_custom_target(fullTest
 ##############################################
 
 option(hpGEM_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
+option(hpGEM_INCLUDE_METIS_SUPPORT "Include metis this will enable parallel computation" OFF)
 option(hpGEM_INCLUDE_PETSC_SUPPORT "Include PETSC this is required for GlobalAssemble" OFF)
 option(hpGEM_INCLUDE_SLEPC_SUPPORT "Include SLEPC this is needed for some applications" OFF)
 option(hpGEM_USE_STL_VECTOR_FOR_LA "Will swap the internal storage of the linear algebra from being based on valarray to STL vector" ON)
@@ -112,9 +113,18 @@ if(hpGEM_BUILD_DOCUMENTATION)
   endif()
 endif()
 
+if(hpGEM_INCLUDE_METIS_SUPPORT)
+    FIND_PACKAGE(METIS REQUIRED)
+    add_definitions(-DhpGEM_INCLUDE_METIS_SUPPORT)
+    if(NOT METIS_FOUND)
+        message(FATAL_ERROR "The option you have chosen requires metis and you do not have this installed. Please install")
+    endif()
+endif()
+
 if(hpGEM_INCLUDE_PETSC_SUPPORT)
         enable_language(C)
 	FIND_PACKAGE(PETSc REQUIRED)
+        add_definitions(-DhpGEM_INCLUDE_PETSC_SUPPORT)
 	#FIND_PACKAGE(SLEPc REQUIRED)
         if (NOT PETSC_FOUND)
 		message(FATAL_ERROR
@@ -134,6 +144,7 @@ if(hpGEM_INCLUDE_SLEPC_SUPPORT)
                        "SLEPc depends on PETSc, please also enable PETSc support")
         endif()
         FIND_PACKAGE(SLEPc REQUIRED)
+        add_definitions(-DhpGEM_INCLUDE_SLEPC_SUPPORT)
         if(NOT SLEPC_FOUND)
                message(FATAL_ERROR
                        "The option you have chosen requires SLEPc and you do not have this installed. Please install")

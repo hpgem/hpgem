@@ -1,5 +1,9 @@
 include_directories(${hpGEM_SOURCE_DIR}/kernel/ .)
 
+if(hpGEM_INCLUDE_METIS_SUPPORT)
+  include_directories(${METIS_INCLUDE_DIR})
+endif()
+
 add_library(hpGEM_Base SHARED
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp	
  		${hpGEM_SOURCE_DIR}/kernel/Base/BasisFunctionSet.cpp	
@@ -32,4 +36,8 @@ add_library(hpGEM_Base SHARED
 		ShortTermStorageFaceH1.cpp
 	) 
 
+if(hpGEM_INCLUDE_METIS_SUPPORT)
+target_link_libraries(hpGEM_Base Geometry Reference_geometries ${METIS_LIBRARY})
+else()
 target_link_libraries(hpGEM_Base Geometry Reference_geometries)
+endif()

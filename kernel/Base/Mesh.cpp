@@ -26,8 +26,15 @@
 #include "ElementFactory.hpp"
 #include "FaceFactory.hpp"
 #include "Geometry/PointPhysical.hpp"
+#include "Geometry/ReferenceGeometry.hpp"
+#include "Geometry/PointReference.hpp"
 #include "FaceCacheData.hpp"
 #include "ElementCacheData.hpp"
+
+//#define hpGEM_INCLUDE_METIS_SUPPORT//temporarily activating this definition makes development easier on some IDEs
+#ifdef hpGEM_INCLUDE_METIS_SUPPORT
+#include "metis.h"
+#endif
 
 namespace Base{
 
@@ -93,6 +100,49 @@ void                                Mesh::addNode(Geometry::PointPhysical node){
 
 void Mesh::split(){
         //split the mesh
+#ifdef hpGEM_INCLUDE_METIS_SUPPORT
+    std::cout<<"start of metis"<<std::endl;
+    int one(1);//actually the number of constraints. This can be increased for example when we want to distribute an entire mesh tree in one go (while keeping each of the levels balanced) - increasing this number turns imbalance into a vector
+    int numberOfElements(elements_.size());
+    int PlaceholderForTheNumberOfMPINondes(4);
+    float imbalance(1.001);//explicitly put the default for later manipulation
+    int totalCutSize;//output
+    std::vector<int> partition(numberOfElements);//output
+    std::vector<int> xadj(numberOfElements+1);//for some reason c-style arrays break somewhere near 1e6 faces in a mesh, so use vectors
+    std::vector<int> adjncy(2*faces_.size());//if this basic connectivity structure turns out to be very slow for conforming meshes, some improvements can be made
+    int connectionsUsed(0),xadjCounter(0);
+    for(Element* element:elements_){
+        xadj[xadjCounter]=connectionsUsed;
+        xadjCounter++;
+        for(int i=0;i<element->getReferenceGeometry()->getNrOfCodim1Entities();++i){
+            const Face* face=element->getFace(i);
+            if(face->isInternal()){
+                if(element==face->getPtrElementLeft()){
+                    adjncy[connectionsUsed]=face->getPtrElementRight()->getID();
+                    connectionsUsed++;
+                }else{
+                    adjncy[connectionsUsed]=face->getPtrElementLeft()->getID();
+                    connectionsUsed++;
+                }
+            }//boundary faces dont generate connections
+        }
+    }
+    xadj[xadjCounter]=connectionsUsed;
+    
+    int metisOptions[METIS_NOPTIONS];
+    METIS_SetDefaultOptions(metisOptions);
+    
+    metisOptions[METIS_OPTION_CTYPE]=METIS_CTYPE_SHEM;
+    metisOptions[METIS_OPTION_RTYPE]=METIS_RTYPE_FM;
+    
+    //the empty arguments provide options for fine-tuning the weights of nodes, edges and processors, these are currently assumed to be the same
+    METIS_PartGraphKway(&numberOfElements,&one,&xadj[0],&adjncy[0],NULL,NULL,NULL,&PlaceholderForTheNumberOfMPINondes,NULL,&imbalance,metisOptions,&totalCutSize,&partition[0]);
+    
+    //temporary debug statements
+    for(int i=0;i<numberOfElements;++i){
+        std::cout<<partition[i]<<std::endl;
+    }
+#endif
         while(!elements_.empty()){
             //if this element belongs to this mesh
             submeshes_[localProcessorID_].add(elements_.front());

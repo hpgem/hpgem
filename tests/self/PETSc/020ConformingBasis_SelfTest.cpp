@@ -20,7 +20,7 @@
  */
 
 
-#define hpGEM_INCLUDE_PETSC_SUPPORT
+//#define hpGEM_INCLUDE_PETSC_SUPPORT//temporarily activating this definition makes development easier on some IDEs
 
 #include "Base/HpgemUISimplified.hpp"
 #include "petscksp.h"
