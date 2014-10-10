@@ -27,13 +27,42 @@
 #include "MappingToRefSquareToCube.hpp"
 #include "MappingToRefTriangleToTetrahedron.hpp"
     //#include "MappingToRefFaceToPyramid.hpp"
+#include <typeinfo>
+
 namespace Geometry
 {
 
     // Added by M.T. Julianto, Feb 16, 2010
     double OutwardNormalVectorSign(const MappingReferenceToReference* const map)
     {
-        if (dynamic_cast<const MappingToRefPointToLine0*>(map) ||
+        if(typeid(*map)==typeid(const MappingToRefPointToLine0) ||
+           typeid(*map)==typeid(const MappingToRefLineToTriangle0) ||
+           typeid(*map)==typeid(const MappingToRefLineToTriangle2) ||
+           typeid(*map)==typeid(const MappingToRefLineToSquare0) ||
+           typeid(*map)==typeid(const MappingToRefLineToSquare2) ||
+           typeid(*map)==typeid(const MappingToRefSquareToCube0) ||
+           typeid(*map)==typeid(const MappingToRefSquareToCube2) ||
+           typeid(*map)==typeid(const MappingToRefSquareToCube4))
+        {
+            return -1;
+        }else if(typeid(*map)==typeid(const MappingToRefPointToLine1) ||
+                 typeid(*map)==typeid(const MappingToRefLineToTriangle1) ||
+                 typeid(*map)==typeid(const MappingToRefLineToSquare1) ||
+                 typeid(*map)==typeid(const MappingToRefLineToSquare3) ||
+                 typeid(*map)==typeid(const MappingToRefSquareToCube1) ||
+                 typeid(*map)==typeid(const MappingToRefSquareToCube3) ||
+                 typeid(*map)==typeid(const MappingToRefSquareToCube5) ||
+                 typeid(*map)==typeid(const MappingToRefTriangleToTetrahedron0) ||
+                 typeid(*map)==typeid(const MappingToRefTriangleToTetrahedron1) ||
+                 typeid(*map)==typeid(const MappingToRefTriangleToTetrahedron2) ||
+                 typeid(*map)==typeid(const MappingToRefTriangleToTetrahedron3))
+        {
+            return 1;
+        }else{
+                throw "outwardNormalVectorSign - don't know this face2el-map";
+        }
+        
+        /*if (dynamic_cast<const MappingToRefPointToLine0*>(map) ||
         	dynamic_cast<const MappingToRefLineToTriangle0*>(map) ||
 	        dynamic_cast<const MappingToRefLineToTriangle2*>(map) ||
 	        dynamic_cast<const MappingToRefLineToSquare0*>(map)   ||
@@ -79,7 +108,7 @@ namespace Geometry
             {
                 throw "outwardNormalVectorSign - don't know this face2el-map";
             }
-        }
+        }*/
     }
 
 	// Added by Vijaya for 4D Normal vector.

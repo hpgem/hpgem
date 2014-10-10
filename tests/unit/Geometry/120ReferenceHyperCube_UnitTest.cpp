@@ -34,6 +34,8 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/Mappings/MappingToRefCubeToHypercube.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <cmath>
+using std::fabs;
 using Geometry::ReferenceHypercube;
 
 int main(){

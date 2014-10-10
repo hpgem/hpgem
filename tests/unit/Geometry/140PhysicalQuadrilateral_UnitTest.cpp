@@ -29,6 +29,8 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferenceSquare.hpp"
 
+#include <cmath>
+using std::fabs;
 using Geometry::PhysicalQuadrilateral;
 
 int main(){

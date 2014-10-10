@@ -7,7 +7,7 @@ if(hpGEM_INCLUDE_PETSC_SUPPORT)
 
     include_directories(${PETSC_INCLUDES})
     
-add_executable(PotentialFlow.out 
+add_executable(LinearPotentialFlow.out 
 		main.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalMatrix.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalVector.cpp
@@ -22,9 +22,9 @@ add_executable(PotentialFlow.out
 							  
 		#miscellaneous required stuff
       		)
-target_link_libraries(PotentialFlow.out hpGEM_Base Output Geometry QuadratureRules LinearAlgebra ${PETSC_LIBRARIES})
+target_link_libraries(LinearPotentialFlow.out hpGEM_Base Output Geometry QuadratureRules LinearAlgebra ${PETSC_LIBRARIES})
 
 else() 
-	add_custom_target(PotentialFlow.out 
+	add_custom_target(LinearPotentialFlow.out 
 		COMMENT "\t ERROR:: You need PETSC to compile Laplace.out. \n\t ERROR:: Please rerun cmake and enable PETSC support")
 endif()

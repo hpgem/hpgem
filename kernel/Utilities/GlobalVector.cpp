@@ -34,6 +34,7 @@
 #include "Geometry/PhysicalGeometry.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
 #include "Geometry/PointReference.hpp"
+#include "Base/Norm2.hpp"
 
 namespace Utilities{
 
@@ -69,7 +70,41 @@ namespace Utilities{
 	}
 
 	void GlobalPetscVector::makePositionsInVector(int amountOfPositions, const Base::Element* element, int positions[]){
-		for(unsigned int i=0;i<amountOfPositions;++i){
+            if(amountOfPositions>0){
+                int n=element->getLocalNrOfBasisFunctions();
+                int usedEntries(0);
+                for(int i=0;i<n;++i){
+                    positions[i]=i+startPositionsOfElementsInTheVector_[element->getID()];
+                }
+                usedEntries+=n;
+                int m=element->getPhysicalGeometry()->getNrOfFaces();
+                for(int i=0;i<m;++i){
+                    n=element->getFace(i)->getLocalNrOfBasisFunctions();
+                    for(int j=0;j<n;++j){
+                        positions[j+usedEntries]=j+startPositionsOfFacesInTheVector_[element->getFace(i)->getID()];
+                    }
+                    usedEntries+=n;
+                }
+                m=element->getNrOfEdges();
+                for(int i=0;i<m;++i){
+                    n=element->getEdge(i)->getLocalNrOfBasisFunctions();
+                    for(int j=0;j<n;++j){
+                        positions[j+usedEntries]=j+startPositionsOfEdgesInTheVector_[element->getEdge(i)->getID()];
+                    }
+                    usedEntries+=n;
+                }
+                m=element->getNrOfNodes();
+                for(int i=0;i<m;++i){
+                    n=element->getLocalNrOfBasisFunctionsVertex();
+                    for(int j=0;j<n;++j){
+                        positions[j+usedEntries]=j+startPositionsOfVerticesInTheVector_[element->getPhysicalGeometry()->getNodeIndex(i)];
+                    }
+                    usedEntries+=n;
+                }
+            }
+            
+            
+		/*for(unsigned int i=0;i<amountOfPositions;++i){
 			int usedEntries(0);
 			if(i<element->getLocalNrOfBasisFunctions()){
 				positions[i]=i+startPositionsOfElementsInTheVector_[element->getID()];
@@ -93,7 +128,7 @@ namespace Utilities{
 				}
 				usedEntries+=element->getLocalNrOfBasisFunctionsVertex();
 			}
-		}
+		}*/
 	}
 
 	void GlobalPetscVector::reset(){
@@ -130,8 +165,53 @@ namespace Utilities{
 				startPositionsOfVerticesInTheVector_[i]=totalNrOfDOF;
 				totalNrOfDOF+=DOFForAVertex;
 			}
-
-			//at the moment assumes fully local vector in the d_nz/o_nz part of the arguments
+                        
+                        
+                //make edges and vertixes periodic
+                std::vector<unsigned int> leftIndexes,rightIndexes;
+                Geometry::PointReference centre(DIM-1),leftRef(DIM),rightRef(DIM);
+                Geometry::PointPhysical leftPhys(DIM),rightPhys(DIM),displacement(DIM);
+                for(Base::Face* face:theMesh_->getFacesList()){
+                    if(face->isInternal()){
+                        face->getReferenceGeometry()->getCenter(centre);
+                        face->mapRefFaceToRefElemL(centre,leftRef);
+                        face->mapRefFaceToRefElemR(centre,rightRef);
+                        face->getPtrElementLeft()->referenceToPhysical(leftRef,leftPhys);
+                        face->getPtrElementRight()->referenceToPhysical(rightRef,rightPhys);
+                        displacement=leftPhys;
+                        displacement-=rightPhys;
+                        if(Utilities::norm2(displacement)>1e-9){//this is a periodic boundary
+                            face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft(),leftIndexes);
+                            face->getPtrElementRight()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberRight(),rightIndexes);
+                            const std::vector<Geometry::PointPhysical> locations=face->getPtrElementLeft()->getPhysicalGeometry()->getNodes();
+                            for(int i=0;i<leftIndexes.size();++i){
+                                for(int j=0;j<rightIndexes.size();++j){
+                                    if(Utilities::norm2(displacement-locations[leftIndexes[i]]+locations[rightIndexes[j]])<1e-9){
+                                        if(startPositionsOfVerticesInTheVector_[leftIndexes[i]]!=startPositionsOfVerticesInTheVector_[rightIndexes[j]]){
+                                            int oldPosition=startPositionsOfVerticesInTheVector_[rightIndexes[j]];
+                                            for(int k=0;k<leftIndexes[i];++k){//before leftIndices[i] connect and shift
+                                                if(startPositionsOfVerticesInTheVector_[k]==oldPosition){
+                                                    startPositionsOfVerticesInTheVector_[k]=startPositionsOfVerticesInTheVector_[leftIndexes[i]];
+                                                }
+                                                if(startPositionsOfVerticesInTheVector_[k]>oldPosition){
+                                                    startPositionsOfVerticesInTheVector_[k]-=DOFForAVertex;
+                                                }
+                                            }
+                                            for(int k=leftIndexes[i];k<startPositionsOfVerticesInTheVector_.size();++k){
+                                                if(startPositionsOfVerticesInTheVector_[k]>oldPosition){
+                                                    startPositionsOfVerticesInTheVector_[k]-=DOFForAVertex;//shift all startposition later then index(j) back a bit
+                                                }else if(startPositionsOfVerticesInTheVector_[k]==oldPosition){//and connect the nodes (also connect previous connections))
+                                                    startPositionsOfVerticesInTheVector_[k]=startPositionsOfVerticesInTheVector_[leftIndexes[i]];
+                                                }
+                                            }
+                                            totalNrOfDOF-=DOFForAVertex;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 			ierr=VecCreateMPI(MPI_COMM_WORLD,totalNrOfDOF,PETSC_DETERMINE,&b_);
 			CHKERRV(ierr);
 

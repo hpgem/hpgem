@@ -24,24 +24,29 @@
 #include "ElementCacheData.hpp"
 
 void Base::ShortTermStorageElementH1::computeData() {
-	ShortTermStorageElementBase::computeData();
-	basisFunctionValues_.resize(element_->getNrOfBasisFunctions());
-	basisFunctionDerivatives_.resize(element_->getNrOfBasisFunctions());
-	for(int i=0;i<element_->getNrOfBasisFunctions();++i){
-		basisFunctionValues_[i].resize(1);
-		basisFunctionValues_[i][0]=element_->basisFunction(i,currentPoint_);
-		basisFunctionDerivatives_[i].resize(currentPoint_.size());
-		element_->basisFunctionDeriv(i,currentPoint_,basisFunctionDerivatives_[i],this);
-	}
+    ShortTermStorageElementBase::computeData();
+    basisFunctionValues_.resize(element_->getNrOfBasisFunctions());
+    basisFunctionDerivatives_.resize(element_->getNrOfBasisFunctions());
+    basisFunctionIndividualDerivatives_.resize(element_->getNrOfBasisFunctions());
+    for(int i=0;i<element_->getNrOfBasisFunctions();++i){
+        basisFunctionValues_[i].resize(1);
+        basisFunctionValues_[i][0]=element_->basisFunction(i,currentPoint_);
+        basisFunctionDerivatives_[i].resize(currentPoint_.size());
+        element_->basisFunctionDeriv(i,currentPoint_,basisFunctionDerivatives_[i],this);
+        basisFunctionIndividualDerivatives_[i].resize(currentPoint_.size());
+        for(int j=0;j<currentPoint_.size();++j){
+            basisFunctionIndividualDerivatives_[i][j]=element_->basisFunctionDeriv(i,j,currentPoint_);
+        }
+    }
 }
 
 
 double Base::ShortTermStorageElementH1::basisFunction(unsigned int i, const PointReferenceT& p) {
-	if(!(p==currentPoint_)){
-		currentPoint_=p;
-		computeData();
-	}
-	return basisFunctionValues_[i][0];
+    if(!(p==currentPoint_)){
+        currentPoint_=p;
+        computeData();
+    }
+    return basisFunctionValues_[i][0];
 }
 
 
@@ -86,6 +91,20 @@ void Base::ShortTermStorageElementH1::basisFunctionDeriv(unsigned int i, const P
 	}
 }
 
+double Base::ShortTermStorageElementH1::basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) {
+        if(!(p==currentPoint_)){
+                currentPoint_=p;
+                computeData();
+        }
+        return basisFunctionIndividualDerivatives_[i][jDir];
+}
 
+double Base::ShortTermStorageElementH1::basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const {
+        if(!(p==currentPoint_)){
+		std::cout<<"WARNING: you are using a slow operator";
+		return element_->basisFunctionDeriv(i,jDir,p);
+	}
+        return basisFunctionIndividualDerivatives_[i][jDir];
+}
 
 

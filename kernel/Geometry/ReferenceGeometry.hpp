@@ -30,11 +30,6 @@
 #include <iostream>
 #include <vector>
 
-template<>
-class std::__1::hash<Geometry::PointReference>{
-public:
-	size_t operator ()(const Geometry::PointReference& point) const;
-};
 
 namespace LinearAlgebra {
 	class NumericalVector;
@@ -52,6 +47,10 @@ namespace Base {
 
 namespace Geometry
 {
+class PointHasher{
+public:
+	size_t operator ()(const Geometry::PointReference& point) const;
+};
     
     enum TypeOfReferenceGeometry
     {
@@ -146,8 +145,8 @@ namespace Geometry
         
     private:
 
-        std::map<const Base::BaseBasisFunction*,std::unordered_map<Geometry::PointReference,double> > basisfunctionValues_;
-        std::map<const Base::BaseBasisFunction*,std::unordered_map<Geometry::PointReference,LinearAlgebra::NumericalVector> > basisfunctionDerivatives_;
+        std::map<const Base::BaseBasisFunction*,std::unordered_map<Geometry::PointReference,double,PointHasher> > basisfunctionValues_;
+        std::map<const Base::BaseBasisFunction*,std::unordered_map<Geometry::PointReference,LinearAlgebra::NumericalVector,PointHasher> > basisfunctionDerivatives_;
 
     };
 

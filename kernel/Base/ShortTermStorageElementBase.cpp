@@ -47,20 +47,20 @@ void Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& poin
 
 void Base::ShortTermStorageElementBase::computeData() {
 	if(useCache_){
-		std::vector<ElementCacheData>& cache=const_cast<Element*>(element_)->getVecCacheData();
-		if(recomputeCache_||(cache.size()!=getGaussQuadratureRule()->nrOfPoints())){
-			recomputeCacheOff();
-			int n=getGaussQuadratureRule()->nrOfPoints();
-			for(int i=0;i<n;++i){
-				Geometry::PointReference p(currentPoint_.size());
-				getGaussQuadratureRule()->getPoint(i,p);
-				cache[i](element_,p);
-			}
-		}
-		currentPointIndex_++;
-		element_->calcJacobian(currentPoint_,jac_);
+            std::vector<ElementCacheData>& cache=const_cast<Element*>(element_)->getVecCacheData();
+            if(recomputeCache_||(cache.size()!=getGaussQuadratureRule()->nrOfPoints())){
+                recomputeCacheOff();
+                int n=getGaussQuadratureRule()->nrOfPoints();
+                for(int i=0;i<n;++i){
+                    Geometry::PointReference p(currentPoint_.size());
+                    getGaussQuadratureRule()->getPoint(i,p);
+                    cache[i](element_,p);
+                }
+            }
+            currentPointIndex_++;
+            element_->calcJacobian(currentPoint_,jac_);
 	}else{
-		element_->calcJacobian(currentPoint_,jac_);
+            element_->calcJacobian(currentPoint_,jac_);
 	}
 }
 

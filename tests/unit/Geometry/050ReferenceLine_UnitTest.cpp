@@ -32,6 +32,8 @@
 #include "Geometry/Mappings/MappingToRefLineToLine.hpp"
 #include "Geometry/Mappings/MappingToRefPointToLine.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <cmath>
+using std::fabs;
 using Geometry::ReferenceLine;
 
 int main(){

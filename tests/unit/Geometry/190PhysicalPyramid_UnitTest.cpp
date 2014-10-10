@@ -29,6 +29,8 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferencePyramid.hpp"
 
+#include <cmath>
+using std::fabs;
 using Geometry::PhysicalPyramid;
 
 int main(){

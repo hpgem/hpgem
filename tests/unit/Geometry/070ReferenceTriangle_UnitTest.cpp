@@ -33,6 +33,8 @@
 #include "Geometry/Mappings/MappingToRefLineToTriangle.hpp"
 #include "Geometry/Mappings/MappingToRefTriangleToTriangle.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <cmath>
+using std::fabs;
 using Geometry::ReferenceTriangle;
 
 int main(){

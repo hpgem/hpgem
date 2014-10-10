@@ -29,6 +29,8 @@
 #include "Geometry/ReferenceHypercube.hpp"
 #include "Geometry/PointPhysical.hpp"
 #include "Geometry/PointReference.hpp"
+#include <cmath>
+using std::fabs;
 using Geometry::PhysicalOctachoron;
 
 int main(){

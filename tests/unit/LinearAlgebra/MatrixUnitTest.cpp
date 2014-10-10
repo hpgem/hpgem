@@ -78,8 +78,10 @@ int main(int argc, char* argv[])
     B2(0)=1.0;
     B2(1)=2.0;
     
+    cout<<"axpy"<<endl;
     B3=BB1*B2;
     
+    cout<<"axpy"<<endl;
     //Test wedge product both quick form if vector exist and create vector form.
     BB1.computeWedgeStuffVector(B2);
     B3=BB1.computeWedgeStuffVector();
@@ -95,7 +97,7 @@ int main(int argc, char* argv[])
     CC3=CC1*CC2;
     
     
-    
+    cout<<"axpy"<<endl;
     
     CC1.axpy(2.0,CC2);
     

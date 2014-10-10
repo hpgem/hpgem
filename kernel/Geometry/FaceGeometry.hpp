@@ -175,6 +175,16 @@ namespace Geometry
         virtual unsigned int                localFaceNumberRight()   const    {return localFaceNumberRight_;}
 
         virtual FaceType                    getFaceType() const          {return faceType_;}
+        
+        virtual void                        setFaceType(const FaceType& newFace) {
+            if(faceType_==FaceType::INTERNAL){
+                throw "It is currently impossible to alter the type of internal faces";
+            }else if(newFace==FaceType::INTERNAL){
+                throw "Boundary faces cannot also be internal faces";
+            }else{
+                faceType_=newFace;
+            }
+        }
 
         virtual int                         getFaceToFaceMapIndex()const {return faceToFaceMapIndex_;}
 

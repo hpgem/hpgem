@@ -34,6 +34,8 @@
 #include "Geometry/Mappings/MappingToRefSquareToCube.hpp"
 #include "Geometry/Mappings/MappingToRefCubeToCube.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include <cmath>
+using std::fabs;
 using Geometry::ReferenceCube;
 
 int main(){

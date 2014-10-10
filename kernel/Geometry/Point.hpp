@@ -92,7 +92,7 @@ namespace Geometry
         
 
         typename Point::CoordTypeT getCoordinate(IndexT n) const;
-        VectorOfCoordsT     getCoordinates()const;
+        const VectorOfCoordsT&     getCoordinates()const;
                     friend PointT       operator-(const Point& right){return PointT(right * -1.0);}
         
         friend Point operator *(const double& left, const Point& right);

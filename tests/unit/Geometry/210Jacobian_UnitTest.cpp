@@ -26,6 +26,8 @@
 #include "Geometry/Jacobian.hpp"
 #include "cassert"
 
+#include <cmath>
+using std::fabs;
 using Geometry::Jacobian;
 
 int main(){

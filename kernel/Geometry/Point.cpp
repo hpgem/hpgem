@@ -126,7 +126,7 @@ namespace Geometry
 		}
 	}
 
-    typename Point::VectorOfCoordsT
+    const typename Point::VectorOfCoordsT&
     Point::getCoordinates() const
     {
         //cout << "###################" << coordinates_;
