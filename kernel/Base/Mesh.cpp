@@ -42,8 +42,7 @@ Mesh::Mesh():
         elementcounter_(0),
         faceCounter_(0),
         edgeCounter_(0),
-        localProcessorID_(0),
-        submeshes_(1)//TODO get the last two initializers from MPI
+        localProcessorID_(0)
 {
 }
 
@@ -100,74 +99,90 @@ void                                Mesh::addNode(Geometry::PointPhysical node){
 
 void Mesh::split(){
         //split the mesh
+    //int processorID=mpiCommunicator.get_rank();
+    int processorID=0;
+    std::vector<int> partition(elements_.size());//output
 #ifdef hpGEM_INCLUDE_METIS_SUPPORT
-    std::cout<<"start of metis"<<std::endl;
-    int one(1);//actually the number of constraints. This can be increased for example when we want to distribute an entire mesh tree in one go (while keeping each of the levels balanced) - increasing this number turns imbalance into a vector
-    int numberOfElements(elements_.size());
-    int PlaceholderForTheNumberOfMPINondes(4);
-    float imbalance(1.001);//explicitly put the default for later manipulation
-    int totalCutSize;//output
-    std::vector<int> partition(numberOfElements);//output
-    std::vector<int> xadj(numberOfElements+1);//for some reason c-style arrays break somewhere near 1e6 faces in a mesh, so use vectors
-    std::vector<int> adjncy(2*faces_.size());//if this basic connectivity structure turns out to be very slow for conforming meshes, some improvements can be made
-    int connectionsUsed(0),xadjCounter(0);
-    for(Element* element:elements_){
-        xadj[xadjCounter]=connectionsUsed;
-        xadjCounter++;
-        for(int i=0;i<element->getReferenceGeometry()->getNrOfCodim1Entities();++i){
-            const Face* face=element->getFace(i);
-            if(face->isInternal()){
-                if(element==face->getPtrElementLeft()){
-                    adjncy[connectionsUsed]=face->getPtrElementRight()->getID();
-                    connectionsUsed++;
-                }else{
-                    adjncy[connectionsUsed]=face->getPtrElementLeft()->getID();
-                    connectionsUsed++;
-                }
-            }//boundary faces dont generate connections
+    if(processorID==0){
+        std::cout<<"start of metis"<<std::endl;
+        int one(1);//actually the number of constraints. This can be increased for example when we want to distribute an entire mesh tree in one go (while keeping each of the levels balanced) - increasing this number turns imbalance into a vector
+        int numberOfElements(elements_.size());
+        //int mpiCommSize=mpiCommunicator.get_size();
+        int mpiCommSize=4;
+        float imbalance(1.001);//explicitly put the default for later manipulation
+        int totalCutSize;//output
+        std::vector<int> partition(numberOfElements);//output
+        std::vector<int> xadj(numberOfElements+1);//for some reason c-style arrays break somewhere near 1e6 faces in a mesh, so use vectors
+        std::vector<int> adjncy(2*faces_.size());//if this basic connectivity structure turns out to be very slow for conforming meshes, some improvements can be made
+        int connectionsUsed(0),xadjCounter(0);
+        for(Element* element:elements_){
+            xadj[xadjCounter]=connectionsUsed;
+            xadjCounter++;
+            for(int i=0;i<element->getReferenceGeometry()->getNrOfCodim1Entities();++i){
+                const Face* face=element->getFace(i);
+                if(face->isInternal()){
+                    if(element==face->getPtrElementLeft()){
+                        adjncy[connectionsUsed]=face->getPtrElementRight()->getID();
+                        connectionsUsed++;
+                    }else{
+                        adjncy[connectionsUsed]=face->getPtrElementLeft()->getID();
+                        connectionsUsed++;
+                    }
+                }//boundary faces dont generate connections
+            }
         }
-    }
-    xadj[xadjCounter]=connectionsUsed;
-    
-    int metisOptions[METIS_NOPTIONS];
-    METIS_SetDefaultOptions(metisOptions);
-    
-    metisOptions[METIS_OPTION_CTYPE]=METIS_CTYPE_SHEM;
-    metisOptions[METIS_OPTION_RTYPE]=METIS_RTYPE_FM;
-    
-    //the empty arguments provide options for fine-tuning the weights of nodes, edges and processors, these are currently assumed to be the same
-    METIS_PartGraphKway(&numberOfElements,&one,&xadj[0],&adjncy[0],NULL,NULL,NULL,&PlaceholderForTheNumberOfMPINondes,NULL,&imbalance,metisOptions,&totalCutSize,&partition[0]);
-    
-    //temporary debug statements
-    for(int i=0;i<numberOfElements;++i){
-        std::cout<<partition[i]<<std::endl;
+        xadj[xadjCounter]=connectionsUsed;
+
+        int metisOptions[METIS_NOPTIONS];
+        METIS_SetDefaultOptions(metisOptions);
+
+        metisOptions[METIS_OPTION_CTYPE]=METIS_CTYPE_SHEM;
+        metisOptions[METIS_OPTION_RTYPE]=METIS_RTYPE_FM;
+
+        //the empty arguments provide options for fine-tuning the weights of nodes, edges and processors, these are currently assumed to be the same
+        METIS_PartGraphKway(&numberOfElements,&one,&xadj[0],&adjncy[0],NULL,NULL,NULL,&mpiCommSize,NULL,&imbalance,metisOptions,&totalCutSize,&partition[0]);
+        //mpiCommunicator.Bcast((void *)&partition[0],partition.size(),MPI::INT,0);//broadcast the computed partition to all the nodes
+        std::cout<<"done splitting mesh"<<std::endl;
     }
 #endif
-        while(!elements_.empty()){
-            //if this element belongs to this mesh
-            submeshes_[localProcessorID_].add(elements_.front());
-            elements_.pop_front();
+    auto elementIterator=elements_.begin();
+    for(auto targetIterator=partition.begin();targetIterator!=partition.end();++targetIterator,++elementIterator){
+        if(processorID==*targetIterator){
+            submeshes_.add(*elementIterator);
         }
-        while(!faces_.empty()){
-            //if the left element OR the right element belongs to this mesh
-            submeshes_[localProcessorID_].add(faces_.front());
-            faces_.pop_front();
-            //if the left element XOR the right element belongs to this mesh
-            //do some fiddling with push and pull elements
+    }
+    for(Base::Face* face:faces_){
+        if(partition[face->getPtrElementLeft()->getID()]==processorID||
+                (face->isInternal()&&partition[face->getPtrElementRight()->getID()]==processorID)){
+            submeshes_.add(face);
+            if(face->isInternal()&&partition[face->getPtrElementLeft()->getID()]!=partition[face->getPtrElementRight()->getID()]){
+                if(partition[face->getPtrElementLeft()->getID()]==processorID){
+                    submeshes_.addPush(face->getPtrElementLeft());
+                    submeshes_.addPull(face->getPtrElementRight(),partition[face->getPtrElementRight()->getID()]);
+                }else{
+                    submeshes_.addPush(face->getPtrElementRight());
+                    submeshes_.addPull(face->getPtrElementLeft(),partition[face->getPtrElementLeft()->getID()]);
+                }
+            }
         }
-        while(!edges_.empty()){
-            //if one of the elements adjacent to this edge belong to this mesh
-            submeshes_[localProcessorID_].add(edges_.front());
-            edges_.pop_front();
-            //if above AND one of the elements adjacent to this edge belong to another mesh
-            //AND there are conforming basis functions
-            //do some fiddling with push and pull elements
+    }
+    for(Base::Edge* edge:edges_){
+        bool done(false);
+        for(int i=0;(i<edge->getNrOfElements())&&(!done);++i){
+            if(partition[edge->getElement(i)->getID()]==processorID){
+                submeshes_.add(edge);
+                done=true;
+            }
         }
+    }
+    elements_.clear();
+    faces_.clear();
+    edges_.clear();
 }
 
 const std::list<Element*>&          Mesh::getElementsList() const {
     if(elements_.empty()){
-        return submeshes_[localProcessorID_].getElementsList();
+        return submeshes_.getElementsList();
     }else{
         throw "Please call getElementsList() on a modifiable mesh at least once before calling getElementsList() const";
     }
@@ -176,12 +191,12 @@ std::list<Element*>&                Mesh::getElementsList() {
     if(!elements_.empty()){
         split();
     }
-    return submeshes_[localProcessorID_].getElementsList();
+    return submeshes_.getElementsList();
 }
 
 const std::list<Face*>&             Mesh::getFacesList() const { 
     if(faces_.empty()){
-        return submeshes_[localProcessorID_].getFacesList();
+        return submeshes_.getFacesList();
     }else{
         throw "Please call getFacesList() on a modifiable mesh at least once before calling getFacesList() const";
     }
@@ -190,12 +205,12 @@ std::list<Face*>&                   Mesh::getFacesList() {
     if(!faces_.empty()){
         split();
     }
-    return submeshes_[localProcessorID_].getFacesList();
+    return submeshes_.getFacesList();
 }
 
 const std::list<Edge*>&             Mesh::getEdgesList() const {
     if(edges_.empty()){
-        return submeshes_[localProcessorID_].getEdgesList();
+        return submeshes_.getEdgesList();
     }else{
         throw "Please call getEdgesList() on a modifiable mesh at least once before calling getEdgesList() const";
     }
@@ -204,7 +219,7 @@ std::list<Edge*>&                   Mesh::getEdgesList() {
     if(!edges_.empty()){
         split();
     }
-    return submeshes_[localProcessorID_].getEdgesList();
+    return submeshes_.getEdgesList();
 }
 
 const std::vector<Geometry::PointPhysical>&  Mesh::getNodes()const{

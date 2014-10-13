@@ -246,7 +246,7 @@ namespace Base
         void                            readCentaurMesh3D(std::ifstream& centaurFile);
 	
         void                            faceFactory();
-        void                            edgeFactory();
+        void                            edgeFactory(std::vector<Element*>);
 	
 	//someone thinks its a good idea to declare HalfFaceDescription in an implemetnation file
 	void                            findElementNumber(std::list<int>& a, std::list<int>& b, std::list<int>& c,int aNumber, int bNumber, int cNumber, std::list<int>& notOnFace, HalfFaceDescription& face, std::vector<Element*>& vectorOfElements);

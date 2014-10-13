@@ -790,7 +790,7 @@ namespace Base
                 
             } // end loop over y
         } //end loop over x
-        edgeFactory();
+        edgeFactory(tempElementVector);
     }
  
 //createTrianglularMesh follows the same structure as createRectangularMesh. Where createRectangularMesh makes rectangular elements, createTrianglularMesh splits the elements into a partition of triangles.
@@ -1297,7 +1297,7 @@ void MeshManipulator::triangularCreateFaces3D(std::vector<Base::Element*>& tempE
 	    } //end loop over x
 	} //end loop over y
     } //end loop over z  
-    edgeFactory();
+    edgeFactory(tempElementVector);
 }
 
 void 
@@ -2153,7 +2153,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 	std::cout<<"begin constructing internal faces and internal \"boundaries\""<<std::endl;
 	constructInternalFaces(listOfElementsForEachNode,tempElementVector);	
         
-	edgeFactory();
+	edgeFactory(tempElementVector);
 	
     delete[] boundarFaces;
     }else{
@@ -2401,20 +2401,19 @@ void MeshManipulator::faceFactory()
 	//with some minor adaptation to account for the fact that there may be
     //more than two elements per edge
 	///\bug does not do periodic meshes yet (but periodic edges are matched in the global assembly)
-	void MeshManipulator::edgeFactory()
+	void MeshManipulator::edgeFactory(std::vector<Element*> tempElementVector)
 	{
 		unsigned int DIM(configData_->dimension_),numberOfEdges(0);
 		//the halfFaceDescription is designed to store partial information for objects that still need to be linked, so it will also work for edges
 		HalfFaceDescription halfEdge;
 
 	    std::list<HalfFaceDescription> halfEdgeList;
-	    VectorOfElementPtrT tempElementVector(getElementsList().size());
 
 	    VectorOfPointIndicesT globalEdgeIndexes;
 	    int insertposition=0;
 	    unsigned int temp,dummy;
 
-	    for (typename ListOfElementsT::iterator it=getElementsList().begin(); it !=getElementsList().end(); ++it)
+	    for (auto it=tempElementVector.begin(); it !=tempElementVector.end(); ++it)
 		{
 			const Geometry::PhysicalGeometry* const myPhysicalGeometry = (*it)->getPhysicalGeometry();
 			const Geometry::ReferenceGeometry* const myReferenceGeometry = (*it)->getReferenceGeometry();

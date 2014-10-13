@@ -42,12 +42,12 @@ namespace Base
         elementMatrix_(nrOfElementMatrixes),
         elementVector_(nrOfElementVectors)
     {
-        for (typename VectorOfMatrices::iterator cit=expansionCoefficients_.begin(); cit!=expansionCoefficients_.end(); ++cit)
-            cit->resize(nrOfUnkowns_, nrOfBasisFunctions);
-        for(typename VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
-        	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
-        for(std::vector<LinearAlgebra::NumericalVector>::iterator it=elementVector_.begin();it!=elementVector_.end();++it)
-        	it->resize(nrOfUnkowns*nrOfBasisFunctions);
+        //for (typename VectorOfMatrices::iterator cit=expansionCoefficients_.begin(); cit!=expansionCoefficients_.end(); ++cit)
+        //    cit->resize(nrOfUnkowns_, nrOfBasisFunctions);
+        //for(typename VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
+        //	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
+        //for(std::vector<LinearAlgebra::NumericalVector>::iterator it=elementVector_.begin();it!=elementVector_.end();++it)
+        //	it->resize(nrOfUnkowns*nrOfBasisFunctions);
     }
 
     void
@@ -56,8 +56,8 @@ namespace Base
     	if(matrixID>=elementMatrix_.size()){
     		std::cout<<"Warning: Setting an element matrix that was not preallocated. If this is expected, please allocate more element matrixes in the mesh generator"<<std::endl;
     		elementMatrix_.resize(matrixID+1);
-            for(typename VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
-            	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
+            //for(typename VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
+            //	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
     	}
     	elementMatrix_[matrixID]=matrix;
     }
@@ -66,6 +66,9 @@ namespace Base
     ElementData::getElementMatrix(LinearAlgebra::Matrix& matrix, int matrixID) const
     {
     	TestErrorDebug(matrixID<elementMatrix_.size(),"insufficient element matrixes stored");
+        //if(elementMatrix_[matrixID].size()!=nrOfUnkowns_*nrOfBasisFunctions_*nrOfUnkowns_*nrOfBasisFunctions_){
+        //    elementMatrix_[matrixID].resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
+        //}
     	matrix=elementMatrix_[matrixID];
     }
 
@@ -75,8 +78,8 @@ namespace Base
     	if(vectorID>=elementVector_.size()){
     		std::cout<<"Warning: Setting an element vector that was not preallocated. If this is expected, please allocate more element vectors in the mesh generator"<<std::endl;
     		elementVector_.resize(vectorID+1);
-            for(std::vector<LinearAlgebra::NumericalVector>::iterator cit=elementVector_.begin();cit!=elementVector_.end();++cit)
-            	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_);
+            //for(std::vector<LinearAlgebra::NumericalVector>::iterator cit=elementVector_.begin();cit!=elementVector_.end();++cit)
+            //	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_);
     	}
     	elementVector_[vectorID]=vector;
     }
@@ -85,6 +88,9 @@ namespace Base
     ElementData::getElementVector(LinearAlgebra::NumericalVector& vector, int vectorID) const
     {
     	TestErrorDebug(vectorID<elementVector_.size(),"insufficient element vectors stored");
+        //if(elementVector_[vectorID].size()!=nrOfUnkowns_*nrOfBasisFunctions_){
+        //    elementVector_[vectorID].resize(nrOfUnkowns_*nrOfBasisFunctions_);
+        //}
     	vector=elementVector_[vectorID];
     }
 
@@ -92,13 +98,13 @@ namespace Base
     ElementData::setNumberOfBasisFunctions(unsigned int number)
     {
     	nrOfBasisFunctions_=number;
-    	residue_.resize(nrOfUnkowns_,number);
-    	for(VectorOfMatrices::iterator cit=expansionCoefficients_.begin();cit!=expansionCoefficients_.end();++cit)
-    		cit->resize(nrOfUnkowns_,nrOfBasisFunctions_);
-    	for(VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
-    		cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
-        for(std::vector<LinearAlgebra::NumericalVector>::iterator it=elementVector_.begin();it!=elementVector_.end();++it)
-        	it->resize(nrOfUnkowns_*nrOfBasisFunctions_);
+    	//residue_.resize(nrOfUnkowns_,number);
+    	//for(VectorOfMatrices::iterator cit=expansionCoefficients_.begin();cit!=expansionCoefficients_.end();++cit)
+    	//	cit->resize(nrOfUnkowns_,nrOfBasisFunctions_);
+    	//for(VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
+    	//	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
+        //for(std::vector<LinearAlgebra::NumericalVector>::iterator it=elementVector_.begin();it!=elementVector_.end();++it)
+        //	it->resize(nrOfUnkowns_*nrOfBasisFunctions_);
     }
 
     const LinearAlgebra::Matrix&
@@ -106,6 +112,9 @@ namespace Base
     {
         if (timeLevel < timeLevels_)
         {
+            //if(expansionCoefficients_[timeLevel].size()!=nrOfUnkowns_*nrOfBasisFunctions_){
+            //    expansionCoefficients_[timeLevel].resize(nrOfUnkowns_*nrOfBasisFunctions_);
+            //}
             return expansionCoefficients_[timeLevel];
         }
         else
@@ -120,7 +129,10 @@ namespace Base
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
         {
-            return expansionCoefficients_[timeLevel](basisFunction, unknown);
+            //if(expansionCoefficients_[timeLevel].size()!=nrOfUnkowns_*nrOfBasisFunctions_){
+            //    expansionCoefficients_[timeLevel].resize(nrOfUnkowns_*nrOfBasisFunctions_);
+            //}
+            return expansionCoefficients_[timeLevel](unknown, basisFunction);
         }
         else
         {
@@ -133,6 +145,9 @@ namespace Base
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
         {
+            if(expansionCoefficients_[timeLevel].size()!=nrOfUnkowns_*nrOfBasisFunctions_){
+                expansionCoefficients_[timeLevel].resize(nrOfUnkowns_,nrOfBasisFunctions_);
+            }
             expansionCoefficients_[timeLevel](unknown, basisFunction)=val;
         }
         else
@@ -149,6 +164,9 @@ namespace Base
     {
         if (timeLevel < timeLevels_ && solutionId < nrOfUnkowns_)
         {
+            if(expansionCoefficients_[timeLevel].size()!=nrOfUnkowns_*nrOfBasisFunctions_){
+                expansionCoefficients_[timeLevel].resize(nrOfUnkowns_,nrOfBasisFunctions_);
+            }
                 //cout << "came here with "<< "solutionId="<<solutionId<< ",unknown="<<unknown[0]<<endl;
             LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
                 // cout << mat<<"before setting"<<endl;
@@ -192,6 +210,9 @@ namespace Base
     const typename ElementData::VectorOfDoubles&
     ElementData::getResidue() const
     {
+        //if(residue_.size()!=nrOfUnkowns_*nrOfBasisFunctions_){
+        //    residue_.resize(nrOfUnkowns_*nrOfBasisFunctions_);
+        //}
         return residue_;
     }
     

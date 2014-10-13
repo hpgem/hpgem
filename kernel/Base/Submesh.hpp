@@ -53,7 +53,7 @@ private:
     
     //! adds a push or pull element. Make sure to add push elements after you fill this list of element belonging to this submesh
     //! processorID is the 0 based index of the processor that will be communicated with about this element
-    void addPush(Element* element,int processorID);
+    void addPush(Element* element);
     void addPull(Element* element,int processorID);
     
     //! adds a face to this submesh
@@ -95,11 +95,12 @@ private:
     
     //! Tracks the shadow elements (that needs information form another processor each update step, instead of a computation)
     //! pullElements_[i] contains the list of all elements that need info from process i.
+    //! some entries in this vector are empty lists; pullElements[get_rank()] is guaranteed to be empty
     std::vector<std::list<Element*> >    pullElements_;
     
     //! Tracks the shadow elements of other processes (that need their elements send to another processor each update step)
-    //! pushElement_[i] constains the list of all elements that send info to process i.
-    std::vector<std::list<Element*> >    pushElements_; 
+    //! pushElement_[i] constains the list of all elements that send info to another process
+    std::list<Element*>                  pushElements_; 
 };
 
 }

@@ -28,12 +28,12 @@
 Base::FaceData::FaceData(unsigned int numberOfDOF, unsigned int numberOfFaceMatrices, unsigned int numberOfFaceVectors):
 	faceMatrix_(numberOfFaceMatrices),faceVector_(numberOfFaceVectors)
 {
-	for(std::vector<LinearAlgebra::Matrix>::iterator it=faceMatrix_.begin();it!=faceMatrix_.end();++it){
-		it->resize(numberOfDOF,numberOfDOF);
-	}
-	for(std::vector<LinearAlgebra::NumericalVector>::iterator it=faceVector_.begin();it!=faceVector_.end();++it){
-		it->resize(numberOfDOF);
-	}
+	//for(std::vector<LinearAlgebra::Matrix>::iterator it=faceMatrix_.begin();it!=faceMatrix_.end();++it){
+	//	it->resize(numberOfDOF,numberOfDOF);
+	//}
+	//for(std::vector<LinearAlgebra::NumericalVector>::iterator it=faceVector_.begin();it!=faceVector_.end();++it){
+	//	it->resize(numberOfDOF);
+	//}
 }
 
 void
@@ -51,6 +51,9 @@ void
 Base::FaceData::getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID) const
 {
 	TestErrorDebug(matrixID<faceMatrix_.size(),"insufficient face matrixes stored");
+        //if(faceMatrix_[matrixID].size()==0){
+        //    faceMatrix_[matrixID].resize(matrix.getNRows(),matrix.getNCols());
+        //}
 	matrix=faceMatrix_[matrixID];
 }
 
@@ -69,6 +72,9 @@ void
 Base::FaceData::getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID) const
 {
 	TestErrorDebug(vectorID<faceVector_.size(),"insufficient face vectors stored");
+        //if(faceVector_[vectorID].size()==0){
+        //    faceVector_[vectorID].resize(vector.size());
+        //}
 	vector=faceVector_[vectorID];
 }
 

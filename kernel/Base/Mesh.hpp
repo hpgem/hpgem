@@ -96,11 +96,13 @@ public:
     
 private:
     
+    //! 'distributes' the mesh across the nodes
+    //! this routine assumes all nodes generated the mesh in the same way (so no randomness or thread dependence)
     void                                split();
     
     unsigned int                        localProcessorID_;
     
-    std::vector<Submesh>                submeshes_;
+    Submesh                             submeshes_;
 
     unsigned int                        elementcounter_;
     unsigned int                        faceCounter_;

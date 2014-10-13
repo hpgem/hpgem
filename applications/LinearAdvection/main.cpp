@@ -48,7 +48,7 @@ public:
 			description.numElementsInDIM_[i] = n_;
 			description.boundaryConditions_[i] = RectangularMeshDescriptorT::PERIODIC;
 		}
-		addMesh(description, Base::RECTANGULAR, 2, 1, 1, 1);
+		addMesh(description, Base::TRIANGULAR, 2, 1, 1, 1);
 		return true;
 	}
 
@@ -159,7 +159,7 @@ public:
             Output::TecplotDiscontinuousSolutionWriter out(outFile,"simple advective movement","01","u");
             
             //set the final few variables
-            double dt(0.002),dtplot(0.05),tend(5.),t(0),tplot(t);//always plot the initial data
+            double dt(0.0002),dtplot(0.05),tend(5.),t(0),tplot(t);//always plot the initial data
             bool first(true);
             
             for(Base::Element* element:meshes_[0]->getElementsList()){
@@ -173,6 +173,7 @@ public:
                     solution[i]=initialCondition[i];
                 }
                 mass.solve(solution);
+                solution.resize(1,n);
                 element->setTimeLevelData(0,solution);
             }
             
@@ -196,6 +197,7 @@ public:
                     solution.resize(n,1);
                     leftResidual=mass*solution;
                     leftResidual.axpy(dt,stifness*solution);
+                    leftResidual.resize(1,n);
                     element->setResidue(leftResidual);
                 }
                 
@@ -214,8 +216,8 @@ public:
                     }
                     solution=stifness*solution;
                     solution*=dt;
-                    leftResidual.resize(nLeft,1);
-                    rightResidual.resize(n-nLeft,1);
+                    leftResidual.resize(1,nLeft);
+                    rightResidual.resize(1,n-nLeft);
                     for(int i=0;i<n;++i){//unconcatenate left and right data
                         if(i<nLeft){
                             leftResidual[i]=solution[i];
@@ -238,7 +240,9 @@ public:
                     solution.resize(n,1);
                     element->getElementMatrix(mass,0);
                     solution=element->getResidue();
+                    solution.resize(n,1);
                     mass.solve(solution);
+                    solution.resize(1,n);
                     element->setTimeLevelData(0,solution);
                 }
                 first=false;
