@@ -96,6 +96,9 @@ namespace Base
         switch(configData_->dimension_){
         case 1:
         	switch(order){
+        	case 0:
+        		Base::AssembleBasisFunctionSet_1D_Ord0_A0(*bFset1);
+        		break;
         	case 1:
         		Base::AssembleBasisFunctionSet_1D_Ord1_A0(*bFset1);
         		break;
@@ -113,11 +116,17 @@ namespace Base
         		break;
         	default:
         		std::cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<std::endl;
+                        const_cast<Base::ConfigurationData*>(configData_)->polynomialOrder_=2;
+                        delete bFset1;
+                        bFset1 = new Base::BasisFunctionSet(2);
         		Base::AssembleBasisFunctionSet_1D_Ord2_A0(*bFset1);
         	}
         	break;
         case 2:
         	switch(order){
+        	case 0:
+        		Base::AssembleBasisFunctionSet_2D_Ord0_A0(*bFset1);
+        		break;
         	case 1:
         		Base::AssembleBasisFunctionSet_2D_Ord1_A0(*bFset1);
         		break;
@@ -135,13 +144,19 @@ namespace Base
         		break;
         	default:
         		std::cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<std::endl;
+                        const_cast<Base::ConfigurationData*>(configData_)->polynomialOrder_=2;
+                        delete bFset1;
+                        bFset1 = new Base::BasisFunctionSet(2);
         		Base::AssembleBasisFunctionSet_2D_Ord2_A1(*bFset1);
         	}
         	break;
         case 3:
         	switch(order){
+        	case 0:
+        		Base::AssembleBasisFunctionSet_3D_Ord0_A0(*bFset1);
+        		break;
         	case 1:
-        		Base::AssembleBasisFunctionSet_3D_Ord1_A1(*bFset1);
+        		Base::AssembleBasisFunctionSet_3D_Ord1_A0(*bFset1);
         		break;
         	case 2:
         		Base::AssembleBasisFunctionSet_3D_Ord2_A1(*bFset1);
@@ -157,6 +172,9 @@ namespace Base
         		break;
         	default:
         		std::cout<<"WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2"<<std::endl;
+                        const_cast<Base::ConfigurationData*>(configData_)->polynomialOrder_=2;
+                        delete bFset1;
+                        bFset1 = new Base::BasisFunctionSet(2);
         		Base::AssembleBasisFunctionSet_3D_Ord2_A1(*bFset1);
         	}
         	break;

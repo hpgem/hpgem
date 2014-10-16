@@ -129,9 +129,9 @@ namespace Base
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
         {
-            //if(expansionCoefficients_[timeLevel].size()!=nrOfUnkowns_*nrOfBasisFunctions_){
-            //    expansionCoefficients_[timeLevel].resize(nrOfUnkowns_*nrOfBasisFunctions_);
-            //}
+            if(expansionCoefficients_[timeLevel].size()!=nrOfUnkowns_*nrOfBasisFunctions_){
+                const_cast<LinearAlgebra::Matrix *>(&expansionCoefficients_[timeLevel])->resize(nrOfUnkowns_,nrOfBasisFunctions_);
+            }
             return expansionCoefficients_[timeLevel](unknown, basisFunction);
         }
         else
