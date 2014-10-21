@@ -120,7 +120,7 @@ namespace LinearAlgebra
         void resize(int n, int m);
         
         /// \brief Get total number of Matrix entries
-        const int size();
+        const int size() const;
         
         /// \brief Get the number of rows
         const int getNRows();
