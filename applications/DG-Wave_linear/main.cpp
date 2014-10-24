@@ -303,11 +303,11 @@ public:
         
         KSP interior,surface;
     	KSPCreate(MPI_COMM_WORLD,&interior);
-    	KSPSetOperators(interior,interiorStifness,interiorStifness,DIFFERENT_NONZERO_PATTERN);
+    	KSPSetOperators(interior,interiorStifness,interiorStifness);
         KSPSetInitialGuessNonzero(interior,PETSC_TRUE);
     	KSPSetFromOptions(interior);
         KSPCreate(MPI_COMM_WORLD,&surface);
-        KSPSetOperators(surface,surfaceMass,surfaceMass,DIFFERENT_NONZERO_PATTERN);
+        KSPSetOperators(surface,surfaceMass,surfaceMass);
         KSPSetFromOptions(surface);
         KSPConvergedReason conferge;
         int iterations;

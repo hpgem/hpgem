@@ -35,6 +35,7 @@
 #include "Geometry/ReferenceGeometry.hpp"
 #include "Geometry/PointReference.hpp"
 #include "Base/Norm2.hpp"
+#include "cassert"
 
 namespace Utilities{
 
@@ -136,7 +137,9 @@ namespace Utilities{
                     }
                     usedEntries+=n;
                 }
+                assert(usedEntries==amountOfPositions);
             }
+            
             
             /*	for(unsigned int i=0;i<amountOfPositions;++i){
 			int usedEntries(element->getLocalNrOfBasisFunctions());
@@ -193,8 +196,8 @@ namespace Utilities{
 					n+=elRight->getNrOfBasisFunctions();
                                 }
 				int positions[n];
-				makePositionsInMatrix(n-nLeft,elRight,positions+nLeft);
 				makePositionsInMatrix(nLeft,elLeft,positions);
+				makePositionsInMatrix(n-nLeft,elRight,positions+nLeft);
 				elementMatrix.resize(n,n);
 				(*it)->getFaceMatrix(elementMatrix,faceMatrixID_);
 				ierr=MatSetValues(A_,n,positions,n,positions,&elementMatrix[0],ADD_VALUES);
