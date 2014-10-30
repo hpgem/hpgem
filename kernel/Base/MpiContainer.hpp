@@ -8,10 +8,10 @@
 #ifndef MPICONTAINER_HPP
 #define	MPICONTAINER_HPP
 
-class MpiContainer {
+class MPIContainer {
 public:
-    MpiContainer& Instance(){
-        static MpiContainer theInstance();
+    MPIContainer& Instance(){
+        static MPIContainer theInstance();
         return theInstance;
     }
     
@@ -28,9 +28,9 @@ public:
 #endif
     
 private:
-    MpiContainer();
-    MpiContainer(const MpiContainer& orig)=delete;
-    virtual ~MpiContainer();
+    MPIContainer();
+    MPIContainer(const MPIContainer& orig)=delete;
+    virtual ~MPIContainer();
 
 };
 

@@ -7,9 +7,9 @@
 
 #include "MpiContainer.hpp"
 
-MpiContainer::MpiContainer() {
+MPIContainer::MPIContainer() {
 }
 
-MpiContainer::~MpiContainer() {
+MPIContainer::~MPIContainer() {
 }
 
