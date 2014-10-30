@@ -8,16 +8,20 @@
 #ifndef MPICONTAINER_HPP
 #define	MPICONTAINER_HPP
 
+#ifdef HPGEM_USE_MPI
+#include <mpi.h>
+#endif
+
 class MPIContainer {
 public:
-    MPIContainer& Instance(){
-        static MPIContainer theInstance();
+    static MPIContainer& Instance(){
+        static MPIContainer theInstance;
         return theInstance;
     }
     
     int getProcessorID();
     int getCommSize();
-#if HPGEM_USE_MPI
+#ifdef HPGEM_USE_MPI
     MPI::Intracomm& getComm();
     
     template<class T>

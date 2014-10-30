@@ -42,11 +42,20 @@ int Base::parse_options(int argc, char** argv) {
     if (hasParsed)
         throw ("Arguments have already been parsed");
 #ifdef HPGEM_USE_MPI
-    MPI::Init(argc, argv);
     
-    std::atexit([]() {
-        MPI::Finalize();
-    });
+    if (MPI::Is_initialized()) {
+        //somebody might have been kind enough to actually
+        //initialize MPI for us... so yeah. Let's prevent
+        //initializing it twice, as this will end in chaos and mayhem
+        MPI::Init(argc, argv);
+
+        //We should call MPI::Finalize() when we quit. As we have no
+        //clue when people are actually going to call this, we just
+        //register an on-exit handler.
+        std::atexit([]() {
+            MPI::Finalize();
+        });
+    }
     
 #endif
     

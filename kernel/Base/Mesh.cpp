@@ -22,6 +22,8 @@
 #include <mpi.h>
 #endif
 
+#include "MpiContainer.hpp"
+
 #include "Mesh.hpp"
 #include "Element.hpp"
 #include "Face.hpp"
@@ -103,12 +105,10 @@ void                                Mesh::addNode(Geometry::PointPhysical node){
 void Mesh::split(){
     std::vector<int> partition(elements_.size());//output
         //split the mesh
+    int pid = 0;
 #ifdef HPGEM_USE_MPI
 #ifdef HPGEM_USE_METIS
-    MPI::Group groupID = MPI::COMM_WORLD.Get_group();
-    MPI::Intracomm com = MPI::COMM_WORLD.Create( groupID );
-    int processorID = com.Get_rank();
-    int mpiCommSize = com.Get_size();
+    pid = MPIContainer::Instance().getProcessorID();
     
 
     if(processorID==0){
@@ -165,11 +165,13 @@ void Mesh::split(){
         }
     }
     for(Base::Face* face:faces_){
-        if(partition[face->getPtrElementLeft()->getID()]==processorID||
-                (face->isInternal()&&partition[face->getPtrElementRight()->getID()]==processorID)){
+        //Are we part of this face?
+        if(partition[face->getPtrElementLeft()->getID()]== pid ||
+          (face->isInternal() && partition[face->getPtrElementRight()->getID()]==pid)){
+            //yeah we are
             submeshes_.add(face);
             if(face->isInternal()&&partition[face->getPtrElementLeft()->getID()]!=partition[face->getPtrElementRight()->getID()]){
-                if(partition[face->getPtrElementLeft()->getID()]==processorID){
+                if(partition[face->getPtrElementLeft()->getID()]== pid ){
                     submeshes_.addPush(face->getPtrElementLeft());
                     submeshes_.addPull(face->getPtrElementRight(),partition[face->getPtrElementRight()->getID()]);
                 }else{
@@ -182,7 +184,7 @@ void Mesh::split(){
     for(Base::Edge* edge:edges_){
         bool done(false);
         for(int i=0;(i<edge->getNrOfElements())&&(!done);++i){
-            if(partition[edge->getElement(i)->getID()]==processorID){
+            if(partition[edge->getElement(i)->getID()] == pid){
                 submeshes_.add(edge);
                 done=true;
             }
