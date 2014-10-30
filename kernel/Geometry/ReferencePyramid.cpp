@@ -26,6 +26,8 @@
 #include "Geometry/PointReference.hpp"
 #include "Mappings/MappingToRefFaceToPyramid.hpp"
 
+#include <cmath>
+
 namespace Geometry
 {
 

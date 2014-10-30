@@ -43,7 +43,7 @@ int Base::parse_options(int argc, char** argv) {
         throw ("Arguments have already been parsed");
 #ifdef HPGEM_USE_MPI
     
-    if (MPI::Is_initialized()) {
+    if (!MPI::Is_initialized()) {
         //somebody might have been kind enough to actually
         //initialize MPI for us... so yeah. Let's prevent
         //initializing it twice, as this will end in chaos and mayhem

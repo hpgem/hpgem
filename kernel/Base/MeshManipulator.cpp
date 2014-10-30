@@ -46,6 +46,7 @@
 #include "FaceFactory.hpp"
 
 #include <cassert>
+#include <algorithm>
 
 //
 //  MeshManipulator.cpp

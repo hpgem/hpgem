@@ -99,11 +99,22 @@ int main(int argc, char* argv[])
     
     cout<<"axpy"<<endl;
     
-    CC1.axpy(2.0,CC2);
+    //CC1.axpy(2.0,CC2);
     
     
+    cout << CC1 << std::endl;
     
-    cout << CC1;
+    LinearAlgebra::Matrix CC2_fix(3,2, 4);
+    std::cout << "CC2_fix PRE" << std::endl;
+    std::cout << CC2_fix << std::endl;
+    
+    CC2.axpy(2.0, CC2_fix);
+    
+    std::cout << "CC2_fix POST" << std::endl;
+    std::cout << CC2_fix << std::endl;
+    
+    
+    std::cout << CC2 << std::endl;
     
 
     CC3=BB1;
@@ -161,8 +172,10 @@ int main(int argc, char* argv[])
     
     DD.inverse(ans);
     
-    cout << ans;
+    cout << ans << std::endl;
     
+    
+    return 0;
 
 }
 	

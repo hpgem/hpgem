@@ -174,6 +174,7 @@ public:
 
     bool solve() {
         //do the integration
+        std::cout << "SOLVIN!" << std::endl;
         doAllElementIntegration();
         doAllFaceIntegration();
 
@@ -187,6 +188,7 @@ public:
             element->setElementMatrix(stifness, 1);
         }
 
+        std::cout << "SOLVIN! 2 " << std::endl;
         //prepare tecplot output
         std::ofstream outFile("output.dat");
         Output::TecplotDiscontinuousSolutionWriter out(outFile, "simple advective movement", "01", "u");
@@ -195,6 +197,8 @@ public:
         double dt(0.0002), dtplot(0.05), tend(5.), t(0), tplot(t); //always plot the initial data
         LinearAlgebra::Matrix mass, solution, leftResidual, rightResidual;
         bool first(true);
+        
+        std::cout << "SOLVIN! 3 " << std::endl;
 
         //finalise interpolation
         for (Base::Element* element : meshes_[0]->getElementsList()) {
@@ -211,7 +215,8 @@ public:
             solution.resize(1, n);
             element->setTimeLevelData(0, solution);
         }
-
+        std::cout << "SOLVIN! 4 " << std::endl;
+        
         //start the time loop
         while (t <= tend + 1e-10) {
             if (t >= tplot - 1e-10) {
@@ -219,6 +224,8 @@ public:
                 tplot += dtplot;
             }
             t += dt;
+            
+            std::cout << "SOLVIN! 5 " << std::endl;
 
             //construct the RHS
             for (Base::Element* element : meshes_[0]->getElementsList()) {
@@ -238,6 +245,8 @@ public:
                 element->setResidue(leftResidual);
             }
 
+            std::cout << "SOLVIN! 6 " << std::endl;
+            
             //this bit could do with some interface improvements
             for (Base::Face* face : meshes_[0]->getFacesList()) {
                 int n(face->getNrOfBasisFunctions()), nLeft(face->getPtrElementLeft()->getNrOfBasisFunctions());
@@ -277,6 +286,8 @@ public:
                     face->getPtrElementRight()->setResidue(rightResidual);
                 }
             }
+            
+            std::cout << "SOLVIN! 7 " << std::endl;
 
             //compute the solution in the next time step based on the residual
             for (Base::Element* element : meshes_[0]->getElementsList()) {

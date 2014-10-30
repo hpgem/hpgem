@@ -24,7 +24,8 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTriangle.hpp"
-#include "cassert"
+#include <cassert>
+#include <typeinfo>
 
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
 #include "Geometry/ReferenceTriangle.hpp"

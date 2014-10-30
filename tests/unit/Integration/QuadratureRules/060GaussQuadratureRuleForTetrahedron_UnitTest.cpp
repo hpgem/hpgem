@@ -24,7 +24,8 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTetrahedron.hpp"
-#include "cassert"
+#include <cassert>
+#include <typeinfo>
 
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.hpp"
 #include "Geometry/ReferenceTetrahedron.hpp"

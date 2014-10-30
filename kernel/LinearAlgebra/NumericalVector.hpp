@@ -24,6 +24,7 @@
 
 #ifdef LA_STL_VECTOR
     #include <vector>
+    #include <cmath>
 #else
     #include <valarray>
 #endif
@@ -64,15 +65,9 @@ namespace LinearAlgebra
 
         NumericalVector& operator= (const NumericalVector& right);
         
-        NumericalVector operator+ (const NumericalVector& right);
-        
         NumericalVector operator+ (const NumericalVector& right) const;
         
-        NumericalVector operator- (const NumericalVector& right);
-        
         NumericalVector operator- (const NumericalVector& right) const;
-        
-        NumericalVector operator* (const double& right);
         
         NumericalVector operator* (const double& right) const;
         
@@ -80,12 +75,10 @@ namespace LinearAlgebra
 
         NumericalVector& operator/= (const double& right);
         
-        NumericalVector operator/ (const double& right);
+        NumericalVector operator/ (const double& right) const;
         
         void axpy(double a, const NumericalVector& x);
         
-        bool operator== (const NumericalVector& right);
-
         bool operator== (const NumericalVector& right) const;
         
         bool operator< (const NumericalVector& right) const;
@@ -105,8 +98,6 @@ namespace LinearAlgebra
         const double&  operator() (const unsigned int n) const {return data_[n];}
         
         int size() const {return data_.size();}
-        
-        int size() {return data_.size();}
         
         friend NumericalVector operator*(const double& left, const NumericalVector& right);
         

@@ -22,8 +22,9 @@
 #include <mpi.h>
 #endif
 
-#include "MpiContainer.hpp"
+#include <cassert>
 
+#include "MpiContainer.hpp"
 #include "Mesh.hpp"
 #include "Element.hpp"
 #include "Face.hpp"
@@ -109,17 +110,18 @@ void Mesh::split(){
 #ifdef HPGEM_USE_MPI
 #ifdef HPGEM_USE_METIS
     pid = MPIContainer::Instance().getProcessorID();
-    
+    int nProcs = MPIContainer::Instance().getNumProcessors();
 
-    if(processorID==0){
+    if(pid==0){
         std::cout<<"start of metis"<<std::endl;
-        int one(1);//actually the number of constraints. This can be increased for example when we want to distribute an entire mesh tree in one go (while keeping each of the levels balanced) - increasing this number turns imbalance into a vector
-        int numberOfElements(elements_.size());
+        
+        int one = 1;//actually the number of constraints. This can be increased for example when we want to distribute an entire mesh tree in one go (while keeping each of the levels balanced) - increasing this number turns imbalance into a vector
+        int numberOfElements = elements_.size();
         
         //int mpiCommSize=4;
-        float imbalance(1.001);//explicitly put the default for later manipulation
+        float imbalance = 1.001;//explicitly put the default for later manipulation
         int totalCutSize;//output
-     //   std::vector<int> partition(numberOfElements);//output
+
         std::vector<int> xadj(numberOfElements+1);//for some reason c-style arrays break somewhere near 1e6 faces in a mesh, so use vectors
         std::vector<int> adjncy(2*faces_.size());//if this basic connectivity structure turns out to be very slow for conforming meshes, some improvements can be made
         int connectionsUsed(0),xadjCounter(0);
@@ -136,7 +138,7 @@ void Mesh::split(){
                         adjncy[connectionsUsed]=face->getPtrElementLeft()->getID();
                         connectionsUsed++;
                     }
-                }//boundary faces dont generate connections
+                }//boundary faces don't generate connections
             }
         }
         xadj[xadjCounter]=connectionsUsed;
@@ -148,28 +150,30 @@ void Mesh::split(){
         metisOptions[METIS_OPTION_RTYPE]=METIS_RTYPE_FM;
 
         //the empty arguments provide options for fine-tuning the weights of nodes, edges and processors, these are currently assumed to be the same
-        METIS_PartGraphKway(&numberOfElements,&one,&xadj[0],&adjncy[0],NULL,NULL,NULL,&mpiCommSize,NULL,&imbalance,metisOptions,&totalCutSize,&partition[0]);
+        METIS_PartGraphKway(&numberOfElements,&one,&xadj[0],&adjncy[0],NULL,NULL,NULL,&nProcs,NULL,&imbalance,metisOptions,&totalCutSize,&partition[0]);
         //mpiCommunicator.Bcast((void *)&partition[0],partition.size(),MPI::INT,0);//broadcast the computed partition to all the nodes
         std::cout<<"done splitting mesh"<<std::endl;
         
     }
     
-    com.Bcast(partition.data(), partition.size(), MPI::INT, 0);
+    MPIContainer::Instance().broadcast(partition, 0);
     
 #endif
 #endif
     auto elementIterator=elements_.begin();
     for(auto targetIterator=partition.begin();targetIterator!=partition.end();++targetIterator,++elementIterator){
-        if(pid==*targetIterator){
+
+        if(pid == *targetIterator){
             submeshes_.add(*elementIterator);
         }
     }
-    for(Base::Face* face:faces_){
+    for(Base::Face* face : faces_){
         //Are we part of this face?
-        if(partition[face->getPtrElementLeft()->getID()]== pid ||
-          (face->isInternal() && partition[face->getPtrElementRight()->getID()]==pid)){
+        if(partition[face->getPtrElementLeft()->getID()] == pid ||
+            (face->isInternal() && partition[face->getPtrElementRight()->getID()]==pid)){
             //yeah we are
             submeshes_.add(face);
+            
             if(face->isInternal()&&partition[face->getPtrElementLeft()->getID()]!=partition[face->getPtrElementRight()->getID()]){
                 if(partition[face->getPtrElementLeft()->getID()]== pid ){
                     submeshes_.addPush(face->getPtrElementLeft());
@@ -190,6 +194,7 @@ void Mesh::split(){
             }
         }
     }
+    std::cout << "#YOLOSWAG!" << std::endl;
     elements_.clear();
     faces_.clear();
     edges_.clear();

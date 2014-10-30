@@ -21,6 +21,8 @@
 
 #include "NumericalVector.hpp"
 
+#include <cassert>
+
 namespace LinearAlgebra
 {
 
@@ -56,66 +58,36 @@ namespace LinearAlgebra
         NumericalVector::NumericalVector(const double array[], int size) : data_(array,size){}
     #endif
     
-    void NumericalVector::resize(unsigned int size) { if(size!=data_.size())data_.resize(size); }
+    void NumericalVector::resize(unsigned int size) { if(size!=data_.size()) data_.resize(size); }
     
     NumericalVector& NumericalVector::operator= (const NumericalVector& right){data_=right.data_; return *this;}
     
-    NumericalVector NumericalVector::operator+ (const NumericalVector& right)
-    {
-        NumericalVector result(*this);
-        #ifdef LA_STL_VECTOR
-            /// \bug operator not implemented
-        #else
-            result.data_+=right.data_;
-        #endif
-        
-        return result;
-    }
-    
-   
     NumericalVector NumericalVector::operator+ (const NumericalVector& right) const
     {
         NumericalVector result(*this);
         #ifdef LA_STL_VECTOR
-            /// \bug operator not implemented
+            assert(data_.size() == right.data_.size());
+            
+            for (std::size_t i = 0; i < data_.size(); i++)
+                result.data_[i] += right.data_[i];
         #else
             result.data_+=right.data_;
         #endif
         
         return result;
     }
-    
-    NumericalVector NumericalVector::operator- (const NumericalVector& right)
-    {
-        NumericalVector result(*this);
-        #ifdef LA_STL_VECTOR
-            /// \bug operator not implemeted
-        #else
-            result.data_-=right.data_;
-        #endif
-        return result;
-    }
-    
+        
     NumericalVector NumericalVector::operator- (const NumericalVector& right) const
     {
         NumericalVector result(*this);
         #ifdef LA_STL_VECTOR
-            /// \bug operator not implemeted
+            assert(data_.size() == right.data_.size());
+            
+            for (std::size_t i = 0; i < data_.size(); i++)
+                result.data_[i] -= right.data_[i];
         #else
             result.data_-=right.data_;
         #endif
-        return result;
-    }
-    
-    NumericalVector NumericalVector::operator* (const double& right)
-    {
-        NumericalVector result(*this);
-        #ifdef LA_STL_VECTOR
-            /// \bug operator not implemented
-        #else
-            result.data_*=right;
-        #endif
-        
         return result;
     }
     
@@ -123,7 +95,8 @@ namespace LinearAlgebra
     {
         NumericalVector result(*this);
         #ifdef LA_STL_VECTOR
-            /// \bug operator not implemented
+        for (double& d : result.data_)
+            d *= right;
         #else
             result.data_*=right;
         #endif
@@ -135,8 +108,11 @@ namespace LinearAlgebra
     {
         ///\TODO replace with BLAS (I dont know where to find them)
         #ifdef LA_STL_VECTOR
-            /// \bug operator not implemented
-            return 0;
+            assert(data_.size() == right.data_.size());
+            double sum = 0;
+            for (std::size_t i = 0; i < data_.size(); i++)
+                sum += data_[i] * right.data_[i];
+            return sum;
         #else
             return (data_*right.data_).sum();
         #endif
@@ -145,7 +121,8 @@ namespace LinearAlgebra
     NumericalVector& NumericalVector::operator/= (const double& right)
     {
         #ifdef LA_STL_VECTOR
-            /// \bug operator not implemented
+            for (double& d : data_)
+                d /= right;
         #else
             data_/=right;
         #endif
@@ -153,7 +130,7 @@ namespace LinearAlgebra
         return *this;
     }
     
-    NumericalVector NumericalVector::operator/ (const double& right)
+    NumericalVector NumericalVector::operator/ (const double& right) const
     {
         NumericalVector result(*this);
         return (result/=right);
@@ -171,17 +148,6 @@ namespace LinearAlgebra
         daxpy_(&size, &a, &((*(const_cast<NumericalVector *> (&x)))[0]), &i_one, &((*this)[0]) , &i_one);
         
         
-    }
-    
-    bool NumericalVector::operator== (const NumericalVector& right)
-    {
-    	if(data_.size()!=right.data_.size())
-    		return false;
-        for (int i = 0; i < data_.size(); ++i)
-        {
-            if (data_[i] != right.data_[i]) return false;
-        }
-        return true;
     }
     
     bool NumericalVector::operator== (const NumericalVector& right) const
@@ -203,14 +169,16 @@ namespace LinearAlgebra
             if(data_[i]<right.data_[i]) return true;
             if(data_[i]>right.data_[i]) return false;
         }
-	    return false;
+        return false;
     }
     
 
     NumericalVector& NumericalVector::operator+= (const NumericalVector& right)
         {
             #ifdef LA_STL_VECTOR
-            /// \bug operator not implemented
+                assert(data_.size() == right.data_.size());
+                for (std::size_t i = 0; i < data_.size(); i++)
+                    data_[i] += right.data_[i];
             #else
                 data_+=right.data_;
             #endif
@@ -219,23 +187,27 @@ namespace LinearAlgebra
     
     NumericalVector& NumericalVector::operator-= (const NumericalVector& right)
         {
-            #ifdef LA_STL_VECTOR
-                /// \bug operator not implemented
-            #else
+        #ifdef LA_STL_VECTOR
+            assert(data_.size() == right.data_.size());
+            for (std::size_t i = 0; i < data_.size(); i++)
+                data_[i] -= right.data_[i];
+
+        #else
                 data_-=right.data_;
-            #endif
+        #endif
             return *this;
         }
     
     NumericalVector& NumericalVector::operator*= (const double& right)
-        {
-            #ifdef LA_STL_VECTOR
-                /// \bug operator not implemented
-            #else
-                data_*=right;
-            #endif
-            return *this;
-        }
+    {
+        #ifdef LA_STL_VECTOR
+        for (double& d : data_)
+            d *= right;
+        #else
+            data_*=right;
+        #endif
+        return *this;
+    }
     
     double& NumericalVector::operator[] (const unsigned int n) {return data_[n];}
     
@@ -243,14 +215,18 @@ namespace LinearAlgebra
     {
         NumericalVector result(right);
         #ifdef LA_STL_VECTOR
-            /// \bug operator not implemented
+        for (double& d: result.data_)
+            d *= left;
         #else
             result.data_*=left;
         #endif
         return result;
     }
     
-    NumericalVector   operator-(const NumericalVector& right){return NumericalVector(right * -1.0);}
+    NumericalVector   operator-(const NumericalVector& right)
+    {
+        return NumericalVector(right * -1.0);
+    }
     
     
     std::ostream& operator<<(std::ostream& os, const NumericalVector& A)

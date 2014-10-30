@@ -10,7 +10,7 @@
 #include <mpi.h>
 #endif
 
-namespace Base{
+namespace Base {
 
 MPIContainer::MPIContainer() {
 #ifdef HPGEM_USE_MPI
@@ -31,12 +31,12 @@ MPIContainer::MPIContainer() {
 MPIContainer::~MPIContainer() {
 }
 
-    MPIContainer::getNumProcessors(){
+int MPIContainer::getNumProcessors(){
         return numProcessors_;
-    }
+}
     
-    MPIContainer::getProcessorID(){
+int MPIContainer::getProcessorID(){
         return processorID_;
-    }
+}
     
 }

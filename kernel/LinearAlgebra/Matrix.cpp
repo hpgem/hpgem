@@ -93,7 +93,11 @@ namespace LinearAlgebra
     /// \details
     /// Example usage : Matrix<double> A(4,3,2) with create a 4 by 3 matrix called A with entries equal to 2.
     Matrix::Matrix(const int n, const int m, const double& c):
-    	data_(c, n*m),
+#ifdef LA_STL_VECTOR
+        data_(n*m, c),
+#else
+        data_(c, n*m),
+#endif
     	nRows_(n),
     	nCols_(m)
     {
@@ -429,8 +433,9 @@ namespace LinearAlgebra
         return(result);
         
     }
-    
-    
+}
+#include <cassert>
+namespace LinearAlgebra { 
     /// \param[in] a : double scalar that is multiple by the matrix x
     /// \param[in] x : matrix that is multiple 
     /// \bug Does not undertake range checking.
@@ -443,12 +448,16 @@ namespace LinearAlgebra
     {
      
         unsigned int size=nRows_*nCols_;
-     
+        assert( nRows_ == x.nRows_ );
+        assert( nCols_ == x.nCols_ );
         unsigned int i_one=1;
      
+#ifdef LA_STL_VECTOR
+         daxpy_(&size, &a, const_cast<double *>(x.data_.data()), &i_one, data_.data(), &i_one);
+#else
+         daxpy_(&size, &a, &((*(const_cast<Matrix *> (&x)))[0]), &i_one, &((*this)[0]) , &i_one);
         
-        daxpy_(&size, &a, &((*(const_cast<Matrix *> (&x)))[0]), &i_one, &((*this)[0]) , &i_one);
-        
+#endif
         
     }
     

@@ -26,6 +26,7 @@
 #include "Integration/QuadratureRules/GaussQuadratureRulesForPoint.hpp"
 #include <cassert>
 #include <iostream>
+#include <typeinfo>
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferencePoint.hpp"
 

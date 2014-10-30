@@ -54,7 +54,7 @@ void Submesh::addPush(Element* element){
 
 void Submesh::addPull(Element* element,int processorID){
     if(processorID>=pullElements_.size()){
-        pullElements_.resize(processorID);
+        pullElements_.resize(processorID + 1);
     }
     pullElements_[processorID].push_back(element);
 }

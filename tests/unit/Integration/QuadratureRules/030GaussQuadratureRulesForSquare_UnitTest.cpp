@@ -24,7 +24,8 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Integration/QuadratureRules/GaussQuadratureRulesForSquare.hpp"
-#include "cassert"
+#include <cassert>
+#include <typeinfo>
 
 #include "Utilities/BasisFunctions2DH1ConformingSquare.hpp"
 #include "Geometry/ReferenceSquare.hpp"

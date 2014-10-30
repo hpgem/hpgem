@@ -30,7 +30,7 @@ add_library(hpGEM_Base SHARED
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Base/Norm2.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/Logger.cc
-
+                MpiContainer.cpp
 		ShortTermStorageElementBase.cpp
 		ShortTermStorageElementH1.cpp
 		ShortTermStorageFaceBase.cpp

@@ -28,7 +28,8 @@
 //part of the mesh generation self tests
 
 #include "Base/Element.hpp"
-#include "cassert"
+#include <cassert>
+#include <typeinfo>
 
 #include "Base/AssembleBasisFunctionSet.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.hpp"
