@@ -6,7 +6,9 @@
  */
 
 #include "MpiContainer.hpp"
+#ifdef HPGEM_USE_MPI
 #include <mpi.h>
+#endif
 
 namespace Base{
 
@@ -29,4 +31,12 @@ MPIContainer::MPIContainer() {
 MPIContainer::~MPIContainer() {
 }
 
+    MPIContainer::getNumProcessors(){
+        return numProcessors_;
+    }
+    
+    MPIContainer::getProcessorID(){
+        return processorID_;
+    }
+    
 }
