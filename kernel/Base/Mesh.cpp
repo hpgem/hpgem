@@ -105,7 +105,6 @@ void Mesh::split(){
         //split the mesh
 #ifdef HPGEM_USE_MPI
 #ifdef HPGEM_USE_METIS
-    //= MPI::COMM_WORLD.Get_rank();
     MPI::Group groupID = MPI::COMM_WORLD.Get_group();
     MPI::Intracomm com = MPI::COMM_WORLD.Create( groupID );
     int processorID = com.Get_rank();
