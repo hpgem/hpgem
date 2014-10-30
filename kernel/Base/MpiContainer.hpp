@@ -5,12 +5,14 @@
  * Created on October 30, 2014, 4:31 PM
  */
 
-#ifndef MPICONTAINER_HPP
-#define	MPICONTAINER_HPP
-
 #ifdef HPGEM_USE_MPI
 #include <mpi.h>
 #endif
+
+#ifndef MPICONTAINER_HPP
+#define	MPICONTAINER_HPP
+
+namespace Base{
 
 class MPIContainer {
 public:
@@ -20,7 +22,7 @@ public:
     }
     
     int getProcessorID();
-    int getCommSize();
+    int getNumProcessors();
 #ifdef HPGEM_USE_MPI
     MPI::Intracomm& getComm();
     
@@ -35,8 +37,15 @@ private:
     MPIContainer();
     MPIContainer(const MPIContainer& orig)=delete;
     virtual ~MPIContainer();
+    
+    int processorID_;
+    int numProcessors_;
+#ifdef HPGEM_USE_MPI
+    MPI::Intracomm communicator_;
+#endif
 
 };
+}
 
 #endif	/* MPICONTAINER_HPP */
 
