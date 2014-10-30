@@ -8,6 +8,7 @@ add_library(hpGEM_Base SHARED
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp	
  		${hpGEM_SOURCE_DIR}/kernel/Base/BasisFunctionSet.cpp	
  		BaseBasisFunction.cpp	  
+		CommandLineOptions.cpp
  		PhysGradientOfBasisFunction.cpp
  		Element.cpp
  		ElementData.cpp

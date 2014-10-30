@@ -39,11 +39,15 @@ namespace Base
         globalData_(global),
         configData_(config)
     {
+        if (!parse_isDone()) {
+            std::cerr << "Warning: Command line arguments have not been parsed.\n"
+                      << "  Please call Base::parse_options(argc, argv); first.\n"
+                      << "  This application may not behave as intended." << std::endl;
+        }
     }
     
     HpgemUI::~HpgemUI()
     {
-    	std::cout << "is this called yet?"<<std::endl;
             for(int i = 0; i < meshes_.size() ; ++i)
                 delete meshes_[i];
     }

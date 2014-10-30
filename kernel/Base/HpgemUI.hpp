@@ -26,6 +26,7 @@
 
 #include "MeshManipulator.hpp"
 #include "GlobalNamespaceBase.hpp"
+#include "CommandLineOptions.hpp"
 
 namespace Base
 {
