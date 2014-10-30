@@ -42,7 +42,7 @@ public:
 
     ///set up the mesh
 
-    bool virtual initialise() {
+    bool initialise() override {
 
         //describes a rectangular domain
         RectangularMeshDescriptorT description(DIM_);

@@ -18,6 +18,9 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifdef HPGEM_USE_MPI
+#include <mpi.h>
+#endif
 
 #include "Mesh.hpp"
 #include "Element.hpp"
@@ -33,7 +36,7 @@
 
 //#define HPGEM_USE_METIS//temporarily activating this definition makes development easier on some IDEs
 #ifdef HPGEM_USE_METIS
-#include "metis.h"
+#include <metis.h>
 #endif
 
 namespace Base{
@@ -98,20 +101,26 @@ void                                Mesh::addNode(Geometry::PointPhysical node){
 }
 
 void Mesh::split(){
-        //split the mesh
-    //int processorID=mpiCommunicator.get_rank();
-    int processorID=0;
     std::vector<int> partition(elements_.size());//output
+        //split the mesh
+#ifdef HPGEM_USE_MPI
 #ifdef HPGEM_USE_METIS
+    //= MPI::COMM_WORLD.Get_rank();
+    MPI::Group groupID = MPI::COMM_WORLD.Get_group();
+    MPI::Intracomm com = MPI::COMM_WORLD.Create( groupID );
+    int processorID = com.Get_rank();
+    int mpiCommSize = com.Get_size();
+    
+
     if(processorID==0){
         std::cout<<"start of metis"<<std::endl;
         int one(1);//actually the number of constraints. This can be increased for example when we want to distribute an entire mesh tree in one go (while keeping each of the levels balanced) - increasing this number turns imbalance into a vector
         int numberOfElements(elements_.size());
-        //int mpiCommSize=mpiCommunicator.get_size();
-        int mpiCommSize=4;
+        
+        //int mpiCommSize=4;
         float imbalance(1.001);//explicitly put the default for later manipulation
         int totalCutSize;//output
-        std::vector<int> partition(numberOfElements);//output
+     //   std::vector<int> partition(numberOfElements);//output
         std::vector<int> xadj(numberOfElements+1);//for some reason c-style arrays break somewhere near 1e6 faces in a mesh, so use vectors
         std::vector<int> adjncy(2*faces_.size());//if this basic connectivity structure turns out to be very slow for conforming meshes, some improvements can be made
         int connectionsUsed(0),xadjCounter(0);
@@ -143,7 +152,12 @@ void Mesh::split(){
         METIS_PartGraphKway(&numberOfElements,&one,&xadj[0],&adjncy[0],NULL,NULL,NULL,&mpiCommSize,NULL,&imbalance,metisOptions,&totalCutSize,&partition[0]);
         //mpiCommunicator.Bcast((void *)&partition[0],partition.size(),MPI::INT,0);//broadcast the computed partition to all the nodes
         std::cout<<"done splitting mesh"<<std::endl;
+        
     }
+    
+    com.Bcast(partition.data(), partition.size(), MPI::INT, 0);
+    
+#endif
 #endif
     auto elementIterator=elements_.begin();
     for(auto targetIterator=partition.begin();targetIterator!=partition.end();++targetIterator,++elementIterator){
@@ -178,6 +192,7 @@ void Mesh::split(){
     elements_.clear();
     faces_.clear();
     edges_.clear();
+    
 }
 
 const std::list<Element*>&          Mesh::getElementsList() const {

@@ -138,7 +138,7 @@ int Base::Detail::CLOParser::go()
             kill = true;
         }
     }
-    if (printHelp.getValue()) {
+    if (printHelp.getValue() || kill) {
         std::cout << "Usage: " << pData[0] << " [args...] with args: \n\n";
         for (Base::Detail::CommandLineOptionBase* base : Base::Detail::getCLOList()) {
             std::cout << '\t';
@@ -152,25 +152,24 @@ int Base::Detail::CLOParser::go()
             std::cout << "\n\t  " << base->getDescription() << "\n\n";
         }
         kill = true;
-    }
     
-    std::cout << "\n\n---------------------------\nFeatures:";
+        std::cout << "\n\n---------------------------\nFeatures:\n";
 #ifdef HPGEM_USE_MPI
-    std::cout << "\tMPI\n";
+        std::cout << "\tMPI\n";
 #endif
 #ifdef HPGEM_USE_METIS
-    std::cout << "\tMETIS\n";
+        std::cout << "\tMETIS\n";
 #endif
 #ifdef HPGEM_USE_PETSC
-    std::cout << "\tPETSC\n";
+        std::cout << "\tPETSC\n";
 #endif
 #ifdef HPGEM_USE_COMPLEX_PETSC
-    std::cout << "\tComplex PETSC\n";
+        std::cout << "\tComplex PETSC\n";
 #endif
 #ifdef HPGEM_USE_SLEPC
-    std::cout << "\tSLEPC\n";
+        std::cout << "\tSLEPC\n";
 #endif
-    
+    }
     if (kill)
         std::exit(1);
     return 0;
