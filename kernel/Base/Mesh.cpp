@@ -160,7 +160,7 @@ void Mesh::split(){
 #endif
     auto elementIterator=elements_.begin();
     for(auto targetIterator=partition.begin();targetIterator!=partition.end();++targetIterator,++elementIterator){
-        if(processorID==*targetIterator){
+        if(pid==*targetIterator){
             submeshes_.add(*elementIterator);
         }
     }
