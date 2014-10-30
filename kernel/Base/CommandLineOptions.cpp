@@ -8,6 +8,10 @@
 #include "CommandLineOptions.hpp"
 #include <cstring>
 
+#ifdef HPGEM_USE_MPI
+#include <mpi.h>
+#endif
+
 std::map<std::string, Base::Detail::CommandLineOptionBase*>&
 Base::Detail::getCLOMapping_long() {
     static std::map<std::string, CommandLineOptionBase*> mapping;
@@ -37,6 +41,15 @@ bool Base::parse_isDone() {
 int Base::parse_options(int argc, char** argv) {
     if (hasParsed)
         throw ("Arguments have already been parsed");
+#ifdef HPGEM_USE_MPI
+    MPI::Init(argc, argv);
+    
+    std::atexit([]() {
+        MPI::Finalize();
+    });
+    
+#endif
+    
     Base::Detail::CLOParser parser(argc, argv);
     hasParsed = true;
     return parser.go();
@@ -126,6 +139,7 @@ int Base::Detail::CLOParser::go()
         }
     }
     if (printHelp.getValue()) {
+        std::cout << "Usage: " << pData[0] << " [args...] with args: \n\n";
         for (Base::Detail::CommandLineOptionBase* base : Base::Detail::getCLOList()) {
             std::cout << '\t';
             if (base->getTag() != '\0')
@@ -139,6 +153,23 @@ int Base::Detail::CLOParser::go()
         }
         kill = true;
     }
+    
+    std::cout << "\n\n---------------------------\nFeatures:";
+#ifdef HPGEM_USE_MPI
+    std::cout << "\tMPI\n";
+#endif
+#ifdef HPGEM_USE_METIS
+    std::cout << "\tMETIS\n";
+#endif
+#ifdef HPGEM_USE_PETSC
+    std::cout << "\tPETSC\n";
+#endif
+#ifdef HPGEM_USE_COMPLEX_PETSC
+    std::cout << "\tComplex PETSC\n";
+#endif
+#ifdef HPGEM_USE_SLEPC
+    std::cout << "\tSLEPC\n";
+#endif
     
     if (kill)
         std::exit(1);

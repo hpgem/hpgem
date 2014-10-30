@@ -27,6 +27,8 @@
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
 #include <cmath>
 
+
+
 ///Linear advection equation
 ///The first self-contained (no PETSc) program to make it into the SVN
 ///If someone is bored, this should be polished into a demo application and/or a tutorial
@@ -307,16 +309,14 @@ private:
 
 const unsigned int Advection::DIM_(2);
 
+auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
+auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
+
 int main(int argc, char **argv) {
+    Base::parse_options(argc, argv);
     try {
-        int n, p;
-        if (argc > 2) {
-            n = std::atoi(argv[1]);
-            p = std::atoi(argv[2]);
-        } else {
-            throw "usage: LinearAdvection.out n p";
-        }
-        Advection test(n, p);
+        
+        Advection test(n.getValue(), p.getValue());
         test.initialise();
         test.solve();
         return 0;
