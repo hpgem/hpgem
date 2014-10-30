@@ -1,10 +1,17 @@
-##\TODO add automated detection of subdirectories
+#list all the directories
+FILE( GLOB subdirs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}/*)
+SET( applications "" )
+FOREACH( subdir ${subdirs} )
+#well.. these could be files as well
+#or empty directories. So yeah
+  IF(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${subdir} AND
+     EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${subdir}/CMakeLists.txt )
+    LIST( APPEND applications ${subdir} )
+  ENDIF()
+ENDFOREACH()
 
-add_subdirectory(MeshMoverDemo)
-add_subdirectory(app1)
-add_subdirectory(Laplace)
-#add_subdirectory(DG-Max)
-#add_subdirectory(HamiltonianEuler)#To compile this application install PETSc 3.4.5; uncomment this line; and type make inside this directory in the build tree
-add_subdirectory(DG-Wave_linear)
-#add_subdirectory(DG-Wave_nonlinear)
-add_subdirectory(LinearAdvection)
+#now add all the application
+FOREACH( application ${applications} )
+  ADD_SUBDIRECTORY( ${application} )
+ENDFOREACH()
