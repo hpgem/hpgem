@@ -37,8 +37,21 @@ add_library(hpGEM_Base SHARED
 		ShortTermStorageFaceH1.cpp
 	) 
 
-if(hpGEM_USE_METIS)
-target_link_libraries(hpGEM_Base Geometry Reference_geometries ${METIS_LIBRARY})
-else()
 target_link_libraries(hpGEM_Base Geometry Reference_geometries)
+
+set( DEP_COMPILE_FLAGS "" )
+set( DEP_LINKER_FLAGS "" )
+set( DEP_LIBRARIES "")
+
+if(hpGEM_USE_MPI)
+set( DEP_COMPILE_FLAGS "${DEP_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS}" )
+set( DEP_LINKER_FLAGS "${DEP_LINKER_FLAGS} ${MPI_LINK_FLAGS}")
+target_link_libraries(hpGEM_Base "${MPI_LIBRARIES}")
 endif()
+
+if(hpGEM_USE_METIS)
+target_link_libraries(hpGEM_Base "${METIS_LIBRARIES}")
+endif()
+
+set_target_properties(hpGEM_Base PROPERTIES COMPILE_FLAGS "${DEP_COMPILE_FLAGS}")
+set_target_properties(hpGEM_Base PROPERTIES LINK_FLAGS "${DEP_LINKER_FLAGS}")
