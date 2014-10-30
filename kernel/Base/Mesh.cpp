@@ -31,8 +31,8 @@
 #include "FaceCacheData.hpp"
 #include "ElementCacheData.hpp"
 
-//#define hpGEM_INCLUDE_METIS_SUPPORT//temporarily activating this definition makes development easier on some IDEs
-#ifdef hpGEM_INCLUDE_METIS_SUPPORT
+//#define HPGEM_USE_METIS//temporarily activating this definition makes development easier on some IDEs
+#ifdef HPGEM_USE_METIS
 #include "metis.h"
 #endif
 
@@ -102,7 +102,7 @@ void Mesh::split(){
     //int processorID=mpiCommunicator.get_rank();
     int processorID=0;
     std::vector<int> partition(elements_.size());//output
-#ifdef hpGEM_INCLUDE_METIS_SUPPORT
+#ifdef HPGEM_USE_METIS
     if(processorID==0){
         std::cout<<"start of metis"<<std::endl;
         int one(1);//actually the number of constraints. This can be increased for example when we want to distribute an entire mesh tree in one go (while keeping each of the levels balanced) - increasing this number turns imbalance into a vector

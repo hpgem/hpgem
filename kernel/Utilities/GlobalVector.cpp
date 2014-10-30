@@ -19,7 +19,7 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//#define hpGEM_INCLUDE_PETSC_SUPPORT//temporarily activating this definition makes development easier on some IDEs
+#define HPGEM_USE_PETSC//temporarily activating this definition makes development easier on some IDEs
 
 #include "GlobalVector.hpp"
 #include <list>
@@ -41,7 +41,7 @@ namespace Utilities{
 	GlobalVector::GlobalVector(Base::MeshManipulator* theMesh,int elementVectorID, int faceVectorID):
 		theMesh_(theMesh),startPositionsOfElementsInTheVector_(),meshLevel_(-2),elementVectorID_(elementVectorID),faceVectorID_(faceVectorID){}
 
-#ifdef hpGEM_INCLUDE_PETSC_SUPPORT
+#ifdef HPGEM_USE_PETSC
 	GlobalPetscVector::GlobalPetscVector(Base::MeshManipulator* theMesh,int elementVectorID,int faceVectorID):
 		GlobalVector(theMesh,elementVectorID,faceVectorID){
 		PetscBool petscRuns;

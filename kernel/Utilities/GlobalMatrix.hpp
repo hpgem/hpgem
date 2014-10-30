@@ -24,7 +24,7 @@
 #ifndef GLOBALMATRIX_HPP_
 #define GLOBALMATRIX_HPP_
 
-#ifdef hpGEM_INCLUDE_PETSC_SUPPORT
+#ifdef HPGEM_USE_PETSC
 #include "petscmat.h"
 #endif
 #include <vector>
@@ -71,7 +71,7 @@ namespace Utilities{
 		Base::MeshManipulator *theMesh_;
 
 	};
-#ifdef hpGEM_INCLUDE_PETSC_SUPPORT
+#ifdef HPGEM_USE_PETSC
         ///\bug this class depends on PETSc and is likely to cause naming conflicts between the c and c++ standard libraries (workaround: make sure to include all other needed hpGEM headers before including this header)
 	class GlobalPetscMatrix:public GlobalMatrix{
 

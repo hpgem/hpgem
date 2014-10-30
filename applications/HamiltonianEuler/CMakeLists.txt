@@ -4,7 +4,7 @@ include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 #############################################################
 
 
-if(hpGEM_INCLUDE_PETSC_SUPPORT)
+if(hpGEM_USE_PETSC)
 
 	configure_file(bCoeff.txt
 			${PROJECT_BINARY_DIR}/bCoeff.txt @ONLY IMMEDIATE)

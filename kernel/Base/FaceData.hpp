@@ -68,7 +68,7 @@ namespace Base {
 		}
 
 	private:
-		VecCacheT vecCacheData_;
+		VecCacheT vecCacheData_;//?also in Face?
 		UserFaceData* userData_;
 		std::vector<LinearAlgebra::Matrix> faceMatrix_;
 		std::vector<LinearAlgebra::NumericalVector> faceVector_;

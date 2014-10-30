@@ -3,7 +3,7 @@ include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 #First declare the rules that will form the executable tests#
 #############################################################
 
-if(hpGEM_INCLUDE_PETSC_SUPPORT)
+if(hpGEM_USE_PETSC)
 
     include_directories(${PETSC_INCLUDES})
     
