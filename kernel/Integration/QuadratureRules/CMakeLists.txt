@@ -15,3 +15,4 @@ add_library(QuadratureRules STATIC
         )
 target_link_libraries(QuadratureRules Reference_geometries)
 
+set_target_properties(QuadratureRules PROPERTIES POSITION_INDEPENDENT_CODE true)

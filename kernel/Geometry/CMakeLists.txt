@@ -2,7 +2,9 @@ add_subdirectory(Mappings)
 
 include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
+#guys, this is a bad idea. Linking non-PIC with PIC code is a bad idea.
 add_library(Reference_geometries STATIC
+#add_library(Reference_geometries SHARED
 	${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferencePoint.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceLine.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceTriangle.cpp
@@ -34,6 +36,7 @@ add_library(Reference_geometries STATIC
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/ConcatenatedMapping.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefPointToPoint.cpp)
 
+set_target_properties(Reference_geometries PROPERTIES POSITION_INDEPENDENT_CODE true)
 
 
 add_library(Geometry SHARED
