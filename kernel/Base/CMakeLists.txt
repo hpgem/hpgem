@@ -37,7 +37,7 @@ add_library(hpGEM_Base SHARED
 		ShortTermStorageFaceH1.cpp
 	) 
 
-if(hpGEM_INCLUDE_METIS_SUPPORT)
+if(hpGEM_USE_METIS)
 target_link_libraries(hpGEM_Base Geometry Reference_geometries ${METIS_LIBRARY})
 else()
 target_link_libraries(hpGEM_Base Geometry Reference_geometries)
