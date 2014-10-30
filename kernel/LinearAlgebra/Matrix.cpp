@@ -480,17 +480,7 @@ namespace LinearAlgebra {
     /// \return int : the total number of entries
     const int Matrix::size() const {return nRows_*nCols_;}
     
-    
-    /// \return int : the number of rows
-    const int Matrix::getNRows() {return nRows_;}
-    
-    
-    /// \brief Get the number of columns
-    /// \return int : the number of columns
-    const int Matrix::getNCols() {return nCols_;}
-    
-    
-    
+   
     /// \return int : the number of rows
     const int Matrix::getNRows() const {return nRows_;}
     

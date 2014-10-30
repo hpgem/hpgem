@@ -129,13 +129,7 @@ namespace LinearAlgebra
         
         /// \brief Get total number of Matrix entries
         const int size() const;
-        
-        /// \brief Get the number of rows
-        const int getNRows();
-        
-        /// \brief Get the number of columns
-        const int getNCols();
-        
+   
         /// \brief Get the number of rows
         const int getNRows() const;
         
