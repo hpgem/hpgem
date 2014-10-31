@@ -112,8 +112,8 @@ namespace Base
                             rightResidual(i,j-n)+=residual(i,j);
                         }
                     }
-                    face->getPtrElementLeft()->setResidue(residual);
-                    face->getPtrElementRight()->setResidue(residual);
+                    face->getPtrElementLeft()->setResidue(leftResidual);
+                    face->getPtrElementRight()->setResidue(rightResidual);
                 }else{
                     leftResidual=face->getPtrElementLeft()->getResidue();
                     residual=face->getResidue();

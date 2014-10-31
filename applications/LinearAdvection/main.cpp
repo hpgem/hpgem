@@ -217,6 +217,7 @@ public:
             residual = mass*oldData;
             residual.axpy(dt_, stiffness * oldData);
             residual.resize(1,n);
+            std::cout<<residual<<std::endl;
             element->setResidue(residual);
         }
     }
@@ -419,7 +420,6 @@ int main(int argc, char **argv) {
     try {
         
         Advection test(n.getValue(), p.getValue());
-        test.initialise();
         test.solve();
         return 0;
     } catch (const char* e) {
