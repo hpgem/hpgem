@@ -29,6 +29,8 @@
 #include "Output/TecplotSingleElementWriter.hpp"
 #include "Base/ElementCacheData.hpp"
 #include "Base/FaceCacheData.hpp"
+#include "Base/Element.hpp"
+
 using Base::RectangularMeshDescriptor;
 using Base::HpgemUISimplified;
 

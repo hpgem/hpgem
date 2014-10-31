@@ -78,3 +78,18 @@ Base::FaceData::getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned i
 	vector=faceVector_[vectorID];
 }
 
+const LinearAlgebra::Matrix&
+    Base::FaceData::getResidue() const
+    {
+        //if(residue_.size()!=nrOfUnkowns_*nrOfBasisFunctions_){
+        //    residue_.resize(nrOfUnkowns_*nrOfBasisFunctions_);
+        //}
+        return residual_;
+    }
+    
+    void
+    Base::FaceData::setResidue(LinearAlgebra::Matrix& residue)
+    {
+        residual_=residue;
+    }
+

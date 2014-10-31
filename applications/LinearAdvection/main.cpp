@@ -25,6 +25,18 @@
 #include "Base/FaceCacheData.hpp"
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
+#include "Base/Element.hpp"
+#include "Integration/ReturnTrait1.hpp"
+#include "Base/Element.hpp"
+#include "Integration/FaceIntegral.hpp"
+#include "Integration/ElementIntegral.hpp"
+#include "Base/ConfigurationData.hpp"
+#include "Base/RectangularMeshDescriptor.hpp"
+#include "Base/ElementCacheData.hpp"
+#include "Base/FaceCacheData.hpp"
+#include "cassert"
+#include "Base/CommandLineOptions.hpp"
+#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include <cmath>
 
 
@@ -34,7 +46,7 @@
 ///If someone is bored, this should be polished into a demo application and/or a tutorial
 ///If someone is bored, this would be an excellent basis for a self test that tests all essential features of hpGEM at once
 
-class Advection : public Base::HpgemUISimplified, Output::TecplotSingleElementWriter {
+class Advection : public Base::HpgemUISimplified {
 public:
 
     Advection(int n, int p) : HpgemUISimplified(DIM_, p), n_(n), p_(p) {
@@ -171,8 +183,87 @@ public:
         element->getSolution(0, point, value);
         out << value[0];
     }
+    
+    ///TODO this cannot be automated because I dont know where the mass matrix is
+    // solve Mx=`residue`
+    virtual void interpolate(){
+        LinearAlgebra::Matrix mass;
+        LinearAlgebra::Matrix solution;
+        for (Base::Element* element : meshes_[0]->getElementsList()) {
+            int n(element->getNrOfBasisFunctions());
+            mass.resize(n, n);
+            element->getElementMatrix(mass, 0);
+            solution = element->getResidue();
+            solution.resize(n, 1);
+            mass.solve(solution);
+            solution.resize(1, n);
+            element->setTimeLevelData(0, solution);
+        }
+    }
 
-    bool solve() {
+
+    virtual void computeLocalResidual(){
+        LinearAlgebra::Matrix mass,residual,stiffness,oldData;
+        for (Base::Element* element : meshes_[0]->getElementsList()) {
+            //collect data
+            int n = element->getNrOfBasisFunctions();
+            mass.resize(n, n);
+            stiffness.resize(n, n);
+            element->getElementMatrix(mass, 0);
+            element->getElementMatrix(stiffness, 1);
+            oldData = element->getTimeLevelData(0);
+            oldData.resize(n,1);
+            //compute residual=M*u+dt*S*u
+            residual = mass*oldData;
+            residual.axpy(dt_, stiffness * oldData);
+            residual.resize(1,n);
+            element->setResidue(residual);
+        }
+    }
+
+
+    virtual void computeFluxResidual(){
+        LinearAlgebra::Matrix stiffness,residue;
+        for (Base::Face* face : meshes_[0]->getFacesList()) {
+            int n(face->getNrOfBasisFunctions()), nLeft(face->getPtrElementLeft()->getNrOfBasisFunctions());
+            stiffness.resize(n, n);
+            face->getFaceMatrix(stiffness);
+            residue.resize(n, 1);
+
+            ///TODO implement face->getData()
+            //for now concatenate left and right data
+            for (int i = 0; i < n; ++i) {
+                if (i < nLeft) {
+                    residue[i] = face->getPtrElementLeft()->getData(0, 0, i);
+                } else {
+                    residue[i] = face->getPtrElementRight()->getData(0, 0, i - nLeft);
+                }
+            }
+
+            //compute the flux
+            residue = stiffness*residue;
+            residue.resize(1,n);
+            residue *= dt_;
+            face->setResidue(residue);
+        }
+    }
+
+
+    virtual void beforeTimeIntegration(){
+        
+        //manual integration example
+        Integration::ElementIntegral elIntegral(false);
+        LinearAlgebra::Matrix stifness;
+        for (Base::Element* element : meshes_[0]->getElementsList()) {
+            int n(element->getNrOfBasisFunctions());
+            stifness.resize(n, n);
+            elIntegral.integrate(element, &advection, stifness);
+            element->setElementMatrix(stifness, 1);
+        }
+    }
+
+    
+   /* bool solve() {
         //do the integration
         std::cout << "SOLVIN!" << std::endl;
         doAllElementIntegration();
@@ -305,7 +396,7 @@ public:
         }
 
         return true;
-    }
+    }*/
 
 private:
 

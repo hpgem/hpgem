@@ -24,9 +24,9 @@
 #define FaceData_hpp
 //----------------------------------------------------------------
 #include <vector>
+#include "LinearAlgebra/Matrix.hpp"
 
 namespace LinearAlgebra{
-	class Matrix;
 	class NumericalVector;
 }
 
@@ -66,12 +66,19 @@ namespace Base {
 		void setUserData(UserFaceData* data) {
 			userData_ = data;
 		}
+                
+                virtual const LinearAlgebra::Matrix& getResidue() const;
+        
+                void setResidue(LinearAlgebra::Matrix& residue);
 
 	private:
 		VecCacheT vecCacheData_;//?also in Face?
 		UserFaceData* userData_;
 		std::vector<LinearAlgebra::Matrix> faceMatrix_;
 		std::vector<LinearAlgebra::NumericalVector> faceVector_;
+                
+                //a concatenation of the flux contributions to the residuals in the left and the right elements
+                LinearAlgebra::Matrix residual_;
 	};
 }
 ;

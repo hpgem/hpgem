@@ -19,8 +19,9 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include"Integration/ReturnTrait1.hpp"
-#include"Base/Element.hpp"
+#include "HpgemUISimplified.hpp"
+#include "Integration/ReturnTrait1.hpp"
+#include "Base/Element.hpp"
 #include "Base/ShortTermStorageElementH1.hpp"
 #include "Base/ShortTermStorageFaceH1.hpp"
 #include "GlobalData.hpp"
@@ -28,32 +29,114 @@
 #include "Integration/ElementIntegral.hpp"
 #include "ConfigurationData.hpp"
 #include "RectangularMeshDescriptor.hpp"
+#include "ElementCacheData.hpp"
+#include "FaceCacheData.hpp"
+#include "cassert"
+#include "CommandLineOptions.hpp"
+#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 
 namespace Base
 {
     class HpgemUISimplified;
     
-    HpgemUISimplified::HpgemUISimplified(unsigned int DIM,int polynomialOrder):HpgemUI(new GlobalData,new ConfigurationData(DIM,1,polynomialOrder,1)){}
+        auto& numberOfSnapshots = Base::register_argument<std::size_t>(0, "nOutputFrames", "Number of frames to output", false,1);
+        auto& endTime = Base::register_argument<double>(0, "endTime", "end time of the simulation", false,1);
+        auto& startTime = Base::register_argument<double>(0, "startTime", "start time of the simulation", false,0);
+        auto& dt = Base::register_argument<double>(0, "dt", "time step of the simulation", false);
+        
+    HpgemUISimplified::HpgemUISimplified(unsigned int DIM,int polynomialOrder)
+      :  HpgemUI(new GlobalData,
+                 new ConfigurationData(DIM,1,polynomialOrder,numberOfSnapshots.getValue())) 
+    {
+        endTime_=endTime.getValue();
+        startTime_=startTime.getValue();
+        if(!dt.isUsed()){
+            ///TODO: compute CFL number
+            dt_=1e-3;
+        }else{
+            dt_=dt.getValue();
+        }
+    }
+    
+    auto& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file", false,"output.dat");
     
     bool
     HpgemUISimplified::solve()
     {
         initialise();
-        checkInitialisation();
-        for (int i=0; i < HpgemUI::meshes_.size();i++)
-        {
-            HpgemUI::meshes_[i]->move(); // just for testing
-        }
+        assert(checkInitialisation());
         doAllElementIntegration();
         doAllFaceIntegration();
+        beforeTimeIntegration();
+        interpolate();
+        
+        std::ofstream outFile(outputName.getValue());
+        std::string dimensions("012");
+        Output::TecplotDiscontinuousSolutionWriter out(outFile, "solution of the problem", dimensions.substr(0,configData_->dimension_).c_str(), "u");
+        double t=startTime_;
+        double dtPlot;
+        double origDt=dt_;
+        LinearAlgebra::Matrix leftResidual,rightResidual,residual;
+        if(numberOfSnapshots.getValue()>1L) {
+            dtPlot=(endTime_-startTime_)/double(numberOfSnapshots.getValue()-1);
+            out.write(meshes_[0],"t="+std::to_string(t),false,this);
+        }else{
+            dtPlot=endTime_-startTime_;
+        }
+        double tPlot=startTime_+dtPlot;
+        while (t<endTime_) {
+            t+=dt_;
+            if(t>tPlot){
+                t-=dt_;
+                dt_=tPlot-t;
+                t=tPlot;
+            }
+            
+            computeLocalResidual();
+            ///TODO communication happens here!!!
+            computeFluxResidual();
+            for(Base::Face* face:meshes_[0]->getFacesList()){
+                if(face->isInternal()){
+                    leftResidual=face->getPtrElementLeft()->getResidue();
+                    rightResidual=face->getPtrElementRight()->getResidue();
+                    residual=face->getResidue();
+                    int n=face->getPtrElementLeft()->getNrOfBasisFunctions();
+                    //can we get nicer matrix?
+                    assert(n==leftResidual.getNCols());
+                    assert(residual.getNCols()-n==rightResidual.getNCols());
+                    for(std::size_t i=0;i<residual.getNRows();++i){
+                        for(std::size_t j=0;j<n;++j){
+                            leftResidual(i,j)+=residual(i,j);
+                        }
+                        for(std::size_t j=n;j<residual.getNCols();++j){
+                            rightResidual(i,j-n)+=residual(i,j);
+                        }
+                    }
+                    face->getPtrElementLeft()->setResidue(residual);
+                    face->getPtrElementRight()->setResidue(residual);
+                }else{
+                    leftResidual=face->getPtrElementLeft()->getResidue();
+                    residual=face->getResidue();
+                    residual.axpy(1.,leftResidual);
+                    face->getPtrElementLeft()->setResidue(residual);
+                }
+                
+            }
+            interpolate();
+            
+            if(t==tPlot){//yes, == for doubles, but see the start of the time loop
+                tPlot+=dtPlot;
+                out.write(meshes_[0],"t="+std::to_string(t),false,this);
+                dt_=origDt;
+                if(tPlot>endTime_){
+                    tPlot=endTime_;
+                }
+            }
+        }
+
         
         return true;
     }
-    template<class T>
-    struct ABC
-    {
-        void aas(T& a){}
-    };
     
     void
     HpgemUISimplified::doAllFaceIntegration(unsigned int meshID)
@@ -84,6 +167,7 @@ namespace Base
     {
         unsigned int ndof = HpgemUI::configData_->numberOfBasisFunctions_*HpgemUI::configData_->numberOfUnknowns_;
         LinearAlgebra::Matrix  	eMatrixData(ndof, ndof);
+        LinearAlgebra::Matrix   initialData(configData_->numberOfUnknowns_,configData_->numberOfBasisFunctions_);
         LinearAlgebra::NumericalVector eVectorData(ndof);
         
         bool isUseCache(false);
@@ -96,6 +180,14 @@ namespace Base
             (*it)->setElementMatrix(eMatrixData);
             elIntegral.integrate<LinearAlgebra::NumericalVector>((*it), this, eVectorData);
             (*it)->setElementVector(eVectorData);
+            if(configData_->numberOfUnknowns_==1){
+                assert(initialData.getNCols()==eVectorData.size());
+                for(std::size_t i=0;i<eVectorData.size();++i){
+                    initialData(0,i)=eVectorData[i];
+                }
+                (*it)->setResidue(initialData);
+            }
+            
 
             //cout << result;
             //cout<< "#####################################END of ELEMENT######"<<endl;
@@ -109,7 +201,9 @@ namespace Base
         {
 
             std::cerr << "Error no mesh created : You need to create at least one mesh to solve a problem" << std::endl;
-
+                
+            return false;
         }
+        return true;
     }
 }

@@ -211,7 +211,7 @@ namespace Base
     ElementData::getResidue() const
     {
         //if(residue_.size()!=nrOfUnkowns_*nrOfBasisFunctions_){
-        //    residue_.resize(nrOfUnkowns_*nrOfBasisFunctions_);
+        //    residue_.resize(nrOfUnkowns_,nrOfBasisFunctions_);
         //}
         return residue_;
     }

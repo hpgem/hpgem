@@ -22,6 +22,7 @@
 #include "Matrix.hpp"
 #include "GlobalNamespaceLinearAlgebra.hpp"
 #include "NumericalVector.hpp"
+#include <cassert>
 
 namespace LinearAlgebra
 {
@@ -260,7 +261,8 @@ namespace LinearAlgebra
     Matrix& Matrix::operator*= (const double &scalar)
     {
         #ifdef LA_STL_VECTOR
-            /// \bug operator not implemented
+            for (double& d : data_)
+                d *= scalar;
         #else
             data_*=scalar;
         #endif
@@ -271,7 +273,8 @@ namespace LinearAlgebra
     Matrix& Matrix::operator/= (const double& scalar)
     {
         #ifdef LA_STL_VECTOR
-            /// \bug operator not implemented
+            for (double& d : data_)
+                d /= scalar;
         #else
             data_/=scalar;
         #endif
@@ -293,7 +296,7 @@ namespace LinearAlgebra
     {
         if (size()!=1){nRows_=1; nCols_=1; data_.resize(1);}
         #ifdef LA_STL_VECTOR
-            /// \bug operator not implemented
+        data_[0]=c;
         #else
             data_=c;
         #endif
@@ -434,7 +437,6 @@ namespace LinearAlgebra
         
     }
 }
-#include <cassert>
 namespace LinearAlgebra { 
     /// \param[in] a : double scalar that is multiple by the matrix x
     /// \param[in] x : matrix that is multiple 

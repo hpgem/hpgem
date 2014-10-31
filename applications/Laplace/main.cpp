@@ -38,8 +38,11 @@
 #include "Base/ElementCacheData.hpp"
 #include "Base/FaceCacheData.hpp"
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
+#include "Base/Element.hpp"
+#include "Base/RectangularMeshDescriptor.hpp"
+#include "Integration/ElementIntegral.hpp"
 
-class Laplace : public Base::HpgemUISimplified, Output::TecplotSingleElementWriter {
+class Laplace : public Base::HpgemUISimplified {
 public:
     ///constructor: set the dimension of the problem, start the API of hpGEM and initialise the other fields
     //initialisation order is not fixed so DIM_ has to be passed to hpGEMUISimplified in a hardcoded way

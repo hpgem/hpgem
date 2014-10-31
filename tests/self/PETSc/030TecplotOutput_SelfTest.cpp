@@ -30,12 +30,14 @@
 #include "Base/ElementCacheData.hpp"
 #include "Base/FaceCacheData.hpp"
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
+#include "Base/RectangularMeshDescriptor.hpp"
+#include "Integration/ElementIntegral.hpp"
 
 //If this test ever breaks it is not a bad thing per se.
 //If the results are still readable by tecplot, and you are convinced that your changes improved the code,
 //you should update the data file to reflect the updated result. Always confer with other developers if you do this.
 
-class Laplace : public Base::HpgemUISimplified,public Output::TecplotSingleElementWriter{
+class Laplace : public Base::HpgemUISimplified{
 
 	class:public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>{
 

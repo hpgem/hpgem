@@ -6,6 +6,7 @@ endif()
 
 add_library(hpGEM_Base SHARED
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp	
+                ${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Base/BasisFunctionSet.cpp	
  		BaseBasisFunction.cpp	  
 		CommandLineOptions.cpp
@@ -22,6 +23,7 @@ add_library(hpGEM_Base SHARED
  		${hpGEM_SOURCE_DIR}/kernel/Integration/FaceIntegral.cpp
  		Edge.cpp
  		HpgemUI.cpp
+                HpgemUISimplified.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp
                 Mesh.cpp

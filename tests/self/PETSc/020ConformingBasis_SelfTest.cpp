@@ -32,6 +32,8 @@
 #include "Base/ShortTermStorageElementH1.hpp"
 #include "Base/ElementCacheData.hpp"
 #include "Base/FaceCacheData.hpp"
+#include "Base/RectangularMeshDescriptor.hpp"
+#include "Integration/ElementIntegral.hpp"
 
 //If this test ever breaks it is not a bad thing per se. However, once this breaks a thorough convergence analysis needs to be done.
 //If the results still show the theoretically optimal order of convergence, and you are convinced that your changes improved the code,

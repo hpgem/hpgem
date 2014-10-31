@@ -353,7 +353,7 @@ HEuler::correctInitialProjectionOfVelocity(const Vec& UInit, Vec& UCorrected)con
             // Preconditioner
 		PC pc;
 		KSPCreate(PETSC_COMM_SELF, &ksp);
-		KSPSetOperators(ksp, globalDIV, globalDIV, SAME_NONZERO_PATTERN);
+		KSPSetOperators(ksp, globalDIV, globalDIV);
 		cout << "2"<<endl;
         
             //	        KSPSetType(ksp, KSPPREONLY);
@@ -483,7 +483,7 @@ HEuler::calculatePressure(const Mat& A, const Mat& Ah,const Vec& UCorrected)
 //    outputMatrix(A, "A.dat");
 //    outputVectorMatlab(RHS, "RHS.dat");
     
-	KSPSetOperators(ksp, A, A, SAME_NONZERO_PATTERN);
+	KSPSetOperators(ksp, A, A);
 	cout << "2L"<<endl;
 	
         //KSPSetType(ksp, KSPPREONLY);
@@ -1692,7 +1692,7 @@ HEuler::solve()
         //(instead of PCLU) for the preconditioner below if you want to
         //use a nonpreconditioned iterative method.
     
-    KSPSetOperators(ksp, P_, P_, SAME_NONZERO_PATTERN);
+    KSPSetOperators(ksp, P_, P_);
     
     cout << "Setup operators"<<endl;
     

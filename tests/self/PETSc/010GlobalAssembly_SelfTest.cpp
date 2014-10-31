@@ -30,6 +30,9 @@
 #include "Base/ShortTermStorageElementH1.hpp"
 #include "Base/FaceCacheData.hpp"
 #include "Base/ElementCacheData.hpp"
+#include "Geometry/PointPhysical.hpp"
+#include "Base/RectangularMeshDescriptor.hpp"
+#include "Integration/ElementIntegral.hpp"
 
 //If this test ever breaks it is not a bad thing per se. However, once this breaks a thorough convergence analysis needs to be done.
 //If the results still show the theoretically optimal order of convergence, and you are convinced that your changes improved the code,
@@ -195,18 +198,22 @@ public:
 	}
 };
 
-int main(){
+int main(int argc,char** argv){
+    Base::parse_options(argc,argv);
 	//no 3D testing due to speed related issues
 	PetscInitializeNoArguments();
 	Laplace test0(1,2,1,Base::RECTANGULAR);
 	test0.initialise();
         std::cout.precision(10);
+        std::cout<<test0.solve()<<std::endl;
 	assert(("comparison to old results",(test0.solve()-0.35188045)<1e-8));
 	Laplace test1(2,3,1,Base::RECTANGULAR);
 	test1.initialise();
+        std::cout<<test1.solve()<<std::endl;
 	assert(("comparison to old results",(test1.solve()-0.01607777)<1e-8));
 	Laplace test2(4,4,1,Base::RECTANGULAR);
 	test2.initialise();
+        std::cout<<test2.solve()<<std::endl;
 	assert(("comparison to old results",(test2.solve()-0.00007200)<1e-8));
 	Laplace test3(8,5,1,Base::RECTANGULAR);
 	test3.initialise();

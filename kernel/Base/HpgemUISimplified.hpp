@@ -25,6 +25,7 @@
 #include "Base/HpgemUI.hpp"
 #include "Integration/ElementIntegrandBase.hpp"
 #include "Integration/FaceIntegrandBase.hpp"
+#include "Output/TecplotSingleElementWriter.hpp"
 
 namespace Integration {
 	class FaceIntegral;
@@ -32,8 +33,11 @@ namespace Integration {
 
 namespace Base
 {
-    class HpgemUISimplified : public HpgemUI,Integration::ElementIntegrandBase<LinearAlgebra::Matrix>,Integration::FaceIntegrandBase<LinearAlgebra::Matrix>,
-    						Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>,Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class HpgemUISimplified : public HpgemUI,Integration::ElementIntegrandBase<LinearAlgebra::Matrix>,
+                                     Integration::FaceIntegrandBase<LinearAlgebra::Matrix>,
+                                     Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>,
+                                     Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>,
+                              public Output::TecplotSingleElementWriter
     {
     
     public:
@@ -74,12 +78,37 @@ namespace Base
         /// \brief User-defined initial conditions
         virtual double initialConditions(const PointPhysicalT& p)=0;
 
-        /// \brief Integrates, and other things.
+        /// \brief Does time integration.
         bool solve();
+        
+        virtual void beforeTimeIntegration(){}
+        
+        virtual void computeLocalResidual(){
+#ifdef HPGEM_USE_MPI
+            throw "If you want to call the function \'computeLocalResidual\', please implement it";
+#endif
+        }
+        
+        virtual void computeFluxResidual(){
+#ifdef HPGEM_USE_MPI
+            throw "If you want to call the function \'computeFluxResidual\', please implement it";
+#endif
+        }
+        
+        virtual void interpolate(){
+#ifdef HPGEM_USE_MPI
+            throw "If you want to call the function \'interpolate\', please implement it";
+#endif
+        }
         
         ///Preforms all the element integrations
         void doAllElementIntegration(unsigned int meshID=0);
         void doAllFaceIntegration(unsigned int meshID=0);
+        
+        
+        virtual void writeToTecplotFile(const ElementT*, const PointReferenceT&, std::ostream&){
+            throw "If you want to call the function \'writeToTecplotFile\', please implement it";
+        }
 
 
     private:
@@ -87,9 +116,14 @@ namespace Base
         //This is a function that checks the users defined initisation is fine.
         bool  checkInitialisation();
         
+    protected:
+        
+        double endTime_;
+        double startTime_;
+        double dt_;
+        
         
     };
 }
-#include "HpgemUISimplified_Imp.hpp"
 
 #endif
