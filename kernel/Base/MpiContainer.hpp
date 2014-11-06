@@ -53,8 +53,15 @@ public:
     }
     
     template<class T>
-    void send(T&, int to, int tag);
+    void send(T& t, int to, int tag) {
+        communicator_.Send(t.data(), t.size(), Detail::toMPIType(*t.data()), to, tag );
+    }
 
+    template<class T>
+    void receive(T& t, int to, int tag) {
+        communicator_.Recv(t.data(), t.size(), Detail::toMPIType(*t.data()), to, tag );
+    }
+    
     void sync() {
         communicator_.Barrier();
     }

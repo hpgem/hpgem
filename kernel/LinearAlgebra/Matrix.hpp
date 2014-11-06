@@ -63,6 +63,9 @@ namespace LinearAlgebra
     
         /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B and A are both matrices
         Matrix(const Matrix& other);
+        
+        /// \brief Move Matrix from another Matrix
+        Matrix(Matrix&& other);
     
         /// \brief defines the operator (n,m) to access the element on row n and column m
         double& operator()(int n, int m)
@@ -104,13 +107,16 @@ namespace LinearAlgebra
         Matrix& operator/= (const double& scalar);
         
         /// \breif this does element by divived by a scalar
-        Matrix operator/   (const double& scalar);
+        Matrix operator/ (const double& scalar);
         
         /// \brief Assigns the Matrix by a scalar
         Matrix& operator=(const double& c);
         
         /// \brief Assigns one matrix to another.
         Matrix& operator=(const Matrix& right);
+        
+        /// \brief Assigns one matrix to another.
+        Matrix& operator=(Matrix&& right);
                     
         /// \brief computeWedgeStuffVector. The answer is return in result which you should precreate.
         void computeWedgeStuffVector(NumericalVector& result);
@@ -144,6 +150,10 @@ namespace LinearAlgebra
         
         /// \brief solves Ax=B where A is the current matrix and B is passed in. The result is returned in B.
         void solve(Matrix& B) const;
+        
+        double* data();
+        
+        const double* data() const;
         
     private:
          /// The actually data of the matrix class

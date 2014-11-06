@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <functional>
+#include <type_traits>
 
 #ifndef LOG_LEVEL
 #define LOG_LEVEL Log::DEFAULT
@@ -55,9 +56,25 @@ template<Log L = Log::DEFAULT> class Logger;
  * \brief 
  */
 
+template<Log Level>
+class LL {
+public:
+  
+};
+
+extern LL<Log::FATAL>     FATAL;
+extern LL<Log::ERROR>     ERROR;
+extern LL<Log::WARN>      WARN;
+extern LL<Log::INFO>      INFO;
+extern LL<Log::DEFAULT>   DEFAULT;
+extern LL<Log::VERBOSE>   VERBOSE;
+extern LL<Log::DEBUG>     DEBUG;
+
 template<Log L>
+//template<typename LL>
 class Logger {
   private:
+      
     /*!
      * \brief 
      */
@@ -74,6 +91,33 @@ class Logger {
      */
      ~Logger() {}
 
+     template<Log LOGLEVEL, typename... Args>
+     typename std::enable_if<!(L < LOGLEVEL), void>::type
+     operator()(const LL<LOGLEVEL> log, const std::string& format, Args&&... arg) {
+         std::stringstream msgstream;
+         createMessage(msgstream, format.c_str(), arg...);
+         if        (LOGLEVEL <= Log::FATAL) {
+           loggerOutput->onFatal(module, msgstream.str());
+         } else if (LOGLEVEL <= Log::ERROR) {
+           loggerOutput->onError(module, msgstream.str());
+         } else if (LOGLEVEL <= Log::WARN) {
+           loggerOutput->onWarn(module, msgstream.str());
+         } else if (LOGLEVEL <= Log::INFO) {
+           loggerOutput->onInfo(module, msgstream.str());
+         } else if (LOGLEVEL <= Log::VERBOSE) {
+           loggerOutput->onVerbose(module, msgstream.str());
+         } else {
+           loggerOutput->onDebug(module, msgstream.str());
+         }
+     }
+     
+     template<Log LOGLEVEL, typename... Args>
+     typename std::enable_if<L < LOGLEVEL, void>::type
+     operator()(const LL<LOGLEVEL> log, const std::string& format, Args&&... arg) {
+         
+     }
+     
+    
     /*!
      * \brief 
      */     

@@ -34,6 +34,7 @@
 #include "cassert"
 #include "CommandLineOptions.hpp"
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
+#include "MpiContainer.hpp"
 
 namespace Base
 {
@@ -93,7 +94,10 @@ namespace Base
             }
             
             computeLocalResidual();
-            ///TODO communication happens here!!!
+            
+            //Now we need to perform the synchronisation between nodes.
+            synchronize();
+            
             computeFluxResidual();
             for(Base::Face* face:meshes_[0]->getFacesList()){
                 if(face->isInternal()){
@@ -194,16 +198,41 @@ namespace Base
         }
     }
     
+    void HpgemUISimplified::synchronize(std::size_t meshID) {
+#ifdef HPGEM_USE_MPI
+        //Now, set it up.
+        MeshManipulator * meshManipulator = meshes_[meshID];
+        Submesh& mesh = meshManipulator->getMesh().getSubmesh();
+        
+        const auto& pushes = mesh.getPushElements();
+        const auto& pulls = mesh.getPullElements();
+        
+        for (const auto& it : pushes) {
+            for (Element* el : it.second) {
+                MPIContainer::Instance().send(el->getResidue(), it.first, el->getID() * 2 + 0);
+                //MPIContainer::Instance().send(el., it.first, el->getID() * 2 + 1);
+            }
+        }
+        for (const auto& it : pulls) {
+            for (Element* el : it.second) {
+                MPIContainer::Instance().receive(el->getResidue(), it.first, el->getID() * 2 + 0);
+            }
+        }
+        
+        MPIContainer::Instance().sync();
+        
+#endif
+    }
+    
     bool
     HpgemUISimplified::checkInitialisation()
     {
         if (HpgemUI::meshes_.size()==0)
         {
-
             std::cerr << "Error no mesh created : You need to create at least one mesh to solve a problem" << std::endl;
-                
             return false;
         }
         return true;
     }
+    
 }

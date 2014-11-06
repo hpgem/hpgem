@@ -236,7 +236,14 @@ namespace Base
 
         //! Refine a specific mesh-tree.
         void                            doRefinement(unsigned int meshTreeIdx, int refinementType);
-  //---------------------------------------------------------------------
+        
+        /**
+         * Retrieves the Mesh as stored in this MeshManipulator
+         * @return 
+         */
+        Mesh&                           getMesh();
+        const Mesh&                     getMesh() const;
+    //---------------------------------------------------------------------
     private:
         
         //!Does the actual reading for 2D centaur meshes
@@ -286,6 +293,9 @@ namespace Base
         //                                                     const ElementIteratorT elR, unsigned int localFaceNrR,
         //                                                     int& pairingValue, bool& sizeOrder);
   //---------------------------------------------------------------------
+        
+
+        
     private:
         
         Mesh                            theMesh_;

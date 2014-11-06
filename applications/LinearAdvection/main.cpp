@@ -266,7 +266,6 @@ public:
     
    /* bool solve() {
         //do the integration
-        std::cout << "SOLVIN!" << std::endl;
         doAllElementIntegration();
         doAllFaceIntegration();
 
@@ -280,7 +279,6 @@ public:
             element->setElementMatrix(stifness, 1);
         }
 
-        std::cout << "SOLVIN! 2 " << std::endl;
         //prepare tecplot output
         std::ofstream outFile("output.dat");
         Output::TecplotDiscontinuousSolutionWriter out(outFile, "simple advective movement", "01", "u");
@@ -290,8 +288,6 @@ public:
         LinearAlgebra::Matrix mass, solution, leftResidual, rightResidual;
         bool first(true);
         
-        std::cout << "SOLVIN! 3 " << std::endl;
-
         //finalise interpolation
         for (Base::Element* element : meshes_[0]->getElementsList()) {
             int n(element->getNrOfBasisFunctions());
@@ -307,7 +303,6 @@ public:
             solution.resize(1, n);
             element->setTimeLevelData(0, solution);
         }
-        std::cout << "SOLVIN! 4 " << std::endl;
         
         //start the time loop
         while (t <= tend + 1e-10) {
@@ -338,6 +333,8 @@ public:
             }
 
             std::cout << "SOLVIN! 6 " << std::endl;
+            
+            std::cout << "Syncing" << std::endl;
             
             //this bit could do with some interface improvements
             for (Base::Face* face : meshes_[0]->getFacesList()) {

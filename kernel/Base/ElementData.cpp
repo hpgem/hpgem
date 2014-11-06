@@ -219,6 +219,8 @@ namespace Base
     void
     ElementData::setResidue(VectorOfDoubles& residue)
     {
+        std::cout << "(" << residue.getNRows() << " x " << residue.getNCols() << ")";
+        assert(residue.getNCols() == 3);
         residue_=residue;
     }
 

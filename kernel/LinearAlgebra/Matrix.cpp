@@ -114,6 +114,14 @@ namespace LinearAlgebra
     {
     }
     
+    Matrix::Matrix(Matrix&& other) :
+        data_(std::move(other.data_)),
+        nRows_(other.nRows_),
+        nCols_(other.nCols_)
+    {
+
+    }    
+    
     
 //    /// \param[in] n The number of the row you want the element from
 //    /// \param[in] m The numebr of the column you want the element from
@@ -312,9 +320,15 @@ namespace LinearAlgebra
            nRows_=right.nRows_;
            nCols_=right.nCols_;
      	   return *this;
-    	};
+    	}
     
-    
+    Matrix& Matrix::operator=(Matrix&& right) 
+    	{
+    	   data_=std::move(right.data_);
+           nRows_=right.nRows_;
+           nCols_=right.nCols_;
+     	   return *this;
+    	}
     
     
     /// \param[out] result : This returns the result in a passed in NumericalVector 
@@ -462,12 +476,7 @@ namespace LinearAlgebra {
 #endif
         
     }
-    
-    
-  
-    
-    
-    
+        
     /// \param[in] n the number of row in the new matrix
     /// \param[in] m the number of columns in the new matrix
     void Matrix::resize(int n, int m){
@@ -481,11 +490,9 @@ namespace LinearAlgebra {
     
     /// \return int : the total number of entries
     const int Matrix::size() const {return nRows_*nCols_;}
-    
    
     /// \return int : the number of rows
     const int Matrix::getNRows() const {return nRows_;}
-    
     
     /// \brief Get the number of columns
     /// \return int : the number of columns
@@ -555,6 +562,14 @@ namespace LinearAlgebra {
         dgesv_(&n,&nrhs,&matThis[0],&n,IPIV,&B[0],&n,&info);
         
         
+    }
+    
+    double* Matrix::data() {
+        return data_.data();
+    }
+        
+    const double* Matrix::data() const {
+        return data_.data();
     }
     
     

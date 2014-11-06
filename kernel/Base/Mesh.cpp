@@ -176,10 +176,10 @@ void Mesh::split(){
             
             if(face->isInternal()&&partition[face->getPtrElementLeft()->getID()]!=partition[face->getPtrElementRight()->getID()]){
                 if(partition[face->getPtrElementLeft()->getID()]== pid ){
-                    submeshes_.addPush(face->getPtrElementLeft());
+                    submeshes_.addPush(face->getPtrElementLeft(),partition[face->getPtrElementLeft()->getID()]);
                     submeshes_.addPull(face->getPtrElementRight(),partition[face->getPtrElementRight()->getID()]);
                 }else{
-                    submeshes_.addPush(face->getPtrElementRight());
+                    submeshes_.addPush(face->getPtrElementRight(),partition[face->getPtrElementRight()->getID()]);
                     submeshes_.addPull(face->getPtrElementLeft(),partition[face->getPtrElementLeft()->getID()]);
                 }
             }

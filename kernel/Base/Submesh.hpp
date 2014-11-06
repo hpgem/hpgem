@@ -24,6 +24,7 @@
 
 #include <vector>
 #include <list>
+#include <map>
 
 namespace Geometry{
     class PointPhysical;
@@ -53,7 +54,7 @@ private:
     
     //! adds a push or pull element. Make sure to add push elements after you fill this list of element belonging to this submesh
     //! processorID is the 0 based index of the processor that will be communicated with about this element
-    void addPush(Element* element);
+    void addPush(Element* element,int processorID);
     void addPull(Element* element,int processorID);
     
     //! adds a face to this submesh
@@ -67,7 +68,7 @@ private:
     //! adds a node to this submesh
     //note that interfacial nodes should appear in the submeshes of all their adjacent elements
     void add(Geometry::PointPhysical& node);
-    
+public:
     //! Get const list of elements
     const std::list<Element*>&          getElementsList() const {return elements_; }
     //! Get non-const list of elements
@@ -80,6 +81,9 @@ private:
 
     const std::list<Edge*>&             getEdgesList() const {return edges_;}
     std::list<Edge*>&                   getEdgesList() {return edges_;}
+    
+    const std::map<int,std::vector<Element*> > & getPullElements() const { return pullElements_; }
+    const std::map<int,std::vector<Element*> > & getPushElements() const { return pushElements_; }
     
 private:
     //! List of all elements. TODO: this should be replaced by the mesh-tree structure
@@ -96,11 +100,11 @@ private:
     //! Tracks the shadow elements (that needs information form another processor each update step, instead of a computation)
     //! pullElements_[i] contains the list of all elements that need info from process i.
     //! some entries in this vector are empty lists; pullElements[get_rank()] is guaranteed to be empty
-    std::vector<std::list<Element*> >    pullElements_;
+    std::map<int,std::vector<Element*> >    pullElements_;
     
     //! Tracks the shadow elements of other processes (that need their elements send to another processor each update step)
     //! pushElement_[i] constains the list of all elements that send info to another process
-    std::list<Element*>                  pushElements_; 
+    std::map<int,std::vector<Element*> >    pushElements_; 
 };
 
 }

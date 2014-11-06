@@ -94,6 +94,9 @@ public:
     std::list< Edge*>::iterator         edgeColEnd(){return getEdgesList().end();}
     //********************************************************************************
     
+    Submesh&                            getSubmesh()       { return submeshes_; }
+    const Submesh&                      getSubmesh() const { return submeshes_; }
+    
 private:
     
     //! 'distributes' the mesh across the nodes

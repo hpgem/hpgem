@@ -2626,6 +2626,17 @@ void MeshManipulator::faceFactory()
     {
         activeMeshTree_ = -1;
     }
+    
+    Mesh&
+    MeshManipulator::getMesh() {
+        return theMesh_;
+    }
+    
+    const Mesh&
+    MeshManipulator::getMesh() const {
+        return theMesh_;
+    }
+    
 
     //! Get maximum h-level of a specific mesh-tree.
     unsigned int 

@@ -101,6 +101,11 @@ namespace Base
 #endif
         }
         
+        /**
+         * Performs (MPI) synchronisation between meshes
+         */
+        virtual void synchronize(std::size_t meshID = 0);
+        
         ///Preforms all the element integrations
         void doAllElementIntegration(unsigned int meshID=0);
         void doAllFaceIntegration(unsigned int meshID=0);
