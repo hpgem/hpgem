@@ -112,7 +112,7 @@ void Mesh::split(){
     pid = MPIContainer::Instance().getProcessorID();
     int nProcs = MPIContainer::Instance().getNumProcessors();
 
-    if(pid==0){
+    if(pid==0 && nProcs>1){
         std::cout<<"start of metis"<<std::endl;
         
         int one = 1;//actually the number of constraints. This can be increased for example when we want to distribute an entire mesh tree in one go (while keeping each of the levels balanced) - increasing this number turns imbalance into a vector
@@ -174,12 +174,14 @@ void Mesh::split(){
             //yeah we are
             submeshes_.add(face);
             
-            if(face->isInternal()&&partition[face->getPtrElementLeft()->getID()]!=partition[face->getPtrElementRight()->getID()]){
+            if(face->isInternal()&&(partition[face->getPtrElementLeft()->getID()]!=partition[face->getPtrElementRight()->getID()])){
                 if(partition[face->getPtrElementLeft()->getID()]== pid ){
-                    submeshes_.addPush(face->getPtrElementLeft(),partition[face->getPtrElementLeft()->getID()]);
+                    //dont send to yourself, ask the element on the other side what pid to sent to
+                    submeshes_.addPush(face->getPtrElementLeft(),partition[face->getPtrElementRight()->getID()]);
+                    //if you recieve, the source is the owner of the element
                     submeshes_.addPull(face->getPtrElementRight(),partition[face->getPtrElementRight()->getID()]);
                 }else{
-                    submeshes_.addPush(face->getPtrElementRight(),partition[face->getPtrElementRight()->getID()]);
+                    submeshes_.addPush(face->getPtrElementRight(),partition[face->getPtrElementLeft()->getID()]);
                     submeshes_.addPull(face->getPtrElementLeft(),partition[face->getPtrElementLeft()->getID()]);
                 }
             }

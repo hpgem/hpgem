@@ -31,6 +31,7 @@
 #include "Base/ElementCacheData.hpp"
 #include "Base/MeshMoverBase.hpp"
 #include "Geometry/Mappings/MappingReferenceToPhysical.hpp"
+#include "Base/CommandLineOptions.hpp"
 
 #include "unordered_set"
 #include "cassert"
@@ -102,8 +103,8 @@ void testMesh(Base::MeshManipulator* test) {
 	assert(("trilinear function",fabs(total-pow(2.,test->dimension()))<1e-12));
 }
 
-int main(){
-
+int main(int argc, char** argv){
+    Base::parse_options(argc,argv);
 	// dim 1
 	Base::RectangularMeshDescriptor description1D(1),description2D(2),description3D(3);
 	description1D.bottomLeft_[0]=0;
@@ -127,14 +128,14 @@ int main(){
 
 	description1D.numElementsInDIM_[0]=2;
 
-	Base::MeshManipulator *test = new Base::MeshManipulator(new Base::ConfigurationData(1,1,2,1),false,false,false,2,0);
+	Base::MeshManipulator *test = new Base::MeshManipulator(new Base::ConfigurationData(1,1,2,0),false,false,false,2,0);
 	test->createTriangularMesh(description1D.bottomLeft_,description1D.topRight_,description1D.numElementsInDIM_);
 
 	move(test);
 	testMesh(test);
 
 	delete test;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(1,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(1,1,2,0),false,false,false,2,0);
 	test->createRectangularMesh(description1D.bottomLeft_,description1D.topRight_,description1D.numElementsInDIM_);
 	move(test);
 	testMesh(test);
@@ -142,14 +143,14 @@ int main(){
 	delete test;
 	description1D.numElementsInDIM_[0]=3;
 
-	test = new Base::MeshManipulator(new Base::ConfigurationData(1,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(1,1,2,0),false,false,false,2,0);
 	test->createTriangularMesh(description1D.bottomLeft_,description1D.topRight_,description1D.numElementsInDIM_);
 
 	move(test);
 	testMesh(test);
 
 	delete test;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(1,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(1,1,2,0),false,false,false,2,0);
 	test->createRectangularMesh(description1D.bottomLeft_,description1D.topRight_,description1D.numElementsInDIM_);
 	move(test);
 	testMesh(test);
@@ -160,14 +161,14 @@ int main(){
 	description2D.numElementsInDIM_[0]=2;
 	description2D.numElementsInDIM_[1]=3;
 
-	test = new Base::MeshManipulator(new Base::ConfigurationData(2,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(2,1,2,0),false,false,false,2,0);
 	test->createTriangularMesh(description2D.bottomLeft_,description2D.topRight_,description2D.numElementsInDIM_);
 
 	move(test);
 	testMesh(test);
 
 	delete test;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(2,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(2,1,2,0),false,false,false,2,0);
 	test->createRectangularMesh(description2D.bottomLeft_,description2D.topRight_,description2D.numElementsInDIM_);
 	move(test);
 	testMesh(test);
@@ -176,14 +177,14 @@ int main(){
 	description2D.numElementsInDIM_[0]=3;
 	description2D.numElementsInDIM_[1]=2;
 
-	test = new Base::MeshManipulator(new Base::ConfigurationData(2,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(2,1,2,0),false,false,false,2,0);
 	test->createTriangularMesh(description2D.bottomLeft_,description2D.topRight_,description2D.numElementsInDIM_);
 
 	move(test);
 	testMesh(test);
 
 	delete test;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(2,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(2,1,2,0),false,false,false,2,0);
 	test->createRectangularMesh(description2D.bottomLeft_,description2D.topRight_,description2D.numElementsInDIM_);
 	move(test);
 	testMesh(test);
@@ -195,14 +196,14 @@ int main(){
 	description3D.numElementsInDIM_[1]=2;
 	description3D.numElementsInDIM_[2]=3;
 
-	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,0),false,false,false,2,0);
 	test->createTriangularMesh(description3D.bottomLeft_,description3D.topRight_,description3D.numElementsInDIM_);
 
 	move(test);
 	testMesh(test);
 
 	delete test;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,0),false,false,false,2,0);
 	test->createRectangularMesh(description3D.bottomLeft_,description3D.topRight_,description3D.numElementsInDIM_);
 	move(test);
 	testMesh(test);
@@ -212,14 +213,14 @@ int main(){
 	description3D.numElementsInDIM_[1]=3;
 	description3D.numElementsInDIM_[2]=2;
 
-	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,0),false,false,false,2,0);
 	test->createTriangularMesh(description3D.bottomLeft_,description3D.topRight_,description3D.numElementsInDIM_);
 
 	move(test);
 	testMesh(test);
 
 	delete test;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,0),false,false,false,2,0);
 	test->createRectangularMesh(description3D.bottomLeft_,description3D.topRight_,description3D.numElementsInDIM_);
 	move(test);
 	testMesh(test);
@@ -229,14 +230,14 @@ int main(){
 	description3D.numElementsInDIM_[1]=2;
 	description3D.numElementsInDIM_[2]=2;
 
-	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,0),false,false,false,2,0);
 	test->createTriangularMesh(description3D.bottomLeft_,description3D.topRight_,description3D.numElementsInDIM_);
 
 	move(test);
 	testMesh(test);
 
 	delete test;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,1),false,false,false,2,0);
+	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,0),false,false,false,2,0);
 	test->createRectangularMesh(description3D.bottomLeft_,description3D.topRight_,description3D.numElementsInDIM_);
 	move(test);
 	testMesh(test);

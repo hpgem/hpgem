@@ -13,6 +13,7 @@
 #define	MPICONTAINER_HPP
 
 #include <type_traits>
+#include <vector>
 
 namespace Base {
 
@@ -54,15 +55,17 @@ public:
     
     template<class T>
     void send(T& t, int to, int tag) {
-        communicator_.Send(t.data(), t.size(), Detail::toMPIType(*t.data()), to, tag );
+        pending_.push_back(communicator_.Isend(t.data(), t.size(), Detail::toMPIType(*t.data()), to, tag ));
     }
 
     template<class T>
     void receive(T& t, int to, int tag) {
-        communicator_.Recv(t.data(), t.size(), Detail::toMPIType(*t.data()), to, tag );
+        pending_.push_back(communicator_.Irecv((void *)t.data(), t.size(), Detail::toMPIType(*t.data()), to, tag ));
     }
     
     void sync() {
+        MPI::Request::Waitall(pending_.size(),pending_.data());
+        pending_.clear();
         communicator_.Barrier();
     }
 public:
@@ -73,9 +76,11 @@ private:
     MPIContainer(const MPIContainer& orig)=delete;
     virtual ~MPIContainer();
     
+    
     int processorID_;
     int numProcessors_;
 #ifdef HPGEM_USE_MPI
+    std::vector<MPI::Request> pending_;
     MPI::Intracomm communicator_;
 #endif
 

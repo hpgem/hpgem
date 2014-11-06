@@ -217,7 +217,6 @@ public:
             residual = mass*oldData;
             residual.axpy(dt_, stiffness * oldData);
             residual.resize(1,n);
-            std::cout<<residual<<std::endl;
             element->setResidue(residual);
         }
     }

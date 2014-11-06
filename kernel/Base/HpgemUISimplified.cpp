@@ -71,7 +71,11 @@ namespace Base
         beforeTimeIntegration();
         interpolate();
         
-        std::ofstream outFile(outputName.getValue());
+        std::string outFileName=outputName.getValue();
+#ifdef HPGEM_USE_MPI
+        outFileName=outFileName+"."+std::to_string(MPIContainer::Instance().getProcessorID());
+#endif
+        std::ofstream outFile(outFileName);
         std::string dimensions("012");
         Output::TecplotDiscontinuousSolutionWriter out(outFile, "solution of the problem", dimensions.substr(0,configData_->dimension_).c_str(), "u");
         double t=startTime_;
@@ -94,6 +98,15 @@ namespace Base
             }
             
             computeLocalResidual();
+
+            for(auto& it:meshes_[0]->getMesh().getSubmesh().getPullElements())
+            {
+                for(Base::Element* element:it.second)
+                {
+                    residual.resize(configData_->numberOfUnknowns_,element->getNrOfBasisFunctions());
+                    element->setResidue(residual);
+                }
+            }
             
             //Now we need to perform the synchronisation between nodes.
             synchronize();
@@ -207,18 +220,25 @@ namespace Base
         const auto& pushes = mesh.getPushElements();
         const auto& pulls = mesh.getPullElements();
         
-        for (const auto& it : pushes) {
-            for (Element* el : it.second) {
-                MPIContainer::Instance().send(el->getResidue(), it.first, el->getID() * 2 + 0);
-                //MPIContainer::Instance().send(el., it.first, el->getID() * 2 + 1);
-            }
-        }
+        //recieve first for lower overhead
         for (const auto& it : pulls) {
             for (Element* el : it.second) {
-                MPIContainer::Instance().receive(el->getResidue(), it.first, el->getID() * 2 + 0);
+                if(configData_->numberOfTimeLevels_>0)
+                {
+                    //std::cout<<"Receiving element "<<el->getID()<<" from process "<<it.first<<std::endl;
+                    MPIContainer::Instance().receive(el->getTimeLevelData(0), it.first, el->getID() * 2 + 1);
+                }
             }
         }
-        
+        for (const auto& it : pushes) {
+            for (Element* el : it.second) {
+                if(configData_->numberOfTimeLevels_>0)
+                {
+                    //std::cout<<"Sending element "<<el->getID()<<" to process "<<it.first<<std::endl;
+                    MPIContainer::Instance().send(el->getTimeLevelData(0), it.first, el->getID() * 2 + 1);
+                }
+            }
+        }
         MPIContainer::Instance().sync();
         
 #endif

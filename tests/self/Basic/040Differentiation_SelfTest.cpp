@@ -39,6 +39,7 @@
 #include "Base/ConfigurationData.hpp"
 #include "Base/L2Norm.hpp"
 #include "Base/ElementCacheData.hpp"
+#include "Base/CommandLineOptions.hpp"
 
 void testMesh(Base::MeshManipulator* test) {
 	class :public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>{
@@ -106,8 +107,8 @@ void testMesh(Base::MeshManipulator* test) {
 	//assert(("derivatives",fabs(total-4./3.+1./3.*test->dimension())<1e-12));
 }
 
-int main(){
-
+int main(int argc, char** argv){
+    Base::parse_options(argc,argv);
 	// dim 1
 	Base::RectangularMeshDescriptor description1D(1),description2D(2),description3D(3);
 	description1D.bottomLeft_[0]=0;
