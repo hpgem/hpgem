@@ -23,7 +23,7 @@
 
 #include "ReferenceGeometry.hpp"
 
-#include <list>
+#include <vector>
 #include <iostream>
 
 namespace Geometry
@@ -43,7 +43,7 @@ namespace Geometry
     public:
         typedef ReferenceGeometry                     ReferenceGeometryT;
 //         typedef QuadratureRules::GaussQuadratureRule<TwoD>  GaussQuadratureRuleT;
-//         typedef std::list<QuadratureRules::GaussQuadratureRule<TwoD>*>            ListOfGaussQuadratureRulePtrT;
+//         typedef std::vector<QuadratureRules::GaussQuadratureRule<TwoD>*>            ListOfGaussQuadratureRulePtrT;
         using ReferenceGeometryT::IndexT;
         using ReferenceGeometryT::PointReferenceT;
         using ReferenceGeometryT::String;
@@ -158,7 +158,7 @@ namespace Geometry
         ReferenceGeometry* const                 referenceGeometryCodim1Ptr_;
         
         //! List of valid quadrature rules for this reference geometry
-        std::list<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
+        std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
     };
 
 }

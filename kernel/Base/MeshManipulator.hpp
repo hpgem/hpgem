@@ -24,7 +24,6 @@
 
 
 #include <vector>
-#include <list>
 #include <fstream>
 
 //for enum support...
@@ -70,8 +69,8 @@ namespace Base
         typedef LevelTree<ElementT>                         ElementLevelTreeT;
         typedef LevelTree<FaceT>                            FaceLevelTreeT;
         
-        typedef std::list<FaceT*>                           ListOfFacesT;
-        typedef std::list<ElementT*>                        ListOfElementsT;
+        typedef std::vector<FaceT*>                           ListOfFacesT;
+        typedef std::vector<ElementT*>                        ListOfElementsT;
         typedef std::vector<ElementT* >                     VectorOfElementPtrT;
         typedef std::vector<PointPhysicalT >                VectorOfPhysicalPointsT;
         typedef std::vector<PointIndexT>                    VectorOfPointIndicesT;
@@ -130,11 +129,11 @@ namespace Base
         FaceIterator                    faceColBegin(){return theMesh_.faceColBegin();}
         FaceIterator                    faceColEnd(){return theMesh_.faceColEnd();}
 
-       std::list< Edge*>::const_iterator edgeColBegin()const{return theMesh_.edgeColBegin();}
-       std::list< Edge*>::const_iterator edgeColEnd()const{return theMesh_.edgeColEnd();}
+       std::vector< Edge*>::const_iterator edgeColBegin()const{return theMesh_.edgeColBegin();}
+       std::vector< Edge*>::const_iterator edgeColEnd()const{return theMesh_.edgeColEnd();}
 
-        std::list< Edge*>::iterator      edgeColBegin(){return theMesh_.edgeColBegin();}
-        std::list< Edge*>::iterator      edgeColEnd(){return theMesh_.edgeColEnd();}
+        std::vector< Edge*>::iterator      edgeColBegin(){return theMesh_.edgeColBegin();}
+        std::vector< Edge*>::iterator      edgeColEnd(){return theMesh_.edgeColEnd();}
         /// *****************Iteration through the Elements*******************
 
         void                            createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const VectorOfPointIndicesT& LinearNoElements);
@@ -172,9 +171,9 @@ namespace Base
         //! Get non-const list of faces
         ListOfFacesT&                   getFacesList() { return theMesh_.getFacesList(); }
 
-        const std::list<Edge*>&         getEdgesList() const {return theMesh_.getEdgesList();}
+        const std::vector<Edge*>&         getEdgesList() const {return theMesh_.getEdgesList();}
 
-        std::list<Edge*>&               getEdgesList() {return theMesh_.getEdgesList();}
+        std::vector<Edge*>&               getEdgesList() {return theMesh_.getEdgesList();}
         // ************************************************************************
 
         //! Changes the default set of basisFunctions for this mesh and all of its elements. Ignores any conforming basisFunctionset that nay be linked to faces/edges/...
@@ -256,10 +255,10 @@ namespace Base
         void                            edgeFactory(std::vector<Element*>);
 	
 	//someone thinks its a good idea to declare HalfFaceDescription in an implemetnation file
-	void                            findElementNumber(std::list<int>& a, std::list<int>& b, std::list<int>& c,int aNumber, int bNumber, int cNumber, std::list<int>& notOnFace, HalfFaceDescription& face, std::vector<Element*>& vectorOfElements);
+	void                            findElementNumber(std::vector<int>& a, std::vector<int>& b, std::vector<int>& c,int aNumber, int bNumber, int cNumber, std::vector<int>& notOnFace, HalfFaceDescription& face, std::vector<Element*>& vectorOfElements);
 	
 	//!An alternative to faceFactory that only iterates over internal faces, use the boundary face information in the centaur file to construct the boundary faces
-	void                            constructInternalFaces(std::vector<std::list<int> >& listOfElementsForEachNode, std::vector<Element*>& vectorOfElements);
+	void                            constructInternalFaces(std::vector<std::vector<int> >& listOfElementsForEachNode, std::vector<Element*>& vectorOfElements);
         
         void                            rectangularCreateFaces1D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
         

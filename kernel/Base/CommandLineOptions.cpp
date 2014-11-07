@@ -12,6 +12,10 @@
 #include <mpi.h>
 #endif
 
+#ifdef HPGEM_USE_PETSC
+#include <petscsys.h>
+#endif
+
 std::map<std::string, Base::Detail::CommandLineOptionBase*>&
 Base::Detail::getCLOMapping_long() {
     static std::map<std::string, CommandLineOptionBase*> mapping;
@@ -57,6 +61,28 @@ int Base::parse_options(int argc, char** argv) {
         });
     }
     
+#endif
+    
+#ifdef HPGEM_USE_PETSC
+    //block so I can create variables without affecting the rest of the function
+    {
+        PetscBool initialised;
+        PetscInitialized(&initialised);
+        if(initialised==PETSC_FALSE)
+        {
+#ifdef HPGEM_USE_MPI
+            //if we know mpi exists make sure PETSc based communication does not happen on COMM_WORLD
+            MPI::Group groupID = MPI::COMM_WORLD.Get_group();
+            MPI::Intracomm comm = MPI::COMM_WORLD.Create( groupID );
+            PETSC_COMM_WORLD = comm;
+#endif
+            PetscInitialize(&argc,&argv,NULL,"PETSc help");
+            
+            std::atexit([](){
+               PetscFinalize(); 
+            });
+        }
+    }
 #endif
     
     Base::Detail::CLOParser parser(argc, argv);

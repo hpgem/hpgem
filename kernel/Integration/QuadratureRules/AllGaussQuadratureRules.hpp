@@ -22,7 +22,7 @@
 #ifndef AllGaussQuadratureRules_hpp
 #define AllGaussQuadratureRules_hpp
 
-#include <list>
+#include <vector>
 #include <map>
 
 namespace Geometry {
@@ -53,7 +53,7 @@ namespace QuadratureRules
 		AllGaussQuadratureRules(AllGaussQuadratureRules&);//this will generate a linker error if you try to copy
 		void operator=(AllGaussQuadratureRules&);
 
-		std::map<const Geometry::ReferenceGeometry*,std::list<const GaussQuadratureRule*>> listOfRules_;
+		std::map<const Geometry::ReferenceGeometry*,std::vector<const GaussQuadratureRule*>> listOfRules_;
 	};
 
 }

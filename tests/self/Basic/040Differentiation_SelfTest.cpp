@@ -40,6 +40,7 @@
 #include "Base/L2Norm.hpp"
 #include "Base/ElementCacheData.hpp"
 #include "Base/CommandLineOptions.hpp"
+#include <cmath>
 
 void testMesh(Base::MeshManipulator* test) {
 	class :public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>{
@@ -104,7 +105,7 @@ void testMesh(Base::MeshManipulator* test) {
 	}
 
 	std::cout<<total<<" "<<std::endl;
-	//assert(("derivatives",fabs(total-4./3.+1./3.*test->dimension())<1e-12));
+	//assert(("derivatives",std::abs(total-4./3.+1./3.*test->dimension())<1e-12));
 }
 
 int main(int argc, char** argv){

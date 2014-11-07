@@ -36,7 +36,6 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 #include <cmath>
-using std::fabs;
 using Geometry::ReferencePyramid;
 
 int main(){
@@ -85,17 +84,17 @@ int main(){
 	}
 
 	test.getCenter(pTest);///\BUG it is not very clear to me where the center of a pyramid lies
-	assert(("getCenter",test.isInternalPoint(pTest)&&fabs(pTest[0])<1e-12&&fabs(pTest[1])<1e-12)&&fabs(pTest[2]-1./4.)<1e-12);
+	assert(("getCenter",test.isInternalPoint(pTest)&&std::abs(pTest[0])<1e-12&&std::abs(pTest[1])<1e-12)&&std::abs(pTest[2]-1./4.)<1e-12);
 	test.getNode(0,pTest);
-	assert(("getNode 0",fabs(pTest[0])<1e-12&&fabs(pTest[1])<1e-12&&fabs(pTest[2]-1)<1e-12));
+	assert(("getNode 0",std::abs(pTest[0])<1e-12&&std::abs(pTest[1])<1e-12&&std::abs(pTest[2]-1)<1e-12));
 	test.getNode(1,pTest);
-	assert(("getNode 1",fabs(pTest[0]+1)<1e-12&&fabs(pTest[1]+1)<1e-12&&fabs(pTest[2])<1e-12));
+	assert(("getNode 1",std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2])<1e-12));
 	test.getNode(2,pTest);
-	assert(("getNode 2",fabs(pTest[0]-1)<1e-12&&fabs(pTest[1]+1)<1e-12&&fabs(pTest[2])<1e-12));
+	assert(("getNode 2",std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2])<1e-12));
 	test.getNode(3,pTest);
-	assert(("getNode 3",fabs(pTest[0]+1)<1e-12&&fabs(pTest[1]-1)<1e-12&&fabs(pTest[2])<1e-12));
+	assert(("getNode 3",std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2])<1e-12));
 	test.getNode(4,pTest);
-	assert(("getNode 4",fabs(pTest[0]-1)<1e-12&&fabs(pTest[1]-1)<1e-12&&fabs(pTest[2])<1e-12));
+	assert(("getNode 4",std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2])<1e-12));
 
 	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,0)==3));//the nodes of the face must always be specified IN THIS SPECIFIC ORDER
 	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,1)==4));//im not sure if I like this myself, but this should at least verify

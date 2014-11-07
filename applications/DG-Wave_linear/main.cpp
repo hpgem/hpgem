@@ -132,7 +132,7 @@ public:
             face->mapRefFaceToRefElemL(p,pElement);
             ret.resize(2);
             static LinearAlgebra::NumericalVector exact(2);
-            if(fabs(pPhys[DIM-1])<1e-9){
+            if(std::abs(pPhys[DIM-1])<1e-9){
                 face->getPtrElementLeft()->getSolution(0,pElement,ret);
                 exactSolution(t,pPhys,exact);
                 ret-=exact;
@@ -152,7 +152,7 @@ public:
             ret.resize(1);
             static LinearAlgebra::NumericalVector dummySolution(2),gradPhi(DIM),temp(DIM);
             const LinearAlgebra::Matrix& expansioncoefficients=face->getPtrElementLeft()->getTimeLevelData(0);
-            if(fabs(pPhys[DIM-1])<1e-9){
+            if(std::abs(pPhys[DIM-1])<1e-9){
                 dummySolution[0]=0;
                 for(int i=0;i<face->getNrOfBasisFunctions();++i){
                     dummySolution[0]+=face->basisFunction(i,p)*expansioncoefficients(0,i);
@@ -198,7 +198,7 @@ public:
         for(Base::Face* face:meshes_[0]->getFacesList()){
             face->getReferenceGeometry()->getCenter(p);
             face->referenceToPhysical(p,pPhys);
-            if(fabs(pPhys[DIM-1])<1e-9){
+            if(std::abs(pPhys[DIM-1])<1e-9){
                 integral.integrate(face,&massIntegrand,result);
                 integral.integrate(face,&interpolator,initialconditions);
                 face->getPtrElementLeft()->setTimeLevelData(0,initialconditions);
@@ -230,7 +230,7 @@ public:
         for(const Base::Face* face:meshes_[0]->getFacesList()){
             face->getReferenceGeometry()->getCenter(p);
             face->referenceToPhysical(p,pPhys);
-            if(fabs(pPhys[DIM-1])<1e-9){
+            if(std::abs(pPhys[DIM-1])<1e-9){
                 S.getMatrixBCEntries(face,n,facePositions);
             }
         }

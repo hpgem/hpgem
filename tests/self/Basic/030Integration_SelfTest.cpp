@@ -33,6 +33,7 @@
 #include "Base/CommandLineOptions.hpp"
 #include "unordered_set"
 #include "cassert"
+#include <cmath>
 
 void testMesh(Base::MeshManipulator* test) {
 	class:public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>{
@@ -71,19 +72,19 @@ void testMesh(Base::MeshManipulator* test) {
 		elIntegral.integrate(element,&one,result);
 		total+=result[0];
 	}
-	assert(("total mesh volume",fabs(total-1.)<1e-12));
+	assert(("total mesh volume",std::abs(total-1.)<1e-12));
 	total=0;
 	for(Base::Element* element:test->getElementsList()){
 		elIntegral.integrate(element,&linear,result);
 		total+=result[0];
 	}
-	assert(("linear function",fabs(total-.5*test->dimension())<1e-12));
+	assert(("linear function",std::abs(total-.5*test->dimension())<1e-12));
 	total=0;
 	for(Base::Element* element:test->getElementsList()){
 		elIntegral.integrate(element,&trilinear,result);
 		total+=result[0];
 	}
-	assert(("trilinear function",fabs(total-pow(0.5,test->dimension()))<1e-12));
+	assert(("trilinear function",std::abs(total-pow(0.5,test->dimension()))<1e-12));
 }
 
 

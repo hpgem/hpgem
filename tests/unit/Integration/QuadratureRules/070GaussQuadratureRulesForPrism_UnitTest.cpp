@@ -32,6 +32,7 @@
 #include "Base/BasisFunctionSet.hpp"
 #include "Geometry/PointReference.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include <cmath>
 
 void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
 	std::cout<<test.getName()<<std::endl;
@@ -48,37 +49,37 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
 			integrated+=test.weight(j)*functions->eval(i,point);
 		}
 		if(i<6){
-			assert(("integration",fabs(integrated-1./6.)<1e-10));
+			assert(("integration",std::abs(integrated-1./6.)<1e-10));
 		}else if(i<12){
-			assert(("integration",fabs(integrated+0.1020620726159)<1e-10));
+			assert(("integration",std::abs(integrated+0.1020620726159)<1e-10));
 		}else if(11<i&&i<15){
-			assert(("integration",fabs(integrated+0.1360827634879)<1e-9));
+			assert(("integration",std::abs(integrated+0.1360827634879)<1e-9));
 		}else if(14<i&&i<18){
-			assert(("integration",fabs(integrated-1./12.)<1e-10));
+			assert(("integration",std::abs(integrated-1./12.)<1e-10));
 		}else if(i==27||i==28){
-			assert(("integration",fabs(integrated-1./20.)<1e-10));
+			assert(("integration",std::abs(integrated-1./20.)<1e-10));
 		}else if(40<i&&i<47){
-			assert(("integration",fabs(integrated-0.012991865926298)<1e-10));
+			assert(("integration",std::abs(integrated-0.012991865926298)<1e-10));
 		}else if(i==56||i==61||i==66){
-			assert(("integration",fabs(integrated+0.01060781410869)<1e-10));
+			assert(("integration",std::abs(integrated+0.01060781410869)<1e-10));
 		}else if(i==69||i==70){
-			assert(("integration",fabs(integrated-0.008166315725102)<1e-10));
+			assert(("integration",std::abs(integrated-0.008166315725102)<1e-10));
 		}else if(i==75){
-			assert(("integration",fabs(integrated-0.001369177697178)<1e-10||expectedOrder==7));//actually the p=5 quadrature rule may also be the culprit, but 7 is more likely because it has other flaws
+			assert(("integration",std::abs(integrated-0.001369177697178)<1e-10||expectedOrder==7));//actually the p=5 quadrature rule may also be the culprit, but 7 is more likely because it has other flaws
 		}else if(i==76){
-			assert(("integration",fabs(integrated+0.001369177697178)<1e-10||expectedOrder==7));
+			assert(("integration",std::abs(integrated+0.001369177697178)<1e-10||expectedOrder==7));
 		}else if(i==87||i==89||i==90||i==92){
-			assert(("integration",fabs(integrated+0.010001653302483)<1e-10));
+			assert(("integration",std::abs(integrated+0.010001653302483)<1e-10));
 		}else if(i==88||i==91){
-			assert(("integration",fabs(integrated+0.003968253968254)<1e-10));
+			assert(("integration",std::abs(integrated+0.003968253968254)<1e-10));
 		}else if(i==123||i==124){
-			assert(("integration",fabs(integrated+0.000465750474069)<1e-10||expectedOrder==7));
+			assert(("integration",std::abs(integrated+0.000465750474069)<1e-10||expectedOrder==7));
 		}else if(i==129){
-			assert(("integration",fabs(integrated+0.000721656823802)<1e-10||expectedOrder==7));
+			assert(("integration",std::abs(integrated+0.000721656823802)<1e-10||expectedOrder==7));
 		}else if(i==130){
-			assert(("integration",fabs(integrated-0.000721656823802)<1e-10||expectedOrder==7));
+			assert(("integration",std::abs(integrated-0.000721656823802)<1e-10||expectedOrder==7));
 		}else if(i<132){//I test what I can for p=7, but not all the points
-			assert(("integration",fabs(integrated)<1e-10));
+			assert(("integration",std::abs(integrated)<1e-10));
 		}
 
 	}

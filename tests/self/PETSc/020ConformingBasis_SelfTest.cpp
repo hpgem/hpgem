@@ -34,6 +34,7 @@
 #include "Base/FaceCacheData.hpp"
 #include "Base/RectangularMeshDescriptor.hpp"
 #include "Integration/ElementIntegral.hpp"
+#include <cmath>
 
 //If this test ever breaks it is not a bad thing per se. However, once this breaks a thorough convergence analysis needs to be done.
 //If the results still show the theoretically optimal order of convergence, and you are convinced that your changes improved the code,
@@ -153,7 +154,7 @@ public:
     			if(fa->isInternal()){
     				ret(j,i)=-(phiNormalI*phiDerivJ+phiNormalJ*phiDerivI)/2+
     							penaltyParameter_*phiNormalI*phiNormalJ;
-    			}else if(fabs(pPhys[0])<1e-12||fabs(pPhys[0]-1.)<1e-12){//Dirichlet
+    			}else if(std::abs(pPhys[0])<1e-12||std::abs(pPhys[0]-1.)<1e-12){//Dirichlet
     				ret(j,i)=-(phiNormalI*phiDerivJ+phiNormalJ*phiDerivI)+
     							penaltyParameter_*phiNormalI*phiNormalJ*2;
     			}else{//homogeneous Neumann
@@ -169,7 +170,7 @@ public:
 		ret.resize(n);
 		PointPhysicalT pPhys(DIM_);
 		fa->referenceToPhysical(p,pPhys);
-		if(fabs(pPhys[0])<1e-9||fabs(pPhys[0]-1)<1e-9){//Dirichlet
+		if(std::abs(pPhys[0])<1e-9||std::abs(pPhys[0]-1)<1e-9){//Dirichlet
 			LinearAlgebra::NumericalVector phiDeriv(DIM_);
 			for(int i=0;i<n;++i){
 				fa->basisFunctionDeriv(i,p,phiDeriv);
@@ -195,7 +196,7 @@ public:
     		face->getReferenceGeometry()->getCenter(centre);
     		face->referenceToPhysical(centre,pPhys);
     		//if(face->faceType_=(...))
-    		if(fabs(pPhys[0])<1e-9||fabs(pPhys[0]-1)<1e-9){
+    		if(std::abs(pPhys[0])<1e-9||std::abs(pPhys[0]-1)<1e-9){
     			A.getMatrixBCEntries(face,numberOfRows,rows);
     		}
     	}
@@ -233,51 +234,50 @@ public:
 	}
 };
 
-int main(){
+int main(int argc, char** argv){    
+    Base::parse_options(argc,argv);
 	//no 3D testing due to speed related issues
-	PetscInitializeNoArguments();
 	Laplace test0(1,2,1,Base::RECTANGULAR);
 	test0.initialise();
         std::cout.precision(10);
 	std::cout<<test0.solve()<<std::endl;
-	assert(("comparison to old results",(test0.solve()-0.48478776)<1e-8));
+	assert(("comparison to old results",std::abs(test0.solve()-0.48478776)<1e-8));
 	Laplace test1(2,3,1,Base::RECTANGULAR);
 	test1.initialise();
 	std::cout<<test1.solve()<<std::endl;
-	assert(("comparison to old results",(test1.solve()-0.02225933)<1e-8));
+	assert(("comparison to old results",std::abs(test1.solve()-0.02225892)<1e-8));
 	Laplace test2(4,4,1,Base::RECTANGULAR);
 	test2.initialise();
 	std::cout<<test2.solve()<<std::endl;
-	assert(("comparison to old results",(test2.solve()-0.00008248)<1e-8));
+	assert(("comparison to old results",std::abs(test2.solve()-0.00008248)<1e-8));
 	Laplace test3(8,5,1,Base::RECTANGULAR);
 	test3.initialise();
 	std::cout<<test3.solve()<<std::endl;
-	assert(("comparison to old results",(test3.solve()-0.00000008)<1e-8));
+	assert(("comparison to old results",std::abs(test3.solve()-0.00000008)<1e-8));
 	Laplace test4(16,1,1,Base::RECTANGULAR);
 	test4.initialise();
 	std::cout<<test4.solve()<<std::endl;
-	assert(("comparison to old results",(test4.solve()-0.00904309)<1e-8));
+	assert(("comparison to old results",std::abs(test4.solve()-0.00904309)<1e-8));
 	Laplace test5(1,2,2,Base::TRIANGULAR);
 	test5.initialise();
 	std::cout<<test5.solve()<<std::endl;
-	assert(("comparison to old results",(test5.solve()-0.22471109)<1e-8));
+	assert(("comparison to old results",std::abs(test5.solve()-0.21870166)<1e-8));
 	Laplace test6(2,3,2,Base::TRIANGULAR);
 	test6.initialise();
 	std::cout<<test6.solve()<<std::endl;
-	assert(("comparison to old results",(test6.solve()-0.02355346)<1e-8));
+	assert(("comparison to old results",std::abs(test6.solve()-0.02345377)<1e-8));
 	Laplace test7(4,4,2,Base::TRIANGULAR);
 	test7.initialise();
 	std::cout<<test7.solve()<<std::endl;
-	assert(("comparison to old results",(test7.solve()-0.00039351)<1e-8));
+	assert(("comparison to old results",std::abs(test7.solve()-0.00039351)<1e-8));
 	Laplace test8(8,5,2,Base::TRIANGULAR);
 	test8.initialise();
 	std::cout<<test8.solve()<<std::endl;
-	assert(("comparison to old results",(test8.solve()-0.00000066)<1e-8));
+	assert(("comparison to old results",std::abs(test8.solve()-0.00000066)<1e-8));
 	Laplace test9(16,1,2,Base::TRIANGULAR);
 	test9.initialise();
 	std::cout<<test9.solve()<<std::endl;
-	assert(("comparison to old results",(test9.solve()-0.00911451)<1e-8));
-	PetscFinalize();
+	assert(("comparison to old results",std::abs(test9.solve()-0.00911139)<1e-8));
 	return 0;
 }
 

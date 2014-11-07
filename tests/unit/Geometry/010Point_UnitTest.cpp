@@ -27,7 +27,6 @@
 #include <iostream>
 #include "cassert"
 #include <cmath>
-using std::fabs;
 using Geometry::Point;
 
 int main(){
@@ -67,72 +66,72 @@ int main(){
 		assert(("4D copy constructor",pp4[i]==0.));
 	}
 
-	assert(("1D from array constructor or operator[] of Point",fabs(pc1[0]-1.1)<1e-12));
+	assert(("1D from array constructor or operator[] of Point",std::abs(pc1[0]-1.1)<1e-12));
 	for(int i=0;i<2;++i){
-		assert(("2D from array constructor or operator[] of Point",fabs(pc2[i]-1.2-i)<1e-12));
+		assert(("2D from array constructor or operator[] of Point",std::abs(pc2[i]-1.2-i)<1e-12));
 	}
 	for(int i=0;i<3;++i){
-		assert(("3D from array constructor or operator[] of Point",fabs(pc3[i]-1.3-i)<1e-12));
+		assert(("3D from array constructor or operator[] of Point",std::abs(pc3[i]-1.3-i)<1e-12));
 	}
 	for(int i=0;i<4;++i){
-		assert(("4D from array constructor or operator[] of Point",fabs(pc4[i]-1.4-i)<1e-12));
+		assert(("4D from array constructor or operator[] of Point",std::abs(pc4[i]-1.4-i)<1e-12));
 	}
 
-	assert(("1D from NumericalVector constructor",fabs(pv1[0]-1.1)<1e-12));
+	assert(("1D from NumericalVector constructor",std::abs(pv1[0]-1.1)<1e-12));
 	for(int i=0;i<2;++i){
-		assert(("2D from NumericalVector constructor",fabs(pv2[i]-1.2-i)<1e-12));
+		assert(("2D from NumericalVector constructor",std::abs(pv2[i]-1.2-i)<1e-12));
 	}
 	for(int i=0;i<3;++i){
-		assert(("3D from NumericalVector constructor",fabs(pv3[i]-1.3-i)<1e-12));
+		assert(("3D from NumericalVector constructor",std::abs(pv3[i]-1.3-i)<1e-12));
 	}
 	for(int i=0;i<4;++i){
-		assert(("4D from NumericalVector constructor",fabs(pv4[i]-1.4-i)<1e-12));
+		assert(("4D from NumericalVector constructor",std::abs(pv4[i]-1.4-i)<1e-12));
 	}
 
 	//testing setCoordinates and setCoordinate
 
 	p1.setCoordinates(vec1);
-	assert(("1D setCoordinates",fabs(p1[0]-1.1)<1e-12));
+	assert(("1D setCoordinates",std::abs(p1[0]-1.1)<1e-12));
 	p2.setCoordinates(vec2);
 	for(int i=0;i<2;++i){
-		assert(("2D setCoordinates",fabs(p2[i]-1.2-i)<1e-12));
+		assert(("2D setCoordinates",std::abs(p2[i]-1.2-i)<1e-12));
 	}
 	p3.setCoordinates(vec3);
 	for(int i=0;i<3;++i){
-		assert(("3D setCoordinates",fabs(p3[i]-1.3-i)<1e-12));
+		assert(("3D setCoordinates",std::abs(p3[i]-1.3-i)<1e-12));
 	}
 	p4.setCoordinates(vec4);
 	for(int i=0;i<4;++i){
-		assert(("4D setCoordinates",fabs(p4[i]-1.4-i)<1e-12));
+		assert(("4D setCoordinates",std::abs(p4[i]-1.4-i)<1e-12));
 	}
 
 	p1.setCoordinate(0,0.9);
-	assert(("1D setCoordinate",fabs(p1[0]-0.9)<1e-12));
+	assert(("1D setCoordinate",std::abs(p1[0]-0.9)<1e-12));
 	for(int i=0;i<2;++i){
 		p2.setCoordinate(i,0.8+double(i));
 		for(int j=0;j<=i;++j){
-			assert(("2D setCoordinate",fabs(p2[j]-0.8-j)<1e-12));
+			assert(("2D setCoordinate",std::abs(p2[j]-0.8-j)<1e-12));
 		}
 		for(int j=i+1;j<2;++j){
-			assert(("2D setCoordinate",fabs(p2[j]-1.2-j)<1e-12));
+			assert(("2D setCoordinate",std::abs(p2[j]-1.2-j)<1e-12));
 		}
 	}
 	for(int i=0;i<3;++i){
 		p3.setCoordinate(i,0.7+i);
 		for(int j=0;j<=i;++j){
-			assert(("3D setCoordinate",fabs(p3[j]-0.7-j)<1e-12));
+			assert(("3D setCoordinate",std::abs(p3[j]-0.7-j)<1e-12));
 		}
 		for(int j=i+1;j<3;++j){
-			assert(("3D setCoordinate",fabs(p3[j]-1.3-j)<1e-12));
+			assert(("3D setCoordinate",std::abs(p3[j]-1.3-j)<1e-12));
 		}
 	}
 	for(int i=0;i<4;++i){
 		p4.setCoordinate(i,0.6+i);
 		for(int j=0;j<=i;++j){
-			assert(("4D setCoordinate",fabs(p4[j]-0.6-j)<1e-12));
+			assert(("4D setCoordinate",std::abs(p4[j]-0.6-j)<1e-12));
 		}
 		for(int j=i+1;j<4;++j){
-			assert(("4D setCoordinate",fabs(p4[j]-1.4-j)<1e-12));
+			assert(("4D setCoordinate",std::abs(p4[j]-1.4-j)<1e-12));
 		}
 	}
 
@@ -140,22 +139,22 @@ int main(){
 
 	const Point pr0 = pc0 = p0;
 	const Point pr1 = pc1 = p1;
-	assert(("1D assignment operator",fabs(pc1[0]-0.9)<1e-12));
-	assert(("1D assignment operator",fabs(pr1[0]-0.9)<1e-12));
+	assert(("1D assignment operator",std::abs(pc1[0]-0.9)<1e-12));
+	assert(("1D assignment operator",std::abs(pr1[0]-0.9)<1e-12));
 	const Point pr2 = pc2 = p2;
 	for(int i=0;i<2;++i){
-		assert(("2D assignment operator",fabs(pc2[i]-0.8-i)<1e-12));
-		assert(("2D assignment operator",fabs(pr2[i]-0.8-i)<1e-12));
+		assert(("2D assignment operator",std::abs(pc2[i]-0.8-i)<1e-12));
+		assert(("2D assignment operator",std::abs(pr2[i]-0.8-i)<1e-12));
 	}
 	const Point pr3 = pc3 = p3;
 	for(int i=0;i<3;++i){
-		assert(("3D assignment operator",fabs(pc3[i]-0.7-i)<1e-12));
-		assert(("3D assignment operator",fabs(pr3[i]-0.7-i)<1e-12));
+		assert(("3D assignment operator",std::abs(pc3[i]-0.7-i)<1e-12));
+		assert(("3D assignment operator",std::abs(pr3[i]-0.7-i)<1e-12));
 	}
 	const Point pr4 = pc4 = p4;
 	for(int i=0;i<4;++i){
-		assert(("4D assignment operator",fabs(pc4[i]-0.6-i)<1e-12));
-		assert(("4D assignment operator",fabs(pr4[i]-0.6-i)<1e-12));
+		assert(("4D assignment operator",std::abs(pc4[i]-0.6-i)<1e-12));
+		assert(("4D assignment operator",std::abs(pr4[i]-0.6-i)<1e-12));
 	}
 
 	assert(("0D equality operator",pr0==pc0&&pc0==pr0&&pc0==p0));
@@ -173,62 +172,62 @@ int main(){
 
 	pc0+=p0;
 	pc1+=p1;
-	assert(("1D increment operator",fabs(pc1[0]-1.8)<1e-12));
+	assert(("1D increment operator",std::abs(pc1[0]-1.8)<1e-12));
 	pc2+=p2;
 	for(int i=0;i<2;++i){
-		assert(("2D increment operator",fabs(pc2[i]-1.6-2*i)<1e-12));
+		assert(("2D increment operator",std::abs(pc2[i]-1.6-2*i)<1e-12));
 	}
 	pc3+=p3;
 	for(int i=0;i<3;++i){
-		assert(("3D increment operator",fabs(pc3[i]-1.4-2*i)<1e-12));
+		assert(("3D increment operator",std::abs(pc3[i]-1.4-2*i)<1e-12));
 	}
 	pc4+=p4;
 	for(int i=0;i<4;++i){
-		assert(("4D increment operator",fabs(pc4[i]-1.2-2*i)<1e-12));
+		assert(("4D increment operator",std::abs(pc4[i]-1.2-2*i)<1e-12));
 	}
 
 	pc0-=pv0;
 	pc1-=pv1;
-	assert(("1D decrement operator",fabs(pc1[0]-0.7)<1e-12));
+	assert(("1D decrement operator",std::abs(pc1[0]-0.7)<1e-12));
 	pc2-=pv2;
 	for(int i=0;i<2;++i){
-		assert(("2D decrement operator",fabs(pc2[i]-0.4-i)<1e-12));
+		assert(("2D decrement operator",std::abs(pc2[i]-0.4-i)<1e-12));
 	}
 	pc3-=pv3;
 	for(int i=0;i<3;++i){
-		assert(("3D decrement operator",fabs(pc3[i]-0.1-i)<1e-12));
+		assert(("3D decrement operator",std::abs(pc3[i]-0.1-i)<1e-12));
 	}
 	pc4-=pv4;
 	for(int i=0;i<4;++i){
-		assert(("4D decrement operator or negative numbers",fabs(pc4[i]+0.2-i)<1e-12));
+		assert(("4D decrement operator or negative numbers",std::abs(pc4[i]+0.2-i)<1e-12));
 	}
 
 	pc0*=2.;
 	pc1*=3.;
-	assert(("1D multiply operator",fabs(pc1[0]-2.1)<1e-12));
+	assert(("1D multiply operator",std::abs(pc1[0]-2.1)<1e-12));
 	pc2*=4.;
 	for(int i=0;i<2;++i){
-		assert(("2D multiply operator",fabs(pc2[i]-1.6-4*i)<1e-12));
+		assert(("2D multiply operator",std::abs(pc2[i]-1.6-4*i)<1e-12));
 	}
 	pc3*=5.;
 	for(int i=0;i<3;++i){
-		assert(("3D multiply operator",fabs(pc3[i]-0.5-5*i)<1e-12));
+		assert(("3D multiply operator",std::abs(pc3[i]-0.5-5*i)<1e-12));
 	}
 	pc4*=6.;
 	for(int i=0;i<4;++i){
-		assert(("4D multiply operator",fabs(pc4[i]+1.2-6*i)<1e-12));
+		assert(("4D multiply operator",std::abs(pc4[i]+1.2-6*i)<1e-12));
 	}
 
 	pv0*6.;
-	assert(("1D multiplication",fabs((pv1*5.)[0]-5.5)<1e-12));
+	assert(("1D multiplication",std::abs((pv1*5.)[0]-5.5)<1e-12));
 	for(int i=0;i<2;++i){
-		assert(("2D multiplication",fabs((pv2*4.)[i]-4.8-4*i)<1e-12));
+		assert(("2D multiplication",std::abs((pv2*4.)[i]-4.8-4*i)<1e-12));
 	}
 	for(int i=0;i<3;++i){
-		assert(("3D multiplication",fabs((pv3*3.)[i]-3.9-3*i)<1e-12));
+		assert(("3D multiplication",std::abs((pv3*3.)[i]-3.9-3*i)<1e-12));
 	}
 	for(int i=0;i<4;++i){
-		assert(("4D multiplication",fabs((pv4*2.)[i]-2.8-2*i)<1e-12));
+		assert(("4D multiplication",std::abs((pv4*2.)[i]-2.8-2*i)<1e-12));
 	}
 
 	assert(("0D multiplication",(pr0*0.)==pp0));
@@ -238,51 +237,51 @@ int main(){
 	assert(("4D multiplication",(pr4*0.)==pp4));
 
 	pc0+pv0;
-	assert(("1D addition",fabs((pc1+pv1)[0]-3.2)<1e-12));
+	assert(("1D addition",std::abs((pc1+pv1)[0]-3.2)<1e-12));
 	for(int i=0;i<2;++i){
-		assert(("2D addition",fabs((pc2+pv2)[i]-2.8-5*i)<1e-12));
+		assert(("2D addition",std::abs((pc2+pv2)[i]-2.8-5*i)<1e-12));
 	}
 	for(int i=0;i<3;++i){
-		assert(("3D addition",fabs((pc3+pv3)[i]-1.8-6*i)<1e-12));
+		assert(("3D addition",std::abs((pc3+pv3)[i]-1.8-6*i)<1e-12));
 	}
 	for(int i=0;i<4;++i){
-		assert(("4D addition",fabs((pc4+pv4)[i]-0.2-7*i)<1e-12));
+		assert(("4D addition",std::abs((pc4+pv4)[i]-0.2-7*i)<1e-12));
 	}
 
 	pr0+pv0;
-	assert(("1D addition",fabs((pr1+pv1)[0]-2.)<1e-12));
+	assert(("1D addition",std::abs((pr1+pv1)[0]-2.)<1e-12));
 	for(int i=0;i<2;++i){
-		assert(("2D addition",fabs((pr2+pv2)[i]-2.-2*i)<1e-12));
+		assert(("2D addition",std::abs((pr2+pv2)[i]-2.-2*i)<1e-12));
 	}
 	for(int i=0;i<3;++i){
-		assert(("3D addition",fabs((pr3+pv3)[i]-2.-2*i)<1e-12));
+		assert(("3D addition",std::abs((pr3+pv3)[i]-2.-2*i)<1e-12));
 	}
 	for(int i=0;i<4;++i){
-		assert(("4D addition",fabs((pr4+pv4)[i]-2.-2*i)<1e-12));
+		assert(("4D addition",std::abs((pr4+pv4)[i]-2.-2*i)<1e-12));
 	}
 
 	pc0-pv0;
-	assert(("1D subtraction",fabs((pc1-pv1)[0]-1.)<1e-12));
+	assert(("1D subtraction",std::abs((pc1-pv1)[0]-1.)<1e-12));
 	for(int i=0;i<2;++i){
-		assert(("2D subtraction",fabs((pc2-pv2)[i]-0.4-3*i)<1e-12));
+		assert(("2D subtraction",std::abs((pc2-pv2)[i]-0.4-3*i)<1e-12));
 	}
 	for(int i=0;i<3;++i){
-		assert(("3D subtraction",fabs((pc3-pv3)[i]+0.8-4*i)<1e-12));
+		assert(("3D subtraction",std::abs((pc3-pv3)[i]+0.8-4*i)<1e-12));
 	}
 	for(int i=0;i<4;++i){
-		assert(("4D subtraction",fabs((pc4-pv4)[i]+2.6-5*i)<1e-12));
+		assert(("4D subtraction",std::abs((pc4-pv4)[i]+2.6-5*i)<1e-12));
 	}
 
 	pr0-pv0;
-	assert(("1D subtraction",fabs((pr1-pv1)[0]+0.2)<1e-12));
+	assert(("1D subtraction",std::abs((pr1-pv1)[0]+0.2)<1e-12));
 	for(int i=0;i<2;++i){
-		assert(("2D subtraction",fabs((pr2-pv2)[i]+0.4)<1e-12));
+		assert(("2D subtraction",std::abs((pr2-pv2)[i]+0.4)<1e-12));
 	}
 	for(int i=0;i<3;++i){
-		assert(("3D subtraction",fabs((pr3-pv3)[i]+0.6)<1e-12));
+		assert(("3D subtraction",std::abs((pr3-pv3)[i]+0.6)<1e-12));
 	}
 	for(int i=0;i<4;++i){
-		assert(("4D subtraction",fabs((pr4-pv4)[i]+0.8)<1e-12));
+		assert(("4D subtraction",std::abs((pr4-pv4)[i]+0.8)<1e-12));
 	}
 
 	//testing size
@@ -315,27 +314,27 @@ int main(){
 	//testing friends
 
 	-pc0;
-	assert(("1D unary -",fabs((-pc1)[0]+2.1)<1e-12));
+	assert(("1D unary -",std::abs((-pc1)[0]+2.1)<1e-12));
 	for(int i=0;i<2;++i){
-		assert(("2D unary -",fabs((-pc2)[i]+1.6+4*i)<1e-12));
+		assert(("2D unary -",std::abs((-pc2)[i]+1.6+4*i)<1e-12));
 	}
 	for(int i=0;i<3;++i){
-		assert(("3D unary -",fabs((-pc3)[i]+0.5+5*i)<1e-12));
+		assert(("3D unary -",std::abs((-pc3)[i]+0.5+5*i)<1e-12));
 	}
 	for(int i=0;i<4;++i){
-		assert(("4D unary -",fabs((-pc4)[i]-1.2+6*i)<1e-12));
+		assert(("4D unary -",std::abs((-pc4)[i]-1.2+6*i)<1e-12));
 	}
 
 	6.*pv0;
-	assert(("1D left multiplication",fabs((5.*pv1)[0]-5.5)<1e-12));
+	assert(("1D left multiplication",std::abs((5.*pv1)[0]-5.5)<1e-12));
 	for(int i=0;i<2;++i){
-		assert(("2D left multiplication",fabs((4.*pv2)[i]-4.8-4*i)<1e-12));
+		assert(("2D left multiplication",std::abs((4.*pv2)[i]-4.8-4*i)<1e-12));
 	}
 	for(int i=0;i<3;++i){
-		assert(("3D left multiplication",fabs((3.*pv3)[i]-3.9-3*i)<1e-12));
+		assert(("3D left multiplication",std::abs((3.*pv3)[i]-3.9-3*i)<1e-12));
 	}
 	for(int i=0;i<4;++i){
-		assert(("4D left multiplication",fabs((2.*pv4)[i]-2.8-2*i)<1e-12));
+		assert(("4D left multiplication",std::abs((2.*pv4)[i]-2.8-2*i)<1e-12));
 	}
 
 	std::cout<<p0<<p1<<p2<<p3<<p4<<pr0<<pr1<<pr2<<pr3<<pr4<<std::endl;

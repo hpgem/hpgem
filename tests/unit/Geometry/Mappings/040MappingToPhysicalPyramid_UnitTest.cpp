@@ -32,6 +32,7 @@
 #include "Geometry/PointPhysical.hpp"
 #include "Geometry/Jacobian.hpp"
 #include "Geometry/PointReference.hpp"
+#include <cmath>
 //transformations should map internal points to internal points, external points to external points
 //and nodes to nodes so construct the physical geometries such that this can be checked :(
 
@@ -108,9 +109,9 @@ int main() {
 
 				refPoint3D[0]+=-1e-8;
 				mapping3D.calcJacobian(refPoint3D,jac3D);
-				assert(("jacobian",fabs(jac3D[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-				assert(("jacobian",fabs(jac3D[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are strongly recommended to be more accurate
-				assert(("jacobian",fabs(jac3D[2]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+				assert(("jacobian",std::abs(jac3D[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+				assert(("jacobian",std::abs(jac3D[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are strongly recommended to be more accurate
+				assert(("jacobian",std::abs(jac3D[2]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 
 				refPoint3D[1]+=-1.e-8;
 				mapping3D.transform(refPoint3D,compare3D);
@@ -119,9 +120,9 @@ int main() {
 
 				refPoint3D[1]+=-1e-8;
 				mapping3D.calcJacobian(refPoint3D,jac3D);
-				assert(("jacobian",fabs(jac3D[3]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
-				assert(("jacobian",fabs(jac3D[4]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
-				assert(("jacobian",fabs(jac3D[5]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+				assert(("jacobian",std::abs(jac3D[3]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
+				assert(("jacobian",std::abs(jac3D[4]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
+				assert(("jacobian",std::abs(jac3D[5]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 
 				refPoint3D[2]+=-1.e-8;
 				mapping3D.transform(refPoint3D,compare3D);
@@ -130,9 +131,9 @@ int main() {
 
 				refPoint3D[2]+=-1e-8;
 				mapping3D.calcJacobian(refPoint3D,jac3D);
-				assert(("jacobian",fabs(jac3D[6]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
-				assert(("jacobian",fabs(jac3D[7]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
-				assert(("jacobian",fabs(jac3D[8]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+				assert(("jacobian",std::abs(jac3D[6]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
+				assert(("jacobian",std::abs(jac3D[7]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
+				assert(("jacobian",std::abs(jac3D[8]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 			}
 		}
 	}
@@ -141,7 +142,7 @@ int main() {
 		rGeom3D.getNode(i,refPoint3D);
 		pGeom3D.getNodeCoordinates(i,compare3D);
 		mapping3D.transform(refPoint3D,point3D);
-		assert(("transform",fabs(point3D[0]-compare3D[0])<1e-12)&&fabs(point3D[1]-compare3D[1])<1e-12&&fabs(point3D[2]-compare3D[2])<1e-12);
+		assert(("transform",std::abs(point3D[0]-compare3D[0])<1e-12)&&std::abs(point3D[1]-compare3D[1])<1e-12&&std::abs(point3D[2]-compare3D[2])<1e-12);
 	}
 
 	assert(("getTargetDimension",mapping3D.getTargetDimension()==3));

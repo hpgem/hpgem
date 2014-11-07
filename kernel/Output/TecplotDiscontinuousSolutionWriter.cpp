@@ -143,7 +143,7 @@ namespace Output
             typedef Base::MeshManipulator MeshType;
             typedef Base::Element  ElementT;
                 //typename typedef Base::MeshManipulator<DIM>::ListOfElementsT ListOfElementsT;
-            typedef std::list<ElementT*> ListOfElementsT;
+            typedef std::vector<ElementT*> ListOfElementsT;
 
             unsigned int nrOfNodes; // i.e. on one element
             TecplotPhysicalGeometryIterator& nodeIt = TecplotPhysicalGeometryIterator::Instance();

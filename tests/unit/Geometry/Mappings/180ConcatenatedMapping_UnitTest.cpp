@@ -43,6 +43,7 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/Jacobian.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include <cmath>
 
 int main(){
 
@@ -156,14 +157,14 @@ int main(){
 
 		orig1D[0]+=-1e-8;
 		test->calcJacobian(orig1D,jac);
-		assert(("jacobian",fabs(jac[0]-5.e7*(point1D[0]-compare1D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+		assert(("jacobian",std::abs(jac[0]-5.e7*(point1D[0]-compare1D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 	}
 
 	for(int i=0;i<source->getNumberOfNodes();++i){
 		source->getNode(i,orig1D);
 		target->getNode(nodesAfterTransformation[i],compare1D);
 		test->transform(orig1D,point1D);
-		assert(("transform",fabs(point1D[0]-compare1D[0])<1e-12));
+		assert(("transform",std::abs(point1D[0]-compare1D[0])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==1));
@@ -188,16 +189,16 @@ int main(){
 
 		orig1D[0]+=-1e-8;
 		test->calcJacobian(orig1D,jac);
-		assert(("jacobian",fabs(jac[0]-5.e7*(point2D[0]-compare2D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-		assert(("jacobian",fabs(jac[1]-5.e7*(point2D[1]-compare2D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+		assert(("jacobian",std::abs(jac[0]-5.e7*(point2D[0]-compare2D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+		assert(("jacobian",std::abs(jac[1]-5.e7*(point2D[1]-compare2D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 	}
 
 	for(int i=0;i<source->getNumberOfNodes();++i){
 		source->getNode(i,orig1D);
 		target->getNode(nodesAfterTransformation[i],compare2D);
 		test->transform(orig1D,point2D);
-		assert(("transform",fabs(point2D[0]-compare2D[0])<1e-12));
-		assert(("transform",fabs(point2D[1]-compare2D[1])<1e-12));
+		assert(("transform",std::abs(point2D[0]-compare2D[0])<1e-12));
+		assert(("transform",std::abs(point2D[1]-compare2D[1])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==2));
@@ -221,16 +222,16 @@ int main(){
 		orig1D[0]+=-1e-8;
 		test->calcJacobian(orig1D,jac);
                 //std::cout<<jac<<std::endl<<5.e7*(point2D-compare2D)<<std::endl;
-		assert(("jacobian",fabs(jac[0]-5.e7*(point2D[0]-compare2D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-		assert(("jacobian",fabs(jac[1]-5.e7*(point2D[1]-compare2D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+		assert(("jacobian",std::abs(jac[0]-5.e7*(point2D[0]-compare2D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+		assert(("jacobian",std::abs(jac[1]-5.e7*(point2D[1]-compare2D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 	}
 
 	for(int i=0;i<source->getNumberOfNodes();++i){
 		source->getNode(i,orig1D);
 		target->getNode(nodesAfterTransformation[i],compare2D);
 		test->transform(orig1D,point2D);
-		assert(("transform",fabs(point2D[0]-compare2D[0])<1e-12));
-		assert(("transform",fabs(point2D[1]-compare2D[1])<1e-12));
+		assert(("transform",std::abs(point2D[0]-compare2D[0])<1e-12));
+		assert(("transform",std::abs(point2D[1]-compare2D[1])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==2));
@@ -255,16 +256,16 @@ int main(){
 
 		orig1D[0]+=-1e-8;
 		test->calcJacobian(orig1D,jac);
-		assert(("jacobian",fabs(jac[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-		assert(("jacobian",fabs(jac[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+		assert(("jacobian",std::abs(jac[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+		assert(("jacobian",std::abs(jac[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 	}
 
 	for(int i=0;i<source->getNumberOfNodes();++i){
 		source->getNode(i,orig1D);
 		target->getNode(nodesAfterTransformation[i],compare3D);
 		test->transform(orig1D,point3D);
-		assert(("transform",fabs(point3D[0]-compare3D[0])<1e-12));
-		assert(("transform",fabs(point3D[1]-compare3D[1])<1e-12));
+		assert(("transform",std::abs(point3D[0]-compare3D[0])<1e-12));
+		assert(("transform",std::abs(point3D[1]-compare3D[1])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==3));
@@ -294,8 +295,8 @@ int main(){
 
 			orig2D[0]+=-1e-8;
 			test->calcJacobian(orig2D,jac);
-			assert(("jacobian",fabs(jac[0]-5.e7*(point2D[0]-compare2D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-			assert(("jacobian",fabs(jac[1]-5.e7*(point2D[1]-compare2D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+			assert(("jacobian",std::abs(jac[0]-5.e7*(point2D[0]-compare2D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+			assert(("jacobian",std::abs(jac[1]-5.e7*(point2D[1]-compare2D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 
 			orig2D[1]+=-1.e-8;
 			test->transform(orig2D,compare2D);
@@ -304,8 +305,8 @@ int main(){
 
 			orig2D[1]+=-1e-8;
 			test->calcJacobian(orig2D,jac);
-			assert(("jacobian",fabs(jac[2]-5.e7*(point2D[0]-compare2D[0]))<1e-5));
-			assert(("jacobian",fabs(jac[3]-5.e7*(point2D[1]-compare2D[1]))<1e-5));
+			assert(("jacobian",std::abs(jac[2]-5.e7*(point2D[0]-compare2D[0]))<1e-5));
+			assert(("jacobian",std::abs(jac[3]-5.e7*(point2D[1]-compare2D[1]))<1e-5));
 		}
 	}
 
@@ -313,8 +314,8 @@ int main(){
 		source->getNode(i,orig2D);
 		target->getNode(nodesAfterTransformation[i],compare2D);
 		test->transform(orig2D,point2D);
-		assert(("transform",fabs(point2D[0]-compare2D[0])<1e-12));
-		assert(("transform",fabs(point2D[1]-compare2D[1])<1e-12));
+		assert(("transform",std::abs(point2D[0]-compare2D[0])<1e-12));
+		assert(("transform",std::abs(point2D[1]-compare2D[1])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==2));
@@ -342,9 +343,9 @@ int main(){
 
 			orig2D[0]+=-1e-8;
 			test->calcJacobian(orig2D,jac);
-			assert(("jacobian",fabs(jac[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-			assert(("jacobian",fabs(jac[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
-			assert(("jacobian",fabs(jac[2]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+			assert(("jacobian",std::abs(jac[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+			assert(("jacobian",std::abs(jac[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+			assert(("jacobian",std::abs(jac[2]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 
 			orig2D[1]+=-1.e-8;
 			test->transform(orig2D,compare3D);
@@ -353,9 +354,9 @@ int main(){
 
 			orig2D[1]+=-1e-8;
 			test->calcJacobian(orig2D,jac);
-			assert(("jacobian",fabs(jac[3]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
-			assert(("jacobian",fabs(jac[4]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
-			assert(("jacobian",fabs(jac[5]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+			assert(("jacobian",std::abs(jac[3]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
+			assert(("jacobian",std::abs(jac[4]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
+			assert(("jacobian",std::abs(jac[5]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 		}
 	}
 
@@ -363,9 +364,9 @@ int main(){
 		source->getNode(i,orig2D);
 		target->getNode(nodesAfterTransformation[i],compare3D);
 		test->transform(orig2D,point3D);
-		assert(("transform",fabs(point3D[0]-compare3D[0])<1e-12));
-		assert(("transform",fabs(point3D[1]-compare3D[1])<1e-12));
-		assert(("transform",fabs(point3D[2]-compare3D[2])<1e-12));
+		assert(("transform",std::abs(point3D[0]-compare3D[0])<1e-12));
+		assert(("transform",std::abs(point3D[1]-compare3D[1])<1e-12));
+		assert(("transform",std::abs(point3D[2]-compare3D[2])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==3));
@@ -391,9 +392,9 @@ int main(){
 
 			orig2D[0]+=-1e-8;
 			test->calcJacobian(orig2D,jac);
-			assert(("jacobian",fabs(jac[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-			assert(("jacobian",fabs(jac[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
-			assert(("jacobian",fabs(jac[2]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+			assert(("jacobian",std::abs(jac[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+			assert(("jacobian",std::abs(jac[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+			assert(("jacobian",std::abs(jac[2]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 
 			orig2D[1]+=-1.e-8;
 			test->transform(orig2D,compare3D);
@@ -402,9 +403,9 @@ int main(){
 
 			orig2D[1]+=-1e-8;
 			test->calcJacobian(orig2D,jac);
-			assert(("jacobian",fabs(jac[3]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
-			assert(("jacobian",fabs(jac[4]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
-			assert(("jacobian",fabs(jac[5]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+			assert(("jacobian",std::abs(jac[3]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
+			assert(("jacobian",std::abs(jac[4]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
+			assert(("jacobian",std::abs(jac[5]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 		}
 	}
 
@@ -412,9 +413,9 @@ int main(){
 		source->getNode(i,orig2D);
 		target->getNode(nodesAfterTransformation[i],compare3D);
 		test->transform(orig2D,point3D);
-		assert(("transform",fabs(point3D[0]-compare3D[0])<1e-12));
-		assert(("transform",fabs(point3D[1]-compare3D[1])<1e-12));
-		assert(("transform",fabs(point3D[2]-compare3D[2])<1e-12));
+		assert(("transform",std::abs(point3D[0]-compare3D[0])<1e-12));
+		assert(("transform",std::abs(point3D[1]-compare3D[1])<1e-12));
+		assert(("transform",std::abs(point3D[2]-compare3D[2])<1e-12));
 	}*/
 
 	assert(("getTargetDimension",test->getTargetDimension()==3));
@@ -442,10 +443,10 @@ int main(){
 
 			orig2D[0]+=-1e-8;
 			test->calcJacobian(orig2D,jac);
-			assert(("jacobian",fabs(jac[0]-5.e7*(point4D[0]-compare4D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-			assert(("jacobian",fabs(jac[1]-5.e7*(point4D[1]-compare4D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
-			assert(("jacobian",fabs(jac[2]-5.e7*(point4D[2]-compare4D[2]))<1e-5));
-			assert(("jacobian",fabs(jac[3]-5.e7*(point4D[3]-compare4D[3]))<1e-5));
+			assert(("jacobian",std::abs(jac[0]-5.e7*(point4D[0]-compare4D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+			assert(("jacobian",std::abs(jac[1]-5.e7*(point4D[1]-compare4D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+			assert(("jacobian",std::abs(jac[2]-5.e7*(point4D[2]-compare4D[2]))<1e-5));
+			assert(("jacobian",std::abs(jac[3]-5.e7*(point4D[3]-compare4D[3]))<1e-5));
 
 			orig2D[1]+=-1.e-8;
 			test->transform(orig2D,compare4D);
@@ -454,10 +455,10 @@ int main(){
 
 			orig2D[1]+=-1e-8;
 			test->calcJacobian(orig2D,jac);
-			assert(("jacobian",fabs(jac[4]-5.e7*(point4D[0]-compare4D[0]))<1e-5));
-			assert(("jacobian",fabs(jac[5]-5.e7*(point4D[1]-compare4D[1]))<1e-5));
-			assert(("jacobian",fabs(jac[6]-5.e7*(point4D[2]-compare4D[2]))<1e-5));
-			assert(("jacobian",fabs(jac[7]-5.e7*(point4D[3]-compare4D[3]))<1e-5));
+			assert(("jacobian",std::abs(jac[4]-5.e7*(point4D[0]-compare4D[0]))<1e-5));
+			assert(("jacobian",std::abs(jac[5]-5.e7*(point4D[1]-compare4D[1]))<1e-5));
+			assert(("jacobian",std::abs(jac[6]-5.e7*(point4D[2]-compare4D[2]))<1e-5));
+			assert(("jacobian",std::abs(jac[7]-5.e7*(point4D[3]-compare4D[3]))<1e-5));
 		}
 	}
 
@@ -465,10 +466,10 @@ int main(){
 		source->getNode(i,orig2D);
 		target->getNode(nodesAfterTransformation[i],compare4D);
 		test->transform(orig2D,point4D);
-		assert(("transform",fabs(point4D[0]-compare4D[0])<1e-12));
-		assert(("transform",fabs(point4D[1]-compare4D[1])<1e-12));
-		assert(("transform",fabs(point4D[2]-compare4D[2])<1e-12));
-		assert(("transform",fabs(point4D[3]-compare4D[3])<1e-12));
+		assert(("transform",std::abs(point4D[0]-compare4D[0])<1e-12));
+		assert(("transform",std::abs(point4D[1]-compare4D[1])<1e-12));
+		assert(("transform",std::abs(point4D[2]-compare4D[2])<1e-12));
+		assert(("transform",std::abs(point4D[3]-compare4D[3])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==4));
@@ -499,9 +500,9 @@ int main(){
 
 				orig3D[0]+=-1e-8;
 				test->calcJacobian(orig3D,jac);
-				assert(("jacobian",fabs(jac[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-				assert(("jacobian",fabs(jac[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
-				assert(("jacobian",fabs(jac[2]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+				assert(("jacobian",std::abs(jac[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+				assert(("jacobian",std::abs(jac[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+				assert(("jacobian",std::abs(jac[2]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 
 				orig3D[1]+=-1.e-8;
 				test->transform(orig3D,compare3D);
@@ -510,9 +511,9 @@ int main(){
 
 				orig3D[1]+=-1e-8;
 				test->calcJacobian(orig3D,jac);
-				assert(("jacobian",fabs(jac[3]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
-				assert(("jacobian",fabs(jac[4]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
-				assert(("jacobian",fabs(jac[5]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+				assert(("jacobian",std::abs(jac[3]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
+				assert(("jacobian",std::abs(jac[4]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
+				assert(("jacobian",std::abs(jac[5]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 
 				orig3D[2]+=-1.e-8;
 				test->transform(orig3D,compare3D);
@@ -521,9 +522,9 @@ int main(){
 
 				orig3D[2]+=-1e-8;
 				test->calcJacobian(orig3D,jac);
-				assert(("jacobian",fabs(jac[6]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
-				assert(("jacobian",fabs(jac[7]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
-				assert(("jacobian",fabs(jac[8]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+				assert(("jacobian",std::abs(jac[6]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
+				assert(("jacobian",std::abs(jac[7]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
+				assert(("jacobian",std::abs(jac[8]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 			}
 		}
 	}
@@ -532,9 +533,9 @@ int main(){
 		source->getNode(i,orig3D);
 		target->getNode(nodesAfterTransformation[i],compare3D);
 		test->transform(orig3D,point3D);
-		assert(("transform",fabs(point3D[0]-compare3D[0])<1e-12));
-		assert(("transform",fabs(point3D[1]-compare3D[1])<1e-12));
-		assert(("transform",fabs(point3D[2]-compare3D[2])<1e-12));
+		assert(("transform",std::abs(point3D[0]-compare3D[0])<1e-12));
+		assert(("transform",std::abs(point3D[1]-compare3D[1])<1e-12));
+		assert(("transform",std::abs(point3D[2]-compare3D[2])<1e-12));
 	}*/
 
 	assert(("getTargetDimension",test->getTargetDimension()==3));
@@ -563,10 +564,10 @@ int main(){
 
 				orig3D[0]+=-1e-8;
 				test->calcJacobian(orig3D,jac);
-				assert(("jacobian",fabs(jac[0]-5.e7*(point4D[0]-compare4D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-				assert(("jacobian",fabs(jac[1]-5.e7*(point4D[1]-compare4D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
-				assert(("jacobian",fabs(jac[2]-5.e7*(point4D[2]-compare4D[2]))<1e-5));
-				assert(("jacobian",fabs(jac[3]-5.e7*(point4D[3]-compare4D[3]))<1e-5));
+				assert(("jacobian",std::abs(jac[0]-5.e7*(point4D[0]-compare4D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+				assert(("jacobian",std::abs(jac[1]-5.e7*(point4D[1]-compare4D[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+				assert(("jacobian",std::abs(jac[2]-5.e7*(point4D[2]-compare4D[2]))<1e-5));
+				assert(("jacobian",std::abs(jac[3]-5.e7*(point4D[3]-compare4D[3]))<1e-5));
 
 				orig3D[1]+=-1.e-8;
 				test->transform(orig3D,compare4D);
@@ -575,10 +576,10 @@ int main(){
 
 				orig3D[1]+=-1e-8;
 				test->calcJacobian(orig3D,jac);
-				assert(("jacobian",fabs(jac[4]-5.e7*(point4D[0]-compare4D[0]))<1e-5));
-				assert(("jacobian",fabs(jac[5]-5.e7*(point4D[1]-compare4D[1]))<1e-5));
-				assert(("jacobian",fabs(jac[6]-5.e7*(point4D[2]-compare4D[2]))<1e-5));
-				assert(("jacobian",fabs(jac[7]-5.e7*(point4D[3]-compare4D[3]))<1e-5));
+				assert(("jacobian",std::abs(jac[4]-5.e7*(point4D[0]-compare4D[0]))<1e-5));
+				assert(("jacobian",std::abs(jac[5]-5.e7*(point4D[1]-compare4D[1]))<1e-5));
+				assert(("jacobian",std::abs(jac[6]-5.e7*(point4D[2]-compare4D[2]))<1e-5));
+				assert(("jacobian",std::abs(jac[7]-5.e7*(point4D[3]-compare4D[3]))<1e-5));
 
 				orig3D[2]+=-1.e-8;
 				test->transform(orig3D,compare4D);
@@ -587,10 +588,10 @@ int main(){
 
 				orig3D[2]+=-1e-8;
 				test->calcJacobian(orig3D,jac);
-				assert(("jacobian",fabs(jac[8]-5.e7*(point4D[0]-compare4D[0]))<1e-5));
-				assert(("jacobian",fabs(jac[9]-5.e7*(point4D[1]-compare4D[1]))<1e-5));
-				assert(("jacobian",fabs(jac[10]-5.e7*(point4D[2]-compare4D[2]))<1e-5));
-				assert(("jacobian",fabs(jac[11]-5.e7*(point4D[3]-compare4D[3]))<1e-5));
+				assert(("jacobian",std::abs(jac[8]-5.e7*(point4D[0]-compare4D[0]))<1e-5));
+				assert(("jacobian",std::abs(jac[9]-5.e7*(point4D[1]-compare4D[1]))<1e-5));
+				assert(("jacobian",std::abs(jac[10]-5.e7*(point4D[2]-compare4D[2]))<1e-5));
+				assert(("jacobian",std::abs(jac[11]-5.e7*(point4D[3]-compare4D[3]))<1e-5));
 			}
 		}
 	}
@@ -599,10 +600,10 @@ int main(){
 		source->getNode(i,orig3D);
 		target->getNode(nodesAfterTransformation[i],compare4D);
 		test->transform(orig3D,point4D);
-		assert(("transform",fabs(point4D[0]-compare4D[0])<1e-12));
-		assert(("transform",fabs(point4D[1]-compare4D[1])<1e-12));
-		assert(("transform",fabs(point4D[2]-compare4D[2])<1e-12));
-		assert(("transform",fabs(point4D[3]-compare4D[3])<1e-12));
+		assert(("transform",std::abs(point4D[0]-compare4D[0])<1e-12));
+		assert(("transform",std::abs(point4D[1]-compare4D[1])<1e-12));
+		assert(("transform",std::abs(point4D[2]-compare4D[2])<1e-12));
+		assert(("transform",std::abs(point4D[3]-compare4D[3])<1e-12));
 	}*/
 
 	assert(("getTargetDimension",test->getTargetDimension()==4));
@@ -631,10 +632,10 @@ int main(){
 		source->getNode(i,orig0D);
 		target->getNode(nodesAfterTransformation[i],compare4D);
 		test->transform(orig0D,point4D);
-		assert(("transform",fabs(point4D[0]-compare4D[0])<1e-12));
-		assert(("transform",fabs(point4D[1]-compare4D[1])<1e-12));
-		assert(("transform",fabs(point4D[2]-compare4D[2])<1e-12));
-		assert(("transform",fabs(point4D[3]-compare4D[3])<1e-12));
+		assert(("transform",std::abs(point4D[0]-compare4D[0])<1e-12));
+		assert(("transform",std::abs(point4D[1]-compare4D[1])<1e-12));
+		assert(("transform",std::abs(point4D[2]-compare4D[2])<1e-12));
+		assert(("transform",std::abs(point4D[3]-compare4D[3])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==4));

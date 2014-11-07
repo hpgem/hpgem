@@ -30,7 +30,6 @@
 #include "Geometry/ReferenceLine.hpp"
 
 #include <cmath>
-using std::fabs;
 using Geometry::PhysicalLine;
 
 int main(){
@@ -61,25 +60,25 @@ int main(){
 	std::cout<<test.getName();
 
 	point = *test.getNodePtr(test.getNodeIndex(0));
-	assert(("getNodePtr",fabs(point[0]-1.4)<1e-12));
+	assert(("getNodePtr",std::abs(point[0]-1.4)<1e-12));
 	point = *test.getNodePtr(test.getNodeIndex(1));
-	assert(("getNodePtr",fabs(point[0]-1.7)<1e-12));
+	assert(("getNodePtr",std::abs(point[0]-1.7)<1e-12));
 
 	assert(("getNumberOfNodes",test.getNumberOfNodes()==2));
 
 	test.getNodeCoordinates(0,point);
-	assert(("getNodeCoordinates",fabs(point[0]-1.4)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[0]-1.4)<1e-12));
 	test.getNodeCoordinates(1,point);
-	assert(("getNodeCoordinates",fabs(point[0]-1.7)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[0]-1.7)<1e-12));
 
 	test.getLocalNodeCoordinates(0,point);
-	assert(("getLocalNodeCoordinates",fabs(point[0]-1.4)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[0]-1.4)<1e-12));
 	test.getLocalNodeCoordinates(1,point);
-	assert(("getLocalNodeCoordinates",fabs(point[0]-1.7)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[0]-1.7)<1e-12));
 
 	for(double i=0;i<10;++i){
 		test.getGlobalNodeCoordinates(i,point);
-		assert(("getGlobalNodeCoordinates",fabs(point[0]-1.-i/10.)<1e-12));
+		assert(("getGlobalNodeCoordinates",std::abs(point[0]-1.-i/10.)<1e-12));
 	}
 
 	pointIndexes.resize(1);

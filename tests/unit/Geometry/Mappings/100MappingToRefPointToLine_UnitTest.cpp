@@ -32,6 +32,7 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/Jacobian.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include <cmath>
 int main() {
 
 	Geometry::PointReference refPoint(0),point(1),compare(1);
@@ -55,7 +56,7 @@ int main() {
 		fGeom.getNode(i,refPoint);
 		eGeom.getNode(nodesAfterTransformation[i],compare);
 		test->transform(refPoint,point);
-		assert(("transform",fabs(point[0]-compare[0])<1e-12));
+		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==1));

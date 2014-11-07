@@ -20,7 +20,7 @@
  */
 #ifndef TreeIterator_hpp
 #define TreeIterator_hpp
-#include <list>
+#include <deque>
 #include <iostream>
 
 //------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ namespace Base
 
         TreeIterator()
             {
-                // on default, the iterator behaves as a std::list::iterator
+                // on default, the iterator behaves as a std::deque::iterator
                 traversalMethod_ = traversalList_;
             }
 
@@ -65,11 +65,11 @@ namespace Base
             }
 
         //! Copy constructor
-        TreeIterator(const typename std::list<valueType>::iterator& li)
+        TreeIterator(const typename std::deque<valueType>::iterator& li)
             {      
                 ptr_=li;
 
-                // on default, the iterator behaves as a std::list::iterator
+                // on default, the iterator behaves as a std::deque::iterator
                 traversalMethod_ = traversalList_;
             }
 
@@ -568,10 +568,10 @@ namespace Base
             }
 
     private:
-        typename std::list<valueType>::iterator ptr_;   // current position
-        typename std::list<valueType>::iterator end_;   // end position
-        typename std::list<valueType>::iterator first_; // the last valid position
-        typename std::list<valueType>::iterator last_;  // the last valid position
+        typename std::deque<valueType>::iterator ptr_;   // current position
+        typename std::deque<valueType>::iterator end_;   // end position
+        typename std::deque<valueType>::iterator first_; // the last valid position
+        typename std::deque<valueType>::iterator last_;  // the last valid position
 
         int traversalMethod_;
         enum {  traversalList_            = -1,

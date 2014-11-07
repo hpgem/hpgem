@@ -23,7 +23,7 @@
 #define LevelTree_hpp
 //------------------------------------------------------------------------------
 // System includes and names imported from them:
-#include <list>
+#include <deque>
 #include <vector>
 #include <iostream>
 //------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ namespace Base
 
     private:
         int                     noRootEntries_;
-        std::list<treeEntryT*>  entries_;
+        std::deque<treeEntryT*>  entries_;
         int                     minLevel_;
         int                     maxLevel_;
         int                     activeLevel_;

@@ -32,6 +32,7 @@
 #include "Base/BasisFunctionSet.hpp"
 #include "Geometry/PointReference.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include <cmath>
 
 void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
 	std::cout<<test.getName()<<std::endl;
@@ -48,63 +49,63 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
 			integrated+=test.weight(j)*functions->eval(i,point);
 		}
 		if(i<3){
-			assert(("integration",fabs(integrated-1./6.)<1e-12));
+			assert(("integration",std::abs(integrated-1./6.)<1e-12));
 		}else if(i<6){
-			assert(("integration",fabs(integrated+0.102062072616)<1e-12));
+			assert(("integration",std::abs(integrated+0.102062072616)<1e-12));
 		}else if(i==6){
-			assert(("integration",fabs(integrated-1./20.)<1e-12));
+			assert(("integration",std::abs(integrated-1./20.)<1e-12));
 		}else if(11<i&&i<15){
-			assert(("integration",fabs(integrated-0.0129918659263)<1e-12));
+			assert(("integration",std::abs(integrated-0.0129918659263)<1e-12));
 		}else if(i==15||i==17){
-			assert(("integration",fabs(integrated+0.010001653302)<1e-12));
+			assert(("integration",std::abs(integrated+0.010001653302)<1e-12));
 		}else if(i==16){
-			assert(("integration",fabs(integrated+0.00396825396825)<1e-12));
+			assert(("integration",std::abs(integrated+0.00396825396825)<1e-12));
 		}else if(i==22){
-			assert(("integration",fabs(integrated-0.001467281692237)<1e-12));
+			assert(("integration",std::abs(integrated-0.001467281692237)<1e-12));
 		}else if(i==23){
-			assert(("integration",fabs(integrated+0.001467281692237)<1e-12));
+			assert(("integration",std::abs(integrated+0.001467281692237)<1e-12));
 		}else if(24<i&&i<28){
-			assert(("integration",fabs(integrated+0.000814308291636)<1e-12));
+			assert(("integration",std::abs(integrated+0.000814308291636)<1e-12));
 		}else if(i==28||i==32){
-			assert(("integration",fabs(integrated-0.001994639807826)<1e-12));
+			assert(("integration",std::abs(integrated-0.001994639807826)<1e-12));
 		}else if(i==29||i==31){
-			assert(("integration",fabs(integrated-0.001663741054687)<1e-12));
+			assert(("integration",std::abs(integrated-0.001663741054687)<1e-12));
 		}else if(i==30){
-			assert(("integration",fabs(integrated-0.0025173611111111)<1e-12));
+			assert(("integration",std::abs(integrated-0.0025173611111111)<1e-12));
 		}else if(i==37){
-			assert(("integration",fabs(integrated+0.0010300275676522)<1e-12));
+			assert(("integration",std::abs(integrated+0.0010300275676522)<1e-12));
 		}else if(i==38){
-			assert(("integration",fabs(integrated-0.0000984282481784)<1e-12));
+			assert(("integration",std::abs(integrated-0.0000984282481784)<1e-12));
 		}else if(i==39){
-			assert(("integration",fabs(integrated+0.0000984282481784)<1e-12));
+			assert(("integration",std::abs(integrated+0.0000984282481784)<1e-12));
 		}else if(i==40){
-			assert(("integration",fabs(integrated-0.0010300275676522)<1e-12));
+			assert(("integration",std::abs(integrated-0.0010300275676522)<1e-12));
 		}else if(41<i&&i<45){
-			assert(("integration",fabs(integrated-0.0001528243743039)<1e-12));
+			assert(("integration",std::abs(integrated-0.0001528243743039)<1e-12));
 		}else if(i==45||i==51){
-			assert(("integration",fabs(integrated+0.0003743417373047)<1e-12));
+			assert(("integration",std::abs(integrated+0.0003743417373047)<1e-12));
 		}else if(i==46||i==50){
-			assert(("integration",fabs(integrated+0.0045990061560235)<1e-12));
+			assert(("integration",std::abs(integrated+0.0045990061560235)<1e-12));
 		}else if(i==47||i==49){
-			assert(("integration",fabs(integrated+0.0005242977910035)<1e-12));
+			assert(("integration",std::abs(integrated+0.0005242977910035)<1e-12));
 		}else if(i==48){
-			assert(("integration",fabs(integrated+0.001020698051948)<1e-12));
+			assert(("integration",std::abs(integrated+0.001020698051948)<1e-12));
 		}else if(i==56){
-			assert(("integration",fabs(integrated-0.0004027275873253)<1e-12));
+			assert(("integration",std::abs(integrated-0.0004027275873253)<1e-12));
 		}else if(i==57){
-			assert(("integration",fabs(integrated+0.001833588494787)<1e-12));
+			assert(("integration",std::abs(integrated+0.001833588494787)<1e-12));
 		}else if(i==58){
-			assert(("integration",fabs(integrated-0.0002669631696782)<1e-12));
+			assert(("integration",std::abs(integrated-0.0002669631696782)<1e-12));
 		}else if(i==59){
-			assert(("integration",fabs(integrated+0.0002669631696782)<1e-12));
+			assert(("integration",std::abs(integrated+0.0002669631696782)<1e-12));
 		}else if(i==60){
-			assert(("integration",fabs(integrated-0.001833588494787)<1e-12));
+			assert(("integration",std::abs(integrated-0.001833588494787)<1e-12));
 		}else if(i==61){
-			assert(("integration",fabs(integrated+0.0004027275873253)<1e-12));
+			assert(("integration",std::abs(integrated+0.0004027275873253)<1e-12));
 		}else if(62<i&&i<66){
-			assert(("integration",fabs(integrated+0.0000445921151835)<1e-12));
+			assert(("integration",std::abs(integrated+0.0000445921151835)<1e-12));
 		}else{
-			assert(("integration",fabs(integrated)<1e-12));
+			assert(("integration",std::abs(integrated)<1e-12));
 		}
 
 	}

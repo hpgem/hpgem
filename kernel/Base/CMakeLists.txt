@@ -1,7 +1,11 @@
 include_directories(${hpGEM_SOURCE_DIR}/kernel/ .)
 
-if(hpGEM_INCLUDE_METIS_SUPPORT)
+if(hpGEM_USE_METIS)
   include_directories(${METIS_INCLUDE_DIR})
+endif()
+
+if(hpGEM_USE_PETSC)
+  include_directories(${PETSC_INCLUDES})
 endif()
 
 add_library(hpGEM_Base SHARED
@@ -53,6 +57,10 @@ endif()
 
 if(hpGEM_USE_METIS)
 target_link_libraries(hpGEM_Base "${METIS_LIBRARIES}")
+endif()
+
+if(hpGEM_USE_PETSC)
+target_link_libraries(hpGEM_Base "${PETSC_LIBRARIES}")
 endif()
 
 set_target_properties(hpGEM_Base PROPERTIES COMPILE_FLAGS "${DEP_COMPILE_FLAGS}")

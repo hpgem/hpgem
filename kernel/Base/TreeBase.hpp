@@ -33,7 +33,7 @@ namespace Base
           to its first child, if any.  If a node has no child, the child link 
           points to itself.
         - A node may have \b siblings or none.  A node is connected to its 
-          siblings by C++ STL \c std::list connections.
+          siblings by C++ STL \c std::deque connections.
         - A node may reside on one \b level or on multi level.  We define a
           rather special here, a node reside on multi level, to save memory.
           To enable this special property, we introduce \e basic \e level, 

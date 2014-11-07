@@ -35,7 +35,6 @@
 #include "Geometry/Mappings/MappingToRefCubeToCube.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 #include <cmath>
-using std::fabs;
 using Geometry::ReferenceCube;
 
 int main(){
@@ -84,23 +83,23 @@ int main(){
 	}
 
 	test.getCenter(pTest);
-	assert(("getCenter",test.isInternalPoint(pTest)&&fabs(pTest[0])<1e-12&&fabs(pTest[1])<1e-12)&&fabs(pTest[2])<1e-12);
+	assert(("getCenter",test.isInternalPoint(pTest)&&std::abs(pTest[0])<1e-12&&std::abs(pTest[1])<1e-12)&&std::abs(pTest[2])<1e-12);
 	test.getNode(0,pTest);
-	assert(("getNode 0",fabs(pTest[0]+1)<1e-12&&fabs(pTest[1]+1)<1e-12&&fabs(pTest[2]+1)<1e-12));
+	assert(("getNode 0",std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2]+1)<1e-12));
 	test.getNode(1,pTest);
-	assert(("getNode 1",fabs(pTest[0]-1)<1e-12&&fabs(pTest[1]+1)<1e-12&&fabs(pTest[2]+1)<1e-12));
+	assert(("getNode 1",std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2]+1)<1e-12));
 	test.getNode(2,pTest);
-	assert(("getNode 2",fabs(pTest[0]+1)<1e-12&&fabs(pTest[1]-1)<1e-12&&fabs(pTest[2]+1)<1e-12));
+	assert(("getNode 2",std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2]+1)<1e-12));
 	test.getNode(3,pTest);
-	assert(("getNode 3",fabs(pTest[0]-1)<1e-12&&fabs(pTest[1]-1)<1e-12&&fabs(pTest[2]+1)<1e-12));
+	assert(("getNode 3",std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2]+1)<1e-12));
 	test.getNode(4,pTest);
-	assert(("getNode 4",fabs(pTest[0]+1)<1e-12&&fabs(pTest[1]+1)<1e-12&&fabs(pTest[2]-1)<1e-12));
+	assert(("getNode 4",std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2]-1)<1e-12));
 	test.getNode(5,pTest);
-	assert(("getNode 5",fabs(pTest[0]-1)<1e-12&&fabs(pTest[1]+1)<1e-12&&fabs(pTest[2]-1)<1e-12));
+	assert(("getNode 5",std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2]-1)<1e-12));
 	test.getNode(6,pTest);
-	assert(("getNode 6",fabs(pTest[0]+1)<1e-12&&fabs(pTest[1]-1)<1e-12&&fabs(pTest[2]-1)<1e-12));
+	assert(("getNode 6",std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2]-1)<1e-12));
 	test.getNode(7,pTest);
-	assert(("getNode 7",fabs(pTest[0]-1)<1e-12&&fabs(pTest[1]-1)<1e-12&&fabs(pTest[2]-1)<1e-12));
+	assert(("getNode 7",std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2]-1)<1e-12));
 	std::cout<<test.getName();
 
 	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,0)==0));//the nodes of the face must always be specified IN THIS SPECIFIC ORDER

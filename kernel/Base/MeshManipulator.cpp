@@ -1611,7 +1611,7 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
         if (checkInt!=sizeOfLine) {std::cerr << "Error in centaur file " << std::endl; return;}
         
         //Keep track of the node->Element connectivity to ease face creation later on
-        std::vector<std::list<int> > listOfElementsForEachNode(numberOfNodes);   
+        std::vector<std::vector<int> > listOfElementsForEachNode(numberOfNodes);   
 	std::vector<Element* > tempElementVector;
         
         //file version 1 has no lines about hexahedra
@@ -2142,9 +2142,16 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 		    centaurFile.read(reinterpret_cast<char*>(&matchingNodes[0]), sizeof(matchingNodes));
 		    
 		    ///\bug for EXTREMELY coarse meshes this will destroy the distinction between faces on the boundary of the domain. Workaround: use at least 3 nodes per direction on each face.
-		    listOfElementsForEachNode[matchingNodes[0]-1 ].merge(listOfElementsForEachNode[matchingNodes[1]-1 ]);
-		    listOfElementsForEachNode[matchingNodes[0]-1].unique();
-		    listOfElementsForEachNode[matchingNodes[1]-1 ]=listOfElementsForEachNode[matchingNodes[0]-1 ];		    
+		    auto& target = listOfElementsForEachNode[matchingNodes[0]];
+                    auto first = std::move(target);
+                    auto& second = listOfElementsForEachNode[matchingNodes[1]];
+                    
+                    //We just std::move()d target, put it back in a defined state
+                    target.clear();
+                    target.reserve(first.size()+second.size());
+                    std::set_union(first.begin(),first.end(),second.begin(),second.end(),target.begin());
+                    
+		    listOfElementsForEachNode[matchingNodes[1] ]=listOfElementsForEachNode[matchingNodes[0] ];		    
 		}
 		centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
 		if (checkInt!=sizeOfLine) {std::cerr << "Error in centaur file " << std::endl; return;}
@@ -2162,7 +2169,15 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 		for(int j=0;j<numberOfPeriodicNodes;j++){
 		    centaurFile.read(reinterpret_cast<char*>(&matchingNodes[0]), sizeof(matchingNodes));
 		    
-		    listOfElementsForEachNode[matchingNodes[0] ].merge(listOfElementsForEachNode[matchingNodes[1] ]);
+		    auto& target = listOfElementsForEachNode[matchingNodes[0]];
+                    auto first = std::move(target);
+                    auto& second = listOfElementsForEachNode[matchingNodes[1]];
+                    
+                    //We just std::move()d target, put it back in a defined state
+                    target.clear();
+                    target.reserve(first.size()+second.size());
+                    std::set_union(first.begin(),first.end(),second.begin(),second.end(),target.begin());
+                    
 		    listOfElementsForEachNode[matchingNodes[1] ]=listOfElementsForEachNode[matchingNodes[0] ];		    
 		}
 		centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
@@ -2183,11 +2198,11 @@ void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
 
 }
 
-void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, std::list<int>& c, int aNumber, int bNumber, int cNumber, std::list<int>& notOnFace, HalfFaceDescription& face, std::vector<Element*>& vectorOfElements)
+void MeshManipulator::findElementNumber(std::vector<int>& a, std::vector<int>& b, std::vector<int>& c, int aNumber, int bNumber, int cNumber, std::vector<int>& notOnFace, HalfFaceDescription& face, std::vector<Element*>& vectorOfElements)
 {
     //step 1: the element should be connected to all of the given nodes
         
-    std::list<int>::iterator aEntry(a.begin()), bEntry(b.begin()), cEntry(c.begin()), otherEntry(notOnFace.begin());
+    std::vector<int>::iterator aEntry(a.begin()), bEntry(b.begin()), cEntry(c.begin()), otherEntry(notOnFace.begin());
     //std::cout<<a.size()<<" "<<b.size()<<" "<<c.size()<<" "<<notOnFace.size()<<std::endl;
     
     //assumes the lists are already sorted
@@ -2225,14 +2240,14 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
 }
 
 //in principle this will also work for 2D but fixing DIM makes the code a lot easier to read
-    void MeshManipulator::constructInternalFaces(std::vector<std::list<int> >& listOfElementsForEachNode,std::vector<Element*>& vectorOfElements)
+    void MeshManipulator::constructInternalFaces(std::vector<std::vector<int> >& listOfElementsForEachNode,std::vector<Element*>& vectorOfElements)
     {
         int numberOfFaces(0);
         for(Element* currentElement:vectorOfElements){
             for(int currentFace=0;currentFace<(currentElement)->getPhysicalGeometry()->getNrOfFaces();++currentFace){
                 
                 //step 1: find the other element
-                std::list<int>::iterator elementListEntry[3];
+                std::vector<int>::iterator elementListEntry[3];
                 std::vector<unsigned int> faceNode;
                 (currentElement)->getPhysicalGeometry()->getGlobalFaceNodeIndices(currentFace,faceNode);
                 for(int i=0;i<3;++i){
@@ -2251,7 +2266,7 @@ void MeshManipulator::findElementNumber(std::list<int>& a, std::list<int>& b, st
                     for(int otherFace=0;otherFace<vectorOfElements[*elementListEntry[0]]->getPhysicalGeometry()->getNrOfFaces();++otherFace){
                         
                         //but we can just find the original element back
-                        std::list<int>::iterator otherElementListEntry[3];
+                        std::vector<int>::iterator otherElementListEntry[3];
                         std::vector<unsigned int> otherFaceNode;
                         vectorOfElements[*elementListEntry[0]]->getPhysicalGeometry()->getGlobalFaceNodeIndices(otherFace,otherFaceNode);
                         for(int i=0;i<3;++i){
@@ -2309,7 +2324,7 @@ void MeshManipulator::faceFactory()
     HalfFaceDescription halfFace;
     
     //List to hold the half faces. List is used for the quick sorting of the halfFaces
-    std::list<HalfFaceDescription> halfFaceList;
+    std::vector<HalfFaceDescription> halfFaceList;
     VectorOfElementPtrT tempElementVector(getElementsList().size());
     
     VectorOfPointIndicesT globalFaceIndexes;
@@ -2358,7 +2373,7 @@ void MeshManipulator::faceFactory()
 //                 }
                 
                 //Add the halfFace to the list
-                halfFaceList.push_front(halfFace);
+                halfFaceList.push_back(halfFace);
 
             }
                 
@@ -2366,10 +2381,10 @@ void MeshManipulator::faceFactory()
         }
         
         //Now sort the list on the two value (firstNode, secondNode) so it order and the two pair internal halfFaces are next to each other
-        halfFaceList.sort(compareHalfFace);
+        std::sort(halfFaceList.begin(),halfFaceList.end(),compareHalfFace);
         
         //Writing out for testing
-        for (typename std::list<HalfFaceDescription>::const_iterator cit=halfFaceList.begin(); cit !=halfFaceList.end(); ++cit)
+        for (typename std::vector<HalfFaceDescription>::const_iterator cit=halfFaceList.begin(); cit !=halfFaceList.end(); ++cit)
         {
             //std::cout << (*cit).elementNum << " " << (*cit).localFaceIndex<< " "<< (*cit).nodeList[0]<<" " << (*cit).nodeList[1]<<" "<<  std::endl;
         }
@@ -2379,7 +2394,7 @@ void MeshManipulator::faceFactory()
         HalfFaceDescription next;
         
         //Loop over all the half faces
-         for (typename std::list<HalfFaceDescription>::const_iterator cit=halfFaceList.begin(); cit !=halfFaceList.end(); ++cit)
+         for (typename std::vector<HalfFaceDescription>::const_iterator cit=halfFaceList.begin(); cit !=halfFaceList.end(); ++cit)
          {
              //For the first halfFace just read it in, as we cannot tell if is an internal or external yet.
              if (cit==halfFaceList.begin())
@@ -2426,7 +2441,7 @@ void MeshManipulator::faceFactory()
 		//the halfFaceDescription is designed to store partial information for objects that still need to be linked, so it will also work for edges
 		HalfFaceDescription halfEdge;
 
-	    std::list<HalfFaceDescription> halfEdgeList;
+	    std::vector<HalfFaceDescription> halfEdgeList;
 
 	    VectorOfPointIndicesT globalEdgeIndexes;
 	    int insertposition=0;
@@ -2466,16 +2481,16 @@ void MeshManipulator::faceFactory()
 					inserted=false;
 				}
 				//Add the halfFace to the list
-				halfEdgeList.push_front(halfEdge);
+				halfEdgeList.push_back(halfEdge);
 			}
 		}
-        halfEdgeList.sort(compareHalfFace);
+            std::sort(halfEdgeList.begin(),halfEdgeList.end(),compareHalfFace);
         HalfFaceDescription current;
 
         std::vector<Element*> elements;
         std::vector<unsigned int> edgeNrs;
 
-        for (typename std::list<HalfFaceDescription>::const_iterator cit=halfEdgeList.begin(); cit !=halfEdgeList.end(); ++cit)
+        for (typename std::vector<HalfFaceDescription>::const_iterator cit=halfEdgeList.begin(); cit !=halfEdgeList.end(); ++cit)
         {
             //For the first halfFace just read it in, as we cannot tell if is an internal or external yet.
             if (elements.empty())

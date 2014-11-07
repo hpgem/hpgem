@@ -101,8 +101,8 @@ namespace QuadratureRules
 	}
 
 	void AllGaussQuadratureRules::addRule(const GaussQuadratureRule* rule) {
-		std::list<const GaussQuadratureRule*>& listForGeometry = listOfRules_[rule->forReferenceGeometry()];
-		std::list<const GaussQuadratureRule*>::iterator it = listForGeometry.begin();
+		std::vector<const GaussQuadratureRule*>& listForGeometry = listOfRules_[rule->forReferenceGeometry()];
+		std::vector<const GaussQuadratureRule*>::iterator it = listForGeometry.begin();
 		while (it != listForGeometry.end()) {
 			if ((*it)->order() < rule->order())
 				++it;

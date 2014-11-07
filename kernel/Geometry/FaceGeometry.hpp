@@ -125,7 +125,7 @@ namespace Geometry
     public:
         typedef PointPhysical                                              PointPhysicalT;
         typedef LinearAlgebra::Matrix                                           MatrixT;
-        //typedef std::list<PointPhysicalT* >                                     ListOfPointPtrsT;
+        //typedef std::vector<PointPhysicalT* >                                     ListOfPointPtrsT;
         //typedef Geometry::MappingReferenceToPhysical                       MappingReferenceToPhysicalT;
         typedef std::set<unsigned int>                                          SetOfGlobalNodes;
         typedef std::vector<unsigned int>                                       VectorOfLocalNodes;

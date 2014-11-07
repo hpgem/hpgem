@@ -35,7 +35,6 @@
 #include "Geometry/PhysicalGeometry.hpp"
 
 #include <cmath>
-using std::fabs;
 int main(){
 
 	//dim0
@@ -78,13 +77,13 @@ int main(){
 		test->getElementGLeft()->referenceToPhysical(compare1D,compare1Dphys);
 		test->mapRefFaceToRefElemL(orig1D,point1D);
 		test->referenceToPhysical(orig1D,point1Dphys);
-		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",fabs(compare1D[0]-point1D[0])<1e-12));
-		assert(("referenceToPhysical",fabs(compare1Dphys[0]-point1Dphys[0])<1e-12));
+		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",std::abs(compare1D[0]-point1D[0])<1e-12));
+		assert(("referenceToPhysical",std::abs(compare1Dphys[0]-point1Dphys[0])<1e-12));
 		test->getPtrElementGRight()->getReferenceGeometry()->getNode(rightIndices[i],compare1D);
 		test->getPtrElementGRight()->referenceToPhysical(compare1D,compare1Dphys);
 		test->mapRefFaceToRefElemR(orig1D,point1D);
-		assert(("getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace",fabs(compare1D[0]-point1D[0])<1e-12));
-		assert(("referenceToPhysical",fabs(compare1Dphys[0]-point1Dphys[0])<1e-12));//probably indirectly verified already, but this is the most important feature of a face
+		assert(("getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace",std::abs(compare1D[0]-point1D[0])<1e-12));
+		assert(("referenceToPhysical",std::abs(compare1Dphys[0]-point1Dphys[0])<1e-12));//probably indirectly verified already, but this is the most important feature of a face
 	}
 
 	assert((test->getFaceType()==Geometry::INTERNAL));
@@ -144,17 +143,17 @@ int main(){
 		test->getElementGLeft()->referenceToPhysical(compare2D,compare2Dphys);
 		test->mapRefFaceToRefElemL(orig2D,point2D);
 		test->referenceToPhysical(orig2D,point2Dphys);
-		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",fabs(compare2D[0]-point2D[0])<1e-12));
-		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",fabs(compare2D[1]-point2D[1])<1e-12));
-		assert(("referenceToPhysical",fabs(compare2Dphys[0]-point2Dphys[0])<1e-12));
-		assert(("referenceToPhysical",fabs(compare2Dphys[1]-point2Dphys[1])<1e-12));
+		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",std::abs(compare2D[0]-point2D[0])<1e-12));
+		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",std::abs(compare2D[1]-point2D[1])<1e-12));
+		assert(("referenceToPhysical",std::abs(compare2Dphys[0]-point2Dphys[0])<1e-12));
+		assert(("referenceToPhysical",std::abs(compare2Dphys[1]-point2Dphys[1])<1e-12));
 		test->getPtrElementGRight()->getReferenceGeometry()->getNode(rightIndices[i],compare2D);
 		test->getPtrElementGRight()->referenceToPhysical(compare2D,compare2Dphys);
 		test->mapRefFaceToRefElemR(orig2D,point2D);
-		assert(("getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace",fabs(compare2D[0]-point2D[0])<1e-12));
-		assert(("getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace",fabs(compare2D[1]-point2D[1])<1e-12));
-		assert(("referenceToPhysical",fabs(compare2Dphys[0]-point2Dphys[0])<1e-12));//probably indirectly verified already, but this is the most important feature of a face
-		assert(("referenceToPhysical",fabs(compare2Dphys[1]-point2Dphys[1])<1e-12));
+		assert(("getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace",std::abs(compare2D[0]-point2D[0])<1e-12));
+		assert(("getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace",std::abs(compare2D[1]-point2D[1])<1e-12));
+		assert(("referenceToPhysical",std::abs(compare2Dphys[0]-point2Dphys[0])<1e-12));//probably indirectly verified already, but this is the most important feature of a face
+		assert(("referenceToPhysical",std::abs(compare2Dphys[1]-point2Dphys[1])<1e-12));
 	}
 
 	assert((test->getFaceType()==Geometry::INTERNAL));
@@ -186,10 +185,10 @@ int main(){
 		test->getElementGLeft()->referenceToPhysical(compare2D,compare2Dphys);
 		test->mapRefFaceToRefElemL(orig2D,point2D);
 		test->referenceToPhysical(orig2D,point2Dphys);
-		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",fabs(compare2D[0]-point2D[0])<1e-12));
-		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",fabs(compare2D[1]-point2D[1])<1e-12));
-		assert(("referenceToPhysical",fabs(compare2Dphys[0]-point2Dphys[0])<1e-12));
-		assert(("referenceToPhysical",fabs(compare2Dphys[1]-point2Dphys[1])<1e-12));
+		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",std::abs(compare2D[0]-point2D[0])<1e-12));
+		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",std::abs(compare2D[1]-point2D[1])<1e-12));
+		assert(("referenceToPhysical",std::abs(compare2Dphys[0]-point2Dphys[0])<1e-12));
+		assert(("referenceToPhysical",std::abs(compare2Dphys[1]-point2Dphys[1])<1e-12));
 	}
 
 	assert((test->getFaceType()==Geometry::WALL_BC));

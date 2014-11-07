@@ -25,7 +25,7 @@
 #include "ReferenceGeometry.hpp"
 
 #include <iostream>
-#include <list>
+#include <vector>
 
 namespace Geometry
 {
@@ -147,7 +147,7 @@ namespace Geometry
         ReferenceGeometry* const                         referenceGeometryCodim1Ptr_;
         
         //! List of valid quadrature rules for this reference geometry
-        std::list<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
+        std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
 
     };
 };

@@ -23,7 +23,6 @@
 #define	SUBMESH_HPP
 
 #include <vector>
-#include <list>
 #include <map>
 
 namespace Geometry{
@@ -70,32 +69,32 @@ private:
     void add(Geometry::PointPhysical& node);
 public:
     //! Get const list of elements
-    const std::list<Element*>&          getElementsList() const {return elements_; }
+    const std::vector<Element*>&          getElementsList() const {return elements_; }
     //! Get non-const list of elements
-    std::list<Element*>&                getElementsList() { return elements_; }
+    std::vector<Element*>&                getElementsList() { return elements_; }
 
     //! Get const list of faces
-    const std::list<Face*>&             getFacesList() const { return faces_; }
+    const std::vector<Face*>&             getFacesList() const { return faces_; }
     //! Get non-const list of faces
-    std::list<Face*>&                   getFacesList() { return faces_; }
+    std::vector<Face*>&                   getFacesList() { return faces_; }
 
-    const std::list<Edge*>&             getEdgesList() const {return edges_;}
-    std::list<Edge*>&                   getEdgesList() {return edges_;}
+    const std::vector<Edge*>&             getEdgesList() const {return edges_;}
+    std::vector<Edge*>&                   getEdgesList() {return edges_;}
     
     const std::map<int,std::vector<Element*> > & getPullElements() const { return pullElements_; }
     const std::map<int,std::vector<Element*> > & getPushElements() const { return pushElements_; }
     
 private:
     //! List of all elements. TODO: this should be replaced by the mesh-tree structure
-    std::list<Element*>                  elements_;
+    std::vector<Element*>                  elements_;
 
     //! List of all faces. TODO: this should be replaced by the mesh-tree structure
     //! This contains the list of all faces connected to at least one element in this sub-domain
-    std::list<Face*>                     faces_;
+    std::vector<Face*>                     faces_;
 
     //! List of all edges.
     //! This contains the list of all edges connected to at least one element in this sub-domain
-    std::list< Edge*>                    edges_;
+    std::vector< Edge*>                    edges_;
     
     //! Tracks the shadow elements (that needs information form another processor each update step, instead of a computation)
     //! pullElements_[i] contains the list of all elements that need info from process i.

@@ -20,7 +20,6 @@
  */
 //------------------------------------------------------------------------------
 
-#include <list>
 #include <iostream>
 using std::cerr;
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"

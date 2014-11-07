@@ -31,6 +31,7 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/Jacobian.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include <cmath>
 int main() {
 
 	Geometry::PointReference refPoint(2),point(2),compare(2);
@@ -58,8 +59,8 @@ int main() {
 
 			refPoint[0]+=-1e-8;
 			test->calcJacobian(refPoint,jac);
-			assert(("jacobian",fabs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-			assert(("jacobian",fabs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+			assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+			assert(("jacobian",std::abs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 
 			refPoint[1]+=-1.e-8;
 			test->transform(refPoint,compare);
@@ -68,8 +69,8 @@ int main() {
 
 			refPoint[1]+=-1e-8;
 			test->calcJacobian(refPoint,jac);
-			assert(("jacobian",fabs(jac[2]-5.e7*(point[0]-compare[0]))<1e-5));
-			assert(("jacobian",fabs(jac[3]-5.e7*(point[1]-compare[1]))<1e-5));
+			assert(("jacobian",std::abs(jac[2]-5.e7*(point[0]-compare[0]))<1e-5));
+			assert(("jacobian",std::abs(jac[3]-5.e7*(point[1]-compare[1]))<1e-5));
 		}
 	}
 
@@ -77,8 +78,8 @@ int main() {
 		geom.getNode(i,refPoint);
 		geom.getNode(nodesAfterTransformation[i],compare);
 		test->transform(refPoint,point);
-		assert(("transform",fabs(point[0]-compare[0])<1e-12));
-		assert(("transform",fabs(point[1]-compare[1])<1e-12));
+		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
+		assert(("transform",std::abs(point[1]-compare[1])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==2));
@@ -101,8 +102,8 @@ int main() {
 
 			refPoint[0]+=-1e-8;
 			test->calcJacobian(refPoint,jac);
-			assert(("jacobian",fabs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-			assert(("jacobian",fabs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+			assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+			assert(("jacobian",std::abs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 
 			refPoint[1]+=-1.e-8;
 			test->transform(refPoint,compare);
@@ -111,8 +112,8 @@ int main() {
 
 			refPoint[1]+=-1e-8;
 			test->calcJacobian(refPoint,jac);
-			assert(("jacobian",fabs(jac[2]-5.e7*(point[0]-compare[0]))<1e-5));
-			assert(("jacobian",fabs(jac[3]-5.e7*(point[1]-compare[1]))<1e-5));
+			assert(("jacobian",std::abs(jac[2]-5.e7*(point[0]-compare[0]))<1e-5));
+			assert(("jacobian",std::abs(jac[3]-5.e7*(point[1]-compare[1]))<1e-5));
 		}
 	}
 
@@ -120,8 +121,8 @@ int main() {
 		geom.getNode(i,refPoint);
 		geom.getNode(nodesAfterTransformation[i],compare);
 		test->transform(refPoint,point);
-		assert(("transform",fabs(point[0]-compare[0])<1e-12));
-		assert(("transform",fabs(point[1]-compare[1])<1e-12));
+		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
+		assert(("transform",std::abs(point[1]-compare[1])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==2));
@@ -144,8 +145,8 @@ int main() {
 
 			refPoint[0]+=-1e-8;
 			test->calcJacobian(refPoint,jac);
-			assert(("jacobian",fabs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-			assert(("jacobian",fabs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+			assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+			assert(("jacobian",std::abs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 
 			refPoint[1]+=-1.e-8;
 			test->transform(refPoint,compare);
@@ -154,8 +155,8 @@ int main() {
 
 			refPoint[1]+=-1e-8;
 			test->calcJacobian(refPoint,jac);
-			assert(("jacobian",fabs(jac[2]-5.e7*(point[0]-compare[0]))<1e-5));
-			assert(("jacobian",fabs(jac[3]-5.e7*(point[1]-compare[1]))<1e-5));
+			assert(("jacobian",std::abs(jac[2]-5.e7*(point[0]-compare[0]))<1e-5));
+			assert(("jacobian",std::abs(jac[3]-5.e7*(point[1]-compare[1]))<1e-5));
 		}
 	}
 
@@ -163,8 +164,8 @@ int main() {
 		geom.getNode(i,refPoint);
 		geom.getNode(nodesAfterTransformation[i],compare);
 		test->transform(refPoint,point);
-		assert(("transform",fabs(point[0]-compare[0])<1e-12));
-		assert(("transform",fabs(point[1]-compare[1])<1e-12));
+		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
+		assert(("transform",std::abs(point[1]-compare[1])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==2));
@@ -187,8 +188,8 @@ int main() {
 
 			refPoint[0]+=-1e-8;
 			test->calcJacobian(refPoint,jac);
-			assert(("jacobian",fabs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-			assert(("jacobian",fabs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+			assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+			assert(("jacobian",std::abs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 
 			refPoint[1]+=-1.e-8;
 			test->transform(refPoint,compare);
@@ -197,8 +198,8 @@ int main() {
 
 			refPoint[1]+=-1e-8;
 			test->calcJacobian(refPoint,jac);
-			assert(("jacobian",fabs(jac[2]-5.e7*(point[0]-compare[0]))<1e-5));
-			assert(("jacobian",fabs(jac[3]-5.e7*(point[1]-compare[1]))<1e-5));
+			assert(("jacobian",std::abs(jac[2]-5.e7*(point[0]-compare[0]))<1e-5));
+			assert(("jacobian",std::abs(jac[3]-5.e7*(point[1]-compare[1]))<1e-5));
 		}
 	}
 
@@ -206,8 +207,8 @@ int main() {
 		geom.getNode(i,refPoint);
 		geom.getNode(nodesAfterTransformation[i],compare);
 		test->transform(refPoint,point);
-		assert(("transform",fabs(point[0]-compare[0])<1e-12));
-		assert(("transform",fabs(point[1]-compare[1])<1e-12));
+		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
+		assert(("transform",std::abs(point[1]-compare[1])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==2));
@@ -230,8 +231,8 @@ int main() {
 
 			refPoint[0]+=-1e-8;
 			test->calcJacobian(refPoint,jac);
-			assert(("jacobian",fabs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-			assert(("jacobian",fabs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+			assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+			assert(("jacobian",std::abs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 
 			refPoint[1]+=-1.e-8;
 			test->transform(refPoint,compare);
@@ -240,8 +241,8 @@ int main() {
 
 			refPoint[1]+=-1e-8;
 			test->calcJacobian(refPoint,jac);
-			assert(("jacobian",fabs(jac[2]-5.e7*(point[0]-compare[0]))<1e-5));
-			assert(("jacobian",fabs(jac[3]-5.e7*(point[1]-compare[1]))<1e-5));
+			assert(("jacobian",std::abs(jac[2]-5.e7*(point[0]-compare[0]))<1e-5));
+			assert(("jacobian",std::abs(jac[3]-5.e7*(point[1]-compare[1]))<1e-5));
 		}
 	}
 
@@ -249,8 +250,8 @@ int main() {
 		geom.getNode(i,refPoint);
 		geom.getNode(nodesAfterTransformation[i],compare);
 		test->transform(refPoint,point);
-		assert(("transform",fabs(point[0]-compare[0])<1e-12));
-		assert(("transform",fabs(point[1]-compare[1])<1e-12));
+		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
+		assert(("transform",std::abs(point[1]-compare[1])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==2));
@@ -273,8 +274,8 @@ int main() {
 
 			refPoint[0]+=-1e-8;
 			test->calcJacobian(refPoint,jac);
-			assert(("jacobian",fabs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-			assert(("jacobian",fabs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
+			assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+			assert(("jacobian",std::abs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 
 			refPoint[1]+=-1.e-8;
 			test->transform(refPoint,compare);
@@ -283,8 +284,8 @@ int main() {
 
 			refPoint[1]+=-1e-8;
 			test->calcJacobian(refPoint,jac);
-			assert(("jacobian",fabs(jac[2]-5.e7*(point[0]-compare[0]))<1e-5));
-			assert(("jacobian",fabs(jac[3]-5.e7*(point[1]-compare[1]))<1e-5));
+			assert(("jacobian",std::abs(jac[2]-5.e7*(point[0]-compare[0]))<1e-5));
+			assert(("jacobian",std::abs(jac[3]-5.e7*(point[1]-compare[1]))<1e-5));
 		}
 	}
 
@@ -292,8 +293,8 @@ int main() {
 		geom.getNode(i,refPoint);
 		geom.getNode(nodesAfterTransformation[i],compare);
 		test->transform(refPoint,point);
-		assert(("transform",fabs(point[0]-compare[0])<1e-12));
-		assert(("transform",fabs(point[1]-compare[1])<1e-12));
+		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
+		assert(("transform",std::abs(point[1]-compare[1])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==2));

@@ -64,23 +64,23 @@ int main(){
 	LinearAlgebra::NumericalVector vec1D(test1,1);
 	Geometry::PointPhysical point1D(vec1D);
 
-	assert("1D case, positive",fabs(Base::L2Norm(vec1D)-1)<1e-12,__LINE__);
-	assert("1D case, positive",fabs(Base::L2Norm(point1D)-1)<1e-12,__LINE__);
-	assert("1D case, positive",fabs(Utilities::norm2(point1D)-1)<1e-12,__LINE__);
+	assert("1D case, positive",std::abs(Base::L2Norm(vec1D)-1)<1e-12,__LINE__);
+	assert("1D case, positive",std::abs(Base::L2Norm(point1D)-1)<1e-12,__LINE__);
+	assert("1D case, positive",std::abs(Utilities::norm2(point1D)-1)<1e-12,__LINE__);
 
 	vec1D[0]=-1;
 	point1D[0]=-1;
 
-	assert("1D case, negative",fabs(Base::L2Norm(vec1D)-1)<1e-12,__LINE__);
-	assert("1D case, negative",fabs(Base::L2Norm(point1D)-1)<1e-12,__LINE__);
-	assert("1D case, negative",fabs(Utilities::norm2(point1D)-1)<1e-12,__LINE__);
+	assert("1D case, negative",std::abs(Base::L2Norm(vec1D)-1)<1e-12,__LINE__);
+	assert("1D case, negative",std::abs(Base::L2Norm(point1D)-1)<1e-12,__LINE__);
+	assert("1D case, negative",std::abs(Utilities::norm2(point1D)-1)<1e-12,__LINE__);
 
 	vec1D[0]=4.38573895783677438;
 	point1D[0]=4.38573895783677438;
 
-	assert("non-unit data",fabs(Base::L2Norm(vec1D)-4.38573895783677438)<1e-12,__LINE__);
-	assert("non-unit data",fabs(Base::L2Norm(point1D)-4.38573895783677438)<1e-12,__LINE__);
-	assert("non-unit data",fabs(Utilities::norm2(point1D)-4.38573895783677438)<1e-12,__LINE__);
+	assert("non-unit data",std::abs(Base::L2Norm(vec1D)-4.38573895783677438)<1e-12,__LINE__);
+	assert("non-unit data",std::abs(Base::L2Norm(point1D)-4.38573895783677438)<1e-12,__LINE__);
+	assert("non-unit data",std::abs(Utilities::norm2(point1D)-4.38573895783677438)<1e-12,__LINE__);
 
 	test2[0]=1;
 	test2[1]=1;
@@ -88,23 +88,23 @@ int main(){
 	LinearAlgebra::NumericalVector vec2D(test2,2);
 	Geometry::PointPhysical point2D(vec2D);
 
-	assert("2D case, positive",fabs(Base::L2Norm(vec2D)-sqrt(2.))<1e-12,__LINE__);
-	assert("2D case, positive",fabs(Base::L2Norm(point2D)-sqrt(2.))<1e-12,__LINE__);
-	assert("2D case, positive",fabs(Utilities::norm2(point2D)-sqrt(2.))<1e-12,__LINE__);
+	assert("2D case, positive",std::abs(Base::L2Norm(vec2D)-sqrt(2.))<1e-12,__LINE__);
+	assert("2D case, positive",std::abs(Base::L2Norm(point2D)-sqrt(2.))<1e-12,__LINE__);
+	assert("2D case, positive",std::abs(Utilities::norm2(point2D)-sqrt(2.))<1e-12,__LINE__);
 
 	vec2D[0]=-1;
 	point2D[0]=-1;
 
-	assert("2D case, mix",fabs(Base::L2Norm(vec2D)-sqrt(2.))<1e-12,__LINE__);
-	assert("2D case, mix",fabs(Base::L2Norm(point2D)-sqrt(2.))<1e-12,__LINE__);
-	assert("2D case, mix",fabs(Utilities::norm2(point2D)-sqrt(2.))<1e-12,__LINE__);
+	assert("2D case, mix",std::abs(Base::L2Norm(vec2D)-sqrt(2.))<1e-12,__LINE__);
+	assert("2D case, mix",std::abs(Base::L2Norm(point2D)-sqrt(2.))<1e-12,__LINE__);
+	assert("2D case, mix",std::abs(Utilities::norm2(point2D)-sqrt(2.))<1e-12,__LINE__);
 
 	vec2D[1]=-1;
 	point2D[1]=-1;
 
-	assert("2D case, negative",fabs(Base::L2Norm(vec2D)-sqrt(2.))<1e-12,__LINE__);
-	assert("2D case, negative",fabs(Base::L2Norm(point2D)-sqrt(2.))<1e-12,__LINE__);
-	assert("2D case, negative",fabs(Utilities::norm2(point2D)-sqrt(2.))<1e-12,__LINE__);
+	assert("2D case, negative",std::abs(Base::L2Norm(vec2D)-sqrt(2.))<1e-12,__LINE__);
+	assert("2D case, negative",std::abs(Base::L2Norm(point2D)-sqrt(2.))<1e-12,__LINE__);
+	assert("2D case, negative",std::abs(Utilities::norm2(point2D)-sqrt(2.))<1e-12,__LINE__);
 
 	test3[0]=1;
 	test3[1]=1;
@@ -113,30 +113,30 @@ int main(){
 	LinearAlgebra::NumericalVector vec3D(test3,3);
 	Geometry::PointPhysical point3D(vec3D);
 
-	assert("3D case, positive",fabs(Base::L2Norm(vec3D)-sqrt(6.))<1e-12,__LINE__);
-	assert("3D case, positive",fabs(Base::L2Norm(point3D)-sqrt(6.))<1e-12,__LINE__);
-	assert("3D case, positive",fabs(Utilities::norm2(point3D)-sqrt(6.))<1e-12,__LINE__);
+	assert("3D case, positive",std::abs(Base::L2Norm(vec3D)-sqrt(6.))<1e-12,__LINE__);
+	assert("3D case, positive",std::abs(Base::L2Norm(point3D)-sqrt(6.))<1e-12,__LINE__);
+	assert("3D case, positive",std::abs(Utilities::norm2(point3D)-sqrt(6.))<1e-12,__LINE__);
 
 	vec3D[0]=-1;
 	point3D[0]=-1;
 
-	assert("3D case, mix",fabs(Base::L2Norm(vec3D)-sqrt(6.))<1e-12,__LINE__);
-	assert("3D case, mix",fabs(Base::L2Norm(point3D)-sqrt(6.))<1e-12,__LINE__);
-	assert("3D case, mix",fabs(Utilities::norm2(point3D)-sqrt(6.))<1e-12,__LINE__);
+	assert("3D case, mix",std::abs(Base::L2Norm(vec3D)-sqrt(6.))<1e-12,__LINE__);
+	assert("3D case, mix",std::abs(Base::L2Norm(point3D)-sqrt(6.))<1e-12,__LINE__);
+	assert("3D case, mix",std::abs(Utilities::norm2(point3D)-sqrt(6.))<1e-12,__LINE__);
 
 	vec3D[1]=-1;
 	point3D[1]=-1;
 
-	assert("3D case, mix",fabs(Base::L2Norm(vec3D)-sqrt(6.))<1e-12,__LINE__);
-	assert("3D case, mix",fabs(Base::L2Norm(point3D)-sqrt(6.))<1e-12,__LINE__);
-	assert("3D case, mix",fabs(Utilities::norm2(point3D)-sqrt(6.))<1e-12,__LINE__);
+	assert("3D case, mix",std::abs(Base::L2Norm(vec3D)-sqrt(6.))<1e-12,__LINE__);
+	assert("3D case, mix",std::abs(Base::L2Norm(point3D)-sqrt(6.))<1e-12,__LINE__);
+	assert("3D case, mix",std::abs(Utilities::norm2(point3D)-sqrt(6.))<1e-12,__LINE__);
 
 	vec3D[2]=-2;
 	point3D[2]=-2;
 
-	assert("3D case, negative",fabs(Base::L2Norm(vec3D)-sqrt(6.))<1e-12,__LINE__);
-	assert("3D case, negative",fabs(Base::L2Norm(point3D)-sqrt(6.))<1e-12,__LINE__);
-	assert("3D case, negative",fabs(Utilities::norm2(point3D)-sqrt(6.))<1e-12,__LINE__);
+	assert("3D case, negative",std::abs(Base::L2Norm(vec3D)-sqrt(6.))<1e-12,__LINE__);
+	assert("3D case, negative",std::abs(Base::L2Norm(point3D)-sqrt(6.))<1e-12,__LINE__);
+	assert("3D case, negative",std::abs(Utilities::norm2(point3D)-sqrt(6.))<1e-12,__LINE__);
 
 	return 0;
 }

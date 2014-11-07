@@ -31,6 +31,7 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/Jacobian.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include <cmath>
 int main() {
 
 	Geometry::PointReference refPoint(1),point(1),compare(1);
@@ -56,14 +57,14 @@ int main() {
 
 		refPoint[0]+=-1e-8;
 		test->calcJacobian(refPoint,jac);
-		assert(("jacobian",fabs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+		assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 	}
 
 	for(int i=0;i<geom.getNumberOfNodes();++i){
 		geom.getNode(i,refPoint);
 		geom.getNode(nodesAfterTransformation[i],compare);
 		test->transform(refPoint,point);
-		assert(("transform",fabs(point[0]-compare[0])<1e-12));
+		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==1));
@@ -84,14 +85,14 @@ int main() {
 
 		refPoint[0]+=-1e-8;
 		test->calcJacobian(refPoint,jac);
-		assert(("jacobian",fabs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
+		assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 	}
 
 	for(int i=0;i<geom.getNumberOfNodes();++i){
 		geom.getNode(i,refPoint);
 		geom.getNode(nodesAfterTransformation[i],compare);
 		test->transform(refPoint,point);
-		assert(("transform",fabs(point[0]-compare[0])<1e-12));
+		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==1));

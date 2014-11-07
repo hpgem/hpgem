@@ -21,10 +21,8 @@
 #ifndef _POINT_HPP
 #define _POINT_HPP
 
-#include <list>
 #include <iostream>
 
-///\bug the field in point forces this inclusion
 #include "LinearAlgebra/NumericalVector.hpp"
 
 namespace Geometry

@@ -32,6 +32,7 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "Base/RectangularMeshDescriptor.hpp"
 #include "Integration/ElementIntegral.hpp"
+#include <cmath>
 
 //If this test ever breaks it is not a bad thing per se.
 //If the results are still readable by tecplot, and you are convinced that your changes improved the code,
@@ -134,7 +135,7 @@ public:
     			if(fa->isInternal()){
     				ret(j,i)=-(phiNormalI*phiDerivJ+phiNormalJ*phiDerivI)/2+
     							penaltyParameter_*phiNormalI*phiNormalJ;
-    			}else if(fabs(pPhys[0])<1e-12||fabs(pPhys[0]-1.)<1e-12){//Dirichlet
+    			}else if(std::abs(pPhys[0])<1e-12||std::abs(pPhys[0]-1.)<1e-12){//Dirichlet
     				ret(j,i)=-(phiNormalI*phiDerivJ+phiNormalJ*phiDerivI)+
     							penaltyParameter_*phiNormalI*phiNormalJ*2;
     			}else{//homogeneous Neumann
@@ -150,7 +151,7 @@ public:
 		ret.resize(n);
 		PointPhysicalT pPhys(DIM_);
 		fa->referenceToPhysical(p,pPhys);
-		if(fabs(pPhys[0])<1e-9||fabs(pPhys[0]-1)<1e-9){//Dirichlet
+		if(std::abs(pPhys[0])<1e-9||std::abs(pPhys[0]-1)<1e-9){//Dirichlet
 			LinearAlgebra::NumericalVector phiDeriv(DIM_);
 			for(int i=0;i<n;++i){
 				fa->basisFunctionDeriv(i,p,phiDeriv);
@@ -197,13 +198,12 @@ public:
 	}
 };
 
-int main(){
-	PetscInitializeNoArguments();
+int main(int argc, char** argv){    
+    Base::parse_options(argc,argv);
 	Laplace test8(8,5,2,Base::TRIANGULAR);
 	test8.initialise();
 	test8.solve();
 	//actual test is done by comparing output files
-	PetscFinalize();
 	return 0;
 }
 

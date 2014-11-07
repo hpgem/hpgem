@@ -30,7 +30,6 @@
 #include "Geometry/ReferencePyramid.hpp"
 
 #include <cmath>
-using std::fabs;
 using Geometry::PhysicalPyramid;
 
 int main(){
@@ -79,63 +78,63 @@ int main(){
 	std::cout<<test.getName();
 
 	point = *test.getNodePtr(test.getNodeIndex(0));
-	assert(("getNodePtr",fabs(point[0]-1.4)<1e-12));
-	assert(("getNodePtr",fabs(point[1]-2.4)<1e-12));
-	assert(("getNodePtr",fabs(point[2]-3.4)<1e-12));
+	assert(("getNodePtr",std::abs(point[0]-1.4)<1e-12));
+	assert(("getNodePtr",std::abs(point[1]-2.4)<1e-12));
+	assert(("getNodePtr",std::abs(point[2]-3.4)<1e-12));
 	point = *test.getNodePtr(test.getNodeIndex(1));
-	assert(("getNodePtr",fabs(point[0]-1.7)<1e-12));
-	assert(("getNodePtr",fabs(point[1]-2.7)<1e-12));
-	assert(("getNodePtr",fabs(point[2]-3.7)<1e-12));
+	assert(("getNodePtr",std::abs(point[0]-1.7)<1e-12));
+	assert(("getNodePtr",std::abs(point[1]-2.7)<1e-12));
+	assert(("getNodePtr",std::abs(point[2]-3.7)<1e-12));
 
 	assert(("getNumberOfNodes",test.getNumberOfNodes()==5));
 
 	test.getNodeCoordinates(0,point);
-	assert(("getNodeCoordinates",fabs(point[0]-1.4)<1e-12));
-	assert(("getNodeCoordinates",fabs(point[1]-2.4)<1e-12));
-	assert(("getNodeCoordinates",fabs(point[2]-3.4)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[0]-1.4)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[1]-2.4)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[2]-3.4)<1e-12));
 	test.getNodeCoordinates(1,point);
-	assert(("getNodeCoordinates",fabs(point[0]-1.7)<1e-12));
-	assert(("getNodeCoordinates",fabs(point[1]-2.7)<1e-12));
-	assert(("getNodeCoordinates",fabs(point[2]-3.7)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[0]-1.7)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[1]-2.7)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[2]-3.7)<1e-12));
 	test.getNodeCoordinates(2,point);
-	assert(("getNodeCoordinates",fabs(point[0]-3.5)<1e-12));
-	assert(("getNodeCoordinates",fabs(point[1]-4.6)<1e-12));
-	assert(("getNodeCoordinates",fabs(point[2]-5.4)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[0]-3.5)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[1]-4.6)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[2]-5.4)<1e-12));
 	test.getNodeCoordinates(3,point);
-	assert(("getNodeCoordinates",fabs(point[0]-6.7)<1e-12));
-	assert(("getNodeCoordinates",fabs(point[1]-2.8)<1e-12));
-	assert(("getNodeCoordinates",fabs(point[2]-5.7)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[0]-6.7)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[1]-2.8)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[2]-5.7)<1e-12));
 	test.getNodeCoordinates(4,point);
-	assert(("getNodeCoordinates",fabs(point[0]-1.4)<1e-12));
-	assert(("getNodeCoordinates",fabs(point[1]-2.4)<1e-12));
-	assert(("getNodeCoordinates",fabs(point[2]-5.4)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[0]-1.4)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[1]-2.4)<1e-12));
+	assert(("getNodeCoordinates",std::abs(point[2]-5.4)<1e-12));
 
 	test.getLocalNodeCoordinates(0,point);
-	assert(("getLocalNodeCoordinates",fabs(point[0]-1.4)<1e-12));
-	assert(("getLocalNodeCoordinates",fabs(point[1]-2.4)<1e-12));
-	assert(("getLocalNodeCoordinates",fabs(point[2]-3.4)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[0]-1.4)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[1]-2.4)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[2]-3.4)<1e-12));
 	test.getLocalNodeCoordinates(1,point);
-	assert(("getLocalNodeCoordinates",fabs(point[0]-1.7)<1e-12));
-	assert(("getLocalNodeCoordinates",fabs(point[1]-2.7)<1e-12));
-	assert(("getLocalNodeCoordinates",fabs(point[2]-3.7)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[0]-1.7)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[1]-2.7)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[2]-3.7)<1e-12));
 	test.getLocalNodeCoordinates(2,point);
-	assert(("getLocalNodeCoordinates",fabs(point[0]-3.5)<1e-12));
-	assert(("getLocalNodeCoordinates",fabs(point[1]-4.6)<1e-12));
-	assert(("getLocalNodeCoordinates",fabs(point[2]-5.4)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[0]-3.5)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[1]-4.6)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[2]-5.4)<1e-12));
 	test.getLocalNodeCoordinates(3,point);
-	assert(("getLocalNodeCoordinates",fabs(point[0]-6.7)<1e-12));
-	assert(("getLocalNodeCoordinates",fabs(point[1]-2.8)<1e-12));
-	assert(("getLocalNodeCoordinates",fabs(point[2]-5.7)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[0]-6.7)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[1]-2.8)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[2]-5.7)<1e-12));
 	test.getLocalNodeCoordinates(4,point);
-	assert(("getLocalNodeCoordinates",fabs(point[0]-1.4)<1e-12));
-	assert(("getLocalNodeCoordinates",fabs(point[1]-2.4)<1e-12));
-	assert(("getLocalNodeCoordinates",fabs(point[2]-5.4)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[0]-1.4)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[1]-2.4)<1e-12));
+	assert(("getLocalNodeCoordinates",std::abs(point[2]-5.4)<1e-12));
 
 	for(double i=0;i<10;++i){
 		test.getGlobalNodeCoordinates(i,point);
-		assert(("getGlobalNodeCoordinates",fabs(point[0]-1.-i/10.)<1e-12));
-		assert(("getGlobalNodeCoordinates",fabs(point[1]-2.-i/10.)<1e-12));
-		assert(("getGlobalNodeCoordinates",fabs(point[2]-3.-i/10.)<1e-12));
+		assert(("getGlobalNodeCoordinates",std::abs(point[0]-1.-i/10.)<1e-12));
+		assert(("getGlobalNodeCoordinates",std::abs(point[1]-2.-i/10.)<1e-12));
+		assert(("getGlobalNodeCoordinates",std::abs(point[2]-3.-i/10.)<1e-12));
 	}
 
 	pointIndexes.resize(4);

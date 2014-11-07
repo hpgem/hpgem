@@ -39,7 +39,6 @@
 #include "Base/BaseBasisFunction.hpp"
 
 #include <cmath>
-using std::fabs;
 int main() {
 
 	// 1D
@@ -61,8 +60,8 @@ int main() {
 
 			point1D[0]+=-1e-8;
 			test->evalDeriv(point1D,ret);
-			assert(("derivative",fabs(ret[0]-5.e7*(x1-x0))<1e-5));
-			assert(("derivative",fabs(test->evalDeriv0(point1D)-5.e7*(x1-x0))<1e-5));
+			assert(("derivative",std::abs(ret[0]-5.e7*(x1-x0))<1e-5));
+			assert(("derivative",std::abs(test->evalDeriv0(point1D)-5.e7*(x1-x0))<1e-5));
 		}
 	}
 
@@ -86,8 +85,8 @@ int main() {
 				point2D[0]+=-1e-8;
 				ret.resize(2);
 				test->evalDeriv(point2D,ret);
-				assert(("derivative",fabs(ret[0]-5.e7*(x1-x0))<1e-5));
-				assert(("derivative",fabs(test->evalDeriv0(point2D)-5.e7*(x1-x0))<1e-5));
+				assert(("derivative",std::abs(ret[0]-5.e7*(x1-x0))<1e-5));
+				assert(("derivative",std::abs(test->evalDeriv0(point2D)-5.e7*(x1-x0))<1e-5));
 
 				point2D[1]+=-1.e-8;
 				x0=test->eval(point2D);
@@ -95,8 +94,8 @@ int main() {
 				x1=test->eval(point2D);
 
 				point2D[1]+=-1e-8;
-				assert(("derivative",fabs(ret[1]-5.e7*(x1-x0))<1e-5));
-				assert(("derivative",fabs(test->evalDeriv1(point2D)-5.e7*(x1-x0))<1e-5));
+				assert(("derivative",std::abs(ret[1]-5.e7*(x1-x0))<1e-5));
+				assert(("derivative",std::abs(test->evalDeriv1(point2D)-5.e7*(x1-x0))<1e-5));
 
 				ret.resize(1);
 			}
@@ -124,8 +123,8 @@ int main() {
 					point3D[0]+=-1e-8;
 					ret.resize(3);
 					test->evalDeriv(point3D,ret);
-					assert(("derivative",fabs(ret[0]-5.e7*(x1-x0))<1e-5));
-					assert(("derivative",fabs(test->evalDeriv0(point3D)-5.e7*(x1-x0))<1e-5));
+					assert(("derivative",std::abs(ret[0]-5.e7*(x1-x0))<1e-5));
+					assert(("derivative",std::abs(test->evalDeriv0(point3D)-5.e7*(x1-x0))<1e-5));
 
 					point3D[1]+=-1.e-8;
 					x0=test->eval(point3D);
@@ -133,8 +132,8 @@ int main() {
 					x1=test->eval(point3D);
 
 					point3D[1]+=-1e-8;
-					assert(("derivative",fabs(ret[1]-5.e7*(x1-x0))<1e-5));
-					assert(("derivative",fabs(test->evalDeriv1(point3D)-5.e7*(x1-x0))<1e-5));
+					assert(("derivative",std::abs(ret[1]-5.e7*(x1-x0))<1e-5));
+					assert(("derivative",std::abs(test->evalDeriv1(point3D)-5.e7*(x1-x0))<1e-5));
 
 					point3D[2]+=-1.e-8;
 					x0=test->eval(point3D);
@@ -142,8 +141,8 @@ int main() {
 					x1=test->eval(point3D);
 
 					point3D[2]+=-1e-8;
-					assert(("derivative",fabs(ret[2]-5.e7*(x1-x0))<1e-5));
-					assert(("derivative",fabs(test->evalDeriv2(point3D)-5.e7*(x1-x0))<1e-5));
+					assert(("derivative",std::abs(ret[2]-5.e7*(x1-x0))<1e-5));
+					assert(("derivative",std::abs(test->evalDeriv2(point3D)-5.e7*(x1-x0))<1e-5));
 
 					ret.resize(1);
 				}

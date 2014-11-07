@@ -31,6 +31,7 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/Jacobian.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include <cmath>
 
 int main() {//The 0D case is mostly testing if there are any crashing functions
 

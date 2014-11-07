@@ -29,6 +29,7 @@
 #include <typeinfo>
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferencePoint.hpp"
+#include <cmath>
 
 void testRule(QuadratureRules::GaussQuadratureRule& test){
 	std::cout<<test.getName();
@@ -42,7 +43,7 @@ void testRule(QuadratureRules::GaussQuadratureRule& test){
 		integrated+=test.weight(i);
 		test.getPoint(i,point);
 	}
-	assert(("integration",fabs(integrated-1)<1e-12));
+	assert(("integration",std::abs(integrated-1)<1e-12));
 }
 
 int main(){

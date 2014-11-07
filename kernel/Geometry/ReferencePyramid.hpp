@@ -22,7 +22,7 @@
 #define ____ReferencePyramid__
 
 #include "ReferenceGeometry.hpp"
-#include <list>
+#include <vector>
 // created for the shape globally
 namespace Geometry
 {
@@ -177,7 +177,7 @@ namespace Geometry
         const MappingReferenceToReference*            mappingsPyramidToPyramid_[1];
         
         //! List of valid quadrature rules for this reference geometry
-        std::list<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
+        std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
     };
 }
 #endif

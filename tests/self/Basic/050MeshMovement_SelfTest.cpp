@@ -35,6 +35,7 @@
 
 #include "unordered_set"
 #include "cassert"
+#include <cmath>
 
 void move(Base::MeshManipulator* mesh){
 	class:public Base::MeshMoverBase{
@@ -88,19 +89,19 @@ void testMesh(Base::MeshManipulator* test) {
 		elIntegral.integrate(element,&one,result);
 		total+=result[0];
 	}
-	assert(("total mesh volume",fabs(total-pow(2.,test->dimension()))<1e-12));
+	assert(("total mesh volume",std::abs(total-pow(2.,test->dimension()))<1e-12));
 	total=0;
 	for(Base::Element* element:test->getElementsList()){
 		elIntegral.integrate(element,&linear,result);
 		total+=result[0];
 	}
-	assert(("linear function",fabs(total-test->dimension()*pow(2.,test->dimension()))<1e-12));
+	assert(("linear function",std::abs(total-test->dimension()*pow(2.,test->dimension()))<1e-12));
 	total=0;
 	for(Base::Element* element:test->getElementsList()){
 		elIntegral.integrate(element,&trilinear,result);
 		total+=result[0];
 	}
-	assert(("trilinear function",fabs(total-pow(2.,test->dimension()))<1e-12));
+	assert(("trilinear function",std::abs(total-pow(2.,test->dimension()))<1e-12));
 }
 
 int main(int argc, char** argv){

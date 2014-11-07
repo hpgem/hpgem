@@ -32,6 +32,7 @@
 #include "Base/BasisFunctionSet.hpp"
 #include "Geometry/PointReference.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include <cmath>
 
 void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
 	std::cout<<test.getName();
@@ -49,11 +50,11 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
 			integrated+=test.weight(j)*functions->eval(i,point);
 		}
 		if(i<2){
-			assert(("integration",fabs(integrated-1)<1e-12));
+			assert(("integration",std::abs(integrated-1)<1e-12));
 		}else if(i==2){
-			assert(("integration",fabs(integrated+sqrt(2./3.))<1e-12));
+			assert(("integration",std::abs(integrated+sqrt(2./3.))<1e-12));
 		}else{
-			assert(("integration",fabs(integrated)<1e-12));
+			assert(("integration",std::abs(integrated)<1e-12));
 		}
 
 	}

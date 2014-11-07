@@ -25,7 +25,7 @@
 #include <iostream>
 
 #include "ReferenceGeometry.hpp"
-#include <list>
+#include <vector>
 
 namespace Geometry
 {
@@ -109,7 +109,7 @@ namespace Geometry
                                 DimT faLocalIndex, LinearAlgebra::Matrix& Q) const {}
 
         /// \brief List of valid quadrature rules for this reference geometry
-        std::list<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
+        std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
 
         //! Codimension 1 mappings, from a line to a line. TODO: Where is this used? clarify here.
         const MappingReferenceToReference*                           mappingsPointToPoint_; //!< codim0

@@ -41,6 +41,7 @@ namespace Base
         elementLeft_(ptrElemL),
         elementRight_(ptrElemR),
         faceID_(faceID),
+            nrOfConformingDOFOnTheFace_(0),
     	FaceData(ptrElemL->getNrOfBasisFunctions()*ptrElemL->getNrOfUnknows()+
     			 ptrElemR->getNrOfBasisFunctions()*ptrElemR->getNrOfUnknows(),numberOfFaceMatrixes,numberOfFaceVectors)
     {
@@ -55,6 +56,7 @@ namespace Base
         elementLeft_(ptrElemL),
         elementRight_(NULL),
         faceID_(faceID),
+            nrOfConformingDOFOnTheFace_(0),
     	FaceData(ptrElemL->getNrOfBasisFunctions()*ptrElemL->getNrOfUnknows(),numberOfFaceMatrixes,numberOfFaceVectors)
     {
         createQuadratureRules();

@@ -24,7 +24,7 @@
 
 ///\TODO (flagged for deletion) this appears to be a partially finished solution for the quadrature rule problem that is recently resolved. There is no interaction with the rest of the kernel -FB
 
-#include <list>
+#include <vector>
 #include <iostream>
 
 namespace QuadratureRules
@@ -57,10 +57,10 @@ namespace QuadratureRules
           GaussQuadratureRule* GetRule(Geometry::ReferenceHypercube* refGeo, int order);
         
       private:
-          typedef std::list<GaussQuadratureRule*> listOfQR_1DType;
-          typedef std::list<GaussQuadratureRule*> listOfQR_2DType;
-          typedef std::list<GaussQuadratureRule*> listOfQR_3DType;
-          typedef std::list<GaussQuadratureRule*> listOfQR_4DType;
+          typedef std::vector<GaussQuadratureRule*> listOfQR_1DType;
+          typedef std::vector<GaussQuadratureRule*> listOfQR_2DType;
+          typedef std::vector<GaussQuadratureRule*> listOfQR_3DType;
+          typedef std::vector<GaussQuadratureRule*> listOfQR_4DType;
 
           listOfQR_1DType listOfQR_Line;
           listOfQR_2DType listOfQR_Triangle;

@@ -203,42 +203,42 @@ void Mesh::split(){
     
 }
 
-const std::list<Element*>&          Mesh::getElementsList() const {
+const std::vector<Element*>&          Mesh::getElementsList() const {
     if(elements_.empty()){
         return submeshes_.getElementsList();
     }else{
         throw "Please call getElementsList() on a modifiable mesh at least once before calling getElementsList() const";
     }
 }
-std::list<Element*>&                Mesh::getElementsList() { 
+std::vector<Element*>&                Mesh::getElementsList() { 
     if(!elements_.empty()){
         split();
     }
     return submeshes_.getElementsList();
 }
 
-const std::list<Face*>&             Mesh::getFacesList() const { 
+const std::vector<Face*>&             Mesh::getFacesList() const { 
     if(faces_.empty()){
         return submeshes_.getFacesList();
     }else{
         throw "Please call getFacesList() on a modifiable mesh at least once before calling getFacesList() const";
     }
 }
-std::list<Face*>&                   Mesh::getFacesList() {
+std::vector<Face*>&                   Mesh::getFacesList() {
     if(!faces_.empty()){
         split();
     }
     return submeshes_.getFacesList();
 }
 
-const std::list<Edge*>&             Mesh::getEdgesList() const {
+const std::vector<Edge*>&             Mesh::getEdgesList() const {
     if(edges_.empty()){
         return submeshes_.getEdgesList();
     }else{
         throw "Please call getEdgesList() on a modifiable mesh at least once before calling getEdgesList() const";
     }
 }
-std::list<Edge*>&                   Mesh::getEdgesList() {
+std::vector<Edge*>&                   Mesh::getEdgesList() {
     if(!edges_.empty()){
         split();
     }
