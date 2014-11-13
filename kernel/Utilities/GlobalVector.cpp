@@ -282,7 +282,16 @@ namespace Utilities {
 
     void GlobalPetscVector::writeTimeLevelData(int timeLevel, int variable) {
         double *data;
-        int ierr = VecGetArray(b_, &data);
+        
+        ///\TODO highly suboptimal...
+        VecScatter scatter;
+        Vec localB;
+        VecScatterCreateToAll(b_, &scatter, &localB);
+        VecScatterBegin(scatter, b_, localB, INSERT_VALUES, SCATTER_FORWARD);
+        VecScatterEnd(scatter, b_, localB, INSERT_VALUES, SCATTER_FORWARD);
+        VecScatterDestroy(&scatter);
+        
+        int ierr = VecGetArray(localB, &data);
         CHKERRV(ierr);
         for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it) {
             int n = (*it)->getNrOfBasisFunctions();
@@ -309,7 +318,8 @@ namespace Utilities {
             }
             (*it)->setTimeLevelData(timeLevel, variable, localData);
         }
-        ierr = VecRestoreArray(b_, &data);
+        ierr = VecRestoreArray(localB, &data);
+        VecDestroy(&localB);
         CHKERRV(ierr);
     }
 #endif

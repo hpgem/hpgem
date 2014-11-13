@@ -21,6 +21,8 @@
 
 //#define HPGEM_USE_PETSC//temporarily activating this definition makes development easier on some IDEs
 
+///\TODO optimize placement of matrix rows to minimize communication
+
 #include "GlobalMatrix.hpp"
 #include <vector>
 #include "Base/MeshManipulator.hpp"

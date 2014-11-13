@@ -257,6 +257,7 @@ public:
         KSPCreate(PETSC_COMM_WORLD, &ksp);
         KSPSetOperators(ksp, A, A);
         KSPSetFromOptions(ksp);
+        KSPSetTolerances(ksp,1e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);
         KSPSolve(ksp, b, x);
         KSPConvergedReason conferge;
         KSPGetConvergedReason(ksp, &conferge);
@@ -269,7 +270,7 @@ public:
         x.writeTimeLevelData(0);
 
         //so it can be used for post-processing
-        std::ofstream outFile("output.dat."+Base::MPIContainer::Instance().getProcessorID());
+        std::ofstream outFile("output.dat."+std::to_string(Base::MPIContainer::Instance().getProcessorID()));
         Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
         writeFunc.write(meshes_[0], "discontinuous solution", false, this);
         return true;

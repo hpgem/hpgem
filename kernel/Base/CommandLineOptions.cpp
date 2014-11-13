@@ -74,6 +74,7 @@ int Base::parse_options(int argc, char** argv) {
 #ifdef HPGEM_USE_MPI
             //if we know mpi exists make sure PETSc based communication does not happen on COMM_WORLD
             //communicating on COMM_WORLD is a bad idea if you are a library and are not sure who else might use MPI
+            //(PETSc CLAIMS this is not needed, but also does not provide this safeguard itself)
             MPI::Group groupID = MPI::COMM_WORLD.Get_group();
             PETSC_COMM_WORLD = MPI::COMM_WORLD.Create( groupID );
 #endif
