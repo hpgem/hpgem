@@ -6,6 +6,7 @@
  */
 
 #include "CommandLineOptions.hpp"
+#include "MpiContainer.hpp"
 #include <cstring>
 
 #ifdef HPGEM_USE_MPI
@@ -52,7 +53,7 @@ int Base::parse_options(int argc, char** argv) {
         //initialize MPI for us... so yeah. Let's prevent
         //initializing it twice, as this will end in chaos and mayhem
         MPI::Init(argc, argv);
-
+        
         //We should call MPI::Finalize() when we quit. As we have no
         //clue when people are actually going to call this, we just
         //register an on-exit handler.
@@ -72,11 +73,11 @@ int Base::parse_options(int argc, char** argv) {
         {
 #ifdef HPGEM_USE_MPI
             //if we know mpi exists make sure PETSc based communication does not happen on COMM_WORLD
+            //communicating on COMM_WORLD is a bad idea if you are a library and are not sure who else might use MPI
             MPI::Group groupID = MPI::COMM_WORLD.Get_group();
-            MPI::Intracomm comm = MPI::COMM_WORLD.Create( groupID );
-            PETSC_COMM_WORLD = comm;
+            PETSC_COMM_WORLD = MPI::COMM_WORLD.Create( groupID );
 #endif
-            PetscInitialize(&argc,&argv,NULL,"PETSc help");
+            PetscInitialize(&argc,&argv,NULL,"PETSc help\n");
             
             std::atexit([](){
                PetscFinalize(); 

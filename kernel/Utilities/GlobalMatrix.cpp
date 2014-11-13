@@ -35,6 +35,7 @@
 #include "Geometry/ReferenceGeometry.hpp"
 #include "Geometry/PointReference.hpp"
 #include "Base/Norm2.hpp"
+#include "Base/Mesh.hpp"
 #include "cassert"
 
 namespace Utilities {
@@ -88,7 +89,7 @@ namespace Utilities {
         }
 
         //temporary
-        MatCreateSeqAIJ(MPI_COMM_SELF, 1, 1, 1, NULL, &A_);
+        MatCreateSeqAIJ(PETSC_COMM_SELF, 1, 1, 1, NULL, &A_);
 
         reAssemble();
     }
@@ -140,35 +141,6 @@ namespace Utilities {
             }
             assert(usedEntries == amountOfPositions);
         }
-
-
-        /*	for(unsigned int i=0;i<amountOfPositions;++i){
-                    int usedEntries(element->getLocalNrOfBasisFunctions());
-                    if(i<usedEntries){
-                            positions[i]=i+startPositionsOfElementsInTheMatrix_[element->getID()];
-                    }
-                    int n=element->getPhysicalGeometry()->getNrOfFaces();
-                    for(int j=0;j<n;++j){
-                            if(i-usedEntries<element->getFace(j)->getLocalNrOfBasisFunctions()){
-                                    positions[i]=i-usedEntries+startPositionsOfFacesInTheMatrix_[element->getFace(j)->getID()];
-                            }
-                            usedEntries+=element->getFace(j)->getLocalNrOfBasisFunctions();
-                    }
-                    n=element->getNrOfEdges();
-                    for(int j=0;j<n;++j){
-                            if(i-usedEntries<element->getEdge(j)->getLocalNrOfBasisFunctions()){
-                                    positions[i]=i-usedEntries+startPositionsOfEdgesInTheMatrix_[element->getEdge(j)->getID()];
-                            }
-                            usedEntries+=element->getEdge(j)->getLocalNrOfBasisFunctions();
-                    }
-                    n=element->getNrOfNodes();
-                    for(int j=0;j<n;++j){
-                            if(i-usedEntries<element->getLocalNrOfBasisFunctionsVertex()){
-                                    positions[i]=i-usedEntries+startPositionsOfVerticesInTheMatrix_[element->getPhysicalGeometry()->getNodeIndex(j)];
-                            }
-                            usedEntries+=element->getLocalNrOfBasisFunctionsVertex();
-                    }
-            }*/
     }
 
     void GlobalPetscMatrix::reset() {
@@ -211,17 +183,18 @@ namespace Utilities {
         CHKERRV(ierr);
     }
 
+    ///\todo figure out a nice way to keep local data local
     void GlobalPetscMatrix::reAssemble() {
         //if(meshLevel_!=theMesh_->getActiveLevel(0)){
         //meshLevel_=theMesh_->getActiveLevel(0);
         MatDestroy(&A_);
 
         int maxNrOfDOF(0), totalNrOfDOF(0), DIM(theMesh_->dimension()), DOFForAVertex(0);
-        startPositionsOfElementsInTheMatrix_.resize(theMesh_->getNumberOfElements());
-        startPositionsOfFacesInTheMatrix_.resize(theMesh_->getNumberOfFaces());
-        startPositionsOfEdgesInTheMatrix_.resize(theMesh_->getNumberOfEdges());
+        startPositionsOfElementsInTheMatrix_.resize(theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL));
+        startPositionsOfFacesInTheMatrix_.resize(theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL));
+        startPositionsOfEdgesInTheMatrix_.resize(theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL));
         startPositionsOfVerticesInTheMatrix_.resize(theMesh_->getNumberOfNodes());
-        for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it) {
+        for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(Base::IteratorType::GLOBAL); it != theMesh_->elementColEnd(Base::IteratorType::GLOBAL); ++it) {
             if ((*it)->getNrOfBasisFunctions() > maxNrOfDOF) {
                 maxNrOfDOF = (*it)->getNrOfBasisFunctions();
                 DOFForAVertex = (*it)->getLocalNrOfBasisFunctionsVertex(); //just needs to be set at some point, no need to collect this over and over again
@@ -230,12 +203,12 @@ namespace Utilities {
             totalNrOfDOF += (*it)->getLocalNrOfBasisFunctions();
         }
         if (DIM > 1) {
-            for (Base::MeshManipulator::FaceIterator it = theMesh_->faceColBegin(); it != theMesh_->faceColEnd(); ++it) {
+            for (Base::MeshManipulator::FaceIterator it = theMesh_->faceColBegin(Base::IteratorType::GLOBAL); it != theMesh_->faceColEnd(Base::IteratorType::GLOBAL); ++it) {
                 startPositionsOfFacesInTheMatrix_[(*it)->getID()] = totalNrOfDOF;
                 totalNrOfDOF += (*it)->getLocalNrOfBasisFunctions();
             }
         }
-        for (std::vector< Base::Edge*>::iterator it = theMesh_->edgeColBegin(); it != theMesh_->edgeColEnd(); ++it) {
+        for (std::vector< Base::Edge*>::iterator it = theMesh_->edgeColBegin(Base::IteratorType::GLOBAL); it != theMesh_->edgeColEnd(Base::IteratorType::GLOBAL); ++it) {
             startPositionsOfEdgesInTheMatrix_[(*it)->getID()] = totalNrOfDOF;
             totalNrOfDOF += (*it)->getLocalNrOfBasisFunctions();
         }
@@ -249,7 +222,7 @@ namespace Utilities {
         std::vector<unsigned int> leftIndexes, rightIndexes;
         Geometry::PointReference centre(DIM - 1), leftRef(DIM), rightRef(DIM);
         Geometry::PointPhysical leftPhys(DIM), rightPhys(DIM), displacement(DIM);
-        for (Base::Face* face : theMesh_->getFacesList()) {
+        for (Base::Face* face : theMesh_->getFacesList(Base::IteratorType::GLOBAL)) {
             if (face->isInternal()) {
                 face->getReferenceGeometry()->getCenter(centre);
                 face->mapRefFaceToRefElemL(centre, leftRef);
@@ -330,7 +303,7 @@ namespace Utilities {
             }
         }
         
-        int ierr = MatCreateAIJ(MPI_COMM_WORLD, totalNrOfDOF, totalNrOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow, 0, NULL, &A_);
+        int ierr = MatCreateAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, totalNrOfDOF, totalNrOfDOF, -1, numberOfPositionsPerRow, 0, NULL, &A_);
         MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE); //the estimate is accurate for most matrices, but if you want to do something conforming with face matrices you need more
         ierr = MatSetUp(A_);
         CHKERRV(ierr);

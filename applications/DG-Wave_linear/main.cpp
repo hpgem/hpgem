@@ -234,7 +234,7 @@ public:
                 S.getMatrixBCEntries(face,n,facePositions);
             }
         }
-        ISCreateGeneral(MPI_COMM_WORLD,n,&facePositions[0],PETSC_COPY_VALUES,surface);
+        ISCreateGeneral(PETSC_COMM_WORLD,n,&facePositions[0],PETSC_COPY_VALUES,surface);
         MatGetSize(S,&n,NULL);
         ISSort(*surface);
         ISComplement(*surface,0,n,rest);
@@ -302,11 +302,11 @@ public:
         MatGetSubMatrix(S,isSurface,isRest,MAT_INITIAL_MATRIX,&backStiffness);
         
         KSP interior,surface;
-    	KSPCreate(MPI_COMM_WORLD,&interior);
+    	KSPCreate(PETSC_COMM_WORLD,&interior);
     	KSPSetOperators(interior,interiorStifness,interiorStifness);
         KSPSetInitialGuessNonzero(interior,PETSC_TRUE);
     	KSPSetFromOptions(interior);
-        KSPCreate(MPI_COMM_WORLD,&surface);
+        KSPCreate(PETSC_COMM_WORLD,&surface);
         KSPSetOperators(surface,surfaceMass,surfaceMass);
         KSPSetFromOptions(surface);
         KSPConvergedReason conferge;

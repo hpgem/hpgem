@@ -27,100 +27,156 @@
 #include "Face.hpp"
 #include "Submesh.hpp"
 
-namespace Geometry{
+namespace Geometry {
     class PointPhysical;
 }
 
-namespace Base{
+namespace Base {
     class Edge;
     class Face;
     class Element;
 
-class Mesh {
-public:
-    Mesh();
-    Mesh(const Mesh& orig);
-    virtual ~Mesh();
-
-    Element*                            addElement(const std::vector<unsigned int>& globalNodeIndexes);
-
-    bool                                addFace(Element* leftElementPtr, unsigned int leftElementLocalFaceNo, 
-                                                Element* rightElementPtr, unsigned int rightElementLocalFaceNo,
-                                                const Geometry::FaceType& faceType=Geometry::WALL_BC);
-
-    void                                addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs);
+    ///\brief select if you want to iterate over the local part of the mesh or the whole mesh
+    ///\bug mesh information is inherently linked to data and geometric information, but the last two are
+    /// only computed/updated locally and not communicated back even when you iterate oven the whole mesh
+    enum class IteratorType {
+        LOCAL, GLOBAL
+    };
     
-    void                                addNode(Geometry::PointPhysical node);
+    class Mesh {
+    public:
+        Mesh();
+        Mesh(const Mesh& orig);
+        virtual ~Mesh();
 
-    unsigned int                        getNumberOfElements(unsigned int meshId=0) const {return getElementsList().size(); }
-    unsigned int                        getNumberOfFaces(unsigned int meshId=0) const {return getFacesList().size();}
-    unsigned int                        getNumberOfEdges(unsigned int meshId=0) const {return getEdgesList().size();}
-    unsigned int                        getNumberOfNodes()const {return getNodes().size();}
-    
-    //! Get const list of elements
-    const std::vector<Element*>&          getElementsList() const;
-    //! Get non-const list of elements
-    std::vector<Element*>&                getElementsList();
+        Element* addElement(const std::vector<unsigned int>& globalNodeIndexes);
 
-    //! Get const list of faces
-    const std::vector<Face*>&             getFacesList() const;
-    //! Get non-const list of faces
-    std::vector<Face*>&                   getFacesList();
+        bool addFace(Element* leftElementPtr, unsigned int leftElementLocalFaceNo,
+                Element* rightElementPtr, unsigned int rightElementLocalFaceNo,
+                const Geometry::FaceType& faceType = Geometry::WALL_BC);
 
-    const std::vector<Edge*>&             getEdgesList()const ;
-    std::vector<Edge*>&                   getEdgesList();
-    
-    const std::vector<Geometry::PointPhysical>&  getNodes()const;
-    std::vector<Geometry::PointPhysical>&        getNodes();
-    
-    //********************************************************************************
-    std::vector<Element*>::const_iterator elementColBegin()const{return getElementsList().begin();}
-    std::vector<Element*>::const_iterator elementColEnd()const{return getElementsList().end();}
+        void addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs);
 
-    std::vector<Element*>::iterator       elementColBegin(){return getElementsList().begin();}
-    std::vector<Element*>::iterator       elementColEnd(){return getElementsList().end();}
+        void addNode(Geometry::PointPhysical node);
 
-    std::vector<Face*>::const_iterator    faceColBegin()const{return getFacesList().begin();}
-    std::vector<Face*>::const_iterator    faceColEnd()const{return getFacesList().end();}
+        unsigned int getNumberOfElements(IteratorType part=IteratorType::LOCAL) const {
+            return getElementsList(part).size();
+        }
 
-    std::vector<Face*>::iterator          faceColBegin(){return getFacesList().begin();}
-    std::vector<Face*>::iterator          faceColEnd(){return getFacesList().end();}
+        unsigned int getNumberOfFaces(IteratorType part=IteratorType::LOCAL) const {
+            return getFacesList(part).size();
+        }
 
-    std::vector< Edge*>::const_iterator   edgeColBegin()const{return getEdgesList().begin();}
-    std::vector< Edge*>::const_iterator   edgeColEnd()const{return getEdgesList().end();}
+        unsigned int getNumberOfEdges(IteratorType part=IteratorType::LOCAL) const {
+            return getEdgesList(part).size();
+        }
 
-    std::vector< Edge*>::iterator         edgeColBegin(){return getEdgesList().begin();}
-    std::vector< Edge*>::iterator         edgeColEnd(){return getEdgesList().end();}
-    //********************************************************************************
-    
-    Submesh&                            getSubmesh()       { return submeshes_; }
-    const Submesh&                      getSubmesh() const { return submeshes_; }
-    
-private:
-    
-    //! 'distributes' the mesh across the nodes
-    //! this routine assumes all nodes generated the mesh in the same way (so no randomness or thread dependence)
-    void                                split();
-    
-    unsigned int                        localProcessorID_;
-    
-    Submesh                             submeshes_;
+        unsigned int getNumberOfNodes()const {
+            return getNodes().size();
+        }
 
-    unsigned int                        elementcounter_;
-    unsigned int                        faceCounter_;
-    unsigned int                        edgeCounter_;
-    //! List of all elements. TODO: this should be replaced by the mesh-tree structure
-    std::vector<Element*>                 elements_;
+        //! Get const list of elements
+        const std::vector<Element*>& getElementsList(IteratorType part=IteratorType::LOCAL) const;
+        //! Get non-const list of elements
+        std::vector<Element*>& getElementsList(IteratorType part=IteratorType::LOCAL);
 
-    //! List of all faces. TODO: this should be replaced by the mesh-tree structure
-    std::vector<Face*>                    faces_;
+        //! Get const list of faces
+        const std::vector<Face*>& getFacesList(IteratorType part=IteratorType::LOCAL) const;
+        //! Get non-const list of faces
+        std::vector<Face*>& getFacesList(IteratorType part=IteratorType::LOCAL);
 
-    //! List of all edges.
-    std::vector< Edge*>                   edges_;
+        const std::vector<Edge*>& getEdgesList(IteratorType part=IteratorType::LOCAL)const;
+        std::vector<Edge*>& getEdgesList(IteratorType part=IteratorType::LOCAL);
 
-    //! Global vector of physical nodes.
-    std::vector<Geometry::PointPhysical>points_;
-};
+        const std::vector<Geometry::PointPhysical>& getNodes()const;
+        std::vector<Geometry::PointPhysical>& getNodes();
+
+        //********************************************************************************
+
+        std::vector<Element*>::const_iterator elementColBegin(IteratorType part=IteratorType::LOCAL)const {
+            return getElementsList(part).begin();
+        }
+
+        std::vector<Element*>::const_iterator elementColEnd(IteratorType part=IteratorType::LOCAL)const {
+            return getElementsList(part).end();
+        }
+
+        std::vector<Element*>::iterator elementColBegin(IteratorType part=IteratorType::LOCAL) {
+            return getElementsList(part).begin();
+        }
+
+        std::vector<Element*>::iterator elementColEnd(IteratorType part=IteratorType::LOCAL) {
+            return getElementsList(part).end();
+        }
+
+        std::vector<Face*>::const_iterator faceColBegin(IteratorType part=IteratorType::LOCAL)const {
+            return getFacesList(part).begin();
+        }
+
+        std::vector<Face*>::const_iterator faceColEnd(IteratorType part=IteratorType::LOCAL)const {
+            return getFacesList(part).end();
+        }
+
+        std::vector<Face*>::iterator faceColBegin(IteratorType part=IteratorType::LOCAL) {
+            return getFacesList(part).begin();
+        }
+
+        std::vector<Face*>::iterator faceColEnd(IteratorType part=IteratorType::LOCAL) {
+            return getFacesList(part).end();
+        }
+
+        std::vector< Edge*>::const_iterator edgeColBegin(IteratorType part=IteratorType::LOCAL)const {
+            return getEdgesList(part).begin();
+        }
+
+        std::vector< Edge*>::const_iterator edgeColEnd(IteratorType part=IteratorType::LOCAL)const {
+            return getEdgesList(part).end();
+        }
+
+        std::vector< Edge*>::iterator edgeColBegin(IteratorType part=IteratorType::LOCAL) {
+            return getEdgesList(part).begin();
+        }
+
+        std::vector< Edge*>::iterator edgeColEnd(IteratorType part=IteratorType::LOCAL) {
+            return getEdgesList(part).end();
+        }
+        //********************************************************************************
+
+        Submesh& getSubmesh() {
+            return submeshes_;
+        }
+
+        const Submesh& getSubmesh() const {
+            return submeshes_;
+        }
+
+    private:
+
+        //! 'distributes' the mesh across the nodes
+        //! this routine assumes all nodes generated the mesh in the same way (so no randomness or thread dependence)
+        void split();
+
+        bool hasToSplit_;
+
+        unsigned int localProcessorID_;
+
+        Submesh submeshes_;
+
+        unsigned int elementcounter_;
+        unsigned int faceCounter_;
+        unsigned int edgeCounter_;
+        //! List of all elements. TODO: this should be replaced by the mesh-tree structure
+        std::vector<Element*> elements_;
+
+        //! List of all faces. TODO: this should be replaced by the mesh-tree structure
+        std::vector<Face*> faces_;
+
+        //! List of all edges.
+        std::vector< Edge*> edges_;
+
+        //! Global vector of physical nodes.
+        std::vector<Geometry::PointPhysical>points_;
+    };
 
 }
 

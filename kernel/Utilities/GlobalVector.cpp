@@ -53,7 +53,7 @@ namespace Utilities {
             throw "this happened way too early; please parse the command line arguments as the first thing in your code";
         }
 
-        VecCreateSeq(MPI_COMM_SELF, 1, &b_);
+        VecCreateSeq(PETSC_COMM_SELF, 1, &b_);
 
         reset();
     }
@@ -140,11 +140,11 @@ namespace Utilities {
 
         int maxNrOfDOF(0), totalNrOfDOF(0), DOFForAVertex(0), DIM(theMesh_->dimension());
 
-        startPositionsOfElementsInTheVector_.resize(theMesh_->getNumberOfElements());
-        startPositionsOfFacesInTheVector_.resize(theMesh_->getNumberOfFaces());
-        startPositionsOfEdgesInTheVector_.resize(theMesh_->getNumberOfEdges());
+        startPositionsOfElementsInTheVector_.resize(theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL));
+        startPositionsOfFacesInTheVector_.resize(theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL));
+        startPositionsOfEdgesInTheVector_.resize(theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL));
         startPositionsOfVerticesInTheVector_.resize(theMesh_->getNumberOfNodes());
-        for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it) {
+        for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(Base::IteratorType::GLOBAL); it != theMesh_->elementColEnd(Base::IteratorType::GLOBAL); ++it) {
             GlobalVector::startPositionsOfElementsInTheVector_[(*it)->getID()] = totalNrOfDOF;
             if ((*it)->getNrOfBasisFunctions() > maxNrOfDOF) {
                 maxNrOfDOF = (*it)->getNrOfBasisFunctions();
@@ -153,12 +153,12 @@ namespace Utilities {
             totalNrOfDOF += (*it)->getLocalNrOfBasisFunctions();
         }
         if (DIM > 1) {
-            for (Base::MeshManipulator::FaceIterator it = theMesh_->faceColBegin(); it != theMesh_->faceColEnd(); ++it) {
+            for (Base::MeshManipulator::FaceIterator it = theMesh_->faceColBegin(Base::IteratorType::GLOBAL); it != theMesh_->faceColEnd(Base::IteratorType::GLOBAL); ++it) {
                 startPositionsOfFacesInTheVector_[(*it)->getID()] = totalNrOfDOF;
                 totalNrOfDOF += (*it)->getLocalNrOfBasisFunctions();
             }
         }
-        for (std::vector< Base::Edge*>::iterator it = theMesh_->edgeColBegin(); it != theMesh_->edgeColEnd(); ++it) {
+        for (std::vector< Base::Edge*>::iterator it = theMesh_->edgeColBegin(Base::IteratorType::GLOBAL); it != theMesh_->edgeColEnd(Base::IteratorType::GLOBAL); ++it) {
             startPositionsOfEdgesInTheVector_[(*it)->getID()] = totalNrOfDOF;
             totalNrOfDOF += (*it)->getLocalNrOfBasisFunctions();
         }
@@ -173,7 +173,7 @@ namespace Utilities {
         std::vector<unsigned int> leftIndexes, rightIndexes;
         Geometry::PointReference centre(DIM - 1), leftRef(DIM), rightRef(DIM);
         Geometry::PointPhysical leftPhys(DIM), rightPhys(DIM), displacement(DIM);
-        for (Base::Face* face : theMesh_->getFacesList()) {
+        for (Base::Face* face : theMesh_->getFacesList(Base::IteratorType::GLOBAL)) {
             if (face->isInternal()) {
                 face->getReferenceGeometry()->getCenter(centre);
                 face->mapRefFaceToRefElemL(centre, leftRef);
@@ -214,7 +214,7 @@ namespace Utilities {
                 }
             }
         }
-        ierr = VecCreateMPI(MPI_COMM_WORLD, totalNrOfDOF, PETSC_DETERMINE, &b_);
+        ierr = VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, totalNrOfDOF, &b_);
         CHKERRV(ierr);
 
         //}else{

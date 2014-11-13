@@ -54,7 +54,6 @@ namespace Base
         unsigned int localFaceIndex;
     };
     
-    
     class MeshManipulator //: public MeshRefiner <DIM>
     {
     public:
@@ -111,29 +110,29 @@ namespace Base
         
         void                            addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs);
 
-        unsigned int                    getNumberOfElements(unsigned int meshId=0) const {return theMesh_.getNumberOfElements(meshId);}
-        unsigned int                    getNumberOfFaces(unsigned int meshId=0) const {return theMesh_.getNumberOfFaces(meshId);}
-        unsigned int                    getNumberOfEdges(unsigned int meshId=0) const {return theMesh_.getNumberOfEdges(meshId);}
+        unsigned int                    getNumberOfElements(IteratorType part=IteratorType::LOCAL) const {return theMesh_.getNumberOfElements(part);}
+        unsigned int                    getNumberOfFaces(IteratorType part=IteratorType::LOCAL) const {return theMesh_.getNumberOfFaces(part);}
+        unsigned int                    getNumberOfEdges(IteratorType part=IteratorType::LOCAL) const {return theMesh_.getNumberOfEdges(part);}
         unsigned int                    getNumberOfNodes()const {return theMesh_.getNumberOfNodes();}
 
         /// *****************Iteration through the Elements*******************
-        ConstElementIterator            elementColBegin()const{return theMesh_.elementColBegin();}
-        ConstElementIterator            elementColEnd()const{return theMesh_.elementColEnd();}
+        ConstElementIterator            elementColBegin(IteratorType part=IteratorType::LOCAL)const{return theMesh_.elementColBegin(part);}
+        ConstElementIterator            elementColEnd(IteratorType part=IteratorType::LOCAL)const{return theMesh_.elementColEnd(part);}
 
-        ElementIterator                 elementColBegin(){return theMesh_.elementColBegin();}
-        ElementIterator                 elementColEnd(){return theMesh_.elementColEnd();}
+        ElementIterator                 elementColBegin(IteratorType part=IteratorType::LOCAL){return theMesh_.elementColBegin(part);}
+        ElementIterator                 elementColEnd(IteratorType part=IteratorType::LOCAL){return theMesh_.elementColEnd(part);}
         
-        ConstFaceIterator               faceColBegin()const{return theMesh_.faceColBegin();}
-        ConstFaceIterator               faceColEnd()const{return theMesh_.faceColEnd();}
+        ConstFaceIterator               faceColBegin(IteratorType part=IteratorType::LOCAL)const{return theMesh_.faceColBegin(part);}
+        ConstFaceIterator               faceColEnd(IteratorType part=IteratorType::LOCAL)const{return theMesh_.faceColEnd(part);}
         
-        FaceIterator                    faceColBegin(){return theMesh_.faceColBegin();}
-        FaceIterator                    faceColEnd(){return theMesh_.faceColEnd();}
+        FaceIterator                    faceColBegin(IteratorType part=IteratorType::LOCAL){return theMesh_.faceColBegin(part);}
+        FaceIterator                    faceColEnd(IteratorType part=IteratorType::LOCAL){return theMesh_.faceColEnd(part);}
 
-       std::vector< Edge*>::const_iterator edgeColBegin()const{return theMesh_.edgeColBegin();}
-       std::vector< Edge*>::const_iterator edgeColEnd()const{return theMesh_.edgeColEnd();}
+       std::vector< Edge*>::const_iterator edgeColBegin(IteratorType part=IteratorType::LOCAL)const{return theMesh_.edgeColBegin(part);}
+       std::vector< Edge*>::const_iterator edgeColEnd(IteratorType part=IteratorType::LOCAL)const{return theMesh_.edgeColEnd(part);}
 
-        std::vector< Edge*>::iterator      edgeColBegin(){return theMesh_.edgeColBegin();}
-        std::vector< Edge*>::iterator      edgeColEnd(){return theMesh_.edgeColEnd();}
+        std::vector< Edge*>::iterator      edgeColBegin(IteratorType part=IteratorType::LOCAL){return theMesh_.edgeColBegin(part);}
+        std::vector< Edge*>::iterator      edgeColEnd(IteratorType part=IteratorType::LOCAL){return theMesh_.edgeColEnd(part);}
         /// *****************Iteration through the Elements*******************
 
         void                            createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const VectorOfPointIndicesT& LinearNoElements);
@@ -160,20 +159,20 @@ namespace Base
 
         // ******************THESE SHOULD BE DELETED LATER***********************//actually, these should be replaced by iterable editions of the levelTree -FB
         //! Get const list of elements
-        const ListOfElementsT&          getElementsList() const {return theMesh_.getElementsList(); }
+        const ListOfElementsT&          getElementsList(IteratorType part=IteratorType::LOCAL) const {return theMesh_.getElementsList(part); }
 
         //! Get non-const list of elements
-        ListOfElementsT&                getElementsList() { return theMesh_.getElementsList(); }
+        ListOfElementsT&                getElementsList(IteratorType part=IteratorType::LOCAL) { return theMesh_.getElementsList(part); }
 
         //! Get const list of faces
-        const ListOfFacesT&             getFacesList() const { return theMesh_.getFacesList(); }
+        const ListOfFacesT&             getFacesList(IteratorType part=IteratorType::LOCAL) const { return theMesh_.getFacesList(part); }
 
         //! Get non-const list of faces
-        ListOfFacesT&                   getFacesList() { return theMesh_.getFacesList(); }
+        ListOfFacesT&                   getFacesList(IteratorType part=IteratorType::LOCAL) { return theMesh_.getFacesList(part); }
 
-        const std::vector<Edge*>&         getEdgesList() const {return theMesh_.getEdgesList();}
+        const std::vector<Edge*>&         getEdgesList(IteratorType part=IteratorType::LOCAL) const {return theMesh_.getEdgesList(part);}
 
-        std::vector<Edge*>&               getEdgesList() {return theMesh_.getEdgesList();}
+        std::vector<Edge*>&               getEdgesList(IteratorType part=IteratorType::LOCAL) {return theMesh_.getEdgesList(part);}
         // ************************************************************************
 
         //! Changes the default set of basisFunctions for this mesh and all of its elements. Ignores any conforming basisFunctionset that nay be linked to faces/edges/...

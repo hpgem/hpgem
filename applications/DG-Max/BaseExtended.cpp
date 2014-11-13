@@ -625,8 +625,8 @@ void hpGemUIExtentions::exportMatrixes(){
 	MHasToBeInverted_=false;
 	assembler->fillMatrixes(this);
 	PetscViewer viewM, viewS;
-	PetscViewerASCIIOpen(MPI_COMM_WORLD,"M.m", &viewM);
-	PetscViewerASCIIOpen(MPI_COMM_WORLD,"S.m", &viewS);
+	PetscViewerASCIIOpen(PETSC_COMM_WORLD,"M.m", &viewM);
+	PetscViewerASCIIOpen(PETSC_COMM_WORLD,"S.m", &viewS);
 	PetscViewerSetFormat(viewM,PETSC_VIEWER_NOFORMAT);
 	PetscViewerSetFormat(viewS,PETSC_VIEWER_NOFORMAT);
 	MatView(M_,viewM);

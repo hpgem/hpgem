@@ -22,6 +22,7 @@
 //This macro is no longer needed, but it may make your life easier if you want to change things that involve the link between PETSc and hpGEM in an IDE 
 //#define hpGEM_INCLUDE_PETSC_SUPPORT
 
+#include "Base/MpiContainer.hpp"
 #include "Base/HpgemUISimplified.hpp"
 #include "Base/Norm2.hpp"
 #include "Utilities/GlobalMatrix.hpp"
@@ -41,6 +42,7 @@
 #include "Base/Element.hpp"
 #include "Base/RectangularMeshDescriptor.hpp"
 #include "Integration/ElementIntegral.hpp"
+#include "Base/CommandLineOptions.hpp"
 
 class Laplace : public Base::HpgemUISimplified {
 public:
@@ -168,7 +170,7 @@ public:
             for (int i = 0; i < n; ++i) {
                 face->basisFunctionDeriv(i, point, phiDeriv);
                 result[i] = (-normal * phiDeriv / Utilities::norm2(normal)
-                        + penaltyParameter_ * face->basisFunction(i, point)) * pPhys[1];
+                        + penaltyParameter_ * face->basisFunction(i, point)) * 0.;
             }
         /*}else if(std::abs(pPhys[1]-1)<1e-9){//Neumann and robin
          for(int i=0;i<n;++i){//be careful in 1D; this boundary condition always concerns df\dn
@@ -252,7 +254,7 @@ public:
         //KSP is a PETSc shorthand for [K]rylov [S]ubspace [P]roblem
         //we create one and use it to solve the linear system
         KSP ksp;
-        KSPCreate(MPI_COMM_WORLD, &ksp);
+        KSPCreate(PETSC_COMM_WORLD, &ksp);
         KSPSetOperators(ksp, A, A);
         KSPSetFromOptions(ksp);
         KSPSolve(ksp, b, x);
@@ -267,9 +269,9 @@ public:
         x.writeTimeLevelData(0);
 
         //so it can be used for post-processing
-        std::ofstream outFile("output.dat");
+        std::ofstream outFile("output.dat."+Base::MPIContainer::Instance().getProcessorID());
         Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
-        writeFunc.write(meshes_[0], "continuous solution", false, this);
+        writeFunc.write(meshes_[0], "discontinuous solution", false, this);
         return true;
     }
 
@@ -288,32 +290,19 @@ private:
     double penaltyParameter_;
 };
 
+auto& n = Base::register_argument<int>('n', "numElems", "number of elements per dimension", true);
+auto& p = Base::register_argument<int>('p', "order", "polynomial order of the solution", true);
+
 int main(int argc, char **argv) {
+    Base::parse_options(argc,argv);
     try {
-        //convert the first two command line arguments in n (number of elements) and p (polynomial order)
-        int n, p;
-        if (argc > 2) {
-            n = std::atoi(argv[1]);
-            p = std::atoi(argv[2]);
-            argv[2] = argv[0];
-            argc -= 2;
-            argv += 2;
-        } else {
-            throw "usage: Laplace.out n p [petsc-args]";
-        }
-
-        //start PETSc with the rest of the command line arguments
-        PetscInitialize(&(argc), &(argv), NULL, NULL);
-
         //create ...
-        Laplace demo(n, p);
+        Laplace demo(n.getValue(), p.getValue());
         demo.initialise();
 
         //... and solve the problem
         demo.solve();
 
-        //tell PETSc that is can clean up
-        PetscFinalize();
         return 0;
     } catch (const char* e) {
         std::cout << e;

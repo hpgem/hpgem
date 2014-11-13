@@ -214,7 +214,7 @@ public:
     	insertDirichletBoundary(A,b,x);
 
     	KSP ksp;
-    	KSPCreate(MPI_COMM_WORLD,&ksp);
+    	KSPCreate(PETSC_COMM_WORLD,&ksp);
     	KSPSetTolerances(ksp,1e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);
     	KSPSetOperators(ksp,A,A);
     	KSPSetFromOptions(ksp);
