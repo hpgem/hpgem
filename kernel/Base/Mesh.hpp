@@ -26,6 +26,7 @@
 
 #include "Face.hpp"
 #include "Submesh.hpp"
+#include "Geometry/PointPhysical.hpp"
 
 namespace Geometry {
     class PointPhysical;

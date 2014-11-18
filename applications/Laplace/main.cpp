@@ -43,6 +43,7 @@
 #include "Base/RectangularMeshDescriptor.hpp"
 #include "Integration/ElementIntegral.hpp"
 #include "Base/CommandLineOptions.hpp"
+#include "Output/VTKSpecificTimeWriter.hpp"
 
 class Laplace : public Base::HpgemUISimplified
 {
@@ -291,8 +292,18 @@ public:
 
         //so it can be used for post-processing
         std::ofstream outFile("output.dat." + std::to_string(Base::MPIContainer::Instance().getProcessorID()));
+        //write tecplot data
         Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
         writeFunc.write(meshes_[0], "discontinuous solution", false, this);
+        //AND paraview data
+        Output::VTKSpecificTimeWriter paraWrite("output", meshes_[0]);
+        paraWrite.write([](Base::Element* element, const Geometry::PointReference& point,size_t timelevel)->double
+        {
+            LinearAlgebra::NumericalVector value(1);
+            element->getSolution(timelevel,point,value);
+            return value[0];
+        }
+        ,"value");
         return true;
     }
 

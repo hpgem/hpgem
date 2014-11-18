@@ -416,6 +416,12 @@ int main(int argc, char **argv) {
     try {
         
         Advection test(n.getValue(), p.getValue());
+        test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, size_t timelevel)->double
+        {
+            LinearAlgebra::NumericalVector solution(1);
+            element->getSolution(timelevel, point, solution);
+            return solution[0];
+        }, "value");
         test.solve();
         return 0;
     } catch (const char* e) {

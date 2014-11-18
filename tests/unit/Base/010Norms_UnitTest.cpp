@@ -35,11 +35,11 @@
 #ifndef LOG_TEST_LEVEL
 #define LOG_TEST_LEVEL Log::DEBUG
 #endif
-Logger<LOG_TEST_LEVEL> logger(std::string(__FILE__).append(" (test suite)"));
+Logger<LOG_TEST_LEVEL> VTKTimeDependentWriterLog(std::string(__FILE__).append(" (test suite)"));
 
 void assert(std::string message,bool comparison,int lineNumber){
 	if(!comparison){
-		logger.log(Log::FATAL,"\n fundamental problem detected for % at line %",message,lineNumber);
+		VTKTimeDependentWriterLog.log(Log::FATAL,"\n fundamental problem detected for % at line %",message,lineNumber);
 	}
 }
 

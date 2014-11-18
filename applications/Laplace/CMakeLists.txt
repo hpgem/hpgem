@@ -21,6 +21,7 @@ add_executable(Laplace.out
         	${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter.cpp
+                ${hpGEM_SOURCE_DIR}/kernel/Output/VTKSpecificTimeWriter.cpp
         #	${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/AllGaussQuadratureRules.cpp		
 							  
 		#miscellaneous required stuff

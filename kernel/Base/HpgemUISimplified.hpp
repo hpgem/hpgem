@@ -26,6 +26,7 @@
 #include "Integration/ElementIntegrandBase.hpp"
 #include "Integration/FaceIntegrandBase.hpp"
 #include "Output/TecplotSingleElementWriter.hpp"
+#include "Output/VTKTimeDependentWriter.hpp"
 
 namespace Integration {
 	class FaceIntegral;
@@ -110,6 +111,20 @@ namespace Base
         void doAllElementIntegration(unsigned int meshID=0);
         void doAllFaceIntegration(unsigned int meshID=0);
         
+        void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference&, size_t)> function, std::string name)
+        {
+            VTKDoubleWrite_.push_back({function,name});
+        }
+        
+        void registerVTKWriteFunction(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, size_t)> function, std::string name)
+        {
+            VTKVectorWrite_.push_back({function,name});
+        }
+        
+        void registerVTKWriteFunction(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, size_t)> function, std::string name)
+        {
+            VTKMatrixWrite_.push_back({function,name});
+        }
         
         virtual void writeToTecplotFile(const ElementT*, const PointReferenceT&, std::ostream&){
             throw "If you want to call the function \'writeToTecplotFile\', please implement it";
@@ -118,8 +133,25 @@ namespace Base
 
     private:
         
-        //This is a function that checks the users defined initisation is fine.
+        //This is a function that checks the user defined initisation is fine.
         bool  checkInitialisation();
+        
+        void VTKWrite(Output::VTKTimeDependentWriter& out, double t)
+        {
+            //you would say this could be done more efficiently, but p.first has different types each time
+            for(auto p:VTKDoubleWrite_)
+            {
+                out.write(p.first,p.second, t);
+            }
+            for(auto p:VTKVectorWrite_)
+            {
+                out.write(p.first,p.second, t);
+            }
+            for(auto p:VTKMatrixWrite_)
+            {
+                out.write(p.first,p.second, t);
+            }
+        }
         
     protected:
         
@@ -127,6 +159,11 @@ namespace Base
         double startTime_;
         double dt_;
         
+    private:
+        
+        std::vector<std::pair<std::function<double(Base::Element*, const Geometry::PointReference&, size_t)>, std::string> > VTKDoubleWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, size_t)>, std::string> > VTKVectorWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, size_t)>, std::string> > VTKMatrixWrite_;
         
     };
 }

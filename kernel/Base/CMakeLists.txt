@@ -11,6 +11,9 @@ endif()
 add_library(hpGEM_Base SHARED
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp	
                 ${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter.cpp
+                ${hpGEM_SOURCE_DIR}/kernel/Output/VTKTimeDependentWriter.cpp
+                ${hpGEM_SOURCE_DIR}/kernel/Output/VTKSpecificTimeWriter.cpp
+                ${hpGEM_SOURCE_DIR}/kernel/Output/base64.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Base/BasisFunctionSet.cpp	
  		BaseBasisFunction.cpp	  
 		CommandLineOptions.cpp

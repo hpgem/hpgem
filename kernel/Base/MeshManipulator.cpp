@@ -3243,7 +3243,7 @@ void MeshManipulator::faceFactory()
       //---------------------------------------------------------------------
 
 	int MeshManipulator //: public MeshRefiner <DIM>
-	::dimension() {
+	::dimension() const {
 		return configData_->dimension_;
 	}
 

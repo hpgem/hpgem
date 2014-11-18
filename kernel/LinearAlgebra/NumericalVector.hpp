@@ -55,7 +55,7 @@ namespace LinearAlgebra
         
         NumericalVector();
         
-        NumericalVector(int m);
+        explicit NumericalVector(int m);
         
         NumericalVector(const NumericalVector& other);
         
@@ -99,12 +99,14 @@ namespace LinearAlgebra
         
         int size() const {return data_.size();}
         
+        const double* data() const {return data_.data();}
+        
         friend NumericalVector operator*(const double& left, const NumericalVector& right);
         
         friend NumericalVector   operator-(const NumericalVector& right);
  
         friend std::ostream& operator<<(std::ostream& os, const NumericalVector& A);
-        
+   
    
     private:
         #ifdef LA_STL_VECTOR

@@ -35,6 +35,7 @@
 #include "CommandLineOptions.hpp"
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "MpiContainer.hpp"
+#include "Output/VTKTimeDependentWriter.hpp"
 
 namespace Base
 {
@@ -59,7 +60,7 @@ namespace Base
         }
     }
     
-    auto& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file", false,"output.dat");
+    auto& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file (without extentions)", false,"output");
     
     bool HpgemUISimplified::solve()
     {
@@ -74,9 +75,17 @@ namespace Base
 #ifdef HPGEM_USE_MPI
         outFileName=outFileName+"."+std::to_string(MPIContainer::Instance().getProcessorID());
 #endif
-        std::ofstream outFile(outFileName);
+        std::ofstream outFile(outFileName+".dat");
         std::string dimensions("012");
         Output::TecplotDiscontinuousSolutionWriter out(outFile, "solution of the problem", dimensions.substr(0,configData_->dimension_).c_str(), "u");
+        if(outputName.isUsed())
+        {
+            Output::VTKTimeDependentWriter VTKout(outputName.getValue(), meshes_[0]);
+        }
+        else
+        {
+            Output::VTKTimeDependentWriter VTKout("VTK/output", meshes_[0]);
+        }
         double t=startTime_;
         double dtPlot;
         double origDt=dt_;
@@ -85,6 +94,7 @@ namespace Base
         {
             dtPlot=(endTime_-startTime_)/double(numberOfSnapshots.getValue()-1);
             out.write(meshes_[0],"t="+std::to_string(t),false,this);
+            VTKWrite(VTKout, t);
         }else
         {
             dtPlot=endTime_-startTime_;
@@ -154,6 +164,7 @@ namespace Base
             {//yes, == for doubles, but see the start of the time loop
                 tPlot+=dtPlot;
                 out.write(meshes_[0],"t="+std::to_string(t),false,this);
+                VTKWrite(VTKout, t);
                 dt_=origDt;
                 if(tPlot>endTime_)
                 {

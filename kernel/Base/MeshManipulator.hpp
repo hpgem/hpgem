@@ -187,7 +187,7 @@ namespace Base
         //! Adds edge based degrees of freedom to the set of basisfunctions for this mesh and all of its edges. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
         void                            addEdgeBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets);///\TODO support for mixed meshes
 
-		int dimension();
+		int dimension() const;
 
         const std::vector<PointPhysicalT>& getNodes()const{return theMesh_.getNodes();}
 

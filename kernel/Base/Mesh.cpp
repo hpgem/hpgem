@@ -176,17 +176,10 @@ namespace Base {
             if (partition[face->getPtrElementLeft()->getID()] == pid ||
                     (face->isInternal() && partition[face->getPtrElementRight()->getID()] == pid)) {
                 //yeah we are
-                //for normal use it is better if both local faces compute the face contribution to the residual
-                //but for PETSc it is required if a face is there only once to prevent a mess when filling the matrix
-#ifndef HPGEM_USE_PETSC
                 submeshes_.add(face);
-#endif
 
                 if (face->isInternal()&&(partition[face->getPtrElementLeft()->getID()] != partition[face->getPtrElementRight()->getID()])) {
                     if (partition[face->getPtrElementLeft()->getID()] == pid) {
-#ifdef HPGEM_USE_PETSC
-                        submeshes_.add(face);
-#endif
                         //dont send to yourself, ask the element on the other side what pid to sent to
                         submeshes_.addPush(face->getPtrElementLeft(), partition[face->getPtrElementRight()->getID()]);
                         //if you recieve, the source is the owner of the element
@@ -196,12 +189,6 @@ namespace Base {
                         submeshes_.addPull(face->getPtrElementLeft(), partition[face->getPtrElementLeft()->getID()]);
                     }
                 }
-#ifdef HPGEM_USE_PETSC
-                else
-                {
-                    submeshes_.add(face);
-                }
-#endif
             }
         }
         

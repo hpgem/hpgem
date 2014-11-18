@@ -69,6 +69,11 @@ namespace Geometry
             coordinates_.axpy(alpha,x.coordinates_);
         }
         
+        const double* data() const
+        {
+            return coordinates_.data();
+        }
+        
 //        friend PointT operator*(const double& left, const PointT& right){return PointPhysical(right.coordinates_*left);}
     };
 };
