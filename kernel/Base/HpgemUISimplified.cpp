@@ -45,7 +45,7 @@ namespace Base
         auto& startTime = Base::register_argument<double>(0, "startTime", "start time of the simulation", false,0);
         auto& dt = Base::register_argument<double>(0, "dt", "time step of the simulation", false);
         
-    HpgemUISimplified::HpgemUISimplified(unsigned int DIM,int polynomialOrder)
+    HpgemUISimplified::HpgemUISimplified(unsigned int DIM, int polynomialOrder)
       :  HpgemUI(new GlobalData,
                  new ConfigurationData(DIM,1,polynomialOrder,numberOfSnapshots.getValue())) 
     {
@@ -61,8 +61,7 @@ namespace Base
     
     auto& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file", false,"output.dat");
     
-    bool
-    HpgemUISimplified::solve()
+    bool HpgemUISimplified::solve()
     {
         initialise();
         assert(checkInitialisation());
@@ -82,16 +81,20 @@ namespace Base
         double dtPlot;
         double origDt=dt_;
         LinearAlgebra::Matrix leftResidual,rightResidual,residual;
-        if(numberOfSnapshots.getValue()>1L) {
+        if(numberOfSnapshots.getValue()>1L) 
+        {
             dtPlot=(endTime_-startTime_)/double(numberOfSnapshots.getValue()-1);
             out.write(meshes_[0],"t="+std::to_string(t),false,this);
-        }else{
+        }else
+        {
             dtPlot=endTime_-startTime_;
         }
         double tPlot=startTime_+dtPlot;
-        while (t<endTime_) {
+        while (t<endTime_) 
+        {
             t+=dt_;
-            if(t>tPlot){
+            if(t>tPlot)
+            {
                 t-=dt_;
                 dt_=tPlot-t;
                 t=tPlot;
@@ -112,8 +115,10 @@ namespace Base
             synchronize();
             
             computeFluxResidual();
-            for(Base::Face* face:meshes_[0]->getFacesList()){
-                if(face->isInternal()){
+            for(Base::Face* face:meshes_[0]->getFacesList())
+            {
+                if(face->isInternal())
+                {
                     leftResidual=face->getPtrElementLeft()->getResidue();
                     rightResidual=face->getPtrElementRight()->getResidue();
                     residual=face->getResidue();
@@ -121,17 +126,21 @@ namespace Base
                     //can we get nicer matrix?
                     assert(n==leftResidual.getNCols());
                     assert(residual.getNCols()-n==rightResidual.getNCols());
-                    for(std::size_t i=0;i<residual.getNRows();++i){
+                    for(std::size_t i=0;i<residual.getNRows();++i)
+                    {
                         for(std::size_t j=0;j<n;++j){
                             leftResidual(i,j)+=residual(i,j);
                         }
-                        for(std::size_t j=n;j<residual.getNCols();++j){
+                        for(std::size_t j=n;j<residual.getNCols();++j)
+                        {
                             rightResidual(i,j-n)+=residual(i,j);
                         }
                     }
                     face->getPtrElementLeft()->setResidue(leftResidual);
                     face->getPtrElementRight()->setResidue(rightResidual);
-                }else{
+                }
+                else
+                {
                     leftResidual=face->getPtrElementLeft()->getResidue();
                     residual=face->getResidue();
                     residual.axpy(1.,leftResidual);
@@ -141,11 +150,13 @@ namespace Base
             }
             interpolate();
             
-            if(t==tPlot){//yes, == for doubles, but see the start of the time loop
+            if(t==tPlot)
+            {//yes, == for doubles, but see the start of the time loop
                 tPlot+=dtPlot;
                 out.write(meshes_[0],"t="+std::to_string(t),false,this);
                 dt_=origDt;
-                if(tPlot>endTime_){
+                if(tPlot>endTime_)
+                {
                     tPlot=endTime_;
                 }
             }
@@ -155,8 +166,7 @@ namespace Base
         return true;
     }
     
-    void
-    HpgemUISimplified::doAllFaceIntegration(unsigned int meshID)
+    void HpgemUISimplified::doAllFaceIntegration(unsigned int meshID)
     {
         bool useCache   = false;
         
@@ -179,10 +189,14 @@ namespace Base
         }
     }
     
-    void
-    HpgemUISimplified::doAllElementIntegration(unsigned int meshID)
+    void HpgemUISimplified::doAllElementIntegration(unsigned int meshID)
     {
-        unsigned int ndof = HpgemUI::configData_->numberOfBasisFunctions_*HpgemUI::configData_->numberOfUnknowns_;
+        //numberOfUnknowns_ is the number of unknowns in the "real problem" you want a
+        //solution for, this is automatically set to 1 in the contructor of hpgemUISimplified
+        //ndof is now the size of your element matrix
+        unsigned int ndof = HpgemUI::configData_->numberOfBasisFunctions_ * HpgemUI::configData_->numberOfUnknowns_;
+        
+        //initialise the element matrix and element vector.
         LinearAlgebra::Matrix  	eMatrixData(ndof, ndof);
         LinearAlgebra::Matrix   initialData(configData_->numberOfUnknowns_,configData_->numberOfBasisFunctions_);
         LinearAlgebra::NumericalVector eVectorData(ndof);
@@ -197,7 +211,8 @@ namespace Base
             (*it)->setElementMatrix(eMatrixData);
             elIntegral.integrate<LinearAlgebra::NumericalVector>((*it), this, eVectorData);
             (*it)->setElementVector(eVectorData);
-            if(configData_->numberOfUnknowns_==1){
+            if(configData_->numberOfUnknowns_==1)
+            {
                 assert(initialData.getNCols()==eVectorData.size());
                 for(std::size_t i=0;i<eVectorData.size();++i){
                     initialData(0,i)=eVectorData[i];
@@ -244,12 +259,11 @@ namespace Base
 #endif
     }
     
-    bool
-    HpgemUISimplified::checkInitialisation()
+    bool HpgemUISimplified::checkInitialisation()
     {
         if (HpgemUI::meshes_.size()==0)
         {
-            std::cerr << "Error no mesh created : You need to create at least one mesh to solve a problem" << std::endl;
+            //std::cerr << "Error no mesh created : You need to create at least one mesh to solve a problem" << std::endl;
             return false;
         }
         return true;

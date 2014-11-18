@@ -44,23 +44,25 @@
 #include "Integration/ElementIntegral.hpp"
 #include "Base/CommandLineOptions.hpp"
 
-class Laplace : public Base::HpgemUISimplified {
+class Laplace : public Base::HpgemUISimplified
+{
 public:
     ///constructor: set the dimension of the problem, start the API of hpGEM and initialise the other fields
     //initialisation order is not fixed so DIM_ has to be passed to hpGEMUISimplified in a hardcoded way
-    Laplace(int n, int p) : HpgemUISimplified(2, p), DIM_(2), n_(n), p_(p) {
+    Laplace(int n, int p) : HpgemUISimplified(2, p), DIM_(2), n_(n), p_(p)
+    {
         penaltyParameter_ = 3 * n_ * p_ * (p_ + DIM_ - 1) + 1;
     }
 
     ///set up the mesh
-
-    bool virtual initialise() {
-
+    bool virtual initialise()
+    {
         //describes a rectangular domain
         RectangularMeshDescriptorT description(DIM_);
 
         //this demo will use a cube
-        for (int i = 0; i < DIM_; ++i) {
+        for (int i = 0; i < DIM_; ++i)
+        {
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
             description.numElementsInDIM_[i] = n_;
@@ -86,8 +88,8 @@ public:
     //using conforming basis functions is more work
     //this will definitely be automated at some point in the future
     //this routine is only required if you use conforming basis functions
-
-    void useConformingBasisFunctions() {
+    void useConformingBasisFunctions()
+    {
         //if you want to use conforming basis functions you have to create the bubble functions first (even if there are none)
         //take extra care here that the shape of your elements matches the shape the basis functions 'expect'
         meshes_[0]->setDefaultBasisFunctionSet(Utilities::createInteriorBasisFunctionSet2DH1Triangle(p_));
@@ -102,15 +104,17 @@ public:
 
     ///You pass the reference point to the basis functions. Internally the basis functions will be mapped to the physical element
     ///so you wont have to do any transformations yourself
-
-    virtual void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result) {
+    virtual void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result)
+    {
         //be careful that n changes meaning inside integration routines to represent the number of basis functions involved
         int n = element->getNrOfBasisFunctions();
         LinearAlgebra::NumericalVector phiDerivI(DIM_), phiDerivJ(DIM_);
         result.resize(n, n);
-        for (int i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i)
+        {
             element->basisFunctionDeriv(i, point, phiDerivI);
-            for (int j = 0; j < n; ++j) {
+            for (int j = 0; j < n; ++j)
+            {
                 element->basisFunctionDeriv(j, point, phiDerivJ);
 
                 //the value to compute here is taken from the weak formulation
@@ -124,33 +128,40 @@ public:
     ///that basis functions belonging to the left element are indexed first
     ///note that using a consistent flux has no effect if you also use conforming basis functions
     //this routine is only needed if you use discontinuous basis functions
-
-    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::Matrix& result) {
+    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::Matrix& result)
+    {
         int n = face->getNrOfBasisFunctions();
         result.resize(n, n);
         LinearAlgebra::NumericalVector phiNormalI(DIM_), phiNormalJ(DIM_), phiDerivI(DIM_), phiDerivJ(DIM_);
         PointPhysicalT pPhys(DIM_);
         face->referenceToPhysical(point, pPhys);
-        for (int i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i)
+        {
             face->basisFunctionNormal(i, normal, point, phiNormalI);
             face->basisFunctionDeriv(i, point, phiDerivI);
-            for (int j = 0; j < n; ++j) {
+            for (int j = 0; j < n; ++j)
+            {
                 face->basisFunctionNormal(j, normal, point, phiNormalJ);
                 face->basisFunctionDeriv(j, point, phiDerivJ);
-                if (face->isInternal()) {
+                if (face->isInternal())
+                {
                     result(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2
-                            + penaltyParameter_ * phiNormalI * phiNormalJ;
+                        + penaltyParameter_ * phiNormalI * phiNormalJ;
 
                     //for the moment you can figure out at what part of the boundary you are by looking at
                     //the point in physical space you are (pPhys) and implement a boundary condition accordingly
                     //once there are more labels for boundary conditions available you can use syntax that looks like
                     //face->getFaceType() to see what kind of boundary condition you are dealing with
-                } else if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1.) < 1e-9) { //Dirichlet
+                }
+                else if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1.) < 1e-9) //Dirichlet
+                {
                     result(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI)
-                            + penaltyParameter_ * phiNormalI * phiNormalJ * 2;
-                //}else if(std::abs(pPhys[0]-1)<1e-9){//Robin
-                //	ret(j,i)=-phiNormalI*phiNormalJ*0;
-                } else { //homogeneous Neumann
+                        + penaltyParameter_ * phiNormalI * phiNormalJ * 2;
+                    //}else if(std::abs(pPhys[0]-1)<1e-9){//Robin
+                    //	ret(j,i)=-phiNormalI*phiNormalJ*0;
+                }
+                else
+                { //homogeneous Neumann
                     result(j, i) = 0;
                 }
             }
@@ -159,25 +170,30 @@ public:
 
     ///The vector edition of the face integrand is meant for implementation of the boundary conditions
     //for conforming problems this functions only deals with non-homogeneous Neumann and Robin boundary conditions 
-
-    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::NumericalVector& result) {
+    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::NumericalVector& result)
+    {
         int n = face->getNrOfBasisFunctions();
         result.resize(n);
         PointPhysicalT pPhys(DIM_);
         face->referenceToPhysical(point, pPhys);
-        if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1) < 1e-9) { //Dirichlet
+        if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1) < 1e-9)
+        { //Dirichlet
             LinearAlgebra::NumericalVector phiDeriv(DIM_);
-            for (int i = 0; i < n; ++i) {
+            for (int i = 0; i < n; ++i)
+            {
                 face->basisFunctionDeriv(i, point, phiDeriv);
                 result[i] = (-normal * phiDeriv / Utilities::norm2(normal)
-                        + penaltyParameter_ * face->basisFunction(i, point)) * 0.;
+                             + penaltyParameter_ * face->basisFunction(i, point)) * 0.;
             }
-        /*}else if(std::abs(pPhys[1]-1)<1e-9){//Neumann and robin
-         for(int i=0;i<n;++i){//be careful in 1D; this boundary condition always concerns df\dn
-         ret[i]=face->basisFunction(i,p)*-1;
-         }*/
-        } else {
-            for (int i = 0; i < n; ++i) {
+            /*}else if(std::abs(pPhys[1]-1)<1e-9){//Neumann and robin
+             for(int i=0;i<n;++i){//be careful in 1D; this boundary condition always concerns df\dn
+             ret[i]=face->basisFunction(i,p)*-1;
+             }*/
+        }
+        else
+        {
+            for (int i = 0; i < n; ++i)
+            {
                 result[i] = 0;
             }
         }
@@ -186,30 +202,31 @@ public:
     //hpGEMUISimplified is originally designed for hyperbolic problems
     //those need initial conditions. Laplace and Poisson equations dont need
     //initial conditions, so just provide a dummy implementation
-
-    virtual double initialConditions(const PointPhysicalT& point) {
+    virtual double initialConditions(const PointPhysicalT& point)
+    {
         // initial conditions are not needed for a steady-state problem
         return 0;
     }
-
-    double sourceTerm(const PointPhysicalT& point) {
+    double sourceTerm(const PointPhysicalT& point)
+    {
         return sin(2 * M_PI * point[0]) * (4 * M_PI * M_PI) * cos(2 * M_PI * point[1]); //*cos(2*M_PI*p[2])*3;
     }
 
     ///interpolates the source term
-
-    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& result) {
+    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& result)
+    {
         PointPhysicalT pPhys(DIM_);
         element->referenceToPhysical(point, pPhys);
         result.resize(element->getNrOfBasisFunctions());
-        for (int i = 0; i < element->getNrOfBasisFunctions(); ++i) {
+        for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
+        {
             result[i] = element->basisFunction(i, point) * sourceTerm(pPhys);
         }
     }
 
     ///provide information about your solution that you want to use for visualisation
-
-    void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out) {
+    void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out)
+    {
         LinearAlgebra::NumericalVector value(1);
         element->getSolution(0, point, value);
         out << value[0];
@@ -218,24 +235,27 @@ public:
     ///guarantees the linear system keeps the Dirichlet boundary conditions in place. Assumes x already contains expansion coefficients for
     ///the boundaries in question and noise in all other entries
     //this routine in only needed if you use conforming basis functions
-
-    void insertDirichletBoundary(Utilities::GlobalPetscMatrix& A, Utilities::GlobalPetscVector& b, Utilities::GlobalPetscVector& x) {
+    void insertDirichletBoundary(Utilities::GlobalPetscMatrix& A, Utilities::GlobalPetscVector& b, Utilities::GlobalPetscVector& x)
+    {
         int numberOfRows(0);
         std::vector<int> rows(0);
         Geometry::PointPhysical pPhys(DIM_);
         Geometry::PointReference centre(DIM_ - 1);
-        for (Base::Face* face : meshes_[0]->getFacesList()) {
+        for (Base::Face* face : meshes_[0]->getFacesList())
+        {
             face->getReferenceGeometry()->getCenter(centre);
             face->referenceToPhysical(centre, pPhys);
-            if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1) < 1e-9) {
+            if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1) < 1e-9)
+            {
                 A.getMatrixBCEntries(face, numberOfRows, rows);
             }
         }
         int ierr = MatZeroRows(A, numberOfRows, &rows[0], 1.0, x, b);
         CHKERRV(ierr);
     }
-
-    bool solve() {
+    
+    bool solve()
+    {
         doAllElementIntegration();
         doAllFaceIntegration();
 
@@ -257,20 +277,20 @@ public:
         KSPCreate(PETSC_COMM_WORLD, &ksp);
         KSPSetOperators(ksp, A, A);
         KSPSetFromOptions(ksp);
-        KSPSetTolerances(ksp,1e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);
+        KSPSetTolerances(ksp, 1e-12, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
         KSPSolve(ksp, b, x);
         KSPConvergedReason conferge;
         KSPGetConvergedReason(ksp, &conferge);
         int iterations;
         KSPGetIterationNumber(ksp, &iterations);
         std::cout << "KSP solver ended because of " << KSPConvergedReasons[conferge] <<
-                " in " << iterations << " iterations." << std::endl;
+            " in " << iterations << " iterations." << std::endl;
 
         //once PETSc is done, feed the data back into the elements
         x.writeTimeLevelData(0);
 
         //so it can be used for post-processing
-        std::ofstream outFile("output.dat."+std::to_string(Base::MPIContainer::Instance().getProcessorID()));
+        std::ofstream outFile("output.dat." + std::to_string(Base::MPIContainer::Instance().getProcessorID()));
         Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
         writeFunc.write(meshes_[0], "discontinuous solution", false, this);
         return true;
@@ -293,10 +313,11 @@ private:
 
 auto& n = Base::register_argument<int>('n', "numElems", "number of elements per dimension", true);
 auto& p = Base::register_argument<int>('p', "order", "polynomial order of the solution", true);
-
-int main(int argc, char **argv) {
-    Base::parse_options(argc,argv);
-    try {
+int main(int argc, char **argv)
+{
+    Base::parse_options(argc, argv);
+    try
+    {
         //create ...
         Laplace demo(n.getValue(), p.getValue());
         demo.initialise();
@@ -305,7 +326,9 @@ int main(int argc, char **argv) {
         demo.solve();
 
         return 0;
-    } catch (const char* e) {
+    }
+    catch (const char* e)
+    {
         std::cout << e;
     }
 }
