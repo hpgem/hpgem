@@ -31,7 +31,7 @@ add_executable(TutorialLaplace.out
 target_link_libraries(TutorialLaplace.out hpGEM_Base Geometry QuadratureRules LinearAlgebra ${PETSC_LIBRARIES})
 
 else() 
-        message(WARNING "TutorialLaplace.out\n\TutorialLaplace.out cannot build without PETSC support!\n\tPlease rerun cmake and enable PETSC support")
+        message(WARNING "TutorialLaplace.out\nTutorialLaplace.out cannot build without PETSC support!\n\tPlease rerun cmake and enable PETSC support")
 	#add_custom_target(LaplaceEasier.out 
 	#	COMMENT "\t ERROR:: You need PETSC to compile LaplaceEasier.out. \n\t ERROR:: Please rerun cmake and enable PETSC support")
 endif()

@@ -80,12 +80,13 @@ namespace Base
         Output::TecplotDiscontinuousSolutionWriter out(outFile, "solution of the problem", dimensions.substr(0,configData_->dimension_).c_str(), "u");
         if(outputName.isUsed())
         {
-            Output::VTKTimeDependentWriter VTKout(outputName.getValue(), meshes_[0]);
+            outFileName = outputName.getValue();
         }
         else
         {
-            Output::VTKTimeDependentWriter VTKout("VTK/output", meshes_[0]);
+            outFileName = "VTK/output";
         }
+        Output::VTKTimeDependentWriter VTKout(outFileName, meshes_[0]);
         double t=startTime_;
         double dtPlot;
         double origDt=dt_;
