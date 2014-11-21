@@ -35,6 +35,7 @@
 #include "Geometry/PhysicalGeometry.hpp"
 
 #include <cmath>
+
 int main(){
 
 	//dim0
@@ -71,6 +72,8 @@ int main(){
 	test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft(),leftIndices);
 	test->getPtrElementGRight()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberRight(),rightIndices);
 
+        test->initialiseFaceToFaceMapIndex(leftIndices, rightIndices);
+        
 	for(int i=0;i<test->getReferenceGeometry()->getNumberOfNodes();++i){
 		test->getReferenceGeometry()->getNode(i,orig1D);
 		test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i],compare1D);
@@ -137,6 +140,9 @@ int main(){
 	test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft(),leftIndices);
 	test->getPtrElementGRight()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberRight(),rightIndices);
 
+
+        test->initialiseFaceToFaceMapIndex(leftIndices, rightIndices);
+        
 	for(int i=0;i<test->getReferenceGeometry()->getNumberOfNodes();++i){
 		test->getReferenceGeometry()->getNode(i,orig2D);
 		test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i],compare2D);

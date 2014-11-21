@@ -37,7 +37,6 @@
 #include "FaceCacheData.hpp"
 #include "ElementCacheData.hpp"
 
-//#define HPGEM_USE_METIS//temporarily activating this definition makes development easier on some IDEs
 #ifdef HPGEM_USE_METIS
 #include <metis.h>
 #endif
@@ -48,6 +47,7 @@ namespace Base {
     elementcounter_(0),
     faceCounter_(0),
     edgeCounter_(0),
+    nodeCounter_(0),
     localProcessorID_(0),
     hasToSplit_(false) {
     }
@@ -55,11 +55,13 @@ namespace Base {
     Mesh::Mesh(const Mesh& orig) :
     elements_(orig.elements_),
     edges_(orig.edges_),
+    nodes_(orig.nodes_),
     faces_(orig.faces_),
     points_(orig.points_),
     elementcounter_(orig.elementcounter_),
     faceCounter_(orig.faceCounter_),
     edgeCounter_(orig.edgeCounter_),
+    nodeCounter_(orig.nodeCounter_),
     hasToSplit_(orig.hasToSplit_) {
     }
 
@@ -72,6 +74,9 @@ namespace Base {
         }
         for (Edge* edge : edges_) {
             delete edge;
+        }
+        for (Node* node : nodes_) {
+            delete node;
         }
 
     }
@@ -96,14 +101,27 @@ namespace Base {
         return true;
     }
 
-    void Mesh::addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs) {
-        edges_.push_back(new Edge(elements, localEdgeNrs, edgeCounter_));
+    //void Mesh::addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs) {
+    //    edges_.push_back(new Edge(elements, localEdgeNrs, edgeCounter_));
+    //    ++edgeCounter_;
+    //    hasToSplit_ = true;
+    //}
+    
+    void Mesh::addEdge()
+    {
+        edges_.push_back(new Edge(edgeCounter_));
         ++edgeCounter_;
-        hasToSplit_ = true;
+        hasToSplit_=true;
     }
 
     void Mesh::addNode(Geometry::PointPhysical node) {
         points_.push_back(node);
+        //dont distribute the points, it will confuse the elements (dont ask)
+    }
+
+    void Mesh::addVertex() {
+        nodes_.push_back(new Node(nodeCounter_));
+        ++nodeCounter_;
         hasToSplit_ = true;
     }
 
@@ -164,6 +182,7 @@ namespace Base {
 
 #endif
 #endif
+        submeshes_.clear();
         auto elementIterator = elements_.begin();
         for (auto targetIterator = partition.begin(); targetIterator != partition.end(); ++targetIterator, ++elementIterator) {
 
@@ -192,15 +211,16 @@ namespace Base {
             }
         }
         
-        //edges are only used to construct conforming basis-functions (i.e. PETSc))
+        //edges and nodes are only used to construct conforming basis-functions (i.e. GlobalAssembly))
         for (Base::Edge* edge : edges_) {
-            //bool done(false);
-            //for (int i = 0; (i < edge->getNrOfElements())&&(!done); ++i) {
             if (partition[edge->getElement(0)->getID()] == pid) {
                 submeshes_.add(edge);
-                //done = true;
             }
-            //}
+        }
+        for (Base::Node* node : nodes_) {
+            if (partition[node->getElement(0)->getID()] == pid) {
+                submeshes_.add(node);
+            }
         }
         hasToSplit_ = false;
     }
@@ -271,6 +291,29 @@ namespace Base {
             return submeshes_.getEdgesList();
         }else{
             return edges_;
+        }
+    }
+
+    const std::vector<Node*>& Mesh::getVerticesList(IteratorType part) const {
+        if(part==IteratorType::LOCAL){
+            if (!hasToSplit_) {
+                return submeshes_.getNodesList();
+            } else {
+                throw "Please call getVerticesList() on a modifiable mesh at least once before calling getEdgesList() const";
+            }
+        }else{
+            return nodes_;
+        }
+    }
+
+    std::vector<Node*>& Mesh::getVerticesList(IteratorType part) {
+        if(part==IteratorType::LOCAL){
+            if (hasToSplit_) {
+                split();
+            }
+            return submeshes_.getNodesList();
+        }else{
+            return nodes_;
         }
     }
 

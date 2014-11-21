@@ -35,6 +35,7 @@
 #include "Geometry/ReferenceGeometry.hpp"
 #include "Geometry/PointReference.hpp"
 #include "TestErrorDebug.hpp"
+#include "Node.hpp"
 
 namespace Base
 {
@@ -67,7 +68,10 @@ namespace Base
     	setNumberOfBasisFunctions(numberOfBasisFunctions);
         setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(basisFunctionSetPositions_[0])->getOrder()+1);
         nrOfDOFinTheElement_=basisFunctionSet_->at(basisFunctionSetPositions_[0])->size();
-        nrOfDOFperVertex_=0;
+        facesList_.assign(getReferenceGeometry()->getNrOfCodim1Entities(),nullptr);
+        if(getReferenceGeometry()->getNrOfCodim3Entities()>0)
+            edgesList_.assign(getReferenceGeometry()->getNrOfCodim2Entities(),nullptr);
+        nodesList_.assign(getReferenceGeometry()->getNumberOfNodes(),nullptr);
     }
 
     Element::Element(const Element& other):
@@ -80,7 +84,10 @@ namespace Base
         orderCoeff_(other.orderCoeff_),
         basisFunctionSetPositions_(other.basisFunctionSetPositions_),
         nrOfDOFinTheElement_(other.nrOfDOFinTheElement_),
-        nrOfDOFperVertex_(other.nrOfDOFperVertex_)
+        facesList_(other.facesList_),
+        edgesList_(other.edgesList_),
+        nodesList_(other.nodesList_)
+            
     {
         std::cout << "In the copy constructor of Element " << std::endl;
     }
@@ -116,14 +123,13 @@ namespace Base
     	setNumberOfBasisFunctions(numberOfBasisFunctions);
         setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(position)->getOrder()+1);
         nrOfDOFinTheElement_=basisFunctionSet_->at(position)->size();
-        nrOfDOFperVertex_=0;
     }
 
     void
     Element::setFaceBasisFunctionSet(unsigned int position,int localFaceIndex)
     {
-    	if(basisFunctionSetPositions_.size()<1+physicalGeometry_->getNrOfFaces()){
-			basisFunctionSetPositions_.resize(1+physicalGeometry_->getNrOfFaces(),-1);
+    	if(basisFunctionSetPositions_.size()<1+getNrOfFaces()){
+			basisFunctionSetPositions_.resize(1+getNrOfFaces(),-1);
 		}
     	basisFunctionSetPositions_[1+localFaceIndex]=position;
     	int numberOfBasisFunctions(0);
@@ -137,10 +143,10 @@ namespace Base
     void
     Element::setEdgeBasisFunctionSet(unsigned int position, int localEdgeIndex)
     {
-    	if(basisFunctionSetPositions_.size()<1+physicalGeometry_->getNrOfFaces()+getNrOfEdges()){
-			basisFunctionSetPositions_.resize(1+physicalGeometry_->getNrOfFaces()+getNrOfEdges(),-1);
+    	if(basisFunctionSetPositions_.size()<1+getNrOfFaces()+getNrOfEdges()){
+			basisFunctionSetPositions_.resize(1+getNrOfFaces()+getNrOfEdges(),-1);
 		}
-    	basisFunctionSetPositions_[1+physicalGeometry_->getNrOfFaces()+localEdgeIndex]=position;
+    	basisFunctionSetPositions_[1+getNrOfFaces()+localEdgeIndex]=position;
     	int numberOfBasisFunctions(0);
     	for(int i:basisFunctionSetPositions_)
     	{
@@ -152,17 +158,16 @@ namespace Base
     void
     Element::setVertexBasisFunctionSet(unsigned int position, int localVertexIndex)
     {
-    	if(basisFunctionSetPositions_.size()<1+physicalGeometry_->getNrOfFaces()+getNrOfEdges()+getNrOfNodes()){
-			basisFunctionSetPositions_.resize(1+physicalGeometry_->getNrOfFaces()+getNrOfEdges()+getNrOfNodes(),-1);
+    	if(basisFunctionSetPositions_.size()<1+getNrOfFaces()+getNrOfEdges()+getNrOfNodes()){
+			basisFunctionSetPositions_.resize(1+getNrOfFaces()+getNrOfEdges()+getNrOfNodes(),-1);
 		}
-    	basisFunctionSetPositions_[1+physicalGeometry_->getNrOfFaces()+getNrOfEdges()+localVertexIndex]=position;
+    	basisFunctionSetPositions_[1+getNrOfFaces()+getNrOfEdges()+localVertexIndex]=position;
     	int numberOfBasisFunctions(0);
     	for(int i:basisFunctionSetPositions_)
     	{
     		if(i!=-1) numberOfBasisFunctions+=basisFunctionSet_->at(i)->size();
     	}
     	setNumberOfBasisFunctions(numberOfBasisFunctions);
-    	nrOfDOFperVertex_=basisFunctionSet_->at(position)->size();
     }
 
     double
@@ -348,6 +353,7 @@ namespace Base
     			       (face->getPtrElementRight()==this&&face->localFaceNumberRight()==localFaceNr),"You are only allowed to set a face to a local face index that matches");
     	if(facesList_.size()<localFaceNr+1)
     	{
+            //should not happen
     		facesList_.resize(localFaceNr+1);
     	}
     	facesList_[localFaceNr]=face;
@@ -358,9 +364,21 @@ namespace Base
     {
     	if(edgesList_.size()<localEdgeNr+1)
     	{
+            //could happen in 4D
     		edgesList_.resize(localEdgeNr+1);
     	}
     	edgesList_[localEdgeNr]=edge;
+    }
+
+    void
+    Element::setNode(int localNodeNr, const Node* node)
+    {
+    	if(nodesList_.size()<localNodeNr+1)
+    	{
+            //should not happen
+    		nodesList_.resize(localNodeNr+1);
+    	}
+    	nodesList_[localNodeNr]=node;
     }
 }
 #endif

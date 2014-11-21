@@ -44,7 +44,8 @@ namespace Geometry {
         localFaceNumberLeft_(localFaceNumL),
         rightElementGeom_(ptrElemR),
         localFaceNumberRight_(localFaceNumR),
-        faceType_(INTERNAL)
+        faceType_(INTERNAL),
+        faceToFaceMapIndex_(UINT_MAX)
     {
             // ~OC~
             // All that remains to be done for the Face-class's data is to
@@ -72,7 +73,9 @@ namespace Geometry {
 
         //leftElementGeom_->getReferenceGeometry()->getCodim1ReferenceGeometry(localFaceNumberLeft_);
 
-        std::vector<unsigned int> globalNodeNrsL;
+        //properly initializing faceToFaceMapIndex_ can be done more efficiently if the ctor of face has a little bit of time to compute a few numbers
+        //(see also initialiseFaceToFaceMapIndex_)
+        /*std::vector<unsigned int> globalNodeNrsL;
         std::vector<unsigned int> globalNodeNrsR;
 
         const Geometry::PhysicalGeometry* const leftPG  = leftElementGeom_->getPhysicalGeometry();
@@ -359,7 +362,7 @@ namespace Geometry {
 #endif
 //-MTJ-end--------------
 
-        }
+        }*/
     }
 
         //! Ctor for boundary faces.
@@ -624,6 +627,11 @@ namespace Geometry {
         {
             std::cout << "("<< faceToFaceMapIndex_ << ") refMatrix: " << faceToFaceMapMatrix_ << "\n";
         }
+    
+    //finding node numbers here is way to hard (see also the 288 lines of commented out constructor), leave that to someplace else
+    void FaceGeometry::initialiseFaceToFaceMapIndex(const std::vector<unsigned int>& leftVertices, const std::vector<unsigned int>& rightVertices) {
+        faceToFaceMapIndex_=getReferenceGeometry()->getCodim0MappingIndex(leftVertices,rightVertices);
+    }
 //#endif
 //-MTJ-end--------------
 };

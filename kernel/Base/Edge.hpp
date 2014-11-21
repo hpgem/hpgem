@@ -26,41 +26,65 @@
 
 namespace Base {
 
-	class Element;
+    class Element;
 
-/**
- * generic class that contains entities of codimension 2 or greater that are not vertexes.
- * At the moment no integration takes place on edges, so they dont care about their own shape or
- * position. They do know what elements are nearby so they can connent edge-based conforming
- * degrees of freedom to the proper elements.
- * \TODO 4D support
- */
-class Edge {
-public:
-	Edge(std::vector<Element*>& elements,std::vector<unsigned int> localEdgeNrs, unsigned int ID);
-	virtual ~Edge(){}
+    /**
+     * generic class that contains entities of codimension 2 or greater that are not vertexes.
+     * At the moment no integration takes place on edges, so they dont care about their own shape or
+     * position. They do know what elements are nearby so they can connent edge-based conforming
+     * degrees of freedom to the proper elements.
+     * \TODO 4D support
+     */
+    class Edge {
+    public:
 
-	int getLocalNrOfBasisFunctions() const{return nrOfConformingDOFOnTheEdge_;}
+        explicit Edge(size_t ID): ID_(ID), nrOfConformingDOFOnTheEdge_(0)
+        {
+        }
+        //Edge(std::vector<Element*>& elements,std::vector<unsigned int> localEdgeNrs, unsigned int ID);
+        virtual ~Edge() {
+        }
+        
+        void addElement(Element* element, size_t edgeNr);
 
-	int getID()const{return ID_;}
+        int getLocalNrOfBasisFunctions() const 
+        {
+            return nrOfConformingDOFOnTheEdge_;
+        }
 
-		int getNrOfElements();
+        int getID()const 
+        {
+            return ID_;
+        }
 
-		Element* getElement(int i);
-	unsigned int getEdgeNr(int i){return localEdgeNrs_[i];}
-	unsigned int getOrientation(int i){return orientation_[i];}
+        int getNrOfElements();
 
-	void setLocalNrOfBasisFunctions(int number){nrOfConformingDOFOnTheEdge_=number;}
+        Element* getElement(int i);
 
-private:
+        unsigned int getEdgeNr(int i) 
+        {
+            return localEdgeNrs_[i];
+        }
 
-	std::vector< Element*>  elements_;
-	std::vector<unsigned int>    localEdgeNrs_;
-	std::vector<unsigned int>    orientation_;
+        unsigned int getOrientation(int i) 
+        {
+            return orientation_[i];
+        }
 
-    unsigned int  				 nrOfConformingDOFOnTheEdge_;
-    int ID_;
-};
+        void setLocalNrOfBasisFunctions(int number) 
+        {
+            nrOfConformingDOFOnTheEdge_ = number;
+        }
+
+    private:
+
+        std::vector< Element*> elements_;
+        std::vector<unsigned int> localEdgeNrs_;
+        std::vector<unsigned int> orientation_;
+
+        unsigned int nrOfConformingDOFOnTheEdge_;
+        int ID_;
+    };
 
 } /* namespace Base */
 

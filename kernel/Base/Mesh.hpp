@@ -27,6 +27,7 @@
 #include "Face.hpp"
 #include "Submesh.hpp"
 #include "Geometry/PointPhysical.hpp"
+#include "Node.hpp"
 
 namespace Geometry {
     class PointPhysical;
@@ -56,9 +57,12 @@ namespace Base {
                 Element* rightElementPtr, unsigned int rightElementLocalFaceNo,
                 const Geometry::FaceType& faceType = Geometry::WALL_BC);
 
-        void addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs);
-
+        //void addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs);
+        void addEdge();
+        
         void addNode(Geometry::PointPhysical node);
+        
+        void addVertex();
 
         unsigned int getNumberOfElements(IteratorType part=IteratorType::LOCAL) const {
             return getElementsList(part).size();
@@ -70,6 +74,10 @@ namespace Base {
 
         unsigned int getNumberOfEdges(IteratorType part=IteratorType::LOCAL) const {
             return getEdgesList(part).size();
+        }
+
+        unsigned int getNumberOfVertices(IteratorType part=IteratorType::LOCAL) const {
+            return getVerticesList(part).size();
         }
 
         unsigned int getNumberOfNodes()const {
@@ -88,6 +96,9 @@ namespace Base {
 
         const std::vector<Edge*>& getEdgesList(IteratorType part=IteratorType::LOCAL)const;
         std::vector<Edge*>& getEdgesList(IteratorType part=IteratorType::LOCAL);
+
+        const std::vector<Node*>& getVerticesList(IteratorType part=IteratorType::LOCAL)const;
+        std::vector<Node*>& getVerticesList(IteratorType part=IteratorType::LOCAL);
 
         const std::vector<Geometry::PointPhysical>& getNodes()const;
         std::vector<Geometry::PointPhysical>& getNodes();
@@ -141,6 +152,22 @@ namespace Base {
         std::vector< Edge*>::iterator edgeColEnd(IteratorType part=IteratorType::LOCAL) {
             return getEdgesList(part).end();
         }
+
+        std::vector< Node*>::const_iterator vertexColBegin(IteratorType part=IteratorType::LOCAL)const {
+            return getVerticesList(part).begin();
+        }
+
+        std::vector< Node*>::const_iterator vertexColEnd(IteratorType part=IteratorType::LOCAL)const {
+            return getVerticesList(part).end();
+        }
+
+        std::vector< Node*>::iterator vertexColBegin(IteratorType part=IteratorType::LOCAL) {
+            return getVerticesList(part).begin();
+        }
+
+        std::vector< Node*>::iterator vertexColEnd(IteratorType part=IteratorType::LOCAL) {
+            return getVerticesList(part).end();
+        }
         //********************************************************************************
 
         Submesh& getSubmesh() {
@@ -166,6 +193,7 @@ namespace Base {
         unsigned int elementcounter_;
         unsigned int faceCounter_;
         unsigned int edgeCounter_;
+        unsigned int nodeCounter_;
         //! List of all elements. TODO: this should be replaced by the mesh-tree structure
         std::vector<Element*> elements_;
 
@@ -175,7 +203,10 @@ namespace Base {
         //! List of all edges.
         std::vector< Edge*> edges_;
 
-        //! Global vector of physical nodes.
+        //! List of all nodes. (connectivity-based location of vertices)
+        std::vector< Node*> nodes_;
+
+        //! Global vector of physical nodes. (physical location of vertices)
         std::vector<Geometry::PointPhysical>points_;
     };
 

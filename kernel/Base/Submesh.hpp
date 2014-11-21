@@ -34,6 +34,7 @@ namespace Base{
     class Element;
     class Face;
     class Edge;
+    class Node;
     class Mesh;
 
 class Submesh {
@@ -61,12 +62,15 @@ private:
     void add(Face* face);
     
     //! adds an edge to this submesh
-    //note that interfacial edges should appear in the submeshes of all their adjacent elements
+    //note that interfacial edges should appear in the submeshes of one their adjacent elements
     void add(Edge* edge);
     
     //! adds a node to this submesh
-    //note that interfacial nodes should appear in the submeshes of all their adjacent elements
-    void add(Geometry::PointPhysical& node);
+    //note that interfacial edges should appear in the submeshes of one their adjacent elements
+    void add(Node* node);
+    
+    //! signals the submesh to prepare for a redistribution (user has to make sure non-geometric data is also redistributed properly)
+    void clear();
 public:
     //! Get const list of elements
     const std::vector<Element*>&          getElementsList() const {return elements_; }
@@ -80,6 +84,9 @@ public:
 
     const std::vector<Edge*>&             getEdgesList() const {return edges_;}
     std::vector<Edge*>&                   getEdgesList() {return edges_;}
+
+    const std::vector<Node*>&             getNodesList() const {return nodes_;}
+    std::vector<Node*>&                   getNodesList() {return nodes_;}
     
     const std::map<int,std::vector<Element*> > & getPullElements() const { return pullElements_; }
     const std::map<int,std::vector<Element*> > & getPushElements() const { return pushElements_; }
@@ -95,10 +102,15 @@ private:
     //! List of all edges.
     //! This contains the list of all edges connected to at least one element in this sub-domain
     std::vector< Edge*>                    edges_;
+
+    //! List of all edges.
+    //! This contains the list of all edges connected to at least one element in this sub-domain
+    std::vector< Node*>                    nodes_;
     
     //! Tracks the shadow elements (that needs information form another processor each update step, instead of a computation)
     //! pullElements_[i] contains the list of all elements that need info from process i.
     //! some entries in this vector are empty lists; pullElements[get_rank()] is guaranteed to be empty
+    //map because 'usually' only a few processors neighbour this processor
     std::map<int,std::vector<Element*> >    pullElements_;
     
     //! Tracks the shadow elements of other processes (that need their elements send to another processor each update step)

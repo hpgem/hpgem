@@ -97,40 +97,13 @@ namespace Utilities {
             }
             m = element->getNrOfNodes();
             for (int i = 0; i < m; ++i) {
-                n = element->getLocalNrOfBasisFunctionsVertex();
+                n = element->getNode(i)->getLocalNrOfBasisFunctions();
                 for (int j = 0; j < n; ++j) {
-                    positions[j + usedEntries] = j + startPositionsOfVerticesInTheVector_[element->getPhysicalGeometry()->getNodeIndex(i)];
+                    positions[j + usedEntries] = j + startPositionsOfVerticesInTheVector_[element->getNode(i)->getID()];
                 }
                 usedEntries += n;
             }
         }
-
-
-        /*for(unsigned int i=0;i<amountOfPositions;++i){
-                int usedEntries(0);
-                if(i<element->getLocalNrOfBasisFunctions()){
-                        positions[i]=i+startPositionsOfElementsInTheVector_[element->getID()];
-                }
-                usedEntries+=element->getLocalNrOfBasisFunctions();
-                for(int j=0;j<element->getPhysicalGeometry()->getNrOfFaces();++j){
-                        if(i-usedEntries<element->getFace(j)->getLocalNrOfBasisFunctions()){
-                                positions[i]=i-usedEntries+startPositionsOfFacesInTheVector_[element->getFace(j)->getID()];
-                        }
-                        usedEntries+=element->getFace(j)->getLocalNrOfBasisFunctions();
-                }
-                for(int j=0;j<element->getNrOfEdges();++j){
-                        if(i-usedEntries<element->getEdge(j)->getLocalNrOfBasisFunctions()){
-                                positions[i]=i-usedEntries+startPositionsOfEdgesInTheVector_[element->getEdge(j)->getID()];
-                        }
-                        usedEntries+=element->getEdge(j)->getLocalNrOfBasisFunctions();
-                }
-                for(int j=0;j<element->getNrOfNodes();++j){
-                        if(i-usedEntries<element->getLocalNrOfBasisFunctionsVertex()){
-                                positions[i]=i-usedEntries+startPositionsOfVerticesInTheVector_[element->getPhysicalGeometry()->getNodeIndex(j)];
-                        }
-                        usedEntries+=element->getLocalNrOfBasisFunctionsVertex();
-                }
-        }*/
     }
 
     void GlobalPetscVector::reset() {
@@ -143,12 +116,11 @@ namespace Utilities {
         startPositionsOfElementsInTheVector_.resize(theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL));
         startPositionsOfFacesInTheVector_.resize(theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL));
         startPositionsOfEdgesInTheVector_.resize(theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL));
-        startPositionsOfVerticesInTheVector_.resize(theMesh_->getNumberOfNodes());
+        startPositionsOfVerticesInTheVector_.resize(theMesh_->getNumberOfVertices(Base::IteratorType::GLOBAL));
         for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(Base::IteratorType::GLOBAL); it != theMesh_->elementColEnd(Base::IteratorType::GLOBAL); ++it) {
             GlobalVector::startPositionsOfElementsInTheVector_[(*it)->getID()] = totalNrOfDOF;
             if ((*it)->getNrOfBasisFunctions() > maxNrOfDOF) {
                 maxNrOfDOF = (*it)->getNrOfBasisFunctions();
-                DOFForAVertex = (*it)->getLocalNrOfBasisFunctionsVertex(); //just needs to be set at some point, no need to collect this over and over again
             }
             totalNrOfDOF += (*it)->getLocalNrOfBasisFunctions();
         }
@@ -162,58 +134,12 @@ namespace Utilities {
             startPositionsOfEdgesInTheVector_[(*it)->getID()] = totalNrOfDOF;
             totalNrOfDOF += (*it)->getLocalNrOfBasisFunctions();
         }
-        int size = theMesh_->getNodes().size();
-        for (int i = 0; i < size; ++i) {//vertices
-            startPositionsOfVerticesInTheVector_[i] = totalNrOfDOF;
-            totalNrOfDOF += DOFForAVertex;
+        for(Base::Node* node : theMesh_->getVerticesList(Base::IteratorType::GLOBAL))
+        {
+            startPositionsOfVerticesInTheVector_[node->getID()] = totalNrOfDOF;
+            totalNrOfDOF += node->getLocalNrOfBasisFunctions();
         }
 
-
-        //make edges and vertixes periodic
-        std::vector<unsigned int> leftIndexes, rightIndexes;
-        Geometry::PointReference centre(DIM - 1), leftRef(DIM), rightRef(DIM);
-        Geometry::PointPhysical leftPhys(DIM), rightPhys(DIM), displacement(DIM);
-        for (Base::Face* face : theMesh_->getFacesList(Base::IteratorType::GLOBAL)) {
-            if (face->isInternal()) {
-                face->getReferenceGeometry()->getCenter(centre);
-                face->mapRefFaceToRefElemL(centre, leftRef);
-                face->mapRefFaceToRefElemR(centre, rightRef);
-                face->getPtrElementLeft()->referenceToPhysical(leftRef, leftPhys);
-                face->getPtrElementRight()->referenceToPhysical(rightRef, rightPhys);
-                displacement = leftPhys;
-                displacement -= rightPhys;
-                if (Utilities::norm2(displacement) > 1e-9) {//this is a periodic boundary
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft(), leftIndexes);
-                    face->getPtrElementRight()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberRight(), rightIndexes);
-                    const std::vector<Geometry::PointPhysical> locations = face->getPtrElementLeft()->getPhysicalGeometry()->getNodes();
-                    for (int i = 0; i < leftIndexes.size(); ++i) {
-                        for (int j = 0; j < rightIndexes.size(); ++j) {
-                            if (Utilities::norm2(displacement - locations[leftIndexes[i]] + locations[rightIndexes[j]]) < 1e-9) {
-                                if (startPositionsOfVerticesInTheVector_[leftIndexes[i]] != startPositionsOfVerticesInTheVector_[rightIndexes[j]]) {
-                                    int oldPosition = startPositionsOfVerticesInTheVector_[rightIndexes[j]];
-                                    for (int k = 0; k < leftIndexes[i]; ++k) {//before leftIndices[i] connect and shift
-                                        if (startPositionsOfVerticesInTheVector_[k] == oldPosition) {
-                                            startPositionsOfVerticesInTheVector_[k] = startPositionsOfVerticesInTheVector_[leftIndexes[i]];
-                                        }
-                                        if (startPositionsOfVerticesInTheVector_[k] > oldPosition) {
-                                            startPositionsOfVerticesInTheVector_[k] -= DOFForAVertex;
-                                        }
-                                    }
-                                    for (int k = leftIndexes[i]; k < startPositionsOfVerticesInTheVector_.size(); ++k) {
-                                        if (startPositionsOfVerticesInTheVector_[k] > oldPosition) {
-                                            startPositionsOfVerticesInTheVector_[k] -= DOFForAVertex; //shift all startposition later then index(j) back a bit
-                                        } else if (startPositionsOfVerticesInTheVector_[k] == oldPosition) {//and connect the nodes (also connect previous connections))
-                                            startPositionsOfVerticesInTheVector_[k] = startPositionsOfVerticesInTheVector_[leftIndexes[i]];
-                                        }
-                                    }
-                                    totalNrOfDOF -= DOFForAVertex;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
         ierr = VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, totalNrOfDOF, &b_);
         CHKERRV(ierr);
 
@@ -311,8 +237,8 @@ namespace Utilities {
                 }
             }
             for (int i = 0; i < (*it)->getNrOfNodes(); ++i) {
-                for (int j = 0; j < (*it)->getLocalNrOfBasisFunctionsVertex(); ++j) {
-                    localData[runningTotal] = data[startPositionsOfVerticesInTheVector_[(*it)->getPhysicalGeometry()->getNodeIndex(i)] + j];
+                for (int j = 0; j < (*it)->getNode(i)->getLocalNrOfBasisFunctions(); ++j) {
+                    localData[runningTotal] = data[startPositionsOfVerticesInTheVector_[(*it)->getNode(i)->getID()] + j];
                     ++runningTotal;
                 }
             }

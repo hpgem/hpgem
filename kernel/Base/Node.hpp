@@ -18,50 +18,68 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "Edge.hpp"
 
-#include "Element.hpp"
-#include "Geometry/ReferenceGeometry.hpp"
-#include "Geometry/PhysicalGeometry.hpp"
-#include "LinearAlgebra/Matrix.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
-#include "ElementCacheData.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/PointPhysical.hpp"
+#ifndef NODE_HPP
+#define	NODE_HPP
+
 #include <vector>
 
 namespace Base {
 
-/*Edge::Edge(std::vector<Element*>& elements,std::vector<unsigned int> localEdgeNrs, unsigned int ID) :
-		ID_(ID), elements_(elements), localEdgeNrs_(localEdgeNrs), nrOfConformingDOFOnTheEdge_(0), orientation_(elements_.size()) {
-	std::vector<unsigned int> indices(2);
-	for (int i = 0; i < elements_.size(); ++i) {
-		elements_[i]->setEdge(localEdgeNrs_[i], this);
-		elements_[i]->getReferenceGeometry()->getCodim2EntityLocalIndices(localEdgeNrs_[i], indices);
-		indices[0] = elements_[i]->getPhysicalGeometry()->getNodeIndex(indices[0]);
-		indices[1] = elements_[i]->getPhysicalGeometry()->getNodeIndex(indices[1]);
-		orientation_[i] = (indices[0] < indices[1]) ? 0 : 1;
-	}
-}*/
+    class Element;
     
-    void Edge::addElement(Element* element, size_t edgeNr)
-    {
-        elements_.push_back(element);
-        localEdgeNrs_.push_back(edgeNr);
-        element->setEdge(edgeNr,this);
-        std::vector<unsigned int> indices(2);
-        element->getReferenceGeometry()->getCodim2EntityLocalIndices(edgeNr, indices);
-        indices[0] = element->getPhysicalGeometry()->getNodeIndex(indices[0]);
-        indices[1] = element->getPhysicalGeometry()->getNodeIndex(indices[1]);
-        orientation_.push_back((indices[0] < indices [1] ? 0 : 1));
-    }
+    ///\brief an identification token for vertices that is more likely to be the same when it should be then a PointPhysical
+    class Node {
+    public:
+        explicit Node(size_t ID) : nrOfConformingDOFOnTheNode_(0), ID_(ID) //default construct the rest
+        {
+        }
+        
+        virtual ~Node()
+        {
+        }
+        
+        void addElement(Element* element, size_t localNodeNr);
+        
+	int getLocalNrOfBasisFunctions() const
+        {
+            return nrOfConformingDOFOnTheNode_;
+        }
 
-	int Edge::getNrOfElements() {
-		return elements_.size();
-	}
+	size_t getID()const
+        {
+            return ID_;
+        }
 
-	Element* Edge::getElement(int i) {
-		return elements_[i];
-	}
+        size_t getNrOfElements() const;
+
+        Element* getElement(int i);
+        const Element* getElement(int i) const;
+        const std::vector<Element*> getElements() const
+        {
+            return elements_;
+        }
+                
+	size_t getVertexNr(int i) const
+        {
+            return localNodeNrs_[i];
+        }
+        
+	void setLocalNrOfBasisFunctions(int number)
+        {
+            nrOfConformingDOFOnTheNode_=number;
+        }
+    private:
+
+        //provide information to map back to a unique corner of the elemen
+        std::vector<Element*> elements_;
+        std::vector<size_t>    localNodeNrs_;
+
+        //number of basis-functions that are accosiated to this node (most likely 1(conforming) or 0(DG))
+        size_t nrOfConformingDOFOnTheNode_;
+        size_t ID_;
+    };
 
 }
+#endif	/* NODE_HPP */
+

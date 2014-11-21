@@ -30,6 +30,9 @@
 #include "L2Norm.hpp"
 #include "FaceCacheData.hpp"
 #include "ElementCacheData.hpp"
+#include "Node.hpp"
+#include "Geometry/PhysicalGeometry.hpp"
+#include "Geometry/PointPhysical.hpp"
 
 namespace Base
 {
@@ -45,10 +48,21 @@ namespace Base
     	FaceData(ptrElemL->getNrOfBasisFunctions()*ptrElemL->getNrOfUnknows()+
     			 ptrElemR->getNrOfBasisFunctions()*ptrElemR->getNrOfUnknows(),numberOfFaceMatrixes,numberOfFaceVectors)
     {
-    	TestErrorDebug(ptrElemR!=NULL,"Error: passing a boundary face to the constructor for internal faces!");
+    	TestErrorDebug(ptrElemR!=nullptr,"Error: passing a boundary face to the constructor for internal faces!");
         createQuadratureRules();
         ptrElemL->setFace(localFaceNumL,this);
         ptrElemR->setFace(localFaceNumR,this);
+        
+        std::vector<unsigned int> leftVertices, rightVertices;
+        std::vector<unsigned int> localLeftVertices, localRightVertices;
+        ptrElemL->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumL,localLeftVertices);
+        ptrElemR->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumR,localRightVertices);
+        for(size_t i=0;i<getReferenceGeometry()->getNumberOfNodes();++i)
+        {
+            leftVertices.push_back(ptrElemL->getNode(localLeftVertices[i])->getID());
+            rightVertices.push_back(ptrElemR->getNode(localRightVertices[i])->getID());
+        }
+        initialiseFaceToFaceMapIndex(leftVertices, rightVertices);
     }
     
     Face::Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType&  faceType,int faceID,unsigned int numberOfFaceMatrixes, unsigned int numberOfFaceVectors):

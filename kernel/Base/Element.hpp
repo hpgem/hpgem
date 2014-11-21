@@ -31,44 +31,43 @@
 #include <iostream>
 
 
-namespace Geometry{
-	class PointReference;
+namespace Geometry {
+    class PointReference;
 }
 
-namespace QuadratureRules{
-	class GaussQuadratureRule;
+namespace QuadratureRules {
+    class GaussQuadratureRule;
 }
 
-namespace Base
-{
-	class Edge;
-	class Face;
-	class BasisFunctionSet;
-	class ElementCacheData;
-        class BaseBasisFunction;
+namespace Base {
+    class Node;
+    class Edge;
+    class Face;
+    class BasisFunctionSet;
+    class ElementCacheData;
+    class BaseBasisFunction;
 
-    class Element: public Geometry::ElementGeometry,
-                   public ElementData
-    {
+    class Element : public Geometry::ElementGeometry,
+    public ElementData {
     public:
-        typedef Geometry::PointPhysical                PointPhysicalT;
-        typedef Geometry::PointReference               PointReferenceT;
-        typedef Geometry::ReferenceGeometry            ReferenceGeometryT;
-        typedef Geometry::MappingReferenceToPhysical   MappingReferenceToPhysicalT;
-        typedef Geometry::ElementGeometry              ElementGeometryT;
-        typedef unsigned int                                PointIndexT;
-        typedef unsigned int                                UId;
-        typedef std::vector<PointPhysicalT>                 VectorOfPhysicalPointsT;
-        typedef std::vector<PointIndexT>                    VectorOfPointIndexesT;
-        typedef Base::ElementCacheData                 CacheT;
-        typedef Base::BasisFunctionSet                 BasisFunctionSetT;
-        typedef QuadratureRules::GaussQuadratureRule   GaussQuadratureRuleT;
-        typedef Base::ElementData                      ElementDataT;
-        typedef std::vector<CacheT>                         VecCacheT;
-        typedef LinearAlgebra::NumericalVector              SolutionVector;
-        
+        typedef Geometry::PointPhysical PointPhysicalT;
+        typedef Geometry::PointReference PointReferenceT;
+        typedef Geometry::ReferenceGeometry ReferenceGeometryT;
+        typedef Geometry::MappingReferenceToPhysical MappingReferenceToPhysicalT;
+        typedef Geometry::ElementGeometry ElementGeometryT;
+        typedef unsigned int PointIndexT;
+        typedef unsigned int UId;
+        typedef std::vector<PointPhysicalT> VectorOfPhysicalPointsT;
+        typedef std::vector<PointIndexT> VectorOfPointIndexesT;
+        typedef Base::ElementCacheData CacheT;
+        typedef Base::BasisFunctionSet BasisFunctionSetT;
+        typedef QuadratureRules::GaussQuadratureRule GaussQuadratureRuleT;
+        typedef Base::ElementData ElementDataT;
+        typedef std::vector<CacheT> VecCacheT;
+        typedef LinearAlgebra::NumericalVector SolutionVector;
+
     public:
-        
+
         Element(const VectorOfPointIndexesT& globalNodeIndexes,
                 const std::vector<const BasisFunctionSetT*>* basisFunctionSet,
                 const VectorOfPhysicalPointsT& allNodes,
@@ -76,105 +75,124 @@ namespace Base
                 unsigned int nrOfTimeLevels,
                 unsigned int nrOfBasisFunc,
                 unsigned int id,
-                unsigned int numberOfElementMatrices=0,
-                unsigned int numberOfElementVectors=0,
-                const std::vector< int>& basisFunctionSetPositions=std::vector< int>(1,0));
-    
+                unsigned int numberOfElementMatrices = 0,
+                unsigned int numberOfElementVectors = 0,
+                const std::vector< int>& basisFunctionSetPositions = std::vector< int>(1, 0));
+
         Element(const Element& other);
-        
+
         ~Element();
-	
 
-        virtual unsigned int                    getID()const;
 
-        virtual unsigned int                    getID();
+        virtual unsigned int getID()const;
 
-        void                            setQuadratureRulesWithOrder(unsigned int quadrROrder);
+        virtual unsigned int getID();
 
-        void                            setGaussQuadratureRule(GaussQuadratureRuleT* const quadR);
+        void setQuadratureRulesWithOrder(unsigned int quadrROrder);
 
-        void							setDefaultBasisFunctionSet(unsigned int position);
+        void setGaussQuadratureRule(GaussQuadratureRuleT * const quadR);
 
-        void                            setVertexBasisFunctionSet(unsigned int position, int localIndex);
-        void                            setEdgeBasisFunctionSet(unsigned int position,int localIndex);
-        void                            setFaceBasisFunctionSet(unsigned int position,int localIndex);
+        void setDefaultBasisFunctionSet(unsigned int position);
 
-        virtual const GaussQuadratureRuleT*     getGaussQuadratureRule() const;
+        void setVertexBasisFunctionSet(unsigned int position, int localIndex);
+        void setEdgeBasisFunctionSet(unsigned int position, int localIndex);
+        void setFaceBasisFunctionSet(unsigned int position, int localIndex);
 
-        virtual VecCacheT&                      getVecCacheData();
-        
-        virtual double                          basisFunction(unsigned int i, const PointReferenceT& p) const;
+        virtual const GaussQuadratureRuleT* getGaussQuadratureRule() const;
 
-		///\brief returns the value of the i-th basisfunction at point p in ret
-        virtual void                            basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
- 
-            /// jDir=0 means x, and etc.
-        virtual double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
-            //unsigned int                    getNumberOfDegreesOfFreedom()const;
-            //unsigned int                    getNumberOfDegreesOfFreedom();
-        
+        virtual VecCacheT& getVecCacheData();
+
+        virtual double basisFunction(unsigned int i, const PointReferenceT& p) const;
+
+        ///\brief returns the value of the i-th basisfunction at point p in ret
+        virtual void basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
+
+        /// jDir=0 means x, and etc.
+        virtual double basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
+        //unsigned int                    getNumberOfDegreesOfFreedom()const;
+        //unsigned int                    getNumberOfDegreesOfFreedom();
+
         ///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
         ///if some of the data needed for this mapping is already stored on a wrapper class, you can pass the class to this function for more efficient computation
-        virtual void                            basisFunctionDeriv(unsigned int i,const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* wrapper=NULL) const;
-	
-		///\brief returns the curl of the i-th basisfunction at point p in ret
-        virtual void                            basisFunctionCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
-	
-        virtual void                            getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const;
-        
-        void                            initialiseSolution(unsigned int timeLevel, unsigned int solutionId, const SolutionVector& solution);///\TODO not implemented
-        
-        void                            setFace(int localFaceNr, const Face* face);
+        virtual void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* wrapper = NULL) const;
 
-        void                            setEdge(int localEdgeNr, const Edge* edge);
+        ///\brief returns the curl of the i-th basisfunction at point p in ret
+        virtual void basisFunctionCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual int                             getLocalNrOfBasisFunctions() const{return nrOfDOFinTheElement_;}
+        virtual void getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const;
 
-        virtual int                             getLocalNrOfBasisFunctionsVertex() const{return nrOfDOFperVertex_;}
+        void initialiseSolution(unsigned int timeLevel, unsigned int solutionId, const SolutionVector& solution); ///\TODO not implemented
 
-        virtual const Face*                     getFace(int localFaceNr)const {return facesList_[localFaceNr];}
+        void setFace(int localFaceNr, const Face* face);
 
-        virtual const Edge*                     getEdge(int localEdgeNr)const {return edgesList_[localEdgeNr];}
+        void setEdge(int localEdgeNr, const Edge* edge);
 
-        virtual int                             getNrOfEdges() const{return edgesList_.size();}
+        void setNode(int localNodeNr, const Node* node);
+
+        virtual int getLocalNrOfBasisFunctions() const {
+            return nrOfDOFinTheElement_;
+        }
+
+        virtual const Face* getFace(int localFaceNr)const {
+            return facesList_[localFaceNr];
+        }
+
+        virtual const Edge* getEdge(int localEdgeNr)const {
+            return edgesList_[localEdgeNr];
+        }
+
+        virtual const Node* getNode(int localNodeNr)const {
+            return nodesList_[localNodeNr];
+        }
+
+        virtual int getNrOfFaces() const {
+            return facesList_.size();
+        }
+
+        virtual int getNrOfEdges() const {
+            return edgesList_.size();
+        }
+
+        virtual unsigned int getNrOfNodes() const {
+            return nodesList_.size();
+        }
 
 #ifndef NDEBUG
-        virtual const Base::BaseBasisFunction*  getBasisFunction(int i)const;
+        virtual const Base::BaseBasisFunction* getBasisFunction(int i)const;
 #endif
 
     protected:
 
         ///\brief default constructor - for use with wrapper classes (that can delegate functionality of Element in another way)
-        Element():ElementData(0,0,0,0,0),ElementGeometry(),quadratureRule_(NULL),basisFunctionSet_(NULL){}
+
+        Element() : ElementData(0, 0, 0, 0, 0), ElementGeometry(), quadratureRule_(NULL), basisFunctionSet_(NULL) {
+        }
 
     public:
-            /// Output operator.
-        friend std::ostream& operator<<(std::ostream& os, const Element& element)
-        {
-            os << '(' ;
-            const Geometry::ElementGeometry& elemG = static_cast<const Geometry::ElementGeometry&>(element);
+        /// Output operator.
+
+        friend std::ostream& operator<<(std::ostream& os, const Element& element) {
+            os << '(';
+            const Geometry::ElementGeometry& elemG = static_cast<const Geometry::ElementGeometry&> (element);
             operator<<(os, elemG);
-            os<<std::endl;
+            os << std::endl;
             return os;
         }
-    
-    
+
+
     private:
-        const GaussQuadratureRuleT*                        quadratureRule_;
+        const GaussQuadratureRuleT* quadratureRule_;
         const std::vector<const BasisFunctionSetT*>* basisFunctionSet_;
-        VecCacheT                                    vecCacheData_;
-        UId                                          id_;
-        double                                       orderCoeff_;
-        std::vector<int>                    basisFunctionSetPositions_;
-        std::vector<const Face*>					 facesList_;
-        std::vector<const Edge*>      				 edgesList_;
+        VecCacheT vecCacheData_;
+        UId id_;
+        double orderCoeff_;
+        std::vector<int> basisFunctionSetPositions_;
+        std::vector<const Face*> facesList_;
+        std::vector<const Edge*> edgesList_;
+        std::vector<const Node*> nodesList_;
 
         //IN the element, so don't count conforming DOF from faces/...
-        unsigned int                                 nrOfDOFinTheElement_;
-
-        //the number of DOF per vertex is just a number so if you want to do p-adaptation
-        //use a set of basisfunctions where the DOF per vertex are constant in p (this is usually the case)
-        unsigned int                                 nrOfDOFperVertex_;
+        unsigned int nrOfDOFinTheElement_;
     };
 }
 

@@ -147,6 +147,7 @@ namespace Geometry
 
     public:
             //FaceGeometry();
+        //constructor will not initialize faceToFaceMapIndex, because it doesnt know how the elements are connected
         FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType&  localFaceNumL, ElementGeometryT* ptrElemRight, const LocalFaceNrType&  localFaceNumR);
 
             //! Ctor for boundary faces.
@@ -214,6 +215,10 @@ namespace Geometry
 
         virtual void            referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical)const;
 
+        
+        ///\brief set up the faceToFaceMapIndex based on vertex connectivity information instead of node location
+        void initialiseFaceToFaceMapIndex(const std::vector<unsigned int>& leftVertices, const std::vector<unsigned int>& rightVertices);
+
 //-MTJ-start--------------
 
         void            copyFromParent(const FaceT& fa);
@@ -233,7 +238,7 @@ namespace Geometry
 
         ///\brief default constructor - for use with wrapper classes
         FaceGeometry():rightElementGeom_(NULL),leftElementGeom_(NULL){}
-
+        
     protected:
         const ElementGeometryT*           rightElementGeom_;
         const ElementGeometryT*           leftElementGeom_;

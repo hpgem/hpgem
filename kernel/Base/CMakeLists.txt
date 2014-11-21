@@ -29,6 +29,7 @@ add_library(hpGEM_Base SHARED
                 FaceFactory.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Integration/FaceIntegral.cpp
  		Edge.cpp
+ 		Node.cpp
  		HpgemUI.cpp
                 HpgemUISimplified.cpp
 		#miscellaneous required stuff
