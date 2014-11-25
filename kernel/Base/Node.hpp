@@ -22,6 +22,7 @@
 #ifndef NODE_HPP
 #define	NODE_HPP
 
+#include <cstdlib>
 #include <vector>
 
 namespace Base {
@@ -31,7 +32,7 @@ namespace Base {
     ///\brief an identification token for vertices that is more likely to be the same when it should be then a PointPhysical
     class Node {
     public:
-        explicit Node(size_t ID) : nrOfConformingDOFOnTheNode_(0), ID_(ID) //default construct the rest
+        explicit Node(size_t ID) : nrOfConformingDOFOnTheNode_(0), ID_(ID), elements_(), localNodeNrs_()
         {
         }
         

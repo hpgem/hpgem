@@ -27,16 +27,16 @@
 
 #include <cassert>
 
-Logger<LOG_LEVEL> VTKTimeDependentWriterLog("VTK time dependent solution writer");
+static Logger<LOG_LEVEL> logger("VTK time dependent solution writer");
 
-Output::VTKTimeDependentWriter::VTKTimeDependentWriter(std::string baseFileName, Base::MeshManipulator* mesh) : mesh_(mesh), currentFile_(nullptr), baseName_(baseFileName), time_(0)
+Output::VTKTimeDependentWriter::VTKTimeDependentWriter(std::string baseFileName, Base::MeshManipulator* mesh) : mesh_(mesh), currentFile_(nullptr), baseName_(baseFileName), time_(0), numberOfFilesWritten_(0)
 {    
     size_t id = Base::MPIContainer::Instance().getProcessorID();
     if(id == 0)
     {
         masterFile_.open(baseFileName+".pvd");
         if(!masterFile_.good()){
-            VTKTimeDependentWriterLog(FATAL, "failed to open main paraview output file %.pvd",baseFileName);
+            logger(FATAL, "failed to open main paraview output file %.pvd",baseFileName);
             exit(1);
         }
         masterFile_ << "<?xml version=\"1.0\"?>" << std::endl;
@@ -54,7 +54,7 @@ Output::VTKTimeDependentWriter::~VTKTimeDependentWriter() {
     {
         delete currentFile_;
     }else{
-        VTKTimeDependentWriterLog(ERROR, "no time levels written!");
+        logger(ERROR, "no time levels written!");
     }
 }
 
@@ -68,7 +68,8 @@ void Output::VTKTimeDependentWriter::write(std::function<double(Base::Element*,c
             delete currentFile_;
         }
         //convert the current time to some unique number as part of the base name for the file for the new timelevel
-        std::string fileName = baseName_+Detail::toBase64(&time,sizeof(double));
+        std::string fileName = baseName_+std::to_string(numberOfFilesWritten_);
+        numberOfFilesWritten_++;
         currentFile_ = new VTKSpecificTimeWriter{fileName, mesh_, timelevel};
         if(fileName.find('/')!=std::string::npos)
         {

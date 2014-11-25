@@ -52,19 +52,27 @@ namespace Base
                 delete meshes_[i];
     }
     
-    bool
-    HpgemUI::initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, unsigned int meshID)
+    bool HpgemUI::initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, unsigned int meshID)
     {
         meshes_[meshID]->setMeshMover(meshMoverBase);
         return true;
     }
     
     
-    typename HpgemUI::MeshId
-    HpgemUI::addMesh(const RectangularMeshDescriptorT& meshDscr, const MeshType& meshType,int nrOfElementMatrixes, int nrOfElementVectors, int nrOfFaceMatrixes, int nrOfFaceVectors)
+    HpgemUI::MeshId
+    HpgemUI::addMesh(const RectangularMeshDescriptorT& meshDscr,
+                     const MeshType& meshType,int nrOfElementMatrixes,
+                     int nrOfElementVectors, int nrOfFaceMatrixes,
+                     int nrOfFaceVectors)
     {
         unsigned int numOfMeshes=meshes_.size();
-        MeshManipulator* mesh = new MeshManipulator(configData_,meshDscr.boundaryConditions_[0],meshDscr.boundaryConditions_[1],meshDscr.boundaryConditions_[2],configData_->polynomialOrder_,0,nrOfElementMatrixes,nrOfElementVectors,nrOfFaceMatrixes,nrOfFaceVectors);//
+        MeshManipulator* mesh = new MeshManipulator(configData_,
+                    meshDscr.boundaryConditions_[0],
+                    (configData_->dimension_ > 1) ? meshDscr.boundaryConditions_[1] : false,
+                    (configData_->dimension_ > 2) ? meshDscr.boundaryConditions_[2] : false,
+                    configData_->polynomialOrder_,
+                    0,nrOfElementMatrixes,nrOfElementVectors,
+                    nrOfFaceMatrixes,nrOfFaceVectors);
         
         if (meshType== RECTANGULAR)
         {   

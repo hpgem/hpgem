@@ -23,6 +23,7 @@
 #define EDGE_HPP_
 
 #include <vector>
+#include <cstdlib>
 
 namespace Base {
 

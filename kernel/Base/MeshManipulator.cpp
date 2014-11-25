@@ -47,6 +47,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <iostream>
 
 //
 //  MeshManipulator.cpp
@@ -191,7 +192,7 @@ namespace Base {
     numberOfElementVectors_(nrOfElementVectors),
     numberOfFaceMatrixes_(nrOfFaceMatrtixes),
     numberOfFaceVectors_(nrOfFaceVectors),
-    meshMover_(NULL) {
+    meshMover_(nullptr) {
 
         std::cout << "******Mesh creation started!**************" << std::endl;
         unsigned int DIM = configData_->dimension_;
@@ -512,7 +513,7 @@ namespace Base {
                 for (unsigned int iDIM = 0; iDIM < DIM; ++iDIM) {
                     nodeNdId[iDIM] = elementNdId[iDIM] + ((i & powerOf2) != 0);
                     vertexNdId[iDIM] = elementNdId[iDIM] + ((i & powerOf2) != 0);
-                    if((vertexNdId[iDIM]>linearNoElements[iDIM]) && (periodicDIM[iDIM]==true))
+                    if((vertexNdId[iDIM]>=linearNoElements[iDIM]) && (periodicDIM[iDIM]==true))
                     {
                         vertexNdId[iDIM]=0;
                     }
@@ -527,10 +528,10 @@ namespace Base {
                     globalVertexID[i] += vertexNdId[iDIM] * numOfVerticesInEachSubspace[iDIM];
                 }
             }
-            addElement(globalNodeID);
+            Element* newElement = addElement(globalNodeID);
             for(size_t i=0;i<globalVertexID.size();++i)
             {
-                vertexlist[globalVertexID[i]]->addElement(elementlist[elementIndex],i);
+                vertexlist[globalVertexID[i]]->addElement(newElement,i);
             }
         }
 
@@ -780,12 +781,16 @@ namespace Base {
             throw "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Z";
         }
 
+        //place the boundary conditions together in a vector.
         std::vector<bool> periodicDIM;
-        for(size_t i=0;i<DIM;++i)
+        periodicDIM.push_back(periodicX_);
+        if (DIM > 1)
         {
-            if(i==0) periodicDIM.push_back(periodicX_);
-            if(i==1) periodicDIM.push_back(periodicY_);
-            if(i==2) periodicDIM.push_back(periodicZ_);
+            periodicDIM.push_back(periodicY_);
+        }
+        if (DIM > 2)
+        {
+            periodicDIM.push_back(periodicZ_);
         }
         
         //Stage 1 : Precompute some required values
@@ -796,7 +801,7 @@ namespace Base {
             delta_x[i] = (TopRight[i] - BottomLeft[i]) / (linearNoElements[i]);
         }
 
-        std::vector<int> numOfNodesInEachSubspace(DIM), numOfVerticesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM);
+        std::vector<size_t> numOfNodesInEachSubspace(DIM), numOfVerticesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM);
 
         numOfNodesInEachSubspace[0] = 1;
         numOfVerticesInEachSubspace[0] = 1;
@@ -814,6 +819,7 @@ namespace Base {
         trianglesPerRectangle = 1;
         int powerOf2;
 
+        //start with 1 because you want to ask for the entry at idim - 1
         for (int idim = 1; idim < DIM; ++idim) {
             totalNumOfNodes *= (linearNoElements[idim] + 1);
             totalNumOfVertices *= (linearNoElements[idim] + (periodicDIM[idim]?0:1));
@@ -883,7 +889,7 @@ namespace Base {
                     for (int idim = 0; idim < DIM; ++idim) {
                         nodeNdId[idim] = elementNdId[idim] + ((i & powerOf2) != 0);
                         vertexNdId[idim] = elementNdId[idim] + ((i & powerOf2) != 0);
-                        if(vertexNdId[idim]>linearNoElements[idim] && periodicDIM[idim]) vertexNdId[i]=0;
+                        if(vertexNdId[idim]>=linearNoElements[idim] && periodicDIM[idim]) vertexNdId[idim]=0;
                         powerOf2 *= 2;
                     }
                 } else {
@@ -892,17 +898,17 @@ namespace Base {
                         powerOf2 /= 2;
                         nodeNdId[idim] = elementNdId[idim] + (((i ^ rotate) & powerOf2) != 0);
                         vertexNdId[idim] = elementNdId[idim] + (((i ^ rotate) & powerOf2) != 0);
-                        if(vertexNdId[idim]>linearNoElements[idim] && periodicDIM[idim]) vertexNdId[i]=0;
+                        if(vertexNdId[idim]>=linearNoElements[idim] && periodicDIM[idim]) vertexNdId[idim]=0;
                     }
                 }
-
+                
                 int nodeIndex = nodeNdId[0];
-                int vertexIndex = vertexNdId[0];
+                size_t vertexIndex = vertexNdId[0];
                 for (int idim = 1; idim < DIM; ++idim) {
                     nodeIndex += nodeNdId[idim] * numOfNodesInEachSubspace[idim];
                     vertexIndex += vertexNdId[idim] * numOfVerticesInEachSubspace[idim];
                 }
-
+                
                 //then cherrypick the element(s) these vertices should connect to (probably not the cleanest implementation; \bug doesn't work if DIM>3)
                 switch (i) {
                     case 0:
@@ -959,10 +965,15 @@ namespace Base {
             } //for all vertices of the rectangle
 
             for (int i = 0; i < trianglesPerRectangle; ++i) {
-                addElement(globalVertexID[i]);
+                Element* newElement = addElement(globalNodeID[i]);
                 for(size_t j=0;j<globalVertexID[i].size();++j)
                 {
-                    vertices[globalVertexID[i][j]]->addElement(elements[trianglesPerRectangle*elementGroupIndex+i],j);
+                    assert(i < globalVertexID.size());
+                    assert(j < globalVertexID[i].size());
+                    assert(globalVertexID[i][j]<totalNumOfVertices);
+                    assert(globalVertexID[i][j] >= 0);
+                    assert(vertices.size() == totalNumOfVertices);
+                    vertices[globalVertexID[i][j]]->addElement(newElement,j);
                 }
             }
         } //for all rectangles
@@ -2737,19 +2748,22 @@ namespace Base {
                 if(element->getFace(i)==nullptr)
                 {
                     localNodes.clear();
+                    candidates.clear();
                     element->getReferenceGeometry()->getCodim1EntityLocalIndices(i,nodeIndices);
+                    
                     candidates=element->getNode(nodeIndices[0])->getElements();
                     localNodes.push_back(element->getNode(nodeIndices[0]));
-                    std::sort(candidates.begin(),candidates.end());
+                    std::sort(candidates.begin(),candidates.end(),[](Element* left, Element* right){return left->getID()<right->getID();});
                     for(size_t j=1;j<nodeIndices.size();++j)
                     {
                         localNodes.push_back(element->getNode(nodeIndices[j]));
                         std::vector<Element*> temp,nextIndices;
                         nextIndices=element->getNode(nodeIndices[j])->getElements();
-                        std::sort(nextIndices.begin(),nextIndices.end());
-                        std::set_intersection(candidates.begin(),candidates.end(),nextIndices.begin(),nextIndices.end(),std::back_inserter(temp));
+                        std::sort(nextIndices.begin(),nextIndices.end(),[](Element* left, Element* right){return left->getID()<right->getID();});
+                        std::set_intersection(candidates.begin(),candidates.end(),nextIndices.begin(),nextIndices.end(),std::back_inserter(temp),[](Element* left, Element* right){return left->getID()<right->getID();});
                         candidates=std::move(temp);
                     }
+                    
                     //the current element does not bound the face or more than two elements bound the face
                     if(candidates.size()==0||candidates.size()>2)
                     {

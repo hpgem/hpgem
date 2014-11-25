@@ -67,6 +67,7 @@ namespace Output {
         VTKSpecificTimeWriter* currentFile_;
         size_t timelevel_;
         double time_;
+        size_t numberOfFilesWritten_;
     };
 
 }

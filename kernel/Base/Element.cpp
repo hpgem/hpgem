@@ -54,7 +54,7 @@ namespace Base
         ElementGeometryT(globalNodeIndexes, allNodes),
         ElementDataT(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc,numberOfElementMatrixes,numberOfElementVectors),
         basisFunctionSet_(basisFunctionSet),
-        quadratureRule_(NULL),
+        quadratureRule_(nullptr),
         vecCacheData_(),
         id_(id),
         basisFunctionSetPositions_(basisFunctionSetPositions)

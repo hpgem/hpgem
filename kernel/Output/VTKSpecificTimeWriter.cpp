@@ -43,7 +43,7 @@
 #include <unordered_map>
 #include <typeindex>
 
-Logger<LOG_LEVEL> VTKSpecificTimeWriterLog("VTK discontinuous solution writer (single time)");
+static Logger<LOG_LEVEL> logger("VTK discontinuous solution writer (single time)");
 
 /////////////////////////////////////
 //some VTK specific helper routines//
@@ -64,7 +64,7 @@ enum class VTKElementName : uint8_t
     PYRAMID=14
 };
 
-std::unordered_map<std::type_index,VTKElementName> hpGEMToVTK = 
+static std::unordered_map<std::type_index,VTKElementName> hpGEMToVTK = 
 {
     {std::type_index(typeid(Geometry::ReferencePoint))          , VTKElementName::VERTEX},
     {std::type_index(typeid(Geometry::ReferenceLine))           , VTKElementName::LINE},
@@ -83,7 +83,7 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
     {
         masterFile_.open(baseName + ".pvtu");
         if(!masterFile_.good()){
-            VTKSpecificTimeWriterLog(FATAL, "failed to open main paraview output file %.pvtu",baseName);
+            logger(FATAL, "failed to open main paraview output file %.pvtu",baseName);
             exit(1);
         }
         masterFile_ << "<?xml version=\"1.0\"?>" << std::endl;
@@ -103,7 +103,7 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
     }
     localFile_.open(baseName + std::to_string(id) + ".vtu");
     if(!localFile_.good()){
-        VTKSpecificTimeWriterLog(ERROR, "failed to open local paraview output file %.vtu, part of the output will not be written",baseName);
+        logger(ERROR, "failed to open local paraview output file %.vtu, part of the output will not be written",baseName);
     }
     localFile_ << "<?xml version=\"1.0\"?>" << std::endl;
     localFile_ << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"" << (Detail::isBigEndian()?"BigEndian":"LittleEndian") << "\">" << std::endl;

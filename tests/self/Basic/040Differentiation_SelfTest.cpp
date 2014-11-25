@@ -45,11 +45,11 @@
 void testMesh(Base::MeshManipulator* test) {
 	class :public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>{
 		void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-			int n=el->getNrOfBasisFunctions();
+			int numBasisFuns=el->getNrOfBasisFunctions();
 			Geometry::PointPhysical pPhys(p.size());
 			el->referenceToPhysical(p,pPhys);
-			ret.resize(1,n);
-			for(int i=0;i<n;++i){
+			ret.resize(1,numBasisFuns);
+			for(int i=0;i<numBasisFuns;++i){
 				ret[i]=el->basisFunction(i,p);
 				for(int j=0;j<p.size();++j){
 					ret[i]*=pPhys[j];
@@ -59,10 +59,10 @@ void testMesh(Base::MeshManipulator* test) {
 	}interpolation;
 	class :public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>{
 		void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-			int n=el->getNrOfBasisFunctions();
-			ret.resize(n,n);
-			for(int i=0;i<n;++i){
-				for(int j=0;j<n;++j){
+			int numBasisFuns=el->getNrOfBasisFunctions();
+			ret.resize(numBasisFuns,numBasisFuns);
+			for(int i=0;i<numBasisFuns;++i){
+				for(int j=0;j<numBasisFuns;++j){
 					ret(i,j)=el->basisFunction(i,p)*el->basisFunction(j,p);
 				}
 			}

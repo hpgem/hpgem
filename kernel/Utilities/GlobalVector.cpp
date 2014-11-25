@@ -35,6 +35,7 @@
 #include "Geometry/ReferenceGeometry.hpp"
 #include "Geometry/PointReference.hpp"
 #include "Base/Norm2.hpp"
+#include <cassert>
 
 namespace Utilities {
 
@@ -71,39 +72,52 @@ namespace Utilities {
         return b_;
     }
 
-    void GlobalPetscVector::makePositionsInVector(int amountOfPositions, const Base::Element* element, int positions[]) {
-        if (amountOfPositions > 0) {
-            int n = element->getLocalNrOfBasisFunctions();
-            int usedEntries(0);
-            for (int i = 0; i < n; ++i) {
-                positions[i] = i + startPositionsOfElementsInTheVector_[element->getID()];
-            }
-            usedEntries += n;
-            int m = element->getPhysicalGeometry()->getNrOfFaces();
-            for (int i = 0; i < m; ++i) {
-                n = element->getFace(i)->getLocalNrOfBasisFunctions();
-                for (int j = 0; j < n; ++j) {
-                    positions[j + usedEntries] = j + startPositionsOfFacesInTheVector_[element->getFace(i)->getID()];
-                }
-                usedEntries += n;
-            }
-            m = element->getNrOfEdges();
-            for (int i = 0; i < m; ++i) {
-                n = element->getEdge(i)->getLocalNrOfBasisFunctions();
-                for (int j = 0; j < n; ++j) {
-                    positions[j + usedEntries] = j + startPositionsOfEdgesInTheVector_[element->getEdge(i)->getID()];
-                }
-                usedEntries += n;
-            }
-            m = element->getNrOfNodes();
-            for (int i = 0; i < m; ++i) {
-                n = element->getNode(i)->getLocalNrOfBasisFunctions();
-                for (int j = 0; j < n; ++j) {
-                    positions[j + usedEntries] = j + startPositionsOfVerticesInTheVector_[element->getNode(i)->getID()];
-                }
-                usedEntries += n;
+    std::vector<PetscInt> GlobalPetscVector::makePositionsInVector(const Base::Element* element) {
+        //we need storage for the amount of basis functions to return
+        std::vector<PetscInt> positions(element->getNrOfBasisFunctions());
+
+        auto pos = positions.begin();
+        
+        std::size_t numElementBasisFuncs = element->getLocalNrOfBasisFunctions();
+        //First step: construct ids for the functions of the current element itself
+        for (std::size_t i = 0; i < numElementBasisFuncs; ++i) {
+            *pos = i + startPositionsOfElementsInTheVector_[element->getID()];
+            pos++;
+            //positions[i] = i + startPositionsOfElementsInTheMatrix_[element->getID()];
+        }
+        
+        //Push forward our iterator
+        std::size_t numFaces = element->getPhysicalGeometry()->getNrOfFaces();
+        for (std::size_t i = 0; i < numFaces; ++i) {
+            std::size_t numFaceBasisFuncs = element->getFace(i)->getLocalNrOfBasisFunctions();
+            for (std::size_t j = 0; j < numFaceBasisFuncs; ++j) {
+                *pos = j + startPositionsOfFacesInTheVector_[element->getFace(i)->getID()];
+                pos++;
+                //positions[j + usedEntries] = j + startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()];
             }
         }
+
+        std::size_t numEdges = element->getNrOfEdges();
+        for (std::size_t i = 0; i < numEdges; ++i) {
+            std::size_t numEdgeBasisFuncs = element->getEdge(i)->getLocalNrOfBasisFunctions();
+            for (std::size_t j = 0; j < numEdgeBasisFuncs; ++j) {
+                *pos = j + startPositionsOfEdgesInTheVector_[element->getEdge(i)->getID()];
+                pos++;
+                //positions[j + usedEntries] = j + startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()];
+            }
+        }
+
+        std::size_t numNodes = element->getNrOfNodes();
+        for (std::size_t i = 0; i < numNodes; ++i) {
+            std::size_t numNodeBasisFuncs = element->getNode(i)->getLocalNrOfBasisFunctions();
+            for (std::size_t j = 0; j < numNodeBasisFuncs; ++j) {
+                *pos = j + startPositionsOfVerticesInTheVector_[element->getNode(i)->getID()];
+                pos++;
+//                positions[j + usedEntries] = j + startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()];
+            }
+        }
+        assert( pos == positions.end() );
+        return positions;
     }
 
     void GlobalPetscVector::reset() {
@@ -154,30 +168,36 @@ namespace Utilities {
 
         LinearAlgebra::NumericalVector elementVector;
 
-        if (elementVectorID_ >= 0) {
-            for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it) {
-                int n((*it)->getNrOfBasisFunctions()*(*it)->getNrOfUnknows()), positions[n];
-                makePositionsInVector(n, *it, positions);
-                elementVector.resize(n);
-                (*it)->getElementVector(elementVector, elementVectorID_);
-
-                int ierr = VecSetValues(b_, n, positions, &elementVector[0], ADD_VALUES);
+        if (elementVectorID_ >= 0) 
+        {
+            for(Base::Element* element : theMesh_->getElementsList())
+            {
+                std::vector<PetscInt> positions = makePositionsInVector(element);
+                element->getElementVector(elementVector, elementVectorID_);
+                int ierr = VecSetValues(b_, positions.size(), positions.data(), elementVector.data(), ADD_VALUES);
                 CHKERRV(ierr);
+                
             }
         }
 
-        if (faceVectorID_ >= 0) {
-            for (Base::MeshManipulator::FaceIterator it = theMesh_->faceColBegin(); it != theMesh_->faceColEnd(); ++it) {
-                const Base::Element * elLeft((*it)->getPtrElementLeft()), *elRight((*it)->getPtrElementRight());
-                int nLeft(elLeft->getNrOfBasisFunctions()), n(nLeft);
-                if (elRight != NULL)
-                    n += elRight->getNrOfBasisFunctions();
-                int positions[n];
-                makePositionsInVector(nLeft, elLeft, positions);
-                makePositionsInVector(n - nLeft, elRight, positions + nLeft);
-                elementVector.resize(n);
-                (*it)->getFaceVector(elementVector, faceVectorID_);
-                int ierr = VecSetValues(b_, n, positions, &elementVector[0], ADD_VALUES);
+        LinearAlgebra::NumericalVector faceVector;
+        
+        if (faceVectorID_ >= 0) 
+        {
+            for(Base::Face* face : theMesh_->getFacesList()) 
+            {
+                std::vector<PetscInt> positions = makePositionsInVector(face->getPtrElementLeft());
+                if(face->isInternal())
+                {
+                    std::vector<PetscInt> rightPositions = makePositionsInVector(face->getPtrElementRight());
+                    positions.reserve(positions.size() + rightPositions.size());
+                    for (auto& a : rightPositions)
+                    {
+                        positions.push_back(a);
+                    }
+                }
+                face->getFaceVector(faceVector,faceVectorID_);
+                int ierr = VecSetValues(b_, positions.size(), positions.data(), faceVector.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }
         }
@@ -187,18 +207,21 @@ namespace Utilities {
         CHKERRV(ierr);
     }
 
-    void GlobalPetscVector::constructFromTimeLevelData(int timelevel, int variable) {
+    void GlobalPetscVector::constructFromTimeLevelData(int timelevel, int solutionVar) {
         reset();
 
         LinearAlgebra::NumericalVector elementData;
-        for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it) {
-            int n((*it)->getNrOfBasisFunctions()), positions[n];
-            makePositionsInVector(n, (*it), positions);
-            elementData.resize(n);
-            for (int i = 0; i < n; ++i) {
-                elementData[i] = (*it)->getData(timelevel, variable, i);
+        for(Base::Element* element : theMesh_->getElementsList())
+        {
+            size_t numBasisFuncs = element->getNrOfBasisFunctions();
+            std::vector<PetscInt> positions = makePositionsInVector(element);
+            elementData.resize(numBasisFuncs);
+            for(size_t i=0; i < numBasisFuncs; ++i)
+            {
+                elementData[i] = element->getData(timelevel, solutionVar, i);
             }
-            int ierr = VecSetValues(b_, n, positions, &elementData[0], INSERT_VALUES);
+            int ierr = VecSetValues(b_, numBasisFuncs, positions.data(), elementData.data(), INSERT_VALUES);
+            CHKERRV(ierr);
         }
 
         int ierr = VecAssemblyBegin(b_);
@@ -220,8 +243,8 @@ namespace Utilities {
         int ierr = VecGetArray(localB, &data);
         CHKERRV(ierr);
         for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it) {
-            int n = (*it)->getNrOfBasisFunctions();
-            LinearAlgebra::NumericalVector localData(&data[startPositionsOfElementsInTheVector_[(*it)->getID()]], n);
+            int numBasisFuns = (*it)->getNrOfBasisFunctions();
+            LinearAlgebra::NumericalVector localData(&data[startPositionsOfElementsInTheVector_[(*it)->getID()]], numBasisFuns);
             int runningTotal((*it)->getLocalNrOfBasisFunctions());
             if (theMesh_->dimension() > 1)
                 for (int i = 0; i < (*it)->getPhysicalGeometry()->getNrOfFaces(); ++i) {

@@ -93,7 +93,7 @@ namespace Utilities{
 
 	private:
 
-		void makePositionsInVector(int,const Base::Element*,int[]);
+		std::vector<PetscInt> makePositionsInVector(const Base::Element*);
 
 	private:
 

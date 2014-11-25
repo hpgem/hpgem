@@ -25,7 +25,7 @@
 #define GLOBALMATRIX_HPP_
 
 #ifdef HPGEM_USE_PETSC
-#include "petscmat.h"
+#include <petscmat.h>
 #endif
 #include <vector>
 
@@ -90,7 +90,7 @@ namespace Utilities{
 
 	private:
 
-		void makePositionsInMatrix(int,const Base::Element*,int[]);
+		std::vector<PetscInt> makePositionsInMatrix(const Base::Element*);
 
 	private:
 

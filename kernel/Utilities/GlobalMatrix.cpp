@@ -114,40 +114,52 @@ namespace Utilities {
         return A_;
     }
 
-    void GlobalPetscMatrix::makePositionsInMatrix(int amountOfPositions, const Base::Element* element, int* positions) {
-        if (amountOfPositions > 0) {
-            int n = element->getLocalNrOfBasisFunctions();
-            int usedEntries(0);
-            for (int i = 0; i < n; ++i) {
-                positions[i] = i + startPositionsOfElementsInTheMatrix_[element->getID()];
-            }
-            usedEntries += n;
-            int m = element->getPhysicalGeometry()->getNrOfFaces();
-            for (int i = 0; i < m; ++i) {
-                n = element->getFace(i)->getLocalNrOfBasisFunctions();
-                for (int j = 0; j < n; ++j) {
-                    positions[j + usedEntries] = j + startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()];
-                }
-                usedEntries += n;
-            }
-            m = element->getNrOfEdges();
-            for (int i = 0; i < m; ++i) {
-                n = element->getEdge(i)->getLocalNrOfBasisFunctions();
-                for (int j = 0; j < n; ++j) {
-                    positions[j + usedEntries] = j + startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()];
-                }
-                usedEntries += n;
-            }
-            m = element->getNrOfNodes();
-            for (int i = 0; i < m; ++i) {
-                n = element->getNode(i)->getLocalNrOfBasisFunctions();
-                for (int j = 0; j < n; ++j) {
-                    positions[j + usedEntries] = j + startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()];
-                }
-                usedEntries += n;
-            }
-            assert(usedEntries == amountOfPositions);
+    std::vector<PetscInt> GlobalPetscMatrix::makePositionsInMatrix(const Base::Element* element) {
+        //we need storage for the amount of basis functions to return
+        std::vector<PetscInt> positions(element->getNrOfBasisFunctions());
+
+        auto pos = positions.begin();
+        
+        std::size_t numElementBasisFuncs = element->getLocalNrOfBasisFunctions();
+        //First step: construct ids for the functions of the current element itself
+        for (std::size_t i = 0; i < numElementBasisFuncs; ++i) {
+            *pos = i + startPositionsOfElementsInTheMatrix_[element->getID()];
+            pos++;
+            //positions[i] = i + startPositionsOfElementsInTheMatrix_[element->getID()];
         }
+        
+        //Push forward our iterator
+        std::size_t numFaces = element->getPhysicalGeometry()->getNrOfFaces();
+        for (std::size_t i = 0; i < numFaces; ++i) {
+            std::size_t numFaceBasisFuncs = element->getFace(i)->getLocalNrOfBasisFunctions();
+            for (std::size_t j = 0; j < numFaceBasisFuncs; ++j) {
+                *pos = j + startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()];
+                pos++;
+                //positions[j + usedEntries] = j + startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()];
+            }
+        }
+
+        std::size_t numEdges = element->getNrOfEdges();
+        for (std::size_t i = 0; i < numEdges; ++i) {
+            std::size_t numEdgeBasisFuncs = element->getEdge(i)->getLocalNrOfBasisFunctions();
+            for (std::size_t j = 0; j < numEdgeBasisFuncs; ++j) {
+                *pos = j + startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()];
+                pos++;
+                //positions[j + usedEntries] = j + startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()];
+            }
+        }
+
+        std::size_t numNodes = element->getNrOfNodes();
+        for (std::size_t i = 0; i < numNodes; ++i) {
+            std::size_t numNodeBasisFuncs = element->getNode(i)->getLocalNrOfBasisFunctions();
+            for (std::size_t j = 0; j < numNodeBasisFuncs; ++j) {
+                *pos = j + startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()];
+                pos++;
+//                positions[j + usedEntries] = j + startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()];
+            }
+        }
+        assert( pos == positions.end() );
+        return positions;
     }
 
     void GlobalPetscMatrix::reset() {
@@ -157,36 +169,39 @@ namespace Utilities {
         LinearAlgebra::Matrix elementMatrix;
 
         if (elementMatrixID_ >= 0) {
-            for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it) {
-                int n((*it)->getNrOfBasisFunctions()), positions[n];
-                makePositionsInMatrix(n, *it, positions);
-                elementMatrix.resize(n, n);
-                (*it)->getElementMatrix(elementMatrix, elementMatrixID_);
-
-                ierr = MatSetValues(A_, n, positions, n, positions, &elementMatrix[0], ADD_VALUES);
+            for (Base::Element* element : theMesh_->getElementsList() ) {
+                std::vector<PetscInt> positions = makePositionsInMatrix(element);
+                element->getElementMatrix(elementMatrix, elementMatrixID_);
+                ierr = MatSetValues(A_, positions.size(), positions.data(), positions.size(), positions.data(), elementMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
-            }
+            } 
         }
 
-        if (faceMatrixID_ >= 0) {
-            for (Base::MeshManipulator::FaceIterator it = theMesh_->faceColBegin(); it != theMesh_->faceColEnd(); ++it) {
-                const Base::Element * elLeft((*it)->getPtrElementLeft()), *elRight((*it)->getPtrElementRight());
-                int nLeft(elLeft->getNrOfBasisFunctions()), n(nLeft);
-                if ((*it)->isInternal()) {
-                    n += elRight->getNrOfBasisFunctions();
+        LinearAlgebra::Matrix faceMatrix;
+        
+        if (faceMatrixID_ >= 0) 
+        {
+            for(Base::Face* face : theMesh_->getFacesList() ) 
+            {
+                std::vector<PetscInt> positions = makePositionsInMatrix(face->getPtrElementLeft());
+                if(face->isInternal())
+                {
+                    std::vector<PetscInt> rightPositions = makePositionsInMatrix(face->getPtrElementRight());
+                    positions.reserve(positions.size() + rightPositions.size());
+                    for(auto& a : rightPositions)
+                    {
+                        positions.push_back(a);
+                    }
                 }
-                int positions[n];
-                makePositionsInMatrix(nLeft, elLeft, positions);
-                makePositionsInMatrix(n - nLeft, elRight, positions + nLeft);
-                elementMatrix.resize(n, n);
-                (*it)->getFaceMatrix(elementMatrix, faceMatrixID_);
-                ierr = MatSetValues(A_, n, positions, n, positions, &elementMatrix[0], ADD_VALUES);
+                face->getFaceMatrix(faceMatrix, faceMatrixID_);
+                ierr = MatSetValues(A_, positions.size(), positions.data(), positions.size(), positions.data(), faceMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }
         }
 
         ierr = MatAssemblyBegin(A_, MAT_FINAL_ASSEMBLY);
         ierr = MatAssemblyEnd(A_, MAT_FINAL_ASSEMBLY);
+        
         CHKERRV(ierr);
     }
 

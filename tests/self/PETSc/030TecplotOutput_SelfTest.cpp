@@ -40,7 +40,7 @@
 
 class Laplace : public Base::HpgemUISimplified{
 
-	class:public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>{
+	class a:public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>{
 
 		//has an almost exact copy near the element integrand for the source term
 	    double sourceTerm(const PointPhysicalT& p){
@@ -68,8 +68,8 @@ public:
 	int n_,p_,DIM_;
 	Base::MeshType type_;
 	double penaltyParameter_;
-	Laplace(int n, int p,int DIM, Base::MeshType type):
-		HpgemUISimplified(DIM,p),n_(n),p_(p),DIM_(DIM),type_(type),penaltyParameter_(3*n_*p_*(p_+DIM_-1)+1){ }
+	Laplace(int numBasisFuns, int p,int DIM, Base::MeshType type):
+		HpgemUISimplified(DIM,p),n_(numBasisFuns),p_(p),DIM_(DIM),type_(type),penaltyParameter_(3*n_*p_*(p_+DIM_-1)+1){ }
 
 	bool initialise(){
     	RectangularMeshDescriptorT description(DIM_);
@@ -85,12 +85,12 @@ public:
 
 	//stiffness matrix
 	void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-    	int n=el->getNrOfBasisFunctions();
+    	int numBasisFuns=el->getNrOfBasisFunctions();
     	LinearAlgebra::NumericalVector phiDerivI(DIM_),phiDerivJ(DIM_);
-    	ret.resize(n,n);
-    	for(int i=0;i<n;++i){
+    	ret.resize(numBasisFuns,numBasisFuns);
+    	for(int i=0;i<numBasisFuns;++i){
 			el->basisFunctionDeriv(i,p,phiDerivI);
-    		for(int j=0;j<n;++j){
+    		for(int j=0;j<numBasisFuns;++j){
     			el->basisFunctionDeriv(j,p,phiDerivJ);
     			ret(j,i)=phiDerivI*phiDerivJ;
     		}
@@ -121,15 +121,15 @@ public:
 
 	//face discontinuities
 	void faceIntegrand(const Base::Face* fa, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-    	int n=fa->getNrOfBasisFunctions();
-    	ret.resize(n,n);
+    	int numBasisFuns=fa->getNrOfBasisFunctions();
+    	ret.resize(numBasisFuns,numBasisFuns);
     	LinearAlgebra::NumericalVector phiNormalI(DIM_),phiNormalJ(DIM_),phiDerivI(DIM_),phiDerivJ(DIM_);
 		PointPhysicalT pPhys(DIM_);
 		fa->referenceToPhysical(p,pPhys);
-    	for(int i=0;i<n;++i){
+    	for(int i=0;i<numBasisFuns;++i){
 			fa->basisFunctionNormal(i,normal,p,phiNormalI);
 			fa->basisFunctionDeriv(i,p,phiDerivI);
-    		for(int j=0;j<n;++j){
+    		for(int j=0;j<numBasisFuns;++j){
     			fa->basisFunctionNormal(j,normal,p,phiNormalJ);
     			fa->basisFunctionDeriv(j,p,phiDerivJ);
     			if(fa->isInternal()){
@@ -147,18 +147,18 @@ public:
 
 	//boundary conditions
 	void faceIntegrand(const Base::Face* fa, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
-		int n=fa->getNrOfBasisFunctions();
-		ret.resize(n);
+		int numBasisFuns=fa->getNrOfBasisFunctions();
+		ret.resize(numBasisFuns);
 		PointPhysicalT pPhys(DIM_);
 		fa->referenceToPhysical(p,pPhys);
 		if(std::abs(pPhys[0])<1e-9||std::abs(pPhys[0]-1)<1e-9){//Dirichlet
 			LinearAlgebra::NumericalVector phiDeriv(DIM_);
-			for(int i=0;i<n;++i){
+			for(int i=0;i<numBasisFuns;++i){
 				fa->basisFunctionDeriv(i,p,phiDeriv);
 				ret[i]=(-normal*phiDeriv/Utilities::norm2(normal)+penaltyParameter_*fa->basisFunction(i,p))*0;
 			}
 		}else{
-			for(int i=0;i<n;++i){
+			for(int i=0;i<numBasisFuns;++i){
 				ret[i]=0;
 			}
 		}
@@ -174,7 +174,7 @@ public:
     	out<<value[0];
     }
 
-	double solve(){
+	bool solve(){
     	doAllElementIntegration();
     	doAllFaceIntegration();
     	Utilities::GlobalPetscMatrix A(HpgemUI::meshes_[0],0,0);
@@ -195,6 +195,8 @@ public:
     	std::ofstream outFile("030TecplotOutput_SelfTest_output.dat");
 		Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile,"test","01","value");
 		writeFunc.write(meshes_[0],"monomial solution",false,this);
+        
+        return true;
 	}
 };
 

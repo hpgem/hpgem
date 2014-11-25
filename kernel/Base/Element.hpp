@@ -47,8 +47,8 @@ namespace Base {
     class ElementCacheData;
     class BaseBasisFunction;
 
-    class Element : public Geometry::ElementGeometry,
-    public ElementData {
+    class Element : public Geometry::ElementGeometry, public ElementData
+    {
     public:
         typedef Geometry::PointPhysical PointPhysicalT;
         typedef Geometry::PointReference PointReferenceT;
