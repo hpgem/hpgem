@@ -353,7 +353,7 @@ private:
     double penalty_;
 };
 
-auto& n = Base::register_argument<int>('n', "numElems", "number of elements per dimension", true);
+auto& numBasisFuns = Base::register_argument<int>('n', "numElems", "number of elements per dimension", true);
 auto& p = Base::register_argument<int>('p', "order", "polynomial order of the solution", true);
 ///Example of using the Laplace class. 
 ///This implementation asks for commandline input arguments for the number of elements
@@ -366,25 +366,11 @@ int main(int argc, char **argv)
     {
         //read the number of elements and polynomial order from the command line.
         Base::parse_options(argc, argv);
-        /*int n, p;
-        if (argc > 2)
-        {
-            n = std::atoi(argv[1]);
-            p = std::atoi(argv[2]);
-            argv[2] = argv[0];
-            argc -= 2;
-            argv += 2;
-        }
-        else
-        {
-            //If input is wrong, tell the user what the correct syntax is.
-            throw "usage: Laplace.out n p [petsc-args]";
-        }*/
-
+        
         //PETSc magic.
         PetscInitialize(&(argc), &(argv), NULL, NULL);
         //Make the object test with n elements in each direction and polynomial order p.
-        TutorialLaplace test(n.getValue(), p.getValue());
+        TutorialLaplace test(numBasisFuns.getValue(), p.getValue());
         
         //Solve the system.
         test.solve();

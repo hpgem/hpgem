@@ -24,6 +24,7 @@
 // Package configuration (namespace Integration):
 //------------------------------------------------------------------------------
 // Package includes:
+#include <functional>
 //------------------------------------------------------------------------------
 
 namespace Base{
@@ -33,6 +34,11 @@ namespace Base{
 
 namespace QuadratureRules {
 	class GaussQuadratureRule;
+}
+
+namespace Geometry
+{
+  class PointReference;
 }
 
 namespace Integration 
@@ -47,6 +53,7 @@ namespace Integration
         //typedef typename Base::Element::VecCacheT              VecCacheT;
         typedef typename QuadratureRules::GaussQuadratureRule  QuadratureRulesT;
         typedef typename Base::Element                         ElementT;
+        typedef typename Geometry::PointReference                           PointReferenceT;
 
     public:
         
@@ -78,14 +85,12 @@ namespace Integration
         template<class ReturnTrait1>
         void    integrate(ElementT* el, ElementIntegrandBase<ReturnTrait1>* integrand, ReturnTrait1& result,
                           const QuadratureRulesT* const qdrRule = nullptr);
-             // \brief Directly integrate the inegrand and return ReturnTraits1, member function version.
-        /*template <typename OBJ, typename IntegrandT>
-        void    integrate(ElementT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = NULL);*/
-        
-        
-            /// Probably not needed, this is for classes which are template!
-//        template <class OBJ, typename IntegrandT>
-//        void    integrate(ElementT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = NULL);
+         
+        template<class ReturnType>
+        void    integrate(ElementT* el, 
+                          std::function<void(const ElementT*, const Geometry::PointReference&, ReturnType&)> integrand, 
+                          ReturnType& result,
+                          const QuadratureRulesT* const qdrRule = nullptr);
 
     
     private:

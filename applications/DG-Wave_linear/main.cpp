@@ -63,10 +63,10 @@ public:
     class :public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>{
     public:
         void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-            int n=element->getNrOfBasisFunctions();
-            ret.resize(n,n);
+            int numBasisFuns=element->getNrOfBasisFunctions();
+            ret.resize(numBasisFuns,numBasisFuns);
             LinearAlgebra::NumericalVector phiDerivI(DIM),phiDerivJ(DIM);
-            for(int i=0;i<n;++i){
+            for(int i=0;i<numBasisFuns;++i){
                 element->basisFunctionDeriv(i,p,phiDerivI);
                 for(int j=0;j<=i;++j){
                     element->basisFunctionDeriv(j,p,phiDerivJ);
@@ -79,10 +79,10 @@ public:
     class :public Integration::FaceIntegrandBase<LinearAlgebra::Matrix>{
     public:
         void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-            int n=face->getNrOfBasisFunctions();
-            ret.resize(n,n);
-            for(int i=0;i<n;++i){
-                for(int j=0;j<n;++j){//the basis functions belonging to internal parameters are 0 on the free surface anyway.
+            int numBasisFuns=face->getNrOfBasisFunctions();
+            ret.resize(numBasisFuns,numBasisFuns);
+            for(int i=0;i<numBasisFuns;++i){
+                for(int j=0;j<numBasisFuns;++j){//the basis functions belonging to internal parameters are 0 on the free surface anyway.
                     ret(i,j)=face->basisFunction(i,p)*face->basisFunction(j,p);
                 }
             }
@@ -166,11 +166,11 @@ public:
     class :public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>{
     public:
         void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
-            int n=element->getNrOfBasisFunctions();
+            int numBasisFuns=element->getNrOfBasisFunctions();
             ret.resize(1);
             LinearAlgebra::NumericalVector gradPhi(DIM),temp(DIM);
             const LinearAlgebra::Matrix& expansioncoefficients=element->getTimeLevelData(0);
-            for(int i=0;i<n;++i){
+            for(int i=0;i<numBasisFuns;++i){
                 element->basisFunctionDeriv(i,p,temp);
                 temp*=expansioncoefficients(1,i);
                 gradPhi+=temp;
@@ -225,21 +225,21 @@ public:
     void getSurfaceIS(Utilities::GlobalPetscMatrix& S, IS* surface, IS* rest){
         Geometry::PointReference p(DIM);
         Geometry::PointPhysical pPhys(DIM);
-        int n(0);
+        int numBasisFuns(0);
         std::vector<int> facePositions;
         for(const Base::Face* face:meshes_[0]->getFacesList()){
             face->getReferenceGeometry()->getCenter(p);
             face->referenceToPhysical(p,pPhys);
             if(std::abs(pPhys[DIM-1])<1e-9){
-                S.getMatrixBCEntries(face,n,facePositions);
+                S.getMatrixBCEntries(face,numBasisFuns,facePositions);
             }
         }
-        ISCreateGeneral(PETSC_COMM_WORLD,n,&facePositions[0],PETSC_COPY_VALUES,surface);
-        MatGetSize(S,&n,NULL);
+        ISCreateGeneral(PETSC_COMM_WORLD,numBasisFuns,&facePositions[0],PETSC_COPY_VALUES,surface);
+        MatGetSize(S,&numBasisFuns,NULL);
         ISSort(*surface);
-        ISComplement(*surface,0,n,rest);
+        ISComplement(*surface,0,numBasisFuns,rest);
         ISDestroy(surface);
-        ISComplement(*rest,0,n,surface);//the complement of the complement does not contain duplicates
+        ISComplement(*rest,0,numBasisFuns,surface);//the complement of the complement does not contain duplicates
     }
     
     void printError(){

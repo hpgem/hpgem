@@ -21,125 +21,133 @@
 
 #ifndef ELEMENTINTEGRAL_IMPL_HPP_
 #define ELEMENTINTEGRAL_IMPL_HPP_
+
+#include <cassert>
+
 #include "Base/ShortTermStorageElementH1.hpp"
 
 #include "ElementIntegrandBase.hpp"
 #include "QuadratureRules/GaussQuadratureRule.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
 #include "Base/TestErrorDebug.hpp"
+#include "ElementIntegral.hpp"
 
-namespace Integration{
+namespace Integration
+{
 
-template <class ReturnTrait1>
-    void
-    ElementIntegral::integrate(ElementT* el,
-                                    ElementIntegrandBase<ReturnTrait1>* integrand,
-                                    ReturnTrait1& result,
-                                    const QuadratureRulesT* const qdrRule)
+  template <class ReturnTrait1>
+  void ElementIntegral::integrate(ElementT* el,
+                                  ElementIntegrandBase<ReturnTrait1>* integrand,
+                                  ReturnTrait1& result,
+                                  const QuadratureRulesT * const qdrRule)
+  {
+    if (localElement_ == nullptr)
     {
-		if(localElement_==NULL){
-			localElement_=new Base::ShortTermStorageElementH1(el->getGaussQuadratureRule()->dimension());
-			if(useCache_){
-				localElement_->cacheOn();
-			}else{
-				localElement_->cacheOff();
-			}
-		}
-		*localElement_=*el;
-        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==NULL? localElement_->getGaussQuadratureRule(): qdrRule);
-
-            // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
-        TestErrorDebug((qdrRuleLoc->forReferenceGeometry() == localElement_->getReferenceGeometry()),
-                       "ElementIntegral: " + qdrRuleLoc->getName() + " rule is not for " + localElement_->getReferenceGeometry()->getName() + "!");
-
-            // value returned by the integrand
-        ReturnTrait1 value(result);
-
-            // number of Gauss quadrature points
-        unsigned int nrOfPoints = qdrRuleLoc->nrOfPoints();
-        TestErrorDebug(nrOfPoints>0,"ElementIntegral: Invalid quadrature rule!");
-
-            // Gauss quadrature point
-            Geometry::PointReference p(qdrRuleLoc->dimension());
-
-        //if (!useCache_)//caching of transformation data is delegated to ShortTermStorageBase
-        //{
-                // first Gauss point
-            Geometry::Jacobian jac(qdrRuleLoc->dimension(),qdrRuleLoc->dimension());
-            qdrRuleLoc->getPoint(0, p);
-            localElement_->calcJacobian(p, jac);
-            integrand->elementIntegrand(localElement_, p, result);
-            result *= (qdrRuleLoc->weight(0) * std::abs(jac.determinant()));
-
-//            cout <<"Result = "<<result<<endl;
-
-                // next Gauss point(s)
-            for (unsigned int i = 1; i < nrOfPoints; ++i)
-            {
-                qdrRuleLoc->getPoint(i, p);
-
-                localElement_->calcJacobian(p, jac);
-
-//                cout << "p="<<p<<endl;
-
-                integrand->elementIntegrand(localElement_, p, value);
-
-                    //Base::Axpy(qdrRuleLoc->weight(i) * std::abs(jac.determinant()), value, result);
-
-                    //Y = alpha * X + Y
-
-                    //cout<<"std::abs(jac.determinant()="<<std::abs(jac.determinant())<<endl;
-
-//                cout <<"qdrRuleLoc->weight(i)="<<qdrRuleLoc->weight(i)<<endl;
-
-//                cout <<"value="<<value<<endl;
-
-                result.axpy(qdrRuleLoc->weight(i) * std::abs(jac.determinant()), value);
-
-//                cout <<"Result2 = "<<result<<endl;
-//                cout <<"*******************************************"<<endl;
-            }
-        //}
-        /*else
-        {
-
-                // get vector of cache data
-            VecCacheT& vecCache = el->getVecCacheData();
-
-                // Calculate the cache
-            if ((vecCache.size()!=nrOfPoints) || recomputeCache_)
-            {
-                std::cout << qdrRuleLoc->getName() << " ";
-                std::cout << "ElementIntegral: filling up the cache (" << nrOfPoints << "points)!\n";
-
-                vecCache.resize(nrOfPoints);
-                for (unsigned int i=0; i<nrOfPoints; ++i)
-                {
-                    qdrRuleLoc->getPoint(i, p);
-                    vecCache[i](el,p);//this non-intuitive bit of notation computes and stores the jacobian and its determinant
-                }
-            }
-
-                // first Gauss point
-            qdrRuleLoc->getPoint(0, p);
-            integrand->elementIntegrand(el, p, result);
-            result *= (qdrRuleLoc->weight(0) * vecCache[0].absDetJac_);
-
-                // next Gauss point(s)
-            for (unsigned int i = 1; i < nrOfPoints; ++i)
-            {
-                qdrRuleLoc->getPoint(i, p);
-                integrand->elementIntegrand(el, p, value);
-                    //Y = alpha * X + Y
-                result.axpy(qdrRuleLoc->weight(i) * vecCache[i].absDetJac_,value);
-                    //Base::Axpy(qdrRuleLoc->weight(i) * vecCache[i].absDetJac_, value, result);
-            }
-
-        }*/
+      localElement_=new Base::ShortTermStorageElementH1(el->getGaussQuadratureRule()->dimension());
+      if (useCache_)
+      {
+        localElement_->cacheOn();
+      } else
+      {
+        localElement_->cacheOff();
+      }
     }
+    *localElement_=*el;
+    const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? localElement_->getGaussQuadratureRule() : qdrRule);
+
+    // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
+    assert((qdrRuleLoc->forReferenceGeometry() == localElement_->getReferenceGeometry()));
+
+    // value returned by the integrand
+    ReturnTrait1 value(result);
+
+    // number of Gauss quadrature points
+    size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
+    assert(nrOfPoints > 0);
+
+    // Gauss quadrature point
+    Geometry::PointReference p(qdrRuleLoc->dimension());
+
+    // first Gauss point
+    Geometry::Jacobian jac(qdrRuleLoc->dimension(), qdrRuleLoc->dimension());
+    qdrRuleLoc->getPoint(0, p);
+    localElement_->calcJacobian(p, jac);
+    integrand->elementIntegrand(localElement_, p, result);
+    result *= (qdrRuleLoc->weight(0) * std::abs(jac.determinant()));
+
+    // next Gauss point(s)
+    for (size_t i = 1; i < nrOfPoints; ++i)
+    {
+      qdrRuleLoc->getPoint(i, p);
+
+      localElement_->calcJacobian(p, jac);
+
+      integrand->elementIntegrand(localElement_, p, value);
 
 
+      //Y = alpha * X + Y
+      result.axpy(qdrRuleLoc->weight(i) * std::abs(jac.determinant()), value);
 
+    }
+  }
+
+  template<class ReturnType>
+  void ElementIntegral::integrate(ElementT* el,
+                 std::function<void(const ElementT*, const  PointReferenceT&, ReturnType&) > integrandFun,
+                 ReturnType& result,
+                 const QuadratureRulesT * const qdrRule)
+  {
+    //code copy-pasted from above, except for how to call integrandFun
+    //Must be improved!    
+    if (localElement_ == nullptr)
+    {
+      localElement_=new Base::ShortTermStorageElementH1(el->getGaussQuadratureRule()->dimension());
+      if (useCache_)
+      {
+        localElement_->cacheOn();
+      } else
+      {
+        localElement_->cacheOff();
+      }
+    }
+    *localElement_=*el;
+    const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? localElement_->getGaussQuadratureRule() : qdrRule);
+
+    // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
+    assert((qdrRuleLoc->forReferenceGeometry() == localElement_->getReferenceGeometry()));
+
+    // value returned by the integrand
+    ReturnType value(result);
+
+    // number of Gauss quadrature points
+    size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
+    assert(nrOfPoints > 0);
+
+    // Initialize Gauss quadrature point
+    Geometry::PointReference p(qdrRuleLoc->dimension());
+
+    // first Gauss point
+    // first we calculate the jacobian, then compute the function value on one of
+    // the reference points and finally we multiply this value with a weight and
+    // the jacobian and save it in result.
+    Geometry::Jacobian jac(qdrRuleLoc->dimension(), qdrRuleLoc->dimension());
+    qdrRuleLoc->getPoint(0, p);
+    localElement_->calcJacobian(p, jac);
+    integrandFun(localElement_, p, result);
+    result *= (qdrRuleLoc->weight(0) * std::abs(jac.determinant()));
+
+    // next Gauss points, again calculate the jacobian, value at gauss point and
+    // add this value multiplied with jacobian and weight to result.
+    for (size_t i = 1; i < nrOfPoints; ++i)
+    {
+      qdrRuleLoc->getPoint(i, p);
+      localElement_->calcJacobian(p, jac);
+      integrandFun(localElement_, p, value);
+
+      //axpy: Y = alpha * X + Y
+      result.axpy(qdrRuleLoc->weight(i) * std::abs(jac.determinant()), value);
+    }
+  }
 }
 
 

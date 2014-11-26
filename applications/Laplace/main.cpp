@@ -187,7 +187,7 @@ public:
                              + penaltyParameter_ * face->basisFunction(i, point)) * 0.;
             }
             /*}else if(std::abs(pPhys[1]-1)<1e-9){//Neumann and robin
-             for(int i=0;i<n;++i){//be careful in 1D; this boundary condition always concerns df\dn
+             for(int i=0;i<n;++i){//be careful in 1D; this boundary condition always concerns df/dn
              ret[i]=face->basisFunction(i,p)*-1;
              }*/
         }
@@ -291,10 +291,10 @@ public:
         x.writeTimeLevelData(0);
 
         //so it can be used for post-processing
-        std::ofstream outFile("output.dat." + std::to_string(Base::MPIContainer::Instance().getProcessorID()));
+        //std::ofstream outFile("output.dat." + std::to_string(Base::MPIContainer::Instance().getProcessorID()));
         //write tecplot data
-        Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
-        writeFunc.write(meshes_[0], "discontinuous solution", false, this);
+        //Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
+        //writeFunc.write(meshes_[0], "discontinuous solution", false, this);
         //AND paraview data
         Output::VTKSpecificTimeWriter paraWrite("output", meshes_[0]);
         paraWrite.write([](Base::Element* element, const Geometry::PointReference& point,size_t timelevel)->double
@@ -322,7 +322,7 @@ private:
     double penaltyParameter_;
 };
 
-auto& n = Base::register_argument<int>('n', "numElems", "number of elements per dimension", true);
+auto& numBasisFuns = Base::register_argument<int>('n', "numElems", "number of elements per dimension", true);
 auto& p = Base::register_argument<int>('p', "order", "polynomial order of the solution", true);
 int main(int argc, char **argv)
 {
@@ -330,7 +330,7 @@ int main(int argc, char **argv)
     try
     {
         //create ...
-        Laplace demo(n.getValue(), p.getValue());
+        Laplace demo(numBasisFuns.getValue(), p.getValue());
         demo.initialise();
 
         //... and solve the problem
