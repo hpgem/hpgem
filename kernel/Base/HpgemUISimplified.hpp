@@ -28,7 +28,8 @@
 #include "Output/TecplotSingleElementWriter.hpp"
 #include "Output/VTKTimeDependentWriter.hpp"
 
-namespace Integration {
+namespace Integration 
+{
 	class FaceIntegral;
 }
 
@@ -53,6 +54,7 @@ namespace Base
         typedef Geometry::PointReference                           PointReferenceT;
         typedef Geometry::PointReference                         PointReferenceOnTheFaceT;
         typedef Integration::FaceIntegral                          FaceIntegralT;
+        typedef RectangularMeshDescriptor                          RectangularMeshDescriptorT;
         
 
         /// You need the basis functions before creating the mesh, because the mesh manipulator
@@ -84,19 +86,22 @@ namespace Base
         
         virtual void beforeTimeIntegration(){}
         
-        virtual void computeLocalResidual(){
+        virtual void computeLocalResidual()
+        {
 #ifdef HPGEM_USE_MPI
             throw "If you want to call the function \'computeLocalResidual\', please implement it";
 #endif
         }
         
-        virtual void computeFluxResidual(){
+        virtual void computeFluxResidual()
+        {
 #ifdef HPGEM_USE_MPI
             throw "If you want to call the function \'computeFluxResidual\', please implement it";
 #endif
         }
         
-        virtual void interpolate(){
+        virtual void interpolate()
+        {
 #ifdef HPGEM_USE_MPI
             throw "If you want to call the function \'interpolate\', please implement it";
 #endif

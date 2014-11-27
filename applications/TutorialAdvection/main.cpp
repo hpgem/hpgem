@@ -66,27 +66,25 @@ public:
     ///set up the mesh
     bool initialise() 
     {
-
         //describes a rectangular domain
         RectangularMeshDescriptorT description(DIM_);
 
-        //this demo will use a cube
-        for (int i = 0; i < DIM_; ++i)
+        //this demo will use the square [0,1]^2
+        for (size_t i = 0; i < DIM_; ++i)
         {
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
+            //Define elements in each direction.
             description.numElementsInDIM_[i] = numElements_;
 
-            //at the moment your options are SOLID_WALL and PERIODIC
-            //once we decide what names of boundary conditions to support
-            //it will become possible to appropriate boundary conditions
-            //for your problem here
+            //Choose whether you want periodic boundary conditions or other (solid wall)
+            //boundary conditions.
             description.boundaryConditions_[i] = RectangularMeshDescriptorT::PERIODIC;
         }
 
-        //create a triangular mesh. The four magic ones that are passed to this function
+        //create a triangular mesh. The magic two and three magic ones that are passed to this function
         //specify the number of element matrices, the number of element vectors,
-        //the number of face matrices and the number of face vectors (in that order)
+        //the number of face matrices and the number of face vectors (in that order).
         addMesh(description, Base::TRIANGULAR, 2, 1, 1, 1);
 
         //tell hpGEM to use basis functions that are discontinuous and are designed for triangles
@@ -95,15 +93,16 @@ public:
         return true;
     }
 
+    ///Compute the mass matrix. 
     ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
-    ///so you wont have to do any transformations yourself (constructs the mass matrix)
-    virtual void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result)
+    ///so you wont have to do any transformations yourself
+    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result)
     {
-        int n = element->getNrOfBasisFunctions();
-        result.resize(n, n);
-        for (int i = 0; i < n; ++i)
+        size_t numBasisFuncs = element->getNrOfBasisFunctions();
+        result.resize(numBasisFuncs, numBasisFuncs);
+        for (size_t i = 0; i < numBasisFuncs; ++i)
         {
-            for (int j = 0; j < n; ++j)
+            for (size_t j = 0; j < numBasisFuncs; ++j)
             {
                 result(i, j) = element->basisFunction(i, point) * element->basisFunction(j, point);
             }
@@ -130,6 +129,8 @@ public:
             }
     }
     
+    ///Computes the element stiffness matrices for each element by using a Gauss
+    ///Quadrature rule and the integrand given in advectiveIntegrand.
     void computeStiffnessMatrices()
     {
         //bind the function to compute the stiffness matrix to the function 
@@ -153,37 +154,59 @@ public:
         }
     }
 
-    ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
-    ///so you wont have to do any transformations yourself. If you expect 4 matrices here, you can assume that ret is block structured such
-    ///that basisfunctions belonging to the left element are indexed first
-    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::Matrix& result)
+ /// \brief Compute the integrals of the left-hand side associated with faces.
+    ///
+    ///For every internal face, we want to compute the integral of 
+    /// 
+    ///for all basisfunctions phi_i and phi_j that are non-zero on that face.
+    ///For boundary faces, similar expressions can be obtained depending of the type of boundary condition.
+    ///This function will compute these integrands for all basisfunctions phi_i and phi_j
+    ///on a certain face at a reference point p. Then the integral can later be computed with appropriate (Gauss-)quadrature rules.  
+    ///The resulting matrix of values is then given in the matrix integrandVal, to which we passed a reference when calling it.
+    ///Please note that you pass a reference point to the basisfunctions and the 
+    ///transformations are done internally. If you expect 4 matrices here, 
+    ///you can assume that integrandVal is block structured with 4 blocks in total such
+    ///that basisfunctions belonging to the left element are on the left and top.
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::Matrix& integrandVal)
     {
-        int n = face->getNrOfBasisFunctions(), nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
-        result.resize(n, n);
-        result *= 0;
-        LinearAlgebra::NumericalVector phiNormalJ(DIM_);
-
-        //choose the direction of advection
+        //Get the number of basis functions, first of both sides of the face and
+        //then only the basis functions associated with the left element.
+        size_t numBasisFuncs = face->getNrOfBasisFunctions();
+        size_t nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
         
-        for (int i = 0; i < n; ++i)
+        //Resize the result to the correct size and set all elements to 0.
+        integrandVal.resize(numBasisFuncs, numBasisFuncs);
+        integrandVal *= 0;
+
+        //Check if the normal is in the same direction as the advection.
+        //Note that normal does not have length 1!
+        double A = (a * normal) / Base::L2Norm(normal);
+        
+        LinearAlgebra::NumericalVector phiNormalJ(DIM_);
+        
+        //Compute all entries of the integrand at this point:
+        for (size_t i = 0; i < numBasisFuncs; ++i)
         {
-            for (int j = 0; j < n; ++j)
+            for (size_t j = 0; j < numBasisFuncs; ++j)
             {
-                double A = (a * normal) / Base::L2Norm(normal);
+                //Get phi_j normal_j at this point.
                 face->basisFunctionNormal(j, normal, point, phiNormalJ);
 
-                //upwind flux
-                if ((A > 1e-12)&&(i < nLeft))
+                //Give the terms of the upwind flux.
+                //Advection in the same direction as outward normal of the left element:
+                if ((A > 1e-12)&&(i < nLeft)) 
                 {
-                    result(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point);
+                    integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point);
                 }
+                //Advection in the same direction as outward normal of right element:
                 else if ((A<-1e-12)&&(i >= nLeft))
                 {
-                    result(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point);
+                    integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point);
                 }
+                //Advection orthogonal to normal:
                 else if (std::abs(A) < 1e-12)
                 {
-                    result(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point) / 2.;
+                    integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point) / 2.;
                 }
             }
         }
@@ -191,27 +214,32 @@ public:
 
     ///The vector edition of the face integrand is meant for implementation of boundary conditions
     ///This is a periodic problem, so it just return 0
-    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::NumericalVector& result)
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::NumericalVector& result)
     {
         int n = face->getNrOfBasisFunctions();
         result.resize(n);
         result *= 0;
     }
-    virtual double initialConditions(const PointPhysicalT& point)
+    
+    ///Define the initial conditions, in this case sin(2pi x)* sin(2pi y).
+    double initialConditions(const PointPhysicalT& point)
     {
-        return std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]); //*std::sin(2*M_PI*p[2]);
-        //return p[0]+p[1];//+p[2];
+        return std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]);
     }
 
     ///interpolates the initial conditions
-    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& result)
+    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& integrandVal)
     {
+        //Compute the physical coordinates of the reference point
         PointPhysicalT pPhys(DIM_);
         element->referenceToPhysical(point, pPhys);
-        result.resize(element->getNrOfBasisFunctions());
-        for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
+        
+        //Resize the vector and compute the value of the basis function times the
+        //value of the initial conditions in this point.
+        integrandVal.resize(element->getNrOfBasisFunctions());
+        for (size_t i = 0; i < element->getNrOfBasisFunctions(); ++i)
         {
-            result[i] = element->basisFunction(i, point) * initialConditions(pPhys);
+            integrandVal[i] = element->basisFunction(i, point) * initialConditions(pPhys);
         }
     }
 
@@ -225,71 +253,80 @@ public:
 
     ///TODO this cannot be automated because I dont know where the mass matrix is
     // solve Mx=`residue`
-    virtual void interpolate()
+    void interpolate()
     {
         LinearAlgebra::Matrix mass;
         LinearAlgebra::Matrix solution;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
-            int n(element->getNrOfBasisFunctions());
-            mass.resize(n, n);
+            size_t numBasisFuncs = element->getNrOfBasisFunctions();
+            mass.resize(numBasisFuncs, numBasisFuncs);
             element->getElementMatrix(mass, 0);
             solution = element->getResidue();
-            solution.resize(n, 1);
+            solution.resize(numBasisFuncs, 1);
             mass.solve(solution);
-            solution.resize(1, n);
+            solution.resize(1, numBasisFuncs);
             element->setTimeLevelData(0, solution);
         }
     }
     
-    virtual void computeLocalResidual()
+    
+    void computeLocalResidual()
     {
         LinearAlgebra::Matrix mass, residual, stiffness, oldData;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
             //collect data
-            int n = element->getNrOfBasisFunctions();
-            mass.resize(n, n);
-            stiffness.resize(n, n);
+            //first number of basis functions, then the mass matrix and finally
+            //the stiffness matrix
+            size_t numBasisFuncs = element->getNrOfBasisFunctions();
+            mass.resize(numBasisFuncs, numBasisFuncs);
+            stiffness.resize(numBasisFuncs, numBasisFuncs);
             element->getElementMatrix(mass, 0);
             element->getElementMatrix(stiffness, 1);
+            
+            //Get the data of the initial time
             oldData = element->getTimeLevelData(0);
-            oldData.resize(n, 1);
+            oldData.resize(numBasisFuncs, 1);
+            
             //compute residual=M*u+dt*S*u
             residual = mass*oldData;
             residual.axpy(dt_, stiffness * oldData);
-            residual.resize(1, n);
+            
+            //Transpose residual?
+            residual.resize(1, numBasisFuncs);
             element->setResidue(residual);
         }
     }
     
-    virtual void computeFluxResidual()
+    void computeFluxResidual()
     {
         LinearAlgebra::Matrix stiffness, residue;
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
-            int n(face->getNrOfBasisFunctions()), nLeft(face->getPtrElementLeft()->getNrOfBasisFunctions());
-            stiffness.resize(n, n);
+            size_t numBasisFuncs = face->getNrOfBasisFunctions();
+            size_t numBasisFuncsLeft(face->getPtrElementLeft()->getNrOfBasisFunctions());
+            stiffness.resize(numBasisFuncs, numBasisFuncs);
             face->getFaceMatrix(stiffness);
-            residue.resize(n, 1);
+            residue.resize(numBasisFuncs, 1);
 
             ///TODO implement face->getData()
             //for now concatenate left and right data
-            for (int i = 0; i < n; ++i)
+            for (size_t i = 0; i < numBasisFuncs; ++i)
             {
-                if (i < nLeft)
+                if (i < numBasisFuncsLeft)
                 {
                     residue[i] = face->getPtrElementLeft()->getData(0, 0, i);
                 }
                 else
                 {
-                    residue[i] = face->getPtrElementRight()->getData(0, 0, i - nLeft);
+                    residue[i] = face->getPtrElementRight()->getData(0, 0, i - numBasisFuncsLeft);
                 }
             }
 
             //compute the flux
             residue = stiffness*residue;
-            residue.resize(1, n);
+            residue.resize(1, numBasisFuncs);
             residue *= dt_;
             face->setResidue(residue);
         }
@@ -311,6 +348,7 @@ private:
     //polynomial order of the approximation
     int polyOrder_;
 
+    //Dimension of the problem
     static const unsigned int DIM_;
     
     ///advective terms.

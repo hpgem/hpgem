@@ -58,7 +58,7 @@ namespace LinearAlgebra
         /// \brief Constructs a matrix of size n-rows by m-columns.
         Matrix(const int n, const int m);
         
-        /// \brief Constructs a matrix of size n-rows by m-columns and initialises all entery to a constant 
+        /// \brief Constructs a matrix of size n-rows by m-columns and initialises all entry to a constant 
         Matrix(const int n, const int m, const double& c);
     
         /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B and A are both matrices
@@ -69,9 +69,9 @@ namespace LinearAlgebra
     
         /// \brief defines the operator (n,m) to access the element on row n and column m
         double& operator()(int n, int m)
-            {
-                return data_[n + m*nRows_];
-            }
+        {
+            return data_[n + m*nRows_];
+        }
                 
         /// \brief defines the operator (n,m) to access the element on row n and column m
         const double& operator() (int n, int m) const
@@ -106,7 +106,7 @@ namespace LinearAlgebra
         /// \breif this does element by divived by a scalar 
         Matrix& operator/= (const double& scalar);
         
-        /// \breif this does element by divived by a scalar
+        /// \brief this does element by divived by a scalar
         Matrix operator/ (const double& scalar);
         
         /// \brief Assigns the Matrix by a scalar

@@ -45,7 +45,7 @@ void Base::ShortTermStorageFaceBase::computeData() {
 }
 
 
-void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v) const {
+void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) const {
 	v=normal_;
 	if(!(currentPoint_==pRefFace)){
 		std::cout<<"WARNING: you are using slow data access";
@@ -53,7 +53,7 @@ void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointOnTheFa
 	}
 }
 
-void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v) {
+void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) {
 	if(!(currentPoint_==pRefFace)){
 		currentPoint_=pRefFace;
 		computeData();

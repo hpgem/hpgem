@@ -203,13 +203,7 @@ namespace LinearAlgebra
      */
     Matrix Matrix::operator* (Matrix &other )
     {
-        
-        if (nCols_!=other.nRows_)
-        {
-            /// \bug this need fixed when we have real error handling.
-            throw(10);
-        }
-        
+        assert(nCols_ == other.nRows_);        
         
         int i=nRows_;
         int j=nCols_;
@@ -220,14 +214,10 @@ namespace LinearAlgebra
         
         int i_one=1;
         double d_one=1.0;
-        double d_zero=0.0;
+        double d_zero=0.0;              
         
-        
-        
-        
+        //Let the actual multiplication be done by Fortran
         dgemm_("N","N",&i,&k,&j,&d_one,&((*this)[0]),&i,&other[0],&j,&d_zero,&C[0],&i);
-        
-        
         
         return C;
     }
@@ -235,11 +225,7 @@ namespace LinearAlgebra
     Matrix Matrix::operator* (const Matrix &other )const
     {
         
-        if (nCols_!=other.nRows_)
-        {
-                /// \bug this need fixed when we have real error handling.
-            throw(10);
-        }
+        assert (nCols_ == other.nRows_);
         
         
         int i=nRows_;
@@ -251,11 +237,9 @@ namespace LinearAlgebra
         
         int i_one=1;
         double d_one=1.0;
-        double d_zero=0.0;
-        
-        
-        
-        
+        double d_zero=0.0;      
+                
+        //Let the actual multiplication be done by Fortran
         dgemm_("N","N",&i,&k,&j,&d_one,&((*(const_cast<Matrix *> (this)))[0]),&i,&(((const_cast<Matrix&> (other)))[0]),&j,&d_zero,&C[0],&i);
         
         
@@ -264,7 +248,7 @@ namespace LinearAlgebra
     }
     
 
-    /// \param[in] scale : A double that each element of the matrix is multiplied bu
+    /// \param[in] scalar : A double that each element of the matrix is multiplied by
     /// \return Matrix
     Matrix& Matrix::operator*= (const double &scalar)
     {
@@ -277,7 +261,8 @@ namespace LinearAlgebra
         return *this;
     }
     
-    
+    /// \param[in] scalar : A double that each element of the matrix is divided by
+    /// \return Matrix
     Matrix& Matrix::operator/= (const double& scalar)
     {
         #ifdef LA_STL_VECTOR
@@ -289,6 +274,8 @@ namespace LinearAlgebra
         return *this;
     }
     
+    /// \param[in] scalar : A double that each element of the matrix is multiplied by
+    /// \return Matrix
     Matrix Matrix::operator/ (const double &scalar)
     {
         Matrix result(*this);
@@ -402,12 +389,6 @@ namespace LinearAlgebra
      */
     void Matrix::computeWedgeStuffVector(NumericalVector& result) const
     {
-        
-//         if (nRows_ != nCols_){std::cout<<"Wedge product only defined for square matrices"<<std::endl;}
-        
-//         if (nRows_ != result.size()){std::cout<<"Passed vector is the wrong size for a wedge product"<<std::endl;}
-        
-        
         switch (nRows_)
         {
             case 2 :
@@ -437,8 +418,7 @@ namespace LinearAlgebra
             default:
                 std::cout<<"Wedge product not defined for this dimension"<<std::endl;
         }//end switch
-        
-        
+                
     }
     
     /// \return NumericalVector : The answer is return in this vector which is created by this function call
@@ -479,10 +459,12 @@ namespace LinearAlgebra {
         
     /// \param[in] n the number of row in the new matrix
     /// \param[in] m the number of columns in the new matrix
-    void Matrix::resize(int n, int m){
+    void Matrix::resize(int n, int m)
+    {
         nRows_=n; 
         nCols_=m; 
-        if(n*m!=data_.size()){
+        if(n*m !=data_.size())
+        {
             data_.resize(nRows_*nCols_);
         }
     }
@@ -612,31 +594,6 @@ namespace LinearAlgebra {
     
     
 }
-/// \brief Defines vector B times matrix A and updates the values in A i.e. A_ij=B_,j A_ij
-/// \param [in] NumericalVector
-/// This should be in vector
-// void operator*=(NumericalVector& left);
-/// \details
-/// Computes vector * matrix and updates the value in the matrix
-/// This is done by calling the BLAS (level 2) routine gdemv
-/// Note this operator does still require a copy of the Matrix
-/// \bug This may be able to done quicker using directly i.e. not using hte BLAS libararies. 
-//  void Matrix::operator*=(NumericalVector& left)
-//    {
-//        int nr=nRows_;
-//        int nc=nCols_;
-//        
-//        
-//        int i_one=1;
-//        double d_one=1.0;
-//        double d_zero=0.0;
-//        
-//        Matrix temp_copy(*this);
-//        
-//        dgemv_("N", &nr, &nc, &d_one,&temp_copy[0] , &nr,&left[0],&i_one, &d_zero, &((*this)[0]), &i_one);
-//        
-//        
-//    }
 
 
 

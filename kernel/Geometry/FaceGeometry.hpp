@@ -72,183 +72,190 @@
 //--------------------------------------------------------------------------------------------------
 
 
-namespace Base{
+namespace Base
+{
 
-	class Face;
+  class Face;
 }
 
-namespace LinearAlgebra {
-	class Matrix;
-	class NumericalVector;
+namespace LinearAlgebra
+{
+  class Matrix;
+  class NumericalVector;
 }
 
 namespace Geometry
 {
+
+  class PointPhysical;
+  class PointReference;
+  class MappingReferenceToReference;
+  class ElementGeometry;
+  class ReferenceGeometry;
+
+  enum  FaceType
+  {
+    OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL
+  } ;
+
+  /*!
+   \brief Class to represent the geometry and topology of a face.
+     
+   Faces are the objects of codimension 1 that bound elements. They are
+   part of the mesh in that they provide some of the topological
+   information: For DG methods, the faces hold the information about
+   neighboring element(s) (2 neighbors which are arbitrarily called left
+   (L) and right (R) on an internal face, one neighboring element on a
+   boundary face, always called left (L)). Additionally they contain
+   information about their own geometry, so that it is possible to
+   integrate on them.
+     
+   A boundary flag should be assigned to each face (even internal ones: in
+   two-fluid problems also internal faces may need special treatment).
+     
+   Note the material on our discussions whether internal and boundary faces
+   should be different polymorphic classes. In the current implementation
+   they are NOT, mainly to avoid the complicated (multiple) derivations
+   that had to be made by the user to implement their own face
+   classes. Instead, to quickly decide whether a face is a boundary one,
+   test whether elementPtrR() == 0.
+   (Irana: I would like to see this material)
+     
+   Face does not need a reference to its own reference geometry, since it
+   can easily access it via the reference geometry of its left neighbour
+   and its local face number in that one. */
+
+  class FaceGeometry
+  {
+  public:
+    typedef PointPhysical                                              PointPhysicalT;
+    typedef LinearAlgebra::Matrix                                           MatrixT;
+    typedef std::set<size_t>                                          SetOfGlobalNodes;
+    typedef std::vector<size_t>                                       VectorOfLocalNodes;
+    typedef PointReference                                             ReferencePointT;
+    typedef size_t                                                   LocalFaceNrType;
+    typedef std::shared_ptr<const MappingReferenceToReference >   RefFaceToRefElementMapping; // doing new later and passing, should handle its own deletion.
+    //the ref->ref mappings are all singletons and should never be deleted (bug?) -FB
     
-	class PointPhysical;
-	class PointReference;
-	class MappingReferenceToReference;
-	class ElementGeometry;
-	class ReferenceGeometry;
+    typedef ReferenceGeometry                                        ReferenceFaceGeometryT;
+    typedef ElementGeometry                                            ElementGeometryT;
+    typedef FaceGeometry                                                      FaceGeometryT;
 
-    enum  FaceType { OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL};
 
-    
-    /*!
-     \brief Class to represent the geometry and topology of a face.
-     
-     Faces are the objects of codimension 1 that bound elements. They are
-     part of the mesh in that they provide some of the topological
-     information: For DG methods, the faces hold the information about
-     neighboring element(s) (2 neighbors which are arbitrarily called left
-     (L) and right (R) on an internal face, one neighboring element on a
-     boundary face, always called left (L)). Additionally they contain
-     information about their own geometry, so that it is possible to
-     integrate on them.
-     
-     A boundary flag should be assigned to each face (even internal ones: in
-     two-fluid problems also internal faces may need special treatment).
-     
-     Note the material on our discussions whether internal and boundary faces
-     should be different polymorphic classes. In the current implementation
-     they are NOT, mainly to avoid the complicated (multiple) derivations
-     that had to be made by the user to implement their own face
-     classes. Instead, to quickly decide whether a face is a boundary one,
-     test whether elementPtrR() == 0.
-     
-     Face does not need a reference to its own reference geometry, since it
-     can easily access it via the reference geometry of its left neighbour
-     and its local face number in that one. */
+  public:
+    //!Constructor for interior faces.
+    //constructor will not initialize faceToFaceMapIndex, because it doesnt know how the elements are connected
+    FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType&  localFaceNumL, ElementGeometryT* ptrElemRight, const LocalFaceNrType&  localFaceNumR);
 
-    class FaceGeometry
+    //! Constructor for boundary faces.
+    FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType&localFaceNumL, const FaceType& boundaryLabel);
+
+    virtual ~FaceGeometry()
     {
-    public:
-        typedef PointPhysical                                              PointPhysicalT;
-        typedef LinearAlgebra::Matrix                                           MatrixT;
-        //typedef std::vector<PointPhysicalT* >                                     ListOfPointPtrsT;
-        //typedef Geometry::MappingReferenceToPhysical                       MappingReferenceToPhysicalT;
-        typedef std::set<unsigned int>                                          SetOfGlobalNodes;
-        typedef std::vector<unsigned int>                                       VectorOfLocalNodes;
-        typedef PointPhysical                                              PhysicalPointT;
-        typedef PointPhysical                                            PhysicalPointOnTheFaceT;
-        typedef PointReference                                             ReferencePointT;
-        typedef PointReference                                           ReferencePointOnTheFaceT;
-        typedef unsigned int                                                    LocalFaceNrType;
-        typedef std::auto_ptr<const MappingReferenceToReference >   RefFaceToRefElementMapping;// doing new later and passing, should handle its own deletion.
-        																				//the ref->ref mappings are all singletons and should never be deleted (bug?) -FB
-        typedef ReferenceGeometry                                        ReferenceFaceGeometryT;
+    }
 
-        typedef ElementGeometry                                            ElementGeometryT;
-        //typedef PhysicalGeometry                                           PhysicalGeometryT;
+    /// Return the pointer to the left element.
+    virtual const ElementGeometryT*           getElementGLeft()       const
+    {
+      return leftElementGeom_;
+    }
+    
+    /// Return the pointer to the right element, NULL if inexistent for boundaries.
+    virtual const ElementGeometryT*           getPtrElementGRight()   const
+    {
+      return rightElementGeom_;
+    }
 
-        ///\BUG some of the previous developpers think this should be Base::Face...
-        typedef FaceGeometry                                                      FaceT;
+    /// Return local face number of the face in the left element.
+    virtual unsigned int                localFaceNumberLeft()  const
+    {
+      return localFaceNumberLeft_;
+    }
+    /// Return local face number of the face in the right element.
+    virtual unsigned int                localFaceNumberRight()   const
+    {
+      return localFaceNumberRight_;
+    }
 
+    virtual FaceType getFaceType() const
+    {
+      return faceType_;
+    }
 
-    public:
-            //FaceGeometry();
-        //constructor will not initialize faceToFaceMapIndex, because it doesnt know how the elements are connected
-        FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType&  localFaceNumL, ElementGeometryT* ptrElemRight, const LocalFaceNrType&  localFaceNumR);
+    virtual void setFaceType(const FaceType& newFace)
+    {
+      if (faceType_ == FaceType::INTERNAL)
+      {
+        throw "It is currently impossible to alter the type of internal faces";
+      } else if (newFace == FaceType::INTERNAL)
+      {
+        throw "Boundary faces cannot also be internal faces";
+      } else
+      {
+        faceType_=newFace;
+      }
+    }
 
-            //! Ctor for boundary faces.
-        FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType&localFaceNumL, const FaceType& boundaryLabel);
+    virtual int getFaceToFaceMapIndex()const
+    {
+      return faceToFaceMapIndex_;
+    }
 
-
-        virtual ~FaceGeometry(){}
-
-
-
-            // Sets.
-        /*virtual void                        setPtrElementLeft(const ElementGeometryT* value)   {leftElementGeom_ = value;}
-        virtual void                        setPtrElementRight(const ElementGeometryT* value)  {rightElementGeom_ = value;}
-        virtual void                        setFaceType(const FaceType& value)           {faceType_ = value;}
-        virtual void                        setFaceToFaceTransformation(int value)       {faceToFaceMapIndex_ = value;}*/
-
-            // Gets.
-            /// Return the pointer to the left element.
-        virtual const ElementGeometryT*           getElementGLeft()       const     {return leftElementGeom_;}
-            /// Return the pointer to the right element, NULL if inexistent for boundaries.
-        virtual const ElementGeometryT*           getPtrElementGRight()   const     {return rightElementGeom_;}
-
-            /// Return local face number of the face in the left element.
-        virtual unsigned int                localFaceNumberLeft()  const      {return localFaceNumberLeft_;}
-            /// Return local face number of the face in the right element.
-        virtual unsigned int                localFaceNumberRight()   const    {return localFaceNumberRight_;}
-
-        virtual FaceType                    getFaceType() const          {return faceType_;}
-        
-        virtual void                        setFaceType(const FaceType& newFace) {
-            if(faceType_==FaceType::INTERNAL){
-                throw "It is currently impossible to alter the type of internal faces";
-            }else if(newFace==FaceType::INTERNAL){
-                throw "Boundary faces cannot also be internal faces";
-            }else{
-                faceType_=newFace;
-            }
-        }
-
-        virtual int                         getFaceToFaceMapIndex()const {return faceToFaceMapIndex_;}
-
-        virtual const ReferenceFaceGeometryT*       getReferenceGeometry() const;
+    virtual const ReferenceFaceGeometryT*       getReferenceGeometry() const;
 
 
-        /*! Map a point in coordinates of the reference geometry of the face to
-         *  the reference geometry of the left (L) element. */
-        virtual void    mapRefFaceToRefElemL(const ReferencePointOnTheFaceT& pRefFace, ReferencePointT& pRefEl) const;
+    /*! Map a point in coordinates of the reference geometry of the face to
+     *  the reference geometry of the left (L) element. */
+    virtual void    mapRefFaceToRefElemL(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const;
 
-        /*! Map a point in coordinates of the reference geometry of the face to
-         *  the reference geometry of the right (R) element. */
-        virtual void    mapRefFaceToRefElemR(const ReferencePointOnTheFaceT& pRefFace, ReferencePointT& pRefEl) const;
-        
-        /*! Map from reference face coordinates on the left side to those on the
-         *  right side. */
-        virtual void    mapRefFaceToRefFace(const ReferencePointOnTheFaceT& pIn, ReferencePointOnTheFaceT& pOut) const;
-            /// Get a normal at a given RefPoint
-        virtual void    getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v) const;
+    /*! Map a point in coordinates of the reference geometry of the face to
+     *  the reference geometry of the right (R) element. */
+    virtual void    mapRefFaceToRefElemR(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const;
 
-            //! Return a Mapping (not pointer or reference! Ok, wrapped by auto_ptr) /bug why?
-        virtual         RefFaceToRefElementMapping refFaceToRefElemMapL() const;
-        
-            //! Return a mapping to the right reference element.
-        virtual         RefFaceToRefElementMapping refFaceToRefElemMapR() const;
-        
+    /*! Map from reference face coordinates on the left side to those on the
+     *  right side. */
+    virtual void    mapRefFaceToRefFace(const ReferencePointT& pIn, ReferencePointT& pOut) const;
+    /// Get a normal at a given RefPoint
+    virtual void    getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) const;
 
-        virtual void            referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical)const;
+    //! Return a Mapping (not pointer or reference! Ok, wrapped by auto_ptr) /bug why?
+    virtual         RefFaceToRefElementMapping refFaceToRefElemMapL() const;
 
-        
-        ///\brief set up the faceToFaceMapIndex based on vertex connectivity information instead of node location
-        void initialiseFaceToFaceMapIndex(const std::vector<unsigned int>& leftVertices, const std::vector<unsigned int>& rightVertices);
+    //! Return a mapping to the right reference element.
+    virtual         RefFaceToRefElementMapping refFaceToRefElemMapR() const;
 
-//-MTJ-start--------------
 
-        void            copyFromParent(const FaceT& fa);
-        
-        void            invertFaceToFaceMapMatrix();
+    virtual void            referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical)const;
 
-        // Q_new = R * Q_old * L
-        void            recalculateRefinementMatrix(MatrixT& Lmat, MatrixT& Rmat);
-        
-        void            printRefMatrix() const;
-        
-    protected:
-        MatrixT                     faceToFaceMapMatrix_;
-//-MTJ-end--------------
 
-    protected:
+    ///\brief set up the faceToFaceMapIndex based on vertex connectivity information instead of node location
+    void initialiseFaceToFaceMapIndex(const std::vector<unsigned int>& leftVertices, const std::vector<unsigned int>& rightVertices);
 
-        ///\brief default constructor - for use with wrapper classes
-        FaceGeometry():rightElementGeom_(NULL),leftElementGeom_(NULL){}
-        
-    protected:
-        const ElementGeometryT*           rightElementGeom_;
-        const ElementGeometryT*           leftElementGeom_;
-        
-        LocalFaceNrType             localFaceNumberLeft_;
-        LocalFaceNrType             localFaceNumberRight_;
-        
-        LocalFaceNrType             faceToFaceMapIndex_;
-        FaceType                    faceType_;
-        
-    };
+    void            copyFromParent(const FaceGeometryT& fa);
+
+    void            invertFaceToFaceMapMatrix();
+
+    void            recalculateRefinementMatrix(MatrixT& Lmat, MatrixT& Rmat);
+
+    void            printRefMatrix() const;
+
+  protected:
+    MatrixT                     faceToFaceMapMatrix_;
+    
+    ///\brief default constructor - for use with wrapper classes
+    FaceGeometry() : rightElementGeom_(nullptr), leftElementGeom_(nullptr)
+    {
+    }
+
+    const ElementGeometryT* rightElementGeom_;
+    const ElementGeometryT* leftElementGeom_;
+
+    LocalFaceNrType localFaceNumberLeft_;
+    LocalFaceNrType localFaceNumberRight_;
+
+    size_t faceToFaceMapIndex_;
+    FaceType faceType_;
+
+  } ;
 };
 #endif /* defined(____FaceGeometry__) */

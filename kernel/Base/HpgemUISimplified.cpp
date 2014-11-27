@@ -103,6 +103,7 @@ namespace Base
             dtPlot = endTime_ - startTime_;
         }
         double tPlot = startTime_ + dtPlot;
+        
         while (t < endTime_)
         {
             t += dt_;
@@ -162,6 +163,7 @@ namespace Base
                 }
 
             }
+            
             interpolate();
 
             if (t == tPlot)

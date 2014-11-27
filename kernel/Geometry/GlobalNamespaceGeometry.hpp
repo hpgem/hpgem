@@ -33,27 +33,8 @@ namespace Geometry
     const int FourD  = 4;
     
     const int MaxInteger=std::numeric_limits<int>::max();
+    const size_t MAXSIZET=std::numeric_limits<size_t>::max();
     const double SmallerDoubleThanMinimalSizeOfTheMesh=1.0e-10;
-    
-//    template <unsigned int DIM>
-//    class TypedefsInGeometry
-//    {
-//    public:
-//        typedef double                       CoordTypeT;
-//        typedef unsigned int                 IndexT;
-//        
-//        typedef std::vector<NodeT>           VectorOfNodes;
-//        typedef std::vector<NodeT* >         VectorOfPtrNodesT;
-//        typedef std::vector<CoordTypeT >     VectorOfCoordsT;
-//
-//        typedef std::list<NodeT >            ListOfNodesT;
-//        typedef std::list<NodeT* >           ListOfPtrNodesT;
-//
-//        typedef PhysicalGeometry<DIM>        PhysicalGeometryT;
-//        typedef ReferenceGeometry<DIM>       ReferenceGeometryT;
-//
-//        typedef int MatrixT; // temp. until we get (if we get) linear algebra.
-//    };
 };
 
 #endif///_GlobalNamespaceGeometry_hpp

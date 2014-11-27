@@ -79,8 +79,8 @@ namespace Base {
 			//keep the face alive!
 		}
 
-		virtual void getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v) const;
-		virtual void getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v);
+		virtual void getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) const;
+		virtual void getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v);
 
 		virtual double basisFunction(unsigned int i, const Geometry::PointReference& p) const {throw "No storage functionality was implemented! Are you working in a vector valued function space?";}
 		virtual double basisFunction(unsigned int i, const Geometry::PointReference& p) {throw "No storage functionality was implemented! Are you working in a vector valued function space?";}
@@ -176,15 +176,15 @@ namespace Base {
 			return face_->getReferenceGeometry();
 		}
 
-		virtual void mapRefFaceToRefElemL(const ReferencePointOnTheFaceT& pRefFace, ReferencePointT& pRefEl) const {
+		virtual void mapRefFaceToRefElemL(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const {
 			face_->mapRefFaceToRefElemL(pRefFace, pRefEl);
 		}
 
-		virtual void mapRefFaceToRefElemR(const ReferencePointOnTheFaceT& pRefFace, ReferencePointT& pRefEl) const {
+		virtual void mapRefFaceToRefElemR(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const {
 			face_->mapRefFaceToRefElemR(pRefFace, pRefEl);
 		}
 
-		virtual void mapRefFaceToRefFace(const ReferencePointOnTheFaceT& pIn, ReferencePointOnTheFaceT& pOut) const {
+		virtual void mapRefFaceToRefFace(const ReferencePointT& pIn, ReferencePointT& pOut) const {
 			face_->mapRefFaceToRefFace(pIn, pOut);
 		}
 
