@@ -20,16 +20,41 @@ namespace Base {
     
 namespace Detail {
 #ifdef HPGEM_USE_MPI
-template<class T>
-typename std::enable_if<std::is_class<T>::value, MPI::Datatype>::type
- toMPIType(T& t)
-{
+//template<class T>
+//typename std::enable_if<std::is_class<T>::value, MPI::Datatype>::type
+// toMPIType(T& t)
+//{
+    //fancy code that ends with calls to MPI::Datatype::Create_struct 
+    //and MPI::Datatype::commit here
         //static_assert(false, "Undefined Datatype");
+//}
+
+template<class T>
+typename std::enable_if<std::is_integral<T>::value, MPI::Datatype>::type
+toMPIType(T t)
+{
+    return MPI::Datatype::Match_size(MPI_TYPECLASS_INTEGER,sizeof(T));
 }
 
-inline MPI::Datatype toMPIType(int i) {
-    return MPI::INT;
+template<class T>
+typename std::enable_if<std::is_floating_point<T>::value, MPI::Datatype>::type
+toMPIType(T t)
+{
+    return MPI::Datatype::Match_size(MPI_TYPECLASS_REAL,sizeof(T));
 }
+
+template<class T>
+typename std::enable_if<!std::is_fundamental<T>::value && std::is_trivially_copyable<T>::value, MPI::Datatype>::type
+toMPIType(T t)
+{
+    //just copy into an array of char for transfer
+    MPI::Datatype result = MPI::Datatype::Match_size(MPI_TYPECLASS_INTEGER,1);
+    result = result.Create_contiguous(sizeof(t));
+}
+
+//inline MPI::Datatype toMPIType(int i) {
+//    return MPI::INT;
+//}
 
 #endif // HPGEM_USE_MPI
 }

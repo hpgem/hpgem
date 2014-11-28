@@ -254,16 +254,16 @@ namespace Base {
         delete collBasisFSet_[0];
         collBasisFSet_[0] = bFSet;
         const_cast<ConfigurationData*> (configData_)->numberOfBasisFunctions_ = bFSet->size();
-        for (Base::Face* face : getFacesList()) {
+        for (Base::Face* face : getFacesList(IteratorType::GLOBAL)) {
             face->setLocalNrOfBasisFunctions(0);
         }
-        for (Base::Edge* edge : getEdgesList()) {
+        for (Base::Edge* edge : getEdgesList(IteratorType::GLOBAL)) {
             edge->setLocalNrOfBasisFunctions(0);
         }
-        for (Base::Node* node : getVerticesList()) {
+        for (Base::Node* node : getVerticesList(IteratorType::GLOBAL)) {
             node->setLocalNrOfBasisFunctions(0);
         }
-        for (ElementIterator it = elementColBegin(); it != elementColEnd(); ++it) {
+        for (ElementIterator it = elementColBegin(IteratorType::GLOBAL); it != elementColEnd(IteratorType::GLOBAL); ++it) {
             (*it)->setDefaultBasisFunctionSet(0);
         }
     }
@@ -1606,22 +1606,22 @@ namespace Base {
                 uint32_t boundaryType = groupBCType[segmentToGroup[faceToSegment[i]]];
                 if(boundaryType < 1001) {
                     std::cout << "Viscous Wall boundary for face " << i << " assigned as WALL_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::WALL_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::WALL_BC);
                 } else if (boundaryType < 2001) {
                     std::cout << "Inviscid Wall boundary for face " << i << " assigned as WALL_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::WALL_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::WALL_BC);
                 } else if (boundaryType < 3001) {
                     std::cout << "symmetry plane boundary for face " << i << " assigned as WALL_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::WALL_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::WALL_BC);
                 } else if (boundaryType < 4001) {
                     std::cout << "inlet pipe boundary for face " << i << " assigned as OPEN_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::OPEN_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::OPEN_BC);
                 } else if (boundaryType < 5001) {
                     std::cout << "outlet pipe boundary for face " << i << " assigned as OPEN_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::OPEN_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::OPEN_BC);
                 } else if (boundaryType < 6001) {
                     std::cout << "farfield boundary for face " << i << " assigned as OPEN_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::OPEN_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::OPEN_BC);
                 } else if (boundaryType < 7001) {
                     std::cout << "periodic boundary for face " << i << " ignored for being internal; node connections will be assigned later" << std::endl;
                 } else if (boundaryType < 8001) {
@@ -1630,13 +1630,13 @@ namespace Base {
                     std::cout << "interface boundary for face " << i << " ignored for being internal" << std::endl;
                 } else if (boundaryType < 9001) {
                     std::cout << "wake boundary for face " << i << " assigned as OPEN_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::OPEN_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::OPEN_BC);
                 } else if (boundaryType < 10001) {
                     std::cout << "moving wall boundary for face " << i << " assigned as WALL_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::WALL_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::WALL_BC);
                 } else {
                     std::cout << "alternative boundary condition for face " << i << " assigned as WALL_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::WALL_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::WALL_BC);
                 }
             }
             
@@ -2365,37 +2365,37 @@ namespace Base {
                     std::cout << "Viscous Wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::WALL_BC);
                     }
                 } else if (centaurBCType < 2001) {
                     std::cout << "Inviscid Wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::WALL_BC);
                     }
                 } else if (centaurBCType < 3001) {
                     std::cout << "symmetry plane boundary for group " << i << " assigned as WALL_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::WALL_BC);
                     }
                 } else if (centaurBCType < 4001) {
                     std::cout << "inlet pipe boundary for group " << i << " assigned as OPEN_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::OPEN_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::OPEN_BC);
                     }
                 } else if (centaurBCType < 5001) {
                     std::cout << "outlet pipe boundary for group " << i << " assigned as OPEN_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::OPEN_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::OPEN_BC);
                     }
                 } else if (centaurBCType < 6001) {
                     std::cout << "farfield boundary for group " << i << " assigned as OPEN_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::OPEN_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::OPEN_BC);
                     }
                 } else if (centaurBCType < 7001) {
                     std::cout << "periodic boundary for group " << i << " ignored for being internal; node connections will be assigned later" << std::endl;
@@ -2407,19 +2407,19 @@ namespace Base {
                     std::cout << "wake boundary for group " << i << " assigned as OPEN_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::OPEN_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::OPEN_BC);
                     }
                 } else if (centaurBCType < 10001) {
                     std::cout << "moving wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::WALL_BC);
                     }
                 } else {
                     std::cout << "alternative boundary condition for group " << i << " assigned as WALL_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::WALL_BC);
                     }
                 }
                 std::cout << "total number of boundary faces: " << getFacesList().size() << std::endl;
@@ -2774,7 +2774,7 @@ namespace Base {
                     if(candidates.size() == 1)
                     {
                         assert(candidates[0]==element);
-                        addFace(element,i,nullptr,0,Geometry::WALL_BC);
+                        addFace(element,i,nullptr,0,Geometry::FaceType::WALL_BC);
                     }
                     if(candidates.size() == 2)
                     {

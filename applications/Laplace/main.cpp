@@ -19,9 +19,6 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//This macro is no longer needed, but it may make your life easier if you want to change things that involve the link between PETSc and hpGEM in an IDE 
-//#define hpGEM_INCLUDE_PETSC_SUPPORT
-
 #include "Base/MpiContainer.hpp"
 #include "Base/HpgemUISimplified.hpp"
 #include "Base/Norm2.hpp"
@@ -44,6 +41,8 @@
 #include "Integration/ElementIntegral.hpp"
 #include "Base/CommandLineOptions.hpp"
 #include "Output/VTKSpecificTimeWriter.hpp"
+#include <chrono>
+#include <thread>
 
 class Laplace : public Base::HpgemUISimplified
 {
@@ -78,11 +77,11 @@ public:
         //create a triangular mesh. The four magic ones that are passed to this function
         //specify the number of element matrices, the number of element vectors,
         //the number of face matrices and the number of face vectors (in that order)
-        addMesh(description, Base::TRIANGULAR, 1, 1, 1, 1);
+        addMesh(description, Base::RECTANGULAR, 1, 1, 1, 1);
 
         //tell hpGEM to use basis functions that are discontinuous and are designed for triangles
         //this is likely to get automated by hpGEM at some point in the future
-        meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(p_));
+        meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(p_));
         return true;
     }
 
@@ -291,7 +290,7 @@ public:
         x.writeTimeLevelData(0);
 
         //so it can be used for post-processing
-        //std::ofstream outFile("output.dat." + std::to_string(Base::MPIContainer::Instance().getProcessorID()));
+        std::ofstream outFile("output." + std::to_string(Base::MPIContainer::Instance().getProcessorID()) + ".dat");
         //write tecplot data
         //Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
         //writeFunc.write(meshes_[0], "discontinuous solution", false, this);
@@ -329,12 +328,18 @@ int main(int argc, char **argv)
     Base::parse_options(argc, argv);
     try
     {
+        auto start = std::chrono::high_resolution_clock::now();
+        
         //create ...
         Laplace demo(numBasisFuns.getValue(), p.getValue());
         demo.initialise();
 
         //... and solve the problem
         demo.solve();
+        
+        auto end = std::chrono::high_resolution_clock::now();
+        
+        std::cout << "this simulation took " << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << "ms" << std::endl;
 
         return 0;
     }

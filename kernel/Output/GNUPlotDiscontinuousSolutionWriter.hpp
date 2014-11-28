@@ -40,14 +40,14 @@ namespace Output
   /// DiscontinuousSolutionWriter testWriter(outStream, "title", "01", "u");
   /// testWriter.write(mesh);
   /// Then open gnuplot and plot with the command: splot "output.dat"
-  class DiscontinuousSolutionWriter
+  class GNUPlotDiscontinuousSolutionWriter
   {
   public:
 
     typedef std::string StringT;
 
     ///Constructor: Initialise the output stream and write the header.
-    DiscontinuousSolutionWriter(
+    GNUPlotDiscontinuousSolutionWriter(
                                 std::ostream& output,
                                 const std::string& fileTitle,
                                 const std::string& dimensionsToWrite,
@@ -57,7 +57,7 @@ namespace Output
     void write(const Base::MeshManipulator* mesh, SingleElementWriter* writeDataClass);
 
     /// TODO: Perfect this deconstructor. Irana: there's no pointers, do we need better dtor?
-    ~DiscontinuousSolutionWriter()
+    ~GNUPlotDiscontinuousSolutionWriter()
     {
       output_.flush();
     }

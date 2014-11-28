@@ -20,7 +20,7 @@ add_executable(TutorialLaplace.out
                 ${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Output/DiscontinuousSolutionWriter.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Output/GNUPlotDiscontinuousSolutionWriter.cpp
 #       	${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/AllGaussQuadratureRules.cpp		
 							  
 		#miscellaneous required stuff

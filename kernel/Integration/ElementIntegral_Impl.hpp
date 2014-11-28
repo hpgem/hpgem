@@ -41,54 +41,10 @@ namespace Integration
                                   ReturnTrait1& result,
                                   const QuadratureRulesT * const qdrRule)
   {
-    if (localElement_ == nullptr)
-    {
-      localElement_=new Base::ShortTermStorageElementH1(el->getGaussQuadratureRule()->dimension());
-      if (useCache_)
-      {
-        localElement_->cacheOn();
-      } else
-      {
-        localElement_->cacheOff();
-      }
-    }
-    *localElement_=*el;
-    const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? localElement_->getGaussQuadratureRule() : qdrRule);
-
-    // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
-    assert((qdrRuleLoc->forReferenceGeometry() == localElement_->getReferenceGeometry()));
-
-    // value returned by the integrand
-    ReturnTrait1 value(result);
-
-    // number of Gauss quadrature points
-    size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
-    assert(nrOfPoints > 0);
-
-    // Gauss quadrature point
-    Geometry::PointReference p(qdrRuleLoc->dimension());
-
-    // first Gauss point
-    Geometry::Jacobian jac(qdrRuleLoc->dimension(), qdrRuleLoc->dimension());
-    qdrRuleLoc->getPoint(0, p);
-    localElement_->calcJacobian(p, jac);
-    integrand->elementIntegrand(localElement_, p, result);
-    result *= (qdrRuleLoc->weight(0) * std::abs(jac.determinant()));
-
-    // next Gauss point(s)
-    for (size_t i = 1; i < nrOfPoints; ++i)
-    {
-      qdrRuleLoc->getPoint(i, p);
-
-      localElement_->calcJacobian(p, jac);
-
-      integrand->elementIntegrand(localElement_, p, value);
-
-
-      //Y = alpha * X + Y
-      result.axpy(qdrRuleLoc->weight(i) * std::abs(jac.determinant()), value);
-
-    }
+      //(@dducks) this lambda definition is not allowed inside the integrate(), why not?
+      std::function<void(const ElementT*, const  PointReferenceT&, ReturnTrait1&) > integrandFun = 
+      [=](const ElementT* el, const PointReferenceT& p, ReturnTrait1& ret)->void{integrand->elementIntegrand(el,p,ret);};
+      integrate(el,integrandFun,result,qdrRule);
   }
 
   template<class ReturnType>
@@ -97,8 +53,6 @@ namespace Integration
                  ReturnType& result,
                  const QuadratureRulesT * const qdrRule)
   {
-    //code copy-pasted from above, except for how to call integrandFun
-    //Must be improved!    
     if (localElement_ == nullptr)
     {
       localElement_=new Base::ShortTermStorageElementH1(el->getGaussQuadratureRule()->dimension());

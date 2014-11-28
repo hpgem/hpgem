@@ -23,7 +23,7 @@
 #include <list>
 #include <cassert>
 
-#include "DiscontinuousSolutionWriter.hpp"
+#include "GNUPlotDiscontinuousSolutionWriter.hpp"
 #include "Base/Element.hpp"
 #include "TecplotPhysicalGeometryIterator.hpp"
 #include "Base/MeshManipulator.hpp"
@@ -41,7 +41,7 @@ namespace Output
     ///@param[in] fileTitle          The title of your file/plot
     ///@param[in] dimensionsToWrite  Names of the variables, for example "01" gives x0 and x1
     ///@param[in] resultVariableName Names of the dependent variable, for example "position" or "u"
-    DiscontinuousSolutionWriter::DiscontinuousSolutionWriter(
+    GNUPlotDiscontinuousSolutionWriter::GNUPlotDiscontinuousSolutionWriter(
                                                              std::ostream& output,
                                                              const std::string& fileTitle,
                                                              const std::string& dimensionsToWrite,
@@ -68,7 +68,7 @@ namespace Output
      * @param[in] writeDataClass Class which is a child of the class SingleElementWriter
      *                           which has defined the function writeToFile.
      */
-    void DiscontinuousSolutionWriter::write(const Base::MeshManipulator* mesh,
+    void GNUPlotDiscontinuousSolutionWriter::write(const Base::MeshManipulator* mesh,
                                             SingleElementWriter* writeDataClass)
     {
         
@@ -91,6 +91,8 @@ namespace Output
         //number of nodes on one element
         unsigned int nrOfNodes;
         
+        
+        //(@Irana) Does GNUPlot se the same node ordering as Tecplot, for all element types? -FB
         //make an iterator that can iterate over all nodes.
         TecplotPhysicalGeometryIterator& nodeIt = TecplotPhysicalGeometryIterator::Instance();
 

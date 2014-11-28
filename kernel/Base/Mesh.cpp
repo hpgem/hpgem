@@ -91,7 +91,7 @@ namespace Base {
     bool Mesh::addFace(Element* leftElementPtr, unsigned int leftElementLocalFaceNo,
             Element* rightElementPtr, unsigned int rightElementLocalFaceNo,
             const Geometry::FaceType& faceType) {
-        if (rightElementPtr == NULL) {
+        if (rightElementPtr == nullptr) {
             faces_.push_back(FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, faceType, faceCounter_));
         } else {
             faces_.push_back(FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, faceCounter_));
@@ -198,6 +198,7 @@ namespace Base {
                 submeshes_.add(face);
 
                 if (face->isInternal()&&(partition[face->getPtrElementLeft()->getID()] != partition[face->getPtrElementRight()->getID()])) {
+                    face->setFaceType(Geometry::FaceType::SUBDOMAIN_BOUNDARY);
                     if (partition[face->getPtrElementLeft()->getID()] == pid) {
                         //dont send to yourself, ask the element on the other side what pid to sent to
                         submeshes_.addPush(face->getPtrElementLeft(), partition[face->getPtrElementRight()->getID()]);

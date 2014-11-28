@@ -39,6 +39,7 @@
 #include "Geometry/PointReference.hpp"
 #include "Base/ElementCacheData.hpp"
 #include "base64.hpp"
+#include "VTKElementOrdering.hpp"
 #include <vector>
 #include <unordered_map>
 #include <typeindex>
@@ -133,7 +134,7 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
         elementTypes.push_back(hpGEMToVTK.at(std::type_index(typeid(*element->getReferenceGeometry()))));
         for(size_t i=0;i<element->getNrOfNodes();++i)
         {
-            element->getPhysicalGeometry()->getLocalNodeCoordinates(i,actualNode);
+            element->getPhysicalGeometry()->getLocalNodeCoordinates(tohpGEMOrdering(i,element->getReferenceGeometry()),actualNode);
             for(size_t j=0;j<DIM;++j)
             {
                 usefullNode[j]=actualNode[j];
@@ -205,7 +206,7 @@ void Output::VTKSpecificTimeWriter::write(std::function<double(Base::Element*,co
     {
         for(size_t i=0;i<element->getNrOfNodes();++i)
         {
-            element->getReferenceGeometry()->getNode(i,node);
+            element->getReferenceGeometry()->getNode(tohpGEMOrdering(i,element->getReferenceGeometry()),node);
             data.push_back(dataCompute(element, node, timelevel_));
         }
     }

@@ -86,7 +86,7 @@ namespace Base
             return quadratureRule_;
         }
         
-        virtual bool             isInternal()const;
+        //virtual bool             isInternal()const;
 
         virtual VecCacheT&       getVecCacheData() { return vecCacheData_; }
 

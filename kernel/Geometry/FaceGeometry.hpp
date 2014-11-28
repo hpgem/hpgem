@@ -25,8 +25,8 @@
 #include <set>
 #include <vector>
 #include <memory>
+#include <cassert>
 
-///\BUG resolves field has incomplete type
 #include "LinearAlgebra/Matrix.hpp"
 
 //--------------------------------------------------------------------------------------------------
@@ -93,9 +93,9 @@ namespace Geometry
   class ElementGeometry;
   class ReferenceGeometry;
 
-  enum  FaceType
+  enum class FaceType
   {
-    OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL
+    OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL, SUBDOMAIN_BOUNDARY
   } ;
 
   /*!
@@ -181,19 +181,15 @@ namespace Geometry
     {
       return faceType_;
     }
-
-    virtual void setFaceType(const FaceType& newFace)
-    {
-      if (faceType_ == FaceType::INTERNAL)
-      {
-        throw "It is currently impossible to alter the type of internal faces";
-      } else if (newFace == FaceType::INTERNAL)
-      {
-        throw "Boundary faces cannot also be internal faces";
-      } else
-      {
-        faceType_=newFace;
-      }
+    
+    virtual void setFaceType(const FaceType& newFace) {
+        if(isInternal()){
+            faceType_=newFace;
+            assert(isInternal());
+        }else{
+            faceType_=newFace;
+            assert(!isInternal());
+        }
     }
 
     virtual int getFaceToFaceMapIndex()const
@@ -227,7 +223,6 @@ namespace Geometry
 
     virtual void            referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical)const;
 
-
     ///\brief set up the faceToFaceMapIndex based on vertex connectivity information instead of node location
     void initialiseFaceToFaceMapIndex(const std::vector<unsigned int>& leftVertices, const std::vector<unsigned int>& rightVertices);
 
@@ -239,6 +234,8 @@ namespace Geometry
 
     void            printRefMatrix() const;
 
+    virtual bool isInternal() const;
+    
   protected:
     MatrixT                     faceToFaceMapMatrix_;
     
@@ -246,6 +243,7 @@ namespace Geometry
     FaceGeometry() : rightElementGeom_(nullptr), leftElementGeom_(nullptr)
     {
     }
+        
 
     const ElementGeometryT* rightElementGeom_;
     const ElementGeometryT* leftElementGeom_;

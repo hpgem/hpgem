@@ -96,7 +96,7 @@ int main() {
 
 	Base::Element element(pointIndexes,&vectorOfFunctions,nodes,3,14,basisFunctions.size(),18);
 
-	Base::Face test(&element,4,Geometry::WALL_BC,3);
+	Base::Face test(&element,4,Geometry::FaceType::WALL_BC,3);
 
 	assert(("quadrature rule",test.getGaussQuadratureRule()!=NULL));
 

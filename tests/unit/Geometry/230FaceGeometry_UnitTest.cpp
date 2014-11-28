@@ -89,7 +89,7 @@ int main(){
 		assert(("referenceToPhysical",std::abs(compare1Dphys[0]-point1Dphys[0])<1e-12));//probably indirectly verified already, but this is the most important feature of a face
 	}
 
-	assert((test->getFaceType()==Geometry::INTERNAL));
+	assert((test->getFaceType()==Geometry::FaceType::INTERNAL));
 	assert((typeid(*test->getReferenceGeometry())==typeid(Geometry::ReferencePoint)));
 
 	//dim 1
@@ -162,7 +162,7 @@ int main(){
 		assert(("referenceToPhysical",std::abs(compare2Dphys[1]-point2Dphys[1])<1e-12));
 	}
 
-	assert((test->getFaceType()==Geometry::INTERNAL));
+	assert((test->getFaceType()==Geometry::FaceType::INTERNAL));
 	assert((typeid(*test->getReferenceGeometry())==typeid(Geometry::ReferenceLine)));
 
 
@@ -175,7 +175,7 @@ int main(){
 	pointIndexes[3]=11;
 	right=new Geometry::ElementGeometry(pointIndexes,nodes2D);
 
-	test=new Geometry::FaceGeometry(left,1,Geometry::WALL_BC);
+	test=new Geometry::FaceGeometry(left,1,Geometry::FaceType::WALL_BC);
 
 	leftIndices.resize(2);
 	rightIndices.resize(2);
@@ -197,7 +197,7 @@ int main(){
 		assert(("referenceToPhysical",std::abs(compare2Dphys[1]-point2Dphys[1])<1e-12));
 	}
 
-	assert((test->getFaceType()==Geometry::WALL_BC));
+	assert((test->getFaceType()==Geometry::FaceType::WALL_BC));
 	assert((typeid(*test->getReferenceGeometry())==typeid(Geometry::ReferenceLine)));
 	assert((test->getPtrElementGRight()==NULL));
 }

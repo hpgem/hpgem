@@ -25,13 +25,22 @@
 #include "QuadratureRules/GaussQuadratureRule.hpp"
 #include "Base/TestErrorDebug.hpp"
 #include "Base/L2Norm.hpp"
+#include "FaceIntegrandBase.hpp"
 
 namespace Integration{
+    
+        template <class ReturnTrait1>
+        void FaceIntegral::integrate(Base::Face* fa, FaceIntegrandBase<ReturnTrait1>* integrand, ReturnTrait1& result, const QuadratureRules::GaussQuadratureRule* qdrRule)
+        {
+            std::function<void(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&, ReturnTrait1&)> integrandFunc = 
+            [=](const Base::Face* face, const LinearAlgebra::NumericalVector& n, const Geometry::PointReference& p, ReturnTrait1& ret){integrand->faceIntegrand(face,n,p,ret);};
+            integrate(fa,integrandFunc,result,qdrRule);
+        }
 
 template <class ReturnTrait1>
     void
     FaceIntegral::integrate(FaceT*                                           fa,
-                                 FaceIntegrandBase<ReturnTrait1>*                                      integrand,
+                                 std::function<void(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&, ReturnTrait1&)> integrandFunc,
                                   ReturnTrait1&   result,
                                  const QuadratureRulesT* const                    qdrRule )
     {
@@ -62,7 +71,7 @@ template <class ReturnTrait1>
                 // first Gauss point
             qdrRuleLoc->getPoint(0, p);
             localFace_->getNormalVector(p, Normal);
-            integrand->faceIntegrand(localFace_, Normal, p, result);
+            integrandFunc(localFace_, Normal, p, result);
             result *= (qdrRuleLoc->weight(0) * Base::L2Norm(Normal));
 
                 // next Gauss points
@@ -70,7 +79,7 @@ template <class ReturnTrait1>
             {
                 qdrRuleLoc->getPoint(i, p);
                 localFace_->getNormalVector(p, Normal);
-                integrand->faceIntegrand(localFace_, Normal, p, value);
+                integrandFunc(localFace_, Normal, p, value);
 
                  //Y = alpha * X + Y
                 result.axpy(qdrRuleLoc->weight(i) * Base::L2Norm(Normal),value);

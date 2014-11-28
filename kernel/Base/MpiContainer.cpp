@@ -38,5 +38,10 @@ int MPIContainer::getNumProcessors(){
 int MPIContainer::getProcessorID(){
         return processorID_;
 }
+
+MPI::Intracomm& MPIContainer::getComm() {
+    return communicator_;
+}
+
     
 }

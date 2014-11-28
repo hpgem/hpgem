@@ -37,6 +37,7 @@
 #include "cassert"
 #include "Base/CommandLineOptions.hpp"
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
+#include "Utilities/BasisFunctions2DH1ConformingSquare.hpp"
 #include <cmath>
 
 
@@ -75,11 +76,11 @@ public:
         //create a triangular mesh. The four magic ones that are passed to this function
         //specify the number of element matrices, the number of element vectors,
         //the number of face matrices and the number of face vectors (in that order)
-        addMesh(description, Base::TRIANGULAR, 2, 1, 1, 1);
+        addMesh(description, Base::RECTANGULAR, 2, 1, 1, 1);
 
         //tell hpGEM to use basis functions that are discontinuous and are designed for triangles
         //this is likely to get automated by hpGEM at some point in the future
-        meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(p_));
+        meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(p_));
         return true;
     }
 
@@ -415,6 +416,8 @@ int main(int argc, char **argv) {
     Base::parse_options(argc, argv);
     try {
         
+        auto start = std::chrono::high_resolution_clock::now();
+        
         Advection test(n.getValue(), p.getValue());
         test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, size_t timelevel)->double
         {
@@ -423,6 +426,11 @@ int main(int argc, char **argv) {
             return solution[0];
         }, "value");
         test.solve();
+        
+        auto end = std::chrono::high_resolution_clock::now();
+        
+        std::cout << "this simulation took " << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << "ms" << std::endl;
+
         return 0;
     } catch (const char* e) {
         std::cout << e;

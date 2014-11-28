@@ -94,7 +94,7 @@ namespace Base
         //setElementGRight(right);
     }*/
     
-    bool
+    /*bool
     Face::isInternal()const
     {
         bool internal;
@@ -103,7 +103,7 @@ namespace Base
             
             
         return (FaceGeometryT::faceType_==Geometry::INTERNAL? true: false);
-    }
+    }*/
     
     void
     Face::createQuadratureRules()

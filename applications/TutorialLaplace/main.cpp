@@ -28,7 +28,7 @@
 #include "Base/HpgemUISimplified.hpp"
 #include "Base/ElementCacheData.hpp"
 #include "Base/FaceCacheData.hpp"
-#include "Output/DiscontinuousSolutionWriter.hpp"
+#include "Output/GNUPlotDiscontinuousSolutionWriter.hpp"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
 #include "Utilities/BasisFunctions2DH1ConformingSquare.hpp"
 #include "Utilities/GlobalMatrix.hpp"
@@ -38,7 +38,6 @@
 #include "Base/Norm2.hpp"
 #include "Output/TecplotSingleElementWriter.hpp"
 #include "Geometry/ReferenceTetrahedron.hpp"
-#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "Base/Element.hpp"
 #include "Base/RectangularMeshDescriptor.hpp"
 #include "Integration/ElementIntegral.hpp"
@@ -309,10 +308,7 @@ public:
 
         //Make the Krylov supspace method
         KSP ksp;
-        //dducks:
-        //Why is there a MPI_COMM_WORLD here?
-        //will this compile with(out) MPI? COMM_WORLD CAN BE IN USE!!
-        KSPCreate(MPI_COMM_WORLD, &ksp);
+        KSPCreate(PETSC_COMM_WORLD, &ksp);
         //Tell ksp that it will solve the system Ax = b.
         KSPSetOperators(ksp, A, A);
         KSPSetFromOptions(ksp);
@@ -327,9 +323,9 @@ public:
 
         x.writeTimeLevelData(0);
 
-        //Write solution to file.
+        //Write solution to file (can be opened with GNUPlot).
         std::ofstream outFile("output.dat");
-        Output::DiscontinuousSolutionWriter writeFunc(outFile, "title", "01", "value");
+        Output::GNUPlotDiscontinuousSolutionWriter writeFunc(outFile, "title", "01", "value");
         writeFunc.write(meshes_[0], this);
         return true;
     }

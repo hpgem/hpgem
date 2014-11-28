@@ -19,10 +19,7 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//#define HPGEM_USE_PETSC//temporarily activating this definition makes development easier on some IDEs
-
-///\TODO optimize placement of matrix rows to minimize communication
-
+#include "Base/MpiContainer.hpp"
 #include "GlobalMatrix.hpp"
 #include <vector>
 #include "Base/MeshManipulator.hpp"
@@ -39,6 +36,7 @@
 #include "Base/Norm2.hpp"
 #include "Base/Mesh.hpp"
 #include "cassert"
+#include <numeric>
 
 namespace Utilities {
 
@@ -110,7 +108,7 @@ namespace Utilities {
         //if(meshLevel_!=theMesh_->getActiveLevel(0)){
         //	std::cout<<"Warning: global matrix does not match currently active refinement level!";
         //}
-        //MatView(A_,PETSC_VIEWER_DRAW_WORLD);
+        //MatView(A_,PETSC_VIEWER_STDOUT_WORLD);
         return A_;
     }
 
@@ -210,78 +208,296 @@ namespace Utilities {
         //if(meshLevel_!=theMesh_->getActiveLevel(0)){
         //meshLevel_=theMesh_->getActiveLevel(0);
         MatDestroy(&A_);
-
-        int maxNrOfDOF(0), totalNrOfDOF(0), DIM(theMesh_->dimension()), DOFForAVertex(0);
+#ifdef HPGEM_USE_MPI
+        size_t n = Base::MPIContainer::Instance().getNumProcessors();
+        //offset by one to put a 0 in front (type int, because MPI wants it to be int)
+        std::vector<int> MPISendElementCounts(n+1,0), MPISendFaceCounts(n+1,0), MPISendEdgeCounts(n+1,0), MPISendNodeCounts(n+1,0);
+        
+        int rank = Base::MPIContainer::Instance().getProcessorID();
+        
+        MPISendElementCounts[rank+1] = theMesh_->getNumberOfElements();
+        MPISendFaceCounts[rank+1] = theMesh_->getNumberOfFaces();
+        MPISendEdgeCounts[rank+1] = theMesh_->getNumberOfEdges();
+        MPISendNodeCounts[rank+1] = theMesh_->getNumberOfVertices();
+        
+        //tell the rest of the processes how much info the others have
+        MPI::Intracomm& comm = Base::MPIContainer::Instance().getComm();
+        comm.Allgather(MPI_IN_PLACE,1,Base::Detail::toMPIType(*MPISendElementCounts.data()),MPISendElementCounts.data()+1,1,Base::Detail::toMPIType(*MPISendElementCounts.data()));
+        comm.Allgather(MPI_IN_PLACE,1,Base::Detail::toMPIType(*MPISendElementCounts.data()),MPISendFaceCounts.data()+1,1,Base::Detail::toMPIType(*MPISendElementCounts.data()));
+        comm.Allgather(MPI_IN_PLACE,1,Base::Detail::toMPIType(*MPISendElementCounts.data()),MPISendEdgeCounts.data()+1,1,Base::Detail::toMPIType(*MPISendElementCounts.data()));
+        comm.Allgather(MPI_IN_PLACE,1,Base::Detail::toMPIType(*MPISendElementCounts.data()),MPISendNodeCounts.data()+1,1,Base::Detail::toMPIType(*MPISendElementCounts.data()));
+        
+        std::vector<int> MPISendElementStarts(n+1), MPISendFaceStarts(n+1), MPISendEdgeStarts(n+1), MPISendNodeStarts(n+1);
+        
+        std::partial_sum(MPISendElementCounts.begin(), MPISendElementCounts.end(), MPISendElementStarts.begin());
+        std::partial_sum(MPISendFaceCounts.begin(), MPISendFaceCounts.end(), MPISendFaceStarts.begin());
+        std::partial_sum(MPISendEdgeCounts.begin(), MPISendEdgeCounts.end(), MPISendEdgeStarts.begin());
+        std::partial_sum(MPISendNodeCounts.begin(), MPISendNodeCounts.end(), MPISendNodeStarts.begin());
+        
+        assert(MPISendElementStarts.back()==theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL));
+        assert(MPISendFaceStarts.back()>=theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL));
+        assert(MPISendEdgeStarts.back()==theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL));
+        assert(MPISendNodeStarts.back()==theMesh_->getNumberOfVertices(Base::IteratorType::GLOBAL));
+        
+        //pack the computed data to send it using MPI
+        std::vector<size_t> MPISendElementNumbers(MPISendElementStarts.back(),std::numeric_limits<size_t>::max());
+        std::vector<size_t> MPISendFaceNumbers(MPISendFaceStarts.back(),std::numeric_limits<size_t>::max());
+        std::vector<size_t> MPISendEdgeNumbers(MPISendEdgeStarts.back(),std::numeric_limits<size_t>::max());
+        std::vector<size_t> MPISendNodeNumbers(MPISendNodeStarts.back(),std::numeric_limits<size_t>::max());
+        
+        std::vector<size_t> MPISendElementPositions(MPISendElementStarts.back(),std::numeric_limits<size_t>::max());
+        std::vector<size_t> MPISendFacePositions(MPISendFaceStarts.back(),std::numeric_limits<size_t>::max());
+        std::vector<size_t> MPISendEdgePositions(MPISendEdgeStarts.back(),std::numeric_limits<size_t>::max());
+        std::vector<size_t> MPISendNodePositions(MPISendNodeStarts.back(),std::numeric_limits<size_t>::max());
+        
+        auto currentElementNumber = MPISendElementNumbers.begin() + MPISendElementStarts[rank];
+        auto currentFaceNumber = MPISendFaceNumbers.begin() + MPISendFaceStarts[rank];
+        auto currentEdgeNumber = MPISendEdgeNumbers.begin() + MPISendEdgeStarts[rank];
+        auto currentNodeNumber = MPISendNodeNumbers.begin() + MPISendNodeStarts[rank];
+        
+        auto currentElementPosition = MPISendElementPositions.begin() + MPISendElementStarts[rank];
+        auto currentFacePosition = MPISendFacePositions.begin() + MPISendFaceStarts[rank];
+        auto currentEdgePosition = MPISendEdgePositions.begin() + MPISendEdgeStarts[rank];
+        auto currentNodePosition = MPISendNodePositions.begin() + MPISendNodeStarts[rank];
+#endif
+        size_t totalNrOfDOF(0), DIM(theMesh_->dimension());
         startPositionsOfElementsInTheMatrix_.resize(theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL));
         startPositionsOfFacesInTheMatrix_.resize(theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL));
         startPositionsOfEdgesInTheMatrix_.resize(theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL));
         startPositionsOfVerticesInTheMatrix_.resize(theMesh_->getNumberOfVertices(Base::IteratorType::GLOBAL));
-        for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(Base::IteratorType::GLOBAL); it != theMesh_->elementColEnd(Base::IteratorType::GLOBAL); ++it) {
-            if ((*it)->getNrOfBasisFunctions() > maxNrOfDOF) {
-                maxNrOfDOF = (*it)->getNrOfBasisFunctions();
-            }
-            startPositionsOfElementsInTheMatrix_[(*it)->getID()] = totalNrOfDOF;
-            totalNrOfDOF += (*it)->getLocalNrOfBasisFunctions();
-        }
-        if (DIM > 1) {
-            for (Base::MeshManipulator::FaceIterator it = theMesh_->faceColBegin(Base::IteratorType::GLOBAL); it != theMesh_->faceColEnd(Base::IteratorType::GLOBAL); ++it) {
-                startPositionsOfFacesInTheMatrix_[(*it)->getID()] = totalNrOfDOF;
-                totalNrOfDOF += (*it)->getLocalNrOfBasisFunctions();
-            }
-        }
-        for (std::vector< Base::Edge*>::iterator it = theMesh_->edgeColBegin(Base::IteratorType::GLOBAL); it != theMesh_->edgeColEnd(Base::IteratorType::GLOBAL); ++it) {
-            startPositionsOfEdgesInTheMatrix_[(*it)->getID()] = totalNrOfDOF;
-            totalNrOfDOF += (*it)->getLocalNrOfBasisFunctions();
-        }
-        for(Base::Node* node : theMesh_->getVerticesList(Base::IteratorType::GLOBAL))
+        for(Base::Element* element : theMesh_->getElementsList())
         {
+#ifdef HPGEM_USE_MPI
+            *currentElementNumber=element->getID();
+            *currentElementPosition=totalNrOfDOF;
+            ++currentElementNumber;
+            ++currentElementPosition;
+#else
+            startPositionsOfElementsInTheMatrix_[element->getID()] = totalNrOfDOF;
+#endif
+            totalNrOfDOF += element->getLocalNrOfBasisFunctions();
+            for(size_t i = 0; i < element->getNrOfFaces(); ++i)
+            {
+                //faces at the boundary of the subdomain should also be added only once, so add them here is the left element of the face is in the subdomain
+                if(element->getFace(i)->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY && element->getFace(i)->getPtrElementLeft() == element)
+                {
+#ifdef HPGEM_USE_MPI
+                    *currentFaceNumber=element->getFace(i)->getID();
+                    *currentFacePosition=totalNrOfDOF;
+                    ++currentFaceNumber;
+                    ++currentFacePosition;
+#else
+                    startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] = totalNrOfDOF;
+#endif
+                    totalNrOfDOF += element->getFace(i)->getLocalNrOfBasisFunctions();
+                }
+                    
+            }
+        }
+        //DIM == 1 faces and nodes are the same entities, skip one of them
+        if(DIM > 1)
+        {
+            for(Base::Face* face : theMesh_->getFacesList())
+            {
+                //skip faces at the subdomain boundary because we already treated them
+                if(face->getFaceType() != Geometry::FaceType::SUBDOMAIN_BOUNDARY)
+                {
+#ifdef HPGEM_USE_MPI
+                    *currentFaceNumber=face->getID();
+                    *currentFacePosition=totalNrOfDOF;
+                    ++currentFaceNumber;
+                    ++currentFacePosition;
+#else
+                    startPositionsOfFacesInTheMatrix_[face->getID()] = totalNrOfDOF;
+#endif
+                    totalNrOfDOF += face->getLocalNrOfBasisFunctions();
+                }
+            }
+        }
+        for(Base::Edge* edge : theMesh_->getEdgesList())
+        {
+#ifdef HPGEM_USE_MPI
+            *currentEdgeNumber=edge->getID();
+            *currentEdgePosition=totalNrOfDOF;
+            ++currentEdgeNumber;
+            ++currentEdgePosition;
+#else
+            startPositionsOfEdgesInTheMatrix_[edge->getID()] = totalNrOfDOF;
+#endif
+            totalNrOfDOF += edge->getLocalNrOfBasisFunctions();
+        }
+        for(Base::Node* node : theMesh_->getVerticesList())
+        {
+#ifdef HPGEM_USE_MPI
+            *currentNodeNumber=node->getID();
+            *currentNodePosition=totalNrOfDOF;
+            ++currentNodeNumber;
+            ++currentNodePosition;
+#else
             startPositionsOfVerticesInTheMatrix_[node->getID()] = totalNrOfDOF;
+#endif
             totalNrOfDOF += node->getLocalNrOfBasisFunctions();
         }
 
-
-        int *numberOfPositionsPerRow=new int[totalNrOfDOF];
-        for (int i = 0; i < totalNrOfDOF; ++i) {
-            numberOfPositionsPerRow[i] = 0;
-        }
-
-        for (Base::Element* element : theMesh_->getElementsList()) {
-            for (int j = 0; j < element->getLocalNrOfBasisFunctions(); ++j) {
-                numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j] += element->getNrOfBasisFunctions();
-            }
-            for (int i = 0; i < element->getReferenceGeometry()->getNrOfCodim1Entities(); ++i) {
-                for (int j = 0; j < element->getFace(i)->getLocalNrOfBasisFunctions(); ++j) {
-                    numberOfPositionsPerRow[startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j] += element->getNrOfBasisFunctions();
-                }
-                for (int j = 0; j < element->getLocalNrOfBasisFunctions(); ++j) {
-                    numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j] += element->getNrOfBasisFunctions();
-                }
-            }
-            for (int i = 0; i < element->getNrOfEdges(); ++i) {
-                for (int j = 0; j < element->getEdge(i)->getLocalNrOfBasisFunctions(); ++j) {
-                    numberOfPositionsPerRow[startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j] += element->getNrOfBasisFunctions();
-                }
-            }
-            for (int i = 0; i < element->getNrOfNodes(); ++i) {
-                for (int j = 0; j < element->getNode(i)->getLocalNrOfBasisFunctions(); ++j) {
-                    numberOfPositionsPerRow[startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()] + j] += element->getNrOfBasisFunctions();
-                }
-            }
-        }
-
+#ifdef HPGEM_USE_MPI
         
+        assert(currentElementNumber == MPISendElementNumbers.begin() + MPISendElementStarts[rank+1]);
+        assert(currentFaceNumber <= MPISendFaceNumbers.begin() + MPISendFaceStarts[rank+1]);
+        assert(currentEdgeNumber == MPISendEdgeNumbers.begin() + MPISendEdgeStarts[rank+1]);
+        assert(currentNodeNumber == MPISendNodeNumbers.begin() + MPISendNodeStarts[rank+1]);
         
-        for (int i = 0; i < totalNrOfDOF; ++i) {
-            if (numberOfPositionsPerRow[i] > totalNrOfDOF) {
-                numberOfPositionsPerRow[i] = totalNrOfDOF; //a row cant have more nonzero entries than the number of columns
+        assert(currentElementPosition == MPISendElementPositions.begin() + MPISendElementStarts[rank+1]);
+        assert(currentFacePosition <= MPISendFacePositions.begin() + MPISendFaceStarts[rank+1]);
+        assert(currentEdgePosition == MPISendEdgePositions.begin() + MPISendEdgeStarts[rank+1]);
+        assert(currentNodePosition == MPISendNodePositions.begin() + MPISendNodeStarts[rank+1]);
+        
+        //offset by one to insert a zero at the front
+        std::vector<size_t> cumulativeDOF(n+1);
+        cumulativeDOF[rank+1]=totalNrOfDOF;
+        
+        //communicate...
+        comm.Allgather(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),cumulativeDOF.data()+1,1,Base::Detail::toMPIType(n));
+        
+        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendElementNumbers.data(),MPISendElementCounts.data()+1,MPISendElementStarts.data(),Base::Detail::toMPIType(n));
+        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendFaceNumbers.data(),MPISendFaceCounts.data()+1,MPISendFaceStarts.data(),Base::Detail::toMPIType(n));
+        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendEdgeNumbers.data(),MPISendEdgeCounts.data()+1,MPISendEdgeStarts.data(),Base::Detail::toMPIType(n));
+        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendNodeNumbers.data(),MPISendNodeCounts.data()+1,MPISendNodeStarts.data(),Base::Detail::toMPIType(n));
+        
+        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendElementPositions.data(),MPISendElementCounts.data()+1,MPISendElementStarts.data(),Base::Detail::toMPIType(n));
+        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendFacePositions.data(),MPISendFaceCounts.data()+1,MPISendFaceStarts.data(),Base::Detail::toMPIType(n));
+        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendEdgePositions.data(),MPISendEdgeCounts.data()+1,MPISendEdgeStarts.data(),Base::Detail::toMPIType(n));
+        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendNodePositions.data(),MPISendNodeCounts.data()+1,MPISendNodeStarts.data(),Base::Detail::toMPIType(n));
+        
+        std::partial_sum(cumulativeDOF.begin(),cumulativeDOF.end(),cumulativeDOF.begin());
+        
+        //and unpack the information
+        currentElementNumber = MPISendElementNumbers.begin();
+        currentFaceNumber = MPISendFaceNumbers.begin();
+        currentEdgeNumber = MPISendEdgeNumbers.begin();
+        currentNodeNumber = MPISendNodeNumbers.begin();
+        
+        currentElementPosition = MPISendElementPositions.begin();
+        currentFacePosition = MPISendFacePositions.begin();
+        currentEdgePosition = MPISendEdgePositions.begin();
+        currentNodePosition = MPISendNodePositions.begin();
+        
+        size_t currentDomain = 0;
+        auto startOFNextDomain = MPISendElementNumbers.begin() + MPISendElementCounts[currentDomain+1];
+        size_t offset = cumulativeDOF[currentDomain];
+        for(;currentElementNumber!=MPISendElementNumbers.end();++currentElementNumber,++currentElementPosition)
+        {
+            if(currentElementNumber==startOFNextDomain)
+            {
+                currentDomain++;
+                startOFNextDomain += MPISendElementCounts[currentDomain+1];
+                offset = cumulativeDOF[currentDomain];
+            }
+            assert(*currentElementNumber!=std::numeric_limits<size_t>::max());
+            startPositionsOfElementsInTheMatrix_[*currentElementNumber]=*currentElementPosition+offset;
+        }
+        
+        currentDomain = 0;
+        startOFNextDomain = MPISendFaceNumbers.begin() + MPISendFaceCounts[currentDomain+1];
+        offset = cumulativeDOF[currentDomain];
+        for(;currentFaceNumber!=MPISendFaceNumbers.end();++currentFaceNumber,++currentFacePosition)
+        {
+            if(currentFaceNumber==startOFNextDomain)
+            {
+                currentDomain++;
+                startOFNextDomain += MPISendFaceCounts[currentDomain+1];
+                offset = cumulativeDOF[currentDomain];
+            }
+            if(*currentFaceNumber!=std::numeric_limits<size_t>::max())
+                startPositionsOfFacesInTheMatrix_[*currentFaceNumber]=*currentFacePosition+offset;
+        }
+        
+        currentDomain = 0;
+        startOFNextDomain = MPISendEdgeNumbers.begin() + MPISendEdgeCounts[currentDomain+1];
+        offset = cumulativeDOF[currentDomain];
+        for(;currentEdgeNumber!=MPISendEdgeNumbers.end();++currentEdgeNumber,++currentEdgePosition)
+        {
+            if(currentEdgeNumber==startOFNextDomain)
+            {
+                currentDomain++;
+                startOFNextDomain += MPISendEdgeCounts[currentDomain+1];
+                offset = cumulativeDOF[currentDomain];
+            }
+            assert(*currentEdgeNumber!=std::numeric_limits<size_t>::max());
+            startPositionsOfEdgesInTheMatrix_[*currentEdgeNumber]=*currentEdgePosition+offset;
+        }
+        
+        currentDomain = 0;
+        startOFNextDomain = MPISendNodeNumbers.begin() + MPISendNodeCounts[currentDomain+1];
+        offset = cumulativeDOF[currentDomain];
+        for(;currentNodeNumber!=MPISendNodeNumbers.end();++currentNodeNumber,++currentNodePosition)
+        {
+            if(currentNodeNumber==startOFNextDomain)
+            {
+                currentDomain++;
+                startOFNextDomain += MPISendNodeCounts[currentDomain+1];
+                offset = cumulativeDOF[currentDomain];
+            }
+            assert(*currentNodeNumber!=std::numeric_limits<size_t>::max());
+            startPositionsOfVerticesInTheMatrix_[*currentNodeNumber]=*currentNodePosition+offset;
+        }
+        size_t MPIOffset = cumulativeDOF[rank];
+#else
+        size_t MPIOffset = 0;
+#endif
+       
+        //now construct the only bit of data where PETSc expects a local numbering...
+        std::vector<PetscInt> numberOfPostitionsPerRow;
+        numberOfPostitionsPerRow.resize(totalNrOfDOF);
+        for(Base::Element* element : theMesh_->getElementsList())
+        {
+            size_t rangeBegin = startPositionsOfElementsInTheMatrix_[element->getID()] - MPIOffset;
+            for(size_t i = 0; i < element->getLocalNrOfBasisFunctions(); ++i)
+            {
+                numberOfPostitionsPerRow[rangeBegin + i] = element->getNrOfBasisFunctions();
+            }
+        }
+        if(DIM > 1)
+        {
+            for(Base::Face* face : theMesh_->getFacesList())
+            {
+                size_t rangeBegin = startPositionsOfFacesInTheMatrix_[face->getID()] - MPIOffset;
+                for(size_t i = 0; i < face->getLocalNrOfBasisFunctions(); ++i)
+                {
+                    numberOfPostitionsPerRow[rangeBegin + i] = face->getNrOfBasisFunctions();
+                }
+            }
+        }
+        for(Base::Edge* edge : theMesh_->getEdgesList())
+        {
+            size_t rangeBegin = startPositionsOfEdgesInTheMatrix_[edge->getID()] - MPIOffset;
+            size_t totalNrOfBasisFunctions = 0;
+            for(size_t i = 0; i < edge->getNrOfElements(); ++i)
+            {
+                totalNrOfBasisFunctions += edge->getElement(i)->getNrOfBasisFunctions();
+            }
+            for(size_t i = 0; i < edge->getLocalNrOfBasisFunctions(); ++i)
+            {
+                numberOfPostitionsPerRow[rangeBegin + i] = totalNrOfBasisFunctions;
+            }
+        }
+        for(Base::Node* node : theMesh_->getVerticesList())
+        {
+            size_t rangeBegin = startPositionsOfVerticesInTheMatrix_[node->getID()] - MPIOffset;
+            size_t totalNrOfBasisFunctions = 0;
+            for(size_t i = 0; i < node->getNrOfElements(); ++i)
+            {
+                totalNrOfBasisFunctions += node->getElement(i)->getNrOfBasisFunctions();
+            }
+            for(size_t i = 0; i < node->getLocalNrOfBasisFunctions(); ++i)
+            {
+                numberOfPostitionsPerRow[rangeBegin + i] = totalNrOfBasisFunctions;
             }
         }
         
-        int ierr = MatCreateAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, totalNrOfDOF, totalNrOfDOF, -1, numberOfPositionsPerRow, 0, NULL, &A_);
-        MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE); //the estimate is accurate for most matrices, but if you want to do something conforming with face matrices you need more
+        int ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNrOfDOF, totalNrOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPostitionsPerRow.data(), 0, NULL, &A_);
+        MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE); //the estimate should be accurate, but assumes all the data is in the local part
         ierr = MatSetUp(A_);
         CHKERRV(ierr);
-        delete[] numberOfPositionsPerRow;
         //}
         reset();
     }

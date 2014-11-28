@@ -20,6 +20,8 @@
  */
 #ifndef FaceIntegral_hpp
 #define FaceIntegral_hpp
+
+#include <functional>
 //------------------------------------------------------------------------------
 // Package configuration (namespace Integration):
 //------------------------------------------------------------------------------
@@ -29,9 +31,17 @@
 
 //------------------------------------------------------------------------------
 
+namespace LinearAlgebra {
+    class NumericalVector;
+}
+
 namespace Base {
 	class Face;
 	class ShortTermStorageFaceBase;
+}
+
+namespace Geometry {
+    class PointReference;
 }
 
 namespace QuadratureRules {
@@ -79,6 +89,10 @@ namespace Integration
         //! \brief Do the face integration using given Gauss integration rule.
         template <class ReturnTrait1>
         void integrate(FaceT* fa, FaceIntegrandBase<ReturnTrait1>* integrand, ReturnTrait1& result, const QuadratureRulesT* qdrRule = nullptr);
+        
+        //! \brief Nice version accepting an appropriate std::function
+        template <class ReturnTrait1>
+        void integrate(FaceT* fa, std::function<void(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&, ReturnTrait1&)> integrandFunc, ReturnTrait1& result, const QuadratureRulesT* qdrRule = nullptr);
         
         /*template <typename OBJ, typename IntegrandT>
         void    integrate(FaceT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = NULL);*/

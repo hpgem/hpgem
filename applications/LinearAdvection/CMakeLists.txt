@@ -6,6 +6,7 @@ include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 add_executable(LinearAdvection.out 
 		main.cpp
                 ${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingTriangle.cpp
+                ${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingSquare.cpp
                 ${hpGEM_SOURCE_DIR}/kernel/Utilities/helperFunctions.cpp
 
         	${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp

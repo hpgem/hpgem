@@ -35,6 +35,8 @@
 #include "Geometry/Mappings/OutwardNormalVectorSign.hpp"
 #include "Geometry/Mappings/ConcatenatedMapping.hpp"
 
+#include <cassert>
+
 namespace Geometry
 {
 
@@ -52,8 +54,9 @@ namespace Geometry
     localFaceNumberLeft_(localFaceNumL),
     rightElementGeom_(ptrElemR),
     localFaceNumberRight_(localFaceNumR),
-    faceType_(INTERNAL),
+    faceType_(FaceType::INTERNAL),
     faceToFaceMapIndex_(Geometry::MAXSIZET) { }
+
 
     //! Constructor for boundary faces.
     FaceGeometry::FaceGeometry(ElementGeometryT* ptrElemL, 
@@ -205,6 +208,27 @@ namespace Geometry
         getElementGLeft()->referenceToPhysical(pElement, pPhys);
     }
 
+    //finding node numbers here is way to hard (see also the 288 lines of commented out constructor), leave that to someplace else
+    void FaceGeometry::initialiseFaceToFaceMapIndex(const std::vector<unsigned int>& leftVertices, const std::vector<unsigned int>& rightVertices) {
+        faceToFaceMapIndex_=getReferenceGeometry()->getCodim0MappingIndex(leftVertices,rightVertices);
+    }
+    
+    bool FaceGeometry::isInternal() const
+    {
+        if(faceType_ == FaceType::INTERNAL ||
+           faceType_ == FaceType::PERIODIC_BC ||
+           faceType_ == FaceType::SUBDOMAIN_BOUNDARY)
+        {
+            assert(rightElementGeom_!=nullptr);
+            return true;
+        }
+        else
+        {
+            assert(rightElementGeom_==nullptr);
+            return false;
+        }
+    }
+    
     ///(@tito) why ask for a face when you only copy fields of the faceGeometry???
     void FaceGeometry::copyFromParent(const FaceGeometryT& fa)
     {
@@ -242,12 +266,6 @@ namespace Geometry
     void FaceGeometry::printRefMatrix() const
     {
         std::cout << "(" << faceToFaceMapIndex_ << ") refMatrix: " << faceToFaceMapMatrix_ << "\n";
-    }
-
-    ///Computes the matrix that maps the physical face to the reference face.
-    void FaceGeometry::initialiseFaceToFaceMapIndex(const std::vector<unsigned int>& leftVertices, const std::vector<unsigned int>& rightVertices)
-    {
-        faceToFaceMapIndex_ = getReferenceGeometry()->getCodim0MappingIndex(leftVertices, rightVertices);
     }
     
 };

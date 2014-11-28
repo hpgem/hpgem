@@ -261,6 +261,7 @@ namespace Base
             {
                 if (configData_->numberOfTimeLevels_ > 0)
                 {
+                    assert(el->getTimeLevelData(0).size()==configData_->numberOfBasisFunctions_);
                     //std::cout<<"Receiving element "<<el->getID()<<" from process "<<it.first<<std::endl;
                     MPIContainer::Instance().receive(el->getTimeLevelData(0), it.first, el->getID() * 2 + 1);
                 }
@@ -272,7 +273,9 @@ namespace Base
             {
                 if (configData_->numberOfTimeLevels_ > 0)
                 {
+                    assert(el->getTimeLevelData(0).size()==configData_->numberOfBasisFunctions_);
                     //std::cout<<"Sending element "<<el->getID()<<" to process "<<it.first<<std::endl;
+                    assert(el->getTimeLevelData(0).size()==configData_->numberOfBasisFunctions_);
                     MPIContainer::Instance().send(el->getTimeLevelData(0), it.first, el->getID() * 2 + 1);
                 }
             }

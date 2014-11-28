@@ -55,7 +55,7 @@ namespace Base {
 
         bool addFace(Element* leftElementPtr, unsigned int leftElementLocalFaceNo,
                 Element* rightElementPtr, unsigned int rightElementLocalFaceNo,
-                const Geometry::FaceType& faceType = Geometry::WALL_BC);
+                const Geometry::FaceType& faceType = Geometry::FaceType::WALL_BC);
 
         //void addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs);
         void addEdge();
