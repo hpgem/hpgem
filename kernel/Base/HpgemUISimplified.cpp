@@ -95,7 +95,7 @@ namespace Base
         if (numberOfSnapshots.getValue() > 1L)
         {
             dtPlot = (endTime_ - startTime_) / double(numberOfSnapshots.getValue() - 1);
-            out.write(meshes_[0], "t=" + std::to_string(t), false, this);
+            out.write(meshes_[0], "solution", false, this,t);
             VTKWrite(VTKout, t);
         }
         else
@@ -169,7 +169,7 @@ namespace Base
             if (t == tPlot)
             {//yes, == for doubles, but see the start of the time loop
                 tPlot += dtPlot;
-                out.write(meshes_[0], "t=" + std::to_string(t), false, this);
+                out.write(meshes_[0], "solution", false, this,t);
                 VTKWrite(VTKout, t);
                 dt_ = origDt;
                 if (tPlot > endTime_)

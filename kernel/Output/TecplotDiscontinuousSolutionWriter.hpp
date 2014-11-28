@@ -57,7 +57,8 @@ namespace Output
         void write(const Base::MeshManipulator* mesh,
                    const std::string& zoneTitle,
                    const bool sameGeometry,
-                   TecplotSingleElementWriter* writeDataClass
+                   TecplotSingleElementWriter* writeDataClass,
+                   const double time=0
                    );
 
 	/// Write a zone with data from the current mesh to the stream held by the object. (class member write function)

@@ -90,12 +90,15 @@ namespace Output
      * given to it is in the coordinates of the reference element.
      *
      * WriteFunctor(EType&, const Point<dim>&, ostream&) can also be a function
+     *
+     * Setting the variable time enables you to create animations in TecPlot.
      */
     void TecplotDiscontinuousSolutionWriter::write(
                 const Base::MeshManipulator* mesh,
                 const std::string& zoneTitle,
                 const bool sameGeometry,
-                TecplotSingleElementWriter* writeDataClass)
+                TecplotSingleElementWriter* writeDataClass,
+                const double time)
         {
 
             long int posNumberOfNodes(0);
@@ -105,6 +108,9 @@ namespace Output
             output_ << "ZONE T = \""
                     << zoneTitle
                     << "\""
+                    << ", STRANDID = 1"
+                    << ", SOLUTIONTIME = "
+                    << time
                     << ", ZONETYPE = "
                     << elementType_[nDimensionsToWrite_]
                     << ", DATAPACKING = POINT";
