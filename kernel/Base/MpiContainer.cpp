@@ -39,9 +39,12 @@ int MPIContainer::getProcessorID(){
         return processorID_;
 }
 
+#ifdef HPGEM_USE_MPI
 MPI::Intracomm& MPIContainer::getComm() {
     return communicator_;
 }
+#endif
+
 
     
 }

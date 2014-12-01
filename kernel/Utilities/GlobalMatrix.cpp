@@ -446,56 +446,48 @@ namespace Utilities {
 #endif
        
         //now construct the only bit of data where PETSc expects a local numbering...
-        std::vector<PetscInt> numberOfPostitionsPerRow;
-        numberOfPostitionsPerRow.resize(totalNrOfDOF);
-        for(Base::Element* element : theMesh_->getElementsList())
-        {
-            size_t rangeBegin = startPositionsOfElementsInTheMatrix_[element->getID()] - MPIOffset;
-            for(size_t i = 0; i < element->getLocalNrOfBasisFunctions(); ++i)
-            {
-                numberOfPostitionsPerRow[rangeBegin + i] = element->getNrOfBasisFunctions();
+        std::vector<PetscInt> numberOfPositionsPerRow(totalNrOfDOF,0);
+        std::vector<PetscInt> offDiagonalPositionsPerRow(totalNrOfDOF,0);
+
+        for (Base::Element* element : theMesh_->getElementsList()) {
+            for (int j = 0; j < element->getLocalNrOfBasisFunctions(); ++j) {
+                numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
             }
-        }
-        if(DIM > 1)
-        {
-            for(Base::Face* face : theMesh_->getFacesList())
-            {
-                size_t rangeBegin = startPositionsOfFacesInTheMatrix_[face->getID()] - MPIOffset;
-                for(size_t i = 0; i < face->getLocalNrOfBasisFunctions(); ++i)
-                {
-                    numberOfPostitionsPerRow[rangeBegin + i] = face->getNrOfBasisFunctions();
+            for (int i = 0; i < element->getReferenceGeometry()->getNrOfCodim1Entities(); ++i) {
+                //conforming contributions
+                for (int j = 0; j < element->getFace(i)->getLocalNrOfBasisFunctions(); ++j) {
+                    numberOfPositionsPerRow[startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
+                }
+                
+                //flux term for DG
+                for (int j = 0; j < element->getLocalNrOfBasisFunctions(); ++j) {
+                    if(element->getFace(i)->getFaceType()==Geometry::FaceType::SUBDOMAIN_BOUNDARY) {
+                        offDiagonalPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
+                    } else if (element->getFace(i)->isInternal()){
+                        numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
+                    }
+                }
+            }
+            for (int i = 0; i < element->getNrOfEdges(); ++i) {
+                for (int j = 0; j < element->getEdge(i)->getLocalNrOfBasisFunctions(); ++j) {
+                    numberOfPositionsPerRow[startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
+                }
+            }
+            for (int i = 0; i < element->getNrOfNodes(); ++i) {
+                for (int j = 0; j < element->getNode(i)->getLocalNrOfBasisFunctions(); ++j) {
+                    numberOfPositionsPerRow[startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
                 }
             }
         }
-        for(Base::Edge* edge : theMesh_->getEdgesList())
-        {
-            size_t rangeBegin = startPositionsOfEdgesInTheMatrix_[edge->getID()] - MPIOffset;
-            size_t totalNrOfBasisFunctions = 0;
-            for(size_t i = 0; i < edge->getNrOfElements(); ++i)
-            {
-                totalNrOfBasisFunctions += edge->getElement(i)->getNrOfBasisFunctions();
-            }
-            for(size_t i = 0; i < edge->getLocalNrOfBasisFunctions(); ++i)
-            {
-                numberOfPostitionsPerRow[rangeBegin + i] = totalNrOfBasisFunctions;
-            }
-        }
-        for(Base::Node* node : theMesh_->getVerticesList())
-        {
-            size_t rangeBegin = startPositionsOfVerticesInTheMatrix_[node->getID()] - MPIOffset;
-            size_t totalNrOfBasisFunctions = 0;
-            for(size_t i = 0; i < node->getNrOfElements(); ++i)
-            {
-                totalNrOfBasisFunctions += node->getElement(i)->getNrOfBasisFunctions();
-            }
-            for(size_t i = 0; i < node->getLocalNrOfBasisFunctions(); ++i)
-            {
-                numberOfPostitionsPerRow[rangeBegin + i] = totalNrOfBasisFunctions;
+        
+        for (int i = 0; i < totalNrOfDOF; ++i) {
+            if (numberOfPositionsPerRow[i] > totalNrOfDOF) {
+                numberOfPositionsPerRow[i] = totalNrOfDOF; //a row cant have more nonzero entries than the number of columns
             }
         }
         
-        int ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNrOfDOF, totalNrOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPostitionsPerRow.data(), 0, NULL, &A_);
-        MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE); //the estimate should be accurate, but assumes all the data is in the local part
+        int ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNrOfDOF, totalNrOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
+        MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE); //the estimate is known to be wrong for conforming cases
         ierr = MatSetUp(A_);
         CHKERRV(ierr);
         //}
