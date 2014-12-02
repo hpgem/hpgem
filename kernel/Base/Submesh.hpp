@@ -25,11 +25,13 @@
 #include <vector>
 #include <map>
 
-namespace Geometry{
+namespace Geometry
+{
     class PointPhysical;
 }
 
-namespace Base{
+namespace Base
+{
     
     class Element;
     class Face;
@@ -37,7 +39,8 @@ namespace Base{
     class Node;
     class Mesh;
 
-class Submesh {
+class Submesh 
+{
 private:
     //Design note: I dont want mesh messing with private data members, but I only want mesh to access the functionality of mesh
     //Form a meta-physical point of view mesh is not derived from submesh (and it cannot provede the functionality of submesh),
@@ -54,8 +57,8 @@ private:
     
     //! adds a push or pull element. Make sure to add push elements after you fill this list of element belonging to this submesh
     //! processorID is the 0 based index of the processor that will be communicated with about this element
-    void addPush(Element* element,int processorID);
-    void addPull(Element* element,int processorID);
+    void addPush(Element* element, int processorID);
+    void addPull(Element* element, int processorID);
     
     //! adds a face to this submesh
     //note that interfacial faces should appear in the submesh of both their left and right element
@@ -74,21 +77,26 @@ private:
 public:
     //! Get const list of elements
     const std::vector<Element*>&          getElementsList() const {return elements_; }
+    
     //! Get non-const list of elements
     std::vector<Element*>&                getElementsList() { return elements_; }
 
     //! Get const list of faces
     const std::vector<Face*>&             getFacesList() const { return faces_; }
+    
     //! Get non-const list of faces
     std::vector<Face*>&                   getFacesList() { return faces_; }
 
     const std::vector<Edge*>&             getEdgesList() const {return edges_;}
+    
     std::vector<Edge*>&                   getEdgesList() {return edges_;}
 
     const std::vector<Node*>&             getNodesList() const {return nodes_;}
+    
     std::vector<Node*>&                   getNodesList() {return nodes_;}
     
     const std::map<int,std::vector<Element*> > & getPullElements() const { return pullElements_; }
+    
     const std::map<int,std::vector<Element*> > & getPushElements() const { return pushElements_; }
     
 private:

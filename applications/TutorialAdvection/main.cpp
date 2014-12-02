@@ -93,71 +93,29 @@ public:
         return true;
     }
 
-    ///Compute the mass matrix. 
+    ///Compute phi_i*(a.grad(phi_j)) on a reference point on an element for all 
+    ///basisfunctions phi_i and phi_j.
     ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
     ///so you wont have to do any transformations yourself
     void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result)
     {
         size_t numBasisFuncs = element->getNrOfBasisFunctions();
         result.resize(numBasisFuncs, numBasisFuncs);
+        LinearAlgebra::NumericalVector phiDerivJ(DIM_);
         for (size_t i = 0; i < numBasisFuncs; ++i)
         {
             for (size_t j = 0; j < numBasisFuncs; ++j)
             {
-                result(i, j) = element->basisFunction(i, point) * element->basisFunction(j, point);
+                element->basisFunctionDeriv(j, point, phiDerivJ);
+                result(j, i) = element->basisFunction(i, point)*(a * phiDerivJ);
             }
-        }
-    }
-    
-    ///Compute phi_i*(a.grad(phi_j)) on a reference point on an element for all 
-    ///basisfunctions phi_i and phi_j. Note that later on, we have to compute this
-    ///integral by hand, see beforeTimeIntegration.
-    void advectiveIntegrand(const ElementT* element, 
-                            const Geometry::PointReference& point,
-                            LinearAlgebra::Matrix& result)
-    {
-        size_t numBasisFuncs = element->getNrOfBasisFunctions();
-            result.resize(numBasisFuncs, numBasisFuncs);
-            LinearAlgebra::NumericalVector phiDerivJ(DIM_);
-            for (size_t i = 0; i < numBasisFuncs; ++i)
-            {
-                for (size_t j = 0; j < numBasisFuncs; ++j)
-                {
-                    element->basisFunctionDeriv(j, point, phiDerivJ);
-                    result(j, i) = element->basisFunction(i, point)*(a * phiDerivJ);
-                }
-            }
-    }
-    
-    ///Computes the element stiffness matrices for each element by using a Gauss
-    ///Quadrature rule and the integrand given in advectiveIntegrand.
-    void computeStiffnessMatrices()
-    {
-        //bind the function to compute the stiffness matrix to the function 
-        std::function<void(const ElementT*, const PointReferenceT&, LinearAlgebra::Matrix&)> advectiveFun = 
-        [this](const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& mat)
-        {
-            advectiveIntegrand(element,p,mat);
-        };
-        
-        //manual integration example
-        //for every element, make the matrix of the correct size, then execute
-        //the integration and set it as an element matrix.
-        Integration::ElementIntegral elIntegral(false);
-        LinearAlgebra::Matrix stiffness;
-        for (Base::Element* element : meshes_[0]->getElementsList())
-        {
-            size_t numBasisFuncs = element->getNrOfBasisFunctions();
-            stiffness.resize(numBasisFuncs, numBasisFuncs);
-            elIntegral.integrate(element, advectiveFun, stiffness);
-            element->setElementMatrix(stiffness, 1);
         }
     }
 
- /// \brief Compute the integrals of the left-hand side associated with faces.
+
+    /// \brief Compute the integrals of the left-hand side associated with faces.
     ///
-    ///For every internal face, we want to compute the integral of 
-    /// 
+    ///For every internal face, we want to compute the integral of the flux 
     ///for all basisfunctions phi_i and phi_j that are non-zero on that face.
     ///For boundary faces, similar expressions can be obtained depending of the type of boundary condition.
     ///This function will compute these integrands for all basisfunctions phi_i and phi_j
@@ -252,44 +210,43 @@ public:
     }
 
     ///TODO this cannot be automated because I dont know where the mass matrix is
+    ///Irana: Mass matrix is at element->getMassMatrix()
     // solve Mx=`residue`
+    //why write it at time level 0?
     void interpolate()
     {
-        LinearAlgebra::Matrix mass;
         LinearAlgebra::Matrix solution;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
             size_t numBasisFuncs = element->getNrOfBasisFunctions();
-            mass.resize(numBasisFuncs, numBasisFuncs);
-            element->getElementMatrix(mass, 0);
+            LinearAlgebra::Matrix mass = element->getMassMatrix();
             solution = element->getResidue();
             solution.resize(numBasisFuncs, 1);
             mass.solve(solution);
             solution.resize(1, numBasisFuncs);
             element->setTimeLevelData(0, solution);
         }
-    }
-    
+    }    
     
     void computeLocalResidual()
     {
-        LinearAlgebra::Matrix mass, residual, stiffness, oldData;
+        LinearAlgebra::Matrix residual, stiffness, oldData;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
             //collect data
             //first number of basis functions, then the mass matrix and finally
             //the stiffness matrix
             size_t numBasisFuncs = element->getNrOfBasisFunctions();
-            mass.resize(numBasisFuncs, numBasisFuncs);
             stiffness.resize(numBasisFuncs, numBasisFuncs);
-            element->getElementMatrix(mass, 0);
-            element->getElementMatrix(stiffness, 1);
+            element->getElementMatrix(stiffness, 0);
+            LinearAlgebra::Matrix mass = element->getMassMatrix();
             
             //Get the data of the initial time
             oldData = element->getTimeLevelData(0);
             oldData.resize(numBasisFuncs, 1);
             
             //compute residual=M*u+dt*S*u
+            //Try to avoid axpy?
             residual = mass*oldData;
             residual.axpy(dt_, stiffness * oldData);
             
@@ -301,13 +258,13 @@ public:
     
     void computeFluxResidual()
     {
-        LinearAlgebra::Matrix stiffness, residue;
+        LinearAlgebra::Matrix faceMatrix, residue;
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
             size_t numBasisFuncs = face->getNrOfBasisFunctions();
-            size_t numBasisFuncsLeft(face->getPtrElementLeft()->getNrOfBasisFunctions());
-            stiffness.resize(numBasisFuncs, numBasisFuncs);
-            face->getFaceMatrix(stiffness);
+            size_t numBasisFuncsLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
+            faceMatrix.resize(numBasisFuncs, numBasisFuncs);
+            face->getFaceMatrix(faceMatrix);
             residue.resize(numBasisFuncs, 1);
 
             ///TODO implement face->getData()
@@ -325,7 +282,7 @@ public:
             }
 
             //compute the flux
-            residue = stiffness*residue;
+            residue = faceMatrix*residue;
             residue.resize(1, numBasisFuncs);
             residue *= dt_;
             face->setResidue(residue);
@@ -333,10 +290,9 @@ public:
     }
     
     ///This function contains everything that has to be done before time-integration
-    ///can start. In this case, it is computing the stiffness matrix.
+    ///can start. In this case, nothing.
     void beforeTimeIntegration()
     {
-        computeStiffnessMatrices();
     }
 
 

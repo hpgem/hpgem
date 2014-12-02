@@ -28,49 +28,55 @@
 #include "FaceCacheData.hpp"
 #include "ElementCacheData.hpp"
 
-namespace Base {
-
-    Submesh::Submesh() {
-    }
-
+namespace Base
+{
+    Submesh::Submesh() { }
+    
     Submesh::Submesh(const Submesh& orig) :
     elements_(orig.elements_),
     edges_(orig.edges_),
     nodes_(orig.nodes_),
     faces_(orig.faces_),
     pullElements_(orig.pullElements_),
-    pushElements_(orig.pushElements_) {
-    }
-
-    Submesh::~Submesh() {
+    pushElements_(orig.pushElements_) { }
+    
+    Submesh::~Submesh() 
+    {
         //do NOT delete the data: it belongs to Mesh
     }
-
-    void Submesh::add(Element* element) {
+    
+    void Submesh::add(Element* element)
+    {
         elements_.push_back(element);
     }
-
-    void Submesh::addPush(Element* element, int processorID) {
+    
+    void Submesh::addPush(Element* element, int processorID)
+    {
         pushElements_[processorID].push_back(element);
     }
-
-    void Submesh::addPull(Element* element, int processorID) {
+    
+    void Submesh::addPull(Element* element, int processorID)
+    {
         pullElements_[processorID].push_back(element);
     }
-
-    void Submesh::add(Face* face) {
+    
+    void Submesh::add(Face* face)
+    {
         faces_.push_back(face);
     }
-
-    void Submesh::add(Edge* edge) {
+    
+    void Submesh::add(Edge* edge)
+    {
         edges_.push_back(edge);
     }
-
-    void Submesh::add(Node* node) {
+    
+    void Submesh::add(Node* node)
+    {
         nodes_.push_back(node);
     }
-
-    void Submesh::clear() {
+    
+    void Submesh::clear()
+    {
         elements_.clear();
         faces_.clear();
         edges_.clear();

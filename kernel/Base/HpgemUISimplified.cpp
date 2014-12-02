@@ -65,13 +65,14 @@ namespace Base
     auto& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file (without extentions)", false, "output");
     bool HpgemUISimplified::solve()
     {
-        initialise();
-        assert(checkInitialisation());
-        doAllElementIntegration();
-        doAllFaceIntegration();
-        beforeTimeIntegration();
-        interpolate();
+        initialise(); //make the grid
+        assert(checkInitialisation()); //check if we made a grid
+        doAllElementIntegration(); //compute all element integrals (except stiffness)
+        doAllFaceIntegration(); //compute all face integrals (upwind flux)
+        beforeTimeIntegration(); //compute stiffness matrix
+        interpolate(); //compute the coefficients for the initial conditions
 
+        //initialise the output files
         std::string outFileName = outputName.getValue();
 #ifdef HPGEM_USE_MPI
         outFileName = outFileName + "." + std::to_string(MPIContainer::Instance().getProcessorID());
@@ -104,6 +105,8 @@ namespace Base
         }
         double tPlot = startTime_ + dtPlot;
         
+        
+        //start time stepping
         while (t < endTime_)
         {
             t += dt_;
@@ -116,15 +119,6 @@ namespace Base
 
             computeLocalResidual();
 
-            for (auto& it : meshes_[0]->getMesh().getSubmesh().getPullElements())
-            {
-                for (Base::Element* element : it.second)
-                {
-                    residual.resize(configData_->numberOfUnknowns_, element->getNrOfBasisFunctions());
-                    element->setResidue(residual);
-                }
-            }
-
             //Now we need to perform the synchronisation between nodes.
             synchronize();
 
@@ -136,19 +130,19 @@ namespace Base
                     leftResidual = face->getPtrElementLeft()->getResidue();
                     rightResidual = face->getPtrElementRight()->getResidue();
                     residual = face->getResidue();
-                    int n = face->getPtrElementLeft()->getNrOfBasisFunctions();
+                    size_t numBasisFuncsLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
                     //can we get nicer matrix?
-                    assert(n == leftResidual.getNCols());
-                    assert(residual.getNCols() - n == rightResidual.getNCols());
+                    assert(numBasisFuncsLeft == leftResidual.getNCols());
+                    assert(residual.getNCols() - numBasisFuncsLeft == rightResidual.getNCols());
                     for (std::size_t i = 0; i < residual.getNRows(); ++i)
                     {
-                        for (std::size_t j = 0; j < n; ++j)
+                        for (std::size_t j = 0; j < numBasisFuncsLeft; ++j)
                         {
                             leftResidual(i, j) += residual(i, j);
                         }
-                        for (std::size_t j = n; j < residual.getNCols(); ++j)
+                        for (std::size_t j = numBasisFuncsLeft; j < residual.getNCols(); ++j)
                         {
-                            rightResidual(i, j - n) += residual(i, j);
+                            rightResidual(i, j - numBasisFuncsLeft) += residual(i, j);
                         }
                     }
                     face->getPtrElementLeft()->setResidue(leftResidual);
@@ -158,7 +152,7 @@ namespace Base
                 {
                     leftResidual = face->getPtrElementLeft()->getResidue();
                     residual = face->getResidue();
-                    residual.axpy(1., leftResidual);
+                    residual.axpy(1.0, leftResidual);
                     face->getPtrElementLeft()->setResidue(residual);
                 }
 
@@ -194,11 +188,9 @@ namespace Base
 
         for (MeshManipulator::FaceIterator citFe = Base::HpgemUI::faceColBegin(); citFe != Base::HpgemUI::faceColEnd(); ++citFe)
         {
-            int n = (*citFe)->getPtrElementLeft()->getNrOfUnknows()*(*citFe)->getPtrElementLeft()->getNrOfBasisFunctions();
-            if ((*citFe)->isInternal())
-                n += (*citFe)->getPtrElementRight()->getNrOfUnknows()*(*citFe)->getPtrElementRight()->getNrOfBasisFunctions();
-            fMatrixData.resize(n, n);
-            fVectorData.resize(n);
+            size_t numBasisFuncs = (*citFe)->getNrOfBasisFunctions();
+            fMatrixData.resize(numBasisFuncs, numBasisFuncs);
+            fVectorData.resize(numBasisFuncs);
             faceIntegral.integrate<LinearAlgebra::Matrix>((*citFe), this, fMatrixData);
             (*citFe)->setFaceMatrix(fMatrixData);
             faceIntegral.integrate<LinearAlgebra::NumericalVector>((*citFe), this, fVectorData);

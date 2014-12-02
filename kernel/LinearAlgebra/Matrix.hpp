@@ -103,7 +103,7 @@ namespace LinearAlgebra
         Matrix& operator*= (const double &scalar);
         
         //THIS SHOULD NOT RETURN ANYTHING, in PLACE S.N
-        /// \breif this does element by divived by a scalar 
+        /// \brief this does element by divived by a scalar 
         Matrix& operator/= (const double& scalar);
         
         /// \brief this does element by divived by a scalar

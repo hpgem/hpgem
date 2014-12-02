@@ -46,10 +46,13 @@ namespace Base
   public:
     typedef typename LinearAlgebra::Matrix               VectorOfDoubles;
     typedef typename std::vector<LinearAlgebra::Matrix>  VectorOfMatrices;
-
   public:
 
-    ElementData(unsigned int timeLevels, unsigned nrOfUnkowns, unsigned int nrOfBasisFunctions, unsigned int nrOfElementMatrixes=0, unsigned int nrOfElementVectors=0);
+    ElementData(unsigned int timeLevels, unsigned nrOfUnkowns, unsigned int nrOfBasisFunctions, unsigned int nrOfElementMatrixes=0, unsigned int nrOfElementVectors=0);    
+    
+    virtual ~ElementData()
+    {
+    }
 
     ///Set/update the element matrix. Routines in hpGEM will assume that for every element, expansioncoefficients of unknowns belonging the the same basisfunctions
     ///appear consecutively in the matrix.
@@ -61,11 +64,6 @@ namespace Base
     void setElementVector(const LinearAlgebra::NumericalVector&, int vectorID=0);
 
     virtual void getElementVector(LinearAlgebra::NumericalVector&, int vectorID=0) const;
-
-    virtual ~ElementData()
-    {
-    }
-
 
     /// Specify a time level index, return a vector containing the data for that time level.
     virtual const LinearAlgebra::Matrix&    getTimeLevelData(size_t timeLevel) const;

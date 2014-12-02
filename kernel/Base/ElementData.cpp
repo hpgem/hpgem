@@ -21,10 +21,12 @@
 
 #include "ElementData.hpp"
 #include "TestErrorDebug.hpp"
+#include "Element.hpp"
 
 #include "LinearAlgebra/Matrix.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
 #include <iostream>
+#include <functional>
 
 namespace Base
 {
@@ -73,7 +75,7 @@ namespace Base
         TestErrorDebug(vectorID < elementVector_.size(), "insufficient element vectors stored");
         vector = elementVector_[vectorID];
     }
-    
+
     void ElementData::setNumberOfBasisFunctions(unsigned int number)
     {
         nrOfBasisFunctions_ = number;

@@ -21,7 +21,7 @@
 #ifndef _Element_Impl_hpp
 #define _Element_Impl_hpp
 
-#include "Base/Element.hpp"
+#include "Element.hpp"
 #include "PhysGradientOfBasisFunction.hpp"
 #include "Edge.hpp"
 #include "Face.hpp"
@@ -36,6 +36,8 @@
 #include "Geometry/PointReference.hpp"
 #include "TestErrorDebug.hpp"
 #include "Node.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include "Geometry/Jacobian.hpp"
 
 namespace Base
 {
@@ -91,27 +93,21 @@ namespace Base
     {
         std::cout << "In the copy constructor of Element " << std::endl;
     }
+    
+    ///Very ugly default constructor that's only here because it is needed in
+    ///ShortTermStorageElementBase. 
+    ///\todo Remove the default constructor everywhere.
+    Element::Element():
+    ElementDataT(0, 0, 0, 0, 0)
+    {
+    }
 
     Element::~Element()
     {
         
     }
-//    template<unsigned int DIM>
-//    unsigned int
-//    Element<DIM>::getNumberOfDegreesOfFreedom()
-//    {
-//        return basisFunctionSet_.size();
-//    }
-//    
-//    template<unsigned int DIM>
-//    unsigned int 
-//    Element<DIM>::getNumberOfDegreesOfFreedom()const
-//    {
-//        return basisFunctionSet_.size();
-//    }
     
-    void
-    Element::setDefaultBasisFunctionSet(unsigned int position)
+    void Element::setDefaultBasisFunctionSet(unsigned int position)
     {
     	basisFunctionSetPositions_.resize(1,-1);
     	basisFunctionSetPositions_[0]=position;
@@ -125,8 +121,7 @@ namespace Base
         nrOfDOFinTheElement_=basisFunctionSet_->at(position)->size();
     }
 
-    void
-    Element::setFaceBasisFunctionSet(unsigned int position,int localFaceIndex)
+    void Element::setFaceBasisFunctionSet(unsigned int position,int localFaceIndex)
     {
     	if(basisFunctionSetPositions_.size()<1+getNrOfFaces()){
 			basisFunctionSetPositions_.resize(1+getNrOfFaces(),-1);
@@ -140,8 +135,7 @@ namespace Base
     	setNumberOfBasisFunctions(numberOfBasisFunctions);
     }
 
-    void
-    Element::setEdgeBasisFunctionSet(unsigned int position, int localEdgeIndex)
+    void Element::setEdgeBasisFunctionSet(unsigned int position, int localEdgeIndex)
     {
     	if(basisFunctionSetPositions_.size()<1+getNrOfFaces()+getNrOfEdges()){
 			basisFunctionSetPositions_.resize(1+getNrOfFaces()+getNrOfEdges(),-1);
@@ -155,8 +149,7 @@ namespace Base
     	setNumberOfBasisFunctions(numberOfBasisFunctions);
     }
 
-    void
-    Element::setVertexBasisFunctionSet(unsigned int position, int localVertexIndex)
+    void Element::setVertexBasisFunctionSet(unsigned int position, int localVertexIndex)
     {
     	if(basisFunctionSetPositions_.size()<1+getNrOfFaces()+getNrOfEdges()+getNrOfNodes()){
 			basisFunctionSetPositions_.resize(1+getNrOfFaces()+getNrOfEdges()+getNrOfNodes(),-1);
@@ -170,8 +163,7 @@ namespace Base
     	setNumberOfBasisFunctions(numberOfBasisFunctions);
     }
 
-    double
-    Element::basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p)const
+    double Element::basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p)const
     {
         TestErrorDebug((jDir<p.size()),"Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
 
@@ -192,18 +184,22 @@ namespace Base
         throw "in basisFunctionDeriv(jdir): asked for a basisFunction that doesn't exist!";
     }
     
-    double
-    Element::basisFunction(unsigned int i, const PointReferenceT& p)const
+    double Element::basisFunction(unsigned int i, const PointReferenceT& p)const
     {
     	const Base::BaseBasisFunction* function;
         int basePosition(0);
-        for(int j:basisFunctionSetPositions_){
-        	if(j!=-1){
+        for(int j:basisFunctionSetPositions_)
+        {
+        	if(j!=-1)
+            {
         		int n=basisFunctionSet_->at(j)->size();
-				if(i-basePosition<n){
+				if(i-basePosition<n)
+                {
 					function=basisFunctionSet_->at(j)->operator[](i-basePosition);
 					basePosition+=n;
-				}else{
+				}
+                else
+                {
 					basePosition+=n;
 				}
         	}
@@ -212,45 +208,38 @@ namespace Base
         //return basisFunctionSet_->eval(i,p);
     }
     
-    unsigned int
-    Element::getID()const
+    unsigned int Element::getID()const
     {
         return id_;
     }
     
-    unsigned int
-    Element::getID()
+    unsigned int Element::getID()
     {
         return id_;
     }
     
-    void
-    Element::setQuadratureRulesWithOrder(unsigned int quadrROrder)
+    void Element::setQuadratureRulesWithOrder(unsigned int quadrROrder)
     {
         quadratureRule_ =  Geometry::ElementGeometry::referenceGeometry_->getGaussQuadratureRule(quadrROrder);
     }
     
-    void
-    Element::setGaussQuadratureRule(GaussQuadratureRuleT* const quadR)
+    void Element::setGaussQuadratureRule(GaussQuadratureRuleT* const quadR)
     {
         quadratureRule_ = quadR;
     }
     
-    const QuadratureRules::GaussQuadratureRule*
-    Element::getGaussQuadratureRule() const
+    const QuadratureRules::GaussQuadratureRule* Element::getGaussQuadratureRule() const
     {
         return quadratureRule_;
     }
     
-    std::vector<Base::ElementCacheData >&
-    Element::getVecCacheData()
+    std::vector<Base::ElementCacheData >& Element::getVecCacheData()
     {
         return vecCacheData_;
     }
     
     
-    void
-    Element::getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const
+    void Element::getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const
     {
         unsigned int numberOfUnknows = ElementData::getNrOfUnknows();
         solution.resize(numberOfUnknows);
@@ -269,8 +258,7 @@ namespace Base
         }
     }
     
-    void
-    Element::basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+    void Element::basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
@@ -287,8 +275,7 @@ namespace Base
         throw "in basisFunction: asked for a basisFunction that doesn't exist!";
     }
     
-    void
-    Element::basisFunctionCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+    void Element::basisFunctionCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
@@ -305,10 +292,10 @@ namespace Base
         throw "in basisFunctionCurl: asked for a basisFunction that doesn't exist!";
     }
 
-    void
-    Element::basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* wrapper) const
+    void Element::basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* wrapper) const
     {
-    	if(wrapper==NULL){
+    	if(wrapper==nullptr)
+        {
     		wrapper=this;//Apparently you can't default to this
     	}
     	const Base::BaseBasisFunction* function;
@@ -329,8 +316,7 @@ namespace Base
     }
 
 #ifndef NDEBUG
-    const Base::BaseBasisFunction*
-    Element::getBasisFunction(int i) const
+    const Base::BaseBasisFunction* Element::getBasisFunction(int i) const
     {
     	int basePosition(0);
     	for(int j:basisFunctionSetPositions_){
@@ -346,8 +332,7 @@ namespace Base
     }
 #endif
 
-    void
-    Element::setFace(int localFaceNr, const Face* face)
+    void Element::setFace(int localFaceNr, const Face* face)
     {
     	TestErrorDebug((face->getPtrElementLeft()==this&&face->localFaceNumberLeft()==localFaceNr)||
     			       (face->getPtrElementRight()==this&&face->localFaceNumberRight()==localFaceNr),"You are only allowed to set a face to a local face index that matches");
@@ -359,8 +344,7 @@ namespace Base
     	facesList_[localFaceNr]=face;
     }
 
-    void
-    Element::setEdge(int localEdgeNr, const Edge* edge)
+    void Element::setEdge(int localEdgeNr, const Edge* edge)
     {
     	if(edgesList_.size()<localEdgeNr+1)
     	{
@@ -370,8 +354,7 @@ namespace Base
     	edgesList_[localEdgeNr]=edge;
     }
 
-    void
-    Element::setNode(int localNodeNr, const Node* node)
+    void Element::setNode(int localNodeNr, const Node* node)
     {
     	if(nodesList_.size()<localNodeNr+1)
     	{
@@ -379,6 +362,44 @@ namespace Base
     		nodesList_.resize(localNodeNr+1);
     	}
     	nodesList_[localNodeNr]=node;
+    }
+    
+    ///Function that computes the mass matrix. First resize the mass matrix to 
+    ///the correct size, then for all quadrature points, compute the values of 
+    ///all the products of basisfunctions and add this with the appropriate weight
+    ///to the mass matrix.
+    void Element::computeMassMatrix()
+    {
+        //get the number of basisfunctions, dimension and number of quadrature 
+        //points on this element.
+        size_t numBasisFuncs = getNrOfBasisFunctions();
+        size_t dim = quadratureRule_->dimension();
+        size_t numQuadPoints = quadratureRule_->nrOfPoints();
+        
+        //make the mass matrix of the correct size and set all entries to zero.
+        massMatrix_.resize(numBasisFuncs,numBasisFuncs);
+        massMatrix_ *= 0;
+        
+        //declare the relevant auxiliary variables
+        LinearAlgebra::Matrix tempMatrix(numBasisFuncs,numBasisFuncs);        
+        PointReferenceT p(dim);
+        Geometry::Jacobian jac(dim,dim);        
+        
+        //for each quadrature point, compute the value of the product of the 
+        //basisfunctions, then add it with the correct weight to massMatrix_
+        for(size_t pIndex = 0; pIndex < numQuadPoints; ++pIndex)
+        {
+            quadratureRule_->getPoint(pIndex,p);
+            calcJacobian(p, jac);
+            for (size_t i = 0; i < numBasisFuncs; ++i)
+            {
+                for (size_t j = 0; j < numBasisFuncs; ++j)
+                {
+                    tempMatrix(i,j) = basisFunction(i,p) * basisFunction(j,p);
+                }
+            }
+            massMatrix_.axpy((quadratureRule_->weight(pIndex))*std::abs(jac.determinant()),tempMatrix);
+        }
     }
 }
 #endif

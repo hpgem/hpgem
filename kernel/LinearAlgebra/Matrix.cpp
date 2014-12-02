@@ -431,7 +431,8 @@ namespace LinearAlgebra
         
     }
 }
-namespace LinearAlgebra { 
+namespace LinearAlgebra 
+{ 
     /// \param[in] a : double scalar that is multiple by the matrix x
     /// \param[in] x : matrix that is multiple 
     /// \bug Does not undertake range checking.
@@ -586,12 +587,6 @@ namespace LinearAlgebra {
 //        os << "]";
         return os;
     }
-    
-    
-
-    
-    
-    
     
 }
 

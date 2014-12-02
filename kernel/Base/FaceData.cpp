@@ -25,71 +25,54 @@
 #include <iostream>
 #include "FaceCacheData.hpp"
 
-Base::FaceData::FaceData(unsigned int numberOfDOF, unsigned int numberOfFaceMatrices, unsigned int numberOfFaceVectors):
-	faceMatrix_(numberOfFaceMatrices),faceVector_(numberOfFaceVectors)
+
+Base::FaceData::FaceData(unsigned int numberOfDOF, unsigned int numberOfFaceMatrices, unsigned int numberOfFaceVectors) :
+faceMatrix_(numberOfFaceMatrices), faceVector_(numberOfFaceVectors) 
 {
-	//for(std::vector<LinearAlgebra::Matrix>::iterator it=faceMatrix_.begin();it!=faceMatrix_.end();++it){
-	//	it->resize(numberOfDOF,numberOfDOF);
-	//}
-	//for(std::vector<LinearAlgebra::NumericalVector>::iterator it=faceVector_.begin();it!=faceVector_.end();++it){
-	//	it->resize(numberOfDOF);
-	//}
 }
 
-void
-Base::FaceData::setFaceMatrix(const LinearAlgebra::Matrix& matrix, unsigned int matrixID)
+void Base::FaceData::setFaceMatrix(const LinearAlgebra::Matrix& matrix, unsigned int matrixID)
 {
-	if(matrixID>=faceMatrix_.size()){
-		std::cout<<"Warning: Setting a face matrix that was not preallocated. If this is expected, please allocate more face matrixes in the mesh generator"<<std::endl;
-		faceMatrix_.resize(matrixID+1);
-	}
-	faceMatrix_[matrixID].resize(matrix.getNRows(),matrix.getNCols());
-	faceMatrix_[matrixID]=matrix;
-}
-
-void
-Base::FaceData::getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID) const
-{
-	TestErrorDebug(matrixID<faceMatrix_.size(),"insufficient face matrixes stored");
-        //if(faceMatrix_[matrixID].size()==0){
-        //    faceMatrix_[matrixID].resize(matrix.getNRows(),matrix.getNCols());
-        //}
-	matrix=faceMatrix_[matrixID];
-}
-
-void
-Base::FaceData::setFaceVector(const LinearAlgebra::NumericalVector& vector, unsigned int vectorID)
-{
-	if(vectorID>=faceVector_.size()){
-		std::cout<<"Warning: Setting a face vector that was not preallocated. If this is expected, please allocate more face vectors in the mesh generator"<<std::endl;
-		faceVector_.resize(vectorID+1);
-	}
-	faceVector_[vectorID].resize(vector.size());
-	faceVector_[vectorID]=vector;
-}
-
-void
-Base::FaceData::getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID) const
-{
-	TestErrorDebug(vectorID<faceVector_.size(),"insufficient face vectors stored");
-        //if(faceVector_[vectorID].size()==0){
-        //    faceVector_[vectorID].resize(vector.size());
-        //}
-	vector=faceVector_[vectorID];
-}
-
-const LinearAlgebra::Matrix&
-    Base::FaceData::getResidue() const
+    if (matrixID >= faceMatrix_.size())
     {
-        //if(residue_.size()!=nrOfUnkowns_*nrOfBasisFunctions_){
-        //    residue_.resize(nrOfUnkowns_*nrOfBasisFunctions_);
-        //}
-        return residual_;
+        std::cout << "Warning: Setting a face matrix that was not preallocated. If this is expected, please allocate more face matrixes in the mesh generator" << std::endl;
+        faceMatrix_.resize(matrixID + 1);
     }
     
-    void
-    Base::FaceData::setResidue(LinearAlgebra::Matrix& residue)
+    faceMatrix_[matrixID].resize(matrix.getNRows(), matrix.getNCols());
+    faceMatrix_[matrixID] = matrix;
+}
+
+void Base::FaceData::getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID) const
+{
+    TestErrorDebug(matrixID < faceMatrix_.size(), "insufficient face matrixes stored");
+    matrix = faceMatrix_[matrixID];
+}
+
+void Base::FaceData::setFaceVector(const LinearAlgebra::NumericalVector& vector, unsigned int vectorID)
+{
+    if (vectorID >= faceVector_.size())
     {
-        residual_=residue;
+        std::cout << "Warning: Setting a face vector that was not preallocated. If this is expected, please allocate more face vectors in the mesh generator" << std::endl;
+        faceVector_.resize(vectorID + 1);
     }
+    faceVector_[vectorID].resize(vector.size());
+    faceVector_[vectorID] = vector;
+}
+
+void Base::FaceData::getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID) const
+{
+    TestErrorDebug(vectorID < faceVector_.size(), "insufficient face vectors stored");
+    vector = faceVector_[vectorID];
+}
+
+const LinearAlgebra::Matrix& Base::FaceData::getResidue() const
+{
+    return residual_;
+}
+
+void Base::FaceData::setResidue(LinearAlgebra::Matrix& residue)
+{
+    residual_ = residue;
+}
 

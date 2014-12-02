@@ -10,9 +10,11 @@
 #include <mpi.h>
 #endif
 
-namespace Base {
+namespace Base 
+{
 
-MPIContainer::MPIContainer() {
+MPIContainer::MPIContainer() 
+{
 #ifdef HPGEM_USE_MPI
     if(MPI::Is_initialized()){
         MPI::Group groupID=MPI::COMM_WORLD.Get_group();
@@ -28,19 +30,23 @@ MPIContainer::MPIContainer() {
 #endif
 }
 
-MPIContainer::~MPIContainer() {
+MPIContainer::~MPIContainer() 
+{
 }
 
-int MPIContainer::getNumProcessors(){
+int MPIContainer::getNumProcessors()
+{
         return numProcessors_;
 }
     
-int MPIContainer::getProcessorID(){
+int MPIContainer::getProcessorID()
+{
         return processorID_;
 }
 
 #ifdef HPGEM_USE_MPI
-MPI::Intracomm& MPIContainer::getComm() {
+MPI::Intracomm& MPIContainer::getComm() 
+{
     return communicator_;
 }
 #endif

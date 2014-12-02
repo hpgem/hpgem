@@ -263,139 +263,6 @@ public:
         }
     }
 
-    
-   /* bool solve() {
-        //do the integration
-        doAllElementIntegration();
-        doAllFaceIntegration();
-
-        //manual integration example
-        Integration::ElementIntegral elIntegral(false);
-        LinearAlgebra::Matrix stifness;
-        for (Base::Element* element : meshes_[0]->getElementsList()) {
-            int n(element->getNrOfBasisFunctions());
-            stifness.resize(n, n);
-            elIntegral.integrate(element, &advection, stifness);
-            element->setElementMatrix(stifness, 1);
-        }
-
-        //prepare tecplot output
-        std::ofstream outFile("output.dat");
-        Output::TecplotDiscontinuousSolutionWriter out(outFile, "simple advective movement", "01", "u");
-
-        //set the final few variables
-        double dt(0.0002), dtplot(0.05), tend(5.), t(0), tplot(t); //always plot the initial data
-        LinearAlgebra::Matrix mass, solution, leftResidual, rightResidual;
-        bool first(true);
-        
-        //finalise interpolation
-        for (Base::Element* element : meshes_[0]->getElementsList()) {
-            int n(element->getNrOfBasisFunctions());
-            mass.resize(n, n);
-            element->getElementMatrix(mass, 0);
-            LinearAlgebra::NumericalVector initialCondition(n);
-            element->getElementVector(initialCondition);
-            solution.resize(n, 1);
-            for (int i = 0; i < n; ++i) {///\BUG is it useful to have automated conversion from vectors to n by 1 matrices and back?
-                solution[i] = initialCondition[i];
-            }
-            mass.solve(solution);
-            solution.resize(1, n);
-            element->setTimeLevelData(0, solution);
-        }
-        
-        //start the time loop
-        while (t <= tend + 1e-10) {
-            if (t >= tplot - 1e-10) {
-                out.write(meshes_[0], "t=" + std::to_string(t), !first, this);
-                tplot += dtplot;
-            }
-            t += dt;
-            
-            std::cout << "SOLVIN! 5 " << std::endl;
-
-            //construct the RHS
-            for (Base::Element* element : meshes_[0]->getElementsList()) {
-                //collect data
-                int n = element->getNrOfBasisFunctions();
-                mass.resize(n, n);
-                stifness.resize(n, n);
-                leftResidual.resize(n, 1);
-                element->getElementMatrix(mass, 0);
-                element->getElementMatrix(stifness, 1);
-                solution = element->getTimeLevelData(0);
-                solution.resize(n, 1);
-                //compute residual=M*u+dt*S*u
-                leftResidual = mass*solution;
-                leftResidual.axpy(dt, stifness * solution);
-                leftResidual.resize(1, n);
-                element->setResidue(leftResidual);
-            }
-
-            std::cout << "SOLVIN! 6 " << std::endl;
-            
-            std::cout << "Syncing" << std::endl;
-            
-            //this bit could do with some interface improvements
-            for (Base::Face* face : meshes_[0]->getFacesList()) {
-                int n(face->getNrOfBasisFunctions()), nLeft(face->getPtrElementLeft()->getNrOfBasisFunctions());
-                stifness.resize(n, n);
-                face->getFaceMatrix(stifness);
-                solution.resize(n, 1);
-
-                //concatenate left and right data
-                for (int i = 0; i < n; ++i) {
-                    if (i < nLeft) {
-                        solution[i] = face->getPtrElementLeft()->getData(0, 0, i);
-                    } else {
-                        solution[i] = face->getPtrElementRight()->getData(0, 0, i - nLeft);
-                    }
-                }
-
-                //compute the flux
-                solution = stifness*solution;
-                solution *= dt;
-                leftResidual.resize(1, nLeft);
-                rightResidual.resize(1, n - nLeft);
-
-                //unconcatenate left and right data
-                for (int i = 0; i < n; ++i) {
-                    if (i < nLeft) {
-                        leftResidual[i] = solution[i];
-                    } else {
-                        rightResidual[i - nLeft] = solution[i];
-                    }
-                }
-
-                //add the flux to the residual
-                leftResidual.axpy(1., face->getPtrElementLeft()->getResidue());
-                face->getPtrElementLeft()->setResidue(leftResidual);
-                if (nLeft < n) {
-                    rightResidual.axpy(1., face->getPtrElementRight()->getResidue());
-                    face->getPtrElementRight()->setResidue(rightResidual);
-                }
-            }
-            
-            std::cout << "SOLVIN! 7 " << std::endl;
-
-            //compute the solution in the next time step based on the residual
-            for (Base::Element* element : meshes_[0]->getElementsList()) {
-                int n(element->getNrOfBasisFunctions());
-                mass.resize(n, n);
-                solution.resize(n, 1);
-                element->getElementMatrix(mass, 0);
-                solution = element->getResidue();
-                solution.resize(n, 1);
-                mass.solve(solution);
-                solution.resize(1, n);
-                element->setTimeLevelData(0, solution);
-            }
-            first = false;
-        }
-
-        return true;
-    }*/
-
 private:
 
     //number of elements per cardinal direction
@@ -412,11 +279,11 @@ const unsigned int Advection::DIM_(2);
 auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
 auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv) 
+{
     Base::parse_options(argc, argv);
-    try {
-        
-        auto start = std::chrono::high_resolution_clock::now();
+    try 
+    {
         
         Advection test(n.getValue(), p.getValue());
         test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, size_t timelevel)->double
@@ -426,13 +293,11 @@ int main(int argc, char **argv) {
             return solution[0];
         }, "value");
         test.solve();
-        
-        auto end = std::chrono::high_resolution_clock::now();
-        
-        std::cout << "this simulation took " << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << "ms" << std::endl;
 
         return 0;
-    } catch (const char* e) {
+    } 
+    catch (const char* e) 
+    {
         std::cout << e;
     }
 }
