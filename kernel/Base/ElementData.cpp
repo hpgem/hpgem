@@ -81,15 +81,17 @@ namespace Base
         nrOfBasisFunctions_ = number;
     }
     
-    const LinearAlgebra::Matrix& ElementData::getTimeLevelData(size_t timeLevel) const
+    const LinearAlgebra::NumericalVector ElementData::getTimeLevelData(size_t timeLevel) const
     {
         if (timeLevel < timeLevels_)
         {
-            if (expansionCoefficients_[timeLevel].size() != nrOfUnkowns_ * nrOfBasisFunctions_)
+            LinearAlgebra::Matrix thisLevelMatrix = expansionCoefficients_[timeLevel];
+            LinearAlgebra::NumericalVector coeffVec(nrOfBasisFunctions_);
+            for (size_t i = 0; i < nrOfBasisFunctions_; ++i)
             {
-                const_cast<LinearAlgebra::Matrix *> (&expansionCoefficients_[timeLevel])->resize(nrOfUnkowns_, nrOfBasisFunctions_);
+                coeffVec[i] = thisLevelMatrix[i];
             }
-            return expansionCoefficients_[timeLevel];
+            return coeffVec;
         }
         else
         {
@@ -101,10 +103,6 @@ namespace Base
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
         {
-            if (expansionCoefficients_[timeLevel].size() != nrOfUnkowns_ * nrOfBasisFunctions_)
-            {
-                const_cast<LinearAlgebra::Matrix *> (&expansionCoefficients_[timeLevel])->resize(nrOfUnkowns_, nrOfBasisFunctions_);
-            }
             return expansionCoefficients_[timeLevel](unknown, basisFunction);
         }
         else
@@ -137,7 +135,8 @@ namespace Base
             if (expansionCoefficients_[timeLevel].size() != nrOfUnkowns_ * nrOfBasisFunctions_)
             {
                 expansionCoefficients_[timeLevel].resize(nrOfUnkowns_, nrOfBasisFunctions_);
-            }
+            }            
+            
             LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
 
             for (size_t i = 0; i < unknown.size(); ++i)
@@ -151,11 +150,21 @@ namespace Base
         }
     }
     
-    void ElementData::setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::Matrix& unknown)
+    void ElementData::setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& unknown)
     {
         if (timeLevel < timeLevels_)
         {
-            expansionCoefficients_[timeLevel] = LinearAlgebra::Matrix(unknown);
+            if (expansionCoefficients_[timeLevel].size() != nrOfUnkowns_ * nrOfBasisFunctions_)
+            {
+                expansionCoefficients_[timeLevel].resize(nrOfUnkowns_, nrOfBasisFunctions_);
+            }            
+            
+            LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
+
+            for (size_t i = 0; i < unknown.size(); ++i)
+            {
+                mat[i] = unknown[i];
+            }
         }
         else
         {
@@ -173,12 +182,12 @@ namespace Base
         return nrOfBasisFunctions_;
     }
     
-    const typename ElementData::VectorOfDoubles& ElementData::getResidue() const
+    const typename LinearAlgebra::NumericalVector& ElementData::getResidue() const
     {
         return residue_;
     }
     
-    void ElementData::setResidue(VectorOfDoubles& residue)
+    void ElementData::setResidue(LinearAlgebra::NumericalVector& residue)
     {
         residue_ = residue;
     }

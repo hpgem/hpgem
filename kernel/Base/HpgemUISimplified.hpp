@@ -27,6 +27,7 @@
 #include "Integration/FaceIntegrandBase.hpp"
 #include "Output/TecplotSingleElementWriter.hpp"
 #include "Output/VTKTimeDependentWriter.hpp"
+#include <functional>
 
 namespace Integration 
 {
@@ -61,7 +62,7 @@ namespace Base
         /// needs to create the elements, and they need some basis functions variables.
     public:
 
-        HpgemUISimplified(unsigned int DIMension,int polynomialOrder=2);
+        HpgemUISimplified(unsigned int DIMension, int polynomialOrder=2);
 
         /// \brief Where the user creates a mesh
         bool virtual initialise()=0;
@@ -86,17 +87,17 @@ namespace Base
         
         virtual void beforeTimeIntegration(){}
         
-        virtual void computeLocalResidual()
+        virtual void computeRhsLocal()
         {
 #ifdef HPGEM_USE_MPI
-            throw "If you want to call the function \'computeLocalResidual\', please implement it";
+            throw "If you want to call the function \'computeRhsLocal\', please implement it";
 #endif
         }
         
-        virtual void computeFluxResidual()
+        virtual void computeRhsFaces()
         {
 #ifdef HPGEM_USE_MPI
-            throw "If you want to call the function \'computeFluxResidual\', please implement it";
+            throw "If you want to call the function \'computeRhsFaces\', please implement it";
 #endif
         }
         

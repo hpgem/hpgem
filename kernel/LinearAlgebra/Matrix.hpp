@@ -25,160 +25,175 @@
 // System includes
 #include <iostream>
 #ifdef LA_STL_VECTOR
-    #include <vector>
+#include <vector>
 #else
-    #include <valarray>
+#include <valarray>
 #endif
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
-    //We need the ostream for outputting and we encapulate from valarray.
-    #ifdef LA_STL_VECTOR
-        using std::vector;
-    #else
-        using std::valarray;
-    #endif
-    /// \class Matrix
-    /// \brief Data type for small dense matrix.
-    /// 
-    /// \details
-    /// Stores small dense matrix eficiently.
-    /// Since this class is inherited from std::valarray, it also inherits members of std::valarray
-    /// Note, valarry was speed tested and was shown to be quicker than stl vector and it very light weight
-    /// It only store doubles as this is the main type linear algebra is done on in hpGEM
-    /// It stores the matrix in fortran style to give quicker access to extern BLAS libaries.
-    class Matrix
-    {
-    public:
-        
-        /// \brief Default Matrix constructor : Simply creates a zero size matrix
-        Matrix();
-        
-        /// \brief Constructs a matrix of size n-rows by m-columns.
-        Matrix(const int n, const int m);
-        
-        /// \brief Constructs a matrix of size n-rows by m-columns and initialises all entry to a constant 
-        Matrix(const int n, const int m, const double& c);
-    
-        /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B and A are both matrices
-        Matrix(const Matrix& other);
-        
-        /// \brief Move Matrix from another Matrix
-        Matrix(Matrix&& other);
-    
-        /// \brief defines the operator (n,m) to access the element on row n and column m
-        double& operator()(int n, int m)
-        {
-            return data_[n + m*nRows_];
-        }
-                
-        /// \brief defines the operator (n,m) to access the element on row n and column m
-        const double& operator() (int n, int m) const
-        {
-            return data_[n + m*nRows_];
-        }
+  class NumericalVector;
+  //We need the ostream for outputting and we encapulate from valarray.
+#ifdef LA_STL_VECTOR
+  using std::vector;
+#else
+  using std::valarray;
+#endif
+  /// \class Matrix
+  /// \brief Data type for small dense matrix.
+  /// 
+  /// \details
+  /// Stores small dense matrix eficiently.
+  /// Since this class is inherited from std::valarray, it also inherits members of std::valarray
+  /// Note, valarry was speed tested and was shown to be quicker than stl vector and it very light weight
+  /// It only store doubles as this is the main type linear algebra is done on in hpGEM
+  /// It stores the matrix in fortran style to give quicker access to extern BLAS libaries.
 
-        /// WRONG!!
-        /// \brief Access the n linear element in the matrix. 
-        double& operator[](const int n);
-        
-            /// WRONG!!
-        const double& operator[](const int n) const;
-        
-        /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j
-        NumericalVector operator*(NumericalVector& right);
-        
-        /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j (constant version)
-        NumericalVector operator*(NumericalVector& right) const;
-        
-        
-            /// NEED ONE WITHOUT COPY!!!!
-        /// \brief Does matrix A_ij = B_ik * C_kj
-        Matrix operator* (Matrix &other);
-        Matrix operator* (const Matrix &other)const;
-        
-        /// \brief Does matrix A_ij=scalar*A_ij
-        //THIS SHOULD NOT RETURN ANYTHING, in PLACE S.N
-        Matrix& operator*= (const double &scalar);
-        
-        //THIS SHOULD NOT RETURN ANYTHING, in PLACE S.N
-        /// \brief this does element by divived by a scalar 
-        Matrix& operator/= (const double& scalar);
-        
-        /// \brief this does element by divived by a scalar
-        Matrix operator/ (const double& scalar);
-        
-        /// \brief Assigns the Matrix by a scalar
-        Matrix& operator=(const double& c);
-        
-        /// \brief Assigns one matrix to another.
-        Matrix& operator=(const Matrix& right);
-        
-        /// \brief Assigns one matrix to another.
-        Matrix& operator=(Matrix&& right);
-                    
-        /// \brief computeWedgeStuffVector. The answer is return in result which you should precreate.
-        void computeWedgeStuffVector(NumericalVector& result);
-        
-        /// \brief computeWedgeStuffVector. The answer is return in result which you should precreate.
-        void computeWedgeStuffVector(NumericalVector& result) const;
-        
-        /// \brief computerWedgeStuffVector and create and returns it in a vector. 
-        NumericalVector computeWedgeStuffVector();
-        
-        /// \brief Applies the matrix y=ax + y, where x is another matrix and a is a scalar
-        void axpy(double a, const Matrix& x);
-        
-        /// \brief Resize the Matrix to be n-Rows by m-columns
-        void resize(int n, int m);
-        
-        /// \brief Get total number of Matrix entries
-        const int size() const;
-   
-        /// \brief Get the number of rows
-        const int getNRows() const;
-        
-        /// \brief Get the number of columns
-        const int getNCols() const;
-        
-        /// \brief Return the LUfactorisation of the matrix
-        Matrix LUfactorisation() const;
-        
-        /// \brief return the inverse in the vector result. The size of result must match the matrix.
-        void inverse(Matrix& result) const;
-        
-        /// \brief solves Ax=B where A is the current matrix and B is passed in. The result is returned in B.
-        void solve(Matrix& B) const;
-        
-        double* data();
-        
-        const double* data() const;
-        
-    private:
-         /// The actually data of the matrix class
-        #ifdef LA_STL_VECTOR
-            vector<double> data_;
-        #else
-            valarray<double> data_;
-        #endif
-       
-        
-        
-        /// Stores the number of rows of the matrix
-        unsigned int nRows_;
-        
-        /// Store the number of columns of the matrix
-        unsigned int nCols_;
-        
-    };
+  class Matrix
+  {
+  public:
+
+    /// \brief Default Matrix constructor : Simply creates a zero size matrix
+    Matrix();
+
+    /// \brief Constructs a matrix of size n-rows by m-columns.
+    Matrix(const int n, const int m);
+
+    /// \brief Constructs a matrix of size n-rows by m-columns and initialises all entry to a constant 
+    Matrix(const int n, const int m, const double& c);
+
+    /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B and A are both matrices
+    Matrix(const Matrix& other);
+
+    /// \brief Move Matrix from another Matrix
+    Matrix(Matrix&& other);
+
+    /// \brief defines the operator (n,m) to access the element on row n and column m
+
+    double& operator()(int n, int m)
+    {
+      return data_[n + m * nRows_];
+    }
+
+    /// \brief defines the operator (n,m) to access the element on row n and column m
+
+    const double& operator() (int n, int m) const
+    {
+      return data_[n + m * nRows_];
+    }
+
+    /// WRONG!!
+    /// \brief Access the n linear element in the matrix. 
+    double& operator[](const int n) ;
+
+    /// WRONG!!
+    const double& operator[](const int n) const;
+
+    /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j
+    NumericalVector operator*(NumericalVector& right);
+
+    /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j (constant version)
+    NumericalVector operator*(NumericalVector& right) const;
+
+
+    /// NEED ONE WITHOUT COPY!!!!
+    /// \brief Does matrix A_ij = B_ik * C_kj
+    Matrix operator* (Matrix &other);
+    Matrix operator* (const Matrix &other)const;
     
-    /// Writes nices format enteries of the Matrix A to the stream os.
-    std::ostream& operator<<(std::ostream& os, const Matrix& A);
+    Matrix& operator+=(const Matrix& other);
+
+    /// \brief Does matrix A_ij=scalar*A_ij
+    Matrix& operator*= (const double &scalar);
+
+    /// \brief this does element by divived by a scalar 
+    Matrix& operator/= (const double& scalar);
     
+    /// \brief this does element by divived by a scalar
+    Matrix operator/ (const double& scalar);
+
+    /// \brief Assigns the Matrix by a scalar
+    Matrix& operator=(const double& c);
+
+    /// \brief Assigns one matrix to another.
+    Matrix& operator=(const Matrix& right);
+
+    /// \brief Assigns one matrix to another.
+    Matrix& operator=(Matrix&& right);
+
+    /// \brief computeWedgeStuffVector. The answer is return in result which you should precreate.
+    void computeWedgeStuffVector(NumericalVector& result);
+
+    /// \brief computeWedgeStuffVector. The answer is return in result which you should precreate.
+    void computeWedgeStuffVector(NumericalVector& result) const;
+
+    /// \brief computerWedgeStuffVector and create and returns it in a vector. 
+    NumericalVector computeWedgeStuffVector();
+
+    /// \brief Applies the matrix y=ax + y, where x is another matrix and a is a scalar
+    void axpy(double a, const Matrix& x);
+
+    /// \brief Resize the Matrix to be n-Rows by m-columns
+    void resize(int n, int m);
+    
+    /// \brief Glues two matrices with the same number of columns together
+    void concatenate(const Matrix& other);
+
+    /// \brief Get total number of Matrix entries
+    const int size() const;
+
+    /// \brief Get the number of rows
+    const int getNRows() const;
+
+    /// \brief Get the number of columns
+    const int getNCols() const;
+
+    /// \brief Return the LUfactorisation of the matrix
+    Matrix LUfactorisation() const;
+
+    /// \brief return the inverse in the vector result. The size of result must match the matrix.
+    void inverse(Matrix& result) const;
+
+    /// \brief solves Ax=B where A is the current matrix and B is passed in. The result is returned in B.
+    void solve(Matrix& B) const;
+    
+    /// \brief solves Ax=b where A is the current matrix and NumericalVector b 
+    /// is the input parameter. The result is returned in b.
+    void solve(NumericalVector& b) const;
+
+    double* data();
+
+    const double* data() const;
+
+  private:
+    /// The actually data of the matrix class
+#ifdef LA_STL_VECTOR
+    vector<double> data_;
+#else
+    valarray<double> data_;
+#endif
+
+
+    /// Stores the number of rows of the matrix
+    unsigned int nRows_;
+
+    /// Store the number of columns of the matrix
+    unsigned int nCols_;
+
+  } ;
+
+  /// Writes nices format enteries of the Matrix A to the stream os.
+  std::ostream& operator<<(std::ostream& os, const Matrix& A);
+  
+  ///Adds two matrices
+  Matrix operator+(const Matrix& mat1, const Matrix& mat2);
+  
+  ///Multiplies a matrix with a double
+  Matrix operator*(const double d, const Matrix& mat);
+
 }
 #endif
-    
+
 
 
 //

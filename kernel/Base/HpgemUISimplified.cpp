@@ -45,6 +45,7 @@ namespace Base
     auto& endTime = Base::register_argument<double>(0, "endTime", "end time of the simulation", false, 1);
     auto& startTime = Base::register_argument<double>(0, "startTime", "start time of the simulation", false, 0);
     auto& dt = Base::register_argument<double>(0, "dt", "time step of the simulation", false);
+    
     HpgemUISimplified::HpgemUISimplified(unsigned int DIM, int polynomialOrder)
     : HpgemUI(new GlobalData,
               new ConfigurationData(DIM, 1, polynomialOrder, numberOfSnapshots.getValue()))
@@ -69,7 +70,6 @@ namespace Base
         assert(checkInitialisation()); //check if we made a grid
         doAllElementIntegration(); //compute all element integrals (except stiffness)
         doAllFaceIntegration(); //compute all face integrals (upwind flux)
-        beforeTimeIntegration(); //compute stiffness matrix
         interpolate(); //compute the coefficients for the initial conditions
 
         //initialise the output files
@@ -89,14 +89,16 @@ namespace Base
             outFileName = "VTK/output";
         }
         Output::VTKTimeDependentWriter VTKout(outFileName, meshes_[0]);
+        
+        //initialise and set the time-related variables
         double t = startTime_;
+        double origDt = dt_;                
+        
         double dtPlot;
-        double origDt = dt_;
-        LinearAlgebra::Matrix leftResidual, rightResidual, residual;
         if (numberOfSnapshots.getValue() > 1L)
         {
             dtPlot = (endTime_ - startTime_) / double(numberOfSnapshots.getValue() - 1);
-            out.write(meshes_[0], "solution", false, this,t);
+            out.write(meshes_[0], "solution", false, this, t);
             VTKWrite(VTKout, t);
         }
         else
@@ -105,6 +107,8 @@ namespace Base
         }
         double tPlot = startTime_ + dtPlot;
         
+        //initialise the matrices for the right-hand side
+        LinearAlgebra::NumericalVector leftResidual, rightResidual, residual;
         
         //start time stepping
         while (t < endTime_)
@@ -117,42 +121,43 @@ namespace Base
                 t = tPlot;
             }
 
-            computeLocalResidual();
+            computeRhsLocal();
 
             //Now we need to perform the synchronisation between nodes.
             synchronize();
 
-            computeFluxResidual();
+            computeRhsFaces();
             for (Base::Face* face : meshes_[0]->getFacesList())
             {
                 if (face->isInternal())
                 {
                     leftResidual = face->getPtrElementLeft()->getResidue();
+                    
                     rightResidual = face->getPtrElementRight()->getResidue();
+                    
                     residual = face->getResidue();
+                    
                     size_t numBasisFuncsLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
                     //can we get nicer matrix?
-                    assert(numBasisFuncsLeft == leftResidual.getNCols());
-                    assert(residual.getNCols() - numBasisFuncsLeft == rightResidual.getNCols());
-                    for (std::size_t i = 0; i < residual.getNRows(); ++i)
+                    assert(numBasisFuncsLeft == leftResidual.size());
+
+                    for (std::size_t j = 0; j < numBasisFuncsLeft; ++j)
                     {
-                        for (std::size_t j = 0; j < numBasisFuncsLeft; ++j)
-                        {
-                            leftResidual(i, j) += residual(i, j);
-                        }
-                        for (std::size_t j = numBasisFuncsLeft; j < residual.getNCols(); ++j)
-                        {
-                            rightResidual(i, j - numBasisFuncsLeft) += residual(i, j);
-                        }
+                        leftResidual(j) += residual(j);
                     }
+                    for (std::size_t j = numBasisFuncsLeft; j < residual.size(); ++j)
+                    {
+                        rightResidual(j - numBasisFuncsLeft) += residual(j);
+                    }
+                    
                     face->getPtrElementLeft()->setResidue(leftResidual);
                     face->getPtrElementRight()->setResidue(rightResidual);
                 }
                 else
                 {
                     leftResidual = face->getPtrElementLeft()->getResidue();
-                    residual = face->getResidue();
-                    residual.axpy(1.0, leftResidual);
+                    residual = face->getResidue();                    
+                    residual += leftResidual;
                     face->getPtrElementLeft()->setResidue(residual);
                 }
 
@@ -203,14 +208,14 @@ namespace Base
         //numberOfUnknowns_ is the number of unknowns in the "real problem" you want a
         //solution for, this is automatically set to 1 in the contructor of hpgemUISimplified
         //ndof is now the size of your element matrix
-        unsigned int ndof = HpgemUI::configData_->numberOfBasisFunctions_ * HpgemUI::configData_->numberOfUnknowns_;
+        unsigned int ndof = HpgemUI::configData_->numberOfBasisFunctions_;
 
         //initialise the element matrix and element vector.
         LinearAlgebra::Matrix eMatrixData(ndof, ndof);
-        LinearAlgebra::Matrix initialData(configData_->numberOfUnknowns_, configData_->numberOfBasisFunctions_);
+        LinearAlgebra::NumericalVector initialData(configData_->numberOfBasisFunctions_);
         LinearAlgebra::NumericalVector eVectorData(ndof);
 
-        bool isUseCache(false);
+        bool isUseCache = false;
         Integration::ElementIntegral elIntegral(isUseCache);
         elIntegral.setStorageWrapper(new ShortTermStorageElementH1(meshes_[meshID]->dimension()));
 
@@ -220,19 +225,7 @@ namespace Base
             (*it)->setElementMatrix(eMatrixData);
             elIntegral.integrate<LinearAlgebra::NumericalVector>((*it), this, eVectorData);
             (*it)->setElementVector(eVectorData);
-            if (configData_->numberOfUnknowns_ == 1)
-            {
-                assert(initialData.getNCols() == eVectorData.size());
-                for (std::size_t i = 0; i < eVectorData.size(); ++i)
-                {
-                    initialData(0, i) = eVectorData[i];
-                }
-                (*it)->setResidue(initialData);
-            }
-
-
-            //cout << result;
-            //cout<< "#####################################END of ELEMENT######"<<endl;
+            (*it)->setResidue(eVectorData);
         }
     }
     

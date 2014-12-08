@@ -25,33 +25,41 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 #include "ElementCacheData.hpp"
 
-void Base::ShortTermStorageElementBase::referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical) const {
+void Base::ShortTermStorageElementBase::referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical) const 
+{
 			element_->referenceToPhysical(pointReference,pointPhysical);
 }
 
-void Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const {
+void Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const 
+{
 	jacobian=jac_;
-	if(!(currentPoint_==pointReference)){
-		std::cout<<"WARNING: you are using slow data access";//todo logger
+	if(!(currentPoint_==pointReference))
+    {
+		std::cout << "WARNING: you are using slow data access";//todo logger
 		element_->calcJacobian(pointReference,jacobian);
 	}
 }
 
-void Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) {
-	if(!(currentPoint_==pointReference)){
+void Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) 
+{
+	if(!(currentPoint_==pointReference))
+    {
 		currentPoint_=pointReference;
 		computeData();
 	}
 	jacobian=jac_;
 }
 
-void Base::ShortTermStorageElementBase::computeData() {
-	if(useCache_){
+void Base::ShortTermStorageElementBase::computeData() 
+{
+	if(useCache_)
+    {
             std::vector<ElementCacheData>& cache=const_cast<Element*>(element_)->getVecCacheData();
-            if(recomputeCache_||(cache.size()!=getGaussQuadratureRule()->nrOfPoints())){
+            if(recomputeCache_||(cache.size()!=getGaussQuadratureRule()->nrOfPoints()))
+            {
                 recomputeCacheOff();
                 int n=getGaussQuadratureRule()->nrOfPoints();
-                for(int i=0;i<n;++i){
+                for(int i = 0; i < n; ++i){
                     Geometry::PointReference p(currentPoint_.size());
                     getGaussQuadratureRule()->getPoint(i,p);
                     cache[i](element_,p);
@@ -59,23 +67,29 @@ void Base::ShortTermStorageElementBase::computeData() {
             }
             currentPointIndex_++;
             element_->calcJacobian(currentPoint_,jac_);
-	}else{
+	}
+    else
+    {
             element_->calcJacobian(currentPoint_,jac_);
 	}
 }
 
-void Base::ShortTermStorageElementBase::cacheOn() {
+void Base::ShortTermStorageElementBase::cacheOn() 
+{
 	useCache_=true;
 }
 
-void Base::ShortTermStorageElementBase::cacheOff() {
+void Base::ShortTermStorageElementBase::cacheOff() 
+{
 	useCache_=false;
 }
 
-void Base::ShortTermStorageElementBase::recomputeCacheOn() {
+void Base::ShortTermStorageElementBase::recomputeCacheOn() 
+{
 	recomputeCache_=true;
 }
 
-void Base::ShortTermStorageElementBase::recomputeCacheOff() {
+void Base::ShortTermStorageElementBase::recomputeCacheOff() 
+{
 	recomputeCache_=false;
 }

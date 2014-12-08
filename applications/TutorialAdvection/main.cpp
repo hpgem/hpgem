@@ -174,7 +174,7 @@ public:
     ///This is a periodic problem, so it just return 0
     void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::NumericalVector& result)
     {
-        int n = face->getNrOfBasisFunctions();
+        size_t n = face->getNrOfBasisFunctions();
         result.resize(n);
         result *= 0;
     }
@@ -209,28 +209,25 @@ public:
         out << value[0];
     }
 
-    ///TODO this cannot be automated because I dont know where the mass matrix is
-    ///Irana: Mass matrix is at element->getMassMatrix()
+    ///TODO put this in HpgemUISimplified
     // solve Mx=`residue`
-    //why write it at time level 0?
     void interpolate()
     {
-        LinearAlgebra::Matrix solution;
+        LinearAlgebra::NumericalVector solution;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
             size_t numBasisFuncs = element->getNrOfBasisFunctions();
             LinearAlgebra::Matrix mass = element->getMassMatrix();
             solution = element->getResidue();
-            solution.resize(numBasisFuncs, 1);
             mass.solve(solution);
-            solution.resize(1, numBasisFuncs);
             element->setTimeLevelData(0, solution);
         }
     }    
     
-    void computeLocalResidual()
+    void computeRhsLocal()
     {
-        LinearAlgebra::Matrix residual, stiffness, oldData;
+        LinearAlgebra::Matrix stiffness;
+        LinearAlgebra::NumericalVector residual, oldData;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
             //collect data
@@ -242,48 +239,29 @@ public:
             LinearAlgebra::Matrix mass = element->getMassMatrix();
             
             //Get the data of the initial time
+            //At the moment, oldData has 1 row, numBasisFuncs columns
             oldData = element->getTimeLevelData(0);
-            oldData.resize(numBasisFuncs, 1);
             
             //compute residual=M*u+dt*S*u
-            //Try to avoid axpy?
-            residual = mass*oldData;
-            residual.axpy(dt_, stiffness * oldData);
+            residual = (mass + (dt_ * stiffness)) * oldData;
             
-            //Transpose residual?
-            residual.resize(1, numBasisFuncs);
             element->setResidue(residual);
         }
     }
     
-    void computeFluxResidual()
+    void computeRhsFaces()
     {
-        LinearAlgebra::Matrix faceMatrix, residue;
+        LinearAlgebra::Matrix faceMatrix;
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
             size_t numBasisFuncs = face->getNrOfBasisFunctions();
             size_t numBasisFuncsLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
             faceMatrix.resize(numBasisFuncs, numBasisFuncs);
-            face->getFaceMatrix(faceMatrix);
-            residue.resize(numBasisFuncs, 1);
-
-            ///TODO implement face->getData()
-            //for now concatenate left and right data
-            for (size_t i = 0; i < numBasisFuncs; ++i)
-            {
-                if (i < numBasisFuncsLeft)
-                {
-                    residue[i] = face->getPtrElementLeft()->getData(0, 0, i);
-                }
-                else
-                {
-                    residue[i] = face->getPtrElementRight()->getData(0, 0, i - numBasisFuncsLeft);
-                }
-            }
+            face->getFaceMatrix(faceMatrix);            
+            LinearAlgebra::NumericalVector residue = face->getTimeLevelData(0);
 
             //compute the flux
             residue = faceMatrix*residue;
-            residue.resize(1, numBasisFuncs);
             residue *= dt_;
             face->setResidue(residue);
         }

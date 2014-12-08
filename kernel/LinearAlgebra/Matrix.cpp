@@ -23,6 +23,7 @@
 #include "GlobalNamespaceLinearAlgebra.hpp"
 #include "NumericalVector.hpp"
 #include <cassert>
+#include <algorithm>
 
 namespace LinearAlgebra
 {
@@ -82,9 +83,7 @@ namespace LinearAlgebra
     Matrix::Matrix(const int n, const int m):
     	data_(n*m),
     	nRows_(n),
-    	nCols_(m)
-    {
-    }
+    	nCols_(m){ }
     
     
     /// \param[in]  n The number of rows the matrix will have
@@ -101,9 +100,7 @@ namespace LinearAlgebra
 #endif
     	nRows_(n),
     	nCols_(m)
-    {
-    
-    }
+    { }
     
     
     /// \param[in] Matrix A i.e. the matrix to be copies.
@@ -111,37 +108,13 @@ namespace LinearAlgebra
     	data_(other.data_),
     	nRows_(other.nRows_),
     	nCols_(other.nCols_)
-    {
-    }
+    { }
     
     Matrix::Matrix(Matrix&& other) :
         data_(std::move(other.data_)),
         nRows_(other.nRows_),
         nCols_(other.nCols_)
-    {
-
-    }    
-    
-    
-//    /// \param[in] n The number of the row you want the element from
-//    /// \param[in] m The numebr of the column you want the element from
-//    /// \return double ref i.e. the value of the element you requested
-//    /// \bug Range checking has not been added yet.
-//*****S.N need to be brought to the hpp, due to compiling error in realease mode. Strange bug, need to be revistied
-
-//    inline double& Matrix::operator()(int n, int m)
-//    {
-//    	return data_[n + m*nRows_];
-//    }
-    
-    
-    /// \param[in] n The number of the row you want the element from
-    /// \param[in] m The numebr of the column you want the element from
-    /// \return double ref i.e. the value of the element you requested
-    /// \bug Range checking has not been added yet.
-    //*****S.N need to be brought to the hpp, due to compiling error in realease mode. Strange bug, need to be revistied
-    //inline const double& Matrix::operator() (int n, int m) const {return data_[n + m*nRows_];}
-    
+    { }    
     
     /// \param[in] n The number of the row you want the element from
     /// \return double i.e. the value of the element you requested
@@ -152,6 +125,22 @@ namespace LinearAlgebra
     double& Matrix::operator[](const int n){return data_[n];}
     
     const double& Matrix::operator[](const int n) const  {return data_[n];}
+    
+    /// \param[in] other : the Matrix that is added to this matrix
+    /// \return Matrix
+    Matrix& Matrix::operator+=(const Matrix& other)
+    {
+        //Make sure the matrices are the same size
+        assert (size() == other.size() && nCols_ == other.nCols_);
+        
+        //add the matrices element-wise
+        for (size_t i = 0; i < size(); ++i)
+        {
+            data_[i] += other[i];
+        }
+        
+        return (*this);            
+    }
     
     /// \details
     /*! Computes Matrix * vector and return the vector
@@ -212,7 +201,6 @@ namespace LinearAlgebra
         ///The result of the matrix is left.Nrows, right.NCols()
         Matrix C(i,k);
         
-        int i_one=1;
         double d_one=1.0;
         double d_zero=0.0;              
         
@@ -225,14 +213,13 @@ namespace LinearAlgebra
     Matrix Matrix::operator* (const Matrix &other )const
     {
         
-        assert (nCols_ == other.nRows_);
+        assert (nCols_ == other.nRows_);        
         
+        int i = nRows_;
+        int j = nCols_;
+        int k = other.getNCols();
         
-        int i=nRows_;
-        int j=nCols_;
-        int k=other.getNCols();
-        
-            ///The result of the matrix is left.Nrows, right.NCols()
+        //The result of the matrix is left.Nrows, right.NCols()
         Matrix C(i,k);
         
         int i_one=1;
@@ -240,12 +227,11 @@ namespace LinearAlgebra
         double d_zero=0.0;      
                 
         //Let the actual multiplication be done by Fortran
-        dgemm_("N","N",&i,&k,&j,&d_one,&((*(const_cast<Matrix *> (this)))[0]),&i,&(((const_cast<Matrix&> (other)))[0]),&j,&d_zero,&C[0],&i);
-        
-        
+        dgemm_("N","N",&i,&k,&j,&d_one,&((*(const_cast<Matrix *> (this)))[0]),&i,&(((const_cast<Matrix&> (other)))[0]),&j,&d_zero,&C[0],&i);     
         
         return C;
     }
+    
     
 
     /// \param[in] scalar : A double that each element of the matrix is multiplied by
@@ -256,7 +242,7 @@ namespace LinearAlgebra
             for (double& d : data_)
                 d *= scalar;
         #else
-            data_*=scalar;
+            data_ *= scalar;
         #endif
         return *this;
     }
@@ -470,6 +456,34 @@ namespace LinearAlgebra
         }
     }
     
+    /// If two matrices have the same number of columns, glue them together.
+    /// \todo Find a more elegant way to do this.
+    void Matrix::concatenate(const Matrix& other)
+    {
+        assert(nCols_ == other.nCols_);
+        
+#if LA_STL_VECTOR
+        std::vector<double> data_new(nCols_ * (nRows_ + other.nRows_));
+#else
+        std::valarray<double> data_new(nCols_ * (nRows_ + other.nRows_));
+#endif
+        
+        for (size_t col = 0; col < nCols_; ++col)
+        {
+            //First insert the values of this matrix, then of the other matrix.
+            //Index row stands for the row number in the new matrix.
+            for (size_t row = 0; row < nRows_ ; ++row)
+            {
+                data_new[row + col * (nRows_ + other.nRows_)] = data_[row + col * nRows_];                
+            }
+            for (size_t row = nRows_; row < nRows_ + other.nRows_; ++row)
+            {
+                data_new[row + col * (nRows_ + other.nRows_)] = other.data_[(row - nRows_) + col * other.nRows_];
+            }
+        }
+        nRows_ += other.nRows_;
+        data_ = data_new;
+    }
     
     /// \return int : the total number of entries
     const int Matrix::size() const {return nRows_*nCols_;}
@@ -522,12 +536,6 @@ namespace LinearAlgebra
         double work[lwork];
         
         dgetri_(&nc,&result[0],&nc,iPivot,&work[0],&lwork,&info);
-
-        
-        
-            //std::cout << "Mautrix="<<result<<std::endl;
-        
-//        std::cout << "ENDINVERSE"<<std::endl;
         
     }
     
@@ -536,66 +544,68 @@ namespace LinearAlgebra
     {
         Matrix matThis=*this;
         
-        int n=nRows_;
-        int nrhs=B.getNCols();
+        int n = nRows_;
+        int nrhs = B.getNCols();
         int info;
         
         int IPIV[n];
         
         dgesv_(&n,&nrhs,&matThis[0],&n,IPIV,&B[0],&n,&info);
-        
-        
     }
     
-    double* Matrix::data() {
+    void Matrix::solve(NumericalVector& b) const
+    {
+        Matrix matThis = (*this);
+        
+        int n = nRows_;
+        int nrhs = 1;
+        int info;
+        
+        int IPIV[n];
+        
+        dgesv_(&n,&nrhs,&matThis[0],&n,IPIV,&b[0],&n,&info);
+    }
+    
+    double* Matrix::data() 
+    {
         return data_.data();
     }
         
-    const double* Matrix::data() const {
+    const double* Matrix::data() const 
+    {
         return data_.data();
     }
     
-    
+    ///Print the matrix with () around each line and [] around the matrix.
     std::ostream& operator<<(std::ostream& os, const Matrix& A)
     {
-        unsigned int nRows=A.getNRows();
-        unsigned int nCols=A.getNCols();
-        os << "["<<std::endl;
-        for (int i=0; i<nRows; ++i)
+        size_t nRows = A.getNRows();
+        size_t nCols = A.getNCols();
+        os << "[" << std::endl;
+        for (size_t i = 0; i < nRows; ++i)
         {
             os << "(";
-
-             for(int j=0; j<nCols; ++j)
-                os<< A(i,j) <<"\t ";
-            os << ")"<<std::endl;
+             for (size_t j = 0; j < nCols; ++j)
+             {
+                os << A(i,j) << "\t ";
+             }
+            os << ")" << std::endl;
         }
-         os << "]";
-        
-//        for (int i=0; i<nRows-1; ++i) 
-//        {
-//            os << "[(";
-//            for(int j=0; j<nCols-1; ++j)
-//                os<< A(i,j) <<",";
-//            os << A(i, nCols-1) << "),\n ";
-//        }
-//    
-//        os << "(";
-//        for(int j=0; j<nCols-1; ++j)
-//            os<< A(nRows-1,j) <<",";
-//        os << A(nRows-1, nCols-1) << ")";
-//        
-//        os << "]";
+        os << "]";
         return os;
     }
     
-}
-
-
-
-
-
-
-
-
-
+    Matrix operator+(const Matrix& mat1, const Matrix& mat2)
+    {
+        Matrix mat3 = mat1;
+        mat3 += mat2;
+        return mat3;
+    }
     
+    Matrix operator*(const double d, const Matrix& mat)
+    {
+        Matrix matNew = mat;
+        matNew *= d;
+        return matNew;
+    }
+}

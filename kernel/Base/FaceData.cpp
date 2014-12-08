@@ -66,12 +66,12 @@ void Base::FaceData::getFaceVector(LinearAlgebra::NumericalVector& vector, unsig
     vector = faceVector_[vectorID];
 }
 
-const LinearAlgebra::Matrix& Base::FaceData::getResidue() const
+const LinearAlgebra::NumericalVector& Base::FaceData::getResidue() const
 {
     return residual_;
 }
 
-void Base::FaceData::setResidue(LinearAlgebra::Matrix& residue)
+void Base::FaceData::setResidue(LinearAlgebra::NumericalVector& residue)
 {
     residual_ = residue;
 }

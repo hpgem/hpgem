@@ -25,6 +25,7 @@
 //----------------------------------------------------------------
 #include "Base/ElementData.hpp"
 #include "Geometry/ElementGeometry.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 
 
 #include <vector>
@@ -74,13 +75,13 @@ namespace Base
     Element(const VectorOfPointIndexesT& globalNodeIndexes,
             const std::vector<const BasisFunctionSetT*>* basisFunctionSet,
             const VectorOfPhysicalPointsT& allNodes,
-            unsigned int nrOfUnkowns,
-            unsigned int nrOfTimeLevels,
-            unsigned int nrOfBasisFunc,
-            unsigned int id,
-            unsigned int numberOfElementMatrices = 0,
-            unsigned int numberOfElementVectors = 0,
-            const std::vector< int>& basisFunctionSetPositions = std::vector< int>(1, 0));
+            size_t nrOfUnkowns,
+            size_t nrOfTimeLevels,
+            size_t nrOfBasisFunc,
+            size_t id,
+            size_t numberOfElementMatrices = 0,
+            size_t numberOfElementVectors = 0,
+            const std::vector<int>& basisFunctionSetPositions = std::vector< int>(1, 0));
 
     Element(const Element& other);
 
@@ -170,7 +171,7 @@ namespace Base
     ///\brief Return the mass int(phi_i phi_j) matrix of this element.
     ///If the mass matrix is computed earlier, we just return it. Else, we compute
     ///the mass matrix, store it and return it.
-    LinearAlgebra::Matrix& getMassMatrix()
+    const LinearAlgebra::Matrix& getMassMatrix()
     {
       if (massMatrix_.size() == 0)
       {
@@ -190,7 +191,6 @@ namespace Base
 
   public:
     /// Output operator.
-
     friend std::ostream& operator<<(std::ostream& os, const Element& element)
     {
       os << '(';
@@ -217,7 +217,7 @@ namespace Base
     std::vector<const Node*> nodesList_;
 
     //IN the element, so don't count conforming DOF from faces/...
-    unsigned int nrOfDOFinTheElement_;
+    size_t nrOfDOFinTheElement_;
     
     ///Stores that mass matrix for this element
     LinearAlgebra::Matrix massMatrix_;

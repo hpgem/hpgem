@@ -46,12 +46,12 @@ namespace Base
     Element::Element(const VectorOfPointIndexesT& globalNodeIndexes,
                           const std::vector<const BasisFunctionSetT*>* basisFunctionSet,
                           const VectorOfPhysicalPointsT& allNodes,
-                          unsigned int nrOfUnkowns,
-                          unsigned int nrOfTimeLevels,
-                          unsigned int nrOfBasisFunc,
-                          unsigned int id,
-                          unsigned int numberOfElementMatrixes,
-                          unsigned int numberOfElementVectors,
+                          size_t nrOfUnkowns,
+                          size_t nrOfTimeLevels,
+                          size_t nrOfBasisFunc,
+                          size_t id,
+                          size_t numberOfElementMatrixes,
+                          size_t numberOfElementVectors,
                           const std::vector< int>& basisFunctionSetPositions):
         ElementGeometryT(globalNodeIndexes, allNodes),
         ElementDataT(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc,numberOfElementMatrixes,numberOfElementVectors),
@@ -62,17 +62,19 @@ namespace Base
         basisFunctionSetPositions_(basisFunctionSetPositions)
     {
         orderCoeff_ = 2;// for safety
-    	int numberOfBasisFunctions(0);
-    	for(int i=0;i<basisFunctionSetPositions_.size();++i)
+    	size_t numberOfBasisFunctions = 0;
+    	for (size_t i=0; i < basisFunctionSetPositions_.size(); ++i)
     	{
-    		numberOfBasisFunctions+=basisFunctionSet_->at(basisFunctionSetPositions_[i])->size();
+    		numberOfBasisFunctions += basisFunctionSet_->at(basisFunctionSetPositions_[i])->size();
     	}
     	setNumberOfBasisFunctions(numberOfBasisFunctions);
         setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(basisFunctionSetPositions_[0])->getOrder()+1);
         nrOfDOFinTheElement_=basisFunctionSet_->at(basisFunctionSetPositions_[0])->size();
         facesList_.assign(getReferenceGeometry()->getNrOfCodim1Entities(),nullptr);
-        if(getReferenceGeometry()->getNrOfCodim3Entities()>0)
+        if (getReferenceGeometry()->getNrOfCodim3Entities() > 0)
+        {
             edgesList_.assign(getReferenceGeometry()->getNrOfCodim2Entities(),nullptr);
+        }
         nodesList_.assign(getReferenceGeometry()->getNumberOfNodes(),nullptr);
     }
 
@@ -241,19 +243,20 @@ namespace Base
     
     void Element::getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const
     {
-        unsigned int numberOfUnknows = ElementData::getNrOfUnknows();
+        size_t numberOfUnknows = ElementData::getNrOfUnknows();
         solution.resize(numberOfUnknows);
         
-        for(int k=0;k<numberOfUnknows;++k){
-            solution[k]=0;
+        for(size_t k = 0; k < numberOfUnknows; ++k)
+        {
+            solution[k] = 0;
         }
         
-        const LinearAlgebra::Matrix& data = ElementData::getTimeLevelData(0);
-        for (int i=0; i < ElementData::getNrOfBasisFunctions(); ++i)
+        const LinearAlgebra::NumericalVector& data = ElementData::getTimeLevelData(0);
+        for (size_t i=0; i < ElementData::getNrOfBasisFunctions(); ++i)
         {
-            for (int k=0; k < numberOfUnknows; ++k)
+            for (size_t k=0; k < numberOfUnknows; ++k)
             {
-                solution[k] += data(k, i) * basisFunction(i, p);
+                solution[k] += data(i) * basisFunction(i, p);
             }
         }
     }
@@ -278,13 +281,17 @@ namespace Base
     void Element::basisFunctionCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
         int basePosition(0);
-        for(int j:basisFunctionSetPositions_){
+        for(int j:basisFunctionSetPositions_)
+        {
         	if(j!=-1){
         		int n=basisFunctionSet_->at(j)->size();
-				if(i-basePosition<n){
+				if(i-basePosition<n)
+                {
 					basisFunctionSet_->at(j)->evalCurl(i-basePosition,p,ret);
 					return;
-				}else{
+				}
+                else
+                {
 					basePosition+=n;
 				}
         	}

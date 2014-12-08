@@ -235,11 +235,6 @@ namespace LinearAlgebra
         for (int i=0;i<A.data_.size()-1;i++){os<< A(i)<<',';}
         os<< A(A.data_.size()-1)<<']';
         return os;
-    }
-    
-    
-
-    
-    
+    }    
     
 }

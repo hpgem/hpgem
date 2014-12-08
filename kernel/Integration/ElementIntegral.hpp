@@ -29,76 +29,76 @@
 
 namespace Base
 {
-  class Element;
-  class ShortTermStorageElementBase;
+    class Element;
+    class ShortTermStorageElementBase;
 }
 
 namespace QuadratureRules
 {
-  class GaussQuadratureRule;
+    class GaussQuadratureRule;
 }
 
 namespace Geometry
 {
-  class PointReference;
+    class PointReference;
 }
 
 namespace Integration
 {
-  template<class returntrait1>
-  class ElementIntegrandBase;
+    template<class returntrait1>
+    class ElementIntegrandBase;
 
-  class ElementIntegral
-  {
-  public:
-    typedef typename QuadratureRules::GaussQuadratureRule  QuadratureRulesT;
-    typedef typename Base::Element                         ElementT;
-    typedef typename Geometry::PointReference                           PointReferenceT;
+    class ElementIntegral
+    {
+    public:
+        typedef typename QuadratureRules::GaussQuadratureRule QuadratureRulesT;
+        typedef typename Base::Element ElementT;
+        typedef typename Geometry::PointReference PointReferenceT;
 
-  public:
+    public:
 
-    //! \brief Construct an ElementIntegral, either with or without cache.
-    ElementIntegral(bool useCache=false);
-    //! \brief Class destructor
-    ~ElementIntegral();
+        //! \brief Construct an ElementIntegral, either with or without cache.
+        ElementIntegral(bool useCache = false);
+        //! \brief Class destructor
+        ~ ElementIntegral();
 
-    //! \brief Start caching (geometry) information now.
-    void    cacheOn();
+        //! \brief Start caching (geometry) information now.
+        void cacheOn();
 
-    //! \brief Stop using cache. This routine is not required to delete any stored data.
-    void    cacheOff();
+        //! \brief Stop using cache. This routine is not required to delete any stored data.
+        void cacheOff();
 
-    //! \brief Set recompute the cache ON.
-    void    recomputeCacheOn();
+        //! \brief Set recompute the cache ON.
+        void recomputeCacheOn();
 
-    //! \brief Set recompute the cache OFF.
-    void    recomputeCacheOff();
+        //! \brief Set recompute the cache OFF.
+        void recomputeCacheOff();
 
-    ///\brief provide an Element wrapper that can be used to store transformed function data
-    ///this wrapper is responsible for transforming the functions to the reference coordinates
-    ///the default is suitable for 2D H1 conforming bases (no transformation for values and multiply with Jac^-T for derivatives)
-    ///this class will take over responsibility for the data management
-    void setStorageWrapper(Base::ShortTermStorageElementBase *transform);
+        ///\brief provide an Element wrapper that can be used to store transformed function data
+        ///this wrapper is responsible for transforming the functions to the reference coordinates
+        ///the default is suitable for 2D H1 conforming bases (no transformation for values and multiply with Jac^-T for derivatives)
+        ///this class will take over responsibility for the data management
+        void setStorageWrapper(Base::ShortTermStorageElementBase *transform);
 
-    //! \brief Directly integrate the integrand and return ReturnTraits1.
-    //! ReturnTrait1 needs to have the function axpy() implemented
-    template<class ReturnTrait1>
-    void    integrate(ElementT* el, ElementIntegrandBase<ReturnTrait1>* integrand, ReturnTrait1& result,
-                      const QuadratureRulesT * const qdrRule = nullptr);
+        //! \brief Directly integrate the integrand and return ReturnTraits1.
+        //! ReturnTrait1 needs to have the function axpy() implemented
+        template<class ReturnTrait1>
+        void integrate(ElementT* el, ElementIntegrandBase<ReturnTrait1>* integrand, ReturnTrait1& result,
+                const QuadratureRulesT * const qdrRule = nullptr);
 
-    template<class ReturnType>
-    void    integrate(ElementT* el,
-                      std::function<void(const ElementT*, const Geometry::PointReference&, ReturnType&) > integrand,
-                      ReturnType& result,
-                      const QuadratureRulesT * const qdrRule = nullptr);
+        template<class ReturnType>
+        void integrate(ElementT* el,
+                std::function<void(const ElementT*, const Geometry::PointReference&, ReturnType&) > integrand,
+                ReturnType& result,
+                const QuadratureRulesT * const qdrRule = nullptr);
 
 
-  private:
+    private:
 
-    bool useCache_;
+        bool useCache_;
 
-    Base::ShortTermStorageElementBase* localElement_;
-  } ;
+        Base::ShortTermStorageElementBase* localElement_;
+    };
 
 } // close namespace Integration
 

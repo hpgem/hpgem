@@ -232,7 +232,7 @@ namespace Base
       element_->getElementVector(vec, vectorID);
     }
 
-    virtual const LinearAlgebra::Matrix& getTimeLevelData(unsigned int timeLevel) const
+    virtual const LinearAlgebra::NumericalVector getTimeLevelData(unsigned int timeLevel) const
     {
       return element_->getTimeLevelData(timeLevel);
     }
@@ -252,7 +252,7 @@ namespace Base
       return element_->getNrOfBasisFunctions();
     }
 
-    virtual const VectorOfDoubles& getResidue() const
+    virtual const LinearAlgebra::NumericalVector& getResidue() const
     {
       return element_->getResidue();
     }

@@ -41,206 +41,223 @@
 #include "Base/ElementCacheData.hpp"
 #include "Base/CommandLineOptions.hpp"
 #include <cmath>
+void testMesh(Base::MeshManipulator* test)
+{
 
-void testMesh(Base::MeshManipulator* test) {
-	class :public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>{
-		void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-			int numBasisFuns=el->getNrOfBasisFunctions();
-			Geometry::PointPhysical pPhys(p.size());
-			el->referenceToPhysical(p,pPhys);
-			ret.resize(1,numBasisFuns);
-			for(int i=0;i<numBasisFuns;++i){
-				ret[i]=el->basisFunction(i,p);
-				for(int j=0;j<p.size();++j){
-					ret[i]*=pPhys[j];
-				}
-			}
-		}
-	}interpolation;
-	class :public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>{
-		void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-			int numBasisFuns=el->getNrOfBasisFunctions();
-			ret.resize(numBasisFuns,numBasisFuns);
-			for(int i=0;i<numBasisFuns;++i){
-				for(int j=0;j<numBasisFuns;++j){
-					ret(i,j)=el->basisFunction(i,p)*el->basisFunction(j,p);
-				}
-			}
-		}
-	}massMatrix;
-	class a:public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>{
-		void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
-			ret.resize(1);
-			int n=el->getNrOfBasisFunctions();
-			LinearAlgebra::NumericalVector temp1(p.size()),temp2(p.size());
-			for(int i=0;i<p.size();++i){
-				temp1[i]=0;
-			}
-			for(int i=0;i<n;++i){
-				temp2.resize(p.size());
-				el->basisFunctionDeriv(i,p,temp2);
-				temp1+=temp2*el->getData(0,0,i);
-                                //std::cout<<temp2<<" "<<el->getData(0,0,i)<<std::endl;
-			}
-			ret[0]=Base::L2Norm(temp1)*Base::L2Norm(temp1);
-                        //std::cout<<std::endl;
-                        //std::cout<<ret[0]<<std::endl;
-		}
-	}integrating;
-	std::cout.precision(14);
-	Integration::ElementIntegral elIntegral(false);
-	elIntegral.setStorageWrapper(new Base::ShortTermStorageElementH1(test->dimension()));
-	double total=0;
-	LinearAlgebra::NumericalVector result(1);
-	LinearAlgebra::Matrix expansion, M;
-	for(Base::Element* element:test->getElementsList()){
-		elIntegral.integrate(element,&interpolation,expansion);
-		elIntegral.integrate(element,&massMatrix,M);
-		M.inverse(M);
-		expansion=expansion*M;
-		element->setTimeLevelData(0,expansion);
-		elIntegral.integrate(element,&integrating,result);
-                //std::cout<<result[0]<<std::endl;
-		total+=result[0];
-	}
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    {
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        {
+            int numBasisFuns = el->getNrOfBasisFunctions();
+            ret.resize(numBasisFuns);
+            Geometry::PointPhysical pPhys(p.size());
+            el->referenceToPhysical(p, pPhys);
+            for (int i = 0; i < numBasisFuns; ++i)
+            {
+                ret[i] = el->basisFunction(i, p);
+                for (int j = 0; j < p.size(); ++j)
+                {
+                    ret[i] *= pPhys[j];
+                }
+            }
+        }
+    } interpolation;
 
-	std::cout<<total<<" "<<std::endl;
-	//assert(("derivatives",std::abs(total-4./3.+1./3.*test->dimension())<1e-12));
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
+    {
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret)
+        {
+            int numBasisFuns = el->getNrOfBasisFunctions();
+            ret.resize(numBasisFuns, numBasisFuns);
+            for (int i = 0; i < numBasisFuns; ++i)
+            {
+                for (int j = 0; j < numBasisFuns; ++j)
+                {
+                    ret(i, j) = el->basisFunction(i, p) * el->basisFunction(j, p);
+                }
+            }
+        }
+    } massMatrix;
+
+    class a : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    {
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        {
+            ret.resize(1);
+            int n = el->getNrOfBasisFunctions();
+            LinearAlgebra::NumericalVector temp1(p.size()), temp2(p.size());
+            for (int i = 0; i < p.size(); ++i)
+            {
+                temp1[i] = 0;
+            }
+            for (int i = 0; i < n; ++i)
+            {
+                temp2.resize(p.size());
+                el->basisFunctionDeriv(i, p, temp2);
+                temp1 += temp2 * el->getData(0, 0, i);
+                //std::cout<<temp2<<" "<<el->getData(0,0,i)<<std::endl;
+            }
+            ret[0] = Base::L2Norm(temp1) * Base::L2Norm(temp1);
+            //std::cout<<std::endl;
+            //std::cout<<ret[0]<<std::endl;
+        }
+    } integrating;
+    std::cout.precision(14);
+    Integration::ElementIntegral elIntegral(false);
+    elIntegral.setStorageWrapper(new Base::ShortTermStorageElementH1(test->dimension()));
+    double total = 0;
+    LinearAlgebra::NumericalVector result(1), expansion;
+    LinearAlgebra::Matrix M;
+    for (Base::Element* element : test->getElementsList())
+    {
+        elIntegral.integrate(element, &interpolation, expansion);
+        elIntegral.integrate(element, &massMatrix, M);
+        //M.inverse(M);
+        //expansion = expansion * M;
+        M.solve(expansion);
+        element->setTimeLevelData(0, expansion);
+        elIntegral.integrate(element, &integrating, result);
+        //std::cout<<result[0]<<std::endl;
+        total += result[0];
+    }
+
+    std::cout << total << " " << std::endl;
+    //assert(("derivatives",std::abs(total-4./3.+1./3.*test->dimension())<1e-12));
 }
+int main(int argc, char** argv)
+{
+    Base::parse_options(argc, argv);
+    // dim 1
+    Base::RectangularMeshDescriptor description1D(1), description2D(2), description3D(3);
+    description1D.bottomLeft_[0] = 0;
+    description2D.bottomLeft_[0] = 0;
+    description2D.bottomLeft_[1] = 0;
+    description3D.bottomLeft_[0] = 0;
+    description3D.bottomLeft_[1] = 0;
+    description3D.bottomLeft_[2] = 0;
+    description1D.topRight_[0] = 1;
+    description2D.topRight_[0] = 1;
+    description2D.topRight_[1] = 1;
+    description3D.topRight_[0] = 1;
+    description3D.topRight_[1] = 1;
+    description3D.topRight_[2] = 1;
+    description1D.boundaryConditions_[0] = Base::RectangularMeshDescriptor::SOLID_WALL;
+    description2D.boundaryConditions_[0] = Base::RectangularMeshDescriptor::SOLID_WALL;
+    description2D.boundaryConditions_[1] = Base::RectangularMeshDescriptor::SOLID_WALL;
+    description3D.boundaryConditions_[0] = Base::RectangularMeshDescriptor::SOLID_WALL;
+    description3D.boundaryConditions_[1] = Base::RectangularMeshDescriptor::SOLID_WALL;
+    description3D.boundaryConditions_[2] = Base::RectangularMeshDescriptor::SOLID_WALL;
 
-int main(int argc, char** argv){
-    Base::parse_options(argc,argv);
-	// dim 1
-	Base::RectangularMeshDescriptor description1D(1),description2D(2),description3D(3);
-	description1D.bottomLeft_[0]=0;
-	description2D.bottomLeft_[0]=0;
-	description2D.bottomLeft_[1]=0;
-	description3D.bottomLeft_[0]=0;
-	description3D.bottomLeft_[1]=0;
-	description3D.bottomLeft_[2]=0;
-	description1D.topRight_[0]=1;
-	description2D.topRight_[0]=1;
-	description2D.topRight_[1]=1;
-	description3D.topRight_[0]=1;
-	description3D.topRight_[1]=1;
-	description3D.topRight_[2]=1;
-	description1D.boundaryConditions_[0]=Base::RectangularMeshDescriptor::SOLID_WALL;
-	description2D.boundaryConditions_[0]=Base::RectangularMeshDescriptor::SOLID_WALL;
-	description2D.boundaryConditions_[1]=Base::RectangularMeshDescriptor::SOLID_WALL;
-	description3D.boundaryConditions_[0]=Base::RectangularMeshDescriptor::SOLID_WALL;
-	description3D.boundaryConditions_[1]=Base::RectangularMeshDescriptor::SOLID_WALL;
-	description3D.boundaryConditions_[2]=Base::RectangularMeshDescriptor::SOLID_WALL;
+    description1D.numElementsInDIM_[0] = 2;
+    //1D triangular meshes dont exist
+    Base::MeshManipulator *test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 1), false, false, false, 2, 0);
+    test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
+    testMesh(test);
+    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet1DH1Line(2));
+    testMesh(test);
 
-	description1D.numElementsInDIM_[0]=2;
-          //1D triangular meshes dont exist
-	Base::MeshManipulator *test = new Base::MeshManipulator(new Base::ConfigurationData(1,1,2,1),false,false,false,2,0);
-	test->createRectangularMesh(description1D.bottomLeft_,description1D.topRight_,description1D.numElementsInDIM_);
-	testMesh(test);
-	test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet1DH1Line(2));
-	testMesh(test);
+    delete test;
+    description1D.numElementsInDIM_[0] = 3;
+    test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 1), false, false, false, 2, 0);
+    test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
+    testMesh(test);
+    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet1DH1Line(2));
+    testMesh(test);
 
-	delete test;
-	description1D.numElementsInDIM_[0]=3;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(1,1,2,1),false,false,false,2,0);
-	test->createRectangularMesh(description1D.bottomLeft_,description1D.topRight_,description1D.numElementsInDIM_);
-	testMesh(test);
-	test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet1DH1Line(2));
-	testMesh(test);
+    // dim 2
 
-	// dim 2
+    delete test;
+    description2D.numElementsInDIM_[0] = 2;
+    description2D.numElementsInDIM_[1] = 3;
 
-	delete test;
-	description2D.numElementsInDIM_[0]=2;
-	description2D.numElementsInDIM_[1]=3;
+    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), false, false, false, 2, 0);
+    test->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
 
-	test = new Base::MeshManipulator(new Base::ConfigurationData(2,1,2,1),false,false,false,2,0);
-	test->createTriangularMesh(description2D.bottomLeft_,description2D.topRight_,description2D.numElementsInDIM_);
+    testMesh(test);
+    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
+    testMesh(test);
 
-	testMesh(test);
-	test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
-	testMesh(test);
+    delete test;
+    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), false, false, false, 2, 0);
+    test->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
+    testMesh(test);
+    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
+    testMesh(test);
 
-	delete test;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(2,1,2,1),false,false,false,2,0);
-	test->createRectangularMesh(description2D.bottomLeft_,description2D.topRight_,description2D.numElementsInDIM_);
-	testMesh(test);
-	test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
-	testMesh(test);
+    delete test;
+    description2D.numElementsInDIM_[0] = 3;
+    description2D.numElementsInDIM_[1] = 2;
 
-	delete test;
-	description2D.numElementsInDIM_[0]=3;
-	description2D.numElementsInDIM_[1]=2;
+    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), false, false, false, 2, 0);
+    test->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
 
-	test = new Base::MeshManipulator(new Base::ConfigurationData(2,1,2,1),false,false,false,2,0);
-	test->createTriangularMesh(description2D.bottomLeft_,description2D.topRight_,description2D.numElementsInDIM_);
+    testMesh(test);
+    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
+    testMesh(test);
 
-	testMesh(test);
-	test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
-	testMesh(test);
+    delete test;
+    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), false, false, false, 2, 0);
+    test->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
+    testMesh(test);
+    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
+    testMesh(test);
+    // dim 3
 
-	delete test;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(2,1,2,1),false,false,false,2,0);
-	test->createRectangularMesh(description2D.bottomLeft_,description2D.topRight_,description2D.numElementsInDIM_);
-	testMesh(test);
-	test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
-	testMesh(test);
-	// dim 3
+    delete test;
+    description3D.numElementsInDIM_[0] = 2;
+    description3D.numElementsInDIM_[1] = 2;
+    description3D.numElementsInDIM_[2] = 3;
 
-	delete test;
-	description3D.numElementsInDIM_[0]=2;
-	description3D.numElementsInDIM_[1]=2;
-	description3D.numElementsInDIM_[2]=3;
+    test = new Base::MeshManipulator(new Base::ConfigurationData(3, 1, 3, 1), false, false, false, 3, 0);
+    test->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
 
-	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,3,1),false,false,false,3,0);
-	test->createTriangularMesh(description3D.bottomLeft_,description3D.topRight_,description3D.numElementsInDIM_);
+    testMesh(test);
+    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
+    testMesh(test);
 
-	testMesh(test);
-	test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
-	testMesh(test);
+    delete test;
+    test = new Base::MeshManipulator(new Base::ConfigurationData(3, 1, 2, 1), false, false, false, 2, 0);
+    test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    testMesh(test);
+    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
+    testMesh(test);
 
-	delete test;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,1),false,false,false,2,0);
-	test->createRectangularMesh(description3D.bottomLeft_,description3D.topRight_,description3D.numElementsInDIM_);
-	testMesh(test);
-	test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
-	testMesh(test);
+    delete test;
+    description3D.numElementsInDIM_[0] = 2;
+    description3D.numElementsInDIM_[1] = 3;
+    description3D.numElementsInDIM_[2] = 2;
 
-	delete test;
-	description3D.numElementsInDIM_[0]=2;
-	description3D.numElementsInDIM_[1]=3;
-	description3D.numElementsInDIM_[2]=2;
+    test = new Base::MeshManipulator(new Base::ConfigurationData(3, 1, 3, 1), false, false, false, 3, 0);
+    test->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
 
-	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,3,1),false,false,false,3,0);
-	test->createTriangularMesh(description3D.bottomLeft_,description3D.topRight_,description3D.numElementsInDIM_);
+    testMesh(test);
+    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
+    testMesh(test);
 
-	testMesh(test);
-	test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
-	testMesh(test);
+    delete test;
+    test = new Base::MeshManipulator(new Base::ConfigurationData(3, 1, 2, 1), false, false, false, 2, 0);
+    test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    testMesh(test);
+    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
+    testMesh(test);
 
-	delete test;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,1),false,false,false,2,0);
-	test->createRectangularMesh(description3D.bottomLeft_,description3D.topRight_,description3D.numElementsInDIM_);
-	testMesh(test);
-	test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
-	testMesh(test);
+    delete test;
+    description3D.numElementsInDIM_[0] = 3;
+    description3D.numElementsInDIM_[1] = 2;
+    description3D.numElementsInDIM_[2] = 2;
 
-	delete test;
-	description3D.numElementsInDIM_[0]=3;
-	description3D.numElementsInDIM_[1]=2;
-	description3D.numElementsInDIM_[2]=2;
+    test = new Base::MeshManipulator(new Base::ConfigurationData(3, 1, 3, 1), false, false, false, 3, 0);
+    test->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
 
-	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,3,1),false,false,false,3,0);
-	test->createTriangularMesh(description3D.bottomLeft_,description3D.topRight_,description3D.numElementsInDIM_);
+    testMesh(test);
+    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
+    testMesh(test);
 
-	testMesh(test);
-	test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
-	testMesh(test);
-
-	delete test;
-	test = new Base::MeshManipulator(new Base::ConfigurationData(3,1,2,1),false,false,false,2,0);
-	test->createRectangularMesh(description3D.bottomLeft_,description3D.topRight_,description3D.numElementsInDIM_);
-	testMesh(test);
-	test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
-	testMesh(test);
+    delete test;
+    test = new Base::MeshManipulator(new Base::ConfigurationData(3, 1, 2, 1), false, false, false, 2, 0);
+    test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    testMesh(test);
+    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
+    testMesh(test);
 }
 

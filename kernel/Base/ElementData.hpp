@@ -25,6 +25,7 @@
 //----------------------------------------------------------------
 #include <vector>
 #include "LinearAlgebra/Matrix.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 
 namespace LinearAlgebra
 {
@@ -44,11 +45,11 @@ namespace Base
      * and the second the number of unknowns times the number of basis functions.
      */
   public:
-    typedef typename LinearAlgebra::Matrix               VectorOfDoubles;
+    typedef typename LinearAlgebra::Matrix               MatrixT;
     typedef typename std::vector<LinearAlgebra::Matrix>  VectorOfMatrices;
   public:
 
-    ElementData(unsigned int timeLevels, unsigned nrOfUnkowns, unsigned int nrOfBasisFunctions, unsigned int nrOfElementMatrixes=0, unsigned int nrOfElementVectors=0);    
+    ElementData(unsigned int timeLevels, unsigned nrOfUnkowns, unsigned int nrOfBasisFunctions, unsigned int nrOfElementMatrixes = 0, unsigned int nrOfElementVectors = 0);    
     
     virtual ~ElementData()
     {
@@ -66,11 +67,11 @@ namespace Base
     virtual void getElementVector(LinearAlgebra::NumericalVector&, int vectorID=0) const;
 
     /// Specify a time level index, return a vector containing the data for that time level.
-    virtual const LinearAlgebra::Matrix&    getTimeLevelData(size_t timeLevel) const;
+    virtual const LinearAlgebra::NumericalVector    getTimeLevelData(size_t timeLevel) const;
 
     /// Specify a time level index, an unknown (as solutionId), set the data for that unknown
     void setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown);
-    void setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::Matrix& unknown);
+    void setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& unknown);
 
     /// Specify a time level index, an unknown and a basis function nr, return data (double)
     virtual double getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const;
@@ -83,9 +84,9 @@ namespace Base
     virtual int getNrOfBasisFunctions() const;
 
     //this needs to store information about all variables, so it needs to be a matrix (?)
-    virtual const VectorOfDoubles& getResidue() const;
+    virtual const LinearAlgebra::NumericalVector& getResidue() const;
 
-    void setResidue(VectorOfDoubles& residue);
+    void setResidue(LinearAlgebra::NumericalVector& residue);
 
     void setUserData(UserElementData* data);
 
@@ -98,15 +99,15 @@ namespace Base
     void setNumberOfBasisFunctions(unsigned int number);
 
   private:
-    unsigned int              timeLevels_;
-    unsigned int              nrOfUnkowns_;
-    unsigned int              nrOfBasisFunctions_;
+    size_t              timeLevels_;
+    size_t              nrOfUnkowns_;
+    size_t             nrOfBasisFunctions_;
 
     ///Stores the expansion coefficients    
     VectorOfMatrices          expansionCoefficients_;
 
     ///Stores the result of an element integration
-    VectorOfDoubles           residue_;
+    LinearAlgebra::NumericalVector           residue_;
 
     ///Stores polymorphic pointer to UserDefined Data, internally not used! Used only outside of the Kernel!!!
     UserElementData*          userData_;

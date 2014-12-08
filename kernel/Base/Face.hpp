@@ -26,56 +26,68 @@
 #include "Geometry/FaceGeometry.hpp"
 #include "Base/FaceData.hpp"
 
-namespace QuadratureRules {
-	class GaussQuadratureRule;
+namespace QuadratureRules
+{
+    class GaussQuadratureRule;
 }
 
 namespace Base
 {
-	class Element;
-	class FaceCacheData;
+    class Element;
+    class FaceCacheData;
 
     /// Face consists of FaceGeometry and probably FaceData, if needed. FaceGeometry holds all FaceReference related data and appropriate mappings
 
-    class Face: public Geometry::FaceGeometry,public FaceData
+    class Face : public Geometry::FaceGeometry, public FaceData
     {
+    public:
+
+        typedef Base::Element ElementT;
+        typedef Geometry::ElementGeometry ElementGeometryT;
+        typedef typename Geometry::FaceGeometry::LocalFaceNrType LocalFaceNrTypeT;
+        typedef typename Base::FaceCacheData CacheT;
+        typedef std::vector<CacheT> VecCacheT;
+        typedef Geometry::FaceGeometry FaceGeometryT;
+        typedef QuadratureRules::GaussQuadratureRule FaceQuadratureRule;
 
     public:
 
-        typedef Base::Element                                       ElementT;
-        typedef Geometry::ElementGeometry                           ElementGeometryT;
-        typedef typename Geometry::FaceGeometry::LocalFaceNrType    LocalFaceNrTypeT;
-        typedef typename Base::FaceCacheData                        CacheT;
-        typedef std::vector<CacheT>                                      VecCacheT;
-        typedef Geometry::FaceGeometry                              FaceGeometryT;
-        typedef QuadratureRules::GaussQuadratureRule              FaceQuadratureRule;
-        
-    public:
-        
-        Face(ElementT*  ptrElemL, const LocalFaceNrTypeT& localFaceNumL, ElementT* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR,int faceID,unsigned int numberOfElementMatrixes=0,unsigned int numberOfFaceVectors=0);
-        
-        virtual ~Face(){}
+        Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, 
+                ElementT* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR, 
+                size_t faceID, size_t numberOfElementMatrixes = 0, 
+                size_t numberOfFaceVectors = 0);
 
-        Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType&  ftype,int faceID, unsigned int numberOfFaceMatrixes=0, unsigned int numberOfFaceVectors=0);
+        virtual ~Face() { }
 
-        //void            setPtrElementLeft( ElementT* value);
-        
-
-        //void            setPtrElementRight( ElementT* value);
+        Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, 
+            const Geometry::FaceType& ftype, int faceID, 
+            size_t numberOfFaceMatrixes = 0, size_t numberOfFaceVectors = 0);
 
         /// Return the pointer to the left element.
-        virtual ElementT*       getPtrElementLeft()     {return elementLeft_;}
+        virtual ElementT* getPtrElementLeft()
+        {
+            return elementLeft_;
+        }
 
         /// Return the pointer to the right element, NULL if inexistent for boundaries.
-        virtual ElementT*       getPtrElementRight()    {return elementRight_;}
-        
-        virtual const ElementT*       getPtrElementLeft()const     {return elementLeft_;}
-        
-            /// Return the pointer to the right element, NULL if inexistent for boundaries.
-        virtual const ElementT*       getPtrElementRight()const    {return elementRight_;}
-        
-        void            createQuadratureRules();
-    
+        virtual ElementT* getPtrElementRight()
+        {
+            return elementRight_;
+        }
+
+        virtual const ElementT* getPtrElementLeft()const
+        {
+            return elementLeft_;
+        }
+
+        /// Return the pointer to the right element, NULL if inexistent for boundaries.
+        virtual const ElementT* getPtrElementRight()const
+        {
+            return elementRight_;
+        }
+
+        void createQuadratureRules();
+
         void setGaussQuadratureRule(const FaceQuadratureRule* quadratureRule)
         {
             quadratureRule_ = quadratureRule;
@@ -85,47 +97,60 @@ namespace Base
         {
             return quadratureRule_;
         }
-        
-        //virtual bool             isInternal()const;
 
-        virtual VecCacheT&       getVecCacheData() { return vecCacheData_; }
+        virtual VecCacheT& getVecCacheData()
+        {
+            return vecCacheData_;
+        }
 
-        virtual double                          basisFunction(unsigned int i, const Geometry::PointReference& p) const;
+        virtual double basisFunction(size_t i, const Geometry::PointReference& p) const;
 
-		///\brief returns the value of the i-th basisfunction at point p in ret
-        virtual void                            basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        ///\brief returns the value of the i-th basisfunction at point p in ret
+        virtual void basisFunction(size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual void                            basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual void basisFunctionNormal(size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
         /// jDir=0 means x, and etc.
-        virtual double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const Geometry::PointReference& p) const;
+        virtual double basisFunctionDeriv(size_t i, size_t jDir, const Geometry::PointReference& p) const;
 
-		///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
-        virtual void                            basisFunctionDeriv(unsigned int i,const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        ///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
+        virtual void basisFunctionDeriv(size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual void                            basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual void basisFunctionCurl(size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual int                             getNrOfBasisFunctions() const;
+        virtual int getNrOfBasisFunctions() const;
 
-        virtual int                             getLocalNrOfBasisFunctions() const{return nrOfConformingDOFOnTheFace_;}
+        virtual int getLocalNrOfBasisFunctions() const
+        {
+            return nrOfConformingDOFOnTheFace_;
+        }
 
-		void                            setLocalNrOfBasisFunctions(int number){nrOfConformingDOFOnTheFace_=number;}
+        void setLocalNrOfBasisFunctions(size_t number)
+        {
+            nrOfConformingDOFOnTheFace_ = number;
+        }
 
-		virtual int getID()const{return faceID_;}
+        virtual int getID()const
+        {
+            return faceID_;
+        }
+        
+        /// Specify a time level index, return a vector containing the data for that time level.
+        virtual LinearAlgebra::NumericalVector getTimeLevelData(size_t timeLevel);
 
     protected:
 
-		///\brief default constructor - for use with wrapper classes
-		Face():FaceData(0,0,0),FaceGeometry(),elementLeft_(NULL),elementRight_(NULL),quadratureRule_(NULL){}
+        ///\brief default constructor - for use with wrapper classes
+        Face() : FaceData(0, 0, 0), FaceGeometry(), elementLeft_(nullptr), elementRight_(nullptr), quadratureRule_(nullptr) { }
 
     private:
-         ElementT*                                 elementLeft_;
-         ElementT*                                 elementRight_;
-        const FaceQuadratureRule*                             quadratureRule_;
-        VecCacheT                                       vecCacheData_;
+        ElementT* elementLeft_;
+        ElementT* elementRight_;
+        const FaceQuadratureRule* quadratureRule_;
+        VecCacheT vecCacheData_;
 
-        unsigned int                                    nrOfConformingDOFOnTheFace_;
-        int                                             faceID_;
+        size_t nrOfConformingDOFOnTheFace_;
+        int faceID_;
     };
 };
 #endif

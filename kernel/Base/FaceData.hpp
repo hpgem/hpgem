@@ -25,8 +25,10 @@
 //----------------------------------------------------------------
 #include <vector>
 #include "LinearAlgebra/Matrix.hpp"
+#include "LinearAlgebra/NumericalVector.hpp"
 
-namespace LinearAlgebra{
+namespace LinearAlgebra
+{
 	class NumericalVector;
 }
 
@@ -35,7 +37,8 @@ namespace Base {
 	class FaceCacheData;
 	class UserFaceData;
 
-	class FaceData {
+	class FaceData 
+        {
 	public:
 		typedef FaceCacheData CacheT;
 		typedef std::vector<CacheT> VecCacheT;
@@ -51,25 +54,29 @@ namespace Base {
 
 		virtual void getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID = 0) const;
 
-		virtual const VecCacheT& getVecCacheData() const {
+		virtual const VecCacheT& getVecCacheData() const 
+                {
 			return vecCacheData_;
 		}
 
-		virtual ~FaceData() {
-			;
+		virtual ~FaceData() 
+                {
 		}
 
-		virtual UserFaceData* getUserData() const {
+		virtual UserFaceData* getUserData() const 
+                {
 			return userData_;
 		}
 
-		void setUserData(UserFaceData* data) {
+		void setUserData(UserFaceData* data) 
+                {
 			userData_ = data;
 		}
                 
-                virtual const LinearAlgebra::Matrix& getResidue() const;
+                virtual const LinearAlgebra::NumericalVector& getResidue() const;
         
-                void setResidue(LinearAlgebra::Matrix& residue);
+                void setResidue(LinearAlgebra::NumericalVector& residue);
+                
 
 	private:
 		VecCacheT vecCacheData_;//?also in Face?
@@ -78,7 +85,7 @@ namespace Base {
 		std::vector<LinearAlgebra::NumericalVector> faceVector_;
                 
                 //a concatenation of the flux contributions to the residuals in the left and the right elements
-                LinearAlgebra::Matrix residual_;
+                LinearAlgebra::NumericalVector residual_;
 	};
 }
 ;
