@@ -237,7 +237,7 @@ namespace Geometry
     virtual bool isInternal() const;
     
   protected:
-    MatrixT                     faceToFaceMapMatrix_;
+    //MatrixT                     faceToFaceMapMatrix_;
     
     ///\brief default constructor - for use with wrapper classes
     FaceGeometry() : rightElementGeom_(nullptr), leftElementGeom_(nullptr)

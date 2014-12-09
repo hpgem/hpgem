@@ -76,11 +76,11 @@ public:
         //create a triangular mesh. The four magic ones that are passed to this function
         //specify the number of element matrices, the number of element vectors,
         //the number of face matrices and the number of face vectors (in that order)
-        addMesh(description, Base::RECTANGULAR, 2, 1, 1, 1);
+        addMesh(description, Base::TRIANGULAR, 2, 1, 1, 1);
 
         //tell hpGEM to use basis functions that are discontinuous and are designed for triangles
         //this is likely to get automated by hpGEM at some point in the future
-        meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(p_));
+        meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(p_));
         return true;
     }
 
@@ -189,22 +189,23 @@ public:
     // solve Mx=`residue`
     virtual void interpolate(){
         LinearAlgebra::Matrix mass;
-        LinearAlgebra::Matrix solution;
+        LinearAlgebra::NumericalVector solution;
         for (Base::Element* element : meshes_[0]->getElementsList()) {
             int n(element->getNrOfBasisFunctions());
             mass.resize(n, n);
             element->getElementMatrix(mass, 0);
             solution = element->getResidue();
-            solution.resize(n, 1);
+            solution.resize(n);
             mass.solve(solution);
-            solution.resize(1, n);
             element->setTimeLevelData(0, solution);
         }
     }
 
 
-    virtual void computeLocalResidual(){
-        LinearAlgebra::Matrix mass,residual,stiffness,oldData;
+    virtual void computeLocalResidual()
+    {
+        LinearAlgebra::Matrix mass, stiffness;
+        LinearAlgebra::NumericalVector oldData, residual;
         for (Base::Element* element : meshes_[0]->getElementsList()) {
             //collect data
             int n = element->getNrOfBasisFunctions();
@@ -213,23 +214,24 @@ public:
             element->getElementMatrix(mass, 0);
             element->getElementMatrix(stiffness, 1);
             oldData = element->getTimeLevelData(0);
-            oldData.resize(n,1);
+            oldData.resize(n);
             //compute residual=M*u+dt*S*u
             residual = mass*oldData;
             residual.axpy(dt_, stiffness * oldData);
-            residual.resize(1,n);
             element->setResidue(residual);
         }
     }
 
 
-    virtual void computeFluxResidual(){
-        LinearAlgebra::Matrix stiffness,residue;
+    virtual void computeFluxResidual()
+    {
+        LinearAlgebra::Matrix stiffness;
+        LinearAlgebra::NumericalVector residue;
         for (Base::Face* face : meshes_[0]->getFacesList()) {
             int n(face->getNrOfBasisFunctions()), nLeft(face->getPtrElementLeft()->getNrOfBasisFunctions());
             stiffness.resize(n, n);
             face->getFaceMatrix(stiffness);
-            residue.resize(n, 1);
+            residue.resize(n);
 
             ///TODO implement face->getData()
             //for now concatenate left and right data
@@ -243,7 +245,6 @@ public:
 
             //compute the flux
             residue = stiffness*residue;
-            residue.resize(1,n);
             residue *= dt_;
             face->setResidue(residue);
         }

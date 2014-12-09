@@ -42,14 +42,13 @@
 #include "Base/CommandLineOptions.hpp"
 #include "Output/VTKSpecificTimeWriter.hpp"
 #include <chrono>
-#include <thread>
 
 class Laplace : public Base::HpgemUISimplified
 {
 public:
     ///constructor: set the dimension of the problem, start the API of hpGEM and initialise the other fields
     //initialisation order is not fixed so DIM_ has to be passed to hpGEMUISimplified in a hardcoded way
-    Laplace(int n, int p) : HpgemUISimplified(2, p), DIM_(2), n_(n), p_(p)
+    Laplace(int n, int p) : HpgemUISimplified(3, p), DIM_(3), n_(n), p_(p)
     {
         penaltyParameter_ = 3 * n_ * p_ * (p_ + DIM_ - 1) + 1;
     }
@@ -81,7 +80,7 @@ public:
 
         //tell hpGEM to use basis functions that are discontinuous and are designed for triangles
         //this is likely to get automated by hpGEM at some point in the future
-        meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(p_));
+        meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(p_));
         return true;
     }
 
@@ -209,7 +208,7 @@ public:
     }
     double sourceTerm(const PointPhysicalT& point)
     {
-        return sin(2 * M_PI * point[0]) * (4 * M_PI * M_PI) * cos(2 * M_PI * point[1]); //*cos(2*M_PI*p[2])*3;
+        return sin(2 * M_PI * point[0]) * (4 * M_PI * M_PI) * cos(2 * M_PI * point[1]) * cos(2 * M_PI * point[2]) * 3;
     }
 
     ///interpolates the source term
@@ -292,7 +291,7 @@ public:
         //so it can be used for post-processing
         std::ofstream outFile("output." + std::to_string(Base::MPIContainer::Instance().getProcessorID()) + ".dat");
         //write tecplot data
-        //Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
+        //Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "012", "value");
         //writeFunc.write(meshes_[0], "discontinuous solution", false, this);
         //AND paraview data
         Output::VTKSpecificTimeWriter paraWrite("output", meshes_[0]);

@@ -93,11 +93,15 @@ namespace Geometry
 
             /// \brief Given a local index relative to globalNodeIndexes_, return the global node index.
             PointIndexT                     getNodeIndex(int localIndex) const
-                                            {return globalNodeIndexes_[localIndex];}
+                                            {return globalNodeIndexes_[localIndex];
+        }
 
-            /// \brief Given a global index, returns a pointer to the corresponding point.
-            const PointPhysicalT*                 getNodePtr(const int globalIndex) const
-                                            {return &(nodes_[globalIndex]);}
+        /// \brief Given a global index, returns a pointer to the corresponding point.
+
+        const PointPhysicalT* getNodePtr(const int globalIndex) const
+        {
+            return &(nodes_[globalIndex]);
+        }
 
             /// \brief Returns the number of nodes of this geometry.
             unsigned int                    getNumberOfNodes() const

@@ -30,21 +30,22 @@ namespace Integration
     ElementIntegral::ElementIntegral(bool useCache):
         useCache_(useCache)
     {
-        localElement_=NULL;
+        localElement_=nullptr;
     }
     
         //! \brief Class destructor
     ElementIntegral::~ElementIntegral()
     {
-        delete localElement_;
+        if(localElement_!=nullptr)
+            delete localElement_;
     }
         //! \brief Start caching (geometry) information now.
     void
     ElementIntegral::cacheOn()
     {
         useCache_ = true;
-        if(localElement_!=NULL){
-        	localElement_->cacheOn();
+        if(localElement_!=nullptr){
+            localElement_->cacheOn();
         }
     }
     
@@ -53,7 +54,7 @@ namespace Integration
     ElementIntegral::cacheOff()
     {
         useCache_ = false;
-        if(localElement_!=NULL){
+        if(localElement_!=nullptr){
         	localElement_->cacheOff();
         }
     }
@@ -62,7 +63,7 @@ namespace Integration
     void
     ElementIntegral::recomputeCacheOn()
     {
-        if(localElement_!=NULL){
+        if(localElement_!=nullptr){
         	localElement_->recomputeCacheOn();
         }
     }
@@ -71,7 +72,7 @@ namespace Integration
     void
     ElementIntegral::recomputeCacheOff()
     {
-        if(localElement_!=NULL){
+        if(localElement_!=nullptr){
         	localElement_->recomputeCacheOff();
         }
     }
@@ -191,13 +192,14 @@ namespace Integration
 }
 
 void Integration::ElementIntegral::setStorageWrapper(Base::ShortTermStorageElementBase* transform) {
+    if(localElement_!=nullptr)
 	delete localElement_;
-	localElement_=transform;
-	if(useCache_){
-		localElement_->cacheOn();
-	}else{
-		localElement_->cacheOff();
-	}
+    localElement_=transform;
+    if(useCache_){
+            localElement_->cacheOn();
+    }else{
+            localElement_->cacheOff();
+    }
 }
     //! \brief AXPY operation, i.e. Y = alpha * X + Y, for various data type
     //        template <typename T>

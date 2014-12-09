@@ -161,9 +161,10 @@ public:
     class : public Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>
     {
     public:
-        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
-        {
-            PointPhysicalT pPhys(DIM);
+
+        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) {
+            //do not compute energy at the moment becasuse storing multiple variables is broken
+            /*PointPhysicalT pPhys(DIM);
             PointReferenceT pElement(DIM);
             face->referenceToPhysical(p, pPhys);
             face->mapRefFaceToRefElemL(p, pElement);
@@ -179,16 +180,17 @@ public:
                 }
                 ret[0] = dummySolution[0] * dummySolution[0];
                 ret[0] /= 2; //assumes g=1
-            }
+            }*/
         }
     } faceEnergy;
 
     class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
     {
     public:
-        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
-        {
-            int numBasisFuns = element->getNrOfBasisFunctions();
+
+        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {
+            //do not compute energy at the moment becasuse storing multiple variables is broken
+            /*int numBasisFuns = element->getNrOfBasisFunctions();
             ret.resize(1);
             LinearAlgebra::NumericalVector gradPhi(DIM), temp(DIM);
             const LinearAlgebra::Matrix& expansioncoefficients = element->getTimeLevelData(0);
@@ -198,7 +200,7 @@ public:
                 temp *= expansioncoefficients(1, i);
                 gradPhi += temp;
             }
-            ret[0] = (gradPhi * gradPhi) / 2;
+            ret[0] = (gradPhi * gradPhi) / 2;*/
         }
     } elementEnergy;
     void writeToTecplotFile(const ElementT* element, const PointReferenceT& p, std::ostream& out)
@@ -227,7 +229,7 @@ public:
             {
                 integral.integrate(face, &massIntegrand, result);
                 integral.integrate(face, &interpolator, initialconditions);
-                face->getPtrElementLeft()->setTimeLevelData(0, initialconditions);
+                //face->getPtrElementLeft()->setTimeLevelData(0, initialconditions);
             }
             else
             {
@@ -421,37 +423,22 @@ private:
     static double t;
 };
 
-double DGWave::t = 0;
-int main(int argc, char **argv)
-{
-    try
-    {
-        int n, p;
-        if (argc > 2)
-        {//convert the first two arguments to numbers
-            n = std::atoi(argv[1]);
-            p = std::atoi(argv[2]);
-            argv[2] = argv[0]; //and remove them from the argument list
-            argc -= 2;
-            argv += 2;
-        }
-        else
-        {
-            std::cout << "usage: LinearPotentialFlow.out n p [petsc-args]\nDefaulting to n=64;p=1;" << std::endl;
-            n = 64;
-            p = 1;
-        }
-        PetscInitialize(&argc, &argv, NULL, NULL);
-        DGWave test(n, p);
-        test.initialise();
-        test.solve();
-        PetscFinalize();
-        return 0;
-    }
-    catch (const char* e)
-    {
-        std::cout << e;
-    }
+double DGWave::t=0;
+
+auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
+auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
+
+int main(int argc, char **argv){
+    Base::parse_options(argc,argv);
+	try{
+		DGWave test(n.getValue(),p.getValue());
+		test.initialise();
+		test.solve();
+		return 0;
+	}
+	catch(const char* e){
+		std::cout<<e;
+	}
 }
 
 

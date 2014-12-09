@@ -27,80 +27,85 @@
 
 namespace Geometry
 {
-	class Point
-	{
-    public:
-        
-    public:
-	    /// Typedefs.
-	    typedef double                         CoordTypeT;
-        typedef Geometry::Point                PointT;
-        typedef LinearAlgebra::NumericalVector                VectorOfCoordsT;
-        typedef unsigned int                   IndexT;
 
-	public:
+    class Point
+    {
+    public:
+
+    public:
+        /// Typedefs.
+        typedef double CoordTypeT;
+        typedef Geometry::Point PointT;
+        typedef LinearAlgebra::NumericalVector VectorOfCoordsT;
+        typedef unsigned int IndexT;
+
+    public:
         /// Constructors.
         Point(unsigned int DIM);
         /// Warning!!! This way Point ctr will truncate and take sizeof(dimension) points and will not give any warning. Be sure you took the right dimension.
-        Point(CoordTypeT coords[],unsigned int DIM);
-        
+        Point(CoordTypeT coords[], unsigned int DIM);
+
         Point(const Point& other);
-        
+
         Point(const VectorOfCoordsT& coord);
-        
-        
-        void                setCoordinate(IndexT n, const CoordTypeT& coord);
-        void                setCoordinates(const VectorOfCoordsT& coord);
-        
-        CoordTypeT&         operator [] (IndexT n);
-        const CoordTypeT&   operator [] (IndexT n)const;
-        
-//        CoordTypeT&         operator () (IndexT n);
-//        const CoordTypeT&   operator () (IndexT n) const;
-        PointT&             operator = (const Point& rhs);
-        
-        bool operator ==(const Point& right) const;
 
-		bool operator ==(const Point& right);
-        
-        bool operator <(const Point& right) const;
-        
-        Point& operator +=(const Point& right);
 
-		Point& operator -=(const Point& right);
-        
-        Point& operator *=(double right);
-        
-        Point operator *(double right);
+        void setCoordinate(IndexT n, const CoordTypeT& coord);
+        void setCoordinates(const VectorOfCoordsT& coord);
 
-		Point operator *(double right) const;
-        
-        Point operator +(const Point& right);
-        
-        Point operator +(const Point& right) const;
-        
-        Point operator -(const Point& right);
-        
-        Point operator -(const Point& right) const;
-        
-        
+        CoordTypeT& operator[](IndexT n);
+        const CoordTypeT& operator[](IndexT n)const;
+
+        //        CoordTypeT&         operator () (IndexT n);
+        //        const CoordTypeT&   operator () (IndexT n) const;
+        PointT& operator=(const Point& rhs);
+
+        bool operator==(const Point& right) const;
+
+        bool operator!=(const Point& right) const;
+
+        bool operator<(const Point& right) const;
+
+        Point& operator+=(const Point& right);
+
+        Point& operator-=(const Point& right);
+
+        Point& operator*=(double right);
+
+        Point operator*(double right);
+
+        Point operator*(double right) const;
+
+        Point operator+(const Point& right);
+
+        Point operator+(const Point& right) const;
+
+        Point operator-(const Point& right);
+
+        Point operator-(const Point& right) const;
+
+
         unsigned int size() const;
-        
+
         unsigned int size();
-        
+
 
         typename Point::CoordTypeT getCoordinate(IndexT n) const;
-        const VectorOfCoordsT&     getCoordinates()const;
-                    friend PointT       operator-(const Point& right){return PointT(right * -1.0);}
-        
-        friend Point operator *(const double& left, const Point& right);
-        
-            /// Output routine.
-		friend std::ostream& operator <<(std::ostream& os, const Point& point);
+        const VectorOfCoordsT& getCoordinates()const;
 
-	protected:
+        friend PointT operator-(const Point& right)
+        {
+            return PointT(right * -1.0);
+        }
+
+        friend Point operator*(const double& left, const Point& right);
+
+        /// Output routine.
+        friend std::ostream& operator<<(std::ostream& os, const Point& point);
+
+    protected:
         VectorOfCoordsT coordinates_;
-	};
+    };
 
 }
 ;

@@ -230,13 +230,13 @@ namespace Geometry
     }
     
     ///(@tito) why ask for a face when you only copy fields of the faceGeometry???
-    void FaceGeometry::copyFromParent(const FaceGeometryT& fa)
+    /*void FaceGeometry::copyFromParent(const FaceGeometryT& fa)
     {
         faceToFaceMapIndex_ = fa.faceToFaceMapIndex_;
         faceToFaceMapMatrix_ = fa.faceToFaceMapMatrix_;
-    }
+    }*/
     
-    void FaceGeometry::invertFaceToFaceMapMatrix()
+    /*void FaceGeometry::invertFaceToFaceMapMatrix()
     {
         // invert the matrix
         double a = faceToFaceMapMatrix_(0, 0);
@@ -260,12 +260,12 @@ namespace Geometry
         faceToFaceMapMatrix_(0, 2) = (b * f - c * e) / det;
         faceToFaceMapMatrix_(1, 2) = (c * d - a * f) / det;
         faceToFaceMapMatrix_(2, 2) = (a * e - b * d) / det;
-    }
+    }*/
     
     //!Print the matrix that maps the physical face to the reference face.
-    void FaceGeometry::printRefMatrix() const
+    /*void FaceGeometry::printRefMatrix() const
     {
         std::cout << "(" << faceToFaceMapIndex_ << ") refMatrix: " << faceToFaceMapMatrix_ << "\n";
-    }
+    }*/
     
 };

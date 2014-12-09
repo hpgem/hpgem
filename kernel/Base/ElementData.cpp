@@ -101,7 +101,7 @@ namespace Base
     
     double ElementData::getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const
     {
-        if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
+        if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ && basisFunction < nrOfBasisFunctions_)
         {
             return expansionCoefficients_[timeLevel](unknown, basisFunction);
         }
@@ -113,7 +113,7 @@ namespace Base
     
     void ElementData::setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val)
     {
-        if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
+        if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ && basisFunction < nrOfBasisFunctions_)
         {
             if (expansionCoefficients_[timeLevel].size() != nrOfUnkowns_ * nrOfBasisFunctions_)
             {

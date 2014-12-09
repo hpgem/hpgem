@@ -57,12 +57,13 @@ namespace Geometry
         }
     }
 
-	bool Point::operator ==(const Point& right) {
-		return coordinates_ == right.coordinates_;
-	}
-
 	bool Point::operator ==(const Point& right) const {
 		return coordinates_ == right.coordinates_;
+    }
+
+    bool Point::operator!=(const Point& right) const
+    {
+        return !(*this == right);
 	}
 
 	bool Point::operator <(const Point& right) const {

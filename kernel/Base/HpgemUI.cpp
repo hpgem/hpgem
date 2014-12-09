@@ -50,6 +50,8 @@ namespace Base
     {
             for(int i = 0; i < meshes_.size() ; ++i)
                 delete meshes_[i];
+            delete configData_;
+            delete globalData_;
     }
     
     bool HpgemUI::initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, unsigned int meshID)
