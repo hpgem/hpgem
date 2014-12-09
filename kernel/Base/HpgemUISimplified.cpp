@@ -139,7 +139,9 @@ namespace Base
                     
                     size_t numBasisFuncsLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
                     //can we get nicer matrix?
-                    assert(numBasisFuncsLeft == leftResidual.size());
+                    leftResidual.resize(numBasisFuncsLeft);
+                    rightResidual.resize(face->getNrOfBasisFunctions() - numBasisFuncsLeft);
+                    residual.resize(face->getNrOfBasisFunctions());
 
                     for (std::size_t j = 0; j < numBasisFuncsLeft; ++j)
                     {
