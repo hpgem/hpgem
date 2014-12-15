@@ -27,8 +27,8 @@ namespace Base
     {
         virtual ~GlobalData(){}
     
-        unsigned int numberOfUnknowns_;
-        unsigned int numberOfTimeLevels_;
+        std::size_t numberOfUnknowns_;
+        std::size_t numberOfTimeLevels_;
         
     };
 };

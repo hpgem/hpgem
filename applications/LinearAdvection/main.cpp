@@ -125,7 +125,7 @@ public:
     ///so you wont have to do any transformations yourself. If you expect 4 matrices here, you can assume that ret is block structured such
     ///that basisfunctions belonging to the left element are indexed first
 
-    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::Matrix& result) {
+    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::Matrix& result) {
         int n = face->getNrOfBasisFunctions(), nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
         result.resize(n, n);
         result *= 0;
@@ -155,7 +155,7 @@ public:
     ///The vector edition of the face integrand is meant for implementation of boundary conditions
     ///This is a periodic problem, so it just return 0
 
-    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::NumericalVector& result) {
+    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result) {
         int n = face->getNrOfBasisFunctions();
         result.resize(n);
         result *= 0;

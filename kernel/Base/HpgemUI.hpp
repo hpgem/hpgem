@@ -27,78 +27,81 @@
 #include "MeshManipulator.hpp"
 #include "GlobalNamespaceBase.hpp"
 #include "CommandLineOptions.hpp"
+#include "GlobalData.hpp"
 
 namespace Base
 {
-	class MeshMoverBase;
-	class RectangularMeshDescriptor;
-	class GlobalData;
-	class ConfigurationData;
+    class MeshMoverBase;
+    class RectangularMeshDescriptor;
+    class GlobalData;
+    class ConfigurationData;
 
     class HpgemUI
     {
     public:
-        typedef typename MeshManipulator::ConstElementIterator     ConstElementIterator;
-        typedef typename MeshManipulator::ElementIterator          ElementIterator;
-        typedef typename MeshManipulator::ConstFaceIterator        ConstFaceIterator;
-        typedef typename MeshManipulator::FaceIterator             FaceIterator;
-        
-    public:
-        typedef Base::Element                                      ElementT;
-        typedef Base::Face                                         FaceT;
-        typedef RectangularMeshDescriptor                          RectangularMeshDescriptorT;
-        typedef MeshManipulator                                    MeshManipulatorT;
-        typedef MeshMoverBase                                      MeshMoverBaseT;
-        typedef Geometry::PointPhysical                            PointPhysicalT;
-        typedef Geometry::PointReference                           PointReferenceT;
-
-        typedef unsigned int                                            MeshId;
-        typedef std::vector<unsigned int>                               VectorOfUIntegers;
-       
-        typedef std::vector<MeshManipulatorT* >                         VectorOfMeshManipulatorT;
-        typedef std::string                                             String;
-                
-        
+        typedef typename MeshManipulator::ConstElementIterator ConstElementIterator;
+        typedef typename MeshManipulator::ElementIterator ElementIterator;
+        typedef typename MeshManipulator::ConstFaceIterator ConstFaceIterator;
+        typedef typename MeshManipulator::FaceIterator FaceIterator;
 
     public:
-             
-        HpgemUI(GlobalData* const global, const ConfigurationData* config);
+        typedef Base::Element ElementT;
+        typedef Base::Face FaceT;
+        typedef RectangularMeshDescriptor RectangularMeshDescriptorT;
+        typedef MeshManipulator MeshManipulatorT;
+        typedef MeshMoverBase MeshMoverBaseT;
+        typedef Geometry::PointPhysical PointPhysicalT;
+        typedef Geometry::PointReference PointReferenceT;
 
-        virtual ~HpgemUI() ;
-        
-        
+        typedef unsigned int MeshId;
+        typedef std::vector<unsigned int> VectorOfUIntegers;
+
+        typedef std::vector<MeshManipulatorT* > VectorOfMeshManipulatorT;
+        typedef std::string String;
+
+
+
+    public:
+
+        HpgemUI(GlobalData * const global, const ConfigurationData* config);
+
+        ///Destructor, destructs the meshes, configData_ and globalData_
+        virtual ~HpgemUI();
 
         /// \brief Gives the pointer of meshMoverBase class to mesh.
         virtual bool initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, unsigned int meshID);
 
-            /// Creating a mesh with in-house remesher.
-        MeshId addMesh(const RectangularMeshDescriptorT& meshDescriptor, const MeshType& meshType = RECTANGULAR, int nrOfElementMatrixes=0, int nrOfElementVectors=0,int nrOfFaceMatrixes=0, int nrOfFaceVectors=0);
-            /// Reading a mesh from a file, currently only Centaur is supported.
-        MeshId addMesh(const String& fileName, int nrOfElementMatrixes=0, int nrOfElementVectors=0,int nrOfFaceMatrixes=0, int nrOfFaceVectors=0);
-        
-        unsigned int getNumberOfElements(MeshId id)const {return meshes_[id]->getNumberOfElements();}
-        
-        ConstElementIterator    elementColBegin(MeshId mId=0)const;
-        ConstElementIterator    elementColEnd(MeshId mId=0)const;
-        
-        ElementIterator         elementColBegin(MeshId mId=0);
-        ElementIterator         elementColEnd(MeshId mId=0);
-        
-        ConstFaceIterator       faceColBegin(MeshId mId=0)const;
-        ConstFaceIterator       faceColEnd(MeshId mId=0)const;
-        
-        FaceIterator            faceColBegin(MeshId mId=0);
-        FaceIterator            faceColEnd(MeshId mId=0);
-        
+        /// Creating a mesh with in-house remesher.
+        MeshId addMesh(const RectangularMeshDescriptorT& meshDescriptor, const MeshType& meshType = RECTANGULAR, int nrOfElementMatrixes = 0, int nrOfElementVectors = 0, int nrOfFaceMatrixes = 0, int nrOfFaceVectors = 0);
+        /// Reading a mesh from a file, currently only Centaur is supported.
+        MeshId addMesh(const String& fileName, int nrOfElementMatrixes = 0, int nrOfElementVectors = 0, int nrOfFaceMatrixes = 0, int nrOfFaceVectors = 0);
+
+        unsigned int getNumberOfElements(MeshId id)const
+        {
+            return meshes_[id]->getNumberOfElements();
+        }
+
+        ConstElementIterator elementColBegin(MeshId mId = 0)const;
+        ConstElementIterator elementColEnd(MeshId mId = 0)const;
+
+        ElementIterator elementColBegin(MeshId mId = 0);
+        ElementIterator elementColEnd(MeshId mId = 0);
+
+        ConstFaceIterator faceColBegin(MeshId mId = 0)const;
+        ConstFaceIterator faceColEnd(MeshId mId = 0)const;
+
+        FaceIterator faceColBegin(MeshId mId = 0);
+        FaceIterator faceColEnd(MeshId mId = 0);
+
 
         /// \brief Virtual function that should be overwritten by specific problem, specifies initial conditions.
         //virtual void initialCondition() const;
 
     protected:
-        VectorOfMeshManipulatorT                meshes_;
-       
-        GlobalData* const                       globalData_;
-        const ConfigurationData* const          configData_;
+        VectorOfMeshManipulatorT meshes_;
+
+        GlobalData * const globalData_;
+        const ConfigurationData * const configData_;
     };
 };
 #endif

@@ -45,8 +45,10 @@ namespace Base
     auto& endTime = Base::register_argument<double>(0, "endTime", "end time of the simulation", false, 1);
     auto& startTime = Base::register_argument<double>(0, "startTime", "start time of the simulation", false, 0);
     auto& dt = Base::register_argument<double>(0, "dt", "time step of the simulation", false);
+    auto& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file (without extentions)", false, "output");
     
-    HpgemUISimplified::HpgemUISimplified(unsigned int DIM, int polynomialOrder)
+    ///Constructor, GlobalData and ConfigurationData is deleted in HpgemUI
+    HpgemUISimplified::HpgemUISimplified(std::size_t DIM, std::size_t polynomialOrder)
     : HpgemUI(new GlobalData,
               new ConfigurationData(DIM, 1, polynomialOrder, numberOfSnapshots.getValue()))
     {
@@ -63,7 +65,6 @@ namespace Base
         }
     }
 
-    auto& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file (without extentions)", false, "output");
     bool HpgemUISimplified::solve()
     {
         initialise(); //make the grid
@@ -137,11 +138,10 @@ namespace Base
                     
                     residual = face->getResidue();
                     
-                    size_t numBasisFuncsLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
+                    std::size_t numBasisFuncsLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
                     //can we get nicer matrix?
                     leftResidual.resize(numBasisFuncsLeft);
                     rightResidual.resize(face->getNrOfBasisFunctions() - numBasisFuncsLeft);
-                    residual.resize(face->getNrOfBasisFunctions());
 
                     for (std::size_t j = 0; j < numBasisFuncsLeft; ++j)
                     {
@@ -179,12 +179,11 @@ namespace Base
                 }
             }
         }
-
-
         return true;
     }
     
-    void HpgemUISimplified::doAllFaceIntegration(unsigned int meshID)
+    ///Compute the integrals on all faces. 
+    void HpgemUISimplified::doAllFaceIntegration(std::size_t meshID)
     {
         bool useCache = false;
 
@@ -205,16 +204,16 @@ namespace Base
         }
     }
     
-    void HpgemUISimplified::doAllElementIntegration(unsigned int meshID)
+    ///Compute the integrals on all elements.
+    void HpgemUISimplified::doAllElementIntegration(size_t meshID)
     {
         //numberOfUnknowns_ is the number of unknowns in the "real problem" you want a
         //solution for, this is automatically set to 1 in the contructor of hpgemUISimplified
         //ndof is now the size of your element matrix
-        unsigned int ndof = HpgemUI::configData_->numberOfBasisFunctions_;
+        std::size_t ndof = HpgemUI::configData_->numberOfBasisFunctions_;
 
         //initialise the element matrix and element vector.
         LinearAlgebra::Matrix eMatrixData(ndof, ndof);
-        LinearAlgebra::NumericalVector initialData(configData_->numberOfBasisFunctions_);
         LinearAlgebra::NumericalVector eVectorData(ndof);
 
         bool isUseCache = false;
@@ -228,6 +227,19 @@ namespace Base
             elIntegral.integrate<LinearAlgebra::NumericalVector>((*it), this, eVectorData);
             (*it)->setElementVector(eVectorData);
             (*it)->setResidue(eVectorData);
+        }
+    }
+
+    ///Interpolates the new solution from the right hand side computed before.
+    /// Default: solve Mass * x = rhs and set x as the new current data
+    void HpgemUISimplified::interpolate()
+    {
+        for (Base::Element* element : meshes_[0]->getElementsList())
+        {
+            LinearAlgebra::Matrix mass = element->getMassMatrix();
+            LinearAlgebra::NumericalVector solution = element->getResidue();
+            mass.solve(solution);
+            element->setTimeLevelData(0, solution);
         }
     }
     

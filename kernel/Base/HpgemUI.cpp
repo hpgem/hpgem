@@ -33,25 +33,26 @@
 
 namespace Base
 {
-
-    HpgemUI::HpgemUI(GlobalData* const global, const ConfigurationData* config):
-        meshes_(),
-        globalData_(global),
-        configData_(config)
+    HpgemUI::HpgemUI(GlobalData * const global, const ConfigurationData* config) :
+    meshes_(),
+    globalData_(global),
+    configData_(config)
     {
-        if (!parse_isDone()) {
+        if (!parse_isDone())
+        {
             std::cerr << "Warning: Command line arguments have not been parsed.\n"
-                      << "  Please call Base::parse_options(argc, argv); first.\n"
-                      << "  This application may not behave as intended." << std::endl;
+                << "  Please call Base::parse_options(argc, argv); first.\n"
+                << "  This application may not behave as intended." << std::endl;
         }
     }
     
+    //Destructor, destructs the meshes, configData_ and globalData_
     HpgemUI::~HpgemUI()
     {
-            for(int i = 0; i < meshes_.size() ; ++i)
-                delete meshes_[i];
-            delete configData_;
-            delete globalData_;
+        for (int i = 0; i < meshes_.size(); ++i)
+            delete meshes_[i];
+        delete configData_;
+        delete globalData_;
     }
     
     bool HpgemUI::initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, unsigned int meshID)
@@ -60,100 +61,89 @@ namespace Base
         return true;
     }
     
-    
-    HpgemUI::MeshId
-    HpgemUI::addMesh(const RectangularMeshDescriptorT& meshDscr,
-                     const MeshType& meshType,int nrOfElementMatrixes,
-                     int nrOfElementVectors, int nrOfFaceMatrixes,
-                     int nrOfFaceVectors)
+    HpgemUI::MeshId HpgemUI::addMesh(const RectangularMeshDescriptorT& meshDscr,
+                                     const MeshType& meshType, int nrOfElementMatrixes,
+                                     int nrOfElementVectors, int nrOfFaceMatrixes,
+                                     int nrOfFaceVectors)
     {
-        unsigned int numOfMeshes=meshes_.size();
+        unsigned int numOfMeshes = meshes_.size();
         MeshManipulator* mesh = new MeshManipulator(configData_,
-                    meshDscr.boundaryConditions_[0],
-                    (configData_->dimension_ > 1) ? meshDscr.boundaryConditions_[1] : false,
-                    (configData_->dimension_ > 2) ? meshDscr.boundaryConditions_[2] : false,
-                    configData_->polynomialOrder_,
-                    0,nrOfElementMatrixes,nrOfElementVectors,
-                    nrOfFaceMatrixes,nrOfFaceVectors);
-        
-        if (meshType== RECTANGULAR)
-        {   
+                                                    meshDscr.boundaryConditions_[0],
+                                                    (configData_->dimension_ > 1) ? meshDscr.boundaryConditions_[1] : false,
+                                                    (configData_->dimension_ > 2) ? meshDscr.boundaryConditions_[2] : false,
+                                                    configData_->polynomialOrder_,
+                                                    0, nrOfElementMatrixes, nrOfElementVectors,
+                                                    nrOfFaceMatrixes, nrOfFaceVectors);
+
+        if (meshType == RECTANGULAR)
+        {
             mesh->createRectangularMesh(meshDscr.bottomLeft_, meshDscr.topRight_, meshDscr.numElementsInDIM_);
             mesh->getElementsList();
             meshes_.push_back(mesh);
         }
-        else if (meshType==TRIANGULAR)
+        else if (meshType == TRIANGULAR)
         {
-        	mesh->createTriangularMesh(meshDscr.bottomLeft_,meshDscr.topRight_,meshDscr.numElementsInDIM_);
+            mesh->createTriangularMesh(meshDscr.bottomLeft_, meshDscr.topRight_, meshDscr.numElementsInDIM_);
             mesh->getElementsList();
-        	meshes_.push_back(mesh);
+            meshes_.push_back(mesh);
         }
         else
         {
             std::cerr << "Other types are yet to be implemented! " << std::endl;
         }
-        std::cout<<"I just created a mesh!!!"<<std::endl;
-            //mesh->outputMesh(std::cout);
+        std::cout << "I just created a mesh!!!" << std::endl;
+        //mesh->outputMesh(std::cout);
         return numOfMeshes;
     }
     
-    
-    HpgemUI::MeshId HpgemUI::addMesh(const HpgemUI::String& fileName, int nrOfElementMatrixes, int nrOfElementVectors,int nrOfFaceMatrixes, int nrOfFaceVectors)
+    HpgemUI::MeshId HpgemUI::addMesh(const HpgemUI::String& fileName, int nrOfElementMatrixes, int nrOfElementVectors, int nrOfFaceMatrixes, int nrOfFaceVectors)
     {
-        unsigned int numOfMeshes=meshes_.size();
-        MeshManipulator* mesh = new MeshManipulator(configData_,false,false,false,configData_->polynomialOrder_,0,nrOfElementMatrixes,nrOfElementVectors,nrOfFaceMatrixes,nrOfFaceVectors);
-        mesh->readCentaurMesh(fileName);  //boundary information (^) is ignored
-            mesh->getElementsList();
+        unsigned int numOfMeshes = meshes_.size();
+        MeshManipulator* mesh = new MeshManipulator(configData_, false, false, false, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
+        mesh->readCentaurMesh(fileName); //boundary information (^) is ignored
+        mesh->getElementsList();
         meshes_.push_back(mesh);
-        std::cout<<"I just read a mesh!!!"<<std::endl;
-            //mesh->outputMesh(std::cout);
+        std::cout << "I just read a mesh!!!" << std::endl;
+        //mesh->outputMesh(std::cout);
         return numOfMeshes;
     }
     
-    typename HpgemUI::ConstElementIterator
-    HpgemUI::elementColBegin(MeshId mId)const
+    typename HpgemUI::ConstElementIterator HpgemUI::elementColBegin(MeshId mId)const
     {
         return meshes_[mId]->elementColBegin();
     }
-
-    typename HpgemUI::ConstElementIterator
-    HpgemUI::elementColEnd(MeshId mId)const
-    {
-        return meshes_[mId]->elementColEnd();
-    }
-
-    typename HpgemUI::ElementIterator
-    HpgemUI::elementColBegin(MeshId mId)
-    {
-        return meshes_[mId]->elementColBegin();
-    }
-
-    typename HpgemUI::ElementIterator
-    HpgemUI::elementColEnd(MeshId mId)
+    
+    typename HpgemUI::ConstElementIterator HpgemUI::elementColEnd(MeshId mId)const
     {
         return meshes_[mId]->elementColEnd();
     }
     
-    typename HpgemUI::ConstFaceIterator
-    HpgemUI::faceColBegin(MeshId mId)const
+    typename HpgemUI::ElementIterator HpgemUI::elementColBegin(MeshId mId)
+    {
+        return meshes_[mId]->elementColBegin();
+    }
+    
+    typename HpgemUI::ElementIterator HpgemUI::elementColEnd(MeshId mId)
+    {
+        return meshes_[mId]->elementColEnd();
+    }
+    
+    typename HpgemUI::ConstFaceIterator HpgemUI::faceColBegin(MeshId mId)const
     {
         return meshes_[mId]->faceColBegin();
     }
-
-    typename HpgemUI::ConstFaceIterator
-    HpgemUI::faceColEnd(MeshId mId)const
+    
+    typename HpgemUI::ConstFaceIterator HpgemUI::faceColEnd(MeshId mId)const
     {
         return meshes_[mId]->faceColEnd();
     }
-
-    typename HpgemUI::FaceIterator
-    HpgemUI::faceColBegin(MeshId mId)
+    
+    typename HpgemUI::FaceIterator HpgemUI::faceColBegin(MeshId mId)
     {
         return meshes_[mId]->faceColBegin();
     }
-
-    typename HpgemUI::FaceIterator
-    HpgemUI::faceColEnd(MeshId mId)
+    
+    typename HpgemUI::FaceIterator HpgemUI::faceColEnd(MeshId mId)
     {
         return meshes_[mId]->faceColEnd();
     }

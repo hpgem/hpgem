@@ -149,7 +149,7 @@ public:
     ///transformations are done internally. If you expect 4 matrices here, 
     ///you can assume that integrandVal is block structured with 4 blocks in total such
     ///that basisfunctions belonging to the left element are on the left and top.
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& p, LinearAlgebra::Matrix& integrandVal) override
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::Matrix& integrandVal) override
     {
         //Obtain the number of basisfunctions that are possibly non-zero at this face.
         const size_t numBasisFunctions = face->getNrOfBasisFunctions();
@@ -230,7 +230,7 @@ public:
     ///integral on the right-hand side. However, in our application we do not have
     ///contributions for the boundary conditions, so the vector has only zeroes.
     ///The input/output structure is the same as the other faceIntegrand function.
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& p, LinearAlgebra::NumericalVector& integrandVal) override
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& integrandVal) override
     {
         //Obtain the number of basisfunctions that are possibly non-zero
         const size_t numBasisFunctions = face->getNrOfBasisFunctions();

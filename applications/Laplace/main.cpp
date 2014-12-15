@@ -127,7 +127,7 @@ public:
     ///that basis functions belonging to the left element are indexed first
     ///note that using a consistent flux has no effect if you also use conforming basis functions
     //this routine is only needed if you use discontinuous basis functions
-    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::Matrix& result)
+    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::Matrix& result)
     {
         int n = face->getNrOfBasisFunctions();
         result.resize(n, n);
@@ -169,7 +169,7 @@ public:
 
     ///The vector edition of the face integrand is meant for implementation of the boundary conditions
     //for conforming problems this functions only deals with non-homogeneous Neumann and Robin boundary conditions 
-    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::NumericalVector& result)
+    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result)
     {
         int n = face->getNrOfBasisFunctions();
         result.resize(n);

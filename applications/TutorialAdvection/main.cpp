@@ -19,32 +19,25 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Base/HpgemUISimplified.hpp"
-#include "Output/TecplotSingleElementWriter.hpp"
-#include "Base/ElementCacheData.hpp"
-#include "Base/FaceCacheData.hpp"
-#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
-#include "Base/Element.hpp"
-#include "Integration/ReturnTrait1.hpp"
-#include "Base/Element.hpp"
-#include "Integration/FaceIntegral.hpp"
-#include "Integration/ElementIntegral.hpp"
-#include "Base/ConfigurationData.hpp"
-#include "Base/RectangularMeshDescriptor.hpp"
-#include "Base/ElementCacheData.hpp"
-#include "Base/FaceCacheData.hpp"
-#include "cassert"
-#include "Base/CommandLineOptions.hpp"
-#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
+#include <cassert>
 #include <cmath>
 #include <functional>
-
+#include "Base/CommandLineOptions.hpp"
+#include "Base/ConfigurationData.hpp"
+#include "Base/Element.hpp"
+#include "Base/Face.hpp"
+#include "Base/HpgemUISimplified.hpp"
+#include "Base/RectangularMeshDescriptor.hpp"
+#include "Integration/ElementIntegral.hpp"
+#include "Integration/FaceIntegral.hpp"
+#include "Integration/ReturnTrait1.hpp"
+#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
+#include "Output/TecplotSingleElementWriter.hpp"
+#include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
 
 
 ///Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
 ///The first self-contained (no PETSc) program to make it into the SVN
-///\todo Polish into example code or tutorial
 ///\todo Write self-test
 class Advection : public Base::HpgemUISimplified
 {
@@ -59,8 +52,7 @@ public:
         for (size_t i = 0; i < DIM_; ++i)
         {
             a[i] = 0.1 + 0.1*i;
-        }
-        
+        }        
     }
 
     ///set up the mesh
@@ -99,12 +91,12 @@ public:
     ///so you wont have to do any transformations yourself
     void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result)
     {
-        size_t numBasisFuncs = element->getNrOfBasisFunctions();
+        std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
         result.resize(numBasisFuncs, numBasisFuncs);
         LinearAlgebra::NumericalVector phiDerivJ(DIM_);
-        for (size_t i = 0; i < numBasisFuncs; ++i)
+        for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
-            for (size_t j = 0; j < numBasisFuncs; ++j)
+            for (std::size_t j = 0; j < numBasisFuncs; ++j)
             {
                 element->basisFunctionDeriv(j, point, phiDerivJ);
                 result(j, i) = element->basisFunction(i, point)*(a * phiDerivJ);
@@ -125,12 +117,12 @@ public:
     ///transformations are done internally. If you expect 4 matrices here, 
     ///you can assume that integrandVal is block structured with 4 blocks in total such
     ///that basisfunctions belonging to the left element are on the left and top.
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::Matrix& integrandVal)
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::Matrix& integrandVal)
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left element.
-        size_t numBasisFuncs = face->getNrOfBasisFunctions();
-        size_t nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
+        std::size_t numBasisFuncs = face->getNrOfBasisFunctions();
+        std::size_t nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
         
         //Resize the result to the correct size and set all elements to 0.
         integrandVal.resize(numBasisFuncs, numBasisFuncs);
@@ -138,33 +130,33 @@ public:
 
         //Check if the normal is in the same direction as the advection.
         //Note that normal does not have length 1!
-        double A = (a * normal) / Base::L2Norm(normal);
+        const double A = (a * normal) / Base::L2Norm(normal);
         
         LinearAlgebra::NumericalVector phiNormalJ(DIM_);
         
         //Compute all entries of the integrand at this point:
-        for (size_t i = 0; i < numBasisFuncs; ++i)
+        for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
-            for (size_t j = 0; j < numBasisFuncs; ++j)
+            for (std::size_t j = 0; j < numBasisFuncs; ++j)
             {
                 //Get phi_j normal_j at this point.
                 face->basisFunctionNormal(j, normal, point, phiNormalJ);
 
                 //Give the terms of the upwind flux.
                 //Advection in the same direction as outward normal of the left element:
-                if ((A > 1e-12)&&(i < nLeft)) 
+                if ((A > 1e-12) && (i < nLeft)) 
                 {
                     integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point);
                 }
                 //Advection in the same direction as outward normal of right element:
-                else if ((A<-1e-12)&&(i >= nLeft))
+                else if ((A<-1e-12) && (i >= nLeft))
                 {
                     integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point);
                 }
                 //Advection orthogonal to normal:
                 else if (std::abs(A) < 1e-12)
                 {
-                    integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point) / 2.;
+                    integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point) / 2.0;
                 }
             }
         }
@@ -172,30 +164,31 @@ public:
 
     ///The vector edition of the face integrand is meant for implementation of boundary conditions
     ///This is a periodic problem, so it just return 0
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& point, LinearAlgebra::NumericalVector& result)
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result)
     {
-        size_t n = face->getNrOfBasisFunctions();
-        result.resize(n);
+        std::size_t numBasisFuncs = face->getNrOfBasisFunctions();
+        result.resize(numBasisFuncs);
         result *= 0;
     }
     
     ///Define the initial conditions, in this case sin(2pi x)* sin(2pi y).
     double initialConditions(const PointPhysicalT& point)
     {
-        return std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]);
+        return (std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]));
     }
 
     ///interpolates the initial conditions
     void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& integrandVal)
     {
+        std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
         //Compute the physical coordinates of the reference point
         PointPhysicalT pPhys(DIM_);
         element->referenceToPhysical(point, pPhys);
         
         //Resize the vector and compute the value of the basis function times the
         //value of the initial conditions in this point.
-        integrandVal.resize(element->getNrOfBasisFunctions());
-        for (size_t i = 0; i < element->getNrOfBasisFunctions(); ++i)
+        integrandVal.resize(numBasisFuncs);
+        for (std:: size_t i = 0; i < numBasisFuncs; ++i)
         {
             integrandVal[i] = element->basisFunction(i, point) * initialConditions(pPhys);
         }
@@ -208,110 +201,97 @@ public:
         element->getSolution(0, point, value);
         out << value[0];
     }
-
-    ///TODO put this in HpgemUISimplified
-    // solve Mx=`residue`
-    void interpolate()
-    {
-        LinearAlgebra::NumericalVector solution;
-        for (Base::Element* element : meshes_[0]->getElementsList())
-        {
-            size_t numBasisFuncs = element->getNrOfBasisFunctions();
-            LinearAlgebra::Matrix mass = element->getMassMatrix();
-            solution = element->getResidue();
-            mass.solve(solution);
-            element->setTimeLevelData(0, solution);
-        }
-    }    
     
+    /// For every element, compute the right hand side of the system of equation,
+    /// namely rhs = M*u + dt*S*u
     void computeRhsLocal()
     {
         LinearAlgebra::Matrix stiffness;
-        LinearAlgebra::NumericalVector residual, oldData;
+        LinearAlgebra::NumericalVector rhs, oldData;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
             //collect data
-            //first number of basis functions, then the mass matrix and finally
-            //the stiffness matrix
-            size_t numBasisFuncs = element->getNrOfBasisFunctions();
+            std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
             stiffness.resize(numBasisFuncs, numBasisFuncs);
             element->getElementMatrix(stiffness, 0);
             LinearAlgebra::Matrix mass = element->getMassMatrix();
             
-            //Get the data of the initial time
-            //At the moment, oldData has 1 row, numBasisFuncs columns
+            //Get the data of the current time step
             oldData = element->getTimeLevelData(0);
             
-            //compute residual=M*u+dt*S*u
-            residual = (mass + (dt_ * stiffness)) * oldData;
+            //compute rhs = M*u + dt*S*u
+            rhs = (mass + (dt_ * stiffness)) * oldData;
             
-            element->setResidue(residual);
+            //save the rhs in the element
+            element->setResidue(rhs);
         }
     }
     
+    ///For every face, compute the contribution to the right hand side of the face,
+    ///namely rhs = dt_ * (FaceMat * rhs)
     void computeRhsFaces()
     {
-        LinearAlgebra::Matrix faceMatrix;
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
-            size_t numBasisFuncs = face->getNrOfBasisFunctions();
-            size_t numBasisFuncsLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
-            faceMatrix.resize(numBasisFuncs, numBasisFuncs);
+            std::size_t numBasisFuncs = face->getNrOfBasisFunctions();
+            
+            LinearAlgebra::Matrix faceMatrix(numBasisFuncs, numBasisFuncs);
             face->getFaceMatrix(faceMatrix);            
-            LinearAlgebra::NumericalVector residue = face->getTimeLevelData(0);
+            LinearAlgebra::NumericalVector rhs = face->getTimeLevelData(0);
 
             //compute the flux
-            residue = faceMatrix*residue;
-            residue *= dt_;
-            face->setResidue(residue);
+            rhs = dt_ * (faceMatrix*rhs);
+            face->setResidue(rhs);
         }
     }
-    
-    ///This function contains everything that has to be done before time-integration
-    ///can start. In this case, nothing.
-    void beforeTimeIntegration()
-    {
-    }
-
 
 private:
 
     //number of elements per cardinal direction
-    int numElements_;
+    std::size_t numElements_;
 
     //polynomial order of the approximation
-    int polyOrder_;
+    std::size_t polyOrder_;
 
     //Dimension of the problem
-    static const unsigned int DIM_;
+    static const std::size_t DIM_;
     
-    ///advective terms.
+    ///Advective vector
     LinearAlgebra::NumericalVector a;
 };
 
-const unsigned int Advection::DIM_(2);
+const std::size_t Advection::DIM_(2);
 
 auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
 auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
+
+///Make the problem and solve it.
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
     try
     {
-
+        //Construct our problem with n elements in every direction and polynomial order p
         Advection test(n.getValue(), p.getValue());
-        test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, size_t timelevel)->double
+        
+        //Define how we want the solution to be written in the VTK files
+        test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, size_t timelevel) -> double
         {
             LinearAlgebra::NumericalVector solution(1);
             element->getSolution(timelevel, point, solution);
             return solution[0];
         }, "value");
+        
+        //Run the simulation and write the solution
         test.solve();
+        
         return 0;
     }
+    //If something went wrong, print the error message and return -1.
     catch (const char* e)
     {
         std::cout << e;
     }
+    return -1;
 }
 
