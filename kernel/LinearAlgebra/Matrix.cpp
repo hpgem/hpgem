@@ -142,26 +142,6 @@ namespace LinearAlgebra
         return (*this);            
     }
     
-    /// \details
-    /*! Computes Matrix * vector and return the vector
-     This is done by calling the BLAS (level 2) routine dgemv.
-     */
-    NumericalVector Matrix::operator*(NumericalVector& right)
-    {
-        int nr=nRows_;
-        int nc=nCols_;            
-        
-        int i_one=1;
-        double d_one=1.0;
-        double d_zero=0.0;
-        
-        //NumericalVector result(other);
-        NumericalVector result(nc);
-        
-       dgemv_("N", &nr, &nc, &d_one, &((*this)[0]), &nr,&right[0],&i_one, &d_zero, &result[0], &i_one);
-        
-        return result;        
-    }
     
     /// \details
     /*! Computes Matrix * vector and return the vector
@@ -177,6 +157,12 @@ namespace LinearAlgebra
         double d_zero=0.0;
         
         NumericalVector result(nc);
+
+//        std::cout << __PRETTY_FUNCTION__ << "\n";
+//        std::cout << "Mat: " << nr << "x" << nc << "\n";
+//        std::cout << "Vec: " << right.size() << std::endl;
+//        if (nr == 0)
+//          *((int*)svnullptr) = 1234;
         
         dgemv_("N", &nr, &nc, &d_one, &((*(const_cast<Matrix *> (this)))[0]), &nr,&right[0],&i_one, &d_zero, &result[0], &i_one);
         return result;

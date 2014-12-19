@@ -87,7 +87,7 @@ public:
     ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
     ///so you wont have to do any transformations yourself (constructs the mass matrix)
 
-    virtual void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result) {
+    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result) override {
         int n = element->getNrOfBasisFunctions();
         result.resize(n, n);
         for (int i = 0; i < n; ++i) {
@@ -102,7 +102,7 @@ public:
     class advectiveTerm : public Integration::ElementIntegrandBase<LinearAlgebra::Matrix> {
     public:
 
-        virtual void elementIntegrand(const Base::Element* element, const Geometry::PointReference& point, LinearAlgebra::Matrix& result) {
+        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& point, LinearAlgebra::Matrix& result) override {
             int n = element->getNrOfBasisFunctions();
             result.resize(n, n);
             LinearAlgebra::NumericalVector b(DIM_);
@@ -125,7 +125,7 @@ public:
     ///so you wont have to do any transformations yourself. If you expect 4 matrices here, you can assume that ret is block structured such
     ///that basisfunctions belonging to the left element are indexed first
 
-    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::Matrix& result) {
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::Matrix& result) override {
         int n = face->getNrOfBasisFunctions(), nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
         result.resize(n, n);
         result *= 0;
@@ -155,7 +155,7 @@ public:
     ///The vector edition of the face integrand is meant for implementation of boundary conditions
     ///This is a periodic problem, so it just return 0
 
-    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result) {
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result) override {
         int n = face->getNrOfBasisFunctions();
         result.resize(n);
         result *= 0;
@@ -187,7 +187,7 @@ public:
     
     ///TODO this cannot be automated because I dont know where the mass matrix is
     // solve Mx=`residue`
-    virtual void interpolate(){
+    void interpolate() override {
         LinearAlgebra::Matrix mass;
         LinearAlgebra::NumericalVector solution;
         for (Base::Element* element : meshes_[0]->getElementsList()) {
@@ -202,7 +202,7 @@ public:
     }
 
 
-    virtual void computeLocalResidual()
+    void computeRhsLocal() override
     {
         LinearAlgebra::Matrix mass, stiffness;
         LinearAlgebra::NumericalVector oldData, residual;
@@ -223,7 +223,7 @@ public:
     }
 
 
-    virtual void computeFluxResidual()
+    void computeRhsFaces() override
     {
         LinearAlgebra::Matrix stiffness;
         LinearAlgebra::NumericalVector residue;
@@ -251,7 +251,7 @@ public:
     }
 
 
-    virtual void beforeTimeIntegration(){
+    void beforeTimeIntegration() override {
         
         //manual integration example
         Integration::ElementIntegral elIntegral(false);
@@ -299,7 +299,8 @@ int main(int argc, char **argv)
     } 
     catch (const char* e) 
     {
-        std::cout << e;
+        std::cout << e << std::endl;
+        std::exit(3);
     }
 }
 

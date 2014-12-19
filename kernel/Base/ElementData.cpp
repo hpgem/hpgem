@@ -126,6 +126,52 @@ namespace Base
             throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
         }
     }
+    
+    /*
+    ** -- Date Friday 19 Dec 2014
+    ** -- Developer @dducks
+    **
+    ** Guys - can we have a small inline debate about the return type of getTimeLevelData?
+    ** 
+    ** So, getTimeLevelData / setTimeLevelData convert their elements into a NumericalVector from a Matrix
+    ** Why the hell do we do that? This makes additional copies, and causes issues with the MPI synchronisation, since
+    ** everything is done asynchronous. This makes me sad and stuff.
+    **
+    ** Also, there seems to be an asymmetry for solutionId / etc. 
+    **
+    ** For now I've reimplemented these methods which return the direct matrix. PloxFix? <3
+    **
+    */
+    /**
+      \brief Returns (and creates if unavailable) the time level data matrix for this element
+      
+      This method returns the TimeLevelData matrix present in this Element for the given timeLevel
+      If this matrix does not exist yet (or better said, is of dimension 0x0), it will be initialised
+      with the proper dimensions.
+      
+      \arg timeLevel the corresponding timeLevel
+      \return a reference to the actual matrix
+    */
+    LinearAlgebra::Matrix& ElementData::getTimeLevelDataMatrix(std::size_t timeLevel) 
+    {
+      if (timeLevel < timeLevels_)
+      {
+        // The matrix can be of dimension 0x0 if it hasn't been used before.
+        // So lets resize it first!
+        if (expansionCoefficients_[timeLevel].size() != nrOfUnkowns_ * nrOfBasisFunctions_)
+        {
+          expansionCoefficients_[timeLevel].resize(nrOfUnkowns_, nrOfBasisFunctions_);
+        }
+        
+        return expansionCoefficients_[timeLevel];
+      }
+      else
+      {
+        throw "Error: Asked for a time level greater than the amount of time levels!";
+      }
+      
+    }
+    
 
     ///Rewrite with swap!!! and for all variables immediately
     void ElementData::setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown)

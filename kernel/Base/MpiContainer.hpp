@@ -5,12 +5,13 @@
  * Created on October 30, 2014, 4:31 PM
  */
 
-#ifdef HPGEM_USE_MPI
-#include <mpi.h>
-#endif
 
 #ifndef MPICONTAINER_HPP
 #define	MPICONTAINER_HPP
+
+#ifdef HPGEM_USE_MPI
+#include <mpi.h>
+#endif
 
 #include <type_traits>
 #include <vector>
@@ -43,6 +44,8 @@ toMPIType(T t)
     return MPI::Datatype::Match_size(MPI_TYPECLASS_REAL,sizeof(T));
 }
 
+#if 0
+//DDucks: There might be pointers? I do not assume to this to be safe :(
 template<class T>
 typename std::enable_if<!std::is_fundamental<T>::value && std::is_trivially_copyable<T>::value, MPI::Datatype>::type
 toMPIType(T t)
@@ -51,6 +54,7 @@ toMPIType(T t)
     MPI::Datatype result = MPI::Datatype::Match_size(MPI_TYPECLASS_INTEGER,1);
     result = result.Create_contiguous(sizeof(t));
 }
+#endif
 
 //inline MPI::Datatype toMPIType(int i) {
 //    return MPI::INT;

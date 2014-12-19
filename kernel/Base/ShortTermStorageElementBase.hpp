@@ -233,7 +233,7 @@ namespace Base
       element_->getElementVector(vec, vectorID);
     }
 
-    virtual const LinearAlgebra::NumericalVector getTimeLevelData(unsigned int timeLevel) const
+    virtual const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel) const
     {
       return element_->getTimeLevelData(timeLevel);
     }

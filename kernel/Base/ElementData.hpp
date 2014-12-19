@@ -66,6 +66,8 @@ namespace Base
 
     virtual void getElementVector(LinearAlgebra::NumericalVector&, int vectorID=0) const;
 
+    LinearAlgebra::Matrix& getTimeLevelDataMatrix(std::size_t timeLevel);
+
     /// Specify a time level index, return a vector containing the data for that time level.
     virtual const LinearAlgebra::NumericalVector    getTimeLevelData(size_t timeLevel) const;
 

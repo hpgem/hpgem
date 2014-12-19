@@ -90,9 +90,6 @@ namespace LinearAlgebra
     const double& operator[](const int n) const;
 
     /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j
-    NumericalVector operator*(NumericalVector& right);
-
-    /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j (constant version)
     NumericalVector operator*(NumericalVector& right) const;
 
 

@@ -260,9 +260,15 @@ namespace Base
             {
                 if (configData_->numberOfTimeLevels_ > 0)
                 {
-                    assert(el->getTimeLevelData(0).size()==configData_->numberOfBasisFunctions_);
+                    //@dducks: Shouldn't this be nobf * numberOfUnknowns?
+                    assert(el->getTimeLevelDataMatrix(0).size()==configData_->numberOfBasisFunctions_);
+
+                    //assert(el->getTimeLevelData(0).size()==configData_->numberOfBasisFunctions_);
+//                    LinearAlgebra::NumericalVector timeLevelData(configData_->numberOfBasisFunctions_);
                     //std::cout<<"Receiving element "<<el->getID()<<" from process "<<it.first<<std::endl;
-                    MPIContainer::Instance().receive(el->getTimeLevelData(0), it.first, el->getID() * 2 + 1);
+//                    MPIContainer::Instance().receive( timeLevelData , it.first, el->getID() * 2 + 1);
+//                    el->setTimeLevelData( 0, timeLevelData );
+                    MPIContainer::Instance().receive( el->getTimeLevelDataMatrix(0), it.first, el->getID() * 2 + 1);
                 }
             }
         }
@@ -272,10 +278,11 @@ namespace Base
             {
                 if (configData_->numberOfTimeLevels_ > 0)
                 {
-                    assert(el->getTimeLevelData(0).size()==configData_->numberOfBasisFunctions_);
+                    //@dducks: see note above with receive assert!
+                    assert(el->getTimeLevelDataMatrix(0).size()==configData_->numberOfBasisFunctions_);
+                    MPIContainer::Instance().send( el->getTimeLevelDataMatrix(0), it.first, el->getID() * 2 + 1);
                     //std::cout<<"Sending element "<<el->getID()<<" to process "<<it.first<<std::endl;
-                    assert(el->getTimeLevelData(0).size()==configData_->numberOfBasisFunctions_);
-                    MPIContainer::Instance().send(el->getTimeLevelData(0), it.first, el->getID() * 2 + 1);
+//                    MPIContainer::Instance().send(el->getTimeLevelData(0), it.first, el->getID() * 2 + 1);
                 }
             }
         }
