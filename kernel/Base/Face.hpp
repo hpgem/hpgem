@@ -103,20 +103,20 @@ namespace Base
             return vecCacheData_;
         }
 
-        virtual double basisFunction(size_t i, const Geometry::PointReference& p) const;
+        virtual double basisFunction(std::size_t i, const Geometry::PointReference& p) const;
 
         ///\brief returns the value of the i-th basisfunction at point p in ret
-        virtual void basisFunction(size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual void basisFunctionNormal(size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual void basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
         /// jDir=0 means x, and etc.
-        virtual double basisFunctionDeriv(size_t i, size_t jDir, const Geometry::PointReference& p) const;
+        virtual double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference& p) const;
 
         ///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
-        virtual void basisFunctionDeriv(size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual void basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual void basisFunctionCurl(size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual void basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
         virtual int getNrOfBasisFunctions() const;
 

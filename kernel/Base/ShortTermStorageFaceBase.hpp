@@ -71,140 +71,205 @@ namespace Base {
 			}
 			currentPointIndex_=-1;
 			return *this;
-		}
+        }
 
-		virtual void computeData();
+        virtual void computeData();
 
-		virtual ~ShortTermStorageFaceBase() {
+        virtual ~ShortTermStorageFaceBase() override {
 			//keep the face alive!
-		}
+        }
 
-		virtual void getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) const;
-		virtual void getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v);
+        void getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) const override;
+        virtual void getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v);
 
-		virtual double basisFunction(unsigned int i, const Geometry::PointReference& p) const {throw "No storage functionality was implemented! Are you working in a vector valued function space?";}
-		virtual double basisFunction(unsigned int i, const Geometry::PointReference& p) {throw "No storage functionality was implemented! Are you working in a vector valued function space?";}
+        double basisFunction(std::size_t i, const Geometry::PointReference& p) const override
+        {
+            throw "No storage functionality was implemented! Are you working in a vector valued function space?";
+        }
 
-		virtual void basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {throw "No storage functionality was implemented! Are you working in a scalar function space?";}
-		virtual void basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Are you working in a scalar function space?";}
+        virtual double basisFunction(std::size_t i, const Geometry::PointReference& p) 
+        {
+            throw "No storage functionality was implemented! Are you working in a vector valued function space?";
+        }
 
-		virtual void basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {throw "No storage functionality was implemented! Are you working in an unusual function space?";}
-		virtual void basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Are you working in an unusual function space?";}
+        void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override
+        {
+            throw "No storage functionality was implemented! Are you working in a scalar function space?";
+        }
 
-		virtual double basisFunctionDeriv(unsigned int i, unsigned int jDir, const Geometry::PointReference& p) const {return face_->basisFunctionDeriv(i,jDir,p);}
+        virtual void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        {
+            throw "No storage functionality was implemented! Are you working in a scalar function space?";
+        }
 
-		virtual void basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}
-		virtual void basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}
+        void basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override
+        {
+            throw "No storage functionality was implemented! Are you working in an unusual function space?";
+        }
 
-		virtual void basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";}
-		virtual void basisFunctionCurl(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";}
+        virtual void basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        {
+            throw "No storage functionality was implemented! Are you working in an unusual function space?";
+        }
+
+        double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference& p) const override
+        {
+            return face_->basisFunctionDeriv(i, jDir, p);
+        }
+
+        void basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override
+        {
+            throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";
+        }
+
+        virtual void basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        {
+            throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";
+        }
+
+        void basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override
+        {
+            throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
+        }
+
+        virtual void basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        {
+            throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
+        }
 
 		//if this is needed a lot, also store this
-		virtual void referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical) const;
+        void referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical) const override;
 
         //caching functionality
 
         //! \brief Start caching (geometry) information now.
-		virtual void    cacheOn();
+        void cacheOn() ;
 
 		//! \brief Stop using cache.
-		virtual void    cacheOff();
+        void cacheOff() ;
 
 		//! \brief Set recompute the cache ON.
-		virtual void    recomputeCacheOn();
+        void recomputeCacheOn() ;
 
 		//! \brief Set recompute the cache OFF.
-		virtual void    recomputeCacheOff();
+        void recomputeCacheOff() ;
 
 		//make sure all the other functions map to the other face
 
-		virtual const ElementT* getPtrElementLeft() const {
+        const ElementT* getPtrElementLeft() const override
+        {
 			return face_->getPtrElementLeft();
-		}
+        }
 
-		virtual const ElementT* getPtrElementRight() const {
+        const ElementT* getPtrElementRight() const override
+        {
 			return face_->getPtrElementRight();
-		}
+        }
 
-		virtual const FaceQuadratureRule* getGaussQuadratureRule() const {
+        const FaceQuadratureRule* getGaussQuadratureRule() const override
+        {
 			return face_->getGaussQuadratureRule();
-		}
+        }
 
-		virtual bool isInternal() const {
+        bool isInternal() const override
+        {
 			return face_->isInternal();
 		}
 
 		//virtual VecCacheT&       getVecCacheData() { return vecCacheData_; } not sure if ugly or non-const for a reason
 
-		virtual int getNrOfBasisFunctions() const {
+        int getNrOfBasisFunctions() const override
+        {
 			return face_->getNrOfBasisFunctions();
-		}
+        }
 
-		virtual int getLocalNrOfBasisFunctions() const {
+        int getLocalNrOfBasisFunctions() const override
+        {
 			return face_->getLocalNrOfBasisFunctions();
-		}
+        }
 
-		virtual int getID() const {
+        int getID() const override
+        {
 			return face_->getID();
-		}
+        }
 
-		virtual const ElementGeometryT* getElementGLeft() const {
+        const ElementGeometryT* getElementGLeft() const override
+        {
 			return face_->getElementGLeft();
-		}
+        }
 
-		virtual const ElementGeometryT* getPtrElementGRight() const {
+        const ElementGeometryT* getPtrElementGRight() const override
+        {
 			return face_->getPtrElementGRight();
-		}
+        }
 
-		virtual unsigned int localFaceNumberLeft() const {
+        unsigned int localFaceNumberLeft() const override
+        {
 			return face_->localFaceNumberLeft();
-		}
+        }
 
-		virtual unsigned int localFaceNumberRight() const {
+        unsigned int localFaceNumberRight() const override
+        {
 			return face_->localFaceNumberRight();
-		}
+        }
 
-		virtual Geometry::FaceType getFaceType() const {
+        Geometry::FaceType getFaceType() const override
+        {
 			return face_->getFaceType();
-		}
+        }
 
-		virtual int getFaceToFaceMapIndex() const {
+        int getFaceToFaceMapIndex() const override
+        {
 			return face_->getFaceToFaceMapIndex();
-		}
+        }
 
-		virtual const ReferenceFaceGeometryT* getReferenceGeometry() const {
+        const ReferenceFaceGeometryT* getReferenceGeometry() const override
+        {
 			return face_->getReferenceGeometry();
-		}
+        }
 
-		virtual void mapRefFaceToRefElemL(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const {
+        void mapRefFaceToRefElemL(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const override
+        {
 			face_->mapRefFaceToRefElemL(pRefFace, pRefEl);
-		}
+        }
 
-		virtual void mapRefFaceToRefElemR(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const {
+        void mapRefFaceToRefElemR(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const override
+        {
 			face_->mapRefFaceToRefElemR(pRefFace, pRefEl);
-		}
+        }
 
-		virtual void mapRefFaceToRefFace(const ReferencePointT& pIn, ReferencePointT& pOut) const {
+        void mapRefFaceToRefFace(const ReferencePointT& pIn, ReferencePointT& pOut) const override
+        {
 			face_->mapRefFaceToRefFace(pIn, pOut);
-		}
+        }
 
-		virtual RefFaceToRefElementMapping refFaceToRefElemMapL() const {
+        RefFaceToRefElementMapping refFaceToRefElemMapL() const override
+        {
 			return face_->refFaceToRefElemMapL();
-		}
+        }
 
-		virtual RefFaceToRefElementMapping refFaceToRefElemMapR() const {
+        RefFaceToRefElementMapping refFaceToRefElemMapR() const override
+        {
 			return face_->refFaceToRefElemMapR();
-		}
+        }
 
-		virtual void getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0) const {return face_->getFaceMatrix(matrix,matrixID);}
+        void getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0) const override
+        {
+            return face_->getFaceMatrix(matrix, matrixID);
+        }
 
-		virtual void getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID = 0) const {return face_->getFaceVector(vector,vectorID);}
+        void getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID = 0) const override
+        {
+            return face_->getFaceVector(vector, vectorID);
+        }
 
-		virtual const VecCacheT& getVecCacheData() const {
+        const VecCacheT& getVecCacheData() const override
+        {
 			return face_->FaceData::getVecCacheData();
-		}
+        }
 
-		virtual UserFaceData* getUserData() const {
+        UserFaceData* getUserData() const override
+        {
 			return face_->getUserData();
 		}
 

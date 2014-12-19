@@ -70,7 +70,8 @@ void Base::ShortTermStorageFaceH1::computeData() {
 	}
 }
 
-double Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometry::PointReference& p) {
+double Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p)
+{
 	if(!(currentPoint_==p)){
 		currentPoint_=p;
 		computeData();
@@ -78,7 +79,8 @@ double Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometr
 	return basisFunctionValues_[i][0];
 }
 
-double Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometry::PointReference& p) const {
+double Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p) const
+{
 	if(!(currentPoint_==p)){
 		std::cout<<"Warning: you are using slow data access";
 		return face_->basisFunction(i,p);
@@ -86,7 +88,8 @@ double Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometr
 	return basisFunctionValues_[i][0];
 }
 
-void Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {
+void Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+{
 	if(!(currentPoint_==p)){
 		currentPoint_=p;
 		computeData();
@@ -94,7 +97,8 @@ void Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometry:
 	ret=basisFunctionValues_[i];
 }
 
-void Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {
+void Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+{
 	ret=basisFunctionValues_[i];
 	if(!(currentPoint_==p)){
 		std::cout<<"Warning: you are using slow data access";
@@ -102,7 +106,8 @@ void Base::ShortTermStorageFaceH1::basisFunction(unsigned int i, const Geometry:
 	}
 }
 
-void Base::ShortTermStorageFaceH1::basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {
+void Base::ShortTermStorageFaceH1::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+{
 	if(!(currentPoint_==p)){
 		currentPoint_=p;
 		computeData();
@@ -111,7 +116,8 @@ void Base::ShortTermStorageFaceH1::basisFunctionNormal(unsigned int i, const Lin
 	ret=basisFunctionsTimesNormal_[i];
 }
 
-void Base::ShortTermStorageFaceH1::basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {
+void Base::ShortTermStorageFaceH1::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+{
 	ret=basisFunctionsTimesNormal_[i];
 	if(!(currentPoint_==p)){
 		std::cout<<"Warning: you are using slow data access";
@@ -119,7 +125,8 @@ void Base::ShortTermStorageFaceH1::basisFunctionNormal(unsigned int i, const Lin
 	}
 }
 
-void Base::ShortTermStorageFaceH1::basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {
+void Base::ShortTermStorageFaceH1::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+{
 	if(!(currentPoint_==p)){
 		currentPoint_=p;
 		computeData();
@@ -127,7 +134,8 @@ void Base::ShortTermStorageFaceH1::basisFunctionDeriv(unsigned int i, const Geom
 	ret=basisFunctionDerivatives_[i];
 }
 
-void Base::ShortTermStorageFaceH1::basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const {
+void Base::ShortTermStorageFaceH1::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+{
 	ret=basisFunctionDerivatives_[i];
 	if(!(currentPoint_==p)){
 		std::cout<<"Warning: you are using slow data access";

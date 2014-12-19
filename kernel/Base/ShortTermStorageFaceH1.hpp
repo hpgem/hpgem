@@ -34,21 +34,21 @@ namespace Base{
 	class ShortTermStorageFaceH1:public ShortTermStorageFaceBase{
 
 	public:
-		ShortTermStorageFaceH1(unsigned int dimension):ShortTermStorageFaceBase(dimension){}
+		ShortTermStorageFaceH1(unsigned int dimension):ShortTermStorageFaceBase(dimension){ }
 
-		virtual void computeData();
+        void computeData() override;
 
-		virtual double basisFunction(unsigned int i, const Geometry::PointReference& p);
-		virtual double basisFunction(unsigned int i, const Geometry::PointReference& p) const;
+        double basisFunction(std::size_t i, const Geometry::PointReference& p) override;
+        double basisFunction(std::size_t i, const Geometry::PointReference& p) const override;
 
-		virtual void   basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret);
-		virtual void   basisFunction(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) override;
+        void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override;
 
-		virtual void   basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret);
-		virtual void   basisFunctionNormal(unsigned int i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        void basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) override;
+        void basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override;
 
-		virtual void   basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret);
-		virtual void   basisFunctionDeriv(unsigned int i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        void basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) override;
+        void basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override;
 
 	};
 }
