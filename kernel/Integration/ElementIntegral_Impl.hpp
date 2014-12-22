@@ -43,8 +43,8 @@ namespace Integration
   {
       //(@dducks) this lambda definition is not allowed inside the integrate(), why not?
       std::function<void(const ElementT*, const  PointReferenceT&, ReturnTrait1&) > integrandFun = 
-      [=](const ElementT* el, const PointReferenceT& p, ReturnTrait1& ret)->void{integrand->elementIntegrand(el,p,ret);};
-      integrate(el,integrandFun,result,qdrRule);
+      [=](const ElementT* el, const PointReferenceT& p, ReturnTrait1& ret)-> void{integrand -> elementIntegrand(el, p, ret);};
+      integrate(el, integrandFun, result, qdrRule);
   }
 
   template<class ReturnType>

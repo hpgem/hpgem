@@ -222,4 +222,21 @@ namespace Base
         }
         return resLeft;
     }
+    
+    LinearAlgebra::NumericalVector Face::getCurrentData()
+    {
+        LinearAlgebra::NumericalVector dataLeft = getPtrElementLeft()->getCurrentData();
+        if (isInternal())
+        {
+            size_t numBasisFuncs = getNrOfBasisFunctions();
+            size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
+            dataLeft.resize(numBasisFuncs);
+            LinearAlgebra::NumericalVector dataRight = getPtrElementRight()->getCurrentData();
+            for (size_t i = numBasisFuncsLeft; i < numBasisFuncs; ++i)
+            {
+                dataLeft[i] = dataRight[i - numBasisFuncsLeft];
+            }
+        }
+        return dataLeft;
+    }
 };

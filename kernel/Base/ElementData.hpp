@@ -29,7 +29,7 @@
 
 namespace LinearAlgebra
 {
-  class NumericalVector;
+    class NumericalVector;
 }
 
 struct UserElementData;
@@ -37,87 +37,96 @@ struct UserElementData;
 namespace Base
 {
 
-  class ElementData
-  {
-    /*!
-     * ElementData contains the data for every element in the vector elementData_.
-     * This is a two dimensional vector where the first dimensions is the time level,
-     * and the second the number of unknowns times the number of basis functions.
-     */
-  public:
-    typedef typename LinearAlgebra::Matrix               MatrixT;
-    typedef typename std::vector<LinearAlgebra::Matrix>  VectorOfMatrices;
-  public:
+    class ElementData
+    {
+        /*!
+         * ElementData contains the data for every element in the vector elementData_.
+         * This is a two dimensional vector where the first dimensions is the time level,
+         * and the second the number of unknowns times the number of basis functions.
+         */
+    public:
+        using MatrixT = LinearAlgebra::Matrix;
+        using VectorOfMatrices = std::vector<LinearAlgebra::Matrix>;
 
-    ElementData(unsigned int timeLevels, unsigned nrOfUnkowns, unsigned int nrOfBasisFunctions, unsigned int nrOfElementMatrixes = 0, unsigned int nrOfElementVectors = 0);    
+        ElementData(unsigned int timeLevels, unsigned nrOfUnkowns, unsigned int nrOfBasisFunctions, unsigned int nrOfElementMatrixes = 0, unsigned int nrOfElementVectors = 0);
+
+        virtual ~ ElementData() { }
+
+        ///Set/update the element matrix. Routines in hpGEM will assume that for every element, expansioncoefficients of unknowns belonging the the same basisfunctions
+        ///appear consecutively in the matrix.
+        void setElementMatrix(const LinearAlgebra::Matrix&, int matrixID = 0);
+
+        virtual void getElementMatrix(LinearAlgebra::Matrix&, int matrixID = 0) const;
+
+        LinearAlgebra::Matrix& getTimeLevelDataMatrix(std::size_t timeLevel);
     
-    virtual ~ElementData()
-    {
-    }
+        virtual void setElementVector(const LinearAlgebra::NumericalVector& vector, int vectorID = 0);
 
-    ///Set/update the element matrix. Routines in hpGEM will assume that for every element, expansioncoefficients of unknowns belonging the the same basisfunctions
-    ///appear consecutively in the matrix.
-    void setElementMatrix(const LinearAlgebra::Matrix&, int matrixID=0);
+        virtual void getElementVector(LinearAlgebra::NumericalVector&, int vectorID = 0) const;
 
-    virtual void getElementMatrix(LinearAlgebra::Matrix&, int matrixID=0) const;
+        /// Specify a time level index, return a vector containing the data for that time level.
+        virtual const LinearAlgebra::NumericalVector getTimeLevelData(size_t timeLevel) const;
 
-    ///If it not appropriate to use the timeleveldata for your vector information (for example because it is the source term in a time dependent problem)
-    void setElementVector(const LinearAlgebra::NumericalVector&, int vectorID=0);
+        /// Specify a time level index, an unknown (as solutionId), set the data for that unknown
+        void setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown);
+        void setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& unknown);
+        
+        void setCurrentData(const LinearAlgebra::NumericalVector& data)
+        {
+            currentData_ = data;
+        }
+        
+        LinearAlgebra::NumericalVector& getCurrentData()
+        {
+            return currentData_;
+        }
 
-    virtual void getElementVector(LinearAlgebra::NumericalVector&, int vectorID=0) const;
+        /// Specify a time level index, an unknown and a basis function nr, return data (double)
+        virtual double getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const;
 
-    LinearAlgebra::Matrix& getTimeLevelDataMatrix(std::size_t timeLevel);
+        /// Specify a time level index, an unknown and a basis function nr, set the data (double)
+        void setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val);
 
-    /// Specify a time level index, return a vector containing the data for that time level.
-    virtual const LinearAlgebra::NumericalVector    getTimeLevelData(size_t timeLevel) const;
+        virtual int getNrOfUnknows() const;
 
-    /// Specify a time level index, an unknown (as solutionId), set the data for that unknown
-    void setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown);
-    void setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& unknown);
+        virtual int getNrOfBasisFunctions() const;
 
-    /// Specify a time level index, an unknown and a basis function nr, return data (double)
-    virtual double getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const;
+        //this needs to store information about all variables, so it needs to be a matrix (?)
+        virtual const LinearAlgebra::NumericalVector& getResidue() const;
 
-    /// Specify a time level index, an unknown and a basis function nr, set the data (double)
-    void setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val);
+        void setResidue(LinearAlgebra::NumericalVector& residue);
 
-    virtual int getNrOfUnknows() const;
+        void setUserData(UserElementData* data);
 
-    virtual int getNrOfBasisFunctions() const;
+        virtual UserElementData* getUserData() const
+        {
+            return userData_;
+        }
 
-    //this needs to store information about all variables, so it needs to be a matrix (?)
-    virtual const LinearAlgebra::NumericalVector& getResidue() const;
+    protected:
+        void setNumberOfBasisFunctions(unsigned int number);
 
-    void setResidue(LinearAlgebra::NumericalVector& residue);
+    private:
+        std::size_t timeLevels_;
+        std::size_t nrOfUnknowns_;
+        std::size_t nrOfBasisFunctions_;
 
-    void setUserData(UserElementData* data);
+        ///Stores the expansion coefficients    
+        VectorOfMatrices expansionCoefficients_;
 
-    virtual UserElementData* getUserData() const
-    {
-      return userData_;
-    }
+        ///Stores the result of an element integration
+        LinearAlgebra::NumericalVector residue_;
+        
+        ///Store temporary data
+        LinearAlgebra::NumericalVector currentData_;
 
-  protected:
-    void setNumberOfBasisFunctions(unsigned int number);
+        ///Stores polymorphic pointer to UserDefined Data, internally not used! Used only outside of the Kernel!!!
+        UserElementData* userData_;
 
-  private:
-    size_t              timeLevels_;
-    size_t              nrOfUnkowns_;
-    size_t             nrOfBasisFunctions_;
+        ///Stores element matrix(es) for this element
+        VectorOfMatrices elementMatrix_;
 
-    ///Stores the expansion coefficients    
-    VectorOfMatrices          expansionCoefficients_;
-
-    ///Stores the result of an element integration
-    LinearAlgebra::NumericalVector           residue_;
-
-    ///Stores polymorphic pointer to UserDefined Data, internally not used! Used only outside of the Kernel!!!
-    UserElementData*          userData_;
-
-    ///Stores element matrix(es) for this element
-    VectorOfMatrices          elementMatrix_;
-
-    std::vector<LinearAlgebra::NumericalVector> elementVector_;
-  } ;
+        std::vector<LinearAlgebra::NumericalVector> elementVector_;
+    };
 }
 #endif

@@ -1,4 +1,5 @@
 include_directories(${hpGEM_SOURCE_DIR}/kernel/ .)
+add_subdirectory(TimeIntegration)
 
 if(hpGEM_USE_METIS)
   include_directories(${METIS_INCLUDE_DIR})
@@ -35,6 +36,7 @@ add_library(hpGEM_Base SHARED
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp
                 Mesh.cpp
+                ProblemDescriptorTimeDependent.cpp
                 Submesh.cpp
         	${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
@@ -47,7 +49,7 @@ add_library(hpGEM_Base SHARED
 		ShortTermStorageFaceH1.cpp
 	) 
 
-target_link_libraries(hpGEM_Base Geometry Reference_geometries)
+target_link_libraries(hpGEM_Base Geometry Reference_geometries TimeIntegration)
 
 set( DEP_COMPILE_FLAGS "" )
 set( DEP_LINKER_FLAGS "" )

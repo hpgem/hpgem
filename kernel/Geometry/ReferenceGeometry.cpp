@@ -42,7 +42,8 @@ namespace Geometry
         
     }
 
-	const QuadratureRules::GaussQuadratureRule* const ReferenceGeometry::getGaussQuadratureRule(int order) const {
+	const QuadratureRules::GaussQuadratureRule* const ReferenceGeometry::getGaussQuadratureRule(int order) const 
+    {
 		return QuadratureRules::AllGaussQuadratureRules::instance().getRule(this,order);
 	}
 
@@ -56,9 +57,12 @@ namespace Geometry
     double
     ReferenceGeometry::getBasisFunctionValue(const Base::BaseBasisFunction* function,const PointReference& p)
     {
-    	try{
+    	try
+        {
     		return basisfunctionValues_[function].at(p);
-    	}catch(std::out_of_range&){
+    	}
+        catch(std::out_of_range&)
+        {
     		basisfunctionValues_[function][p]=function->eval(p);
     		return basisfunctionValues_[function].at(p);
     	}

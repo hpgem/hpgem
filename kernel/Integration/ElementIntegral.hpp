@@ -59,6 +59,7 @@ namespace Integration
 
         //! \brief Construct an ElementIntegral, either with or without cache.
         ElementIntegral(bool useCache = false);
+        
         //! \brief Class destructor
         ~ ElementIntegral();
 

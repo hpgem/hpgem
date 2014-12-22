@@ -25,7 +25,8 @@
 #include <vector>
 #include <map>
 
-namespace Geometry {
+namespace Geometry 
+{
 	class ReferenceGeometry;
 }
 
@@ -38,7 +39,8 @@ namespace QuadratureRules
 	 * Storage class for all the quadrature rules. If you add a rule, make sure to also add it here in the constructor.
 	 * If you are integrating and want a quadrature rule, this is the appropriate place to get one
 	 */
-	class AllGaussQuadratureRules{
+	class AllGaussQuadratureRules
+        {
 	public:
 		static AllGaussQuadratureRules& instance();
 

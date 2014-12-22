@@ -31,12 +31,12 @@
 namespace Base
 {
     ElementData::ElementData(unsigned int timeLevels,
-                             unsigned int nrOfUnkowns,
+                             unsigned int nrOfUnknowns,
                              unsigned int nrOfBasisFunctions,
                              unsigned int nrOfElementMatrixes,
                              unsigned int nrOfElementVectors) :
     timeLevels_(timeLevels),
-    nrOfUnkowns_(nrOfUnkowns),
+    nrOfUnknowns_(nrOfUnknowns),
     nrOfBasisFunctions_(nrOfBasisFunctions),
     expansionCoefficients_(timeLevels_),
     userData_(nullptr),
@@ -60,7 +60,7 @@ namespace Base
         matrix = elementMatrix_[matrixID];
     }
     
-    void ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, int vectorID)
+    void ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, int vectorID) 
     {
         if (vectorID >= elementVector_.size())
         {
@@ -101,7 +101,7 @@ namespace Base
     
     double ElementData::getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const
     {
-        if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ && basisFunction < nrOfBasisFunctions_)
+        if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_)
         {
             return expansionCoefficients_[timeLevel](unknown, basisFunction);
         }
@@ -113,11 +113,11 @@ namespace Base
     
     void ElementData::setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val)
     {
-        if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ && basisFunction < nrOfBasisFunctions_)
+        if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_)
         {
-            if (expansionCoefficients_[timeLevel].size() != nrOfUnkowns_ * nrOfBasisFunctions_)
+            if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
             {
-                expansionCoefficients_[timeLevel].resize(nrOfUnkowns_, nrOfBasisFunctions_);
+                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_, nrOfBasisFunctions_);
             }
             expansionCoefficients_[timeLevel](unknown, basisFunction) = val;
         }
@@ -158,9 +158,9 @@ namespace Base
       {
         // The matrix can be of dimension 0x0 if it hasn't been used before.
         // So lets resize it first!
-        if (expansionCoefficients_[timeLevel].size() != nrOfUnkowns_ * nrOfBasisFunctions_)
+        if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
         {
-          expansionCoefficients_[timeLevel].resize(nrOfUnkowns_, nrOfBasisFunctions_);
+          expansionCoefficients_[timeLevel].resize(nrOfUnknowns_, nrOfBasisFunctions_);
         }
         
         return expansionCoefficients_[timeLevel];
@@ -176,11 +176,11 @@ namespace Base
     ///Rewrite with swap!!! and for all variables immediately
     void ElementData::setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown)
     {
-        if (timeLevel < timeLevels_ && solutionId < nrOfUnkowns_)
+        if (timeLevel < timeLevels_ && solutionId < nrOfUnknowns_)
         {
-            if (expansionCoefficients_[timeLevel].size() != nrOfUnkowns_ * nrOfBasisFunctions_)
+            if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
             {
-                expansionCoefficients_[timeLevel].resize(nrOfUnkowns_, nrOfBasisFunctions_);
+                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_, nrOfBasisFunctions_);
             }            
             
             LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
@@ -200,14 +200,14 @@ namespace Base
     {
         if (timeLevel < timeLevels_)
         {
-            if (expansionCoefficients_[timeLevel].size() != nrOfUnkowns_ * nrOfBasisFunctions_)
+            if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
             {
-                expansionCoefficients_[timeLevel].resize(nrOfUnkowns_, nrOfBasisFunctions_);
+                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_, nrOfBasisFunctions_);
             }            
             
             LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
 
-            for (size_t i = 0; i < unknown.size(); ++i)
+            for (std::size_t i = 0; i < unknown.size(); ++i)
             {
                 mat[i] = unknown[i];
             }
@@ -220,7 +220,7 @@ namespace Base
     
     int ElementData::getNrOfUnknows() const
     {
-        return nrOfUnkowns_;
+        return nrOfUnknowns_;
     }
     
     int ElementData::getNrOfBasisFunctions() const

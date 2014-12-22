@@ -63,7 +63,7 @@ namespace Base
     {
         orderCoeff_ = 2;// for safety
     	size_t numberOfBasisFunctions = 0;
-    	for (size_t i=0; i < basisFunctionSetPositions_.size(); ++i)
+    	for (size_t i = 0; i < basisFunctionSetPositions_.size(); ++i)
     	{
     		numberOfBasisFunctions += basisFunctionSet_->at(basisFunctionSetPositions_[i])->size();
     	}
