@@ -60,7 +60,7 @@ public:
     }
 
     ///set up the mesh
-    bool initialise() override
+    bool initialise() 
     {
         //describes a rectangular domain
         RectangularMeshDescriptorT description(DIM_);
@@ -93,7 +93,7 @@ public:
     ///basisfunctions phi_i and phi_j.
     ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
     ///so you wont have to do any transformations yourself
-    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result) override
+    void elementIntegrand(const ElementT *element, const PointReferenceT& point, LinearAlgebra::Matrix& result)
     {
         std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
         result.resize(numBasisFuncs, numBasisFuncs);
@@ -121,7 +121,7 @@ public:
     ///transformations are done internally. If you expect 4 matrices here, 
     ///you can assume that integrandVal is block structured with 4 blocks in total such
     ///that basisfunctions belonging to the left element are on the left and top.
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::Matrix& integrandVal) override
+    void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::Matrix& integrandVal)
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left element.
@@ -168,7 +168,7 @@ public:
 
     ///The vector edition of the face integrand is meant for implementation of boundary conditions
     ///This is a periodic problem, so it just return 0
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result) override
+    void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result)
     {
         std::size_t numBasisFuncs = face->getNrOfBasisFunctions();
         result.resize(numBasisFuncs);
@@ -176,13 +176,13 @@ public:
     }
     
     ///Define the initial conditions, in this case sin(2pi x)* sin(2pi y).
-    double initialConditions(const PointPhysicalT& point) override
+    double initialConditions(const PointPhysicalT& point)
     {
         return (std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]));
     }
 
     ///interpolates the initial conditions
-    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& integrandVal) override
+    void elementIntegrand(const ElementT *element, const PointReferenceT& point, LinearAlgebra::NumericalVector& integrandVal)
     {
         std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
         //Compute the physical coordinates of the reference point
@@ -199,7 +199,7 @@ public:
     }
 
     ///provide information about your solution that you want to use for visualisation
-    void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out) override
+    void writeToTecplotFile(const ElementT *element, const PointReferenceT& point, std::ostream& out)
     {
         LinearAlgebra::NumericalVector value(1);
         element->getSolution(0, point, value);
@@ -207,12 +207,12 @@ public:
     }
     
     /// For every element, compute the right hand side of the system of equation,
-    /// namely rhs = M*u + dt*S*u
-    void computeRhsLocal() override
+    /// namely rhs = S * u
+    void computeRhsLocal()
     {
         LinearAlgebra::Matrix stiffness;
         LinearAlgebra::NumericalVector rhs, oldData;
-        for (Base::Element* element : meshes_[0]->getElementsList())
+        for (Base::Element *element : meshes_[0]->getElementsList())
         {
             //collect data
             std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
@@ -222,8 +222,8 @@ public:
             //Get the data of the current time step
             oldData = element->getCurrentData();
             
-            //compute rhs = S*u
-            rhs = stiffness * oldData;            
+            //compute rhs = M*u + dt*S*u
+            rhs = stiffness * oldData;
             
             //save the rhs in the element
             element->setResidue(rhs);
@@ -231,21 +231,65 @@ public:
     }
     
     ///For every face, compute the contribution to the right hand side of the face,
-    ///namely rhs = dt_ * (FaceMat * rhs)
-    void computeRhsFaces() override
+    ///namely rhs = FaceMat * rhs
+    void computeRhsFaces()
     {
-        for (Base::Face* face : meshes_[0]->getFacesList())
+        for (Base::Face *face : meshes_[0]->getFacesList())
         {
             std::size_t numBasisFuncs = face->getNrOfBasisFunctions();
             
             LinearAlgebra::Matrix faceMatrix(numBasisFuncs, numBasisFuncs);
             face->getFaceMatrix(faceMatrix);            
-            LinearAlgebra::NumericalVector oldData = face->getCurrentData();
+            LinearAlgebra::NumericalVector rhs = face->getCurrentData();
 
             //compute the flux
-            oldData = faceMatrix * (oldData);
-            face->setResidue(oldData);
+            rhs = faceMatrix * rhs;
+            face->setResidue(rhs);
         }
+    }
+    
+    /// Compute the analytical solution. Hard coded for the initial condition
+    /// sin(2pi x)* sin(2pi y).
+    double analyticalSolution(const PointPhysicalT& point, double time)
+    {
+        return (std::sin(2 * M_PI * (point[0] - a[0] * time)) * std::sin(2 * M_PI * (point[1] - a[1] * time)));
+    }
+    
+    /// \brief Compute the L^2 error. 
+    ///
+    /// To compute the error, integrate the square of the difference between the
+    /// analytical solution and approximation over every element.
+    /// This is all done by hand and hence very ugly. Feel free to automate it.
+    /// Furthermore, the maximal difference between the analytical solution and
+    /// approximation on Gauss points is computed and printed as Linf error.
+    double computeError()
+    {
+        LinearAlgebra::NumericalVector temp;
+        double analytical, approx;
+        double totalError = 0;
+        double errorInf = 0;
+        Geometry::Jacobian jac(DIM_, DIM_);
+        //compute the values of approximation and analytical solution
+        for (Base::Element *element : meshes_[0]-> getElementsList())
+        {            
+            const QuadratureRules::GaussQuadratureRule *rule = element->getGaussQuadratureRule();
+            
+            for (size_t point = 0; point < rule->nrOfPoints(); ++point)
+            {
+                PointReferenceT pRef(2);
+                rule->getPoint(point, pRef);
+                element->calcJacobian(pRef, jac);
+                element->getSolution(0, pRef, temp);
+                approx = temp[0];
+                PointPhysicalT pPhys(2);
+                element->referenceToPhysical(pRef, pPhys);
+                analytical= analyticalSolution(pPhys, endTime_);
+                totalError += (approx - analytical) * (approx - analytical) * rule->weight(point) * std::abs(jac.determinant());
+                errorInf = std::max(std::abs(approx - analytical), errorInf);
+            }
+        }
+        std::cout << "Linf error: " << errorInf << std::endl;
+        return std::sqrt(totalError);
     }
 
 private:
@@ -275,7 +319,7 @@ int main(int argc, char **argv)
     try
     {
         //Define the time integrator (ODE method) that we're going to use
-        const Base::ButcherTableau* integrator = Base::AllTimeIntegrators::Instance().getRule(4,4);
+        const Base::ButcherTableau *integrator = Base::AllTimeIntegrators::Instance().getRule(4, 4);
         
         //Construct our problem with n elements in every direction and polynomial order p
         AdvectionTest test(n.getValue(), p.getValue(), integrator);
@@ -290,6 +334,9 @@ int main(int argc, char **argv)
         
         //Run the simulation and write the solution
         test.solve();
+        double error = test.computeError();
+        
+        std::cout << "L2-error: " << error << std::endl;
         
         return 0;
     }

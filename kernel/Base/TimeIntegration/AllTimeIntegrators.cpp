@@ -1,12 +1,16 @@
 #include "AllTimeIntegrators.hpp"
 #include "ButcherTableau.hpp"
 #include "RK4Methods.hpp"
+#include "ForwardEuler.hpp"
+#include "MidPoint.hpp"
 
 namespace Base
 {
     AllTimeIntegrators::AllTimeIntegrators()
     {
-        vecOfIntegrators_.push_back(&RK4_4::Instance());
+        vecOfIntegrators_.push_back(&ForwardEuler::instance());
+        vecOfIntegrators_.push_back(&MidPoint::instance());
+        vecOfIntegrators_.push_back(&RK4_4::instance());
         //Should we sort the rules, or is it okay like this?
     }
     

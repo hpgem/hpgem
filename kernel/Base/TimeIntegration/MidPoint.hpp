@@ -1,37 +1,40 @@
 /* 
- * File:   RK4Methods.hpp
+ * File:   midPoint.hpp
  * Author: irana
  *
- * Created on December 19, 2014, 10:48 AM
+ * Created on December 23, 2014, 1:43 PM
  */
 
-#ifndef RK4METHODS_HPP
-#define	RK4METHODS_HPP
+#ifndef MIDPOINT_HPP
+#define	MIDPOINT_HPP
 
 #include <vector>
 #include "ButcherTableau.hpp"
 
 namespace Base
 {
-    class RK4_4 : public ButcherTableau
+
+    class MidPoint : public ButcherTableau
     {
     public:
-        static RK4_4& instance()
+
+        static MidPoint& instance()
         {
-            static RK4_4 theInstance;
+            static MidPoint theInstance;
             return theInstance;
         }
-        
+
         std::size_t order() const;
         std::size_t numStages() const;
         double a(std::size_t i, std::size_t j) const;
         double b(std::size_t i) const;
         double c(std::size_t i) const;
-        
+
     private:
-        RK4_4();
-        virtual ~RK4_4() {}
-        
+        MidPoint();
+
+        virtual ~ MidPoint() { }
+
         std::size_t order_;
         std::size_t numStages_;
         std::vector<std::vector<double> > a_;
@@ -40,5 +43,5 @@ namespace Base
     };
 }
 
-#endif	/* RK4METHODS_HPP */
+#endif	/* MIDPOINT_HPP */
 

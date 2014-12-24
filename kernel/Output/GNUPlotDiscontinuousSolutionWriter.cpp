@@ -86,10 +86,7 @@ namespace Output
 
         // Iterate over elements and write the solution at the vertices.
         // We do this by getting the element list from the mesh, and then iterating over the
-        // elements.            
-
-        //number of nodes on one element
-        unsigned int nrOfNodes;
+        // elements.
         
         
         //(@Irana) Does GNUPlot se the same node ordering as Tecplot, for all element types? -FB

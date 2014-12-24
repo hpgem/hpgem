@@ -94,6 +94,7 @@ void testMesh(Base::MeshManipulator* test)
             {
                 temp2.resize(p.size());
                 el->basisFunctionDeriv(i, p, temp2);
+                double data = el->getData(0,0,i);
                 temp1 += temp2 * el->getData(0, 0, i);
                 //std::cout<<temp2<<" "<<el->getData(0,0,i)<<std::endl;
             }
@@ -102,6 +103,7 @@ void testMesh(Base::MeshManipulator* test)
             //std::cout<<ret[0]<<std::endl;
         }
     } integrating;
+    
     std::cout.precision(14);
     Integration::ElementIntegral elIntegral(false);
     elIntegral.setStorageWrapper(new Base::ShortTermStorageElementH1(test->dimension()));
@@ -112,11 +114,14 @@ void testMesh(Base::MeshManipulator* test)
     {
         elIntegral.integrate(element, &interpolation, expansion);
         elIntegral.integrate(element, &massMatrix, M);
+        
         //M.inverse(M);
         //expansion = expansion * M;
         M.solve(expansion);
-        element->setTimeLevelData(0, expansion);
+        element->setTimeLevelData(0, expansion);   
+
         elIntegral.integrate(element, &integrating, result);
+        
         //std::cout<<result[0]<<std::endl;
         total += result[0];
     }

@@ -67,17 +67,17 @@ namespace Base
         bool virtual initialise() = 0;
 
         /// \brief User-defined element integrand for the left hand side
-        virtual void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& ret) = 0;
+        virtual void elementIntegrand(const ElementT *element, const PointReferenceT& p, LinearAlgebra::Matrix& ret) = 0;
         
         /// \brief User-defined element integrand for the right hand side
-        virtual void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) = 0;
+        virtual void elementIntegrand(const ElementT *element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) = 0;
 
         /// \brief User-defined face integrand for the left hand side
         virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
                 const PointReferenceT& p, LinearAlgebra::Matrix& ret) = 0;
 
         /// \brief User-defined face integrand for the right hand side
-        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
+        virtual void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector& normal,
                 const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) = 0;
 
         /// \brief User-defined initial conditions
@@ -100,8 +100,6 @@ namespace Base
         {
             throw "If you want to call the function \'computeRhsFaces\', please implement it";
         }
-        
-        void addRHSParts();
         
         /**
          * \brief Executes one time step.

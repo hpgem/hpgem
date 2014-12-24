@@ -243,18 +243,18 @@ namespace Base
     
     void Element::getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const
     {
-        size_t numberOfUnknows = ElementData::getNrOfUnknows();
+        std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
         solution.resize(numberOfUnknows);
         
-        for(size_t k = 0; k < numberOfUnknows; ++k)
+        for(std::size_t k = 0; k < numberOfUnknows; ++k)
         {
             solution[k] = 0;
         }
         
         const LinearAlgebra::NumericalVector& data = ElementData::getTimeLevelData(0);
-        for (size_t i=0; i < ElementData::getNrOfBasisFunctions(); ++i)
+        for (std::size_t i = 0; i < ElementData::getNrOfBasisFunctions(); ++i)
         {
-            for (size_t k=0; k < numberOfUnknows; ++k)
+            for (std::size_t k = 0; k < numberOfUnknows; ++k)
             {
                 solution[k] += data(i) * basisFunction(i, p);
             }
