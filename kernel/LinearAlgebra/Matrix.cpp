@@ -481,6 +481,26 @@ namespace LinearAlgebra
     /// \return int : the number of columns
     const int Matrix::getNCols() const {return nCols_;}
     
+    LinearAlgebra::NumericalVector Matrix::getColumn(std::size_t j) const
+    {
+        LinearAlgebra::NumericalVector ret(nRows_);
+        for (std::size_t i = 0; i < nRows_; ++i)
+        {
+            ret[i] = data_[j*nRows_ + i];
+        }        
+        return ret;
+    }
+    
+    LinearAlgebra::NumericalVector Matrix::getRow(std::size_t i) const
+    {
+        LinearAlgebra::NumericalVector ret(nCols_);
+        for (std::size_t j = 0; j < nCols_; ++j)
+        {
+            ret[j] = data_[j*nRows_ + i];
+        }        
+        return ret;
+    }
+    
     /// return Matrix which is the LUfactorisation of the current matrix
     Matrix Matrix::LUfactorisation() const
     {

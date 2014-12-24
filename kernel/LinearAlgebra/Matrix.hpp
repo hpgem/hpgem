@@ -30,6 +30,8 @@
 #include <valarray>
 #endif
 
+#include "NumericalVector.hpp"
+
 namespace LinearAlgebra
 {
   class NumericalVector;
@@ -144,6 +146,16 @@ namespace LinearAlgebra
 
     /// \brief Get the number of columns
     const int getNCols() const;
+    
+    /// \brief get the j^th column
+    /// If someone knows how to do this such that it returns a reference, please
+    ///implement it.
+    LinearAlgebra::NumericalVector getColumn(std::size_t j) const;
+    
+    /// \brief get the i^th row
+    /// If someone knows how to do this such that it returns a reference, please
+    ///implement it.
+    LinearAlgebra::NumericalVector getRow(std::size_t i) const;
 
     /// \brief Return the LUfactorisation of the matrix
     Matrix LUfactorisation() const;

@@ -79,36 +79,11 @@ namespace Base
     void ElementData::setNumberOfBasisFunctions(unsigned int number)
     {
         nrOfBasisFunctions_ = number;
-    }
-    
-    const LinearAlgebra::NumericalVector ElementData::getTimeLevelData(size_t timeLevel) const
+    }    
+   
+    int ElementData::getNrOfBasisFunctions() const
     {
-        if (timeLevel < timeLevels_)
-        {
-            LinearAlgebra::Matrix thisLevelMatrix = expansionCoefficients_[timeLevel];
-            LinearAlgebra::NumericalVector coeffVec(nrOfBasisFunctions_);
-            for (size_t i = 0; i < nrOfBasisFunctions_; ++i)
-            {
-                coeffVec[i] = thisLevelMatrix[i];
-            }
-            return coeffVec;
-        }
-        else
-        {
-            throw "Error: Asked for a time level greater than the amount of time levels";
-        }
-    }
-    
-    double ElementData::getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const
-    {
-        if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_)
-        {
-            return expansionCoefficients_[timeLevel](unknown, basisFunction);
-        }
-        else
-        {
-            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
-        }
+        return nrOfBasisFunctions_;
     }
     
     void ElementData::setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val)
@@ -126,6 +101,59 @@ namespace Base
             throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
         }
     }
+    
+    double ElementData::getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const
+    {
+        if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_)
+        {
+            return expansionCoefficients_[timeLevel](unknown, basisFunction);
+        }
+        else
+        {
+            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
+        }
+    }
+    
+    ///Rewrite with swap!!! and for all variables immediately
+    void ElementData::setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown)
+    {
+        if (timeLevel < timeLevels_ && solutionId < nrOfUnknowns_)
+        {
+            if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
+            {
+                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_, nrOfBasisFunctions_);
+            }            
+            
+            LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
+
+            for (size_t i = 0; i < unknown.size(); ++i)
+            {
+                mat(solutionId, i) = unknown[i];
+            }
+        }
+        else
+        {
+            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
+        }
+    }
+    
+    void ElementData::setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& unknown)
+    {
+        setTimeLevelData(timeLevel, 0, unknown);
+    }    
+    
+    const LinearAlgebra::NumericalVector ElementData::getTimeLevelData(size_t timeLevel, std::size_t unknown) const
+    {
+        if (timeLevel < timeLevels_)
+        {
+            LinearAlgebra::Matrix thisLevelMatrix = expansionCoefficients_[timeLevel];
+            return thisLevelMatrix.getRow(unknown);
+        }
+        else
+        {
+            throw "Error: Asked for a time level greater than the amount of time levels";
+        }
+    } 
     
     /*
     ** -- Date Friday 19 Dec 2014
@@ -168,64 +196,27 @@ namespace Base
       else
       {
         throw "Error: Asked for a time level greater than the amount of time levels!";
-      }
-      
+      }      
+    }   
+    
+    void ElementData::setCurrentData(const LinearAlgebra::NumericalVector& data)
+    {
+        currentData_ = data;
     }
     
-
-    ///Rewrite with swap!!! and for all variables immediately
-    void ElementData::setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown)
+    LinearAlgebra::NumericalVector& ElementData::getCurrentData()
     {
-        if (timeLevel < timeLevels_ && solutionId < nrOfUnknowns_)
-        {
-            if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
-            {
-                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_, nrOfBasisFunctions_);
-            }            
-            
-            LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
-
-            for (size_t i = 0; i < unknown.size(); ++i)
-            {
-                mat(solutionId, i) = unknown[i];
-            }
-        }
-        else
-        {
-            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
-        }
-    }
-    
-    void ElementData::setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& unknown)
-    {
-        if (timeLevel < timeLevels_)
-        {
-            if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
-            {
-                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_, nrOfBasisFunctions_);
-            }            
-            
-            LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
-
-            for (std::size_t i = 0; i < unknown.size(); ++i)
-            {
-                mat[i] = unknown[i];
-            }
-        }
-        else
-        {
-            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
-        }
+        return currentData_;
     }
     
     int ElementData::getNrOfUnknows() const
     {
         return nrOfUnknowns_;
-    }
+    }    
     
-    int ElementData::getNrOfBasisFunctions() const
+    void ElementData::setResidue(LinearAlgebra::NumericalVector& residue)
     {
-        return nrOfBasisFunctions_;
+        residue_ = residue;
     }
     
     const typename LinearAlgebra::NumericalVector& ElementData::getResidue() const
@@ -233,13 +224,13 @@ namespace Base
         return residue_;
     }
     
-    void ElementData::setResidue(LinearAlgebra::NumericalVector& residue)
-    {
-        residue_ = residue;
-    }
-    
     void ElementData::setUserData(UserElementData* data)
     {
         userData_ = data;
+    }
+    
+    UserElementData* ElementData::getUserData() const
+    {
+        return userData_;
     }
 }

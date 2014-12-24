@@ -65,21 +65,15 @@ namespace Base
         virtual void getElementVector(LinearAlgebra::NumericalVector&, int vectorID = 0) const;
 
         /// Specify a time level index, return a vector containing the data for that time level.
-        virtual const LinearAlgebra::NumericalVector getTimeLevelData(size_t timeLevel) const;
+        virtual const LinearAlgebra::NumericalVector getTimeLevelData(size_t timeLevel, std::size_t unknown = 0) const;
 
         /// Specify a time level index, an unknown (as solutionId), set the data for that unknown
         void setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown);
         void setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& unknown);
         
-        void setCurrentData(const LinearAlgebra::NumericalVector& data)
-        {
-            currentData_ = data;
-        }
+        void setCurrentData(const LinearAlgebra::NumericalVector& data);
         
-        LinearAlgebra::NumericalVector& getCurrentData()
-        {
-            return currentData_;
-        }
+        LinearAlgebra::NumericalVector& getCurrentData();
 
         /// Specify a time level index, an unknown and a basis function nr, return data (double)
         virtual double getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const;
@@ -98,10 +92,7 @@ namespace Base
 
         void setUserData(UserElementData* data);
 
-        virtual UserElementData* getUserData() const
-        {
-            return userData_;
-        }
+        virtual UserElementData* getUserData() const;
 
     protected:
         void setNumberOfBasisFunctions(unsigned int number);
