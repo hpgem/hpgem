@@ -408,5 +408,12 @@ namespace Base
             massMatrix_.axpy((quadratureRule_->weight(pIndex))*std::abs(jac.determinant()),tempMatrix);
         }
     }
+    
+    /// \param[in] iVar The index corresponding to the variable.
+    /// \param[in] iBasisFunction The index corresponding to the basisfunction.
+    const std::size_t Element::convertToSingleIndex(std::size_t iVar, std::size_t iBasisFunction) const
+    {
+        return iVar * getNrOfBasisFunctions() + iBasisFunction;
+    }
 }
 #endif

@@ -43,9 +43,12 @@ int main()
     for (double t = 0; t < 1; t += dt)
     {
         u1 = executeOneTimeStep(integrator1, u1, dt);
+        //std::cout << u1 << std::endl;
         u2 = executeOneTimeStep(integrator2, u2, dt);
         u4 = executeOneTimeStep(integrator4, u4, dt);
     }
+    
+    std::cout << std::endl;
     
     double error11 = std::abs(std::exp(1) - u1);
     double error21 = std::abs(std::exp(1) - u2);
@@ -58,9 +61,12 @@ int main()
     for (double t = 0; t < 1; t += dt)
     {
         u1 = executeOneTimeStep(integrator1, u1, dt);
+        //std::cout << u1 << std::endl;
         u2 = executeOneTimeStep(integrator2, u2, dt);
         u4 = executeOneTimeStep(integrator4, u4, dt);
     }
+    
+    std::cout << std::endl;
     
     double error12 = std::abs(std::exp(1) - u1);
     double error22 = std::abs(std::exp(1) - u2);
@@ -73,9 +79,12 @@ int main()
     for (double t = 0; t < 1; t += dt)
     {
         u1 = executeOneTimeStep(integrator1, u1, dt);
+        //std::cout << u1 << std::endl;
         u2 = executeOneTimeStep(integrator2, u2, dt);
         u4 = executeOneTimeStep(integrator4, u4, dt);
     }
+    
+    std::cout << std::endl;
     
     double error13 = std::abs(std::exp(1) - u1);
     double error23 = std::abs(std::exp(1) - u2);

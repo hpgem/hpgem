@@ -28,6 +28,7 @@ add_library(hpGEM_Base SHARED
  		FaceData.cpp
  		FaceCacheData.cpp
                 FaceFactory.cpp
+		FaceMatrix.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Integration/FaceIntegral.cpp
  		Edge.cpp
  		Node.cpp
