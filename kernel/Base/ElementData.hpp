@@ -65,7 +65,7 @@ namespace Base
         virtual void getElementVector(LinearAlgebra::NumericalVector&, int vectorID = 0) const;
 
         /// Specify a time level index, return a vector containing the data for that time level.
-        virtual const LinearAlgebra::NumericalVector getTimeLevelData(size_t timeLevel, std::size_t unknown = 0) const;
+        virtual const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
 
         /// Specify a time level index, an unknown (as solutionId), set the data for that unknown
         void setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown);

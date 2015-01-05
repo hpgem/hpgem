@@ -22,7 +22,7 @@ double executeOneTimeStep(const Base::ButcherTableau *integrator, double u, doub
 
     //Combine all temporary solutions to the solution for the next time step        
     double newVal = u;
-    for (std::size_t i = 0; i <= integrator->numStages(); ++i)
+    for (std::size_t i = 0; i < integrator->numStages(); ++i)
     {
         newVal += dt * (integrator->b(i)) * k[i];
     }

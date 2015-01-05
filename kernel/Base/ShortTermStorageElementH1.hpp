@@ -25,34 +25,38 @@
 
 #include "Base/ShortTermStorageElementBase.hpp"
 
-namespace Base{
+namespace Base
+{
 
-	/**
-	 * H1 conforming specialization does not alter function values and will transform derivatives with a factor J^-T
-	 * does not store curls or directional derivatives
-	 */
-	class ShortTermStorageElementH1:public ShortTermStorageElementBase{
+    /**
+     * H1 conforming specialization does not alter function values and will transform derivatives with a factor J^-T
+     * does not store curls or directional derivatives
+     */
+    class ShortTermStorageElementH1 : public ShortTermStorageElementBase
+    {
+    public:
 
-	public:
-		ShortTermStorageElementH1(unsigned int dimension):ShortTermStorageElementBase(dimension){}
+        ShortTermStorageElementH1(unsigned int dimension) : ShortTermStorageElementBase(dimension) { }
 
-		virtual void computeData();
+        void computeData() override;
 
-		virtual double basisFunction(unsigned int i, const PointReferenceT& p);
-		virtual double basisFunction(unsigned int i, const PointReferenceT& p) const;
+        double basisFunction(unsigned int i, const PointReferenceT& p) override;
+        double basisFunction(unsigned int i, const PointReferenceT& p) const override;
 
-		virtual void   basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret);
-		virtual void   basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
+        void basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override;
+        void basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override;
 
-		virtual void   basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* =NULL);
-		virtual void   basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* =NULL) const;
-                
-                ///special case derivative: compute individual components, then mix and match as desired !warning! this routine assumes the user wants to construct a specialized transformation and will not premultiply by the Jacobian
-                virtual double basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p);
-                virtual double basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
+        void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = NULL) override;
+        void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = NULL) const override;
 
-                std::vector<LinearAlgebra::NumericalVector> basisFunctionIndividualDerivatives_;
-	};
+        ///special case derivative: compute individual components, then mix and match as desired !warning! this routine assumes the user wants to construct a specialized transformation and will not premultiply by the Jacobian
+        virtual double basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p);
+        double basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const override;
+
+    private:
+
+        std::vector<LinearAlgebra::NumericalVector> basisFunctionIndividualDerivatives_;
+    };
 }
 
 

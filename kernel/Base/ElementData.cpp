@@ -141,8 +141,8 @@ namespace Base
     {
         setTimeLevelData(timeLevel, 0, unknown);
     }    
-    
-    const LinearAlgebra::NumericalVector ElementData::getTimeLevelData(size_t timeLevel, std::size_t unknown) const
+
+    const LinearAlgebra::NumericalVector ElementData::getTimeLevelData(std::size_t timeLevel, std::size_t unknown) const
     {
         if (timeLevel < timeLevels_)
         {
@@ -206,6 +206,12 @@ namespace Base
     
     LinearAlgebra::NumericalVector& ElementData::getCurrentData()
     {
+        // The vector can be of dimension 0 if it hasn't been used before.
+        // So lets resize it first!
+        if (currentData_.size() != nrOfBasisFunctions_)
+        {
+            currentData_.resize(nrOfBasisFunctions_);
+        }
         return currentData_;
     }
     

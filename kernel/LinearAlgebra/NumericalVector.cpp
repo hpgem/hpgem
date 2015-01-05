@@ -39,8 +39,8 @@ namespace LinearAlgebra
     
     
     NumericalVector::NumericalVector() : data_() {}
-    
-    NumericalVector::NumericalVector(int m) : data_(m){}
+
+    NumericalVector::NumericalVector(std::size_t m) : data_(m) { }
     
     NumericalVector::NumericalVector(const NumericalVector& other) : data_(other.data_){}
     
@@ -57,8 +57,11 @@ namespace LinearAlgebra
     #else
         NumericalVector::NumericalVector(const double array[], int size) : data_(array,size){}
     #endif
-    
-    void NumericalVector::resize(unsigned int size) { if(size!=data_.size()) data_.resize(size); }
+
+    void NumericalVector::resize(std::size_t size)
+    {
+        if (size != data_.size()) data_.resize(size);
+    }
     
     NumericalVector& NumericalVector::operator= (const NumericalVector& right){data_=right.data_; return *this;}
     
@@ -208,8 +211,11 @@ namespace LinearAlgebra
         #endif
         return *this;
     }
-    
-    double& NumericalVector::operator[] (const unsigned int n) {return data_[n];}
+
+    double& NumericalVector::operator[](std::size_t n)
+    {
+        return data_[n];
+    }
     
     NumericalVector operator*(const double& left, const NumericalVector& right)
     {

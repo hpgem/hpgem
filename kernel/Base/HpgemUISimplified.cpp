@@ -110,7 +110,8 @@ namespace Base
         
         //initialise the matrices for the right-hand side
         LinearAlgebra::NumericalVector leftResidual, rightResidual, residual;
-        
+
+        beforeTimeIntegration();
         //start time stepping
         while (t < endTime_)
         {

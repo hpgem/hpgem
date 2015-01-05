@@ -54,14 +54,14 @@ namespace LinearAlgebra
     public:
         
         NumericalVector();
-        
-        explicit NumericalVector(int m);
+
+        explicit NumericalVector(std::size_t m);
         
         NumericalVector(const NumericalVector& other);
         
         NumericalVector(const double array[], int size);
-        
-        void resize(unsigned int size);
+
+        void resize(std::size_t size);
 
         NumericalVector& operator= (const NumericalVector& right);
         
@@ -88,16 +88,28 @@ namespace LinearAlgebra
         NumericalVector& operator-= (const NumericalVector& right);
         
         NumericalVector& operator*= (const double& right);
-        
-        double& operator[] (const unsigned int n);
-        
-        const double&  operator[] (const unsigned int n) const {return data_[n];}
-        
-        double& operator() (const unsigned int n) {return data_[n];}
-        
-        const double&  operator() (const unsigned int n) const {return data_[n];}
-        
-        int size() const {return data_.size();}
+
+        double& operator[](std::size_t n);
+
+        const double& operator[](std::size_t n) const
+        {
+            return data_[n];
+        }
+
+        double& operator()(std::size_t n)
+        {
+            return data_[n];
+        }
+
+        const double& operator()(std::size_t n) const
+        {
+            return data_[n];
+        }
+
+        std::size_t size() const
+        {
+            return data_.size();
+        }
         
         const double* data() const {return data_.data();}
         

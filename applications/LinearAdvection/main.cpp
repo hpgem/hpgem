@@ -214,7 +214,7 @@ public:
             element->getElementMatrix(mass, 0);
             element->getElementMatrix(stiffness, 1);
             oldData = element->getTimeLevelData(0);
-            oldData.resize(n);
+            //oldData.resize(n);
             //compute residual=M*u+dt*S*u
             residual = mass*oldData;
             residual.axpy(dt_, stiffness * oldData);
