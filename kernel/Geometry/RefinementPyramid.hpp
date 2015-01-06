@@ -23,6 +23,7 @@
 #define RefinementPyramid_hpp
 
 #include "Geometry/RefinementGeometry.hpp"
+#include "ReferencePyramid.hpp"
 
 namespace Geometry
 {
@@ -94,7 +95,8 @@ namespace Geometry
         virtual DimT getLocalSubFaceNr(int refineType, DimT localFaceNr, DimT subElementIdx) const { return 0; }
 
     private:
-        RefinementPyramid() : referenceGeometry_(NULL), physicalGeometry_(NULL) {}
+
+        RefinementPyramid() : referenceGeometry_(&Geometry::ReferencePyramid::Instance()), physicalGeometry_(nullptr) { }
 
         /// The physicalGeometry object contains pointers to the actual physical nodes, and
         /// a container of global node indexes.

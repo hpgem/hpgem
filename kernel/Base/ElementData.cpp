@@ -126,7 +126,7 @@ namespace Base
             
             LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
 
-            for (size_t i = 0; i < unknown.size(); ++i)
+            for (std::size_t i = 0; i < unknown.size(); ++i)
             {
                 mat(solutionId, i) = unknown[i];
             }

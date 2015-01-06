@@ -74,7 +74,7 @@ namespace Integration
     ReturnType value(result);
 
     // number of Gauss quadrature points
-    size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
+        std::size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
     assert(nrOfPoints > 0);
 
     // Initialize Gauss quadrature point
@@ -92,7 +92,7 @@ namespace Integration
 
     // next Gauss points, again calculate the jacobian, value at gauss point and
     // add this value multiplied with jacobian and weight to result.
-    for (size_t i = 1; i < nrOfPoints; ++i)
+        for (std::size_t i = 1; i < nrOfPoints; ++i)
     {
       qdrRuleLoc->getPoint(i, p);
       localElement_->calcJacobian(p, jac);

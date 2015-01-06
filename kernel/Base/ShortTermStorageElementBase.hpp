@@ -102,7 +102,7 @@ namespace Base
             return element_->basisFunctionDeriv(i, jDir, p);
         }
 
-        virtual void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = NULL)
+        virtual void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr)
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";
         }
@@ -122,7 +122,7 @@ namespace Base
             throw "No storage functionality was implemented! Are you working in a scalar function space?";
         }
 
-        void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = NULL) const override
+        void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr) const override
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";
         }

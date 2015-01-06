@@ -256,8 +256,8 @@ typename MeshManipulator<dim>::ElementLevelTreeT* MeshManipulator<dim>::ElCont(i
   {
     return vecOfElementTree_[activeMeshTree_];
   }
-  
-  return NULL;
+
+    return nullptr;
 }
 
 template<unsigned int dim>
@@ -271,8 +271,8 @@ typename MeshManipulator<dim>::FaceLevelTreeT* MeshManipulator<dim>::FaCont(int 
   {
     return vecOfFaceTree_[activeMeshTree_];
   }
-  
-  return NULL;
+
+    return nullptr;
 }
 
 template<unsigned int dim>
@@ -325,8 +325,8 @@ void display(T& container)
 int main()
 {
     const unsigned int dim = 2;
-    
-    long seed = std::time(NULL);
+
+    long seed = std::time(nullptr);
     srand ( seed );
 //     std::cout << "random number seed = " << seed << std::endl;
 

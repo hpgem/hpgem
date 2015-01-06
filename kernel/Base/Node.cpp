@@ -10,7 +10,7 @@
 #include "LinearAlgebra/NumericalVector.hpp"
 #include "ElementCacheData.hpp"
 
-void Base::Node::addElement(Element* element, size_t localNodeNr)
+void Base::Node::addElement(Element* element, std::size_t localNodeNr)
 {
     elements_.push_back(element);
     localNodeNrs_.push_back(localNodeNr);

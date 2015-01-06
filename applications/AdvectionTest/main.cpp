@@ -39,34 +39,70 @@
 #include "Output/TecplotSingleElementWriter.hpp"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
 
+struct errorContainer
+{
+    errorContainer() = default;
+
+    errorContainer(double pointError) : infError(std::abs(pointError)), L2Error(pointError*pointError) { }
+
+    //scaling is done as part of the integration and should not be squared
+    void axpy(double a, errorContainer x)
+    {
+        infError = std::max(x.infError, infError);
+        L2Error += x.L2Error * a;
+    }
+
+    errorContainer& operator*=(double a)
+    {
+        L2Error *= a;
+        return *this;
+    }
+
+    double getInfError()
+    {
+        return infError;
+    }
+
+    double getL2Error()
+    {
+        return std::sqrt(L2Error);
+    }
+
+private:
+    double infError;
+    double L2Error;
+};
 
 ///Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
 ///The first self-contained (no PETSc) program to make it into the SVN
+
 class AdvectionTest : public Base::ProblemDescriptorTimeDependent
 {
 public:
     ///Constructor. Assign all private variables.
-    AdvectionTest(std::size_t n, std::size_t p, const Base::ButcherTableau* integrator) : 
-        ProblemDescriptorTimeDependent(DIM_, p, integrator), numElements_(n), polyOrder_(p)
+
+    AdvectionTest(std::size_t n, std::size_t p, const Base::ButcherTableau* integrator) :
+    ProblemDescriptorTimeDependent(DIM_, p, integrator), numElements_(n), polyOrder_(p)
     {
         //Choose the "direction" of the advection.
         //This cannot be implemented with iterators, and since the dimension is
         //not always 2, this is the most generic way to write it.
         a.resize(DIM_);
-        for (size_t i = 0; i < DIM_; ++i)
+        for (std::size_t i = 0; i < DIM_; ++i)
         {
-            a[i] = 0.1 + 0.1*i;
-        }        
+            a[i] = 0.1 + 0.1 * i;
+        }
     }
 
     ///set up the mesh
-    bool initialise() 
+
+    bool initialise()
     {
         //describes a rectangular domain
         RectangularMeshDescriptorT description(DIM_);
 
         //this demo will use the square [0,1]^2
-        for (size_t i = 0; i < DIM_; ++i)
+        for (std::size_t i = 0; i < DIM_; ++i)
         {
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
@@ -93,6 +129,7 @@ public:
     ///basisfunctions phi_i and phi_j.
     ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
     ///so you wont have to do any transformations yourself
+
     void elementIntegrand(const ElementT *element, const PointReferenceT& point, LinearAlgebra::Matrix& result)
     {
         std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
@@ -121,13 +158,14 @@ public:
     ///transformations are done internally. If you expect 4 matrices here, 
     ///you can assume that integrandVal is block structured with 4 blocks in total such
     ///that basisfunctions belonging to the left element are on the left and top.
+
     void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::Matrix& integrandVal)
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left element.
         std::size_t numBasisFuncs = face->getNrOfBasisFunctions();
         std::size_t nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
-        
+
         //Resize the result to the correct size and set all elements to 0.
         integrandVal.resize(numBasisFuncs, numBasisFuncs);
         integrandVal *= 0;
@@ -135,9 +173,9 @@ public:
         //Check if the normal is in the same direction as the advection.
         //Note that normal does not have length 1!
         const double A = (a * normal) / Base::L2Norm(normal);
-        
+
         LinearAlgebra::NumericalVector phiNormalJ(DIM_);
-        
+
         //Compute all entries of the integrand at this point:
         for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
@@ -148,16 +186,16 @@ public:
 
                 //Give the terms of the upwind flux.
                 //Advection in the same direction as outward normal of the left element:
-                if ((A > 1e-12) && (i < nLeft)) 
+                if ((A > 1e-12) && (i < nLeft))
                 {
                     integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point);
                 }
-                //Advection in the same direction as outward normal of right element:
+                    //Advection in the same direction as outward normal of right element:
                 else if ((A<-1e-12) && (i >= nLeft))
                 {
                     integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point);
                 }
-                //Advection orthogonal to normal:
+                    //Advection orthogonal to normal:
                 else if (std::abs(A) < 1e-12)
                 {
                     integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point) / 2.0;
@@ -168,46 +206,51 @@ public:
 
     ///The vector edition of the face integrand is meant for implementation of boundary conditions
     ///This is a periodic problem, so it just return 0
+
     void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result)
     {
         std::size_t numBasisFuncs = face->getNrOfBasisFunctions();
         result.resize(numBasisFuncs);
         result *= 0;
     }
-    
+
     ///Define the initial conditions, in this case sin(2pi x)* sin(2pi y).
+
     double initialConditions(const PointPhysicalT& point)
     {
         return (std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]));
     }
 
     ///interpolates the initial conditions
+
     void elementIntegrand(const ElementT *element, const PointReferenceT& point, LinearAlgebra::NumericalVector& integrandVal)
     {
         std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
         //Compute the physical coordinates of the reference point
         PointPhysicalT pPhys(DIM_);
         element->referenceToPhysical(point, pPhys);
-        
+
         //Resize the vector and compute the value of the basis function times the
         //value of the initial conditions in this point.
         integrandVal.resize(numBasisFuncs);
-        for (std:: size_t i = 0; i < numBasisFuncs; ++i)
+        for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
             integrandVal[i] = element->basisFunction(i, point) * initialConditions(pPhys);
         }
     }
 
     ///provide information about your solution that you want to use for visualisation
+
     void writeToTecplotFile(const ElementT *element, const PointReferenceT& point, std::ostream& out)
     {
         LinearAlgebra::NumericalVector value(1);
         element->getSolution(0, point, value);
         out << value[0];
     }
-    
+
     /// For every element, compute the right hand side of the system of equation,
     /// namely rhs = S * u
+
     void computeRhsLocal()
     {
         LinearAlgebra::Matrix stiffness;
@@ -218,28 +261,29 @@ public:
             std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
             stiffness.resize(numBasisFuncs, numBasisFuncs);
             element->getElementMatrix(stiffness, 0);
-            
+
             //Get the data of the current time step
             oldData = element->getCurrentData();
-            
+
             //compute rhs = M*u + dt*S*u
             rhs = stiffness * oldData;
-            
+
             //save the rhs in the element
             element->setResidue(rhs);
         }
     }
-    
+
     ///For every face, compute the contribution to the right hand side of the face,
     ///namely rhs = FaceMat * rhs
+
     void computeRhsFaces()
     {
         for (Base::Face *face : meshes_[0]->getFacesList())
         {
             std::size_t numBasisFuncs = face->getNrOfBasisFunctions();
-            
+
             LinearAlgebra::Matrix faceMatrix(numBasisFuncs, numBasisFuncs);
-            face->getFaceMatrix(faceMatrix);            
+            face->getFaceMatrix(faceMatrix);
             LinearAlgebra::NumericalVector rhs = face->getCurrentData();
 
             //compute the flux
@@ -247,34 +291,51 @@ public:
             face->setResidue(rhs);
         }
     }
-    
+
     /// Compute the analytical solution. Hard coded for the initial condition
     /// sin(2pi x)* sin(2pi y).
+
     double analyticalSolution(const PointPhysicalT& point, double time)
     {
         return (std::sin(2 * M_PI * (point[0] - a[0] * time)) * std::sin(2 * M_PI * (point[1] - a[1] * time)));
     }
-    
+
     /// \brief Compute the L^2 error. 
     ///
     /// To compute the error, integrate the square of the difference between the
     /// analytical solution and approximation over every element.
-    /// This is all done by hand and hence very ugly. Feel free to automate it.
+    /// This was originally done by hand and hence very ugly. Automated version still does not look very nice. Feel free to improve.
     /// Furthermore, the maximal difference between the analytical solution and
     /// approximation on Gauss points is computed and printed as Linf error.
+
     double computeError()
     {
-        LinearAlgebra::NumericalVector temp;
-        double analytical, approx;
+        errorContainer total;
+        //LinearAlgebra::NumericalVector temp;
+        //double analytical, approx;
         double totalError = 0;
         double errorInf = 0;
         Geometry::Jacobian jac(DIM_, DIM_);
+        Integration::ElementIntegral integral(false);
         //compute the values of approximation and analytical solution
         for (Base::Element *element : meshes_[0]-> getElementsList())
-        {            
+        {
+            errorContainer next;
+            integral.integrate(element, { [ & ](const Base::Element* element, const Geometry::PointReference& pRef, errorContainer & result)->void
+            {
+                LinearAlgebra::NumericalVector temp;
+                element->getSolution(0, pRef, temp);
+                Geometry::PointPhysical pPhys(DIM_);
+                element->referenceToPhysical(pRef, pPhys);
+                //the error is the difference between the numerical solution and the analytical solution
+                result = analyticalSolution(pPhys, endTime_) - temp[0];
+            } }, next);
+            total.axpy(1., next);
+            //original code in case you are interested
+            /*
             const QuadratureRules::GaussQuadratureRule *rule = element->getGaussQuadratureRule();
-            
-            for (size_t point = 0; point < rule->nrOfPoints(); ++point)
+
+            for (std::size_t point = 0; point < rule->nrOfPoints(); ++point)
             {
                 PointReferenceT pRef(2);
                 rule->getPoint(point, pRef);
@@ -287,7 +348,10 @@ public:
                 totalError += (approx - analytical) * (approx - analytical) * rule->weight(point) * std::abs(jac.determinant());
                 errorInf = std::max(std::abs(approx - analytical), errorInf);
             }
+             */
         }
+        totalError = total.getL2Error();
+        errorInf = total.getInfError();
         std::cout << "Linf error: " << errorInf << std::endl;
         return std::sqrt(totalError);
     }
@@ -302,7 +366,7 @@ private:
 
     //Dimension of the problem
     static const std::size_t DIM_;
-    
+
     ///Advective vector
     LinearAlgebra::NumericalVector a;
 };
@@ -313,6 +377,7 @@ auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Eleme
 auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
 
 ///Make the problem and solve it.
+
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
@@ -320,24 +385,24 @@ int main(int argc, char **argv)
     {
         //Define the time integrator (ODE method) that we're going to use
         const Base::ButcherTableau *integrator = Base::AllTimeIntegrators::Instance().getRule(4, 4);
-        
+
         //Construct our problem with n elements in every direction and polynomial order p
         AdvectionTest test(n.getValue(), p.getValue(), integrator);
-        
+
         //Define how we want the solution to be written in the VTK files
-        test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, size_t timelevel) -> double
+        test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, std::size_t timelevel) -> double
         {
             LinearAlgebra::NumericalVector solution(1);
-            element->getSolution(timelevel, point, solution);
-            return solution[0];
+                                      element->getSolution(timelevel, point, solution);
+                                      return solution[0];
         }, "value");
-        
+
         //Run the simulation and write the solution
         test.solve();
         double error = test.computeError();
-        
+
         std::cout << "L2-error: " << error << std::endl;
-        
+
         return 0;
     }
     //If something went wrong, print the error message and return -1.

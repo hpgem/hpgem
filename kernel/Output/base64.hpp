@@ -37,7 +37,7 @@ namespace Output {
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
         ///\brief convert raw binary data to base64 encoded raw binary data
-        std::string toBase64(void* rawData, size_t len);
+        std::string toBase64(void* rawData, std::size_t len);
     }
 }
 #endif	/* BASE64_HPP */

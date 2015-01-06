@@ -49,13 +49,13 @@ namespace Output {
         virtual ~VTKTimeDependentWriter();
 
         ///\brief write a scalar field
-        void write(std::function<double(Base::Element*, const Geometry::PointReference&, size_t)>, const std::string& name, double time, size_t timelevel=0);
+        void write(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name, double time, std::size_t timelevel = 0);
 
         ///\brief write a vector field
-        void write(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, size_t)>, const std::string& name, double time, size_t timelevel=0);
+        void write(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name, double time, std::size_t timelevel = 0);
 
         ///\brief write an order 2 tensor field
-        void write(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, size_t)>, const std::string& name, double time, size_t timelevel=0);
+        void write(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name, double time, std::size_t timelevel = 0);
         
         ///\brief do not copy the writer to prevent havoc when destructing all the copies
         VTKTimeDependentWriter(const VTKTimeDependentWriter& orig)=delete;
@@ -65,9 +65,9 @@ namespace Output {
         std::ofstream masterFile_;
         const Base::MeshManipulator* mesh_;
         VTKSpecificTimeWriter* currentFile_;
-        size_t timelevel_;
+        std::size_t timelevel_;
         double time_;
-        size_t numberOfFilesWritten_;
+        std::size_t numberOfFilesWritten_;
     };
 
 }

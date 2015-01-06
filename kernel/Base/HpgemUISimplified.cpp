@@ -195,7 +195,7 @@ namespace Base
 
         for (MeshManipulator::FaceIterator citFe = Base::HpgemUI::faceColBegin(); citFe != Base::HpgemUI::faceColEnd(); ++citFe)
         {
-            size_t numBasisFuncs = (*citFe)->getNrOfBasisFunctions();
+            std::size_t numBasisFuncs = (*citFe)->getNrOfBasisFunctions();
             fMatrixData.resize(numBasisFuncs, numBasisFuncs);
             fVectorData.resize(numBasisFuncs);
             faceIntegral.integrate<LinearAlgebra::Matrix>((*citFe), this, fMatrixData);
@@ -206,7 +206,7 @@ namespace Base
     }
     
     ///Compute the integrals on all elements.
-    void HpgemUISimplified::doAllElementIntegration(size_t meshID)
+    void HpgemUISimplified::doAllElementIntegration(std::size_t meshID)
     {
         //numberOfUnknowns_ is the number of unknowns in the "real problem" you want a
         //solution for, this is automatically set to 1 in the contructor of hpgemUISimplified

@@ -25,60 +25,61 @@
 #include <cstdlib>
 #include <vector>
 
-namespace Base {
+namespace Base
+{
 
     class Element;
-    
+
     ///\brief an identification token for vertices that is more likely to be the same when it should be then a PointPhysical
-    class Node {
+
+    class Node
+    {
     public:
-        explicit Node(size_t ID) : nrOfConformingDOFOnTheNode_(0), ID_(ID), elements_(), localNodeNrs_()
-        {
-        }
-        
-        virtual ~Node()
-        {
-        }
-        
-        void addElement(Element* element, size_t localNodeNr);
-        
-	int getLocalNrOfBasisFunctions() const
+
+        explicit Node(std::size_t ID) : nrOfConformingDOFOnTheNode_(0), ID_(ID), elements_(), localNodeNrs_() { }
+
+        virtual ~Node() { }
+
+        void addElement(Element* element, std::size_t localNodeNr);
+
+        int getLocalNrOfBasisFunctions() const
         {
             return nrOfConformingDOFOnTheNode_;
         }
 
-	size_t getID()const
+        std::size_t getID()const
         {
             return ID_;
         }
 
-        size_t getNrOfElements() const;
+        std::size_t getNrOfElements() const;
 
         Element* getElement(int i);
         const Element* getElement(int i) const;
+
         const std::vector<Element*> getElements() const
         {
             return elements_;
         }
-                
-	size_t getVertexNr(int i) const
+
+        std::size_t getVertexNr(int i) const
         {
             return localNodeNrs_[i];
         }
-        
-	void setLocalNrOfBasisFunctions(int number)
+
+        void setLocalNrOfBasisFunctions(int number)
         {
-            nrOfConformingDOFOnTheNode_=number;
+            nrOfConformingDOFOnTheNode_ = number;
         }
     private:
 
         //provide information to map back to a unique corner of the elemen
         std::vector<Element*> elements_;
-        std::vector<size_t>    localNodeNrs_;
+        std::vector<std::size_t> localNodeNrs_;
 
         //number of basis-functions that are accosiated to this node (most likely 1(conforming) or 0(DG))
-        size_t nrOfConformingDOFOnTheNode_;
-        size_t ID_;
+        std::size_t nrOfConformingDOFOnTheNode_;
+        std::size_t ID_;
     };
 
 }

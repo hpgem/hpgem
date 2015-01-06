@@ -270,7 +270,7 @@ public:
             }
         }
         ISCreateGeneral(PETSC_COMM_WORLD, numBasisFuns, &facePositions[0], PETSC_COPY_VALUES, surface);
-        MatGetSize(S, &numBasisFuns, NULL);
+        MatGetSize(S, &numBasisFuns, PETSC_NULL);
         ISSort(*surface);
         ISComplement(*surface, 0, numBasisFuns, rest);
         ISDestroy(surface);

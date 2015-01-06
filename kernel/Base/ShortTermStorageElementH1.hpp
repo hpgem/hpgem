@@ -46,8 +46,8 @@ namespace Base
         void basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override;
         void basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override;
 
-        void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = NULL) override;
-        void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = NULL) const override;
+        void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr) override;
+        void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr) const override;
 
         ///special case derivative: compute individual components, then mix and match as desired !warning! this routine assumes the user wants to construct a specialized transformation and will not premultiply by the Jacobian
         virtual double basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p);

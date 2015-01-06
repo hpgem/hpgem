@@ -30,8 +30,8 @@
 static Logger<LOG_LEVEL> logger("VTK time dependent solution writer");
 
 Output::VTKTimeDependentWriter::VTKTimeDependentWriter(std::string baseFileName, Base::MeshManipulator* mesh) : mesh_(mesh), currentFile_(nullptr), baseName_(baseFileName), time_(0), numberOfFilesWritten_(0)
-{    
-    size_t id = Base::MPIContainer::Instance().getProcessorID();
+{
+    std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if(id == 0)
     {
         masterFile_.open(baseFileName+".pvd");
@@ -59,7 +59,7 @@ Output::VTKTimeDependentWriter::~VTKTimeDependentWriter() {
 }
 
 //3x the same function, but I dont like this mess in the header, so cant template
-void Output::VTKTimeDependentWriter::write(std::function<double(Base::Element*,const Geometry::PointReference&,size_t)> f, const std::string& name, double time, size_t timelevel)
+void Output::VTKTimeDependentWriter::write(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t) > f, const std::string& name, double time, std::size_t timelevel)
 {
     if(time!=time_ || currentFile_==nullptr)
     {
@@ -84,7 +84,7 @@ void Output::VTKTimeDependentWriter::write(std::function<double(Base::Element*,c
 }
 
 //3x the same function, but I dont like this mess in the header, so cant template
-void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::NumericalVector(Base::Element*,const Geometry::PointReference&,size_t)> f, const std::string& name, double time, size_t timelevel)
+void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t) > f, const std::string& name, double time, std::size_t timelevel)
 {
     if(time!=time_ || currentFile_==nullptr)
     {
@@ -104,7 +104,7 @@ void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::Numerica
 }
 
 //3x the same function, but I dont like this mess in the header, so cant template
-void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::Matrix(Base::Element*,const Geometry::PointReference&,size_t)> f, const std::string& name, double time, size_t timelevel)
+void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t) > f, const std::string& name, double time, std::size_t timelevel)
 {
     if(time!=time_ || currentFile_==nullptr)
     {

@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "Geometry/RefinementGeometry.hpp"
+#include "ReferenceCube.hpp"
 
 namespace Geometry
 {
@@ -94,7 +95,8 @@ namespace Geometry
         virtual unsigned int getLocalSubFaceNr(int refineType, unsigned int localFaceNr, unsigned int subElementIdx) const;
 
     private:
-        RefinementHexahedron() : referenceGeometry_(NULL), physicalGeometry_(NULL) {}
+
+        RefinementHexahedron() : referenceGeometry_(&Geometry::ReferenceCube::Instance()), physicalGeometry_(nullptr) { }
 
         /// The physicalGeometry object contains pointers to the actual physical nodes, and
         /// a container of global node indexes.

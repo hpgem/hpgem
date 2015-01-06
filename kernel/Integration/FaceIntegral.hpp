@@ -95,7 +95,7 @@ namespace Integration
         void integrate(FaceT* fa, std::function<void(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&, ReturnTrait1&)> integrandFunc, ReturnTrait1& result, const QuadratureRulesT* qdrRule = nullptr);
         
         /*template <typename OBJ, typename IntegrandT>
-        void    integrate(FaceT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = NULL);*/
+        void    integrate(FaceT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = nullptr);*/
 	
     private:
         

@@ -96,7 +96,7 @@ int main() {
 
 	Base::Element test(pointIndexes,&vectorOfFunctions,nodes,3,14,basisFunctions.size(),18),copy(test);
 
-	assert(("quadrature rule",test.getGaussQuadratureRule()!=NULL));
+    assert(("quadrature rule", test.getGaussQuadratureRule() != nullptr));
 
 	test.setQuadratureRulesWithOrder(8);
 	copy.setGaussQuadratureRule(&QuadratureRules::Cn3_3_4::Instance());

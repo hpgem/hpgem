@@ -130,10 +130,10 @@ namespace Geometry
   public:
     typedef PointPhysical                                              PointPhysicalT;
     typedef LinearAlgebra::Matrix                                           MatrixT;
-    typedef std::set<size_t>                                          SetOfGlobalNodes;
-    typedef std::vector<size_t>                                       VectorOfLocalNodes;
+        typedef std::set<std::size_t> SetOfGlobalNodes;
+        typedef std::vector<std::size_t> VectorOfLocalNodes;
     typedef PointReference                                             ReferencePointT;
-    typedef size_t                                                   LocalFaceNrType;
+        typedef std::size_t LocalFaceNrType;
     typedef std::shared_ptr<const MappingReferenceToReference >   RefFaceToRefElementMapping; // doing new later and passing, should handle its own deletion.
     //the ref->ref mappings are all singletons and should never be deleted (bug?) -FB
     
@@ -159,8 +159,8 @@ namespace Geometry
     {
       return leftElementGeom_;
     }
-    
-    /// Return the pointer to the right element, NULL if inexistent for boundaries.
+
+        /// Return the pointer to the right element, nullptr if inexistent for boundaries.
     virtual const ElementGeometryT*           getPtrElementGRight()   const
     {
       return rightElementGeom_;
@@ -251,7 +251,7 @@ namespace Geometry
     LocalFaceNrType localFaceNumberLeft_;
     LocalFaceNrType localFaceNumberRight_;
 
-    size_t faceToFaceMapIndex_;
+        std::size_t faceToFaceMapIndex_;
     FaceType faceType_;
 
   } ;

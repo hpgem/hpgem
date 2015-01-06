@@ -98,7 +98,7 @@ int main() {
 
 	Base::Face test(&element,4,Geometry::FaceType::WALL_BC,3);
 
-	assert(("quadrature rule",test.getGaussQuadratureRule()!=NULL));
+    assert(("quadrature rule", test.getGaussQuadratureRule() != nullptr));
 
 	test.setGaussQuadratureRule(&QuadratureRules::Cn2_3_4::Instance());
 

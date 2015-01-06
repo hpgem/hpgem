@@ -287,7 +287,7 @@ int main(int argc, char **argv)
     {
         
         Advection test(n.getValue(), p.getValue());
-        test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, size_t timelevel)->double
+        test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, std::size_t timelevel)->double
         {
             LinearAlgebra::NumericalVector solution(1);
             element->getSolution(timelevel, point, solution);

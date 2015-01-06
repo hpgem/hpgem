@@ -72,7 +72,7 @@ namespace Geometry {
         
             // This means internal face in old hpGEM (only left element for non-boundary)
 
-        if (rightElementGeom_ != NULL && faceType_==INTERNAL)
+        if (rightElementGeom_ != nullptr && faceType_ == INTERNAL)
         {
             rightElementGeom_->getPhysicalGeometry()->
             getGlobalFaceNodeIndices(localFaceNumberRight_,globalNodeNrsR);
@@ -320,7 +320,7 @@ namespace Geometry {
 	template<unsigned int DIM>
     FaceGeometry<DIM>::FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, const FaceType& boundaryLabel):
     leftElementGeom_(ptrElemL),
-    rightElementGeom_(NULL),
+    rightElementGeom_(nullptr),
     localFaceNumberLeft_(localFaceNumL),
     localFaceNumberRight_(Geometry::MaxInteger),
     faceToFaceMapIndex_(0),

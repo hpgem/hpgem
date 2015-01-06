@@ -295,7 +295,7 @@ public:
         //writeFunc.write(meshes_[0], "discontinuous solution", false, this);
         //AND paraview data
         Output::VTKSpecificTimeWriter paraWrite("output", meshes_[0]);
-        paraWrite.write([](Base::Element* element, const Geometry::PointReference& point,size_t timelevel)->double
+        paraWrite.write([](Base::Element* element, const Geometry::PointReference& point, std::size_t timelevel)->double
         {
             LinearAlgebra::NumericalVector value(1);
             element->getSolution(timelevel,point,value);

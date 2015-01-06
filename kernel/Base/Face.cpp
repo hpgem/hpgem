@@ -40,7 +40,7 @@ namespace Base
     class Face;
     Face::Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL,
                ElementT* ptrElemR, const LocalFaceNrTypeT& localFaceNumR,
-               size_t faceID, size_t numberOfFaceMatrixes, size_t numberOfFaceVectors) :
+               std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors) :
     FaceGeometryT((ElementGeometryT*) ptrElemL, localFaceNumL, (ElementGeometryT*) ptrElemR, localFaceNumR),
     elementLeft_(ptrElemL),
     elementRight_(ptrElemR),
@@ -58,7 +58,7 @@ namespace Base
         std::vector<unsigned int> localLeftVertices, localRightVertices;
         ptrElemL->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumL, localLeftVertices);
         ptrElemR->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumR, localRightVertices);
-        for (size_t i = 0; i < getReferenceGeometry()->getNumberOfNodes(); ++i)
+        for (std::size_t i = 0; i < getReferenceGeometry()->getNumberOfNodes(); ++i)
         {
             leftVertices.push_back(ptrElemL->getNode(localLeftVertices[i])->getID());
             rightVertices.push_back(ptrElemR->getNode(localRightVertices[i])->getID());
@@ -66,7 +66,7 @@ namespace Base
         initialiseFaceToFaceMapIndex(leftVertices, rightVertices);
     }
     Face::Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& faceType,
-               int faceID, size_t numberOfFaceMatrixes, size_t numberOfFaceVectors) :
+               std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors) :
     FaceGeometryT((ElementGeometryT*) ptrElemL, localFaceNumL, faceType),
     elementLeft_(ptrElemL),
     elementRight_(nullptr),
@@ -80,7 +80,7 @@ namespace Base
     
     void Face::createQuadratureRules()
     {
-        unsigned int rightOrder = (elementRight_ == NULL ? 0 : elementRight_->getGaussQuadratureRule()->order());
+        unsigned int rightOrder = (elementRight_ == nullptr ? 0 : elementRight_->getGaussQuadratureRule()->order());
         unsigned int leftOrder = elementLeft_->getGaussQuadratureRule()->order();
         if (leftOrder >= rightOrder)
         {
@@ -105,8 +105,8 @@ namespace Base
             return getPtrElementLeft()->getNrOfBasisFunctions();
         }
     }
-    
-    double Face::basisFunction(size_t i, const Geometry::PointReference& p) const
+
+    double Face::basisFunction(std::size_t i, const Geometry::PointReference& p) const
     {
         Geometry::PointReference pElement(p.size() + 1);
         int n(getPtrElementLeft()->getNrOfBasisFunctions());
@@ -121,8 +121,8 @@ namespace Base
             return getPtrElementRight()->basisFunction(i - n, pElement);
         }
     }
-    
-    void Face::basisFunction(size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+
+    void Face::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
     {
         Geometry::PointReference pElement(p.size() + 1);
         int n(getPtrElementLeft()->getNrOfBasisFunctions());
@@ -137,11 +137,11 @@ namespace Base
             getPtrElementRight()->basisFunction(i - n, pElement, ret);
         }
     }
-    
-    void Face::basisFunctionNormal(size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+
+    void Face::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
     {
         Geometry::PointReference pElement(p.size() + 1);
-        size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
+        std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < n)
         {
             mapRefFaceToRefElemL(p, pElement);
@@ -155,11 +155,11 @@ namespace Base
             ret *= -getPtrElementRight()->basisFunction(i - n, pElement) / Base::L2Norm(normal);
         }
     }
-    
-    double Face::basisFunctionDeriv(size_t i, size_t jDir, const Geometry::PointReference& p) const
+
+    double Face::basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference& p) const
     {
         Geometry::PointReference pElement(p.size() + 1);
-        size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
+        std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < n)
         {
             mapRefFaceToRefElemL(p, pElement);
@@ -171,11 +171,11 @@ namespace Base
             return getPtrElementRight()->basisFunctionDeriv(i - n, jDir, pElement);
         }
     }
-    
-    void Face::basisFunctionDeriv(size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+
+    void Face::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
     {
         Geometry::PointReference pElement(p.size() + 1);
-        size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
+        std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < n)
         {
             mapRefFaceToRefElemL(p, pElement);
@@ -187,11 +187,11 @@ namespace Base
             getPtrElementRight()->basisFunctionDeriv(i - n, pElement, ret);
         }
     }
-    
-    void Face::basisFunctionCurl(size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+
+    void Face::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
     {
         Geometry::PointReference pElement(p.size() + 1);
-        size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
+        std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < numBasisFuncsLeft)
         {
             mapRefFaceToRefElemL(p, pElement);
@@ -206,16 +206,16 @@ namespace Base
     
     ///Get the time level data from both elements and concatenate them. 
     ///Note that we assume that the data is stored as column "vectors".
-    LinearAlgebra::NumericalVector Face::getTimeLevelData(size_t timeLevel)
+    LinearAlgebra::NumericalVector Face::getTimeLevelData(std::size_t timeLevel)
     {
         LinearAlgebra::NumericalVector resLeft = getPtrElementLeft()->getTimeLevelData(timeLevel);
         if (isInternal())
         {
-            size_t numBasisFuncs = getNrOfBasisFunctions();
-            size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
+            std::size_t numBasisFuncs = getNrOfBasisFunctions();
+            std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
             resLeft.resize(numBasisFuncs);
             LinearAlgebra::NumericalVector resRight = getPtrElementRight()->getTimeLevelData(timeLevel);
-            for (size_t i = numBasisFuncsLeft; i < numBasisFuncs; ++i)
+            for (std::size_t i = numBasisFuncsLeft; i < numBasisFuncs; ++i)
             {
                 resLeft[i] = resRight[i - numBasisFuncsLeft];
             }
@@ -228,11 +228,11 @@ namespace Base
         LinearAlgebra::NumericalVector dataLeft = getPtrElementLeft()->getCurrentData();
         if (isInternal())
         {
-            size_t numBasisFuncs = getNrOfBasisFunctions();
-            size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
+            std::size_t numBasisFuncs = getNrOfBasisFunctions();
+            std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
             dataLeft.resize(numBasisFuncs);
             LinearAlgebra::NumericalVector dataRight = getPtrElementRight()->getCurrentData();
-            for (size_t i = numBasisFuncsLeft; i < numBasisFuncs; ++i)
+            for (std::size_t i = numBasisFuncsLeft; i < numBasisFuncs; ++i)
             {
                 dataLeft[i] = dataRight[i - numBasisFuncsLeft];
             }

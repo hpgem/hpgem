@@ -826,8 +826,8 @@ HEuler::createIncompressibleSystem()
 
 	for (ConstFaceIterator citFe = faceColBegin(); citFe != faceColEnd(); ++citFe)
     {
-        
-        if ((*citFe)->getPtrElementRight()== NULL) // boundary face
+
+        if ((*citFe)->getPtrElementRight() == nullptr) // boundary face
         {
         }
         else
@@ -1305,8 +1305,8 @@ HEuler::createCompressibleSystem()
     
     for (ConstFaceIterator citFe = faceColBegin(); citFe != faceColEnd(); ++citFe)
     {
-        
-        if ((*citFe)->getPtrElementRight()== NULL) // boundary face
+
+        if ((*citFe)->getPtrElementRight() == nullptr) // boundary face
         {
         }
         else

@@ -105,7 +105,8 @@ namespace Geometry
     protected:
 
         ///\brief default constructor - for use with wrapper classes (that can delegate functionality of ElementGeometry in another way)
-        ElementGeometry():referenceGeometry_(NULL),physicalGeometry_(NULL),referenceToPhysicalMapping_(NULL),refinementGeometry_(NULL) {}
+
+        ElementGeometry() : referenceGeometry_(nullptr), physicalGeometry_(nullptr), referenceToPhysicalMapping_(nullptr), refinementGeometry_(nullptr) { }
 
     private:
         

@@ -28,117 +28,124 @@
 #include "FaceCacheData.hpp"
 #include "ElementCacheData.hpp"
 
-void Base::ShortTermStorageFaceH1::computeData() {
-	ShortTermStorageFaceBase::computeData();
-	int n=face_->getNrOfBasisFunctions();
-	basisFunctionValues_.resize(n);
-	basisFunctionDerivatives_.resize(n);
-	basisFunctionsTimesNormal_.resize(n);
-	static ShortTermStorageElementBase* elementwrapper(NULL);
-	if(elementwrapper==NULL){
-		elementwrapper=new ShortTermStorageElementH1(currentPoint_.size()+1);
-	}else if(elementwrapper->getPhysicalGeometry()->getNodePtr(0)->size()!=currentPoint_.size()+1){
-		delete elementwrapper;
-		elementwrapper=new ShortTermStorageElementH1(currentPoint_.size()+1);
-	}
-	int leftFunctions=getPtrElementLeft()->getNrOfBasisFunctions();
-	*elementwrapper=*getPtrElementLeft();
-	Geometry::PointReference pElement(currentPoint_.size()+1);
-	mapRefFaceToRefElemL(currentPoint_,pElement);
-        double norm=Base::L2Norm(normal_);
-	for(int i=0;i<leftFunctions;++i){
-		basisFunctionValues_[i].resize(1);
-		basisFunctionValues_[i][0]=elementwrapper->basisFunction(i,pElement);
-		basisFunctionsTimesNormal_[i].resize(currentPoint_.size()+1);
-		basisFunctionsTimesNormal_[i]=normal_;
-		basisFunctionsTimesNormal_[i]*=basisFunctionValues_[i][0]/norm;
-		basisFunctionDerivatives_[i].resize(currentPoint_.size()+1);
-		elementwrapper->basisFunctionDeriv(i,pElement,basisFunctionDerivatives_[i]);
-	}
-	if(n>leftFunctions){
-		*elementwrapper=*getPtrElementRight();
-		mapRefFaceToRefElemR(currentPoint_,pElement);
-	}
-	for(int i=leftFunctions;i<n;++i){
-		basisFunctionValues_[i].resize(1);
-		basisFunctionValues_[i][0]=elementwrapper->basisFunction(i-leftFunctions,pElement);
-		basisFunctionsTimesNormal_[i].resize(currentPoint_.size()+1);
-		basisFunctionsTimesNormal_[i]=normal_;
-		basisFunctionsTimesNormal_[i]*=-basisFunctionValues_[i][0]/norm;
-		basisFunctionDerivatives_[i].resize(currentPoint_.size()+1);
-		elementwrapper->basisFunctionDeriv(i-leftFunctions,pElement,basisFunctionDerivatives_[i]);
-	}
+void Base::ShortTermStorageFaceH1::computeData()
+{
+    ShortTermStorageFaceBase::computeData();
+    int n = face_->getNrOfBasisFunctions();
+    basisFunctionValues_.resize(n);
+    basisFunctionDerivatives_.resize(n);
+    basisFunctionsTimesNormal_.resize(n);
+    ShortTermStorageElementBase* elementwrapper = new ShortTermStorageElementH1(currentPoint_.size() + 1);
+    int leftFunctions = getPtrElementLeft()->getNrOfBasisFunctions();
+    *elementwrapper = *getPtrElementLeft();
+    Geometry::PointReference pElement(currentPoint_.size() + 1);
+    mapRefFaceToRefElemL(currentPoint_, pElement);
+    double norm = Base::L2Norm(normal_);
+    for (int i = 0; i < leftFunctions; ++i)
+    {
+        basisFunctionValues_[i].resize(1);
+        basisFunctionValues_[i][0] = elementwrapper->basisFunction(i, pElement);
+        basisFunctionsTimesNormal_[i].resize(currentPoint_.size() + 1);
+        basisFunctionsTimesNormal_[i] = normal_;
+        basisFunctionsTimesNormal_[i] *= basisFunctionValues_[i][0] / norm;
+        basisFunctionDerivatives_[i].resize(currentPoint_.size() + 1);
+        elementwrapper->basisFunctionDeriv(i, pElement, basisFunctionDerivatives_[i]);
+    }
+    if (n > leftFunctions)
+    {
+        *elementwrapper = *getPtrElementRight();
+        mapRefFaceToRefElemR(currentPoint_, pElement);
+    }
+    for (int i = leftFunctions; i < n; ++i)
+    {
+        basisFunctionValues_[i].resize(1);
+        basisFunctionValues_[i][0] = elementwrapper->basisFunction(i - leftFunctions, pElement);
+        basisFunctionsTimesNormal_[i].resize(currentPoint_.size() + 1);
+        basisFunctionsTimesNormal_[i] = normal_;
+        basisFunctionsTimesNormal_[i] *= -basisFunctionValues_[i][0] / norm;
+        basisFunctionDerivatives_[i].resize(currentPoint_.size() + 1);
+        elementwrapper->basisFunctionDeriv(i - leftFunctions, pElement, basisFunctionDerivatives_[i]);
+    }
+    delete elementwrapper;
 }
 
 double Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p)
 {
-	if(!(currentPoint_==p)){
-		currentPoint_=p;
-		computeData();
-	}
-	return basisFunctionValues_[i][0];
+    if (!(currentPoint_ == p))
+    {
+        currentPoint_ = p;
+        computeData();
+    }
+    return basisFunctionValues_[i][0];
 }
 
 double Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p) const
 {
-	if(!(currentPoint_==p)){
-		std::cout<<"Warning: you are using slow data access";
-		return face_->basisFunction(i,p);
-	}
-	return basisFunctionValues_[i][0];
+    if (!(currentPoint_ == p))
+    {
+        std::cout << "Warning: you are using slow data access";
+        return face_->basisFunction(i, p);
+    }
+    return basisFunctionValues_[i][0];
 }
 
 void Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
 {
-	if(!(currentPoint_==p)){
-		currentPoint_=p;
-		computeData();
-	}
-	ret=basisFunctionValues_[i];
+    if (!(currentPoint_ == p))
+    {
+        currentPoint_ = p;
+        computeData();
+    }
+    ret = basisFunctionValues_[i];
 }
 
 void Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
 {
-	ret=basisFunctionValues_[i];
-	if(!(currentPoint_==p)){
-		std::cout<<"Warning: you are using slow data access";
-		face_->basisFunction(i,p,ret);
-	}
+    ret = basisFunctionValues_[i];
+    if (!(currentPoint_ == p))
+    {
+        std::cout << "Warning: you are using slow data access";
+        face_->basisFunction(i, p, ret);
+    }
 }
 
 void Base::ShortTermStorageFaceH1::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
 {
-	if(!(currentPoint_==p)){
-		currentPoint_=p;
-		computeData();
-	}
-	//normal is passed only because in usual situations you do not want to recompute it for every function
-	ret=basisFunctionsTimesNormal_[i];
+    if (!(currentPoint_ == p))
+    {
+        currentPoint_ = p;
+        computeData();
+    }
+    //normal is passed only because in usual situations you do not want to recompute it for every function
+    ret = basisFunctionsTimesNormal_[i];
 }
 
 void Base::ShortTermStorageFaceH1::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
 {
-	ret=basisFunctionsTimesNormal_[i];
-	if(!(currentPoint_==p)){
-		std::cout<<"Warning: you are using slow data access";
-		face_->basisFunctionNormal(i,normal,p,ret);
-	}
+    ret = basisFunctionsTimesNormal_[i];
+    if (!(currentPoint_ == p))
+    {
+        std::cout << "Warning: you are using slow data access";
+        face_->basisFunctionNormal(i, normal, p, ret);
+    }
 }
 
 void Base::ShortTermStorageFaceH1::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
 {
-	if(!(currentPoint_==p)){
-		currentPoint_=p;
-		computeData();
-	}
-	ret=basisFunctionDerivatives_[i];
+    if (!(currentPoint_ == p))
+    {
+        currentPoint_ = p;
+        computeData();
+    }
+    ret = basisFunctionDerivatives_[i];
 }
 
 void Base::ShortTermStorageFaceH1::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
 {
-	ret=basisFunctionDerivatives_[i];
-	if(!(currentPoint_==p)){
-		std::cout<<"Warning: you are using slow data access";
-		face_->basisFunctionDeriv(i,p,ret);
-	}
+    ret = basisFunctionDerivatives_[i];
+    if (!(currentPoint_ == p))
+    {
+        std::cout << "Warning: you are using slow data access";
+        face_->basisFunctionDeriv(i, p, ret);
+    }
 }

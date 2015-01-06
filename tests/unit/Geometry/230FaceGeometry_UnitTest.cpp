@@ -199,6 +199,6 @@ int main(){
 
 	assert((test->getFaceType()==Geometry::FaceType::WALL_BC));
 	assert((typeid(*test->getReferenceGeometry())==typeid(Geometry::ReferenceLine)));
-	assert((test->getPtrElementGRight()==NULL));
+    assert((test->getPtrElementGRight() == nullptr));
 }
 

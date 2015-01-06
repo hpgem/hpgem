@@ -49,7 +49,7 @@ namespace Geometry
 {
 class PointHasher{
 public:
-	size_t operator ()(const Geometry::PointReference& point) const;
+        std::size_t operator()(const Geometry::PointReference& point) const;
 };
     
     enum TypeOfReferenceGeometry

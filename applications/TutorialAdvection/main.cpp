@@ -49,7 +49,7 @@ public:
         //This cannot be implemented with iterators, and since the dimension is
         //not always 2, this is the most generic way to write it.
         a.resize(DIM_);
-        for (size_t i = 0; i < DIM_; ++i)
+        for (std::size_t i = 0; i < DIM_; ++i)
         {
             a[i] = 0.1 + 0.1*i;
         }        
@@ -62,7 +62,7 @@ public:
         RectangularMeshDescriptorT description(DIM_);
 
         //this demo will use the square [0,1]^2
-        for (size_t i = 0; i < DIM_; ++i)
+        for (std::size_t i = 0; i < DIM_; ++i)
         {
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
@@ -188,7 +188,7 @@ public:
         //Resize the vector and compute the value of the basis function times the
         //value of the initial conditions in this point.
         integrandVal.resize(numBasisFuncs);
-        for (std:: size_t i = 0; i < numBasisFuncs; ++i)
+        for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
             integrandVal[i] = element->basisFunction(i, point) * initialConditions(pPhys);
         }
@@ -275,7 +275,7 @@ int main(int argc, char **argv)
         Advection test(n.getValue(), p.getValue());
         
         //Define how we want the solution to be written in the VTK files
-        test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, size_t timelevel) -> double
+        test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, std::size_t timelevel) -> double
         {
             LinearAlgebra::NumericalVector solution(1);
             element->getSolution(timelevel, point, solution);

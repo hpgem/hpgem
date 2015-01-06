@@ -53,15 +53,15 @@ namespace Base
     public:
 
         Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, 
-                ElementT* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR, 
-                size_t faceID, size_t numberOfElementMatrixes = 0, 
-                size_t numberOfFaceVectors = 0);
+                ElementT* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR,
+             std::size_t faceID, std::size_t numberOfElementMatrixes = 0,
+             std::size_t numberOfFaceVectors = 0);
 
         virtual ~Face() { }
 
-        Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, 
-            const Geometry::FaceType& ftype, int faceID, 
-            size_t numberOfFaceMatrixes = 0, size_t numberOfFaceVectors = 0);
+        Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL,
+             const Geometry::FaceType& ftype, std::size_t faceID,
+             std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
 
         /// Return the pointer to the left element.
         virtual ElementT* getPtrElementLeft()
@@ -69,7 +69,7 @@ namespace Base
             return elementLeft_;
         }
 
-        /// Return the pointer to the right element, NULL if inexistent for boundaries.
+        /// Return the pointer to the right element, nullptr if inexistent for boundaries.
         virtual ElementT* getPtrElementRight()
         {
             return elementRight_;
@@ -80,7 +80,7 @@ namespace Base
             return elementLeft_;
         }
 
-        /// Return the pointer to the right element, NULL if inexistent for boundaries.
+        /// Return the pointer to the right element, nullptr if inexistent for boundaries.
         virtual const ElementT* getPtrElementRight()const
         {
             return elementRight_;
@@ -125,7 +125,7 @@ namespace Base
             return nrOfConformingDOFOnTheFace_;
         }
 
-        void setLocalNrOfBasisFunctions(size_t number)
+        void setLocalNrOfBasisFunctions(std::size_t number)
         {
             nrOfConformingDOFOnTheFace_ = number;
         }
@@ -136,7 +136,7 @@ namespace Base
         }
         
         /// Specify a time level index, return a vector containing the data for that time level.
-        virtual LinearAlgebra::NumericalVector getTimeLevelData(size_t timeLevel);
+        virtual LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel);
         
         LinearAlgebra::NumericalVector getCurrentData();
 
@@ -151,7 +151,7 @@ namespace Base
         const FaceQuadratureRule* quadratureRule_;
         VecCacheT vecCacheData_;
 
-        size_t nrOfConformingDOFOnTheFace_;
+        std::size_t nrOfConformingDOFOnTheFace_;
         int faceID_;
     };
 };

@@ -120,17 +120,17 @@ namespace Base
         /// \brief Performs all the face integrations
         void doAllFaceIntegration(std::size_t meshID = 0);
 
-        void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference&, size_t) > function, std::string name)
+        void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t) > function, std::string name)
         {
             VTKDoubleWrite_.push_back({function, name});
         }
 
-        void registerVTKWriteFunction(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, size_t) > function, std::string name)
+        void registerVTKWriteFunction(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t) > function, std::string name)
         {
             VTKVectorWrite_.push_back({function, name});
         }
 
-        void registerVTKWriteFunction(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, size_t) > function, std::string name)
+        void registerVTKWriteFunction(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t) > function, std::string name)
         {
             VTKMatrixWrite_.push_back({function, name});
         }
@@ -169,9 +169,9 @@ namespace Base
             }
         }
 
-        std::vector<std::pair<std::function<double(Base::Element*, const Geometry::PointReference&, size_t)>, std::string> > VTKDoubleWrite_;
-        std::vector<std::pair<std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, size_t)>, std::string> > VTKVectorWrite_;
-        std::vector<std::pair<std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, size_t)>, std::string> > VTKMatrixWrite_;
+        std::vector<std::pair<std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKDoubleWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKVectorWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKMatrixWrite_;
         const ButcherTableau* integrator_;
 
     };

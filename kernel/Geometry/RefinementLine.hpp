@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "Geometry/RefinementGeometry.hpp"
+#include "ReferenceLine.hpp"
 
 namespace Geometry
 {
@@ -95,7 +96,8 @@ namespace Geometry
         virtual DimT getLocalSubFaceNr(int refineType, DimT localFaceNr, DimT subElementIdx) const;
 
     private:
-        RefinementLine() : referenceGeometry_(NULL), physicalGeometry_(NULL) {}
+
+        RefinementLine() : referenceGeometry_(&Geometry::ReferenceLine::Instance()), physicalGeometry_(nullptr) { }
 
         //! type of refinement to be applied. 
 

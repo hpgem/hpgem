@@ -43,8 +43,8 @@ namespace Base {
 		orientation_[i] = (indices[0] < indices[1]) ? 0 : 1;
 	}
 }*/
-    
-    void Edge::addElement(Element* element, size_t edgeNr)
+
+    void Edge::addElement(Element* element, std::size_t edgeNr)
     {
         elements_.push_back(element);
         localEdgeNrs_.push_back(edgeNr);

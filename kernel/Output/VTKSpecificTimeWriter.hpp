@@ -40,19 +40,19 @@ namespace Output {
         ///\param baseName name of the file WITHOUT extentions
         ///\param mesh the mesh containing the data you want to output
         ///if you want to write from multiple meshes, simply have paraview load both output files
-        VTKSpecificTimeWriter(const std::string& baseName,const Base::MeshManipulator* mesh, size_t timelevel=0);
+        VTKSpecificTimeWriter(const std::string& baseName, const Base::MeshManipulator* mesh, std::size_t timelevel = 0);
 
         ///\brief write end matter and close the file stream
         virtual ~VTKSpecificTimeWriter();
         
         ///\brief write a scalar field
-        void write(std::function<double(Base::Element*, const Geometry::PointReference&, size_t)>, const std::string& name);
+        void write(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name);
 
         ///\brief write a vector field
-        void write(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, size_t)>, const std::string& name);
+        void write(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name);
 
         ///\brief write an order 2 tensor field
-        void write(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, size_t)>, const std::string& name);
+        void write(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name);
        
         ///\brief do not copy the writer to prevent havoc when destructing all the copies
         VTKSpecificTimeWriter(const VTKSpecificTimeWriter& orig)=delete;
@@ -63,7 +63,7 @@ namespace Output {
         std::ofstream masterFile_;
         uint32_t totalPoints_;
         const Base::MeshManipulator* mesh_;
-        size_t timelevel_;
+        std::size_t timelevel_;
     };
 }
 

@@ -98,7 +98,7 @@ namespace Integration
 //                                    const QuadratureRulesT* const qdrRule
 //                                    )                                    
 //    {
-//        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==NULL? el->getGaussQuadratureRule(): qdrRule);
+    //        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==nullptr? el->getGaussQuadratureRule(): qdrRule);
 //            
 //            // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
 //        TestErrorDebug((qdrRuleLoc->forReferenceGeometry() == el->getReferenceGeometry()),

@@ -39,14 +39,14 @@ namespace Base {
     class Edge {
     public:
 
-        explicit Edge(size_t ID): ID_(ID), nrOfConformingDOFOnTheEdge_(0)
+        explicit Edge(std::size_t ID) : ID_(ID), nrOfConformingDOFOnTheEdge_(0)
         {
         }
         //Edge(std::vector<Element*>& elements,std::vector<unsigned int> localEdgeNrs, unsigned int ID);
         virtual ~Edge() {
         }
-        
-        void addElement(Element* element, size_t edgeNr);
+
+        void addElement(Element* element, std::size_t edgeNr);
 
         int getLocalNrOfBasisFunctions() const 
         {

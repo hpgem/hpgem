@@ -161,7 +161,7 @@ namespace QuadratureRules
               it != listOfQR_Line.end(); ++it)
           if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
-        return NULL;
+        return nullptr;
     }
     
     GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferenceTriangle* refGeo, int order)
@@ -170,7 +170,7 @@ namespace QuadratureRules
               it != listOfQR_Triangle.end(); ++it)
           if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
-        return NULL;
+        return nullptr;
     }
 
     GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferenceSquare* refGeo, int order)
@@ -179,7 +179,7 @@ namespace QuadratureRules
               it != listOfQR_Square.end(); ++it)
           if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
-        return NULL;
+        return nullptr;
     }
 
 
@@ -189,7 +189,7 @@ namespace QuadratureRules
               it != listOfQR_Tetrahedron.end(); ++it)
           if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
-        return NULL;
+        return nullptr;
     }
     
     GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferencePyramid* refGeo, int order)
@@ -198,7 +198,7 @@ namespace QuadratureRules
               it != listOfQR_Pyramid.end(); ++it)
           if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
-        return NULL;
+        return nullptr;
     }
     
     GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferenceTriangularPrism* refGeo, int order)
@@ -207,7 +207,7 @@ namespace QuadratureRules
               it != listOfQR_TriangularPrism.end(); ++it)
           if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
-        return NULL;
+        return nullptr;
     }
     
     GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferenceCube* refGeo, int order)
@@ -216,7 +216,7 @@ namespace QuadratureRules
               it != listOfQR_Cube.end(); ++it)
           if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
-        return NULL;
+        return nullptr;
     }
     
     GaussQuadratureRule* QuadratureRuleSet::GetRule(Geometry::ReferenceHypercube* refGeo, int order)
@@ -225,7 +225,7 @@ namespace QuadratureRules
               it != listOfQR_Hypercube.end(); ++it)
           if (((GaussQuadratureRule*)*it)->order() >= order) return *it;
 
-        return NULL;
+        return nullptr;
     }
 
 };

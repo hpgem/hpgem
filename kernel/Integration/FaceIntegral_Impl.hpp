@@ -44,11 +44,12 @@ template <class ReturnTrait1>
                                   ReturnTrait1&   result,
                                  const QuadratureRulesT* const                    qdrRule )
     {
-		if(localFace_==NULL){
+        if (localFace_ == nullptr)
+        {
 			localFace_=new Base::ShortTermStorageFaceH1(fa->getGaussQuadratureRule()->dimension()+1);
 		}
 		*localFace_=*fa;
-        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==NULL? localFace_->getGaussQuadratureRule(): qdrRule);
+        const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? localFace_->getGaussQuadratureRule() : qdrRule);
 
             // check whether the GaussIntegrationRule is actually for the
             // Element's ReferenceGeometry

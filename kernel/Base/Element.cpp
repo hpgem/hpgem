@@ -46,12 +46,12 @@ namespace Base
     Element::Element(const VectorOfPointIndexesT& globalNodeIndexes,
                           const std::vector<const BasisFunctionSetT*>* basisFunctionSet,
                           const VectorOfPhysicalPointsT& allNodes,
-                          size_t nrOfUnkowns,
-                          size_t nrOfTimeLevels,
-                          size_t nrOfBasisFunc,
-                          size_t id,
-                          size_t numberOfElementMatrixes,
-                          size_t numberOfElementVectors,
+                     std::size_t nrOfUnkowns,
+                     std::size_t nrOfTimeLevels,
+                     std::size_t nrOfBasisFunc,
+                     std::size_t id,
+                     std::size_t numberOfElementMatrixes,
+                     std::size_t numberOfElementVectors,
                           const std::vector< int>& basisFunctionSetPositions):
         ElementGeometryT(globalNodeIndexes, allNodes),
         ElementDataT(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc,numberOfElementMatrixes,numberOfElementVectors),
@@ -62,8 +62,8 @@ namespace Base
         basisFunctionSetPositions_(basisFunctionSetPositions)
     {
         orderCoeff_ = 2;// for safety
-    	size_t numberOfBasisFunctions = 0;
-    	for (size_t i = 0; i < basisFunctionSetPositions_.size(); ++i)
+        std::size_t numberOfBasisFunctions = 0;
+        for (std::size_t i = 0; i < basisFunctionSetPositions_.size(); ++i)
     	{
     		numberOfBasisFunctions += basisFunctionSet_->at(basisFunctionSetPositions_[i])->size();
     	}
@@ -379,9 +379,9 @@ namespace Base
     {
         //get the number of basisfunctions, dimension and number of quadrature 
         //points on this element.
-        size_t numBasisFuncs = getNrOfBasisFunctions();
-        size_t dim = quadratureRule_->dimension();
-        size_t numQuadPoints = quadratureRule_->nrOfPoints();
+        std::size_t numBasisFuncs = getNrOfBasisFunctions();
+        std::size_t dim = quadratureRule_->dimension();
+        std::size_t numQuadPoints = quadratureRule_->nrOfPoints();
         
         //make the mass matrix of the correct size and set all entries to zero.
         massMatrix_.resize(numBasisFuncs,numBasisFuncs);
@@ -394,13 +394,13 @@ namespace Base
         
         //for each quadrature point, compute the value of the product of the 
         //basisfunctions, then add it with the correct weight to massMatrix_
-        for(size_t pIndex = 0; pIndex < numQuadPoints; ++pIndex)
+        for (std::size_t pIndex = 0; pIndex < numQuadPoints; ++pIndex)
         {
             quadratureRule_->getPoint(pIndex,p);
             calcJacobian(p, jac);
-            for (size_t i = 0; i < numBasisFuncs; ++i)
+            for (std::size_t i = 0; i < numBasisFuncs; ++i)
             {
-                for (size_t j = 0; j < numBasisFuncs; ++j)
+                for (std::size_t j = 0; j < numBasisFuncs; ++j)
                 {
                     tempMatrix(i,j) = basisFunction(i,p) * basisFunction(j,p);
                 }

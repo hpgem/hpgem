@@ -31,7 +31,7 @@ namespace Integration
         //! \brief Construct an FaceIntegral with cache on.
     FaceIntegral::FaceIntegral(bool useCache):
         useCache_(useCache),
-        localFace_(NULL)
+    localFace_(nullptr)
     {}
 
         //! \brief Free the memory used for the data storage.
@@ -45,7 +45,8 @@ namespace Integration
     FaceIntegral::cacheOn()
     {
         useCache_ = true;
-        if(localFace_!=NULL){
+        if (localFace_ != nullptr)
+        {
         	localFace_->cacheOn();
         }
     }
@@ -55,7 +56,8 @@ namespace Integration
     FaceIntegral::cacheOff()
     {
         useCache_ = false;
-        if(localFace_!=NULL){
+        if (localFace_ != nullptr)
+        {
         	localFace_->cacheOff();
         }
     }
@@ -64,7 +66,8 @@ namespace Integration
     void
     FaceIntegral::recomputeCacheOn()
     {
-        if(localFace_!=NULL){
+        if (localFace_ != nullptr)
+        {
         	localFace_->recomputeCacheOn();
         }
     }
@@ -73,7 +76,8 @@ namespace Integration
     void
     FaceIntegral::recomputeCacheOff()
     {
-        if(localFace_!=NULL){
+        if (localFace_ != nullptr)
+        {
         	localFace_->recomputeCacheOff();
         }
     }
@@ -103,7 +107,7 @@ namespace Integration
         void integrate(Base::Face<1>* fa,
                        IntegrandT& integrand,
                        typename ReturnTrait1<IntegrandT>::ReturnType& result,
-                       const QuadratureRules::GaussQuadratureRule<0>* qdrRule = NULL)
+                       const QuadratureRules::GaussQuadratureRule<0>* qdrRule = nullptr)
         {
             Geometry::PointReference<0> p;
             Geometry::PointPhysical<1> Normal;
@@ -113,10 +117,10 @@ namespace Integration
         }
 
         template <class IntegrandT,class OBJ>
-		void integrate(Base::Face<1>* fa,
-					   IntegrandT& integrand,
-					   typename ReturnTrait1<IntegrandT>::ReturnType& result,OBJ* objPtr,
-					   const QuadratureRules::GaussQuadratureRule<0>* qdrRule = NULL)
+        void integrate(Base::Face<1>* fa,
+                       IntegrandT& integrand,
+                       typename ReturnTrait1<IntegrandT>::ReturnType& result,OBJ* objPtr,
+                       const QuadratureRules::GaussQuadratureRule<0>* qdrRule = nullptr)
 		{
 			Geometry::PointReference<0> p;
 			Geometry::PointPhysical<1> Normal;

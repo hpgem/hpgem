@@ -134,7 +134,7 @@ namespace LinearAlgebra
         assert (size() == other.size() && nCols_ == other.nCols_);
         
         //add the matrices element-wise
-        for (size_t i = 0; i < size(); ++i)
+        for (std::size_t i = 0; i < size(); ++i)
         {
             data_[i] += other[i];
         }
@@ -453,16 +453,16 @@ namespace LinearAlgebra
 #else
         std::valarray<double> data_new(nCols_ * (nRows_ + other.nRows_));
 #endif
-        
-        for (size_t col = 0; col < nCols_; ++col)
+
+        for (std::size_t col = 0; col < nCols_; ++col)
         {
             //First insert the values of this matrix, then of the other matrix.
             //Index row stands for the row number in the new matrix.
-            for (size_t row = 0; row < nRows_ ; ++row)
+            for (std::size_t row = 0; row < nRows_; ++row)
             {
                 data_new[row + col * (nRows_ + other.nRows_)] = data_[row + col * nRows_];                
             }
-            for (size_t row = nRows_; row < nRows_ + other.nRows_; ++row)
+            for (std::size_t row = nRows_; row < nRows_ + other.nRows_; ++row)
             {
                 data_new[row + col * (nRows_ + other.nRows_)] = other.data_[(row - nRows_) + col * other.nRows_];
             }
@@ -585,13 +585,13 @@ namespace LinearAlgebra
     ///Print the matrix with () around each line and [] around the matrix.
     std::ostream& operator<<(std::ostream& os, const Matrix& A)
     {
-        size_t nRows = A.getNRows();
-        size_t nCols = A.getNCols();
+        std::size_t nRows = A.getNRows();
+        std::size_t nCols = A.getNCols();
         os << "[" << std::endl;
-        for (size_t i = 0; i < nRows; ++i)
+        for (std::size_t i = 0; i < nRows; ++i)
         {
             os << "(";
-             for (size_t j = 0; j < nCols; ++j)
+            for (std::size_t j = 0; j < nCols; ++j)
              {
                 os << A(i,j) << "\t ";
              }

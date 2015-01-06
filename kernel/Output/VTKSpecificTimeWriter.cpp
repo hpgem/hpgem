@@ -77,8 +77,9 @@ static std::unordered_map<std::type_index,VTKElementName> hpGEMToVTK =
     {std::type_index(typeid(Geometry::ReferencePyramid))        , VTKElementName::PYRAMID}
 };
 
-Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName, const Base::MeshManipulator* mesh, size_t timelevel) : mesh_(mesh), totalPoints_(0), timelevel_(timelevel) {
-    size_t id = Base::MPIContainer::Instance().getProcessorID();
+Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName, const Base::MeshManipulator* mesh, std::size_t timelevel) : mesh_(mesh), totalPoints_(0), timelevel_(timelevel)
+{
+    std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     uint32_t totalData;
     if(id == 0)
     {
@@ -90,8 +91,8 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
         masterFile_ << "<?xml version=\"1.0\"?>" << std::endl;
         masterFile_ << "<VTKFile type=\"PUnstructuredGrid\" version=\"0.1\" byte_order=\"" << (Detail::isBigEndian()?"BigEndian":"LittleEndian") << "\">" << std::endl;
         masterFile_ << "  <PUnstructuredGrid GhostLevel=\"0\">" << std::endl;
-        size_t numProcs = Base::MPIContainer::Instance().getNumProcessors();
-        for(size_t i = 0; i < numProcs; ++i)
+        std::size_t numProcs = Base::MPIContainer::Instance().getNumProcessors();
+        for (std::size_t i = 0; i < numProcs; ++i)
         {
             std::string fileName=baseName;
             if(fileName.find('/')!=std::string::npos)
@@ -132,10 +133,10 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
     {
         cumulativeNodesPerElement.push_back(element->getNrOfNodes()+cumulativeNodesPerElement.back());
         elementTypes.push_back(hpGEMToVTK.at(std::type_index(typeid(*element->getReferenceGeometry()))));
-        for(size_t i=0;i<element->getNrOfNodes();++i)
+        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
             element->getPhysicalGeometry()->getLocalNodeCoordinates(tohpGEMOrdering(i,element->getReferenceGeometry()),actualNode);
-            for(size_t j=0;j<DIM;++j)
+            for (std::size_t j = 0; j < DIM; ++j)
             {
                 usefullNode[j]=actualNode[j];
             }
@@ -169,8 +170,9 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
     localFile_ << "      <PointData>" << std::endl;
 }
 
-Output::VTKSpecificTimeWriter::~VTKSpecificTimeWriter() {
-    size_t id = Base::MPIContainer::Instance().getProcessorID();
+Output::VTKSpecificTimeWriter::~VTKSpecificTimeWriter()
+{
+    std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if(id == 0)
     {
         masterFile_ << "    </PPointData>" << std::endl;
@@ -191,9 +193,9 @@ Output::VTKSpecificTimeWriter::~VTKSpecificTimeWriter() {
     localFile_.close();
 }
 
-void Output::VTKSpecificTimeWriter::write(std::function<double(Base::Element*,const Geometry::PointReference&, size_t)> dataCompute, const std::string& name)
+void Output::VTKSpecificTimeWriter::write(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t) > dataCompute, const std::string& name)
 {
-    size_t id = Base::MPIContainer::Instance().getProcessorID();
+    std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if(id == 0)
     {
         masterFile_ << "      <PDataArray type=\"Float64\" Name=\"" << name << "\"/>" << std::endl;
@@ -204,7 +206,7 @@ void Output::VTKSpecificTimeWriter::write(std::function<double(Base::Element*,co
     Geometry::PointReference node(mesh_->dimension());
     for(Base::Element* element:mesh_->getElementsList())
     {
-        for(size_t i=0;i<element->getNrOfNodes();++i)
+        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
             element->getReferenceGeometry()->getNode(tohpGEMOrdering(i,element->getReferenceGeometry()),node);
             data.push_back(dataCompute(element, node, timelevel_));
@@ -215,9 +217,9 @@ void Output::VTKSpecificTimeWriter::write(std::function<double(Base::Element*,co
     localFile_ << "      </DataArray>" << std::endl;
 }
 
-void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::NumericalVector(Base::Element*,const Geometry::PointReference&, size_t)> dataCompute, const std::string& name)
+void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t) > dataCompute, const std::string& name)
 {
-    size_t id = Base::MPIContainer::Instance().getProcessorID();
+    std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if(id == 0)
     {
         masterFile_ << "      <PDataArray type=\"Float64\" Name=\"" << name << "\" NumberOfComponents=\"3\"/>" << std::endl;
@@ -229,15 +231,15 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::Numerical
     Geometry::PointReference node(mesh_->dimension());
     for(Base::Element* element:mesh_->getElementsList())
     {
-        for(size_t i=0;i<element->getNrOfNodes();++i)
+        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
             element->getReferenceGeometry()->getNode(i,node);
             newData = dataCompute(element,node, timelevel_);
-            for(size_t j=0;j<newData.size();++j)
+            for (std::size_t j = 0; j < newData.size(); ++j)
             {
                 data.push_back(newData[j]);
             }
-            for(size_t j=newData.size();j<3;++j)
+            for (std::size_t j = newData.size(); j < 3; ++j)
             {
                 data.push_back(0.);
             }
@@ -248,9 +250,9 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::Numerical
     localFile_ << "      </DataArray>" << std::endl;
 }
 
-void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::Matrix(Base::Element*,const Geometry::PointReference&, size_t)> dataCompute, const std::string& name)
+void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t) > dataCompute, const std::string& name)
 {
-    size_t id = Base::MPIContainer::Instance().getProcessorID();
+    std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if(id == 0)
     {
         masterFile_ << "      <PDataArray type=\"Float64\" Name=\"" << name << "\" NumberOfComponents=\"3\"/>" << std::endl;
@@ -262,18 +264,18 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::Matrix(Ba
     Geometry::PointReference node(mesh_->dimension());
     for(Base::Element* element:mesh_->getElementsList())
     {
-        for(size_t i=0;i<element->getNrOfNodes();++i)
+        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
             element->getReferenceGeometry()->getNode(i,node);
             newData = dataCompute(element,node, timelevel_);
-            size_t j=0;
+            std::size_t j = 0;
             for(;j<newData.getNRows();++j)
             {
-                for(size_t k=0;k<newData.getNCols();++k)
+                for (std::size_t k = 0; k < newData.getNCols(); ++k)
                 {
                     data.push_back(newData(j,k));
                 }
-                for(size_t k=newData.getNCols();k<3;++k)
+                for (std::size_t k = newData.getNCols(); k < 3; ++k)
                 {
                     data.push_back(0.);
                 }

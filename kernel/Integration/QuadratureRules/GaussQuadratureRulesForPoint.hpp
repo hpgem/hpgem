@@ -24,49 +24,66 @@
 #include "GaussQuadratureRule.hpp"
 #include <cstdint>
 
-/// \bug This is done to make the code work on version 4.6.3 of gnu c++ compiler where INT32_MAX is currently not defined.
-#ifndef INT32_MAX
-#define INT32_MAX 4294967295
-#endif
-
-namespace Geometry {
-	class ReferencePoint;
+namespace Geometry
+{
+    class ReferencePoint;
 }
 
-namespace QuadratureRules {
+namespace QuadratureRules
+{
 
-///'Quadrature rule' for a single point is always exact (and just does an evaluation)
-class Cn0_inf_1: public QuadratureRules::GaussQuadratureRule {
-public:
-    static Cn0_inf_1& Instance()
+    ///'Quadrature rule' for a single point is always exact (and just does an evaluation)
+
+    class Cn0_inf_1 : public QuadratureRules::GaussQuadratureRule
+    {
+    public:
+
+        static Cn0_inf_1& Instance()
         {
             static Cn0_inf_1 theInstance;
             return theInstance;
         }
 
-    virtual std::string             getName() const{return name_;}
+        virtual std::string getName() const
+        {
+            return name_;
+        }
 
-    virtual unsigned int            order() const{return INT32_MAX;}
+        virtual unsigned int order() const
+        {
+            return std::numeric_limits<unsigned int>::max();
+        }
 
-    virtual unsigned int            dimension() const{return 0;}
+        virtual unsigned int dimension() const
+        {
+            return 0;
+        }
 
-    virtual unsigned int            nrOfPoints() const{return 1;}
+        virtual unsigned int nrOfPoints() const
+        {
+            return 1;
+        }
 
-		virtual double weight(unsigned int i) const;
+        virtual double weight(unsigned int i) const;
 
-		virtual void getPoint(unsigned int i, Geometry::PointReference& p) const;
+        virtual void getPoint(unsigned int i, Geometry::PointReference& p) const;
 
-    virtual Geometry::ReferenceGeometry*     forReferenceGeometry() const{return refGeoPtr_;}
+        virtual Geometry::ReferenceGeometry* forReferenceGeometry() const
+        {
+            return refGeoPtr_;
+        }
 
-private:
-		Cn0_inf_1();
-    Cn0_inf_1(const Cn0_inf_1&):refGeoPtr_(NULL){}
-    virtual ~Cn0_inf_1(){}
-private:
-    const std::string           name_;
-    double                      weight_[1];
-    Geometry::ReferenceGeometry* const   refGeoPtr_;
-};
+    private:
+        Cn0_inf_1();
+
+        Cn0_inf_1(const Cn0_inf_1&) = delete;
+
+        virtual ~Cn0_inf_1() { }
+    private:
+        const std::string name_;
+        double weight_[1];
+        Geometry::ReferenceGeometry * const refGeoPtr_;
+    };
 
 } /* namespace QuadratureRules */
 

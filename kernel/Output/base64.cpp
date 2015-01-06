@@ -31,7 +31,7 @@ bool Output::Detail::isBigEndian()
     return *pFirstByte == 1;
 }
 
-std::string Output::Detail::toBase64(void* rawData, size_t len)
+std::string Output::Detail::toBase64(void* rawData, std::size_t len)
 {
     const char* cRawData = (const char*) rawData;
     std::string result;

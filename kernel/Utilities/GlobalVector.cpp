@@ -125,7 +125,7 @@ namespace Utilities {
         //meshLevel_=theMesh_->getActiveLevel(0);
         int ierr = VecDestroy(&b_);
 #ifdef HPGEM_USE_MPI
-        size_t n = Base::MPIContainer::Instance().getNumProcessors();
+        std::size_t n = Base::MPIContainer::Instance().getNumProcessors();
         //offset by one to put a 0 in front
         std::vector<int> MPISendElementCounts(n+1,0), MPISendFaceCounts(n+1,0), MPISendEdgeCounts(n+1,0), MPISendNodeCounts(n+1,0);
         
@@ -151,15 +151,15 @@ namespace Utilities {
         std::partial_sum(MPISendNodeCounts.begin(), MPISendNodeCounts.end(), MPISendNodeStarts.begin());
         
         //pack the computed data to send it using MPI
-        std::vector<size_t> MPISendElementNumbers(MPISendElementStarts.back(),std::numeric_limits<size_t>::max());
-        std::vector<size_t> MPISendFaceNumbers(MPISendFaceStarts.back(),std::numeric_limits<size_t>::max());
-        std::vector<size_t> MPISendEdgeNumbers(MPISendEdgeStarts.back(),std::numeric_limits<size_t>::max());
-        std::vector<size_t> MPISendNodeNumbers(MPISendNodeStarts.back(),std::numeric_limits<size_t>::max());
-        
-        std::vector<size_t> MPISendElementPositions(MPISendElementStarts.back(),std::numeric_limits<size_t>::max());
-        std::vector<size_t> MPISendFacePositions(MPISendFaceStarts.back(),std::numeric_limits<size_t>::max());
-        std::vector<size_t> MPISendEdgePositions(MPISendEdgeStarts.back(),std::numeric_limits<size_t>::max());
-        std::vector<size_t> MPISendNodePositions(MPISendNodeStarts.back(),std::numeric_limits<size_t>::max());
+        std::vector<std::size_t> MPISendElementNumbers(MPISendElementStarts.back(), std::numeric_limits<std::size_t>::max());
+        std::vector<std::size_t> MPISendFaceNumbers(MPISendFaceStarts.back(), std::numeric_limits<std::size_t>::max());
+        std::vector<std::size_t> MPISendEdgeNumbers(MPISendEdgeStarts.back(), std::numeric_limits<std::size_t>::max());
+        std::vector<std::size_t> MPISendNodeNumbers(MPISendNodeStarts.back(), std::numeric_limits<std::size_t>::max());
+
+        std::vector<std::size_t> MPISendElementPositions(MPISendElementStarts.back(), std::numeric_limits<std::size_t>::max());
+        std::vector<std::size_t> MPISendFacePositions(MPISendFaceStarts.back(), std::numeric_limits<std::size_t>::max());
+        std::vector<std::size_t> MPISendEdgePositions(MPISendEdgeStarts.back(), std::numeric_limits<std::size_t>::max());
+        std::vector<std::size_t> MPISendNodePositions(MPISendNodeStarts.back(), std::numeric_limits<std::size_t>::max());
         
         auto currentElementNumber = MPISendElementNumbers.begin() + MPISendElementStarts[rank];
         auto currentFaceNumber = MPISendFaceNumbers.begin() + MPISendFaceStarts[rank];
@@ -171,7 +171,7 @@ namespace Utilities {
         auto currentEdgePosition = MPISendEdgePositions.begin() + MPISendEdgeStarts[rank];
         auto currentNodePosition = MPISendNodePositions.begin() + MPISendNodeStarts[rank];
 #endif
-        size_t totalNrOfDOF(0), DIM(theMesh_->dimension());
+        std::size_t totalNrOfDOF(0), DIM(theMesh_->dimension());
         startPositionsOfElementsInTheVector_.resize(theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL));
         startPositionsOfFacesInTheVector_.resize(theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL));
         startPositionsOfEdgesInTheVector_.resize(theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL));
@@ -187,7 +187,7 @@ namespace Utilities {
             startPositionsOfElementsInTheVector_[element->getID()] = totalNrOfDOF;
 #endif
             totalNrOfDOF += element->getLocalNrOfBasisFunctions();
-            for(size_t i = 0; i < element->getNrOfFaces(); ++i)
+            for (std::size_t i = 0; i < element->getNrOfFaces(); ++i)
             {
                 //faces at the boundary of the subdomain should also be added only once, so add them here is the left element of the face is in the subdomain
                 if(element->getFace(i)->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY && element->getFace(i)->getPtrElementLeft() == element)
@@ -252,7 +252,7 @@ namespace Utilities {
 
 #ifdef HPGEM_USE_MPI
         //offset by one to insert a zero at the front
-        std::vector<size_t> cumulativeDOF(n+1);
+        std::vector<std::size_t> cumulativeDOF(n + 1);
         cumulativeDOF[rank+1]=totalNrOfDOF;
         
         //communicate...
@@ -280,10 +280,10 @@ namespace Utilities {
         currentFacePosition = MPISendFacePositions.begin();
         currentEdgePosition = MPISendEdgePositions.begin();
         currentNodePosition = MPISendNodePositions.begin();
-        
-        size_t currentDomain = 0;
+
+        std::size_t currentDomain = 0;
         auto startOFNextDomain = MPISendElementNumbers.begin() + MPISendElementCounts[currentDomain+1];
-        size_t offset = cumulativeDOF[currentDomain];
+        std::size_t offset = cumulativeDOF[currentDomain];
         for(;currentElementNumber!=MPISendElementNumbers.end();++currentElementNumber,++currentElementPosition)
         {
             if(currentElementNumber==startOFNextDomain)
@@ -292,7 +292,7 @@ namespace Utilities {
                 startOFNextDomain += MPISendElementCounts[currentDomain+1];
                 offset = cumulativeDOF[currentDomain];
             }
-            assert(*currentElementNumber!=std::numeric_limits<size_t>::max());
+            assert(*currentElementNumber != std::numeric_limits<std::size_t>::max());
             startPositionsOfElementsInTheVector_[*currentElementNumber]=*currentElementPosition+offset;
         }
         
@@ -307,7 +307,7 @@ namespace Utilities {
                 startOFNextDomain += MPISendFaceCounts[currentDomain+1];
                 offset = cumulativeDOF[currentDomain];
             }
-            if(*currentFaceNumber!=std::numeric_limits<size_t>::max())
+            if (*currentFaceNumber != std::numeric_limits<std::size_t>::max())
                 startPositionsOfFacesInTheVector_[*currentFaceNumber]=*currentFacePosition+offset;
         }
         
@@ -322,7 +322,7 @@ namespace Utilities {
                 startOFNextDomain += MPISendEdgeCounts[currentDomain+1];
                 offset = cumulativeDOF[currentDomain];
             }
-            assert(*currentEdgeNumber!=std::numeric_limits<size_t>::max());
+            assert(*currentEdgeNumber != std::numeric_limits<std::size_t>::max());
             startPositionsOfEdgesInTheVector_[*currentEdgeNumber]=*currentEdgePosition+offset;
         }
         
@@ -337,7 +337,7 @@ namespace Utilities {
                 startOFNextDomain += MPISendNodeCounts[currentDomain+1];
                 offset = cumulativeDOF[currentDomain];
             }
-            assert(*currentNodeNumber!=std::numeric_limits<size_t>::max());
+            assert(*currentNodeNumber != std::numeric_limits<std::size_t>::max());
             startPositionsOfVerticesInTheVector_[*currentNodeNumber]=*currentNodePosition+offset;
         }
 #endif
@@ -401,10 +401,10 @@ namespace Utilities {
         LinearAlgebra::NumericalVector elementData;
         for(Base::Element* element : theMesh_->getElementsList())
         {
-            size_t numBasisFuncs = element->getNrOfBasisFunctions();
+            std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
             std::vector<PetscInt> positions = makePositionsInVector(element);
             elementData.resize(numBasisFuncs);
-            for(size_t i=0; i < numBasisFuncs; ++i)
+            for (std::size_t i = 0; i < numBasisFuncs; ++i)
             {
                 elementData[i] = element->getData(timelevel, solutionVar, i);
             }

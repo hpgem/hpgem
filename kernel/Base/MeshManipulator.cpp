@@ -337,8 +337,10 @@ namespace Base {
 
     void
     MeshManipulator::move() {
-        for (Geometry::PointPhysical& p : theMesh_.getNodes()) {
-            if (meshMover_ != NULL) {
+        for (Geometry::PointPhysical& p : theMesh_.getNodes())
+        {
+            if (meshMover_ != nullptr)
+            {
                 meshMover_->movePoint(p);
             }
         }
@@ -412,7 +414,7 @@ namespace Base {
             throw (10);
         }
         std::vector<bool> periodicDIM;
-        for(size_t i=0;i<DIM;++i)
+        for (std::size_t i = 0; i < DIM; ++i)
         {
             if(i==0) periodicDIM.push_back(periodicX_);
             if(i==1) periodicDIM.push_back(periodicY_);
@@ -480,8 +482,8 @@ namespace Base {
         }
 
         //stage 2.5 : create the vertices
-        
-        for(size_t vertexID = 0; vertexID < totalNumOfVertices; ++vertexID)
+
+        for (std::size_t vertexID = 0; vertexID < totalNumOfVertices; ++vertexID)
         {
             theMesh_.addVertex();
         }
@@ -529,7 +531,7 @@ namespace Base {
                 }
             }
             Element* newElement = addElement(globalNodeID);
-            for(size_t i=0;i<globalVertexID.size();++i)
+            for (std::size_t i = 0; i < globalVertexID.size(); ++i)
             {
                 vertexlist[globalVertexID[i]]->addElement(newElement,i);
             }
@@ -573,8 +575,8 @@ namespace Base {
             addFace(tempElementVector[0], 0, tempElementVector[linearNoElements[0] - 1], 1);
         }
         else {
-            addFace(tempElementVector[0], 0, NULL, 0);
-            addFace(tempElementVector[linearNoElements[0] - 1], 1, NULL, 0);
+            addFace(tempElementVector[0], 0, nullptr, 0);
+            addFace(tempElementVector[linearNoElements[0] - 1], 1, nullptr, 0);
         }
 
     }
@@ -600,12 +602,12 @@ namespace Base {
             } else {
                 //Left bounday face
                 //cout<<"index1="<<index<<endl;
-                addFace(tempElementVector[index], 1, NULL, 0);
+                addFace(tempElementVector[index], 1, nullptr, 0);
 
                 //Right boundary face
                 index = index + linearNoElements[0] - 1;
                 //cout<<"index2="<<index<<endl;
-                addFace(tempElementVector[index], 2, NULL, 0);
+                addFace(tempElementVector[index], 2, nullptr, 0);
             }
         }
 
@@ -632,13 +634,13 @@ namespace Base {
                 //Bottom boundary face
 
                 // cout<<"index4="<<index<<endl;
-                addFace(tempElementVector[index], 0, NULL, 0);
+                addFace(tempElementVector[index], 0, nullptr, 0);
 
                 //Top boundary face
                 index = index + (linearNoElements[1] - 1) * linearNoElements[0];
 
                 //cout<<"index5="<<index<<endl;
-                addFace(tempElementVector[index], 3, NULL, 0);
+                addFace(tempElementVector[index], 3, nullptr, 0);
             }
 
         }
@@ -670,12 +672,12 @@ namespace Base {
                     //Left boundary
 
                     // cout<<"index1="<<index<<endl;
-                    addFace(tempElementVector[index], 2, NULL, 0);
+                    addFace(tempElementVector[index], 2, nullptr, 0);
 
                     //Right boundary face
                     index = index + linearNoElements[0] - 1;
                     // cout<<"index2="<<index<<endl;
-                    addFace(tempElementVector[index], 3, NULL, 0);
+                    addFace(tempElementVector[index], 3, nullptr, 0);
                 } // end boundary cases
 
             } // end loop over z
@@ -705,12 +707,12 @@ namespace Base {
                     //front bounday face
 
                     // cout<<"index1="<<index<<endl;
-                    addFace(tempElementVector[index], 1, NULL, 0);
+                    addFace(tempElementVector[index], 1, nullptr, 0);
 
                     //Back boundary face
                     index = index + (linearNoElements[1] - 1) * linearNoElements[0];
                     //   cout<<"index2="<<index<<endl;
-                    addFace(tempElementVector[index], 4, NULL, 0);
+                    addFace(tempElementVector[index], 4, nullptr, 0);
                 } // end boundary cases
 
             } // end loop over x
@@ -737,12 +739,12 @@ namespace Base {
 
                     //bottom boundary
                     //cout<<"index1="<<index<<endl;
-                    addFace(tempElementVector[index], 0, NULL, 0);
+                    addFace(tempElementVector[index], 0, nullptr, 0);
 
                     //Top boundary face
                     index = index + (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0];
                     //cout<<"index2="<<index<<endl;
-                    addFace(tempElementVector[index], 5, NULL, 0);
+                    addFace(tempElementVector[index], 5, nullptr, 0);
                 } // end boundary cases
 
             } // end loop over y
@@ -801,7 +803,7 @@ namespace Base {
             delta_x[i] = (TopRight[i] - BottomLeft[i]) / (linearNoElements[i]);
         }
 
-        std::vector<size_t> numOfNodesInEachSubspace(DIM), numOfVerticesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM);
+        std::vector<std::size_t> numOfNodesInEachSubspace(DIM), numOfVerticesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM);
 
         numOfNodesInEachSubspace[0] = 1;
         numOfVerticesInEachSubspace[0] = 1;
@@ -851,8 +853,8 @@ namespace Base {
             }
             theMesh_.addNode(x);
         }
-        
-        for(size_t nodeIndex=0; nodeIndex < totalNumOfVertices; ++nodeIndex)
+
+        for (std::size_t nodeIndex = 0; nodeIndex < totalNumOfVertices; ++nodeIndex)
         {
             theMesh_.addVertex();
         }
@@ -903,7 +905,7 @@ namespace Base {
                 }
                 
                 int nodeIndex = nodeNdId[0];
-                size_t vertexIndex = vertexNdId[0];
+                std::size_t vertexIndex = vertexNdId[0];
                 for (int idim = 1; idim < DIM; ++idim) {
                     nodeIndex += nodeNdId[idim] * numOfNodesInEachSubspace[idim];
                     vertexIndex += vertexNdId[idim] * numOfVerticesInEachSubspace[idim];
@@ -966,7 +968,7 @@ namespace Base {
 
             for (int i = 0; i < trianglesPerRectangle; ++i) {
                 Element* newElement = addElement(globalNodeID[i]);
-                for(size_t j=0;j<globalVertexID[i].size();++j)
+                for (std::size_t j = 0; j < globalVertexID[i].size(); ++j)
                 {
                     assert(i < globalVertexID.size());
                     assert(j < globalVertexID[i].size());
@@ -1007,8 +1009,8 @@ namespace Base {
         if (periodicX_ == 1) {
             addFace(tempElementVector[0], 0, tempElementVector[linearNoElements[0] - 1], linearNoElements[0] % 2);
         } else {
-            addFace(tempElementVector[0], 0, NULL, 0, WALL_BC);
-            addFace(tempElementVector[linearNoElements[0] - 1], linearNoElements[0] % 2, NULL, 0, WALL_BC);
+            addFace(tempElementVector[0], 0, nullptr, 0, WALL_BC);
+            addFace(tempElementVector[linearNoElements[0] - 1], linearNoElements[0] % 2, nullptr, 0, WALL_BC);
         }
 
     }
@@ -1042,12 +1044,12 @@ namespace Base {
                 //Left bounday face
 
                 // 	cout << "index1=" << index << endl;
-                addFace(tempElementVector[index], 1 - j % 2, NULL, 0, WALL_BC);
+                addFace(tempElementVector[index], 1 - j % 2, nullptr, 0, WALL_BC);
 
                 //Right boundary face
                 index = index + 2 * linearNoElements[0] - 1;
                 // 	cout << "index2=" << index << endl;
-                addFace(tempElementVector[index], 2 * rotate, NULL, 0, WALL_BC);
+                addFace(tempElementVector[index], 2 * rotate, nullptr, 0, WALL_BC);
             }
         }
 
@@ -1070,11 +1072,11 @@ namespace Base {
             } else {
                 //Bottom boundary face	  
                 // 	    cout << "index4=" << index + j % 2 << endl;
-                addFace(tempElementVector[index + j % 2], 0, NULL, 0, WALL_BC);
+                addFace(tempElementVector[index + j % 2], 0, nullptr, 0, WALL_BC);
                 //Top boundary face
                 index = index + 2 * (linearNoElements[1] - 1) * linearNoElements[0] + 1 - rotate;
                 // 	    cout << "index5=" << index << endl;
-                addFace(tempElementVector[index], 2 - rotate, NULL, 0, WALL_BC);
+                addFace(tempElementVector[index], 2 - rotate, nullptr, 0, WALL_BC);
             }
         }
 
@@ -1118,13 +1120,13 @@ namespace Base {
                 } else {
                     //Left boundary
                     // 	        cout << "index1=" << index << endl;
-                    addFace(tempElementVector[index], 2 * ((k + j) % 2), NULL, 0, WALL_BC);
-                    addFace(tempElementVector[index + 3 - 2 * ((k + j) % 2)], 2, NULL, 0, WALL_BC);
+                    addFace(tempElementVector[index], 2 * ((k + j) % 2), nullptr, 0, WALL_BC);
+                    addFace(tempElementVector[index + 3 - 2 * ((k + j) % 2)], 2, nullptr, 0, WALL_BC);
                     //Right boundary face
                     index = index + 5 * linearNoElements[0] - 5;
                     //              cout << "index2=" << index << endl;
-                    addFace(tempElementVector[index + 2], 3 * rotate, NULL, 0, WALL_BC);
-                    addFace(tempElementVector[index + 1 + 2 * rotate], 1 + 2 * rotate, NULL, 0, WALL_BC);
+                    addFace(tempElementVector[index + 2], 3 * rotate, nullptr, 0, WALL_BC);
+                    addFace(tempElementVector[index + 1 + 2 * rotate], 1 + 2 * rotate, nullptr, 0, WALL_BC);
                 } // end boundary cases
             } // end loop over y
         } //end loop over z
@@ -1157,13 +1159,13 @@ namespace Base {
                 } else {
                     //front bounday face
                     // 		cout << "index1=" << index << endl;
-                    addFace(tempElementVector[index + 2 - 2 * rotate], 2 - rotate, NULL, 0, WALL_BC);
-                    addFace(tempElementVector[index + 2 * rotate], 1 + rotate, NULL, 0, WALL_BC);
+                    addFace(tempElementVector[index + 2 - 2 * rotate], 2 - rotate, nullptr, 0, WALL_BC);
+                    addFace(tempElementVector[index + 2 * rotate], 1 + rotate, nullptr, 0, WALL_BC);
                     //Back boundary face
                     index = index + 5 * (linearNoElements[1] - 1) * linearNoElements[0];
                     // 		cout << "index2=" << index << endl;
-                    addFace(tempElementVector[index + 1], 3, NULL, 0, WALL_BC);
-                    addFace(tempElementVector[index + 3], 1, NULL, 0, WALL_BC);
+                    addFace(tempElementVector[index + 1], 3, nullptr, 0, WALL_BC);
+                    addFace(tempElementVector[index + 3], 1, nullptr, 0, WALL_BC);
                 } // end boundary cases
             } // end loop over y
         } //end loop over z
@@ -1197,13 +1199,13 @@ namespace Base {
                 } else {
                     //bottom boundary
                     // 		cout << "index1=" << index << endl;
-                    addFace(tempElementVector[index + 2 * ((j + k) % 2)], 2 - 2 * ((j + k) % 2), NULL, 0, WALL_BC);
-                    addFace(tempElementVector[index + 1 ], 2 - ((j + k) % 2), NULL, 0, WALL_BC);
+                    addFace(tempElementVector[index + 2 * ((j + k) % 2)], 2 - 2 * ((j + k) % 2), nullptr, 0, WALL_BC);
+                    addFace(tempElementVector[index + 1 ], 2 - ((j + k) % 2), nullptr, 0, WALL_BC);
                     //Top boundary face
                     index = index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0];
                     // 		cout << "index2=" << index << endl;
-                    addFace(tempElementVector[index + 2 - 2 * rotate], 3 - 3 * rotate, NULL, 0, WALL_BC);
-                    addFace(tempElementVector[index + 3], 3 - rotate, NULL, 0, WALL_BC);
+                    addFace(tempElementVector[index + 2 - 2 * rotate], 3 - 3 * rotate, nullptr, 0, WALL_BC);
+                    addFace(tempElementVector[index + 3], 3 - rotate, nullptr, 0, WALL_BC);
                 } // end boundary cases
             } // end loop over y
         } //end loop over z
@@ -1511,8 +1513,8 @@ namespace Base {
                 
                 Element* current = elementslist[candidateElements[0]];
                 std::vector<unsigned int> faceVertices(2);
-                
-                for(size_t j=0;j<current->getNrOfFaces();++j)
+
+                for (std::size_t j = 0; j < current->getNrOfFaces(); ++j)
                 {
                     current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j,faceVertices);
                     if((faceVertices[0]==boundaryFaces[i].nodeList[0] || faceVertices[0]==boundaryFaces[i].nodeList[1]) &&
@@ -1606,22 +1608,22 @@ namespace Base {
                 uint32_t boundaryType = groupBCType[segmentToGroup[faceToSegment[i]]];
                 if(boundaryType < 1001) {
                     std::cout << "Viscous Wall boundary for face " << i << " assigned as WALL_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::WALL_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                 } else if (boundaryType < 2001) {
                     std::cout << "Inviscid Wall boundary for face " << i << " assigned as WALL_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::WALL_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                 } else if (boundaryType < 3001) {
                     std::cout << "symmetry plane boundary for face " << i << " assigned as WALL_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::WALL_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                 } else if (boundaryType < 4001) {
                     std::cout << "inlet pipe boundary for face " << i << " assigned as OPEN_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::OPEN_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                 } else if (boundaryType < 5001) {
                     std::cout << "outlet pipe boundary for face " << i << " assigned as OPEN_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::OPEN_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                 } else if (boundaryType < 6001) {
                     std::cout << "farfield boundary for face " << i << " assigned as OPEN_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::OPEN_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                 } else if (boundaryType < 7001) {
                     std::cout << "periodic boundary for face " << i << " ignored for being internal; node connections will be assigned later" << std::endl;
                 } else if (boundaryType < 8001) {
@@ -1630,13 +1632,13 @@ namespace Base {
                     std::cout << "interface boundary for face " << i << " ignored for being internal" << std::endl;
                 } else if (boundaryType < 9001) {
                     std::cout << "wake boundary for face " << i << " assigned as OPEN_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::OPEN_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                 } else if (boundaryType < 10001) {
                     std::cout << "moving wall boundary for face " << i << " assigned as WALL_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::WALL_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                 } else {
                     std::cout << "alternative boundary condition for face " << i << " assigned as WALL_BC" << std::endl;
-                    addFace(elementslist[boundaryFaces[i].elementNum],boundaryFaces[i].localFaceIndex,NULL,0,Geometry::FaceType::WALL_BC);
+                    addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                 }
             }
             
@@ -1727,13 +1729,13 @@ namespace Base {
             auto& listOfVertices = theMesh_.getVerticesList(IteratorType::GLOBAL);
             
             bool addedNewVertex(false);
-            
-            for(size_t i=0;i<listOfElementsForEachNode.size();++i)
+
+            for (std::size_t i = 0; i < listOfElementsForEachNode.size(); ++i)
             {
-                for(size_t j=0;j<listOfElementsForEachNode[i].size();++j)
+                for (std::size_t j = 0; j < listOfElementsForEachNode[i].size(); ++j)
                 {
                     Element* current = elementslist[listOfElementsForEachNode[i][j]];
-                    for(size_t k=0;k<current->getNrOfNodes();++k)
+                    for (std::size_t k = 0; k < current->getNrOfNodes(); ++k)
                     {
                         //if we did not jet deal with this node and it is the correct one
                         if(current->getNode(k)==nullptr && current->getPhysicalGeometry()->getNodeIndex(k)==i)
@@ -2240,8 +2242,8 @@ namespace Base {
                 boundarFaces[i].elementNum = candidates[0];
                 
                 Element* current = elementsList[candidates[0]];
-                
-                for(size_t j=0;j<current->getNrOfFaces();++j)
+
+                for (std::size_t j = 0; j < current->getNrOfFaces(); ++j)
                 {
                     current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j,temp);
                     std::sort(temp.begin(),temp.end());
@@ -2365,37 +2367,37 @@ namespace Base {
                     std::cout << "Viscous Wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 } else if (centaurBCType < 2001) {
                     std::cout << "Inviscid Wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 } else if (centaurBCType < 3001) {
                     std::cout << "symmetry plane boundary for group " << i << " assigned as WALL_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 } else if (centaurBCType < 4001) {
                     std::cout << "inlet pipe boundary for group " << i << " assigned as OPEN_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::OPEN_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
                 } else if (centaurBCType < 5001) {
                     std::cout << "outlet pipe boundary for group " << i << " assigned as OPEN_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::OPEN_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
                 } else if (centaurBCType < 6001) {
                     std::cout << "farfield boundary for group " << i << " assigned as OPEN_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::OPEN_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
                 } else if (centaurBCType < 7001) {
                     std::cout << "periodic boundary for group " << i << " ignored for being internal; node connections will be assigned later" << std::endl;
@@ -2407,19 +2409,19 @@ namespace Base {
                     std::cout << "wake boundary for group " << i << " assigned as OPEN_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::OPEN_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
                 } else if (centaurBCType < 10001) {
                     std::cout << "moving wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 } else {
                     std::cout << "alternative boundary condition for group " << i << " assigned as WALL_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, NULL, 0, Geometry::FaceType::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 }
                 std::cout << "total number of boundary faces: " << getFacesList().size() << std::endl;
@@ -2557,13 +2559,13 @@ namespace Base {
             auto& listOfVertices = theMesh_.getVerticesList(IteratorType::GLOBAL);
             
             bool addedNewVertex(false);
-            
-            for(size_t i=0;i<listOfElementsForEachNode.size();++i)
+
+            for (std::size_t i = 0; i < listOfElementsForEachNode.size(); ++i)
             {
-                for(size_t j=0;j<listOfElementsForEachNode[i].size();++j)
+                for (std::size_t j = 0; j < listOfElementsForEachNode[i].size(); ++j)
                 {
                     Element* current = elementsList[listOfElementsForEachNode[i][j]];
-                    for(size_t k=0;k<current->getNrOfNodes();++k)
+                    for (std::size_t k = 0; k < current->getNrOfNodes(); ++k)
                     {
                         //if we did not jet deal with this node and it is the correct one
                         if(current->getNode(k)==nullptr && current->getPhysicalGeometry()->getNodeIndex(k)==i)
@@ -2741,7 +2743,7 @@ namespace Base {
         
         for(Element* element:theMesh_.getElementsList(IteratorType::GLOBAL))
         {
-            for(size_t i=0;i<element->getNrOfFaces();++i)
+            for (std::size_t i = 0; i < element->getNrOfFaces(); ++i)
             {
                 std::vector<const Node*> localNodes;
                 //if this face is not there yet
@@ -2754,7 +2756,7 @@ namespace Base {
                     candidates=element->getNode(nodeIndices[0])->getElements();
                     localNodes.push_back(element->getNode(nodeIndices[0]));
                     std::sort(candidates.begin(),candidates.end(),[](Element* left, Element* right){return left->getID()<right->getID();});
-                    for(size_t j=1;j<nodeIndices.size();++j)
+                    for (std::size_t j = 1; j < nodeIndices.size(); ++j)
                     {
                         localNodes.push_back(element->getNode(nodeIndices[j]));
                         std::vector<Element*> temp,nextIndices;
@@ -2788,7 +2790,7 @@ namespace Base {
                             other=candidates[0];
                         }
                         std::vector<unsigned int> otherNodeIndices;
-                        for(size_t j=0;j<other->getNrOfFaces();++j)
+                        for (std::size_t j = 0; j < other->getNrOfFaces(); ++j)
                         {
                             other->getReferenceGeometry()->getCodim1EntityLocalIndices(j,otherNodeIndices);
                             bool match =true;
@@ -2907,7 +2909,7 @@ namespace Base {
                     }
                 } else //it is a boundary face 
                 {
-                    addFace(tempElementVector[current.elementNum], current.localFaceIndex, NULL, 0, Geometry::WALL_BC);
+                    addFace(tempElementVector[current.elementNum], current.localFaceIndex, nullptr, 0, Geometry::WALL_BC);
                     current = next;
                 }
 
@@ -2931,7 +2933,7 @@ namespace Base {
 
             for(Element* element:theMesh_.getElementsList(IteratorType::GLOBAL))
             {
-                for(size_t i=0;i<element->getNrOfEdges();++i)
+                for (std::size_t i = 0; i < element->getNrOfEdges(); ++i)
                 {
                     if(element->getEdge(i)==nullptr)
                     {
@@ -2951,10 +2953,10 @@ namespace Base {
                         nodes[1]=element->getNode(nodeList[1]);
                         Edge* newEdge = theMesh_.getEdgesList(IteratorType::GLOBAL).back();
                         newEdge->addElement(element,i);
-                        for(size_t j=1;j<candidates.size();++j)
+                        for (std::size_t j = 1; j < candidates.size(); ++j)
                         {
                             Element* other = candidates[j];
-                            for(size_t k=0;k<other->getNrOfEdges();++k)
+                            for (std::size_t k = 0; k < other->getNrOfEdges(); ++k)
                             {
                                 other->getReferenceGeometry()->getCodim2EntityLocalIndices(k,otherNodeList);
                                 if((other->getNode(otherNodeList[0])==nodes[0] || other->getNode(otherNodeList[0])==nodes[1]) &&

@@ -29,54 +29,60 @@
 #include "Geometry/PointReference.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
 
-namespace Base {
+namespace Base
+{
 
-	/**
-	 * An face that computes and stores all basis function values and derivatives.
-	 * This way user can just type ret(j,i)=basisFunctionDeriv(i,p)*basisFunctionDeriv(j,p)
-	 * without being bothered by unnecessary information about Jacobians or transformations
-	 * and without having to compute the Jacobian twice for every entry in the face matrix
-	 *
-	 * This class will automatically recompute all data whenever a new point is passed to a basisfunction
-	 *
-	 * This cannot be directly implemented in Face because then all Faces will store all this data
-	 * resulting in a massive storage overhead
-	 *
-	 * The actual transformations required depend on the function space you are working in, so the actual work
-	 * is delegated to a subclass that doesn't need to shield all the getters.
-	 *
-	 * You cannot use this class to modify faces
-	 *
-	 * Be VERY careful to not put this type of face in a mesh, the extra storage needed for this type of faces will likely crash your program
-	 * Once proper error checking/handling is implemented safeguards will be added to make this a bit more difficult
-	 */
-	class ShortTermStorageFaceBase: public Face {
-	public:
+    /**
+     * A face that computes and stores all basis function values and derivatives.
+     * This way user can just type ret(j,i)=basisFunctionDeriv(i,p)*basisFunctionDeriv(j,p)
+     * without being bothered by unnecessary information about Jacobians or transformations
+     * and without having to compute the Jacobian twice for every entry in the face matrix
+     *
+     * This class will automatically recompute all data whenever a new point is passed to a basisfunction
+     *
+     * This cannot be directly implemented in Face because then all Faces will store all this data
+     * resulting in a massive storage overhead
+     *
+     * The actual transformations required depend on the function space you are working in, so the actual work
+     * is delegated to a subclass that doesn't need to shield all the getters.
+     *
+     * You cannot use this class to modify faces
+     *
+     * Be VERY careful to not put this type of face in a mesh, the extra storage needed for this type of faces will likely crash your program
+     * Once proper error checking/handling is implemented safeguards will be added to make this a bit more difficult
+     */
+    class ShortTermStorageFaceBase : public Face
+    {
+    public:
 
-		ShortTermStorageFaceBase(unsigned int dimension, bool useCache=false) :
-			Face(),face_(NULL),               //I dont like that face_ is not defined before operator= is called at least once
-			currentPoint_(dimension-1),       //but I want to give users the ability to pass alternative wrappers to the integrators
-			normal_(dimension),               //without forcing them to pick a random face that is going to be discarded anyway
-			recomputeCache_(true),
-			useCache_(useCache),
-			currentPointIndex_(-1){}
+        ShortTermStorageFaceBase(unsigned int dimension, bool useCache = false) :
+        Face(), face_(nullptr), //I dont like that face_ is not defined before operator= is called at least once
+        currentPoint_(dimension - 1), //but I want to give users the ability to pass alternative wrappers to the integrators
+        normal_(dimension), //without forcing them to pick a random face that is going to be discarded anyway
+        recomputeCache_(true),
+        useCache_(useCache),
+        currentPointIndex_(-1) { }
 
-		virtual Face& operator=(const Face& face){//todo check that &face and this are different things (logger)
-			face_=&face;
-			if(currentPoint_.size()==0){
-				computeData();
-			}else{
-                 /// \bug This should go back to NAN at some point. Again to fix problems with math and STL::vector
-				currentPoint_[0]=1./0.;
-			}
-			currentPointIndex_=-1;
-			return *this;
+        virtual Face& operator=(const Face& face)
+        {//todo check that &face and this are different things (logger)
+            face_ = &face;
+            if (currentPoint_.size() == 0)
+            {
+                computeData();
+            }
+            else
+            {
+                /// \bug This should go back to NAN at some point. Again to fix problems with math and STL::vector
+                currentPoint_[0] = 1. / 0.;
+            }
+            currentPointIndex_ = -1;
+            return *this;
         }
 
         virtual void computeData();
 
         virtual ~ShortTermStorageFaceBase() override {
-			//keep the face alive!
+            //keep the face alive!
         }
 
         void getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) const override;
@@ -87,7 +93,7 @@ namespace Base {
             throw "No storage functionality was implemented! Are you working in a vector valued function space?";
         }
 
-        virtual double basisFunction(std::size_t i, const Geometry::PointReference& p) 
+        virtual double basisFunction(std::size_t i, const Geometry::PointReference& p)
         {
             throw "No storage functionality was implemented! Are you working in a vector valued function space?";
         }
@@ -137,120 +143,120 @@ namespace Base {
             throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
         }
 
-		//if this is needed a lot, also store this
+        //if this is needed a lot, also store this
         void referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical) const override;
 
         //caching functionality
 
         //! \brief Start caching (geometry) information now.
-        void cacheOn() ;
+        void cacheOn();
 
-		//! \brief Stop using cache.
-        void cacheOff() ;
+        //! \brief Stop using cache.
+        void cacheOff();
 
-		//! \brief Set recompute the cache ON.
-        void recomputeCacheOn() ;
+        //! \brief Set recompute the cache ON.
+        void recomputeCacheOn();
 
-		//! \brief Set recompute the cache OFF.
-        void recomputeCacheOff() ;
+        //! \brief Set recompute the cache OFF.
+        void recomputeCacheOff();
 
-		//make sure all the other functions map to the other face
+        //make sure all the other functions map to the other face
 
         const ElementT* getPtrElementLeft() const override
         {
-			return face_->getPtrElementLeft();
+            return face_->getPtrElementLeft();
         }
 
         const ElementT* getPtrElementRight() const override
         {
-			return face_->getPtrElementRight();
+            return face_->getPtrElementRight();
         }
 
         const FaceQuadratureRule* getGaussQuadratureRule() const override
         {
-			return face_->getGaussQuadratureRule();
+            return face_->getGaussQuadratureRule();
         }
 
         bool isInternal() const override
         {
-			return face_->isInternal();
-		}
+            return face_->isInternal();
+        }
 
-		//virtual VecCacheT&       getVecCacheData() { return vecCacheData_; } not sure if ugly or non-const for a reason
+        //virtual VecCacheT&       getVecCacheData() { return vecCacheData_; } not sure if ugly or non-const for a reason
 
         int getNrOfBasisFunctions() const override
         {
-			return face_->getNrOfBasisFunctions();
+            return face_->getNrOfBasisFunctions();
         }
 
         int getLocalNrOfBasisFunctions() const override
         {
-			return face_->getLocalNrOfBasisFunctions();
+            return face_->getLocalNrOfBasisFunctions();
         }
 
         int getID() const override
         {
-			return face_->getID();
+            return face_->getID();
         }
 
         const ElementGeometryT* getElementGLeft() const override
         {
-			return face_->getElementGLeft();
+            return face_->getElementGLeft();
         }
 
         const ElementGeometryT* getPtrElementGRight() const override
         {
-			return face_->getPtrElementGRight();
+            return face_->getPtrElementGRight();
         }
 
         unsigned int localFaceNumberLeft() const override
         {
-			return face_->localFaceNumberLeft();
+            return face_->localFaceNumberLeft();
         }
 
         unsigned int localFaceNumberRight() const override
         {
-			return face_->localFaceNumberRight();
+            return face_->localFaceNumberRight();
         }
 
         Geometry::FaceType getFaceType() const override
         {
-			return face_->getFaceType();
+            return face_->getFaceType();
         }
 
         int getFaceToFaceMapIndex() const override
         {
-			return face_->getFaceToFaceMapIndex();
+            return face_->getFaceToFaceMapIndex();
         }
 
         const ReferenceFaceGeometryT* getReferenceGeometry() const override
         {
-			return face_->getReferenceGeometry();
+            return face_->getReferenceGeometry();
         }
 
         void mapRefFaceToRefElemL(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const override
         {
-			face_->mapRefFaceToRefElemL(pRefFace, pRefEl);
+            face_->mapRefFaceToRefElemL(pRefFace, pRefEl);
         }
 
         void mapRefFaceToRefElemR(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const override
         {
-			face_->mapRefFaceToRefElemR(pRefFace, pRefEl);
+            face_->mapRefFaceToRefElemR(pRefFace, pRefEl);
         }
 
         void mapRefFaceToRefFace(const ReferencePointT& pIn, ReferencePointT& pOut) const override
         {
-			face_->mapRefFaceToRefFace(pIn, pOut);
+            face_->mapRefFaceToRefFace(pIn, pOut);
         }
 
         RefFaceToRefElementMapping refFaceToRefElemMapL() const override
         {
-			return face_->refFaceToRefElemMapL();
+            return face_->refFaceToRefElemMapL();
         }
 
         RefFaceToRefElementMapping refFaceToRefElemMapR() const override
         {
-			return face_->refFaceToRefElemMapR();
+            return face_->refFaceToRefElemMapR();
         }
 
         void getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0) const override
@@ -265,32 +271,36 @@ namespace Base {
 
         const VecCacheT& getVecCacheData() const override
         {
-			return face_->FaceData::getVecCacheData();
+            return face_->FaceData::getVecCacheData();
         }
 
         UserFaceData* getUserData() const override
         {
-			return face_->getUserData();
-		}
+            return face_->getUserData();
+        }
 
-	private:
+    private:
 
-		//ShortTermStorageFaceBase(const ShortTermStorageFaceBase&){throw "you are already storing the data, no need to store it twice!";}
-		ShortTermStorageFaceBase& operator=(const ShortTermStorageFaceBase&){throw "you are already storing the data, no need to store it twice!";}
+        //ShortTermStorageFaceBase(const ShortTermStorageFaceBase&){throw "you are already storing the data, no need to store it twice!";}
 
-	protected:
-		const Face* face_;
+        ShortTermStorageFaceBase& operator=(const ShortTermStorageFaceBase&)
+        {
+            throw "you are already storing the data, no need to store it twice!";
+        }
 
-		Geometry::PointReference currentPoint_;
-		LinearAlgebra::NumericalVector normal_;
+    protected:
+        const Face* face_;
 
-		std::vector<LinearAlgebra::NumericalVector> basisFunctionValues_,basisFunctionsTimesNormal_,basisFunctionDerivatives_;
-	private:
+        Geometry::PointReference currentPoint_;
+        LinearAlgebra::NumericalVector normal_;
+
+        std::vector<LinearAlgebra::NumericalVector> basisFunctionValues_, basisFunctionsTimesNormal_, basisFunctionDerivatives_;
+    private:
 
         bool useCache_;
         bool recomputeCache_;
         int currentPointIndex_;
-	};
+    };
 
 }
 

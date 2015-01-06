@@ -33,7 +33,7 @@ namespace Geometry
     const int FourD  = 4;
     
     const int MaxInteger=std::numeric_limits<int>::max();
-    const size_t MAXSIZET=std::numeric_limits<size_t>::max();
+    const std::size_t MAXSIZET = std::numeric_limits<std::size_t>::max();
     const double SmallerDoubleThanMinimalSizeOfTheMesh=1.0e-10;
 };
 

@@ -111,7 +111,7 @@ public:
     void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& integrandVal) override
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
-        const size_t numBasisFunctions = element->getNrOfBasisFunctions();
+        const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
 
         //Resize the integrandVal such that it contains as many rows and columns as 
         //the number of basisfunctions.
@@ -120,12 +120,12 @@ public:
         //Initialize the vectors that contain gradient(phi_i) and gradient(phi_j)
         LinearAlgebra::NumericalVector phiDerivI(DIM_), phiDerivJ(DIM_);
 
-        for (size_t i = 0; i < numBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
             element->basisFunctionDeriv(i, p, phiDerivI);
 
-            for (size_t j = 0; j < numBasisFunctions; ++j)
+            for (std::size_t j = 0; j < numBasisFunctions; ++j)
             {
                 //The gradient of basisfunction phi_j is computed at point p, the result is stored in phiDerivJ.
                 element->basisFunctionDeriv(j, p, phiDerivJ);
@@ -152,7 +152,7 @@ public:
     void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::Matrix& integrandVal) override
     {
         //Obtain the number of basisfunctions that are possibly non-zero at this face.
-        const size_t numBasisFunctions = face->getNrOfBasisFunctions();
+        const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
 
         //Resize the integrandVal such that it contains as many rows and columns as 
         //the number of basisfunctions.
@@ -233,14 +233,14 @@ public:
     void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& integrandVal) override
     {
         //Obtain the number of basisfunctions that are possibly non-zero
-        const size_t numBasisFunctions = face->getNrOfBasisFunctions();
+        const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
         //Resize the integrandVal such that it contains as many rows as 
         //the number of basisfunctions.
         integrandVal.resize(numBasisFunctions);
 
         //Compute the value of the integrand
         //We have no rhs face integrals, so this is just 0.
-        for (size_t i = 0; i < numBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
             integrandVal[i] = 0;
         }
@@ -256,7 +256,7 @@ public:
     void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& integrandVal) override
     {
         //Obtain the number of basisfunctions that are possibly non-zero
-        const size_t numBasisFunctions = element->getNrOfBasisFunctions();
+        const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
         //Transform reference point p to physical point pPhys to evaluate the source term
         PointPhysicalT pPhys(DIM_);
         element->referenceToPhysical(p, pPhys);
@@ -266,7 +266,7 @@ public:
         integrandVal.resize(numBasisFunctions);
 
         //compute value of the integrand, namely basisfunction times source
-        for (size_t i = 0; i < numBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
             integrandVal[i] = - element->basisFunction(i, p) * source(pPhys);
         }
@@ -361,18 +361,14 @@ int main(int argc, char **argv)
     try
     {
         //read the number of elements and polynomial order from the command line.
+        //this will also take care of initialisation and finalisation of required external packages
         Base::parse_options(argc, argv);
         
-        //PETSc magic.
-        PetscInitialize(&(argc), &(argv), NULL, NULL);
         //Make the object test with n elements in each direction and polynomial order p.
         TutorialLaplace test(numBasisFuns.getValue(), p.getValue());
         
         //Solve the system.
         test.solve();
-        
-        //More PETSc magic.
-        PetscFinalize();
         
         return 0;
     }

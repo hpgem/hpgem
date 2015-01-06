@@ -78,7 +78,7 @@ int Base::parse_options(int argc, char** argv) {
             MPI::Group groupID = MPI::COMM_WORLD.Get_group();
             PETSC_COMM_WORLD = MPI::COMM_WORLD.Create( groupID );
 #endif
-            PetscInitialize(&argc,&argv,NULL,"PETSc help\n");
+            PetscInitialize(&argc, &argv, PETSC_NULL, "PETSc help\n");
             
             std::atexit([](){
                PetscFinalize(); 

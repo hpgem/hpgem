@@ -75,12 +75,12 @@ namespace Base
     Element(const VectorOfPointIndexesT& globalNodeIndexes,
             const std::vector<const BasisFunctionSetT*>* basisFunctionSet,
             const VectorOfPhysicalPointsT& allNodes,
-            size_t nrOfUnkowns,
-            size_t nrOfTimeLevels,
-            size_t nrOfBasisFunc,
-            size_t id,
-            size_t numberOfElementMatrices = 0,
-            size_t numberOfElementVectors = 0,
+            std::size_t nrOfUnkowns,
+            std::size_t nrOfTimeLevels,
+            std::size_t nrOfBasisFunc,
+            std::size_t id,
+            std::size_t numberOfElementMatrices = 0,
+            std::size_t numberOfElementVectors = 0,
             const std::vector<int>& basisFunctionSetPositions = std::vector< int>(1, 0));
 
     Element(const Element& other);
@@ -220,7 +220,7 @@ namespace Base
     std::vector<const Node*> nodesList_;
 
     //IN the element, so don't count conforming DOF from faces/...
-    size_t nrOfDOFinTheElement_;
+        std::size_t nrOfDOFinTheElement_;
     
     ///Stores that mass matrix for this element
     LinearAlgebra::Matrix massMatrix_;
