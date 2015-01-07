@@ -23,8 +23,9 @@
 #ifndef Face_hpp
 #define Face_hpp
 //----------------------------------------------------------------
-#include "Geometry/FaceGeometry.hpp"
 #include "Base/FaceData.hpp"
+#include "Base/FaceMatrix.hpp"
+#include "Geometry/FaceGeometry.hpp"
 
 namespace QuadratureRules
 {
@@ -85,6 +86,19 @@ namespace Base
         {
             return elementRight_;
         }
+        
+        /// \brief Return the pointer to the element on side iSide.
+        virtual const ElementT* getPtrElement(Side iSide) const
+        {
+            if(iSide == Side::LEFT)
+            {
+                return elementLeft_;
+            }
+            else
+            {
+                return elementRight_;
+            }
+        }
 
         void createQuadratureRules();
 
@@ -108,13 +122,22 @@ namespace Base
         ///\brief returns the value of the i-th basisfunction at point p in ret
         virtual void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
+        /// \brief Returns the value of the basisfunction corresponding to index iBasisFunction at the reference point p.
+        virtual double basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const;
+        
         virtual void basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        
+        /// \brief Returns the physical normal vector times the basis function corresponding to index iBasisFunction.
+        virtual LinearAlgebra::NumericalVector basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const;
 
         /// jDir=0 means x, and etc.
         virtual double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference& p) const;
 
         ///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
         virtual void basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        
+        /// \brief Returns the gradient of the physical basis function corresponding to index iBasisFunction.
+        virtual LinearAlgebra::NumericalVector basisFunctionDeriv(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const;
 
         virtual void basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
@@ -139,6 +162,9 @@ namespace Base
         virtual LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel);
         
         LinearAlgebra::NumericalVector getCurrentData();
+        
+        /// \brief Convert the index corresponding to the side of the face (iSide),the index corresponding to the basis function (iBasisFunction) and the index corresponding to the variable (iVar) to a single index.
+        const std::size_t convertToSingleIndex(Side iSide, std::size_t iBasisFunction, std::size_t iVar = 0) const;
 
     protected:
 

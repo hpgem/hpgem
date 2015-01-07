@@ -47,10 +47,13 @@ namespace Base
     auto& dt = Base::register_argument<double>(0, "dt", "time step of the simulation", false);
     auto& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file (without extentions)", false, "output");
     
+    /// \param[in] DIM Dimension of the domain (usually 2 or 3).
+    /// \param[in] polynomialOrder Order of the polynomials used for the basis functions.
+    /// \param[in] nrOfUnknowns The number of variables in the system of PDE's.
     ///Constructor, GlobalData and ConfigurationData is deleted in HpgemUI
-    HpgemUISimplified::HpgemUISimplified(std::size_t DIM, std::size_t polynomialOrder)
+    HpgemUISimplified::HpgemUISimplified(std::size_t DIM, std::size_t polynomialOrder, std::size_t nrOfUnknowns)
     : HpgemUI(new GlobalData,
-              new ConfigurationData(DIM, 1, polynomialOrder, numberOfSnapshots.getValue()))
+              new ConfigurationData(DIM, nrOfUnknowns, polynomialOrder, numberOfSnapshots.getValue()))
     {
         endTime_ = endTime.getValue();
         startTime_ = startTime.getValue();

@@ -137,6 +137,24 @@ namespace Base
             getPtrElementRight()->basisFunction(i - n, pElement, ret);
         }
     }
+    
+    /// \param[in] iSide The index corresponding to the side of the face.
+    /// \param[in] iBasisFunction The index corresponding to the basis function.
+    /// \param[in] p The reference point on the reference element.
+    double Face::basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const
+    {
+        Geometry::PointReference pElement(p.size() + 1);
+        if (iSide == Side::LEFT)
+        {
+            mapRefFaceToRefElemL(p, pElement);
+            return getPtrElementLeft()->basisFunction(iBasisFunction, pElement);
+        }
+        else
+        {
+            mapRefFaceToRefElemR(p, pElement);
+            return getPtrElementRight()->basisFunction(iBasisFunction, pElement);
+        }
+    }
 
     void Face::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
     {
@@ -153,6 +171,25 @@ namespace Base
             mapRefFaceToRefElemR(p, pElement);
             ret = normal;
             ret *= -getPtrElementRight()->basisFunction(i - n, pElement) / Base::L2Norm(normal);
+        }
+    }
+    
+    /// \param[in] iSide The index corresponding to the side of the face.
+    /// \param[in] iBasisFunction The index corresponding to the basis function.
+    /// \param[in] normal The normal vector (pointing outwards with respect to the elemeent on the left side).
+    /// \param[in] p The reference point on the reference element.
+    LinearAlgebra::NumericalVector Face::basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const
+    {
+        Geometry::PointReference pElement(p.size() + 1);
+        if (iSide == Side::LEFT)
+        {
+            mapRefFaceToRefElemL(p, pElement);
+            return getPtrElementLeft()->basisFunction(iBasisFunction, pElement) * normal / Base::L2Norm(normal);
+        }
+        else
+        {
+            mapRefFaceToRefElemR(p, pElement);
+            return -getPtrElementRight()->basisFunction(iBasisFunction, pElement) * normal / Base::L2Norm(normal);
         }
     }
 
@@ -186,6 +223,26 @@ namespace Base
             mapRefFaceToRefElemR(p, pElement);
             getPtrElementRight()->basisFunctionDeriv(i - n, pElement, ret);
         }
+    }
+    
+    /// \param[in] iSide The index corresponding to the side of the face.
+    /// \param[in] iBasisFunction The index corresponding to the basis function.
+    /// \param[in] p The reference point on the reference element.
+    LinearAlgebra::NumericalVector Face::basisFunctionDeriv(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const
+    {
+        LinearAlgebra::NumericalVector Gradient(p.size() + 1);
+        Geometry::PointReference pElement(p.size() + 1);
+        if (iSide == Side::LEFT)
+        {
+            mapRefFaceToRefElemL(p, pElement);
+            getPtrElementLeft()->basisFunctionDeriv(iBasisFunction, pElement, Gradient);
+        }
+        else
+        {
+            mapRefFaceToRefElemR(p, pElement);
+            getPtrElementRight()->basisFunctionDeriv(iBasisFunction, pElement, Gradient);
+        }
+        return Gradient;
     }
 
     void Face::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
@@ -238,5 +295,21 @@ namespace Base
             }
         }
         return dataLeft;
+    }
+    
+    /// \param[in] iSide The index corresponding to the side of the face.
+    /// \param[in] iVar The index corresponding to the variable.
+    /// \param[in] iBasisFunction The index corresponding to the basisfunction.
+    const std::size_t Face::convertToSingleIndex(Side iSide, std::size_t iBasisFunction, std::size_t iVar) const
+    {
+        if(iSide == Side::LEFT)
+        {
+            return iVar * getPtrElementLeft()->getNrOfBasisFunctions() + iBasisFunction;
+        }
+        else
+        {
+            std::size_t nDOFLeft = getPtrElementLeft()->getNrOfUnknows() * getPtrElementLeft()->getNrOfBasisFunctions();
+            return nDOFLeft + iVar * getPtrElementRight()->getNrOfBasisFunctions() + iBasisFunction;
+        }
     }
 };
