@@ -52,33 +52,36 @@ namespace Base
 
         virtual ~ ElementData() { }
 
-        ///Set/update the element matrix. Routines in hpGEM will assume that for every element, expansioncoefficients of unknowns belonging the the same basisfunctions
-        ///appear consecutively in the matrix.
+        ///Set/update the element matrix.
         void setElementMatrix(const LinearAlgebra::Matrix&, int matrixID = 0);
 
         virtual void getElementMatrix(LinearAlgebra::Matrix&, int matrixID = 0) const;
 
-        LinearAlgebra::Matrix& getTimeLevelDataMatrix(std::size_t timeLevel);
+        /// \brief Returns (and creates if unavailable) the expansion coefficients correspdonding to a given timelevel in the form of a matrix. Better use getTimeLevelDataVector instead!
+        LinearAlgebra::Matrix getTimeLevelDataMatrix(std::size_t timeLevel);
     
         virtual void setElementVector(const LinearAlgebra::NumericalVector& vector, int vectorID = 0);
 
         virtual void getElementVector(LinearAlgebra::NumericalVector&, int vectorID = 0) const;
 
-        /// Specify a time level index, return a vector containing the data for that time level.
+        /// \brief Returns (and creates if unavailable) a reference to the expansion coefficients correspdonding to the given time level.
+        LinearAlgebra::NumericalVector & getTimeLevelDataVector(std::size_t timeLevel);
+        
+        /// \brief Specify a time level index and variable index, return a vector containing the corresponding expansion coefficients.
         virtual const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
 
-        /// Specify a time level index, an unknown (as solutionId), set the data for that unknown
-        void setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown);
-        void setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& unknown);
+        /// \brief Specify a time level index and a variable index (unknown), set the corresponding expansionCoefficients. Better use getTimeLevelDataVector if possible!
+        void setTimeLevelData(unsigned int timeLevel, unsigned int unknown, const LinearAlgebra::NumericalVector& val);
+        void setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& val);
         
         void setCurrentData(const LinearAlgebra::NumericalVector& data);
         
         LinearAlgebra::NumericalVector& getCurrentData();
 
-        /// Specify a time level index, an unknown and a basis function nr, return data (double)
+        /// \brief Specify a time level index, a variabale index and a basis function index, return the corresponding expansionCoefficient (double).
         virtual double getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const;
 
-        /// Specify a time level index, an unknown and a basis function nr, set the data (double)
+        /// \brief Specify a time level index, a variable index and a basis function index, set the corresponding expansionCoefficient (double).
         void setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val);
 
         virtual int getNrOfUnknows() const;
@@ -93,6 +96,14 @@ namespace Base
         void setUserData(UserElementData* data);
 
         virtual UserElementData* getUserData() const;
+        
+        /// \brief Convert the index corresponding to the basis function (iBasisFunction) and the index corresponding to the variable (iVar) to a single index.
+        /// \param[in] iVar The index corresponding to the variable.
+        /// \param[in] iBasisFunction The index corresponding to the basisfunction.
+        const std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const
+        {
+            return iVar * nrOfBasisFunctions_ + iBasisFunction;
+        }
 
     protected:
         void setNumberOfBasisFunctions(unsigned int number);
@@ -102,8 +113,9 @@ namespace Base
         std::size_t nrOfUnknowns_;
         std::size_t nrOfBasisFunctions_;
 
-        ///Stores the expansion coefficients    
-        VectorOfMatrices expansionCoefficients_;
+        /// \brief Stores the expansion coefficients.
+        /// \details The value expansionCoefficients_(iT)(iVB) is the expansion coefficient corresponding to the solution at time level iT and vector basisfunction iVB. Index iVB satisfies iVB = convertToSingleIndex(iB,iV), where iB is the index corresponding to the basis function and iVB the index corresponding to the variable.
+        std::vector<LinearAlgebra::NumericalVector> expansionCoefficients_;
 
         ///Stores the result of an element integration
         LinearAlgebra::NumericalVector residue_;

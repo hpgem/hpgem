@@ -240,7 +240,9 @@ namespace Base
         return vecCacheData_;
     }
     
-    
+    /// \param[in] timeLevel The index for the time level for which to get the solution.
+    /// \param[in] p The reference point for which to get the solution.
+    /// \param[in] solution The solution vector where the value at index iV corresponds to the solution for variable iV corresponding to the given time level and reference point.
     void Element::getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const
     {
         std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
@@ -251,10 +253,11 @@ namespace Base
             solution[k] = 0;
         }
         
-        const LinearAlgebra::NumericalVector& data = ElementData::getTimeLevelData(0);
-        for (std::size_t i = 0; i < ElementData::getNrOfBasisFunctions(); ++i)
+        LinearAlgebra::NumericalVector data(ElementData::getNrOfBasisFunctions());
+        for (std::size_t k = 0; k < numberOfUnknows; ++k)
         {
-            for (std::size_t k = 0; k < numberOfUnknows; ++k)
+            data = ElementData::getTimeLevelData(timeLevel,k);
+            for (std::size_t i = 0; i < ElementData::getNrOfBasisFunctions(); ++i)
             {
                 solution[k] += data(i) * basisFunction(i, p);
             }
@@ -409,11 +412,5 @@ namespace Base
         }
     }
     
-    /// \param[in] iVar The index corresponding to the variable.
-    /// \param[in] iBasisFunction The index corresponding to the basisfunction.
-    const std::size_t Element::convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar) const
-    {
-        return iVar * getNrOfBasisFunctions() + iBasisFunction;
-    }
 }
 #endif

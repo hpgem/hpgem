@@ -123,6 +123,7 @@ namespace Base
     ///\brief returns the curl of the i-th basisfunction at point p in ret
     virtual void basisFunctionCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 
+    /// \brief Computes the solution vector corresponding to a given timeLevel and reference point p.
     virtual void getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const;
 
     void initialiseSolution(unsigned int timeLevel, unsigned int solutionId, const SolutionVector& solution); ///\TODO not implemented  
@@ -180,8 +181,6 @@ namespace Base
       return massMatrix_;
     }
     
-    /// \brief Convert the index corresponding to the basis function (iBasisFunction) and the index corresponding to the variable (iVar) to a single index.
-    const std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const;
 
 #ifndef NDEBUG
     virtual const Base::BaseBasisFunction* getBasisFunction(int i)const;

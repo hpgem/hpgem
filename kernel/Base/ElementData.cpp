@@ -86,15 +86,19 @@ namespace Base
         return nrOfBasisFunctions_;
     }
     
+    /// \param[in] timeLevel Index corresponding to the time level.
+    /// \param[in] unknown Index corresponding to the variable.
+    /// \param[in] basisFunction Index corresponding to the basisFunction.
+    /// \param[in] val Value to set the expansionCoeffient.
     void ElementData::setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val)
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_)
         {
             if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
             {
-                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_, nrOfBasisFunctions_);
+                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
             }
-            expansionCoefficients_[timeLevel](unknown, basisFunction) = val;
+            expansionCoefficients_[timeLevel](convertToSingleIndex(basisFunction, unknown)) = val;
         }
         else
         {
@@ -102,11 +106,14 @@ namespace Base
         }
     }
     
+    /// \param[in] timeLevel Index corresponding to the time level.
+    /// \param[in] unknown Index corresponding to the variable.
+    /// \param[in] basisFunction Index corresponding to the basisFunction.
     double ElementData::getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_)
         {
-            return expansionCoefficients_[timeLevel](unknown, basisFunction);
+            return expansionCoefficients_[timeLevel](convertToSingleIndex(basisFunction,unknown));
         }
         else
         {
@@ -114,21 +121,22 @@ namespace Base
         }
     }
     
-    ///Rewrite with swap!!! and for all variables immediately
-    void ElementData::setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown)
+    /// \details Rewrite with swap!!! This method is slow and inefficient. It is therefore advised to use getTimeLevelDataVector instead.
+    /// \param[in] timeLevel Index corresponding to the time level.
+    /// \param[in] unknown Index corresponding to the variable.
+    /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.
+    void ElementData::setTimeLevelData(unsigned int timeLevel, unsigned int unknown, const LinearAlgebra::NumericalVector& val)
     {
-        if (timeLevel < timeLevels_ && solutionId < nrOfUnknowns_)
+        if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_)
         {
             if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
             {
-                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_, nrOfBasisFunctions_);
-            }            
-            
-            LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
+                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
+            }
 
-            for (std::size_t i = 0; i < unknown.size(); ++i)
+            for (std::size_t iB = 0; iB < val.size(); ++iB) // iB = iBasisFunction
             {
-                mat(solutionId, i) = unknown[i];
+                expansionCoefficients_[timeLevel](convertToSingleIndex(iB,unknown)) = val[iB];
             }
         }
         else
@@ -137,17 +145,23 @@ namespace Base
         }
     }
     
-    void ElementData::setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& unknown)
+    void ElementData::setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& val)
     {
-        setTimeLevelData(timeLevel, 0, unknown);
+        setTimeLevelData(timeLevel, 0, val);
     }    
 
+    /// \param[in] timeLevel Index corresponding to the time level.
+    /// \param[in] unknown Index corresponding to the variable.
     const LinearAlgebra::NumericalVector ElementData::getTimeLevelData(std::size_t timeLevel, std::size_t unknown) const
     {
         if (timeLevel < timeLevels_)
         {
-            LinearAlgebra::Matrix thisLevelMatrix = expansionCoefficients_[timeLevel];
-            return thisLevelMatrix.getRow(unknown);
+            LinearAlgebra::NumericalVector timeLevelData(nrOfBasisFunctions_);
+            for(std::size_t iB = 0; iB < nrOfBasisFunctions_; iB++) // iB = iBasisFunction
+            {
+                timeLevelData(iB) = expansionCoefficients_[timeLevel](convertToSingleIndex(iB,unknown));
+            }
+            return timeLevelData;
         }
         else
         {
@@ -171,33 +185,57 @@ namespace Base
     **
     */
     /**
-      \brief Returns (and creates if unavailable) the time level data matrix for this element
+      \details This method returns the TimeLevelData present in this Element for the given timeLevel in the form of a matrix. If the data does not exist yet (or better said, is of dimension 0), it will be initialised with the proper dimension. Tbis method is slow since it needs to reshape a vector to a matrix and returns a copy. Therefore it is advised to use getTimeLevelDataVector.
       
-      This method returns the TimeLevelData matrix present in this Element for the given timeLevel
-      If this matrix does not exist yet (or better said, is of dimension 0x0), it will be initialised
-      with the proper dimensions.
-      
-      \arg timeLevel the corresponding timeLevel
-      \return a reference to the actual matrix
+      \param[in] timeLevel Index corresponding to the time level.
+      \return A matrix M such that M(iV,iB) is the expansion coefficient corresponding to variable iV and basisfunction iB at the given time level.
     */
-    LinearAlgebra::Matrix& ElementData::getTimeLevelDataMatrix(std::size_t timeLevel) 
+    LinearAlgebra::Matrix ElementData::getTimeLevelDataMatrix(std::size_t timeLevel)
     {
-      if (timeLevel < timeLevels_)
-      {
-        // The matrix can be of dimension 0x0 if it hasn't been used before.
-        // So lets resize it first!
-        if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
+        if (timeLevel < timeLevels_)
         {
-          expansionCoefficients_[timeLevel].resize(nrOfUnknowns_, nrOfBasisFunctions_);
+            // The vector can be of dimension 0 if it hasn't been used before.
+            // So lets resize it first!
+            if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
+            {
+                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
+            }
+            LinearAlgebra::Matrix M(nrOfUnknowns_, nrOfBasisFunctions_);
+            for(std::size_t iV = 0; iV < nrOfUnknowns_; iV++)   // iV = iVariable
+            {
+                for(std::size_t iB = 0; iB < nrOfBasisFunctions_; iB++) // iB = iBasisFunction
+                {
+                    M(iV,iB) = expansionCoefficients_[timeLevel](convertToSingleIndex(iB,iV));
+                }
+            }
+            return M;
         }
-        
-        return expansionCoefficients_[timeLevel];
-      }
-      else
-      {
-        throw "Error: Asked for a time level greater than the amount of time levels!";
-      }      
-    }   
+        else
+        {
+            throw "Error: Asked for a time level greater than the amount of time levels!";
+        }
+    }
+    
+    
+    /// \param[in] timeLevel Index corresponding to the time level.
+    /// \return The expansion coefficient corresponding to the given time level.
+    LinearAlgebra::NumericalVector & ElementData::getTimeLevelDataVector(std::size_t timeLevel)
+    {
+        if (timeLevel < timeLevels_)
+        {
+            // The vector can be of dimension 0 if it hasn't been used before.
+            // So lets resize it first!
+            if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
+            {
+                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
+            }
+            return expansionCoefficients_[timeLevel];
+        }
+        else
+        {
+            throw "Error: Asked for a time level greater than the amount of time levels!";
+        }
+    }
     
     void ElementData::setCurrentData(const LinearAlgebra::NumericalVector& data)
     {

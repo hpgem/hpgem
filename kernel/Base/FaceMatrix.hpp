@@ -39,6 +39,8 @@ namespace Base
     {
     public:
         // Constructors
+        FaceMatrix(){}
+        
         FaceMatrix(const std::size_t nDOFLeft, const std::size_t nDOFRight);
         
         FaceMatrix(FaceMatrix &other);
@@ -50,6 +52,9 @@ namespace Base
         /// \brief Defines the operator (i,j) such that a reference to data (i,j) from the face matrix will be returned.
         double & operator() (std::size_t i, std::size_t j);
         
+        /// \Sets the face matrix equal to another face matrix.
+        FaceMatrix & operator= (const FaceMatrix &other);
+        
         /// \biref Adds another face matrix to this face matrix.
         FaceMatrix & operator+= (const FaceMatrix &other);
         
@@ -57,8 +62,14 @@ namespace Base
         FaceMatrix & operator*= (const double &scalar);
         
         // Other member functions
+        /// \brief Resizes the element matrices.
+        void resize(const std::size_t nDOFLeft, const std::size_t nDOFRight);
+        
         /// \brief Returns a reference of the submatrix corresponding to a combination of two elements connected to the face.
         const LinearAlgebra::Matrix & getElementMatrix(Side iSide, Side jSide) const;
+        
+        /// \brief Sets the submatrix corresponding to a combination of two elements connected to the face.
+        void setElementMatrix(const LinearAlgebra::Matrix & elementMatrix, Side iSide, Side jSide);
         
         /// \brief Returns the complete face matrix as a standard matrix.
         LinearAlgebra::Matrix getEntireMatrix() const;

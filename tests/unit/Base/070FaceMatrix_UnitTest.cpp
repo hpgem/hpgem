@@ -25,9 +25,12 @@ int main()
     Base::FaceMatrix F2(F);
     F2.axpy(100,F);
     
-    Base::FaceMatrix F3(F);
+    Base::FaceMatrix F3;
+    F3.resize(nDOFLeft,nDOFRight);
+    F3=F;
     F3 *= 100;
     F3 += F;
+    F3.setElementMatrix(F2.getElementMatrix(Base::Side::LEFT,Base::Side::LEFT),Base::Side::LEFT,Base::Side::LEFT);
     
     Base::Side iS=Base::Side::LEFT;
     Base::Side jS=Base::Side::LEFT;

@@ -30,7 +30,7 @@ namespace Base
     /// \param[in] nDOFLeft The number of degrees of freedom corresponding to the left element.
     /// \param[in] nDOFRight The number of degrees of freedom corresponding to the right element.
     FaceMatrix::FaceMatrix(const std::size_t nDOFLeft, const std::size_t nDOFRight) :
-        M_LeftLeft_(nDOFLeft,nDOFRight),
+        M_LeftLeft_(nDOFLeft,nDOFLeft),
         M_LeftRight_(nDOFLeft,nDOFRight),
         M_RightLeft_(nDOFRight,nDOFLeft),
         M_RightRight_(nDOFRight,nDOFRight)
@@ -109,6 +109,16 @@ namespace Base
         }
     }
     
+    /// \param[in] other FaceMatrix that is being copied.
+    FaceMatrix & FaceMatrix::operator= (const FaceMatrix &other)
+    {
+        M_LeftLeft_ = other.M_LeftLeft_;
+        M_LeftRight_ = other.M_LeftRight_;
+        M_RightLeft_ = other.M_RightLeft_;
+        M_RightRight_ = other.M_RightRight_;
+        return *this;
+    }
+    
     /// \param[in] other FaceMatrix that is being added.
     FaceMatrix & FaceMatrix::operator+= (const FaceMatrix &other)
     {
@@ -130,6 +140,16 @@ namespace Base
     }
     
     // Other member functions
+    /// \param[in] nDOFLeft The number of degrees of freedom corresponding to the left element.
+    /// \param[in] nDOFRight The number of degrees of freedom corresponding to the right element.
+    void FaceMatrix::resize(const std::size_t nDOFLeft, const std::size_t nDOFRight)
+    {
+        M_LeftLeft_.resize(nDOFLeft, nDOFLeft);
+        M_LeftRight_.resize(nDOFLeft, nDOFRight);
+        M_RightLeft_.resize(nDOFRight, nDOFLeft);
+        M_RightRight_.resize(nDOFRight, nDOFRight);
+    }
+    
     /// \param[in] iSide Side of the adjacent element to consider the test function.
     /// \param[in] jSide Side of the adjacent element to consider the solution.
     const LinearAlgebra::Matrix & FaceMatrix::getElementMatrix(Side iSide, Side jSide) const
@@ -154,6 +174,35 @@ namespace Base
             else
             {
                 return M_RightRight_;
+            }
+        }
+    }
+    
+    /// \param[in] elementMatrix The matrix used to set the element matrix corresponding to sides iSide and jSide.
+    /// \param[in] iSide Side of the adjacent element to consider the test function.
+    /// \param[in] jSide Side of the adjacent element to consider the solution.
+    void FaceMatrix::setElementMatrix(const LinearAlgebra::Matrix & elementMatrix, Side iSide, Side jSide)
+    {
+        if(iSide == Side::LEFT)
+        {
+            if(jSide == Side::LEFT)
+            {
+                M_LeftLeft_ = elementMatrix;
+            }
+            else
+            {
+                M_LeftRight_ = elementMatrix;
+            }
+        }
+        else
+        {
+            if(jSide == Side::LEFT)
+            {
+                M_RightLeft_ = elementMatrix;
+            }
+            else
+            {
+                M_RightRight_ = elementMatrix;
             }
         }
     }
