@@ -64,15 +64,18 @@ namespace Base
 
         virtual void getElementVector(LinearAlgebra::NumericalVector&, int vectorID = 0) const;
 
-        /// \brief Returns (and creates if unavailable) a reference to the expansion coefficients correspdonding to the given time level.
-        LinearAlgebra::NumericalVector & getTimeLevelDataVector(std::size_t timeLevel);
+        /// \brief Sets (and creates if unavailable) the expansion coefficients correspdonding to the given time level.
+        void setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::NumericalVector &val);
+        
+        /// \brief Returns a reference to the expansion coefficients correspdonding to the given time level.
+        const LinearAlgebra::NumericalVector & getTimeLevelDataVector(std::size_t timeLevel) const;
         
         /// \brief Specify a time level index and variable index, return a vector containing the corresponding expansion coefficients.
         virtual const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
 
         /// \brief Specify a time level index and a variable index (unknown), set the corresponding expansionCoefficients. Better use getTimeLevelDataVector if possible!
-        void setTimeLevelData(unsigned int timeLevel, unsigned int unknown, const LinearAlgebra::NumericalVector& val);
-        void setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& val);
+        void setTimeLevelData(unsigned int timeLevel, unsigned int unknown, const LinearAlgebra::NumericalVector &val);
+        void setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector &val);
         
         void setCurrentData(const LinearAlgebra::NumericalVector& data);
         

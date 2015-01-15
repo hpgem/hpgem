@@ -216,10 +216,9 @@ namespace Base
         }
     }
     
-    
     /// \param[in] timeLevel Index corresponding to the time level.
-    /// \return The expansion coefficient corresponding to the given time level.
-    LinearAlgebra::NumericalVector & ElementData::getTimeLevelDataVector(std::size_t timeLevel)
+    /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.
+    void ElementData::setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::NumericalVector &val)
     {
         if (timeLevel < timeLevels_)
         {
@@ -229,6 +228,20 @@ namespace Base
             {
                 expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
             }
+            expansionCoefficients_[timeLevel] = val;
+        }
+        else
+        {
+            throw "Error: Asked for a time level greater than the amount of time levels!";
+        }
+    }
+    
+    /// \param[in] timeLevel Index corresponding to the time level.
+    /// \return The expansion coefficient corresponding to the given time level.
+    const LinearAlgebra::NumericalVector & ElementData::getTimeLevelDataVector(std::size_t timeLevel) const
+    {
+        if (timeLevel < timeLevels_)
+        {
             return expansionCoefficients_[timeLevel];
         }
         else
