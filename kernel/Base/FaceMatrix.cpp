@@ -20,6 +20,7 @@
  */
 #include "FaceMatrix.hpp"
 
+#include <cassert>
 #include <iostream>
 
 namespace Base
@@ -38,7 +39,7 @@ namespace Base
     }
     
     /// \param[in] other FaceMatrix that will be copied to construct a new FaceMatrix.
-    FaceMatrix::FaceMatrix(FaceMatrix &other) :
+    FaceMatrix::FaceMatrix(const FaceMatrix &other) :
         M_LeftLeft_(other.M_LeftLeft_),
         M_LeftRight_(other.M_LeftRight_),
         M_RightLeft_(other.M_RightLeft_),
@@ -183,6 +184,10 @@ namespace Base
     /// \param[in] jSide Side of the adjacent element to consider the solution.
     void FaceMatrix::setElementMatrix(const LinearAlgebra::Matrix & elementMatrix, Side iSide, Side jSide)
     {
+        // Check size of the elementMatrix.
+        assert(elementMatrix.getNRows() == getNrOfDegreesOfFreedom(iSide));
+        assert(elementMatrix.getNCols() == getNrOfDegreesOfFreedom(jSide));
+        
         if(iSide == Side::LEFT)
         {
             if(jSide == Side::LEFT)
@@ -209,7 +214,7 @@ namespace Base
     
     /// \details
     /// This function will be slow compared to getElementMatrix. It is advised to use getElementMatrix instead when possible.
-    LinearAlgebra::Matrix FaceMatrix::getEntireMatrix() const
+    const LinearAlgebra::Matrix FaceMatrix::getEntireMatrix() const
     {
         std::size_t nDOFLeft = M_LeftLeft_.getNRows();
         std::size_t nDOFRight = M_RightRight_.getNRows();
@@ -248,7 +253,50 @@ namespace Base
         return entireMatrix;
     }
     
-    /// \param[in] a Factor with which FaceMatrix x is mulriplied.
+    /// \param[in] entireMatrix The standard matrix used to set the face matrix.
+    /// \details This function will be slow compared to setElementMatrix. It is advised to use setElementMatrix instead when possible.
+    void FaceMatrix::setEntireMatrix(const LinearAlgebra::Matrix & entireMatrix)
+    {
+        std::size_t nDOFLeft = M_LeftLeft_.getNRows();
+        std::size_t nDOFRight = M_RightRight_.getNRows();
+        
+        // Check size of entireMatrix.
+        assert(entireMatrix.getNRows() == nDOFLeft + nDOFRight);
+        assert(entireMatrix.getNCols() == nDOFLeft + nDOFRight);
+        
+        // This is probably slow and inefficient.
+        for(std::size_t i = 0; i < nDOFLeft; i++)
+        {
+            for(std::size_t j = 0; j < nDOFLeft; j++)
+            {
+                M_LeftLeft_(i,j)=entireMatrix(i,j);
+            }
+        }
+        for(std::size_t i = 0; i < nDOFLeft; i++)
+        {
+            for(std::size_t j = 0; j < nDOFRight; j++)
+            {
+                M_LeftRight_(i,j)=entireMatrix(i,nDOFLeft+j);
+            }
+        }
+        for(std::size_t i = 0; i < nDOFRight; i++)
+        {
+            for(std::size_t j = 0; j < nDOFLeft; j++)
+            {
+                M_RightLeft_(i,j)=entireMatrix(nDOFLeft+i,j);
+            }
+        }
+        for(std::size_t i = 0; i < nDOFRight; i++)
+        {
+            for(std::size_t j = 0; j < nDOFRight; j++)
+            {
+                M_RightRight_(i,j)=entireMatrix(nDOFLeft+i,nDOFLeft+j);
+            }
+        }
+    }
+    
+    
+    /// \param[in] a Factor with which FaceMatrix x is multiplied.
     /// \param[in] x FaceMatrix which will be scaled by a factor a and then added.
     void FaceMatrix::axpy(const double &a, const FaceMatrix &x)
     {

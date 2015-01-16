@@ -24,6 +24,7 @@
 #define FaceData_hpp
 //----------------------------------------------------------------
 #include <vector>
+#include "Base/FaceMatrix.hpp"
 #include "LinearAlgebra/Matrix.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
 
@@ -46,9 +47,17 @@ namespace Base {
 	public:
 		FaceData(unsigned int numberOfDOF, unsigned int numberOfFaceMatrices = 0, unsigned int numberOfFaceVactors = 0);
 
-		void setFaceMatrix(const LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0);
+        /// \brief Sets face matrix number 'matrixID' using a standard matrix. Use the other version instead, which uses a FaceMatrix as input!
+        void setFaceMatrix(const LinearAlgebra::Matrix &matrix, std::size_t matrixID = 0);
+            
+        /// \brief Sets face matrix number 'matrixID' using a standard matrix.
+        void setFaceMatrix(const FaceMatrix &faceMatrix, std::size_t matrixID = 0);
 
-		virtual void getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0) const;
+        /// \brief Gets face matrix number 'matrixID' and return it as a standard matrix. It is advised to use the other version instead, which returns a FaceMatrix.
+        virtual void getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0) const;
+            
+        /// \brief Returns face matrix number 'matrixID'.
+        const FaceMatrix & getFaceMatrix(std::size_t matrixID = 0) const;
 
 		void setFaceVector(const LinearAlgebra::NumericalVector& vector, unsigned int vectorID = 0);
 
@@ -81,7 +90,7 @@ namespace Base {
 	private:
 		VecCacheT vecCacheData_;//?also in Face?
 		UserFaceData* userData_;
-		std::vector<LinearAlgebra::Matrix> faceMatrix_;
+		std::vector<FaceMatrix> faceMatrix_;
 		std::vector<LinearAlgebra::NumericalVector> faceVector_;
                 
                 //a concatenation of the flux contributions to the residuals in the left and the right elements

@@ -43,7 +43,7 @@ namespace Base
         
         FaceMatrix(const std::size_t nDOFLeft, const std::size_t nDOFRight);
         
-        FaceMatrix(FaceMatrix &other);
+        FaceMatrix(const FaceMatrix &other);
         
         // Operators
         /// \brief Defines the operator (iSide, iVarBasisFunc, jSide, jVarBasisFunc) such that a reference to data (iVarBasisFunc, jVarBasisFunc) from the element matrix corresponding to (iSide, jSide) will be returned.
@@ -62,6 +62,15 @@ namespace Base
         FaceMatrix & operator*= (const double &scalar);
         
         // Other member functions
+        /// \brief Gets the number of degrees of freedom (usually the amount of (vector)-basis functions) corresponding to the element at side iSide.
+        const std::size_t getNrOfDegreesOfFreedom(Side iSide) const
+        {
+            if(iSide == Side::LEFT)
+                return M_LeftLeft_.getNRows();
+            else
+                return M_RightRight_.getNRows();
+        }
+        
         /// \brief Resizes the element matrices.
         void resize(const std::size_t nDOFLeft, const std::size_t nDOFRight);
         
@@ -71,8 +80,11 @@ namespace Base
         /// \brief Sets the submatrix corresponding to a combination of two elements connected to the face.
         void setElementMatrix(const LinearAlgebra::Matrix & elementMatrix, Side iSide, Side jSide);
         
-        /// \brief Returns the complete face matrix as a standard matrix.
-        LinearAlgebra::Matrix getEntireMatrix() const;
+        /// \brief Returns the complete face matrix as a standard matrix. It is advised to use getElementMatrix instead when possible.
+        const LinearAlgebra::Matrix getEntireMatrix() const;
+        
+        /// \brief Sets the FaceMatrix using the complete face matrix as input. It is advised to use setElementMatrix instead when possible.
+        void setEntireMatrix(const LinearAlgebra::Matrix & entireMatrix);
         
         /// \brief Applies the operation y=ax + y, where a is a scalar and x another FaceMatrix.
         void axpy(const double &a, const FaceMatrix &x);

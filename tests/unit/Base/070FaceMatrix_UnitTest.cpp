@@ -10,6 +10,9 @@ int main()
 {
     std::cout << "Test if FaceMatrix works.\n";
     
+    const Base::Side sL =Base::Side::LEFT;
+    const Base::Side sR =Base::Side::RIGHT;
+    
     int nDOFLeft = 3;
     int nDOFRight = 5;
     
@@ -30,10 +33,20 @@ int main()
     F3=F;
     F3 *= 100;
     F3 += F;
-    F3.setElementMatrix(F2.getElementMatrix(Base::Side::LEFT,Base::Side::LEFT),Base::Side::LEFT,Base::Side::LEFT);
     
-    Base::Side iS=Base::Side::LEFT;
-    Base::Side jS=Base::Side::LEFT;
+    Base::FaceMatrix F4;
+    F4.resize(nDOFLeft,nDOFRight);
+    F4.setEntireMatrix(F3.getEntireMatrix());
+    
+    Base::FaceMatrix F5;
+    F5.resize(F4.getNrOfDegreesOfFreedom(sL), F4.getNrOfDegreesOfFreedom(sR));
+    F5.setElementMatrix(F4.getElementMatrix(sL,sL),sL,sL);
+    F5.setElementMatrix(F4.getElementMatrix(sL,sR),sL,sR);
+    F5.setElementMatrix(F4.getElementMatrix(sR,sL),sR,sL);
+    F5.setElementMatrix(F4.getElementMatrix(sR,sR),sR,sR);
+    
+    Base::Side iS=sL;
+    Base::Side jS=sR;
     int iVB=0;
     int jVB=0;
     int z=0;
@@ -66,9 +79,10 @@ int main()
             z=i*10+j;
             z=z*100+z;
             
-            assert(F2.getEntireMatrix()(i,j) == z);
             assert(F2.getElementMatrix(iS,jS)(iVB,jVB) == z);
             assert(F3(i,j) == z);
+            assert(F4.getEntireMatrix()(i,j) == z);
+            assert(F5(i,j) == z);
         }
     }
     
