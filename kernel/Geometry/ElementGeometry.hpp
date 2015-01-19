@@ -47,7 +47,7 @@ namespace Geometry
         typedef MappingReferenceToPhysical    MappingReferenceToPhysicalT;
         //typedef LinearAlgebra::Matrix                   MatrixT;
         typedef Jacobian                      JacobianT;
-        typedef unsigned int                            PointIndexT;
+        typedef std::size_t                            PointIndexT;
         typedef std::vector<PointPhysicalT>             VectorOfPhysicalPointsT;
         typedef std::vector<PointIndexT>                VectorOfPointIndexesT;
     public:
@@ -66,7 +66,7 @@ namespace Geometry
         /// Returns a pointer to the physicalGeometry object.
         virtual const PhysicalGeometryT* const              getPhysicalGeometry() const;
             /// Returns a pointer to the physicalGeometry object.
-        virtual unsigned int                                getNrOfNodes() const;
+        virtual std::size_t                                getNrOfNodes() const;
         /// Returns a pointer to the referenceGeometry object.
         virtual const ReferenceGeometryT* const             getReferenceGeometry() const;
         /// Returns a pointer to the refinementGeometry object.
@@ -110,13 +110,13 @@ namespace Geometry
 
     private:
         
-        static const ReferenceGeometryT* const          createReferenceGeometry(unsigned int size,unsigned int DIM);
+        static const ReferenceGeometryT* const          createReferenceGeometry(std::size_t size,std::size_t DIM);
         
         static const PhysicalGeometryT* const           createPhysicalGeometry(const VectorOfPointIndexesT&      globalNodeIndexes,
                                                                                const VectorOfPhysicalPointsT&    nodes,
                                                                                const ReferenceGeometryT* const   geo);
         
-        static const MappingReferenceToPhysicalT* const createMappings(unsigned int size,unsigned int DIM, const PhysicalGeometryT* const pGeo);
+        static const MappingReferenceToPhysicalT* const createMappings(std::size_t size,std::size_t DIM, const PhysicalGeometryT* const pGeo);
         
     
     protected:

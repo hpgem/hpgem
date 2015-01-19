@@ -66,7 +66,7 @@ namespace Geometry
     class ElementGeometry;
 
     const ReferenceGeometry * const
-    ElementGeometry::createReferenceGeometry(unsigned int size, unsigned int DIM)
+    ElementGeometry::createReferenceGeometry(std::size_t size, std::size_t DIM)
     {///\todo check for consistency of pairs (size,DIM)
         switch (size)
         {//select a proper type based on the number of nodes a reference geometry should have
@@ -160,7 +160,7 @@ namespace Geometry
     }
 
     const MappingReferenceToPhysical * const
-    ElementGeometry::createMappings(unsigned int size, unsigned int DIM, const PhysicalGeometryT * const pGeo)
+    ElementGeometry::createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometryT * const pGeo)
     {
         switch (size)
         {
@@ -295,7 +295,7 @@ namespace Geometry
         referenceToPhysicalMapping_->calcJacobian(pointReference, jacobian);
     }
 
-    unsigned int
+    std::size_t
     ElementGeometry::getNrOfNodes() const
     {
         return physicalGeometry_->getNumberOfNodes();

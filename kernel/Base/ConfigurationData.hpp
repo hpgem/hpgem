@@ -27,7 +27,7 @@ namespace Base
     struct ConfigurationData
     {
     
-        ConfigurationData(unsigned int DIMension, unsigned int numberOfUnknowns, unsigned int polynomialOrder, unsigned int  numberOfTimeLevels=1):
+        ConfigurationData(std::size_t DIMension, std::size_t numberOfUnknowns, std::size_t polynomialOrder, std::size_t  numberOfTimeLevels=1):
             numberOfUnknowns_(numberOfUnknowns),
             polynomialOrder_(polynomialOrder),
             numberOfTimeLevels_(numberOfTimeLevels),
@@ -36,11 +36,11 @@ namespace Base
         
         virtual ~ConfigurationData(){}
     
-        unsigned int dimension_;
-        unsigned int numberOfUnknowns_;
-        unsigned int numberOfBasisFunctions_;
-        unsigned int numberOfTimeLevels_;
-        unsigned int polynomialOrder_;
+        std::size_t dimension_;
+        std::size_t numberOfUnknowns_;
+        std::size_t numberOfBasisFunctions_;
+        std::size_t numberOfTimeLevels_;
+        std::size_t polynomialOrder_;
     };
 }
 

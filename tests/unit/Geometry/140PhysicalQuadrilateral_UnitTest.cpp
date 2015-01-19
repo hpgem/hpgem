@@ -34,7 +34,7 @@ using Geometry::PhysicalQuadrilateral;
 
 int main(){
 
-	std::vector<unsigned int> pointIndexes;
+	std::vector<std::size_t> pointIndexes;
 	std::vector<Geometry::PointPhysical> nodes;
 
 	Geometry::PointPhysical point(2);

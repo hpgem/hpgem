@@ -55,7 +55,7 @@ namespace Base
         delete globalData_;
     }
     
-    bool HpgemUI::initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, unsigned int meshID)
+    bool HpgemUI::initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, std::size_t meshID)
     {
         meshes_[meshID]->setMeshMover(meshMoverBase);
         return true;
@@ -66,7 +66,7 @@ namespace Base
                                      int nrOfElementVectors, int nrOfFaceMatrixes,
                                      int nrOfFaceVectors)
     {
-        unsigned int numOfMeshes = meshes_.size();
+        std::size_t numOfMeshes = meshes_.size();
         MeshManipulator* mesh = new MeshManipulator(configData_,
                                                     meshDscr.boundaryConditions_[0],
                                                     (configData_->dimension_ > 1) ? meshDscr.boundaryConditions_[1] : false,
@@ -98,7 +98,7 @@ namespace Base
     
     HpgemUI::MeshId HpgemUI::addMesh(const HpgemUI::String& fileName, int nrOfElementMatrixes, int nrOfElementVectors, int nrOfFaceMatrixes, int nrOfFaceVectors)
     {
-        unsigned int numOfMeshes = meshes_.size();
+        std::size_t numOfMeshes = meshes_.size();
         MeshManipulator* mesh = new MeshManipulator(configData_, false, false, false, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
         mesh->readCentaurMesh(fileName); //boundary information (^) is ignored
         mesh->getElementsList();

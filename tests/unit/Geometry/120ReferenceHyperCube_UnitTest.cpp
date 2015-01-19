@@ -207,7 +207,7 @@ int main(){
 
 	//testing mappings and quadrature rules
 
-	std::vector<unsigned int> faceIndices(8);
+	std::vector<std::size_t> faceIndices(8);
 	//there is no 5D element so codim0mappings are not needed
 
 

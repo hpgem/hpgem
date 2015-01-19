@@ -24,7 +24,7 @@
 
 namespace Base
 {
-	class BasisFunctionSet;
+    class BasisFunctionSet;
 
     //! Assemble set of BasisFunctions on 1D: { 1 }
     void AssembleBasisFunctionSet_1D_Ord0_A0(Base::BasisFunctionSet& myBFSet);

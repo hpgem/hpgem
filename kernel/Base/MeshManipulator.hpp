@@ -48,16 +48,16 @@ namespace Base {
     class Edge;
 
     struct HalfFaceDescription {
-        std::vector<uint32_t> nodeList;
-        unsigned int elementNum;
-        unsigned int localFaceIndex;
+        std::vector<std::size_t> nodeList;
+        std::size_t elementNum;
+        std::size_t localFaceIndex;
     };
 
     class MeshManipulator //: public MeshRefiner <DIM>
     {
     public:
 
-        typedef unsigned int PointIndexT;
+        typedef std::size_t PointIndexT;
         typedef Element ElementT;
         typedef Face FaceT;
         typedef MeshMoverBase MeshMoverBaseT;
@@ -90,7 +90,7 @@ namespace Base {
     public:
         /// idRangeBegin is the begining of the range, from where the Element's ids should be assigned.
         /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
-        MeshManipulator(const ConfigurationData* configData, bool xPer = 0, bool yPer = 0, bool zPer = 0, unsigned int orderOfFEM = 1, unsigned int idRangeBegin = 0,
+        MeshManipulator(const ConfigurationData* configData, bool xPer = 0, bool yPer = 0, bool zPer = 0, std::size_t orderOfFEM = 1, std::size_t idRangeBegin = 0,
                 int nrOfElementMatrixes = 0, int nrOfElementVectors = 0, int nrOfFaceMatrixes = 0, int nrOfFaceVectors = 0);
 
         MeshManipulator(const MeshManipulator& other);
@@ -99,36 +99,36 @@ namespace Base {
 
 
 
-        void createDefaultBasisFunctions(unsigned int order);
+        void createDefaultBasisFunctions(std::size_t order);
 
         ElementT* addElement(const VectorOfPointIndicesT& globalNodeIndexes);
 
-        bool addFace(ElementT* leftElementPtr, unsigned int leftElementLocalFaceNo,
-                ElementT* rightElementPtr, unsigned int rightElementLocalFaceNo,
+        bool addFace(ElementT* leftElementPtr, std::size_t leftElementLocalFaceNo,
+                ElementT* rightElementPtr, std::size_t rightElementLocalFaceNo,
                 const Geometry::FaceType& faceType = Geometry::FaceType::WALL_BC);
 
-        //void addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs);
+        //void addEdge(std::vector< Element*> elements, std::vector<std::size_t> localEdgeNrs);
         void addEdge();
 
         void addVertex();
 
-        unsigned int getNumberOfElements(IteratorType part = IteratorType::LOCAL) const {
+        std::size_t getNumberOfElements(IteratorType part = IteratorType::LOCAL) const {
             return theMesh_.getNumberOfElements(part);
         }
 
-        unsigned int getNumberOfFaces(IteratorType part = IteratorType::LOCAL) const {
+        std::size_t getNumberOfFaces(IteratorType part = IteratorType::LOCAL) const {
             return theMesh_.getNumberOfFaces(part);
         }
 
-        unsigned int getNumberOfEdges(IteratorType part = IteratorType::LOCAL) const {
+        std::size_t getNumberOfEdges(IteratorType part = IteratorType::LOCAL) const {
             return theMesh_.getNumberOfEdges(part);
         }
 
-        unsigned int getNumberOfVertices(IteratorType part = IteratorType::LOCAL) const {
+        std::size_t getNumberOfVertices(IteratorType part = IteratorType::LOCAL) const {
             return theMesh_.getNumberOfVertices(part);
         }
 
-        unsigned int getNumberOfNodes()const {
+        std::size_t getNumberOfNodes()const {
             return theMesh_.getNumberOfNodes();
         }
 
@@ -300,7 +300,7 @@ namespace Base {
         void someMeshGenerator(int meshTreeIdx);
 
         //! Set active mesh-tree.
-        void setActiveMeshTree(unsigned int meshTreeIdx);
+        void setActiveMeshTree(std::size_t meshTreeIdx);
 
         //! Get active mesh-tree index.
         int getActiveMeshTree() const;
@@ -309,10 +309,10 @@ namespace Base {
         void resetActiveMeshTree();
 
         //! Get maximum h-level of a specific mesh-tree.
-        unsigned int getMaxLevel(int meshTreeIdx) const;
+        std::size_t getMaxLevel(int meshTreeIdx) const;
 
         //! Set active level of a specific mesh-tree.
-        void setActiveLevel(unsigned int meshTreeIdx, int level);
+        void setActiveLevel(std::size_t meshTreeIdx, int level);
 
         //! Get active level of a specific mesh-tree.
         int getActiveLevel(int meshTreeIdx) const;
@@ -321,10 +321,10 @@ namespace Base {
         void resetActiveLevel(int meshTreeIdx);
 
         //! Duplicate mesh contents including all refined meshes.
-        void duplicate(unsigned int fromMeshTreeIdx, unsigned int toMeshTreeIdx, unsigned int upToLevel);
+        void duplicate(std::size_t fromMeshTreeIdx, std::size_t toMeshTreeIdx, std::size_t upToLevel);
 
         //! Refine a specific mesh-tree.
-        void doRefinement(unsigned int meshTreeIdx, int refinementType);*/
+        void doRefinement(std::size_t meshTreeIdx, int refinementType);*/
 
         /**
          * Retrieves the Mesh as stored in this MeshManipulator
@@ -366,20 +366,20 @@ namespace Base {
         //void triangularCreateFaces3D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
 
         //! Do refinement on the elements.
-        /*void doElementRefinement(unsigned int meshTreeIdx);
+        /*void doElementRefinement(std::size_t meshTreeIdx);
 
         //! Do refinement on the faces.
-        void doFaceRefinement(unsigned int meshTreeIdx);
+        void doFaceRefinement(std::size_t meshTreeIdx);
 
         //! Check whether the two elements may be connected by a face or not.
-        void pairingCheck(const ElementIterator elL, unsigned int locFaceNrL,
-                const ElementIterator elR, unsigned int locFaceNrR,
+        void pairingCheck(const ElementIterator elL, std::size_t locFaceNrL,
+                const ElementIterator elR, std::size_t locFaceNrR,
                 int& pairingValue, bool& sizeOrder);*/
 
         //! Check whether the two elements may be connected by a face or not in periodic face case.
         //void                            periodicPairingCheck(const FaceIteratorT fa,
-        //                                                     const ElementIteratorT elL, unsigned int localFaceNrL,
-        //                                                     const ElementIteratorT elR, unsigned int localFaceNrR,
+        //                                                     const ElementIteratorT elL, std::size_t localFaceNrL,
+        //                                                     const ElementIteratorT elR, std::size_t localFaceNrR,
         //                                                     int& pairingValue, bool& sizeOrder);
         //---------------------------------------------------------------------
 

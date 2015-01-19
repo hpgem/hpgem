@@ -60,7 +60,7 @@ namespace Geometry
         indexes[7] = refGeometry_->getLocalNodeIndex(face,7);
     }
 
-	unsigned int PhysicalOctachoron::getNrOfFaces() const {
+	std::size_t PhysicalOctachoron::getNrOfFaces() const {
 		return getRefGeometry()->getNrOfCodim1Entities();
 	}
 

@@ -45,8 +45,8 @@ namespace Base
         Geometry::PointPhysical   bottomLeft_;
         Geometry::PointPhysical   topRight_;
         
-        std::vector<unsigned int>      numElementsInDIM_;
-        std::vector<unsigned int>      boundaryConditions_;//x,y,z// according to this order!!!
+        std::vector<std::size_t>      numElementsInDIM_;
+        std::vector<std::size_t>      boundaryConditions_;//x,y,z// according to this order!!!
     };
     
 };

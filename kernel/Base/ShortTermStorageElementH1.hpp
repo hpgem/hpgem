@@ -36,22 +36,22 @@ namespace Base
     {
     public:
 
-        ShortTermStorageElementH1(unsigned int dimension) : ShortTermStorageElementBase(dimension) { }
+        ShortTermStorageElementH1(std::size_t dimension) : ShortTermStorageElementBase(dimension) { }
 
         void computeData() override;
 
-        double basisFunction(unsigned int i, const PointReferenceT& p) override;
-        double basisFunction(unsigned int i, const PointReferenceT& p) const override;
+        double basisFunction(std::size_t i, const PointReferenceT& p) override;
+        double basisFunction(std::size_t i, const PointReferenceT& p) const override;
 
-        void basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override;
-        void basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override;
+        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override;
+        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override;
 
-        void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr) override;
-        void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr) const override;
+        void basisFunctionDeriv(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr) override;
+        void basisFunctionDeriv(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr) const override;
 
         ///special case derivative: compute individual components, then mix and match as desired !warning! this routine assumes the user wants to construct a specialized transformation and will not premultiply by the Jacobian
-        virtual double basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p);
-        double basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const override;
+        virtual double basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p);
+        double basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const override;
 
     private:
 

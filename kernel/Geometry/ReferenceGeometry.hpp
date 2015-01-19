@@ -83,7 +83,7 @@ public:
     public:
         /// \bug this is a workaround for a g++ bug. Should read using typenames;
         typedef std::string                                         String;
-        typedef unsigned int                                        IndexT;
+        typedef std::size_t                                        IndexT;
         typedef typename Geometry::PointReference              PointReferenceT;
         typedef typename std::vector<PointReferenceT >              VectorOfReferencePointsT;
         typedef typename VectorOfReferencePointsT::iterator         iterator;
@@ -101,7 +101,7 @@ public:
         virtual void            getCenter(PointReferenceT& point) const = 0;
 
         /// \brief Return number of nodes of the reference shape.
-        virtual unsigned int    getNumberOfNodes() const {return points_.size();}
+        virtual std::size_t    getNumberOfNodes() const {return points_.size();}
         TypeOfReferenceGeometry getGeometryType() const  {return geometryType_;}
 
         /// \brief Given a local index, return (assign to point) the corresponding node.
@@ -134,7 +134,7 @@ public:
 
     protected:
         ReferenceGeometry(const TypeOfReferenceGeometry& geoT);
-        ReferenceGeometry(unsigned int numberOfNodes, unsigned int DIM, const TypeOfReferenceGeometry& geoT);
+        ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const TypeOfReferenceGeometry& geoT);
         ReferenceGeometry(const ReferenceGeometry& other);
         
     protected:

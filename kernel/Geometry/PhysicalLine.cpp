@@ -47,7 +47,7 @@ namespace Geometry
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
     }
 
-	unsigned int PhysicalLine::getNrOfFaces() const {
+	std::size_t PhysicalLine::getNrOfFaces() const {
 		return refGeometry_->getNrOfCodim1Entities();
 	}
 

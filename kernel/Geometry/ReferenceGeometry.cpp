@@ -35,7 +35,7 @@ namespace Geometry
         
     }
     
-    ReferenceGeometry::ReferenceGeometry(unsigned int numberOfNodes, unsigned int DIM, const TypeOfReferenceGeometry& geoT):
+    ReferenceGeometry::ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const TypeOfReferenceGeometry& geoT):
         points_(numberOfNodes,DIM),
         geometryType_(geoT)
     {

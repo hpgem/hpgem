@@ -22,7 +22,7 @@
 #define GAUSSQUADRATURERULESFORPOINT_H_
 
 #include "GaussQuadratureRule.hpp"
-#include <cstdint>
+#include <limits>
 
 namespace Geometry
 {
@@ -51,7 +51,7 @@ namespace QuadratureRules
 
         virtual unsigned int order() const
         {
-            return std::numeric_limits<unsigned int>::max();
+            return std::numeric_limits<std::size_t>::max();
         }
 
         virtual unsigned int dimension() const

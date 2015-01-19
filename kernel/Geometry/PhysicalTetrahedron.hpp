@@ -51,7 +51,7 @@ namespace Geometry
 
             void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
         
-            unsigned int getNrOfFaces() const;
+            std::size_t getNrOfFaces() const;
     };
 
 }

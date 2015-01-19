@@ -167,12 +167,12 @@ namespace Geometry
     }
 
     /// Return local face number of the face in the left element.
-    virtual unsigned int                localFaceNumberLeft()  const
+    virtual std::size_t                localFaceNumberLeft()  const
     {
       return localFaceNumberLeft_;
     }
     /// Return local face number of the face in the right element.
-    virtual unsigned int                localFaceNumberRight()   const
+    virtual std::size_t                localFaceNumberRight()   const
     {
       return localFaceNumberRight_;
     }
@@ -224,7 +224,7 @@ namespace Geometry
     virtual void            referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical)const;
 
     ///\brief set up the faceToFaceMapIndex based on vertex connectivity information instead of node location
-    void initialiseFaceToFaceMapIndex(const std::vector<unsigned int>& leftVertices, const std::vector<unsigned int>& rightVertices);
+    void initialiseFaceToFaceMapIndex(const std::vector<std::size_t>& leftVertices, const std::vector<std::size_t>& rightVertices);
 
     void            copyFromParent(const FaceGeometryT& fa);
 

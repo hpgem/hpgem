@@ -53,8 +53,8 @@ namespace Base
         typedef Geometry::PointPhysical PointPhysicalT;
         typedef Geometry::PointReference PointReferenceT;
 
-        typedef unsigned int MeshId;
-        typedef std::vector<unsigned int> VectorOfUIntegers;
+        typedef std::size_t MeshId;
+        typedef std::vector<std::size_t> VectorOfUIntegers;
 
         typedef std::vector<MeshManipulatorT* > VectorOfMeshManipulatorT;
         typedef std::string String;
@@ -69,14 +69,14 @@ namespace Base
         virtual ~HpgemUI();
 
         /// \brief Gives the pointer of meshMoverBase class to mesh.
-        virtual bool initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, unsigned int meshID);
+        virtual bool initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, std::size_t meshID);
 
         /// Creating a mesh with in-house remesher.
         MeshId addMesh(const RectangularMeshDescriptorT& meshDescriptor, const MeshType& meshType = RECTANGULAR, int nrOfElementMatrixes = 0, int nrOfElementVectors = 0, int nrOfFaceMatrixes = 0, int nrOfFaceVectors = 0);
         /// Reading a mesh from a file, currently only Centaur is supported.
         MeshId addMesh(const String& fileName, int nrOfElementMatrixes = 0, int nrOfElementVectors = 0, int nrOfFaceMatrixes = 0, int nrOfFaceVectors = 0);
 
-        unsigned int getNumberOfElements(MeshId id)const
+        std::size_t getNumberOfElements(MeshId id)const
         {
             return meshes_[id]->getNumberOfElements();
         }

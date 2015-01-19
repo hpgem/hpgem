@@ -110,7 +110,7 @@ int main(){
 
 	//testing mappings and quadrature rules
 
-	std::vector<unsigned int> faceIndices(3);
+	std::vector<std::size_t> faceIndices(3);
 	//codim0maps dont exist so they dont need to be found properly
 
 

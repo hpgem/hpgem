@@ -48,7 +48,7 @@ namespace Base
         using MatrixT = LinearAlgebra::Matrix;
         using VectorOfMatrices = std::vector<LinearAlgebra::Matrix>;
 
-        ElementData(unsigned int timeLevels, unsigned nrOfUnkowns, unsigned int nrOfBasisFunctions, unsigned int nrOfElementMatrixes = 0, unsigned int nrOfElementVectors = 0);
+        ElementData(std::size_t timeLevels, std::size_t nrOfUnkowns, std::size_t nrOfBasisFunctions, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0);
 
         virtual ~ ElementData() { }
 
@@ -74,18 +74,18 @@ namespace Base
         virtual const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
 
         /// \brief Specify a time level index and a variable index (unknown), set the corresponding expansionCoefficients. Better use getTimeLevelDataVector if possible!
-        void setTimeLevelData(unsigned int timeLevel, unsigned int unknown, const LinearAlgebra::NumericalVector &val);
-        void setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector &val);
+        void setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::NumericalVector &val);
+        void setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::NumericalVector &val);
         
         void setCurrentData(const LinearAlgebra::NumericalVector& data);
         
         LinearAlgebra::NumericalVector& getCurrentData();
 
         /// \brief Specify a time level index, a variabale index and a basis function index, return the corresponding expansionCoefficient (double).
-        virtual double getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const;
+        virtual double getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const;
 
         /// \brief Specify a time level index, a variable index and a basis function index, set the corresponding expansionCoefficient (double).
-        void setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val);
+        void setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, double val);
 
         virtual int getNrOfUnknows() const;
 
@@ -109,7 +109,7 @@ namespace Base
         }
 
     protected:
-        void setNumberOfBasisFunctions(unsigned int number);
+        void setNumberOfBasisFunctions(std::size_t number);
 
     private:
         std::size_t timeLevels_;

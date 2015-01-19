@@ -125,7 +125,7 @@ namespace Utilities {
 	void createFaceBasisFunctionSet2DH1Triangle(int order,std::vector<const Base::OrientedBasisFunctionSet*>& result) {
 		Base::OrientedBasisFunctionSet* set;
 		Geometry::ReferenceTriangle& triangle = Geometry::ReferenceTriangle::Instance();
-		std::vector<unsigned int> vertexindices(2);
+		std::vector<std::size_t> vertexindices(2);
 		for (int i = 0; i < 3; ++i) {
 			set = new Base::OrientedBasisFunctionSet(order, 0, i);
 			triangle.getCodim1EntityLocalIndices(i, vertexindices);

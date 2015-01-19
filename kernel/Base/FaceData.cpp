@@ -29,14 +29,11 @@
 #include "TestErrorDebug.hpp"
 
 
-Base::FaceData::FaceData(unsigned int numberOfDOF, unsigned int numberOfFaceMatrices, unsigned int numberOfFaceVectors) :
+Base::FaceData::FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors) :
 faceMatrix_(numberOfFaceMatrices), faceVector_(numberOfFaceVectors) 
 {
 }
 
-/// \param[in] matrix The standard matrix used to set the FaceMatrix.
-/// \param[in] matrixID The index to specify which FaceMatrix should be set.
-/// \details To set a FaceMatrix using a standard matrix we must also know the number of basis functions corresponding to the left and right element. Since this class has no access to these numbers, we will assume the number of basis functions are the same on both sides and the input matrix should be a square matrix. For safety and also efficiency it is advised to use the other version of this function instead, which takes a FaceMatrix as input. This is actually a dated function and should be removed.
 void Base::FaceData::setFaceMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID)
 {
     if (matrixID >= faceMatrix_.size())
@@ -54,25 +51,7 @@ void Base::FaceData::setFaceMatrix(const LinearAlgebra::Matrix& matrix, std::siz
     faceMatrix_[matrixID].setEntireMatrix(matrix);
 }
 
-/// \param[in] matrix The standard matrix used to set the FaceMatrix.
-/// \param[in] matrixID The index to specify which FaceMatrix should be set.
-void Base::FaceData::setFaceMatrix(const Base::FaceMatrix &faceMatrix, std::size_t matrixID)
-{
-    if (matrixID >= faceMatrix_.size())
-    {
-        std::cout << "Warning: Setting a face matrix that was not preallocated. If this is expected, please allocate more face matrixes in the mesh generator" << std::endl;
-        faceMatrix_.resize(matrixID + 1);
-    }
-    
-    faceMatrix_[matrixID].resize(faceMatrix.getNrOfDegreesOfFreedom(Base::Side::LEFT), faceMatrix.getNrOfDegreesOfFreedom(Base::Side::RIGHT));
-    faceMatrix_[matrixID] = faceMatrix;
-}
-
-
-/// \param[in] matrix The standard matrix which will be used to get the face matrix as one entire matrix.
-/// \param[in] matrixID The index to specify which FaceMatrix to get.
-/// \details To convert a face matrix into a standard matrix is slow and inefficient. It is advised to use the other version of this function that returns a FaceMatrix. This is actually a dated function and should be removed.
-void Base::FaceData::getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID) const
+void Base::FaceData::getFaceMatrix(LinearAlgebra::Matrix& matrix, std::size_t matrixID) const
 {
     // Check if there are enough faces matrices stored.
     assert(matrixID < faceMatrix_.size());
@@ -80,16 +59,7 @@ void Base::FaceData::getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int m
     matrix = faceMatrix_[matrixID].getEntireMatrix();
 }
 
-/// \param[in] matrixID The index to specify which FaceMatrix to get.
-const Base::FaceMatrix & Base::FaceData::getFaceMatrix(std::size_t matrixID) const
-{
-    // Check if there are enough faces matrices stored.
-    assert(matrixID < faceMatrix_.size());
-    
-    return faceMatrix_[matrixID];
-}
-
-void Base::FaceData::setFaceVector(const LinearAlgebra::NumericalVector& vector, unsigned int vectorID)
+void Base::FaceData::setFaceVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID)
 {
     if (vectorID >= faceVector_.size())
     {
@@ -100,7 +70,7 @@ void Base::FaceData::setFaceVector(const LinearAlgebra::NumericalVector& vector,
     faceVector_[vectorID] = vector;
 }
 
-void Base::FaceData::getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID) const
+void Base::FaceData::getFaceVector(LinearAlgebra::NumericalVector& vector, std::size_t vectorID) const
 {
     TestErrorDebug(vectorID < faceVector_.size(), "insufficient face vectors stored");
     vector = faceVector_[vectorID];

@@ -218,7 +218,7 @@ namespace Utilities {
 	Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Cube(int order) {
 		Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
 		Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
-		std::vector<unsigned int> vectorOfPointIndices(4);
+		std::vector<std::size_t> vectorOfPointIndices(4);
 		for (int i = 0; i < cube.getNrOfCodim3Entities(); ++i) {
 			result->addBasisFunction(new BasisFunction3DVertexCube(i));
 		}
@@ -299,7 +299,7 @@ namespace Utilities {
 	void createEdgeBasisFunctionSet3DH1Cube(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
 		Base::OrientedBasisFunctionSet* set;
 		Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
-		std::vector<unsigned int> vectorOfPointIndices(2);
+		std::vector<std::size_t> vectorOfPointIndices(2);
 		for (int i = 0; i < 4; ++i) {
 			cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
 			set = new Base::OrientedBasisFunctionSet(order, 0, i);
@@ -344,7 +344,7 @@ namespace Utilities {
 	void createFaceBasisFunctionSet3DH1Cube(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
 		Base::OrientedBasisFunctionSet* set; //todo write clever code
 		Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
-		std::vector<unsigned int> vectorOfPointIndices(4);
+		std::vector<std::size_t> vectorOfPointIndices(4);
 		cube.getCodim1EntityLocalIndices(0, vectorOfPointIndices);
 		set = new Base::OrientedBasisFunctionSet(order, 0, 0);
 		for (int i = 0; i <= order - 2; ++i) {

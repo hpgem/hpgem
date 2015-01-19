@@ -85,7 +85,7 @@ namespace Geometry
         // ================================== Codimension 1 ========================================
 
         //! (see MappingCodimensions.hpp)
-        unsigned int                             getNrOfCodim1Entities() const {return 8;} // 'faces' (cubes)
+        std::size_t                             getNrOfCodim1Entities() const {return 8;} // 'faces' (cubes)
 
         //! (see MappingCodimensions.hpp)
         void                                     getCodim1EntityLocalIndices(const IndexT, ListOfIndexesT& faceNodesLocal) const;
@@ -99,7 +99,7 @@ namespace Geometry
         // ================================== Codimension 2 ========================================
 
         //! (see MappingCodimensions.hpp)
-        unsigned int                             getNrOfCodim2Entities() const {return 24;} // 'edges' (faces)
+        std::size_t                             getNrOfCodim2Entities() const {return 24;} // 'edges' (faces)
 
         //! (see MappingCodimensions.hpp)
         void                                     getCodim2EntityLocalIndices(const IndexT, ListOfIndexesT& faceNodesLocal) const;
@@ -113,7 +113,7 @@ namespace Geometry
         // ================================== Codimension 3 ========================================
 
         //! (see MappingCodimensions.hpp)
-        unsigned int                             getNrOfCodim3Entities() const {return 32;} // 'vertices' (edges)
+        std::size_t                             getNrOfCodim3Entities() const {return 32;} // 'vertices' (edges)
 
         //! (see MappingCodimensions.hpp)
         void                                     getCodim3EntityLocalIndices(const IndexT, ListOfIndexesT&) const;

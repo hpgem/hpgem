@@ -30,11 +30,11 @@
 
 namespace Base
 {
-    ElementData::ElementData(unsigned int timeLevels,
-                             unsigned int nrOfUnknowns,
-                             unsigned int nrOfBasisFunctions,
-                             unsigned int nrOfElementMatrixes,
-                             unsigned int nrOfElementVectors) :
+    ElementData::ElementData(std::size_t timeLevels,
+                             std::size_t nrOfUnknowns,
+                             std::size_t nrOfBasisFunctions,
+                             std::size_t nrOfElementMatrixes,
+                             std::size_t nrOfElementVectors) :
     timeLevels_(timeLevels),
     nrOfUnknowns_(nrOfUnknowns),
     nrOfBasisFunctions_(nrOfBasisFunctions),
@@ -76,7 +76,7 @@ namespace Base
         vector = elementVector_[vectorID];
     }
 
-    void ElementData::setNumberOfBasisFunctions(unsigned int number)
+    void ElementData::setNumberOfBasisFunctions(std::size_t number)
     {
         nrOfBasisFunctions_ = number;
     }    
@@ -90,7 +90,7 @@ namespace Base
     /// \param[in] unknown Index corresponding to the variable.
     /// \param[in] basisFunction Index corresponding to the basisFunction.
     /// \param[in] val Value to set the expansionCoeffient.
-    void ElementData::setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val)
+    void ElementData::setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, double val)
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_)
         {
@@ -109,7 +109,7 @@ namespace Base
     /// \param[in] timeLevel Index corresponding to the time level.
     /// \param[in] unknown Index corresponding to the variable.
     /// \param[in] basisFunction Index corresponding to the basisFunction.
-    double ElementData::getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const
+    double ElementData::getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_)
         {
@@ -125,7 +125,7 @@ namespace Base
     /// \param[in] timeLevel Index corresponding to the time level.
     /// \param[in] unknown Index corresponding to the variable.
     /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.
-    void ElementData::setTimeLevelData(unsigned int timeLevel, unsigned int unknown, const LinearAlgebra::NumericalVector& val)
+    void ElementData::setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::NumericalVector& val)
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_)
         {
@@ -145,7 +145,7 @@ namespace Base
         }
     }
     
-    void ElementData::setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::NumericalVector& val)
+    void ElementData::setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::NumericalVector& val)
     {
         setTimeLevelData(timeLevel, 0, val);
     }    

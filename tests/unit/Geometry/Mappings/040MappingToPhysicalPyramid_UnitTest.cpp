@@ -42,7 +42,7 @@ bool isInternal3D(const Geometry::PointPhysical& p) {
 
 int main() {
 
-	std::vector<unsigned int> pointIndexes;
+	std::vector<std::size_t> pointIndexes;
 
 	pointIndexes.push_back(27);
 	pointIndexes.push_back(4);

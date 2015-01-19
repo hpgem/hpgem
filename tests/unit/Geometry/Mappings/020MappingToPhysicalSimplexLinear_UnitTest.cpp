@@ -55,7 +55,7 @@ int main() {
 
 	//dim 1
 
-	std::vector<unsigned int> pointIndexes;
+	std::vector<std::size_t> pointIndexes;
 	std::vector<Geometry::PointPhysical> nodes1D;
 
 	Geometry::PointPhysical point1D(1),compare1D(1);

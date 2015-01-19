@@ -47,7 +47,7 @@ namespace Geometry
 
         virtual std::string     getName() const { return "PhysicalTriangularPrism";}
 
-        unsigned int            getNrOfFaces() const {return 5;}
+        std::size_t            getNrOfFaces() const {return 5;}
 
         void                    getGlobalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
 

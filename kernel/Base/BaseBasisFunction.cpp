@@ -23,32 +23,38 @@
 
 #include "LinearAlgebra/NumericalVector.hpp"
 
-namespace Base {
-
-	void BaseBasisFunction::eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const {
-		ret.resize(1);
-		ret[0] = eval(p);
-	}
-
-	void BaseBasisFunction::evalDeriv(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const {
-		for (int i = 0; i < ret.size(); ++i) {
-			switch (i) {
-			case 0:
-				ret[i] = evalDeriv0(p);
-				break;
-			case 1:
-				ret[i] = evalDeriv1(p);
-				break;
-			case 2:
-				ret[i] = evalDeriv2(p);
-				break;
-			case 3:
-				ret[i] = evalDeriv3(p);
-				break;
-			default:
-				throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";
-			}
-		}
-	}
-
+namespace Base
+{
+    BaseBasisFunction::BaseBasisFunction() { }
+    BaseBasisFunction::BaseBasisFunction(const BaseBasisFunction& other) { }
+    
+    void BaseBasisFunction::eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+    {
+        ret.resize(1);
+        ret[0] = eval(p);
+    }
+    
+    void BaseBasisFunction::evalDeriv(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+    {
+        for (std::size_t i = 0; i < ret.size(); ++i)
+        {
+            switch (i)
+            {
+            case 0:
+                ret[i] = evalDeriv0(p);
+                break;
+            case 1:
+                ret[i] = evalDeriv1(p);
+                break;
+            case 2:
+                ret[i] = evalDeriv2(p);
+                break;
+            case 3:
+                ret[i] = evalDeriv3(p);
+                break;
+            default:
+                throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";
+            }
+        }
+    }
 }

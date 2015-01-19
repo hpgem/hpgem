@@ -40,7 +40,7 @@ int main(){
 
 	//dim0
 
-	std::vector<unsigned int> pointIndexes,leftIndices,rightIndices;
+	std::vector<std::size_t> pointIndexes,leftIndices,rightIndices;
 	std::vector<Geometry::PointPhysical> nodes1D;
 
 	Geometry::PointReference point1D(1),compare1D(1);

@@ -49,7 +49,7 @@ namespace Geometry
         indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
     }
 
-	unsigned int PhysicalQuadrilateral::getNrOfFaces() const {
+	std::size_t PhysicalQuadrilateral::getNrOfFaces() const {
 		return refGeometry_->getNrOfCodim1Entities();
 	}
 

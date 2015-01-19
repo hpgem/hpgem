@@ -93,7 +93,6 @@ namespace Base
         nodesList_(other.nodesList_)
             
     {
-        std::cout << "In the copy constructor of Element " << std::endl;
     }
     
     ///Very ugly default constructor that's only here because it is needed in
@@ -109,7 +108,7 @@ namespace Base
         
     }
     
-    void Element::setDefaultBasisFunctionSet(unsigned int position)
+    void Element::setDefaultBasisFunctionSet(std::size_t position)
     {
     	basisFunctionSetPositions_.resize(1,-1);
     	basisFunctionSetPositions_[0]=position;
@@ -123,7 +122,7 @@ namespace Base
         nrOfDOFinTheElement_=basisFunctionSet_->at(position)->size();
     }
 
-    void Element::setFaceBasisFunctionSet(unsigned int position,int localFaceIndex)
+    void Element::setFaceBasisFunctionSet(std::size_t position,int localFaceIndex)
     {
     	if(basisFunctionSetPositions_.size()<1+getNrOfFaces()){
 			basisFunctionSetPositions_.resize(1+getNrOfFaces(),-1);
@@ -137,7 +136,7 @@ namespace Base
     	setNumberOfBasisFunctions(numberOfBasisFunctions);
     }
 
-    void Element::setEdgeBasisFunctionSet(unsigned int position, int localEdgeIndex)
+    void Element::setEdgeBasisFunctionSet(std::size_t position, int localEdgeIndex)
     {
     	if(basisFunctionSetPositions_.size()<1+getNrOfFaces()+getNrOfEdges()){
 			basisFunctionSetPositions_.resize(1+getNrOfFaces()+getNrOfEdges(),-1);
@@ -151,7 +150,7 @@ namespace Base
     	setNumberOfBasisFunctions(numberOfBasisFunctions);
     }
 
-    void Element::setVertexBasisFunctionSet(unsigned int position, int localVertexIndex)
+    void Element::setVertexBasisFunctionSet(std::size_t position, int localVertexIndex)
     {
     	if(basisFunctionSetPositions_.size()<1+getNrOfFaces()+getNrOfEdges()+getNrOfNodes()){
 			basisFunctionSetPositions_.resize(1+getNrOfFaces()+getNrOfEdges()+getNrOfNodes(),-1);
@@ -165,7 +164,7 @@ namespace Base
     	setNumberOfBasisFunctions(numberOfBasisFunctions);
     }
 
-    double Element::basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p)const
+    double Element::basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p)const
     {
         TestErrorDebug((jDir<p.size()),"Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
 
@@ -186,7 +185,7 @@ namespace Base
         throw "in basisFunctionDeriv(jdir): asked for a basisFunction that doesn't exist!";
     }
     
-    double Element::basisFunction(unsigned int i, const PointReferenceT& p)const
+    double Element::basisFunction(std::size_t i, const PointReferenceT& p)const
     {
     	const Base::BaseBasisFunction* function;
         int basePosition(0);
@@ -210,17 +209,17 @@ namespace Base
         //return basisFunctionSet_->eval(i,p);
     }
     
-    unsigned int Element::getID()const
+    std::size_t Element::getID()const
     {
         return id_;
     }
     
-    unsigned int Element::getID()
+    std::size_t Element::getID()
     {
         return id_;
     }
     
-    void Element::setQuadratureRulesWithOrder(unsigned int quadrROrder)
+    void Element::setQuadratureRulesWithOrder(std::size_t quadrROrder)
     {
         quadratureRule_ =  Geometry::ElementGeometry::referenceGeometry_->getGaussQuadratureRule(quadrROrder);
     }
@@ -243,7 +242,7 @@ namespace Base
     /// \param[in] timeLevel The index for the time level for which to get the solution.
     /// \param[in] p The reference point for which to get the solution.
     /// \param[in] solution The solution vector where the value at index iV corresponds to the solution for variable iV corresponding to the given time level and reference point.
-    void Element::getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const
+    void Element::getSolution(std::size_t timeLevel, const PointReferenceT& p, SolutionVector& solution) const
     {
         std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
         solution.resize(numberOfUnknows);
@@ -264,7 +263,7 @@ namespace Base
         }
     }
     
-    void Element::basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+    void Element::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
@@ -281,7 +280,7 @@ namespace Base
         throw "in basisFunction: asked for a basisFunction that doesn't exist!";
     }
     
-    void Element::basisFunctionCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+    void Element::basisFunctionCurl(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
         int basePosition(0);
         for(int j:basisFunctionSetPositions_)
@@ -302,7 +301,7 @@ namespace Base
         throw "in basisFunctionCurl: asked for a basisFunction that doesn't exist!";
     }
 
-    void Element::basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* wrapper) const
+    void Element::basisFunctionDeriv(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* wrapper) const
     {
     	if(wrapper==nullptr)
         {
@@ -312,7 +311,7 @@ namespace Base
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
         	if(j!=-1){
-        		unsigned int n=basisFunctionSet_->at(j)->size();
+        		std::size_t n=basisFunctionSet_->at(j)->size();
 				if(i-basePosition<n){
 					function=basisFunctionSet_->at(j)->operator[](i-basePosition);
 					basePosition+=n;

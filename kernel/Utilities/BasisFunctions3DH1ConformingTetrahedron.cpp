@@ -141,7 +141,7 @@ double BasisFunction3DInteriorTetrahedron::evalDeriv2(const Geometry::PointRefer
 Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Tetrahedron(int order) {
 	Base::BasisFunctionSet* result = new Base::BasisFunctionSet(order);
 	Geometry::ReferenceTetrahedron& tetrahedron = Geometry::ReferenceTetrahedron::Instance();
-	std::vector<unsigned int> vectorOfPointIndexes(3);
+	std::vector<std::size_t> vectorOfPointIndexes(3);
 	for (int i = 0; i < 4; ++i) {
 		result->addBasisFunction(new BasisFunction3DVertexTetrahedron(i));
 	}
@@ -193,7 +193,7 @@ void createVertexBasisFunctionSet3DH1Tetrahedron(int order, std::vector<const Ba
 void createEdgeBasisFunctionSet3DH1Tetrahedron(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
 	Base::OrientedBasisFunctionSet* set;
 	Geometry::ReferenceTetrahedron& tetrahedron = Geometry::ReferenceTetrahedron::Instance();
-	std::vector<unsigned int> vectorOfPointIndexes(2);
+	std::vector<std::size_t> vectorOfPointIndexes(2);
 	for (int i = 0; i < 6; ++i) {
 		set = new Base::OrientedBasisFunctionSet(order, 0, i);
 		tetrahedron.getCodim2EntityLocalIndices(i, vectorOfPointIndexes);
@@ -212,7 +212,7 @@ void createEdgeBasisFunctionSet3DH1Tetrahedron(int order, std::vector<const Base
 void createFaceBasisFunctionSet3DH1Tetrahedron(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
 	Base::OrientedBasisFunctionSet* set;
 	Geometry::ReferenceTetrahedron& tetrahedron= Geometry::ReferenceTetrahedron::Instance();
-	std::vector<unsigned int> vectorOfPointIndexes(3);
+	std::vector<std::size_t> vectorOfPointIndexes(3);
 	for (int i = 0; i < 4; ++i) {
 		tetrahedron.getCodim1EntityLocalIndices(i, vectorOfPointIndexes);
 		set = new Base::OrientedBasisFunctionSet(order, 0, i);

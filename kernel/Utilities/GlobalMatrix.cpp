@@ -50,14 +50,14 @@ namespace Utilities {
         for (int i = 0; i < number; ++i) {
             entries.push_back(startPositionsOfFacesInTheMatrix_[face->getID()] + i);
         }
-        std::vector<unsigned int> nodeEntries(face->getReferenceGeometry()->getNumberOfNodes());
+        std::vector<std::size_t> nodeEntries(face->getReferenceGeometry()->getNumberOfNodes());
         face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft(), nodeEntries);
         //for (int i = 0; i < face->getReferenceGeometry()->getNumberOfVertices(); ++i) {
         //    for (int j = 0; j < face->getPtrElementLeft()->getLocalNrOfBasisFunctionsVertex(); ++j) {
         //        entries.push_back(startPositionsOfVerticesInTheMatrix_[nodeEntries[i]] + j);
         //    }
         //}
-        std::vector<unsigned int> edgeIndex(2);
+        std::vector<std::size_t> edgeIndex(2);
         for (int i = 0; i < face->getPtrElementLeft()->getNrOfEdges(); ++i) {
             face->getPtrElementLeft()->getReferenceGeometry()->getCodim2EntityLocalIndices(i, edgeIndex);
             edgeIndex[0] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[0]);
@@ -77,7 +77,7 @@ namespace Utilities {
             }
         }
         face->getPtrElementLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(face->localFaceNumberLeft(),nodeEntries);
-        for(unsigned int i:nodeEntries) {
+        for(std::size_t i:nodeEntries) {
             numberOfEntries += face->getPtrElementLeft()->getNode(i)->getLocalNrOfBasisFunctions();
             for (std::size_t j = 0; j < face->getPtrElementLeft()->getNode(i)->getLocalNrOfBasisFunctions(); ++j)
             entries.push_back(startPositionsOfVerticesInTheMatrix_[face->getPtrElementLeft()->getNode(i)->getID()]+j);

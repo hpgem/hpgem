@@ -72,7 +72,7 @@ void testMesh(Base::MeshManipulator* test) {
         faceIDs.insert(face->getID());
         assert(("element<->face matching", face->getPtrElementLeft()->getFace(face->localFaceNumberLeft()) == face));
         if (face->isInternal()) {
-            std::vector<unsigned int> leftNodes(face->getReferenceGeometry()->getNumberOfNodes()), rightNodes(leftNodes);
+            std::vector<std::size_t> leftNodes(face->getReferenceGeometry()->getNumberOfNodes()), rightNodes(leftNodes);
             face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft(), leftNodes);
             face->getPtrElementRight()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberRight(), rightNodes);
             for (int i = 0; i < leftNodes.size(); ++i) {
@@ -90,7 +90,7 @@ void testMesh(Base::MeshManipulator* test) {
         assert(("duplicate edge ID", edgeIDs.find(edge->getID()) == edgeIDs.end()));
         edgeIDs.insert(edge->getID());
         assert(("element<->edge matching", edge->getElement(0)->getEdge(edge->getEdgeNr(0)) == edge));
-        std::vector<unsigned int> firstNodes(edge->getElement(0)->getReferenceGeometry()->getCodim2ReferenceGeometry(edge->getEdgeNr(0))->getNumberOfNodes()), otherNodes(firstNodes);
+        std::vector<std::size_t> firstNodes(edge->getElement(0)->getReferenceGeometry()->getCodim2ReferenceGeometry(edge->getEdgeNr(0))->getNumberOfNodes()), otherNodes(firstNodes);
         edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), firstNodes);
         for (int i = 0; i < firstNodes.size(); ++i) {
             firstNodes[i] = edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(firstNodes[i]);

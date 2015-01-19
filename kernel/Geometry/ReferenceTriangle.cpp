@@ -190,7 +190,7 @@ namespace Geometry
         }
     }
 
-	const ReferenceGeometry* ReferenceTriangle::getCodim2ReferenceGeometry(const unsigned int) const {
+	const ReferenceGeometry* ReferenceTriangle::getCodim2ReferenceGeometry(const std::size_t) const {
 		return &Geometry::ReferencePoint::Instance();
 	}
 

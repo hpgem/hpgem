@@ -48,7 +48,7 @@ int main(){
 
 	//getLocalNodeIndex should always break since dimension -1 entities dont exist
 
-	std::vector<unsigned int> base(1),transformed(1);
+	std::vector<std::size_t> base(1),transformed(1);
 
 	//testing mappings and quadrature rules
 

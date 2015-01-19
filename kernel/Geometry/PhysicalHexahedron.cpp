@@ -52,7 +52,7 @@ namespace Geometry
         indexes[3] = refGeometry_->getLocalNodeIndex(face,3);
     }
 
-	unsigned int PhysicalHexahedron::getNrOfFaces() const {
+	std::size_t PhysicalHexahedron::getNrOfFaces() const {
 		return refGeometry_->getNrOfCodim1Entities();
 	}
 

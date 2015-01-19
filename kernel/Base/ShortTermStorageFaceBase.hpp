@@ -55,7 +55,7 @@ namespace Base
     {
     public:
 
-        ShortTermStorageFaceBase(unsigned int dimension, bool useCache = false) :
+        ShortTermStorageFaceBase(std::size_t dimension, bool useCache = false) :
         Face(), face_(nullptr), //I dont like that face_ is not defined before operator= is called at least once
         currentPoint_(dimension - 1), //but I want to give users the ability to pass alternative wrappers to the integrators
         normal_(dimension), //without forcing them to pick a random face that is going to be discarded anyway
@@ -209,12 +209,12 @@ namespace Base
             return face_->getPtrElementGRight();
         }
 
-        unsigned int localFaceNumberLeft() const override
+        std::size_t localFaceNumberLeft() const override
         {
             return face_->localFaceNumberLeft();
         }
 
-        unsigned int localFaceNumberRight() const override
+        std::size_t localFaceNumberRight() const override
         {
             return face_->localFaceNumberRight();
         }
@@ -259,12 +259,12 @@ namespace Base
             return face_->refFaceToRefElemMapR();
         }
 
-        void getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0) const override
+        void getFaceMatrix(LinearAlgebra::Matrix& matrix, std::size_t matrixID = 0) const override
         {
             return face_->getFaceMatrix(matrix, matrixID);
         }
 
-        void getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID = 0) const override
+        void getFaceVector(LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0) const override
         {
             return face_->getFaceVector(vector, vectorID);
         }

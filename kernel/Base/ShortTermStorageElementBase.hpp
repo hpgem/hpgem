@@ -59,7 +59,7 @@ namespace Base
     {
     public:
 
-        ShortTermStorageElementBase(unsigned int dimension, bool useCache = false) :
+        ShortTermStorageElementBase(std::size_t dimension, bool useCache = false) :
         Element(), //the superclass is not meant for actual use
         element_(nullptr), //I dont like that face_ is not defined before operator= is called at least once
         currentPoint_(dimension), //but I want to give users the ability to pass alternative wrappers to the integrators
@@ -87,47 +87,47 @@ namespace Base
             //keep the element alive!
         }
 
-        virtual double basisFunction(unsigned int i, const PointReferenceT& p)
+        virtual double basisFunction(std::size_t i, const PointReferenceT& p)
         {
             throw "No storage functionality was implemented! Are you working in a vector valued function space?";
         }
 
-        virtual void basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+        virtual void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
         {
             throw "No storage functionality was implemented! Are you working in a scalar function space?";
         }
 
-        double basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const override
+        double basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const override
         {
             return element_->basisFunctionDeriv(i, jDir, p);
         }
 
-        virtual void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr)
+        virtual void basisFunctionDeriv(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr)
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";
         }
 
-        virtual void basisFunctionCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+        virtual void basisFunctionCurl(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
         }
 
-        double basisFunction(unsigned int i, const PointReferenceT& p) const override
+        double basisFunction(std::size_t i, const PointReferenceT& p) const override
         {
             throw "No storage functionality was implemented! Are you working in a vector valued function space?";
         }
 
-        void basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override
+        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override
         {
             throw "No storage functionality was implemented! Are you working in a scalar function space?";
         }
 
-        void basisFunctionDeriv(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr) const override
+        void basisFunctionDeriv(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr) const override
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";
         }
 
-        void basisFunctionCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override
+        void basisFunctionCurl(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
         }
@@ -155,12 +155,12 @@ namespace Base
 
         //make sure all the other function map to the current element
 
-        unsigned int getID()const override
+        std::size_t getID()const override
         {
             return element_->getID();
         }
 
-        unsigned int getID() override
+        std::size_t getID() override
         {
             return element_->getID();
         }
@@ -170,7 +170,7 @@ namespace Base
             return element_->getGaussQuadratureRule();
         }
 
-        void getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const override
+        void getSolution(std::size_t timeLevel, const PointReferenceT& p, SolutionVector& solution) const override
         {
             return element_->getSolution(timeLevel, p, solution);
         }
@@ -205,7 +205,7 @@ namespace Base
             return element_->getNrOfEdges();
         }
 
-        unsigned int getNrOfNodes() const override
+        std::size_t getNrOfNodes() const override
         {
             return element_->getNrOfNodes();
         }
@@ -233,7 +233,7 @@ namespace Base
             return element_->getTimeLevelData(timeLevel);
         }
 
-        double getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const override
+        double getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const override
         {
             return element_->getData(timeLevel, unknown, basisFunction);
         }

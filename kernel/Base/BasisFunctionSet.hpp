@@ -24,55 +24,60 @@
 
 #include <vector>
 
-namespace LinearAlgebra{
-	class NumericalVector;
+namespace LinearAlgebra
+{
+    class NumericalVector;
 }
 
-namespace Geometry{
-	class PointReference;
+namespace Geometry
+{
+    class PointReference;
 }
 
 namespace Base
 {
-	class BaseBasisFunction;
+    class BaseBasisFunction;
 
     class BasisFunctionSet
     {
     public:
-        typedef BaseBasisFunction              BaseBasisFunctionT;
-        typedef std::vector<BaseBasisFunctionT*>    BaseBasisFunctions;
-        typedef Geometry::PointReference       PointReferenceT;
-        
+        typedef BaseBasisFunction BaseBasisFunctionT;
+        typedef std::vector<BaseBasisFunctionT*> BaseBasisFunctions;
+        typedef Geometry::PointReference PointReferenceT;
+
     public:
-        BasisFunctionSet(unsigned int order);
-        
+        BasisFunctionSet(std::size_t order);
+
         virtual ~BasisFunctionSet();
-        
-         virtual unsigned int size() const;
-        
-         virtual unsigned int getOrder() const;
-        
-         virtual void         addBasisFunction(BaseBasisFunctionT* bf);
-        
-         virtual double       eval(unsigned int i, const PointReferenceT& p) const;
-	
-	///\brief returns the value of the i-th basisfunction at point p in ret
-	 virtual void         eval(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
-        
-         virtual double       evalDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const;
-	
-	///\brief returns the curl of the i-th basisfunction at point p in ret
-	 virtual void         evalCurl(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
-	
-	    virtual const BaseBasisFunction* operator[](int i) const {return vecOfBasisFcn_[i];}
+
+        virtual std::size_t size() const;
+
+        virtual std::size_t getOrder() const;
+
+        virtual void addBasisFunction(BaseBasisFunctionT* bf);
+
+        virtual double eval(std::size_t i, const PointReferenceT& p) const;
+
+        ///\brief returns the value of the i-th basisfunction at point p in ret
+        virtual void eval(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
+
+        virtual double evalDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const;
+
+        ///\brief returns the curl of the i-th basisfunction at point p in ret
+        virtual void evalCurl(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
+
+        virtual const BaseBasisFunction* operator[](int i) const
+        {
+            return vecOfBasisFcn_[i];
+        }
 
     private:
         BasisFunctionSet();
         BasisFunctionSet(const BasisFunctionSet& other);
 
     private:
-        unsigned int                          order_;
-        BaseBasisFunctions                    vecOfBasisFcn_;
+        std::size_t order_;
+        BaseBasisFunctions vecOfBasisFcn_;
     };
 }
 

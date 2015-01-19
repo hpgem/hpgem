@@ -24,10 +24,10 @@
 
 namespace Geometry {
 
-    template<unsigned int DIM>
+    template<std::size_t DIM>
     class FaceGeometry;
 
-    template<unsigned int DIM>
+    template<std::size_t DIM>
     FaceGeometry<DIM>::FaceGeometry(ElementGeometryT*       ptrElemL,
                                     const LocalFaceNrType&  localFaceNumL,
                                     ElementGeometryT*       ptrElemR,
@@ -64,8 +64,8 @@ namespace Geometry {
         
         //leftElementGeom_->getReferenceGeometry()->getCoDIM1ReferenceGeometry(localFaceNumberLeft_);
         
-        std::vector<unsigned int> globalNodeNrsL;
-        std::vector<unsigned int> globalNodeNrsR;
+        std::vector<std::size_t> globalNodeNrsL;
+        std::vector<std::size_t> globalNodeNrsR;
         
             // We try element left first because its the one we are sure exists.
         leftElementGeom_->getPhysicalGeometry()->getGlobalFaceNodeIndices(localFaceNumberLeft_, globalNodeNrsL);
@@ -98,14 +98,14 @@ namespace Geometry {
         
             //: The next to lines creating 2 std::sets, filling them with globalNodesL and globalNodesR. The sets are created via ctr which takes a to pointers and insert the data inbetween.
         cout<<"Left {";
-        for(unsigned int i=0; i<globalNodeNrsL.size();++i)
+        for(std::size_t i=0; i<globalNodeNrsL.size();++i)
         {
             cout<< globalNodeNrsL[i]<<" ";
         }
         cout<<"Left }"<<endl;
         
         cout<<"Right {";
-        for(unsigned int i=0; i<globalNodeNrsR.size();++i)
+        for(std::size_t i=0; i<globalNodeNrsR.size();++i)
         {
             cout<< globalNodeNrsR[i]<<" ";
         }
@@ -149,7 +149,7 @@ namespace Geometry {
     //             NodeContainerPtrType PCPtr = _elL->physicalGeometry()->getPointContainerPtr();
 
                 bool foundCollinear = false;
-                for(unsigned int i=0; i<globalNodeNrsL.size(); ++i)
+                for(std::size_t i=0; i<globalNodeNrsL.size(); ++i)
                 {
                   PointPhysical<DIM> ppR;
     //               PCPtr->getPoint(globalNodeNrsR(i), ppR);
@@ -177,7 +177,7 @@ namespace Geometry {
                         PointPhysical<DIM> dR(ppR-pp0);
 
                         double ratio = 0.;
-                        unsigned int d;
+                        std::size_t d;
                         for (d=0; d<DIM; ++d)
                         {
                           if (std::abs(dL[d])>SmallerDoubleThanMinimalSizeOfTheMesh)
@@ -227,14 +227,14 @@ namespace Geometry {
                 rightElementGeom_->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumberRight_, localNodeNrsR);
                 
                 
-                unsigned int periodicDim = Geometry::MaxInteger; // initialize to large value
+                std::size_t periodicDim = Geometry::MaxInteger; // initialize to large value
                 
                 PointPhysicalT pointPhysical;
                 
                 std::vector<PointPhysicalT> projectedPointsL; // create empty!
                 std::vector<PointPhysicalT> projectedPointsR;
                 
-                for (unsigned int i = 0; i < localNodeNrsL.size(); ++i)
+                for (std::size_t i = 0; i < localNodeNrsL.size(); ++i)
                 {
                     leftElementGeom_->getPhysicalGeometry()->getNodeCoordinates(localNodeNrsL[i], pointPhysical);
                     
@@ -246,14 +246,14 @@ namespace Geometry {
                 }
                 
                     // We want to find which direction is the periodic one.
-                unsigned int test[DIM];
+                std::size_t test[DIM];
                 
-                for (unsigned int d = 0; d < DIM; ++d) { test[d] = 0; }
+                for (std::size_t d = 0; d < DIM; ++d) { test[d] = 0; }
                 
                 pointPhysical = projectedPointsL[0]; //Find out which one is peridoci by comparing all coordinates of one point to other points, for all DIMension. If DIMension is the same for every Point, than it is a face that DIMension in question.
-                for (unsigned int i = 0; i < localNodeNrsL.size(); ++i)
+                for (std::size_t i = 0; i < localNodeNrsL.size(); ++i)
                 {
-                    for (unsigned int d = 0; d < DIM; ++d)
+                    for (std::size_t d = 0; d < DIM; ++d)
                     {
                         if (std::abs(projectedPointsL[i][d]-pointPhysical[d]) < SmallerDoubleThanMinimalSizeOfTheMesh)
                         {
@@ -262,7 +262,7 @@ namespace Geometry {
                     }
                 }
                     //check if for that DIMension is fullhouse
-                for (unsigned int d = 0; d < DIM; ++d)
+                for (std::size_t d = 0; d < DIM; ++d)
                 {
                     if (test[d] == localNodeNrsL.size())
                     {
@@ -278,25 +278,25 @@ namespace Geometry {
                 PhysicalPointOnTheFaceT ppR;
                 
                     // next we eliminate the periodic DIMension from a Point coordinates & a
-                for(unsigned int i = 0; i < globalNodeNrsR.size(); ++i)
+                for(std::size_t i = 0; i < globalNodeNrsR.size(); ++i)
                 {
-                    for (unsigned int d = 0; d < periodicDim; ++d)
+                    for (std::size_t d = 0; d < periodicDim; ++d)
                     {
                         
                         projectedPointsR[i][d];
                     }
-                    for (unsigned int d = periodicDim+1; d < DIM; ++d)
+                    for (std::size_t d = periodicDim+1; d < DIM; ++d)
                     {
                         ppR[d-1] = projectedPointsR[i][d];
                     }
                     
-                    for (unsigned int j = 0; j < globalNodeNrsL.size(); ++j)
+                    for (std::size_t j = 0; j < globalNodeNrsL.size(); ++j)
                     {
-                        for (unsigned int d = 0; d < periodicDim; ++d)
+                        for (std::size_t d = 0; d < periodicDim; ++d)
                         {
                             ppL[d] = projectedPointsL[j][d];
                         }
-                        for (unsigned int d = periodicDim+1; d < DIM; ++d)
+                        for (std::size_t d = periodicDim+1; d < DIM; ++d)
                         {
                             ppL[d-1] = projectedPointsL[j][d];
                         }
@@ -317,7 +317,7 @@ namespace Geometry {
     }
 
         //! Ctor for boundary faces.
-	template<unsigned int DIM>
+	template<std::size_t DIM>
     FaceGeometry<DIM>::FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, const FaceType& boundaryLabel):
     leftElementGeom_(ptrElemL),
     rightElementGeom_(nullptr),
@@ -328,14 +328,14 @@ namespace Geometry {
     { }
         /// The referenceGeometry is returned. It is taken from left element, to always ensure its existence
         // should use the same interface as in the Element!
-    template<unsigned int DIM>
+    template<std::size_t DIM>
     const ReferenceGeometry<DIM-1>*
     FaceGeometry<DIM>::referenceGeometryPtr()const
     {
         return leftElementGeom_->getReferenceGeometry()->getCoDIM1ReferenceGeometry(localFaceNumberLeft_);
     }
     
-    template<unsigned int DIM>
+    template<std::size_t DIM>
     const ReferenceGeometry<DIM-1>*
     FaceGeometry<DIM>::getReferenceGeometry()const
     {
@@ -376,7 +376,7 @@ namespace Geometry {
 	
 	/*! Map a point in coordinates of the reference geometry of the face to
 	 *  the reference geometry of the left (L) element. */
-    template<unsigned int DIM>
+    template<std::size_t DIM>
     void
     FaceGeometry<DIM>::mapRefFaceToRefElemL(const ReferencePointOnTheFaceT& pRefFace,
                                      ReferencePointT& pRefEl) const
@@ -386,7 +386,7 @@ namespace Geometry {
 	
 	/*! Map a point in coordinates of the reference geometry of the face to
 	 *  the reference geometry of the right (R) element. */
-    template<unsigned int DIM>
+    template<std::size_t DIM>
     void
     FaceGeometry<DIM>::mapRefFaceToRefElemR(const ReferencePointOnTheFaceT& pRefFace,
                                      ReferencePointT& pRefEl) const
@@ -404,7 +404,7 @@ namespace Geometry {
 	
 	/*! Map from reference face coordinates on the left side to those on the
 	 *  right side. */
-	template<unsigned int DIM>
+	template<std::size_t DIM>
     void
     FaceGeometry<DIM>::mapRefFaceToRefFace(const ReferencePointOnTheFaceT& pIn,
                                      ReferencePointOnTheFaceT& pOut) const
@@ -416,7 +416,7 @@ namespace Geometry {
 //	RefFace2RefElementMapping;
 	
         //! Return a Mapping (not pointer or reference! Ok, wrapped by auto_ptr)
-	template<unsigned int DIM>
+	template<std::size_t DIM>
     typename FaceGeometry<DIM>::RefFaceToRefElementMapping
     FaceGeometry<DIM>::refFaceToRefElemMapL() const
     {
@@ -425,7 +425,7 @@ namespace Geometry {
     }
 	
         //! Return a mapping to the right reference element.
-	template<unsigned int DIM>
+	template<std::size_t DIM>
     typename FaceGeometry<DIM>::RefFaceToRefElementMapping 
     FaceGeometry<DIM>::refFaceToRefElemMapR() const
     {
@@ -449,7 +449,7 @@ namespace Geometry {
      face and physical space: this scalar is given by the 2-norm of the
      returned normal vector.
      </UL> */
-    template<unsigned int DIM>
+    template<std::size_t DIM>
     void
     FaceGeometry<DIM>::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, PointPhysicalT& v) const
     {

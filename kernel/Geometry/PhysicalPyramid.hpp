@@ -52,7 +52,7 @@ namespace Geometry
 
             virtual void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
 
-            unsigned int getNrOfFaces() const {return 5;}
+            std::size_t getNrOfFaces() const {return 5;}
 
             //PhysicalGeometries getId() const {return id_;}
 

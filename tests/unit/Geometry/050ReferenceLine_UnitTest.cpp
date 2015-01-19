@@ -67,7 +67,7 @@ int main(){
 
 	//testing mappings and quadrature rules
 
-	std::vector<unsigned int> base(2),transformed(2),faceIndices(1);
+	std::vector<std::size_t> base(2),transformed(2),faceIndices(1);
 	for(int i=0;i<2;++i){
 		base[i]=transformed[i]=i;
 	}

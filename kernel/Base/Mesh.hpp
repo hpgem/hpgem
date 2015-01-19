@@ -51,36 +51,36 @@ namespace Base {
         Mesh(const Mesh& orig);
         virtual ~Mesh();
 
-        Element* addElement(const std::vector<unsigned int>& globalNodeIndexes);
+        Element* addElement(const std::vector<std::size_t>& globalNodeIndexes);
 
-        bool addFace(Element* leftElementPtr, unsigned int leftElementLocalFaceNo,
-                Element* rightElementPtr, unsigned int rightElementLocalFaceNo,
+        bool addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo,
+                Element* rightElementPtr, std::size_t rightElementLocalFaceNo,
                 const Geometry::FaceType& faceType = Geometry::FaceType::WALL_BC);
 
-        //void addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs);
+        //void addEdge(std::vector< Element*> elements, std::vector<std::size_t> localEdgeNrs);
         void addEdge();
         
         void addNode(Geometry::PointPhysical node);
         
         void addVertex();
 
-        unsigned int getNumberOfElements(IteratorType part=IteratorType::LOCAL) const {
+        std::size_t getNumberOfElements(IteratorType part=IteratorType::LOCAL) const {
             return getElementsList(part).size();
         }
 
-        unsigned int getNumberOfFaces(IteratorType part=IteratorType::LOCAL) const {
+        std::size_t getNumberOfFaces(IteratorType part=IteratorType::LOCAL) const {
             return getFacesList(part).size();
         }
 
-        unsigned int getNumberOfEdges(IteratorType part=IteratorType::LOCAL) const {
+        std::size_t getNumberOfEdges(IteratorType part=IteratorType::LOCAL) const {
             return getEdgesList(part).size();
         }
 
-        unsigned int getNumberOfVertices(IteratorType part=IteratorType::LOCAL) const {
+        std::size_t getNumberOfVertices(IteratorType part=IteratorType::LOCAL) const {
             return getVerticesList(part).size();
         }
 
-        unsigned int getNumberOfNodes()const {
+        std::size_t getNumberOfNodes()const {
             return getNodes().size();
         }
 
@@ -186,14 +186,14 @@ namespace Base {
 
         bool hasToSplit_;
 
-        unsigned int localProcessorID_;
+        std::size_t localProcessorID_;
 
         Submesh submeshes_;
 
-        unsigned int elementcounter_;
-        unsigned int faceCounter_;
-        unsigned int edgeCounter_;
-        unsigned int nodeCounter_;
+        std::size_t elementcounter_;
+        std::size_t faceCounter_;
+        std::size_t edgeCounter_;
+        std::size_t nodeCounter_;
         //! List of all elements. TODO: this should be replaced by the mesh-tree structure
         std::vector<Element*> elements_;
 

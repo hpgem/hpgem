@@ -45,7 +45,7 @@ namespace Geometry
         using ReferenceGeometryT::IndexT;
         using ReferenceGeometryT::String;
         using ReferenceGeometryT::const_iterator;
-        typedef std::vector<unsigned int>                 ListOfIndexesT;
+        typedef std::vector<std::size_t>                 ListOfIndexesT;
         typedef MappingReferenceToReference    Ref1ToRef1MappingT; // Numbers indicate dim.
         typedef MappingReferenceToReference    Ref0ToRef1MappingT;
 
@@ -96,7 +96,7 @@ namespace Geometry
         // ================================== Codimension 1 ========================================
 
         //! (see MappingCodimensions.hpp)
-        unsigned int                                getNrOfCodim1Entities() const {return 2;}
+        std::size_t                                getNrOfCodim1Entities() const {return 2;}
 
         //! (see MappingCodimensions.hpp)
         void                                        getCodim1EntityLocalIndices(const IndexT, ListOfIndexesT& faceNodesLocal) const;

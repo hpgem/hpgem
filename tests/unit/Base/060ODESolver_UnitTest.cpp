@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cassert>
 #include "Base/TimeIntegration/AllTimeIntegrators.hpp"
+
 double executeOneTimeStep(const Base::ButcherTableau *integrator, double u, double dt)
 {
     std::vector<double> k;

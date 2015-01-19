@@ -131,7 +131,7 @@ int main(){
 
 	//testing mappings and quadrature rules
 
-	std::vector<unsigned int> base(8),transformed(8),faceIndices(4);
+	std::vector<std::size_t> base(8),transformed(8),faceIndices(4);
 	for(int i=0;i<8;++i){//doesnt test against reordering of the nodes in the first vector
 		base[i]=transformed[i]=i;
 	}

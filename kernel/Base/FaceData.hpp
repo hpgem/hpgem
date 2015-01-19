@@ -45,23 +45,15 @@ namespace Base {
 		typedef std::vector<CacheT> VecCacheT;
 
 	public:
-		FaceData(unsigned int numberOfDOF, unsigned int numberOfFaceMatrices = 0, unsigned int numberOfFaceVactors = 0);
+		FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices = 0, std::size_t numberOfFaceVactors = 0);
 
-        /// \brief Sets face matrix number 'matrixID' using a standard matrix. Use the other version instead, which uses a FaceMatrix as input!
-        void setFaceMatrix(const LinearAlgebra::Matrix &matrix, std::size_t matrixID = 0);
-            
-        /// \brief Sets face matrix number 'matrixID' using a standard matrix.
-        void setFaceMatrix(const FaceMatrix &faceMatrix, std::size_t matrixID = 0);
+		void setFaceMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID = 0);
 
-        /// \brief Gets face matrix number 'matrixID' and return it as a standard matrix. It is advised to use the other version instead, which returns a FaceMatrix.
-        virtual void getFaceMatrix(LinearAlgebra::Matrix& matrix, unsigned int matrixID = 0) const;
-            
-        /// \brief Returns face matrix number 'matrixID'.
-        const FaceMatrix & getFaceMatrix(std::size_t matrixID = 0) const;
+		virtual void getFaceMatrix(LinearAlgebra::Matrix& matrix, std::size_t matrixID = 0) const;
 
-		void setFaceVector(const LinearAlgebra::NumericalVector& vector, unsigned int vectorID = 0);
+		void setFaceVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0);
 
-		virtual void getFaceVector(LinearAlgebra::NumericalVector& vector, unsigned int vectorID = 0) const;
+		virtual void getFaceVector(LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0) const;
 
 		virtual const VecCacheT& getVecCacheData() const 
                 {

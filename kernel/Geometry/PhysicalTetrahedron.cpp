@@ -51,7 +51,7 @@ namespace Geometry
         indexes[2] = refGeometry_->getLocalNodeIndex(face,2);
     }
 
-	unsigned int PhysicalTetrahedron::getNrOfFaces() const {
+	std::size_t PhysicalTetrahedron::getNrOfFaces() const {
 		return refGeometry_->getNrOfCodim1Entities();
 	}
 

@@ -54,8 +54,8 @@ namespace Base
         ptrElemL->setFace(localFaceNumL, this);
         ptrElemR->setFace(localFaceNumR, this);
 
-        std::vector<unsigned int> leftVertices, rightVertices;
-        std::vector<unsigned int> localLeftVertices, localRightVertices;
+        std::vector<std::size_t> leftVertices, rightVertices;
+        std::vector<std::size_t> localLeftVertices, localRightVertices;
         ptrElemL->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumL, localLeftVertices);
         ptrElemR->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumR, localRightVertices);
         for (std::size_t i = 0; i < getReferenceGeometry()->getNumberOfNodes(); ++i)
@@ -80,8 +80,8 @@ namespace Base
     
     void Face::createQuadratureRules()
     {
-        unsigned int rightOrder = (elementRight_ == nullptr ? 0 : elementRight_->getGaussQuadratureRule()->order());
-        unsigned int leftOrder = elementLeft_->getGaussQuadratureRule()->order();
+        std::size_t rightOrder = (elementRight_ == nullptr ? 0 : elementRight_->getGaussQuadratureRule()->order());
+        std::size_t leftOrder = elementLeft_->getGaussQuadratureRule()->order();
         if (leftOrder >= rightOrder)
         {
             quadratureRule_ = elementLeft_->getReferenceGeometry()->getCodim1ReferenceGeometry(FaceGeometryT::localFaceNumberLeft_)->getGaussQuadratureRule(leftOrder);

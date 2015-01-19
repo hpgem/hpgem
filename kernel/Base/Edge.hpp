@@ -25,7 +25,8 @@
 #include <vector>
 #include <cstdlib>
 
-namespace Base {
+namespace Base
+{
 
     class Element;
 
@@ -36,24 +37,23 @@ namespace Base {
      * degrees of freedom to the proper elements.
      * \TODO 4D support
      */
-    class Edge {
+    class Edge
+    {
     public:
 
-        explicit Edge(std::size_t ID) : ID_(ID), nrOfConformingDOFOnTheEdge_(0)
-        {
-        }
-        //Edge(std::vector<Element*>& elements,std::vector<unsigned int> localEdgeNrs, unsigned int ID);
-        virtual ~Edge() {
-        }
+        explicit Edge(std::size_t ID) : ID_(ID), nrOfConformingDOFOnTheEdge_(0) { }
+        //Edge(std::vector<Element*>& elements,std::vector<std::size_t> localEdgeNrs, std::size_t ID);
+
+        virtual ~ Edge() { }
 
         void addElement(Element* element, std::size_t edgeNr);
 
-        int getLocalNrOfBasisFunctions() const 
+        int getLocalNrOfBasisFunctions() const
         {
             return nrOfConformingDOFOnTheEdge_;
         }
 
-        int getID()const 
+        int getID()const
         {
             return ID_;
         }
@@ -62,28 +62,30 @@ namespace Base {
 
         Element* getElement(int i);
 
-        unsigned int getEdgeNr(int i) 
+        std::size_t getEdgeNr(int i)
         {
             return localEdgeNrs_[i];
         }
 
-        unsigned int getOrientation(int i) 
+        std::size_t getOrientation(int i)
         {
             return orientation_[i];
         }
 
-        void setLocalNrOfBasisFunctions(int number) 
+        void setLocalNrOfBasisFunctions(int number)
         {
             nrOfConformingDOFOnTheEdge_ = number;
         }
 
     private:
+        
+        Edge(const Edge& other);
 
         std::vector< Element*> elements_;
-        std::vector<unsigned int> localEdgeNrs_;
-        std::vector<unsigned int> orientation_;
+        std::vector<std::size_t> localEdgeNrs_;
+        std::vector<std::size_t> orientation_;
 
-        unsigned int nrOfConformingDOFOnTheEdge_;
+        std::size_t nrOfConformingDOFOnTheEdge_;
         int ID_;
     };
 

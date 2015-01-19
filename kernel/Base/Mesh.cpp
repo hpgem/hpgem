@@ -81,15 +81,15 @@ namespace Base {
 
     }
 
-    Element* Mesh::addElement(const std::vector<unsigned int>& globalNodeIndexes) {
+    Element* Mesh::addElement(const std::vector<std::size_t>& globalNodeIndexes) {
         elements_.push_back(ElementFactory::instance().makeElement(globalNodeIndexes, points_, elementcounter_));
         ++elementcounter_;
         hasToSplit_ = true;
         return elements_.back();
     }
 
-    bool Mesh::addFace(Element* leftElementPtr, unsigned int leftElementLocalFaceNo,
-            Element* rightElementPtr, unsigned int rightElementLocalFaceNo,
+    bool Mesh::addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo,
+            Element* rightElementPtr, std::size_t rightElementLocalFaceNo,
             const Geometry::FaceType& faceType) {
         if (rightElementPtr == nullptr) {
             faces_.push_back(FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, faceType, faceCounter_));
@@ -101,7 +101,7 @@ namespace Base {
         return true;
     }
 
-    //void Mesh::addEdge(std::vector< Element*> elements, std::vector<unsigned int> localEdgeNrs) {
+    //void Mesh::addEdge(std::vector< Element*> elements, std::vector<std::size_t> localEdgeNrs) {
     //    edges_.push_back(new Edge(elements, localEdgeNrs, edgeCounter_));
     //    ++edgeCounter_;
     //    hasToSplit_ = true;

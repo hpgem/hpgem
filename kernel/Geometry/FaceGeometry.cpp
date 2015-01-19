@@ -144,7 +144,7 @@ namespace Geometry
      </UL> */
     void FaceGeometry::getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) const
     {
-        unsigned int DIM = v.size();
+        std::size_t DIM = v.size();
         if (DIM > 1)
         {
             // first Jacobian (mapping reference face -> reference element)
@@ -209,7 +209,7 @@ namespace Geometry
     }
 
     //finding node numbers here is way to hard (see also the 288 lines of commented out constructor), leave that to someplace else
-    void FaceGeometry::initialiseFaceToFaceMapIndex(const std::vector<unsigned int>& leftVertices, const std::vector<unsigned int>& rightVertices) {
+    void FaceGeometry::initialiseFaceToFaceMapIndex(const std::vector<std::size_t>& leftVertices, const std::vector<std::size_t>& rightVertices) {
         faceToFaceMapIndex_=getReferenceGeometry()->getCodim0MappingIndex(leftVertices,rightVertices);
     }
     

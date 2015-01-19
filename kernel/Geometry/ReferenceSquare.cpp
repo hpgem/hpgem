@@ -212,7 +212,7 @@ namespace Geometry
         }
     }
 
-	const ReferenceGeometry* ReferenceSquare::getCodim2ReferenceGeometry(const unsigned int) const {
+	const ReferenceGeometry* ReferenceSquare::getCodim2ReferenceGeometry(const std::size_t) const {
 		return &Geometry::ReferencePoint::Instance();
 	}
 

@@ -41,33 +41,33 @@ public:
     }
     
     //!provide the non-constant information and get an Element!
-    Element* makeElement(const std::vector<unsigned int>& globalNodeIndexes,std::vector<Geometry::PointPhysical>& points,unsigned int elementcounter);
+    Element* makeElement(const std::vector<std::size_t>& globalNodeIndexes,std::vector<Geometry::PointPhysical>& points,std::size_t elementcounter);
     
     //!mesh creation routines can use this to set their desired defualts
     void setCollectionOfBasisFunctionSets(std::vector<const BasisFunctionSet*>const * functions);
     
     //!mesh creation routines can use this to set their desired defualts
-    void setNumberOfUnknowns(unsigned int unknowns);
+    void setNumberOfUnknowns(std::size_t unknowns);
     
     //!mesh creation routines can use this to set their desired defualts
-    void setNumberOfTimeLevels(unsigned int timeLevels);
+    void setNumberOfTimeLevels(std::size_t timeLevels);
     
     //!mesh creation routines can use this to set their desired defualts
-    void setNumberOfMatrices(unsigned int matrices);
+    void setNumberOfMatrices(std::size_t matrices);
     
     //!mesh creation routines can use this to set their desired defualts
-    void setNumberOfVectors(unsigned int vectors);
+    void setNumberOfVectors(std::size_t vectors);
     
 private:
     ElementFactory();
     ElementFactory(const ElementFactory& orig);
     virtual ~ElementFactory();
     
-    unsigned int unknowns_;
+    std::size_t unknowns_;
     std::vector<const BasisFunctionSet*>const * basisFunctionSets_;
-    unsigned int timeLevels_;
-    unsigned int numberOfElementMatrices_;
-    unsigned int numberOfElementVectors_;
+    std::size_t timeLevels_;
+    std::size_t numberOfElementMatrices_;
+    std::size_t numberOfElementVectors_;
 };
 
 }

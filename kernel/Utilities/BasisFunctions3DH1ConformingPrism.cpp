@@ -208,7 +208,7 @@ namespace Utilities {
 	Base::BasisFunctionSet* createDGBasisFunctionSet3DH1ConformingPrism(int order) {
 		Base::BasisFunctionSet* result = new Base::BasisFunctionSet(order);
 		Geometry::ReferenceTriangularPrism& prism = Geometry::ReferenceTriangularPrism::Instance();
-		std::vector<unsigned int> vectorOfPointIndexes(4);
+		std::vector<std::size_t> vectorOfPointIndexes(4);
 		for (int i = 0; i < 6; ++i) {
 			result->addBasisFunction(new BasisFunction3DVertexPrism(i));
 		}
@@ -272,7 +272,7 @@ namespace Utilities {
 	void createEdgeBasisFunctionSet3DH1ConformingPrism(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
 		Base::OrientedBasisFunctionSet* set;
 		Geometry::ReferenceTriangularPrism& prism = Geometry::ReferenceTriangularPrism::Instance();
-		std::vector<unsigned int> vectorOfPointIndexes(2);
+		std::vector<std::size_t> vectorOfPointIndexes(2);
 		for (int i = 0; i < 6; ++i) {
 			prism.getCodim2EntityLocalIndices(i, vectorOfPointIndexes);
 			set = new Base::OrientedBasisFunctionSet(order, 0, i);
@@ -304,7 +304,7 @@ namespace Utilities {
 	void CreateFaceBasisFunctionSet3DH1ConformingPrism(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
 		Base::OrientedBasisFunctionSet* set;
 		Geometry::ReferenceTriangularPrism& prism = Geometry::ReferenceTriangularPrism::Instance();
-		std::vector<unsigned int> vectorOfPointIndexes(4);
+		std::vector<std::size_t> vectorOfPointIndexes(4);
 		for (int i = 0; i < 2; ++i) {
 			prism.getCodim1EntityLocalIndices(i, vectorOfPointIndexes);
 			set = new Base::OrientedBasisFunctionSet(order, 0, i);
