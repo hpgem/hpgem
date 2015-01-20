@@ -181,9 +181,6 @@ namespace Base
             return massMatrix_;
         }
 
-        /// \brief Convert the index corresponding to the basis function (iBasisFunction) and the index corresponding to the variable (iVar) to a single index.
-        const std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const;
-
 #ifndef NDEBUG
         virtual const Base::BaseBasisFunction* getBasisFunction(int i)const;
 #endif

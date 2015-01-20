@@ -245,6 +245,7 @@ namespace Base
     void Element::getSolution(std::size_t timeLevel, const PointReferenceT& p, SolutionVector& solution) const
     {
         std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
+        std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
         solution.resize(numberOfUnknows);
         
         for(std::size_t k = 0; k < numberOfUnknows; ++k)
@@ -252,13 +253,16 @@ namespace Base
             solution[k] = 0;
         }
         
-        LinearAlgebra::NumericalVector data(ElementData::getNrOfBasisFunctions());
-        for (std::size_t k = 0; k < numberOfUnknows; ++k)
+        LinearAlgebra::NumericalVector data(numberOfBasisFunctions * numberOfUnknows);
+        data = ElementData::getTimeLevelDataVector(timeLevel);
+        
+        std::size_t iVB = 0;
+        for (std::size_t iV = 0; iV < numberOfUnknows; ++iV)
         {
-            data = ElementData::getTimeLevelData(timeLevel,k);
-            for (std::size_t i = 0; i < ElementData::getNrOfBasisFunctions(); ++i)
+            for (std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
             {
-                solution[k] += data(i) * basisFunction(i, p);
+                iVB = convertToSingleIndex(iB,iV);
+                solution[iV] += data(iVB) * basisFunction(iB, p);
             }
         }
     }
