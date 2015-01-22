@@ -181,7 +181,7 @@ namespace Base {
     private:
 
         //! 'distributes' the mesh across the nodes
-        //! this routine assumes all nodes generated the mesh in the same way (so no randomness or thread dependence)
+        //! this routine assumes all threads generated the mesh in the same way (so no randomness or thread dependence)
         void split();
 
         bool hasToSplit_;
