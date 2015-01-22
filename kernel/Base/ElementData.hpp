@@ -66,9 +66,10 @@ namespace Base
 
         /// \brief Sets (and creates if unavailable) the expansion coefficients correspdonding to the given time level.
         void setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::NumericalVector &val);
-        
+
         /// \brief Returns a reference to the expansion coefficients correspdonding to the given time level.
         const LinearAlgebra::NumericalVector & getTimeLevelDataVector(std::size_t timeLevel) const;
+        LinearAlgebra::NumericalVector & getTimeLevelDataVector(std::size_t timeLevel);
         
         /// \brief Specify a time level index and variable index, return a vector containing the corresponding expansion coefficients.
         virtual const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
@@ -103,7 +104,7 @@ namespace Base
         /// \brief Convert the index corresponding to the basis function (iBasisFunction) and the index corresponding to the variable (iVar) to a single index.
         /// \param[in] iVar The index corresponding to the variable.
         /// \param[in] iBasisFunction The index corresponding to the basisfunction.
-        const std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const
+        virtual const std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const
         {
             return iVar * nrOfBasisFunctions_ + iBasisFunction;
         }

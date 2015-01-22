@@ -28,6 +28,8 @@
 ///\bug resolves field has incomplete type
 #include "Geometry/PointReference.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
+#include "Side.hpp"
+#include "BasisFunctionSet.hpp"
 
 namespace Base
 {
@@ -277,6 +279,11 @@ namespace Base
         UserFaceData* getUserData() const override
         {
             return face_->getUserData();
+        }
+
+        const std::size_t convertToSingleIndex(Base::Side sideId, std::size_t basisFunctionId, std::size_t unknownId) const override
+        {
+            return face_->convertToSingleIndex(sideId, basisFunctionId, unknownId);
         }
 
     private:

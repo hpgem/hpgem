@@ -230,7 +230,7 @@ namespace Base
 
         const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const override
         {
-            return element_->getTimeLevelData(timeLevel);
+            return element_->getTimeLevelData(timeLevel, unknown);
         }
 
         double getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const override
@@ -276,6 +276,11 @@ namespace Base
         const RefinementGeometryT* getRefinementGeometry() const override
         {
             return element_->getRefinementGeometry();
+        }
+
+        const std::size_t convertToSingleIndex(std::size_t basisFunctionId, std::size_t unknownId) const override
+        {
+            return element_->convertToSingleIndex(basisFunctionId, unknownId);
         }
 
     private:

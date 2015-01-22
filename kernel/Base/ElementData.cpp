@@ -113,6 +113,7 @@ namespace Base
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_)
         {
+            assert(expansionCoefficients_[timeLevel].size() == nrOfUnknowns_ * nrOfBasisFunctions_);
             return expansionCoefficients_[timeLevel](convertToSingleIndex(basisFunction,unknown));
         }
         else
@@ -154,12 +155,13 @@ namespace Base
     /// \param[in] unknown Index corresponding to the variable.
     const LinearAlgebra::NumericalVector ElementData::getTimeLevelData(std::size_t timeLevel, std::size_t unknown) const
     {
+
         if (timeLevel < timeLevels_)
         {
             LinearAlgebra::NumericalVector timeLevelData(nrOfBasisFunctions_);
             for(std::size_t iB = 0; iB < nrOfBasisFunctions_; iB++) // iB = iBasisFunction
             {
-                timeLevelData(iB) = expansionCoefficients_[timeLevel](convertToSingleIndex(iB,unknown));
+                timeLevelData(iB) = expansionCoefficients_[timeLevel](convertToSingleIndex(iB, unknown));
             }
             return timeLevelData;
         }
@@ -242,6 +244,25 @@ namespace Base
     {
         if (timeLevel < timeLevels_)
         {
+            assert(expansionCoefficients_[timeLevel].size() == nrOfUnknowns_ * nrOfBasisFunctions_);
+            return expansionCoefficients_[timeLevel];
+        }
+        else
+        {
+            throw "Error: Asked for a time level greater than the amount of time levels!";
+        }
+    }
+
+    LinearAlgebra::NumericalVector & ElementData::getTimeLevelDataVector(std::size_t timeLevel)
+    {
+        if (timeLevel < timeLevels_)
+        {
+            // The vector can be of dimension 0 if it hasn't been used before.
+            // So lets resize it first!
+            if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
+            {
+                expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
+            }
             return expansionCoefficients_[timeLevel];
         }
         else

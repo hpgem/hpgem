@@ -164,7 +164,7 @@ namespace Base
         LinearAlgebra::NumericalVector getCurrentData();
         
         /// \brief Convert the index corresponding to the side of the face (iSide),the index corresponding to the basis function (iBasisFunction) and the index corresponding to the variable (iVar) to a single index.
-        const std::size_t convertToSingleIndex(Side iSide, std::size_t iBasisFunction, std::size_t iVar = 0) const;
+        virtual const std::size_t convertToSingleIndex(Side iSide, std::size_t iBasisFunction, std::size_t iVar = 0) const;
 
     protected:
 
