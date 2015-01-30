@@ -771,15 +771,15 @@ namespace Base {
             throw (10);
         }
 
-        if (DIM == 3 && periodicX_ == 1 && linearNoElements[0] % 2 == 1) {
+        if (DIM == 3 && periodicX_ && linearNoElements[0] % 2 == 1) {
             throw "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension X";
         }
 
-        if (DIM == 3 && periodicY_ == 1 && linearNoElements[1] % 2 == 1) {
+        if (DIM == 3 && periodicY_ && linearNoElements[1] % 2 == 1) {
             throw "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Y";
         }
 
-        if (DIM == 3 && periodicZ_ == 1 && linearNoElements[2] % 2 == 1) {
+        if (DIM == 3 && periodicZ_ && linearNoElements[2] % 2 == 1) {
             throw "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Z";
         }
 
@@ -831,7 +831,7 @@ namespace Base {
             trianglesPerRectangle += (2 * idim - 1);
             numOfElementsInEachSubspace[idim] = numOfElementsInEachSubspace[idim - 1] * (linearNoElements[idim - 1]);
             numOfNodesInEachSubspace[idim] = numOfNodesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + 1);
-            numOfVerticesInEachSubspace[idim] = numOfNodesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + (periodicDIM[idim-1]?0:1));
+            numOfVerticesInEachSubspace[idim] = numOfVerticesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + (periodicDIM[idim - 1] ? 0 : 1));
         }
 
         //'elements' in this counter denote groups of trianglesPerRectangle elements
@@ -906,7 +906,8 @@ namespace Base {
                 
                 int nodeIndex = nodeNdId[0];
                 std::size_t vertexIndex = vertexNdId[0];
-                for (int idim = 1; idim < DIM; ++idim) {
+                for (int idim = 1; idim < DIM; ++idim)
+                {
                     nodeIndex += nodeNdId[idim] * numOfNodesInEachSubspace[idim];
                     vertexIndex += vertexNdId[idim] * numOfVerticesInEachSubspace[idim];
                 }
