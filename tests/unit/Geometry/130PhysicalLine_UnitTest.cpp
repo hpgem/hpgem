@@ -47,7 +47,7 @@ int main(){
 		nodes.push_back(point);
 	}
 
-	PhysicalLine test(pointIndexes,nodes,&Geometry::ReferenceLine::Instance());
+	PhysicalLine test(pointIndexes,nodes);
 
 	std::cout<<test;
 

@@ -60,7 +60,7 @@ int main(){
 	point[2]=5.4;
 	nodes.push_back(point);
 
-	PhysicalTetrahedron test(pointIndexes,nodes,&Geometry::ReferenceTetrahedron::Instance());
+	PhysicalTetrahedron test(pointIndexes,nodes);
 
 	std::cout<<test;
 

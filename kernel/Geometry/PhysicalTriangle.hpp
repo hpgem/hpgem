@@ -40,8 +40,7 @@ namespace Geometry
 
             PhysicalTriangle(
                     const VectorOfPointIndexesT&,
-                    const VectorOfPhysicalPointsT&,
-                    const ReferenceTriangle* const);
+                    const VectorOfPhysicalPointsT&);
 
             ~PhysicalTriangle() {}
 

@@ -80,7 +80,7 @@ int main(){
 	point[2]=7.7;
 	nodes.push_back(point);
 
-	PhysicalHexahedron test(pointIndexes,nodes,&Geometry::ReferenceCube::Instance());
+	PhysicalHexahedron test(pointIndexes,nodes);
 
 	std::cout<<test;
 

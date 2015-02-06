@@ -29,9 +29,8 @@ namespace Geometry
 {
     PhysicalTetrahedron::PhysicalTetrahedron(
         const VectorOfPointIndexesT& globalNodeIndexes,
-        const VectorOfPhysicalPointsT& nodes,
-        const ReferenceTetrahedron* const cube) :
-        PhysicalGeometry(globalNodeIndexes,nodes, cube)
+        const VectorOfPhysicalPointsT& nodes) :
+    PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceTetrahedron::Instance())
     {
     }
 

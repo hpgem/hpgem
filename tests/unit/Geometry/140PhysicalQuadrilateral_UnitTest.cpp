@@ -57,7 +57,7 @@ int main(){
 	point[1]=2.8;
 	nodes.push_back(point);
 
-	PhysicalQuadrilateral test(pointIndexes,nodes,&Geometry::ReferenceSquare::Instance());
+	PhysicalQuadrilateral test(pointIndexes,nodes);
 
 	std::cout<<test;
 

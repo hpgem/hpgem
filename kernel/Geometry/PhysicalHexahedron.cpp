@@ -28,9 +28,8 @@ namespace Geometry
 {
     PhysicalHexahedron::PhysicalHexahedron(
             const VectorOfPointIndexesT& globalNodeIndexes,
-            const VectorOfPhysicalPointsT& nodes,
-            const ReferenceCube* const cube) :
-            PhysicalGeometry3D(globalNodeIndexes,nodes,cube)
+            const VectorOfPhysicalPointsT& nodes) :
+    PhysicalGeometry3D(globalNodeIndexes, nodes, &ReferenceCube::Instance())
     {
     }
 

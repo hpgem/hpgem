@@ -41,8 +41,7 @@ namespace Geometry
 
         PhysicalLine(
                 const VectorOfPointIndexesT&,
-                const VectorOfPhysicalPointsT&,
-                const ReferenceLine* const);
+                const VectorOfPhysicalPointsT&);
 
         ~PhysicalLine() {}
 

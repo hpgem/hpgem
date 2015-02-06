@@ -28,9 +28,8 @@ namespace Geometry
 {
     PhysicalPyramid::PhysicalPyramid(
         const VectorOfPointIndexesT& globalNodeIndexes,
-        const VectorOfPhysicalPointsT& nodes,
-        const ReferencePyramid* const refPyramid) :
-        PhysicalGeometry(globalNodeIndexes,nodes, refPyramid)
+        const VectorOfPhysicalPointsT& nodes) :
+    PhysicalGeometry(globalNodeIndexes, nodes, &ReferencePyramid::Instance())
     {
     }
 

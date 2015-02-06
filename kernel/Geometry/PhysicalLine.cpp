@@ -29,9 +29,8 @@ namespace Geometry
 {
     PhysicalLine::PhysicalLine(
         const VectorOfPointIndexesT& globalNodeIndexes,
-        const VectorOfPhysicalPointsT& nodes,
-        const ReferenceLine* const line) :
-        PhysicalGeometry(globalNodeIndexes,nodes, line)
+        const VectorOfPhysicalPointsT& nodes) :
+    PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceLine::Instance())
     {
     }
 

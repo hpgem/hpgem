@@ -38,6 +38,7 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "Output/TecplotSingleElementWriter.hpp"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
+#include "Utilities/BasisFunctions3DH1ConformingTetrahedron.hpp"
 
 struct errorContainer
 {
@@ -121,7 +122,7 @@ public:
 
         //tell hpGEM to use basis functions that are discontinuous and are designed for triangles
         //this is likely to get automated by hpGEM at some point in the future
-        meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(polyOrder_));
+        meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(polyOrder_));
         return true;
     }
 
@@ -371,7 +372,7 @@ private:
     LinearAlgebra::NumericalVector a;
 };
 
-const std::size_t AdvectionTest::DIM_(2);
+const std::size_t AdvectionTest::DIM_(3);
 
 auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
 auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);

@@ -71,9 +71,9 @@ int main() {
 
 	Geometry::ReferenceLine& rGeom = Geometry::ReferenceLine::Instance();
 
-	Geometry::PhysicalLine oops(pointIndexes,nodes1D,&rGeom);
+	Geometry::PhysicalLine oops(pointIndexes,nodes1D);
 	pointIndexes[1]=7;
-	Geometry::PhysicalLine pGeom(pointIndexes,nodes1D,&rGeom);
+	Geometry::PhysicalLine pGeom(pointIndexes,nodes1D);
 
 	Geometry::MappingToPhysSimplexLinear<1> mapping1D(&pGeom),reinit1D(&oops);
 	reinit1D.reinit(&pGeom);
@@ -133,9 +133,9 @@ int main() {
 
 	Geometry::ReferenceTriangle& rGeom2D = Geometry::ReferenceTriangle::Instance();
 
-	Geometry::PhysicalTriangle oops2D(pointIndexes,nodes2D,&rGeom2D);
+	Geometry::PhysicalTriangle oops2D(pointIndexes,nodes2D);
 	pointIndexes[2]=18;
-	Geometry::PhysicalTriangle pGeom2D(pointIndexes,nodes2D,&rGeom2D);
+	Geometry::PhysicalTriangle pGeom2D(pointIndexes,nodes2D);
 
 	Geometry::MappingToPhysSimplexLinear<2> mapping2D(&pGeom2D),reinit2D(&oops2D);
 	reinit2D.reinit(&pGeom2D);
@@ -222,9 +222,9 @@ int main() {
 
 	Geometry::ReferenceTetrahedron& rGeom3D = Geometry::ReferenceTetrahedron::Instance();
 
-	Geometry::PhysicalTetrahedron oops3D(pointIndexes,nodes3D,&rGeom3D);
+	Geometry::PhysicalTetrahedron oops3D(pointIndexes,nodes3D);
 	pointIndexes[3]=38;
-	Geometry::PhysicalTetrahedron pGeom3D(pointIndexes,nodes3D,&rGeom3D);
+	Geometry::PhysicalTetrahedron pGeom3D(pointIndexes,nodes3D);
 
 	Geometry::MappingToPhysSimplexLinear<3> mapping3D(&pGeom3D),reinit3D(&oops3D);
 	reinit3D.reinit(&pGeom3D);

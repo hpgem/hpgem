@@ -40,8 +40,7 @@ namespace Geometry
 
         PhysicalTriangularPrism(
                 const VectorOfPointIndexesT&,
-                const VectorOfPhysicalPointsT&,
-                const ReferenceTriangularPrism* const cube);
+                const VectorOfPhysicalPointsT&);
 
         ~PhysicalTriangularPrism() {}
 

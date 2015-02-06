@@ -135,7 +135,7 @@ int main(){
 	point[3]=4.;
 	nodes.push_back(point);
 
-	PhysicalOctachoron test(pointIndexes,nodes,&Geometry::ReferenceHypercube::Instance());
+	PhysicalOctachoron test(pointIndexes,nodes);
 
 	std::cout<<test;
 

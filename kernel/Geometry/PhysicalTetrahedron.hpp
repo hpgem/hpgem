@@ -40,8 +40,7 @@ namespace Geometry
 
             PhysicalTetrahedron(
                     const VectorOfPointIndexesT&,
-                    const VectorOfPhysicalPointsT&,
-                    const ReferenceTetrahedron* const cube);
+                    const VectorOfPhysicalPointsT&);
 
             ~PhysicalTetrahedron() {}
 

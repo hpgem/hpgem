@@ -28,9 +28,8 @@ namespace Geometry
 {
     PhysicalOctachoron::PhysicalOctachoron(
             const VectorOfPointIndexesT& globalNodeIndexes,
-            const VectorOfPhysicalPointsT& nodes,
-            const ReferenceHypercube* const cube) :
-            PhysicalGeometry4D(globalNodeIndexes,nodes, cube)
+            const VectorOfPhysicalPointsT& nodes) :
+    PhysicalGeometry4D(globalNodeIndexes, nodes, &ReferenceHypercube::Instance())
     {
     }
 

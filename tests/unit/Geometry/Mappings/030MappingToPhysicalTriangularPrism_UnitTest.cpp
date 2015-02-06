@@ -83,9 +83,9 @@ int main() {
 
 	Geometry::ReferenceTriangularPrism& rGeom3D = Geometry::ReferenceTriangularPrism::Instance();
 
-	Geometry::PhysicalTriangularPrism oops3D(pointIndexes,nodes3D,&rGeom3D);
+	Geometry::PhysicalTriangularPrism oops3D(pointIndexes,nodes3D);
 	pointIndexes[3]=24;
-	Geometry::PhysicalTriangularPrism pGeom3D(pointIndexes,nodes3D,&rGeom3D);
+	Geometry::PhysicalTriangularPrism pGeom3D(pointIndexes,nodes3D);
 
 	Geometry::MappingToPhysTriangularPrism mapping3D(&pGeom3D),reinit3D(&oops3D);
 	reinit3D.reinit(&pGeom3D);

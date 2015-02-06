@@ -28,9 +28,8 @@ namespace Geometry
 {
     PhysicalTriangularPrism::PhysicalTriangularPrism(
             const VectorOfPointIndexesT& globalNodeIndexes,
-            const VectorOfPhysicalPointsT& nodes,
-            const ReferenceTriangularPrism* const triangularPrism) :
-            PhysicalGeometry(globalNodeIndexes, nodes, triangularPrism)
+            const VectorOfPhysicalPointsT& nodes) :
+    PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceTriangularPrism::Instance())
     {
     }
 

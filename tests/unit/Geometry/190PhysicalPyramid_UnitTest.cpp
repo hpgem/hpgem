@@ -65,7 +65,7 @@ int main(){
 	point[2]=5.4;
 	nodes.push_back(point);
 
-	PhysicalPyramid test(pointIndexes,nodes,&Geometry::ReferencePyramid::Instance());
+	PhysicalPyramid test(pointIndexes,nodes);
 
 	std::cout<<test;
 

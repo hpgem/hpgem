@@ -70,7 +70,7 @@ int main(){
 	point[2]=7.4;
 	nodes.push_back(point);
 
-	PhysicalTriangularPrism test(pointIndexes,nodes,&Geometry::ReferenceTriangularPrism::Instance());
+	PhysicalTriangularPrism test(pointIndexes,nodes);
 
 	std::cout<<test;
 

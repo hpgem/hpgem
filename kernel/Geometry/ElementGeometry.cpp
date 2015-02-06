@@ -122,20 +122,20 @@ namespace Geometry
         {
             case 2:
                 //        std::cout <<"I am a line" << std::endl;
-                return new Geometry::PhysicalLine(globalNodeIndexes, nodes, static_cast<const ReferenceLine * const> (geo));
+                return new Geometry::PhysicalLine(globalNodeIndexes, nodes);
             case 3:
                 //            std::cout <<"I am a triangle" << std::endl;
-                return new Geometry::PhysicalTriangle(globalNodeIndexes, nodes, static_cast<const ReferenceTriangle * const> (geo));
+                return new Geometry::PhysicalTriangle(globalNodeIndexes, nodes);
             case 4:
                 if (nodes[0].size() == 2)
                 {
                     //            std::cout <<"I am a physcial square" << std::endl;
-                    return new Geometry::PhysicalQuadrilateral(globalNodeIndexes, nodes, static_cast<const ReferenceSquare * const> (geo));
+                    return new Geometry::PhysicalQuadrilateral(globalNodeIndexes, nodes);
                 }
                 else if (nodes[0].size() == 3)
                 {
                     //            std::cout <<"I am a tetrahedron" << std::endl;
-                    return new Geometry::PhysicalTetrahedron(globalNodeIndexes, nodes, static_cast<const ReferenceTetrahedron * const> (geo));
+                    return new Geometry::PhysicalTetrahedron(globalNodeIndexes, nodes);
                 }
                 else
                 {
@@ -143,16 +143,16 @@ namespace Geometry
                 }
             case 5:
                 //            std::cout <<"I am a pyramid" << std::endl;
-                return new Geometry::PhysicalPyramid(globalNodeIndexes, nodes, static_cast<const ReferencePyramid * const> (geo));
+                return new Geometry::PhysicalPyramid(globalNodeIndexes, nodes);
             case 6:
                 //            std::cout <<"I am a triangularPrism" << std::endl;
-                return new Geometry::PhysicalTriangularPrism(globalNodeIndexes, nodes, static_cast<const ReferenceTriangularPrism * const> (geo));
+                return new Geometry::PhysicalTriangularPrism(globalNodeIndexes, nodes);
             case 8:
                 //            std::cout <<"I am a cube" << std::endl;
-                return new Geometry::PhysicalHexahedron(globalNodeIndexes, nodes, static_cast<const ReferenceCube * const> (geo));
+                return new Geometry::PhysicalHexahedron(globalNodeIndexes, nodes);
             case 16:
                 //            std::cout <<"I am a hypercube" << std::endl;
-                return new Geometry::PhysicalOctachoron(globalNodeIndexes, nodes, static_cast<const ReferenceHypercube * const> (geo));
+                return new Geometry::PhysicalOctachoron(globalNodeIndexes, nodes);
             default:
                 throw "No known entities contain this many nodes";
 

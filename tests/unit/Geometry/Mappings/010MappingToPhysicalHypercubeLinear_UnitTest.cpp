@@ -71,9 +71,9 @@ int main() {
 
 	Geometry::ReferenceLine& rGeom = Geometry::ReferenceLine::Instance();
 
-	Geometry::PhysicalLine oops(pointIndexes,nodes1D,&rGeom);
+    Geometry::PhysicalLine oops(pointIndexes, nodes1D);
 	pointIndexes[1]=7;
-	Geometry::PhysicalLine pGeom(pointIndexes,nodes1D,&rGeom);
+	Geometry::PhysicalLine pGeom(pointIndexes,nodes1D);
 
 	Geometry::MappingToPhysHypercubeLinear<1> mapping1D(&pGeom),reinit1D(&oops);
 	reinit1D.reinit(&pGeom);
@@ -134,9 +134,9 @@ int main() {
 
 	Geometry::ReferenceSquare& rGeom2D = Geometry::ReferenceSquare::Instance();
 
-	Geometry::PhysicalQuadrilateral oops2D(pointIndexes,nodes2D,&rGeom2D);
+	Geometry::PhysicalQuadrilateral oops2D(pointIndexes,nodes2D);
 	pointIndexes[3]=18;
-	Geometry::PhysicalQuadrilateral pGeom2D(pointIndexes,nodes2D,&rGeom2D);
+	Geometry::PhysicalQuadrilateral pGeom2D(pointIndexes,nodes2D);
 
 	Geometry::MappingToPhysHypercubeLinear<2> mapping2D(&pGeom2D),reinit2D(&oops2D);
 	reinit2D.reinit(&pGeom2D);
@@ -226,9 +226,9 @@ int main() {
 
 	Geometry::ReferenceCube& rGeom3D = Geometry::ReferenceCube::Instance();
 
-	Geometry::PhysicalHexahedron oops3D(pointIndexes,nodes3D,&rGeom3D);
+	Geometry::PhysicalHexahedron oops3D(pointIndexes,nodes3D);
 	pointIndexes[7]=38;
-	Geometry::PhysicalHexahedron pGeom3D(pointIndexes,nodes3D,&rGeom3D);
+	Geometry::PhysicalHexahedron pGeom3D(pointIndexes,nodes3D);
 
 	Geometry::MappingToPhysHypercubeLinear<3> mapping3D(&pGeom3D),reinit3D(&oops3D);
 	reinit3D.reinit(&pGeom3D);

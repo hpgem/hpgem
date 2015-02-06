@@ -83,9 +83,9 @@ int main() {
 
 	Geometry::ReferencePyramid& rGeom3D = Geometry::ReferencePyramid::Instance();
 
-	Geometry::PhysicalPyramid oops3D(pointIndexes,nodes3D,&rGeom3D);
+	Geometry::PhysicalPyramid oops3D(pointIndexes,nodes3D);
 	pointIndexes[4]=18;
-	Geometry::PhysicalPyramid pGeom3D(pointIndexes,nodes3D,&rGeom3D);
+	Geometry::PhysicalPyramid pGeom3D(pointIndexes,nodes3D);
 
 	Geometry::MappingToPhysPyramid mapping3D(&pGeom3D),reinit3D(&oops3D);
 	reinit3D.reinit(&pGeom3D);

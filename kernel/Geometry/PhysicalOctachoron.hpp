@@ -38,8 +38,7 @@ namespace Geometry
 
             PhysicalOctachoron(
                     const VectorOfPointIndexesT&,
-                    const VectorOfPhysicalPointsT&,
-                    const ReferenceHypercube* const);
+                    const VectorOfPhysicalPointsT&);
 
             ~PhysicalOctachoron() {}
 

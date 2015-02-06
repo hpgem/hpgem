@@ -53,7 +53,7 @@ int main(){
 	point[1]=4.6;
 	nodes.push_back(point);
 
-	PhysicalTriangle test(pointIndexes,nodes,&Geometry::ReferenceTriangle::Instance());
+	PhysicalTriangle test(pointIndexes,nodes);
 
 	std::cout<<test;
 

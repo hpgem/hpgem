@@ -40,8 +40,7 @@ namespace Geometry
 
             PhysicalPyramid(
                     const VectorOfPointIndexesT&,
-                    const VectorOfPhysicalPointsT&,
-                    const ReferencePyramid* const);
+                    const VectorOfPhysicalPointsT&);
 
             ~PhysicalPyramid() {}
 

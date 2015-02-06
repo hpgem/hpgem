@@ -41,8 +41,7 @@ namespace Geometry
 
             PhysicalHexahedron(
                     const VectorOfPointIndexesT&,
-                    const VectorOfPhysicalPointsT&,
-                    const ReferenceCube* const);
+                    const VectorOfPhysicalPointsT&);
 
             ~PhysicalHexahedron() {}
 

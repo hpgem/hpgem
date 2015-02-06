@@ -41,8 +41,7 @@ namespace Geometry
 
             PhysicalQuadrilateral(
                     const VectorOfPointIndexesT&,
-                    const VectorOfPhysicalPointsT&,
-                    const ReferenceSquare* const);
+                    const VectorOfPhysicalPointsT&);
 
             ~PhysicalQuadrilateral() {}
 
