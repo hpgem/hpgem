@@ -55,7 +55,11 @@ namespace Base
         ///Set/update the element matrix.
         void setElementMatrix(const LinearAlgebra::Matrix&, int matrixID = 0);
 
-        virtual void getElementMatrix(LinearAlgebra::Matrix&, int matrixID = 0) const;
+        /// Get the element matrix corresponding to the given matrixiD.
+        virtual const LinearAlgebra::Matrix & getElementMatrix(std::size_t matrixID = 0) const;
+        
+        // Dated version of getElementMatrix. Use the version that returns a reference instead!
+        // virtual void getElementMatrix(LinearAlgebra::Matrix&, int matrixID = 0) const;
 
         /// \brief Returns (and creates if unavailable) the expansion coefficients correspdonding to a given timelevel in the form of a matrix. Better use getTimeLevelDataVector instead!
         LinearAlgebra::Matrix getTimeLevelDataMatrix(std::size_t timeLevel);

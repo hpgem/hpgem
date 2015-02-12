@@ -169,7 +169,7 @@ namespace Utilities {
         if (elementMatrixID_ >= 0) {
             for (Base::Element* element : theMesh_->getElementsList() ) {
                 std::vector<PetscInt> positions = makePositionsInMatrix(element);
-                element->getElementMatrix(elementMatrix, elementMatrixID_);
+                elementMatrix = element->getElementMatrix(elementMatrixID_);
                 ierr = MatSetValues(A_, positions.size(), positions.data(), positions.size(), positions.data(), elementMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
             } 

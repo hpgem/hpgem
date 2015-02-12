@@ -213,7 +213,7 @@ public:
             //collect data
             std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
             stiffness.resize(numBasisFuncs, numBasisFuncs);
-            element->getElementMatrix(stiffness, 0);
+            stiffness = element->getElementMatrix(0);
             LinearAlgebra::Matrix mass = element->getMassMatrix();
             
             //Get the data of the current time step

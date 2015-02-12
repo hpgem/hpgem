@@ -218,9 +218,9 @@ namespace Base
         }
 #endif
 
-        void getElementMatrix(LinearAlgebra::Matrix& mat, int matrixID = 0) const override
+        const LinearAlgebra::Matrix & getElementMatrix(std::size_t matrixID = 0) const override
         {
-            element_->getElementMatrix(mat, matrixID);
+            return element_->getElementMatrix(matrixID);
         }
 
         void getElementVector(LinearAlgebra::NumericalVector& vec, int vectorID = 0) const override

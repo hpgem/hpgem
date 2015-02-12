@@ -54,11 +54,18 @@ namespace Base
         elementMatrix_[matrixID] = matrix;
     }
     
+    const LinearAlgebra::Matrix & ElementData::getElementMatrix(std::size_t matrixID) const{
+        assert(matrixID < elementMatrix_.size());
+        return elementMatrix_[matrixID];
+    }
+    
+    /*
     void ElementData::getElementMatrix(LinearAlgebra::Matrix& matrix, int matrixID) const
     {
         TestErrorDebug(matrixID < elementMatrix_.size(), "insufficient element matrixes stored");
         matrix = elementMatrix_[matrixID];
     }
+     */
     
     void ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, int vectorID) 
     {

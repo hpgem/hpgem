@@ -193,7 +193,7 @@ public:
         for (Base::Element* element : meshes_[0]->getElementsList()) {
             int n(element->getNrOfBasisFunctions());
             mass.resize(n, n);
-            element->getElementMatrix(mass, 0);
+            mass = element->getElementMatrix(0);
             solution = element->getResidue();
             solution.resize(n);
             mass.solve(solution);
@@ -211,8 +211,8 @@ public:
             int n = element->getNrOfBasisFunctions();
             mass.resize(n, n);
             stiffness.resize(n, n);
-            element->getElementMatrix(mass, 0);
-            element->getElementMatrix(stiffness, 1);
+            mass = element->getElementMatrix(0);
+            stiffness = element->getElementMatrix(1);
             oldData = element->getTimeLevelData(0);
             //oldData.resize(n);
             //compute residual=M*u+dt*S*u

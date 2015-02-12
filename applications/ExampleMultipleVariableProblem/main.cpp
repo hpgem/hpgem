@@ -47,7 +47,7 @@ The class can solve the scalar wave equation in 2D or 3D written as a first orde
  
 For a first order scheme we define the scalar function \f$ v := \partial_t u \f$ and the vector function \f$ s := c \nabla u \f$. We can then obtain the equations \f[ \partial_t v = \nabla \cdot s \f] and \f[ c^{-1} \partial_t s = \nabla v \f]
  
-We define a new vector function \f$w = [w_0, w_1, w_2] = [v, s_0, s_1]\f$. We can then rewrite the system of PDE's as follows: \f[ \partial_t w_0 = \partial_i w_{i+1} \f] summing over i = 0 .. DIM and \f[ c^{-1} \partial_t w_{i+1} = \partial_i w_0 \f] for i = 0 .. DIM.
+We define a new vector function \f$w = [w_0, w_1, w_2, ..] = [v, s_0, s_1, ..]\f$. We can then rewrite the system of PDE's as follows: \f[ \partial_t w_0 = \partial_i w_{i+1} \f] summing over i = 0 .. (DIM-1) and \f[ c^{-1} \partial_t w_{i+1} = \partial_i w_0 \f] for i = 0 .. (DIM-1).
  
  A boolean useMatrixStorage can be set to true if you want to store all mass and stiffness matrices. This only works for linear problems, but might reduce computational costs.
  */
@@ -65,7 +65,7 @@ public:
         const std::size_t DIM,
         const std::size_t n,
         const std::size_t p,
-        const Base::ButcherTableau *ptrButcherTableau,
+        const Base::ButcherTableau *const ptrButcherTableau,
         const bool useMatrixStorage = false
     ) :
     HpgemUI(new Base::GlobalData, new Base::ConfigurationData(DIM, DIM + 1, p, ptrButcherTableau->numStages() + 1)),
@@ -86,7 +86,7 @@ public:
 	/// \brief Create the mesh.
     void createMesh(Base::MeshType meshType = Base::MeshType::RECTANGULAR)
     {
-        // Create the domain. In this case the domain is the square [0,1]x[0,1].
+        // Create the domain. In this case the domain is the square [0,1]^DIM.
         Base::RectangularMeshDescriptor description(DIM_);
     	for(int i=0;i<DIM_;++i)
         {
@@ -712,7 +712,7 @@ public:
             initialSolution.resize(numOfVariables_ * numOfBasisFunctions);
             if(useMatrixStorage_)
             {
-                ptrElement->getElementMatrix(massMatrix, massMatrixID_);
+                massMatrix = ptrElement->getElementMatrix(massMatrixID_);
             }
             else
             {
@@ -735,6 +735,7 @@ public:
         // Define the integrand function for the stiffness matrix for the element.
         std::function<LinearAlgebra::Matrix (const Base::Element *, const std::size_t &, const Geometry::PointReference &)> integrandFunctionElement = [=](const Base::Element * ptrElement, const std::size_t & time, const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix{return this->integrandStiffnessMatrixOnRefElement(ptrElement, time, pRef);};
         
+        std::cout << "- Creating stiffness matrices for the elements.\n";
         for(Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
             numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
@@ -759,6 +760,7 @@ public:
         // Define the integrand function for the stiffness matrix for the face.
         std::function<LinearAlgebra::Matrix (const Base::Face *, const std::size_t &, const Geometry::PointReference &, const Base::Side &, const Base::Side &)> integrandFunctionFace = [=](const Base::Face * ptrFace, const std::size_t & time, const Geometry::PointReference & pRef, const Base::Side iSide, const Base::Side jSide) -> LinearAlgebra::Matrix{return this->integrandStiffnessMatrixOnRefFace(ptrFace, time, pRef, iSide, jSide);};
         
+        std::cout << "- Creating stiffness matrices for the faces.\n";
         for(Base::Face *ptrFace : meshes_[0]->getFacesList())
         {
             if(ptrFace->isInternal())
@@ -797,7 +799,7 @@ public:
     
     /// \brief Compute the energy-norm of the error at final time T_.
     /// \param[in] time Time corresponding to the current solution. If no input is given the time will be set to final time T_.
-    /// \details The error is defined as error = realSolution - numericalSolution. The energy of the vector (u, s1, s2) is defined as u^2 + c^{-1} * |s|^2. The total energy is the integral over the energy over the entire domain (this energy is conserved in this numerical scheme on a discrete level). The energy-norm is the square root of the total energy.
+    /// \details The error is defined as error = realSolution - numericalSolution. The energy of the vector (u, s0, s1) is defined as u^2 + c^{-1} * |s|^2. The total energy is the integral over the energy over the entire domain (this energy is conserved in this numerical scheme on a discrete level). The energy-norm is the square root of the total energy.
     double computeEnergyNormError(double time = -1.0)
     {
         if(time < 0) time = T_;
@@ -901,7 +903,7 @@ public:
                 if(useMatrixStorage_)
                 {
                     stiffnessMatrix.resize(numOfBasisFunctions * numOfVariables_, numOfBasisFunctions * numOfVariables_);
-                    ptrElement->getElementMatrix(stiffnessMatrix, stiffnessMatrixID_);
+                    stiffnessMatrix = ptrElement->getElementMatrix(stiffnessMatrixID_);
                     
                     solutionCoefficientsNew = stiffnessMatrix * solutionCoefficients;
                 }
@@ -977,7 +979,7 @@ public:
                 
                 if(useMatrixStorage_)
                 {
-                    ptrElement->getElementMatrix(massMatrix, massMatrixID_);
+                    massMatrix = ptrElement->getElementMatrix(massMatrixID_);
                 }
                 else
                 {
@@ -1048,12 +1050,12 @@ public:
         if(DIM_ == 2)
         {
             dimensionsToWrite = "01";
-            variableString = "v,s1,s2";
+            variableString = "v,s0,s1";
         }
         else if(DIM_ == 3)
         {
             dimensionsToWrite = "012";
-            variableString = "v,s1,s2,s3";
+            variableString = "v,s0,s1,s2";
         }
         Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", dimensionsToWrite, variableString);
         
@@ -1099,7 +1101,7 @@ public:
 
 private:
     /// Dimension of the domain
-    std::size_t DIM_;
+    const std::size_t DIM_;
     
     /// Number of variables
     const std::size_t numOfVariables_;
@@ -1111,7 +1113,7 @@ private:
     const std::size_t p_;
     
     /// Butcher tableau for time integraion. The integration method is assumed to be explicit.
-    const Base::ButcherTableau *ptrButcherTableau_;
+    const Base::ButcherTableau *const ptrButcherTableau_;
     
     /// Final time. The PDE is solved over the time interval [0,T].
     double T_;
@@ -1151,10 +1153,11 @@ int main(int argc, char **argv)
     {
 		// Set parameters for the PDE.
         const std::size_t DIM = 2;
-        const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
-        Base::ButcherTableau *ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
+        const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
+        const Base::ButcherTableau *const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
         const bool useMatrixStorage = true;
-		const double c = 1.0;
+        
+	const double c = 1.0;
         
         // Create problem solver 'test'.
 		ExampleMultipleVariableProblem test(DIM, n.getValue(), p.getValue(), ptrButcherTableau, useMatrixStorage);
