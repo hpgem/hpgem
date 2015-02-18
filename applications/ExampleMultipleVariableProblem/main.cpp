@@ -277,7 +277,7 @@ public:
     LinearAlgebra::NumericalVector getRealSolution(const double &time, const PointPhysicalT &pPhys)
     {
         LinearAlgebra::NumericalVector realSolution(numOfVariables_);
-        double c = sqrt(1.0 / cInv_); // Wave velocity.
+        double c = std::sqrt(1.0 / cInv_); // Wave velocity.
         
         double xWave = 0;   // The inner product of the physical point and some direction vector.
         for(std::size_t iD = 0; iD < DIM_; iD++) // Index for the dimension.
@@ -287,10 +287,10 @@ public:
         
         for(std::size_t iV = 0; iV < numOfVariables_; iV++) // iV is the index for the variable.
         {
-            realSolution(iV) = 2*M_PI*cos(2*M_PI*(xWave - sqrt(DIM_)*c*time));
+            realSolution(iV) = 2*M_PI*std::cos(2*M_PI*(xWave - std::sqrt(DIM_)*c*time));
             if(iV == 0)
             {
-                realSolution(iV) *= -sqrt(DIM_) * c;
+                realSolution(iV) *= -std::sqrt(DIM_) * c;
             }
             else
             {
@@ -650,11 +650,11 @@ public:
             }
             if(jV > 0)
             {
-                integrand(0) += pow(numericalSolution(jV) - realSolution(jV), 2);
+                integrand(0) += std::pow(numericalSolution(jV) - realSolution(jV), 2);
             }
             else
             {
-                integrand(0) += getCInv(pPhys) * pow(numericalSolution(jV) - realSolution(jV), 2);
+                integrand(0) += getCInv(pPhys) * std::pow(numericalSolution(jV) - realSolution(jV), 2);
             }
         }
         
@@ -825,12 +825,12 @@ public:
         }
         if(totalEnergy(0) >= 0)
         {
-            return sqrt(totalEnergy(0));
+            return std::sqrt(totalEnergy(0));
         }
         else
         {
             std::cout << "Warning: the total energy of the error is negative.\n";
-            return sqrt(-totalEnergy(0));
+            return std::sqrt(-totalEnergy(0));
         }
     }
     
