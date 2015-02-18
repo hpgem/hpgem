@@ -261,7 +261,7 @@ public:
             //collect data
             std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
             stiffness.resize(numBasisFuncs, numBasisFuncs);
-            element->getElementMatrix(stiffness, 0);
+            stiffness = element->getElementMatrix(0);
 
             //Get the data of the current time step
             oldData = element->getCurrentData();
