@@ -1263,13 +1263,13 @@ namespace Base {
         centaurFile.close();
     }
 
-    void MeshManipulator::readCentaurMesh2D(std::ifstream& centaurFile) {
+     void MeshManipulator::readCentaurMesh2D(std::ifstream& centaurFile) {
 
         auto& elementslist = theMesh_.getElementsList(IteratorType::GLOBAL);
         
 
         //These are used to check the length of the read lines to check for read errors
-        std::size_t sizeOfLine;
+        uint32_t sizeOfLine;
 
         //This first value in the centaur file is the size of each line in the file;
         centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
@@ -1291,7 +1291,7 @@ namespace Base {
             //The rest of the first line is junk
             char junk[1024];
 
-            std::size_t checkInt;
+            uint32_t checkInt;
             centaurFile.read(&junk[0], sizeOfLine - sizeof (version) - sizeof (centaurFileType));
 
             //Check the first line was read correctly : each line in centaur start and end with the line size as a check
@@ -1305,7 +1305,7 @@ namespace Base {
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
 
             //Next read the total number of nodes
-            std::size_t numberOfNodes;
+            uint32_t numberOfNodes;
             centaurFile.read(reinterpret_cast<char*> (&numberOfNodes), sizeof (numberOfNodes));
             std::cout << "File contains " << numberOfNodes << " nodes" << std::endl;
 
@@ -1346,7 +1346,7 @@ namespace Base {
             //Now check how many triangle in the file
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             // Number of triangular elements
-            std::size_t numberOfTriangles;
+            uint32_t numberOfTriangles;
             centaurFile.read(reinterpret_cast<char*> (&numberOfTriangles), sizeof (numberOfTriangles));
             std::cout << "File contains " << numberOfTriangles << " triangle(s)" << std::endl;
 
@@ -1359,20 +1359,21 @@ namespace Base {
 
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             if (numberOfTriangles > 0) {
-                //std::size_t triGlobalNodeIndexes[3];
-                std::vector<std::size_t> globalNodeIndexes(3);
+                //unsigned int triGlobalNodeIndexes[3];
+                std::vector<uint32_t> globalNodeIndexes(3);
+                std::vector<std::size_t> globalNodeIndexesSizeT(3);
 
                 for (int i = 0; i < numberOfTriangles; i++) {
 
-                    centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof(std::size_t)*globalNodeIndexes.size());
+                    centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof(uint32_t)*globalNodeIndexes.size());
                     for (int j = 0; j < 3; j++) {
                         globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
+                        globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
                     }
-
                     
-                    int id = addElement(globalNodeIndexes)->getID();
+                    int id = addElement(globalNodeIndexesSizeT)->getID();
 
-                    for(std::size_t j:globalNodeIndexes)
+                    for(uint32_t j:globalNodeIndexes)
                     {
                         listOfElementsForEachNode[j].push_back(id);
                     }
@@ -1388,7 +1389,7 @@ namespace Base {
 
             //Now check the number of quaduratiles in the file
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
-            std::size_t numberOfQuads;
+            uint32_t numberOfQuads;
             centaurFile.read(reinterpret_cast<char*> (&numberOfQuads), sizeof (numberOfQuads));
             std::cout << "File contains " << numberOfQuads << " quaduratile(s)" << std::endl;
 
@@ -1401,12 +1402,13 @@ namespace Base {
             //Now read the quaduritles in
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             if (numberOfQuads > 0) {
-                //std::size_t quadGlobalNodeIndexes[4];
-                std::size_t temp;
-                std::vector<std::size_t> globalNodeIndexes(4);
+                //unsigned int quadGlobalNodeIndexes[4];
+                uint32_t temp;
+                std::vector<uint32_t> globalNodeIndexes(4);
+                std::vector<std::size_t> globalNodeIndexesSizeT(4);
                 for (int i = 0; i < numberOfQuads; i++) {
                     //Reading the vertex indices of each quadrilateral.
-                    centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (std::size_t) * globalNodeIndexes.size());
+                    centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (uint32_t) * globalNodeIndexes.size());
 
                     // renumbering of the vertices to match the ordering assumed by
                     // hpGem:
@@ -1418,11 +1420,14 @@ namespace Base {
                     
                     // renumber them from 1..N to 0..N-1.
                     for (int j = 0; j < 4; j++)
+                    {
                         globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
+                        globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
+                    }
 
-                    int id = addElement(globalNodeIndexes)->getID();
+                    int id = addElement(globalNodeIndexesSizeT)->getID();
                     
-                    for(std::size_t j:globalNodeIndexes)
+                    for(uint32_t j:globalNodeIndexes)
                     {
                         listOfElementsForEachNode[j].push_back(id);
                     }
@@ -1441,7 +1446,7 @@ namespace Base {
             
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
-            std::size_t numberOfBoundaryNodes;
+            uint32_t numberOfBoundaryNodes;
             centaurFile.read(reinterpret_cast<char*>(&numberOfBoundaryNodes), sizeof(numberOfBoundaryNodes));
             
             centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
@@ -1452,10 +1457,10 @@ namespace Base {
             
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
-            std::vector<std::vector<std::size_t> > boundaryNodesForEachGroup;
-            std::size_t boundaryNodeInformation[2];
+            std::vector<std::vector<uint32_t> > boundaryNodesForEachGroup;
+            uint32_t boundaryNodeInformation[2];
             
-            for(std::size_t i=0; i<numberOfBoundaryNodes; ++i)
+            for(uint_fast32_t i=0; i<numberOfBoundaryNodes; ++i)
             {
                 centaurFile.read(reinterpret_cast<char*> (boundaryNodeInformation), sizeof(boundaryNodeInformation));
                 if(boundaryNodesForEachGroup.size()<boundaryNodeInformation[1]+1)
@@ -1475,7 +1480,7 @@ namespace Base {
             
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
-            std::size_t numberOfBoundaryFaces;
+            uint32_t numberOfBoundaryFaces;
             centaurFile.read(reinterpret_cast<char*>(&numberOfBoundaryFaces), sizeof(numberOfBoundaryFaces));
             
             centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
@@ -1487,13 +1492,13 @@ namespace Base {
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
             //read the half-faces and store them until we get to the boundary information
-            //std::size_t nodesForEachFace[2];
+            //uint32_t nodesForEachFace[2];
             std::vector<HalfFaceDescription> boundaryFaces(numberOfBoundaryFaces);
             
-            for(std::size_t i=0;i<numberOfBoundaryFaces;++i)
+            for(uint_fast32_t i=0;i<numberOfBoundaryFaces;++i)
             {
                 boundaryFaces[i].nodeList.resize(2);
-                centaurFile.read(reinterpret_cast<char*>(boundaryFaces[i].nodeList.data()), sizeof(std::size_t)*2);
+                centaurFile.read(reinterpret_cast<char*>(boundaryFaces[i].nodeList.data()), sizeof(uint32_t)*2);
                 
                 boundaryFaces[i].nodeList[0]-=1;
                 boundaryFaces[i].nodeList[1]-=1;
@@ -1537,8 +1542,8 @@ namespace Base {
             //now read a list of boundary segments (that will link the faces to boundary conditions later on)
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
-            std::vector<std::size_t> faceToSegment(numberOfBoundaryFaces);
-            centaurFile.read(reinterpret_cast<char*> (faceToSegment.data()), sizeof (std::size_t) * numberOfBoundaryFaces);
+            std::vector<uint32_t> faceToSegment(numberOfBoundaryFaces);
+            centaurFile.read(reinterpret_cast<char*> (faceToSegment.data()), sizeof (uint32_t) * numberOfBoundaryFaces);
             
             centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
             if (checkInt != sizeOfLine) {
@@ -1549,7 +1554,7 @@ namespace Base {
             //now couple the segments to boundary groups
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
-            std::size_t numberOfSegments;
+            uint32_t numberOfSegments;
             centaurFile.read(reinterpret_cast<char*>(&numberOfSegments), sizeof(numberOfSegments));
             
             centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
@@ -1560,8 +1565,8 @@ namespace Base {
             
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
-            std::vector<std::size_t> segmentToGroup(numberOfSegments);
-            centaurFile.read(reinterpret_cast<char*>(segmentToGroup.data()), sizeof(std::size_t) * numberOfSegments);
+            std::vector<uint32_t> segmentToGroup(numberOfSegments);
+            centaurFile.read(reinterpret_cast<char*>(segmentToGroup.data()), sizeof(uint32_t) * numberOfSegments);
             
             centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
             if (checkInt != sizeOfLine) {
@@ -1584,8 +1589,8 @@ namespace Base {
 //           10001-      - Other
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
-            std::size_t numberOfGroups;
-            centaurFile.read(reinterpret_cast<char*>(numberOfGroups), sizeof(std::size_t));
+            uint32_t numberOfGroups;
+            centaurFile.read(reinterpret_cast<char*>(numberOfGroups), sizeof(uint32_t));
             
             centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
             if (checkInt != sizeOfLine) {
@@ -1595,8 +1600,8 @@ namespace Base {
             
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
-            std::vector<std::size_t> groupBCType(numberOfGroups);
-            centaurFile.read(reinterpret_cast<char*>(groupBCType.data()), sizeof(std::size_t) * numberOfGroups);
+            std::vector<uint32_t> groupBCType(numberOfGroups);
+            centaurFile.read(reinterpret_cast<char*>(groupBCType.data()), sizeof(uint32_t) * numberOfGroups);
             
             centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
             if (checkInt != sizeOfLine) {
@@ -1604,9 +1609,9 @@ namespace Base {
                 return;
             }
             
-            for(std::size_t i=0;i<numberOfBoundaryFaces; ++i)
+            for(uint_fast32_t i=0;i<numberOfBoundaryFaces; ++i)
             {
-                std::size_t boundaryType = groupBCType[segmentToGroup[faceToSegment[i]]];
+                uint32_t boundaryType = groupBCType[segmentToGroup[faceToSegment[i]]];
                 if(boundaryType < 1001) {
                     std::cout << "Viscous Wall boundary for face " << i << " assigned as WALL_BC" << std::endl;
                     addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
@@ -1657,7 +1662,7 @@ namespace Base {
             //now read periodic information and link corresponding vertices
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
-            std::size_t numberOfTransforms;
+            uint32_t numberOfTransforms;
             centaurFile.read(reinterpret_cast<char*> (&numberOfTransforms), sizeof (numberOfTransforms));
             
             centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
@@ -1666,12 +1671,12 @@ namespace Base {
                 return;
             }
             
-            for(std::size_t i=0; i<numberOfTransforms; ++i)
+            for(uint_fast32_t i=0; i<numberOfTransforms; ++i)
             {
                 //I dont care about the actual coordinate transformations, just skip them
                 centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
 
-                centaurFile.ignore(9*sizeof(std::size_t));
+                centaurFile.ignore(9*sizeof(uint32_t));
 
                 centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
                 if (checkInt != sizeOfLine) {
@@ -1680,7 +1685,7 @@ namespace Base {
                 }
                 centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
 
-                centaurFile.ignore(9*sizeof(std::size_t));
+                centaurFile.ignore(9*sizeof(uint));
 
                 centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
                 if (checkInt != sizeOfLine) {
@@ -1688,7 +1693,7 @@ namespace Base {
                     return;
                 }
                 
-                std::size_t numberOfNodePairs;
+                uint32_t numberOfNodePairs;
                 centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
 
                 centaurFile.read(reinterpret_cast<char*> (&numberOfNodePairs), sizeof (numberOfNodePairs));
@@ -1701,9 +1706,9 @@ namespace Base {
                 
                 centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                 
-                std::size_t nodePair[2];
+                uint32_t nodePair[2];
                 std::vector<int> combine;
-                for(std::size_t j=0;j<numberOfNodePairs;++j)
+                for(uint_fast32_t j=0;j<numberOfNodePairs;++j)
                 {
                     centaurFile.read(reinterpret_cast<char*> (nodePair), sizeof (nodePair));
                     auto& firstList = listOfElementsForEachNode[nodePair[0]];
@@ -1767,7 +1772,7 @@ namespace Base {
         auto& elementsList = theMesh_.getElementsList(IteratorType::GLOBAL);
 
         //These are used to check the length of the read lines to check for read errors
-        std::size_t sizeOfLine;
+        uint32_t sizeOfLine;
 
         //This first value in the centaur file is the size of each line in the file;
         centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
@@ -1778,7 +1783,7 @@ namespace Base {
         std::cout << "This read mesh is in Centaur version " << version << " format" << std::endl;
 
         // Centaur File Type <0 is two DIMensional and >0 is three DIMensional
-        std::size_t centaurFileType;
+        uint32_t centaurFileType;
         centaurFile.read(reinterpret_cast<char*> (&centaurFileType), sizeof (centaurFileType));
 
 
@@ -1789,7 +1794,7 @@ namespace Base {
             //The rest of the first line is junk
             char junk[1024];
 
-            std::size_t checkInt;
+            uint32_t checkInt;
             centaurFile.read(&junk[0], sizeOfLine - sizeof (version) - sizeof (centaurFileType));
 
             //Check the first line was read correctly : each line in centaur start and end with the line size as a check
@@ -1803,12 +1808,12 @@ namespace Base {
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
 
             //Next read the total number of nodes
-            std::size_t numberOfNodes;
+            uint32_t numberOfNodes;
             centaurFile.read(reinterpret_cast<char*> (&numberOfNodes), sizeof (numberOfNodes));
             std::cout << "File contains " << numberOfNodes << " nodes" << std::endl;
 
             //new centaur versions support splitting this list over multiple lines
-            std::size_t numberOfNodesPerLine(numberOfNodes);
+            uint32_t numberOfNodesPerLine(numberOfNodes);
             if (centaurFileType > 4) {
                 centaurFile.read(reinterpret_cast<char*> (&numberOfNodesPerLine), sizeof (numberOfNodesPerLine));
                 std::cout << "One line in the file contains at most " << numberOfNodesPerLine << " nodes" << std::endl;
@@ -1864,12 +1869,12 @@ namespace Base {
                 //Now check how many hexahedra in the file
                 centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
                 // Number of hexahedral elements
-                std::size_t numberOfHexahedra;
+                uint32_t numberOfHexahedra;
                 centaurFile.read(reinterpret_cast<char*> (&numberOfHexahedra), sizeof (numberOfHexahedra));
                 std::cout << "File contains " << numberOfHexahedra << " hexahedron(s)" << std::endl;
 
                 //new centaur versions support splitting this list over multiple lines
-                std::size_t numberOfHexahedraPerLine(numberOfHexahedra);
+                uint32_t numberOfHexahedraPerLine(numberOfHexahedra);
                 if (centaurFileType > 4) {
                     centaurFile.read(reinterpret_cast<char*> (&numberOfHexahedraPerLine), sizeof (numberOfHexahedraPerLine));
                     std::cout << "One line in the file contains at most " << numberOfHexahedraPerLine << " hexahedra" << std::endl;
@@ -1882,9 +1887,10 @@ namespace Base {
                 }
 
 
-                //std::size_t hexahedralGlobalNodeIndexes[8];
-                std::size_t temp;
-                std::vector<std::size_t> globalNodeIndexes(8);
+                //uint32_t hexahedralGlobalNodeIndexes[8];
+                uint32_t temp;
+                std::vector<uint32_t> globalNodeIndexes(8);
+                std::vector<std::size_t> globalNodeIndexesSizeT(8);
                 centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
                 for (int i = 0; i < numberOfHexahedra; i++) {
                     if (i > 0 && i % numberOfHexahedraPerLine == 0) {
@@ -1898,7 +1904,7 @@ namespace Base {
                     }
 
                     //Reading the vertex indices of each hexahedron.
-                    centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (std::size_t) * globalNodeIndexes.size());
+                    centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (uint32_t) * globalNodeIndexes.size());
 
                     // renumbering of the vertices to match the ordering assumed by
                     // hpGem: (based on the numbering in hpGEM 1)
@@ -1913,9 +1919,12 @@ namespace Base {
 
                     // renumber them from 1..N to 0..N-1.
                     for (int j = 0; j < 8; j++)
+                    {
                         globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
+                        globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
+                    }
 
-                    Base::Element* newElement = addElement(globalNodeIndexes);
+                    Base::Element* newElement = addElement(globalNodeIndexesSizeT);
                     tempElementVector.push_back(newElement);
 
                     for (int j = 0; j < 8; ++j) {
@@ -1933,12 +1942,12 @@ namespace Base {
             //Now check how many triangular prisms in the file
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             // Number of prismatic elements
-            std::size_t numberOfPrisms;
+            uint32_t numberOfPrisms;
             centaurFile.read(reinterpret_cast<char*> (&numberOfPrisms), sizeof (numberOfPrisms));
             std::cout << "File contains " << numberOfPrisms << " triangular prism(s)" << std::endl;
 
             //new centaur versions support splitting this list over multiple lines
-            std::size_t numberOfPrismsPerLine(numberOfPrisms);
+            uint32_t numberOfPrismsPerLine(numberOfPrisms);
             if (centaurFileType > 4) {
                 centaurFile.read(reinterpret_cast<char*> (&numberOfPrismsPerLine), sizeof (numberOfPrismsPerLine));
                 std::cout << "One line in the file contains at most " << numberOfPrismsPerLine << " prisms" << std::endl;
@@ -1951,8 +1960,9 @@ namespace Base {
             }
 
 
-            //std::size_t prismaticGlobalNodeIndexes[6];
-            std::vector<std::size_t> globalNodeIndexes(6);
+            //unsigned int prismaticGlobalNodeIndexes[6];
+            std::vector<uint32_t> globalNodeIndexes(6);
+            std::vector<std::size_t> globalNodeIndexesSizeT(6);
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             for (int i = 0; i < numberOfPrisms; i++) {
                 if (i > 0 && i % numberOfPrismsPerLine == 0) {
@@ -1966,13 +1976,16 @@ namespace Base {
                 }
 
                 //Reading the vertex indices of each hexahedron.
-                centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (std::size_t) * globalNodeIndexes.size());
+                centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (uint32_t) * globalNodeIndexes.size());
 
                 // renumber them from 1..N to 0..N-1.
                 for (int j = 0; j < 6; j++)
+                {
                     globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
+                    globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
+                }
 
-                Base::Element* newElement = addElement(globalNodeIndexes);
+                Base::Element* newElement = addElement(globalNodeIndexesSizeT);
                 tempElementVector.push_back(newElement);
 
                 for (int j = 0; j < 6; ++j) {
@@ -1990,12 +2003,12 @@ namespace Base {
                 //Now check how many pyramids in the file
                 centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
                 // Number of pyramids elements
-                std::size_t numberOfPyraminds;
+                uint32_t numberOfPyraminds;
                 centaurFile.read(reinterpret_cast<char*> (&numberOfPyraminds), sizeof (numberOfPyraminds));
                 std::cout << "File contains " << numberOfPyraminds << " pyramid(s)" << std::endl;
 
                 //new centaur versions support splitting this list over multiple lines
-                std::size_t numberOfPyramindsPerLine(numberOfPyraminds);
+                uint32_t numberOfPyramindsPerLine(numberOfPyraminds);
                 if (centaurFileType > 4) {
                     centaurFile.read(reinterpret_cast<char*> (&numberOfPyramindsPerLine), sizeof (numberOfPyramindsPerLine));
                     std::cout << "One line in the file contains at most " << numberOfPyramindsPerLine << " pyramids" << std::endl;
@@ -2008,9 +2021,10 @@ namespace Base {
                 }
 
 
-                //std::size_t pyramidGlobalNodeIndexes[5];
-                std::size_t temp;
+                //unsigned int pyramidGlobalNodeIndexes[5];
+                uint32_t temp;
                 globalNodeIndexes.resize(5);
+                globalNodeIndexesSizeT.resize(5);
                 centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
                 for (int i = 0; i < numberOfPyraminds; i++) {
                     if (i > 0 && i % numberOfPyramindsPerLine == 0) {
@@ -2024,7 +2038,7 @@ namespace Base {
                     }
 
                     //Reading the vertex indices of each pyramid.
-                    centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (std::size_t) * globalNodeIndexes.size());
+                    centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (uint32_t) * globalNodeIndexes.size());
 
                     //and then the renumbering fun begins
                     //first make sure we always use the same numbering sceme even when reading from old centaur files
@@ -2068,9 +2082,12 @@ namespace Base {
 
                     // renumber them from 1..N to 0..N-1.
                     for (int j = 0; j < 5; j++)
+                    {
                         globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
+                        globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
+                    }
 
-                    Base::Element* newElement = addElement(globalNodeIndexes);
+                    Base::Element* newElement = addElement(globalNodeIndexesSizeT);
                     tempElementVector.push_back(newElement);
 
                     for (int j = 0; j < 5; ++j) {
@@ -2087,12 +2104,12 @@ namespace Base {
             //Now check how many tetrahedra in the file
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             // Number of tetrahedral elements
-            std::size_t numberOfTetrahedra;
+            uint32_t numberOfTetrahedra;
             centaurFile.read(reinterpret_cast<char*> (&numberOfTetrahedra), sizeof (numberOfTetrahedra));
             std::cout << "File contains " << numberOfTetrahedra << " tetrahedron(s)" << std::endl;
 
             //new centaur versions support splitting this list over multiple lines
-            std::size_t numberOfTetrahedraPerLine(numberOfTetrahedra);
+            uint32_t numberOfTetrahedraPerLine(numberOfTetrahedra);
             if (centaurFileType > 4) {
                 centaurFile.read(reinterpret_cast<char*> (&numberOfTetrahedraPerLine), sizeof (numberOfTetrahedraPerLine));
                 std::cout << "One line in the file contains at most " << numberOfTetrahedraPerLine << " tetrahedra" << std::endl;
@@ -2105,8 +2122,9 @@ namespace Base {
             }
 
 
-            //std::size_t tetrahedralGlobalNodeIndexes[4];
+            //unsigned int tetrahedralGlobalNodeIndexes[4];
             globalNodeIndexes.resize(4);
+            globalNodeIndexesSizeT.resize(4);
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             for (int i = 0; i < numberOfTetrahedra; i++) {
                 if (i > 0 && i % numberOfTetrahedraPerLine == 0) {
@@ -2120,13 +2138,16 @@ namespace Base {
                 }
 
                 //Reading the vertex indices of each tetrahedron.
-                centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (std::size_t) * globalNodeIndexes.size());
+                centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (uint32_t) * globalNodeIndexes.size());
 
                 // renumber them from 1..N to 0..N-1.
                 for (int j = 0; j < 4; j++)
+                {
                     globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
+                    globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
+                }
 
-                Base::Element* newElement = addElement(globalNodeIndexes);
+                Base::Element* newElement = addElement(globalNodeIndexesSizeT);
                 tempElementVector.push_back(newElement);
 
                 for (int j = 0; j < 4; ++j) {
@@ -2182,11 +2203,11 @@ namespace Base {
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
 
             //number of boundary faces
-            std::size_t numberOfBoundaryFaces;
+            uint32_t numberOfBoundaryFaces;
             centaurFile.read(reinterpret_cast<char*> (&numberOfBoundaryFaces), sizeof (numberOfBoundaryFaces));
             std::cout << "File contains " << numberOfBoundaryFaces << " boundaryFace(s)" << std::endl;
 
-            std::size_t boundaryFacesPerLine(numberOfBoundaryFaces);
+            uint32_t boundaryFacesPerLine(numberOfBoundaryFaces);
             if (centaurFileType > 4) {
                 centaurFile.read(reinterpret_cast<char*> (&boundaryFacesPerLine), sizeof (boundaryFacesPerLine));
                 std::cout << "One line in the file contains at most " << boundaryFacesPerLine << " tetrahedra" << std::endl;
@@ -2194,10 +2215,10 @@ namespace Base {
 
             HalfFaceDescription *boundarFaces = new HalfFaceDescription[numberOfBoundaryFaces];
 
-            std::vector<std::vector<std::size_t> > facesForEachCentaurPanel(0);
+            std::vector<std::vector<uint32_t> > facesForEachCentaurPanel(0);
             //old centaur files use 7 entries to describe the face
-            std::size_t nodalDescriptionOfTheFace[centaurFileType > 3 ? 8 : 7];
-            std::size_t panelNumber, ijunk;
+            uint32_t nodalDescriptionOfTheFace[centaurFileType > 3 ? 8 : 7];
+            uint32_t panelNumber, ijunk;
             centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
             if (checkInt != sizeOfLine) {
                 std::cerr << "Error in centaur file " << std::endl;
@@ -2314,10 +2335,10 @@ namespace Base {
 
             //put the centaur panels in their boudary group
             std::vector<std::vector<int> > facesForEachBoundaryGroup(0);
-            std::size_t groupOfPanelNumber;
+            uint32_t groupOfPanelNumber;
 
             //this bit of information is a little late
-            std::size_t numberOfPanels;
+            uint32_t numberOfPanels;
 
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             centaurFile.read(reinterpret_cast<char*> (&numberOfPanels), sizeof (numberOfPanels));
@@ -2345,11 +2366,11 @@ namespace Base {
                 return;
             }
 
-            std::size_t centaurBCType;
+            uint32_t centaurBCType;
             char nameOfBoundaryCondition[80];
 
             //this bit of information is again a little late
-            std::size_t numberOfBoundaryGroups;
+            uint32_t numberOfBoundaryGroups;
 
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             centaurFile.read(reinterpret_cast<char*> (&numberOfBoundaryGroups), sizeof (numberOfBoundaryGroups));
@@ -2449,11 +2470,11 @@ namespace Base {
             //file versions 3 and greater store some extra information that hpGEM will be constructing itself
             //this extra information mangles the reading of the usefull information a bit
             double transformationData[16];
-            std::size_t matchingNodes[2];
-            std::size_t numberOfPeriodicNodes;
+            uint32_t matchingNodes[2];
+            uint32_t numberOfPeriodicNodes;
 
             if (centaurFileType > 3) {
-                std::size_t numberOfPeriodicTransformations;
+                uint32_t numberOfPeriodicTransformations;
                 centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
                 centaurFile.read(reinterpret_cast<char*> (&numberOfPeriodicTransformations), sizeof (numberOfPeriodicTransformations));
                 std::cout << "There are " << numberOfPeriodicTransformations << " periodic boundary -> shadow boundary transformation(s)" << std::endl;
@@ -2597,6 +2618,7 @@ namespace Base {
         }
 
     }
+
 
     /*void MeshManipulator::findElementNumber(std::vector<int>& a, std::vector<int>& b, std::vector<int>& c, int aNumber, int bNumber, int cNumber, std::vector<int>& notOnFace, HalfFaceDescription& face, std::vector<Element*>& vectorOfElements) {
         //step 1: the element should be connected to all of the given nodes
