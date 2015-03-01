@@ -188,7 +188,7 @@ public:
                         + penalty_ * phiNormalI * phiNormalJ;
                 }
                 //Boundary face with Dirichlet boundary conditions:
-                else if (fabs(pPhys[0]) < 1e-9 || fabs(pPhys[0] - 1.) < 1e-9 )
+                else if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1.) < 1e-9)
                 {
                     integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI)
                         + penalty_ * phiNormalI * phiNormalJ;

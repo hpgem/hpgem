@@ -39,7 +39,7 @@ namespace Geometry
 
     public:
 
-        PointReference(unsigned int DIM):PointT(DIM) {}
+        PointReference(std::size_t DIM) : PointT(DIM) { }
 
         PointReference(const PointT& p): PointT(p) {}
 

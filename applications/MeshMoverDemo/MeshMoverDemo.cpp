@@ -96,10 +96,11 @@ public:
 
 int main(int argc, char **argv)
 {
-   
+    Base::parse_options(argc, argv);
+
     Base::GlobalData globalData;
-    
-    Base::ConfigurationData config(1,1,1);
+
+    Base::ConfigurationData config(2, 1, 1, 1);
     
     config.numberOfUnknowns_       = 1;
     config.numberOfTimeLevels_     = 1;

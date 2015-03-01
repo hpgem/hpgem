@@ -63,21 +63,11 @@ namespace Base {
     edgeCounter_(orig.edgeCounter_),
     nodeCounter_(orig.nodeCounter_),
     hasToSplit_(orig.hasToSplit_) {
-    }
+}
 
-    Mesh::~Mesh() {
-        for (Element* element : elements_) {
-            delete element;
-        }
-        for (Face* face : faces_) {
-            delete face;
-        }
-        for (Edge* edge : edges_) {
-            delete edge;
-        }
-        for (Node* node : nodes_) {
-            delete node;
-        }
+    Mesh::~Mesh()
+    {
+        clear();
 
     }
 
@@ -225,6 +215,37 @@ namespace Base {
         }
         hasToSplit_ = false;
     }
+
+    void Mesh::clear()
+    {
+        for (Element* element : elements_)
+        {
+            delete element;
+        }
+        for (Face* face : faces_)
+        {
+            delete face;
+        }
+        for (Edge* edge : edges_)
+        {
+            delete edge;
+        }
+        for (Node* node : nodes_)
+        {
+            delete node;
+        }
+        elements_.clear();
+        faces_.clear();
+        edges_.clear();
+        nodes_.clear();
+        submeshes_.clear();
+        elementcounter_ = 0;
+        faceCounter_ = 0;
+        edgeCounter_ = 0;
+        nodeCounter_ = 0;
+        points_.clear();
+    }
+
 
     const std::vector<Element*>& Mesh::getElementsList(IteratorType part) const {
         if(part==IteratorType::LOCAL){

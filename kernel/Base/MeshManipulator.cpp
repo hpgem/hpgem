@@ -22,6 +22,19 @@
 #ifndef meshmanipulator_impl_h_
 #define meshmanipulator_impl_h_
 
+#ifdef HPGEM_USE_QHULL
+#include "libqhullcpp/QhullQh.h"
+#include "libqhullcpp/RboxPoints.h"
+#include "libqhullcpp/QhullError.h"
+#include "libqhullcpp/QhullFacet.h"
+#include "libqhullcpp/QhullFacetList.h"
+#include "libqhullcpp/QhullFacetSet.h"
+#include "libqhullcpp/QhullLinkedList.h"
+#include "libqhullcpp/QhullVertex.h"
+#include "libqhullcpp/QhullVertexSet.h"
+#include "libqhullcpp/Qhull.h"
+#endif
+
 #include "MeshManipulator.hpp"
 
 #include "Geometry/PhysicalGeometry.hpp"
@@ -44,10 +57,15 @@
 #include "Geometry/Mappings/MappingReferenceToPhysical.hpp"
 #include "ElementFactory.hpp"
 #include "FaceFactory.hpp"
+#include "L2Norm.hpp"
+#include "Geometry/Jacobian.hpp"
 
 #include <cassert>
 #include <algorithm>
 #include <iostream>
+#include <unordered_set>
+#include <array>
+#include <numeric>
 
 //
 //  MeshManipulator.cpp
@@ -537,220 +555,10 @@ namespace Base {
             }
         }
 
-        //Stage 4 : Create the faces
-
         faceFactory();
         edgeFactory();
 
-        /*switch (DIM) {
-            case 1:
-                rectangularCreateFaces1D(tempElementVector, linearNoElements);
-                break;
-
-            case 2:
-                rectangularCreateFaces2D(tempElementVector, linearNoElements);
-                break;
-
-            case 3:
-                rectangularCreateFaces3D(tempElementVector, linearNoElements);
-                break;
-
-            default:
-                throw ("Face generator not implemented in this DIMension");
-
-        }//end case*/
-
-
     }
-
-    /*void MeshManipulator::rectangularCreateFaces1D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements) {
-
-        //First the internal faces
-        for (int i = 0; i < linearNoElements[0] - 1; i++) {
-            addFace(tempElementVector[i], 1, tempElementVector[i + 1], 0);
-        }
-
-        if (periodicX_ == 1)
- {
-            addFace(tempElementVector[0], 0, tempElementVector[linearNoElements[0] - 1], 1);
-        }
-        else {
-            addFace(tempElementVector[0], 0, nullptr, 0);
-            addFace(tempElementVector[linearNoElements[0] - 1], 1, nullptr, 0);
-        }
-
-    }
-
-    void MeshManipulator::rectangularCreateFaces2D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements) {
-
-        //first do the faces with normals pointing in the x-direction
-        Geometry::FaceType xFace = Geometry::WALL_BC;
-        std::size_t index;
-
-        for (int j = 0; j < linearNoElements[1]; j++) {
-            for (int i = 0; i < linearNoElements[0] - 1; i++) {
-
-                index = i + j * linearNoElements[0];
-                addFace(tempElementVector[index], 2, tempElementVector[index + 1], 1);
-
-            }
-
-
-            index = j * linearNoElements[0];
-            if (periodicX_ == 1) {
-                addFace(tempElementVector[index], 1, tempElementVector[index + linearNoElements[0] - 1], 2);
-            } else {
-                //Left bounday face
-                //cout<<"index1="<<index<<endl;
-                addFace(tempElementVector[index], 1, nullptr, 0);
-
-                //Right boundary face
-                index = index + linearNoElements[0] - 1;
-                //cout<<"index2="<<index<<endl;
-                addFace(tempElementVector[index], 2, nullptr, 0);
-            }
-        }
-
-        //now do the faces with normals pointing in the y-direction
-        Geometry::FaceType yFace = Geometry::WALL_BC;
-        for (int j = 0; j < linearNoElements[0]; j++) {
-            for (int i = 0; i < linearNoElements[1] - 1; i++) {
-                index = j + i * linearNoElements[0];
-                //cout<<"index3="<<index<<endl;
-                //cout<<"index3.5="<<index+linearNoElements[0]<<endl;
-
-                addFace(tempElementVector[index], 3, tempElementVector[index + linearNoElements[0]], 0);
-
-            }
-
-            index = j;
-
-            if (periodicY_ == 1) {
-
-                addFace(tempElementVector[index], 0, tempElementVector[index + (linearNoElements[1] - 1) * linearNoElements[0]], 3);
-
-            } else {
-
-                //Bottom boundary face
-
-                // cout<<"index4="<<index<<endl;
-                addFace(tempElementVector[index], 0, nullptr, 0);
-
-                //Top boundary face
-                index = index + (linearNoElements[1] - 1) * linearNoElements[0];
-
-                //cout<<"index5="<<index<<endl;
-                addFace(tempElementVector[index], 3, nullptr, 0);
-            }
-
-        }
-
-
-    }
-
-    void MeshManipulator::rectangularCreateFaces3D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements) {
-        std::size_t index;
-        //first do the faces in x-direction
-        //counter in y
-        for (int j = 0; j < linearNoElements[1]; j++) {
-            //counter in z
-            for (int k = 0; k < linearNoElements[2]; k++) {
-                //counter in x
-                for (int i = 0; i < linearNoElements[0] - 1; i++) {
-
-                    index = i + j * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1];
-                    addFace(tempElementVector[index], 3, tempElementVector[index + 1], 2);
-
-                }//end loop over x
-
-
-                index = j * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1];
-                if (periodicX_ == 1) {
-                    addFace(tempElementVector[index], 2, tempElementVector[index + linearNoElements[0] - 1], 3);
-                } else {
-
-                    //Left boundary
-
-                    // cout<<"index1="<<index<<endl;
-                    addFace(tempElementVector[index], 2, nullptr, 0);
-
-                    //Right boundary face
-                    index = index + linearNoElements[0] - 1;
-                    // cout<<"index2="<<index<<endl;
-                    addFace(tempElementVector[index], 3, nullptr, 0);
-                } // end boundary cases
-
-            } // end loop over z
-        } //end loop over y
-
-
-        //Now do the faces pointing in the y-direction
-        //count in z
-        for (int k = 0; k < linearNoElements[2]; k++) {
-            //counter in x
-            for (int j = 0; j < linearNoElements[0]; j++) {
-                //counter in y
-                for (int i = 0; i < linearNoElements[1] - 1; i++) {
-
-                    index = j + i * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1];
-                    addFace(tempElementVector[index], 4, tempElementVector[index + linearNoElements[0]], 1);
-
-                }//end loop over y
-
-
-                index = j + k * linearNoElements[0] * linearNoElements[1];
-                if (periodicY_ == 1) {
-                    //   cout << index << " , " << index+(linearNoElements[1]-1)*linearNoElements[0] << endl;
-                    addFace(tempElementVector[index], 1, tempElementVector[(index + (linearNoElements[1] - 1) * linearNoElements[0])], 4);
-                } else {
-
-                    //front bounday face
-
-                    // cout<<"index1="<<index<<endl;
-                    addFace(tempElementVector[index], 1, nullptr, 0);
-
-                    //Back boundary face
-                    index = index + (linearNoElements[1] - 1) * linearNoElements[0];
-                    //   cout<<"index2="<<index<<endl;
-                    addFace(tempElementVector[index], 4, nullptr, 0);
-                } // end boundary cases
-
-            } // end loop over x
-        } //end loop over z
-
-        //Now finally do the face in the z-direction
-
-        //count in x direction 
-        for (int k = 0; k < linearNoElements[0]; k++) {
-            //counter in y
-            for (int j = 0; j < linearNoElements[1]; j++) {
-                //counter in z
-                for (int i = 0; i < linearNoElements[2] - 1; i++) {
-
-                    index = k + j * linearNoElements[0] + i * linearNoElements[0] * linearNoElements[1];
-                    addFace(tempElementVector[index], 5, tempElementVector[index + linearNoElements[0] * linearNoElements[1]], 0);
-
-                }//end loop over z
-
-                index = k + j * linearNoElements[0];
-                if (periodicZ_ == 1) {
-                    addFace(tempElementVector[index], 0, tempElementVector[index + (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0]], 5);
-                } else {
-
-                    //bottom boundary
-                    //cout<<"index1="<<index<<endl;
-                    addFace(tempElementVector[index], 0, nullptr, 0);
-
-                    //Top boundary face
-                    index = index + (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0];
-                    //cout<<"index2="<<index<<endl;
-                    addFace(tempElementVector[index], 5, nullptr, 0);
-                } // end boundary cases
-
-            } // end loop over y
-        } //end loop over x
-        edgeFactory(tempElementVector);
-    }*/
 
     //createTrianglularMesh follows the same structure as createRectangularMesh. Where createRectangularMesh makes rectangular elements, createTrianglularMesh splits the elements into a partition of triangles.
 
@@ -982,252 +790,9 @@ namespace Base {
         } //for all rectangles
 
         //Stage 4 : Create the faces
-
-        /*switch (DIM) {
-            case 1:
-                //only provided for completeness, it is always better to just use rectangularMeshGenerator for line elements
-                triangularCreateFaces1D(tempElementVector, linearNoElements);
-                break;
-            case 2:
-                triangularCreateFaces2D(tempElementVector, linearNoElements);
-                break;
-            case 3:
-                triangularCreateFaces3D(tempElementVector, linearNoElements);
-                break;
-        }*/
-        
         faceFactory();
         edgeFactory();
-    }
-
-    /*void MeshManipulator::triangularCreateFaces1D(std::vector<Base::Element*>& tempElementVector, const std::vector<std::size_t>& linearNoElements) {
-
-        //First the internal faces
-        for (int i = 0; i + 1 < linearNoElements[0]; i++) {
-            addFace(tempElementVector[i], 1 - i % 2, tempElementVector[i + 1], 1 - i % 2);
-        }
-
-        if (periodicX_ == 1) {
-            addFace(tempElementVector[0], 0, tempElementVector[linearNoElements[0] - 1], linearNoElements[0] % 2);
-        } else {
-            addFace(tempElementVector[0], 0, nullptr, 0, WALL_BC);
-            addFace(tempElementVector[linearNoElements[0] - 1], linearNoElements[0] % 2, nullptr, 0, WALL_BC);
-        }
-
-    }
-
-    void MeshManipulator::triangularCreateFaces2D(std::vector<Base::Element*>& tempElementVector, const std::vector<std::size_t>& linearNoElements) {
-        //this face creator assumes the grid has been divided in rectangles. The rectangles are then sub-divided into two triangles, which are alternatively rotated and not rotated, in a checkerboard pattern. The rectangle at DIM index (0,0,0) is not rotated. There is an ordering of the vertexes assumed that looks like the following:
-        // 2 21 02 2
-        // 01 0 1 01
-        //not rotated rotated
-        // 0 1 0 1 (element numbers within the rectangle)
-
-        //first do the faces with normals pointing in the x-direction
-        Geometry::FaceType xFace = Geometry::WALL_BC;
-        std::size_t index;
-        std::size_t rotate;
-        for (int j = 0; j < linearNoElements[1]; ++j) {
-            for (int i = 0; i + 1 < linearNoElements[0]; ++i) {
-                //hard-coded number of triangles per rectangle, being able to change a constant is not going to make this easier to change
-                index = 2 * (i + j * linearNoElements[0]);
-                rotate = (i + j) % 2;
-                addFace(tempElementVector[index + 1], 2 * rotate, tempElementVector[index + 2], rotate);
-            }
-
-            index = 2 * j * linearNoElements[0];
-            rotate = (j + linearNoElements[0] - 1) % 2;
-            if (periodicX_ == 1) {
-                addFace(tempElementVector[index], 1 - j % 2,
-                        tempElementVector[index + 2 * linearNoElements[0] - 1],
-                        2 * rotate);
-            } else {
-                //Left bounday face
-
-                // 	cout << "index1=" << index << endl;
-                addFace(tempElementVector[index], 1 - j % 2, nullptr, 0, WALL_BC);
-
-                //Right boundary face
-                index = index + 2 * linearNoElements[0] - 1;
-                // 	cout << "index2=" << index << endl;
-                addFace(tempElementVector[index], 2 * rotate, nullptr, 0, WALL_BC);
-            }
-        }
-
-        //now do the faces with normals pointing in the y-direction
-        //changing loop ordering is risky+makes the code a bit less efficient (?)
-        Geometry::FaceType yFace = Geometry::WALL_BC;
-        for (int j = 0; j < linearNoElements[0]; ++j) {
-            for (int i = 0; i + 1 < linearNoElements[1]; ++i) {
-                index = 2 * (j + i * linearNoElements[0]);
-                rotate = (i + j) % 2;
-                // 	    cout << "index3=" << index << endl;
-                // 	    cout << "index3.5=" << index + 2 * linearNoElements[0] << endl;
-                addFace(tempElementVector[index + 1 - rotate], 2 - rotate, tempElementVector[index + 2 * linearNoElements[0] + 1 - rotate], 0);
-            }
-
-            index = 2 * j;
-            rotate = (j + linearNoElements[1] - 1) % 2;
-            if (periodicY_ == 1) {
-                addFace(tempElementVector[index + j % 2], 0, tempElementVector[index + 2 * (linearNoElements[1] - 1) * linearNoElements[0] + 1 - rotate], 2 - rotate);
-            } else {
-                //Bottom boundary face	  
-                // 	    cout << "index4=" << index + j % 2 << endl;
-                addFace(tempElementVector[index + j % 2], 0, nullptr, 0, WALL_BC);
-                //Top boundary face
-                index = index + 2 * (linearNoElements[1] - 1) * linearNoElements[0] + 1 - rotate;
-                // 	    cout << "index5=" << index << endl;
-                addFace(tempElementVector[index], 2 - rotate, nullptr, 0, WALL_BC);
-            }
-        }
-
-        //now do the diagonal faces
-        for (int j = 0; j < linearNoElements[1]; ++j) {
-            for (int i = 0; i < linearNoElements[0]; ++i) {
-                index = 2 * (i + j * linearNoElements[0]);
-                addFace(tempElementVector[index], 2, tempElementVector[index + 1], 1);
-                //diagonal faces are never boudary faces
-            }
-        }
-    }
-
-    void MeshManipulator::triangularCreateFaces3D(std::vector<Base::Element*>& tempElementVector, const std::vector<std::size_t>& linearNoElements) {
-        //my ascii-art skill are sadly not good enough to show how the rectangular element has been devided
-        std::size_t index;
-        std::size_t rotate;
-        //counter in z
-        for (int k = 0; k < linearNoElements[2]; k++) {
-            //counter in y
-            for (int j = 0; j < linearNoElements[1]; j++) {
-                //counter in x
-                for (int i = 0; i + 1 < linearNoElements[0]; i++) {
-                    // 	        cout<<"("<<i<<","<<j<<","<<k<<")"<<endl;
-                    //hard-coded number of triangles per rectangle, being able to change a constant is not going to make this easier to change
-                    index = 5 * (i + j * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1]);
-                    rotate = (i + j + k) % 2;
-                    addFace(tempElementVector[index + 2], 3 * rotate,
-                            tempElementVector[index + 5], 2 - 2 * rotate);
-                    addFace(tempElementVector[index + 1 + 2 * rotate], 1 + 2 * rotate,
-                            tempElementVector[index + 6 + 2 * rotate], 2);
-                } //end loop over x
-
-                index = 5 * (j * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1]);
-                rotate = (j + k + linearNoElements[0] - 1) % 2;
-                if (periodicX_ == 1) {
-                    addFace(tempElementVector[index], 2 * ((k + j) % 2),
-                            tempElementVector[index + 5 * linearNoElements[0] - 3], 3 * rotate);
-                    addFace(tempElementVector[index + 3 - 2 * ((k + j) % 2)], 2,
-                            tempElementVector[index + 5 * linearNoElements[0] - 4 + 2 * rotate], 1 + 2 * rotate);
-                } else {
-                    //Left boundary
-                    // 	        cout << "index1=" << index << endl;
-                    addFace(tempElementVector[index], 2 * ((k + j) % 2), nullptr, 0, WALL_BC);
-                    addFace(tempElementVector[index + 3 - 2 * ((k + j) % 2)], 2, nullptr, 0, WALL_BC);
-                    //Right boundary face
-                    index = index + 5 * linearNoElements[0] - 5;
-                    //              cout << "index2=" << index << endl;
-                    addFace(tempElementVector[index + 2], 3 * rotate, nullptr, 0, WALL_BC);
-                    addFace(tempElementVector[index + 1 + 2 * rotate], 1 + 2 * rotate, nullptr, 0, WALL_BC);
-                } // end boundary cases
-            } // end loop over y
-        } //end loop over z
-
-        //Now do the faces pointing in the y-direction
-        //count in z
-        for (int k = 0; k < linearNoElements[2]; k++) {
-            //counter in x
-            for (int j = 0; j < linearNoElements[0]; j++) {
-                //counter in y
-                for (int i = 0; i + 1 < linearNoElements[1]; i++) {
-                    // 		cout<<"("<<i<<","<<j<<","<<k<<")"<<endl;
-                    index = 5 * (j + i * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1]);
-                    rotate = (i + j + k) % 2;
-                    addFace(tempElementVector[index + 1], 3,
-                            tempElementVector[index + 5 * linearNoElements[0] + 2 - 2 * rotate], 2 - rotate);
-                    addFace(tempElementVector[index + 3], 1,
-                            tempElementVector[index + 5 * linearNoElements[0] + 2 * rotate], 1 + rotate);
-                } //end loop over x
-
-                index = 5 * (j + k * linearNoElements[0] * linearNoElements[1]);
-                rotate = (j + k) % 2;
-                if (periodicY_ == 1) {
-                    //cout << "Hmmm this is the problem " << endl;
-                    // 		cout << index << " , " << index + 5 * (linearNoElements[1] - 1) * linearNoElements[0] << endl;
-                    addFace(tempElementVector[index + 2 * rotate], 1 + rotate,
-                            tempElementVector[(index + 5 * (linearNoElements[1] - 1) * linearNoElements[0]) + 1], 3);
-                    addFace(tempElementVector[index + 2 - 2 * rotate], 2 - rotate,
-                            tempElementVector[(index + 5 * (linearNoElements[1] - 1) * linearNoElements[0]) + 3], 1);
-                } else {
-                    //front bounday face
-                    // 		cout << "index1=" << index << endl;
-                    addFace(tempElementVector[index + 2 - 2 * rotate], 2 - rotate, nullptr, 0, WALL_BC);
-                    addFace(tempElementVector[index + 2 * rotate], 1 + rotate, nullptr, 0, WALL_BC);
-                    //Back boundary face
-                    index = index + 5 * (linearNoElements[1] - 1) * linearNoElements[0];
-                    // 		cout << "index2=" << index << endl;
-                    addFace(tempElementVector[index + 1], 3, nullptr, 0, WALL_BC);
-                    addFace(tempElementVector[index + 3], 1, nullptr, 0, WALL_BC);
-                } // end boundary cases
-            } // end loop over y
-        } //end loop over z
-
-        //Now do the face in the z-direction
-        //count in x direction
-        for (int k = 0; k < linearNoElements[0]; k++) {
-            //counter in y
-            for (int j = 0; j < linearNoElements[1]; j++) {
-                //counter in z
-                for (int i = 0; i + 1 < linearNoElements[2]; i++) {
-                    // 		cout<<"("<<i<<","<<j<<","<<k<<")"<<endl;
-                    index = 5 * (k + j * linearNoElements[0] + i * linearNoElements[0] * linearNoElements[1]);
-                    rotate = (i + j + k) % 2;
-                    addFace(tempElementVector[index + 2 - 2 * rotate], 3 - 3 * rotate,
-                            tempElementVector[index + 5 * linearNoElements[0] * linearNoElements[1] + 2 - 2 * rotate], 2 * rotate);
-                    addFace(tempElementVector[index + 3], 3 - rotate,
-                            tempElementVector[index + 5 * linearNoElements[0] * linearNoElements[1] + 1], 1 + rotate);
-                } //end loop over x
-
-                index = 5 * (k + j * linearNoElements[0]);
-                rotate = (k + j + linearNoElements[2] - 1) % 2;
-                if (periodicZ_ == 1) {
-                    // 		cout << "This is the final problem " << endl;
-                    // 		cout << index << " , ";
-                    // 		cout << index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0] << endl;
-                    addFace(tempElementVector[index + 1 + ((j + k) % 2)], 2 - 2 * ((j + k) % 2),
-                            tempElementVector[index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0] + 2 + rotate], 3 - rotate);
-                    addFace(tempElementVector[index + (j + k) % 2], 2 - (j + k) % 2,
-                            tempElementVector[index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0] + 3 - 3 * rotate], 3 - 3 * rotate);
-                } else {
-                    //bottom boundary
-                    // 		cout << "index1=" << index << endl;
-                    addFace(tempElementVector[index + 2 * ((j + k) % 2)], 2 - 2 * ((j + k) % 2), nullptr, 0, WALL_BC);
-                    addFace(tempElementVector[index + 1 ], 2 - ((j + k) % 2), nullptr, 0, WALL_BC);
-                    //Top boundary face
-                    index = index + 5 * (linearNoElements[2] - 1) * linearNoElements[1] * linearNoElements[0];
-                    // 		cout << "index2=" << index << endl;
-                    addFace(tempElementVector[index + 2 - 2 * rotate], 3 - 3 * rotate, nullptr, 0, WALL_BC);
-                    addFace(tempElementVector[index + 3], 3 - rotate, nullptr, 0, WALL_BC);
-                } // end boundary cases
-            } // end loop over y
-        } //end loop over z
-        //Now do the diagonal faces
-        //counter in z
-        for (int k = 0; k < linearNoElements[2]; k++) {
-            //counter in y
-            for (int j = 0; j < linearNoElements[1]; j++) {
-                //counter in x
-                for (int i = 0; i < linearNoElements[0]; i++) {
-                    // 		cout<<"("<<i<<","<<j<<","<<k<<")"<<endl;	      
-                    index = 5 * (i + j * linearNoElements[0] + k * linearNoElements[0] * linearNoElements[1]);
-                    addFace(tempElementVector[index + 4], 0, tempElementVector[index + 2], 1);
-                    addFace(tempElementVector[index + 4], 1, tempElementVector[index + 1], 0);
-                    addFace(tempElementVector[index + 4], 2, tempElementVector[index], 3);
-                    addFace(tempElementVector[index + 4], 3, tempElementVector[index + 3], 0);
-                } //end loop over x
-            } //end loop over y
-        } //end loop over z  
-        edgeFactory(tempElementVector);
-    }*/
+    } 
 
     void
     MeshManipulator::readCentaurMesh(const std::string& filename) {
@@ -2619,142 +2184,1061 @@ namespace Base {
 
     }
 
+#ifdef HPGEM_USE_QHULL
+    void MeshManipulator::createUnstructuredMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, std::size_t TotalNoNodes, std::function<double(PointPhysicalT) > domainDescription, std::vector<PointPhysicalT> fixedPoints, std::function<double(PointPhysicalT) > relativeEdgeLength, double growFactor)
+    {
+        //impossible to create a mesh with more fixed nodes that total nodes
+        //note that when equality is met, this will only do a delaunay triangulation
+        assert(fixedPoints.size() <= TotalNoNodes);
 
-    /*void MeshManipulator::findElementNumber(std::vector<int>& a, std::vector<int>& b, std::vector<int>& c, int aNumber, int bNumber, int cNumber, std::vector<int>& notOnFace, HalfFaceDescription& face, std::vector<Element*>& vectorOfElements) {
-        //step 1: the element should be connected to all of the given nodes
+        //set to correct value in case some other meshmanipulator changed things
+        ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
+        ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
 
-        std::vector<int>::iterator aEntry(a.begin()), bEntry(b.begin()), cEntry(c.begin()), otherEntry(notOnFace.begin());
-        //std::cout<<a.size()<<" "<<b.size()<<" "<<c.size()<<" "<<notOnFace.size()<<std::endl;
+        //periodic unstructured mesh generation not yet implemented
+        assert(!(periodicX_ || periodicY_ || periodicZ_));
 
-        //assumes the lists are already sorted
-        while (!(*aEntry == *bEntry && *aEntry == *cEntry && *aEntry == *otherEntry)) {
-            if (*aEntry <*bEntry) {
-                aEntry++;
-            }
-            if (*bEntry <*cEntry) {
-                bEntry++;
-            }
-            if (*cEntry <*otherEntry) {
-                cEntry++;
-            }
-            if (*otherEntry<*aEntry) {
-                otherEntry++;
-            }
-            //std::cout<<*aEntry<<" "<<*bEntry<<" "<<*cEntry<<" "<<*otherEntry<<std::endl;
-            assert(aEntry != a.end());
-            assert(bEntry != b.end());
-            assert(cEntry != c.end());
-            assert(otherEntry != notOnFace.end());
+        //guess the required distance between two nodes
+        double dist = std::pow(double(TotalNoNodes), -1. / double(dimension()));
+
+        for (std::size_t i = 0; i < dimension(); ++i)
+        {
+            dist *= std::pow(TopRight[i] - BottomLeft[i], 1. / double(dimension()));
         }
-        //std::cout<<*aEntry<<" "<<*bEntry<<" "<<*cEntry<<" "<<*otherEntry<<std::endl;
 
-        face.elementNum = *aEntry;
+        std::vector<PointPhysicalT> hpGEMCoordinates = fixedPoints;
 
-        //step 2: find the actual face
-        std::vector<std::size_t> facenumbers;
-        for (int i = 0; i < vectorOfElements[*aEntry]->getPhysicalGeometry()->getNrOfFaces(); ++i) {
-            bool aFound(false), bFound(false), cFound(false);
-            vectorOfElements[*aEntry]->getPhysicalGeometry()->getGlobalFaceNodeIndices(i, facenumbers);
-            for (int j = 0; j < facenumbers.size(); ++j) {
-                aFound |= (facenumbers[j] == aNumber);
-                bFound |= (facenumbers[j] == bNumber);
-                cFound |= (facenumbers[j] == cNumber);
+        //seed approximately N points inside the bounding box (total amount will be tweaked later)
+        std::size_t DIM = dimension();
+        PointPhysicalT nextPoint = BottomLeft;
+        for (std::size_t i = 0; i < fixedPoints.size(); ++i)
+        {
+            assert(domainDescription(fixedPoints[i]) < 1e-10);
+            theMesh_.addVertex();
+            theMesh_.addNode(fixedPoints[i]);
+        }
+        //cant do nested for loops for generic dimension
+        while (nextPoint[DIM - 1] < TopRight[DIM - 1] - 1e-10)
+        {
+            std::size_t incrementalDimension = 0;
+            //if the point is already far enough to the right, reset and continue with the next dimension
+            for (; nextPoint[incrementalDimension] > TopRight[incrementalDimension] + 1e-10; ++incrementalDimension)
+            {
+                nextPoint[incrementalDimension] = BottomLeft[incrementalDimension];
             }
-            if (aFound && bFound && cFound) {
-                face.localFaceIndex = i;
-                return;
+            nextPoint[incrementalDimension] += dist;
+            if (domainDescription(nextPoint) < 0)
+            {
+                hpGEMCoordinates.push_back(nextPoint);
+                theMesh_.addVertex();
+                theMesh_.addNode(nextPoint);
             }
         }
-        throw "The centaur mesh file contains a face with wrong bounding nodes!";
+        std::size_t nFixedPoints = fixedPoints.size();
+        //there are not enough points to do a triangulation
+        assert(DIM < nFixedPoints);
+        //there is inherent rounding down in the gridding and some nodes are outside the domain (so they are discarded)
+        assert(hpGEMCoordinates.size() <= TotalNoNodes);
+
+        while (hpGEMCoordinates.size() < TotalNoNodes)
+        {
+            //start of QHull magic to create a triangulation
+            orgQhull::RboxPoints qHullCoordinates;
+            qHullCoordinates.setDimension(DIM);
+            qHullCoordinates.reserveCoordinates(DIM * hpGEMCoordinates.size());
+
+            for (PointPhysicalT point : hpGEMCoordinates)
+            {
+                qHullCoordinates.append(DIM, point.data());
+            }
+
+            //create the triangulation, pass "d" for delaunay
+            //"QJ" because there are likely to be groups of more that (d+1) cocircular nodes in a regular grid, so joggle them up a bit
+            orgQhull::Qhull triangulation;
+            triangulation.runQhull(qHullCoordinates, "d Qbb Qx Qc Qt");
+
+
+            for (orgQhull::QhullFacet triangle : triangulation.facetList())
+            {
+                if (triangle.isGood() && !triangle.isUpperDelaunay())
+                {
+                    PointPhysicalT center(DIM);
+                    std::vector<std::size_t> pointIndices;
+                    for (auto vertex : triangle.vertices())
+                    {
+                        center += hpGEMCoordinates[vertex.point().id()];
+                        pointIndices.push_back(vertex.point().id());
+                    }
+                    center = center / pointIndices.size();
+                    if (domainDescription(center) < 0)
+                    {
+                        auto newElement = addElement(pointIndices);
+                        for (std::size_t i = 0; i < pointIndices.size(); ++i)
+                        {
+                            theMesh_.getVerticesList(IteratorType::GLOBAL)[pointIndices[i]]->addElement(newElement, i);
+                        }
+                    }
+                }
+            }
+            //end of QHull magic
+
+            //extract connectivity information
+            faceFactory();
+            edgeFactory();
+
+            //compute current and expected (relative) edge length
+            std::vector<double> expectedLength;
+            std::multimap<double, std::size_t> knownLengths;
+            std::vector<double> currentLength;
+            //for proper scaling
+            double totalcurrentLength;
+            double totalexpectedLength;
+            bool needsExpansion = false;
+
+            //compute the expected relative length at the coordinates
+            for (std::size_t i = 0; i < hpGEMCoordinates.size(); ++i)
+            {
+                double newLength = relativeEdgeLength(hpGEMCoordinates[i]);
+                expectedLength.push_back(newLength);
+                if (std::isnan(newLength) || std::isinf(newLength))
+                {
+                    needsExpansion |= true;
+                }
+                else
+                {
+                    //cannot deliberately construct tangled meshes
+                    assert(newLength > 0);
+                    knownLengths.insert( { newLength, i });
+                }
+            }
+
+            //if the desired relative edge length is not known everywhere, slowly make them larger
+            //because apparently the user is not interested in controlling edge lengths for this part
+            //but sudden enlargement leads to a bad mesh quality
+            if (needsExpansion)
+            {
+                //iterate over all nodes, sorted by edge lengths
+                for (std::pair<double, std::size_t> entry : knownLengths)
+                {
+                    Node* current = theMesh_.getVerticesList(IteratorType::GLOBAL)[entry.second];
+                    for (Element* element : current->getElements())
+                    {
+                        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
+                        {
+                            if (std::isnan(expectedLength[element->getNode(i)->getID()]) || std::isinf(expectedLength[element->getNode(i)->getID()]))
+                            {
+                                expectedLength[element->getNode(i)->getID()] = growFactor * entry.first;
+
+                                //inserting does not invalidate the iterators;
+                                //new node has a larger edge length, so it is guaranteed to be visited later on
+                                knownLengths.insert(knownLengths.end(),
+                                {
+                                                    growFactor * entry.first, element->getNode(i)->getID()
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            //iterate over all edges to compute total length and scaling factor
+            //the volume scales with (total edge length)^dimension
+            //the total volume filled by the edges should be constant
+            //so scale appropriately
+            if (DIM == 1)
+            {
+                //the algorithm is mostly dimension independent, but the data type it operates on is not
+                for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
+                    element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                    currentLength.push_back(L2Norm(firstNode - secondNode));
+                    totalcurrentLength += currentLength.back();
+                    totalexpectedLength += expectedLength[element->getNode(0)->getID()] / 2;
+                    totalexpectedLength += expectedLength[element->getNode(1)->getID()] / 2;
+                }
+            }
+            else if (DIM == 2)
+            {
+                for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    std::vector<std::size_t> nodeIndices;
+                    face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
+                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    currentLength.push_back(L2Norm(firstNode - secondNode));
+                    totalcurrentLength += currentLength.back() * currentLength.back();
+                    totalexpectedLength += std::pow(expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()] + expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()], 2.) / 4.;
+                }
+            }
+            else
+            {
+                for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    std::vector<std::size_t> nodeIndices;
+                    edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
+                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    currentLength.push_back(L2Norm(firstNode - secondNode));
+                    totalcurrentLength += currentLength.back() * currentLength.back() * currentLength.back();
+                    totalexpectedLength += std::pow(expectedLength[edge->getElement(0)->getNode(nodeIndices[0])->getID()] + expectedLength[edge->getElement(0)->getNode(nodeIndices[1])->getID()], 3.) / 8.;
+                }
+            }
+
+            //all regions of the domain where elements are allowed to be as large as possible must be connected to regions where relativeEdgeLength provides a limitation
+            assert(!std::isnan(totalexpectedLength)&&!std::isinf(totalexpectedLength));
+
+            //sort the centers of the edges such that the centers of the large edges are indexed first
+            //note that in this case the inverse measure is computed, because that will result in a more natural force computation later on
+            std::multimap<double, PointPhysicalT> centerPoints;
+            if (DIM == 1)
+            {
+                //the algorithm is mostly dimension independent, but the data type it operates on is not
+                for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
+                    element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                    //length is scaled in case somebody hasty decides to add smoothing at this point
+                    //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.5 times as large
+                    //remember to scale back from a volume measure to a length measure
+                    double length = (expectedLength[element->getNode(0)->getID()] + expectedLength[element->getNode(1)->getID()]) / currentLength[centerPoints.size()] * 2 * totalcurrentLength / totalexpectedLength;
+                    centerPoints.insert( { length, (firstNode + secondNode) / 2. });
+                }
+            }
+            else if (DIM == 2)
+            {
+                for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    std::vector<std::size_t> nodeIndices;
+                    face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
+                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    //length is scaled in case somebody hasty decides to add smoothing at this point
+                    //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.5 times as large
+                    //remember to scale back from a volume measure to a length measure
+                    double length = (expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()] + expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()]) / currentLength[centerPoints.size()] * std::pow(2 * totalcurrentLength / totalexpectedLength, 1. / 2.);
+                    centerPoints.insert( { length, (firstNode + secondNode) / 2 });
+                }
+            }
+            else
+            {
+                for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    std::vector<std::size_t> nodeIndices;
+                    edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
+                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    //length is scaled in case somebody hasty decides to add smoothing at this point
+                    //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.5 times as large
+                    //remember to scale back from a volume measure to a length measure
+                    double length = (expectedLength[edge->getElement(0)->getNode(nodeIndices[0])->getID()] + expectedLength[edge->getElement(0)->getNode(nodeIndices[1])->getID()]) / currentLength[centerPoints.size()] * std::pow(2 * totalcurrentLength / totalexpectedLength, 1. / 3.);
+                    centerPoints.insert( { length, (firstNode + secondNode) / 2 });
+                }
+            }
+            //insert nodes in the longest edges only, in an attempt to make them all equally long
+            //cannot use range based loop because the centerpoint is not marked
+            auto it = centerPoints.begin();
+            std::size_t nNewNodes = std::min(centerPoints.size() / 2, TotalNoNodes - hpGEMCoordinates.size());
+            for (std::size_t i = 0; i < nNewNodes && it != centerPoints.end(); ++i, ++it)
+            {
+                if (domainDescription(it->second) < 0)
+                {
+                    hpGEMCoordinates.push_back(it->second);
+                }
+                else
+                {
+                    --i;
+                }
+            }
+
+            //cleanest solution, but not the fastest
+            theMesh_.clear();
+            for (PointPhysicalT point : hpGEMCoordinates)
+            {
+                theMesh_.addVertex();
+                theMesh_.addNode(point);
+            }
+        }
+        //start of QHull magic to create a triangulation
+        orgQhull::RboxPoints qHullCoordinates;
+        qHullCoordinates.setDimension(DIM);
+        qHullCoordinates.reserveCoordinates(DIM * hpGEMCoordinates.size());
+
+        for (PointPhysicalT point : hpGEMCoordinates)
+        {
+            qHullCoordinates.append(2, point.data());
+        }
+
+        //create the triangulation, pass "d" for delaunay
+        //"QJ" because there are likely to be groups of more that (d+1) cocircular nodes in a regular grid, so joggle them up a bit
+        orgQhull::Qhull triangulation(qHullCoordinates, "d QbB Qx Qc Qt");
+
+        for (orgQhull::QhullFacet triangle : triangulation.facetList())
+        {
+            if (triangle.isGood() && !triangle.isUpperDelaunay())
+            {
+                PointPhysicalT center { DIM };
+                std::vector<std::size_t> pointIndices;
+                for (auto vertexIt1 = triangle.vertices().begin(); vertexIt1 != triangle.vertices().end(); ++vertexIt1)
+                {
+                    center += hpGEMCoordinates[(*vertexIt1).point().id()];
+                    pointIndices.push_back((*vertexIt1).point().id());
+                }
+                center = center / pointIndices.size();
+                if (domainDescription(center) < 0)
+                {
+                    auto newElement = addElement(pointIndices);
+                    for (std::size_t i = 0; i < pointIndices.size(); ++i)
+                    {
+                        theMesh_.getVerticesList(IteratorType::GLOBAL)[pointIndices[i]]->addElement(newElement, i);
+                    }
+                }
+            }
+        }
+        //end of QHull magic
+
+        edgeFactory();
+        faceFactory();
+
+        std::vector<std::size_t> fixedPointIdxs;
+        for (std::size_t i = 0; i < nFixedPoints; ++i)
+        {
+            fixedPointIdxs.push_back(i);
+        }
+
+        updateMesh(domainDescription, fixedPointIdxs, relativeEdgeLength, growFactor);
     }
 
-    //in principle this will also work for 2D but fixing DIM makes the code a lot easier to read
+    void MeshManipulator::updateMesh(std::function<double(PointPhysicalT) > domainDescription, std::vector<std::size_t> fixedPointIdxs, std::function<double(PointPhysicalT) > relativeEdgeLength, double growFactor)
+    {
+        std::sort(fixedPointIdxs.begin(), fixedPointIdxs.end());
+        std::size_t DIM = dimension();
+        bool needsExpansion = false;
+        double totalCurrentLength = 0;
+        double oldQuality = 0;
+        double worstQuality = 0.5;
 
-    void MeshManipulator::constructInternalFaces(std::vector<std::vector<int> >& listOfElementsForEachNode, std::vector<Element*>& vectorOfElements) {
-        int numberOfFaces(0);
-        for (Element* currentElement : vectorOfElements) {
-            for (int currentFace = 0; currentFace < (currentElement)->getPhysicalGeometry()->getNrOfFaces(); ++currentFace) {
+        std::set<std::pair<std::size_t, std::size_t> > periodicPairing { };
 
-                //step 1: find the other element
-                std::vector<int>::iterator elementListEntry[3];
-                std::vector<std::size_t> faceNode;
-                (currentElement)->getPhysicalGeometry()->getGlobalFaceNodeIndices(currentFace, faceNode);
-                for (int i = 0; i < 3; ++i) {
-                    elementListEntry[i] = listOfElementsForEachNode[faceNode[i]].begin();
+        for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
+        {
+            PointPhysicalT point { DIM };
+            PointPhysicalT compare { DIM };
+            node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0), point);
+            std::set<std::size_t> equivalentIndices { };
+            equivalentIndices.insert(node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0)));
+            for (std::size_t i = 1; i < node->getNrOfElements(); ++i)
+            {
+                node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(i), compare);
+                if (compare != point)
+                {
+                    equivalentIndices.insert(node->getElement(i)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(i)));
                 }
-                while (!(*elementListEntry[0] == *elementListEntry[1] && *elementListEntry[0] == *elementListEntry[2])) {
-                    if (*elementListEntry[0]<*elementListEntry[1]) {
-                        elementListEntry[0]++;
-                    }
-                    if (*elementListEntry[1]<*elementListEntry[2]) {
-                        elementListEntry[1]++;
-                    }
-                    if (*elementListEntry[2]<*elementListEntry[0]) {
-                        elementListEntry[2]++;
+            }
+            auto equivalentIterator = equivalentIndices.begin();
+            ++equivalentIterator;
+            for (; equivalentIterator != equivalentIndices.end(); ++equivalentIterator)
+            {
+                periodicPairing.insert( { *equivalentIndices.begin(), *equivalentIterator });
+            }
+        }
+
+        //compute the lengths of the edges and how far the nodes have moved, to see if the nodes have moved so far that a retriangulation is in order
+        double maxShift = 0;
+        //except dont bother if a retriangulation is in order anyway
+        if (oldNodeLocations_.size() == theMesh_.getNodes().size())
+        {
+            std::vector<double> unscaledShift { };
+            unscaledShift.reserve(theMesh_.getNumberOfNodes());
+            //compute current and expected (relative) edge length
+            std::vector<double> expectedLength { };
+            expectedLength.reserve(theMesh_.getNumberOfNodes());
+            std::multimap<double, std::size_t> knownLengths;
+            std::vector<double> currentLength { };
+            //for proper scaling
+            double totalexpectedLength = 0;
+            for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
+            {
+                PointPhysicalT point { DIM };
+                node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0), point);
+                unscaledShift.push_back(L2Norm(oldNodeLocations_[expectedLength.size()] - point));
+                expectedLength.push_back(relativeEdgeLength(point));
+                if (isnan(expectedLength.back()) || isinf(expectedLength.back()))
+                {
+                    needsExpansion |= true;
+                }
+                else
+                {
+                    knownLengths.insert( { expectedLength.back(), expectedLength.size() - 1 });
+                }
+            }
+            if (needsExpansion)
+            {
+                //iterate over all nodes, sorted by edge lengths
+                for (std::pair<double, std::size_t> entry : knownLengths)
+                {
+                    Node* current = theMesh_.getVerticesList(IteratorType::GLOBAL)[entry.second];
+                    for (Element* element : current->getElements())
+                    {
+                        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
+                        {
+                            if (std::isnan(expectedLength[element->getNode(i)->getID()]) || std::isinf(expectedLength[element->getNode(i)->getID()]))
+                            {
+                                expectedLength[element->getNode(i)->getID()] = growFactor * entry.first;
+
+                                //inserting does not invalidate the iterators;
+                                //new node has a larger edge length, so it is guaranteed to be visited later on
+
+                                knownLengths.insert(knownLengths.end(),
+                                {
+                                                    growFactor * entry.first, element->getNode(i)->getID()
+                                });
+                            }
+                        }
                     }
                 }
-                if (*elementListEntry[0] != (currentElement)->getID()) {
-                    //std::cout<<"found candidate matching "<<*elementListEntry[0]<<"->"<<(*currentElement)->getID()<<std::endl;
+            }
+            //iterate over all edges to compute total length and scaling factor
+            //the volume scales with (total edge length)^dimension
+            //the total volume filled by the edges should be constant
+            //so scale appropriately
+            if (DIM == 1)
+            {
+                currentLength.reserve(theMesh_.getNumberOfElements(IteratorType::GLOBAL));
+                //the algorithm is mostly dimension independent, but the data type it operates on is not
+                for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
+                    element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                    currentLength.push_back(L2Norm(firstNode - secondNode));
+                    totalCurrentLength += currentLength.back();
+                    totalexpectedLength += expectedLength[element->getNode(0)->getID()] / 2;
+                    totalexpectedLength += expectedLength[element->getNode(1)->getID()] / 2;
+                    maxShift = std::max(maxShift, L2Norm(firstNode - oldNodeLocations_[element->getPhysicalGeometry()->getNodeIndex(0)]) / currentLength.back());
+                    maxShift = std::max(maxShift, L2Norm(secondNode - oldNodeLocations_[element->getPhysicalGeometry()->getNodeIndex(1)]) / currentLength.back());
+                }
+            }
+            else if (DIM == 2)
+            {
+                currentLength.reserve(theMesh_.getNumberOfFaces(IteratorType::GLOBAL));
+                for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    std::vector<std::size_t> nodeIndices;
+                    face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
+                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    currentLength.push_back(L2Norm(firstNode - secondNode));
+                    totalCurrentLength += currentLength.back() * currentLength.back();
+                    totalexpectedLength += std::pow(expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()] + expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()], 2.) / 4.;
+                    maxShift = std::max(maxShift, L2Norm(firstNode - oldNodeLocations_[face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(nodeIndices[0])]) / currentLength.back());
+                    maxShift = std::max(maxShift, L2Norm(secondNode - oldNodeLocations_[face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(nodeIndices[1])]) / currentLength.back());
+                }
+                worstQuality = 1;
+                for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
+                {
+                    std::array<double, 3> edgeLengths;
+                    for (std::size_t i = 0; i < 3; ++i)
+                    {
+                        edgeLengths[i] = currentLength[element->getFace(i)->getID()];
+                    }
+                    worstQuality = std::min(worstQuality, (edgeLengths[0] + edgeLengths[1] - edgeLengths[2])*(edgeLengths[1] + edgeLengths[2] - edgeLengths[0])*(edgeLengths[2] + edgeLengths[0] - edgeLengths[1]) / edgeLengths[0] / edgeLengths[1] / edgeLengths[2]);
+                }
+            }
+            else
+            {
+                currentLength.reserve(theMesh_.getNumberOfEdges(IteratorType::GLOBAL));
+                for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    std::vector<std::size_t> nodeIndices;
+                    edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
+                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    currentLength.push_back(L2Norm(firstNode - secondNode));
+                    totalCurrentLength += currentLength.back() * currentLength.back() * currentLength.back();
+                    totalexpectedLength += std::pow(expectedLength[edge->getElement(0)->getNode(nodeIndices[0])->getID()] + expectedLength[edge->getElement(0)->getNode(nodeIndices[1])->getID()], 3.) / 8.;
+                    maxShift = std::max(maxShift, L2Norm(firstNode - oldNodeLocations_[edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(nodeIndices[0])]) / currentLength.back());
+                    maxShift = std::max(maxShift, L2Norm(secondNode - oldNodeLocations_[edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(nodeIndices[1])]) / currentLength.back());
+                }
+            }
 
-                    //step 2: find the other face
-                    //the trick used for the boundary faces wont work because of periodic 'internal' faces
-                    for (int otherFace = 0; otherFace < vectorOfElements[*elementListEntry[0]]->getPhysicalGeometry()->getNrOfFaces(); ++otherFace) {
+            //all regions of the domain where elements are allowed to be as large as possible must be connected to regions where relativeEdgeLength provides a limitation
+            assert(!std::isnan(totalexpectedLength)&&!std::isinf(totalexpectedLength));
+        }
+        std::size_t counter = 0;
+        double maxMovement = std::numeric_limits<double>::infinity();
+        std::vector<double> currentLength { };
+        std::vector<PointPhysicalT> movement(theMesh_.getNodes().size(), DIM);
+        //stop after n iterations, or (when the nodes have stopped moving and the mesh is not becoming worse), or when the mesh is great, or when the mesh is decent, but worsening
+        while ((counter < 10000 && (maxMovement > 1e-3 || oldQuality - worstQuality > 1e-3) && worstQuality < 0.8 && (worstQuality < 2. / 3. || oldQuality - worstQuality < 0)) || counter < 5)
+        {
+            counter++;
+            if ((maxShift > 0.1 && (oldQuality - worstQuality) < 5e-3 * maxShift) || (oldNodeLocations_.size() != theMesh_.getNumberOfNodes()) || worstQuality < 1e-6)
+            {
+                maxShift = 0;
 
-                        //but we can just find the original element back
-                        std::vector<int>::iterator otherElementListEntry[3];
-                        std::vector<std::size_t> otherFaceNode;
-                        vectorOfElements[*elementListEntry[0]]->getPhysicalGeometry()->getGlobalFaceNodeIndices(otherFace, otherFaceNode);
-                        for (int i = 0; i < 3; ++i) {
-                            otherElementListEntry[i] = listOfElementsForEachNode[otherFaceNode[i]].begin();
+                orgQhull::RboxPoints qHullCoordinates { };
+                qHullCoordinates.setDimension(DIM);
+                qHullCoordinates.reserveCoordinates(DIM * theMesh_.getNumberOfNodes());
+                oldNodeLocations_.clear();
+                oldNodeLocations_.reserve(theMesh_.getNumberOfNodes());
+                for (PointPhysicalT point : theMesh_.getNodes())
+                {
+                    qHullCoordinates.append(DIM, point.data());
+                    oldNodeLocations_.push_back(point);
+                }
+                theMesh_.clear();
+                auto pairingIterator = periodicPairing.begin();
+                for (PointPhysicalT point : oldNodeLocations_)
+                {
+                    theMesh_.addNode(point);
+                    if (pairingIterator == periodicPairing.end())
+                    {
+                        theMesh_.addVertex();
+                    }
+                    else
+                    {
+                        //skip one insertion for each master/slave pair
+                        pairingIterator++;
+                    }
+                }
+
+                std::vector<std::size_t> vertexIndex { };
+                vertexIndex.resize(theMesh_.getNumberOfNodes(), std::numeric_limits<std::size_t>::max());
+                pairingIterator = periodicPairing.begin();
+                std::size_t currentVertexNumber = 0;
+                for (std::size_t i = 0; i < theMesh_.getNumberOfNodes();)
+                {
+                    vertexIndex[i] = currentVertexNumber;
+                    //assign boundary nodes
+                    while (pairingIterator != periodicPairing.end() && pairingIterator->first == i)
+                    {
+                        vertexIndex[pairingIterator->second] = currentVertexNumber;
+                        ++pairingIterator;
+                    }
+                    currentVertexNumber++;
+                    //skip over already set boundary nodes
+                    while (vertexIndex[i] < std::numeric_limits<std::size_t>::max() && i < theMesh_.getNumberOfNodes())
+                    {
+                        ++i;
+                    }
+                }
+
+                //all periodic boundary pairs are used
+                assert(pairingIterator == periodicPairing.end());
+                //the actual amount of vertices and the assigned amount of vertices match
+                assert(currentVertexNumber == theMesh_.getNumberOfVertices(IteratorType::GLOBAL));
+
+                orgQhull::Qhull triangulation(qHullCoordinates, "d PF1e-10 QbB Qx Qc Qt");
+
+                for (orgQhull::QhullFacet triangle : triangulation.facetList())
+                {
+                    if (triangle.isGood() && !triangle.isUpperDelaunay())
+                    {
+                        PointPhysicalT center { DIM };
+                        std::vector<std::size_t> pointIndices { };
+                        for (auto vertexIt1 = triangle.vertices().begin(); vertexIt1 != triangle.vertices().end(); ++vertexIt1)
+                        {
+                            center += oldNodeLocations_[(*vertexIt1).point().id()];
+                            pointIndices.push_back((*vertexIt1).point().id());
                         }
-                        while (!(*otherElementListEntry[0] == *otherElementListEntry[1] && *otherElementListEntry[0] == *otherElementListEntry[2])) {
-                            if (*otherElementListEntry[0]<*otherElementListEntry[1]) {
-                                otherElementListEntry[0]++;
-                            }
-                            if (*otherElementListEntry[1]<*otherElementListEntry[2]) {
-                                otherElementListEntry[1]++;
-                            }
-                            if (*otherElementListEntry[2]<*otherElementListEntry[0]) {
-                                otherElementListEntry[2]++;
-                            }
-                        }
-                        //std::cout<<"finding the other element again("<<*otherElementListEntry[0]<<")"<<std::endl;
-                        //assert(*otherElementListEntry[0]==*elementListEntry[0]);//for other faces this element may not be the first match found
-                        if (*otherElementListEntry[0] == (currentElement)->getID() && *otherElementListEntry[0] == *otherElementListEntry[1] && *otherElementListEntry[0] == *otherElementListEntry[2]) {
-                            //std::cout<<"found the fist element("<<*otherElementListEntry[0]<<")"<<std::endl;
-                            addFace(currentElement, currentFace, vectorOfElements[*elementListEntry[0]], otherFace);
-                            numberOfFaces++;
-                        } else {
-                            otherElementListEntry[0]++;
-                            while (!(*otherElementListEntry[0] == *otherElementListEntry[1] && *otherElementListEntry[0] == *otherElementListEntry[2]) &&
-                                    otherElementListEntry[0] != listOfElementsForEachNode[otherFaceNode[0]].end() &&
-                                    otherElementListEntry[1] != listOfElementsForEachNode[otherFaceNode[1]].end() &&
-                                    otherElementListEntry[2] != listOfElementsForEachNode[otherFaceNode[2]].end()) {
-                                if (*otherElementListEntry[0]<*otherElementListEntry[1]) {
-                                    otherElementListEntry[0]++;
-                                }
-                                if (*otherElementListEntry[1]<*otherElementListEntry[2]) {
-                                    otherElementListEntry[1]++;
-                                }
-                                if (*otherElementListEntry[2]<*otherElementListEntry[0]) {
-                                    otherElementListEntry[2]++;
-                                }
-                            }
-                            if (*otherElementListEntry[0] == (currentElement)->getID() && *otherElementListEntry[0] == *otherElementListEntry[1] && *otherElementListEntry[0] == *otherElementListEntry[2]) {
-                                //std::cout<<"found the fist element("<<*otherElementListEntry[0]<<")"<<std::endl;
-                                addFace(currentElement, currentFace, vectorOfElements[*elementListEntry[0]], otherFace);
-                                numberOfFaces++;
+                        center = center / pointIndices.size();
+                        if (domainDescription(center) < -1e-10)
+                        {
+                            auto newElement = addElement(pointIndices);
+                            for (std::size_t i = 0; i < pointIndices.size(); ++i)
+                            {
+                                theMesh_.getVerticesList(IteratorType::GLOBAL)[vertexIndex[pointIndices[i]]]->addElement(newElement, i);
                             }
                         }
                     }
+                    if (!triangle.isGood() && !triangle.isUpperDelaunay())
+                    {
+                        std::cout << "small element " << triangle << " ignored" << std::endl;
+                    }
+                }
+                for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
+                {
+                    //all of the nodes should be in the interior of the domain or near the boundary of the domain
+                    if (node->getNrOfElements() == 0)
+                    {
+                        for(std::size_t i=0;i<vertexIndex.size();++i)
+                        {
+                            if(vertexIndex[i]==node->getID())
+                            {
+                                std::cout << i << " " << theMesh_.getNodes()[i] << " " << domainDescription(theMesh_.getNodes()[i]) << std::endl;
+                            }
+                        }
+                    }
+                    assert(node->getNrOfElements() > 0);
+                }
+                edgeFactory();
+                faceFactory();
+            }
+            oldQuality = worstQuality;
 
-                } else {
-                    //this face was already treated or it is a boundary face
+
+            std::vector<double> expectedLength { };
+            std::multimap<double, std::size_t> knownLengths { };
+            expectedLength.reserve(theMesh_.getNumberOfNodes());
+            //for proper scaling
+            totalCurrentLength = 0;
+            double totalexpectedLength = 0.;
+            for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
+            {
+                PointPhysicalT point { DIM };
+                node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0), point);
+                expectedLength.push_back(relativeEdgeLength(point));
+                if (!isnan(expectedLength.back()) && !isinf(expectedLength.back()))
+                {
+                    knownLengths.insert( { expectedLength.back(), expectedLength.size() - 1 });
+                    needsExpansion |= true;
+                }
+            }
+            if (needsExpansion)
+            {
+                //iterate over all nodes, sorted by edge lengths
+                for (std::pair<double, std::size_t> entry : knownLengths)
+                {
+                    Node* current = theMesh_.getVerticesList(IteratorType::GLOBAL)[entry.second];
+                    for (Element* element : current->getElements())
+                    {
+                        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
+                        {
+                            if (std::isnan(expectedLength[element->getNode(i)->getID()]) || std::isinf(expectedLength[element->getNode(i)->getID()]))
+                            {
+                                expectedLength[element->getNode(i)->getID()] = growFactor * entry.first;
+
+                                //inserting does not invalidate the iterators;
+                                //new node has a larger edge length, so it is guaranteed to be visited later on
+
+                                knownLengths.insert(knownLengths.end(),
+                                {
+                                                    growFactor * entry.first, element->getNode(i)->getID()
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            //iterate over all edges to compute total length and scaling factor
+            //the volume scales with (total edge length)^dimension
+            //the total volume filled by the edges should be constant
+            //so scale appropriately
+            totalCurrentLength = 0;
+            totalexpectedLength = 0;
+            if (DIM == 1)
+            {
+                currentLength.resize(theMesh_.getNumberOfElements(IteratorType::GLOBAL));
+                //the algorithm is mostly dimension independent, but the data type it operates on is not
+                for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
+                    element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                    currentLength[element->getID()] = L2Norm(firstNode - secondNode);
+                    totalCurrentLength += currentLength[element->getID()];
+                    totalexpectedLength += expectedLength[element->getNode(0)->getID()] / 2.;
+                    totalexpectedLength += expectedLength[element->getNode(1)->getID()] / 2.;
+                }
+            }
+            else if (DIM == 2)
+            {
+                currentLength.resize(theMesh_.getNumberOfFaces(IteratorType::GLOBAL));
+                for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    std::vector<std::size_t> nodeIndices;
+                    face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
+                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    currentLength[face->getID()] = L2Norm(firstNode - secondNode);
+                    totalCurrentLength += currentLength[face->getID()] * currentLength[face->getID()];
+                    totalexpectedLength += std::pow(expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()] + expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()], 2.) / 4.;
+                }
+            }
+            else
+            {
+                currentLength.resize(theMesh_.getNumberOfEdges(IteratorType::GLOBAL));
+                for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    std::vector<std::size_t> nodeIndices;
+                    edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
+                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    currentLength[edge->getID()] = L2Norm(firstNode - secondNode);
+                    totalCurrentLength += currentLength[edge->getID()] * currentLength[edge->getID()] * currentLength[edge->getID()];
+                    totalexpectedLength += std::pow(expectedLength[edge->getElement(0)->getNode(nodeIndices[0])->getID()] + expectedLength[edge->getElement(0)->getNode(nodeIndices[1])->getID()], 3.) / 8.;
+                }
+            }
+
+            for (PointPhysicalT& point : movement)
+            {
+                point *= 0;
+            }
+
+            if (DIM == 1)
+            {
+                for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
+                    element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                    //it is impossible to detect if a node inside the domain should be clipped to the edge
+                    //instead make sure that the nodes that DO belong dont get pulled into the interior
+                    //roundoff error should make sure that nodes move away from the boundary if there are too many
+                    //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.4 times as large
+                    //remember to scale back from a volume measure to a length measure
+                    //the non-linearity makes everything slightly more robust
+                    double length = (expectedLength[element->getNode(0)->getID()] + expectedLength[element->getNode(1)->getID()]) / currentLength[element->getID()] * 1.4 * totalCurrentLength / totalexpectedLength / 2.;
+                    movement[element->getNode(0)->getID()] += std::max(length - 1., 0.) * (firstNode - secondNode) * (length + 1.) * 0.5;
+                    movement[element->getNode(1)->getID()] += std::max(length - 1., 0.) * (secondNode - firstNode) * (length + 1.) * 0.5;
+                }
+            }
+            else if (DIM == 2)
+            {
+                for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    std::vector<std::size_t> nodeIndices;
+                    face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
+                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    double length = (expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()] + expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()]) / currentLength[face->getID()] * std::pow(1.4 * totalCurrentLength / totalexpectedLength, 1. / 2.) / 2.;
+                    movement[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()] += std::max(length - 1., 0.) * (firstNode - secondNode) * (length + 1.) * 0.5;
+                    movement[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()] += std::max(length - 1., 0.) * (secondNode - firstNode) * (length + 1.) * 0.5;
+                }
+            }
+            else if (DIM == 3)
+            {
+                for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    std::vector<std::size_t> nodeIndices;
+                    edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
+                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    double length = (expectedLength[edge->getElement(0)->getNode(nodeIndices[0])->getID()] + expectedLength[edge->getElement(0)->getNode(nodeIndices[1])->getID()]) / currentLength[edge->getID()] * std::pow(1.4 * totalCurrentLength / totalexpectedLength, 1. / 3.) / 2.;
+                    movement[edge->getElement(0)->getNode(nodeIndices[0])->getID()] += std::max(length - 1., 0.) * (firstNode - secondNode) * (length + 1.) * 0.5;
+                    movement[edge->getElement(0)->getNode(nodeIndices[1])->getID()] += std::max(length - 1., 0.) * (secondNode - firstNode) * (length + 1.) * 0.5;
+                }
+            }
+
+            //forward Euler discretisation of an optimally damped mass-spring system, with time step 0.02
+            //this time step could be 0.1, but there is a stability issue where springs aligned along the periodic boundary are applied twice
+            maxMovement = 0;
+            auto moveIterator = movement.begin();
+            auto fixIterator = fixedPointIdxs.begin();
+            for (std::size_t i = 0; i < theMesh_.getNumberOfVertices(IteratorType::GLOBAL); ++moveIterator, ++i)
+            {
+                if (fixIterator != fixedPointIdxs.end() && i == *fixIterator)
+                {
+                    ++fixIterator;
+                    *moveIterator *= 0;
+                }
+                else
+                {
+                    Node* node = theMesh_.getVerticesList(IteratorType::GLOBAL)[i];
+                    PointPhysicalT& point = theMesh_.getNodes()[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0))];
+                    point += 0.1 * (*moveIterator);
+                    if (std::isnan(point[0]))
+                    {
+                        std::cout << i << std::endl;
+                        throw i;
+                    }
+                    bool isPeriodic = false;
+                    std::map < std::size_t, bool> hasMoved { };
+                    hasMoved[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0))] = true;
+                    for (std::size_t j = 1; j < node->getNrOfElements(); ++j)
+                    {
+                        if (!hasMoved[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))])
+                        {
+                            PointPhysicalT& other = theMesh_.getNodes()[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))];
+                            other += 0.1 * (*moveIterator);
+                            hasMoved[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))] = true;
+                            isPeriodic = true;
+                        }
+                    }
+                    if (domainDescription(point) > 0 && !isPeriodic)
+                    {
+                        //the point is outside of the domain, move it back inside
+                        double currentValue = domainDescription(point);
+                        LinearAlgebra::NumericalVector gradient { DIM };
+                        LinearAlgebra::NumericalVector offset { DIM };
+                        //one-sided numerical derivative
+                        for (std::size_t j = 0; j < DIM; ++j)
+                        {
+                            offset[j] = 1e-7;
+                            gradient[j] = (currentValue - domainDescription(point + offset)) * 1e7;
+                            offset[j] = 0;
+                        }
+                        point += currentValue * gradient / L2Norm(gradient);
+                        *moveIterator += 10 * currentValue * gradient / L2Norm(gradient);
+                        currentValue = domainDescription(point);
+                        //second step for robustness and accuracy if needed
+                        if (currentValue > 0)
+                        {
+                            for (std::size_t j = 0; j < DIM; ++j)
+                            {
+                                offset[j] = 1e-7;
+                                gradient[j] = (currentValue - domainDescription(point + offset)) * 1e7;
+                                offset[j] = 0;
+                            }
+                            point += currentValue * gradient / L2Norm(gradient);
+                            *moveIterator += 10 * currentValue * gradient / L2Norm(gradient);
+                            //if two steps are not enough, more are also not likely to help
+                            currentValue = domainDescription(point);
+                            if (currentValue > 1e-10)
+                            {
+                                std::cout << "NOTE: Failed to move point " << i << " (" << point << ") back into the domain.\n Distance from boundary is " << currentValue << ". Algorithm may crash.\n Consider fixing points at corners to remedy this issue." << std::endl;
+                            }
+                        }
+                    }
+                    if (isPeriodic)
+                    {
+                        //do a total of tree newton iteration before giving up
+                        PointPhysicalT point { DIM };
+                        for (std::size_t j = 0; j < 4; ++j)
+                        {
+                            //make sure the node stays on the periodic boundary, to prevent faces with 3 or more elements connected to them
+                            for (std::size_t k = 0; k < node->getNrOfElements(); ++k)
+                            {
+                                node->getElement(k)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(k), point);
+                                double currentValue = domainDescription(point);
+                                if (currentValue > 0)
+                                {
+                                    LinearAlgebra::NumericalVector gradient { DIM };
+                                    LinearAlgebra::NumericalVector offset { DIM };
+                                    for (std::size_t l = 0; l < DIM; ++l)
+                                    {
+                                        offset[l] = 1e-7;
+                                        gradient[l] = (currentValue - domainDescription(point + offset)) * 1e7;
+                                        offset[l] = 0;
+                                    }
+                                    std::map < std::size_t, bool> hasMoved;
+                                    for (std::size_t l = 0; l < node->getNrOfElements(); ++l)
+                                    {
+                                        if (!hasMoved[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))])
+                                        {
+                                            PointPhysicalT& other = theMesh_.getNodes()[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))];
+                                            other += currentValue * gradient / L2Norm(gradient);
+                                            hasMoved[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))] = true;
+                                        }
+                                    }
+                                    *moveIterator += 10 * currentValue * gradient / L2Norm(gradient);
+                                }
+                            }
+                        }
+                        for (std::size_t j = 0; j < node->getNrOfElements(); ++j)
+                        {
+                            node->getElement(j)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(j), point);
+                            if (domainDescription(point) > 1e-10)
+                            {
+                                std::cout << "NOTE: Failed to move periodic point " << i << " (" << point << ") back to the periodic boundary.\n Distance from boundary is " << domainDescription(point) << ". Algorithm may crash.\n Consider fixing points at corners to remedy this issue." << std::endl;
+                            }
+                        }
+                        ;
+                    }
+                }
+            }
+
+            worstQuality = 1;
+            if (DIM == 1)
+            {
+                //quality measure is not an issue in 1D just create a mesh with the proper lengths
+                worstQuality = 0.5;
+                //the algorithm is mostly dimension independent, but the data type it operates on is not
+                for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
+                    element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                    maxMovement = std::max(maxMovement, L2Norm(movement[element->getNode(0)->getID()]) / 10 / currentLength[element->getID()]);
+                    maxMovement = std::max(maxMovement, L2Norm(movement[element->getNode(1)->getID()]) / 10 / currentLength[element->getID()]);
+                    maxShift = std::max(maxShift, L2Norm(firstNode - oldNodeLocations_[element->getPhysicalGeometry()->getNodeIndex(0)]) / currentLength[element->getID()]);
+                    maxShift = std::max(maxShift, L2Norm(secondNode - oldNodeLocations_[element->getPhysicalGeometry()->getNodeIndex(1)]) / currentLength[element->getID()]);
+                }
+            }
+            else if (DIM == 2)
+            {
+                //ratio between incircle and circumcircle (scaled so equilateral is quality 1 and reference is quality ~.8)
+                for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
+                {
+                    std::array<double, 3> edgeLengths { };
+                    for (std::size_t i = 0; i < 3; ++i)
+                    {
+                        edgeLengths[i] = currentLength[element->getFace(i)->getID()];
+                    }
+                    worstQuality = std::min(worstQuality, (edgeLengths[0] + edgeLengths[1] - edgeLengths[2])*(edgeLengths[1] + edgeLengths[2] - edgeLengths[0])*(edgeLengths[2] + edgeLengths[0] - edgeLengths[1]) / edgeLengths[0] / edgeLengths[1] / edgeLengths[2]);
+                }
+                for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    std::vector<std::size_t> nodeIndices { };
+                    face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
+                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    maxMovement = std::max(maxMovement, L2Norm(movement[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()]) / 10 / currentLength[face->getID()]);
+                    maxMovement = std::max(maxMovement, L2Norm(movement[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()]) / 10 / currentLength[face->getID()]);
+                    maxShift = std::max(maxShift, L2Norm(firstNode - oldNodeLocations_[face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(nodeIndices[0])]) / currentLength[face->getID()]);
+                    maxShift = std::max(maxShift, L2Norm(secondNode - oldNodeLocations_[face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(nodeIndices[1])]) / currentLength[face->getID()]);
+                }
+            }
+            else
+            {
+                //ratio between volume and cubed average edge length (scaled so equilateral is quality 1 and reference is quality ~.8)
+                for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
+                {
+                    std::array<double, 6> edgeLengths { };
+                    for (std::size_t i = 0; i < 6; ++i)
+                    {
+                        edgeLengths[i] = currentLength[element->getEdge(i)->getID()];
+                    }
+                    double average = std::accumulate(edgeLengths.begin(), edgeLengths.end(), 0) / 6;
+                    Geometry::Jacobian jac { 3, 3 };
+                    Geometry::PointReference center { 3 };
+                    element->getReferenceGeometry()->getCenter(center);
+                    element->calcJacobian(center, jac);
+                    worstQuality = std::min(worstQuality, jac.determinant() / average * std::sqrt(2));
+                }
+                for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
+                {
+                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    std::vector<std::size_t> nodeIndices { };
+                    edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
+                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    maxMovement = std::max(maxMovement, L2Norm(movement[edge->getElement(0)->getNode(nodeIndices[0])->getID()]) / 10 / currentLength[edge->getID()]);
+                    maxMovement = std::max(maxMovement, L2Norm(movement[edge->getElement(0)->getNode(nodeIndices[1])->getID()]) / 10 / currentLength[edge->getID()]);
+                    maxShift = std::max(maxShift, L2Norm(firstNode - oldNodeLocations_[edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(nodeIndices[0])]) / currentLength[edge->getID()]);
+                    maxShift = std::max(maxShift, L2Norm(secondNode - oldNodeLocations_[edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(nodeIndices[1])]) / currentLength[edge->getID()]);
+                }
+            }
+
+            //no teleporting nodes in the final iteration
+            if (counter % 50 == 1 && false)
+            {
+                //the actual sorting is more expensive than computing the lengths and this does not happen very often
+                std::multimap<double, std::pair<PointPhysicalT, PointIndexT> > centerPoints { };
+                if (DIM == 1)
+                {
+                    //the algorithm is mostly dimension independent, but the data type it operates on is not
+                    for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
+                    {
+                        PointPhysicalT firstNode(DIM), secondNode(DIM);
+                        element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
+                        element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                        //length is scaled in case somebody hasty decides to add smoothing at this point
+                        //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.5 times as large
+                        //remember to scale back from a volume measure to a length measure
+                        double length = (expectedLength[element->getNode(0)->getID()] + expectedLength[element->getNode(1)->getID()]) / currentLength[centerPoints.size()] * 2 * totalCurrentLength / totalexpectedLength;
+                        centerPoints.insert( { length,
+                            {(firstNode + secondNode) / 2, element->getNode(0)->getID() } });
+                    }
+                }
+                else if (DIM == 2)
+                {
+                    for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
+                    {
+                        PointPhysicalT firstNode(DIM), secondNode(DIM);
+                        std::vector<std::size_t> nodeIndices { };
+                        face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
+                        face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                        face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                        //length is scaled in case somebody hasty decides to add smoothing at this point
+                        //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.5 times as large
+                        //remember to scale back from a volume measure to a length measure
+                        double length = (expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()] + expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()]) / currentLength[centerPoints.size()] * std::pow(2 * totalCurrentLength / totalexpectedLength, 1. / 2.);
+                        centerPoints.insert( { length,
+                            {(firstNode + secondNode) / 2, face->getPtrElementLeft()->getNode(nodeIndices[0])->getID() } });
+                    }
+                }
+                else
+                {
+                    for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
+                    {
+                        PointPhysicalT firstNode(DIM), secondNode(DIM);
+                        std::vector<std::size_t> nodeIndices { };
+                        edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
+                        edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
+                        edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                        //length is scaled in case somebody hasty decides to add smoothing at this point
+                        //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.5 times as large
+                        //remember to scale back from a volume measure to a length measure
+                        double length = (expectedLength[edge->getElement(0)->getNode(nodeIndices[0])->getID()] + expectedLength[edge->getElement(0)->getNode(nodeIndices[1])->getID()]) / currentLength[centerPoints.size()] * std::pow(2 * totalCurrentLength / totalexpectedLength, 1. / 3.);
+                        centerPoints.insert( { length,
+                            {(firstNode + secondNode) / 2, edge->getElement(0)->getNode(nodeIndices[0])->getID() } });
+                    }
+                }
+                std::vector<bool> hasTeleported(theMesh_.getNumberOfNodes(), false);
+                auto longEdge = centerPoints.begin();
+                auto shortEdge = centerPoints.rbegin();
+                for (std::size_t index : fixedPointIdxs)
+                {
+                    hasTeleported[index] = true;
+                }
+                PointPhysicalT point { DIM };
+                PointPhysicalT other { DIM };
+                for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
+                {
+                    node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0), point);
+                    for (std::size_t i = 0; i < node->getNrOfElements(); ++i)
+                    {
+                        node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(i), other);
+                        if (point != other)
+                        {
+                            hasTeleported[node->getID()] = true;
+                        }
+                    }
+                }
+                //remember that the size measure is inverted
+                while (3 * longEdge->first < shortEdge->first)
+                {
+                    if (hasTeleported[shortEdge->second.second])
+                    {
+                        shortEdge++;
+                    }
+                    else 
+                    {
+                        if (domainDescription(longEdge->second.first) < 0)
+                        {
+                            maxMovement = std::max(maxMovement, L2Norm(longEdge->second.first - theMesh_.getNodes()[shortEdge->second.second]));
+                            //it is quite unlikely that the current triangulation suffices after randomly teleporting nodes about
+                            maxShift = std::numeric_limits<double>::infinity();
+                            theMesh_.getNodes()[shortEdge->second.second] = longEdge->second.first;
+                            hasTeleported[shortEdge->second.second] = true;
+                            shortEdge++;
+                        }
+                        longEdge++;
+                    }
                 }
             }
         }
-        std::cout << "Total number of Faces: " << numberOfFaces << std::endl;
-    }*/
+        if (counter == 10000)
+        {
+            std::cout << "WARNING: Maximum iteration count reached, mesh quality may not be optimal" << std::endl;
+        }
+        //coordinate transformation may have changed, update to the current situation
+        for (Element* element : theMesh_.getElementsList())
+        {
+            const_cast<Geometry::MappingReferenceToPhysical*> (element->getReferenceToPhysicalMap())->reinit(element->getPhysicalGeometry());
+        }
+    }
+#endif
 
 
     /// \bug does not do the bc flags yet
@@ -2793,6 +3277,22 @@ namespace Base {
                     if(candidates.size()==0||candidates.size()>2)
                     {
                         std::cerr << "Invalid number of bounding elements detected for face " << theMesh_.getFacesList(IteratorType::GLOBAL).size() + 1 << std::endl;
+                        std::cout << "current element " << *element << std::endl;
+                        std::cout << "face with nodes ";
+                        for (const Node* local : localNodes)
+                        {
+                            std::cout << local->getID() << " ";
+                        }
+                        std::cout << std::endl;
+                        for (Element* candidate : candidates)
+                        {
+                            std::cout << "candidate element " << *candidate;
+                            for (std::size_t j = 0; j < candidate->getNrOfNodes(); ++j)
+                            {
+                                std::cout << candidate->getNode(j)->getID() << " ";
+                            }
+                            std::cout << std::endl;
+                        }
                         return;
                     }
                     //boundary face
@@ -2812,6 +3312,7 @@ namespace Base {
                         {
                             other=candidates[0];
                         }
+                        bool matchFound = false;
                         std::vector<std::size_t> otherNodeIndices;
                         for (std::size_t j = 0; j < other->getNrOfFaces(); ++j)
                         {
@@ -2826,118 +3327,23 @@ namespace Base {
                             }
                             if(match)
                             {
-                                addFace(element,i,other,j);
+                                if (matchFound)
+                                {
+                                    std::cerr << "Found two opposing faces for face " << i << " of element " << element->getID() << " in opposing element " << other->getID() << std::endl;
+                                }
+                                addFace(element, i, other, j);
+                                matchFound = true;
                             }
+                        }
+                        if (!matchFound)
+                        {
+                            std::cerr << "Could not find matching face for face " << i << " of element " << element->getID() << " in opposing element " << other->getID() << std::endl;
                         }
                     }
                 }
             }
         }
         
-        
-        
-        
-        /* //This will store the number of faces.
-        std::size_t numOfFaces;
-
-        //Half face holds global node number of both nodes, the element number and the local face number in that element.
-        HalfFaceDescription halfFace;
-
-        //List to hold the half faces. List is used for the quick sorting of the halfFaces
-        std::vector<HalfFaceDescription> halfFaceList;
-        VectorOfElementPtrT tempElementVector(getElementsList().size());
-
-        VectorOfPointIndicesT globalFaceIndexes;
-        int insertposition = 0;
-
-        //first loop over the elements reading in all the data of the half faces
-        std::size_t elementID = 0;
-        for (typename ListOfElementsT::iterator it = elementColBegin(); it != elementColEnd(); ++it) {
-            const Geometry::PhysicalGeometry * const myPhysicalGeometry = (*it)->getPhysicalGeometry();
-            const Geometry::ReferenceGeometry * const myReferenceGeometry = (*it)->getReferenceGeometry();
-            tempElementVector[elementID] = &(**it);
-
-            numOfFaces = myReferenceGeometry->getNrOfCodim1Entities();
-
-            //Loop over the faces on the element
-            for (int i = 0; i < numOfFaces; i++) {
-                halfFace.nodeList.clear();
-                halfFace.nodeList.resize(DIM);
-                myPhysicalGeometry->getGlobalFaceNodeIndices(i, globalFaceIndexes);
-
-                halfFace.elementNum = elementID;
-                halfFace.localFaceIndex = i;
-                //make sure the node numbers in the face description are sorted
-                for (int j = 0; j < globalFaceIndexes.size(); ++j) {
-                    while (insertposition < DIM && halfFace.nodeList[insertposition] < globalFaceIndexes[j]) {
-                        halfFace.nodeList[insertposition] = halfFace.nodeList[insertposition + 1];
-                        ++insertposition;
-                    }
-                    if (insertposition <= DIM) {
-                        halfFace.nodeList[insertposition - 1] = globalFaceIndexes[j];
-                    }
-                    insertposition = 0;
-                }
-                //Make sure the firstNode number is the smaller of the two global node number, required for the sorting.
-                //                 if (globalFaceIndexes[0]<globalFaceIndexes[1])
-                //                 {
-                //                     halfFace.firstNode=globalFaceIndexes[0];
-                //                     halfFace.secondNode=globalFaceIndexes[1];
-                //                 }
-                //                 else 
-                //                 {
-                //                     halfFace.firstNode=globalFaceIndexes[1];
-                //                     halfFace.secondNode=globalFaceIndexes[0];
-                //                 }
-
-                //Add the halfFace to the list
-                halfFaceList.push_back(halfFace);
-
-            }
-
-            elementID++;
-        }
-
-        //Now sort the list on the two value (firstNode, secondNode) so it order and the two pair internal halfFaces are next to each other
-        std::sort(halfFaceList.begin(), halfFaceList.end(), compareHalfFace);
-
-        //Writing out for testing
-        for (typename std::vector<HalfFaceDescription>::const_iterator cit = halfFaceList.begin(); cit != halfFaceList.end(); ++cit) {
-            //std::cout << (*cit).elementNum << " " << (*cit).localFaceIndex<< " "<< (*cit).nodeList[0]<<" " << (*cit).nodeList[1]<<" "<<  std::endl;
-        }
-
-        //Now create the faces
-        HalfFaceDescription current;
-        HalfFaceDescription next;
-
-        //Loop over all the half faces
-        for (typename std::vector<HalfFaceDescription>::const_iterator cit = halfFaceList.begin(); cit != halfFaceList.end(); ++cit) {
-            //For the first halfFace just read it in, as we cannot tell if is an internal or external yet.
-            if (cit == halfFaceList.begin()) {
-                current = *cit;
-            } else {
-                next = *cit;
-
-                //This is an interal face
-                if ((current.nodeList[0] == next.nodeList[0]) && (current.nodeList[1] == next.nodeList[1]) && ((DIM < 3) || (current.nodeList[2] == next.nodeList[2]))) {
-
-                    addFace(tempElementVector[current.elementNum], current.localFaceIndex, tempElementVector[next.elementNum], next.localFaceIndex);
-                    //jump a face
-                    ++cit;
-                    current = *cit;
-
-                    //There was only one face left, so it now the end of the list
-                    if (cit == halfFaceList.end()) {
-                        break;
-                    }
-                } else //it is a boundary face 
-                {
-                    addFace(tempElementVector[current.elementNum], current.localFaceIndex, nullptr, 0, Geometry::WALL_BC);
-                    current = next;
-                }
-
-            }
-        }*/
         std::cout << "Total number of Faces: " << getFacesList(IteratorType::GLOBAL).size() << std::endl;
     }
 
@@ -2993,88 +3399,8 @@ namespace Base {
                 }
             }
         }
-        
-        
-        
-        
-        /*//the halfFaceDescription is designed to store partial information for objects that still need to be linked, so it will also work for edges
-        HalfFaceDescription halfEdge;
-
-        std::vector<HalfFaceDescription> halfEdgeList;
-
-        VectorOfPointIndicesT globalEdgeIndexes;
-        int insertposition = 0;
-        std::size_t temp, dummy;
-
-        for (auto it = tempElementVector.begin(); it != tempElementVector.end(); ++it) {
-            const Geometry::PhysicalGeometry * const myPhysicalGeometry = (*it)->getPhysicalGeometry();
-            const Geometry::ReferenceGeometry * const myReferenceGeometry = (*it)->getReferenceGeometry();
-            tempElementVector[(*it)->getID()] = &(**it);
-            bool inserted(false);
-
-            numberOfEdges = myReferenceGeometry->getNrOfCodim2Entities();
-
-            //Loop over the edges on the element
-            for (int i = 0; i < numberOfEdges; ++i) {
-                halfEdge.nodeList.clear();
-                myReferenceGeometry->getCodim2EntityLocalIndices(i, globalEdgeIndexes);
-                for (int j = 0; j < globalEdgeIndexes.size(); ++j)
-                    globalEdgeIndexes[j] = myPhysicalGeometry->getNodeIndex(globalEdgeIndexes[j]);
-
-                halfEdge.elementNum = (*it)->getID();
-                halfEdge.localFaceIndex = i;
-                //make sure the node numbers in the edge description are sorted
-                halfEdge.nodeList.push_back(globalEdgeIndexes[0]);
-                for (int j = 1; j < globalEdgeIndexes.size(); ++j) {
-                    for (auto iit = halfEdge.nodeList.begin(); iit != halfEdge.nodeList.end(); ++iit) {
-                        if (!inserted && (*iit) > globalEdgeIndexes[j]) {
-                            halfEdge.nodeList.insert(iit, globalEdgeIndexes[j]);
-                            inserted = true;
-                        }
-                    }
-                    if (!inserted) {
-                        halfEdge.nodeList.push_back(globalEdgeIndexes[j]);
-                    }
-                    inserted = false;
-                }
-                //Add the halfFace to the list
-                halfEdgeList.push_back(halfEdge);
-            }
-        }
-        std::sort(halfEdgeList.begin(), halfEdgeList.end(), compareHalfFace);
-        HalfFaceDescription current;
-
-        std::vector<Element*> elements;
-        std::vector<std::size_t> edgeNrs;
-
-        for (typename std::vector<HalfFaceDescription>::const_iterator cit = halfEdgeList.begin(); cit != halfEdgeList.end(); ++cit) {
-            //For the first halfFace just read it in, as we cannot tell if is an internal or external yet.
-            if (elements.empty()) {
-                elements.push_back(tempElementVector[cit->elementNum]);
-                edgeNrs.push_back(cit->localFaceIndex);
-                current = *cit;
-            } else {
-                //This edge is not complete yet
-                if ((current.nodeList[0] == cit->nodeList[0]) && (current.nodeList[1] == cit->nodeList[1])) {
-                    elements.push_back(tempElementVector[cit->elementNum]);
-                    edgeNrs.push_back(cit->localFaceIndex);
-                } else //cit point to a new edge
-                {
-                    addEdge(elements, edgeNrs);
-                    elements.clear();
-                    edgeNrs.clear();
-                    elements.push_back(tempElementVector[cit->elementNum]);
-                    edgeNrs.push_back(cit->localFaceIndex);
-                    current = *cit;
-                }
-            }
-        }
-        //dont forget to add the final edge
-        addEdge(elements, edgeNrs);*/
     }
-
-
-
+    
     //---------------------------------------------------------------------
 
     /*int MeshManipulator::getNumberOfMeshes() const {

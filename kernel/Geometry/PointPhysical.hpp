@@ -38,26 +38,24 @@ namespace Geometry
 
     public:
 
-        PointPhysical(unsigned int DIM): PointT(DIM) {}
+        PointPhysical(std::size_t DIM) : PointT(DIM) { }
 
         PointPhysical(const PointT& p): PointT(p) {}
 
         PointPhysical(const VectorOfCoordsT& coord):Point(coord) {}
     
         PointPhysical  operator* (double right) const
-                {return PointPhysical(PointT::coordinates_ * right);}
+        {
+            return PointPhysical(PointT::coordinates_ * right);
+        }
 
-        PointPhysical  operator* (double right)
-                {return PointPhysical(PointT::coordinates_ * right);}
-        
-        PointPhysical  operator+ (const PointPhysical& right)
-                {return PointPhysical(PointT::coordinates_  + right.coordinates_);}
+        PointPhysical operator/(double right) const
+        {
+            return PointPhysical(PointT::coordinates_ / right);
+        }
         
         PointPhysical  operator+ (const PointPhysical& right) const
                 {return PointPhysical(PointT::coordinates_  + right.coordinates_);}
-        
-        PointPhysical  operator- (const PointPhysical& right)
-                {return PointPhysical(PointT::coordinates_  - right.coordinates_);}
         
         PointPhysical  operator- (const PointPhysical& right) const
                 {return PointPhysical(PointT::coordinates_  - right.coordinates_);}

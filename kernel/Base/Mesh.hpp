@@ -64,6 +64,8 @@ namespace Base {
         
         void addVertex();
 
+        void clear();
+
         std::size_t getNumberOfElements(IteratorType part=IteratorType::LOCAL) const {
             return getElementsList(part).size();
         }
@@ -207,7 +209,7 @@ namespace Base {
         std::vector< Node*> nodes_;
 
         //! Global vector of physical nodes. (physical location of vertices)
-        std::vector<Geometry::PointPhysical>points_;
+        std::vector<Geometry::PointPhysical> points_;
     };
 
 }

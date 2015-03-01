@@ -332,7 +332,6 @@ int main(int argc, char **argv)
         //create ...
         Laplace demo(numBasisFuns.getValue(), p.getValue());
         demo.initialise();
-
         //... and solve the problem
         demo.solve();
         

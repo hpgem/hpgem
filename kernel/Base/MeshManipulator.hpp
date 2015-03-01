@@ -213,6 +213,53 @@ namespace Base {
 
         void readCentaurMesh(const std::string& filename);
 
+#ifdef HPGEM_USE_QHULL
+        /**
+         * \brief create an unstructured triangular mesh
+         * \details An iterative mesh generator based on "A Simple Mesh Generator in Matlab" (Persson & Strang, 2004)
+         * The initial mesh uses the same structure as createTriangularMesh.
+         * This algorithm will still function if the bounding box of the domain is only known approximately
+         * If there is a very large difference between the smallest desired edge length and the largest desired edge length (ratio > ~4), it will usually help to overestimate the domain size
+         * The domain has to be described implicitly by a distance function, such that domainDescription(p) < 0 means p is inside the domain and the gradient of domaindescription is normal to the boundary
+         * Local element refinement is possible by providing desired relative edge lengths of the output mesh. The scaling of this function has no effect on the resulting mesh.
+         * If the edge scaling function returns NaN for some part of the domain, it is expanded exponentially from the known parts
+         * This routine cannot deal very well with concave(>pi) or very sharp corners(~<pi/4), by placing fixed points on these location, performance can be greatly improved
+         * Mesh quality is not guaraneed if growFactor is much larger or smaller than 1
+         * @param BottomLeft The bottom left corner of the bounding box of the domain
+         * @param TopRight The top right corner of the bounding box of the domain
+         * @param TotalNoNodes The desired amount of nodes in the mesh
+         * @param domainDescription A function that maps PointPhysicals to doubles, such that negative numbers signify points inside the mesh
+         * @param fixedPoints coordinates of point that MUST be in the mesh, no matter what
+         * @param relativeEdgeLength Allow r-refinement
+         * @param growFactor specify how much larger than its neighbours an element may be in areas where relativeEdgeLengths returns NaN
+         */
+        void createUnstructuredMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, std::size_t TotalNoNodes, std::function<double(PointPhysicalT) > domainDescription, std::vector<PointPhysicalT> fixedPoints = {}, std::function<double(PointPhysicalT) > relativeEdgeLength = [](PointPhysicalT)
+        {
+            return 1.;
+        }, double growFactor = 1.1);
+
+        /**
+         * \brief improve the mesh quality of an existing mesh
+         * \details An iterative mesh generator based on "A Simple Mesh Generator in Matlab" (Persson & Strang, 2004)
+         * The domain has to be described implicitly by a distance function, such that domainDescription(p) < 0 means p is inside the domain and the gradient of domaindescription is normal to the boundary
+         * Local element refinement is possible by providing desired relative edge lengths of the output mesh. The scaling of this function has no effect on the resulting mesh.
+         * If the edge scaling function returns NaN for some part of the domain, it is expanded exponentially from the known parts
+         * This routine cannot deal very well with concave(>pi) or very sharp corners(~<pi/4), by placing fixed points on these location, performance can be greatly improved
+         * If no implicit description of the domain is available, fixing all boundary nodes usually prevents the other nodes from escaping. In this case domainDescription can return -1. for all p.
+         * \todo the current implementation throws away all data, this behaviour should be replaced by an interpolation scheme
+         * \todo this algoritm boils down to alternatingly doing delaunay triangulations and moving nodes according to an optimally damped mass spring system. This is currently done using a relatively crude implementation.
+         * Once there is a proper coupling between mercury and hpGEM, some thought should be given to the improvement of this algorithm
+         * @param domainDescription A function that maps PointPhysicals to doubles, such that negative numbers signify points inside the mesh
+         * @param fixedPointIdxs pointIndexes of point that MUST remain in the same location, no matter what
+         * @param relativeEdgeLength Allow r-refinement
+         * @param growFactor specify how much larger than its neighbours an element may be in areas where relativeEdgeLengths returns NaN
+         */
+        void updateMesh(std::function<double(PointPhysicalT) > domainDescription, std::vector<std::size_t> fixedPointIdxs = {}, std::function<double(PointPhysicalT) > relativeEdgeLength = [](PointPhysicalT)
+        {
+            return 1.;
+        }, double growFactor = 1.1);
+#endif
+
         //realy? y u no operator>>? -FB
         void outputMesh(std::ostream& os)const;
 
@@ -278,7 +325,13 @@ namespace Base {
 
         int dimension() const;
 
-        const std::vector<PointPhysicalT>& getNodes()const {
+        const std::vector<PointPhysicalT>& getNodes()const
+        {
+            return theMesh_.getNodes();
+        }
+
+        std::vector<PointPhysicalT>& getNodes()
+        {
             return theMesh_.getNodes();
         }
 
@@ -341,30 +394,12 @@ namespace Base {
         //!Does the actual reading for 3D centaur meshes
         void readCentaurMesh3D(std::ifstream& centaurFile);
 
+        //!Construct the faces based on connectivity information about elements and nodes
         void faceFactory();
+
+        //!Construct the faces based on connectivity information about elements and nodes
         void edgeFactory();
-
-        //someone thinks its a good idea to declare HalfFaceDescription in an implemetnation file
-        //void findElementNumber(std::vector<int>& a, std::vector<int>& b, std::vector<int>& c, int aNumber, int bNumber, int cNumber, std::vector<int>& notOnFace, HalfFaceDescription& face, std::vector<Element*>& vectorOfElements);
-
-        //!An alternative to faceFactory that only iterates over internal faces, use the boundary face information in the centaur file to construct the boundary faces
-        //void constructInternalFaces(std::vector<std::vector<int> >& listOfElementsForEachNode, std::vector<Element*>& vectorOfElements);
-
-        //void rectangularCreateFaces1D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
-
-        //void rectangularCreateFaces2D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
-
-        //void rectangularCreateFaces3D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
-
-        //! Make faces for the 1D contrarotating mesh
-        //void triangularCreateFaces1D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
-
-        //!Make faces for the 2D triangular mesh
-        //void triangularCreateFaces2D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
-
-        //!Make faces for the 3D tetrahedral mesh
-        //void triangularCreateFaces3D(VectorOfElementPtrT& tempElementVector, const VectorOfPointIndicesT& linearNoElements);
-
+        
         //! Do refinement on the elements.
         /*void doElementRefinement(std::size_t meshTreeIdx);
 
@@ -423,6 +458,9 @@ namespace Base {
         int numberOfFaceMatrixes_;
         int numberOfElementVectors_;
         int numberOfFaceVectors_;
+
+        //when the mesh is updated, persistently store original node coordinates to see if retriangulation is in order
+        std::vector<PointPhysicalT> oldNodeLocations_;
     };
 
 }

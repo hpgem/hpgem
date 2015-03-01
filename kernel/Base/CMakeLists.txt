@@ -9,6 +9,10 @@ if(hpGEM_USE_PETSC)
   include_directories(${PETSC_INCLUDES})
 endif()
 
+if(hpGEM_USE_QHULL)
+  include_directories(${QHULL_INCLUDE_DIR})
+endif()
+
 add_library(hpGEM_Base SHARED
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp	
                 ${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter.cpp
@@ -68,6 +72,16 @@ endif()
 
 if(hpGEM_USE_PETSC)
 target_link_libraries(hpGEM_Base "${PETSC_LIBRARIES}")
+endif()
+
+if(hpGEM_USE_QHULL)
+    if(CMAKE_BUILD_TYPE MATCHES "Debug")
+        #if it is possible to link to the debug libraries, do so
+        #if there are no debug libraries, this will try to link against the normal libraries instead
+        target_link_libraries(hpGEM_Base "${QHULL_DEBUG_LIBRARIES}")
+    else()
+        target_link_libraries(hpGEM_Base "${QHULL_LIBRARIES}")
+    endif()
 endif()
 
 set_target_properties(hpGEM_Base PROPERTIES COMPILE_FLAGS "${DEP_COMPILE_FLAGS}")

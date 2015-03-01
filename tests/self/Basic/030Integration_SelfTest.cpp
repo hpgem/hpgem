@@ -83,8 +83,8 @@ void testMesh(Base::MeshManipulator* test) {
 	for(Base::Element* element:test->getElementsList()){
 		elIntegral.integrate(element,&trilinear,result);
 		total+=result[0];
-	}
-	assert(("trilinear function",std::abs(total-pow(0.5,test->dimension()))<1e-12));
+    }
+    assert(("trilinear function", std::abs(total - std::pow(0.5, test->dimension())) < 1e-12));
 }
 
 
