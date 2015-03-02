@@ -716,7 +716,7 @@ HEuler::createIncompressibleSystem()
     ElementIntegralData gradMass;
     bool useCache = false;
     ElementIntegralT   elIntegral(useCache);
-    typedef void  (HEuler::*Integrand)(const ElementT* , const PointReferenceT&, ElementIntegralData&);
+    using Integrand = void (HEuler::*)(const ElementT* , const PointReferenceT&, ElementIntegralData&);
     Integrand gradMassInteg = &HEuler::elementIntegrand;
     
     
@@ -819,7 +819,7 @@ HEuler::createIncompressibleSystem()
         //
         //
     FluxData fData(nb);
-    //typedef void  (HEuler::*FaceIntegrand)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
+    //using FaceIntegrand =  void  (HEuler::*)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
     //FaceIntegrand faceInteg = &HEuler::faceIntegrand;
     FaceIntegralT   faceIntegral(useCache);
     
@@ -1233,7 +1233,7 @@ HEuler::createCompressibleSystem()
     ElementIntegralData gradMass;
     bool useCache = false;
     ElementIntegralT   elIntegral(useCache);
-    typedef void  (HEuler::*Integrand)(const ElementT* , const PointReferenceT&, ElementIntegralData&);
+    using Integrand = void  (HEuler::*)(const ElementT* , const PointReferenceT&, ElementIntegralData&);
     Integrand gradMassInteg = &HEuler::elementIntegrand;
     
     
@@ -1299,7 +1299,7 @@ HEuler::createCompressibleSystem()
         //
         //
     FluxData fData(nb);
-    //typedef void  (HEuler::*FaceIntegrand)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
+    //using FaceIntegrand =  void  (HEuler::*)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
     //FaceIntegrand faceInteg = &HEuler::faceIntegrand;
     FaceIntegralT   faceIntegral(useCache);
     
@@ -1532,7 +1532,7 @@ HEuler::initialConditions()
     
     ElementIntegralT   elIntegral(useCache);
     
-    typedef void  (HEuler::*Integrand)(const ElementT* , const PointReferenceT&, LinearAlgebra::Matrix&);
+    using Integrand = void (HEuler::*)(const ElementT* , const PointReferenceT&, LinearAlgebra::Matrix&);
     //Integrand massMatrixIntegrand = &HEuler::calculateMassMatrix;
     
     LinearAlgebra::NumericalVector rightHand(ldof);

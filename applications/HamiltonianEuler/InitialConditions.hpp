@@ -22,7 +22,7 @@ using namespace std;
 class ExactSolutionBase
 {
 public:
-    typedef Geometry::PointPhysical		PointPhysicalT;
+    using PointPhysicalT = Geometry::PointPhysical;
 public:
     ExactSolutionBase(){}
     ~ExactSolutionBase(){}
@@ -56,7 +56,7 @@ public:
 class Compressible3DOneThirdPeriodic: public ExactSolutionBase
 {
 public:	
-    typedef  complex<double>                   	ComplexNumber;
+    using ComplexNumber = complex<double>;
     
 public:
     Compressible3DOneThirdPeriodic(double lx, double ly, double lz);
@@ -118,11 +118,11 @@ public:
 class InitialVelocityConstructorTaylor: public ExactSolutionBase
 {
 public:
-    typedef  complex<double>                   	ComplexNumber;
+    using ComplexNumber = complex<double>;
     
-    typedef std::vector<ComplexNumber>         	Coefficients;
-    typedef std::vector<double>                	Vector;
-    typedef istream_iterator<double>      		IstreamIterator;
+    using Coefficients = std::vector<ComplexNumber>;
+    using Vector = std::vector<double>;
+    using IstreamIterator = istream_iterator<double>;
     
     using ExactSolutionBase::PointPhysicalT;
     using ExactSolutionBase::Pi;
@@ -488,10 +488,10 @@ class InitCond
 {
 public:
         
-  		typedef   ExactSolutionBase::PointPhysicalT	PointPhysicalT;
-        typedef   Base::Element                      ElementT;
-        typedef   Geometry::PointReference           PointReferenceT;
-        typedef   LinearAlgebra::NumericalVector        ReturnType;
+  		using PointPhysicalT =  ExactSolutionBase::PointPhysicalT;
+        using ElementT =  Base::Element;
+        using PointReferenceT = Geometry::PointReference;
+        using ReturnType = LinearAlgebra::NumericalVector;
 public:
 
   		InitCond(const ExactSolutionBase* init):
@@ -507,7 +507,7 @@ protected:
 class InitCondU: public InitCond,public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
 {
 public:
-    typedef   LinearAlgebra::NumericalVector        ReturnType;
+    using ReturnType = LinearAlgebra::NumericalVector;
 public:
   		InitCondU(const ExactSolutionBase* init);
     

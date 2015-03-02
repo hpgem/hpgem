@@ -35,7 +35,7 @@ using namespace Base;
 
 const unsigned int  DIM = 3;
 
-typedef std::vector<LinearAlgebra::Matrix>   VectorOfMatrices;
+using VectorOfMatrices = std::vector<LinearAlgebra::Matrix>;
 struct ElementIntegralData
 {
         //optimize later!
@@ -163,11 +163,11 @@ public:
 class HEuler: public HpgemUI,public Integration::ElementIntegrandBase<ElementIntegralData>,public Integration::FaceIntegrandBase<FluxData>,public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
 {
 public:
-    typedef HpgemUI                        HpgemUIT;
-    typedef Integration::ElementIntegral   ElementIntegralT;
-    typedef Integration::FaceIntegral      FaceIntegralT;
-    typedef ExactSolutionBase              ExactSolutionT;
-    typedef PointReference               PointReferenceOnTheFaceT;
+    using HpgemUIT = HpgemUI;
+    using ElementIntegralT = Integration::ElementIntegral;
+    using FaceIntegralT = Integration::FaceIntegral;
+    using ExactSolutionT = ExactSolutionBase;
+    using PointReferenceOnTheFaceT = PointReference;
     
         //using HpgemUIT::ElementT;
         //    using HpgemUIT::PointReferenceT;

@@ -25,6 +25,6 @@
 
 namespace Integration
 {
-    typedef double         NumType;
+    using NumType = double;
 }
 #endif

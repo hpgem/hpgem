@@ -29,7 +29,7 @@ namespace Geometry
     class Jacobian: public LinearAlgebra::Matrix
     {
         public:
-        typedef Jacobian            JacobianT;
+        using JacobianT = Jacobian;
 
         public:
             // Constructors.

@@ -72,8 +72,8 @@ namespace Output
                                             SingleElementWriter* writeDataClass)
     {
         
-        typedef Base::Element ElementT;
-        typedef std::vector<ElementT*> ListOfElementsT;
+        using ElementT = Base::Element ;
+        using ListOfElementsT = std::vector<ElementT*>;
 
         //First assert that we have defined the correct number of dimensions in 
         //the constructor.

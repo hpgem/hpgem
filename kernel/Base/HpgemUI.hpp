@@ -39,25 +39,25 @@ namespace Base
     class HpgemUI
     {
     public:
-        typedef typename MeshManipulator::ConstElementIterator ConstElementIterator;
-        typedef typename MeshManipulator::ElementIterator ElementIterator;
-        typedef typename MeshManipulator::ConstFaceIterator ConstFaceIterator;
-        typedef typename MeshManipulator::FaceIterator FaceIterator;
+        using ConstElementIterator = MeshManipulator::ConstElementIterator;
+        using ElementIterator = MeshManipulator::ElementIterator;
+        using ConstFaceIterator = MeshManipulator::ConstFaceIterator;
+        using FaceIterator = MeshManipulator::FaceIterator;
 
     public:
-        typedef Base::Element ElementT;
-        typedef Base::Face FaceT;
-        typedef RectangularMeshDescriptor RectangularMeshDescriptorT;
-        typedef MeshManipulator MeshManipulatorT;
-        typedef MeshMoverBase MeshMoverBaseT;
-        typedef Geometry::PointPhysical PointPhysicalT;
-        typedef Geometry::PointReference PointReferenceT;
+        using ElementT = Base::Element;
+        using FaceT = Base::Face;
+        using RectangularMeshDescriptorT = RectangularMeshDescriptor;
+        using MeshManipulatorT = MeshManipulator;
+        using MeshMoverBaseT = MeshMoverBase;
+        using PointPhysicalT = Geometry::PointPhysical;
+        using PointReferenceT = Geometry::PointReference;
 
-        typedef std::size_t MeshId;
-        typedef std::vector<std::size_t> VectorOfUIntegers;
+        using MeshId = std::size_t;
+        using VectorOfUIntegers = std::vector<std::size_t>;
 
-        typedef std::vector<MeshManipulatorT* > VectorOfMeshManipulatorT;
-        typedef std::string String;
+        using VectorOfMeshManipulatorT = std::vector<MeshManipulatorT* >;
+        using String = std::string;
 
 
 
