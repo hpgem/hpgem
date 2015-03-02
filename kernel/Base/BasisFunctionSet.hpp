@@ -41,9 +41,9 @@ namespace Base
     class BasisFunctionSet
     {
     public:
-        typedef BaseBasisFunction BaseBasisFunctionT;
-        typedef std::vector<BaseBasisFunctionT*> BaseBasisFunctions;
-        typedef Geometry::PointReference PointReferenceT;
+        using BaseBasisFunctionT = BaseBasisFunction ;
+        using BaseBasisFunctions = std::vector<BaseBasisFunctionT*> ; //check again
+        using PointReferenceT = Geometry::PointReference ;
 
     public:
         BasisFunctionSet(std::size_t order);

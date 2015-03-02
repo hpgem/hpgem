@@ -44,10 +44,10 @@
 #include "Base/ElementCacheData.hpp"
 #include "Base/ConfigurationData.hpp"
 
-typedef Base::MeshManipulator BaseMeshManipulatorT;
-typedef Base::threeDBasisFunction basisFunctionT;
+using BaseMeshManipulatorT = Base::MeshManipulator ;
+using basisFunctionT = Base::threeDBasisFunction ;
 //typedef std::list<Base::Face<3> >::iterator FaceIteratorT;
-	typedef Base::MeshManipulator::FaceIterator               FaceIterator;
+using FaceIterator = Base::MeshManipulator::FaceIterator;
 
 
 /**
@@ -57,11 +57,11 @@ class DGMax : public hpGemUIExtentions
 {
 private:
 
-        typedef Geometry::PointPhysical                           PointPhysicalT;
-	typedef Base::Element                                     ElementT;
-        typedef Base::Face                                         FaceT;
+        using PointPhysicalT = Geometry::PointPhysical;
+        using ElementT = Base::Element;
+        using FaceT = Base::Face;
 	
-	typedef Base::MeshManipulator::FaceIterator               FaceIterator;
+        using FaceIterator = Base::MeshManipulator::FaceIterator;
 
 public:
 

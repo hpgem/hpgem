@@ -31,17 +31,17 @@
 #include "Base/GlobalData.hpp"
 #include "Geometry/Jacobian.hpp"
 
-typedef Geometry::PointReference PointElementReferenceT;
+using PointElementReferenceT = Geometry::PointReference;
 //#if __cplusplus<=199711L
 #include "map"
-typedef std::map<PointElementReferenceT,std::vector<LinearAlgebra::NumericalVector> > myMap;
+using myMap = std::map<PointElementReferenceT,std::vector<LinearAlgebra::NumericalVector> >;
 //#else
 //#include "unordered_map"
 //typedef std::unordered_map<PointElementReferenceT,std::vector<LinearAlgebra::NumericalVector> > myMap;//the unordered_map trades functionality for speed
 //#endif
 
-typedef Base::threeDBasisFunction basisFunctionT;
-typedef Geometry::PointReference PointFaceReferenceT;
+using basisFunctionT = Base::threeDBasisFunction;
+using PointFaceReferenceT = Geometry::PointReference;
 
 //one there is a default way in hpGEM to configure code without haveing to recompile this and some other things should be grouped in another file
 /**

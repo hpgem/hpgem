@@ -24,6 +24,7 @@
 
 #include <vector>
 #include <iostream>
+#include "Point.hpp"
 
 namespace Geometry
 {
@@ -38,18 +39,18 @@ namespace Geometry
     class ElementGeometry
     {
     public:
-        //typedef Point                              PointT;
-        typedef PointPhysical                     PointPhysicalT;
-        typedef PointReference                     PointReferenceT;
-        typedef PhysicalGeometry                   PhysicalGeometryT;
-        typedef ReferenceGeometry                  ReferenceGeometryT;
-        typedef RefinementGeometry                 RefinementGeometryT;
-        typedef MappingReferenceToPhysical    MappingReferenceToPhysicalT;
-        //typedef LinearAlgebra::Matrix                   MatrixT;
-        typedef Jacobian                      JacobianT;
-        typedef std::size_t                            PointIndexT;
-        typedef std::vector<PointPhysicalT>             VectorOfPhysicalPointsT;
-        typedef std::vector<PointIndexT>                VectorOfPointIndexesT;
+        //using PointT = Point;
+        using PointPhysicalT = PointPhysical;
+        using PointReferenceT = PointReference;
+        using PhysicalGeometryT = PhysicalGeometry;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using RefinementGeometryT = RefinementGeometry;
+        using MappingReferenceToPhysicalT = MappingReferenceToPhysical;
+        //using MatrixT = LinearAlgebra::Matrix;
+        using JacobianT = Jacobian;
+        using PointIndexT = std::size_t;
+        using VectorOfPhysicalPointsT = std::vector<PointPhysicalT>;
+        using VectorOfPointIndexesT = std::vector<PointIndexT>;
     public:
     
         /// New style constructor with one less pass

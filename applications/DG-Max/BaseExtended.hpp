@@ -38,13 +38,13 @@
 #include "Output/TecplotSingleElementWriter.hpp"
 
 #include "BasisFunctionCollection_Curl.hpp"//TODO fix project set-up
-typedef Base::threeDBasisFunction basisFunctionT;
+using basisFunctionT = Base::threeDBasisFunction ;
 
-typedef Base::Element ElementT;
-typedef Base::Face FaceT;
-typedef Geometry::PointPhysical PointPhysicalT;
-typedef Geometry::PointReference PointElementReferenceT;
-typedef Geometry::PointReference PointFaceReferenceT;
+using ElementT = Base::Element ;
+using FaceT = Base::Face ;
+using PointPhysicalT = Geometry::PointPhysical ;
+using PointElementReferenceT = Geometry::PointReference;
+using PointFaceReferenceT = Geometry::PointReference ;
 //typedef std::list<Base::Face<3>* >::iterator FaceIteratorT;
 
 namespace Integration {
@@ -112,7 +112,8 @@ public:
      */
     virtual bool initialise()=0;
 
-    typedef void (hpGemUIExtentions::*ElementFunction)(const ElementT*, const PointElementReferenceT&, LinearAlgebra::Matrix&);
+    using ElementFunction = void(hpGemUIExtentions::*)(const ElementT*, const PointElementReferenceT&, LinearAlgebra::Matrix&);
+                             
 
     /**
      * integrand for the filling of the mass matrix M
@@ -124,7 +125,7 @@ public:
 
     //virtual void elementStiffnessIntegrand(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret)=0;
 
-    typedef void (hpGemUIExtentions::*FaceFunction)(const FaceT* , const PointPhysicalT&, const PointFaceReferenceT&, LinearAlgebra::Matrix&);
+    using FaceFunction = void (hpGemUIExtentions::*)(const FaceT* , const PointPhysicalT&, const PointFaceReferenceT&, LinearAlgebra::Matrix&); //check again
 
     /**
      * integrand for the filling of the face contibutions to the stiffness matrix S, without any penalty terms
@@ -200,7 +201,7 @@ public:
      */
     void initialConditionsDeriv(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret); 
 
-    typedef void (hpGemUIExtentions::*writeFunction)(const ElementT&,const PointElementReferenceT&,std::ostream&);
+    using writeFunction = void (hpGemUIExtentions::*)(const ElementT&,const PointElementReferenceT&,std::ostream&);
     
     /**
      * Expand the solution back from the expansion coefficients and write them to an output stream

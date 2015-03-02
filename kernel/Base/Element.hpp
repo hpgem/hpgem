@@ -54,21 +54,21 @@ namespace Base
     class Element : public Geometry::ElementGeometry, public ElementData
     {
     public:
-        typedef Geometry::PointPhysical PointPhysicalT;
-        typedef Geometry::PointReference PointReferenceT;
-        typedef Geometry::ReferenceGeometry ReferenceGeometryT;
-        typedef Geometry::MappingReferenceToPhysical MappingReferenceToPhysicalT;
-        typedef Geometry::ElementGeometry ElementGeometryT;
-        typedef std::size_t PointIndexT;
-        typedef std::size_t UId;
-        typedef std::vector<PointPhysicalT> VectorOfPhysicalPointsT;
-        typedef std::vector<PointIndexT> VectorOfPointIndexesT;
-        typedef Base::ElementCacheData CacheT;
-        typedef Base::BasisFunctionSet BasisFunctionSetT;
-        typedef QuadratureRules::GaussQuadratureRule GaussQuadratureRuleT;
-        typedef Base::ElementData ElementDataT;
-        typedef std::vector<CacheT> VecCacheT;
-        typedef LinearAlgebra::NumericalVector SolutionVector;
+        using PointPhysicalT = Geometry::PointPhysical;
+        using PointReferenceT = Geometry::PointReference;
+        using ReferenceGeometryT = Geometry::ReferenceGeometry;
+        using MappingReferenceToPhysicalT = Geometry::MappingReferenceToPhysical;
+        using ElementGeometryT = Geometry::ElementGeometry;
+        using PointIndexT = std::size_t;
+        using UId = std::size_t;
+        using VectorOfPhysicalPointsT = std::vector<PointPhysicalT>;
+        using VectorOfPointIndexesT = std::vector<PointIndexT>;
+        using CacheT = Base::ElementCacheData;
+        using BasisFunctionSetT = Base::BasisFunctionSet;
+        using GaussQuadratureRuleT = QuadratureRules::GaussQuadratureRule;
+        using ElementDataT = Base::ElementData;
+        using VecCacheT = std::vector<CacheT>;
+        using SolutionVector = LinearAlgebra::NumericalVector;
 
     public:
 

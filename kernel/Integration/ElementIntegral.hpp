@@ -51,9 +51,9 @@ namespace Integration
     class ElementIntegral
     {
     public:
-        typedef typename QuadratureRules::GaussQuadratureRule QuadratureRulesT;
-        typedef typename Base::Element ElementT;
-        typedef typename Geometry::PointReference PointReferenceT;
+        using QuadratureRulesT = QuadratureRules::GaussQuadratureRule; //typename removed
+        using ElementT = Base::Element ; //typename removed
+        using PointReferenceT = Geometry::PointReference ; //typename removed
 
     public:
 
