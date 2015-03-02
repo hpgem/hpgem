@@ -38,6 +38,7 @@ namespace Integration
 	 * elementIntegrand(const Base::Element*, const Geometry::PointReference&, LinearAlgebra::NumericalVector)
 	 * implemented in some class already, so that class can simply inherit from ElementIntegrandBase<LinearAlgebra::Matrix>
 	 * and ElementIntegrandBase<LinearAlgebra::NumericalVector> to signal the integrators that it does so
+     * HORRIBLY UGLY HACK TO ALLOW TEMPLATING ON THE RETURN TYPE AND INHERITING MULTIPLE INSTANCES
 	 */
     template <class T>
     class ElementIntegrandBase

@@ -74,11 +74,11 @@ namespace QuadratureRules
             throw name_ + "::weight - wrong index!";
     }
 
-    void
-    Cn4_1_1::getPoint(std::size_t i, PointReferenceT& p) const
+    const Geometry::PointReference&
+    Cn4_1_1::getPoint(std::size_t i) const
     {
         if (i < 1)
-            p=gp_[i];
+            return gp_[i];
         else
             throw name_ + "::getPoint -  wrong index!";
     }
@@ -140,11 +140,11 @@ namespace QuadratureRules
             throw name_ + "::weight - wrong index!";
     }
 
-    void
-    Cn4_3_4::getPoint(std::size_t i, PointReferenceT& p) const
+    const Geometry::PointReference&
+    Cn4_3_4::getPoint(std::size_t i) const
     {
         if (i < 16)
-            p=gp_[i];
+            return gp_[i];
         else
             throw name_ + "::getPoint -  wrong index!";
     }

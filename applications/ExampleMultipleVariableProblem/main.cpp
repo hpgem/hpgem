@@ -170,11 +170,11 @@ public:
         std::size_t iPoint = 0; // Index for the quadrature points.
         Geometry::PointReference pRef(DIM_);
         
-        ptrQdrRule->getPoint(iPoint,pRef);
+        pRef = ptrQdrRule->getPoint(iPoint);
         IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(ptrElement, time, pRef));
         for(iPoint = 1; iPoint < numOfPoints; iPoint++)
         {
-            ptrQdrRule->getPoint(iPoint,pRef);
+            pRef = ptrQdrRule->getPoint(iPoint);
             integral.axpy(ptrQdrRule->weight(iPoint), integrandFunction(ptrElement, time, pRef));
         }
         return integral;
@@ -196,11 +196,11 @@ public:
         std::size_t iPoint = 0; // Index for the quadrature points.
         Geometry::PointReference pRef(DIM_);
         
-        ptrQdrRule->getPoint(iPoint,pRef);
+        pRef = ptrQdrRule->getPoint(iPoint);
         IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(ptrElement, time, pRef, solutionCoefficients));
         for(iPoint = 1; iPoint < numOfPoints; iPoint++)
         {
-            ptrQdrRule->getPoint(iPoint,pRef);
+            pRef = ptrQdrRule->getPoint(iPoint);
             integral.axpy(ptrQdrRule->weight(iPoint), integrandFunction(ptrElement, time, pRef, solutionCoefficients));
         }
         return integral;
@@ -223,11 +223,11 @@ public:
         std::size_t iPoint = 0; // Index for the quadrature points.
         Geometry::PointReference pRef(DIM_);
         
-        ptrQdrRule->getPoint(iPoint,pRef);
+        pRef = ptrQdrRule->getPoint(iPoint);
         IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(ptrFace, time, pRef, iSide, jSide));
         for(iPoint = 1; iPoint < numOfPoints; iPoint++)
         {
-            ptrQdrRule->getPoint(iPoint,pRef);
+            pRef = ptrQdrRule->getPoint(iPoint);
             integral.axpy(ptrQdrRule->weight(iPoint), integrandFunction(ptrFace, time, pRef, iSide, jSide));
         }
         return integral;
@@ -251,11 +251,11 @@ public:
         std::size_t iPoint = 0; // Index for the quadrature points.
         Geometry::PointReference pRef(DIM_);
         
-        ptrQdrRule->getPoint(iPoint,pRef);
+        pRef = ptrQdrRule->getPoint(iPoint);
         IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(ptrFace, time, pRef, iSide, solutionCoefficientsLeft, solutionCoefficientsRight));
         for(iPoint = 1; iPoint < numOfPoints; iPoint++)
         {
-            ptrQdrRule->getPoint(iPoint,pRef);
+            pRef = ptrQdrRule->getPoint(iPoint);
             integral.axpy(ptrQdrRule->weight(iPoint), integrandFunction(ptrFace, time, pRef, iSide, solutionCoefficientsLeft, solutionCoefficientsRight));
         }
         return integral;

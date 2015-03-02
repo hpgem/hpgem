@@ -86,19 +86,19 @@ void testMesh(Base::MeshManipulator* test) {
 	double total=0;
 	LinearAlgebra::NumericalVector result(1);
 	for(Base::Element* element:test->getElementsList()){
-		elIntegral.integrate(element,&one,result);
+		result = elIntegral.integrate(element,&one);
 		total+=result[0];
     }
     assert(("total mesh volume", std::abs(total - std::pow(2., test->dimension())) < 1e-12));
 	total=0;
 	for(Base::Element* element:test->getElementsList()){
-		elIntegral.integrate(element,&linear,result);
+		result = elIntegral.integrate(element,&linear);
 		total+=result[0];
     }
     assert(("linear function", std::abs(total - test->dimension() * std::pow(2., test->dimension())) < 1e-12));
 	total=0;
 	for(Base::Element* element:test->getElementsList()){
-		elIntegral.integrate(element,&trilinear,result);
+		result = elIntegral.integrate(element,&trilinear);
 		total+=result[0];
     }
     assert(("trilinear function", std::abs(total - std::pow(2., test->dimension())) < 1e-12));

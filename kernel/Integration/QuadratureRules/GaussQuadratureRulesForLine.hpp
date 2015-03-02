@@ -48,7 +48,7 @@ namespace QuadratureRules
         virtual std::size_t            dimension() const;
         virtual std::size_t            nrOfPoints() const;
         virtual double                  weight(std::size_t i) const;
-        virtual void                    getPoint(std::size_t i, PointReferenceT& p) const;
+        virtual const PointReferenceT&                    getPoint(std::size_t i) const;
         virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
@@ -80,7 +80,7 @@ namespace QuadratureRules
         virtual std::size_t            dimension() const;
         virtual std::size_t            nrOfPoints() const;
         virtual double                  weight(std::size_t i) const;
-        virtual void                    getPoint(std::size_t i, PointReferenceT& p) const;
+        virtual const PointReferenceT&                    getPoint(std::size_t i) const;
         virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
@@ -112,7 +112,7 @@ namespace QuadratureRules
         virtual std::size_t            dimension() const;
         virtual std::size_t            nrOfPoints() const;
         virtual double                  weight(std::size_t i) const;
-        virtual void                    getPoint(std::size_t i, PointReferenceT& p) const;
+        virtual const PointReferenceT&                    getPoint(std::size_t i) const;
         virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
@@ -145,7 +145,7 @@ namespace QuadratureRules
         virtual std::size_t            dimension() const;
         virtual std::size_t            nrOfPoints() const;
         virtual double                  weight(std::size_t i) const;
-        virtual void                    getPoint(std::size_t i, PointReferenceT& p) const;
+        virtual const PointReferenceT&                    getPoint(std::size_t i) const;
         virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
@@ -177,7 +177,7 @@ namespace QuadratureRules
         virtual std::size_t            dimension() const;
         virtual std::size_t            nrOfPoints() const;
         virtual double                  weight(std::size_t i) const;
-        virtual void                    getPoint(std::size_t i, PointReferenceT& p) const;
+        virtual const PointReferenceT&                    getPoint(std::size_t i) const;
         virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
@@ -209,7 +209,7 @@ namespace QuadratureRules
         virtual std::size_t            dimension() const;
         virtual std::size_t            nrOfPoints() const;
         virtual double                  weight(std::size_t i) const;
-        virtual void                    getPoint(std::size_t i, PointReferenceT& p) const;
+        virtual const PointReferenceT&                    getPoint(std::size_t i) const;
         virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:

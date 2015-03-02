@@ -63,7 +63,7 @@ namespace QuadratureRules
         virtual double weight(std::size_t) const = 0;
 
         //! Return the coordinates of the point with the given index.
-        virtual void getPoint(std::size_t, Geometry::PointReference&) const = 0;
+        virtual const Geometry::PointReference& getPoint(std::size_t) const = 0;
 
         //! Each rule also knows which ReferenceGeometry it is meant for.
         virtual Geometry::ReferenceGeometry* forReferenceGeometry() const = 0;

@@ -76,11 +76,11 @@ namespace QuadratureRules
             throw name_ + "::weight - wrong index!";
     }
 
-    void
-    Cn3_1_1::getPoint(std::size_t i, PointReferenceT& p) const
+    const Geometry::PointReference&
+    Cn3_1_1::getPoint(std::size_t i) const
     {
         if (i < 1)
-            p=gp_[i];
+            return gp_[i];
         else
             throw name_ + "::getPoint -  wrong index!";
     }
@@ -141,13 +141,13 @@ namespace QuadratureRules
            throw name_ + "::weight - wrong index!";
     }
 
-    void
-    Cn3_3_4::getPoint(std::size_t i, PointReferenceT& p) const
+    const Geometry::PointReference&
+    Cn3_3_4::getPoint(std::size_t i) const
     {
         if (i < 8)
-           p=gp_[i];
+            return gp_[i];
         else
-           throw name_ + "::getPoint -  wrong index!";
+            throw name_ + "::getPoint -  wrong index!";
     }
 
     Cn3_3_4::ReferenceGeometryT*
@@ -241,11 +241,11 @@ namespace QuadratureRules
             throw name_ + "::weight - wrong index!";
     }
 
-    void
-    Cn3_5_9::getPoint(std::size_t i, PointReferenceT& p) const
+    const Geometry::PointReference&
+    Cn3_5_9::getPoint(std::size_t i) const
     {
         if (i < 27)
-            p=gp_[i];
+            return gp_[i];
         else
             throw name_ + "::getPoint -  wrong index!";
     }
@@ -435,11 +435,11 @@ namespace QuadratureRules
             throw name_ + "::weight - wrong index!";
     }
 
-    void
-    C3_7_2::getPoint(std::size_t i, PointReferenceT& p) const
+    const Geometry::PointReference&
+    C3_7_2::getPoint(std::size_t i) const
     {
         if (i < 64)
-            p=gp_[i];
+            return gp_[i];
         else
             throw name_ + "::getPoint -  wrong index!";
     }
@@ -461,11 +461,11 @@ namespace QuadratureRules
 			for(int j=0;j<ruleForLine.nrOfPoints();++j){
 				for(int k=0;k<ruleForLine.nrOfPoints();++k){
 					weight_[position]=ruleForLine.weight(i)*ruleForLine.weight(j)*ruleForLine.weight(k);
-					ruleForLine.getPoint(i,point1D);
+					point1D = ruleForLine.getPoint(i);
 					gp_[position][0]=point1D[0];
-					ruleForLine.getPoint(j,point1D);
+					point1D = ruleForLine.getPoint(j);
 					gp_[position][1]=point1D[0];
-					ruleForLine.getPoint(k,point1D);
+					point1D = ruleForLine.getPoint(k);
 					gp_[position][2]=point1D[0];
 					++position;
 				}
@@ -682,11 +682,11 @@ namespace QuadratureRules
             throw name_ + "::weight - wrong index!";
     }
 
-    void
-    C3_9_2::getPoint(std::size_t i, PointReferenceT& p) const
+    const Geometry::PointReference&
+    C3_9_2::getPoint(std::size_t i) const
     {
         if (i < 125)
-            p=gp_[i];
+            return gp_[i];
         else
             throw name_ + "::getPoint -  wrong index!";
     }
@@ -708,11 +708,11 @@ namespace QuadratureRules
         	for(int j=0;j<ruleForLine.nrOfPoints();++j){
         		for(int k=0;k<ruleForLine.nrOfPoints();++k){
 					weight_[position]=ruleForLine.weight(i)*ruleForLine.weight(j)*ruleForLine.weight(k);
-					ruleForLine.getPoint(i,point1D);
+					point1D = ruleForLine.getPoint(i);
 					gp_[position][0]=point1D[0];
-					ruleForLine.getPoint(j,point1D);
+					point1D = ruleForLine.getPoint(j);
 					gp_[position][1]=point1D[0];
-					ruleForLine.getPoint(k,point1D);
+					point1D = ruleForLine.getPoint(k);
 					gp_[position][2]=point1D[0];
 					++position;
         		}
@@ -758,11 +758,11 @@ namespace QuadratureRules
             throw name_ + "::weight - wrong index!";
     }
 
-    void
-    C3_11_2::getPoint(std::size_t i, PointReferenceT& p) const
+    const Geometry::PointReference&
+    C3_11_2::getPoint(std::size_t i) const
     {
         if (i < 216)
-            p=gp_[i];
+            return gp_[i];
         else
             throw name_ + "::getPoint -  wrong index!";
     }
@@ -784,11 +784,11 @@ namespace QuadratureRules
         	for(int j=0;j<ruleForLine.nrOfPoints();++j){
         		for(int k=0;k<ruleForLine.nrOfPoints();++k){
 					weight_[position]=ruleForLine.weight(i)*ruleForLine.weight(j)*ruleForLine.weight(k);
-					ruleForLine.getPoint(i,point1D);
+					point1D = ruleForLine.getPoint(i);
 					gp_[position][0]=point1D[0];
-					ruleForLine.getPoint(j,point1D);
+					point1D = ruleForLine.getPoint(j);
 					gp_[position][1]=point1D[0];
-					ruleForLine.getPoint(k,point1D);
+					point1D = ruleForLine.getPoint(k);
 					gp_[position][2]=point1D[0];
 					++position;
         		}

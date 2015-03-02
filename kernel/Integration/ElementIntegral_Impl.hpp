@@ -35,22 +35,24 @@
 namespace Integration
 {
 
-  template <class ReturnTrait1>
-  void ElementIntegral::integrate(ElementT* el,
+  template <typename ReturnTrait1>
+  ReturnTrait1 ElementIntegral::integrate(ElementT* el,
                                   ElementIntegrandBase<ReturnTrait1>* integrand,
-                                  ReturnTrait1& result,
                                   const QuadratureRulesT * const qdrRule)
   {
       //(@dducks) this lambda definition is not allowed inside the integrate(), why not?
-      std::function<void(const ElementT*, const  PointReferenceT&, ReturnTrait1&) > integrandFun = 
-      [=](const ElementT* el, const PointReferenceT& p, ReturnTrait1& ret)-> void{integrand -> elementIntegrand(el, p, ret);};
-      integrate(el, integrandFun, result, qdrRule);
+      std::function<ReturnTrait1(const ElementT*, const  PointReferenceT&) > integrandFun = 
+      [=](const ElementT* el, const PointReferenceT& p)-> ReturnTrait1{
+          ReturnTrait1 result;
+          integrand -> elementIntegrand(el, p, result);
+          return result;
+      };
+      return integrate(el, integrandFun, qdrRule);
   }
 
-  template<class ReturnType>
-  void ElementIntegral::integrate(ElementT* el,
-                 std::function<void(const ElementT*, const  PointReferenceT&, ReturnType&) > integrandFun,
-                 ReturnType& result,
+  template<typename ReturnType>
+  ReturnType ElementIntegral::integrate(ElementT* el,
+                 std::function<ReturnType(const ElementT*, const  PointReferenceT&) > integrandFun,
                  const QuadratureRulesT * const qdrRule)
   {
     if (localElement_ == nullptr)
@@ -71,36 +73,36 @@ namespace Integration
     assert((qdrRuleLoc->forReferenceGeometry() == localElement_->getReferenceGeometry()));
 
     // value returned by the integrand
-    ReturnType value(result);
+    ReturnType value,result;
 
     // number of Gauss quadrature points
         std::size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
     assert(nrOfPoints > 0);
 
     // Initialize Gauss quadrature point
-    Geometry::PointReference p(qdrRuleLoc->dimension());
+    Geometry::PointReference p = qdrRuleLoc->getPoint(0);
 
     // first Gauss point
     // first we calculate the jacobian, then compute the function value on one of
     // the reference points and finally we multiply this value with a weight and
     // the jacobian and save it in result.
     Geometry::Jacobian jac(qdrRuleLoc->dimension(), qdrRuleLoc->dimension());
-    qdrRuleLoc->getPoint(0, p);
     localElement_->calcJacobian(p, jac);
-    integrandFun(localElement_, p, result);
+    result = integrandFun(localElement_, p);
     result *= (qdrRuleLoc->weight(0) * std::abs(jac.determinant()));
 
     // next Gauss points, again calculate the jacobian, value at gauss point and
     // add this value multiplied with jacobian and weight to result.
         for (std::size_t i = 1; i < nrOfPoints; ++i)
     {
-      qdrRuleLoc->getPoint(i, p);
+      p = qdrRuleLoc->getPoint(i);
       localElement_->calcJacobian(p, jac);
-      integrandFun(localElement_, p, value);
+      value = integrandFun(localElement_, p);
 
       //axpy: Y = alpha * X + Y
       result.axpy(qdrRuleLoc->weight(i) * std::abs(jac.determinant()), value);
     }
+    return result;
   }
 }
 

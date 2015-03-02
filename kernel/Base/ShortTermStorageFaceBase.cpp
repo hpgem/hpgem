@@ -32,9 +32,7 @@ void Base::ShortTermStorageFaceBase::computeData() {
 			recomputeCacheOff();
 			int n=getGaussQuadratureRule()->nrOfPoints();
 			for(int i=0;i<n;++i){
-				Geometry::PointReference p(currentPoint_.size());
-				getGaussQuadratureRule()->getPoint(i,p);
-				cache[i](*face_,p);
+				cache[i](*face_,getGaussQuadratureRule()->getPoint(i));
 			}
 		}
 		currentPointIndex_++;

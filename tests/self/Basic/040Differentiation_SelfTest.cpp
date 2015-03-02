@@ -79,7 +79,7 @@ void testMesh(Base::MeshManipulator* test)
         }
     } massMatrix;
 
-    class a : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
     {
         void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
         {
@@ -112,15 +112,15 @@ void testMesh(Base::MeshManipulator* test)
     LinearAlgebra::Matrix M;
     for (Base::Element* element : test->getElementsList())
     {
-        elIntegral.integrate(element, &interpolation, expansion);
-        elIntegral.integrate(element, &massMatrix, M);
+        expansion = elIntegral.integrate(element, &interpolation);
+        M = elIntegral.integrate(element, &massMatrix);
         
         //M.inverse(M);
         //expansion = expansion * M;
         M.solve(expansion);
         element->setTimeLevelData(0, expansion);   
 
-        elIntegral.integrate(element, &integrating, result);
+        result = elIntegral.integrate(element, &integrating);
         
         //std::cout<<result[0]<<std::endl;
         total += result[0];

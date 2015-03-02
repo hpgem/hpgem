@@ -322,15 +322,15 @@ public:
         for (Base::Element *element : meshes_[0]-> getElementsList())
         {
             errorContainer next;
-            integral.integrate(element, { [ & ](const Base::Element* element, const Geometry::PointReference& pRef, errorContainer & result)->void
+            next = integral.integrate<errorContainer>(element, { [ & ](const Base::Element* element, const Geometry::PointReference& pRef)->errorContainer
             {
                 LinearAlgebra::NumericalVector temp;
                 element->getSolution(0, pRef, temp);
                 Geometry::PointPhysical pPhys(DIM_);
                 element->referenceToPhysical(pRef, pPhys);
                 //the error is the difference between the numerical solution and the analytical solution
-                result = analyticalSolution(pPhys, endTime_) - temp[0];
-            } }, next);
+                return analyticalSolution(pPhys, endTime_) - temp[0];
+            } });
             total.axpy(1., next);
             //original code in case you are interested
             /*

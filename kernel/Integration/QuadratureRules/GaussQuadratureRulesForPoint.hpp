@@ -66,7 +66,7 @@ namespace QuadratureRules
 
         virtual double weight(std::size_t i) const;
 
-        virtual void getPoint(std::size_t i, Geometry::PointReference& p) const;
+        virtual const Geometry::PointReference&                    getPoint(std::size_t i) const;
 
         virtual Geometry::ReferenceGeometry* forReferenceGeometry() const
         {

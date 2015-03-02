@@ -63,20 +63,20 @@ namespace Base
 
         /// \brief Where the user creates a mesh
         bool virtual initialise() = 0;
-
+        
         /// \brief User-defined element integrand for the left hand side
-        virtual void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& ret) = 0;
+        /*LinearAlgebra::Matrix Integration::ElementIntegrandBase<LinearAlgebra::Matrix>::elementIntegrand(const ElementT* element, const PointReferenceT& p) = 0;
         
         /// \brief User-defined element integrand for the right hand side
-        virtual void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) = 0;
+        LinearAlgebra::NumericalVector Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>::elementIntegrand(const ElementT* element, const PointReferenceT& p) = 0;
 
         /// \brief User-defined face integrand for the left hand side
-        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
-                const PointReferenceT& p, LinearAlgebra::Matrix& ret) = 0;
+        LinearAlgebra::Matrix Integration::FaceIntegrandBase<LinearAlgebra::Matrix>::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
+                const PointReferenceT& p) = 0;
 
         /// \brief User-defined face integrand for the right hand side
-        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
-                const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) = 0;
+        LinearAlgebra::NumericalVector Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
+                const PointReferenceT& p) = 0;*/
 
         /// \brief User-defined initial conditions
         virtual double initialConditions(const PointPhysicalT& p) = 0;
@@ -145,7 +145,16 @@ namespace Base
         double dt_;
 
     private:
-
+        
+        //allow multiple templated functions with the same arguments, but different return types
+        template<typename T>
+        T elementIntegrand(const ElementT* element, const PointReferenceT& p) = delete;
+        
+        template<typename T>
+        /// \brief User-defined face integrand for the left hand side
+        T faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
+                const PointReferenceT& p) = delete;
+        
         ///Function that checks the user defined initialisation is fine.
         bool checkInitialisation();
 

@@ -46,7 +46,7 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
 	for(int i=0;i<functions->size();++i){
 		double integrated=0;
 		for(int j=0;j<test.nrOfPoints();++j){
-			test.getPoint(j,point);
+			point = test.getPoint(j);
 			integrated+=test.weight(j)*functions->eval(i,point);
 		}
 		if(i<2){

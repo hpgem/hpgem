@@ -60,9 +60,7 @@ void Base::ShortTermStorageElementBase::computeData()
                 recomputeCacheOff();
                 int n=getGaussQuadratureRule()->nrOfPoints();
                 for(int i = 0; i < n; ++i){
-                    Geometry::PointReference p(currentPoint_.size());
-                    getGaussQuadratureRule()->getPoint(i,p);
-                    cache[i](element_,p);
+                    cache[i](element_,getGaussQuadratureRule()->getPoint(i));
                 }
             }
             currentPointIndex_++;

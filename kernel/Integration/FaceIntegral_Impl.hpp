@@ -30,18 +30,21 @@
 namespace Integration{
     
         template <class ReturnTrait1>
-        void FaceIntegral::integrate(Base::Face* fa, FaceIntegrandBase<ReturnTrait1>* integrand, ReturnTrait1& result, const QuadratureRules::GaussQuadratureRule* qdrRule)
+        ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, FaceIntegrandBase<ReturnTrait1>* integrand, const QuadratureRules::GaussQuadratureRule* qdrRule)
         {
-            std::function<void(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&, ReturnTrait1&)> integrandFunc = 
-            [=](const Base::Face* face, const LinearAlgebra::NumericalVector& n, const Geometry::PointReference& p, ReturnTrait1& ret){integrand->faceIntegrand(face,n,p,ret);};
-            integrate(fa,integrandFunc,result,qdrRule);
+            std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc = 
+            [=](const Base::Face* face, const LinearAlgebra::NumericalVector& n, const Geometry::PointReference& p){
+                ReturnTrait1 result;
+                integrand->faceIntegrand(face,n,p,result);
+                return result;
+            };
+            return integrate(fa,integrandFunc,qdrRule);
         }
 
 template <class ReturnTrait1>
-    void
+ReturnTrait1
     FaceIntegral::integrate(FaceT*                                           fa,
-                                 std::function<void(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&, ReturnTrait1&)> integrandFunc,
-                                  ReturnTrait1&   result,
+                                 std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc,
                                  const QuadratureRulesT* const                    qdrRule )
     {
         if (localFace_ == nullptr)
@@ -57,29 +60,28 @@ template <class ReturnTrait1>
                        "FaceIntegral: " + qdrRuleLoc->getName() + " rule is not for THIS ReferenceGeometry!");
 
             // value returned by the integrand
-         ReturnTrait1 value(result);
+         ReturnTrait1 value,result;
 
             // number of Gauss quadrature points
         std::size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
 
             // Gauss quadrature point
-        Geometry::PointReference p(qdrRuleLoc->dimension());
+        Geometry::PointReference p = qdrRuleLoc->getPoint(0);
 
         //if (!useCache_)//caching of transformation data is delegated to ShortTermStorageBase
         //{
             LinearAlgebra::NumericalVector Normal = localFace_->getNormalVector(p);
 
-                // first Gauss point
-            qdrRuleLoc->getPoint(0, p);
-            integrandFunc(localFace_, Normal, p, result);
+                // first Gauss point;
+            result = integrandFunc(localFace_, Normal, p);
             result *= (qdrRuleLoc->weight(0) * Base::L2Norm(Normal));
 
                 // next Gauss points
             for (std::size_t i = 1; i < nrOfPoints; ++i)
             {
-                qdrRuleLoc->getPoint(i, p);
+                p = qdrRuleLoc->getPoint(i);
                 Normal = localFace_->getNormalVector(p);
-                integrandFunc(localFace_, Normal, p, value);
+                value = integrandFunc(localFace_, Normal, p);
 
                  //Y = alpha * X + Y
                 result.axpy(qdrRuleLoc->weight(i) * Base::L2Norm(Normal),value);

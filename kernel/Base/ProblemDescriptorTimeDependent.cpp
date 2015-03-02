@@ -248,11 +248,9 @@ namespace Base
         for (MeshManipulator::FaceIterator citFe = Base::HpgemUI::faceColBegin(); citFe != Base::HpgemUI::faceColEnd(); ++citFe)
         {
             std::size_t numBasisFuncs = (*citFe)->getNrOfBasisFunctions();
-            fMatrixData.resize(numBasisFuncs, numBasisFuncs);
-            fVectorData.resize(numBasisFuncs);
-            faceIntegral.integrate<LinearAlgebra::Matrix>((*citFe), this, fMatrixData);
+            fMatrixData = faceIntegral.integrate<LinearAlgebra::Matrix>((*citFe), this);
             (*citFe)->setFaceMatrix(fMatrixData);
-            faceIntegral.integrate<LinearAlgebra::NumericalVector>((*citFe), this, fVectorData);
+            fVectorData = faceIntegral.integrate<LinearAlgebra::NumericalVector>((*citFe), this);
             (*citFe)->setFaceVector(fVectorData);
         }
     }
@@ -275,9 +273,9 @@ namespace Base
 
         for (ElementIterator it = HpgemUI::meshes_[meshID]->elementColBegin(); it != HpgemUI::meshes_[meshID]->elementColEnd(); ++it)
         {
-            elIntegral.integrate<LinearAlgebra::Matrix>((*it), this, eMatrixData);
+            eMatrixData = elIntegral.integrate<LinearAlgebra::Matrix>((*it), this);
             (*it)->setElementMatrix(eMatrixData);
-            elIntegral.integrate<LinearAlgebra::NumericalVector>((*it), this, eVectorData);
+            eVectorData = elIntegral.integrate<LinearAlgebra::NumericalVector>((*it), this);
             (*it)->setElementVector(eVectorData);
             (*it)->setResidue(eVectorData);
         }

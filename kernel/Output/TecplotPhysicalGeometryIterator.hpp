@@ -79,8 +79,8 @@ namespace Output
 
     private:
         TecplotPhysicalGeometryIterator();
-        TecplotPhysicalGeometryIterator(const TecplotPhysicalGeometryIterator&);
-        TecplotPhysicalGeometryIterator& operator=(const TecplotPhysicalGeometryIterator&);
+        TecplotPhysicalGeometryIterator(const TecplotPhysicalGeometryIterator&)=delete;
+        TecplotPhysicalGeometryIterator& operator=(const TecplotPhysicalGeometryIterator&)=delete;
         virtual ~TecplotPhysicalGeometryIterator() { }
 
         typedef int InternalIndexType;

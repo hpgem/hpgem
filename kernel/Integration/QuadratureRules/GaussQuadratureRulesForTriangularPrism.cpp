@@ -66,11 +66,11 @@ namespace QuadratureRules
             throw name_ + "::weight - wrong index!";
     }
 
-    void
-    TriPrism_1_1::getPoint(std::size_t i, PointReferenceT& p) const
+    const Geometry::PointReference&
+    TriPrism_1_1::getPoint(std::size_t i) const
     {
-        if (i < 1)
-            p=gp_[i];
+        if (i < nrOfPoints())
+            return gp_[i];
         else
             throw name_ + "::getPoint -  wrong index!";
     }
@@ -131,11 +131,11 @@ namespace QuadratureRules
             throw name_ + "::weight - wrong index!";
     }
 
-    void
-    TriPrism_3_1::getPoint(std::size_t i, PointReferenceT& p) const
+    const Geometry::PointReference&
+    TriPrism_3_1::getPoint(std::size_t i) const
     {
-        if (i < 8)
-            p=gp_[i];
+        if (i < nrOfPoints())
+            return gp_[i];
         else
             throw name_ + "::getPoint -  wrong index!";
     }
@@ -230,11 +230,11 @@ namespace QuadratureRules
             throw name_ + "::weight - wrong index!";
     }
 
-    void
-    TriPrism_5_1::getPoint(std::size_t i, PointReferenceT& p) const
+    const Geometry::PointReference&
+    TriPrism_5_1::getPoint(std::size_t i) const
     {
-        if (i < 21)
-            p=gp_[i];
+        if (i < nrOfPoints())
+            return gp_[i];
         else
             throw name_ + "::getPoint -  wrong index!";
     }
@@ -393,11 +393,11 @@ namespace QuadratureRules
             throw name_ + "::weight - wrong index!";
     }
 
-    void
-    TriPrism_7_1::getPoint(std::size_t i, PointReferenceT& p) const
+    const Geometry::PointReference&
+    TriPrism_7_1::getPoint(std::size_t i) const
     {
-        if (i < 64)
-            p=gp_[i];
+        if (i < nrOfPoints())
+            return gp_[i];
         else
             throw name_ + "::getPoint -  wrong index!";
     }

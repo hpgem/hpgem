@@ -31,7 +31,7 @@ namespace LinearAlgebra {
 
 namespace Integration
 {
-
+    /// HORRIBLY UGLY HACK TO ALLOW TEMPLATING ON THE RETURN TYPE AND INHERITING MULTIPLE INSTANCES
     template < typename T>
     class FaceIntegrandBase
     {

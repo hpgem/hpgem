@@ -84,13 +84,12 @@ namespace Integration
         //! \brief Directly integrate the integrand and return ReturnTraits1.
         //! ReturnTrait1 needs to have the function axpy() implemented
         template<class ReturnTrait1>
-        void integrate(ElementT* el, ElementIntegrandBase<ReturnTrait1>* integrand, ReturnTrait1& result,
+        ReturnTrait1 integrate(ElementT* el, ElementIntegrandBase<ReturnTrait1>* integrand,
                 const QuadratureRulesT * const qdrRule = nullptr);
 
         template<class ReturnType>
-        void integrate(ElementT* el,
-                std::function<void(const ElementT*, const Geometry::PointReference&, ReturnType&) > integrand,
-                ReturnType& result,
+        ReturnType integrate(ElementT* el,
+                std::function<ReturnType(const ElementT*, const Geometry::PointReference&) > integrand,
                 const QuadratureRulesT * const qdrRule = nullptr);
 
 

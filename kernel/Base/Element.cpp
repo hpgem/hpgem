@@ -394,15 +394,14 @@ namespace Base
         massMatrix_ *= 0;
         
         //declare the relevant auxiliary variables
-        LinearAlgebra::Matrix tempMatrix(numBasisFuncs,numBasisFuncs);        
-        PointReferenceT p(dim);
+        LinearAlgebra::Matrix tempMatrix(numBasisFuncs,numBasisFuncs);  
         Geometry::Jacobian jac(dim,dim);        
         
         //for each quadrature point, compute the value of the product of the 
         //basisfunctions, then add it with the correct weight to massMatrix_
         for (std::size_t pIndex = 0; pIndex < numQuadPoints; ++pIndex)
         {
-            quadratureRule_->getPoint(pIndex,p);
+            Geometry::PointReference p = quadratureRule_->getPoint(pIndex);
             calcJacobian(p, jac);
             for (std::size_t i = 0; i < numBasisFuncs; ++i)
             {
