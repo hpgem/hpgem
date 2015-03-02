@@ -59,8 +59,8 @@ namespace Integration
         //typedef typename Base::Face::CacheT                        CacheT;
         //typedef typename Base::Face::VecCacheT                     VecCacheT;
             
-        typedef typename QuadratureRules::GaussQuadratureRule    QuadratureRulesT;
-        typedef typename Base::Face                                FaceT;
+        using QuadratureRulesT = QuadratureRules::GaussQuadratureRule;
+        using FaceT = Base::Face;
 
     public:
             //! \brief Construct an FaceIntegral with cache on.

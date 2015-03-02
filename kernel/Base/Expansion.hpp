@@ -34,7 +34,7 @@ namespace Base
 
     public:
 
-        typedef BasisFunctionSet::PointReferenceT PointReferenceT;
+        using PointReferenceT = BasisFunctionSet::PointReferenceT;
         Expansion(const BasisFunctionSet* BFSetPtr) :
             BFSetPtr_(BFSetPtr),
             coeff_(BFSetPtr->size()),

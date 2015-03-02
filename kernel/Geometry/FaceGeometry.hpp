@@ -128,18 +128,18 @@ namespace Geometry
   class FaceGeometry
   {
   public:
-    typedef PointPhysical                                              PointPhysicalT;
-    typedef LinearAlgebra::Matrix                                           MatrixT;
-        typedef std::set<std::size_t> SetOfGlobalNodes;
-        typedef std::vector<std::size_t> VectorOfLocalNodes;
-    typedef PointReference                                             ReferencePointT;
-        typedef std::size_t LocalFaceNrType;
-    typedef std::shared_ptr<const MappingReferenceToReference >   RefFaceToRefElementMapping; // doing new later and passing, should handle its own deletion.
+        using PointPhysicalT = PointPhysical;
+        using MatrixT = LinearAlgebra::Matrix;
+        using SetOfGlobalNodes = std::set<std::size_t>;
+        using VectorOfLocalNodes = std::vector<std::size_t>;
+        using ReferencePointT = PointReference;
+        using LocalFaceNrType = std::size_t;
+        using RefFaceToRefElementMapping = std::shared_ptr<const MappingReferenceToReference >; // doing new later and passing, should handle its own deletion.
     //the ref->ref mappings are all singletons and should never be deleted (bug?) -FB
     
-    typedef ReferenceGeometry                                        ReferenceFaceGeometryT;
-    typedef ElementGeometry                                            ElementGeometryT;
-    typedef FaceGeometry                                                      FaceGeometryT;
+      using ReferenceFaceGeometryT = ReferenceGeometry;
+      using ElementGeometryT = ElementGeometry;
+      using FaceGeometryT = FaceGeometry;
 
 
   public:

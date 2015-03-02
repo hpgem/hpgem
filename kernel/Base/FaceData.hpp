@@ -41,8 +41,8 @@ namespace Base {
 	class FaceData 
         {
 	public:
-		typedef FaceCacheData CacheT;
-		typedef std::vector<CacheT> VecCacheT;
+		using CacheT = FaceCacheData;
+		using VecCacheT = std::vector<CacheT> ;
 
 	public:
 		FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices = 0, std::size_t numberOfFaceVactors = 0);

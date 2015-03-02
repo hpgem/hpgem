@@ -43,13 +43,13 @@ namespace Base
     {
     public:
 
-        typedef Base::Element ElementT;
-        typedef Geometry::ElementGeometry ElementGeometryT;
-        typedef typename Geometry::FaceGeometry::LocalFaceNrType LocalFaceNrTypeT;
-        typedef typename Base::FaceCacheData CacheT;
-        typedef std::vector<CacheT> VecCacheT;
-        typedef Geometry::FaceGeometry FaceGeometryT;
-        typedef QuadratureRules::GaussQuadratureRule FaceQuadratureRule;
+        using ElementT = Base::Element;
+        using ElementGeometryT = Geometry::ElementGeometry;
+        using LocalFaceNrTypeT = Geometry::FaceGeometry::LocalFaceNrType;
+        using CacheT = Base::FaceCacheData ;
+        using VecCacheT = std::vector<CacheT>;
+        using FaceGeometryT = Geometry::FaceGeometry ;
+        using FaceQuadratureRule = QuadratureRules::GaussQuadratureRule;
 
     public:
 
