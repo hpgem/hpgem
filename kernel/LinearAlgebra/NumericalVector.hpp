@@ -22,6 +22,7 @@
 #ifndef NumericalVectorHPP
 #define NumericalVectorHPP
 
+//This is derived from valarray or vector so import that information
 #ifdef LA_STL_VECTOR
     #include <vector>
     #include <cmath>
@@ -31,17 +32,15 @@
 #include <iostream>
 
 
-#define IAMNICO
-
 namespace LinearAlgebra
 {
     
-    //This is dervied from valarray so import that information
     #ifdef LA_STL_VECTOR
         using std::vector;
     #else
         using std::valarray;
     #endif
+
     /// \class NumericalVector
     /// \brief This is a vector of doubles
     ///
@@ -59,7 +58,7 @@ namespace LinearAlgebra
         
         NumericalVector(const NumericalVector& other);
         
-        NumericalVector(const double array[], int size);
+        NumericalVector(const double array[], std::size_t size);
 
         void resize(std::size_t size);
 
@@ -79,8 +78,13 @@ namespace LinearAlgebra
         
         void axpy(double a, const NumericalVector& x);
         
+        /// This function is dangerous to use, since it compares doubles without 
+        /// a tolerance interval to see if they are equal.
+        /// Needs fixing if someone wants to use valarray.
         bool operator== (const NumericalVector& right) const;
         
+        /// This function is dangerous to use, since it compares doubles without
+        /// a tolerance interval to see if they are equal.
         bool operator< (const NumericalVector& right) const;
 
         NumericalVector& operator+= (const NumericalVector& right);
@@ -111,12 +115,15 @@ namespace LinearAlgebra
             return data_.size();
         }
         
-        const double* data() const {return data_.data();}
-        
+        const double* data() const 
+        {
+            return data_.data();
+        }
+
         friend NumericalVector operator*(const double& left, const NumericalVector& right);
-        
-        friend NumericalVector   operator-(const NumericalVector& right);
- 
+
+        friend NumericalVector operator-(const NumericalVector& right);
+
         friend std::ostream& operator<<(std::ostream& os, const NumericalVector& A);
    
    

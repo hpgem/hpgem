@@ -45,8 +45,8 @@ namespace LinearAlgebra
     NumericalVector::NumericalVector(const NumericalVector& other) : data_(other.data_){}
     
     #ifdef LA_STL_VECTOR
-        /// \bug This constrcutor could be faster
-        NumericalVector::NumericalVector(const double array[], int size)
+        /// \bug This constructor could be faster
+        NumericalVector::NumericalVector(const double array[], std::size_t size)
         {
             data_.resize(size);
             for (int i=0;i<size;i++)
@@ -54,16 +54,25 @@ namespace LinearAlgebra
                 data_[i]=array[i];
             }
         }
-    #else
-        NumericalVector::NumericalVector(const double array[], int size) : data_(array,size){}
-    #endif
+#else
+
+    NumericalVector::NumericalVector(const double array[], std::size_t size)
+    : data_(array, size) { }
+#endif
 
     void NumericalVector::resize(std::size_t size)
     {
-        if (size != data_.size()) data_.resize(size);
+        if (size != data_.size()) 
+        {
+            data_.resize(size);
+        }
     }
     
-    NumericalVector& NumericalVector::operator= (const NumericalVector& right){data_=right.data_; return *this;}
+    NumericalVector& NumericalVector::operator= (const NumericalVector& right)
+    {
+        data_ = right.data_; 
+        return *this;
+    }
     
     NumericalVector NumericalVector::operator+ (const NumericalVector& right) const
     {
@@ -155,22 +164,21 @@ namespace LinearAlgebra
     
     bool NumericalVector::operator== (const NumericalVector& right) const
     {
-    	int n=data_.size();
-    	if(n!=right.data_.size())
-    		return false;
-        for (int i = 0; i < n; ++i)
-        {
-            if (data_[i] != right.data_[i]) return false;
-        }
-        return true;
+        return (data_ == right.data_);
     }
     
     bool NumericalVector::operator< (const NumericalVector& right) const
     {
-        for(int i=0;i<data_.size();++i)
+        for(std::size_t i=0; i < data_.size(); ++i)
         {
-            if(data_[i]<right.data_[i]) return true;
-            if(data_[i]>right.data_[i]) return false;
+            if(data_[i]<right.data_[i]) 
+            {
+                return true;
+            }
+            if(data_[i]>right.data_[i])
+            {
+                return false;
+            }
         }
         return false;
     }
@@ -238,7 +246,10 @@ namespace LinearAlgebra
     std::ostream& operator<<(std::ostream& os, const NumericalVector& A)
     {
         os<< '[';
-        for (int i=0;i<A.data_.size()-1;i++){os<< A(i)<<',';}
+        for (std::size_t i = 0; i < A.data_.size() - 1; i++)
+        {
+            os<< A(i)<<',';
+        }
         os<< A(A.data_.size()-1)<<']';
         return os;
     }    
