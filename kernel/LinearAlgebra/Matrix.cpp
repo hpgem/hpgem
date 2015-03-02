@@ -310,7 +310,7 @@ namespace LinearAlgebra
      dimension 2 and three I do not form the square matrices, since the
      evaluation of the determinant is easy and can be inserted directly.
      */
-    void Matrix::computeWedgeStuffVector(NumericalVector& result)
+    /*void Matrix::computeWedgeStuffVector(NumericalVector& result)
     {
         
         //if (nRows_ != nCols_){throw("Wedge product only defined for square matrices");}///Wrong...
@@ -349,7 +349,7 @@ namespace LinearAlgebra
         }//end switch
         
         
-    }
+    }*/
     
     /// \details
     /// \param[out] result : This returns the result in a passed in NumericalVector 
@@ -365,7 +365,7 @@ namespace LinearAlgebra
      dimension 2 and three I do not form the square matrices, since the
      evaluation of the determinant is easy and can be inserted directly.
      */
-    void Matrix::computeWedgeStuffVector(NumericalVector& result) const
+    /*void Matrix::computeWedgeStuffVector(NumericalVector& result) const
     {
         switch (nRows_)
         {
@@ -397,14 +397,44 @@ namespace LinearAlgebra
                 std::cout<<"Wedge product not defined for this dimension"<<std::endl;
         }//end switch
                 
-    }
+    }*/
     
     /// \return NumericalVector : The answer is return in this vector which is created by this function call
     /// \see computeWedgeStuffVector (NumericalVector)
-    NumericalVector Matrix::computeWedgeStuffVector()
+    NumericalVector Matrix::computeWedgeStuffVector() const
     {
         NumericalVector result(nRows_);
-        computeWedgeStuffVector(result);
+        
+        switch (nRows_)
+        {
+            case 2 :
+                result[0] = - (*this)(1,0);
+                result[1] = + (*this)(0,0);
+                break;
+            case 3:
+                result[0] = (*this)(1,0) * (*this)(2,1) - (*this)(2,0) * (*this)(1,1);
+                result[1] = (*this)(0,1) * (*this)(2,0) - (*this)(0,0) * (*this)(2,1); // includes minus sign already!
+                result[2] = (*this)(0,0) * (*this)(1,1) - (*this)(1,0) * (*this)(0,1);
+                break;
+            case 4:
+                result[0] = (*this)(1,0) * (-(*this)(2,1)*(*this)(3,2) + (*this)(3,1)*(*this)(2,2)) +
+                (*this)(2,0) * ( (*this)(1,1)*(*this)(3,2) - (*this)(3,1)*(*this)(1,2)) +
+                (*this)(3,0) * (-(*this)(1,1)*(*this)(2,2) + (*this)(2,1)*(*this)(1,2));
+                
+                result[1] = (*this)(0,0) * ( (*this)(2,1)*(*this)(3,2) - (*this)(3,1)*(*this)(2,2)) +
+                (*this)(2,0) * (-(*this)(0,1)*(*this)(3,2) + (*this)(3,1)*(*this)(0,2)) +
+                (*this)(3,0) * ( (*this)(0,1)*(*this)(2,2) - (*this)(2,1)*(*this)(0,2));
+                result[2] = (*this)(0,0) * (-(*this)(1,1)*(*this)(3,2) + (*this)(3,1)*(*this)(1,2)) +
+                (*this)(1,0) * ( (*this)(0,1)*(*this)(3,2) - (*this)(3,1)*(*this)(0,2)) +
+                (*this)(3,0) * (-(*this)(0,1)*(*this)(1,2) + (*this)(1,1)*(*this)(0,2));
+                result[3] = (*this)(0,0) * ( (*this)(1,1)*(*this)(2,2) - (*this)(2,1)*(*this)(1,2)) +
+                (*this)(1,0) * (-(*this)(0,1)*(*this)(2,2) + (*this)(2,1)*(*this)(0,2)) +
+                (*this)(2,0) * ( (*this)(0,1)*(*this)(1,2) - (*this)(1,1)*(*this)(0,2));
+                break;
+            default:
+                std::cout<<"Wedge product not defined for this dimension"<<std::endl;
+        }//end switch
+        
         return(result);
         
     }
@@ -527,10 +557,10 @@ namespace LinearAlgebra
     
     /// \param[out] result this is the inverse of the current matrix
     /// \bug if the dimensions of result are correct is not checked.
-    void Matrix::inverse(Matrix& result) const
+    Matrix Matrix::inverse() const
     {
      
-        result=(*this);
+        Matrix result=(*this);
         
         int nr=nRows_;
         int nc=nCols_;
@@ -548,6 +578,7 @@ namespace LinearAlgebra
         
         dgetri_(&nc,&result[0],&nc,iPivot,&work[0],&lwork,&info);
         
+        return result;
     }
     
     /// \param[in,out] B. On enter is B in Ax=B and on exit is x.

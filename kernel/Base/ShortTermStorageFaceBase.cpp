@@ -38,27 +38,27 @@ void Base::ShortTermStorageFaceBase::computeData() {
 			}
 		}
 		currentPointIndex_++;
-		face_->getNormalVector(currentPoint_,normal_);
+		normal_ = face_->getNormalVector(currentPoint_);
 	}else{
-		face_->getNormalVector(currentPoint_,normal_);
+		normal_ = face_->getNormalVector(currentPoint_);
 	}
 }
 
 
-void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) const {
-	v=normal_;
+LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace) const {
 	if(!(currentPoint_==pRefFace)){
 		std::cout<<"WARNING: you are using slow data access";
-		face_->getNormalVector(pRefFace,v);
+		return face_->getNormalVector(pRefFace);
 	}
+	return normal_;
 }
 
-void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) {
+LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace) {
 	if(!(currentPoint_==pRefFace)){
 		currentPoint_=pRefFace;
 		computeData();
 	}
-	v=normal_;
+	return normal_;
 }
 
 void Base::ShortTermStorageFaceBase::referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical) const {

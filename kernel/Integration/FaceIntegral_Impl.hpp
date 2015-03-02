@@ -67,11 +67,10 @@ template <class ReturnTrait1>
 
         //if (!useCache_)//caching of transformation data is delegated to ShortTermStorageBase
         //{
-            LinearAlgebra::NumericalVector Normal(qdrRuleLoc->dimension()+1);
+            LinearAlgebra::NumericalVector Normal = localFace_->getNormalVector(p);
 
                 // first Gauss point
             qdrRuleLoc->getPoint(0, p);
-            localFace_->getNormalVector(p, Normal);
             integrandFunc(localFace_, Normal, p, result);
             result *= (qdrRuleLoc->weight(0) * Base::L2Norm(Normal));
 
@@ -79,7 +78,7 @@ template <class ReturnTrait1>
             for (std::size_t i = 1; i < nrOfPoints; ++i)
             {
                 qdrRuleLoc->getPoint(i, p);
-                localFace_->getNormalVector(p, Normal);
+                Normal = localFace_->getNormalVector(p);
                 integrandFunc(localFace_, Normal, p, value);
 
                  //Y = alpha * X + Y

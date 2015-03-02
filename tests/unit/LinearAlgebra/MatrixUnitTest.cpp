@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     
     cout<<"axpy"<<endl;
     //Test wedge product both quick form if vector exist and create vector form.
-    BB1.computeWedgeStuffVector(B2);
+    B2=BB1.computeWedgeStuffVector();
     B3=BB1.computeWedgeStuffVector();
     
     //Matrix assigment test
@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
     
     LinearAlgebra::Matrix CC4(2,2);
     
-    CC3.inverse(CC4);
+    CC4 = CC3.inverse();
     
     cout << CC4; 
     
@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
     
     LinearAlgebra::Matrix ans(3,3);
     
-    DD.inverse(ans);
+    ans = DD.inverse();
     
     cout << ans << std::endl;
     

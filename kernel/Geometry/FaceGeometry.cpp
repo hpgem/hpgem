@@ -142,9 +142,10 @@ namespace Geometry
      returned normal vector. I.e. the length of the vector equals the ratio of the
      physical face and reference face.
      </UL> */
-    void FaceGeometry::getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) const
+    LinearAlgebra::NumericalVector FaceGeometry::getNormalVector(const ReferencePointT& pRefFace) const
     {
-        std::size_t DIM = v.size();
+        std::size_t DIM = pRefFace.size()+1;
+        LinearAlgebra::NumericalVector result;
         if (DIM > 1)
         {
             // first Jacobian (mapping reference face -> reference element)
@@ -170,12 +171,12 @@ namespace Geometry
 
             j2.multiplyJacobiansInto(j1, j3);
 
-            j3.computeWedgeStuffVector(v);
+            result = j3.computeWedgeStuffVector();
 
             double det = j2.determinant();
 
             double sign = OutwardNormalVectorSign(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_));
-            v *= ((det > 0)-(det < 0)) * sign;
+            result *= ((det > 0)?1:-1) * sign;
         }
         else
         {   //if DIM==1
@@ -194,8 +195,9 @@ namespace Geometry
             Jacobian j(DIM, DIM);
 
             leftElementGeom_->calcJacobian(pRefElement, j);
-            int sgn = (j[0] > 0)-(j[0] < 0);
-            v[0] = pRefElement[0] * sgn;
+            int sgn = (j[0] > 0)?1:-1;
+            result.resize(DIM);
+            result[0] = pRefElement[0] * sgn;
         }
 
 

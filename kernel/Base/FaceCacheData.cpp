@@ -25,6 +25,6 @@
 
 void Base::FaceCacheData::operator ()(const Base::Face& fa, const Geometry::PointReference& p)
 {
-    fa.getNormalVector(p, Normal);
+    Normal = fa.getNormalVector(p);
     L2Normal = Base::L2Norm(Normal);
 }

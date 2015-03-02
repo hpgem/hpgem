@@ -35,6 +35,8 @@ namespace Geometry
             // Constructors.
         Jacobian(unsigned int dimTo,unsigned int dimFrom);
         Jacobian(const JacobianT& jacobian);
+        
+        Jacobian(const LinearAlgebra::Matrix& matrix):LinearAlgebra::Matrix(matrix){}
        
         double determinant()const;
         

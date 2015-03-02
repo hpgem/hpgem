@@ -122,14 +122,8 @@ namespace LinearAlgebra
     /// \brief Assigns one matrix to another.
     Matrix& operator=(Matrix&& right);
 
-    /// \brief computeWedgeStuffVector. The answer is return in result which you should precreate.
-    void computeWedgeStuffVector(NumericalVector& result);
-
-    /// \brief computeWedgeStuffVector. The answer is return in result which you should precreate.
-    void computeWedgeStuffVector(NumericalVector& result) const;
-
-    /// \brief computerWedgeStuffVector and create and returns it in a vector. 
-    NumericalVector computeWedgeStuffVector();
+    /// \brief computeWedgeStuffVector.
+    NumericalVector computeWedgeStuffVector() const;
 
     /// \brief Applies the matrix y=ax + y, where x is another matrix and a is a scalar
     void axpy(double a, const Matrix& x);
@@ -163,7 +157,7 @@ namespace LinearAlgebra
     Matrix LUfactorisation() const;
 
     /// \brief return the inverse in the vector result. The size of result must match the matrix.
-    void inverse(Matrix& result) const;
+    Matrix inverse() const;
 
     /// \brief solves Ax=B where A is the current matrix and B is passed in. The result is returned in B.
     void solve(Matrix& B) const;
@@ -181,6 +175,7 @@ namespace LinearAlgebra
 #ifdef LA_STL_VECTOR
     vector<double> data_;
 #else
+#error "valarray is broken, please turn on hpGEM_USE_STL_VECTOR_FOR_LA"
     valarray<double> data_;
 #endif
 

@@ -212,7 +212,7 @@ namespace Geometry
      *  right side. */
     virtual void    mapRefFaceToRefFace(const ReferencePointT& pIn, ReferencePointT& pOut) const;
     /// Get a normal at a given RefPoint
-    virtual void    getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) const;
+    virtual LinearAlgebra::NumericalVector    getNormalVector(const ReferencePointT& pRefFace) const;
 
     //! Return a Mapping (not pointer or reference! Ok, wrapped by auto_ptr) /bug why?
     virtual         RefFaceToRefElementMapping refFaceToRefElemMapL() const;

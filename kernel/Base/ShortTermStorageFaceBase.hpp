@@ -87,8 +87,8 @@ namespace Base
             //keep the face alive!
         }
 
-        void getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v) const override;
-        virtual void getNormalVector(const ReferencePointT& pRefFace, LinearAlgebra::NumericalVector& v);
+        LinearAlgebra::NumericalVector getNormalVector(const ReferencePointT& pRefFace) const override;
+        virtual LinearAlgebra::NumericalVector getNormalVector(const ReferencePointT& pRefFace);
 
         double basisFunction(std::size_t i, const Geometry::PointReference& p) const override
         {

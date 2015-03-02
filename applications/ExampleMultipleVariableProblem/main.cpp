@@ -457,8 +457,7 @@ public:
         double valueBasisFunction;
         
         // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-        LinearAlgebra::NumericalVector normal(DIM_);
-        ptrFace->getNormalVector(pRef, normal);
+        LinearAlgebra::NumericalVector normal = ptrFace->getNormalVector(pRef);
         if(jSide == Base::Side::RIGHT) {normal *= -1;};
         
         // Compute the integrand
@@ -590,8 +589,7 @@ public:
         }
         
         // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-        LinearAlgebra::NumericalVector normal(DIM_);
-        ptrFace->getNormalVector(pRef, normal);
+        LinearAlgebra::NumericalVector normal = ptrFace->getNormalVector(pRef);
         
         // Compute the jump of the scalar function and the vector function.
         LinearAlgebra::NumericalVector jumpScalarFunction(DIM_);

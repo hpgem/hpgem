@@ -197,7 +197,7 @@ namespace Utilities {
                 jac.resize(DIM,DIM);
 		myElement_->calcJacobian(p, jac);
 		myElement_->getReferenceGeometry()->getBasisFunctionDerivative(myFunction_, p, dummy);
-		jac.inverse(jac);
+		jac = jac.inverse();
 		//r*=jac;///\todo can someone who knows BLAS update the linAlg routines?
 		for (int i = 0; i < DIM; ++i) {
                         //std::cout<<dummy[i]<<" ";
