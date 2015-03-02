@@ -80,7 +80,7 @@ namespace LinearAlgebra
     
     /// \param[in]  n The number of rows the matrix will have
     /// \param[in]  m The number of columns the matrix will have
-    Matrix::Matrix(const int n, const int m):
+    Matrix::Matrix(const std::size_t n, const std::size_t m):
     	data_(n*m),
     	nRows_(n),
     	nCols_(m){ }
@@ -90,9 +90,9 @@ namespace LinearAlgebra
     /// \param[in]  m The number of columns the matrix will have
     /// \param[in]  c The value all the entries of the matrix will contain
     ///
-    /// \details
-    /// Example usage : Matrix<double> A(4,3,2) with create a 4 by 3 matrix called A with entries equal to 2.
-    Matrix::Matrix(const int n, const int m, const double& c):
+    /// \details Example usage : Matrix<double> A(4,3,2) with create a 4 by 3 
+    /// matrix called A with entries equal to 2.
+    Matrix::Matrix(const std::size_t n, const std::size_t m, const double& c):
 #ifdef LA_STL_VECTOR
         data_(n*m, c),
 #else
@@ -122,9 +122,15 @@ namespace LinearAlgebra
     ///
     /// \details
     /// Recall that the matrix is stored in fortran style i.e. columns first and then rows
-    double& Matrix::operator[](const int n){return data_[n];}
+    double& Matrix::operator[](const std::size_t n)
+    {
+        return data_[n];
+    }
     
-    const double& Matrix::operator[](const int n) const  {return data_[n];}
+    const double& Matrix::operator[](const std::size_t n) const  
+    {
+        return data_[n];
+    }
     
     /// \param[in] other : the Matrix that is added to this matrix
     /// \return Matrix
@@ -149,10 +155,10 @@ namespace LinearAlgebra
      */
     NumericalVector Matrix::operator*( NumericalVector& right) const
     {
-        int nr=nRows_;
-        int nc=nCols_;            
+        int nr = nRows_;
+        int nc = nCols_;            
         
-        int i_one=1;
+        int i_one = 1;
         double d_one=1.0;
         double d_zero=0.0;
         
@@ -180,15 +186,15 @@ namespace LinearAlgebra
     {
         assert(nCols_ == other.nRows_);        
         
-        int i=nRows_;
-        int j=nCols_;
-        int k=other.getNCols();
+        int i = nRows_;
+        int j = nCols_;
+        int k = other.getNCols();
         
         ///The result of the matrix is left.Nrows, right.NCols()
         Matrix C(i,k);
         
-        double d_one=1.0;
-        double d_zero=0.0;              
+        double d_one = 1.0;
+        double d_zero = 0.0;              
         
         //Let the actual multiplication be done by Fortran
         dgemm_("N","N",&i,&k,&j,&d_one,&((*this)[0]),&i,&other[0],&j,&d_zero,&C[0],&i);
@@ -208,9 +214,9 @@ namespace LinearAlgebra
         //The result of the matrix is left.Nrows, right.NCols()
         Matrix C(i,k);
         
-        int i_one=1;
-        double d_one=1.0;
-        double d_zero=0.0;      
+        int i_one = 1;
+        double d_one = 1.0;
+        double d_zero = 0.0;      
                 
         //Let the actual multiplication be done by Fortran
         dgemm_("N","N",&i,&k,&j,&d_one,&((*(const_cast<Matrix *> (this)))[0]),&i,&(((const_cast<Matrix&> (other)))[0]),&j,&d_zero,&C[0],&i);     
@@ -251,7 +257,7 @@ namespace LinearAlgebra
     Matrix Matrix::operator/ (const double &scalar)
     {
         Matrix result(*this);
-        return (result/=scalar);
+        return (result /= scalar);
     }
     
     
@@ -261,7 +267,7 @@ namespace LinearAlgebra
     /// Sets all the entries in the matrix equal to the scalar c.
     Matrix& Matrix::operator=(const double& c)
     {
-        if (size()!=1){nRows_=1; nCols_=1; data_.resize(1);}
+        if (size() != 1){nRows_=1; nCols_=1; data_.resize(1);}
         #ifdef LA_STL_VECTOR
         data_[0]=c;
         #else
@@ -275,17 +281,17 @@ namespace LinearAlgebra
     /// \bug Error checking needs to be added
     Matrix& Matrix::operator=(const Matrix& right) 
     	{
-    	   data_=(right.data_);
-           nRows_=right.nRows_;
-           nCols_=right.nCols_;
+    	   data_ = (right.data_);
+           nRows_ = right.nRows_;
+           nCols_ = right.nCols_;
      	   return *this;
     	}
     
     Matrix& Matrix::operator=(Matrix&& right) 
     	{
-    	   data_=std::move(right.data_);
-           nRows_=right.nRows_;
-           nCols_=right.nCols_;
+    	   data_ = std::move(right.data_);
+           nRows_ = right.nRows_;
+           nCols_ = right.nCols_;
      	   return *this;
     	}
     
@@ -407,7 +413,6 @@ namespace LinearAlgebra
 { 
     /// \param[in] a : double scalar that is multiple by the matrix x
     /// \param[in] x : matrix that is multiple 
-    /// \bug Does not undertake range checking.
     ///
     /// \details
     /*!
@@ -432,11 +437,11 @@ namespace LinearAlgebra
         
     /// \param[in] n the number of row in the new matrix
     /// \param[in] m the number of columns in the new matrix
-    void Matrix::resize(int n, int m)
+    void Matrix::resize(std::size_t n, std::size_t m)
     {
-        nRows_=n; 
-        nCols_=m; 
-        if(n*m !=data_.size())
+        nRows_ = n; 
+        nCols_ = m; 
+        if(n*m != data_.size())
         {
             data_.resize(nRows_*nCols_);
         }
@@ -472,14 +477,14 @@ namespace LinearAlgebra
     }
     
     /// \return int : the total number of entries
-    const int Matrix::size() const {return nRows_*nCols_;}
+    const std::size_t Matrix::size() const {return nRows_*nCols_;}
    
     /// \return int : the number of rows
-    const int Matrix::getNRows() const {return nRows_;}
+    const std::size_t Matrix::getNRows() const {return nRows_;}
     
     /// \brief Get the number of columns
     /// \return int : the number of columns
-    const int Matrix::getNCols() const {return nCols_;}
+    const std::size_t Matrix::getNCols() const {return nCols_;}
     
     LinearAlgebra::NumericalVector Matrix::getColumn(std::size_t j) const
     {
@@ -521,7 +526,7 @@ namespace LinearAlgebra
     }
     
     /// \param[out] result this is the inverse of the current matrix
-    /// \bug if the dimensations of result are correct is not checked.
+    /// \bug if the dimensions of result are correct is not checked.
     void Matrix::inverse(Matrix& result) const
     {
      

@@ -44,13 +44,15 @@ namespace LinearAlgebra
   /// \class Matrix
   /// \brief Data type for small dense matrix.
   /// 
-  /// \details
-  /// Stores small dense matrix eficiently.
+  /// \details Stores small dense matrix efficiently.
   /// Since this class is inherited from std::valarray, it also inherits members of std::valarray
-  /// Note, valarry was speed tested and was shown to be quicker than stl vector and it very light weight
+  /// Note, valarray was speed tested and was shown to be quicker than stl vector and it very light weight
   /// It only store doubles as this is the main type linear algebra is done on in hpGEM
-  /// It stores the matrix in fortran style to give quicker access to extern BLAS libaries.
-
+  /// It stores the matrix in fortran style to give quicker access to extern BLAS libraries.
+  /// \bug valarray does not compile, since data() is not defined on it
+  /// \todo number of rows/columns is saved as a std::size_t, but to BLAS interface we use 
+  /// int. Check the BLAS documentation if std::size_t can be used there or limit
+  /// the size of each matrix.
   class Matrix
   {
   public:
@@ -59,10 +61,10 @@ namespace LinearAlgebra
     Matrix();
 
     /// \brief Constructs a matrix of size n-rows by m-columns.
-    Matrix(const int n, const int m);
+    Matrix(const std::size_t n, const std::size_t m);
 
     /// \brief Constructs a matrix of size n-rows by m-columns and initialises all entry to a constant 
-    Matrix(const int n, const int m, const double& c);
+    Matrix(const std::size_t n, const std::size_t m, const double& c);
 
     /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B and A are both matrices
     Matrix(const Matrix& other);
@@ -72,24 +74,24 @@ namespace LinearAlgebra
 
     /// \brief defines the operator (n,m) to access the element on row n and column m
 
-    double& operator()(int n, int m)
+    double& operator()(std::size_t n, std::size_t m)
     {
       return data_[n + m * nRows_];
     }
 
     /// \brief defines the operator (n,m) to access the element on row n and column m
 
-    const double& operator() (int n, int m) const
+    const double& operator() (std::size_t n, std::size_t m) const
     {
       return data_[n + m * nRows_];
     }
 
     /// WRONG!!
     /// \brief Access the n linear element in the matrix. 
-    double& operator[](const int n) ;
+    double& operator[](const std::size_t n) ;
 
     /// WRONG!!
-    const double& operator[](const int n) const;
+    const double& operator[](const std::size_t n) const;
 
     /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j
     NumericalVector operator*(NumericalVector& right) const;
@@ -105,10 +107,10 @@ namespace LinearAlgebra
     /// \brief Does matrix A_ij=scalar*A_ij
     Matrix& operator*= (const double &scalar);
 
-    /// \brief this does element by divived by a scalar 
+    /// \brief this does element by divided by a scalar 
     Matrix& operator/= (const double& scalar);
     
-    /// \brief this does element by divived by a scalar
+    /// \brief this does element by divided by a scalar
     Matrix operator/ (const double& scalar);
 
     /// \brief Assigns the Matrix by a scalar
@@ -133,19 +135,19 @@ namespace LinearAlgebra
     void axpy(double a, const Matrix& x);
 
     /// \brief Resize the Matrix to be n-Rows by m-columns
-    void resize(int n, int m);
+    void resize(std::size_t n, std::size_t m);
     
     /// \brief Glues two matrices with the same number of columns together
     void concatenate(const Matrix& other);
 
     /// \brief Get total number of Matrix entries
-    const int size() const;
+    const std::size_t size() const;
 
     /// \brief Get the number of rows
-    const int getNRows() const;
+    const std::size_t getNRows() const;
 
     /// \brief Get the number of columns
-    const int getNCols() const;
+    const std::size_t getNCols() const;
     
     /// \brief get the j^th column
     /// If someone knows how to do this such that it returns a reference, please
@@ -182,16 +184,15 @@ namespace LinearAlgebra
     valarray<double> data_;
 #endif
 
-
     /// Stores the number of rows of the matrix
-    unsigned int nRows_;
+    std::size_t nRows_;
 
     /// Store the number of columns of the matrix
-    unsigned int nCols_;
+    std::size_t nCols_;
 
   } ;
 
-  /// Writes nices format enteries of the Matrix A to the stream os.
+  /// Writes nicely formatted entries of the Matrix A to the stream os.
   std::ostream& operator<<(std::ostream& os, const Matrix& A);
   
   ///Adds two matrices
@@ -203,7 +204,8 @@ namespace LinearAlgebra
 }
 #endif
 
-
+//There is no code below this line
+//_____________________________________________________________________________
 
 //
 //	//----------------------------------------------------------------------
