@@ -49,26 +49,26 @@ namespace QuadratureRules
          return name_;
     }
 
-    unsigned int
+    std::size_t
     Cn3_1_1::order() const
     {
          return 1;
     }
 
-    unsigned int
+    std::size_t
     Cn3_1_1::dimension() const
     {
          return 3;
     }
 
-    unsigned int
+    std::size_t
     Cn3_1_1::nrOfPoints() const
     {
         return 1;
     }
 
     double 
-    Cn3_1_1::weight(unsigned int i) const
+    Cn3_1_1::weight(std::size_t i) const
     {
         if (i < 1)
             return weight_[i];
@@ -77,7 +77,7 @@ namespace QuadratureRules
     }
 
     void
-    Cn3_1_1::getPoint(unsigned int i, PointReferenceT& p) const
+    Cn3_1_1::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 1)
             p=gp_[i];
@@ -114,26 +114,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     Cn3_3_4::order() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     Cn3_3_4::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     Cn3_3_4::nrOfPoints() const
     {
         return 8;
     }
 
     double
-    Cn3_3_4::weight(unsigned int i) const
+    Cn3_3_4::weight(std::size_t i) const
     {
         if (i < 8)
            return weight_[i];
@@ -142,7 +142,7 @@ namespace QuadratureRules
     }
 
     void
-    Cn3_3_4::getPoint(unsigned int i, PointReferenceT& p) const
+    Cn3_3_4::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 8)
            p=gp_[i];
@@ -214,26 +214,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     Cn3_5_9::order() const
     {
         return 5;
     }
 
-    unsigned int
+    std::size_t
     Cn3_5_9::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     Cn3_5_9::nrOfPoints() const
     {
         return 27;
     }
 
     double
-    Cn3_5_9::weight(unsigned int i) const
+    Cn3_5_9::weight(std::size_t i) const
     {
         if (i < 27)
             return weight_[i];
@@ -242,7 +242,7 @@ namespace QuadratureRules
     }
 
     void
-    Cn3_5_9::getPoint(unsigned int i, PointReferenceT& p) const
+    Cn3_5_9::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 27)
             p=gp_[i];
@@ -408,26 +408,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     C3_7_2::order() const
     {
         return 7;
     }
 
-    unsigned int
+    std::size_t
     C3_7_2::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     C3_7_2::nrOfPoints() const
     {
         return 64;
     }
 
     double
-    C3_7_2::weight(unsigned int i) const
+    C3_7_2::weight(std::size_t i) const
     {
         if (i < 64)
             return weight_[i];
@@ -436,7 +436,7 @@ namespace QuadratureRules
     }
 
     void
-    C3_7_2::getPoint(unsigned int i, PointReferenceT& p) const
+    C3_7_2::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 64)
             p=gp_[i];
@@ -655,26 +655,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     C3_9_2::order() const
     {
         return 9;
     }
 
-    unsigned int
+    std::size_t
     C3_9_2::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     C3_9_2::nrOfPoints() const
     {
         return 125;
     }
 
     double
-    C3_9_2::weight(unsigned int i) const
+    C3_9_2::weight(std::size_t i) const
     {
         if (i < 125)
             return weight_[i];
@@ -683,7 +683,7 @@ namespace QuadratureRules
     }
 
     void
-    C3_9_2::getPoint(unsigned int i, PointReferenceT& p) const
+    C3_9_2::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 125)
             p=gp_[i];
@@ -731,26 +731,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     C3_11_2::order() const
     {
         return 11;
     }
 
-    unsigned int
+    std::size_t
     C3_11_2::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     C3_11_2::nrOfPoints() const
     {
         return 216;
     }
 
     double
-    C3_11_2::weight(unsigned int i) const
+    C3_11_2::weight(std::size_t i) const
     {
         if (i < 216)
             return weight_[i];
@@ -759,7 +759,7 @@ namespace QuadratureRules
     }
 
     void
-    C3_11_2::getPoint(unsigned int i, PointReferenceT& p) const
+    C3_11_2::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 216)
             p=gp_[i];

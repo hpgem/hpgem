@@ -45,11 +45,11 @@ namespace QuadratureRules
             }
 
         virtual std::string             getName() const;
-        virtual unsigned int            order() const;
-        virtual unsigned int            dimension() const;
-        virtual unsigned int            nrOfPoints() const;
-        virtual double                  weight(unsigned int i) const;
-        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual std::size_t            order() const;
+        virtual std::size_t            dimension() const;
+        virtual std::size_t            nrOfPoints() const;
+        virtual double                  weight(std::size_t i) const;
+        virtual void                    getPoint(std::size_t i, PointReferenceT& p) const;
         virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
@@ -77,11 +77,11 @@ namespace QuadratureRules
             }
 
         virtual std::string             getName() const;
-        virtual unsigned int            order() const;
-        virtual unsigned int            dimension() const;
-        virtual unsigned int            nrOfPoints() const;
-        virtual double                  weight(unsigned int i) const;
-        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual std::size_t            order() const;
+        virtual std::size_t            dimension() const;
+        virtual std::size_t            nrOfPoints() const;
+        virtual double                  weight(std::size_t i) const;
+        virtual void                    getPoint(std::size_t i, PointReferenceT& p) const;
         virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
@@ -109,11 +109,11 @@ namespace QuadratureRules
             }
 
         virtual std::string             getName() const;
-        virtual unsigned int            order() const;
-        virtual unsigned int            dimension() const;
-        virtual unsigned int            nrOfPoints() const;
-        virtual double                  weight(unsigned int i) const;
-        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual std::size_t            order() const;
+        virtual std::size_t            dimension() const;
+        virtual std::size_t            nrOfPoints() const;
+        virtual double                  weight(std::size_t i) const;
+        virtual void                    getPoint(std::size_t i, PointReferenceT& p) const;
         virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:
@@ -141,11 +141,11 @@ namespace QuadratureRules
             }
 
         virtual std::string             getName() const;
-        virtual unsigned int            order() const;
-        virtual unsigned int            dimension() const;
-        virtual unsigned int            nrOfPoints() const;
-        virtual double                  weight(unsigned int i) const;
-        virtual void                    getPoint(unsigned int i, PointReferenceT& p) const;
+        virtual std::size_t            order() const;
+        virtual std::size_t            dimension() const;
+        virtual std::size_t            nrOfPoints() const;
+        virtual double                  weight(std::size_t i) const;
+        virtual void                    getPoint(std::size_t i, PointReferenceT& p) const;
         virtual ReferenceGeometryT*     forReferenceGeometry() const;
 
     private:

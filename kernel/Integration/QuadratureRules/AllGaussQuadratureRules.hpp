@@ -47,7 +47,7 @@ namespace QuadratureRules
 		//it is possible to call this from an external location, but it is nicer to list all the rules inside this class
 		void addRule(const GaussQuadratureRule* rule);
 
-		const GaussQuadratureRule* getRule(const Geometry::ReferenceGeometry* referenceGeometry, int order);
+		const GaussQuadratureRule* getRule(const Geometry::ReferenceGeometry* referenceGeometry, std::size_t order);
 
 	private:
 		AllGaussQuadratureRules();

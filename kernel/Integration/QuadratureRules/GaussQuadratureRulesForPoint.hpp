@@ -49,24 +49,24 @@ namespace QuadratureRules
             return name_;
         }
 
-        virtual unsigned int order() const
+        virtual std::size_t order() const
         {
             return std::numeric_limits<std::size_t>::max();
         }
 
-        virtual unsigned int dimension() const
+        virtual std::size_t dimension() const
         {
             return 0;
         }
 
-        virtual unsigned int nrOfPoints() const
+        virtual std::size_t nrOfPoints() const
         {
             return 1;
         }
 
-        virtual double weight(unsigned int i) const;
+        virtual double weight(std::size_t i) const;
 
-        virtual void getPoint(unsigned int i, Geometry::PointReference& p) const;
+        virtual void getPoint(std::size_t i, Geometry::PointReference& p) const;
 
         virtual Geometry::ReferenceGeometry* forReferenceGeometry() const
         {

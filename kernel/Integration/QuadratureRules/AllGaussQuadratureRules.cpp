@@ -116,7 +116,7 @@ namespace QuadratureRules
         listForGeometry.insert(it, rule);
     }
     
-    const GaussQuadratureRule* AllGaussQuadratureRules::getRule(const Geometry::ReferenceGeometry* referenceGeometry, int order)
+    const GaussQuadratureRule* AllGaussQuadratureRules::getRule(const Geometry::ReferenceGeometry* referenceGeometry, std::size_t order)
     {
         for (const GaussQuadratureRule* rule : listOfRules_[referenceGeometry])
         {

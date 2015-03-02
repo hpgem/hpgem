@@ -39,26 +39,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     TriPrism_1_1::order() const
     {
         return 1;
     }
 
-    unsigned int
+    std::size_t
     TriPrism_1_1::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     TriPrism_1_1::nrOfPoints() const
     {
         return 1;
     }
 
     double
-    TriPrism_1_1::weight(unsigned int i) const
+    TriPrism_1_1::weight(std::size_t i) const
     {
         if (i < 1)
             return weight_[i];
@@ -67,7 +67,7 @@ namespace QuadratureRules
     }
 
     void
-    TriPrism_1_1::getPoint(unsigned int i, PointReferenceT& p) const
+    TriPrism_1_1::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 1)
             p=gp_[i];
@@ -104,26 +104,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     TriPrism_3_1::order() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     TriPrism_3_1::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     TriPrism_3_1::nrOfPoints() const
     {
         return 8;
     }
 
     double
-    TriPrism_3_1::weight(unsigned int i) const
+    TriPrism_3_1::weight(std::size_t i) const
     {
         if (i < 8)
             return weight_[i];
@@ -132,7 +132,7 @@ namespace QuadratureRules
     }
 
     void
-    TriPrism_3_1::getPoint(unsigned int i, PointReferenceT& p) const
+    TriPrism_3_1::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 8)
             p=gp_[i];
@@ -203,26 +203,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     TriPrism_5_1::order() const
     {
         return 5;
     }
 
-    unsigned int
+    std::size_t
     TriPrism_5_1::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     TriPrism_5_1::nrOfPoints() const
     {
         return 21;
     }
 
     double
-    TriPrism_5_1::weight(unsigned int i) const
+    TriPrism_5_1::weight(std::size_t i) const
     {
         if (i < 21)
             return weight_[i];
@@ -231,7 +231,7 @@ namespace QuadratureRules
     }
 
     void
-    TriPrism_5_1::getPoint(unsigned int i, PointReferenceT& p) const
+    TriPrism_5_1::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 21)
             p=gp_[i];
@@ -366,26 +366,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     TriPrism_7_1::order() const
     {
         return 7;
     }
 
-    unsigned int 
+    std::size_t 
     TriPrism_7_1::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     TriPrism_7_1::nrOfPoints() const
     {
         return 64;
     }
 
     double
-    TriPrism_7_1::weight(unsigned int i) const
+    TriPrism_7_1::weight(std::size_t i) const
     {
         if (i < 64)
             return weight_[i];
@@ -394,7 +394,7 @@ namespace QuadratureRules
     }
 
     void
-    TriPrism_7_1::getPoint(unsigned int i, PointReferenceT& p) const
+    TriPrism_7_1::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 64)
             p=gp_[i];

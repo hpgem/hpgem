@@ -60,7 +60,7 @@ template <class ReturnTrait1>
          ReturnTrait1 value(result);
 
             // number of Gauss quadrature points
-        unsigned int nrOfPoints = qdrRuleLoc->nrOfPoints();
+        std::size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
 
             // Gauss quadrature point
         Geometry::PointReference p(qdrRuleLoc->dimension());
@@ -76,7 +76,7 @@ template <class ReturnTrait1>
             result *= (qdrRuleLoc->weight(0) * Base::L2Norm(Normal));
 
                 // next Gauss points
-            for (unsigned int i = 1; i < nrOfPoints; ++i)
+            for (std::size_t i = 1; i < nrOfPoints; ++i)
             {
                 qdrRuleLoc->getPoint(i, p);
                 localFace_->getNormalVector(p, Normal);

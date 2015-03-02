@@ -39,26 +39,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     Pyramid_1_1::order() const
     {
         return 1;
     }
 
-    unsigned int
+    std::size_t
     Pyramid_1_1::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     Pyramid_1_1::nrOfPoints() const
     {
         return 4;
     }
 
     double
-    Pyramid_1_1::weight(unsigned int i) const
+    Pyramid_1_1::weight(std::size_t i) const
     {
         if (i < 4)
             return weight_[i];
@@ -67,7 +67,7 @@ namespace QuadratureRules
     }
 
     void
-    Pyramid_1_1::getPoint(unsigned int i, PointReferenceT& p) const
+    Pyramid_1_1::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 4)
             p=gp_[i];
@@ -119,26 +119,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     Pyramid_3_1::order() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     Pyramid_3_1::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     Pyramid_3_1::nrOfPoints() const
     {
         return 16;
     }
 
     double
-    Pyramid_3_1::weight(unsigned int i) const
+    Pyramid_3_1::weight(std::size_t i) const
     {
         if (i < 16)
             return weight_[i];
@@ -147,7 +147,7 @@ namespace QuadratureRules
     }
 
     void
-    Pyramid_3_1::getPoint(unsigned int i, PointReferenceT& p) const
+    Pyramid_3_1::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 16)
             p=gp_[i];
@@ -259,26 +259,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     Pyramid_5_1::order() const
     {
         return 5;
     }
 
-    unsigned int
+    std::size_t
     Pyramid_5_1::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     Pyramid_5_1::nrOfPoints() const
     {
         return 36;
     }
 
     double
-    Pyramid_5_1::weight(unsigned int i) const
+    Pyramid_5_1::weight(std::size_t i) const
     {
         if (i < 36)
             return weight_[i];
@@ -287,7 +287,7 @@ namespace QuadratureRules
     }
 
     void
-    Pyramid_5_1::getPoint(unsigned int i, PointReferenceT& p) const
+    Pyramid_5_1::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 36)
             p=gp_[i];
@@ -499,26 +499,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     Pyramid_7_1::order() const
     {
         return 7;
     }
 
-    unsigned int
+    std::size_t
     Pyramid_7_1::dimension() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     Pyramid_7_1::nrOfPoints() const
     {
         return 48;
     }
 
     double
-    Pyramid_7_1::weight(unsigned int i) const
+    Pyramid_7_1::weight(std::size_t i) const
     {
         if (i < 48)
             return weight_[i];
@@ -527,7 +527,7 @@ namespace QuadratureRules
     }
 
     void
-    Pyramid_7_1::getPoint(unsigned int i, PointReferenceT& p) const
+    Pyramid_7_1::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 48)
             p=gp_[i];

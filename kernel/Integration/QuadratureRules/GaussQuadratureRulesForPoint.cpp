@@ -27,12 +27,12 @@
 
 namespace QuadratureRules {
 
-	double Cn0_inf_1::weight(unsigned int i) const {
+	double Cn0_inf_1::weight(std::size_t i) const {
 		TestErrorDebug(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
 		return weight_[0];
 	}
 
-	void Cn0_inf_1::getPoint(unsigned int i, Geometry::PointReference& p) const {
+	void Cn0_inf_1::getPoint(std::size_t i, Geometry::PointReference& p) const {
 		TestErrorDebug(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
 	}
 

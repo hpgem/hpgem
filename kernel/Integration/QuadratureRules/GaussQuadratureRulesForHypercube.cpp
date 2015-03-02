@@ -47,26 +47,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     Cn4_1_1::order() const
     {
         return 1;
     }
 
-    unsigned int
+    std::size_t
     Cn4_1_1::dimension() const
     {
         return 4;
     }
 
-    unsigned int
+    std::size_t
     Cn4_1_1::nrOfPoints() const
     {
         return 1;
     }
 
     double
-    Cn4_1_1::weight(unsigned int i) const
+    Cn4_1_1::weight(std::size_t i) const
     {
         if (i < 1)
             return weight_[i];
@@ -75,7 +75,7 @@ namespace QuadratureRules
     }
 
     void
-    Cn4_1_1::getPoint(unsigned int i, PointReferenceT& p) const
+    Cn4_1_1::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 1)
             p=gp_[i];
@@ -113,26 +113,26 @@ namespace QuadratureRules
         return name_;
     }
 
-    unsigned int
+    std::size_t
     Cn4_3_4::order() const
     {
         return 3;
     }
 
-    unsigned int
+    std::size_t
     Cn4_3_4::dimension() const
     {
         return 4;
     }
 
-    unsigned int
+    std::size_t
     Cn4_3_4::nrOfPoints() const
     {
         return 16;
     }
 
     double
-    Cn4_3_4::weight(unsigned int i) const
+    Cn4_3_4::weight(std::size_t i) const
     {
         if (i < 16)
             return weight_[i];
@@ -141,7 +141,7 @@ namespace QuadratureRules
     }
 
     void
-    Cn4_3_4::getPoint(unsigned int i, PointReferenceT& p) const
+    Cn4_3_4::getPoint(std::size_t i, PointReferenceT& p) const
     {
         if (i < 16)
             p=gp_[i];
