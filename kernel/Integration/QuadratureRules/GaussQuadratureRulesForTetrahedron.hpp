@@ -34,8 +34,8 @@ namespace QuadratureRules
     class Tn3_1_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static Tn3_1_1& Instance()
             {
@@ -66,8 +66,8 @@ namespace QuadratureRules
     class Tn3_2_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static Tn3_2_1& Instance()
             {
@@ -98,8 +98,8 @@ namespace QuadratureRules
     class Tn3_3_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static Tn3_3_1& Instance()
             {
@@ -130,8 +130,8 @@ namespace QuadratureRules
     class Tn3_4_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static Tn3_4_1& Instance()
             {
@@ -162,8 +162,8 @@ namespace QuadratureRules
     class T3_5_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static T3_5_1& Instance()
             {
@@ -194,8 +194,8 @@ namespace QuadratureRules
     class T3_6_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static T3_6_1& Instance()
             {
@@ -226,8 +226,8 @@ namespace QuadratureRules
     class T3_7_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference      PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static T3_7_1& Instance()
             {
@@ -258,8 +258,8 @@ namespace QuadratureRules
     class T3_8_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static T3_8_1& Instance()
             {
@@ -290,8 +290,8 @@ namespace QuadratureRules
     class T3_9_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static T3_9_1& Instance()
             {
@@ -322,8 +322,8 @@ namespace QuadratureRules
     class T3_10_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static T3_10_1& Instance()
             {

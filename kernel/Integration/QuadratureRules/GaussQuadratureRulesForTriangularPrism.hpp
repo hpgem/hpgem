@@ -35,8 +35,8 @@ namespace QuadratureRules
     class TriPrism_1_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static TriPrism_1_1& Instance()
             {
@@ -67,8 +67,8 @@ namespace QuadratureRules
     class TriPrism_3_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static TriPrism_3_1& Instance()
             {
@@ -99,8 +99,8 @@ namespace QuadratureRules
     class TriPrism_5_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static TriPrism_5_1& Instance()
             {
@@ -131,8 +131,8 @@ namespace QuadratureRules
     class TriPrism_7_1: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static TriPrism_7_1& Instance()
             {

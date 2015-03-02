@@ -35,8 +35,8 @@ namespace QuadratureRules
     class Pyramid_1_1: public GaussQuadratureRule
     {
     public:
-        typedef PointReference       PointReferenceT;
-        typedef ReferenceGeometry    ReferenceGeometryT;
+        using PointReferenceT = PointReference;
+        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Pyramid_1_1& Instance()
             {
@@ -68,8 +68,8 @@ namespace QuadratureRules
     class Pyramid_3_1: public GaussQuadratureRule
     {
     public:
-        typedef PointReference       PointReferenceT;
-        typedef ReferenceGeometry    ReferenceGeometryT;
+        using PointReferenceT = PointReference;
+        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Pyramid_3_1& Instance()
             {
@@ -100,8 +100,8 @@ namespace QuadratureRules
     class Pyramid_5_1: public GaussQuadratureRule
     {
      public:
-        typedef PointReference       PointReferenceT;
-        typedef ReferenceGeometry    ReferenceGeometryT;
+        using PointReferenceT = PointReference;
+        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Pyramid_5_1& Instance()
             {
@@ -132,8 +132,8 @@ namespace QuadratureRules
     class Pyramid_7_1: public GaussQuadratureRule
     {
      public:
-        typedef PointReference       PointReferenceT;
-        typedef ReferenceGeometry    ReferenceGeometryT;
+        using PointReferenceT = PointReference;
+        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Pyramid_7_1& Instance()
             {

@@ -34,8 +34,8 @@ namespace QuadratureRules
     class Cn1_1_1: public GaussQuadratureRule
     {
     public:
-        typedef PointReference       PointReferenceT;
-        typedef ReferenceGeometry    ReferenceGeometryT;
+        using PointReferenceT = PointReference;
+        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Cn1_1_1& Instance()
         {
@@ -66,8 +66,8 @@ namespace QuadratureRules
     class Cn1_3_4: public GaussQuadratureRule
     {
     public:
-        typedef PointReference       PointReferenceT;
-        typedef ReferenceGeometry    ReferenceGeometryT;
+        using PointReferenceT = PointReference;
+        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Cn1_3_4& Instance()
         {
@@ -98,8 +98,8 @@ namespace QuadratureRules
     class Cn1_5_9: public GaussQuadratureRule
     {
     public:
-        typedef PointReference       PointReferenceT;
-        typedef ReferenceGeometry    ReferenceGeometryT;
+        using PointReferenceT = PointReference;
+        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Cn1_5_9& Instance()
         {
@@ -131,8 +131,8 @@ namespace QuadratureRules
     class C1_7_x: public GaussQuadratureRule
     {
     public:
-        typedef PointReference       PointReferenceT;
-        typedef ReferenceGeometry    ReferenceGeometryT;
+        using PointReferenceT = PointReference;
+        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static C1_7_x& Instance()
         {
@@ -163,8 +163,8 @@ namespace QuadratureRules
     class C1_9_25: public GaussQuadratureRule///What is the magic number at the end?? -FB
     {
     public:
-        typedef PointReference       PointReferenceT;
-        typedef ReferenceGeometry    ReferenceGeometryT;
+        using PointReferenceT = PointReference;
+        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static C1_9_25& Instance()
         {
@@ -195,8 +195,8 @@ namespace QuadratureRules
     class C1_11_36: public GaussQuadratureRule///What is the magic number at the end?? -FB
     {
     public:
-        typedef PointReference       PointReferenceT;
-        typedef ReferenceGeometry    ReferenceGeometryT;
+        using PointReferenceT = PointReference;
+        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static C1_11_36& Instance()
         {

@@ -34,8 +34,8 @@ namespace QuadratureRules
     class Cn4_1_1: public GaussQuadratureRule
     {
     public:    
-        typedef PointReference       PointReferenceT;
-        typedef ReferenceGeometry    ReferenceGeometryT;
+        using PointReferenceT = PointReference;
+        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Cn4_1_1& Instance()
         {
@@ -65,8 +65,8 @@ namespace QuadratureRules
     class Cn4_3_4: public GaussQuadratureRule
     {
     public:    
-        typedef PointReference       PointReferenceT;
-        typedef ReferenceGeometry    ReferenceGeometryT;
+        using PointReferenceT = PointReference;
+        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Cn4_3_4& Instance()
         {

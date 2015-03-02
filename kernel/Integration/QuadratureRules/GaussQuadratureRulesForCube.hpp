@@ -40,8 +40,8 @@ namespace QuadratureRules
         : public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static Cn3_1_1& Instance()
             {
@@ -78,8 +78,8 @@ namespace QuadratureRules
     class Cn3_3_4: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static Cn3_3_4& Instance()
         {
@@ -110,8 +110,8 @@ namespace QuadratureRules
     class Cn3_5_9: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static Cn3_5_9& Instance()
         {
@@ -142,8 +142,8 @@ namespace QuadratureRules
     class C3_7_2: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static C3_7_2& Instance()
         {
@@ -175,8 +175,8 @@ namespace QuadratureRules
     class C3_9_2: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static C3_9_2& Instance()
         {
@@ -208,8 +208,8 @@ namespace QuadratureRules
     class C3_11_2: public GaussQuadratureRule
     {
     public:
-        typedef ReferenceGeometry    ReferenceGeometryT;
-        typedef PointReference       PointReferenceT;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointReferenceT = PointReference;
     public:
         static C3_11_2& Instance()
         {
