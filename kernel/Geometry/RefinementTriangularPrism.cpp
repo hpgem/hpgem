@@ -31,7 +31,7 @@
 
 namespace Geometry
 {
-    unsigned int RefinementTriangularPrism::nrOfNewNodes(int refineType) const 
+    std::size_t RefinementTriangularPrism::nrOfNewNodes(std::size_t refineType) const 
     { 
         switch (refineType)
         {
@@ -57,12 +57,12 @@ namespace Geometry
         return 0;
     }
     
-    void RefinementTriangularPrism::getAllNodes(int refineType, VectorOfPointPhysicalsT& nodes) const 
+    void RefinementTriangularPrism::getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const 
     {
         // get all element's nodes
         nodes.clear();
         PointPhysicalT p(3);
-        for (unsigned int i=0; i<referenceGeometry_->getNumberOfNodes(); ++i)
+        for (std::size_t i=0; i<referenceGeometry_->getNumberOfNodes(); ++i)
         {
             physicalGeometry_->getLocalNodeCoordinates(i, p);
             nodes.push_back(p);
@@ -131,7 +131,7 @@ namespace Geometry
             
     }
     
-    unsigned int RefinementTriangularPrism::nrOfSubElements(int refineType) const 
+    std::size_t RefinementTriangularPrism::nrOfSubElements(std::size_t refineType) const 
     { 
         switch (refineType)
         {
@@ -153,7 +153,7 @@ namespace Geometry
         return 1;
     }
 
-    void RefinementTriangularPrism::subElementLocalNodeIndices(int refineType, unsigned int iSubElement, VectorOfIndicesT& LocalNodeIdx) const 
+    void RefinementTriangularPrism::subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const 
     {
         TestErrorDebug((iSubElement<nrOfSubElements(refineType)),
                         "RefinementTriangularPrism: invalid sub-element index while getting its local node indices!");
@@ -167,8 +167,8 @@ namespace Geometry
                 case 0:
                   // angle-1
                   {
-                    unsigned int nodes[] = { 0, 1, 6, 3, 4, 7 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 0, 1, 6, 3, 4, 7 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -176,8 +176,8 @@ namespace Geometry
                 case 1:
                   // angle-1
                   {
-                    unsigned int nodes[] = { 6, 1, 2, 7, 4, 5 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 6, 1, 2, 7, 4, 5 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -190,8 +190,8 @@ namespace Geometry
                 case 0:
                   // angle-2
                   {
-                    unsigned int nodes[] = { 0, 6, 2, 3, 7, 5 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 0, 6, 2, 3, 7, 5 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -199,8 +199,8 @@ namespace Geometry
                 case 1:
                   // angle-2
                   {
-                    unsigned int nodes[] = { 6, 1, 2, 7, 4, 5 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 6, 1, 2, 7, 4, 5 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -213,8 +213,8 @@ namespace Geometry
                 case 0:
                   // angle-0
                   {
-                    unsigned int nodes[] = { 0, 1, 6, 3, 4, 7 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 0, 1, 6, 3, 4, 7 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -222,8 +222,8 @@ namespace Geometry
                 case 1:
                   // angle-0
                   {
-                    unsigned int nodes[] = { 0, 6, 2, 3, 7, 5 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 0, 6, 2, 3, 7, 5 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -235,16 +235,16 @@ namespace Geometry
               {
                 case 0:
                   {
-                    unsigned int nodes[] = { 0, 1, 2, 6, 7, 8 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 0, 1, 2, 6, 7, 8 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
                   
                 case 1:
                   {
-                    unsigned int nodes[] = { 6, 7, 8, 3, 4, 5 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 6, 7, 8, 3, 4, 5 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -257,8 +257,8 @@ namespace Geometry
                 case 0:
                   // angle-0
                   {
-                    unsigned int nodes[] = { 0, 6, 7, 3, 9, 10 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 0, 6, 7, 3, 9, 10 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -266,8 +266,8 @@ namespace Geometry
                 case 1:
                   // angle-1
                   {
-                    unsigned int nodes[] = { 6, 1, 8, 9, 4, 11 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 6, 1, 8, 9, 4, 11 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -275,8 +275,8 @@ namespace Geometry
                 case 2:
                   // angle-2
                   {
-                    unsigned int nodes[] = { 7, 8, 2, 10, 11, 5 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 7, 8, 2, 10, 11, 5 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -284,8 +284,8 @@ namespace Geometry
                 case 3:
                   // middle
                   {
-                    unsigned int nodes[] = { 8, 7, 6, 11, 10, 9 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 8, 7, 6, 11, 10, 9 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -298,8 +298,8 @@ namespace Geometry
                 case 0:
                   // hexahedron-0
                   {
-                    unsigned int nodes[] = { 7, 0, 9, 6, 11, 3, 13, 10 };
-                    for (unsigned int i=0; i<8; ++i)
+                    std::size_t nodes[] = { 7, 0, 9, 6, 11, 3, 13, 10 };
+                    for (std::size_t i=0; i<8; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -307,8 +307,8 @@ namespace Geometry
                 case 1:
                   // hexahedron-1
                   {
-                    unsigned int nodes[] = { 6, 1, 9, 8, 10, 4, 13, 12 };
-                    for (unsigned int i=0; i<8; ++i)
+                    std::size_t nodes[] = { 6, 1, 9, 8, 10, 4, 13, 12 };
+                    for (std::size_t i=0; i<8; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -316,8 +316,8 @@ namespace Geometry
                 case 2:
                   // hexahedron-2
                   {
-                    unsigned int nodes[] = { 8, 2, 9, 7, 12, 5, 13, 11 };
-                    for (unsigned int i=0; i<8; ++i)
+                    std::size_t nodes[] = { 8, 2, 9, 7, 12, 5, 13, 11 };
+                    for (std::size_t i=0; i<8; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -330,8 +330,8 @@ namespace Geometry
                 case 0:
                   // hexahedron
                   {
-                    unsigned int nodes[] = { 0, 6, 2, 7, 3, 8, 5, 9 };
-                    for (unsigned int i=0; i<8; ++i)
+                    std::size_t nodes[] = { 0, 6, 2, 7, 3, 8, 5, 9 };
+                    for (std::size_t i=0; i<8; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -339,8 +339,8 @@ namespace Geometry
                 case 1:
                   // triangular-prism
                   {
-                    unsigned int nodes[] = { 6, 1, 7, 8, 4, 9 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 6, 1, 7, 8, 4, 9 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -353,8 +353,8 @@ namespace Geometry
                 case 0:
                   // hexahedron
                   {
-                    unsigned int nodes[] = { 0, 1, 6, 7, 3, 4, 8, 9 };
-                    for (unsigned int i=0; i<8; ++i)
+                    std::size_t nodes[] = { 0, 1, 6, 7, 3, 4, 8, 9 };
+                    for (std::size_t i=0; i<8; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -362,8 +362,8 @@ namespace Geometry
                 case 1:
                   // triangular-prism
                   {
-                    unsigned int nodes[] = { 6, 7, 2, 8, 9, 5 };
-                    for (unsigned int i=0; i<6; ++i)
+                    std::size_t nodes[] = { 6, 7, 2, 8, 9, 5 };
+                    for (std::size_t i=0; i<6; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -373,7 +373,7 @@ namespace Geometry
         
     }
     
-    void RefinementTriangularPrism::adjacentSubElementsPairs(int refineType,
+    void RefinementTriangularPrism::adjacentSubElementsPairs(std::size_t refineType,
                     VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1,
                     VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const 
     {
@@ -446,7 +446,7 @@ namespace Geometry
         } // end of switch
     }
 
-    unsigned int RefinementTriangularPrism::nrOfSubElementsOnFace(int refineType, unsigned int faLocalIndex) const 
+    std::size_t RefinementTriangularPrism::nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const 
     { 
         switch (refineType)
         {
@@ -566,7 +566,7 @@ namespace Geometry
         return 1;
     }
 
-    void RefinementTriangularPrism::subElementsOnFace(int refineType, unsigned int faLocalIndex, VectorOfIndicesT& localSubElemIdx) const 
+    void RefinementTriangularPrism::subElementsOnFace(std::size_t refineType, std::size_t faLocalIndex, VectorOfIndicesT& localSubElemIdx) const 
     {
         localSubElemIdx.clear();
 
@@ -745,7 +745,7 @@ namespace Geometry
         } // end switch refinement
     }
     
-    unsigned int RefinementTriangularPrism::getLocalSubFaceNr(int refineType, unsigned int localFaceNr, unsigned int subElementIdx) const 
+    std::size_t RefinementTriangularPrism::getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const 
     { 
         if (refineType == 5)
         {

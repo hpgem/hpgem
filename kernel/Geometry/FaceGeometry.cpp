@@ -195,7 +195,7 @@ namespace Geometry
             Jacobian j(DIM, DIM);
 
             leftElementGeom_->calcJacobian(pRefElement, j);
-            int sgn = (j[0] > 0)?1:-1;
+            std::size_t sgn = (j[0] > 0)? 1 : -1;
             result.resize(DIM);
             result[0] = pRefElement[0] * sgn;
         }

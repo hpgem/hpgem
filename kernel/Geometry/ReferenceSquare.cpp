@@ -38,7 +38,7 @@ namespace Geometry
      * (-1,-1) 0---0---1 (+1,-1)
      *
      */
-    int ReferenceSquare::localNodeIndexes_[4][2] =
+    std::size_t ReferenceSquare::localNodeIndexes_[4][2] =
     {
         { 0, 1 },
         { 0, 2 },
@@ -117,7 +117,7 @@ namespace Geometry
     }
 
     // ================================== Codimension 0 ============================================
-    int ReferenceSquare::
+    std::size_t ReferenceSquare::
     getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         if (list1.size() == 4 && list2.size() == 4)
@@ -219,7 +219,7 @@ namespace Geometry
     // =============================== Refinement mappings =====================================
     
     //! Transform a reference point using refinement mapping
-    void ReferenceSquare::refinementTransform(int refineType, int subElementIdx, 
+    void ReferenceSquare::refinementTransform(std::size_t refineType, std::size_t subElementIdx, 
                   const PointReferenceT& p, PointReferenceT& pMap) const 
     {
         switch (refineType)
@@ -281,7 +281,7 @@ namespace Geometry
     }
 
     //! Transformation matrix of this refinement when located on the LEFT side
-    void ReferenceSquare::getRefinementMappingMatrixL(int refineType, int subElementIdx, 
+    void ReferenceSquare::getRefinementMappingMatrixL(std::size_t refineType, std::size_t subElementIdx, 
                 LinearAlgebra::Matrix& Q) const 
     {
         Q.resize(3,3);
@@ -348,7 +348,7 @@ namespace Geometry
     }
 
     //! Transformation matrix of this refinement when located on the RIGHT side
-    void ReferenceSquare::getRefinementMappingMatrixR(int refineType, int subElementIdx, 
+    void ReferenceSquare::getRefinementMappingMatrixR(std::size_t refineType, std::size_t subElementIdx, 
                 LinearAlgebra::Matrix& Q) const 
     {
         Q.resize(3,3);
@@ -415,13 +415,13 @@ namespace Geometry
 
     //! Refinement mapping on codim1 for a given refinement on codim0
     //! Note: this should also applied on other dimensions
-    void ReferenceSquare::getCodim1RefinementMappingMatrixL(int refineType, DimT subElementIdx, 
+    void ReferenceSquare::getCodim1RefinementMappingMatrixL(std::size_t refineType, DimT subElementIdx, 
                             DimT faLocalIndex, LinearAlgebra::Matrix& Q) const 
     {}
 
     //! Refinement mapping on codim1 for a given refinement on codim0
     //! Note: this should also applied on other dimensions
-    void ReferenceSquare::getCodim1RefinementMappingMatrixR(int refineType, DimT subElementIdx, 
+    void ReferenceSquare::getCodim1RefinementMappingMatrixR(std::size_t refineType, DimT subElementIdx, 
                             DimT faLocalIndex, LinearAlgebra::Matrix& Q) const 
     {}
 

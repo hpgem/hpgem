@@ -40,7 +40,7 @@ namespace Geometry
         typedef PhysicalGeometry             PhysicalGeometryT;
         typedef ReferenceGeometry            ReferenceGeometryT;
         typedef std::vector<PointPhysicalT>     VectorOfPointPhysicalsT;
-        typedef std::vector<unsigned int>       VectorOfIndicesT;
+        typedef std::vector<std::size_t>       VectorOfIndicesT;
 
         /// Constructors.
         RefinementTriangle(const ReferenceGeometryT* const referenceGeometry,
@@ -69,30 +69,30 @@ namespace Geometry
         //---------------------- Refinement definitions -----------------------------------------
         
         /// Number of new nodes due to a refinement.
-        virtual unsigned int nrOfNewNodes(int refineType) const;
+        virtual std::size_t nrOfNewNodes(std::size_t refineType) const;
         
         /// Get all physical nodes: existing nodes and new nodes to be added.
-        virtual void getAllNodes(int refineType, VectorOfPointPhysicalsT& nodes) const;
+        virtual void getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const;
         
         /// Number of sub-elements due to the refinement.
-        virtual unsigned int nrOfSubElements(int refineType) const;
+        virtual std::size_t nrOfSubElements(std::size_t refineType) const;
 
         /// Assembly nodes for sub-element.
-        virtual void subElementLocalNodeIndices(int refineType, unsigned int iSubElement, VectorOfIndicesT& LocalNodeIdx) const;
+        virtual void subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const;
         
         /// Local indices pairs of sub-elements connected by a sub-Internal Face.
-        virtual void adjacentSubElementsPairs(int refineType,
+        virtual void adjacentSubElementsPairs(std::size_t refineType,
                         VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1,
                         VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const;
 
         /// Number of sub-elements on a parent's face.
-        virtual unsigned int nrOfSubElementsOnFace(int refineType, unsigned int faLocalIndex) const;
+        virtual std::size_t nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const;
 
         /// Get sub-elements' local index on a parent's face.
-        virtual void subElementsOnFace(int refineType, unsigned int faLocalIndex, VectorOfIndicesT& localSubElemIdx) const;
+        virtual void subElementsOnFace(std::size_t refineType, std::size_t faLocalIndex, VectorOfIndicesT& localSubElemIdx) const;
         
         /// Get sub-face's local face number of on a parent's face.
-        virtual unsigned int getLocalSubFaceNr(int refineType, unsigned int localFaceNr, unsigned int subElementIdx) const;
+        virtual std::size_t getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const;
 
     private:
 

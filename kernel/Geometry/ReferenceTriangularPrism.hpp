@@ -78,7 +78,7 @@ namespace Geometry
         
         //! Given a face index, and an index of the node position relative to the face,
         //! return the local index of the node.
-        int                                     getLocalNodeIndex(int face, int node) const
+        std::size_t                                     getLocalNodeIndex(std::size_t face, std::size_t node) const
                         {return localNodeIndexes_[face][node];}
 
         /// Output routine.
@@ -87,7 +87,7 @@ namespace Geometry
         // ================================== Codimension 0 ========================================
 
         //! (see MappingCodimensions.hpp)
-        int                                      getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
+        std::size_t                                      getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
 
         //! (see MappingCodimensions.hpp)
         const MappingReferenceToReference* getCodim0MappingPtr(const IndexT) const;
@@ -133,33 +133,33 @@ namespace Geometry
         // =============================== Refinement mappings =====================================
         
         //! Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, int subElementIdx, 
+        void refinementTransform(std::size_t refineType, std::size_t subElementIdx, 
                       const PointReferenceT& p, PointReferenceT& pMap) const;
 
         //! Transformation matrix of this refinement when located on the LEFT side
-        void getRefinementMappingMatrixL(int refineType, int subElementIdx, 
+        void getRefinementMappingMatrixL(std::size_t refineType, std::size_t subElementIdx, 
                     LinearAlgebra::Matrix& Q) const;
 
         //! Transformation matrix of this refinement when located on the RIGHT side
-        void getRefinementMappingMatrixR(int refineType, int subElementIdx, 
+        void getRefinementMappingMatrixR(std::size_t refineType, std::size_t subElementIdx, 
                     LinearAlgebra::Matrix& Q) const;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
         //! Note: this should also applied on other dimensions
-        void getCodim1RefinementMappingMatrixL(int refineType, DimT subElementIdx, 
+        void getCodim1RefinementMappingMatrixL(std::size_t refineType, DimT subElementIdx, 
                                 DimT faLocalIndex, LinearAlgebra::Matrix& Q) const;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
         //! Note: this should also applied on other dimensions
-        void getCodim1RefinementMappingMatrixR(int refineType, DimT subElementIdx, 
+        void getCodim1RefinementMappingMatrixR(std::size_t refineType, DimT subElementIdx, 
                                 DimT faLocalIndex, LinearAlgebra::Matrix& Q) const;
 
     private:
         
         //! Local node indexes contains the numbering of the vertex of the shape, ordered by faces.
         //! See top comment for the corresponding numbering.
-        static int                                          localNodeIndexes_[5][4];
-        static int                                          localNodesOnEdge_[9][2];
+        static std::size_t                                          localNodeIndexes_[5][4];
+        static std::size_t                                          localNodesOnEdge_[9][2];
 
         //! Codimension 0 mappings, from triangular prisms. TODO: Where is this used? clarify here.
         const MappingReferenceToReference*            mappingsTriangularPrismToTriangularPrism_[1];

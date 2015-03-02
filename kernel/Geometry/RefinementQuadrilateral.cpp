@@ -31,7 +31,7 @@
 
 namespace Geometry
 {
-    unsigned int RefinementQuadrilateral::nrOfNewNodes(int refineType) const 
+    std::size_t RefinementQuadrilateral::nrOfNewNodes(std::size_t refineType) const 
     { 
         if (refineType == 2) 
           return 5;
@@ -39,12 +39,12 @@ namespace Geometry
           return 2;
     }
     
-    void RefinementQuadrilateral::getAllNodes(int refineType, VectorOfPointPhysicalsT& nodes) const 
+    void RefinementQuadrilateral::getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const 
     {
         // get all element's nodes
         nodes.clear();
         PointPhysicalT p(2);
-        for (unsigned int i=0; i<referenceGeometry_->getNumberOfNodes(); ++i)
+        for (std::size_t i=0; i<referenceGeometry_->getNumberOfNodes(); ++i)
         {
             physicalGeometry_->getLocalNodeCoordinates(i, p);
             nodes.push_back(p);
@@ -74,7 +74,7 @@ namespace Geometry
         }
     }
     
-    unsigned int RefinementQuadrilateral::nrOfSubElements(int refineType) const 
+    std::size_t RefinementQuadrilateral::nrOfSubElements(std::size_t refineType) const 
     { 
         if (refineType == 2) 
           return 4;
@@ -82,7 +82,7 @@ namespace Geometry
           return 2;
     }
 
-    void RefinementQuadrilateral::subElementLocalNodeIndices(int refineType, unsigned int iSubElement, VectorOfIndicesT& LocalNodeIdx) const 
+    void RefinementQuadrilateral::subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const 
     {
         TestErrorDebug((iSubElement<nrOfSubElements(refineType)),
                         "RefinementQuadrilateral: invalid sub-element index while getting its local node indices!");
@@ -96,8 +96,8 @@ namespace Geometry
                 case 0:
                   // left
                   {
-                    unsigned int nodes[] = { 0, 4, 2, 5 };
-                    for (unsigned int i=0; i<4; ++i)
+                    std::size_t nodes[] = { 0, 4, 2, 5 };
+                    for (std::size_t i=0; i<4; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -105,8 +105,8 @@ namespace Geometry
                 case 1:
                   // right
                   {
-                    unsigned int nodes[] = { 4, 1, 5, 3 };
-                    for (unsigned int i=0; i<4; ++i)
+                    std::size_t nodes[] = { 4, 1, 5, 3 };
+                    for (std::size_t i=0; i<4; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -119,8 +119,8 @@ namespace Geometry
                 case 0:
                   // left
                   {
-                    unsigned int nodes[] = { 0, 1, 4, 5 };
-                    for (unsigned int i=0; i<4; ++i)
+                    std::size_t nodes[] = { 0, 1, 4, 5 };
+                    for (std::size_t i=0; i<4; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -128,8 +128,8 @@ namespace Geometry
                 case 1:
                   // right
                   {
-                    unsigned int nodes[] = { 4, 5, 2, 3 };
-                    for (unsigned int i=0; i<4; ++i)
+                    std::size_t nodes[] = { 4, 5, 2, 3 };
+                    for (std::size_t i=0; i<4; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -142,8 +142,8 @@ namespace Geometry
                 case 0:
                   // bottom left
                   {
-                    unsigned int nodes[] = { 0, 4, 5, 8 };
-                    for (unsigned int i=0; i<4; ++i)
+                    std::size_t nodes[] = { 0, 4, 5, 8 };
+                    for (std::size_t i=0; i<4; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -151,8 +151,8 @@ namespace Geometry
                 case 1:
                   // bottom right
                   {
-                    unsigned int nodes[] = { 4, 1, 8, 6 };
-                    for (unsigned int i=0; i<4; ++i)
+                    std::size_t nodes[] = { 4, 1, 8, 6 };
+                    for (std::size_t i=0; i<4; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -160,8 +160,8 @@ namespace Geometry
                 case 2:
                   // top left
                   {
-                    unsigned int nodes[] = { 5, 8, 2, 7 };
-                    for (unsigned int i=0; i<4; ++i)
+                    std::size_t nodes[] = { 5, 8, 2, 7 };
+                    for (std::size_t i=0; i<4; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -169,8 +169,8 @@ namespace Geometry
                 case 3:
                   // top right
                   {
-                    unsigned int nodes[] = { 8, 6, 7, 3 };
-                    for (unsigned int i=0; i<4; ++i)
+                    std::size_t nodes[] = { 8, 6, 7, 3 };
+                    for (std::size_t i=0; i<4; ++i)
                       LocalNodeIdx.push_back(nodes[i]);
                   }
                   break;
@@ -180,7 +180,7 @@ namespace Geometry
 
     }
     
-    void RefinementQuadrilateral::adjacentSubElementsPairs(int refineType,
+    void RefinementQuadrilateral::adjacentSubElementsPairs(std::size_t refineType,
                     VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1,
                     VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const 
     {
@@ -226,7 +226,7 @@ namespace Geometry
         } // end of switch
     }
 
-    unsigned int RefinementQuadrilateral::nrOfSubElementsOnFace(int refineType, unsigned int faLocalIndex) const 
+    std::size_t RefinementQuadrilateral::nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const 
     { 
         switch (refineType)
         {
@@ -261,7 +261,7 @@ namespace Geometry
         }
     }
 
-    void RefinementQuadrilateral::subElementsOnFace(int refineType, unsigned int faLocalIndex, VectorOfIndicesT& localSubElemIdx) const 
+    void RefinementQuadrilateral::subElementsOnFace(std::size_t refineType, std::size_t faLocalIndex, VectorOfIndicesT& localSubElemIdx) const 
     {
         localSubElemIdx.clear();
         switch (refineType)
@@ -331,7 +331,7 @@ namespace Geometry
         }
     }
     
-    unsigned int RefinementQuadrilateral::getLocalSubFaceNr(int refineType, unsigned int localFaceNr, unsigned int subElementIdx) const 
+    std::size_t RefinementQuadrilateral::getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const 
     { 
         return localFaceNr;
     }

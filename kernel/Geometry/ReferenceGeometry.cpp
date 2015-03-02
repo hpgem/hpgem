@@ -42,7 +42,7 @@ namespace Geometry
         
     }
 
-	const QuadratureRules::GaussQuadratureRule* const ReferenceGeometry::getGaussQuadratureRule(int order) const 
+	const QuadratureRules::GaussQuadratureRule* const ReferenceGeometry::getGaussQuadratureRule(std::size_t order) const 
     {
 		return QuadratureRules::AllGaussQuadratureRules::instance().getRule(this,order);
 	}
@@ -91,7 +91,7 @@ std::size_t Geometry::PointHasher::operator()(const Geometry::PointReference& po
 {
 	std::hash<double> hasher;
     std::size_t ret = 0;
-	for (int i = 0;i < point.size();++i) {
+	for (std::size_t i = 0;i < point.size();++i) {
 		ret ^= hasher(point[i]) + 0x9e3779b9 + (ret << 6) + (ret >> 2);
 	}
 	return ret;

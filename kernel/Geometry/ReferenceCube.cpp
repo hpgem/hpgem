@@ -32,7 +32,7 @@
 namespace Geometry
 {
 
-    int ReferenceCube::localNodeIndexes_[6][4] =
+    std::size_t ReferenceCube::localNodeIndexes_[6][4] =
     {
         { 0, 1, 2, 3 },
         { 0, 1, 4, 5 },
@@ -42,7 +42,7 @@ namespace Geometry
         { 4, 5, 6, 7 }
     };
 
-    int ReferenceCube::localNodesOnEdge_[12][2] =
+    std::size_t ReferenceCube::localNodesOnEdge_[12][2] =
     {
         { 0 , 1 },
         { 2 , 3 },
@@ -139,7 +139,7 @@ namespace Geometry
 
     // ================================== Codimension 0 ============================================
 
-    int ReferenceCube::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
+    std::size_t ReferenceCube::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         if (list1.size() == 8 && list2.size() == 8)
         {
@@ -176,6 +176,7 @@ namespace Geometry
         {
             throw "ERROR: Number of node indexes was different than 8 -> not a cube.";
         }
+        throw "ERROR: in ReferenceCube, we should not get to the end without returning!";
         return -1;
     }
 
@@ -275,7 +276,7 @@ namespace Geometry
 
     // =============================== Refinement mappings =====================================
     
-    void ReferenceCube::refinementTransform(int refineType, int subElementIdx, 
+    void ReferenceCube::refinementTransform(std::size_t refineType, std::size_t subElementIdx, 
                   const PointReferenceT& p, PointReferenceT& pMap) const 
     {
         switch (refineType)
@@ -542,7 +543,7 @@ namespace Geometry
         }
     }  // end of refinementTransform
 
-    void ReferenceCube::getRefinementMappingMatrixL(int refineType, int subElementIdx, 
+    void ReferenceCube::getRefinementMappingMatrixL(std::size_t refineType, std::size_t subElementIdx, 
                 LinearAlgebra::Matrix& Q) const 
     {
         Q.resize(4,4);
@@ -614,7 +615,7 @@ namespace Geometry
         }
     }  // end of getRefinementMappingMatrixL
 
-    void ReferenceCube::getRefinementMappingMatrixR(int refineType, int subElementIdx, 
+    void ReferenceCube::getRefinementMappingMatrixR(std::size_t refineType, std::size_t subElementIdx, 
                 LinearAlgebra::Matrix& Q) const 
     {
         Q.resize(4,4);
@@ -664,7 +665,7 @@ namespace Geometry
         }
     }  // end of getRefinementMappingMatrixR
 
-    void ReferenceCube::getCodim1RefinementMappingMatrixL(int refineType, DimT subElementIdx, 
+    void ReferenceCube::getCodim1RefinementMappingMatrixL(std::size_t refineType, DimT subElementIdx, 
                               DimT faLocalIndex, LinearAlgebra::Matrix& Q) const 
     {
         int faRefinementType(-1);
@@ -835,7 +836,7 @@ namespace Geometry
         }
     }  // end of getCodim1RefinementMappingMatrixL
 
-    void ReferenceCube::getCodim1RefinementMappingMatrixR(int refineType, DimT subElementIdx, 
+    void ReferenceCube::getCodim1RefinementMappingMatrixR(std::size_t refineType, DimT subElementIdx, 
                               DimT faLocalIndex, LinearAlgebra::Matrix& Q) const 
     {
         int faRefinementType(-1);

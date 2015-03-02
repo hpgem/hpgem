@@ -53,7 +53,7 @@ namespace Geometry
             virtual void reinit(const PhysicalGeometryT*const);
 
             bool isValidPoint(const PointReferenceT&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
 
         private:
             // ~OC~ Only undefined version is tested
@@ -61,7 +61,7 @@ namespace Geometry
             #ifdef SAVECOEFFS
                 PointPhysicalT a0, a1, a2, a3, a4;
             #else
-                std::vector<int> globalNodeIndices_;
+                std::vector<std::size_t> globalNodeIndices_;
             #endif
     };
 };

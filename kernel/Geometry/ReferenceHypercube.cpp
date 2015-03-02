@@ -28,7 +28,7 @@
 
 namespace Geometry
 {
-    int ReferenceHypercube::localNodeIndexes_[8][8] =
+    std::size_t ReferenceHypercube::localNodeIndexes_[8][8] =
     {
         { 0, 1, 2, 3, 4, 5, 6, 7 },
         { 0, 1, 2, 3, 8, 9, 10, 11},
@@ -133,7 +133,7 @@ namespace Geometry
 
     // ================================== Codimension 0 ============================================
 
-    int ReferenceHypercube::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
+    std::size_t ReferenceHypercube::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         throw "ReferenceCube::getCodim0MappingIndex not implemented";
     }

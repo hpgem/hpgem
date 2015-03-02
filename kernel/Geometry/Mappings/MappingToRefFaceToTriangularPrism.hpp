@@ -41,7 +41,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToTriangularPrism0();
             MappingToRefFaceToTriangularPrism0(const MappingToRefFaceToTriangularPrism0&);
@@ -59,7 +59,7 @@ namespace Geometry
                                          Geometry::PointReference&) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToTriangularPrism1();
             MappingToRefFaceToTriangularPrism1(const MappingToRefFaceToTriangularPrism1&);
@@ -77,7 +77,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToTriangularPrism2();
             MappingToRefFaceToTriangularPrism2(const MappingToRefFaceToTriangularPrism2&);
@@ -95,7 +95,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToTriangularPrism3();
             MappingToRefFaceToTriangularPrism3(const MappingToRefFaceToTriangularPrism3&);
@@ -113,7 +113,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToTriangularPrism4();
             MappingToRefFaceToTriangularPrism4(const MappingToRefFaceToTriangularPrism4&);

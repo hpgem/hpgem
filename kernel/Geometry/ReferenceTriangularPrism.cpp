@@ -28,7 +28,7 @@
 
 namespace Geometry
 {
-    int ReferenceTriangularPrism::localNodeIndexes_[5][4] =
+    std::size_t ReferenceTriangularPrism::localNodeIndexes_[5][4] =
     {
         { 0, 2, 1 },
         { 3, 4, 5 },
@@ -37,7 +37,7 @@ namespace Geometry
         { 1, 2, 4, 5 }
     };
 
-    int ReferenceTriangularPrism::localNodesOnEdge_[9][2] =
+    std::size_t ReferenceTriangularPrism::localNodesOnEdge_[9][2] =
     {
         { 0, 1 },
         { 0, 2 },
@@ -123,7 +123,7 @@ namespace Geometry
 
     // ================================== Codimension 0 ============================================
 
-    int ReferenceTriangularPrism::
+    std::size_t ReferenceTriangularPrism::
     getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         /// TODO: Implement tetrahedron to tetrahedron mappings.
@@ -248,7 +248,7 @@ namespace Geometry
             
     // =============================== Refinement mappings =====================================
     
-    void ReferenceTriangularPrism::refinementTransform(int refineType, int subElementIdx, 
+    void ReferenceTriangularPrism::refinementTransform(std::size_t refineType, std::size_t subElementIdx, 
                   const PointReferenceT& p, PointReferenceT& pMap) const 
     {
         switch (refineType)
@@ -468,7 +468,7 @@ namespace Geometry
         }
     }  // end of refinementTransform
 
-    void ReferenceTriangularPrism::getRefinementMappingMatrixL(int refineType, int subElementIdx, 
+    void ReferenceTriangularPrism::getRefinementMappingMatrixL(std::size_t refineType, std::size_t subElementIdx, 
                 LinearAlgebra::Matrix& Q) const 
     {
         Q.resize(4,4);
@@ -656,7 +656,7 @@ namespace Geometry
         }
     }  // end of getRefinementMappingMatrixL
 
-    void ReferenceTriangularPrism::getRefinementMappingMatrixR(int refineType, int subElementIdx, 
+    void ReferenceTriangularPrism::getRefinementMappingMatrixR(std::size_t refineType, std::size_t subElementIdx, 
                 LinearAlgebra::Matrix& Q) const 
     {
         Q.resize(4,4);
@@ -844,7 +844,7 @@ namespace Geometry
         }
     }  // end of getRefinementMappingMatrixR
 
-    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixL(int refineType, DimT subElementIdx, 
+    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixL(std::size_t refineType, DimT subElementIdx, 
                               DimT faLocalIndex, LinearAlgebra::Matrix& Q) const 
     {
         int faRefinementType(-1);
@@ -1013,7 +1013,7 @@ namespace Geometry
         }
     }  // end of getCodim1RefinementMappingMatrixL
 
-    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixR(int refineType, DimT subElementIdx, 
+    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixR(std::size_t refineType, DimT subElementIdx, 
                               DimT faLocalIndex, LinearAlgebra::Matrix& Q) const 
     {
         int faRefinementType(-1);

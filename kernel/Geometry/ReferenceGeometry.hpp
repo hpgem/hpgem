@@ -52,6 +52,7 @@ public:
         std::size_t operator()(const Geometry::PointReference& point) const;
 };
     
+///\todo make enum class
     enum TypeOfReferenceGeometry
     {
         POINT,
@@ -107,7 +108,7 @@ public:
         /// \brief Given a local index, return (assign to point) the corresponding node.
 		virtual void getNode(const IndexT& localIndex, PointReferenceT& node) const;
 
-        virtual int             getLocalNodeIndex(int face, int node)const = 0;
+        virtual std::size_t             getLocalNodeIndex(std::size_t face, std::size_t node)const = 0;
 
         /// \brief For debugging and checkpointing: a human-readable name.
         virtual std::string     getName() const = 0;
@@ -115,7 +116,7 @@ public:
         // ================================== Quadrature rules =====================================
         
         /// \brief Get a valid quadrature for this geometry.
-        virtual const QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(int order) const;
+        virtual const QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(std::size_t order) const;
 
         ///\bug getBasisFunctionValue and getBasisFunctionDerivative have functionality that is completely independent from the rest of ReferenceGeometry
         ///\bug getBasisFunctionValue does some lazy initialization, so it can't be const, unless you consider the state to

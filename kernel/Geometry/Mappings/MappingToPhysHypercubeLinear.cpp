@@ -215,7 +215,7 @@ namespace Geometry
     {
         //if (isValidPoint(pR))
         //{
-            for(int i = 0; i < 3; ++i)
+            for(std::size_t i = 0; i < 3; ++i)
             {
                 double pR01 = pR[0] * pR[1];
                 double pR02 = pR[0] * pR[2];
@@ -306,7 +306,7 @@ namespace Geometry
     	//assert(...)
         //if (isValidPoint(pR))
         //{
-            for(int i = 0; i < 4; ++i)
+            for(std::size_t i = 0; i < 4; ++i)
             {
                 jacobian(i,0) = a0[i]   + a01[i] * pR[1] + a02[i]   * pR[2] + a03[i] * pR[3]
                               + a012[i] * pR[1]  * pR[2] + a013[i]  * pR[1] * pR[3]
@@ -334,7 +334,7 @@ namespace Geometry
     void MappingToPhysHypercubeLinear<4>::reinit(const PhysicalGeometryT* const physicalGeometry)
     {
         std::vector<PointPhysicalT> P(16,4);
-        for (int i = 0; i < 16; ++i) physicalGeometry->getNodeCoordinates(i, P[i]);
+        for (std::size_t i = 0; i < 16; ++i) physicalGeometry->getNodeCoordinates(i, P[i]);
 
         abar = 0.0625 *
             ( P[0] + P[1] + P[2]  + P[3]  + P[4]  + P[5]  + P[6]  + P[7]

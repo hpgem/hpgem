@@ -23,6 +23,8 @@
 #ifndef MAPPINGINTERFACE_H_
 #define MAPPINGINTERFACE_H_
 
+#include <cstdlib>
+
 namespace Geometry
 {
 	class PointReference;
@@ -106,7 +108,7 @@ namespace Geometry
             virtual ~MappingInterface() { };
 
             ///concatenated mapping needs to know what kind of intermedeate point to create
-            virtual int getTargetDimension() const =0;
+            virtual std::size_t getTargetDimension() const =0;
     };
 };
 #endif /* MAP_H_ */

@@ -205,7 +205,7 @@ namespace Geometry
     std::ostream& operator<<(std::ostream& os, const ElementGeometry& elementGeometry)
     {
         os << "PhysicalGeometry={";
-        for (int i = 0; i < elementGeometry.physicalGeometry_->getNumberOfNodes(); i++)
+        for (std::size_t i = 0; i < elementGeometry.physicalGeometry_->getNumberOfNodes(); i++)
         {
             os << (elementGeometry.physicalGeometry_)->getNodeIndex(i) << " ";
         }

@@ -32,7 +32,7 @@ namespace Geometry
      * (-1) 0---1---1 (+1)
      *
      */
-    int ReferenceLine::localNodeIndexes_[2][1] =
+    std::size_t ReferenceLine::localNodeIndexes_[2][1] =
     {
         { 0 },
         { 1 }
@@ -92,7 +92,7 @@ namespace Geometry
         return os;
     }
     // ================================== Codimension 0 ============================================
-    int ReferenceLine::
+    std::size_t ReferenceLine::
     getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         if (list1.size() == 2 && list2.size() == 2)

@@ -53,7 +53,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 2;}
+            virtual std::size_t getTargetDimension() const {return 2;}
         private:
             MappingToRefLineToTriangle0();
             MappingToRefLineToTriangle0(const MappingToRefLineToTriangle0&);
@@ -69,7 +69,7 @@ namespace Geometry
                                          Geometry::PointReference&) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 2;}
+            virtual std::size_t getTargetDimension() const {return 2;}
         private:
             MappingToRefLineToTriangle1();
             MappingToRefLineToTriangle1(const MappingToRefLineToTriangle1&);
@@ -85,7 +85,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 2;}
+            virtual std::size_t getTargetDimension() const {return 2;}
         private:
             MappingToRefLineToTriangle2();
             MappingToRefLineToTriangle2(const MappingToRefLineToTriangle2&);

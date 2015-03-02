@@ -70,7 +70,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefCubeToCube0();
             MappingToRefCubeToCube0(const MappingToRefCubeToCube0&);
@@ -86,7 +86,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefCubeToCube1();
             MappingToRefCubeToCube1(const MappingToRefCubeToCube1&);
@@ -102,7 +102,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefCubeToCube2();
             MappingToRefCubeToCube2(const MappingToRefCubeToCube2&);
@@ -118,7 +118,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefCubeToCube3();
             MappingToRefCubeToCube3(const MappingToRefCubeToCube3&);
@@ -134,7 +134,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefCubeToCube4();
             MappingToRefCubeToCube4(const MappingToRefCubeToCube4&);
@@ -150,7 +150,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefCubeToCube5();
             MappingToRefCubeToCube5(const MappingToRefCubeToCube5&);
@@ -166,7 +166,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefCubeToCube6();
             MappingToRefCubeToCube6(const MappingToRefCubeToCube6&);
@@ -182,7 +182,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefCubeToCube7();
             MappingToRefCubeToCube7(const MappingToRefCubeToCube7&);

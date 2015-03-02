@@ -37,13 +37,13 @@ namespace Geometry
         typedef double CoordTypeT;
         typedef Geometry::Point PointT;
         typedef LinearAlgebra::NumericalVector VectorOfCoordsT;
-        typedef unsigned int IndexT;
+        typedef std::size_t IndexT;
 
     public:
         /// Constructors.
-        Point(unsigned int DIM);
+        Point(std::size_t DIM);
         /// Warning!!! This way Point ctr will truncate and take sizeof(dimension) points and will not give any warning. Be sure you took the right dimension.
-        Point(CoordTypeT coords[], unsigned int DIM);
+        Point(CoordTypeT coords[], std::size_t DIM);
 
         Point(const Point& other);
 
@@ -85,9 +85,9 @@ namespace Geometry
         Point operator-(const Point& right) const;
 
 
-        unsigned int size() const;
+        std::size_t size() const;
 
-        unsigned int size();
+        std::size_t size();
 
 
         typename Point::CoordTypeT getCoordinate(IndexT n) const;

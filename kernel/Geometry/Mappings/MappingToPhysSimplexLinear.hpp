@@ -42,7 +42,7 @@ namespace Geometry
      * \BUG this mapping does not work for DIM=1 (use MappingToPhysHypercubeLinear<1> instead)
      */
 
-    template <unsigned int DIM>
+    template <std::size_t DIM>
     class MappingToPhysSimplexLinear: public MappingReferenceToPhysical
     {
         private:
@@ -57,7 +57,7 @@ namespace Geometry
             virtual void transform(const PointReferenceT&, PointPhysicalT&) const;
             virtual void calcJacobian(const PointReferenceT&, JacobianT&) const;
             virtual void reinit(const PhysicalGeometryT*const);
-            virtual int getTargetDimension() const {return DIM;}
+            virtual std::size_t getTargetDimension() const {return DIM;}
 
         private:
             //bool isValidPoint(const PointReferenceT&) const; //TODO: Implement this function.

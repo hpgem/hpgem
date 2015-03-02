@@ -32,10 +32,10 @@ namespace Geometry
     class RefinementGeometry
     {
     public:
-        typedef unsigned int                    DimT;
+        typedef std::size_t                    DimT;
         typedef PointPhysical              PointPhysicalT;
         typedef std::vector<PointPhysicalT>     VectorOfPointPhysicalsT;
-        typedef std::vector<unsigned int>       VectorOfIndicesT;
+        typedef std::vector<std::size_t>       VectorOfIndicesT;
 
       public:
         virtual ~RefinementGeometry()
@@ -47,19 +47,19 @@ namespace Geometry
         //---------------------- Refinement status -----------------------------------------
         
         //! \brief Get refinement type.
-        int getRefineType() const { return refineType_; }
+        std::size_t getRefineType() const { return refineType_; }
 
         //! \brief Set refinement type.
-        void setRefineType(int refineType) { refineType_ = refineType; }
+        void setRefineType(std::size_t refineType) { refineType_ = refineType; }
 
         //! \brief Unset refinement type.
-        void unsetRefineType(int refineType) { refineType_ = -1; }
+        void unsetRefineType(std::size_t refineType) { refineType_ = -1; }
 
         //! \brief Get refinement type applied to the parent resulting this object.
-        int getAppliedRefineType() const { return appliedRefineType_; }
+        std::size_t getAppliedRefineType() const { return appliedRefineType_; }
 
         //! \brief Set refinement type applied to the parent resulting this object.
-        void setAppliedRefineType(int appliedRefineType) { appliedRefineType_ = appliedRefineType; }
+        void setAppliedRefineType(std::size_t appliedRefineType) { appliedRefineType_ = appliedRefineType; }
 
         //! \brief Is this element being refined?
         bool isBeingRefined() const { return beingRefined_; }
@@ -115,10 +115,10 @@ namespace Geometry
 
       private:
 	//! this element is a result of previous refinement of this type 
-        int     appliedRefineType_;
+        std::size_t     appliedRefineType_;
 	
 	//! type of refinement to be applied
-        int     refineType_;
+        std::size_t     refineType_;
 	
 	//! a flag for marking unfinished refinement proccess
         bool    beingRefined_;

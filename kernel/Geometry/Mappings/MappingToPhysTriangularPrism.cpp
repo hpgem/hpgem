@@ -67,7 +67,7 @@ namespace Geometry
 
             pP[0] = pP[1] = pP[2] = 0.;
 
-            for (int i = 0; i < 6; ++i)
+            for (std::size_t i = 0; i < 6; ++i)
             {
                     getNodeCoordinates(globalNodeIndices_[i],p);
                     pP += f2[i] * p;
@@ -124,7 +124,7 @@ namespace Geometry
             Geometry::PointPhysical d_dxi1(3);
             Geometry::PointPhysical d_dxi2(3);
 
-            for (int i = 0; i < 3; ++i)
+            for (std::size_t i = 0; i < 3; ++i)
             {
                 d_dxi0[i] = 0.;
                 d_dxi1[i] = 0.;
@@ -133,7 +133,7 @@ namespace Geometry
 
             Geometry::PointPhysical p(3);
 
-            for (int i = 0; i < 6; ++i)
+            for (std::size_t i = 0; i < 6; ++i)
             {
                     getNodeCoordinates(globalNodeIndices_[i],p);
 
@@ -142,7 +142,7 @@ namespace Geometry
                 d_dxi2 += df_dxi2[i] * p;
             }
 
-            for (int i = 0; i < 3; ++i)
+            for (std::size_t i = 0; i < 3; ++i)
             {
                 jacobian(i,0) = d_dxi0[i];
                 jacobian(i,1) = d_dxi1[i];
@@ -178,7 +178,7 @@ namespace Geometry
             //  physicalGeometry_ = physicalGeometry;
 #endif
 
-        for (int i = 0; i < 6; ++i)
+        for (std::size_t i = 0; i < 6; ++i)
         {
             globalNodeIndices_[i] = physicalGeometry->getNodeIndex(i);
         }

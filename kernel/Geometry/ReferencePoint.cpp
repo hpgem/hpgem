@@ -31,8 +31,10 @@ namespace Geometry
      */
     ReferencePoint::ReferencePoint():
          ReferenceGeometry(1,0,POINT)
-    { mappingsPointToPoint_=&MappingToRefPointToPoint::Instance();
-    	points_[0]=Geometry::PointReference(0);}
+    { 
+        mappingsPointToPoint_ = &MappingToRefPointToPoint::Instance();
+    	points_[0] = Geometry::PointReference(0);
+    }
 
     ReferencePoint::ReferencePoint(const ReferencePoint& copy):
         ReferenceGeometry(copy),mappingsPointToPoint_(copy.mappingsPointToPoint_)
@@ -47,7 +49,7 @@ namespace Geometry
 
     void ReferencePoint::getNode(const IndexT& i, PointReference& point) const { }
 
-    int ReferencePoint::getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const
+    std::size_t ReferencePoint::getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const
     {
         return 0;
     }

@@ -227,7 +227,7 @@ namespace Geometry {
                 rightElementGeom_->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumberRight_, localNodeNrsR);
                 
                 
-                std::size_t periodicDim = Geometry::MaxInteger; // initialize to large value
+                std::size_t periodicDim = Geometry::MAXSIZET; // initialize to large value
                 
                 PointPhysicalT pointPhysical;
                 

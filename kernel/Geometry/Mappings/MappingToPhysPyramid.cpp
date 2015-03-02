@@ -59,7 +59,7 @@ namespace Geometry
 
             pP[0] = pP[1] = pP[2] = 0.0;
 
-            for (int i=0; i<5; ++i)
+            for (std::size_t i=0; i<5; ++i)
             {
                 getNodeCoordinates(globalNodeIndices_[i], p);
                 pP += f8[i] * p;
@@ -102,7 +102,7 @@ namespace Geometry
             PointPhysicalT d_dxi1(3);
             PointPhysicalT d_dxi2(3);
 
-            for (unsigned int i = 0; i < 3; ++i)
+            for (std::size_t i = 0; i < 3; ++i)
             {
                 d_dxi0[i] = 0.;
                 d_dxi1[i] = 0.;
@@ -111,7 +111,7 @@ namespace Geometry
 
             PointPhysicalT p(3);
 
-            for (int i = 0; i < 5; ++i)
+            for (std::size_t i = 0; i < 5; ++i)
             {
                 getNodeCoordinates(globalNodeIndices_[i], p);
 
@@ -120,7 +120,7 @@ namespace Geometry
                 d_dxi2 += df_dxi2[i] * p;
             }
 
-            for (unsigned int i = 0; i < 3; ++i)
+            for (std::size_t i = 0; i < 3; ++i)
             {
                 jacobian(i,0) = d_dxi0[i];
                 jacobian(i,1) = d_dxi1[i];
@@ -136,7 +136,7 @@ namespace Geometry
     void MappingToPhysPyramid::reinit(const PhysicalGeometryT*const physicalGeometry)
     {
     	globalNodeIndices_.resize(5);
-        for (int i = 0; i < 5; ++i)
+        for (std::size_t i = 0; i < 5; ++i)
         {
             globalNodeIndices_[i] = physicalGeometry->getNodeIndex(i);
         }

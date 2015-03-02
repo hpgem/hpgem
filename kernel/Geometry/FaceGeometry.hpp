@@ -192,7 +192,7 @@ namespace Geometry
         }
     }
 
-    virtual int getFaceToFaceMapIndex()const
+    virtual std::size_t getFaceToFaceMapIndex()const
     {
       return faceToFaceMapIndex_;
     }

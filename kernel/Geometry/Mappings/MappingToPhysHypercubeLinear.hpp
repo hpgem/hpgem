@@ -40,7 +40,7 @@ namespace Geometry
      */
 
 
-    template <unsigned int DIM>
+    template <std::size_t DIM>
     class MappingToPhysHypercubeLinear;
 
     // ~~~ Dimension 1 ~~~==========================================================================
@@ -58,7 +58,7 @@ namespace Geometry
             virtual void transform(const PointReferenceT&, PointPhysicalT&) const;
             virtual void calcJacobian(const PointReferenceT&, JacobianT&) const;
             virtual void reinit(const PhysicalGeometryT* const);
-            virtual int getTargetDimension() const {return 1;}
+            virtual std::size_t getTargetDimension() const {return 1;}
 
         private:
             bool isValidPoint(const PointReferenceT&) const;
@@ -81,7 +81,7 @@ namespace Geometry
             virtual void transform(const PointReferenceT&, PointPhysicalT&) const;
             virtual void calcJacobian(const PointReferenceT&, JacobianT&) const;
             virtual void reinit(const PhysicalGeometryT* const);
-            virtual int getTargetDimension() const {return 2;}
+            virtual std::size_t getTargetDimension() const {return 2;}
 
         private:
             bool isValidPoint(const PointReferenceT&) const;
@@ -104,7 +104,7 @@ namespace Geometry
             virtual void transform(const PointReferenceT&, PointPhysicalT&) const;
             virtual void calcJacobian(const PointReferenceT&, JacobianT&) const;
             virtual void reinit(const PhysicalGeometryT* const);
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
 
         private:
             bool isValidPoint(const PointReferenceT&) const;
@@ -127,7 +127,7 @@ namespace Geometry
         virtual void transform(const PointReferenceT&, PointPhysicalT&) const;
         virtual void calcJacobian(const PointReferenceT&, JacobianT&) const;
         virtual void reinit(const PhysicalGeometryT* const);
-        virtual int getTargetDimension() const {return 4;}
+        virtual std::size_t getTargetDimension() const {return 4;}
 
     private:
         bool isValidPoint(const PointReferenceT&) const;

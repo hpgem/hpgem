@@ -27,12 +27,12 @@ namespace Geometry
 {
     class Point;
     
-    Point::Point(unsigned int DIM):
+    Point::Point(std::size_t DIM):
         coordinates_(DIM)
     {
     }
     
-    Point::Point( CoordTypeT coords[],unsigned int DIM):
+    Point::Point( CoordTypeT coords[], std::size_t DIM):
         coordinates_(coords,DIM)
     {
     }
@@ -109,11 +109,11 @@ namespace Geometry
 		return PointT(coordinates_ - right.coordinates_);
 	}
 
-	unsigned int Point::size() {
+	std::size_t Point::size() {
 		return coordinates_.size();
 	}
 
-	unsigned int Point::size() const {
+	std::size_t Point::size() const {
 		return coordinates_.size();
 	}
 
@@ -186,7 +186,7 @@ namespace Geometry
 	std::ostream& operator <<(std::ostream& os, const Point& point) {
 		// cout << "Size in ostream="<< point.coordinates_.size()<<endl;
 		os << "point={";
-		for (unsigned int i = 0; i < point.coordinates_.size(); i++) {
+		for (std::size_t i = 0; i < point.coordinates_.size(); i++) {
 			if (i < point.coordinates_.size() - 1)
 				os << point.coordinates_[i] << ',';
 			else

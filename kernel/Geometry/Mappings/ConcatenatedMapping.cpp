@@ -45,7 +45,7 @@ namespace Geometry {
 		j2.multiplyJacobiansInto(j1, jac);
 	}
 
-	int ConcatenatedMapping::getTargetDimension() const {
+	std::size_t ConcatenatedMapping::getTargetDimension() const {
 		return map2_.getTargetDimension();
 	}
 

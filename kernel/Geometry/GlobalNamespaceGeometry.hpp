@@ -26,15 +26,7 @@
 
 namespace Geometry
 {
-    const int ZeroD  = 0;
-    const int OneD   = 1;
-    const int TwoD   = 2;
-    const int ThreeD = 3;
-    const int FourD  = 4;
-    
-    const int MaxInteger=std::numeric_limits<int>::max();
     const std::size_t MAXSIZET = std::numeric_limits<std::size_t>::max();
-    const double SmallerDoubleThanMinimalSizeOfTheMesh=1.0e-10;
 };
 
 #endif///_GlobalNamespaceGeometry_hpp

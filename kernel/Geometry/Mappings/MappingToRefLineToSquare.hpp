@@ -60,7 +60,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 2;}
+            virtual std::size_t getTargetDimension() const {return 2;}
         private:
             MappingToRefLineToSquare0();
             MappingToRefLineToSquare0(const MappingToRefLineToSquare0&);
@@ -76,7 +76,7 @@ namespace Geometry
                                          Geometry::PointReference&) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 2;}
+            virtual std::size_t getTargetDimension() const {return 2;}
         private:
             MappingToRefLineToSquare1();
             MappingToRefLineToSquare1(const MappingToRefLineToSquare1&);
@@ -92,7 +92,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 2;}
+            virtual std::size_t getTargetDimension() const {return 2;}
         private:
             MappingToRefLineToSquare2();
             MappingToRefLineToSquare2(const MappingToRefLineToSquare2&);
@@ -108,7 +108,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 2;}
+            virtual std::size_t getTargetDimension() const {return 2;}
         private:
             MappingToRefLineToSquare3();
             MappingToRefLineToSquare3(const MappingToRefLineToSquare3&);

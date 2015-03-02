@@ -226,7 +226,7 @@ namespace Base
             return face_->getFaceType();
         }
 
-        int getFaceToFaceMapIndex() const override
+        std::size_t getFaceToFaceMapIndex() const override
         {
             return face_->getFaceToFaceMapIndex();
         }

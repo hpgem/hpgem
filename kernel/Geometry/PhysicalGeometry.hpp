@@ -101,13 +101,13 @@ namespace Geometry
         virtual std::string getName() const = 0;
 
         /// \brief Given a local index relative to globalNodeIndexes_, return the global node index.
-        PointIndexT getNodeIndex(int localIndex) const
+        PointIndexT getNodeIndex(std::size_t localIndex) const
         {
             return globalNodeIndexes_[localIndex];
         }
 
         /// \brief Given a global index, returns a pointer to the corresponding point.
-        const PointPhysicalT* getNodePtr(const int globalIndex) const
+        const PointPhysicalT* getNodePtr(const std::size_t globalIndex) const
         {
             return &(nodes_[globalIndex]);
         }
@@ -121,13 +121,13 @@ namespace Geometry
         /// \brief Given a local index, assigns the physical coordinates of the corresponding point.
         // MTJ: TODO: this should be renamed to getLocalNodeCoordinates.............
         ///\TODO remove duplicate code
-        void getNodeCoordinates(const int localIndex, PointPhysicalT& coords) const;
+        void getNodeCoordinates(const std::size_t localIndex, PointPhysicalT& coords) const;
 
         /// \brief Given a local index, assigns the physical coordinates of the corresponding point.
-        void getLocalNodeCoordinates(const int localIndex, PointPhysicalT& coords) const;
+        void getLocalNodeCoordinates(const std::size_t localIndex, PointPhysicalT& coords) const;
 
         /// \brief Given a global index, assigns the physical coordinates of the corresponding point.
-        void getGlobalNodeCoordinates(const int globalIndex, PointPhysicalT& coords) const;
+        void getGlobalNodeCoordinates(const std::size_t globalIndex, PointPhysicalT& coords) const;
 
         /// \brief Given a local face index, return the global indices of the entities contained on that face.
         virtual void getGlobalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const = 0;
@@ -150,7 +150,7 @@ namespace Geometry
         {
             os << "PhysicalGeometry=( ";
 
-            for (int i = 0; i < physicalGeometry.getNumberOfNodes(); i ++)
+            for (std::size_t i = 0; i < physicalGeometry.getNumberOfNodes(); i ++)
             {
                 os << physicalGeometry.getNodeIndex(i) << " ";
             }

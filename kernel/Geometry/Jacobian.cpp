@@ -25,7 +25,7 @@ namespace Geometry
 {
     class Jacobian;
     
-    Jacobian::Jacobian(unsigned int dimFrom,unsigned int dimTo):
+    Jacobian::Jacobian(std::size_t dimFrom, std::size_t dimTo):
         LinearAlgebra::Matrix(dimFrom,dimTo)
     {
     }
@@ -51,9 +51,9 @@ namespace Geometry
     double
     Jacobian::determinant()const
     {
-    	unsigned int dimTo(getNRows()),dimFrom(getNCols());
+    	std::size_t dimTo(getNRows()),dimFrom(getNCols());
 
-        if (dimFrom!=dimTo)
+        if (dimFrom != dimTo)
         {
             std::cout<<"Jacobian should be square to have a determinant!"<<std::endl;
         }

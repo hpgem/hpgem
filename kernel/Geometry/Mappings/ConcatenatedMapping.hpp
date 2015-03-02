@@ -61,7 +61,7 @@ namespace Geometry
 		virtual void calcJacobian(const PointReference& p, Jacobian& jac) const;
         
 
-        virtual int getTargetDimension() const;
+        virtual std::size_t getTargetDimension() const;
 
     private:
         const MappingReferenceToReference&    map1_;

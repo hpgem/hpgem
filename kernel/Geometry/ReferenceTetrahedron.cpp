@@ -35,7 +35,7 @@ namespace Geometry
      *   |/     \
      * 0 o--------o 1
      */
-     int ReferenceTetrahedron::localNodeIndexes_[4][3] =
+     std::size_t ReferenceTetrahedron::localNodeIndexes_[4][3] =
      {
          { 0, 3, 2 },
          { 0, 1, 3 },
@@ -43,7 +43,7 @@ namespace Geometry
          { 1, 2, 3 }
      };
 
-     int ReferenceTetrahedron::localNodesOnEdge_[6][2] =
+     std::size_t ReferenceTetrahedron::localNodesOnEdge_[6][2] =
      {
          { 0, 1 },
          { 0, 2 },
@@ -119,7 +119,7 @@ namespace Geometry
 
     // ================================== Codimension 0 ============================================
 
-    int ReferenceTetrahedron::
+    std::size_t ReferenceTetrahedron::
     getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         /// TODO: Implement tetrahedron to tetrahedron mappings.

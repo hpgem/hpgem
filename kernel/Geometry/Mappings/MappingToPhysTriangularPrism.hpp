@@ -55,11 +55,11 @@ namespace Geometry
             virtual void reinit(const PhysicalGeometryT*const);
 
             bool isValidPoint(const PointReferenceT&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
 
         private:
             PointPhysicalT a0, a1, a2, a3, a4, a5;
-            int globalNodeIndices_[6];
+            std::size_t globalNodeIndices_[6];
             //PhysicalGeometryT* physicalGeometry_;
 
     };

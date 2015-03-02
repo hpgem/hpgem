@@ -31,7 +31,7 @@
 namespace Geometry
 {
 
-    int ReferencePyramid::localNodeIndexes_[5][4] =
+    std::size_t ReferencePyramid::localNodeIndexes_[5][4] =
     {
         { 3, 4, 1, 2 },
         { 3, 1, 0 },
@@ -40,7 +40,7 @@ namespace Geometry
         { 4, 3, 0 },
     };
 
-    int ReferencePyramid::localNodesOnEdge_[8][2] =
+    std::size_t ReferencePyramid::localNodesOnEdge_[8][2] =
     {
         { 0 , 1 },
         { 0 , 2 },
@@ -131,7 +131,7 @@ namespace Geometry
 
     // ================================== Codimension 0 ============================================
 
-    int ReferencePyramid::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
+    std::size_t ReferencePyramid::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         throw "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 mappings for Pyramid.";
     }

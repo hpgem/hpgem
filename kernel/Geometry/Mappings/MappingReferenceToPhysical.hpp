@@ -74,7 +74,7 @@ namespace Geometry
             //! ~OC~ Recompute mapping after physical nodes have moved.
             ///\BUG will horribly break everything unless you happen to pass the same  physicalGeometry that you used to construct this mapping
             virtual void reinit(const PhysicalGeometryT* const) = 0;
-		void getNodeCoordinates(const int index, PointPhysical& coords) const;
+		void getNodeCoordinates(const std::size_t index, PointPhysical& coords) const;
 
         private:///\TODO fix this properly (for now just made it working)
              const std::vector<PointPhysical >* nodes_; /// Pointer to the global node container.

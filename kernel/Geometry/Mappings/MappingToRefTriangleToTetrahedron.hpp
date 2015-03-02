@@ -52,7 +52,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefTriangleToTetrahedron0();
             MappingToRefTriangleToTetrahedron0(const MappingToRefTriangleToTetrahedron0&);
@@ -70,7 +70,7 @@ namespace Geometry
                                          Geometry::PointReference&) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefTriangleToTetrahedron1();
             MappingToRefTriangleToTetrahedron1(const MappingToRefTriangleToTetrahedron1&);
@@ -88,7 +88,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefTriangleToTetrahedron2();
             MappingToRefTriangleToTetrahedron2(const MappingToRefTriangleToTetrahedron2&);
@@ -106,7 +106,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefTriangleToTetrahedron3();
             MappingToRefTriangleToTetrahedron3(const MappingToRefTriangleToTetrahedron3&);

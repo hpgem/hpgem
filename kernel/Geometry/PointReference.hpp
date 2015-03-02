@@ -43,7 +43,7 @@ namespace Geometry
 
         PointReference(const PointT& p): PointT(p) {}
 
-        PointReference(CoordTypeT coords[],unsigned int DIM): Point(coords,DIM) {}
+        PointReference(CoordTypeT coords[], std::size_t DIM): Point(coords,DIM) {}
 
         PointReference(const VectorOfCoordsT& coord): PointT(coord){}
         

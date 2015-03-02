@@ -72,12 +72,16 @@ namespace Geometry
 
         /// \brief Given a face index, and an index of the node position relative to the face,
         /// return the local index of the node. Dummy function, doesn't make sense for point
-        int                                     getLocalNodeIndex(int face, int node) const{return -1;}
+        std::size_t                                     getLocalNodeIndex(std::size_t face, std::size_t node) const
+        {
+            std::cout << "WARNING: ReferencePoint::getLocalNodeIndex might have unexpected behaviour." << std::endl;
+            return -1;
+        }
         
         // ================================== Codimension 0 ========================================
 
         /// \brief Returns 0.
-        int                                         getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
+        std::size_t                                         getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
 
         /// \brief Returns 0.
         const MappingReferenceToReference*     getCodim0MappingPtr(const IndexT a) const;
@@ -87,25 +91,25 @@ namespace Geometry
         // =============================== Refinement mappings =====================================
         
         /// \brief Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, int subElementIdx, 
+        void refinementTransform(std::size_t refineType, std::size_t subElementIdx, 
                       const PointReferenceT& p, PointReferenceT& pMap) const {}
 
         /// \brief Transformation matrix of this refinement when located on the LEFT side
-        void getRefinementMappingMatrixL(int refineType, int subElementIdx, 
+        void getRefinementMappingMatrixL(std::size_t refineType, std::size_t subElementIdx, 
                     LinearAlgebra::Matrix& Q) const {}
 
         /// \brief Transformation matrix of this refinement when located on the RIGHT side
-        void getRefinementMappingMatrixR(int refineType, int subElementIdx, 
+        void getRefinementMappingMatrixR(std::size_t refineType, std::size_t subElementIdx, 
                     LinearAlgebra::Matrix& Q) const {}
 
         /// \brief Refinement mapping on codim1 for a given refinement on codim0
         /// Note: this should also applied on other dimensions
-        void getCodim1RefinementMappingMatrixL(int refineType, DimT subElementIdx, 
+        void getCodim1RefinementMappingMatrixL(std::size_t refineType, DimT subElementIdx, 
                                 DimT faLocalIndex, LinearAlgebra::Matrix& Q) const {}
 
         /// \brief Refinement mapping on codim1 for a given refinement on codim0
         /// \brief Note: this should also applied on other dimensions
-        void getCodim1RefinementMappingMatrixR(int refineType, DimT subElementIdx, 
+        void getCodim1RefinementMappingMatrixR(std::size_t refineType, DimT subElementIdx, 
                                 DimT faLocalIndex, LinearAlgebra::Matrix& Q) const {}
 
         /// \brief List of valid quadrature rules for this reference geometry

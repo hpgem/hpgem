@@ -37,7 +37,7 @@ namespace Geometry
      *   (0,0) 0---0---1 (1,0)
      *
      */
-    int ReferenceTriangle::localNodeIndexes_[3][2] =
+    std::size_t ReferenceTriangle::localNodeIndexes_[3][2] =
     {
         { 0, 1 },
         { 0, 2 },
@@ -107,7 +107,7 @@ namespace Geometry
         return os;
     }
     // ================================== Codimension 0 ============================================
-    int ReferenceTriangle::
+    std::size_t ReferenceTriangle::
     getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         if (list1.size() == 3 && list2.size() == 3)

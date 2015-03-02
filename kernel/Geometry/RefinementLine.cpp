@@ -32,7 +32,7 @@
 
 namespace Geometry
 {
-    unsigned int RefinementLine::nrOfNewNodes(int refineType) const 
+    std::size_t RefinementLine::nrOfNewNodes(std::size_t refineType) const 
     { 
         if (refineType==0)
             return 1;
@@ -40,12 +40,12 @@ namespace Geometry
             return 0;
     }
     
-    void RefinementLine::getAllNodes(int refineType, VectorOfPointPhysicalsT& nodes) const 
+    void RefinementLine::getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const 
     {
         // get all element's nodes
         nodes.clear();
         PointPhysicalT p(1);
-        for (unsigned int i=0; i<referenceGeometry_->getNumberOfNodes(); ++i)
+        for (std::size_t i=0; i<referenceGeometry_->getNumberOfNodes(); ++i)
         {
             physicalGeometry_->getLocalNodeCoordinates(i, p);
             nodes.push_back(p);
@@ -59,7 +59,7 @@ namespace Geometry
         }
     }
 
-    unsigned int RefinementLine::nrOfSubElements(int refineType) const 
+    std::size_t RefinementLine::nrOfSubElements(std::size_t refineType) const 
     { 
         if (refineType==0)
             return 2;
@@ -67,7 +67,7 @@ namespace Geometry
             return 0;
     }
 
-    void RefinementLine::subElementLocalNodeIndices(int refineType, unsigned int iSubElement, VectorOfIndicesT& LocalNodeIdx) const 
+    void RefinementLine::subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const 
     {
         TestErrorDebug((iSubElement<nrOfSubElements(refineType)),
                         "RefinementQuadrilateral: invalid sub-element index while getting its local node indices!");
@@ -79,16 +79,16 @@ namespace Geometry
             {
               case 0:
                 {
-                  unsigned int nodes[] = { 0, 2 };
-                  for (unsigned int i=0; i<2; ++i)
+                  std::size_t nodes[] = { 0, 2 };
+                  for (std::size_t i=0; i<2; ++i)
                     LocalNodeIdx.push_back(nodes[i]);
                 }
                 break;
                 
               case 1:
                 {
-                  unsigned int nodes[] = { 2, 1 };
-                  for (unsigned int i=0; i<2; ++i)
+                  std::size_t nodes[] = { 2, 1 };
+                  for (std::size_t i=0; i<2; ++i)
                     LocalNodeIdx.push_back(nodes[i]);
                 }
                 break;
@@ -97,7 +97,7 @@ namespace Geometry
 
     }
     
-    void RefinementLine::adjacentSubElementsPairs(int refineType,
+    void RefinementLine::adjacentSubElementsPairs(std::size_t refineType,
                     VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1,
                     VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const 
     {
@@ -114,7 +114,7 @@ namespace Geometry
         } // end if
     }
 
-    unsigned int RefinementLine::nrOfSubElementsOnFace(int refineType, unsigned int faLocalIndex) const 
+    std::size_t RefinementLine::nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const 
     { 
         if (refineType==0)
             return 1;
@@ -122,7 +122,7 @@ namespace Geometry
             return 0;
     }
 
-    void RefinementLine::subElementsOnFace(int refineType, unsigned int faLocalIndex, VectorOfIndicesT& localSubElemIdx) const 
+    void RefinementLine::subElementsOnFace(std::size_t refineType, std::size_t faLocalIndex, VectorOfIndicesT& localSubElemIdx) const 
     {
         localSubElemIdx.clear();
         if (refineType==0)
@@ -140,7 +140,7 @@ namespace Geometry
         } // end if
     }
     
-    unsigned int RefinementLine::getLocalSubFaceNr(int refineType, unsigned int localFaceNr, unsigned int subElementIdx) const 
+    std::size_t RefinementLine::getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const 
     { 
         return localFaceNr;
     }

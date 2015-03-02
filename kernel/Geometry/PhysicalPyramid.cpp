@@ -38,14 +38,14 @@ namespace Geometry
         indexes.resize(4);
         if (face==0)
         {
-            for (int i = 0; i < 4; ++i)
+            for (std::size_t i = 0; i < 4; ++i)
             {
                 indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,i)];
             }
         }
         else
         {
-            for (int i = 0; i < 3; ++i)
+            for (std::size_t i = 0; i < 3; ++i)
             {
                 indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,i)];
             }
@@ -57,14 +57,14 @@ namespace Geometry
         indexes.resize(4);
         if (face==0)
         {
-            for (int i = 0; i < 4; ++i)
+            for (std::size_t i = 0; i < 4; ++i)
             {
                  indexes[i] = refGeometry_->getLocalNodeIndex(face,i);
             }
         }
         else
         {
-            for (int i = 0; i < 3; ++i)
+            for (std::size_t i = 0; i < 3; ++i)
             {
                 indexes[i] = refGeometry_->getLocalNodeIndex(face,i);
             }

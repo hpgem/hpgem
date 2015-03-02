@@ -210,7 +210,7 @@ namespace Geometry
     {
         public:
 
-        virtual int
+        virtual std::size_t
         getCodim0MappingIndex(const std::vector<std::size_t>&, const std::vector<std::size_t>&)
         const = 0;
 

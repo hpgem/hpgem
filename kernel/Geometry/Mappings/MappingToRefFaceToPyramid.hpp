@@ -40,7 +40,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToPyramid0();
             MappingToRefFaceToPyramid0(const MappingToRefFaceToPyramid0&);
@@ -58,7 +58,7 @@ namespace Geometry
                                          Geometry::PointReference&) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToPyramid1();
             MappingToRefFaceToPyramid1(const MappingToRefFaceToPyramid1&);
@@ -76,7 +76,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToPyramid2();
             MappingToRefFaceToPyramid2(const MappingToRefFaceToPyramid2&);
@@ -94,7 +94,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToPyramid3();
             MappingToRefFaceToPyramid3(const MappingToRefFaceToPyramid3&);
@@ -112,7 +112,7 @@ namespace Geometry
                                          Geometry::PointReference& p2) const;
             virtual void calcJacobian(const Geometry::PointReference&,
                                             Geometry::Jacobian&) const;
-            virtual int getTargetDimension() const {return 3;}
+            virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefFaceToPyramid4();
             MappingToRefFaceToPyramid4(const MappingToRefFaceToPyramid4&);

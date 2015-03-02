@@ -33,7 +33,7 @@ namespace Geometry
 
         public:
             // Constructors.
-        Jacobian(unsigned int dimTo,unsigned int dimFrom);
+        Jacobian(std::size_t dimTo, std::size_t dimFrom);
         Jacobian(const JacobianT& jacobian);
         
         Jacobian(const LinearAlgebra::Matrix& matrix):LinearAlgebra::Matrix(matrix){}
