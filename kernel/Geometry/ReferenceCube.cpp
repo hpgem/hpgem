@@ -276,7 +276,7 @@ namespace Geometry
 
     // =============================== Refinement mappings =====================================
     
-    void ReferenceCube::refinementTransform(std::size_t refineType, std::size_t subElementIdx, 
+    void ReferenceCube::refinementTransform(int refineType, std::size_t subElementIdx,
                   const PointReferenceT& p, PointReferenceT& pMap) const 
     {
         switch (refineType)
@@ -543,7 +543,7 @@ namespace Geometry
         }
     }  // end of refinementTransform
 
-    void ReferenceCube::getRefinementMappingMatrixL(std::size_t refineType, std::size_t subElementIdx, 
+    void ReferenceCube::getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx,
                 LinearAlgebra::Matrix& Q) const 
     {
         Q.resize(4,4);
@@ -615,7 +615,7 @@ namespace Geometry
         }
     }  // end of getRefinementMappingMatrixL
 
-    void ReferenceCube::getRefinementMappingMatrixR(std::size_t refineType, std::size_t subElementIdx, 
+    void ReferenceCube::getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx,
                 LinearAlgebra::Matrix& Q) const 
     {
         Q.resize(4,4);
@@ -665,7 +665,7 @@ namespace Geometry
         }
     }  // end of getRefinementMappingMatrixR
 
-    void ReferenceCube::getCodim1RefinementMappingMatrixL(std::size_t refineType, DimT subElementIdx, 
+    void ReferenceCube::getCodim1RefinementMappingMatrixL(int refineType, DimT subElementIdx,
                               DimT faLocalIndex, LinearAlgebra::Matrix& Q) const 
     {
         int faRefinementType(-1);
@@ -836,7 +836,7 @@ namespace Geometry
         }
     }  // end of getCodim1RefinementMappingMatrixL
 
-    void ReferenceCube::getCodim1RefinementMappingMatrixR(std::size_t refineType, DimT subElementIdx, 
+    void ReferenceCube::getCodim1RefinementMappingMatrixR(int refineType, DimT subElementIdx,
                               DimT faLocalIndex, LinearAlgebra::Matrix& Q) const 
     {
         int faRefinementType(-1);

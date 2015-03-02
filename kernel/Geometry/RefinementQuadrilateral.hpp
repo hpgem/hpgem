@@ -69,30 +69,30 @@ namespace Geometry
         //---------------------- Refinement definitions -----------------------------------------
         
         /// Number of new nodes due to a refinement.
-        virtual std::size_t nrOfNewNodes(std::size_t refineType) const;
+        virtual std::size_t nrOfNewNodes(int refineType) const;
         
         /// Get all physical nodes: existing nodes and new nodes to be added.
-        virtual void getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const;
+        virtual void getAllNodes(int refineType, VectorOfPointPhysicalsT& nodes) const;
         
         /// Number of sub-elements due to the refinement.
-        virtual std::size_t nrOfSubElements(std::size_t refineType) const;
+        virtual std::size_t nrOfSubElements(int refineType) const;
 
         /// Assembly nodes for sub-element.
-        virtual void subElementLocalNodeIndices(std::size_t refineType, std::size_t, VectorOfIndicesT& LocalNodeIdx) const;
+        virtual void subElementLocalNodeIndices(int refineType, std::size_t, VectorOfIndicesT& LocalNodeIdx) const;
         
         /// Local indices pairs of sub-elements connected by a sub-Internal Face.
-        virtual void adjacentSubElementsPairs(std::size_t refineType,
+        virtual void adjacentSubElementsPairs(int refineType,
                         VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1,
                         VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const;
 
         /// Number of sub-elements on a parent's face.
-        virtual std::size_t nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const;
+        virtual std::size_t nrOfSubElementsOnFace(int refineType, std::size_t faLocalIndex) const;
 
         /// Get sub-elements' local index on a parent's face.
-        virtual void subElementsOnFace(std::size_t refineType, std::size_t faLocalIndex, VectorOfIndicesT& LocalNodeIdx) const;
+        virtual void subElementsOnFace(int refineType, std::size_t faLocalIndex, VectorOfIndicesT& LocalNodeIdx) const;
         
         /// Get sub-face's local face number of on a parent's face.
-        virtual std::size_t getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const;
+        virtual std::size_t getLocalSubFaceNr(int refineType, std::size_t localFaceNr, std::size_t subElementIdx) const;
 
     private:
 

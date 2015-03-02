@@ -135,23 +135,23 @@ namespace Geometry
         // =============================== Refinement mappings =====================================
         
         //! Transform a reference point using refinement mapping
-        virtual void refinementTransform(std::size_t refineType, std::size_t subElementIdx, 
+        virtual void refinementTransform(int refineType, std::size_t subElementIdx,
                       const PointReferenceT& p, PointReferenceT& pMap) const;
 
         //! Transformation matrix of this refinement when located on the LEFT side
-        virtual void getRefinementMappingMatrixL(std::size_t refineType, std::size_t subElementIdx, 
+        virtual void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx,
                     LinearAlgebra::Matrix& Q) const;
 
         //! Transformation matrix of this refinement when located on the RIGHT side
-        virtual void getRefinementMappingMatrixR(std::size_t refineType, std::size_t subElementIdx, 
+        virtual void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx,
                     LinearAlgebra::Matrix& Q) const;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
-        virtual void getCodim1RefinementMappingMatrixL(std::size_t refineType, DimT subElementIdx, 
+        virtual void getCodim1RefinementMappingMatrixL(int refineType, DimT subElementIdx,
                                 DimT faLocalIndex, LinearAlgebra::Matrix& Q) const;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
-        virtual void getCodim1RefinementMappingMatrixR(std::size_t refineType, DimT subElementIdx, 
+        virtual void getCodim1RefinementMappingMatrixR(int refineType, DimT subElementIdx,
                                 DimT faLocalIndex, LinearAlgebra::Matrix& Q) const;
 
       private:

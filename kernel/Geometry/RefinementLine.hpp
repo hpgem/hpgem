@@ -70,30 +70,30 @@ namespace Geometry
         //---------------------- Refinement definitions -----------------------------------------
         
         //! Number of new nodes due to a refinement.
-        virtual DimT nrOfNewNodes(std::size_t refineType) const;
+        virtual DimT nrOfNewNodes(int refineType) const;
         
         //! Get all physical nodes: existing nodes and new nodes to be added.
-        virtual void getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const;
+        virtual void getAllNodes(int refineType, VectorOfPointPhysicalsT& nodes) const;
         
         //! Number of sub-elements due to the refinement.
-        virtual DimT nrOfSubElements(std::size_t refineType) const;
+        virtual DimT nrOfSubElements(int refineType) const;
 
         //! Assembly nodes for sub-element.
-        virtual void subElementLocalNodeIndices(std::size_t refineType, DimT iSubElement, VectorOfIndicesT& LocalNodeIdx) const;
+        virtual void subElementLocalNodeIndices(int refineType, DimT iSubElement, VectorOfIndicesT& LocalNodeIdx) const;
         
         //! Local indices pairs of sub-elements connected by a sub-Internal Face.
-        virtual void adjacentSubElementsPairs(std::size_t refineType,
+        virtual void adjacentSubElementsPairs(int refineType,
                         VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1,
                         VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const;
 
         //! Number of sub-elements on a parent's face.
-        virtual DimT nrOfSubElementsOnFace(std::size_t refineType, DimT faLocalIndex) const;
+        virtual DimT nrOfSubElementsOnFace(int refineType, DimT faLocalIndex) const;
 
         //! Get sub-elements' local index on a parent's face.
-        virtual void subElementsOnFace(std::size_t refineType, DimT faLocalIndex, VectorOfIndicesT& localSubElemIdx) const;
+        virtual void subElementsOnFace(int refineType, DimT faLocalIndex, VectorOfIndicesT& localSubElemIdx) const;
         
         //! Get sub-face's local face number of on a parent's face.
-        virtual DimT getLocalSubFaceNr(std::size_t refineType, DimT localFaceNr, DimT subElementIdx) const;
+        virtual DimT getLocalSubFaceNr(int refineType, DimT localFaceNr, DimT subElementIdx) const;
 
     private:
 

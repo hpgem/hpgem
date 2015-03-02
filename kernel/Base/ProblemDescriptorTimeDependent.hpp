@@ -40,11 +40,7 @@ namespace Integration
 namespace Base
 {
 
-    class ProblemDescriptorTimeDependent : public HpgemUI, Integration::ElementIntegrandBase<LinearAlgebra::Matrix>,
-                                Integration::FaceIntegrandBase<LinearAlgebra::Matrix>,
-                                Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>,
-                                Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>,
-                                public Output::TecplotSingleElementWriter
+    class ProblemDescriptorTimeDependent : public HpgemUI, Integration::ElementIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>, Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>, public Output::TecplotSingleElementWriter
     {
     public:
 
@@ -57,8 +53,6 @@ namespace Base
         using PointReferenceT = Geometry::PointReference;
         using FaceIntegralT = Integration::FaceIntegral;
 
-
-
         /// You need the basis functions before creating the mesh, because the mesh manipulator
         /// needs to create the elements, and they need some basis functions variables.
         ProblemDescriptorTimeDependent(std::size_t DIMension, std::size_t polynomialOrder, const Base::ButcherTableau* integrator);
@@ -68,17 +62,15 @@ namespace Base
 
         /// \brief User-defined element integrand for the left hand side
         virtual void elementIntegrand(const ElementT *element, const PointReferenceT& p, LinearAlgebra::Matrix& ret) = 0;
-        
+
         /// \brief User-defined element integrand for the right hand side
         virtual void elementIntegrand(const ElementT *element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) = 0;
 
         /// \brief User-defined face integrand for the left hand side
-        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
-                const PointReferenceT& p, LinearAlgebra::Matrix& ret) = 0;
+        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::Matrix& ret) = 0;
 
         /// \brief User-defined face integrand for the right hand side
-        virtual void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector& normal,
-                const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) = 0;
+        virtual void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) = 0;
 
         /// \brief User-defined initial conditions
         virtual double initialConditions(const PointPhysicalT& p) = 0;
@@ -88,9 +80,10 @@ namespace Base
         /// \brief Everything that must be done before starting the time-integration.
         ///
         /// For example, user-defined integrals can be computed here. 
-        virtual void beforeTimeIntegration() { }
+        virtual void beforeTimeIntegration()
+        {
+        }
         
-
         virtual void computeRhsLocal()
         {
             throw "If you want to call the function \'computeRhsLocal\', please implement it";
@@ -104,13 +97,13 @@ namespace Base
         /**
          * \brief Executes one time step.
          */
-        virtual void computeOneTimeStep ();
+        virtual void computeOneTimeStep();
 
         /**
          * \brief Performs (MPI) synchronisation between meshes
          */
         virtual void synchronize(std::size_t meshID = 0);
-        
+
         /// \brief Does time integration.
         virtual bool solve();
 
@@ -120,26 +113,25 @@ namespace Base
         /// \brief Performs all the face integrations
         void doAllFaceIntegration(std::size_t meshID = 0);
 
-        void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t) > function, std::string name)
+        void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
         {
-            VTKDoubleWrite_.push_back({function, name});
+            VTKDoubleWrite_.push_back( {function, name});
         }
 
-        void registerVTKWriteFunction(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t) > function, std::string name)
+        void registerVTKWriteFunction(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
         {
-            VTKVectorWrite_.push_back({function, name});
+            VTKVectorWrite_.push_back( {function, name});
         }
 
-        void registerVTKWriteFunction(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t) > function, std::string name)
+        void registerVTKWriteFunction(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
         {
-            VTKMatrixWrite_.push_back({function, name});
+            VTKMatrixWrite_.push_back( {function, name});
         }
 
         virtual void writeToTecplotFile(const ElementT*, const PointReferenceT&, std::ostream&)
         {
             throw "If you want to call the function \'writeToTecplotFile\', please implement it";
         }
-
 
     protected:
 

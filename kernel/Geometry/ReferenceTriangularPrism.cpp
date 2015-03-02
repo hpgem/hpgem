@@ -248,7 +248,7 @@ namespace Geometry
             
     // =============================== Refinement mappings =====================================
     
-    void ReferenceTriangularPrism::refinementTransform(std::size_t refineType, std::size_t subElementIdx, 
+    void ReferenceTriangularPrism::refinementTransform(int refineType, std::size_t subElementIdx,
                   const PointReferenceT& p, PointReferenceT& pMap) const 
     {
         switch (refineType)
@@ -468,7 +468,7 @@ namespace Geometry
         }
     }  // end of refinementTransform
 
-    void ReferenceTriangularPrism::getRefinementMappingMatrixL(std::size_t refineType, std::size_t subElementIdx, 
+    void ReferenceTriangularPrism::getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx,
                 LinearAlgebra::Matrix& Q) const 
     {
         Q.resize(4,4);
@@ -656,7 +656,7 @@ namespace Geometry
         }
     }  // end of getRefinementMappingMatrixL
 
-    void ReferenceTriangularPrism::getRefinementMappingMatrixR(std::size_t refineType, std::size_t subElementIdx, 
+    void ReferenceTriangularPrism::getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx,
                 LinearAlgebra::Matrix& Q) const 
     {
         Q.resize(4,4);
@@ -844,7 +844,7 @@ namespace Geometry
         }
     }  // end of getRefinementMappingMatrixR
 
-    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixL(std::size_t refineType, DimT subElementIdx, 
+    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixL(int refineType, DimT subElementIdx,
                               DimT faLocalIndex, LinearAlgebra::Matrix& Q) const 
     {
         int faRefinementType(-1);
@@ -1013,7 +1013,7 @@ namespace Geometry
         }
     }  // end of getCodim1RefinementMappingMatrixL
 
-    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixR(std::size_t refineType, DimT subElementIdx, 
+    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixR(int refineType, DimT subElementIdx,
                               DimT faLocalIndex, LinearAlgebra::Matrix& Q) const 
     {
         int faRefinementType(-1);
