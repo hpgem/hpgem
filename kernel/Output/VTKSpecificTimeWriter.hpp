@@ -61,7 +61,7 @@ namespace Output {
     private:
         std::ofstream localFile_;
         std::ofstream masterFile_;
-        uint32_t totalPoints_;
+        std::uint32_t totalPoints_;
         const Base::MeshManipulator* mesh_;
         std::size_t timelevel_;
     };

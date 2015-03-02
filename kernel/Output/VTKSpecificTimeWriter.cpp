@@ -80,7 +80,7 @@ static std::unordered_map<std::type_index,VTKElementName> hpGEMToVTK =
 Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName, const Base::MeshManipulator* mesh, std::size_t timelevel) : mesh_(mesh), totalPoints_(0), timelevel_(timelevel)
 {
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
-    uint32_t totalData;
+    std::uint32_t totalData;
     if(id == 0)
     {
         masterFile_.open(baseName + ".pvtu");
@@ -111,7 +111,7 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
     localFile_ << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"" << (Detail::isBigEndian()?"BigEndian":"LittleEndian") << "\">" << std::endl;
     localFile_ << "  <UnstructuredGrid>" << std::endl;
     //the number of points is not an inherent quantity of the mesh, because we have to repeat nodes to allow discontinuous data
-    uint32_t totalElements{(uint32_t)mesh_->getElementsList().size()};
+    std::uint32_t totalElements{(std::uint32_t)mesh_->getElementsList().size()};
     for(Base::Element* element:mesh_->getElementsList())
     {
         totalPoints_+=element->getNrOfNodes();
@@ -124,7 +124,7 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
     Geometry::PointPhysical usefullNode(3);
     const int DIM = mesh->dimension();
     Geometry::PointPhysical actualNode(DIM);
-    std::vector<uint32_t> cumulativeNodesPerElement;
+    std::vector<std::uint32_t> cumulativeNodesPerElement;
     cumulativeNodesPerElement.reserve(totalElements+1);
     cumulativeNodesPerElement.push_back(0);
     std::vector<VTKElementName> elementTypes;
@@ -150,7 +150,7 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
     localFile_ << "        <DataArray type=\"UInt32\" Name=\"connectivity\" format=\"binary\">" << std::endl << "          ";
     totalData=totalPoints_*sizeof(totalPoints_);
     localFile_ << Detail::toBase64((void*)&totalData,sizeof(totalPoints_));
-    std::vector<uint32_t> index(totalPoints_);
+    std::vector<std::uint32_t> index(totalPoints_);
     for(std::size_t i=0;i<totalPoints_;++i)
     {
         index[i]=i;
@@ -212,7 +212,7 @@ void Output::VTKSpecificTimeWriter::write(std::function<double(Base::Element*, c
             data.push_back(dataCompute(element, node, timelevel_));
         }
     }
-    uint32_t totalData = sizeof(double)*data.size();
+    std::uint32_t totalData = sizeof(double)*data.size();
     localFile_ << "        " << Detail::toBase64((void*)&totalData,sizeof(totalPoints_)) << Detail::toBase64((void*)data.data(), totalData) << std::endl;
     localFile_ << "      </DataArray>" << std::endl;
 }
@@ -245,7 +245,7 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::Numerical
             }
         }
     }
-    uint32_t totalData = sizeof(double)*data.size();
+    std::uint32_t totalData = sizeof(double)*data.size();
     localFile_ << "        " << Detail::toBase64((void*)&totalData,sizeof(totalPoints_)) << Detail::toBase64((void*)data.data(), totalData) << std::endl;
     localFile_ << "      </DataArray>" << std::endl;
 }
@@ -287,7 +287,7 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::Matrix(Ba
             }
         }
     }
-    uint32_t totalData = sizeof(double)*data.size();
+    std::uint32_t totalData = sizeof(double)*data.size();
     localFile_ << "        " << Detail::toBase64((void*)&totalData,sizeof(totalPoints_)) << Detail::toBase64((void*)data.data(), totalData) << std::endl;
     localFile_ << "      </DataArray>" << std::endl;
 }

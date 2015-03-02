@@ -208,7 +208,7 @@ public:
     }
     double sourceTerm(const PointPhysicalT& point)
     {
-        return sin(2 * M_PI * point[0]) * (4 * M_PI * M_PI) * cos(2 * M_PI * point[1]) * cos(2 * M_PI * point[2]) * 3;
+        return std::sin(2 * M_PI * point[0]) * (4 * M_PI * M_PI) * std::cos(2 * M_PI * point[1]) * std::cos(2 * M_PI * point[2]) * 3;
     }
 
     ///interpolates the source term

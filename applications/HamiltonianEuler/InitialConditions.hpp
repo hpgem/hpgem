@@ -441,7 +441,7 @@ private:
 //     {
 //       if ((k*l)==0)
 //       {
-//         return sqrt(2);
+//         return std::sqrt(2);
 //       }
 //       else
 //       {
@@ -451,7 +451,7 @@ private:
 //     
 //     double oneOverNu(int k,int l)const
 //     {
-//       return 1/(pi*sqrt((k*k)/(lx_*lx_)+(l*l)/(ly_*ly_)));
+//       return 1/(pi*std::sqrt((k*k)/(lx_*lx_)+(l*l)/(ly_*ly_)));
 //     }
 //     
 // 

@@ -35,22 +35,22 @@ class TecplotWriteFunction:public Output::TecplotSingleElementWriter
         // 	double exactSolutionP(const PhysSpacePoint<dim>& pPhys)
         // 	{
         // //std::cout<<"currentTime"<<CurrentTime<<endl;
-        // 		return 2*cos(2*pi*(pPhys[0] + pPhys[1] + pPhys[2]) + sqrt(3)*currTime/3)/(4*pi*pi);
+        // 		return 2*std::cos(2*pi*(pPhys[0] + pPhys[1] + pPhys[2]) + std::sqrt(3)*currTime/3)/(4*pi*pi);
         // 	}
         //
         // 	double exactSolutionU(const PhysSpacePoint<dim>& pPhys)
         // 	{
-        // 		return (sqrt(3)*cos(2*pi*(pPhys[0] + pPhys[1] + pPhys[2]) + sqrt(3)*currTime/3)+3*sin(2*pi*(pPhys[0] + pPhys[1] + pPhys[2])  + sqrt(3)*currTime/3))/pi/2;
+        // 		return (std::sqrt(3)*std::cos(2*pi*(pPhys[0] + pPhys[1] + pPhys[2]) + std::sqrt(3)*currTime/3)+3*sin(2*pi*(pPhys[0] + pPhys[1] + pPhys[2])  + std::sqrt(3)*currTime/3))/pi/2;
         // 	}
         //
         // 	double exactSolutionV(const PhysSpacePoint<dim>& pPhys)
         // 	{
-        // 		return (sqrt(3)*cos(2*pi*(pPhys[0] + pPhys[1] + pPhys[2]) + sqrt(3)*currTime/3)-3*sin(2*pi*(pPhys[0] + pPhys[1] + pPhys[2])  + sqrt(3)*currTime/3))/pi/2;
+        // 		return (std::sqrt(3)*std::cos(2*pi*(pPhys[0] + pPhys[1] + pPhys[2]) + std::sqrt(3)*currTime/3)-3*sin(2*pi*(pPhys[0] + pPhys[1] + pPhys[2])  + std::sqrt(3)*currTime/3))/pi/2;
         // 	}
         //
         // 	double exactSolutionW(const PhysSpacePoint<dim>& pPhys)
         // 	{
-        // 		return -(2*sqrt(3)*cos(2*pi*(pPhys[0] + pPhys[1] + pPhys[2]) + sqrt(3)*currTime/3))/pi/2;
+        // 		return -(2*std::sqrt(3)*std::cos(2*pi*(pPhys[0] + pPhys[1] + pPhys[2]) + std::sqrt(3)*currTime/3))/pi/2;
         // 	}
 	
 	
@@ -161,7 +161,7 @@ public:
 //        
 //        *energyFile_ << std::setprecision (6)<<time_ <<" "<<totalEnergy <<endl;
 //        *energyExfile_<< std::setprecision (6) <<time_ <<" "<< totalPressure <<endl;
-//        *l2errorfile_<< std::setprecision (4)<<time_<<"\t\t"<< std::setprecision (10)<< sqrt(totalErrorU) <<"\t\t"<< sqrt(totalErrorV)<<"\t\t"<< sqrt(totalErrorW)<<"\t\t"<< sqrt(totalErrorP)<<endl;
+//        *l2errorfile_<< std::setprecision (4)<<time_<<"\t\t"<< std::setprecision (10)<< std::sqrt(totalErrorU) <<"\t\t"<< std::sqrt(totalErrorV)<<"\t\t"<< std::sqrt(totalErrorW)<<"\t\t"<< std::sqrt(totalErrorP)<<endl;
     }
     
 public:

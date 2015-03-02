@@ -52,11 +52,11 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
 		if(i<8){
 			assert(("integration",std::abs(integrated-1)<1e-12));
 		}else if(i<20){
-			assert(("integration",std::abs(integrated+sqrt(2./3.))<1e-12));
+			assert(("integration",std::abs(integrated+std::sqrt(2./3.))<1e-12));
 		}else if(i<26){
 			assert(("integration",std::abs(integrated-2./3.)<1e-12));
 		}else if(i==26){
-			assert(("integration",std::abs(integrated+sqrt(2./3.)*2./3.)<1e-12));
+			assert(("integration",std::abs(integrated+std::sqrt(2./3.)*2./3.)<1e-12));
 		}else{
 			assert(("integration",std::abs(integrated)<1e-12));
 		}

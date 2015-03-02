@@ -44,12 +44,12 @@ class Laplace : public Base::HpgemUISimplified{
 
 		//has an almost exact copy near the element integrand for the source term
 	    double sourceTerm(const PointPhysicalT& p){
-	    	double ret=sin(2*M_PI*p[0]);
+	    	double ret=std::sin(2*M_PI*p[0]);
 	    	if(p.size()>1){
-	    		ret*=cos(2*M_PI*p[1])/2.;
+	    		ret*=std::cos(2*M_PI*p[1])/2.;
 	    	}
 	    	if(p.size()>2){
-	    		ret*=cos(2*M_PI*p[2])*2.;
+	    		ret*=std::cos(2*M_PI*p[2])*2.;
 	    	}
 	    	return ret;
 	    }
@@ -99,12 +99,12 @@ public:
 
 	//has an exact copy in the error class
     double sourceTerm(const PointPhysicalT& p){
-    	double ret=sin(2*M_PI*p[0])*(4*M_PI*M_PI);
+    	double ret=std::sin(2*M_PI*p[0])*(4*M_PI*M_PI);
     	if(DIM_>1){
-    		ret*=cos(2*M_PI*p[1]);
+    		ret*=std::cos(2*M_PI*p[1]);
     	}
     	if(DIM_>2){
-    		ret*=cos(2*M_PI*p[2])*3;
+    		ret*=std::cos(2*M_PI*p[2])*3;
     	}
     	return ret;
     }

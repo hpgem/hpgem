@@ -35,7 +35,7 @@ Compressible3DOneThirdPeriodic::Compressible3DOneThirdPeriodic(double lx, double
 {
 	k_ 			= 1*2*Pi/lx_;
 	l_ 			= 1*2*Pi/ly_;
-	sigma_ 		= 1/(sqrt(k_*k_+l_*l_+1));
+	sigma_ 		= 1/(std::sqrt(k_*k_+l_*l_+1));
 
 	cout<< "k="<<k_<<", l="<<l_<<", sigma="<<sigma_<<endl;
 }
@@ -197,25 +197,25 @@ Incompressible3DPeriodic::Incompressible3DPeriodic():
 double
 Incompressible3DPeriodic::getU(const PointPhysicalT& pPhys, double t)const
 {
-	return (sqrt(3)*cos(2*Pi*(pPhys[0] + pPhys[1] + pPhys[2]) + sqrt(3)*t/3)+3*sin(2*Pi*(pPhys[0] + pPhys[1] + pPhys[2])  + sqrt(3)*t/3))/Pi/2;
+	return (std::sqrt(3)*cos(2*Pi*(pPhys[0] + pPhys[1] + pPhys[2]) + std::sqrt(3)*t/3)+3*sin(2*Pi*(pPhys[0] + pPhys[1] + pPhys[2])  + std::sqrt(3)*t/3))/Pi/2;
 }
 
 double
 Incompressible3DPeriodic::getV(const PointPhysicalT& pPhys, double t)const
 {
-	return (sqrt(3)*cos(2*Pi*(pPhys[0] + pPhys[1] + pPhys[2]) + sqrt(3)*t/3)-3*sin(2*Pi*(pPhys[0] + pPhys[1] + pPhys[2])  + sqrt(3)*t/3))/Pi/2;
+	return (std::sqrt(3)*cos(2*Pi*(pPhys[0] + pPhys[1] + pPhys[2]) + std::sqrt(3)*t/3)-3*sin(2*Pi*(pPhys[0] + pPhys[1] + pPhys[2])  + std::sqrt(3)*t/3))/Pi/2;
 }
 		
 double
 Incompressible3DPeriodic::getW(const PointPhysicalT& pPhys, double t)const
 {
-	return -(2*sqrt(3)*cos(2*Pi*(pPhys[0] + pPhys[1] + pPhys[2]) + sqrt(3)*t/3))/Pi/2;
+	return -(2*std::sqrt(3)*cos(2*Pi*(pPhys[0] + pPhys[1] + pPhys[2]) + std::sqrt(3)*t/3))/Pi/2;
 }
 		
 double
 Incompressible3DPeriodic::getP(const PointPhysicalT& pPhys, double t)const
 {
-	return 2*cos(2*Pi*(pPhys[0] + pPhys[1] + pPhys[2]) + sqrt(3)*t/3)/(4*Pi*Pi);
+	return 2*cos(2*Pi*(pPhys[0] + pPhys[1] + pPhys[2]) + std::sqrt(3)*t/3)/(4*Pi*Pi);
 }
 
 InitialVelocityConstructorTaylor::InitialVelocityConstructorTaylor():
@@ -249,7 +249,7 @@ InitialVelocityConstructorTaylor::InitialVelocityConstructorTaylor(double lx, do
 			ComplexNumber a;
 			for (int j=1;j<=size_;++j)
 			{
-				//a = Pi/lx_*sqrt((lx_/Pi)*(lx_/Pi) + j*j - a_*a_);
+				//a = Pi/lx_*std::sqrt((lx_/Pi)*(lx_/Pi) + j*j - a_*a_);
 				muj_[j] = Pi/lx_*std::sqrt(static_cast<ComplexNumber>((lx_/Pi)*(lx_/Pi) + j*j - a_*a_));
 				
 				std::cerr<<endl;

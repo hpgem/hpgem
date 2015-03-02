@@ -28,23 +28,23 @@ namespace Utilities {
 	double LobattoPolynomial(int degree, double x) {
 		switch (degree) {
 		case 0:
-			return sqrt(3. / 2.) * -2.;
+			return std::sqrt(3. / 2.) * -2.;
 		case 1:
-			return sqrt(5. / 2.) * x * -2.;
+			return std::sqrt(5. / 2.) * x * -2.;
 		case 2:
-			return sqrt(7. / 2.) * (5 * x * x - 1) / -2.;
+			return std::sqrt(7. / 2.) * (5 * x * x - 1) / -2.;
 		case 3:
-			return sqrt(9. / 2.) * (7 * x * x - 3) * x / -2.;
+			return std::sqrt(9. / 2.) * (7 * x * x - 3) * x / -2.;
 		case 4://higher order cases currently implemented only to support automatic testing of quadrature rules
-			return sqrt(11./ 2.) * ((21 * x * x - 14) * x * x + 1) / -4.;
+			return std::sqrt(11./ 2.) * ((21 * x * x - 14) * x * x + 1) / -4.;
 		case 5:
-			return sqrt(13./ 2.) * ((33 * x * x - 30 * x * x) + 5) * x / -4.;
+			return std::sqrt(13./ 2.) * ((33 * x * x - 30 * x * x) + 5) * x / -4.;
 		case 6:
-			return sqrt(15./ 2.) * (((429 * x * x - 495) * x * x + 135) * x * x - 5) / -32.;
+			return std::sqrt(15./ 2.) * (((429 * x * x - 495) * x * x + 135) * x * x - 5) / -32.;
 		case 7:
-			return sqrt(17./ 2.) * (((715 * x * x - 1001) * x * x + 385) * x * x - 35) * x / -32.;
+			return std::sqrt(17./ 2.) * (((715 * x * x - 1001) * x * x + 385) * x * x - 35) * x / -32.;
 		case 8:
-			return sqrt(19./ 2.) * ((((2431 * x * x - 4004) * x * x + 2002) * x * x - 308) * x * x + 7) / -64.;
+			return std::sqrt(19./ 2.) * ((((2431 * x * x - 4004) * x * x + 2002) * x * x - 308) * x * x + 7) / -64.;
 		case 9:
 			throw "cannot find this one";
 		default:
@@ -57,11 +57,11 @@ namespace Utilities {
 		case 0:
 			return 0;
 		case 1:
-			return -2 * sqrt(5. / 2.);
+			return -2 * std::sqrt(5. / 2.);
 		case 2:
-			return -2 * sqrt(7. / 2.) * (2.5 * x);
+			return -2 * std::sqrt(7. / 2.) * (2.5 * x);
 		case 3:
-			return -2 * sqrt(9. / 2.) * (5.25 * x * x - .75);
+			return -2 * std::sqrt(9. / 2.) * (5.25 * x * x - .75);
 		default:
 			throw "derivatives of lobatto polynomials of this order have not been implemented";
 		}

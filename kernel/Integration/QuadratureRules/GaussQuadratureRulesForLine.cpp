@@ -147,10 +147,10 @@ namespace QuadratureRules
         refGeoPtr_(&ReferenceLine::Instance()),gp_(2,1)
     {
         weight_[0] = 1.0;
-        gp_[0][0] = -sqrt(3.0) / 3.0;
+        gp_[0][0] = -std::sqrt(3.0) / 3.0;
 
         weight_[1] = 1.0;
-        gp_[1][0] = +sqrt(3.0) / 3.0;
+        gp_[1][0] = +std::sqrt(3.0) / 3.0;
 
     }
 
@@ -212,13 +212,13 @@ namespace QuadratureRules
         refGeoPtr_(&ReferenceLine::Instance()),gp_(3,1)
     {
         weight_[0] = 5. / 9.;
-        gp_[0][0] = -sqrt(3.0 / 5.0);
+        gp_[0][0] = -std::sqrt(3.0 / 5.0);
 
         weight_[1] = 8. / 9.;
         gp_[1][0] = 0.0;
 
         weight_[2] = 5. / 9.;
-        gp_[2][0] = +sqrt(3.0 / 5.0);
+        gp_[2][0] = +std::sqrt(3.0 / 5.0);
 
     }
 

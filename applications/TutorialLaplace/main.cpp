@@ -217,7 +217,7 @@ public:
     ///Here: f(x,y) = -8pi^2 * sin(2pi x) * sin(2pi y).
     double source(const PointPhysicalT& p)
     {
-        return (-8 * M_PI * M_PI) * sin(2 * M_PI * p[0]) * cos(2 * M_PI * p[1]);
+        return (-8 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
     }
 
     //For the right hand side, we also need to integrate over elements and faces. 
