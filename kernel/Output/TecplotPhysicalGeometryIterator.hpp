@@ -75,7 +75,7 @@ namespace Output
         bool more() const;
 
         /// \brief Return the current node number.
-        unsigned int getNodeNr();
+        std::size_t getNodeNr();
 
     private:
         TecplotPhysicalGeometryIterator();
@@ -84,7 +84,7 @@ namespace Output
         virtual ~TecplotPhysicalGeometryIterator() { }
 
         typedef int InternalIndexType;
-        typedef std::vector<unsigned int> VectorOfNodeIndexes;
+        typedef std::vector<std::size_t> VectorOfNodeIndexes;
         VectorOfNodeIndexes hypercubeNodes;
         VectorOfNodeIndexes hexahedronNodes;
         VectorOfNodeIndexes cubeNodes;

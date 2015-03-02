@@ -28,53 +28,52 @@
 #include <utility>
 #include <string>
 
-namespace Base {
-	class MeshManipulator;
+namespace Base
+{
+    class MeshManipulator;
 }
 
 namespace Output
 {
-	class TecplotSingleElementWriter;
+    class TecplotSingleElementWriter;
 
+     //! \brief This class prints the nodes and the solution in every element in Tecplot format.
     class TecplotDiscontinuousSolutionWriter
     {
-
-        //! \brief This class prints the nodes and the solution in every element in Tecplot format.
-
     public:
 
         typedef std::string StringT;
 
-    public:
-
         TecplotDiscontinuousSolutionWriter(
-        		std::ostream& output,
-                const std::string& fileTitle,
-                const std::string& dimensionsToWrite,
-                const std::string& variableString);
+            std::ostream& output,
+            const std::string& fileTitle,
+            const std::string& dimensionsToWrite,
+            const std::string& variableString);
 
         /// Write a zone with data from the current mesh to the stream held by the object.
         void write(const Base::MeshManipulator* mesh,
-                   const std::string& zoneTitle,
-                   const bool sameGeometry,
-                   TecplotSingleElementWriter* writeDataClass,
-                   const double time=0
-                   );
+            const std::string& zoneTitle,
+            const bool sameGeometry,
+            TecplotSingleElementWriter* writeDataClass,
+            const double time = 0
+            );
 
-	/// Write a zone with data from the current mesh to the stream held by the object. (class member write function)
-	/// Has the exact same behaviour as the other write function except it uses OBJ::writeDataFunc() as the write function
-    /*    template <typename OBJ, typename WriteFunction>
-        void write(const Base::MeshManipulator* mesh,
-                   const std::string& zoneTitle,
-                   const bool sameGeometry,
-                   WriteFunction& writeDataFunc,
-                   OBJ* objPtr                   
-                   );*/
-	
-        /// TODO: Perfect this deconstructor.
+        /// Write a zone with data from the current mesh to the stream held by the object. (class member write function)
+        /// Has the exact same behaviour as the other write function except it uses OBJ::writeDataFunc() as the write function
+        /*    template <typename OBJ, typename WriteFunction>
+            void write(const Base::MeshManipulator* mesh,
+                       const std::string& zoneTitle,
+                       const bool sameGeometry,
+                       WriteFunction& writeDataFunc,
+                       OBJ* objPtr                   
+                       );*/
+
+        /// \TODO: Perfect this destructor.
+        /// should dimensionsToWrite_ and dimNrs be deallocated here?
         ~TecplotDiscontinuousSolutionWriter()
         {
             output_.flush();
+            delete dimNrs;
         }
 
     private:
@@ -83,17 +82,17 @@ namespace Output
 
         std::ostream& output_;
 
-        unsigned int previousNrOfElements_;
+        std::size_t previousNrOfElements_;
 
-        unsigned int previousNrOfNodes_;
+        std::size_t previousNrOfNodes_;
 
         std::string elementType_[5];
 
-        int* dimensionsToWrite_;
+        std::size_t* dimensionsToWrite_;
 
-        const unsigned int nDimensionsToWrite_;
-        
-        unsigned int* dimNrs;
+        const std::size_t nDimensionsToWrite_;
+
+        std::size_t* dimNrs;
     };
 }
 #endif

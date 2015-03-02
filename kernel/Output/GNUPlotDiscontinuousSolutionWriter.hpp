@@ -24,14 +24,15 @@ namespace Geometry
 
 namespace Output
 {
-
-  ///class to write the data of a single element.
-  class SingleElementWriter
-  {
-  public:
-    ///function that acutally writes the data for one node on one element.
-    virtual void writeOutput(const Base::Element*, const Geometry::PointReference&, std::ostream&)=0;
-  } ;
+    ///class to write the data of a single element.
+    class SingleElementWriter
+    {
+    public:
+        ///function that actually writes the data for one node on one element.
+        /// it is purely virtual, since there is no default for what needs to be
+        /// written.
+        virtual void writeOutput(const Base::Element*, const Geometry::PointReference&, std::ostream&) = 0;
+    };
 
   /// \brief This class prints the solution in every element.
   ///
@@ -40,11 +41,10 @@ namespace Output
   /// DiscontinuousSolutionWriter testWriter(outStream, "title", "01", "u");
   /// testWriter.write(mesh);
   /// Then open gnuplot and plot with the command: splot "output.dat"
+  /// Has only been tested for 2D geometries.
   class GNUPlotDiscontinuousSolutionWriter
   {
   public:
-
-    typedef std::string StringT;
 
     ///Constructor: Initialise the output stream and write the header.
     GNUPlotDiscontinuousSolutionWriter(
@@ -56,7 +56,8 @@ namespace Output
     /// Write the data to the stream ouput_.
     void write(const Base::MeshManipulator* mesh, SingleElementWriter* writeDataClass);
 
-    /// TODO: Perfect this deconstructor. Irana: there's no pointers, do we need better dtor?
+    ///Destructor: just flush the output stream, the rest will be destructed 
+    /// automatically.
     ~GNUPlotDiscontinuousSolutionWriter()
     {
       output_.flush();
@@ -68,7 +69,7 @@ namespace Output
     std::ostream& output_;
 
     ///Number of physical dimensions of the domain of the problem.
-    const unsigned int nDimensionsToWrite_;
+    const std::size_t nDimensionsToWrite_;
   } ;
 }
 

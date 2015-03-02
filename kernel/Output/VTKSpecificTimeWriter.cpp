@@ -53,7 +53,7 @@ static Logger<LOG_LEVEL> logger("VTK discontinuous solution writer (single time)
 //vtk element types supported by hpGEM
 //magic numbers taken from http://www.vtk.org/VTK/img/file-formats.pdf
 //smaller underlying type allows for easy conversion to base64
-enum class VTKElementName : uint8_t 
+enum class VTKElementName : std::uint8_t 
 {
     VERTEX=1,
     LINE=3,
@@ -122,7 +122,7 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
     totalData=3*totalPoints_*sizeof(double);
     localFile_ << Detail::toBase64((void*)&totalData,sizeof(totalData));
     Geometry::PointPhysical usefullNode(3);
-    const int DIM = mesh->dimension();
+    const std::size_t DIM = mesh->dimension();
     Geometry::PointPhysical actualNode(DIM);
     std::vector<std::uint32_t> cumulativeNodesPerElement;
     cumulativeNodesPerElement.reserve(totalElements+1);

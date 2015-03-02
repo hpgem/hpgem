@@ -20,7 +20,7 @@
  */
 
 
-#include <list>
+#include <vector>
 #include <cassert>
 
 #include "GNUPlotDiscontinuousSolutionWriter.hpp"
@@ -51,7 +51,7 @@ namespace Output
     {
         output_ << "TITLE = \"" << fileTitle << "\"\n";
         output_ << "VARIABLES = ";
-        for (unsigned int i = 0; i < nDimensionsToWrite_; ++i)
+        for (std::size_t i = 0; i < nDimensionsToWrite_; ++i)
         {
             output_ << "\"x" << dimensionsToWrite[i] << "\", ";
         }
@@ -88,8 +88,6 @@ namespace Output
         // We do this by getting the element list from the mesh, and then iterating over the
         // elements.
         
-        
-        //(@Irana) Does GNUPlot se the same node ordering as Tecplot, for all element types? -FB
         //make an iterator that can iterate over all nodes.
         TecplotPhysicalGeometryIterator& nodeIt = TecplotPhysicalGeometryIterator::Instance();
 
@@ -110,7 +108,7 @@ namespace Output
             // Cycle through nodes
             while (nodeIt.more())
             {
-                const unsigned int localNode = nodeIt.getNodeNr();
+                const std::size_t localNode = nodeIt.getNodeNr();
 
                 // For the solution data, write function of the user, however we pass a local
                 // coordinate of the current reference element
@@ -121,7 +119,7 @@ namespace Output
                 (*eltIterator)->referenceToPhysical(pRef, pPhys);
 
                 //write the physical coordinates of the point
-                for (unsigned int i = 0; i < nDimensionsToWrite_; ++i)
+                for (std::size_t i = 0; i < nDimensionsToWrite_; ++i)
                 {
                     output_.precision(6);
                     output_.width(12);
