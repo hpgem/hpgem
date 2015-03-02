@@ -3837,7 +3837,7 @@ namespace Base {
         std::set<PointIndexT> diffNodesR;
         std::set_difference(setR.begin(), setR.end(), commNodes.begin(), commNodes.end(), std::inserter(diffNodesR, diffNodesR.end()));
 
-        typedef std::set<PointIndexT>::iterator SetIterType;
+        using SetIterType = std::set<PointIndexT>::iterator;
 
         // do collinear test for all possible pairs
         pairingValue = 1;

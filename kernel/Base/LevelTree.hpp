@@ -46,11 +46,11 @@ namespace Base
     {
 
     public:
-        typedef V valueT;
-        typedef TreeEntry<V> treeEntryT;
+        using valueT = V;
+        using treeEntryT = TreeEntry<V>;
         //  this is our (rather special) iterator 
-        typedef TreeIterator<V,TreeEntry<V> > iterator;
-        typedef unsigned int DimT;
+        using iterator = TreeIterator<V,TreeEntry<V> >;
+        using DimT = unsigned int;
 
         LevelTree();
 

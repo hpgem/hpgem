@@ -46,10 +46,10 @@ namespace Geometry
     class MappingToPhysSimplexLinear: public MappingReferenceToPhysical
     {
         private:
-            typedef Geometry::PhysicalGeometry PhysicalGeometryT;
-            typedef Geometry::PointReference PointReferenceT;
-            typedef Geometry::PointPhysical PointPhysicalT;
-            typedef Geometry::Jacobian JacobianT;
+            using PhysicalGeometryT = Geometry::PhysicalGeometry;
+            using PointReferenceT = Geometry::PointReference;
+            using PointPhysicalT = Geometry::PointPhysical;
+            using JacobianT = Geometry::Jacobian;
 
         public:
             MappingToPhysSimplexLinear(const PhysicalGeometryT*const& pG):a(DIM+1,DIM){

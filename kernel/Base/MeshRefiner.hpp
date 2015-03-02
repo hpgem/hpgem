@@ -37,7 +37,7 @@ namespace Base
 	  MeshRefiner();
 	  
       private:
-	  typedef Vector<unsigned int> VectorOfLocalIndices;
+	  using VectorOfLocalIndices = Vector<unsigned int>;
 	  
 	  LocalIndexT	createNewNodes(const ElementIteratorT el, const RefinementT refType);
 	  

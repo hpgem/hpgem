@@ -48,10 +48,10 @@ namespace Geometry
     class MappingToPhysHypercubeLinear<1>: public MappingReferenceToPhysical
     {
         public:
-            typedef Geometry::PhysicalGeometry PhysicalGeometryT;
-            typedef Geometry::PointReference PointReferenceT;
-            typedef Geometry::PointPhysical PointPhysicalT;
-            typedef Geometry::Jacobian JacobianT;
+            using PhysicalGeometryT = Geometry::PhysicalGeometry;
+            using PointReferenceT = Geometry::PointReference;
+            using PointPhysicalT = Geometry::PointPhysical;
+            using JacobianT = Geometry::Jacobian;
 
         public:
             MappingToPhysHypercubeLinear(const PhysicalGeometryT*const&);
@@ -70,11 +70,11 @@ namespace Geometry
     class MappingToPhysHypercubeLinear<2>: public MappingReferenceToPhysical
     {
         public:
-            typedef Geometry::PhysicalGeometry PhysicalGeometryT;
-            typedef Geometry::PointReference PointReferenceT;
-            typedef Geometry::PointPhysical PointPhysicalT;
-            typedef Geometry::Jacobian JacobianT;
-
+            using PhysicalGeometryT = Geometry::PhysicalGeometry;
+            using PointReferenceT = Geometry::PointReference;
+            using PointPhysicalT = Geometry::PointPhysical;
+            using JacobianT = Geometry::Jacobian;
+        
         public:
             // Constructor.
             MappingToPhysHypercubeLinear(const PhysicalGeometryT*const&);
@@ -93,11 +93,11 @@ namespace Geometry
     class MappingToPhysHypercubeLinear<3>: public MappingReferenceToPhysical
     {
         public:
-            typedef Geometry::PhysicalGeometry PhysicalGeometryT;
-            typedef Geometry::PointReference PointReferenceT;
-            typedef Geometry::PointPhysical PointPhysicalT;
-            typedef Geometry::Jacobian JacobianT;
-
+            using PhysicalGeometryT = Geometry::PhysicalGeometry;
+            using PointReferenceT = Geometry::PointReference;
+            using PointPhysicalT = Geometry::PointPhysical;
+            using JacobianT = Geometry::Jacobian;
+        
         public:
             // Constructor.
             MappingToPhysHypercubeLinear(const PhysicalGeometryT*const&);
@@ -116,10 +116,10 @@ namespace Geometry
     class MappingToPhysHypercubeLinear<4>: public MappingReferenceToPhysical
     {
     public:
-        typedef Geometry::PhysicalGeometry PhysicalGeometryT;
-        typedef Geometry::PointReference PointReferenceT;
-        typedef Geometry::PointPhysical PointPhysicalT;
-        typedef Geometry::Jacobian JacobianT;
+        using PhysicalGeometryT = Geometry::PhysicalGeometry;
+        using PointReferenceT = Geometry::PointReference;
+        using PointPhysicalT = Geometry::PointPhysical;
+        using JacobianT = Geometry::Jacobian;
 
     public:
         // Constructor.

@@ -29,7 +29,7 @@ class MeshMover : public Base::MeshMoverBase
 
     public:
 
-        typedef Geometry::PointPhysical PointPhysicalT;
+        using PointPhysicalT = Geometry::PointPhysical;
 
     public:
 

@@ -44,7 +44,7 @@ namespace Geometry
     declared here because, in contrast to Ref2PhysSpaceMapping, it concerns RefSpacePoint objects
     as both arguments. */
     
-        //typedef MappingInterface<unsigned int dimFrom, unsigned int dimTo> shit;
+        //using shit = MappingInterface<unsigned int dimFrom, unsigned int dimTo> ;
     
     class MappingReferenceToReference: public MappingInterface
     {

@@ -57,34 +57,34 @@ namespace Base {
     {
     public:
 
-        typedef std::size_t PointIndexT;
-        typedef Element ElementT;
-        typedef Face FaceT;
-        typedef MeshMoverBase MeshMoverBaseT;
-        typedef Geometry::PointPhysical PointPhysicalT;
-        typedef Base::BasisFunctionSet BasisFunctionSetT;
+        using PointIndexT = std::size_t;
+        using ElementT = Element;
+        using FaceT = Face;
+        using MeshMoverBaseT = MeshMoverBase;
+        using PointPhysicalT = Geometry::PointPhysical;
+        using BasisFunctionSetT = Base::BasisFunctionSet;
 
-        typedef LevelTree<ElementT> ElementLevelTreeT;
-        typedef LevelTree<FaceT> FaceLevelTreeT;
+        using ElementLevelTreeT = LevelTree<ElementT>;
+        using FaceLevelTreeT = LevelTree<FaceT>;
 
-        typedef std::vector<FaceT*> ListOfFacesT;
-        typedef std::vector<ElementT*> ListOfElementsT;
-        typedef std::vector<ElementT* > VectorOfElementPtrT;
-        typedef std::vector<PointPhysicalT > VectorOfPhysicalPointsT;
-        typedef std::vector<PointIndexT> VectorOfPointIndicesT;
-        typedef std::vector<const BasisFunctionSetT*> CollectionOfBasisFunctionSets;
-        typedef std::vector<ElementLevelTreeT*> VecOfElementLevelTreePtrT;
-        typedef std::vector<FaceLevelTreeT*> VecOfFaceLevelTreePtrT;
+        using ListOfFacesT = std::vector<FaceT*>;
+        using ListOfElementsT = std::vector<ElementT*>;
+        using VectorOfElementPtrT = std::vector<ElementT* >;
+        using VectorOfPhysicalPointsT = std::vector<PointPhysicalT >;
+        using VectorOfPointIndicesT = std::vector<PointIndexT>;
+        using CollectionOfBasisFunctionSets = std::vector<const BasisFunctionSetT*>;
+        using VecOfElementLevelTreePtrT = std::vector<ElementLevelTreeT*>;
+        using VecOfFaceLevelTreePtrT = std::vector<FaceLevelTreeT*>;
 
 
-        //typedef typename ElementLevelTreeT::iterator        ElementIteratorT;
-        //typedef typename FaceLevelTreeT::iterator           FaceIteratorT;
+        //using ElementIteratorT = ElementLevelTreeT::iterator        ;
+        //using FaceIteratorT = FaceLevelTreeT::iterator           ;
 
-        typedef typename ListOfElementsT::const_iterator ConstElementIterator;
-        typedef typename ListOfElementsT::iterator ElementIterator;
+        using ConstElementIterator = ListOfElementsT::const_iterator;
+        using ElementIterator = ListOfElementsT::iterator;
 
-        typedef typename ListOfFacesT::const_iterator ConstFaceIterator;
-        typedef typename ListOfFacesT::iterator FaceIterator;
+        using ConstFaceIterator = ListOfFacesT::const_iterator;
+        using FaceIterator = ListOfFacesT::iterator;
 
 
     public:

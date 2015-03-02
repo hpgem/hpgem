@@ -92,10 +92,10 @@ namespace Geometry
     class MappingInterface
     {
         public:
-            //typedef Point                        PointToT;
-            //typedef PointPhysical                PointPhysicalT;
-            typedef PointReference             PointReferenceT;
-            typedef Jacobian            JacobianT;
+            //using PointToT = Point                        ;
+            //using PointPhysicalT = PointPhysical                ;
+            using PointReferenceT = PointReference;
+        using JacobianT = Jacobian;
 
         public:
             /*! (OC): Jacobian has a gradient in each line, hence as many lines as target

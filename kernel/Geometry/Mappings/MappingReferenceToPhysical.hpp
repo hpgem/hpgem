@@ -52,14 +52,14 @@ namespace Geometry
     {
         public:
             /// \bug This is a work around for g++ bug 14258 which is fixed in modern compliers so at some point change back
-            //typedef typename MappingInterface::PointToT           PointToT;
-            //typedef typename MappingInterface::PointPhysicalT     PointPhysicalT;
-            typedef typename MappingInterface::PointReferenceT    PointReferenceT;
-            typedef typename MappingInterface::JacobianT          JacobianT;
+            //using PointToT = MappingInterface::PointToT           ;
+            //using PointPhysicalT = MappingInterface::PointPhysicalT     ;
+            using PointReferenceT = MappingInterface::PointReferenceT;
+            using JacobianT = MappingInterface::JacobianT;
 
-            typedef PhysicalGeometry  PhysicalGeometryT;
+            using PhysicalGeometryT = PhysicalGeometry;
 
-            typedef const std::vector<PointPhysical>*    VectorOfPointsT;
+            using VectorOfPointsT = const std::vector<PointPhysical>*;
         
 
         public:

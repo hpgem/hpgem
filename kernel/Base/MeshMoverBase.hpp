@@ -32,7 +32,7 @@ namespace Base {
 
     public:
 
-        typedef Geometry::PointPhysical PointPhysicalT;
+        using PointPhysicalT = Geometry::PointPhysical;
 
     public:
 

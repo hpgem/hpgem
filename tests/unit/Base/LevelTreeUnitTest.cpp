@@ -119,14 +119,14 @@ template <unsigned int dim>
 class MeshManipulator
 {
   public:
-    typedef Element<dim>                            ElementT;
-    typedef Face<dim>                               FaceT;
-    typedef Base::LevelTree<ElementT>               ElementLevelTreeT;
-    typedef Base::LevelTree<FaceT>                  FaceLevelTreeT;
-    typedef typename ElementLevelTreeT::iterator    ElementIteratorT;
-    typedef typename FaceLevelTreeT::iterator       FaceIteratorT;
-    typedef std::vector<ElementLevelTreeT*>         VecOfElementLevelTreePtrT;
-    typedef std::vector<FaceLevelTreeT*>            VecOfFaceLevelTreePtrT;
+    using ElementT = Element<dim>;
+    using FaceT = Face<dim>;
+    using ElementLevelTreeT = Base::LevelTree<ElementT>;
+    using FaceLevelTreeT = Base::LevelTree<FaceT>;
+    using ElementIteratorT = typename ElementLevelTreeT::iterator;
+    using FaceIteratorT = typename FaceLevelTreeT::iterator;
+    using VecOfElementLevelTreePtrT = std::vector<ElementLevelTreeT*>;
+    using VecOfFaceLevelTreePtrT = std::vector<FaceLevelTreeT*>;
     
     MeshManipulator();
     ~MeshManipulator();
@@ -330,8 +330,8 @@ int main()
     srand ( seed );
 //     std::cout << "random number seed = " << seed << std::endl;
 
-    typedef Base::LevelTree<Element<dim> > LevelTreeT;
-    typedef std::vector<LevelTreeT*>  vecLevelTreePtrT;
+    using LevelTreeT = Base::LevelTree<Element<dim> >;
+    using vecLevelTreePtrT = std::vector<LevelTreeT*>;
     
     std::cout << "\nInitial test: adding people into a LevelTree and display them.\n";
     std::cout << "----------------------------------------------------------------\n";
