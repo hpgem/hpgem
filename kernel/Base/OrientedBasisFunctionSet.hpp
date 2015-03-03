@@ -34,13 +34,17 @@ namespace Base {
  */
 class OrientedBasisFunctionSet: public Base::BasisFunctionSet {
 public:
-	OrientedBasisFunctionSet(int order, int orientation,int face):BasisFunctionSet(order),orientation_(orientation),face_(face){}
+	OrientedBasisFunctionSet(std::size_t order, std::size_t orientation,std::size_t face)
+    :BasisFunctionSet(order),orientation_(orientation),face_(face){}
 	virtual ~OrientedBasisFunctionSet(){};
 
-	bool checkOrientation(int codim0mapIndex,int faceIndex)const{return codim0mapIndex==orientation_&&faceIndex==face_;}
+	bool checkOrientation(std::size_t codim0mapIndex,std::size_t faceIndex)const
+    {
+        return codim0mapIndex==orientation_&&faceIndex==face_;
+    }
 private:
-	int orientation_;
-	int face_;
+	std::size_t orientation_;
+	std::size_t face_;
 };
 
 } /* namespace Base */

@@ -17,17 +17,17 @@ void Base::Node::addElement(Element* element, std::size_t localNodeNr)
     element->setNode(localNodeNr, this);
 }
 
-Base::Element* Base::Node::getElement(int i)
+Base::Element* Base::Node::getElement(std::size_t i)
 {
     return elements_[i];
 }
 
-const Base::Element* Base::Node::getElement(int i) const
+const Base::Element* Base::Node::getElement(std::size_t i) const
 {
     return elements_[i];
 }
 
-size_t Base::Node::getNrOfElements() const
+std::size_t Base::Node::getNrOfElements() const
 {
     return elements_.size();
 }

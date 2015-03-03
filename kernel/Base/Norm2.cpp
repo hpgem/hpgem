@@ -47,7 +47,7 @@ namespace Utilities
     double norm2(const Geometry::PointPhysical& p)
     {
     	double retSquared(0);
-    	for(int i=0;i<p.size();++i){
+    	for(std::size_t i=0;i<p.size();++i){
     		retSquared+=p[i]*p[i];
     	}
         return std::sqrt(retSquared);

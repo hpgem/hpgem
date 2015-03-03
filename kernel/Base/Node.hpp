@@ -42,7 +42,7 @@ namespace Base
 
         void addElement(Element* element, std::size_t localNodeNr);
 
-        int getLocalNrOfBasisFunctions() const
+        std::size_t getLocalNrOfBasisFunctions() const
         {
             return nrOfConformingDOFOnTheNode_;
         }
@@ -54,26 +54,26 @@ namespace Base
 
         std::size_t getNrOfElements() const;
 
-        Element* getElement(int i);
-        const Element* getElement(int i) const;
+        Element* getElement(std::size_t i);
+        const Element* getElement(std::size_t i) const;
 
         const std::vector<Element*> getElements() const
         {
             return elements_;
         }
 
-        std::size_t getVertexNr(int i) const
+        std::size_t getVertexNr(std::size_t i) const
         {
             return localNodeNrs_[i];
         }
 
-        void setLocalNrOfBasisFunctions(int number)
+        void setLocalNrOfBasisFunctions(std::size_t number)
         {
             nrOfConformingDOFOnTheNode_ = number;
         }
     private:
 
-        //provide information to map back to a unique corner of the elemen
+        //provide information to map back to a unique corner of the element
         std::vector<Element*> elements_;
         std::vector<std::size_t> localNodeNrs_;
 

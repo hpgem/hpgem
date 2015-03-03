@@ -25,7 +25,7 @@
 #include "Geometry/PointReference.hpp"
 namespace Utilities {
 
-	double LobattoPolynomial(int degree, double x) {
+	double LobattoPolynomial(std::size_t degree, double x) {
 		switch (degree) {
 		case 0:
 			return std::sqrt(3. / 2.) * -2.;
@@ -52,7 +52,7 @@ namespace Utilities {
 		}
 	}
 
-	double LobattoPolynomialDerivative(int degree, double x) {
+	double LobattoPolynomialDerivative(std::size_t degree, double x) {
 		switch (degree) {
 		case 0:
 			return 0;
@@ -67,7 +67,7 @@ namespace Utilities {
 		}
 	}
 
-	double LegendrePolynomial(int degree, double x) {
+	double LegendrePolynomial(std::size_t degree, double x) {
 		switch (degree) {
 		case 0:
 			return 1;
@@ -79,7 +79,7 @@ namespace Utilities {
 		}
 	}
 
-	double LegendrePolynomialDerivative(int degree, double x) {
+	double LegendrePolynomialDerivative(std::size_t degree, double x) {
 		switch (degree) {
 		case 0:
 			return 0;
@@ -91,7 +91,7 @@ namespace Utilities {
 		}
 	}
 
-	double baricentric_3D(int node, const Geometry::PointReference& p) {
+	double baricentric_3D(std::size_t node, const Geometry::PointReference& p) {
 		if (node == 0) {
 			return 1 - p[0] - p[1] - p[2];
 		} else {
@@ -99,7 +99,7 @@ namespace Utilities {
 		}
 	}
 
-	double baricentric_2D(int node, const Geometry::PointReference& p) {
+	double baricentric_2D(std::size_t node, const Geometry::PointReference& p) {
 		if (node == 0) {
 			return 1 - p[0] - p[1];
 		} else {
@@ -107,7 +107,7 @@ namespace Utilities {
 		}
 	}
 
-	double baricentricDeriv(int node, int direction) {
+	double baricentricDeriv(std::size_t node, std::size_t direction) {
 		if (node == 0) {
 			return -1;
 		} else if (node == direction + 1) {

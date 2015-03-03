@@ -21,25 +21,27 @@
 #ifndef HELPERFUNCTIONS_HPP_
 #define HELPERFUNCTIONS_HPP_
 
+#include <cstdlib>
+
 namespace Geometry{
 class PointReference;
 }
 
 namespace Utilities{
 
-double LobattoPolynomial(int degree, double x);
+double LobattoPolynomial(std::size_t degree, double x);
 
-double LobattoPolynomialDerivative(int degree, double x);
+double LobattoPolynomialDerivative(std::size_t degree, double x);
 
-double LegendrePolynomial(int degree, double x);
+double LegendrePolynomial(std::size_t degree, double x);
 
-double LegendrePolynomialDerivative(int degree, double x);
+double LegendrePolynomialDerivative(std::size_t degree, double x);
 
-double baricentric_3D(int node, const Geometry::PointReference& p);
+double baricentric_3D(std::size_t node, const Geometry::PointReference& p);
 
-double baricentric_2D(int node, const Geometry::PointReference& p);
+double baricentric_2D(std::size_t node, const Geometry::PointReference& p);
 
-double baricentricDeriv(int node, int direction);
+double baricentricDeriv(std::size_t node, std::size_t direction);
 }
 
 
