@@ -42,7 +42,7 @@ namespace Geometry
     class ReferenceCube: public ReferenceGeometry
     {
     public:
-        typedef         ReferenceGeometry ReferenceGeometryT;
+        using ReferenceGeometryT = ReferenceGeometry;
 
         using typename  ReferenceGeometryT::IndexT;
         using typename  ReferenceGeometryT::PointReferenceT;

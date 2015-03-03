@@ -35,8 +35,8 @@ namespace Geometry
     class RefinementMapping
     {
     public:
-        typedef std::size_t                    DimT;
-        typedef PointReference             PointReferenceT;
+        using DimT = std::size_t;
+        using PointReferenceT = PointReference;
 
         //! Default constructor.
         RefinementMapping() {}  

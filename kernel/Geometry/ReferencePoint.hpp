@@ -36,12 +36,12 @@ namespace Geometry
     class ReferencePoint : public ReferenceGeometry
     {
     public:
-        typedef ReferenceGeometry ReferenceGeometryT;
+        using ReferenceGeometryT = ReferenceGeometry;
         
         using ReferenceGeometryT::PointReferenceT;
         using ReferenceGeometryT::VectorOfReferencePointsT;
         using ReferenceGeometryT::IndexT;
-        typedef std::vector<IndexT> ListOfIndexesT;
+        using ListOfIndexesT = std::vector<IndexT>;
 
     public:
         static ReferencePoint& Instance()

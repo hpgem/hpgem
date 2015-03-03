@@ -42,7 +42,7 @@ namespace Geometry
     class ReferenceTriangle : public ReferenceGeometry
     {
     public:
-        typedef ReferenceGeometry ReferenceGeometryT;
+        using ReferenceGeometryT = ReferenceGeometry;
 
         using ReferenceGeometryT::IndexT;
         using ReferenceGeometryT::PointReferenceT;

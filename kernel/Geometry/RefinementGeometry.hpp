@@ -32,10 +32,10 @@ namespace Geometry
     class RefinementGeometry
     {
     public:
-        typedef std::size_t                    DimT;
-        typedef PointPhysical              PointPhysicalT;
-        typedef std::vector<PointPhysicalT>     VectorOfPointPhysicalsT;
-        typedef std::vector<std::size_t>       VectorOfIndicesT;
+        using DimT = std::size_t;
+        using PointPhysicalT = PointPhysical;
+        using VectorOfPointPhysicalsT = std::vector<PointPhysicalT>;
+        using VectorOfIndicesT = std::vector<std::size_t>;       
 
       public:
         virtual ~RefinementGeometry()

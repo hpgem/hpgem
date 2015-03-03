@@ -83,13 +83,13 @@ public:
      */
     public:
         /// \bug this is a workaround for a g++ bug. Should read using typenames;
-        typedef std::string                                         String;
-        typedef std::size_t                                        IndexT;
-        typedef typename Geometry::PointReference              PointReferenceT;
-        typedef typename std::vector<PointReferenceT >              VectorOfReferencePointsT;
-        typedef typename VectorOfReferencePointsT::iterator         iterator;
-        typedef typename VectorOfReferencePointsT::const_iterator   const_iterator;
-        typedef std::vector<IndexT>                                 ListOfIndexesT;
+        using String = std::string;
+        using IndexT = std::size_t;
+        using PointReferenceT = Geometry::PointReference;
+        using VectorOfReferencePointsT = std::vector<PointReferenceT >;
+        using iterator = VectorOfReferencePointsT::iterator;
+        using const_iterator = VectorOfReferencePointsT::const_iterator;
+        using ListOfIndexesT = std::vector<IndexT>;
 
     public:
 

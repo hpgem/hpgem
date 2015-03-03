@@ -30,14 +30,14 @@ namespace Geometry
     class RefinementPyramid : public Geometry::RefinementGeometry
     {
     public:
-        typedef std::size_t                    DimT;
-        typedef Point                        PointT;
-        typedef PointPhysical                PointPhysicalT;
-        typedef PointReference               PointReferenceT;
-        typedef PhysicalGeometry             PhysicalGeometryT;
-        typedef ReferenceGeometry            ReferenceGeometryT;
-        typedef std::vector<PointPhysicalT>     VectorOfPointPhysicalsT;
-        typedef std::vector<std::size_t>       VectorOfIndicesT;
+        using DimT = std::size_t                    ;
+        using PointT = Point                        ;
+        using PointPhysicalT = PointPhysical                ;
+        using PointReferenceT = PointReference               ;
+        using PhysicalGeometryT = PhysicalGeometry             ;
+        using ReferenceGeometryT = ReferenceGeometry            ;
+        using VectorOfPointPhysicalsT = std::vector<PointPhysicalT>     ;
+        using VectorOfIndicesT = std::vector<std::size_t>       ;
 
         /// Constructors.
         RefinementPyramid(const ReferenceGeometryT* const referenceGeometry,

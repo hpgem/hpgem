@@ -38,16 +38,16 @@ namespace Geometry
     {
 
     public:
-        typedef ReferenceGeometry ReferenceGeometryT;
+        using ReferenceGeometryT = ReferenceGeometry;
         
         using ReferenceGeometryT::PointReferenceT;
         using ReferenceGeometryT::VectorOfReferencePointsT;
         using ReferenceGeometryT::IndexT;
         using ReferenceGeometryT::String;
         using ReferenceGeometryT::const_iterator;
-        typedef std::vector<std::size_t>                 ListOfIndexesT;
-        typedef MappingReferenceToReference    Ref1ToRef1MappingT; // Numbers indicate dim.
-        typedef MappingReferenceToReference    Ref0ToRef1MappingT;
+        using ListOfIndexesT = std::vector<std::size_t>;
+        using Ref1ToRef1MappingT = MappingReferenceToReference; // Numbers indicate dim.
+        using Ref0ToRef1MappingT = MappingReferenceToReference;
 
     public:
         static ReferenceLine& Instance()

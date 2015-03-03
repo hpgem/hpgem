@@ -43,7 +43,7 @@ namespace Geometry
     class ReferenceTetrahedron: public ReferenceGeometry
     {
     public:
-        typedef ReferenceGeometry ReferenceTetrahedronT;
+        using ReferenceTetrahedronT = ReferenceGeometry;
 
         using ReferenceTetrahedronT::PointReferenceT;
         using ReferenceTetrahedronT::IndexT;

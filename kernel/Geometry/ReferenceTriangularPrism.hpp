@@ -42,7 +42,7 @@ namespace Geometry
     class ReferenceTriangularPrism: public ReferenceGeometry
     {
     public:
-        typedef ReferenceGeometry ReferenceTriangularPrismT;
+        using ReferenceTriangularPrismT = ReferenceGeometry;
         
         using ReferenceTriangularPrismT::PointReferenceT;
         using ReferenceTriangularPrismT::IndexT;

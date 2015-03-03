@@ -36,11 +36,11 @@ namespace Geometry
     class RefinementTriangularPrism : public Geometry::RefinementGeometry
     {
     public:
-        typedef PointPhysical                PointPhysicalT;
-        typedef PhysicalGeometry             PhysicalGeometryT;
-        typedef ReferenceGeometry            ReferenceGeometryT;
-        typedef std::vector<PointPhysicalT>     VectorOfPointPhysicalsT;
-        typedef std::vector<std::size_t>       VectorOfIndicesT;
+        using PointPhysicalT = PointPhysical;
+        using PhysicalGeometryT = PhysicalGeometry;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using VectorOfPointPhysicalsT = std::vector<PointPhysicalT>;
+        using VectorOfIndicesT = std::vector<std::size_t>;
 
         /// Constructors.
         RefinementTriangularPrism(const ReferenceGeometryT* const referenceGeometry,

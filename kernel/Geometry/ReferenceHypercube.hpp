@@ -31,8 +31,7 @@ namespace Geometry
     class ReferenceHypercube: public ReferenceGeometry
     {
     public:
-        typedef ReferenceGeometry ReferenceGeometryT;
-        
+        using ReferenceGeometryT = ReferenceGeometry;
         using typename ReferenceGeometryT::IndexT;
         using typename ReferenceGeometryT::PointReferenceT;
         using typename ReferenceGeometryT::VectorOfReferencePointsT;

@@ -70,26 +70,26 @@ namespace Integration
     template <class T>
     struct ReturnTrait1
     {
-        typedef typename T::ReturnType ReturnType;
+        using ReturnType = typename T::ReturnType;
     };
 
     // you can provide a function as a integrand
     template < typename T>
     struct ReturnTrait1<void (*)(const Base::Element*, const Geometry::PointReference&, T&)>
     {
-        typedef T ReturnType;
+        using ReturnType = T;
     };
 
     template <class B, typename T>
     struct ReturnTrait1<void (B::*)(const Base::Element*, const Geometry::PointReference&, T&)>
     {
-        typedef T ReturnType;
+        using ReturnType = T;
     };
     
     template <typename B, typename T>
     struct ReturnTrait1<void (B::*)(const Base::Face*, const Geometry::PointPhysical&, const Geometry::PointReference&, T&)>
     {
-        typedef T ReturnType;
+        using ReturnType = T;
     };
     
     /*template < template<unsigned int> class B, typename T>
@@ -102,7 +102,7 @@ namespace Integration
     template < typename T>
     struct ReturnTrait1<T (*)(const Geometry::PointReference&)>
     {
-        typedef T ReturnType;
+        using ReturnType = T;
     };
 
 //     template <unsigned int DIM>
@@ -114,7 +114,7 @@ namespace Integration
     template <class T>
     struct ReturnTrait1<T*>
     {
-        typedef typename ReturnTrait1<T>::ReturnType ReturnType;
+        using ReturnType = typename ReturnTrait1<T>::ReturnType;
     };
 
 } // close namespace Integration

@@ -41,7 +41,7 @@ namespace Geometry
     class ReferenceSquare : public ReferenceGeometry
     {
     public:
-        typedef ReferenceGeometry ReferenceGeometryT;
+        using ReferenceGeometryT = ReferenceGeometry ;
         //         typedef QuadratureRules::GaussQuadratureRule<TwoD>  GaussQuadratureRuleT;
         //         typedef std::vector<QuadratureRules::GaussQuadratureRule<TwoD>*>            ListOfGaussQuadratureRulePtrT;
         using ReferenceGeometryT::IndexT;
