@@ -227,8 +227,8 @@ public:
             face->referenceToPhysical(p, pPhys);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
             {
-                integral.integrate(face, &massIntegrand, result);
-                integral.integrate(face, &interpolator, initialconditions);
+                result = integral.integrate(face, &massIntegrand);
+                initialconditions = integral.integrate(face, &interpolator);
                 //face->getPtrElementLeft()->setTimeLevelData(0, initialconditions);
             }
             else
@@ -248,7 +248,7 @@ public:
         LinearAlgebra::Matrix result;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
-            integral.integrate(element, &stifnessIntegrand, result);
+        	result = integral.integrate(element, &stifnessIntegrand);
             element->setElementMatrix(result);
         }
     }
@@ -282,7 +282,7 @@ public:
         LinearAlgebra::NumericalVector totalError(2), contribution(2);
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
-            integral.integrate(face, &error, contribution);
+        	contribution = integral.integrate(face, &error);
             totalError += contribution;
             contribution[0] = 0;
             contribution[1] = 0;
@@ -296,13 +296,13 @@ public:
         LinearAlgebra::NumericalVector totalEnergy(1), contribution(1);
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
-            faIntegral.integrate(face, &faceEnergy, contribution);
+        	contribution = faIntegral.integrate(face, &faceEnergy);
             totalEnergy += contribution;
             contribution[0] = 0;
         }
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
-            elIntegral.integrate(element, &elementEnergy, contribution);
+        	contribution = elIntegral.integrate(element, &elementEnergy);
             totalEnergy += contribution;
             contribution[0] = 0;
         }

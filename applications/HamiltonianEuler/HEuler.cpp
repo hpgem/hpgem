@@ -732,7 +732,7 @@ HEuler::createIncompressibleSystem()
         
         ElementT* element =(*cit);
         
-        elIntegral.integrate<ElementIntegralData>(element, this, gradMass);
+        gradMass = elIntegral.integrate<ElementIntegralData>(element, this);
 		
 		for (unsigned int i = 0; i<nb;++i)
  		{
@@ -839,7 +839,7 @@ HEuler::createIncompressibleSystem()
             
             posL  = eL*nb;
             
-            faceIntegral.integrate((*citFe), this, fData);
+            fData = faceIntegral.integrate((*citFe), this);
             
             for (unsigned int j=0;j<nb;++j)
             {
@@ -1248,7 +1248,7 @@ HEuler::createCompressibleSystem()
         HEulerElementData* elementData = static_cast<HEulerElementData*>((*cit)->getUserData());
 
         ElementT* elem =(*cit);
-        elIntegral.integrate<ElementIntegralData>(elem, this, gradMass);
+        gradMass = elIntegral.integrate<ElementIntegralData>(elem, this);
         
         for (unsigned int j = 0; j<nb;++j)
         {
@@ -1318,7 +1318,7 @@ HEuler::createCompressibleSystem()
             
             posL  = eL*nb;
             
-            faceIntegral.integrate((*citFe), this, fData);
+            fData = faceIntegral.integrate((*citFe), this);
 
             for (unsigned int j=0;j<nb;++j)
             {
@@ -1560,32 +1560,32 @@ HEuler::initialConditions()
         LinearAlgebra::Matrix& massMatrix = elemData->massMatrix_;
         LinearAlgebra::Matrix& invMassM   = elemData->invMassMatrix_;
         
-        elIntegral.integrate<LinearAlgebra::Matrix>(elem, this, massMatrix);
+        massMatrix = elIntegral.integrate<LinearAlgebra::Matrix>(elem, this);
      
-        massMatrix.inverse(invMassM);
+        invMassM = massMatrix.inverse();
         
         elem->setUserData(elemData);
         
-        elIntegral.integrate(elem, &uEx, rightHand);
+        rightHand = elIntegral.integrate(elem, &uEx);
         
         numerical = invMassM*rightHand;// projection of U
         
         
         elem->setTimeLevelData(0,0,numerical);
         
-        elIntegral.integrate(elem, &vEx, rightHand);
+        rightHand = elIntegral.integrate(elem, &vEx);
         
         numerical = invMassM*rightHand;// projection of V
         
         elem->setTimeLevelData(0,1,numerical);
         
         
-        elIntegral.integrate(elem, &wEx, rightHand);
+        rightHand = elIntegral.integrate(elem, &wEx);
         
         numerical = invMassM*rightHand;// projection of W
         elem->setTimeLevelData(0,2,numerical);
         
-        elIntegral.integrate(elem, &pOrRhoEx, rightHand);
+        rightHand = elIntegral.integrate(elem, &pOrRhoEx);
         
         numerical = invMassM*rightHand;// projection of P
         

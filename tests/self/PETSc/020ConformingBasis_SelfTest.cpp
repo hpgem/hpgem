@@ -227,7 +227,7 @@ public:
     	Integration::ElementIntegral elIntegral(false);
     	elIntegral.setStorageWrapper(new Base::ShortTermStorageElementH1(meshes_[0]->dimension()));
     	for(Base::Element* el:meshes_[0]->getElementsList()){
-    		elIntegral.integrate(el,&errors,ret);
+    		ret = elIntegral.integrate(el,&errors);
     		sum+=ret[0];
     	}
     	return std::sqrt(sum);
