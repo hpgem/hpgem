@@ -260,16 +260,19 @@ namespace Utilities {
 		return result;
 	}
 
-	void createVertexBasisFunctionSet3DH1ConformingPrism(int order, std::vector<const Base::BasisFunctionSet*>& result) {
+	std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1ConformingPrism(int order) {
+        std::vector<const Base::BasisFunctionSet*> result;
 		Base::BasisFunctionSet* set;
 		for (int i = 0; i < 6; ++i) {
 			set = new Base::BasisFunctionSet(order);
 			set->addBasisFunction(new BasisFunction3DVertexPrism(i));
 			result.push_back(set);
 		}
+        return result;
 	}
 
-	void createEdgeBasisFunctionSet3DH1ConformingPrism(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
+	std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1ConformingPrism(int order) {
+        std::vector<const Base::OrientedBasisFunctionSet*> result;
 		Base::OrientedBasisFunctionSet* set;
 		Geometry::ReferenceTriangularPrism& prism = Geometry::ReferenceTriangularPrism::Instance();
 		std::vector<std::size_t> vectorOfPointIndexes(2);
@@ -299,9 +302,11 @@ namespace Utilities {
 			}
 			result.push_back(set);
 		}
+        return result;
 	}
 
-	void CreateFaceBasisFunctionSet3DH1ConformingPrism(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
+	std::vector<const Base::OrientedBasisFunctionSet*> CreateFaceBasisFunctionSet3DH1ConformingPrism(int order) {
+        std::vector<const Base::OrientedBasisFunctionSet*> result;
 		Base::OrientedBasisFunctionSet* set;
 		Geometry::ReferenceTriangularPrism& prism = Geometry::ReferenceTriangularPrism::Instance();
 		std::vector<std::size_t> vectorOfPointIndexes(4);
@@ -409,6 +414,7 @@ namespace Utilities {
 			}
 			result.push_back(set);
 		}
+        return result;
 	}
 
 }

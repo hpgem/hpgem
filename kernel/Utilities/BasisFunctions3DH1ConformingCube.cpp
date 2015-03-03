@@ -286,7 +286,8 @@ namespace Utilities {
 		return result;
 	}
 
-	void createVertexBasisFunctionSet3DH1Cube(int order, std::vector<const Base::BasisFunctionSet*>& result) {
+	std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(int order) {
+        std::vector<const Base::BasisFunctionSet*> result;
 		Base::BasisFunctionSet* set;
 		Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
 		for (int i = 0; i < cube.getNrOfCodim3Entities(); ++i) {
@@ -294,9 +295,11 @@ namespace Utilities {
 			set->addBasisFunction(new BasisFunction3DVertexCube(i));
 			result.push_back(set);
 		}
+        return result;
 	}
 
-	void createEdgeBasisFunctionSet3DH1Cube(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
+	std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(int order) {
+        std::vector<const Base::OrientedBasisFunctionSet*> result;
 		Base::OrientedBasisFunctionSet* set;
 		Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
 		std::vector<std::size_t> vectorOfPointIndices(2);
@@ -339,9 +342,11 @@ namespace Utilities {
 			}
 			result.push_back(set);
 		}
+        return result;
 	}
 
-	void createFaceBasisFunctionSet3DH1Cube(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
+	std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(int order) {
+        std::vector<const Base::OrientedBasisFunctionSet*> result;
 		Base::OrientedBasisFunctionSet* set; //todo write clever code
 		Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
 		std::vector<std::size_t> vectorOfPointIndices(4);
@@ -687,6 +692,7 @@ namespace Utilities {
 			}
 		}
 		result.push_back(set);
+        return result;
 	}
 
 	double BasisFunction3DFaceCube_0::evalDeriv0(const Geometry::PointReference& p) const {

@@ -181,16 +181,19 @@ Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Tetrahedron(int order)
 	return result;
 }
 
-void createVertexBasisFunctionSet3DH1Tetrahedron(int order, std::vector<const Base::BasisFunctionSet*>& result) {
+std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Tetrahedron(int order) {
+    std::vector<const Base::BasisFunctionSet*> result;
 	Base::BasisFunctionSet* set;
 	for (int i = 0; i < 4; ++i) {
 		set = new Base::BasisFunctionSet(order);
 		set->addBasisFunction(new BasisFunction3DVertexTetrahedron(i));
 		result.push_back(set);
 	}
+    return result;
 }
 
-void createEdgeBasisFunctionSet3DH1Tetrahedron(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
+std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Tetrahedron(int order) {
+    std::vector<const Base::OrientedBasisFunctionSet*> result;
 	Base::OrientedBasisFunctionSet* set;
 	Geometry::ReferenceTetrahedron& tetrahedron = Geometry::ReferenceTetrahedron::Instance();
 	std::vector<std::size_t> vectorOfPointIndexes(2);
@@ -207,9 +210,11 @@ void createEdgeBasisFunctionSet3DH1Tetrahedron(int order, std::vector<const Base
 		}
 		result.push_back(set);
 	}
+    return result;
 }
 
-void createFaceBasisFunctionSet3DH1Tetrahedron(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
+std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Tetrahedron(int order) {
+    std::vector<const Base::OrientedBasisFunctionSet*> result;
 	Base::OrientedBasisFunctionSet* set;
 	Geometry::ReferenceTetrahedron& tetrahedron= Geometry::ReferenceTetrahedron::Instance();
 	std::vector<std::size_t> vectorOfPointIndexes(3);
@@ -258,6 +263,7 @@ void createFaceBasisFunctionSet3DH1Tetrahedron(int order, std::vector<const Base
 		}
 		result.push_back(set);
 	}
+    return result;
 }
 
 }

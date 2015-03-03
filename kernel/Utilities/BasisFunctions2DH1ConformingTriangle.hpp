@@ -85,9 +85,9 @@ Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Triangle(int order);
 
 Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Triangle(int order);
 
-void createVertexBasisFunctionSet2DH1Triangle(int order, std::vector<const Base::BasisFunctionSet*>& result);
+std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Triangle(int order);
 
-void createFaceBasisFunctionSet2DH1Triangle(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result);
+std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Triangle(int order);
 
 }
 

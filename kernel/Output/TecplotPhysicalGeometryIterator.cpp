@@ -120,38 +120,42 @@ namespace Output
 
     void TecplotPhysicalGeometryIterator::acceptG(const Geometry::PhysicalGeometry* geo)
     {
-        if(typeid(geo)==typeid(Geometry::PhysicalLine*))
+        if(typeid(*geo)==typeid(const Geometry::PhysicalLine))
         {
             acceptLineGeometry(dynamic_cast<const Geometry::PhysicalLine*>(geo));
         }
-        else if(typeid(geo)==typeid(Geometry::PhysicalTriangle*))
+        else if(typeid(*geo)==typeid(const Geometry::PhysicalTriangle))
         {
             acceptTriangleGeometry(dynamic_cast<const Geometry::PhysicalTriangle*>(geo));
         }
-        else if(typeid(geo)==typeid(Geometry::PhysicalQuadrilateral*))
+        else if(typeid(*geo)==typeid(const Geometry::PhysicalQuadrilateral))
         {
             acceptQuadrilateralGeometry(dynamic_cast<const Geometry::PhysicalQuadrilateral*>(geo));
         }
-        else if(typeid(geo)==typeid(Geometry::PhysicalHexahedron*))
+        else if(typeid(*geo)==typeid(const Geometry::PhysicalHexahedron))
         {
             acceptHexahedronGeometry(dynamic_cast<const Geometry::PhysicalHexahedron*>(geo));
         }
-        else if(typeid(geo)==typeid(Geometry::PhysicalTetrahedron*))
+        else if(typeid(*geo)==typeid(const Geometry::PhysicalTetrahedron))
         {
             acceptTetrahedronGeometry(dynamic_cast<const Geometry::PhysicalTetrahedron*>(geo));
         }
-        else if(typeid(geo)==typeid(Geometry::PhysicalTriangularPrism*))
+        else if(typeid(*geo)==typeid(const Geometry::PhysicalTriangularPrism))
         {
             acceptTriangularPrismGeometry(dynamic_cast<const Geometry::PhysicalTriangularPrism*>(geo));
         }
-        else if(typeid(geo)==typeid(Geometry::PhysicalPyramid*))
+        else if(typeid(*geo)==typeid(const Geometry::PhysicalPyramid))
         {
             acceptPyramidGeometry(dynamic_cast<const Geometry::PhysicalPyramid*>(geo));
         }
-        else if(typeid(geo)==typeid(Geometry::PhysicalOctachoron*))
+        else if(typeid(*geo)==typeid(const Geometry::PhysicalOctachoron))
         {
             throw "not implemented";
             //acceptOctachoronGeometry(dynamic_cast<const Geometry::PhysicalOctachoron*>(geo));
+        }
+        else
+        {
+            throw "unsuccesfull";
         }
     }
 

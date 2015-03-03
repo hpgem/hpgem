@@ -61,13 +61,15 @@ namespace Utilities {
 		return result;
 	}
 
-	void createVertexBasisFunctionSet1DH1Line(int polynomialOrder,std::vector<const Base::BasisFunctionSet*>& result) {
+	std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet1DH1Line(int polynomialOrder) {
+        std::vector<const Base::BasisFunctionSet*> result;
 		Base::BasisFunctionSet* set(new Base::BasisFunctionSet(polynomialOrder));
 		set->addBasisFunction(new BasisFunction1DVertexLine(0));
 		result.push_back(set);
 		set = new Base::BasisFunctionSet(polynomialOrder);
 		set->addBasisFunction(new BasisFunction1DVertexLine(1));
 		result.push_back(set);
+        return result;
 	}
 
 }

@@ -241,6 +241,7 @@ void
 HEuler::faceIntegrand(const FaceT* face,          const LinearAlgebra::NumericalVector& normal,
                    const PointReferenceOnTheFaceT& p,  FluxData& ret)
 {
+    ret.resize(face->getNrOfBasisFunctions());
     if (face->isInternal())
     {
         const double magn                     = Utilities::norm2(normal);
@@ -818,7 +819,8 @@ HEuler::createIncompressibleSystem()
     std::cout << " - : Face Integration started\n";
         //
         //
-    FluxData fData(nb);
+    FluxData fData;
+    fData.resize(nb);
     //using FaceIntegrand =  void  (HEuler::*)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
     //FaceIntegrand faceInteg = &HEuler::faceIntegrand;
     FaceIntegralT   faceIntegral(useCache);
@@ -1298,7 +1300,8 @@ HEuler::createCompressibleSystem()
     std::cout << " - : Face Integration started\n";
         //
         //
-    FluxData fData(nb);
+    FluxData fData;
+    fData.resize(nb);
     //using FaceIntegrand =  void  (HEuler::*)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
     //FaceIntegrand faceInteg = &HEuler::faceIntegrand;
     FaceIntegralT   faceIntegral(useCache);

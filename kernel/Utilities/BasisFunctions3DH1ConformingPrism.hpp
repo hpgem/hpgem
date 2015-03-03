@@ -142,11 +142,11 @@ namespace Utilities{
 
 	Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1ConformingPrism(int order);
 
-	void createVertexBasisFunctionSet3DH1ConformingPrism(int order, std::vector<const Base::BasisFunctionSet*>& result);
+	std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1ConformingPrism(int order);
 
-	void createEdgeBasisFunctionSet3DH1ConformingPrism(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result);
+	std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1ConformingPrism(int order);
 
-	void CreateFaceBasisFunctionSet3DH1ConformingPrism(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result);
+	std::vector<const Base::OrientedBasisFunctionSet*> CreateFaceBasisFunctionSet3DH1ConformingPrism(int order);
 
 }
 

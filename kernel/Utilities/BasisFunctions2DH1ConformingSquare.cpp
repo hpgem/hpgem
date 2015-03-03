@@ -122,16 +122,19 @@ Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(int order) {
 	return result;
 }
 
-void createVertexBasisFunctionSet2DH1Square(int order, std::vector<const Base::BasisFunctionSet*>& result) {
+std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(int order) {
+    std::vector<const Base::BasisFunctionSet*> result;
 	Base::BasisFunctionSet* set;
 	for (int i = 0; i < 4; ++i) {
 		set = new Base::BasisFunctionSet(order);
 		set->addBasisFunction(new BasisFunction2DVertexSquare(i));
 		result.push_back(set);
 	}
+    return result;
 }
 
-void createFaceBasisFunctionSet2DH1Square(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result) {
+std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Square(int order) {
+    std::vector<const Base::OrientedBasisFunctionSet*> result;
 	Geometry::ReferenceSquare& square = Geometry::ReferenceSquare::Instance();
 	Base::OrientedBasisFunctionSet* set;
 	std::vector<std::size_t> vertexindices(2);
@@ -154,6 +157,7 @@ void createFaceBasisFunctionSet2DH1Square(int order, std::vector<const Base::Ori
 		}
 		result.push_back(set);
 	}
+    return result;
 }
 
 }

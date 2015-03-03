@@ -199,7 +199,7 @@ namespace Geometry
             result.resize(DIM);
             result[0] = pRefElement[0] * sgn;
         }
-
+        return result;
 
     }
     

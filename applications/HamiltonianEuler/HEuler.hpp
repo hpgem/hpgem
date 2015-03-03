@@ -48,8 +48,8 @@ struct ElementIntegralData
 };
 
 struct FluxData
-{
-    FluxData(unsigned int nb)
+{   
+    void resize(std::size_t nb)
     {
         left_.resize(nb);
         right_.resize(nb);
@@ -62,7 +62,9 @@ struct FluxData
             left.resize(12,nb);
             right.resize(12,nb);
         }
+        
     }
+    
     void print()
     {
         cout <<"left="<<endl;

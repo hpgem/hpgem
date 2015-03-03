@@ -62,7 +62,7 @@ Base::BasisFunctionSet* createDGBasisFunctionSet1DH1Line(int polynomialOrder);
 
 Base::BasisFunctionSet* createInteriorBasisFunctionSet1DH1Line(int polynomialOrder);
 
-void createVertexBasisFunctionSet1DH1Line(int polynomialOrder,std::vector<const Base::BasisFunctionSet*>& result);
+std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet1DH1Line(int polynomialOrder);
 
 }
 

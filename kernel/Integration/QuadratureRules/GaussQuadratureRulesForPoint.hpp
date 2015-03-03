@@ -23,6 +23,7 @@
 
 #include "GaussQuadratureRule.hpp"
 #include <limits>
+#include "Geometry/PointReference.hpp"
 
 namespace Geometry
 {
@@ -83,6 +84,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         Geometry::ReferenceGeometry * const refGeoPtr_;
+        std::vector<Geometry::PointReference>                 gp_;
     };
 
 } /* namespace QuadratureRules */

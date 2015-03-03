@@ -94,10 +94,10 @@ public:
         meshes_[0]->setDefaultBasisFunctionSet(Utilities::createInteriorBasisFunctionSet2DH1Triangle(p_));
         //then you can create and assign the other basis functions in any order.
         std::vector<const Base::BasisFunctionSet*> bFsets;
-        Utilities::createVertexBasisFunctionSet2DH1Triangle(p_, bFsets);
+        bFsets = Utilities::createVertexBasisFunctionSet2DH1Triangle(p_);
         meshes_[0]->addVertexBasisFunctionSet(bFsets);
         std::vector<const Base::OrientedBasisFunctionSet*> oBFsets;
-        Utilities::createFaceBasisFunctionSet2DH1Triangle(p_, oBFsets);
+        oBFsets = Utilities::createFaceBasisFunctionSet2DH1Triangle(p_);
         meshes_[0]->addFaceBasisFunctionSet(oBFsets);
     }
 

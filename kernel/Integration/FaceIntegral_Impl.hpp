@@ -87,6 +87,7 @@ ReturnTrait1
                 result.axpy(qdrRuleLoc->weight(i) * Base::L2Norm(Normal),value);
 
             }
+            return result;
         //}
         /*else  // useCache_
         {///\TODO long term cache dont work well with short term cache

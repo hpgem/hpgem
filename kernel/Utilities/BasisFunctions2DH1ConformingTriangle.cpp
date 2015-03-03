@@ -113,16 +113,19 @@ namespace Utilities {
 		return result;
 	}
 
-	void createVertexBasisFunctionSet2DH1Triangle(int order,std::vector<const Base::BasisFunctionSet*>& result) {
+	std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Triangle(int order) {
+        std::vector<const Base::BasisFunctionSet*> result;
 		Base::BasisFunctionSet* set;
 		for (int i = 0; i < 3; ++i) {
 			set = new Base::BasisFunctionSet(order);
 			set->addBasisFunction(new BasisFunction2DVertexTriangle(i));
 			result.push_back(set);
 		}
+        return result;
 	}
 
-	void createFaceBasisFunctionSet2DH1Triangle(int order,std::vector<const Base::OrientedBasisFunctionSet*>& result) {
+	std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Triangle(int order) {
+        std::vector<const Base::OrientedBasisFunctionSet*> result;
 		Base::OrientedBasisFunctionSet* set;
 		Geometry::ReferenceTriangle& triangle = Geometry::ReferenceTriangle::Instance();
 		std::vector<std::size_t> vertexindices(2);
@@ -139,6 +142,7 @@ namespace Utilities {
 			}
 			result.push_back(set);
 		}
+        return result;
 	}
 
 }

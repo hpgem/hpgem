@@ -195,11 +195,11 @@ namespace Utilities
 
 	Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(int order);
 
-	void createVertexBasisFunctionSet3DH1Cube(int order, std::vector<const Base::BasisFunctionSet*>& result);
+	std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(int order);
 
-	void createEdgeBasisFunctionSet3DH1Cube(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result);
+	std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(int order);
 
-	void createFaceBasisFunctionSet3DH1Cube(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result);
+	std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(int order);
 }
 
 

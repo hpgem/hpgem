@@ -35,13 +35,13 @@ namespace QuadratureRules {
 	const Geometry::PointReference& Cn0_inf_1::getPoint(std::size_t i) const {
 		TestErrorDebug(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
         //actually keep the point around while it is being used
-        static Geometry::PointReference result{0};
-        return result;
+        return gp_[0];
 	}
 
 	Cn0_inf_1::Cn0_inf_1() :
 			refGeoPtr_(&Geometry::ReferencePoint::Instance()), name_("Cn0_inf_1") {
 		weight_[0] = 1;
+        gp_.resize(1,{0});
 	}
 
 }

@@ -54,10 +54,10 @@ public:
         addMesh(description, Base::RECTANGULAR, 1, 1, 1, 1);
         meshes_[0]->setDefaultBasisFunctionSet(Utilities::createInteriorBasisFunctionSet2DH1Square(p_));
         std::vector<const Base::BasisFunctionSet*> bFsets;
-        Utilities::createVertexBasisFunctionSet2DH1Square(p_, bFsets);
+        bFsets = Utilities::createVertexBasisFunctionSet2DH1Square(p_);
         meshes_[0]->addVertexBasisFunctionSet(bFsets);
         std::vector<const Base::OrientedBasisFunctionSet*> oBFsets;
-        Utilities::createFaceBasisFunctionSet2DH1Square(p_, oBFsets);
+        oBFsets = Utilities::createFaceBasisFunctionSet2DH1Square(p_);
         meshes_[0]->addFaceBasisFunctionSet(oBFsets);
         return true;
     }

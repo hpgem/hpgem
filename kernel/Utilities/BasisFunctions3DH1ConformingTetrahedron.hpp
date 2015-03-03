@@ -109,11 +109,11 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Tetrahedron(int order);
 
 Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Tetrahedron(int order);
 
-void createVertexBasisFunctionSet3DH1Tetrahedron(int order, std::vector<const Base::BasisFunctionSet*>& result);
+std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Tetrahedron(int order);
 
-void createEdgeBasisFunctionSet3DH1Tetrahedron(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result);
+std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Tetrahedron(int order);
 
-void createFaceBasisFunctionSet3DH1Tetrahedron(int order, std::vector<const Base::OrientedBasisFunctionSet*>& result);
+std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Tetrahedron(int order);
 
 }
 
