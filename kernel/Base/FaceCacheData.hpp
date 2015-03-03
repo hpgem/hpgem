@@ -36,7 +36,7 @@ namespace Base
   
     struct FaceCacheData
     {
-    	FaceCacheData(unsigned int DIM):Normal(DIM){}
+    	FaceCacheData(std::size_t DIM):Normal(DIM){}
       // cache data
       LinearAlgebra::NumericalVector Normal;
       double L2Normal;

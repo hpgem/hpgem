@@ -141,9 +141,9 @@ namespace Base
 
         virtual void basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual int getNrOfBasisFunctions() const;
+        virtual std::size_t getNrOfBasisFunctions() const;
 
-        virtual int getLocalNrOfBasisFunctions() const
+        virtual std::size_t getLocalNrOfBasisFunctions() const
         {
             return nrOfConformingDOFOnTheFace_;
         }
@@ -153,7 +153,7 @@ namespace Base
             nrOfConformingDOFOnTheFace_ = number;
         }
 
-        virtual int getID()const
+        virtual std::size_t getID()const
         {
             return faceID_;
         }
@@ -178,7 +178,7 @@ namespace Base
         VecCacheT vecCacheData_;
 
         std::size_t nrOfConformingDOFOnTheFace_;
-        int faceID_;
+        std::size_t faceID_;
     };
 };
 #endif

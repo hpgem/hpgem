@@ -34,20 +34,20 @@ public:
         return theInstance;
     }
     
-    Face* makeFace(Element* leftElementPtr,unsigned int leftElementLocalFaceNo, Geometry::FaceType faceType,unsigned int faceID);
-    Face* makeFace(Element* leftElementPtr,unsigned int leftElementLocalFaceNo, Element* rightElementPtr,unsigned int rightElementLocalFaceNo,unsigned int faceID);
+    Face* makeFace(Element* leftElementPtr,std::size_t leftElementLocalFaceNo, Geometry::FaceType faceType,std::size_t faceID);
+    Face* makeFace(Element* leftElementPtr,std::size_t leftElementLocalFaceNo, Element* rightElementPtr,std::size_t rightElementLocalFaceNo,std::size_t faceID);
     
-    void setNumberOfFaceMatrices(unsigned int matrices);
+    void setNumberOfFaceMatrices(std::size_t matrices);
     
-    void setNumberOfFaceVectors(unsigned int vectors);
+    void setNumberOfFaceVectors(std::size_t vectors);
     
 private:
     FaceFactory();
     FaceFactory(const FaceFactory& orig);
     virtual ~FaceFactory();
     
-    unsigned int numberOfFaceMatrices_;
-    unsigned int numberOfFaceVectors_;
+    std::size_t numberOfFaceMatrices_;
+    std::size_t numberOfFaceVectors_;
 
 };
 }

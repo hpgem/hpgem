@@ -94,7 +94,7 @@ namespace Base
 
     }
     
-    int Face::getNrOfBasisFunctions() const
+    std::size_t Face::getNrOfBasisFunctions() const
     {
         if (isInternal())
         {
@@ -109,7 +109,7 @@ namespace Base
     double Face::basisFunction(std::size_t i, const Geometry::PointReference& p) const
     {
         Geometry::PointReference pElement(p.size() + 1);
-        int n(getPtrElementLeft()->getNrOfBasisFunctions());
+        std::size_t n(getPtrElementLeft()->getNrOfBasisFunctions());
         if (i < n)
         {
             mapRefFaceToRefElemL(p, pElement);
@@ -125,7 +125,7 @@ namespace Base
     void Face::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
     {
         Geometry::PointReference pElement(p.size() + 1);
-        int n(getPtrElementLeft()->getNrOfBasisFunctions());
+        std::size_t n(getPtrElementLeft()->getNrOfBasisFunctions());
         if (i < n)
         {
             mapRefFaceToRefElemL(p, pElement);

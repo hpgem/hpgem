@@ -55,7 +55,7 @@ namespace Base
         /// \Sets the face matrix equal to another face matrix.
         FaceMatrix & operator= (const FaceMatrix &other);
         
-        /// \biref Adds another face matrix to this face matrix.
+        /// \brief Adds another face matrix to this face matrix.
         FaceMatrix & operator+= (const FaceMatrix &other);
         
         /// \brief Multiplies the face matrix by a scalar.

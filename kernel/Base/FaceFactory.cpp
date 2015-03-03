@@ -35,18 +35,18 @@ FaceFactory::~FaceFactory() {
 }
 
 
-    Face* FaceFactory::makeFace(Element* leftElementPtr,unsigned int leftElementLocalFaceNo, Geometry::FaceType faceType,unsigned int faceID){
+    Face* FaceFactory::makeFace(Element* leftElementPtr,std::size_t leftElementLocalFaceNo, Geometry::FaceType faceType,std::size_t faceID){
         return new Face(leftElementPtr,leftElementLocalFaceNo,faceType,faceID,numberOfFaceMatrices_,numberOfFaceVectors_);
     }
-    Face* FaceFactory::makeFace(Element* leftElementPtr,unsigned int leftElementLocalFaceNo, Element* rightElementPtr,unsigned int rightElementLocalFaceNo,unsigned int faceID){
+    Face* FaceFactory::makeFace(Element* leftElementPtr,std::size_t leftElementLocalFaceNo, Element* rightElementPtr,std::size_t rightElementLocalFaceNo,std::size_t faceID){
         return new Face(leftElementPtr,leftElementLocalFaceNo,rightElementPtr,rightElementLocalFaceNo,faceID,numberOfFaceMatrices_,numberOfFaceVectors_);
     }
     
-    void FaceFactory::setNumberOfFaceMatrices(unsigned int matrices){
+    void FaceFactory::setNumberOfFaceMatrices(std::size_t matrices){
         numberOfFaceMatrices_=matrices;
     }
     
-    void FaceFactory::setNumberOfFaceVectors(unsigned int vectors){
+    void FaceFactory::setNumberOfFaceVectors(std::size_t vectors){
         numberOfFaceVectors_=vectors;
     }
 

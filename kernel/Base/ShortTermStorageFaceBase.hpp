@@ -186,17 +186,17 @@ namespace Base
 
         //virtual VecCacheT&       getVecCacheData() { return vecCacheData_; } not sure if ugly or non-const for a reason
 
-        int getNrOfBasisFunctions() const override
+        std::size_t getNrOfBasisFunctions() const override
         {
             return face_->getNrOfBasisFunctions();
         }
 
-        int getLocalNrOfBasisFunctions() const override
+        std::size_t getLocalNrOfBasisFunctions() const override
         {
             return face_->getLocalNrOfBasisFunctions();
         }
 
-        int getID() const override
+        std::size_t getID() const override
         {
             return face_->getID();
         }
