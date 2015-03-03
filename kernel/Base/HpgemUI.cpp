@@ -49,7 +49,7 @@ namespace Base
     //Destructor, destructs the meshes, configData_ and globalData_
     HpgemUI::~HpgemUI()
     {
-        for (int i = 0; i < meshes_.size(); ++i)
+        for (std::size_t i = 0; i < meshes_.size(); ++i)
             delete meshes_[i];
         delete configData_;
         delete globalData_;
@@ -62,9 +62,9 @@ namespace Base
     }
     
     HpgemUI::MeshId HpgemUI::addMesh(const RectangularMeshDescriptorT& meshDscr,
-                                     const MeshType& meshType, int nrOfElementMatrixes,
-                                     int nrOfElementVectors, int nrOfFaceMatrixes,
-                                     int nrOfFaceVectors)
+                                     const MeshType& meshType, std::size_t nrOfElementMatrixes,
+									 std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes,
+									 std::size_t nrOfFaceVectors)
     {
         std::size_t numOfMeshes = meshes_.size();
         MeshManipulator* mesh = new MeshManipulator(configData_,
@@ -96,7 +96,7 @@ namespace Base
         return numOfMeshes;
     }
     
-    HpgemUI::MeshId HpgemUI::addMesh(const HpgemUI::String& fileName, int nrOfElementMatrixes, int nrOfElementVectors, int nrOfFaceMatrixes, int nrOfFaceVectors)
+    HpgemUI::MeshId HpgemUI::addMesh(const HpgemUI::String& fileName, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
     {
         std::size_t numOfMeshes = meshes_.size();
         MeshManipulator* mesh = new MeshManipulator(configData_, false, false, false, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);

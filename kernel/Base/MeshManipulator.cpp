@@ -86,7 +86,7 @@ namespace Base {
     bool compareHalfFace(HalfFaceDescription first, HalfFaceDescription second) {
         throw "please send your stack trace to freekjan";
         assert(first.nodeList.size() == second.nodeList.size());
-        for (int i = 0; i < first.nodeList.size(); ++i) {
+        for (std::size_t i = 0; i < first.nodeList.size(); ++i) {
             if (first.nodeList[i] > second.nodeList[i]) {
                 return true;
             } else if (second.nodeList[i] > first.nodeList[i]) {
@@ -199,7 +199,7 @@ namespace Base {
         collBasisFSet_[0] = bFset1;
     }
 
-    MeshManipulator::MeshManipulator(const ConfigurationData* config, bool xPer, bool yPer, bool zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, int nrOfElementMatrixes, int nrOfElementVectors, int nrOfFaceMatrtixes, int nrOfFaceVectors) :
+    MeshManipulator::MeshManipulator(const ConfigurationData* config, bool xPer, bool yPer, bool zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrtixes, std::size_t nrOfFaceVectors) :
     configData_(config),
     periodicX_(xPer),
     periodicY_(yPer),
@@ -288,12 +288,12 @@ namespace Base {
 
     void
     MeshManipulator::addVertexBasisFunctionSet(CollectionOfBasisFunctionSets& bFsets) {
-        int firstNewEntry = collBasisFSet_.size();
+        std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet* it : bFsets) {
             collBasisFSet_.push_back(it);
         }
         for (Node* node : getVerticesList()) {
-            for (int i = 0; i < node->getNrOfElements(); ++i) {
+            for (std::size_t i = 0; i < node->getNrOfElements(); ++i) {
                 node->getElement(i)->setVertexBasisFunctionSet(firstNewEntry + node->getVertexNr(i), node->getVertexNr(i));
             }
             node->setLocalNrOfBasisFunctions(bFsets[0]->size());
@@ -303,13 +303,13 @@ namespace Base {
 
     void
     MeshManipulator::addFaceBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets) {
-        int firstNewEntry = collBasisFSet_.size();
+        std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet* it : bFsets) {
             collBasisFSet_.push_back(it);
         }
         for (Face* face : getFacesList()) {
-            int faceNr = face->localFaceNumberLeft();
-            for (int i = 0; i < bFsets.size(); ++i) {
+            std::size_t faceNr = face->localFaceNumberLeft();
+            for (std::size_t i = 0; i < bFsets.size(); ++i) {
                 if (bFsets[i]->checkOrientation(0, faceNr)) {
                     face->getPtrElementLeft()->setFaceBasisFunctionSet(firstNewEntry + i, faceNr);
                 }
@@ -317,7 +317,7 @@ namespace Base {
             if (face->isInternal()) {
                 faceNr = face->localFaceNumberRight();
                 int orientation = face->getFaceToFaceMapIndex();
-                for (int i = 0; i < bFsets.size(); ++i) {
+                for (std::size_t i = 0; i < bFsets.size(); ++i) {
                     if (bFsets[i]->checkOrientation(orientation, faceNr)) {
                         face->getPtrElementRight()->setFaceBasisFunctionSet(firstNewEntry + i, faceNr);
                     }
@@ -330,13 +330,13 @@ namespace Base {
 
     void
     MeshManipulator::addEdgeBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets) {
-        int firstNewEntry = collBasisFSet_.size();
+        std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet* it : bFsets) {
             collBasisFSet_.push_back(it);
         }
         for (Edge* edge : getEdgesList()) {
-            for (int i = 0; i < edge->getNrOfElements(); ++i) {
-                for (int j = 0; j < bFsets.size(); ++j) {
+            for (std::size_t i = 0; i < edge->getNrOfElements(); ++i) {
+                for (std::size_t j = 0; j < bFsets.size(); ++j) {
                     if (bFsets[j]->checkOrientation(edge->getOrientation(i), edge->getEdgeNr(i))) {
                         edge->getElement(i)->setEdgeBasisFunctionSet(firstNewEntry + j, edge->getEdgeNr(i));
                         //cout<<edge->getOrientation(i)<<edge->getEdgeNr(i)<<bFsets[j]->size()<<endl;
@@ -398,7 +398,7 @@ namespace Base {
             os << "Node " << " " << p << std::endl;
         }
 
-        int elementNum = 0;
+        std::size_t elementNum = 0;
 
         for (Element* element : getElementsList()) {
             os << "Element " << element->getID() << " " << element << std::endl;
@@ -444,7 +444,7 @@ namespace Base {
         //This store the size length of the domain i.e. it is DIM sized vector
         PointPhysicalT delta_x(DIM);
 
-        for (int i = 0; i < DIM; i++) {
+        for (std::size_t i = 0; i < DIM; i++) {
             delta_x[i] = (TopRight[i] - BottomLeft[i]) / (linearNoElements[i]);
         }
 
@@ -465,7 +465,7 @@ namespace Base {
         totalNumOfElements = (linearNoElements[0]);
 
         verticesPerElement = 2;
-        int powerOf2;
+        std::size_t powerOf2;
 
         for (std::size_t iDIM = 1; iDIM < DIM; ++iDIM) {
             totalNumOfNodes *= (linearNoElements[iDIM] + 1);
@@ -607,7 +607,7 @@ namespace Base {
 
         PointPhysicalT delta_x(DIM);
 
-        for (int i = 0; i < DIM; ++i) {
+        for (std::size_t i = 0; i < DIM; ++i) {
             delta_x[i] = (TopRight[i] - BottomLeft[i]) / (linearNoElements[i]);
         }
 
@@ -627,10 +627,10 @@ namespace Base {
         verticesPerElement = 2;
         verticesPerGroup = 2;
         trianglesPerRectangle = 1;
-        int powerOf2;
+        std::size_t powerOf2;
 
         //start with 1 because you want to ask for the entry at idim - 1
-        for (int idim = 1; idim < DIM; ++idim) {
+        for (std::size_t idim = 1; idim < DIM; ++idim) {
             totalNumOfNodes *= (linearNoElements[idim] + 1);
             totalNumOfVertices *= (linearNoElements[idim] + (periodicDIM[idim]?0:1));
             totalNumOfElements *= (linearNoElements[idim]);
@@ -653,8 +653,8 @@ namespace Base {
 
         //Stage 2 : Create the nodes
 
-        for (int nodeIndex = 0; nodeIndex < totalNumOfNodes; ++nodeIndex) {
-            int nodeIndexRemain = nodeIndex;
+        for (std::size_t nodeIndex = 0; nodeIndex < totalNumOfNodes; ++nodeIndex) {
+        	std::size_t nodeIndexRemain = nodeIndex;
             for (int idim = DIM - 1; idim > -1; --idim) {
                 x[idim] = BottomLeft[idim] + (nodeIndexRemain / numOfNodesInEachSubspace[idim] * delta_x[idim]);
                 nodeIndexRemain %= numOfNodesInEachSubspace[idim];
@@ -676,12 +676,12 @@ namespace Base {
         std::vector < std::vector<std::size_t> > globalVertexID(trianglesPerRectangle);
         std::vector < std::vector<std::size_t> > globalNodeID(trianglesPerRectangle);
 
-        for (int elementGroupIndex = 0; elementGroupIndex < totalNumOfElements; ++elementGroupIndex) {
+        for (std::size_t elementGroupIndex = 0; elementGroupIndex < totalNumOfElements; ++elementGroupIndex) {
             //first generate node indexes as if we are a cube
             //indicates if the element has to be rotated to make connecting faces; rotates the element 90 degrees along the y-axis if needed
-            int rotate = 0;
+        	std::size_t rotate = 0;
 
-            for (int i = 0; i < trianglesPerRectangle; ++i) {
+            for (std::size_t i = 0; i < trianglesPerRectangle; ++i) {
                 globalNodeID[i].clear();
                 globalVertexID[i].clear();
             }
@@ -693,10 +693,10 @@ namespace Base {
                 rotate = (elementNdId[idim] + rotate) % 2;
             }
 
-            for (int i = 0; i < verticesPerGroup; ++i) {
+            for (std::size_t i = 0; i < verticesPerGroup; ++i) {
                 if (rotate == 0) {
                     powerOf2 = 1;
-                    for (int idim = 0; idim < DIM; ++idim) {
+                    for (std::size_t idim = 0; idim < DIM; ++idim) {
                         nodeNdId[idim] = elementNdId[idim] + ((i & powerOf2) != 0);
                         vertexNdId[idim] = elementNdId[idim] + ((i & powerOf2) != 0);
                         if(vertexNdId[idim]>=linearNoElements[idim] && periodicDIM[idim]) vertexNdId[idim]=0;
@@ -704,7 +704,7 @@ namespace Base {
                     }
                 } else {
                     powerOf2 = verticesPerGroup;
-                    for (int idim = 0; idim < DIM; ++idim) {
+                    for (std::size_t idim = 0; idim < DIM; ++idim) {
                         powerOf2 /= 2;
                         nodeNdId[idim] = elementNdId[idim] + (((i ^ rotate) & powerOf2) != 0);
                         vertexNdId[idim] = elementNdId[idim] + (((i ^ rotate) & powerOf2) != 0);
@@ -712,9 +712,9 @@ namespace Base {
                     }
                 }
                 
-                int nodeIndex = nodeNdId[0];
+                std::size_t nodeIndex = nodeNdId[0];
                 std::size_t vertexIndex = vertexNdId[0];
-                for (int idim = 1; idim < DIM; ++idim)
+                for (std::size_t idim = 1; idim < DIM; ++idim)
                 {
                     nodeIndex += nodeNdId[idim] * numOfNodesInEachSubspace[idim];
                     vertexIndex += vertexNdId[idim] * numOfVerticesInEachSubspace[idim];
@@ -741,7 +741,7 @@ namespace Base {
                         globalNodeID[3].insert(++(globalNodeID[3].begin()), nodeIndex);
                         break;
                     case 1:
-                        for (int i = 0; i < trianglesPerRectangle; ++i) {
+                        for (std::size_t i = 0; i < trianglesPerRectangle; ++i) {
                             if (i != 3) {
                                 globalVertexID[i].push_back(vertexIndex);
                                 globalNodeID[i].push_back(nodeIndex);
@@ -749,7 +749,7 @@ namespace Base {
                         }
                         break;
                     case 2:
-                        for (int i = 0; i < trianglesPerRectangle; ++i) {
+                        for (std::size_t i = 0; i < trianglesPerRectangle; ++i) {
                             if (i != 2) {
                                 globalVertexID[i].push_back(vertexIndex);
                                 globalNodeID[i].push_back(nodeIndex);
@@ -757,7 +757,7 @@ namespace Base {
                         }
                         break;
                     case 4:
-                        for (int i = 0; i < trianglesPerRectangle; ++i) {
+                        for (std::size_t i = 0; i < trianglesPerRectangle; ++i) {
                             if (i != 1) {
                                 globalVertexID[i].push_back(vertexIndex);
                                 globalNodeID[i].push_back(nodeIndex);
@@ -765,7 +765,7 @@ namespace Base {
                         }
                         break;
                     case 7:
-                        for (int i = 0; i < trianglesPerRectangle; ++i) {
+                        for (std::size_t i = 0; i < trianglesPerRectangle; ++i) {
                             if (i != 0) {
                                 globalVertexID[i].push_back(vertexIndex);
                                 globalNodeID[i].push_back(nodeIndex);
@@ -775,7 +775,7 @@ namespace Base {
                 } //switch
             } //for all vertices of the rectangle
 
-            for (int i = 0; i < trianglesPerRectangle; ++i) {
+            for (std::size_t i = 0; i < trianglesPerRectangle; ++i) {
                 Element* newElement = addElement(globalNodeID[i]);
                 for (std::size_t j = 0; j < globalVertexID[i].size(); ++j)
                 {
@@ -882,13 +882,13 @@ namespace Base {
             }
 
             //placeholder for vertices until we know where the periodic boundaries are
-            std::vector<std::vector<int> > listOfElementsForEachNode(numberOfNodes);
+            std::vector<std::vector<std::size_t> > listOfElementsForEachNode(numberOfNodes);
 
             //Now we will read in all the nodes
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             double nodeCoord[2];
             PointPhysicalT nodeCoordPointFormat(2);
-            for (int i = 0; i < numberOfNodes; i++) {
+            for (std::size_t i = 0; i < numberOfNodes; i++) {
                 // Reads the x and y coordinates of each node.
                 centaurFile.read(reinterpret_cast<char*> (nodeCoord), sizeof(nodeCoord));
                 // pass the node to the nodelist.
@@ -928,15 +928,15 @@ namespace Base {
                 std::vector<std::uint32_t> globalNodeIndexes(3);
                 std::vector<std::size_t> globalNodeIndexesSizeT(3);
 
-                for (int i = 0; i < numberOfTriangles; i++) {
+                for (std::size_t i = 0; i < numberOfTriangles; i++) {
 
                     centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof(std::uint32_t)*globalNodeIndexes.size());
-                    for (int j = 0; j < 3; j++) {
+                    for (std::size_t j = 0; j < 3; j++) {
                         globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
                         globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
                     }
                     
-                    int id = addElement(globalNodeIndexesSizeT)->getID();
+                    std::size_t id = addElement(globalNodeIndexesSizeT)->getID();
 
                     for(std::uint32_t j:globalNodeIndexes)
                     {
@@ -971,7 +971,7 @@ namespace Base {
                 std::uint32_t temp;
                 std::vector<std::uint32_t> globalNodeIndexes(4);
                 std::vector<std::size_t> globalNodeIndexesSizeT(4);
-                for (int i = 0; i < numberOfQuads; i++) {
+                for (std::size_t i = 0; i < numberOfQuads; i++) {
                     //Reading the vertex indices of each quadrilateral.
                     centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (std::uint32_t) * globalNodeIndexes.size());
 
@@ -984,13 +984,13 @@ namespace Base {
 
                     
                     // renumber them from 1..N to 0..N-1.
-                    for (int j = 0; j < 4; j++)
+                    for (std::size_t j = 0; j < 4; j++)
                     {
                         globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
                         globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
                     }
 
-                    int id = addElement(globalNodeIndexesSizeT)->getID();
+                    std::size_t id = addElement(globalNodeIndexesSizeT)->getID();
                     
                     for(std::uint32_t j:globalNodeIndexes)
                     {
@@ -1068,9 +1068,9 @@ namespace Base {
                 boundaryFaces[i].nodeList[0]-=1;
                 boundaryFaces[i].nodeList[1]-=1;
                 
-                std::vector<int> candidateElements;
-                std::vector<int>& leftNodeElements = listOfElementsForEachNode[boundaryFaces[i].nodeList[0]];
-                std::vector<int>& rightNodeElements =  listOfElementsForEachNode[boundaryFaces[i].nodeList[1]];
+                std::vector<std::size_t> candidateElements;
+                std::vector<std::size_t>& leftNodeElements = listOfElementsForEachNode[boundaryFaces[i].nodeList[0]];
+                std::vector<std::size_t>& rightNodeElements =  listOfElementsForEachNode[boundaryFaces[i].nodeList[1]];
                 
                 std::set_intersection(leftNodeElements.begin(),leftNodeElements.end(),rightNodeElements.begin(),rightNodeElements.end(),std::back_inserter(candidateElements));
                 
@@ -1272,7 +1272,7 @@ namespace Base {
                 centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                 
                 std::uint32_t nodePair[2];
-                std::vector<int> combine;
+                std::vector<std::size_t> combine;
                 for(uint_fast32_t j=0;j<numberOfNodePairs;++j)
                 {
                     centaurFile.read(reinterpret_cast<char*> (nodePair), sizeof (nodePair));
@@ -1395,7 +1395,7 @@ namespace Base {
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             double nodeCoord[3];
             PointPhysicalT nodeCoordPointFormat(3);
-            for (int i = 0; i < numberOfNodes; i++) {
+            for (std::size_t i = 0; i < numberOfNodes; i++) {
                 if (i > 0 && i % numberOfNodesPerLine == 0) {
                     //If all the nodes on a line are read end the line and start a new one
                     centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
@@ -1426,7 +1426,7 @@ namespace Base {
             }
 
             //Keep track of the node->Element connectivity to ease face creation later on
-            std::vector<std::vector<int> > listOfElementsForEachNode(numberOfNodes);
+            std::vector<std::vector<std::size_t> > listOfElementsForEachNode(numberOfNodes);
             std::vector<Element* > tempElementVector;
 
             //file version 1 has no lines about hexahedra
@@ -1457,7 +1457,7 @@ namespace Base {
                 std::vector<std::uint32_t> globalNodeIndexes(8);
                 std::vector<std::size_t> globalNodeIndexesSizeT(8);
                 centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
-                for (int i = 0; i < numberOfHexahedra; i++) {
+                for (std::size_t i = 0; i < numberOfHexahedra; i++) {
                     if (i > 0 && i % numberOfHexahedraPerLine == 0) {
                         //If all the nodes on a line are read end the line and start a new one
                         centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
@@ -1483,7 +1483,7 @@ namespace Base {
                     globalNodeIndexes[7] = temp;
 
                     // renumber them from 1..N to 0..N-1.
-                    for (int j = 0; j < 8; j++)
+                    for (std::size_t j = 0; j < 8; j++)
                     {
                         globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
                         globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
@@ -1492,7 +1492,7 @@ namespace Base {
                     Base::Element* newElement = addElement(globalNodeIndexesSizeT);
                     tempElementVector.push_back(newElement);
 
-                    for (int j = 0; j < 8; ++j) {
+                    for (std::size_t j = 0; j < 8; ++j) {
                         listOfElementsForEachNode[globalNodeIndexes[j] ].push_back(newElement->getID());
                     }
                 }
@@ -1529,7 +1529,7 @@ namespace Base {
             std::vector<std::uint32_t> globalNodeIndexes(6);
             std::vector<std::size_t> globalNodeIndexesSizeT(6);
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
-            for (int i = 0; i < numberOfPrisms; i++) {
+            for (std::size_t i = 0; i < numberOfPrisms; i++) {
                 if (i > 0 && i % numberOfPrismsPerLine == 0) {
                     //If all the nodes on a line are read end the line and start a new one
                     centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
@@ -1544,7 +1544,7 @@ namespace Base {
                 centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (std::uint32_t) * globalNodeIndexes.size());
 
                 // renumber them from 1..N to 0..N-1.
-                for (int j = 0; j < 6; j++)
+                for (std::size_t j = 0; j < 6; j++)
                 {
                     globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
                     globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
@@ -1553,7 +1553,7 @@ namespace Base {
                 Base::Element* newElement = addElement(globalNodeIndexesSizeT);
                 tempElementVector.push_back(newElement);
 
-                for (int j = 0; j < 6; ++j) {
+                for (std::size_t j = 0; j < 6; ++j) {
                     listOfElementsForEachNode[globalNodeIndexes[j] ].push_back(newElement->getID());
                 }
             }
@@ -1591,7 +1591,7 @@ namespace Base {
                 globalNodeIndexes.resize(5);
                 globalNodeIndexesSizeT.resize(5);
                 centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
-                for (int i = 0; i < numberOfPyraminds; i++) {
+                for (std::size_t i = 0; i < numberOfPyraminds; i++) {
                     if (i > 0 && i % numberOfPyramindsPerLine == 0) {
                         //If all the nodes on a line are read end the line and start a new one
                         centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
@@ -1646,7 +1646,7 @@ namespace Base {
                     globalNodeIndexes[1] = temp;
 
                     // renumber them from 1..N to 0..N-1.
-                    for (int j = 0; j < 5; j++)
+                    for (std::size_t j = 0; j < 5; j++)
                     {
                         globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
                         globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
@@ -1655,7 +1655,7 @@ namespace Base {
                     Base::Element* newElement = addElement(globalNodeIndexesSizeT);
                     tempElementVector.push_back(newElement);
 
-                    for (int j = 0; j < 5; ++j) {
+                    for (std::size_t j = 0; j < 5; ++j) {
                         listOfElementsForEachNode[globalNodeIndexes[j] ].push_back(newElement->getID());
                     }
                 }
@@ -1691,7 +1691,7 @@ namespace Base {
             globalNodeIndexes.resize(4);
             globalNodeIndexesSizeT.resize(4);
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
-            for (int i = 0; i < numberOfTetrahedra; i++) {
+            for (std::size_t i = 0; i < numberOfTetrahedra; i++) {
                 if (i > 0 && i % numberOfTetrahedraPerLine == 0) {
                     //If all the tetrahedra on a line are read end the line and start a new one
                     centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
@@ -1706,7 +1706,7 @@ namespace Base {
                 centaurFile.read(reinterpret_cast<char*> (globalNodeIndexes.data()), sizeof (std::uint32_t) * globalNodeIndexes.size());
 
                 // renumber them from 1..N to 0..N-1.
-                for (int j = 0; j < 4; j++)
+                for (std::size_t j = 0; j < 4; j++)
                 {
                     globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
                     globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
@@ -1715,7 +1715,7 @@ namespace Base {
                 Base::Element* newElement = addElement(globalNodeIndexesSizeT);
                 tempElementVector.push_back(newElement);
 
-                for (int j = 0; j < 4; ++j) {
+                for (std::size_t j = 0; j < 4; ++j) {
                     listOfElementsForEachNode[globalNodeIndexes[j] ].push_back(newElement->getID());
                 }
             }
@@ -1792,7 +1792,7 @@ namespace Base {
 
             //first read the information about the faces
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
-            for (int i = 0; i < numberOfBoundaryFaces; ++i) {
+            for (std::size_t i = 0; i < numberOfBoundaryFaces; ++i) {
 
                 if (i > 0 && i % numberOfBoundaryFaces == 0) {
                     //If all the tetrahedra on a line are read end the line and start a new one
@@ -1875,7 +1875,7 @@ namespace Base {
             //modern centaur file version store panel information separately
             if (centaurFileType > 3) {
                 centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
-                for (int i = 0; i < numberOfBoundaryFaces; ++i) {
+                for (std::size_t i = 0; i < numberOfBoundaryFaces; ++i) {
                     if (i > 0 && i % numberOfBoundaryFaces == 0) {
                         //If all the tetrahedra on a line are read end the line and start a new one
                         centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
@@ -1899,7 +1899,7 @@ namespace Base {
             }
 
             //put the centaur panels in their boudary group
-            std::vector<std::vector<int> > facesForEachBoundaryGroup(0);
+            std::vector<std::vector<std::size_t> > facesForEachBoundaryGroup(0);
             std::uint32_t groupOfPanelNumber;
 
             //this bit of information is a little late
@@ -1916,12 +1916,12 @@ namespace Base {
 
             //then read the panel to group connections
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
-            for (int i = 0; i < numberOfPanels; ++i) {
+            for (std::size_t i = 0; i < numberOfPanels; ++i) {
                 centaurFile.read(reinterpret_cast<char*> (&groupOfPanelNumber), sizeof (groupOfPanelNumber));
                 if (groupOfPanelNumber > facesForEachBoundaryGroup.size()) {
                     facesForEachBoundaryGroup.resize(groupOfPanelNumber);
                 }
-                for (int j = 0; j < facesForEachCentaurPanel[i].size(); ++j) {
+                for (std::size_t j = 0; j < facesForEachCentaurPanel[i].size(); ++j) {
                     facesForEachBoundaryGroup[groupOfPanelNumber - 1].push_back(facesForEachCentaurPanel[i][j]);
                 }
             }
@@ -1948,41 +1948,41 @@ namespace Base {
 
             //now set the boundary conditions for each group
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
-            for (int i = 0; i < numberOfBoundaryGroups; ++i) {
+            for (std::size_t i = 0; i < numberOfBoundaryGroups; ++i) {
                 centaurFile.read(reinterpret_cast<char*> (&centaurBCType), sizeof (centaurBCType));
                 if (centaurBCType < 1001) {
                     std::cout << "Viscous Wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
-                    for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
+                    for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 } else if (centaurBCType < 2001) {
                     std::cout << "Inviscid Wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
-                    for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
+                    for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 } else if (centaurBCType < 3001) {
                     std::cout << "symmetry plane boundary for group " << i << " assigned as WALL_BC" << std::endl;
-                    for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
+                    for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 } else if (centaurBCType < 4001) {
                     std::cout << "inlet pipe boundary for group " << i << " assigned as OPEN_BC" << std::endl;
-                    for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
+                    for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
                 } else if (centaurBCType < 5001) {
                     std::cout << "outlet pipe boundary for group " << i << " assigned as OPEN_BC" << std::endl;
-                    for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
+                    for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
                 } else if (centaurBCType < 6001) {
                     std::cout << "farfield boundary for group " << i << " assigned as OPEN_BC" << std::endl;
-                    for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
+                    for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
@@ -2000,13 +2000,13 @@ namespace Base {
                     }
                 } else if (centaurBCType < 10001) {
                     std::cout << "moving wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
-                    for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
+                    for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 } else {
                     std::cout << "alternative boundary condition for group " << i << " assigned as WALL_BC" << std::endl;
-                    for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
+                    for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j) {
                         //big assumption on the nature of elementIDs here...
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
@@ -2021,7 +2021,7 @@ namespace Base {
 
             //This is where centaur tells the names of all the boundary groups
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
-            for (int i = 0; i < numberOfBoundaryGroups; ++i) {
+            for (std::size_t i = 0; i < numberOfBoundaryGroups; ++i) {
                 centaurFile.read(reinterpret_cast<char*> (&nameOfBoundaryCondition[0]), sizeof (nameOfBoundaryCondition));
                 std::cout << "boundary condition " << i << " is called " << nameOfBoundaryCondition << std::endl;
             }
@@ -2048,7 +2048,7 @@ namespace Base {
                     std::cerr << "Error in centaur file " << std::endl;
                     return;
                 }
-                for (int i = 0; i < numberOfPeriodicTransformations; ++i) {
+                for (std::size_t i = 0; i < numberOfPeriodicTransformations; ++i) {
                     //information on how to do the transformation can be computed later so just throw it away now
                     centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
                     centaurFile.read(reinterpret_cast<char*> (&ijunk), sizeof (ijunk));
@@ -2082,7 +2082,7 @@ namespace Base {
 
                     //and the actual pairing information
                     centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
-                    for (int j = 0; j < numberOfPeriodicNodes; j++) {
+                    for (std::size_t j = 0; j < numberOfPeriodicNodes; j++) {
                         centaurFile.read(reinterpret_cast<char*> (&matchingNodes[0]), sizeof (matchingNodes));
 
                         ///\bug for EXTREMELY coarse meshes this will destroy the distinction between faces on the boundary of the domain. Workaround: use at least 3 nodes per direction on each face.
@@ -2116,7 +2116,7 @@ namespace Base {
 
                 //and the actual pairing information
                 centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
-                for (int j = 0; j < numberOfPeriodicNodes; j++) {
+                for (std::size_t j = 0; j < numberOfPeriodicNodes; j++) {
                     centaurFile.read(reinterpret_cast<char*> (&matchingNodes[0]), sizeof (matchingNodes));
 
                     auto& target = listOfElementsForEachNode[matchingNodes[0]];
@@ -4058,7 +4058,7 @@ namespace Base {
     }*/
     //---------------------------------------------------------------------
 
-    int MeshManipulator //: public MeshRefiner <DIM>
+    std::size_t MeshManipulator //: public MeshRefiner <DIM>
     ::dimension() const {
         return configData_->dimension_;
     }

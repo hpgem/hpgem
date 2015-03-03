@@ -72,9 +72,9 @@ namespace Base
         virtual bool initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, std::size_t meshID);
 
         /// Creating a mesh with in-house remesher.
-        MeshId addMesh(const RectangularMeshDescriptorT& meshDescriptor, const MeshType& meshType = RECTANGULAR, int nrOfElementMatrixes = 0, int nrOfElementVectors = 0, int nrOfFaceMatrixes = 0, int nrOfFaceVectors = 0);
+        MeshId addMesh(const RectangularMeshDescriptorT& meshDescriptor, const MeshType& meshType = RECTANGULAR, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
         /// Reading a mesh from a file, currently only Centaur is supported.
-        MeshId addMesh(const String& fileName, int nrOfElementMatrixes = 0, int nrOfElementVectors = 0, int nrOfFaceMatrixes = 0, int nrOfFaceVectors = 0);
+        MeshId addMesh(const String& fileName, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
 
         std::size_t getNumberOfElements(MeshId id)const
         {

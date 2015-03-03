@@ -53,7 +53,7 @@ namespace Base
     double L2Norm(const LinearAlgebra::NumericalVector& v)
     {
     	double retSquared(0);
-    	for(int i=0;i<v.size();++i){
+    	for(std::size_t i=0;i<v.size();++i){
     		retSquared+=v[i]*v[i];
     	}
     	return std::sqrt(retSquared);
@@ -81,7 +81,7 @@ namespace Base
     double L2Norm(const Geometry::PointPhysical& v)
     {
     	double retSquared(0);
-    	for(int i=0;i<v.size();++i){
+    	for(std::size_t i=0;i<v.size();++i){
     		retSquared+=v[i]*v[i];
     	}
     	return std::sqrt(retSquared);

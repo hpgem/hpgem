@@ -91,7 +91,7 @@ namespace Base {
         /// idRangeBegin is the begining of the range, from where the Element's ids should be assigned.
         /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
         MeshManipulator(const ConfigurationData* configData, bool xPer = 0, bool yPer = 0, bool zPer = 0, std::size_t orderOfFEM = 1, std::size_t idRangeBegin = 0,
-                int nrOfElementMatrixes = 0, int nrOfElementVectors = 0, int nrOfFaceMatrixes = 0, int nrOfFaceVectors = 0);
+        		std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
 
         MeshManipulator(const MeshManipulator& other);
 
@@ -323,7 +323,7 @@ namespace Base {
         //! Adds edge based degrees of freedom to the set of basisfunctions for this mesh and all of its edges. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
         void addEdgeBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets); ///\TODO support for mixed meshes
 
-        int dimension() const;
+        std::size_t dimension() const;
 
         const std::vector<PointPhysicalT>& getNodes()const
         {
@@ -454,10 +454,10 @@ namespace Base {
         //! Vector faces LevelTree.
         //VecOfFaceLevelTreePtrT vecOfFaceTree_;
 
-        int numberOfElementMatrixes_;
-        int numberOfFaceMatrixes_;
-        int numberOfElementVectors_;
-        int numberOfFaceVectors_;
+        std::size_t numberOfElementMatrixes_;
+        std::size_t numberOfFaceMatrixes_;
+        std::size_t numberOfElementVectors_;
+        std::size_t numberOfFaceVectors_;
 
         //when the mesh is updated, persistently store original node coordinates to see if retriangulation is in order
         std::vector<PointPhysicalT> oldNodeLocations_;
