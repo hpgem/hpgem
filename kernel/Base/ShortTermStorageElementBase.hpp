@@ -175,7 +175,7 @@ namespace Base
             return element_->getSolution(timeLevel, p, solution);
         }
 
-        int getLocalNrOfBasisFunctions() const override
+        std::size_t getLocalNrOfBasisFunctions() const override
         {
             return element_->getLocalNrOfBasisFunctions();
         }
@@ -301,6 +301,7 @@ namespace Base
 
         bool useCache_;
         bool recomputeCache_;
+        //currentPointIndex is set to -1 in constructor, so can't be a std::size_t currently.
         int currentPointIndex_;
     };
 }

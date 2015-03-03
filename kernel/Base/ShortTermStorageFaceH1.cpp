@@ -41,7 +41,7 @@ void Base::ShortTermStorageFaceH1::computeData()
     Geometry::PointReference pElement(currentPoint_.size() + 1);
     mapRefFaceToRefElemL(currentPoint_, pElement);
     double norm = Base::L2Norm(normal_);
-    for (int i = 0; i < leftFunctions; ++i)
+    for (std::size_t i = 0; i < leftFunctions; ++i)
     {
         basisFunctionValues_[i].resize(1);
         basisFunctionValues_[i][0] = elementwrapper->basisFunction(i, pElement);
@@ -56,7 +56,7 @@ void Base::ShortTermStorageFaceH1::computeData()
         *elementwrapper = *getPtrElementRight();
         mapRefFaceToRefElemR(currentPoint_, pElement);
     }
-    for (int i = leftFunctions; i < n; ++i)
+    for (std::size_t i = leftFunctions; i < n; ++i)
     {
         basisFunctionValues_[i].resize(1);
         basisFunctionValues_[i][0] = elementwrapper->basisFunction(i - leftFunctions, pElement);

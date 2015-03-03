@@ -133,7 +133,7 @@ namespace Base
 
         void setNode(std::size_t localNodeNr, const Node* node);
 
-        virtual int getLocalNrOfBasisFunctions() const
+        virtual std::size_t getLocalNrOfBasisFunctions() const
         {
             return nrOfDOFinTheElement_;
         }

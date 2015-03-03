@@ -30,8 +30,8 @@ void Base::ShortTermStorageFaceBase::computeData() {
 		std::vector<FaceCacheData>& cache=const_cast<Face*>(face_)->getVecCacheData();
 		if(recomputeCache_||(cache.size()!=getGaussQuadratureRule()->nrOfPoints())){
 			recomputeCacheOff();
-			int n=getGaussQuadratureRule()->nrOfPoints();
-			for(int i=0;i<n;++i){
+			std::size_t n=getGaussQuadratureRule()->nrOfPoints();
+			for(std::size_t i=0;i<n;++i){
 				cache[i](*face_,getGaussQuadratureRule()->getPoint(i));
 			}
 		}

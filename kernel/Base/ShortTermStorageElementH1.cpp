@@ -28,13 +28,13 @@ void Base::ShortTermStorageElementH1::computeData() {
     basisFunctionValues_.resize(element_->getNrOfBasisFunctions());
     basisFunctionDerivatives_.resize(element_->getNrOfBasisFunctions());
     basisFunctionIndividualDerivatives_.resize(element_->getNrOfBasisFunctions());
-    for(int i=0;i<element_->getNrOfBasisFunctions();++i){
+    for(std::size_t i=0;i<element_->getNrOfBasisFunctions();++i){
         basisFunctionValues_[i].resize(1);
         basisFunctionValues_[i][0]=element_->basisFunction(i,currentPoint_);
         basisFunctionDerivatives_[i].resize(currentPoint_.size());
         element_->basisFunctionDeriv(i,currentPoint_,basisFunctionDerivatives_[i],this);
         basisFunctionIndividualDerivatives_[i].resize(currentPoint_.size());
-        for(int j=0;j<currentPoint_.size();++j){
+        for(std::size_t j=0;j<currentPoint_.size();++j){
             basisFunctionIndividualDerivatives_[i][j]=element_->basisFunctionDeriv(i,j,currentPoint_);
         }
     }

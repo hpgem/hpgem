@@ -188,7 +188,7 @@ namespace Utilities {
 	 const unsigned int                  myFunctionNumber_;
 	 };*/
 	void PhysGradientOfBasisFunction::operator ()(const PointReferenceT& p, RetType& r) const {
-		const unsigned int DIM = p.size();
+		const std::size_t DIM = p.size();
 		r.resize(DIM);
                 r*=0;
 		static RetType dummy(DIM);
@@ -199,9 +199,9 @@ namespace Utilities {
 		myElement_->getReferenceGeometry()->getBasisFunctionDerivative(myFunction_, p, dummy);
 		jac = jac.inverse();
 		//r*=jac;///\todo can someone who knows BLAS update the linAlg routines?
-		for (int i = 0; i < DIM; ++i) {
+		for (std::size_t i = 0; i < DIM; ++i) {
                         //std::cout<<dummy[i]<<" ";
-			for (int j = 0; j < DIM; ++j) {
+			for (std::size_t j = 0; j < DIM; ++j) {
 				r[i] += dummy[j] * jac(j, i);
 			}
 		}

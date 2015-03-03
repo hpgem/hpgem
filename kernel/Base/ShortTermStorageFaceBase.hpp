@@ -306,6 +306,7 @@ namespace Base
 
         bool useCache_;
         bool recomputeCache_;
+        //currentPointIndex_ is set to -1 in constructor, so can't be a std::size_t currently.
         int currentPointIndex_;
     };
 

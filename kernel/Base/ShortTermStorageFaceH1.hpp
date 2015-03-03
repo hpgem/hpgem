@@ -34,7 +34,7 @@ namespace Base{
 	class ShortTermStorageFaceH1:public ShortTermStorageFaceBase{
 
 	public:
-		ShortTermStorageFaceH1(unsigned int dimension):ShortTermStorageFaceBase(dimension){ }
+		ShortTermStorageFaceH1(std::size_t dimension):ShortTermStorageFaceBase(dimension){ }
 
         void computeData() override;
 
