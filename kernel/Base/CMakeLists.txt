@@ -46,7 +46,6 @@ add_library(hpGEM_Base SHARED
         	${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Base/Norm2.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Base/Logger.cc
                 MpiContainer.cpp
 		ShortTermStorageElementBase.cpp
 		ShortTermStorageElementH1.cpp
@@ -54,7 +53,7 @@ add_library(hpGEM_Base SHARED
 		ShortTermStorageFaceH1.cpp
 	) 
 
-target_link_libraries(hpGEM_Base Geometry Reference_geometries TimeIntegration)
+target_link_libraries(hpGEM_Base Geometry Reference_geometries TimeIntegration Logger)
 
 set( DEP_COMPILE_FLAGS "" )
 set( DEP_LINKER_FLAGS "" )

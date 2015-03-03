@@ -27,7 +27,6 @@ Functions to test:
 -Face::convertToSingleIndex
  */
 
-#include <cassert>
 #include <iostream>
 
 #include "Base/AssembleBasisFunctionSet.hpp"
@@ -162,7 +161,7 @@ int main()
     }
     for(iVB = 0; iVB < nrOfBasisFunctions * nrOfUnknowns; iVB++)
     {
-        assert(checkMappingElementIndex[iVB]);
+        logger.assert(checkMappingElementIndex[iVB], "Element mapping index check failed: %", iVB);
     }
     
     
@@ -178,14 +177,15 @@ int main()
     }
     elementRight.setTimeLevelDataVector(iTimeLevel, expansionCoefficients);
     LinearAlgebra::NumericalVector testVector = elementRight.getTimeLevelDataVector(iTimeLevel);
-    assert(testVector == expansionCoefficients);
+    logger.assert(testVector == expansionCoefficients, "Expansion coefficients incorrect: % != %", testVector, expansionCoefficients);
     
     Geometry::PointReference pointReference(coords0);
     LinearAlgebra::NumericalVector solutionVector(nrOfUnknowns);
     elementRight.getSolution(iTimeLevel, pointReference, solutionVector);
     for(iV = 0; iV < nrOfUnknowns; iV++)
     {
-        assert(solutionVector(iV) == (iV + 1) * solutionVector(0));
+        logger.assert(solutionVector(iV) == (iV + 1) * solutionVector(0), "Solution vector test failed (%): % != (% + 1) * %",
+                                     iV, solutionVector(iV), iV, solutionVector(0));
     }
     
     
@@ -215,7 +215,7 @@ int main()
     }
     for(i = 0; i < nrOfBasisFunctions * nrOfUnknowns * 2; i++)
     {
-        assert(checkMappingFaceIndex[i]);
+        logger.assert(checkMappingFaceIndex[i], "Face mapping index failed: %", i);
     }
     
     std::cout << "Finished tests.\n";

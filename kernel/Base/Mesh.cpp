@@ -22,8 +22,6 @@
 #include <mpi.h>
 #endif
 
-#include <cassert>
-
 #include "MpiContainer.hpp"
 #include "Mesh.hpp"
 #include "Element.hpp"
@@ -164,7 +162,7 @@ namespace Base {
             //the empty arguments provide options for fine-tuning the weights of nodes, edges and processors, these are currently assumed to be the same
             METIS_PartGraphKway(&numberOfElements, &one, &xadj[0], &adjncy[0], NULL, NULL, NULL, &nProcs, NULL, &imbalance, metisOptions, &totalCutSize, &partition[0]);
             //mpiCommunicator.Bcast((void *)&partition[0],partition.size(),MPI::INT,0);//broadcast the computed partition to all the nodes
-            std::cout << "done splitting mesh" << std::endl;
+            logger(INFO, "Done splitting mesh.");
 
         }
 
@@ -249,11 +247,9 @@ namespace Base {
 
     const std::vector<Element*>& Mesh::getElementsList(IteratorType part) const {
         if(part==IteratorType::LOCAL){
-            if (!hasToSplit_) {
-                return submeshes_.getElementsList();
-            } else {
-                throw "Please call getElementsList() on a modifiable mesh at least once before calling getElementsList() const";
-            }
+            logger.assert_always(!hasToSplit_, "Please call getElementsList() on a modifiable mesh at least once"
+                                    "\nbefore calling getElementsList() const");
+            return submeshes_.getElementsList();
         }else{
             return elements_;
         }
@@ -272,11 +268,9 @@ namespace Base {
 
     const std::vector<Face*>& Mesh::getFacesList(IteratorType part) const {
         if(part==IteratorType::LOCAL){
-            if (!hasToSplit_) {
-                return submeshes_.getFacesList();
-            } else {
-                throw "Please call getFacesList() on a modifiable mesh at least once before calling getFacesList() const";
-            }
+            logger.assert_always(!hasToSplit_, "Please call getFacesList() on a modifiable mesh at least once"
+                                               "\nbefore calling getFacesList() const"); 
+            return submeshes_.getFacesList();
         }else{
             return faces_;
         }
@@ -295,11 +289,9 @@ namespace Base {
 
     const std::vector<Edge*>& Mesh::getEdgesList(IteratorType part) const {
         if(part==IteratorType::LOCAL){
-            if (!hasToSplit_) {
-                return submeshes_.getEdgesList();
-            } else {
-                throw "Please call getEdgesList() on a modifiable mesh at least once before calling getEdgesList() const";
-            }
+            logger.assert_always(!hasToSplit_, "Please call getEdgesList() on a modifiable mesh at least once"
+                                               "\nbefore calling getEdgesList() const"); 
+            return submeshes_.getEdgesList();
         }else{
             return edges_;
         }
@@ -318,11 +310,9 @@ namespace Base {
 
     const std::vector<Node*>& Mesh::getVerticesList(IteratorType part) const {
         if(part==IteratorType::LOCAL){
-            if (!hasToSplit_) {
-                return submeshes_.getNodesList();
-            } else {
-                throw "Please call getVerticesList() on a modifiable mesh at least once before calling getEdgesList() const";
-            }
+            logger.assert_always(!hasToSplit_, "Please call getVerticesListList() on a modifiable mesh at least once"
+                                               "\nbefore calling getVerticesList() const"); 
+              return submeshes_.getNodesList();
         }else{
             return nodes_;
         }
@@ -339,7 +329,7 @@ namespace Base {
         }
     }
 
-    const std::vector<Geometry::PointPhysical>& Mesh::getNodes()const {
+    const std::vector<Geometry::PointPhysical>& Mesh::getNodes() const {
         //for historic reasons points_ is referenced directly during element creation and therefore cannot be distributed
         return points_;
     }

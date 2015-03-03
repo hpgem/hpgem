@@ -21,13 +21,9 @@
 
 #include "VTKTimeDependentWriter.hpp"
 #include "Base/MpiContainer.hpp"
-#include "Base/Logger.h"
+#include "Logger.h"
 #include "base64.hpp"
 #include "Base/CommandLineOptions.hpp"
-
-#include <cassert>
-
-static Logger<LOG_LEVEL> logger("VTK time dependent solution writer");
 
 Output::VTKTimeDependentWriter::VTKTimeDependentWriter(std::string baseFileName, Base::MeshManipulator* mesh) : mesh_(mesh), currentFile_(nullptr), baseName_(baseFileName), time_(0), numberOfFilesWritten_(0)
 {
@@ -79,7 +75,7 @@ void Output::VTKTimeDependentWriter::write(std::function<double(Base::Element*, 
         time_=time;
         timelevel_=timelevel;
     }
-    assert(timelevel==timelevel_);
+    logger.assert(timelevel==timelevel_,"Timelevel isn't as expected. % != %", timelevel, timelevel_);
     currentFile_->write(f, name);
 }
 
@@ -99,7 +95,7 @@ void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::Numerica
         time_=time;
         timelevel_=timelevel;
     }
-    assert(timelevel==timelevel_);
+    logger.assert(timelevel==timelevel_,"Timelevel isn't as expected. % != %", timelevel, timelevel_);
     currentFile_->write(f, name);
 }
 
@@ -119,7 +115,7 @@ void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::Matrix(B
         time_=time;
         timelevel_=timelevel;
     }
-    assert(timelevel==timelevel_);
+    logger.assert(timelevel==timelevel_,"Timelevel isn't as expected. % != %", timelevel, timelevel_);
     currentFile_->write(f, name);
 }
 

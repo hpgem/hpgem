@@ -21,7 +21,6 @@
 
 
 #include <vector>
-#include <cassert>
 
 #include "GNUPlotDiscontinuousSolutionWriter.hpp"
 #include "Base/Element.hpp"
@@ -77,7 +76,8 @@ namespace Output
 
         //First assert that we have defined the correct number of dimensions in 
         //the constructor.
-        assert(mesh->dimension() == nDimensionsToWrite_);
+        logger.assert(mesh->dimension() == nDimensionsToWrite_, "Expected % dimensions, but got % dimensions."
+                                        ,mesh->dimension(), nDimensionsToWrite_);
         
         //Write how many elements there are in this simulation.
         //It would be nice to also display the polynomial order here.

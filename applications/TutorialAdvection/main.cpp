@@ -19,7 +19,6 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
 #include <cmath>
 #include <functional>
 #include "Base/CommandLineOptions.hpp"
@@ -34,7 +33,7 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "Output/TecplotSingleElementWriter.hpp"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
-
+#include "Logger.h"
 
 ///Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
 ///The first self-contained (no PETSc) program to make it into the SVN
@@ -290,7 +289,7 @@ int main(int argc, char **argv)
     //If something went wrong, print the error message and return -1.
     catch (const char* e)
     {
-        std::cout << e;
+        std::cerr << e;
     }
     return -1;
 }

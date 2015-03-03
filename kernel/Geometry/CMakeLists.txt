@@ -71,6 +71,5 @@ add_library(Geometry SHARED
 
       )
 
-target_link_libraries(Reference_geometries LinearAlgebra QuadratureRules)
-target_link_libraries(Geometry Reference_geometries LinearAlgebra)
-
+target_link_libraries(Reference_geometries LinearAlgebra QuadratureRules Logger)
+target_link_libraries(Geometry Reference_geometries LinearAlgebra Logger)

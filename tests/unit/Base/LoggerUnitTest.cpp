@@ -20,7 +20,7 @@
  */
 
 #include <iostream>
-#include "Base/Logger.h"
+#include "Logger.h"
 
 
 // --- Declaring a logger.
@@ -47,11 +47,15 @@ int main(int argc, char** argv) {
     log(WARN, "Custom logger! % + % = %, %!",
             3, 5, 3+5, "yay");
     
+    logger.assert(true, "Test %", 3);
+    
     //Usage case for redefining with a lambda func
     loggerOutput->onFatal = [](std::string module, std::string message) {
         std::cerr << "A fatal error has occurred."
         << "\n  Module: " << module
-        << "\n  Message: " << message << std::endl;
+        << "\n  Message: " << message
+        << "\n (This is part of the test.)\n" << std::endl;
+        
         std::exit(0);
     };
     

@@ -29,13 +29,7 @@
 #include <iostream>
 #include "LinearAlgebra/NumericalVector.hpp"
 #include "Geometry/PointPhysical.hpp"
-#include "Base/Logger.h"
-//#include "cassert"
-
-#ifndef LOG_TEST_LEVEL
-#define LOG_TEST_LEVEL Log::DEBUG
-#endif
-static Logger<LOG_TEST_LEVEL> logger(std::string(__FILE__).append(" (test suite)"));
+#include "Logger.h"
 
 void assert(std::string message,bool comparison,int lineNumber){
 	if(!comparison){

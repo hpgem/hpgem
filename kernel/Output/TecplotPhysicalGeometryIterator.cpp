@@ -33,6 +33,7 @@
 #include "Geometry/PhysicalTriangle.hpp"
 #include "Geometry/PhysicalTriangularPrism.hpp"
 
+#include "Logger.h"
 #include <typeinfo>
 
 namespace Output
@@ -150,7 +151,8 @@ namespace Output
         }
         else if(typeid(*geo)==typeid(const Geometry::PhysicalOctachoron))
         {
-            throw "not implemented";
+            logger(FATAL, "This physical geometry is not supported by the Tecplot output writer yet.\n"
+                          "  classname = % ", typeid(geo).name() );
             //acceptOctachoronGeometry(dynamic_cast<const Geometry::PhysicalOctachoron*>(geo));
         }
         else

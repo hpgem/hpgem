@@ -25,8 +25,8 @@
 #include <set>
 #include <vector>
 #include <memory>
-#include <cassert>
 
+#include <Logger.h>
 #include "LinearAlgebra/Matrix.hpp"
 
 //--------------------------------------------------------------------------------------------------
@@ -97,6 +97,29 @@ namespace Geometry
   {
     OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL, SUBDOMAIN_BOUNDARY
   } ;
+  
+  //For sake of consistency, placed here.
+  inline std::ostream & operator<<(std::ostream& out, FaceType ft)
+  {
+    switch (ft) {
+      case FaceType::OPEN_BC:
+        out << "Open boundary condition";
+        break;
+      case FaceType::WALL_BC:
+        out << "Wall boundary condition";
+        break;
+      case FaceType::PERIODIC_BC:
+        out << "Periodic boundary condition";
+        break;
+      case FaceType::INTERNAL:
+        out << "Internal";
+        break;
+      case FaceType::SUBDOMAIN_BOUNDARY:
+        out << "Subdomain boundary";
+        break;
+    }
+    return out;
+  }
 
   /*!
    \brief Class to represent the geometry and topology of a face.
@@ -185,10 +208,10 @@ namespace Geometry
     virtual void setFaceType(const FaceType& newFace) {
         if(isInternal()){
             faceType_=newFace;
-            assert(isInternal());
+            logger.assert(isInternal(), "This face should be internal (%)", newFace);
         }else{
             faceType_=newFace;
-            assert(!isInternal());
+            logger.assert(!isInternal(), "This face should not be internal (%)", newFace);
         }
     }
 
