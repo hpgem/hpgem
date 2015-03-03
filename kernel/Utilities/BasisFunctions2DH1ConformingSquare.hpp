@@ -39,7 +39,7 @@ namespace Utilities{
 	class BasisFunction2DVertexSquare: public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction2DVertexSquare(int node):nodePosition0_((node%2)*2-1),nodePosition1_((node/2)*2-1){}
+		BasisFunction2DVertexSquare(std::size_t node):nodePosition0_((node%2)*2-1),nodePosition1_((node/2)*2-1){}
 
 		double eval(const Geometry::PointReference& p) const;
 
@@ -55,7 +55,7 @@ namespace Utilities{
 	class BasisFunction2DFaceSquare_0: public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction2DFaceSquare_0(int node0, int node1, int polynomialOrder);
+		BasisFunction2DFaceSquare_0(std::size_t node0, std::size_t node1, std::size_t polynomialOrder);
 
 		double eval(const Geometry::PointReference& p) const;
 
@@ -66,13 +66,13 @@ namespace Utilities{
 	private:
 		int edgePosition_;
 		int mirroring_;
-		int polynomialOrder_;
+		std::size_t polynomialOrder_;
 	};
 
 	class BasisFunction2DFaceSquare_1: public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction2DFaceSquare_1(int node0, int node1, int polynomialOrder);
+		BasisFunction2DFaceSquare_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder);
 
 		double eval(const Geometry::PointReference& p) const;
 
@@ -83,13 +83,13 @@ namespace Utilities{
 	private:
 		int edgePosition_;
 		int mirroring_;
-		int polynomialOrder_;
+		std::size_t polynomialOrder_;
 	};
 
 	class BasisFunction2DInteriorSquare: public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction2DInteriorSquare(int polynomialOrder0,int polynomialOrder1):polynomialOrder0_(polynomialOrder0),polynomialOrder1_(polynomialOrder1){}
+		BasisFunction2DInteriorSquare(std::size_t polynomialOrder0,std::size_t polynomialOrder1):polynomialOrder0_(polynomialOrder0),polynomialOrder1_(polynomialOrder1){}
 
 		double eval(const Geometry::PointReference& p) const;
 
@@ -97,16 +97,16 @@ namespace Utilities{
 
 		double evalDeriv1(const Geometry::PointReference& p) const;
 	private:
-		int polynomialOrder0_,polynomialOrder1_;
+		std::size_t polynomialOrder0_,polynomialOrder1_;
 	};
 
-Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Square(int order);
+Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Square(std::size_t order);
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(int order);
+Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(std::size_t order);
 
-std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(int order);
+std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(std::size_t order);
 
-std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Square(int order);
+std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Square(std::size_t order);
 
 }
 

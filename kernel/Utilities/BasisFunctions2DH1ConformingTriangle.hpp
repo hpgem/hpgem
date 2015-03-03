@@ -39,7 +39,7 @@ namespace Utilities{
 	class BasisFunction2DVertexTriangle: public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction2DVertexTriangle(int node):node_(node){}
+		BasisFunction2DVertexTriangle(std::size_t node):node_(node){}
 
 	double eval(const Geometry::PointReference& p) const;
 
@@ -48,13 +48,13 @@ namespace Utilities{
 	double evalDeriv1(const Geometry::PointReference& p) const;
 
 	private:
-		int node_;
+	std::size_t node_;
 	};
 
 	class BasisFunction2DFaceTriangle: public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction2DFaceTriangle(int node0,int node1,int polynomialOrder):node0_(node0),node1_(node1),polynomialOrder_(polynomialOrder){}
+		BasisFunction2DFaceTriangle(std::size_t node0,std::size_t node1,std::size_t polynomialOrder):node0_(node0),node1_(node1),polynomialOrder_(polynomialOrder){}
 
 	double eval(const Geometry::PointReference& p) const;
 
@@ -63,13 +63,13 @@ namespace Utilities{
 	double evalDeriv1(const Geometry::PointReference& p) const;
 
 	private:
-		int node0_, node1_,polynomialOrder_;
+	std::size_t node0_, node1_,polynomialOrder_;
 	};
 
 	class BasisFunction2DInteriorTriangle: public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction2DInteriorTriangle(int polynomialOrder0,int polynomialOrder1):polynomialOrder0_(polynomialOrder0),polynomialOrder1_(polynomialOrder1){}
+		BasisFunction2DInteriorTriangle(std::size_t polynomialOrder0,std::size_t polynomialOrder1):polynomialOrder0_(polynomialOrder0),polynomialOrder1_(polynomialOrder1){}
 
 	double eval(const Geometry::PointReference& p) const;
 
@@ -78,16 +78,16 @@ namespace Utilities{
 	double evalDeriv1(const Geometry::PointReference& p) const;
 
 	private:
-		int polynomialOrder0_,polynomialOrder1_;
+	std::size_t polynomialOrder0_,polynomialOrder1_;
 	};
 
-Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Triangle(int order);
+Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Triangle(std::size_t order);
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Triangle(int order);
+Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Triangle(std::size_t order);
 
-std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Triangle(int order);
+std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Triangle(std::size_t order);
 
-std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Triangle(int order);
+std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Triangle(std::size_t order);
 
 }
 

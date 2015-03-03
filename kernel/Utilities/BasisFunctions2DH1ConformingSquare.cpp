@@ -41,7 +41,7 @@ double BasisFunction2DVertexSquare::evalDeriv1(const Geometry::PointReference& p
 	return nodePosition1_ * (1 + nodePosition0_ * p[0]) / 4.;
 }
 
-BasisFunction2DFaceSquare_0::BasisFunction2DFaceSquare_0(int node0, int node1,int polynomialOrder) :
+BasisFunction2DFaceSquare_0::BasisFunction2DFaceSquare_0(std::size_t node0, std::size_t node1,std::size_t polynomialOrder) :
 		polynomialOrder_(polynomialOrder) {
 	TestErrorDebug((node0 + node1) % 2 == 1,"please use BasisFunction2DFaceSquare_1 for edges that are aligned vertically");
 	mirroring_ = (node0 > node1) ? -1 : 1;
@@ -61,7 +61,7 @@ double BasisFunction2DFaceSquare_0::evalDeriv1(const Geometry::PointReference& p
 	return edgePosition_ * (1 - p[0]) * (1 + p[0]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[0]) / 8.;
 }
 
-BasisFunction2DFaceSquare_1::BasisFunction2DFaceSquare_1(int node0, int node1, int polynomialOrder) :
+BasisFunction2DFaceSquare_1::BasisFunction2DFaceSquare_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder) :
 		polynomialOrder_(polynomialOrder) {
 	TestErrorDebug((node0 + node1) % 2 == 0,"please use BasisFunction2DFaceSquare_0 for edges that are aligned horizontally");
 	mirroring_ = (node0 > node1) ? -1 : 1;
@@ -95,37 +95,37 @@ double BasisFunction2DInteriorSquare::evalDeriv1(const Geometry::PointReference&
 			* (-p[1] * LobattoPolynomial(polynomialOrder1_, p[1]) / 2. + (1 - p[1]) * (1 + p[1]) * LobattoPolynomialDerivative(polynomialOrder1_, p[1]) / 4.);
 }
 
-Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Square(int order) {
+Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Square(std::size_t order) {
 	Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
-	for (int i = 0; i < 4; ++i) {
+	for (std::size_t i = 0; i < 4; ++i) {
 		result->addBasisFunction(new BasisFunction2DVertexSquare(i));
 	}
-	for (int i = 0; i <= order - 2; ++i) {
+	for (std::size_t i = 0; i  + 2 <= order; ++i) {
 		result->addBasisFunction(new BasisFunction2DFaceSquare_0(0, 1, i));
 		result->addBasisFunction(new BasisFunction2DFaceSquare_0(2, 3, i));
 		result->addBasisFunction(new BasisFunction2DFaceSquare_1(0, 2, i));
 		result->addBasisFunction(new BasisFunction2DFaceSquare_1(1, 3, i));
-		for (int j = 0; j <= order - 2; ++j) {
+		for (std::size_t j = 0; j  + 2 <= order; ++j) {
 			result->addBasisFunction(new BasisFunction2DInteriorSquare(i, j));
 		}
 	}
 	return result;
 }
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(int order) {
+Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(std::size_t order) {
 	Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
-	for (int i = 0; i <= order - 2; ++i) {
-		for (int j = 0; j <= order - 2; ++j) {
+	for (std::size_t i = 0; i  + 2 <= order; ++i) {
+		for (std::size_t j = 0; j + 2 <= order; ++j) {
 			result->addBasisFunction(new BasisFunction2DInteriorSquare(i, j));
 		}
 	}
 	return result;
 }
 
-std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(int order) {
+std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(std::size_t order) {
     std::vector<const Base::BasisFunctionSet*> result;
 	Base::BasisFunctionSet* set;
-	for (int i = 0; i < 4; ++i) {
+	for (std::size_t i = 0; i < 4; ++i) {
 		set = new Base::BasisFunctionSet(order);
 		set->addBasisFunction(new BasisFunction2DVertexSquare(i));
 		result.push_back(set);
@@ -133,15 +133,15 @@ std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Squar
     return result;
 }
 
-std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Square(int order) {
+std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Square(std::size_t order) {
     std::vector<const Base::OrientedBasisFunctionSet*> result;
 	Geometry::ReferenceSquare& square = Geometry::ReferenceSquare::Instance();
 	Base::OrientedBasisFunctionSet* set;
 	std::vector<std::size_t> vertexindices(2);
-	for (int i = 0; i < 4; ++i) {
+	for (std::size_t i = 0; i < 4; ++i) {
 		set = new Base::OrientedBasisFunctionSet(order, 0, i);
 		square.getCodim1EntityLocalIndices(i, vertexindices);
-		for (int j = 0; j <= order - 2; ++j) {
+		for (std::size_t j = 0; j  + 2 <= order; ++j) {
 			if ((vertexindices[0] + vertexindices[1]) % 2 == 1)
 				set->addBasisFunction(new BasisFunction2DFaceSquare_0(vertexindices[0], vertexindices[1], j));
 			else
@@ -149,7 +149,7 @@ std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH
 		}
 		result.push_back(set);
 		set = new Base::OrientedBasisFunctionSet(order, 1, i);
-		for (int j = 0; j <= order - 2; ++j) {
+		for (std::size_t j = 0; j + 2 <= order; ++j) {
 			if ((vertexindices[0] + vertexindices[1]) % 2 == 1)
 				set->addBasisFunction(new BasisFunction2DFaceSquare_0(vertexindices[1], vertexindices[0], j));
 			else

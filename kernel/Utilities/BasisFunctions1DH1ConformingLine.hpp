@@ -38,7 +38,7 @@ namespace Utilities{
 	class BasisFunction1DVertexLine:public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction1DVertexLine(int node):nodePosition_(2*node-1){}
+		BasisFunction1DVertexLine(std::size_t node):nodePosition_(2*node-1){}
 	double eval(const Geometry::PointReference& p) const;
 
 	double evalDeriv0(const Geometry::PointReference& p) const;
@@ -49,20 +49,20 @@ namespace Utilities{
 	class BasisFunction1DInteriorLine:public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction1DInteriorLine(int polynomialOrder):polynomialOrder_(polynomialOrder){}
+		BasisFunction1DInteriorLine(std::size_t polynomialOrder):polynomialOrder_(polynomialOrder){}
 
 	double eval(const Geometry::PointReference& p) const;
 
 	double evalDeriv0(const Geometry::PointReference& p) const;
 	private:
-		int polynomialOrder_;
+		std::size_t polynomialOrder_;
 	};
 
-Base::BasisFunctionSet* createDGBasisFunctionSet1DH1Line(int polynomialOrder);
+Base::BasisFunctionSet* createDGBasisFunctionSet1DH1Line(std::size_t polynomialOrder);
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet1DH1Line(int polynomialOrder);
+Base::BasisFunctionSet* createInteriorBasisFunctionSet1DH1Line(std::size_t polynomialOrder);
 
-std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet1DH1Line(int polynomialOrder);
+std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet1DH1Line(std::size_t polynomialOrder);
 
 }
 

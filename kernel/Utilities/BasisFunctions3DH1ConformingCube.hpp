@@ -40,7 +40,7 @@ namespace Utilities
 	class BasisFunction3DVertexCube : public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction3DVertexCube(int node);
+		BasisFunction3DVertexCube(std::size_t node);
 
 		double eval(const Geometry::PointReference& p) const;
 
@@ -57,7 +57,7 @@ namespace Utilities
 	class BasisFunction3DEdgeCube_0:public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction3DEdgeCube_0(int node0, int node1, int polynomialOrder);
+		BasisFunction3DEdgeCube_0(std::size_t node0, std::size_t node1, std::size_t polynomialOrder);
 
 		double eval(const Geometry::PointReference& p) const;
 
@@ -71,13 +71,13 @@ namespace Utilities
 		int edgePosition1_;
 		int edgePosition2_;
 		int mirroring_;
-		int polynomialOrder_;
+		std::size_t polynomialOrder_;
 	};
 
 	class BasisFunction3DEdgeCube_1:public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction3DEdgeCube_1(int node0, int node1, int polynomialOrder);
+		BasisFunction3DEdgeCube_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder);
 
 		double eval(const Geometry::PointReference& p) const;
 
@@ -91,13 +91,13 @@ namespace Utilities
 		int edgePosition0_;
 		int edgePosition2_;
 		int mirroring_;
-		int polynomialOrder_;
+		std::size_t polynomialOrder_;
 	};
 
 	class BasisFunction3DEdgeCube_2:public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction3DEdgeCube_2(int node0, int node1, int polynomialOrder);
+		BasisFunction3DEdgeCube_2(std::size_t node0, std::size_t node1, std::size_t polynomialOrder);
 
 		double eval(const Geometry::PointReference& p) const;
 
@@ -111,13 +111,13 @@ namespace Utilities
 		int edgePosition0_;
 		int edgePosition1_;
 		int mirroring_;
-		int polynomialOrder_;
+		std::size_t polynomialOrder_;
 	};
 
 	class BasisFunction3DFaceCube_0:public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction3DFaceCube_0(int node0, int node1, int node2, int polynomialOrder1, int polynomialOrder2);
+		BasisFunction3DFaceCube_0(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder1, std::size_t polynomialOrder2);
 
 		double eval(const Geometry::PointReference& p) const;
 
@@ -130,14 +130,14 @@ namespace Utilities
 		int facePosition_;
 		int mirroring1_;
 		int mirroring2_;
-		int polynomialOrder1_;
-		int polynomialOrder2_;
+		std::size_t polynomialOrder1_;
+		std::size_t polynomialOrder2_;
 	};
 
 	class BasisFunction3DFaceCube_1:public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction3DFaceCube_1(int node0, int node1, int node2, int polynomialOrder0, int polynomialOrder2);
+		BasisFunction3DFaceCube_1(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder2);
 
 		double eval(const Geometry::PointReference& p) const;
 
@@ -150,14 +150,14 @@ namespace Utilities
 		int facePosition_;
 		int mirroring0_;
 		int mirroring2_;
-		int polynomialOrder0_;
-		int polynomialOrder2_;
+		std::size_t polynomialOrder0_;
+		std::size_t polynomialOrder2_;
 	};
 
 	class BasisFunction3DFaceCube_2:public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction3DFaceCube_2(int node0, int node1, int node2, int polynomialOrder0, int polynomialOrder1);
+		BasisFunction3DFaceCube_2(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1);
 
 		double eval(const Geometry::PointReference& p) const;
 
@@ -170,14 +170,14 @@ namespace Utilities
 		int facePosition_;
 		int mirroring0_;
 		int mirroring1_;
-		int polynomialOrder0_;
-		int polynomialOrder1_;
+		std::size_t polynomialOrder0_;
+		std::size_t polynomialOrder1_;
 	};
 
 	class BasisFunction3DInteriorCube: public Base::BaseBasisFunction
 	{
 	public:
-		BasisFunction3DInteriorCube(int polynomialOrder0,int polynomialOrder1, int polynomialOrder2):polynomialOrder0_(polynomialOrder0),polynomialOrder1_(polynomialOrder1),polynomialOrder2_(polynomialOrder2){}
+		BasisFunction3DInteriorCube(std::size_t polynomialOrder0,std::size_t polynomialOrder1, std::size_t polynomialOrder2):polynomialOrder0_(polynomialOrder0),polynomialOrder1_(polynomialOrder1),polynomialOrder2_(polynomialOrder2){}
 
 		double eval(const Geometry::PointReference& p) const;
 
@@ -188,18 +188,18 @@ namespace Utilities
 		double evalDeriv2(const Geometry::PointReference& p) const;
 
 	private:
-		int polynomialOrder0_,polynomialOrder1_,polynomialOrder2_;
+		std::size_t polynomialOrder0_,polynomialOrder1_,polynomialOrder2_;
 	};
 
-	Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Cube(int order);
+	Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Cube(std::size_t order);
 
-	Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(int order);
+	Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(std::size_t order);
 
-	std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(int order);
+	std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(std::size_t order);
 
-	std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(int order);
+	std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(std::size_t order);
 
-	std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(int order);
+	std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(std::size_t order);
 }
 
 
