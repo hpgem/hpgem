@@ -50,7 +50,8 @@ namespace Base
     /// \param[in] DIM Dimension of the domain (usually 2 or 3).
     /// \param[in] polynomialOrder Order of the polynomials used for the basis functions.
     /// \param[in] nrOfUnknowns The number of variables in the system of PDE's.
-    ///Constructor, GlobalData and ConfigurationData is deleted in HpgemUI
+    ///
+    /// Constructor, GlobalData and ConfigurationData is deleted in HpgemUI
     HpgemUISimplified::HpgemUISimplified(std::size_t DIM, std::size_t polynomialOrder, std::size_t nrOfUnknowns)
     : HpgemUI(new GlobalData,
               new ConfigurationData(DIM, nrOfUnknowns, polynomialOrder, numberOfSnapshots.getValue()))
@@ -68,6 +69,7 @@ namespace Base
         }
     }
 
+    /// \details The PDE is solved over the time interval [startTime_, endTime_] using time step size dt_. By default a forward Euler method is applied. The user can overwrite this function to use another time integration method.
     bool HpgemUISimplified::solve()
     {
         initialise(); //make the grid
@@ -186,7 +188,7 @@ namespace Base
         return true;
     }
     
-    ///Compute the integrals on all faces. 
+    /// \details Only one face matrix and face vector per element will be computed in this routine. The integrand can be implemented by defining a function called 'faceIntegrand'. See the application 'TutorialAdvection' for an example of how to impplement these functions. Also look at this application to see how additional face matrices and vectors can be computed.
     void HpgemUISimplified::doAllFaceIntegration(std::size_t meshID)
     {
         bool useCache = false;
@@ -206,7 +208,7 @@ namespace Base
         }
     }
     
-    ///Compute the integrals on all elements.
+    /// \details Only one element matrix and element vector per element will be computed in this routine. The integrand can be implemented by defining a function called 'elementIntegrand'. See the application 'TutorialAdvection' for an example of how to impplement these functions. Also look at this application to see how additional element matrices and vectors can be computed.
     void HpgemUISimplified::doAllElementIntegration(std::size_t meshID)
     {
         //numberOfUnknowns_ is the number of unknowns in the "real problem" you want a
@@ -232,8 +234,7 @@ namespace Base
         }
     }
 
-    ///Interpolates the new solution from the right hand side computed before.
-    /// Default: solve Mass * x = rhs and set x as the new current data
+    /// \details By default this function solves the mass matrix equations. Let \f$ r \f$ be the residual (the computed right hand side), \f$ M \f$ the mass matrix and \f$ u\f$ the new solution vector. Then this function solves \f$ Mu=r\f$ for \f$ u\f$.
     void HpgemUISimplified::interpolate()
     {
         for (Base::Element* element : meshes_[0]->getElementsList())
@@ -245,6 +246,7 @@ namespace Base
         }
     }
     
+    /// \details When using MPI the solution at the boundary faces of the submeshes is communicated.
     void HpgemUISimplified::synchronize(std::size_t meshID)
     {
 #ifdef HPGEM_USE_MPI

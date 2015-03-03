@@ -37,7 +37,23 @@ namespace Integration
 
 namespace Base
 {
-
+    /// \brief Interface for solving linear time dependent problems.
+    /** \details To solve some linear time depent PDE you should do the following:
+     * \li Create your own class that inherits this class.
+     * \li Implement the function 'initialise' for creating the mesh.
+     * \li Implement the function 'initialConditions' to define the initial conditions of your problem.
+     * \li Implement the functions 'elementIntegrand' and 'faceIntegrand' for defining the integrands for element matrices and vectors and face matrices and vectors.
+     * \li Implement the functions 'computeRhsLocal' and 'computeRhsFaces' for computing the right-hand-side corresponding to your time integration method.
+     * \li Implement the function 'beforeTimeIntegration' when multiple element/face matrices/vectors are required.
+     * \li Override the function 'solve' when using another time integration routine than forward Euler.
+     * \li Implement the function 'writeToTecplotFile' to determine what data to write to the output file.
+     * To solve the PDE do the following in the main routine:
+     * \li Create an object of your own class. 
+     * \li Define how the solution should be written in the VTK files using the function 'registerVTKWriteFunction'.
+     * \li Call the function 'solve'.
+     *
+     * For an example of using this interface see the application 'TutorialAdvection'.
+     */
     class HpgemUISimplified : public HpgemUI, Integration::ElementIntegrandBase<LinearAlgebra::Matrix>,
                                 Integration::FaceIntegrandBase<LinearAlgebra::Matrix>,
                                 Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>,
@@ -64,8 +80,9 @@ namespace Base
         /// \brief Where the user creates a mesh
         bool virtual initialise() = 0;
         
+        /*
         /// \brief User-defined element integrand for the left hand side
-        /*LinearAlgebra::Matrix Integration::ElementIntegrandBase<LinearAlgebra::Matrix>::elementIntegrand(const ElementT* element, const PointReferenceT& p) = 0;
+        LinearAlgebra::Matrix Integration::ElementIntegrandBase<LinearAlgebra::Matrix>::elementIntegrand(const ElementT* element, const PointReferenceT& p) = 0;
         
         /// \brief User-defined element integrand for the right hand side
         LinearAlgebra::NumericalVector Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>::elementIntegrand(const ElementT* element, const PointReferenceT& p) = 0;
@@ -79,16 +96,18 @@ namespace Base
                 const PointReferenceT& p) = 0;*/
 
         /// \brief User-defined initial conditions
+        /// \details This function returns the initial condition at the physical point p.
         virtual double initialConditions(const PointPhysicalT& p) = 0;
 
-        /// \brief Does time integration.
+        /// \brief Solve the problem.
         bool solve();
 
         /// \brief Everything that must be done before starting the time-integration.
-        ///
-        /// For example, user-defined integrals can be computed here. 
+        /// \details For example, user-defined integrals can be computed here, like stiffness matrices.
         virtual void beforeTimeIntegration() { }
 
+        /// \brief Compute the right hand side corresponding to the element integrals.
+        /// \details The right-hand side in this case corresponds to all integral terms that do not include the time derivative of the solution. For example, the right-hand side could be of the form \f[ Su+f \f], where \f$ S \f$ is the stiffness matrix, \f$ u \f$ are the coefficients of the basis functions of the solution and \f$ f \f$ is some external force.
         virtual void computeRhsLocal()
         {
 #ifdef HPGEM_USE_MPI
@@ -96,6 +115,8 @@ namespace Base
 #endif
         }
 
+        /// \brief Compute the right hand side corresponding to the face integrals.
+        /// \details The right-hand side in this case corresponds to all integral terms that do not include the time derivative of the solution. For example, the right-hand side could be of the form \f$ Su+f \f$, where \f$ S \f$ is the stiffness matrix, \f$ u \f$ are the coefficients of the basis functions of the solution and \f$ f \f$ is some external force.
         virtual void computeRhsFaces()
         {
 #ifdef HPGEM_USE_MPI
@@ -111,12 +132,14 @@ namespace Base
          */
         virtual void synchronize(std::size_t meshID = 0);
 
-        /// \brief Performs all the element integrations
+        /// \brief Performs all the element integrations.
         void doAllElementIntegration(std::size_t meshID = 0);
 
         /// \brief Performs all the face integrations
         void doAllFaceIntegration(std::size_t meshID = 0);
 
+        /// \brief Define how the solution should be written in the VTK files.
+        /// \details For an example of using this function, see for example the application 'TutorialAdvection' to find out how to use this function.
         void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t) > function, std::string name)
         {
             VTKDoubleWrite_.push_back({function, name});
@@ -132,6 +155,8 @@ namespace Base
             VTKMatrixWrite_.push_back({function, name});
         }
 
+        /// \brief Write data to some output file that can be read by TecPlot.
+        /// \details See some for example the application 'TutorialAdvection' to find out how to implement this function.
         virtual void writeToTecplotFile(const ElementT*, const PointReferenceT&, std::ostream&)
         {
             throw "If you want to call the function \'writeToTecplotFile\', please implement it";
@@ -148,10 +173,11 @@ namespace Base
         
         //allow multiple templated functions with the same arguments, but different return types
         template<typename T>
+        /// \brief User-defined element integrand for the right hand side
         T elementIntegrand(const ElementT* element, const PointReferenceT& p) = delete;
         
         template<typename T>
-        /// \brief User-defined face integrand for the left hand side
+        /// \brief User-defined face integrand for the right hand side
         T faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
                 const PointReferenceT& p) = delete;
         
