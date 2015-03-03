@@ -48,31 +48,31 @@ namespace Base
 
         void addElement(Element* element, std::size_t edgeNr);
 
-        int getLocalNrOfBasisFunctions() const
+        std::size_t getLocalNrOfBasisFunctions() const
         {
             return nrOfConformingDOFOnTheEdge_;
         }
 
-        int getID()const
+        std::size_t getID()const
         {
             return ID_;
         }
 
         int getNrOfElements();
 
-        Element* getElement(int i);
+        Element* getElement(std::size_t i);
 
-        std::size_t getEdgeNr(int i)
+        std::size_t getEdgeNr(std::size_t i)
         {
             return localEdgeNrs_[i];
         }
 
-        std::size_t getOrientation(int i)
+        std::size_t getOrientation(std::size_t i)
         {
             return orientation_[i];
         }
 
-        void setLocalNrOfBasisFunctions(int number)
+        void setLocalNrOfBasisFunctions(std::size_t number)
         {
             nrOfConformingDOFOnTheEdge_ = number;
         }
@@ -86,7 +86,7 @@ namespace Base
         std::vector<std::size_t> orientation_;
 
         std::size_t nrOfConformingDOFOnTheEdge_;
-        int ID_;
+        std::size_t ID_;
     };
 
 } /* namespace Base */

@@ -44,7 +44,7 @@ namespace Base
     elementVector_(nrOfElementVectors) { }
     
     
-    void ElementData::setElementMatrix(const LinearAlgebra::Matrix& matrix, int matrixID)
+    void ElementData::setElementMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID)
     {
         if (matrixID >= elementMatrix_.size())
         {
@@ -67,7 +67,7 @@ namespace Base
     }
      */
     
-    void ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, int vectorID) 
+    void ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID)
     {
         if (vectorID >= elementVector_.size())
         {
@@ -77,7 +77,7 @@ namespace Base
         elementVector_[vectorID] = vector;
     }
     
-    void ElementData::getElementVector(LinearAlgebra::NumericalVector& vector, int vectorID) const
+    void ElementData::getElementVector(LinearAlgebra::NumericalVector& vector, std::size_t vectorID) const
     {
         TestErrorDebug(vectorID < elementVector_.size(), "insufficient element vectors stored");
         vector = elementVector_[vectorID];
@@ -88,7 +88,7 @@ namespace Base
         nrOfBasisFunctions_ = number;
     }    
    
-    int ElementData::getNrOfBasisFunctions() const
+    std::size_t ElementData::getNrOfBasisFunctions() const
     {
         return nrOfBasisFunctions_;
     }
@@ -294,7 +294,7 @@ namespace Base
         return currentData_;
     }
     
-    int ElementData::getNrOfUnknows() const
+    std::size_t ElementData::getNrOfUnknows() const
     {
         return nrOfUnknowns_;
     }    

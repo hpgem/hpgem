@@ -53,7 +53,7 @@ namespace Base
         virtual ~ ElementData() { }
 
         ///Set/update the element matrix.
-        void setElementMatrix(const LinearAlgebra::Matrix&, int matrixID = 0);
+        void setElementMatrix(const LinearAlgebra::Matrix&, std::size_t matrixID = 0);
 
         /// Get the element matrix corresponding to the given matrixiD.
         virtual const LinearAlgebra::Matrix & getElementMatrix(std::size_t matrixID = 0) const;
@@ -64,9 +64,9 @@ namespace Base
         /// \brief Returns (and creates if unavailable) the expansion coefficients correspdonding to a given timelevel in the form of a matrix. Better use getTimeLevelDataVector instead!
         LinearAlgebra::Matrix getTimeLevelDataMatrix(std::size_t timeLevel);
     
-        virtual void setElementVector(const LinearAlgebra::NumericalVector& vector, int vectorID = 0);
+        virtual void setElementVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0);
 
-        virtual void getElementVector(LinearAlgebra::NumericalVector&, int vectorID = 0) const;
+        virtual void getElementVector(LinearAlgebra::NumericalVector&, std::size_t vectorID = 0) const;
 
         /// \brief Sets (and creates if unavailable) the expansion coefficients correspdonding to the given time level.
         void setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::NumericalVector &val);
@@ -92,9 +92,9 @@ namespace Base
         /// \brief Specify a time level index, a variable index and a basis function index, set the corresponding expansionCoefficient (double).
         void setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, double val);
 
-        virtual int getNrOfUnknows() const;
+        virtual std::size_t getNrOfUnknows() const;
 
-        virtual int getNrOfBasisFunctions() const;
+        virtual std::size_t getNrOfBasisFunctions() const;
 
         //this needs to store information about all variables, so it needs to be a matrix (?)
         virtual const LinearAlgebra::NumericalVector& getResidue() const;

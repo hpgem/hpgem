@@ -98,9 +98,9 @@ namespace Base
 
         void setDefaultBasisFunctionSet(std::size_t position);
 
-        void setVertexBasisFunctionSet(std::size_t position, int localIndex);
-        void setEdgeBasisFunctionSet(std::size_t position, int localIndex);
-        void setFaceBasisFunctionSet(std::size_t position, int localIndex);
+        void setVertexBasisFunctionSet(std::size_t position, std::size_t localIndex);
+        void setEdgeBasisFunctionSet(std::size_t position, std::size_t localIndex);
+        void setFaceBasisFunctionSet(std::size_t position, std::size_t localIndex);
 
         virtual const GaussQuadratureRuleT* getGaussQuadratureRule() const;
 
@@ -127,38 +127,38 @@ namespace Base
 
         void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution); ///\TODO not implemented  
 
-        void setFace(int localFaceNr, const Face* face);
+        void setFace(std::size_t localFaceNr, const Face* face);
 
-        void setEdge(int localEdgeNr, const Edge* edge);
+        void setEdge(std::size_t localEdgeNr, const Edge* edge);
 
-        void setNode(int localNodeNr, const Node* node);
+        void setNode(std::size_t localNodeNr, const Node* node);
 
         virtual int getLocalNrOfBasisFunctions() const
         {
             return nrOfDOFinTheElement_;
         }
 
-        virtual const Face* getFace(int localFaceNr)const
+        virtual const Face* getFace(std::size_t localFaceNr)const
         {
             return facesList_[localFaceNr];
         }
 
-        virtual const Edge* getEdge(int localEdgeNr)const
+        virtual const Edge* getEdge(std::size_t localEdgeNr)const
         {
             return edgesList_[localEdgeNr];
         }
 
-        virtual const Node* getNode(int localNodeNr)const
+        virtual const Node* getNode(std::size_t localNodeNr)const
         {
             return nodesList_[localNodeNr];
         }
 
-        virtual int getNrOfFaces() const
+        virtual std::size_t getNrOfFaces() const
         {
             return facesList_.size();
         }
 
-        virtual int getNrOfEdges() const
+        virtual std::size_t getNrOfEdges() const
         {
             return edgesList_.size();
         }
@@ -182,7 +182,7 @@ namespace Base
         }
 
 #ifndef NDEBUG
-        virtual const Base::BaseBasisFunction* getBasisFunction(int i)const;
+        virtual const Base::BaseBasisFunction* getBasisFunction(std::size_t i)const;
 #endif
 
     protected:

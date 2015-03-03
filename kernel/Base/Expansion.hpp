@@ -29,6 +29,7 @@
 namespace Base
 {
 	///\TODO where is this used? -FB
+///\deprecated Use Element::getSolution instead of this class.
     class Expansion
     {
 
@@ -50,19 +51,19 @@ namespace Base
             coeff_.resize(size_);
         }
 
-        double EvalBasisFunction(unsigned int iBF, const PointReferenceT& p) const
+        double EvalBasisFunction(std::size_t iBF, const PointReferenceT& p) const
         {
             return BFSetPtr_->eval(iBF,p);
         }
 
-        double EvalDerivBasisFunction(unsigned int iBF, const unsigned int jDir, const PointReferenceT& p) const
+        double EvalDerivBasisFunction(std::size_t iBF, const std::size_t jDir, const PointReferenceT& p) const
         {
             return BFSetPtr_->evalDeriv(iBF,jDir,p);
         }
 
         void PhysGradientOfBasisFunction(
                 const Element& el,
-                const unsigned int iBF,
+                const std::size_t iBF,
                 const PointReferenceT& p,
                 LinearAlgebra::NumericalVector& ret) const
         {
@@ -75,16 +76,16 @@ namespace Base
 	double Eval(const PointReferenceT& p) const
 	{
 	  double ret(0.);
-	  for (unsigned int i=0; i<size_; ++i)
+	  for (std::size_t i=0; i<size_; ++i)
 	    ret += (coeff_[i] * BFSetPtr_->eval(i,p));
 
 	  return ret;
 	}
 
-	double EvalDeriv(const unsigned int jDir, const PointReferenceT& p) const
+	double EvalDeriv(const std::size_t jDir, const PointReferenceT& p) const
 	{
 	  double ret(0.);
-	  for (unsigned int i=0; i<size_; ++i)
+	  for (std::size_t i=0; i<size_; ++i)
 	    ret += (coeff_[i] * BFSetPtr_->evalDeriv(i,jDir,p));
 
 	  return ret;
@@ -93,7 +94,7 @@ namespace Base
       private:
 	BasisFunctionSet* BFSetPtr_;
 	LinearAlgebra::NumericalVector coeff_;
-	unsigned int size_;
+	std::size_t size_;
     };
 
 };

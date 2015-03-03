@@ -60,7 +60,7 @@ namespace Base {
 		return elements_.size();
 	}
 
-	Element* Edge::getElement(int i) {
+	Element* Edge::getElement(std::size_t i) {
 		return elements_[i];
 	}
 

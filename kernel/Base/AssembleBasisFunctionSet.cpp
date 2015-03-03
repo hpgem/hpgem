@@ -25,8 +25,6 @@
 #include "AssembleBasisFunctionSet.hpp"
 #include "BasisFunctionSet.hpp"
 
-///Irana: who is deleting the basis functions?
-
 namespace Base
 {
 

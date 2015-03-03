@@ -122,7 +122,7 @@ namespace Base
         nrOfDOFinTheElement_=basisFunctionSet_->at(position)->size();
     }
 
-    void Element::setFaceBasisFunctionSet(std::size_t position,int localFaceIndex)
+    void Element::setFaceBasisFunctionSet(std::size_t position,std::size_t localFaceIndex)
     {
     	if(basisFunctionSetPositions_.size()<1+getNrOfFaces()){
 			basisFunctionSetPositions_.resize(1+getNrOfFaces(),-1);
@@ -136,7 +136,7 @@ namespace Base
     	setNumberOfBasisFunctions(numberOfBasisFunctions);
     }
 
-    void Element::setEdgeBasisFunctionSet(std::size_t position, int localEdgeIndex)
+    void Element::setEdgeBasisFunctionSet(std::size_t position, std::size_t localEdgeIndex)
     {
     	if(basisFunctionSetPositions_.size()<1+getNrOfFaces()+getNrOfEdges()){
 			basisFunctionSetPositions_.resize(1+getNrOfFaces()+getNrOfEdges(),-1);
@@ -150,7 +150,7 @@ namespace Base
     	setNumberOfBasisFunctions(numberOfBasisFunctions);
     }
 
-    void Element::setVertexBasisFunctionSet(std::size_t position, int localVertexIndex)
+    void Element::setVertexBasisFunctionSet(std::size_t position, std::size_t localVertexIndex)
     {
     	if(basisFunctionSetPositions_.size()<1+getNrOfFaces()+getNrOfEdges()+getNrOfNodes()){
 			basisFunctionSetPositions_.resize(1+getNrOfFaces()+getNrOfEdges()+getNrOfNodes(),-1);
@@ -329,9 +329,9 @@ namespace Base
     }
 
 #ifndef NDEBUG
-    const Base::BaseBasisFunction* Element::getBasisFunction(int i) const
+    const Base::BaseBasisFunction* Element::getBasisFunction(std::size_t i) const
     {
-    	int basePosition(0);
+    	int basePosition = 0;
     	for(int j:basisFunctionSetPositions_){
     		if(j!=-1){
     			if(i-basePosition<basisFunctionSet_->at(j)->size()){
@@ -345,7 +345,7 @@ namespace Base
     }
 #endif
 
-    void Element::setFace(int localFaceNr, const Face* face)
+    void Element::setFace(std::size_t localFaceNr, const Face* face)
     {
     	TestErrorDebug((face->getPtrElementLeft()==this&&face->localFaceNumberLeft()==localFaceNr)||
     			       (face->getPtrElementRight()==this&&face->localFaceNumberRight()==localFaceNr),"You are only allowed to set a face to a local face index that matches");
@@ -357,7 +357,7 @@ namespace Base
     	facesList_[localFaceNr]=face;
     }
 
-    void Element::setEdge(int localEdgeNr, const Edge* edge)
+    void Element::setEdge(std::size_t localEdgeNr, const Edge* edge)
     {
     	if(edgesList_.size()<localEdgeNr+1)
     	{
@@ -367,7 +367,7 @@ namespace Base
     	edgesList_[localEdgeNr]=edge;
     }
 
-    void Element::setNode(int localNodeNr, const Node* node)
+    void Element::setNode(std::size_t localNodeNr, const Node* node)
     {
     	if(nodesList_.size()<localNodeNr+1)
     	{

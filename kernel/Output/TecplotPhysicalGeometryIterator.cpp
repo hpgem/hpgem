@@ -33,6 +33,8 @@
 #include "Geometry/PhysicalTriangle.hpp"
 #include "Geometry/PhysicalTriangularPrism.hpp"
 
+#include <typeinfo>
+
 namespace Output
 {
     TecplotPhysicalGeometryIterator::TecplotPhysicalGeometryIterator()

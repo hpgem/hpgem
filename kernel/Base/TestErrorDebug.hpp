@@ -21,6 +21,8 @@
 #ifndef TestErrorDebug_hpp
 #define TestErrorDebug_hpp
 
+///\deprecated Everything in this file should be replaced by the logger
+
 #include <cassert>
 
 #ifdef DEBUG

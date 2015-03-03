@@ -180,27 +180,27 @@ namespace Base
             return element_->getLocalNrOfBasisFunctions();
         }
 
-        const Face* getFace(int localFaceNr)const override
+        const Face* getFace(std::size_t localFaceNr)const override
         {
             return element_->getFace(localFaceNr);
         }
 
-        const Edge* getEdge(int localEdgeNr)const override
+        const Edge* getEdge(std::size_t localEdgeNr)const override
         {
             return element_->getEdge(localEdgeNr);
         }
 
-        const Node* getNode(int localNodeNr)const override
+        const Node* getNode(std::size_t localNodeNr)const override
         {
             return element_->getNode(localNodeNr);
         }
 
-        int getNrOfFaces() const override
+        std::size_t getNrOfFaces() const override
         {
             return element_->getNrOfFaces();
         }
 
-        int getNrOfEdges() const override
+        std::size_t getNrOfEdges() const override
         {
             return element_->getNrOfEdges();
         }
@@ -212,7 +212,7 @@ namespace Base
 
 #ifndef NDEBUG
 
-        const Base::BaseBasisFunction* getBasisFunction(int i)const override
+        const Base::BaseBasisFunction* getBasisFunction(std::size_t i)const override
         {
             return element_->getBasisFunction(i);
         }
@@ -223,7 +223,7 @@ namespace Base
             return element_->getElementMatrix(matrixID);
         }
 
-        void getElementVector(LinearAlgebra::NumericalVector& vec, int vectorID = 0) const override
+        void getElementVector(LinearAlgebra::NumericalVector& vec, std::size_t vectorID = 0) const override
         {
             element_->getElementVector(vec, vectorID);
         }
@@ -238,12 +238,12 @@ namespace Base
             return element_->getData(timeLevel, unknown, basisFunction);
         }
 
-        int getNrOfUnknows() const override
+        std::size_t getNrOfUnknows() const override
         {
             return element_->getNrOfUnknows();
         }
 
-        int getNrOfBasisFunctions() const override
+        std::size_t getNrOfBasisFunctions() const override
         {
             return element_->getNrOfBasisFunctions();
         }
