@@ -34,10 +34,10 @@ namespace Geometry
 
     public:
         /// Typedefs.
-        typedef double CoordTypeT;
-        typedef Geometry::Point PointT;
-        typedef LinearAlgebra::NumericalVector VectorOfCoordsT;
-        typedef std::size_t IndexT;
+        using CoordTypeT = double;
+        using PointT = Geometry::Point;
+        using VectorOfCoordsT = LinearAlgebra::NumericalVector;
+        using IndexT = unsigned int;
 
     public:
         /// Constructors.

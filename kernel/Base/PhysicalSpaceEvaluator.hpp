@@ -33,7 +33,7 @@ namespace Base
 template <typename ResultType, class FuncType>
 struct PhysicalSpaceEvaluator
 {
-	typedef ResultType RetType;
+	using RetType = ResultType;
     
 	static void eval(const Base::Element& el, FuncType& f, const Geometry::PointPhysical& p, RetType& r)
     {
@@ -46,7 +46,7 @@ struct PhysicalSpaceEvaluator
 template <typename ResultType, class FuncType>
 struct PhysicalSpaceEvaluator<ResultType, FuncType*>
 {
-	typedef ResultType RetType;
+	using RetType = ResultType;
     
 	static void eval(FuncType* f, const Geometry::PointPhysical& p, RetType& r)
     {
@@ -59,7 +59,7 @@ template <typename ResultType>
 struct PhysicalSpaceEvaluator<ResultType,
 ResultType (*)(const Geometry::PointPhysical&)>
 {
-	typedef ResultType RetType;
+	using RetType = ResultType;
 	static void eval(RetType (*funcPtr)(const Geometry::PointPhysical&),
                      const Geometry::PointPhysical& p,
                      RetType& r)
@@ -73,7 +73,7 @@ template <typename ResultType>
 struct PhysicalSpaceEvaluator<ResultType,
 void (*)(const Geometry::PointPhysical&, ResultType&)>
 {
-	typedef ResultType RetType;
+	using RetType = ResultType;
 	static void eval(
                      void (*funcPtr)(const Base::Element&, const Geometry::PointPhysical&, ResultType&),
                      const Geometry::PointPhysical& p,

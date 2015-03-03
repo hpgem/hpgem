@@ -146,10 +146,10 @@ namespace Output
             // We do this by getting the element list from the mesh, and then iterating over the
             // elements.
 
-            typedef Base::MeshManipulator MeshType;
-            typedef Base::Element  ElementT;
-                //typename typedef Base::MeshManipulator<DIM>::ListOfElementsT ListOfElementsT;
-            typedef std::vector<ElementT*> ListOfElementsT;
+            using MeshType = Base::MeshManipulator;
+            using ElementT = Base::Element;
+                //using ListOfElementsT = Base::MeshManipulator<DIM>::ListOfElementsT ;
+            using ListOfElementsT = std::vector<ElementT*>;
 
             std::size_t nrOfNodes; // i.e. on one element
             TecplotPhysicalGeometryIterator& nodeIt = TecplotPhysicalGeometryIterator::Instance();

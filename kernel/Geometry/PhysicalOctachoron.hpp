@@ -29,7 +29,7 @@ namespace Geometry
     class PhysicalOctachoron: public PhysicalGeometry
     {
         public:
-            typedef PhysicalGeometry PhysicalGeometry4D;
+            using PhysicalGeometry4D = PhysicalGeometry;
             using PhysicalGeometry4D::VectorOfPointIndexesT;
             using PhysicalGeometry4D::VectorOfPhysicalPointsT;
             using PhysicalGeometry4D::PointIndexT;

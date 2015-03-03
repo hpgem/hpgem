@@ -31,7 +31,7 @@ namespace Geometry
     {
     public:
 
-        typedef PhysicalGeometry PhysicalGeometry3D;
+        using PhysicalGeometry3D = PhysicalGeometry;
         using PhysicalGeometry3D::VectorOfPointIndexesT;
         using PhysicalGeometry3D::VectorOfPhysicalPointsT;
         using PhysicalGeometry3D::PointIndexT;

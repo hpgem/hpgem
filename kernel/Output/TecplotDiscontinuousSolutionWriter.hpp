@@ -42,7 +42,7 @@ namespace Output
     {
     public:
 
-        typedef std::string StringT;
+        using StringT = std::string;
 
         TecplotDiscontinuousSolutionWriter(
             std::ostream& output,

@@ -57,10 +57,10 @@ namespace QuadratureRules
           GaussQuadratureRule* GetRule(Geometry::ReferenceHypercube* refGeo, int order);
         
       private:
-          typedef std::vector<GaussQuadratureRule*> listOfQR_1DType;
-          typedef std::vector<GaussQuadratureRule*> listOfQR_2DType;
-          typedef std::vector<GaussQuadratureRule*> listOfQR_3DType;
-          typedef std::vector<GaussQuadratureRule*> listOfQR_4DType;
+          using listOfQR_1DType = std::vector<GaussQuadratureRule*>;
+          using listOfQR_2DType = std::vector<GaussQuadratureRule*>;
+          using listOfQR_3DType = std::vector<GaussQuadratureRule*>;
+          using listOfQR_4DType = std::vector<GaussQuadratureRule*>;
 
           listOfQR_1DType listOfQR_Line;
           listOfQR_2DType listOfQR_Triangle;

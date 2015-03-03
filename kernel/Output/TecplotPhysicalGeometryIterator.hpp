@@ -83,8 +83,8 @@ namespace Output
         TecplotPhysicalGeometryIterator& operator=(const TecplotPhysicalGeometryIterator&)=delete;
         virtual ~TecplotPhysicalGeometryIterator() { }
 
-        typedef int InternalIndexType;
-        typedef std::vector<std::size_t> VectorOfNodeIndexes;
+        using InternalIndexType = int;
+        using VectorOfNodeIndexes = std::vector<std::size_t>;
         VectorOfNodeIndexes hypercubeNodes;
         VectorOfNodeIndexes hexahedronNodes;
         VectorOfNodeIndexes cubeNodes;

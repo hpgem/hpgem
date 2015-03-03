@@ -46,10 +46,10 @@ namespace Utilities
      *  and thus yields the physical space gradient. */
     struct PhysGradientOfBasisFunction
     {
-        typedef Geometry::PointReference             PointReferenceT;
+        using PointReferenceT = Geometry::PointReference;
         
             //typedef double (*DerivativeOfBasisFuncPtr)(const PointReferenceT&);
-        typedef LinearAlgebra::NumericalVector RetType;
+        using RetType = LinearAlgebra::NumericalVector;
         
         PhysGradientOfBasisFunction(const Base::Element* e,const Base::BaseBasisFunction* function):
             myElement_(e),

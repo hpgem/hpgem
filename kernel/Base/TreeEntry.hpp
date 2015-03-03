@@ -37,10 +37,10 @@ namespace Base
     class TreeEntry : public Base::TreeBase<Base::TreeIterator<V,TreeEntry<V> > >
     {
     public:
-        typedef TreeEntry<V>                                            Type;
-        typedef TreeEntry<V>*                                           PtrType;
-        typedef Base::TreeIterator<V,TreeEntry<V> >                     Iterator;
-        typedef Base::TreeBase<Base::TreeIterator<V,TreeEntry<V> > >    BaseType;
+        using Type = TreeEntry<V>;
+        using PtrType = TreeEntry<V>*;
+        using Iterator = Base::TreeIterator<V,TreeEntry<V> >;
+        using BaseType = Base::TreeBase<Base::TreeIterator<V,TreeEntry<V> > >;    
 
         //! Constructor
         TreeEntry(const V& data)

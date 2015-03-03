@@ -31,11 +31,11 @@ namespace Geometry
 
     public:
 
-        typedef double                                  CoordTypeT;
-        typedef Point                                   PointT;
-        typedef PointReference                          PointReferenceT;
-        typedef PointT::VectorOfCoordsT        VectorOfCoordsT;
-        typedef PointT::IndexT                 IndexT;
+        using CoordTypeT = double;
+        using PointT = Point;
+        using PointReferenceT = PointReference;
+        using VectorOfCoordsT = PointT::VectorOfCoordsT;
+        using IndexT = PointT::IndexT;                 
 
     public:
 

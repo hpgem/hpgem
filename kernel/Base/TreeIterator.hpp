@@ -36,12 +36,12 @@ namespace Base
         friend class LevelTree<V>;
         
     public:
-        typedef T* valueType;
-        typedef T& reference;
-        typedef V valueVType;
-        typedef V& referenceV;
-        typedef TreeIterator& iterator_ref;
-        typedef int difference_type;
+        using valueType = T*;
+        using reference = T&;
+        using valueVType = V;
+        using referenceV = V&;
+        using iterator_ref = TreeIterator&;
+        using difference_type = int;
 
         TreeIterator()
             {

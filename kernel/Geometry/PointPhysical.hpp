@@ -31,10 +31,10 @@ namespace Geometry
 
     public:
 
-        typedef Point                          PointT;
-        typedef PointPhysical                  PointPhysicalT;
-        typedef double                              CoordTypeT;
-        typedef PointT::VectorOfCoordsT    VectorOfCoordsT;
+        using PointT = Point;
+        using PointPhysicalT = PointPhysical;
+        using CoordTypeT = double;
+        using VectorOfCoordsT = PointT::VectorOfCoordsT;
 
     public:
 

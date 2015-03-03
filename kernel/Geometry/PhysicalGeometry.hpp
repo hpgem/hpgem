@@ -50,16 +50,16 @@ namespace Geometry
          */
     public:
 
-        typedef std::size_t PointIndexT;
-        typedef std::size_t LocalNodeIndexT;
-        typedef double CoordT;
-        typedef ReferenceGeometry ReferenceGeometryT;
-        typedef PointPhysical PointPhysicalT;
-        typedef std::vector<PointIndexT> VectorOfPointIndexesT;
-        typedef std::vector<CoordT > VectorOfCoordsT;
-        typedef std::vector<PointPhysicalT> VectorOfPhysicalPointsT;
-        typedef PhysicalGeometry PhysicalGeometryT;
-        typedef std::vector<std::size_t> GlobalNodeSetOnTheFace;
+        using PointIndexT = std::size_t;
+        using LocalNodeIndexT = std::size_t;
+        using CoordT = double;
+        using ReferenceGeometryT = ReferenceGeometry;
+        using PointPhysicalT = PointPhysical;
+        using VectorOfPointIndexesT = std::vector<PointIndexT>;
+        using VectorOfCoordsT = std::vector<CoordT >;
+        using VectorOfPhysicalPointsT = std::vector<PointPhysicalT>;
+        using PhysicalGeometryT = PhysicalGeometry;
+        using GlobalNodeSetOnTheFace = std::vector<std::size_t>;
 
 
     public:

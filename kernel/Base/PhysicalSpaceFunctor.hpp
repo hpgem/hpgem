@@ -70,9 +70,9 @@ namespace Base
     {
 
     public:
-        typedef typename Integration::ReturnTrait1<FType>::ReturnType ReturnType;
+        using ReturnType = Integration::ReturnTrait1<FType>::ReturnType;
         
-        typedef Geometry::ElementGeometry                      ElementGeometryT;
+        using ElementGeometryT = Geometry::ElementGeometry;
 
         //! Ctor, type of the wrapped function is fixed by template argument.
         PhysicalSpaceFunctor(const ElementGeometryT* const element, const FType& functor) :

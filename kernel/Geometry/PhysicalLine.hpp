@@ -32,7 +32,7 @@ namespace Geometry
 
     public:
 
-        typedef PhysicalGeometry PhysicalGeometry1D;
+        using PhysicalGeometry1D = PhysicalGeometry;
         using PhysicalGeometry1D::VectorOfPointIndexesT;
         using PhysicalGeometry1D::VectorOfPhysicalPointsT;
         using PhysicalGeometry1D::PointIndexT;
