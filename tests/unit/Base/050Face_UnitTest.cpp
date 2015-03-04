@@ -27,7 +27,7 @@
 //part of the mesh generation self tests
 
 #include "Base/Face.hpp"
-#include "cassert"
+#include "Logger.h"
 
 #include "Base/AssembleBasisFunctionSet.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForSquare.hpp"
@@ -56,10 +56,10 @@ int main() {
 	pointIndexes.push_back(14);
 	pointIndexes.push_back(15);
 
-	for(double i=0.;i<10;++i){
-		point[0]=1.+i/10.;
-		point[1]=2.+i/10.;
-		point[2]=3.+i/10.;
+	for(double i=0.;i<1-1e-10; i += 0.1){
+		point[0]=1.+i;
+		point[1]=2.+i;
+		point[2]=3.+i;
 		nodes.push_back(point);
 	}
 
@@ -98,25 +98,25 @@ int main() {
 
 	Base::Face test(&element,4,Geometry::FaceType::WALL_BC,3);
 
-    assert(("quadrature rule", test.getGaussQuadratureRule() != nullptr));
+    logger.assert_always(( test.getGaussQuadratureRule() != nullptr),"quadrature rule");
 
 	test.setGaussQuadratureRule(&QuadratureRules::Cn2_3_4::Instance());
 
-	assert(("setQuadratureRule",typeid(*test.getGaussQuadratureRule())==typeid(QuadratureRules::Cn2_3_4::Instance())));
+	logger.assert_always((typeid(*test.getGaussQuadratureRule())==typeid(QuadratureRules::Cn2_3_4::Instance())),"setQuadratureRule");
 
 	//check set*BasisFunctionSet without breaking preconditions...
 
-	assert(("getElementPtr",test.getPtrElementLeft()==&element));
+	logger.assert_always((test.getPtrElementLeft()==&element),"getElementPtr");
 
 	Geometry::PointReference refPoint(2),point3D(3);
 	for(std::size_t i=0;i<basisFunctions.size();++i){
 		for(refPoint[0]=-1.5;refPoint[0]<1.51;refPoint[0]+=0.1){
 			for(refPoint[1]=-1.5;refPoint[1]<1.51;refPoint[1]+=0.1){
 					test.mapRefFaceToRefElemL(refPoint,point3D);
-					assert(("basisFunctions",test.basisFunction(i,refPoint)==basisFunctions[i]->eval(point3D)));
-					assert(("basisFunctions",test.basisFunctionDeriv(i,0,refPoint)==basisFunctions[i]->evalDeriv0(point3D)));
-					assert(("basisFunctions",test.basisFunctionDeriv(i,1,refPoint)==basisFunctions[i]->evalDeriv1(point3D)));
-					assert(("basisFunctions",test.basisFunctionDeriv(i,2,refPoint)==basisFunctions[i]->evalDeriv2(point3D)));
+					logger.assert_always((test.basisFunction(i,refPoint)==basisFunctions[i]->eval(point3D)),"basisFunctions");
+					logger.assert_always((test.basisFunctionDeriv(i,0,refPoint)==basisFunctions[i]->evalDeriv0(point3D)),"basisFunctions");
+					logger.assert_always((test.basisFunctionDeriv(i,1,refPoint)==basisFunctions[i]->evalDeriv1(point3D)),"basisFunctions");
+					logger.assert_always((test.basisFunctionDeriv(i,2,refPoint)==basisFunctions[i]->evalDeriv2(point3D)),"basisFunctions");
 			}
 		}
 	}

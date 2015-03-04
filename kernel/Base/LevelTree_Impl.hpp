@@ -111,7 +111,7 @@ namespace Base
     template <class V>
     typename LevelTree<V>::iterator LevelTree<V>::addEntry(const valueT& newEl, const bool preserveLinks)
     {
-      addTreeEntry(new treeEntryT(newEl));
+      return addTreeEntry(new treeEntryT(newEl));
     }
     
     template <class V>

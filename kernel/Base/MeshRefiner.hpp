@@ -31,7 +31,7 @@ namespace Base
     //   - physical nodes 
     //   - list of Elements and levelTree  (two different entities?)
     //   - list of Faces and levelTree  (two different entities?)
-    ///\deprecated This should not even compile, please throw it away.
+    ///\deprecated This should not even compile, please do not try to use it in it's current state.
     class MeshRefiner
     {
       public:

@@ -19,6 +19,9 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Logger.h"
+
+
 //naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number that will make sure
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
@@ -28,7 +31,6 @@
 //part of the mesh generation self tests
 
 #include "Base/Element.hpp"
-#include <cassert>
 #include <typeinfo>
 
 #include "Base/AssembleBasisFunctionSet.hpp"
@@ -39,6 +41,7 @@
 #include "Base/ElementCacheData.hpp"
 #include "LinearAlgebra/Matrix.hpp"
 #include "Base/BaseBasisFunction.hpp"
+#include "Logger.h"
 
 int main() {
 
@@ -96,13 +99,13 @@ int main() {
 
 	Base::Element test(pointIndexes,&vectorOfFunctions,nodes,3,14,basisFunctions.size(),18),copy(test);
 
-    assert(("quadrature rule", test.getGaussQuadratureRule() != nullptr));
+    logger.assert_always(( test.getGaussQuadratureRule() != nullptr),"quadrature rule");
 
 	test.setQuadratureRulesWithOrder(8);
 	copy.setGaussQuadratureRule(&QuadratureRules::Cn3_3_4::Instance());
 
-	assert(("setQuadratureRule",test.getGaussQuadratureRule()->order()>=8));
-	assert(("setQuadratureRule",typeid(*copy.getGaussQuadratureRule())==typeid(QuadratureRules::Cn3_3_4::Instance())));
+	logger.assert_always((test.getGaussQuadratureRule()->order()>=8),"setQuadratureRule");
+	logger.assert_always((typeid(*copy.getGaussQuadratureRule())==typeid(QuadratureRules::Cn3_3_4::Instance())),"setQuadratureRule");
 
 	//check set*BasisFunctionSet without breaking preconditions...
 
@@ -111,10 +114,10 @@ int main() {
 		for(point[0]=-1.5;point[0]<1.51;point[0]+=0.1){
 			for(point[1]=-1.5;point[1]<1.51;point[1]+=0.1){
 				for(point[2]=-1.5;point[2]<1.51;point[2]+=0.1){
-					assert(("basisFunctions",test.basisFunction(i,point3D)==basisFunctions[i]->eval(point3D)));
-					assert(("basisFunctions",test.basisFunctionDeriv(i,0,point3D)==basisFunctions[i]->evalDeriv0(point3D)));
-					assert(("basisFunctions",test.basisFunctionDeriv(i,1,point3D)==basisFunctions[i]->evalDeriv1(point3D)));
-					assert(("basisFunctions",test.basisFunctionDeriv(i,2,point3D)==basisFunctions[i]->evalDeriv2(point3D)));
+					logger.assert_always((test.basisFunction(i,point3D)==basisFunctions[i]->eval(point3D)),"basisFunctions");
+					logger.assert_always((test.basisFunctionDeriv(i,0,point3D)==basisFunctions[i]->evalDeriv0(point3D)),"basisFunctions");
+					logger.assert_always((test.basisFunctionDeriv(i,1,point3D)==basisFunctions[i]->evalDeriv1(point3D)),"basisFunctions");
+					logger.assert_always((test.basisFunctionDeriv(i,2,point3D)==basisFunctions[i]->evalDeriv2(point3D)),"basisFunctions");
 				}
 			}
 		}

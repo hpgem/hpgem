@@ -4,8 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
-#include <cassert>
 #include "Base/TimeIntegration/AllTimeIntegrators.hpp"
+#include "Logger.h"
 
 double executeOneTimeStep(const Base::ButcherTableau *integrator, double u, double dt)
 {
@@ -83,15 +83,15 @@ int main()
     double error43 = std::abs(std::exp(1) - u4);
     
     //the first order method should return error1/error2 = 2
-    assert(error11/error12 > 1.5 && error11/error12 < 2.5);
-    assert(error12/error13 > 1.5 && error12/error13 < 2.5);
+    logger.assert_always(error11/error12 > 1.5 && error11/error12 < 2.5, "First order");
+    logger.assert_always(error12/error13 > 1.5 && error12/error13 < 2.5, "First order");
     
     //the second order method should return error1/error2 = 4
-    assert(error21/error22 > 3.5 && error21/error22 < 4.5);    
-    assert(error22/error23 > 3.5 && error22/error23 < 4.5);
+    logger.assert_always(error21/error22 > 3.5 && error21/error22 < 4.5, "Second order");    
+    logger.assert_always(error22/error23 > 3.5 && error22/error23 < 4.5, "Second order");
     
     //the fourth order method should return error1/error2 = 16
-    assert(error41/error42 > 15.5 && error41/error42 < 16.5);    
-    assert(error42/error43 > 15.5 && error42/error43 < 16.5);
+    logger.assert_always(error41/error42 > 15.5 && error41/error42 < 16.5, "Fourth order");    
+    logger.assert_always(error42/error43 > 15.5 && error42/error43 < 16.5, "Fourth order");
     return 0;
 }

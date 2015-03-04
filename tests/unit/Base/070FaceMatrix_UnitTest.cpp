@@ -19,9 +19,10 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Test the class FaceMatrix.
+#include "Logger.h"
 
-#include <cassert>
+
+// Test the class FaceMatrix.
 #include <iostream>
 
 #include "Base/FaceMatrix.hpp"
@@ -100,10 +101,10 @@ int main()
             z=i*10+j;
             z=z*100+z;
             
-            assert(F2.getElementMatrix(iS,jS)(iVB,jVB) == z);
-            assert(F3(i,j) == z);
-            assert(F4.getEntireMatrix()(i,j) == z);
-            assert(F5(i,j) == z);
+            logger.assert_always(F2.getElementMatrix(iS,jS)(iVB,jVB) == z, "Face matrix is wrong");
+            logger.assert_always(F3(i,j) == z, "Face matrix is wrong");
+            logger.assert_always(F4.getEntireMatrix()(i,j) == z, "Face matrix is wrong");
+            logger.assert_always(F5(i,j) == z, "Face matrix is wrong");
         }
     }
     

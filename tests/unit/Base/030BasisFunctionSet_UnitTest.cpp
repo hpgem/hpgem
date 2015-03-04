@@ -25,12 +25,12 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Base/AssembleBasisFunctionSet.hpp"
-#include "cassert"
 
 #include "Base/BasisFunctionSet.hpp"
 #include "Geometry/PointReference.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
 #include "Base/BaseBasisFunction.hpp"
+#include "Logger.h"
 
 int main(){
 
@@ -40,8 +40,8 @@ int main(){
 	for(std::size_t i=0;i<all1DbasisFunctions.size();++i){
 		const Base::BaseBasisFunction* test=all1DbasisFunctions[i];
 		for(point1D[0]=-1.5;point1D[0]<1.51;point1D[0]+=0.1){
-			assert(("eval",test->eval(point1D)==all1DbasisFunctions.eval(i,point1D)));
-			assert(("derivative",test->evalDeriv0(point1D)==all1DbasisFunctions.evalDeriv(i,0,point1D)));
+			logger.assert_always((test->eval(point1D)==all1DbasisFunctions.eval(i,point1D)),"eval");
+			logger.assert_always((test->evalDeriv0(point1D)==all1DbasisFunctions.evalDeriv(i,0,point1D)),"derivative");
 		}
 	}
 
@@ -52,9 +52,9 @@ int main(){
 		const Base::BaseBasisFunction* test=all2DbasisFunctions[i];
 		for(point2D[0]=-1.5;point2D[0]<1.51;point2D[0]+=0.1){
 			for(point2D[1]=-1.5;point2D[1]<1.51;point2D[1]+=0.1){
-				assert(("eval",test->eval(point2D)==all2DbasisFunctions.eval(i,point2D)));
-				assert(("derivative",test->evalDeriv0(point2D)==all2DbasisFunctions.evalDeriv(i,0,point2D)));
-				assert(("derivative",test->evalDeriv1(point2D)==all2DbasisFunctions.evalDeriv(i,1,point2D)));
+				logger.assert_always((test->eval(point2D)==all2DbasisFunctions.eval(i,point2D)),"eval");
+				logger.assert_always((test->evalDeriv0(point2D)==all2DbasisFunctions.evalDeriv(i,0,point2D)),"derivative");
+				logger.assert_always((test->evalDeriv1(point2D)==all2DbasisFunctions.evalDeriv(i,1,point2D)),"derivative");
 			}
 		}
 	}
@@ -67,10 +67,10 @@ int main(){
 		for(point3D[0]=-1.5;point3D[0]<1.51;point3D[0]+=0.1){
 			for(point3D[1]=-1.5;point3D[1]<1.51;point3D[1]+=0.1){
 				for(point3D[2]=-1.5;point3D[2]<1.51;point3D[2]+=0.1){
-					assert(("eval",test->eval(point3D)==all3DbasisFunctions.eval(i,point3D)));
-					assert(("derivative",test->evalDeriv0(point3D)==all3DbasisFunctions.evalDeriv(i,0,point3D)));
-					assert(("derivative",test->evalDeriv1(point3D)==all3DbasisFunctions.evalDeriv(i,1,point3D)));
-					assert(("derivative",test->evalDeriv2(point3D)==all3DbasisFunctions.evalDeriv(i,2,point3D)));
+					logger.assert_always((test->eval(point3D)==all3DbasisFunctions.eval(i,point3D)),"eval");
+					logger.assert_always((test->evalDeriv0(point3D)==all3DbasisFunctions.evalDeriv(i,0,point3D)),"derivative");
+					logger.assert_always((test->evalDeriv1(point3D)==all3DbasisFunctions.evalDeriv(i,1,point3D)),"derivative");
+					logger.assert_always((test->evalDeriv2(point3D)==all3DbasisFunctions.evalDeriv(i,2,point3D)),"derivative");
 				}
 			}
 		}
