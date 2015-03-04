@@ -26,12 +26,12 @@
 #include "Geometry/ReferenceLine.hpp"
 #include "Geometry/ReferencePoint.hpp"
 #include <iostream>
-#include "cassert"
 
 #include "Geometry/PointReference.hpp"
 #include "Geometry/Mappings/MappingToRefLineToLine.hpp"
 #include "Geometry/Mappings/MappingToRefPointToLine.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
+#include "Logger.h"
 #include <cmath>
 using Geometry::ReferenceLine;
 
@@ -43,25 +43,25 @@ int main(){
 	//testing basic functionality
 
 	for(pTest[0]=-3.141;pTest[0]<-1.;pTest[0]+=0.1){
-		assert(("isInternalPoint",!test.isInternalPoint(pTest)));
+		logger.assert_always((!test.isInternalPoint(pTest)),"isInternalPoint");
 	}
 	for(;pTest[0]<1;pTest[0]+=0.1){
-		assert(("isInternalPoint",test.isInternalPoint(pTest)));
+		logger.assert_always((test.isInternalPoint(pTest)),"isInternalPoint");
 	}
 	for(;pTest[0]<3.141;pTest[0]+=0.1){
-		assert(("isInternalPoint",!test.isInternalPoint(pTest)));
+		logger.assert_always((!test.isInternalPoint(pTest)),"isInternalPoint");
 	}
 
 	test.getCenter(pTest);
-	assert(("getCenter",test.isInternalPoint(pTest)&&std::abs(pTest[0])<1e-12));
+	logger.assert_always((test.isInternalPoint(pTest)&&std::abs(pTest[0])<1e-12),"getCenter");
 	test.getNode(0,pTest);
-	assert(("getNode 0",std::abs(pTest[0]+1)<1e-12));
+	logger.assert_always((std::abs(pTest[0]+1)<1e-12),"getNode 0");
 	test.getNode(1,pTest);
-	assert(("getNode 1",std::abs(pTest[0]-1)<1e-12));
+	logger.assert_always((std::abs(pTest[0]-1)<1e-12),"getNode 1");
 	std::cout<<test.getName();
 
-	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,0)==0));
-	assert(("getLocalNodeIndex 1",test.getLocalNodeIndex(1,0)==1));
+	logger.assert_always((test.getLocalNodeIndex(0,0)==0),"getLocalNodeIndex 0");
+	logger.assert_always((test.getLocalNodeIndex(1,0)==1),"getLocalNodeIndex 1");
 
 	std::cout<<test;
 
@@ -71,33 +71,33 @@ int main(){
 	for(std::size_t i=0;i<2;++i){
 		base[i]=transformed[i]=i;
 	}
-	assert(("getCodim0MappingIndex&Ptr",test.getCodim0MappingPtr(test.getCodim0MappingIndex(base,transformed))==&Geometry::MappingToRefLineToLine0::Instance()));
-	assert(("getCodim0MappingIndex&Ptr",test.getCodim0MappingPtr(base,transformed)==&Geometry::MappingToRefLineToLine0::Instance()));
+	logger.assert_always((test.getCodim0MappingPtr(test.getCodim0MappingIndex(base,transformed))==&Geometry::MappingToRefLineToLine0::Instance()),"getCodim0MappingIndex&Ptr");
+	logger.assert_always((test.getCodim0MappingPtr(base,transformed)==&Geometry::MappingToRefLineToLine0::Instance()),"getCodim0MappingIndex&Ptr");
 	transformed[0]=1;
 	transformed[1]=0;
-	assert(("getCodim0MappingIndex&Ptr",test.getCodim0MappingPtr(test.getCodim0MappingIndex(base,transformed))==&Geometry::MappingToRefLineToLine1::Instance()));
-	assert(("getCodim0MappingIndex&Ptr",test.getCodim0MappingPtr(base,transformed)==&Geometry::MappingToRefLineToLine1::Instance()));
+	logger.assert_always((test.getCodim0MappingPtr(test.getCodim0MappingIndex(base,transformed))==&Geometry::MappingToRefLineToLine1::Instance()),"getCodim0MappingIndex&Ptr");
+	logger.assert_always((test.getCodim0MappingPtr(base,transformed)==&Geometry::MappingToRefLineToLine1::Instance()),"getCodim0MappingIndex&Ptr");
 
-	assert(("higher codimensional entities",test.getNrOfCodim1Entities()==2&&test.getNrOfCodim2Entities()==0)&&test.getNrOfCodim3Entities()==0);
-	assert(("getCodim1ReferenceGeometry",test.getCodim1ReferenceGeometry(0)==&Geometry::ReferencePoint::Instance()&&
-										 test.getCodim1ReferenceGeometry(1)==&Geometry::ReferencePoint::Instance()));
-	assert(("getCodim1MappingPtr",test.getCodim1MappingPtr(0)==&Geometry::MappingToRefPointToLine0::Instance()));
-	assert(("getCodim1MappingPtr",test.getCodim1MappingPtr(1)==&Geometry::MappingToRefPointToLine1::Instance()));
+	logger.assert_always((test.getNrOfCodim1Entities()==2&&test.getNrOfCodim2Entities()==0)&&test.getNrOfCodim3Entities()==0,"higher codimensional entities");
+	logger.assert_always((test.getCodim1ReferenceGeometry(0)==&Geometry::ReferencePoint::Instance()&&
+										 test.getCodim1ReferenceGeometry(1)==&Geometry::ReferencePoint::Instance()),"getCodim1ReferenceGeometry");
+	logger.assert_always((test.getCodim1MappingPtr(0)==&Geometry::MappingToRefPointToLine0::Instance()),"getCodim1MappingPtr");
+	logger.assert_always((test.getCodim1MappingPtr(1)==&Geometry::MappingToRefPointToLine1::Instance()),"getCodim1MappingPtr");
 	test.getCodim1EntityLocalIndices(0,faceIndices);
-	assert(("getCodim1EntityLocalIndices",faceIndices[0]==test.getLocalNodeIndex(0,0)));
+	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(0,0)),"getCodim1EntityLocalIndices");
 	test.getCodim1EntityLocalIndices(1,faceIndices);
-	assert(("getCodim1EntityLocalIndices",faceIndices[0]==test.getLocalNodeIndex(1,0)));
+	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(1,0)),"getCodim1EntityLocalIndices");
 
-	assert(("quadrature rules",test.getGaussQuadratureRule(3)->order()>=3));
-	assert(("quadrature rules",test.getGaussQuadratureRule(5)->order()>=5));
-	assert(("quadrature rules",test.getGaussQuadratureRule(7)->order()>=7));
-	assert(("quadrature rules",test.getGaussQuadratureRule(9)->order()>=9));
-	assert(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));
+	logger.assert_always((test.getGaussQuadratureRule(3)->order()>=3),"quadrature rules");
+	logger.assert_always((test.getGaussQuadratureRule(5)->order()>=5),"quadrature rules");
+	logger.assert_always((test.getGaussQuadratureRule(7)->order()>=7),"quadrature rules");
+	logger.assert_always((test.getGaussQuadratureRule(9)->order()>=9),"quadrature rules");
+	logger.assert_always((test.getGaussQuadratureRule(11)->order()>=11),"quadrature rules");
 
 	//testing functionality of abstract parent classes
 
-	assert(("number of nodes",test.getNumberOfNodes()==2));
-	assert(("type of geometry",test.getGeometryType()==Geometry::LINE));
+	logger.assert_always((test.getNumberOfNodes()==2),"number of nodes");
+	logger.assert_always((test.getGeometryType()==Geometry::LINE),"type of geometry");
 
 	///\TODO if it is decided that getBasisFunctionValue and getBasisFucntionDerivative remain here, test them
 

@@ -31,12 +31,6 @@
 #include "Geometry/PointPhysical.hpp"
 #include "Logger.h"
 
-void assert(std::string message,bool comparison,std::size_t lineNumber){
-	if(!comparison){
-		logger(FATAL,"\n fundamental problem detected for % at line %",message,lineNumber);
-	}
-}
-
 int main(){
 
 	double test0[0],test1[1],test2[2],test3[3],test4[4];

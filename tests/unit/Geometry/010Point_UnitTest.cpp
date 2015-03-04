@@ -24,8 +24,8 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/Point.hpp"
+#include "Logger.h"
 #include <iostream>
-#include "cassert"
 #include <cmath>
 using Geometry::Point;
 
@@ -44,94 +44,94 @@ int main(){
 
 	//testing operator[]
 
-	assert(("1D default constructor or operator[] of Point",p1[0]==0.));
+	logger.assert_always((p1[0]==0.),"1D default constructor or operator[] of Point");
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D default constructor or operator[] of Point",p2[i]==0.));
+		logger.assert_always((p2[i]==0.),"2D default constructor or operator[] of Point");
 	}
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D default constructor or operator[] of Point",p3[i]==0.));
+		logger.assert_always((p3[i]==0.),"3D default constructor or operator[] of Point");
 	}
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D default constructor or operator[] of Point",p4[i]==0.));
+		logger.assert_always((p4[i]==0.),"4D default constructor or operator[] of Point");
 	}
 
-	assert(("1D copy constructor",pp1[0]==0.));
+	logger.assert_always((pp1[0]==0.),"1D copy constructor");
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D copy constructor",pp2[i]==0.));
+		logger.assert_always((pp2[i]==0.),"2D copy constructor");
 	}
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D copy constructor",pp3[i]==0.));
+		logger.assert_always((pp3[i]==0.),"3D copy constructor");
 	}
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D copy constructor",pp4[i]==0.));
+		logger.assert_always((pp4[i]==0.),"4D copy constructor");
 	}
 
-	assert(("1D from array constructor or operator[] of Point",std::abs(pc1[0]-1.1)<1e-12));
+	logger.assert_always((std::abs(pc1[0]-1.1)<1e-12),"1D from array constructor or operator[] of Point");
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D from array constructor or operator[] of Point",std::abs(pc2[i]-1.2-i)<1e-12));
+		logger.assert_always((std::abs(pc2[i]-1.2-i)<1e-12),"2D from array constructor or operator[] of Point");
 	}
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D from array constructor or operator[] of Point",std::abs(pc3[i]-1.3-i)<1e-12));
+		logger.assert_always((std::abs(pc3[i]-1.3-i)<1e-12),"3D from array constructor or operator[] of Point");
 	}
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D from array constructor or operator[] of Point",std::abs(pc4[i]-1.4-i)<1e-12));
+		logger.assert_always((std::abs(pc4[i]-1.4-i)<1e-12),"4D from array constructor or operator[] of Point");
 	}
 
-	assert(("1D from NumericalVector constructor",std::abs(pv1[0]-1.1)<1e-12));
+	logger.assert_always((std::abs(pv1[0]-1.1)<1e-12),"1D from NumericalVector constructor");
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D from NumericalVector constructor",std::abs(pv2[i]-1.2-i)<1e-12));
+		logger.assert_always((std::abs(pv2[i]-1.2-i)<1e-12),"2D from NumericalVector constructor");
 	}
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D from NumericalVector constructor",std::abs(pv3[i]-1.3-i)<1e-12));
+		logger.assert_always((std::abs(pv3[i]-1.3-i)<1e-12),"3D from NumericalVector constructor");
 	}
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D from NumericalVector constructor",std::abs(pv4[i]-1.4-i)<1e-12));
+		logger.assert_always((std::abs(pv4[i]-1.4-i)<1e-12),"4D from NumericalVector constructor");
 	}
 
 	//testing setCoordinates and setCoordinate
 
 	p1.setCoordinates(vec1);
-	assert(("1D setCoordinates",std::abs(p1[0]-1.1)<1e-12));
+	logger.assert_always((std::abs(p1[0]-1.1)<1e-12),"1D setCoordinates");
 	p2.setCoordinates(vec2);
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D setCoordinates",std::abs(p2[i]-1.2-i)<1e-12));
+		logger.assert_always((std::abs(p2[i]-1.2-i)<1e-12),"2D setCoordinates");
 	}
 	p3.setCoordinates(vec3);
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D setCoordinates",std::abs(p3[i]-1.3-i)<1e-12));
+		logger.assert_always((std::abs(p3[i]-1.3-i)<1e-12),"3D setCoordinates");
 	}
 	p4.setCoordinates(vec4);
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D setCoordinates",std::abs(p4[i]-1.4-i)<1e-12));
+		logger.assert_always((std::abs(p4[i]-1.4-i)<1e-12),"4D setCoordinates");
 	}
 
 	p1.setCoordinate(0,0.9);
-	assert(("1D setCoordinate",std::abs(p1[0]-0.9)<1e-12));
+	logger.assert_always((std::abs(p1[0]-0.9)<1e-12),"1D setCoordinate");
 	for(std::size_t i=0;i<2;++i){
 		p2.setCoordinate(i,0.8+double(i));
 		for(std::size_t j=0;j<=i;++j){
-			assert(("2D setCoordinate",std::abs(p2[j]-0.8-j)<1e-12));
+			logger.assert_always((std::abs(p2[j]-0.8-j)<1e-12),"2D setCoordinate");
 		}
 		for(std::size_t j=i+1;j<2;++j){
-			assert(("2D setCoordinate",std::abs(p2[j]-1.2-j)<1e-12));
+			logger.assert_always((std::abs(p2[j]-1.2-j)<1e-12),"2D setCoordinate");
 		}
 	}
 	for(std::size_t i=0;i<3;++i){
 		p3.setCoordinate(i,0.7+i);
 		for(std::size_t j=0;j<=i;++j){
-			assert(("3D setCoordinate",std::abs(p3[j]-0.7-j)<1e-12));
+			logger.assert_always((std::abs(p3[j]-0.7-j)<1e-12),"3D setCoordinate");
 		}
 		for(std::size_t j=i+1;j<3;++j){
-			assert(("3D setCoordinate",std::abs(p3[j]-1.3-j)<1e-12));
+			logger.assert_always((std::abs(p3[j]-1.3-j)<1e-12),"3D setCoordinate");
 		}
 	}
 	for(std::size_t i=0;i<4;++i){
 		p4.setCoordinate(i,0.6+i);
 		for(std::size_t j=0;j<=i;++j){
-			assert(("4D setCoordinate",std::abs(p4[j]-0.6-j)<1e-12));
+			logger.assert_always((std::abs(p4[j]-0.6-j)<1e-12),"4D setCoordinate");
 		}
 		for(std::size_t j=i+1;j<4;++j){
-			assert(("4D setCoordinate",std::abs(p4[j]-1.4-j)<1e-12));
+			logger.assert_always((std::abs(p4[j]-1.4-j)<1e-12),"4D setCoordinate");
 		}
 	}
 
@@ -139,202 +139,202 @@ int main(){
 
 	const Point pr0 = pc0 = p0;
 	const Point pr1 = pc1 = p1;
-	assert(("1D assignment operator",std::abs(pc1[0]-0.9)<1e-12));
-	assert(("1D assignment operator",std::abs(pr1[0]-0.9)<1e-12));
+	logger.assert_always((std::abs(pc1[0]-0.9)<1e-12),"1D assignment operator");
+	logger.assert_always((std::abs(pr1[0]-0.9)<1e-12),"1D assignment operator");
 	const Point pr2 = pc2 = p2;
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D assignment operator",std::abs(pc2[i]-0.8-i)<1e-12));
-		assert(("2D assignment operator",std::abs(pr2[i]-0.8-i)<1e-12));
+		logger.assert_always((std::abs(pc2[i]-0.8-i)<1e-12),"2D assignment operator");
+		logger.assert_always((std::abs(pr2[i]-0.8-i)<1e-12),"2D assignment operator");
 	}
 	const Point pr3 = pc3 = p3;
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D assignment operator",std::abs(pc3[i]-0.7-i)<1e-12));
-		assert(("3D assignment operator",std::abs(pr3[i]-0.7-i)<1e-12));
+		logger.assert_always((std::abs(pc3[i]-0.7-i)<1e-12),"3D assignment operator");
+		logger.assert_always((std::abs(pr3[i]-0.7-i)<1e-12),"3D assignment operator");
 	}
 	const Point pr4 = pc4 = p4;
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D assignment operator",std::abs(pc4[i]-0.6-i)<1e-12));
-		assert(("4D assignment operator",std::abs(pr4[i]-0.6-i)<1e-12));
+		logger.assert_always((std::abs(pc4[i]-0.6-i)<1e-12),"4D assignment operator");
+		logger.assert_always((std::abs(pr4[i]-0.6-i)<1e-12),"4D assignment operator");
 	}
 
-	assert(("0D equality operator",pr0==pc0&&pc0==pr0&&pc0==p0));
-	assert(("1D equality operator",pr1==pc1&&pc1==pr1&&pc1==p1&&!(pr1==pv1||pv1==pr1||p1==pv1)));
-	assert(("2D equality operator",pr2==pc2&&pc2==pr2&&pc2==p2&&!(pr2==pv2||pv2==pr2||p2==pv2)));
-	assert(("3D equality operator",pr3==pc3&&pc3==pr3&&pc3==p3&&!(pr3==pv3||pv3==pr3||p3==pv3)));
-	assert(("4D equality operator",pr4==pc4&&pc4==pr4&&pc4==p4&&!(pr4==pv4||pv4==pr4||p4==pv4)));
-	assert(("equality operator - different dimensions",
+	logger.assert_always((pr0==pc0&&pc0==pr0&&pc0==p0),"0D equality operator");
+	logger.assert_always((pr1==pc1&&pc1==pr1&&pc1==p1&&!(pr1==pv1||pv1==pr1||p1==pv1)),"1D equality operator");
+	logger.assert_always((pr2==pc2&&pc2==pr2&&pc2==p2&&!(pr2==pv2||pv2==pr2||p2==pv2)),"2D equality operator");
+	logger.assert_always((pr3==pc3&&pc3==pr3&&pc3==p3&&!(pr3==pv3||pv3==pr3||p3==pv3)),"3D equality operator");
+	logger.assert_always((pr4==pc4&&pc4==pr4&&pc4==p4&&!(pr4==pv4||pv4==pr4||p4==pv4)),"4D equality operator");
+	logger.assert_always((
 			!(pr0==pv1||pv1==pr0||p0==p1||pr0==pv2||pv2==pr0||p0==p2||
 					pr0==pv3||pv3==pr0||p0==p3||pr0==pv4||pv4==pr0||p0==p4||
 					pr1==pv2||pv2==pr1||p1==p2||
 					pr1==pv3||pv3==pr1||p1==p3||pr1==pv4||pv4==pr1||p1==p4||
 					pr2==pv3||pv3==pr2||p2==p3||pr2==pv4||pv4==pr2||p2==p4||
-					pr3==pv4||pv4==pr3||p3==p4)));
+					pr3==pv4||pv4==pr3||p3==p4)),"equality operator - different dimensions");
 
 	pc0+=p0;
 	pc1+=p1;
-	assert(("1D increment operator",std::abs(pc1[0]-1.8)<1e-12));
+	logger.assert_always((std::abs(pc1[0]-1.8)<1e-12),"1D increment operator");
 	pc2+=p2;
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D increment operator",std::abs(pc2[i]-1.6-2*i)<1e-12));
+		logger.assert_always((std::abs(pc2[i]-1.6-2*i)<1e-12),"2D increment operator");
 	}
 	pc3+=p3;
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D increment operator",std::abs(pc3[i]-1.4-2*i)<1e-12));
+		logger.assert_always((std::abs(pc3[i]-1.4-2*i)<1e-12),"3D increment operator");
 	}
 	pc4+=p4;
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D increment operator",std::abs(pc4[i]-1.2-2*i)<1e-12));
+		logger.assert_always((std::abs(pc4[i]-1.2-2*i)<1e-12),"4D increment operator");
 	}
 
 	pc0-=pv0;
 	pc1-=pv1;
-	assert(("1D decrement operator",std::abs(pc1[0]-0.7)<1e-12));
+	logger.assert_always((std::abs(pc1[0]-0.7)<1e-12),"1D decrement operator");
 	pc2-=pv2;
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D decrement operator",std::abs(pc2[i]-0.4-i)<1e-12));
+		logger.assert_always((std::abs(pc2[i]-0.4-i)<1e-12),"2D decrement operator");
 	}
 	pc3-=pv3;
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D decrement operator",std::abs(pc3[i]-0.1-i)<1e-12));
+		logger.assert_always((std::abs(pc3[i]-0.1-i)<1e-12),"3D decrement operator");
 	}
 	pc4-=pv4;
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D decrement operator or negative numbers",std::abs(pc4[i]+0.2-i)<1e-12));
+		logger.assert_always((std::abs(pc4[i]+0.2-i)<1e-12),"4D decrement operator or negative numbers");
 	}
 
 	pc0*=2.;
 	pc1*=3.;
-	assert(("1D multiply operator",std::abs(pc1[0]-2.1)<1e-12));
+	logger.assert_always((std::abs(pc1[0]-2.1)<1e-12),"1D multiply operator");
 	pc2*=4.;
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D multiply operator",std::abs(pc2[i]-1.6-4*i)<1e-12));
+		logger.assert_always((std::abs(pc2[i]-1.6-4*i)<1e-12),"2D multiply operator");
 	}
 	pc3*=5.;
-	for(int i=0;i<3;++i){
-		assert(("3D multiply operator",std::abs(pc3[i]-0.5-5*i)<1e-12));
+	for(std::size_t i=0;i<3;++i){
+		logger.assert_always((std::abs(pc3[i]-0.5-5*i)<1e-12),"3D multiply operator");
 	}
 	pc4*=6.;
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D multiply operator",std::abs(pc4[i]+1.2-6*i)<1e-12));
+		logger.assert_always((std::abs(pc4[i]+1.2-6*i)<1e-12),"4D multiply operator");
 	}
 
 	pv0*6.;
-	assert(("1D multiplication",std::abs((pv1*5.)[0]-5.5)<1e-12));
+	logger.assert_always((std::abs((pv1*5.)[0]-5.5)<1e-12),"1D multiplication");
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D multiplication",std::abs((pv2*4.)[i]-4.8-4*i)<1e-12));
+		logger.assert_always((std::abs((pv2*4.)[i]-4.8-4*i)<1e-12),"2D multiplication");
 	}
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D multiplication",std::abs((pv3*3.)[i]-3.9-3*i)<1e-12));
+		logger.assert_always((std::abs((pv3*3.)[i]-3.9-3*i)<1e-12),"3D multiplication");
 	}
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D multiplication",std::abs((pv4*2.)[i]-2.8-2*i)<1e-12));
+		logger.assert_always((std::abs((pv4*2.)[i]-2.8-2*i)<1e-12),"4D multiplication");
 	}
 
-	assert(("0D multiplication",(pr0*0.)==pp0));
-	assert(("1D multiplication",(pr1*0.)==pp1));
-	assert(("2D multiplication",(pr2*0.)==pp2));
-	assert(("3D multiplication",(pr3*0.)==pp3));
-	assert(("4D multiplication",(pr4*0.)==pp4));
+	logger.assert_always(((pr0*0.)==pp0),"0D multiplication");
+	logger.assert_always(((pr1*0.)==pp1),"1D multiplication");
+	logger.assert_always(((pr2*0.)==pp2),"2D multiplication");
+	logger.assert_always(((pr3*0.)==pp3),"3D multiplication");
+	logger.assert_always(((pr4*0.)==pp4),"4D multiplication");
 
 	pc0+pv0;
-	assert(("1D addition",std::abs((pc1+pv1)[0]-3.2)<1e-12));
+	logger.assert_always((std::abs((pc1+pv1)[0]-3.2)<1e-12),"1D addition");
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D addition",std::abs((pc2+pv2)[i]-2.8-5*i)<1e-12));
+		logger.assert_always((std::abs((pc2+pv2)[i]-2.8-5*i)<1e-12),"2D addition");
 	}
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D addition",std::abs((pc3+pv3)[i]-1.8-6*i)<1e-12));
+		logger.assert_always((std::abs((pc3+pv3)[i]-1.8-6*i)<1e-12),"3D addition");
 	}
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D addition",std::abs((pc4+pv4)[i]-0.2-7*i)<1e-12));
+		logger.assert_always((std::abs((pc4+pv4)[i]-0.2-7*i)<1e-12),"4D addition");
 	}
 
 	pr0+pv0;
-	assert(("1D addition",std::abs((pr1+pv1)[0]-2.)<1e-12));
+	logger.assert_always((std::abs((pr1+pv1)[0]-2.)<1e-12),"1D addition");
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D addition",std::abs((pr2+pv2)[i]-2.-2*i)<1e-12));
+		logger.assert_always((std::abs((pr2+pv2)[i]-2.-2*i)<1e-12),"2D addition");
 	}
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D addition",std::abs((pr3+pv3)[i]-2.-2*i)<1e-12));
+		logger.assert_always((std::abs((pr3+pv3)[i]-2.-2*i)<1e-12),"3D addition");
 	}
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D addition",std::abs((pr4+pv4)[i]-2.-2*i)<1e-12));
+		logger.assert_always((std::abs((pr4+pv4)[i]-2.-2*i)<1e-12),"4D addition");
 	}
 
 	pc0-pv0;
-	assert(("1D subtraction",std::abs((pc1-pv1)[0]-1.)<1e-12));
+	logger.assert_always((std::abs((pc1-pv1)[0]-1.)<1e-12),"1D subtraction");
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D subtraction",std::abs((pc2-pv2)[i]-0.4-3*i)<1e-12));
+		logger.assert_always((std::abs((pc2-pv2)[i]-0.4-3*i)<1e-12),"2D subtraction");
 	}
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D subtraction",std::abs((pc3-pv3)[i]+0.8-4*i)<1e-12));
+		logger.assert_always((std::abs((pc3-pv3)[i]+0.8-4*i)<1e-12),"3D subtraction");
 	}
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D subtraction",std::abs((pc4-pv4)[i]+2.6-5*i)<1e-12));
+		logger.assert_always((std::abs((pc4-pv4)[i]+2.6-5*i)<1e-12),"4D subtraction");
 	}
 
 	pr0-pv0;
-	assert(("1D subtraction",std::abs((pr1-pv1)[0]+0.2)<1e-12));
+	logger.assert_always((std::abs((pr1-pv1)[0]+0.2)<1e-12),"1D subtraction");
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D subtraction",std::abs((pr2-pv2)[i]+0.4)<1e-12));
+		logger.assert_always((std::abs((pr2-pv2)[i]+0.4)<1e-12),"2D subtraction");
 	}
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D subtraction",std::abs((pr3-pv3)[i]+0.6)<1e-12));
+		logger.assert_always((std::abs((pr3-pv3)[i]+0.6)<1e-12),"3D subtraction");
 	}
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D subtraction",std::abs((pr4-pv4)[i]+0.8)<1e-12));
+		logger.assert_always((std::abs((pr4-pv4)[i]+0.8)<1e-12),"4D subtraction");
 	}
 
 	//testing size
 
-	assert(("size of a 0D point",p0.size()==0&&pp0.size()==0&&pr0.size()==0&&pc0.size()==0&&pv0.size()==0));
-	assert(("size of a 1D point",p1.size()==1&&pp1.size()==1&&pr1.size()==1&&pc1.size()==1&&pv1.size()==1));
-	assert(("size of a 2D point",p2.size()==2&&pp2.size()==2&&pr2.size()==2&&pc2.size()==2&&pv2.size()==2));
-	assert(("size of a 3D point",p3.size()==3&&pp3.size()==3&&pr3.size()==3&&pc3.size()==3&&pv3.size()==3));
-	assert(("size of a 4D point",p4.size()==4&&pp4.size()==4&&pr4.size()==4&&pc4.size()==4&&pv4.size()==4));
+	logger.assert_always((p0.size()==0&&pp0.size()==0&&pr0.size()==0&&pc0.size()==0&&pv0.size()==0),"size of a 0D point");
+	logger.assert_always((p1.size()==1&&pp1.size()==1&&pr1.size()==1&&pc1.size()==1&&pv1.size()==1),"size of a 1D point");
+	logger.assert_always((p2.size()==2&&pp2.size()==2&&pr2.size()==2&&pc2.size()==2&&pv2.size()==2),"size of a 2D point");
+	logger.assert_always((p3.size()==3&&pp3.size()==3&&pr3.size()==3&&pc3.size()==3&&pv3.size()==3),"size of a 3D point");
+	logger.assert_always((p4.size()==4&&pp4.size()==4&&pr4.size()==4&&pc4.size()==4&&pv4.size()==4),"size of a 4D point");
 
 	//testing getCoordinate and getCoordinates
 
-	assert(("1D getCoordinate",p1.getCoordinate(0)==p1[0]));
+	logger.assert_always((p1.getCoordinate(0)==p1[0]),"1D getCoordinate");
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D getCoordinate",p2.getCoordinate(i)==p2[i]));
+		logger.assert_always((p2.getCoordinate(i)==p2[i]),"2D getCoordinate");
 	}
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D getCoordinate",p3.getCoordinate(i)==p3[i]));
+		logger.assert_always((p3.getCoordinate(i)==p3[i]),"3D getCoordinate");
 	}
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D getCoordinate",p4.getCoordinate(i)==p4[i]));
+		logger.assert_always((p4.getCoordinate(i)==p4[i]),"4D getCoordinate");
 	}
 
-	assert(("0D getCoordinates",pv0.getCoordinates()==vec0));
-	assert(("1D getCoordinates",pv1.getCoordinates()==vec1));
-	assert(("2D getCoordinates",pv2.getCoordinates()==vec2));
-	assert(("3D getCoordinates",pv3.getCoordinates()==vec3));
-	assert(("4D getCoordinates",pv4.getCoordinates()==vec4));
+	logger.assert_always((pv0.getCoordinates()==vec0),"0D getCoordinates");
+	logger.assert_always((pv1.getCoordinates()==vec1),"1D getCoordinates");
+	logger.assert_always((pv2.getCoordinates()==vec2),"2D getCoordinates");
+	logger.assert_always((pv3.getCoordinates()==vec3),"3D getCoordinates");
+	logger.assert_always((pv4.getCoordinates()==vec4),"4D getCoordinates");
 
 	//testing friends
 
 	-pc0;
-	assert(("1D unary -",std::abs((-pc1)[0]+2.1)<1e-12));
+	logger.assert_always((std::abs((-pc1)[0]+2.1)<1e-12),"1D unary -");
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D unary -",std::abs((-pc2)[i]+1.6+4*i)<1e-12));
+		logger.assert_always((std::abs((-pc2)[i]+1.6+4*i)<1e-12),"2D unary -");
 	}
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D unary -",std::abs((-pc3)[i]+0.5+5*i)<1e-12));
+		logger.assert_always((std::abs((-pc3)[i]+0.5+5*i)<1e-12),"3D unary -");
 	}
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D unary -",std::abs((-pc4)[i]-1.2+6*i)<1e-12));
+		logger.assert_always((std::abs((-pc4)[i]-1.2+6*i)<1e-12),"4D unary -");
 	}
 
 	6.*pv0;
-	assert(("1D left multiplication",std::abs((5.*pv1)[0]-5.5)<1e-12));
+	logger.assert_always((std::abs((5.*pv1)[0]-5.5)<1e-12),"1D left multiplication");
 	for(std::size_t i=0;i<2;++i){
-		assert(("2D left multiplication",std::abs((4.*pv2)[i]-4.8-4*i)<1e-12));
+		logger.assert_always((std::abs((4.*pv2)[i]-4.8-4*i)<1e-12),"2D left multiplication");
 	}
 	for(std::size_t i=0;i<3;++i){
-		assert(("3D left multiplication",std::abs((3.*pv3)[i]-3.9-3*i)<1e-12));
+		logger.assert_always((std::abs((3.*pv3)[i]-3.9-3*i)<1e-12),"3D left multiplication");
 	}
 	for(std::size_t i=0;i<4;++i){
-		assert(("4D left multiplication",std::abs((2.*pv4)[i]-2.8-2*i)<1e-12));
+		logger.assert_always((std::abs((2.*pv4)[i]-2.8-2*i)<1e-12),"4D left multiplication");
 	}
 
 	std::cout<<p0<<p1<<p2<<p3<<p4<<pr0<<pr1<<pr2<<pr3<<pr4<<std::endl;

@@ -25,7 +25,7 @@
 
 #include "Geometry/ReferencePoint.hpp"
 #include <iostream>
-#include "cassert"
+#include "Logger.h"
 
 #include "Geometry/PointReference.hpp"
 #include "Geometry/Mappings/MappingToRefPointToPoint.hpp"
@@ -41,7 +41,7 @@ int main(){
 
 	//testing basic functionality
 
-	assert(("isInternalPoint",test.isInternalPoint(pTest)));
+	logger.assert_always((test.isInternalPoint(pTest)),"isInternalPoint");
 	test.getCenter(pTest);
 	test.getNode(0,pTest);
 	std::cout<<test.getName();
@@ -52,20 +52,20 @@ int main(){
 
 	//testing mappings and quadrature rules
 
-	assert(("getCodim0MappingIndex&Ptr",test.getCodim0MappingPtr(test.getCodim0MappingIndex(base,transformed))==&Geometry::MappingToRefPointToPoint::Instance()));
-	assert(("getCodim0MappingIndex&Ptr",test.getCodim0MappingPtr(base,transformed)==&Geometry::MappingToRefPointToPoint::Instance()));
-	assert(("higher codimensional entities",test.getNrOfCodim1Entities()==0&&test.getNrOfCodim2Entities()==0)&&test.getNrOfCodim3Entities()==0);
+	logger.assert_always((test.getCodim0MappingPtr(test.getCodim0MappingIndex(base,transformed))==&Geometry::MappingToRefPointToPoint::Instance()),"getCodim0MappingIndex&Ptr");
+	logger.assert_always((test.getCodim0MappingPtr(base,transformed)==&Geometry::MappingToRefPointToPoint::Instance()),"getCodim0MappingIndex&Ptr");
+	logger.assert_always((test.getNrOfCodim1Entities()==0&&test.getNrOfCodim2Entities()==0)&&test.getNrOfCodim3Entities()==0,"higher codimensional entities");
 
-	assert(("quadrature rules",test.getGaussQuadratureRule(3)->order()>=3));
-	assert(("quadrature rules",test.getGaussQuadratureRule(5)->order()>=5));
-	assert(("quadrature rules",test.getGaussQuadratureRule(7)->order()>=7));
-	assert(("quadrature rules",test.getGaussQuadratureRule(9)->order()>=9));
-	assert(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));
+	logger.assert_always((test.getGaussQuadratureRule(3)->order()>=3),"quadrature rules");
+	logger.assert_always((test.getGaussQuadratureRule(5)->order()>=5),"quadrature rules");
+	logger.assert_always((test.getGaussQuadratureRule(7)->order()>=7),"quadrature rules");
+	logger.assert_always((test.getGaussQuadratureRule(9)->order()>=9),"quadrature rules");
+	logger.assert_always((test.getGaussQuadratureRule(11)->order()>=11),"quadrature rules");
 
 	//testing functionality of abstract parent classes
 
-	assert(("number of nodes",test.getNumberOfNodes()==1));
-	assert(("type of geometry",test.getGeometryType()==Geometry::POINT));
+	logger.assert_always((test.getNumberOfNodes()==1),"number of nodes");
+	logger.assert_always((test.getGeometryType()==Geometry::POINT),"type of geometry");
 
 	//getBasisFunctionValue and getBasisFunctionDerivative require 0D basisfunctions to be implemented
 
