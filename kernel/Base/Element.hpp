@@ -59,22 +59,18 @@ namespace Base
         using ReferenceGeometryT = Geometry::ReferenceGeometry;
         using MappingReferenceToPhysicalT = Geometry::MappingReferenceToPhysical;
         using ElementGeometryT = Geometry::ElementGeometry;
-        using PointIndexT = std::size_t;
-        using UId = std::size_t;
-        using VectorOfPhysicalPointsT = std::vector<PointPhysicalT>;
-        using VectorOfPointIndexesT = std::vector<PointIndexT>;
         using CacheT = Base::ElementCacheData;
         using BasisFunctionSetT = Base::BasisFunctionSet;
         using GaussQuadratureRuleT = QuadratureRules::GaussQuadratureRule;
         using ElementDataT = Base::ElementData;
-        using VecCacheT = std::vector<CacheT>;
+        using VecCacheT = std::vector<CacheT>; 
         using SolutionVector = LinearAlgebra::NumericalVector;
 
     public:
 
-        Element(const VectorOfPointIndexesT& globalNodeIndexes,
+        Element(const std::vector<std::size_t>& globalNodeIndexes,
                 const std::vector<const BasisFunctionSetT*>* basisFunctionSet,
-                const VectorOfPhysicalPointsT& allNodes,
+                const std::vector<Geometry::PointPhysical>& allNodes,
                 std::size_t nrOfUnkowns,
                 std::size_t nrOfTimeLevels,
                 std::size_t nrOfBasisFunc,
@@ -211,7 +207,7 @@ namespace Base
         const GaussQuadratureRuleT* quadratureRule_;
         const std::vector<const BasisFunctionSetT*>* basisFunctionSet_;
         VecCacheT vecCacheData_;
-        UId id_;
+        std::size_t id_;
         double orderCoeff_;
         std::vector<int> basisFunctionSetPositions_;
         std::vector<const Face*> facesList_;
