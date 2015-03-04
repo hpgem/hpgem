@@ -41,17 +41,38 @@
 
 /// \brief Class to demonstrate how a system of multiple PDE's can be solved.
 /** \details 
-This class illustrates how to solve a system of PDE's. The example can be used for solving linear PDE's as well as non-linear PDE's with a time dependent mass matrices and right hand side. Currently only periodic boundary conditions are used in this example.
+This class illustrates how to solve a system of PDE's. The example can be used for solving linear PDE's as well as non-linear PDE's with a time dependent mass matrices and right hand side. The example can be used for problems of the form \f[ l(\partial_t^k \vec{u},t) = f(\vec{u},t) \f], where \f$ \vec{u} \f$ is some vector function, \f$ l(\partial_t^k \vec{u},t)\f$ is some linear function, depending on the k-th order time-derivative of \f$ u \f$, and \f$ f(\vec{u},t) \f$ is some function of \f$ \vec{u} \f$ that can depend on arbitrary order spatial derivatives of \f$\vec{u}\f$. This last term will be referred to as the right-hand side.
  
-The class can solve the scalar wave equation in 2D or 3D written as a first order system of PDE's. The original scalar wave equation is given by \f[ \partial_t^2 u = \nabla \cdot c \nabla u \f], where \f$u \f$ is the scalar variable and \f$c \f$ a material parameter corresponding to the velocity with which waves can propagate.
+Currently only periodic boundary conditions are used in this example and we do not use a source term.
+ 
+This class can solve the scalar wave equation in 2D or 3D written as a first order system of PDE's. The original scalar wave equation is given by \f[ \partial_t^2 u = \nabla \cdot c \nabla u \f], where \f$u \f$ is the scalar variable and \f$c \f$ a material parameter corresponding to the velocity with which waves can propagate.
  
 For a first order scheme we define the scalar function \f$ v := \partial_t u \f$ and the vector function \f$ s := c \nabla u \f$. We can then obtain the equations \f[ \partial_t v = \nabla \cdot s \f] and \f[ c^{-1} \partial_t s = \nabla v \f]
  
 We define a new vector function \f$w = [w_0, w_1, w_2, ..] = [v, s_0, s_1, ..]\f$. We can then rewrite the system of PDE's as follows: \f[ \partial_t w_0 = \partial_i w_{i+1} \f] summing over i = 0 .. (DIM-1) and \f[ c^{-1} \partial_t w_{i+1} = \partial_i w_0 \f] for i = 0 .. (DIM-1).
  
  A boolean useMatrixStorage can be set to true if you want to store all mass and stiffness matrices. This only works for linear problems, but might reduce computational costs.
+ 
+ This class consists of the following parts:
+ \li A constructor to set the dimension, number of elements, polynomial order, butcher tableau, and boolean for storing matrices.
+ \li The functions 'createMesh' and 'setMaterialParameter' are used to create the mesh and set the material parameters.
+ \li The functions 'getCInv', 'getSourceTerm' and 'getRealSolution' return the material parameters, source term and analytic solution.
+ \li The functions 'referenceElementIntegral' and 'referenceFaceIntegral' integrate a given function over the reference elements/faces.
+ \li The functions 'integrand...OnRefElement' and 'integrand...OnRefElement' compute the integrand for ... for the reference element/face. These functions are necessary to compute the mass matrix, stiffness matrix, initial solution and numerical error. When not storing matrices we compute the integrand for the right-hand side.
+ \li The function 'setInitialSolution' interpolates the initial solution.
+ \li The functions 'createMassMatrices' and 'createMatricesAndVectorsRightHandSide' create the necessary matrices for a linear problem.
+ \li The function 'computeEnergyNormError' computes the error and applies a suitable norm.
+ \li The function 'computeOneTimeStep' computes one timestep (here using the chosen Runge-Kutta scheme).
+ \li The function 'solve' solves the PDE over the time interval [0,T].
+ \li The function 'writeToTecplotFile' is used to determine which data should be written to the output file.
  */
-
+/** \details To solve the problem, the following things are done in the main routine:
+ \li An object of the class ExampleMultipleVariableProblem is created.
+ \li The mesh is created with 'createMesh'.
+ \li The material parameters are set using 'setMaterialParameters'.
+ \li The function 'solve' is then used to solve the PDE.
+ \li The function 'computeEnergyNormError' is used to compute the error.
+ */
 class ExampleMultipleVariableProblem : public Base::HpgemUI, public Output::TecplotSingleElementWriter
 {
 public:

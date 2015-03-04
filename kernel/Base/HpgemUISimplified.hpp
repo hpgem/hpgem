@@ -37,7 +37,7 @@ namespace Integration
 
 namespace Base
 {
-    /// \brief Interface for solving linear time dependent problems.
+    /// \brief Interface for solving hyperbolic problems.
     /** \details To solve some linear time depent PDE you should do the following:
      * \li Create your own class that inherits this class.
      * \li Implement the function 'initialise' for creating the mesh.
@@ -47,12 +47,13 @@ namespace Base
      * \li Implement the function 'beforeTimeIntegration' when multiple element/face matrices/vectors are required.
      * \li Override the function 'solve' when using another time integration routine than forward Euler.
      * \li Implement the function 'writeToTecplotFile' to determine what data to write to the output file.
-     * To solve the PDE do the following in the main routine:
+     */
+    /** \details To solve the PDE do the following in the main routine:
      * \li Create an object of your own class. 
      * \li Define how the solution should be written in the VTK files using the function 'registerVTKWriteFunction'.
      * \li Call the function 'solve'.
-     *
-     * For an example of using this interface see the application 'TutorialAdvection'.
+     */
+    /** \details For an example of using this interface see the application 'TutorialAdvection'.
      */
     class HpgemUISimplified : public HpgemUI, Integration::ElementIntegrandBase<LinearAlgebra::Matrix>,
                                 Integration::FaceIntegrandBase<LinearAlgebra::Matrix>,
