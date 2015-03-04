@@ -34,7 +34,7 @@ void logMessage(std::string, std::string);
 
 int main(int argc, char** argv) {
     
-    int x = 3;
+    std::size_t x = 3;
     
     //Basic use cases
 //    log.log(Log::ERROR, "Oopsie!");

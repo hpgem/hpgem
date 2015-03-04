@@ -31,7 +31,7 @@
 #include "Geometry/PointPhysical.hpp"
 #include "Logger.h"
 
-void assert(std::string message,bool comparison,int lineNumber){
+void assert(std::string message,bool comparison,std::size_t lineNumber){
 	if(!comparison){
 		logger(FATAL,"\n fundamental problem detected for % at line %",message,lineNumber);
 	}

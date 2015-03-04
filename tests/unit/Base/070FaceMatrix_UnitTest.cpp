@@ -34,13 +34,13 @@ int main()
     const Base::Side sL =Base::Side::LEFT;
     const Base::Side sR =Base::Side::RIGHT;
     
-    int nDOFLeft = 3;
-    int nDOFRight = 5;
+    std::size_t nDOFLeft = 3;
+    std::size_t nDOFRight = 5;
     
     Base::FaceMatrix F(nDOFLeft, nDOFRight);
-    for(int i=0; i < nDOFLeft+nDOFRight; i++)
+    for(std::size_t i=0; i < nDOFLeft+nDOFRight; i++)
     {
-        for(int j=0; j < nDOFLeft+nDOFRight; j++)
+        for(std::size_t j=0; j < nDOFLeft+nDOFRight; j++)
         {
             F(i,j) = i*10+j;
         }
@@ -68,10 +68,10 @@ int main()
     
     Base::Side iS=sL;
     Base::Side jS=sR;
-    int iVB=0;
-    int jVB=0;
-    int z=0;
-    for(int i=0; i < nDOFLeft+nDOFRight; i++)
+    std::size_t iVB=0;
+    std::size_t jVB=0;
+    std::size_t z=0;
+    for(std::size_t i=0; i < nDOFLeft+nDOFRight; i++)
     {
         if(i < nDOFLeft)
         {
@@ -84,7 +84,7 @@ int main()
             iVB=i-nDOFLeft;
         }
         
-        for(int j=0; j < nDOFLeft+nDOFRight; j++)
+        for(std::size_t j=0; j < nDOFLeft+nDOFRight; j++)
         {
             if(j < nDOFLeft)
             {

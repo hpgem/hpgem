@@ -109,7 +109,7 @@ int main() {
 	assert(("getElementPtr",test.getPtrElementLeft()==&element));
 
 	Geometry::PointReference refPoint(2),point3D(3);
-	for(int i=0;i<basisFunctions.size();++i){
+	for(std::size_t i=0;i<basisFunctions.size();++i){
 		for(refPoint[0]=-1.5;refPoint[0]<1.51;refPoint[0]+=0.1){
 			for(refPoint[1]=-1.5;refPoint[1]<1.51;refPoint[1]+=0.1){
 					test.mapRefFaceToRefElemL(refPoint,point3D);

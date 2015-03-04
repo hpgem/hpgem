@@ -37,7 +37,7 @@ int main(){
 	Base::BasisFunctionSet all1DbasisFunctions(5);
 	Base::AssembleBasisFunctionSet_1D_Ord5_A0(all1DbasisFunctions);
 	Geometry::PointReference point1D(1);
-	for(int i=0;i<all1DbasisFunctions.size();++i){
+	for(std::size_t i=0;i<all1DbasisFunctions.size();++i){
 		const Base::BaseBasisFunction* test=all1DbasisFunctions[i];
 		for(point1D[0]=-1.5;point1D[0]<1.51;point1D[0]+=0.1){
 			assert(("eval",test->eval(point1D)==all1DbasisFunctions.eval(i,point1D)));
@@ -62,7 +62,7 @@ int main(){
 	Base::BasisFunctionSet all3DbasisFunctions(5);
 	Base::AssembleBasisFunctionSet_3D_Ord5_A0(all3DbasisFunctions);
 	Geometry::PointReference point3D(3);
-	for(int i=0;i<all3DbasisFunctions.size();++i){
+	for(std::size_t i=0;i<all3DbasisFunctions.size();++i){
 		const Base::BaseBasisFunction* test=all3DbasisFunctions[i];
 		for(point3D[0]=-1.5;point3D[0]<1.51;point3D[0]+=0.1){
 			for(point3D[1]=-1.5;point3D[1]<1.51;point3D[1]+=0.1){

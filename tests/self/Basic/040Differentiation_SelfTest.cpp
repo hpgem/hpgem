@@ -48,14 +48,14 @@ void testMesh(Base::MeshManipulator* test)
     {
         void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
         {
-            int numBasisFuns = el->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = el->getNrOfBasisFunctions();
             ret.resize(numBasisFuns);
             Geometry::PointPhysical pPhys(p.size());
             el->referenceToPhysical(p, pPhys);
-            for (int i = 0; i < numBasisFuns; ++i)
+            for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
                 ret[i] = el->basisFunction(i, p);
-                for (int j = 0; j < p.size(); ++j)
+                for (std::size_t j = 0; j < p.size(); ++j)
                 {
                     ret[i] *= pPhys[j];
                 }
@@ -67,11 +67,11 @@ void testMesh(Base::MeshManipulator* test)
     {
         void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret)
         {
-            int numBasisFuns = el->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = el->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
-            for (int i = 0; i < numBasisFuns; ++i)
+            for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
-                for (int j = 0; j < numBasisFuns; ++j)
+                for (std::size_t j = 0; j < numBasisFuns; ++j)
                 {
                     ret(i, j) = el->basisFunction(i, p) * el->basisFunction(j, p);
                 }
@@ -84,13 +84,13 @@ void testMesh(Base::MeshManipulator* test)
         void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
         {
             ret.resize(1);
-            int n = el->getNrOfBasisFunctions();
+            std::size_t n = el->getNrOfBasisFunctions();
             LinearAlgebra::NumericalVector temp1(p.size()), temp2(p.size());
-            for (int i = 0; i < p.size(); ++i)
+            for (std::size_t i = 0; i < p.size(); ++i)
             {
                 temp1[i] = 0;
             }
-            for (int i = 0; i < n; ++i)
+            for (std::size_t i = 0; i < n; ++i)
             {
                 temp2.resize(p.size());
                 el->basisFunctionDeriv(i, p, temp2);

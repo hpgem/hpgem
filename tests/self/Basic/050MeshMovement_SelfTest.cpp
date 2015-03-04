@@ -65,7 +65,7 @@ void testMesh(Base::MeshManipulator* test) {
 			Geometry::PointPhysical pPhys(p.size());
 			ret[0]=0;
 			el->referenceToPhysical(p,pPhys);
-			for(int i=0;i<p.size();++i){
+			for(std::size_t i=0;i<p.size();++i){
 				ret[0]+=pPhys[i];
 			}
 		}
@@ -76,7 +76,7 @@ void testMesh(Base::MeshManipulator* test) {
 			Geometry::PointPhysical pPhys(p.size());
 			ret[0]=1;
 			el->referenceToPhysical(p,pPhys);
-			for(int i=0;i<p.size();++i){
+			for(std::size_t i=0;i<p.size();++i){
 				ret[0]*=pPhys[i];
 			}
 		}

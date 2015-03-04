@@ -107,7 +107,7 @@ int main() {
 	//check set*BasisFunctionSet without breaking preconditions...
 
 	Geometry::PointReference point3D(3);
-	for(int i=0;i<basisFunctions.size();++i){
+	for(std::size_t i=0;i<basisFunctions.size();++i){
 		for(point[0]=-1.5;point[0]<1.51;point[0]+=0.1){
 			for(point[1]=-1.5;point[1]<1.51;point[1]+=0.1){
 				for(point[2]=-1.5;point[2]<1.51;point[2]+=0.1){

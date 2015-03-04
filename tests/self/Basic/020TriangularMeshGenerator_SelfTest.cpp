@@ -41,7 +41,7 @@
 #include <unordered_set>
 
 void testMesh(Base::MeshManipulator* test) {
-    std::unordered_set<int> elementIDs, faceIDs, edgeIDs, vertexIDs;
+    std::unordered_set<std::size_t> elementIDs, faceIDs, edgeIDs, vertexIDs;
     for (Base::Element* element : test->getElementsList()) {
         logger.assert(elementIDs.find(element->getID()) == elementIDs.end(), "duplicate element ID (%)", element->getID());
         elementIDs.insert(element->getID());
@@ -52,13 +52,13 @@ void testMesh(Base::MeshManipulator* test) {
             logger.assert( element->getNrOfEdges() == element->getReferenceGeometry()->getNrOfCodim2Entities(),"confusion about the number of edges");
         }
         logger.assert( element->getNrOfNodes() == element->getReferenceGeometry()->getNumberOfNodes(),"confusion about the number of vertices");
-        for (int i = 0; i < element->getNrOfFaces(); ++i) {
+        for (std::size_t i = 0; i < element->getNrOfFaces(); ++i) {
             logger.assert( element->getFace(i) != nullptr,"missing Face");
         }
-        for (int i = 0; i < element->getNrOfEdges(); ++i) {
+        for (std::size_t i = 0; i < element->getNrOfEdges(); ++i) {
             logger.assert( element->getEdge(i) != nullptr,"missing Face");
         }
-        for (int i = 0; i < element->getNrOfNodes(); ++i) {
+        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i) {
             logger.assert( element->getNode(i) != nullptr,"missing Face");
         }
     }
@@ -70,9 +70,9 @@ void testMesh(Base::MeshManipulator* test) {
             std::vector<std::size_t> leftNodes(face->getReferenceGeometry()->getNumberOfNodes()), rightNodes(leftNodes);
             face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft(), leftNodes);
             face->getPtrElementRight()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberRight(), rightNodes);
-            for (int i = 0; i < leftNodes.size(); ++i) {
+            for (std::size_t i = 0; i < leftNodes.size(); ++i) {
                 bool found = false;
-                for (int j = 0; j < rightNodes.size(); ++j) {
+                for (std::size_t j = 0; j < rightNodes.size(); ++j) {
                     found |= leftNodes[i] == rightNodes[j];
                 }
                 logger.assert( found,"face positioning");
@@ -87,18 +87,18 @@ void testMesh(Base::MeshManipulator* test) {
         logger.assert( edge->getElement(0)->getEdge(edge->getEdgeNr(0)) == edge,"element<->edge matching");
         std::vector<std::size_t> firstNodes(edge->getElement(0)->getReferenceGeometry()->getCodim2ReferenceGeometry(edge->getEdgeNr(0))->getNumberOfNodes()), otherNodes(firstNodes);
         edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), firstNodes);
-        for (int i = 0; i < firstNodes.size(); ++i) {
+        for (std::size_t i = 0; i < firstNodes.size(); ++i) {
             firstNodes[i] = edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(firstNodes[i]);
         }
-        for (int i = 1; i < edge->getNrOfElements(); ++i) {
+        for (std::size_t i = 1; i < edge->getNrOfElements(); ++i) {
             logger.assert( edge->getElement(i)->getEdge(edge->getEdgeNr(i)) == edge,"element<->edge matching");
             edge->getElement(i)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(i), otherNodes);
-            for (int j = 0; j < otherNodes.size(); ++j) {
+            for (std::size_t j = 0; j < otherNodes.size(); ++j) {
                 otherNodes[j] = edge->getElement(i)->getPhysicalGeometry()->getNodeIndex(otherNodes[j]);
             }
-            for (int k = 0; k < firstNodes.size(); ++k) {
+            for (std::size_t k = 0; k < firstNodes.size(); ++k) {
                 bool found = false;
-                for (int j = 0; j < otherNodes.size(); ++j) {
+                for (std::size_t j = 0; j < otherNodes.size(); ++j) {
                     found |= firstNodes[k] == otherNodes[j];
                 }
                 logger.assert( found,"edge positioning");
@@ -112,7 +112,7 @@ void testMesh(Base::MeshManipulator* test) {
         logger.assert( vertex->getElement(0)->getNode(vertex->getVertexNr(0)) == vertex,"element<->vertex matching");
         Geometry::PointPhysical pFirst(test->dimension()),pOther(pFirst);
         vertex->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getVertexNr(0),pFirst);
-        for(int i=1; i < vertex->getNrOfElements(); ++i)
+        for(std::size_t i=1; i < vertex->getNrOfElements(); ++i)
         {
             logger.assert( vertex->getElement(i)->getNode(vertex->getVertexNr(i)) == vertex,"element<->vertex matching");
             vertex->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getVertexNr(i),pOther);
