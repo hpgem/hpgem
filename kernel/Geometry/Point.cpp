@@ -32,7 +32,7 @@ namespace Geometry
     {
     }
     
-    Point::Point( CoordTypeT coords[], std::size_t DIM):
+    Point::Point( double coords[], std::size_t DIM):
         coordinates_(coords,DIM)
     {
     }
@@ -117,7 +117,7 @@ namespace Geometry
 		return coordinates_.size();
 	}
 
-	typename Point::CoordTypeT Point::getCoordinate(IndexT n) const {
+	double Point::getCoordinate(unsigned int n) const {
 		if (n < this->size()) {
 			return coordinates_[n];
 		} else {
@@ -135,7 +135,7 @@ namespace Geometry
     }
 
     void
-    Point::setCoordinate(IndexT n, const CoordTypeT& coord)
+    Point::setCoordinate(unsigned int n, const double& coord)
     {
         if (n<this->size())
         {
@@ -164,14 +164,14 @@ namespace Geometry
     }
 
 
-    typename Point::CoordTypeT&
-    Point::operator [] (IndexT n)
+    double&
+    Point::operator [] (unsigned int n)
     {///\bug no size checking
         return coordinates_[n];
     }
     
-    const typename Point::CoordTypeT&
-    Point::operator [] (IndexT n)const
+    const double&
+    Point::operator [] (unsigned int n)const
     {///\bug no size checking
         return coordinates_[n];
     }

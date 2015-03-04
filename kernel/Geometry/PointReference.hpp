@@ -31,11 +31,11 @@ namespace Geometry
 
     public:
 
-        using CoordTypeT = double;
-        using PointT = Point;
-        using PointReferenceT = PointReference;
-        using VectorOfCoordsT = PointT::VectorOfCoordsT;
-        using IndexT = PointT::IndexT;                 
+        //using CoordTypeT = double;
+        //using PointT = Point;
+        //using PointReferenceT = PointReference;
+        //using VectorOfCoordsT = PointT::VectorOfCoordsT;
+        //using IndexT = PointT::IndexT; //replace IndexT by unsigned int
 
     public:
 
@@ -43,7 +43,7 @@ namespace Geometry
 
         PointReference(const PointT& p): PointT(p) {}
 
-        PointReference(CoordTypeT coords[], std::size_t DIM): Point(coords,DIM) {}
+        PointReference(double coords[], std::size_t DIM): Point(coords,DIM) {}
 
         PointReference(const VectorOfCoordsT& coord): PointT(coord){}
         
@@ -51,17 +51,17 @@ namespace Geometry
         
         PointReference operator *(double right) const;
         
-        PointReference operator +(const PointReferenceT& right);
+        PointReference operator +(const PointReference& right);
         
-        PointReference operator +(const PointReferenceT& right) const;
+        PointReference operator +(const PointReference& right) const;
         
-        PointReference operator -(const PointReferenceT& right);
+        PointReference operator -(const PointReference& right);
         
-        PointReference operator -(const PointReferenceT& right) const;
+        PointReference operator -(const PointReference& right) const;
         
-        PointReference& operator =(const PointReferenceT& rhs);
+        PointReference& operator =(const PointReference& rhs);
         
-//        friend PointT operator*(const double& left, const PointReferenceT& right){return PointReferenceT(right.coordinates_*left)}
+//        friend PointT operator*(const double& left, const PointReference& right){return PointReference(right.coordinates_*left)}
         
     };
 

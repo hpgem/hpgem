@@ -51,10 +51,9 @@ namespace Integration
     class ElementIntegral
     {
     public:
-        using QuadratureRulesT = QuadratureRules::GaussQuadratureRule; //typename removed
-        using ElementT = Base::Element ; //typename removed
-        using PointReferenceT = Geometry::PointReference ; //typename removed
-
+        using QuadratureRulesT = QuadratureRules::GaussQuadratureRule;
+        using ElementT = Base::Element ;
+        using PointReferenceT = Geometry::PointReference;
     public:
 
         //! \brief Construct an ElementIntegral, either with or without cache.

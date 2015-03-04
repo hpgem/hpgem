@@ -24,30 +24,30 @@
 namespace Geometry {
 
 	PointReference PointReference::operator *(double right) const {
-		return PointReferenceT(PointT::coordinates_ * right);
+		return PointReference(Point::coordinates_ * right);
 	}
 
 	PointReference PointReference::operator *(double right) {
-		return PointReferenceT(PointT::coordinates_ * right);
+		return PointReference(Point::coordinates_ * right);
 	}
 
-	PointReference PointReference::operator +(const PointReferenceT& right) const {
-		return PointReferenceT(PointT::coordinates_ + right.coordinates_);
+	PointReference PointReference::operator +(const PointReference& right) const {
+		return PointReference(Point::coordinates_ + right.coordinates_);
 	}
 
-	PointReference PointReference::operator +(const PointReferenceT& right) {
-		return PointReferenceT(PointT::coordinates_ + right.coordinates_);
+	PointReference PointReference::operator +(const PointReference& right) {
+		return PointReference(Point::coordinates_ + right.coordinates_);
 	}
 
-	PointReference PointReference::operator -(const PointReferenceT& right) const {
-		return PointReferenceT(PointT::coordinates_ - right.coordinates_);
+	PointReference PointReference::operator -(const PointReference& right) const {
+		return PointReference(Point::coordinates_ - right.coordinates_);
 	}
 
-	PointReference PointReference::operator -(const PointReferenceT& right) {
-		return PointReferenceT(PointT::coordinates_ - right.coordinates_);
+	PointReference PointReference::operator -(const PointReference& right) {
+		return PointReference(Point::coordinates_ - right.coordinates_);
 	}
 
-	PointReference& PointReference::operator =(const PointReferenceT& rhs) {
+	PointReference& PointReference::operator =(const PointReference& rhs) {
 		this->coordinates_ = rhs.coordinates_;
 		return *this;
 	}

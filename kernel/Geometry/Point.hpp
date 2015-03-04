@@ -34,30 +34,30 @@ namespace Geometry
 
     public:
         /// Typedefs.
-        using CoordTypeT = double;
+        //using CoordTypeT = double; //should be removed
         using PointT = Geometry::Point;
         using VectorOfCoordsT = LinearAlgebra::NumericalVector;
-        using IndexT = unsigned int;
+        //using IndexT = unsigned int; //should be removed
 
     public:
         /// Constructors.
         Point(std::size_t DIM);
         /// Warning!!! This way Point ctr will truncate and take sizeof(dimension) points and will not give any warning. Be sure you took the right dimension.
-        Point(CoordTypeT coords[], std::size_t DIM);
+        Point(double coords[], std::size_t DIM);
 
         Point(const Point& other);
 
         Point(const VectorOfCoordsT& coord);
 
 
-        void setCoordinate(IndexT n, const CoordTypeT& coord);
+        void setCoordinate(unsigned int n, const double& coord);
         void setCoordinates(const VectorOfCoordsT& coord);
 
-        CoordTypeT& operator[](IndexT n);
-        const CoordTypeT& operator[](IndexT n)const;
+        double& operator[](unsigned int n);
+        const double& operator[](unsigned int n)const;
 
-        //        CoordTypeT&         operator () (IndexT n);
-        //        const CoordTypeT&   operator () (IndexT n) const;
+        //        double&         operator () (unsigned int n);
+        //        const double&   operator () (unsigned int n) const;
         PointT& operator=(const Point& rhs);
 
         bool operator==(const Point& right) const;
@@ -90,7 +90,7 @@ namespace Geometry
         std::size_t size();
 
 
-        typename Point::CoordTypeT getCoordinate(IndexT n) const;
+        double getCoordinate(unsigned int n) const;
         const VectorOfCoordsT& getCoordinates()const;
 
         friend PointT operator-(const Point& right)

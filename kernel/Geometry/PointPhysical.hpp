@@ -31,37 +31,37 @@ namespace Geometry
 
     public:
 
-        using PointT = Point;
-        using PointPhysicalT = PointPhysical;
-        using CoordTypeT = double;
-        using VectorOfCoordsT = PointT::VectorOfCoordsT;
+        //using PointT = Point;
+        //using PointPhysicalT = PointPhysical; //to be removed
+        //using CoordTypeT = double;
+        //using VectorOfCoordsT = Point::VectorOfCoordsT;
 
     public:
 
-        PointPhysical(std::size_t DIM) : PointT(DIM) { }
+        PointPhysical(std::size_t DIM) : Point(DIM) { }
 
-        PointPhysical(const PointT& p): PointT(p) {}
+        PointPhysical(const Point& p): Point(p) {}
 
         PointPhysical(const VectorOfCoordsT& coord):Point(coord) {}
     
         PointPhysical  operator* (double right) const
         {
-            return PointPhysical(PointT::coordinates_ * right);
+            return PointPhysical(Point::coordinates_ * right);
         }
 
         PointPhysical operator/(double right) const
         {
-            return PointPhysical(PointT::coordinates_ / right);
+            return PointPhysical(Point::coordinates_ / right);
         }
         
         PointPhysical  operator+ (const PointPhysical& right) const
-                {return PointPhysical(PointT::coordinates_  + right.coordinates_);}
+                {return PointPhysical(Point::coordinates_  + right.coordinates_);}
         
         PointPhysical  operator- (const PointPhysical& right) const
-                {return PointPhysical(PointT::coordinates_  - right.coordinates_);}
+                {return PointPhysical(Point::coordinates_  - right.coordinates_);}
         
         PointPhysical& operator= (const PointPhysical& right)
-                {PointT::coordinates_ = right.coordinates_; return *this;}
+                {Point::coordinates_ = right.coordinates_; return *this;}
         
         void axpy(const double& alpha, const PointPhysical& x){
             coordinates_.axpy(alpha,x.coordinates_);
@@ -72,7 +72,7 @@ namespace Geometry
             return coordinates_.data();
         }
         
-//        friend PointT operator*(const double& left, const PointT& right){return PointPhysical(right.coordinates_*left);}
+//        friend Point operator*(const double& left, const Point& right){return PointPhysical(right.coordinates_*left);}
     };
 };
 
