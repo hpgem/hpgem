@@ -27,13 +27,13 @@
 namespace Geometry
 {
     PhysicalOctachoron::PhysicalOctachoron(
-            const VectorOfPointIndexesT& globalNodeIndexes,
-            const VectorOfPhysicalPointsT& nodes) :
-    PhysicalGeometry4D(globalNodeIndexes, nodes, &ReferenceHypercube::Instance())
+            const std::vector<std::size_t>& globalNodeIndexes,
+            const std::vector<PointPhysical>& nodes) :
+    PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceHypercube::Instance())
     {
     }
 
-    void PhysicalOctachoron::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalOctachoron::getGlobalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         indexes.resize(8);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
@@ -46,7 +46,7 @@ namespace Geometry
         indexes[7] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,7)];
     }
 
-    void PhysicalOctachoron::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalOctachoron::getLocalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         indexes.resize(8);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);

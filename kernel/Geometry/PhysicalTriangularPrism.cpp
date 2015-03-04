@@ -27,13 +27,13 @@
 namespace Geometry
 {
     PhysicalTriangularPrism::PhysicalTriangularPrism(
-            const VectorOfPointIndexesT& globalNodeIndexes,
-            const VectorOfPhysicalPointsT& nodes) :
+            const std::vector<std::size_t>& globalNodeIndexes,
+            const std::vector<PointPhysical>& nodes) :
     PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceTriangularPrism::Instance())
     {
     }
 
-    void PhysicalTriangularPrism::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalTriangularPrism::getGlobalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         if (face <= 4)
         {
@@ -55,7 +55,7 @@ namespace Geometry
         }
     }
 
-    void PhysicalTriangularPrism::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalTriangularPrism::getLocalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         if (face <= 4)
         {

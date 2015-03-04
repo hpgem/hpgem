@@ -28,19 +28,19 @@
 namespace Geometry
 {
     PhysicalLine::PhysicalLine(
-        const VectorOfPointIndexesT& globalNodeIndexes,
-        const VectorOfPhysicalPointsT& nodes) :
+        const std::vector<std::size_t>& globalNodeIndexes,
+        const std::vector<PointPhysical>& nodes) :
     PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceLine::Instance())
     {
     }
 
-    void PhysicalLine::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalLine::getGlobalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         indexes.resize(1);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
     }
 
-    void PhysicalLine::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalLine::getLocalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         indexes.resize(1);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);

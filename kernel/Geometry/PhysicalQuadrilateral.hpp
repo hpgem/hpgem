@@ -32,24 +32,17 @@ namespace Geometry
     {
         public:
 
-            using PhysicalGeometry2D = PhysicalGeometry;
-            using PhysicalGeometry2D::VectorOfPointIndexesT;
-            using PhysicalGeometry2D::VectorOfPhysicalPointsT;
-            using PhysicalGeometry2D::PointIndexT;
-
-        public:
-
             PhysicalQuadrilateral(
-                    const VectorOfPointIndexesT&,
-                    const VectorOfPhysicalPointsT&);
+                    const std::vector<std::size_t>&,
+                    const std::vector<PointPhysical>&);
 
             ~PhysicalQuadrilateral() {}
 
             virtual std::string             getName() const { return "PhysicalQuadrilateral";}
 
-            void getGlobalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
+            void getGlobalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const;
 
-            void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
+            void getLocalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const;
         
             std::size_t getNrOfFaces() const;
     };

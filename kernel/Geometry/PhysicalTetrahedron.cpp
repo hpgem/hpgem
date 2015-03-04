@@ -28,13 +28,13 @@
 namespace Geometry
 {
     PhysicalTetrahedron::PhysicalTetrahedron(
-        const VectorOfPointIndexesT& globalNodeIndexes,
-        const VectorOfPhysicalPointsT& nodes) :
+        const std::vector<std::size_t>& globalNodeIndexes,
+        const std::vector<PointPhysical>& nodes) :
     PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceTetrahedron::Instance())
     {
     }
 
-    void PhysicalTetrahedron::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalTetrahedron::getGlobalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         indexes.resize(3);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
@@ -42,7 +42,7 @@ namespace Geometry
         indexes[2] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,2)];
     }
 
-    void PhysicalTetrahedron::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalTetrahedron::getLocalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         indexes.resize(3);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);

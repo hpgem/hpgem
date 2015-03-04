@@ -32,23 +32,21 @@ namespace Geometry
         public:
 
             using PhysicalGeometry3D = PhysicalGeometry;
-            using PhysicalGeometry3D::VectorOfPointIndexesT;
             using PhysicalGeometry3D::VectorOfPhysicalPointsT;
-            using PhysicalGeometry3D::PointIndexT;
-
+            
         public:
 
             PhysicalTetrahedron(
-                    const VectorOfPointIndexesT&,
+                    const std::vector<std::size_t>&,
                     const VectorOfPhysicalPointsT&);
 
             ~PhysicalTetrahedron() {}
 
             virtual std::string             getName() const { return "PhysicalTetrahedron";}
 
-            void getGlobalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
+            void getGlobalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const;
 
-            void getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
+            void getLocalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const;
         
             std::size_t getNrOfFaces() const;
     };

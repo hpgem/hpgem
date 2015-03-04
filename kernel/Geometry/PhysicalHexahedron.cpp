@@ -27,13 +27,13 @@
 namespace Geometry
 {
     PhysicalHexahedron::PhysicalHexahedron(
-            const VectorOfPointIndexesT& globalNodeIndexes,
-            const VectorOfPhysicalPointsT& nodes) :
-    PhysicalGeometry3D(globalNodeIndexes, nodes, &ReferenceCube::Instance())
+            const std::vector<std::size_t>& globalNodeIndexes,
+            const std::vector<PointPhysical>& nodes) :
+    PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceCube::Instance())
     {
     }
 
-    void PhysicalHexahedron::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalHexahedron::getGlobalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         indexes.resize(4);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
@@ -42,7 +42,7 @@ namespace Geometry
         indexes[3] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,3)];
     }
 
-    void PhysicalHexahedron::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalHexahedron::getLocalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         indexes.resize(4);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);

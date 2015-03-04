@@ -31,16 +31,9 @@ namespace Geometry
     {
     public:
 
-        using PhysicalGeometry3D = PhysicalGeometry;
-        using PhysicalGeometry3D::VectorOfPointIndexesT;
-        using PhysicalGeometry3D::VectorOfPhysicalPointsT;
-        using PhysicalGeometry3D::PointIndexT;
-
-    public:
-
         PhysicalTriangularPrism(
-                const VectorOfPointIndexesT&,
-                const VectorOfPhysicalPointsT&);
+                const std::vector<std::size_t>&,
+                const std::vector<PointPhysical>&);
 
         ~PhysicalTriangularPrism() {}
 
@@ -48,9 +41,9 @@ namespace Geometry
 
         std::size_t            getNrOfFaces() const {return 5;}
 
-        void                    getGlobalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
+        void                    getGlobalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const;
 
-        void                    getLocalFaceNodeIndices(const PointIndexT, VectorOfPointIndexesT&) const;
+        void                    getLocalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const;
     };
 }
 #endif

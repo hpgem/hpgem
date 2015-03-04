@@ -28,20 +28,20 @@
 namespace Geometry
 {
     PhysicalQuadrilateral::PhysicalQuadrilateral(
-        const VectorOfPointIndexesT& globalNodeIndexes,
-        const VectorOfPhysicalPointsT& nodes) :
+        const std::vector<std::size_t>& globalNodeIndexes,
+        const std::vector<PointPhysical>& nodes) :
     PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceSquare::Instance())
     {
     }
 
-    void PhysicalQuadrilateral::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalQuadrilateral::getGlobalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         indexes.resize(2);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
         indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,1)];
     }
 
-    void PhysicalQuadrilateral::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalQuadrilateral::getLocalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         indexes.resize(2);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);

@@ -27,13 +27,13 @@
 namespace Geometry
 {
     PhysicalPyramid::PhysicalPyramid(
-        const VectorOfPointIndexesT& globalNodeIndexes,
-        const VectorOfPhysicalPointsT& nodes) :
+        const std::vector<std::size_t>& globalNodeIndexes,
+        const std::vector<PointPhysical>& nodes) :
     PhysicalGeometry(globalNodeIndexes, nodes, &ReferencePyramid::Instance())
     {
     }
 
-    void PhysicalPyramid::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalPyramid::getGlobalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         indexes.resize(4);
         if (face==0)
@@ -52,7 +52,7 @@ namespace Geometry
         }
     }
 
-    void PhysicalPyramid::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    void PhysicalPyramid::getLocalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
         indexes.resize(4);
         if (face==0)
