@@ -39,7 +39,7 @@ void testRule(QuadratureRules::GaussQuadratureRule& test){
 	Geometry::PointReference point(0);
 	//0D Quadrature rules are special
 	double integrated=0;
-	for(int i=0;i<test.nrOfPoints();++i){
+	for(std::size_t i=0;i<test.nrOfPoints();++i){
 		integrated+=test.weight(i);
 		point = test.getPoint(i);
 	}

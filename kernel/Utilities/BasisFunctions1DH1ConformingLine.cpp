@@ -47,7 +47,7 @@ namespace Utilities {
 		Base::BasisFunctionSet* result(new Base::BasisFunctionSet(polynomialOrder));
 		result->addBasisFunction(new BasisFunction1DVertexLine(0));
 		result->addBasisFunction(new BasisFunction1DVertexLine(1));
-		for (int i = 0; i + 2 <= polynomialOrder; ++i) {
+		for (std::size_t i = 0; i + 2 <= polynomialOrder; ++i) {
 			result->addBasisFunction(new BasisFunction1DInteriorLine(i));
 		}
 		return result;

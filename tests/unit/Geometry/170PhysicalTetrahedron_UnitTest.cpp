@@ -44,10 +44,10 @@ int main(){
 	pointIndexes.push_back(10);
 	pointIndexes.push_back(11);
 
-	for(double i=0.;i<10;++i){
-		point[0]=1.+i/10.;
-		point[1]=2.+i/10.;
-		point[2]=3.+i/10.;
+	for(double i=0.;i<1-1e-10;i += 0.1){
+		point[0]=1.+i;
+		point[1]=2.+i;
+		point[2]=3.+i;
 		nodes.push_back(point);
 	}
 
@@ -117,7 +117,7 @@ int main(){
 	assert(("getLocalNodeCoordinates",std::abs(point[1]-2.4)<1e-12));
 	assert(("getLocalNodeCoordinates",std::abs(point[2]-5.4)<1e-12));
 
-	for(double i=0;i<10;++i){
+	for(std::size_t i=0;i<10;++i){
 		test.getGlobalNodeCoordinates(i,point);
 		assert(("getGlobalNodeCoordinates",std::abs(point[0]-1.-i/10.)<1e-12));
 		assert(("getGlobalNodeCoordinates",std::abs(point[1]-2.-i/10.)<1e-12));
@@ -126,16 +126,16 @@ int main(){
 
 	pointIndexes.resize(3);
 
-	for(int i=0;i<4;++i){
+	for(std::size_t i=0;i<4;++i){
 		test.getGlobalFaceNodeIndices(i,pointIndexes);
-		for(int j=0;j<3;++j){
+		for(std::size_t j=0;j<3;++j){
 			assert(("getGlobalFaceNodeIndices",pointIndexes[j]==test.getNodeIndex(test.getRefGeometry()->getLocalNodeIndex(i,j))));
 		}
 	}
 
-	for(int i=0;i<4;++i){
+	for(std::size_t i=0;i<4;++i){
 		test.getLocalFaceNodeIndices(i,pointIndexes);
-		for(int j=0;j<3;++j){
+		for(std::size_t j=0;j<3;++j){
 			assert(("getLocalFaceNodeIndices",pointIndexes[j]==test.getRefGeometry()->getLocalNodeIndex(i,j)));
 		}
 	}

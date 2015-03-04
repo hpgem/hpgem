@@ -47,46 +47,46 @@ int main(){
 			pv0(vec0),pv1(vec1),pv2(vec2),pv3(vec3),pv4(vec4);
 
 	assert(("1D default constructor",p1[0]==0.));
-		for(int i=0;i<2;++i){
+		for(std::size_t i=0;i<2;++i){
 			assert(("2D default constructor",p2[i]==0.));
 		}
-		for(int i=0;i<3;++i){
+		for(std::size_t i=0;i<3;++i){
 			assert(("3D default constructor",p3[i]==0.));
 		}
-		for(int i=0;i<4;++i){
+		for(std::size_t i=0;i<4;++i){
 			assert(("4D default constructor",p4[i]==0.));
 		}
 
 		assert(("1D copy constructor",pp1[0]==0.));
-		for(int i=0;i<2;++i){
+		for(std::size_t i=0;i<2;++i){
 			assert(("2D copy constructor",pp2[i]==0.));
 		}
-		for(int i=0;i<3;++i){
+		for(std::size_t i=0;i<3;++i){
 			assert(("3D copy constructor",pp3[i]==0.));
 		}
-		for(int i=0;i<4;++i){
+		for(std::size_t i=0;i<4;++i){
 			assert(("4D copy constructor",pp4[i]==0.));
 		}
 
 		assert(("1D from array constructor",std::abs(pc1[0]-1.1)<1e-12));
-		for(int i=0;i<2;++i){
+		for(std::size_t i=0;i<2;++i){
 			assert(("2D from array constructor",std::abs(pc2[i]-1.2-i)<1e-12));
 		}
-		for(int i=0;i<3;++i){
+		for(std::size_t i=0;i<3;++i){
 			assert(("3D from array constructor",std::abs(pc3[i]-1.3-i)<1e-12));
 		}
-		for(int i=0;i<4;++i){
+		for(std::size_t i=0;i<4;++i){
 			assert(("4D from array constructor",std::abs(pc4[i]-1.4-i)<1e-12));
 		}
 
 		assert(("1D from NumericalVector constructor",std::abs(pv1[0]-1.1)<1e-12));
-		for(int i=0;i<2;++i){
+		for(std::size_t i=0;i<2;++i){
 			assert(("2D from NumericalVector constructor",std::abs(pv2[i]-1.2-i)<1e-12));
 		}
-		for(int i=0;i<3;++i){
+		for(std::size_t i=0;i<3;++i){
 			assert(("3D from NumericalVector constructor",std::abs(pv3[i]-1.3-i)<1e-12));
 		}
-		for(int i=0;i<4;++i){
+		for(std::size_t i=0;i<4;++i){
 			assert(("4D from NumericalVector constructor",std::abs(pv4[i]-1.4-i)<1e-12));
 		}
 
@@ -101,13 +101,13 @@ int main(){
 
 		pv0*6.;
 		assert(("1D multiplication",std::abs((pv1*5.)[0]-5.5)<1e-12));
-		for(int i=0;i<2;++i){
+		for(std::size_t i=0;i<2;++i){
 			assert(("2D multiplication",std::abs((pv2*4.)[i]-4.8-4*i)<1e-12));
 		}
-		for(int i=0;i<3;++i){
+		for(std::size_t i=0;i<3;++i){
 			assert(("3D multiplication",std::abs((pv3*3.)[i]-3.9-3*i)<1e-12));
 		}
-		for(int i=0;i<4;++i){
+		for(std::size_t i=0;i<4;++i){
 			assert(("4D multiplication",std::abs((pv4*2.)[i]-2.8-2*i)<1e-12));
 		}
 
@@ -119,49 +119,49 @@ int main(){
 
 		pc0+pv0;
 		assert(("1D addition",std::abs((pc1+pv1)[0]-2.2)<1e-12));
-		for(int i=0;i<2;++i){
+		for(std::size_t i=0;i<2;++i){
 			assert(("2D addition",std::abs((pc2+pv2)[i]-2.4-2*i)<1e-12));
 		}
-		for(int i=0;i<3;++i){
+		for(std::size_t i=0;i<3;++i){
 			assert(("3D addition",std::abs((pc3+pv3)[i]-2.6-2*i)<1e-12));
 		}
-		for(int i=0;i<4;++i){
+		for(std::size_t i=0;i<4;++i){
 			assert(("4D addition",std::abs((pc4+pv4)[i]-2.8-2*i)<1e-12));
 		}
 
 		pr0+pv0;
 		assert(("1D addition",std::abs((pr1+pv1)[0]-2.2)<1e-12));
-		for(int i=0;i<2;++i){
+		for(std::size_t i=0;i<2;++i){
 			assert(("2D addition",std::abs((pr2+pv2)[i]-2.4-2*i)<1e-12));
 		}
-		for(int i=0;i<3;++i){
+		for(std::size_t i=0;i<3;++i){
 			assert(("3D addition",std::abs((pr3+pv3)[i]-2.6-2*i)<1e-12));
 		}
-		for(int i=0;i<4;++i){
+		for(std::size_t i=0;i<4;++i){
 			assert(("4D addition",std::abs((pr4+pv4)[i]-2.8-2*i)<1e-12));
 		}
 
 		pc0-pv0;
 		assert(("1D subtraction",std::abs((pc1-pv1)[0])<1e-12));
-		for(int i=0;i<2;++i){
+		for(std::size_t i=0;i<2;++i){
 			assert(("2D subtraction",std::abs((pc2-pv2)[i])<1e-12));
 		}
-		for(int i=0;i<3;++i){
+		for(std::size_t i=0;i<3;++i){
 			assert(("3D subtraction",std::abs((pc3-pv3)[i])<1e-12));
 		}
-		for(int i=0;i<4;++i){
+		for(std::size_t i=0;i<4;++i){
 			assert(("4D subtraction",std::abs((pc4-pv4)[i])<1e-12));
 		}
 
 		pr0-pv0;
 		assert(("1D subtraction",std::abs((pr1-pv1)[0])<1e-12));
-		for(int i=0;i<2;++i){
+		for(std::size_t i=0;i<2;++i){
 			assert(("2D subtraction",std::abs((pr2-pv2)[i])<1e-12));
 		}
-		for(int i=0;i<3;++i){
+		for(std::size_t i=0;i<3;++i){
 			assert(("3D subtraction",std::abs((pr3-pv3)[i])<1e-12));
 		}
-		for(int i=0;i<4;++i){
+		for(std::size_t i=0;i<4;++i){
 			assert(("4D subtraction",std::abs((pr4-pv4)[i])<1e-12));
 		}
 

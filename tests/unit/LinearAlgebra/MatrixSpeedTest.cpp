@@ -26,6 +26,7 @@
 
 using namespace::std;
 
+///\todo Please fix or remove.
 int main(int argc, char* argv[])
 {
     
@@ -37,8 +38,8 @@ int main(int argc, char* argv[])
 	
 	LinearAlgebra::Matrix<double> A(10,10);
 	
-	for (int i=0; i<10; i++)
-		for (int j=0; j<10; j++)
+	for (std::size_t i=0; i<10; i++)
+		for (std::size_t j=0; j<10; j++)
 		{
 			A(i,j)=0.1*i*j;
 		}
@@ -46,11 +47,12 @@ int main(int argc, char* argv[])
 	LinearAlgebra::Matrix<double> B(A);
 	LinearAlgebra::Matrix<double> C(10,10,0);
 	
-	for (int k=0; k<100000000; k++)
+	for (std::size_t k=0; k<100000000; k++)
 	{
 		C=A+B;
 	}
 	
      */
+    return 0;
 }
 

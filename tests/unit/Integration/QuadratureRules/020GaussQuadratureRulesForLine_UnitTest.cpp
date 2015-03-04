@@ -33,7 +33,7 @@
 #include "LinearAlgebra/NumericalVector.hpp"
 #include <cmath>
 
-void testRule(QuadratureRules::GaussQuadratureRule& test, int expectedOrder)
+void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOrder)
 {
     std::cout << test.getName();
     assert(("dimension", test.dimension() == 1));
@@ -43,19 +43,19 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, int expectedOrder)
 
     Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet1DH1Line(expectedOrder);
 
-    for (int i = 0; i < functions->size(); ++i)
+    for(std::size_t i = 0; i < functions->size(); ++i)
     {
         double integrated = 0;
-        for (int j = 0; j < test.nrOfPoints(); ++j)
+        for(std::size_t j = 0; j < test.nrOfPoints(); ++j)
         {
             point = test.getPoint(j);
             integrated += test.weight(j) * functions->eval(i, point);
         }
-        if (i < 2)
+        if(i < 2)
         {
             assert(("integration", std::abs(integrated - 1) < 1e-12));
         }
-        else if (i == 2)
+        else if(i == 2)
         {
             assert(("integration", std::abs(integrated + std::sqrt(2. / 3.)) < 1e-12));
         }

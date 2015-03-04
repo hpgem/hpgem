@@ -132,7 +132,7 @@ int main(){
 	//testing mappings and quadrature rules
 
 	std::vector<std::size_t> base(8),transformed(8),faceIndices(4);
-	for(int i=0;i<8;++i){//doesnt test against reordering of the nodes in the first vector
+	for(std::size_t i=0;i<8;++i){//doesnt test against reordering of the nodes in the first vector
 		base[i]=transformed[i]=i;
 	}
 	assert(("getCodim0MappingIndex&Ptr",test.getCodim0MappingPtr(test.getCodim0MappingIndex(base,transformed))==&Geometry::MappingToRefCubeToCube0::Instance()));

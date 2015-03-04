@@ -65,7 +65,7 @@ int main(){
 	pointIndexes.push_back(4);
 	pointIndexes.push_back(7);
 
-	for(double i=0.;i<10;++i){
+	for(double i=0.;i<1;i+= 0.1){
 		point1D[0]=1.+i/10.;
 		nodes1D.push_back(point1D);
 	}
@@ -99,9 +99,9 @@ int main(){
 
 	pointIndexes.push_back(10);
 
-	for(double i=0.;i<10;++i){
-		point2D[0]=1.+i/10.;
-		point2D[1]=2.+i/10.;
+	for(double i=0.;i<1;i+= 0.1){
+		point2D[0]=1.+i;
+		point2D[1]=2.+i;
 		nodes2D.push_back(point2D);
 	}
 
@@ -173,7 +173,7 @@ int main(){
 	jac.resize(3,3);
 	jaccompare.resize(3,3);
 
-	for(double i=0.;i<10;++i){
+	for(double i=0.;i<1;i+=0.1){
 		point3D[0]=1.+i/10.;
 		point3D[1]=2.+i/10.;
 		point3D[2]=3.+i/10.;
@@ -359,10 +359,10 @@ int main(){
 	pointIndexes.push_back(22);
 	pointIndexes.push_back(23);
 
-	for(double i=0.;i<10;++i){
-		point4D[0]=1.+i/10.;
-		point4D[1]=2.+i/10.;
-		point4D[2]=3.+i/10.;
+	for(double i=0.;i<1;i+=0.1){
+		point4D[0]=1.+i;
+		point4D[1]=2.+i;
+		point4D[2]=3.+i;
 		point4D[3]=1.;
 		nodes4D.push_back(point4D);
 	}

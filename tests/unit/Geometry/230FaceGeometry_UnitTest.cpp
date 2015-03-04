@@ -52,7 +52,7 @@ int main(){
 	pointIndexes.push_back(4);
 	pointIndexes.push_back(7);
 
-	for(double i=0.;i<10;++i){
+	for(double i=0.;i<1;i+= 0.1){
 		point1D[0]=1.+i/10.;
 		nodes1D.push_back(point1D);
 	}
@@ -74,7 +74,7 @@ int main(){
 
         test->initialiseFaceToFaceMapIndex(leftIndices, rightIndices);
         
-	for(int i=0;i<test->getReferenceGeometry()->getNumberOfNodes();++i){
+	for(std::size_t i=0;i<test->getReferenceGeometry()->getNumberOfNodes();++i){
 		test->getReferenceGeometry()->getNode(i,orig1D);
 		test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i],compare1D);
 		test->getElementGLeft()->referenceToPhysical(compare1D,compare1Dphys);
@@ -103,7 +103,7 @@ int main(){
 	jac.resize(2,2);
 	jaccompare.resize(2,2);
 
-	for(double i=0.;i<10;++i){
+	for(double i=0.;i<1;i+=0.1){
 		point2D[0]=1.+i/10.;
 		point2D[1]=2.+i/10.;
 		nodes2D.push_back(point2D);
@@ -143,7 +143,7 @@ int main(){
 
         test->initialiseFaceToFaceMapIndex(leftIndices, rightIndices);
         
-	for(int i=0;i<test->getReferenceGeometry()->getNumberOfNodes();++i){
+	for(std::size_t i=0;i<test->getReferenceGeometry()->getNumberOfNodes();++i){
 		test->getReferenceGeometry()->getNode(i,orig2D);
 		test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i],compare2D);
 		test->getElementGLeft()->referenceToPhysical(compare2D,compare2Dphys);
@@ -185,7 +185,7 @@ int main(){
 
 	test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft(),leftIndices);
 
-	for(int i=0;i<test->getReferenceGeometry()->getNumberOfNodes();++i){
+	for(std::size_t i=0;i<test->getReferenceGeometry()->getNumberOfNodes();++i){
 		test->getReferenceGeometry()->getNode(i,orig2D);
 		test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i],compare2D);
 		test->getElementGLeft()->referenceToPhysical(compare2D,compare2Dphys);

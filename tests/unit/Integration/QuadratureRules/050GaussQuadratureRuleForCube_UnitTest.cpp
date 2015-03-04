@@ -34,7 +34,7 @@
 #include "LinearAlgebra/NumericalVector.hpp"
 #include <cmath>
 
-void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
+void testRule(QuadratureRules::GaussQuadratureRule& test,std::size_t expectedOrder){
 	std::cout<<test.getName()<<std::endl;
 	assert(("dimension",test.dimension()==3));
 	assert(("order",test.order()>=expectedOrder));
@@ -43,9 +43,9 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,int expectedOrder){
 
 	Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet3DH1Cube(expectedOrder);
 	std::cout.precision(14);
-	for(int i=0;i<functions->size();++i){
+	for(std::size_t i=0;i<functions->size();++i){
 		double integrated=0;
-		for(int j=0;j<test.nrOfPoints();++j){
+		for(std::size_t j=0;j<test.nrOfPoints();++j){
 			point = test.getPoint(j);
 			integrated+=test.weight(j)*functions->eval(i,point);
 		}

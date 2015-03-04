@@ -42,8 +42,8 @@ int main(){
 	pointIndexes.push_back(4);
 	pointIndexes.push_back(7);
 
-	for(double i=0.;i<10;++i){
-		point[0]=1.+i/10.;
+	for(double i = 0.0; i < 1; i += 0.1){
+		point[0]=1.+i;
 		nodes.push_back(point);
 	}
 

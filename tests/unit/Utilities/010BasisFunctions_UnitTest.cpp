@@ -47,7 +47,7 @@ int main() {
     Base::BasisFunctionSet *all1DbasisFunctions = Utilities::createDGBasisFunctionSet1DH1Line(5);
     Geometry::PointReference point1D(1);
     LinearAlgebra::NumericalVector ret(1);
-    for(int i=0;i<all1DbasisFunctions->size();++i){
+    for(std::size_t i=0;i<all1DbasisFunctions->size();++i){
         const Base::BaseBasisFunction* test = (*all1DbasisFunctions)[i];
         for(point1D[0]=-1.5;point1D[0]<1.51;point1D[0]+=0.1){
             test->eval(point1D,ret);
@@ -71,7 +71,7 @@ int main() {
 
     Base::BasisFunctionSet *all2DbasisFunctions = Utilities::createDGBasisFunctionSet2DH1Square(5);
     Geometry::PointReference point2D(2);
-    for(int i=0;i<all2DbasisFunctions->size();++i){
+    for(std::size_t i=0;i<all2DbasisFunctions->size();++i){
         const Base::BaseBasisFunction* test = (*all2DbasisFunctions)[i];
         for(point2D[0]=-1.5;point2D[0]<1.51;point2D[0]+=0.1){
             for(point2D[1]=-1.5;point2D[1]<1.51;point2D[1]+=0.1){
@@ -106,7 +106,7 @@ int main() {
     delete all2DbasisFunctions;
 
     all2DbasisFunctions = Utilities::createDGBasisFunctionSet2DH1Triangle(5);
-    for(int i=0;i<all2DbasisFunctions->size();++i){
+    for(std::size_t i=0;i<all2DbasisFunctions->size();++i){
         const Base::BaseBasisFunction* test = (*all2DbasisFunctions)[i];
         for(point2D[0]=-1.5;point2D[0]<1.51;point2D[0]+=0.1){
             for(point2D[1]=-1.5;point2D[1]<1.51;point2D[1]+=0.1){
@@ -144,7 +144,7 @@ int main() {
 
     Base::BasisFunctionSet *all3DbasisFunctions = Utilities::createDGBasisFunctionSet3DH1Cube(5);
     Geometry::PointReference point3D(3);
-    for(int i=0;i<all3DbasisFunctions->size();++i){
+    for(std::size_t i=0;i<all3DbasisFunctions->size();++i){
         const Base::BaseBasisFunction* test = (*all3DbasisFunctions)[i];
         for(point3D[0]=-1.5;point3D[0]<1.51;point3D[0]+=0.25){
             for(point3D[1]=-1.5;point3D[1]<1.51;point3D[1]+=0.25){
@@ -190,7 +190,7 @@ int main() {
     delete all3DbasisFunctions;
 
     all3DbasisFunctions = Utilities::createDGBasisFunctionSet3DH1Tetrahedron(5);
-    for(int i=0;i<all3DbasisFunctions->size();++i){
+    for(std::size_t i=0;i<all3DbasisFunctions->size();++i){
         const Base::BaseBasisFunction* test = (*all3DbasisFunctions)[i];
         for(point3D[0]=-1.5;point3D[0]<1.51;point3D[0]+=0.25){
             for(point3D[1]=-1.5;point3D[1]<1.51;point3D[1]+=0.25){
@@ -236,7 +236,7 @@ int main() {
     delete all3DbasisFunctions;
 
     all3DbasisFunctions = Utilities::createDGBasisFunctionSet3DH1ConformingPrism(5);
-    for(int i=0;i<all3DbasisFunctions->size();++i){
+    for(std::size_t i=0;i<all3DbasisFunctions->size();++i){
         const Base::BaseBasisFunction* test = (*all3DbasisFunctions)[i];
         for(point3D[0]=-1.5;point3D[0]<1.51;point3D[0]+=0.25){
             for(point3D[1]=-1.5;point3D[1]<1.51;point3D[1]+=0.25){

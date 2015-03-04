@@ -68,7 +68,7 @@ int main(){
 	//testing mappings and quadrature rules
 
 	std::vector<std::size_t> base(2),transformed(2),faceIndices(1);
-	for(int i=0;i<2;++i){
+	for(std::size_t i=0;i<2;++i){
 		base[i]=transformed[i]=i;
 	}
 	assert(("getCodim0MappingIndex&Ptr",test.getCodim0MappingPtr(test.getCodim0MappingIndex(base,transformed))==&Geometry::MappingToRefLineToLine0::Instance()));

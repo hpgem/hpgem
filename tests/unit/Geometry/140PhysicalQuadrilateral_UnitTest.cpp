@@ -44,9 +44,9 @@ int main(){
 	pointIndexes.push_back(10);
 	pointIndexes.push_back(11);
 
-	for(double i=0.;i<10;++i){
-		point[0]=1.+i/10.;
-		point[1]=2.+i/10.;
+	for(double i=0.; i<1-1e-10; i+= 0.1){
+		point[0]=1.+i;
+		point[1]=2.+i;
 		nodes.push_back(point);
 	}
 
@@ -104,10 +104,10 @@ int main(){
 	assert(("getLocalNodeCoordinates",std::abs(point[0]-6.7)<1e-12));
 	assert(("getLocalNodeCoordinates",std::abs(point[1]-2.8)<1e-12));
 
-	for(double i=0;i<10;++i){
+	for(std::size_t i=0;i<10;++i){
 		test.getGlobalNodeCoordinates(i,point);
-		assert(("getGlobalNodeCoordinates",std::abs(point[0]-1.-i/10.)<1e-12));
-		assert(("getGlobalNodeCoordinates",std::abs(point[1]-2.-i/10.)<1e-12));
+		assert(("getGlobalNodeCoordinates",std::abs(point[0]-1.-static_cast<double>(i)/10.)<1e-12));
+		assert(("getGlobalNodeCoordinates",std::abs(point[1]-2.-static_cast<double>(i)/10.)<1e-12));
 	}
 
 	pointIndexes.resize(2);
