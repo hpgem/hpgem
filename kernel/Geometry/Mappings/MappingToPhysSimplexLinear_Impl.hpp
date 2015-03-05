@@ -28,36 +28,42 @@
 /*! The mapping is linear in every reference space dimension, with the offset to
  *  the origin of the dim-simplex. */
 template<std::size_t DIM>
-void Geometry::MappingToPhysSimplexLinear<DIM>::
-transform(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical) const
+Geometry::PointPhysical Geometry::MappingToPhysSimplexLinear<DIM>::
+transform(const PointReferenceT& pointReference) const
 {
-    pointPhysical = a[0];
-    for (std::size_t i = 1; i <= DIM; ++i) pointPhysical += pointReference[i-1] * a[i];
+    Geometry::PointPhysical pointPhysical = a[0];
+    for (std::size_t i = 1; i <= DIM; ++i) 
+    {
+        pointPhysical += pointReference[i-1] * a[i];
+    }
+    return pointPhysical;
 }
 
 /*! The Jacobian results from the transform function by symbolic derivation. */
 template<std::size_t DIM>
-void Geometry::MappingToPhysSimplexLinear<DIM>::
-calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const
+Geometry::Jacobian Geometry::MappingToPhysSimplexLinear<DIM>::
+calcJacobian(const PointReferenceT& pointReference) const
 {
+    Jacobian jacobian(DIM,DIM);
     for (std::size_t i = 0; i < DIM; i++)
-    for (std::size_t j = 0; j < DIM; j++)
     {
-        jacobian(i,j)=a[j+1][i];
+        for (std::size_t j = 0; j < DIM; j++)
+        {
+            jacobian(i,j)=a[j+1][i];
+        }
     }
+    return jacobian;
 }
 
 /*! For the simplices it actually saves computations to save the coefficients.*/
 template<std::size_t DIM>
 void Geometry::MappingToPhysSimplexLinear<DIM>::reinit(const PhysicalGeometry*const physicalGeometry)
 {
-    PointPhysicalT p0(DIM),pi(DIM);
-    physicalGeometry->getNodeCoordinates(0, p0);
-    a[0]=p0;
+    ;
+    a[0]=physicalGeometry->getNodeCoordinates(0);
     for (std::size_t i=1; i <= DIM; ++i)
     {
-        physicalGeometry->getNodeCoordinates((std::size_t) i, pi);
-        a[i] = pi-p0;
+        a[i] = physicalGeometry->getNodeCoordinates(i)-a[0];
     }
 }
 #endif /* MAPPINGSIMPLECUBENLINEAR_H_ */

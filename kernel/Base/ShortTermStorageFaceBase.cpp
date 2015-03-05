@@ -59,8 +59,8 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(c
 	return normal_;
 }
 
-void Base::ShortTermStorageFaceBase::referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical) const {
-		face_->referenceToPhysical(pointReference,pointPhysical);
+Geometry::PointPhysical Base::ShortTermStorageFaceBase::referenceToPhysical(const Geometry::PointReference& pointReference) const {
+		return face_->referenceToPhysical(pointReference);
 }
 
 void Base::ShortTermStorageFaceBase::cacheOn() {

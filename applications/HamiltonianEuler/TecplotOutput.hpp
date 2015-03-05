@@ -92,8 +92,7 @@ public:
        energy      = 0;
 //        energyExact = 0;//data.energyExact_;
 //        
-        PointPhysical pPhys(3);      // point in physical space
-        element->referenceToPhysical(pRef, pPhys);
+        PointPhysical pPhys = element->referenceToPhysical(pRef);
 //        
         uExact      = velocity_->getU(pPhys, time_);//exactSolutionU(pPhys);
         vExact      = velocity_->getV(pPhys, time_);//exactSolutionV(pPhys);

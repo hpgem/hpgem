@@ -26,23 +26,19 @@
 
 namespace Geometry {
 
-	void ConcatenatedMapping::transform(const PointReference& pIn, PointReference& pOut) const {
-		PointReference pLoc(map1_.getTargetDimension());
-		map1_.transform(pIn, pLoc);
-		map2_.transform(pLoc, pOut);
+	PointReference ConcatenatedMapping::transform(const PointReference& pIn) const {
+		PointReference pLoc = map1_.transform(pIn);
+        PointReference pOut = map2_.transform(pLoc);
+        return pOut;
 	}
 
-	void ConcatenatedMapping::calcJacobian(const PointReference& p, Jacobian& jac) const {
-		if (jac.getNRows() == 0) {
-			return;
-		}
-		PointReference pIntermediate(map1_.getTargetDimension());
-		map1_.transform(p, pIntermediate);
-		Jacobian j1(map1_.getTargetDimension(), jac.getNCols());
-		Jacobian j2(jac.getNRows(), map1_.getTargetDimension());
-		map1_.calcJacobian(p, j1);
-		map2_.calcJacobian(pIntermediate, j2);
-		j2.multiplyJacobiansInto(j1, jac);
+	Jacobian ConcatenatedMapping::calcJacobian(const PointReference& p) const {
+		Jacobian jac(p.size(),map2_.getTargetDimension());
+		PointReference pIntermediate = map1_.transform(p);
+		Jacobian j1 = map1_.calcJacobian(p);
+		Jacobian j2 = map2_.calcJacobian(pIntermediate);
+		jac = j2.multiplyJacobiansInto(j1);
+        return jac;
 	}
 
 	std::size_t ConcatenatedMapping::getTargetDimension() const {

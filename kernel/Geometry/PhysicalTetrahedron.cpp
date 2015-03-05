@@ -34,20 +34,22 @@ namespace Geometry
     {
     }
 
-    void PhysicalTetrahedron::getGlobalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
+    std::vector<std::size_t> PhysicalTetrahedron::getGlobalFaceNodeIndices(const std::size_t face) const
     {
-        indexes.resize(3);
+        std::vector<std::size_t> indexes(3);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
         indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,1)];
         indexes[2] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,2)];
+        return indexes;
     }
 
-    void PhysicalTetrahedron::getLocalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
+    std::vector<std::size_t> PhysicalTetrahedron::getLocalFaceNodeIndices(const std::size_t face) const
     {
-        indexes.resize(3);
+        std::vector<std::size_t> indexes(3);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
         indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
         indexes[2] = refGeometry_->getLocalNodeIndex(face,2);
+        return indexes;
     }
 
 	std::size_t PhysicalTetrahedron::getNrOfFaces() const {

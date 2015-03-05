@@ -146,7 +146,7 @@ namespace Base
         }
 
         //if this is needed a lot, also store this
-        void referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical) const override;
+        Geometry::PointPhysical referenceToPhysical(const Geometry::PointReference& pointReference) const override;
 
         //caching functionality
 
@@ -236,19 +236,19 @@ namespace Base
             return face_->getReferenceGeometry();
         }
 
-        void mapRefFaceToRefElemL(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const override
+        Geometry::PointReference mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const override
         {
-            face_->mapRefFaceToRefElemL(pRefFace, pRefEl);
+            return face_->mapRefFaceToRefElemL(pRefFace);
         }
 
-        void mapRefFaceToRefElemR(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const override
+        Geometry::PointReference mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const override
         {
-            face_->mapRefFaceToRefElemR(pRefFace, pRefEl);
+            return face_->mapRefFaceToRefElemR(pRefFace);
         }
 
-        void mapRefFaceToRefFace(const ReferencePointT& pIn, ReferencePointT& pOut) const override
+        Geometry::PointReference mapRefFaceToRefFace(const ReferencePointT& pIn) const override
         {
-            face_->mapRefFaceToRefFace(pIn, pOut);
+            return face_->mapRefFaceToRefFace(pIn);
         }
 
         RefFaceToRefElementMapping refFaceToRefElemMapL() const override

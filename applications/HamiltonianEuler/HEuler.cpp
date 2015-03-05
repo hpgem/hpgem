@@ -259,8 +259,8 @@ HEuler::faceIntegrand(const FaceT* face,          const LinearAlgebra::Numerical
         const ElementT* const left   = face->getPtrElementLeft();
         const ElementT* const right  = face->getPtrElementRight();
         
-        face->mapRefFaceToRefElemL(p, pL);
-        face->mapRefFaceToRefElemR(p, pR);
+        pL = face->mapRefFaceToRefElemL(p);
+        pR = face->mapRefFaceToRefElemR(p);
         
         
         for (int j = 0; j< numberOfDegreesOfFreedom; ++j)

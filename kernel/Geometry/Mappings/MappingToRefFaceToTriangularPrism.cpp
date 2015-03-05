@@ -33,17 +33,18 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefFaceToTriangularPrism0::transform(const Geometry::PointReference& p1,
-                                                        Geometry::PointReference& p2) const
+    PointReference MappingToRefFaceToTriangularPrism0::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] =  p1[1];
         p2[1] =  p1[0];
         p2[2] = -1.0;
+        return p2;
     }
 
-    void MappingToRefFaceToTriangularPrism0::calcJacobian(const Geometry::PointReference& p1,
-                                                           Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefFaceToTriangularPrism0::calcJacobian(const Geometry::PointReference& p1) const
     {
+        Jacobian jacobian(3,2);
         jacobian(0,0) = 0.0;
         jacobian(1,0) = 1.0;
         jacobian(2,0) = 0.0;
@@ -51,6 +52,7 @@ namespace Geometry
         jacobian(0,1) = 1.0;
         jacobian(1,1) = 0.0;
         jacobian(2,1) = 0.0;
+        return jacobian;
     }
 
     MappingToRefFaceToTriangularPrism0::MappingToRefFaceToTriangularPrism0() { }
@@ -64,17 +66,18 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefFaceToTriangularPrism1::transform(const Geometry::PointReference& p1,
-                                                        Geometry::PointReference& p2) const
+    PointReference MappingToRefFaceToTriangularPrism1::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = p1[1];
         p2[2] = 1.0;
+        return p2;
     }
 
-    void MappingToRefFaceToTriangularPrism1::calcJacobian(const Geometry::PointReference& p1,
-                                                           Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefFaceToTriangularPrism1::calcJacobian(const Geometry::PointReference& p1) const
     {
+        Jacobian jacobian(3,2);
         jacobian(0,0) = 1.0;
         jacobian(1,0) = 0.0;
         jacobian(2,0) = 0.0;
@@ -82,6 +85,7 @@ namespace Geometry
         jacobian(0,1) = 0.0;
         jacobian(1,1) = 1.0;
         jacobian(2,1) = 0.0;
+        return jacobian;
     }
 
     MappingToRefFaceToTriangularPrism1::MappingToRefFaceToTriangularPrism1() { }
@@ -95,17 +99,18 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefFaceToTriangularPrism2::transform(const Geometry::PointReference& p1,
-                                                        Geometry::PointReference& p2) const
+    PointReference MappingToRefFaceToTriangularPrism2::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] = 0.0;
         p2[1] = 0.5 * (1.0 - p1[0]);
         p2[2] = p1[1];
+        return p2;
     }
 
-    void MappingToRefFaceToTriangularPrism2::calcJacobian(const Geometry::PointReference& p1,
-                                                           Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefFaceToTriangularPrism2::calcJacobian(const Geometry::PointReference& p1) const
     {
+        Jacobian jacobian(3,2);
         jacobian(0,0) =  0.0;
         jacobian(1,0) = -0.5;
         jacobian(2,0) =  0.0;
@@ -113,6 +118,7 @@ namespace Geometry
         jacobian(0,1) =  0.0;
         jacobian(1,1) =  0.0;
         jacobian(2,1) =  1.0;
+        return jacobian;
     }
 
     MappingToRefFaceToTriangularPrism2::MappingToRefFaceToTriangularPrism2() { }
@@ -126,17 +132,18 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefFaceToTriangularPrism3::transform(const Geometry::PointReference& p1,
-                                                        Geometry::PointReference& p2) const
+    PointReference MappingToRefFaceToTriangularPrism3::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] = 0.5 * (1.0 + p1[0]);
         p2[1] = 0.0;
         p2[2] = p1[1];
+        return p2;
     }
 
-    void MappingToRefFaceToTriangularPrism3::calcJacobian(const Geometry::PointReference& p1,
-                                                           Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefFaceToTriangularPrism3::calcJacobian(const Geometry::PointReference& p1) const
     {
+        Jacobian jacobian(3,2);
         jacobian(0,0) =  0.5;
         jacobian(1,0) =  0.0;
         jacobian(2,0) =  0.0;
@@ -144,6 +151,7 @@ namespace Geometry
         jacobian(0,1) =  0.0;
         jacobian(1,1) =  0.0;
         jacobian(2,1) =  1.0;
+        return jacobian;
     }
 
     MappingToRefFaceToTriangularPrism3::MappingToRefFaceToTriangularPrism3() { }
@@ -157,17 +165,18 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefFaceToTriangularPrism4::transform(const Geometry::PointReference& p1,
-                                                Geometry::PointReference& p2) const
+    PointReference MappingToRefFaceToTriangularPrism4::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] = 0.5 * (1.0 - p1[0]);
         p2[1] = 0.5 * (1.0 + p1[0]);
         p2[2] = p1[1];
+        return p2;
     }
 
-    void MappingToRefFaceToTriangularPrism4::calcJacobian(const Geometry::PointReference& p1,
-                                                   Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefFaceToTriangularPrism4::calcJacobian(const Geometry::PointReference& p1) const
     {
+        Jacobian jacobian(3,2);
         jacobian(0,0) = -0.5;
         jacobian(1,0) =  0.5;
         jacobian(2,0) =  0.0;
@@ -175,6 +184,7 @@ namespace Geometry
         jacobian(0,1) =  0.0;
         jacobian(1,1) =  0.0;
         jacobian(2,1) =  1.0;
+        return jacobian;
     }
 
     MappingToRefFaceToTriangularPrism4::MappingToRefFaceToTriangularPrism4() { }

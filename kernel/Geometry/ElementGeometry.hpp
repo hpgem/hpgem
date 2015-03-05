@@ -25,6 +25,8 @@
 #include <vector>
 #include <iostream>
 #include "Point.hpp"
+#include "PointPhysical.hpp"
+#include "Jacobian.hpp"
 
 namespace Geometry
 {
@@ -75,13 +77,11 @@ namespace Geometry
         /// This method gets a PointReference, which specifies a coordinate in the ReferenceGeometry,
         /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
         /// given the mapping.
-        virtual void                                        referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical);
-        
-        virtual void                                        referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical)const;
+        virtual PointPhysical                                        referenceToPhysical(const PointReferenceT& pointReference) const;
         
         /// This method gets a PointReference and returns the corresponding jacobian of the
         /// referenceToPhysicalMapping.
-        virtual void                                        calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const;
+        virtual Jacobian                                        calcJacobian(const PointReferenceT& pointReference) const;
 
         /*! \brief Transform a physical space function on the reference element.
 

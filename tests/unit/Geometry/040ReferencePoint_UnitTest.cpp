@@ -42,8 +42,8 @@ int main(){
 	//testing basic functionality
 
 	logger.assert_always((test.isInternalPoint(pTest)),"isInternalPoint");
-	test.getCenter(pTest);
-	test.getNode(0,pTest);
+	pTest = test.getCenter();
+	pTest = test.getNode(0);
 	std::cout<<test.getName();
 
 	//getLocalNodeIndex should always break since dimension -1 entities dont exist

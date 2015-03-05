@@ -62,7 +62,7 @@ int main() {
 			double x1=test->eval(point1D);
 
 			point1D[0]+=-1e-8;
-			test->evalDeriv(point1D,ret);
+			ret = test->evalDeriv(point1D);
 			logger.assert_always(std::abs(ret[0]-5.e7*(x1-x0))<1e-5,"derivative");
 			logger.assert_always(std::abs(test->evalDeriv0(point1D)-5.e7*(x1-x0))<1e-5,"derivative");
 		}
@@ -87,7 +87,7 @@ int main() {
 
 				point2D[0]+=-1e-8;
 				ret.resize(2);
-				test->evalDeriv(point2D,ret);
+				ret = test->evalDeriv(point2D);
 				logger.assert_always(std::abs(ret[0]-5.e7*(x1-x0))<1e-5,"derivative");
 				logger.assert_always(std::abs(test->evalDeriv0(point2D)-5.e7*(x1-x0))<1e-5,"derivative");
 
@@ -125,7 +125,7 @@ int main() {
 
 					point3D[0]+=-1e-8;
 					ret.resize(3);
-					test->evalDeriv(point3D,ret);
+					ret = test->evalDeriv(point3D);
 					logger.assert_always(std::abs(ret[0]-5.e7*(x1-x0))<1e-5,"derivative");
 					logger.assert_always(std::abs(test->evalDeriv0(point3D)-5.e7*(x1-x0))<1e-5,"derivative");
 

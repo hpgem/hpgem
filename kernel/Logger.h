@@ -13,7 +13,11 @@
 #ifdef HPGEM_NO_ASSERTS
 #define HPGEM_ASSERTS false
 #else
+#ifdef NDEBUG
+#define HPGEM_ASSERTS false
+#else
 #define HPGEM_ASSERTS true
+#endif
 #endif
 
 #ifdef assert

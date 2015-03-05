@@ -55,9 +55,8 @@ namespace Base
         ptrElemR->setFace(localFaceNumR, this);
 
         std::vector<std::size_t> leftVertices, rightVertices;
-        std::vector<std::size_t> localLeftVertices, localRightVertices;
-        ptrElemL->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumL, localLeftVertices);
-        ptrElemR->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumR, localRightVertices);
+        std::vector<std::size_t> localLeftVertices = ptrElemL->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumL);
+        std::vector<std::size_t> localRightVertices = ptrElemR->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumR);
         for (std::size_t i = 0; i < getReferenceGeometry()->getNumberOfNodes(); ++i)
         {
             leftVertices.push_back(ptrElemL->getNode(localLeftVertices[i])->getID());
@@ -108,17 +107,14 @@ namespace Base
 
     double Face::basisFunction(std::size_t i, const Geometry::PointReference& p) const
     {
-        Geometry::PointReference pElement(p.size() + 1);
         std::size_t n(getPtrElementLeft()->getNrOfBasisFunctions());
         if (i < n)
         {
-            mapRefFaceToRefElemL(p, pElement);
-            return getPtrElementLeft()->basisFunction(i, pElement);
+            return getPtrElementLeft()->basisFunction(i, mapRefFaceToRefElemL(p));
         }
         else
         {
-            mapRefFaceToRefElemR(p, pElement);
-            return getPtrElementRight()->basisFunction(i - n, pElement);
+            return getPtrElementRight()->basisFunction(i - n, mapRefFaceToRefElemR(p));
         }
     }
 
@@ -128,12 +124,12 @@ namespace Base
         std::size_t n(getPtrElementLeft()->getNrOfBasisFunctions());
         if (i < n)
         {
-            mapRefFaceToRefElemL(p, pElement);
+            pElement = mapRefFaceToRefElemL(p);
             getPtrElementLeft()->basisFunction(i, pElement, ret);
         }
         else
         {
-            mapRefFaceToRefElemR(p, pElement);
+            pElement = mapRefFaceToRefElemR(p);
             getPtrElementRight()->basisFunction(i - n, pElement, ret);
         }
     }
@@ -143,16 +139,13 @@ namespace Base
     /// \param[in] p The reference point on the reference element.
     double Face::basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const
     {
-        Geometry::PointReference pElement(p.size() + 1);
         if (iSide == Side::LEFT)
         {
-            mapRefFaceToRefElemL(p, pElement);
-            return getPtrElementLeft()->basisFunction(iBasisFunction, pElement);
+            return getPtrElementLeft()->basisFunction(iBasisFunction, mapRefFaceToRefElemL(p));
         }
         else
         {
-            mapRefFaceToRefElemR(p, pElement);
-            return getPtrElementRight()->basisFunction(iBasisFunction, pElement);
+            return getPtrElementRight()->basisFunction(iBasisFunction, mapRefFaceToRefElemR(p));
         }
     }
 
@@ -162,13 +155,13 @@ namespace Base
         std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < n)
         {
-            mapRefFaceToRefElemL(p, pElement);
+            pElement = mapRefFaceToRefElemL(p);
             ret = normal;
             ret *= getPtrElementLeft()->basisFunction(i, pElement) / Base::L2Norm(normal);
         }
         else
         {
-            mapRefFaceToRefElemR(p, pElement);
+            pElement = mapRefFaceToRefElemR(p);
             ret = normal;
             ret *= -getPtrElementRight()->basisFunction(i - n, pElement) / Base::L2Norm(normal);
         }
@@ -183,12 +176,12 @@ namespace Base
         Geometry::PointReference pElement(p.size() + 1);
         if (iSide == Side::LEFT)
         {
-            mapRefFaceToRefElemL(p, pElement);
+            pElement = mapRefFaceToRefElemL(p);
             return getPtrElementLeft()->basisFunction(iBasisFunction, pElement) * normal / Base::L2Norm(normal);
         }
         else
         {
-            mapRefFaceToRefElemR(p, pElement);
+            pElement = mapRefFaceToRefElemR(p);
             return -getPtrElementRight()->basisFunction(iBasisFunction, pElement) * normal / Base::L2Norm(normal);
         }
     }
@@ -199,12 +192,12 @@ namespace Base
         std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < n)
         {
-            mapRefFaceToRefElemL(p, pElement);
+            pElement = mapRefFaceToRefElemL(p);
             return getPtrElementLeft()->basisFunctionDeriv(i, jDir, pElement);
         }
         else
         {
-            mapRefFaceToRefElemR(p, pElement);
+            pElement = mapRefFaceToRefElemR(p);
             return getPtrElementRight()->basisFunctionDeriv(i - n, jDir, pElement);
         }
     }
@@ -215,12 +208,12 @@ namespace Base
         std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < n)
         {
-            mapRefFaceToRefElemL(p, pElement);
+            pElement = mapRefFaceToRefElemL(p);
             getPtrElementLeft()->basisFunctionDeriv(i, pElement, ret);
         }
         else
         {
-            mapRefFaceToRefElemR(p, pElement);
+            pElement = mapRefFaceToRefElemR(p);
             getPtrElementRight()->basisFunctionDeriv(i - n, pElement, ret);
         }
     }
@@ -234,12 +227,12 @@ namespace Base
         Geometry::PointReference pElement(p.size() + 1);
         if (iSide == Side::LEFT)
         {
-            mapRefFaceToRefElemL(p, pElement);
+            pElement = mapRefFaceToRefElemL(p);
             getPtrElementLeft()->basisFunctionDeriv(iBasisFunction, pElement, Gradient);
         }
         else
         {
-            mapRefFaceToRefElemR(p, pElement);
+            pElement = mapRefFaceToRefElemR(p);
             getPtrElementRight()->basisFunctionDeriv(iBasisFunction, pElement, Gradient);
         }
         return Gradient;
@@ -251,12 +244,12 @@ namespace Base
         std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < numBasisFuncsLeft)
         {
-            mapRefFaceToRefElemL(p, pElement);
+            pElement = mapRefFaceToRefElemL(p);
             getPtrElementLeft()->basisFunctionCurl(i, pElement, ret);
         }
         else
         {
-            mapRefFaceToRefElemR(p, pElement);
+            pElement = mapRefFaceToRefElemR(p);
             getPtrElementRight()->basisFunctionCurl(i - numBasisFuncsLeft, pElement, ret);
         }
     }

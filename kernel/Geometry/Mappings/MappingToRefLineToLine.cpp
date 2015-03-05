@@ -47,13 +47,19 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefLineToLine0::transform(const Geometry::PointReference& p1,
-                                             Geometry::PointReference& p2) const
-    { p2[0] = p1[0]; }
+    PointReference MappingToRefLineToLine0::transform(const Geometry::PointReference& p1) const
+    { 
+        PointReference p2(1);
+        p2[0] = p1[0]; 
+        return p2;
+    }
 
-    void MappingToRefLineToLine0::calcJacobian(const Geometry::PointReference& p1,
-                                                Geometry::Jacobian& jacobian) const
-    { jacobian(0,0) = 1.0; }
+    Jacobian MappingToRefLineToLine0::calcJacobian(const Geometry::PointReference& p1) const
+    { 
+        Jacobian jacobian(1,1);
+        jacobian(0,0) = 1.0; 
+        return jacobian;
+    }
 
     MappingToRefLineToLine0::MappingToRefLineToLine0() { }
     MappingToRefLineToLine0::~MappingToRefLineToLine0() { }
@@ -68,13 +74,19 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefLineToLine1::transform(const Geometry::PointReference& p1,
-                                             Geometry::PointReference& p2) const
-    { p2[0] = -p1[0]; }
+    PointReference MappingToRefLineToLine1::transform(const Geometry::PointReference& p1) const
+    { 
+        PointReference p2(1);
+        p2[0] = -p1[0]; 
+        return p2;
+    }
 
-    void MappingToRefLineToLine1::calcJacobian(const Geometry::PointReference& p1,
-                                                Geometry::Jacobian& jacobian) const
-    { jacobian(0,0) = -1.0; }
+    Jacobian MappingToRefLineToLine1::calcJacobian(const Geometry::PointReference& p1) const
+    { 
+        Jacobian jacobian(1,1);
+        jacobian(0,0) = -1.0; 
+        return jacobian;
+    }
 
     MappingToRefLineToLine1::MappingToRefLineToLine1() { }
     MappingToRefLineToLine1::~MappingToRefLineToLine1() { }

@@ -69,22 +69,22 @@ int main(){
 	///\TODO test the normal vector
 	//todo also test individual functions
 
-	test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft(),leftIndices);
-	test->getPtrElementGRight()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberRight(),rightIndices);
+	leftIndices = test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft());
+	rightIndices = test->getPtrElementGRight()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberRight());
 
         test->initialiseFaceToFaceMapIndex(leftIndices, rightIndices);
         
 	for(std::size_t i=0;i<test->getReferenceGeometry()->getNumberOfNodes();++i){
-		test->getReferenceGeometry()->getNode(i,orig1D);
-		test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i],compare1D);
-		test->getElementGLeft()->referenceToPhysical(compare1D,compare1Dphys);
-		test->mapRefFaceToRefElemL(orig1D,point1D);
-		test->referenceToPhysical(orig1D,point1Dphys);
+		orig1D = test->getReferenceGeometry()->getNode(i);
+		compare1D = test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i]);
+		compare1Dphys = test->getElementGLeft()->referenceToPhysical(compare1D);
+		point1D = test->mapRefFaceToRefElemL(orig1D);
+		point1Dphys = test->referenceToPhysical(orig1D);
 		logger.assert_always((std::abs(compare1D[0]-point1D[0])<1e-12),"getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
 		logger.assert_always((std::abs(compare1Dphys[0]-point1Dphys[0])<1e-12),"referenceToPhysical");
-		test->getPtrElementGRight()->getReferenceGeometry()->getNode(rightIndices[i],compare1D);
-		test->getPtrElementGRight()->referenceToPhysical(compare1D,compare1Dphys);
-		test->mapRefFaceToRefElemR(orig1D,point1D);
+		compare1D = test->getPtrElementGRight()->getReferenceGeometry()->getNode(rightIndices[i]);
+		compare1Dphys = test->getPtrElementGRight()->referenceToPhysical(compare1D);
+		point1D = test->mapRefFaceToRefElemR(orig1D);
 		logger.assert_always((std::abs(compare1D[0]-point1D[0])<1e-12),"getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
 		logger.assert_always((std::abs(compare1Dphys[0]-point1Dphys[0])<1e-12),"referenceToPhysical");//probably indirectly verified already, but this is the most important feature of a face
 	}
@@ -137,25 +137,25 @@ int main(){
 	///\TODO test the normal vector
 	//todo also test individual functions
 
-	test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft(),leftIndices);
-	test->getPtrElementGRight()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberRight(),rightIndices);
+	leftIndices = test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft());
+	rightIndices = test->getPtrElementGRight()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberRight());
 
 
         test->initialiseFaceToFaceMapIndex(leftIndices, rightIndices);
         
 	for(std::size_t i=0;i<test->getReferenceGeometry()->getNumberOfNodes();++i){
-		test->getReferenceGeometry()->getNode(i,orig2D);
-		test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i],compare2D);
-		test->getElementGLeft()->referenceToPhysical(compare2D,compare2Dphys);
-		test->mapRefFaceToRefElemL(orig2D,point2D);
-		test->referenceToPhysical(orig2D,point2Dphys);
+		orig2D = test->getReferenceGeometry()->getNode(i);
+		compare2D = test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i]);
+		compare2Dphys = test->getElementGLeft()->referenceToPhysical(compare2D);
+		point2D = test->mapRefFaceToRefElemL(orig2D);
+		point2Dphys = test->referenceToPhysical(orig2D);
 		logger.assert_always((std::abs(compare2D[0]-point2D[0])<1e-12),"getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
 		logger.assert_always((std::abs(compare2D[1]-point2D[1])<1e-12),"getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
 		logger.assert_always((std::abs(compare2Dphys[0]-point2Dphys[0])<1e-12),"referenceToPhysical");
 		logger.assert_always((std::abs(compare2Dphys[1]-point2Dphys[1])<1e-12),"referenceToPhysical");
-		test->getPtrElementGRight()->getReferenceGeometry()->getNode(rightIndices[i],compare2D);
-		test->getPtrElementGRight()->referenceToPhysical(compare2D,compare2Dphys);
-		test->mapRefFaceToRefElemR(orig2D,point2D);
+		compare2D = test->getPtrElementGRight()->getReferenceGeometry()->getNode(rightIndices[i]);
+		compare2Dphys = test->getPtrElementGRight()->referenceToPhysical(compare2D);
+		point2D = test->mapRefFaceToRefElemR(orig2D);
 		logger.assert_always((std::abs(compare2D[0]-point2D[0])<1e-12),"getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
 		logger.assert_always((std::abs(compare2D[1]-point2D[1])<1e-12),"getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
 		logger.assert_always((std::abs(compare2Dphys[0]-point2Dphys[0])<1e-12),"referenceToPhysical");//probably indirectly verified already, but this is the most important feature of a face
@@ -183,14 +183,14 @@ int main(){
 	///\TODO test the normal vector
 	//todo also test individual functions
 
-	test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft(),leftIndices);
+	leftIndices = test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft());
 
 	for(std::size_t i=0;i<test->getReferenceGeometry()->getNumberOfNodes();++i){
-		test->getReferenceGeometry()->getNode(i,orig2D);
-		test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i],compare2D);
-		test->getElementGLeft()->referenceToPhysical(compare2D,compare2Dphys);
-		test->mapRefFaceToRefElemL(orig2D,point2D);
-		test->referenceToPhysical(orig2D,point2Dphys);
+		orig2D = test->getReferenceGeometry()->getNode(i);
+		compare2D = test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i]);
+		compare2Dphys = test->getElementGLeft()->referenceToPhysical(compare2D);
+		point2D = test->mapRefFaceToRefElemL(orig2D);
+		point2Dphys = test->referenceToPhysical(orig2D);
 		logger.assert_always((std::abs(compare2D[0]-point2D[0])<1e-12),"getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
 		logger.assert_always((std::abs(compare2D[1]-point2D[1])<1e-12),"getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
 		logger.assert_always((std::abs(compare2Dphys[0]-point2Dphys[0])<1e-12),"referenceToPhysical");

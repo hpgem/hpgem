@@ -39,9 +39,9 @@ namespace Geometry
 
             virtual std::string             getName() const { return "PhysicalHexahedron";}
 
-            virtual void getGlobalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const;
+            virtual std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t) const;
 
-            virtual void getLocalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const;
+            virtual std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t) const;
         
             std::size_t getNrOfFaces() const;
     };

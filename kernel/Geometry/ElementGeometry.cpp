@@ -272,27 +272,19 @@ namespace Geometry
     /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
     /// given the mapping.
 
-    void
-    ElementGeometry::referenceToPhysical(const PointReferenceT& pointReference,
-                                         PointPhysicalT& pointPhysical)
+    PointPhysical
+    ElementGeometry::referenceToPhysical(const PointReferenceT& pointReference) const
     {
-        referenceToPhysicalMapping_->transform(pointReference, pointPhysical);
-    }
-
-    void
-    ElementGeometry::referenceToPhysical(const PointReferenceT& pointReference,
-                                         PointPhysicalT& pointPhysical)const
-    {
-        referenceToPhysicalMapping_->transform(pointReference, pointPhysical);
+        return referenceToPhysicalMapping_->transform(pointReference);
     }
 
     /// This method gets a PointReference and returns the corresponding jacobian of the
     /// referenceToPhysicalMapping.
 
-    void
-    ElementGeometry::calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const
+    Jacobian
+    ElementGeometry::calcJacobian(const PointReferenceT& pointReference) const
     {
-        referenceToPhysicalMapping_->calcJacobian(pointReference, jacobian);
+        return referenceToPhysicalMapping_->calcJacobian(pointReference);
     }
 
     std::size_t

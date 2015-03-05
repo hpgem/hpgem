@@ -73,8 +73,8 @@ void testMesh(Base::MeshManipulator* test) {
         assert(("element<->face matching", face->getPtrElementLeft()->getFace(face->localFaceNumberLeft()) == face));
         if (face->isInternal()) {
             std::vector<std::size_t> leftNodes(face->getReferenceGeometry()->getNumberOfNodes()), rightNodes(leftNodes);
-            face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft(), leftNodes);
-            face->getPtrElementRight()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberRight(), rightNodes);
+            leftNodes = face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft());
+            rightNodes = face->getPtrElementRight()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberRight());
             for (std::size_t i = 0; i < leftNodes.size(); ++i) {
                 bool found = false;
                 for (std::size_t j = 0; j < rightNodes.size(); ++j) {
@@ -91,13 +91,13 @@ void testMesh(Base::MeshManipulator* test) {
         edgeIDs.insert(edge->getID());
         assert(("element<->edge matching", edge->getElement(0)->getEdge(edge->getEdgeNr(0)) == edge));
         std::vector<std::size_t> firstNodes(edge->getElement(0)->getReferenceGeometry()->getCodim2ReferenceGeometry(edge->getEdgeNr(0))->getNumberOfNodes()), otherNodes(firstNodes);
-        edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), firstNodes);
+        firstNodes = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
         for (int i = 0; i < firstNodes.size(); ++i) {
             firstNodes[i] = edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(firstNodes[i]);
         }
         for (std::size_t i = 1; i < edge->getNrOfElements(); ++i) {
             assert(("element<->edge matching", edge->getElement(i)->getEdge(edge->getEdgeNr(i)) == edge));
-            edge->getElement(i)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(i), otherNodes);
+            otherNodes = edge->getElement(i)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(i));
             for (std::size_t j = 0; j < otherNodes.size(); ++j) {
                 otherNodes[j] = edge->getElement(i)->getPhysicalGeometry()->getNodeIndex(otherNodes[j]);
             }
@@ -116,11 +116,11 @@ void testMesh(Base::MeshManipulator* test) {
         vertexIDs.insert(vertex->getID());
         assert(("element<->vertex matching", vertex->getElement(0)->getNode(vertex->getVertexNr(0)) == vertex));
         Geometry::PointPhysical pFirst(test->dimension()),pOther(pFirst);
-        vertex->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getVertexNr(0),pFirst);
+        pFirst = vertex->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getVertexNr(0));
         for(std::size_t i=1; i < vertex->getNrOfElements(); ++i)
         {
             assert(("element<->vertex matching", vertex->getElement(i)->getNode(vertex->getVertexNr(i)) == vertex));
-            vertex->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getVertexNr(i),pOther);
+            pOther = vertex->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getVertexNr(i));
             assert(("vertex positioning", pFirst==pOther));
         }
     }

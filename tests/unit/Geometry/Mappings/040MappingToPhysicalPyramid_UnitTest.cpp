@@ -95,42 +95,42 @@ int main() {
 	for(refPoint3D[0]=-1.5189;refPoint3D[0]<1.541;refPoint3D[0]+=0.2) {
 		for(refPoint3D[1]=-1.5188;refPoint3D[1]<1.541;refPoint3D[1]+=0.2){
 			for(refPoint3D[2]=-1.5188;refPoint3D[2]<1.541;refPoint3D[2]+=0.2){
-				mapping3D.transform(refPoint3D,point3D);
+				point3D = mapping3D.transform(refPoint3D);
 				if(rGeom3D.isInternalPoint(refPoint3D))//not perfect, but the degenerate cube face makes the mapping less linear than desired
 					assert(("transform",isInternal3D(point3D)));
-				reinit3D.transform(refPoint3D,point3D);
+				point3D = reinit3D.transform(refPoint3D);
 				if(rGeom3D.isInternalPoint(refPoint3D))
 					assert(("reinit",isInternal3D(point3D)));
 
 				refPoint3D[0]+=-1.e-8;
-				mapping3D.transform(refPoint3D,compare3D);
+				compare3D = mapping3D.transform(refPoint3D);
 				refPoint3D[0]+=2.e-8;
-				mapping3D.transform(refPoint3D,point3D);
+				point3D = mapping3D.transform(refPoint3D);
 
 				refPoint3D[0]+=-1e-8;
-				mapping3D.calcJacobian(refPoint3D,jac3D);
+				jac3D = mapping3D.calcJacobian(refPoint3D);
 				assert(("jacobian",std::abs(jac3D[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 				assert(("jacobian",std::abs(jac3D[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are strongly recommended to be more accurate
 				assert(("jacobian",std::abs(jac3D[2]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 
 				refPoint3D[1]+=-1.e-8;
-				mapping3D.transform(refPoint3D,compare3D);
+				compare3D = mapping3D.transform(refPoint3D);
 				refPoint3D[1]+=2.e-8;
-				mapping3D.transform(refPoint3D,point3D);
+				point3D = mapping3D.transform(refPoint3D);
 
 				refPoint3D[1]+=-1e-8;
-				mapping3D.calcJacobian(refPoint3D,jac3D);
+				jac3D = mapping3D.calcJacobian(refPoint3D);
 				assert(("jacobian",std::abs(jac3D[3]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
 				assert(("jacobian",std::abs(jac3D[4]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
 				assert(("jacobian",std::abs(jac3D[5]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 
 				refPoint3D[2]+=-1.e-8;
-				mapping3D.transform(refPoint3D,compare3D);
+				compare3D = mapping3D.transform(refPoint3D);
 				refPoint3D[2]+=2.e-8;
-				mapping3D.transform(refPoint3D,point3D);
+				point3D = mapping3D.transform(refPoint3D);
 
 				refPoint3D[2]+=-1e-8;
-				mapping3D.calcJacobian(refPoint3D,jac3D);
+				jac3D = mapping3D.calcJacobian(refPoint3D);
 				assert(("jacobian",std::abs(jac3D[6]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
 				assert(("jacobian",std::abs(jac3D[7]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
 				assert(("jacobian",std::abs(jac3D[8]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
@@ -139,17 +139,17 @@ int main() {
 	}
 
 	for(int i=0;i<rGeom3D.getNumberOfNodes();++i){
-		rGeom3D.getNode(i,refPoint3D);
-		pGeom3D.getNodeCoordinates(i,compare3D);
-		mapping3D.transform(refPoint3D,point3D);
+		refPoint3D = rGeom3D.getNode(i);
+		compare3D = pGeom3D.getNodeCoordinates(i);
+		point3D = mapping3D.transform(refPoint3D);
 		assert(("transform",std::abs(point3D[0]-compare3D[0])<1e-12)&&std::abs(point3D[1]-compare3D[1])<1e-12&&std::abs(point3D[2]-compare3D[2])<1e-12);
 	}
 
 	assert(("getTargetDimension",mapping3D.getTargetDimension()==3));
 
 	for(int i=0;i<40;++i){
-		mapping3D.getNodeCoordinates(i,compare3D);
-		pGeom3D.getGlobalNodeCoordinates(i,point3D);
+		compare3D = mapping3D.getNodeCoordinates(i);
+		point3D = pGeom3D.getGlobalNodeCoordinates(i);
 		assert(("getNodeCoordinates",compare3D==point3D));
 	}
 

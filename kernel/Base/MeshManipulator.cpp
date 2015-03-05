@@ -1087,7 +1087,7 @@ namespace Base {
 
                 for (std::size_t j = 0; j < current->getNrOfFaces(); ++j)
                 {
-                    current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j,faceVertices);
+                    faceVertices = current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j);
                     if((faceVertices[0]==boundaryFaces[i].nodeList[0] || faceVertices[0]==boundaryFaces[i].nodeList[1]) &&
                        (faceVertices[1]==boundaryFaces[i].nodeList[0] || faceVertices[1]==boundaryFaces[i].nodeList[1]))
                     {
@@ -1832,7 +1832,7 @@ namespace Base {
 
                 for (std::size_t j = 0; j < current->getNrOfFaces(); ++j)
                 {
-                    current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j,temp);
+                    temp = current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j);
                     std::sort(temp.begin(),temp.end());
                     std::set_intersection(temp.begin(),temp.end(),nodes.begin(),nodes.end(),std::back_inserter(intersect));
                     if(intersect.size()==3)
@@ -3258,7 +3258,7 @@ namespace Base {
                 {
                     localNodes.clear();
                     candidates.clear();
-                    element->getReferenceGeometry()->getCodim1EntityLocalIndices(i,nodeIndices);
+                    nodeIndices = element->getReferenceGeometry()->getCodim1EntityLocalIndices(i);
                     
                     candidates=element->getNode(nodeIndices[0])->getElements();
                     localNodes.push_back(element->getNode(nodeIndices[0]));
@@ -3316,7 +3316,7 @@ namespace Base {
                         std::vector<std::size_t> otherNodeIndices;
                         for (std::size_t j = 0; j < other->getNrOfFaces(); ++j)
                         {
-                            other->getReferenceGeometry()->getCodim1EntityLocalIndices(j,otherNodeIndices);
+                            otherNodeIndices = other->getReferenceGeometry()->getCodim1EntityLocalIndices(j);
                             bool match =true;
                             for(std::size_t k:otherNodeIndices)
                             {
@@ -3366,7 +3366,7 @@ namespace Base {
                 {
                     if(element->getEdge(i)==nullptr)
                     {
-                        element->getReferenceGeometry()->getCodim2EntityLocalIndices(i,nodeList);
+                        nodeList = element->getReferenceGeometry()->getCodim2EntityLocalIndices(i);
                         std::vector<Element*> candidates(0);
                         auto& leftElements = element->getNode(nodeList[0])->getElements();
                         auto& rightElements = element->getNode(nodeList[1])->getElements();
@@ -3387,7 +3387,7 @@ namespace Base {
                             Element* other = candidates[j];
                             for (std::size_t k = 0; k < other->getNrOfEdges(); ++k)
                             {
-                                other->getReferenceGeometry()->getCodim2EntityLocalIndices(k,otherNodeList);
+                                otherNodeList = other->getReferenceGeometry()->getCodim2EntityLocalIndices(k);
                                 if((other->getNode(otherNodeList[0])==nodes[0] || other->getNode(otherNodeList[0])==nodes[1]) &&
                                    (other->getNode(otherNodeList[1])==nodes[0] || other->getNode(otherNodeList[1])==nodes[1]))
                                 {

@@ -34,16 +34,18 @@ namespace Geometry
     {
     }
 
-    void PhysicalLine::getGlobalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
+    std::vector<std::size_t> PhysicalLine::getGlobalFaceNodeIndices(const std::size_t face) const
     {
-        indexes.resize(1);
+        std::vector<std::size_t> indexes(1);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
+        return indexes;
     }
 
-    void PhysicalLine::getLocalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
+    std::vector<std::size_t> PhysicalLine::getLocalFaceNodeIndices(const std::size_t face) const
     {
-        indexes.resize(1);
+        std::vector<std::size_t> indexes(1);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
+        return indexes;
     }
 
 	std::size_t PhysicalLine::getNrOfFaces() const {

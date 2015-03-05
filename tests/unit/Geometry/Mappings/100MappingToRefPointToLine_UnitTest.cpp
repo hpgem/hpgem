@@ -47,15 +47,15 @@ int main() {
 	const Geometry::MappingReferenceToReference* test = &Geometry::MappingToRefPointToLine0::Instance();
 	nodesAfterTransformation[0]=0;
 
-	test->transform(refPoint,point);
+	point = test->transform(refPoint);
 	assert(("transform",fGeom.isInternalPoint(refPoint)==eGeom.isInternalPoint(point)));
 
-	test->calcJacobian(refPoint,jac);
+	jac = test->calcJacobian(refPoint);
 
 	for(int i=0;i<fGeom.getNumberOfNodes();++i){
-		fGeom.getNode(i,refPoint);
-		eGeom.getNode(nodesAfterTransformation[i],compare);
-		test->transform(refPoint,point);
+		refPoint = fGeom.getNode(i);
+		compare = eGeom.getNode(nodesAfterTransformation[i]);
+		point = test->transform(refPoint);
 		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
 	}
 
@@ -65,15 +65,15 @@ int main() {
 	test = &Geometry::MappingToRefPointToLine1::Instance();
 	nodesAfterTransformation[0]=1;
 
-	test->transform(refPoint,point);
+	point = test->transform(refPoint);
 	assert(("transform",fGeom.isInternalPoint(refPoint)==eGeom.isInternalPoint(point)));
 
-	test->calcJacobian(refPoint,jac);
+	jac = test->calcJacobian(refPoint);
 
 	for(int i=0;i<fGeom.getNumberOfNodes();++i){
-		fGeom.getNode(i,refPoint);
-		eGeom.getNode(nodesAfterTransformation[i],compare);
-		test->transform(refPoint,point);
+		refPoint = fGeom.getNode(i);
+		compare = eGeom.getNode(nodesAfterTransformation[i]);
+		point = test->transform(refPoint);
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==1));

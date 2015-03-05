@@ -39,9 +39,10 @@ namespace Geometry
         reinit(physicalGeometry);
     }
 
-    void MappingToPhysPyramid::
-    transform(const PointReferenceT& pR, PointPhysicalT& pP) const
+    PointPhysical MappingToPhysPyramid::
+    transform(const PointReferenceT& pR) const
     {
+        PointPhysical pP(3);
         //if (isValidPoint(pR))
         //{
             const double t1 = pR[0] * pR[1];
@@ -61,7 +62,7 @@ namespace Geometry
 
             for (std::size_t i=0; i<5; ++i)
             {
-                getNodeCoordinates(globalNodeIndices_[i], p);
+                p = getNodeCoordinates(globalNodeIndices_[i]);
                 pP += f8[i] * p;
             }
         //}
@@ -69,9 +70,11 @@ namespace Geometry
         //{
         //    throw "ERROR: MappingToPhysPyramid::transform, mapping point outside geometry.";
         //}
+            return pP;
     }
-    void MappingToPhysPyramid::calcJacobian(const PointReferenceT& pR, JacobianT& jacobian) const
+    Jacobian MappingToPhysPyramid::calcJacobian(const PointReferenceT& pR) const
     {
+        Jacobian jacobian(3,3);
         //if (isValidPoint(pR))
         //{
             std::vector<double> df_dxi0(5), df_dxi1(5), df_dxi2(5);
@@ -113,7 +116,7 @@ namespace Geometry
 
             for (std::size_t i = 0; i < 5; ++i)
             {
-                getNodeCoordinates(globalNodeIndices_[i], p);
+                p = getNodeCoordinates(globalNodeIndices_[i]);
 
                 d_dxi0 += df_dxi0[i] * p;
                 d_dxi1 += df_dxi1[i] * p;
@@ -131,6 +134,7 @@ namespace Geometry
         //{
         //    throw "ERROR: MappingToPhysPyramid::calcJacobian, mapping point outside geometry.";
         //}
+            return jacobian;
     }
 
     void MappingToPhysPyramid::reinit(const PhysicalGeometryT*const physicalGeometry)

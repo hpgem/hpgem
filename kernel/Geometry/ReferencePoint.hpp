@@ -62,10 +62,10 @@ namespace Geometry
         bool                                    isInternalPoint(const PointReferenceT& p) const;
 
         /// \brief (see ReferenceGeometry.hpp)
-        void                                    getCenter(PointReferenceT&) const;
+        PointReference                                    getCenter() const;
 
         /// \brief (see ReferenceGeometry.hpp)
-        void                                    getNode(const IndexT& i, PointReferenceT& point) const;
+        const PointReference&                                    getNode(const IndexT& i) const;
 
         /// \brief (see ReferenceGeometry.hpp)
         String                                  getName() const {return "ReferencePoint";}

@@ -36,20 +36,22 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefCubeToCube0::transform(const Geometry::PointReference& p1,
-                                             Geometry::PointReference& p2) const
+    PointReference MappingToRefCubeToCube0::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = p1[1];
         p2[2] = p1[2];
+        return p2;
     }
 
-    void MappingToRefCubeToCube0::calcJacobian(const Geometry::PointReference&,
-                                                Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefCubeToCube0::calcJacobian(const Geometry::PointReference&) const
     {
+        Jacobian jacobian(3,3);
         jacobian(0,0) = 1.0; jacobian(0,1) = 0.0; jacobian(0,2) = 0.0;
         jacobian(1,0) = 0.0; jacobian(1,1) = 1.0; jacobian(1,2) = 0.0;
         jacobian(2,0) = 0.0; jacobian(2,1) = 0.0; jacobian(2,2) = 1.0;
+        return jacobian;
     }
 
     MappingToRefCubeToCube0::MappingToRefCubeToCube0() { }
@@ -63,20 +65,22 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefCubeToCube1::transform(const Geometry::PointReference& p1,
-                                             Geometry::PointReference& p2) const
+    PointReference MappingToRefCubeToCube1::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = -p1[2];
         p2[2] = p1[1];
+        return p2;
     }
 
-    void MappingToRefCubeToCube1::calcJacobian(const Geometry::PointReference&,
-                                                Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefCubeToCube1::calcJacobian(const Geometry::PointReference&) const
     {
+        Jacobian jacobian(3,3);
         jacobian(0,0) =  1.0; jacobian(0,1) =  0.0; jacobian(0,2) =  0.0;
         jacobian(1,0) =  0.0; jacobian(1,1) =  0.0; jacobian(1,2) = -1.0;
         jacobian(2,0) =  0.0; jacobian(2,1) =  1.0; jacobian(2,2) =  0.0;
+        return jacobian;
     }
 
     MappingToRefCubeToCube1::MappingToRefCubeToCube1() { }
@@ -90,20 +94,22 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefCubeToCube2::transform(const Geometry::PointReference& p1,
-                                             Geometry::PointReference& p2) const
+    PointReference MappingToRefCubeToCube2::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] =  p1[0];
         p2[1] = -p1[1];
         p2[2] = -p1[2];
+        return p2;
     }
 
-    void MappingToRefCubeToCube2::calcJacobian(const Geometry::PointReference&,
-                                                Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefCubeToCube2::calcJacobian(const Geometry::PointReference&) const
     {
+        Jacobian jacobian(3,3);
         jacobian(0,0) =  1.0; jacobian(0,1) =  0.0; jacobian(0,2) =  0.0;
         jacobian(1,0) =  0.0; jacobian(1,1) = -1.0; jacobian(1,2) =  0.0;
         jacobian(2,0) =  0.0; jacobian(2,1) =  0.0; jacobian(2,2) = -1.0;
+        return jacobian;
     }
 
     MappingToRefCubeToCube2::MappingToRefCubeToCube2() { }
@@ -117,20 +123,22 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefCubeToCube3::transform(const Geometry::PointReference& p1,
-                                             Geometry::PointReference& p2) const
+    PointReference MappingToRefCubeToCube3::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] =  p1[0];
         p2[1] =  p1[2];
         p2[2] = -p1[1];
+        return p2;
     }
 
-    void MappingToRefCubeToCube3::calcJacobian(const Geometry::PointReference&,
-                                                Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefCubeToCube3::calcJacobian(const Geometry::PointReference&) const
     {
+        Jacobian jacobian(3,3);
         jacobian(0,0) =  1.0; jacobian(0,1) =  0.0; jacobian(0,2) =  0.0;
         jacobian(1,0) =  0.0; jacobian(1,1) =  0.0; jacobian(1,2) =  1.0;
         jacobian(2,0) =  0.0; jacobian(2,1) = -1.0; jacobian(2,2) =  0.0;
+        return jacobian;
     }
 
     MappingToRefCubeToCube3::MappingToRefCubeToCube3() { }
@@ -144,20 +152,22 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefCubeToCube4::transform(const Geometry::PointReference& p1,
-                                             Geometry::PointReference& p2) const
+    PointReference MappingToRefCubeToCube4::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] =  p1[0];
         p2[1] =  p1[1];
         p2[2] = -p1[2];
+        return p2;
     }
 
-    void MappingToRefCubeToCube4::calcJacobian(const Geometry::PointReference&,
-                                                Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefCubeToCube4::calcJacobian(const Geometry::PointReference&) const
     {
+        Jacobian jacobian(3,3);
         jacobian(0,0) =  1.0; jacobian(0,1) =  0.0; jacobian(0,2) =  0.0;
         jacobian(1,0) =  0.0; jacobian(1,1) =  1.0; jacobian(1,2) =  0.0;
         jacobian(2,0) =  0.0; jacobian(2,1) =  0.0; jacobian(2,2) = -1.0;
+        return jacobian;
     }
 
     MappingToRefCubeToCube4::MappingToRefCubeToCube4() { }
@@ -171,20 +181,22 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefCubeToCube5::transform(const Geometry::PointReference& p1,
-                                             Geometry::PointReference& p2) const
+    PointReference MappingToRefCubeToCube5::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] =  p1[0];
         p2[1] = -p1[1];
         p2[2] =  p1[2];
+        return p2;
     }
 
-    void MappingToRefCubeToCube5::calcJacobian(const Geometry::PointReference&,
-                                                Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefCubeToCube5::calcJacobian(const Geometry::PointReference&) const
     {
+        Jacobian jacobian(3,3);
         jacobian(0,0) =  1.0; jacobian(0,1) =  0.0; jacobian(0,2) =  0.0;
         jacobian(1,0) =  0.0; jacobian(1,1) = -1.0; jacobian(1,2) =  0.0;
         jacobian(2,0) =  0.0; jacobian(2,1) =  0.0; jacobian(2,2) =  1.0;
+        return jacobian;
     }
 
     MappingToRefCubeToCube5::MappingToRefCubeToCube5() { }
@@ -198,20 +210,22 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefCubeToCube6::transform(const Geometry::PointReference& p1,
-                                             Geometry::PointReference& p2) const
+    PointReference MappingToRefCubeToCube6::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] =  p1[0];
         p2[1] = -p1[2];
         p2[2] = -p1[1];
+        return p2;
     }
 
-    void MappingToRefCubeToCube6::calcJacobian(const Geometry::PointReference&,
-                                                Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefCubeToCube6::calcJacobian(const Geometry::PointReference&) const
     {
+        Jacobian jacobian(3,3);
         jacobian(0,0) =  1.0; jacobian(0,1) =  0.0; jacobian(0,2) =  0.0;
         jacobian(1,0) =  0.0; jacobian(1,1) =  0.0; jacobian(1,2) = -1.0;
         jacobian(2,0) =  0.0; jacobian(2,1) = -1.0; jacobian(2,2) =  0.0;
+        return jacobian;
     }
 
     MappingToRefCubeToCube6::MappingToRefCubeToCube6() { }
@@ -225,20 +239,22 @@ namespace Geometry
         return theInstance;
     }
 
-    void MappingToRefCubeToCube7::transform(const Geometry::PointReference& p1,
-                                             Geometry::PointReference& p2) const
+    PointReference MappingToRefCubeToCube7::transform(const Geometry::PointReference& p1) const
     {
+        PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = p1[2];
         p2[2] = p1[1];
+        return p2;
     }
 
-    void MappingToRefCubeToCube7::calcJacobian(const Geometry::PointReference&,
-                                                Geometry::Jacobian& jacobian) const
+    Jacobian MappingToRefCubeToCube7::calcJacobian(const Geometry::PointReference&) const
     {
+        Jacobian jacobian(3,3);
         jacobian(0,0) =  1.0; jacobian(0,1) =  0.0; jacobian(0,2) =  0.0;
         jacobian(1,0) =  0.0; jacobian(1,1) =  0.0; jacobian(1,2) =  1.0;
         jacobian(2,0) =  0.0; jacobian(2,1) =  1.0; jacobian(2,2) =  0.0;
+        return jacobian;
     }
 
     MappingToRefCubeToCube7::MappingToRefCubeToCube7() { }

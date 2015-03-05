@@ -191,12 +191,8 @@ namespace Utilities {
 		const std::size_t DIM = p.size();
 		r.resize(DIM);
                 r*=0;
-		static RetType dummy(DIM);
-                dummy.resize(DIM);
-		static Geometry::Jacobian jac(DIM, DIM);
-                jac.resize(DIM,DIM);
-		myElement_->calcJacobian(p, jac);
-		myElement_->getReferenceGeometry()->getBasisFunctionDerivative(myFunction_, p, dummy);
+		Geometry::Jacobian jac = myElement_->calcJacobian(p);
+		RetType dummy = myElement_->getReferenceGeometry()->getBasisFunctionDerivative(myFunction_, p);
 		jac = jac.inverse();
 		//r*=jac;///\todo can someone who knows BLAS update the linAlg routines?
 		for (std::size_t i = 0; i < DIM; ++i) {

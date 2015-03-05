@@ -69,20 +69,19 @@ namespace Geometry
     	return function->eval(p);
     }
 
-    void
-    ReferenceGeometry::getBasisFunctionDerivative(const Base::BaseBasisFunction* function,const PointReference& p, LinearAlgebra::NumericalVector& ret)
+    LinearAlgebra::NumericalVector&
+    ReferenceGeometry::getBasisFunctionDerivative(const Base::BaseBasisFunction* function,const PointReference& p)
     {
     	try{
-    		ret=basisfunctionDerivatives_[function].at(p);
+    		return basisfunctionDerivatives_[function].at(p);
     	}catch(std::out_of_range&){
-    		basisfunctionDerivatives_[function][p].resize(ret.size());
-    		function->evalDeriv(p,ret);
-    		basisfunctionDerivatives_[function].at(p)=ret;
+    		basisfunctionDerivatives_[function][p]=function->evalDeriv(p);
+    		return basisfunctionDerivatives_[function].at(p);
     	}
     }
 
-	void ReferenceGeometry::getNode(const IndexT& localIndex, PointReferenceT& node) const {
-		node = points_[localIndex];
+	const PointReference& ReferenceGeometry::getNode(const IndexT& localIndex) const {
+		return points_[localIndex];
 	}
 
 };

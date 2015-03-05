@@ -402,7 +402,7 @@ namespace Base
         for (std::size_t pIndex = 0; pIndex < numQuadPoints; ++pIndex)
         {
             Geometry::PointReference p = quadratureRule_->getPoint(pIndex);
-            calcJacobian(p, jac);
+            jac = calcJacobian(p);
             for (std::size_t i = 0; i < numBasisFuncs; ++i)
             {
                 for (std::size_t j = 0; j < numBasisFuncs; ++j)

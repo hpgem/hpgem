@@ -24,6 +24,7 @@
 
 #include "Geometry/Mappings/MappingCodimensions.hpp"
 #include "Geometry/Mappings/RefinementMapping.hpp"
+#include "PointReference.hpp"
 
 #include <map>
 #include <unordered_map>
@@ -99,14 +100,14 @@ public:
         virtual bool            isInternalPoint(const PointReferenceT& point) const = 0;
 
         /// \brief Each reference geometry knows its center of mass.
-        virtual void            getCenter(PointReferenceT& point) const = 0;
+        virtual PointReference            getCenter() const = 0;
 
         /// \brief Return number of nodes of the reference shape.
         virtual std::size_t    getNumberOfNodes() const {return points_.size();}
         TypeOfReferenceGeometry getGeometryType() const  {return geometryType_;}
 
         /// \brief Given a local index, return (assign to point) the corresponding node.
-		virtual void getNode(const IndexT& localIndex, PointReferenceT& node) const;
+		virtual const PointReference& getNode(const IndexT& localIndex) const;
 
         virtual std::size_t             getLocalNodeIndex(std::size_t face, std::size_t node)const = 0;
 
@@ -128,10 +129,10 @@ public:
 
         ///\bug getBasisFunctionDerivative does some lazy initialization, so it can't be const, unless you consider the state to
         /// contain the values of all basisFunctions at all reference points
-        void getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p,LinearAlgebra::NumericalVector& ret);
+        LinearAlgebra::NumericalVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p);
 
-        void getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p,LinearAlgebra::NumericalVector& ret) const
-        {const_cast<ReferenceGeometry*>(this)->getBasisFunctionDerivative(function,p,ret);}
+        LinearAlgebra::NumericalVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p) const
+        {return const_cast<ReferenceGeometry*>(this)->getBasisFunctionDerivative(function,p);}
 
     protected:
         ReferenceGeometry(const TypeOfReferenceGeometry& geoT);

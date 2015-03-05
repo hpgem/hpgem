@@ -83,17 +83,17 @@ int main(){
 		}
 	}
 
-	test.getCenter(pTest);///\BUG it is not very clear to me where the center of a pyramid lies
+	pTest = test.getCenter();///\BUG it is not very clear to me where the center of a pyramid lies
 	logger.assert_always((test.isInternalPoint(pTest)&&std::abs(pTest[0])<1e-12&&std::abs(pTest[1])<1e-12)&&std::abs(pTest[2]-1./4.)<1e-12,"getCenter");
-	test.getNode(0,pTest);
+	pTest = test.getNode(0);
 	logger.assert_always((std::abs(pTest[0])<1e-12&&std::abs(pTest[1])<1e-12&&std::abs(pTest[2]-1)<1e-12),"getNode 0");
-	test.getNode(1,pTest);
+	pTest = test.getNode(1);
 	logger.assert_always((std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2])<1e-12),"getNode 1");
-	test.getNode(2,pTest);
+	pTest = test.getNode(2);
 	logger.assert_always((std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2])<1e-12),"getNode 2");
-	test.getNode(3,pTest);
+	pTest = test.getNode(3);
 	logger.assert_always((std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2])<1e-12),"getNode 3");
-	test.getNode(4,pTest);
+	pTest = test.getNode(4);
 	logger.assert_always((std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2])<1e-12),"getNode 4");
 
 	logger.assert_always((test.getLocalNodeIndex(0,0)==3),"getLocalNodeIndex 0");//the nodes of the face must always be specified IN THIS SPECIFIC ORDER
@@ -140,63 +140,63 @@ int main(){
 	logger.assert_always((test.getCodim1MappingPtr(2)==&Geometry::MappingToRefFaceToPyramid2::Instance()),"getCodim1MappingPtr");
 	logger.assert_always((test.getCodim1MappingPtr(3)==&Geometry::MappingToRefFaceToPyramid3::Instance()),"getCodim1MappingPtr");
 	logger.assert_always((test.getCodim1MappingPtr(4)==&Geometry::MappingToRefFaceToPyramid4::Instance()),"getCodim1MappingPtr");
-	test.getCodim1EntityLocalIndices(0,faceIndices);
+	faceIndices = test.getCodim1EntityLocalIndices(0);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(0,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(0,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(0,2)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[3]==test.getLocalNodeIndex(0,3)),"getCodim1EntityLocalIndices");
 	faceIndices.resize(3);
-	test.getCodim1EntityLocalIndices(1,faceIndices);
+	faceIndices = test.getCodim1EntityLocalIndices(1);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(1,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(1,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(1,2)),"getCodim1EntityLocalIndices");
-	test.getCodim1EntityLocalIndices(2,faceIndices);
+	faceIndices = test.getCodim1EntityLocalIndices(2);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(2,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(2,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(2,2)),"getCodim1EntityLocalIndices");
-	test.getCodim1EntityLocalIndices(3,faceIndices);
+	faceIndices = test.getCodim1EntityLocalIndices(3);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(3,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(3,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(3,2)),"getCodim1EntityLocalIndices");
-	test.getCodim1EntityLocalIndices(4,faceIndices);
+	faceIndices = test.getCodim1EntityLocalIndices(4);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(4,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(4,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(4,2)),"getCodim1EntityLocalIndices");
 	faceIndices.resize(2);
-	test.getCodim2EntityLocalIndices(0,faceIndices);
+	faceIndices = test.getCodim2EntityLocalIndices(0);
 	logger.assert_always((faceIndices[0]==0),"getCodim2EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==1),"getCodim2EntityLocalIndices");
-	test.getCodim2EntityLocalIndices(1,faceIndices);
+	faceIndices = test.getCodim2EntityLocalIndices(1);
 	logger.assert_always((faceIndices[0]==0),"getCodim2EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==2),"getCodim2EntityLocalIndices");
-	test.getCodim2EntityLocalIndices(2,faceIndices);
+	faceIndices = test.getCodim2EntityLocalIndices(2);
 	logger.assert_always((faceIndices[0]==0),"getCodim2EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==3),"getCodim2EntityLocalIndices");
-	test.getCodim2EntityLocalIndices(3,faceIndices);
+	faceIndices = test.getCodim2EntityLocalIndices(3);
 	logger.assert_always((faceIndices[0]==0),"getCodim2EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==4),"getCodim2EntityLocalIndices");
-	test.getCodim2EntityLocalIndices(4,faceIndices);
+	faceIndices = test.getCodim2EntityLocalIndices(4);
 	logger.assert_always((faceIndices[0]==1),"getCodim2EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==2),"getCodim2EntityLocalIndices");
-	test.getCodim2EntityLocalIndices(5,faceIndices);
+	faceIndices = test.getCodim2EntityLocalIndices(5);
 	logger.assert_always((faceIndices[0]==2),"getCodim2EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==4),"getCodim2EntityLocalIndices");
-	test.getCodim2EntityLocalIndices(6,faceIndices);
+	faceIndices = test.getCodim2EntityLocalIndices(6);
 	logger.assert_always((faceIndices[0]==4),"getCodim2EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==3),"getCodim2EntityLocalIndices");
-	test.getCodim2EntityLocalIndices(7,faceIndices);
+	faceIndices = test.getCodim2EntityLocalIndices(7);
 	logger.assert_always((faceIndices[0]==3),"getCodim2EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==1),"getCodim2EntityLocalIndices");
 	faceIndices.resize(1);
-	test.getCodim3EntityLocalIndices(0,faceIndices);
+	faceIndices = test.getCodim3EntityLocalIndices(0);
 	logger.assert_always((faceIndices[0]==0),"getCodim3EntityLocalIndices");
-	test.getCodim3EntityLocalIndices(1,faceIndices);
+	faceIndices = test.getCodim3EntityLocalIndices(1);
 	logger.assert_always((faceIndices[0]==1),"getCodim3EntityLocalIndices");
-	test.getCodim3EntityLocalIndices(2,faceIndices);
+	faceIndices = test.getCodim3EntityLocalIndices(2);
 	logger.assert_always((faceIndices[0]==2),"getCodim3EntityLocalIndices");
-	test.getCodim3EntityLocalIndices(3,faceIndices);
+	faceIndices = test.getCodim3EntityLocalIndices(3);
 	logger.assert_always((faceIndices[0]==3),"getCodim3EntityLocalIndices");
-	test.getCodim3EntityLocalIndices(4,faceIndices);
+	faceIndices = test.getCodim3EntityLocalIndices(4);
 	logger.assert_always((faceIndices[0]==4),"getCodim3EntityLocalIndices");
 
 

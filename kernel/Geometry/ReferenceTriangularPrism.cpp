@@ -94,16 +94,18 @@ namespace Geometry
         return ((-1. <= p[2]) && (1. >= p[2]) && (p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
     }
     
-    void ReferenceTriangularPrism::getCenter(PointReferenceT& p) const
+    PointReference ReferenceTriangularPrism::getCenter() const
     {
+        PointReference p(3);
         p[0] = 1. / 3.;
         p[1] = 1. / 3.;
         p[2] = 0.;
+        return p;
     }
     
-    void ReferenceTriangularPrism::getNode(const IndexT& i, PointReferenceT& point) const
+    const PointReference& ReferenceTriangularPrism::getNode(const IndexT& i) const
     {
-        point = points_[i];
+        return points_[i];
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceTriangularPrism& prism)
@@ -139,23 +141,16 @@ namespace Geometry
 
     // ================================== Codimension 1 ============================================
 
-    void ReferenceTriangularPrism::
-    getCodim1EntityLocalIndices(const IndexT faceIndex, ListOfIndexesT& faceNodesLocal) const
+    std::vector<std::size_t> ReferenceTriangularPrism::
+    getCodim1EntityLocalIndices(const IndexT faceIndex) const
     {
         if (faceIndex < 2)
         {
-            faceNodesLocal.resize(3); // triangles
-            faceNodesLocal[0] = (IndexT) localNodeIndexes_[faceIndex][0];
-            faceNodesLocal[1] = (IndexT) localNodeIndexes_[faceIndex][1];
-            faceNodesLocal[2] = (IndexT) localNodeIndexes_[faceIndex][2];
+            return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+3);
         }
         else if (faceIndex < 5)
         {
-            faceNodesLocal.resize(4); // squares
-            faceNodesLocal[0] = (IndexT) localNodeIndexes_[faceIndex][0];
-            faceNodesLocal[1] = (IndexT) localNodeIndexes_[faceIndex][1];
-            faceNodesLocal[2] = (IndexT) localNodeIndexes_[faceIndex][2];
-            faceNodesLocal[3] = (IndexT) localNodeIndexes_[faceIndex][3];
+            return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+4);
         }
         else
         {
@@ -195,14 +190,12 @@ namespace Geometry
 
     // ================================== Codimension 2 ============================================
 
-    void ReferenceTriangularPrism::
-    getCodim2EntityLocalIndices(const IndexT edgeIndex, ListOfIndexesT& edgeNodesLocal) const
+    std::vector<std::size_t> ReferenceTriangularPrism::
+    getCodim2EntityLocalIndices(const IndexT edgeIndex) const
     {
         if (edgeIndex < 9)
         {
-            edgeNodesLocal.resize(2); // 2 nodes per edge
-            edgeNodesLocal[0] = (IndexT) localNodesOnEdge_[edgeIndex][0];
-            edgeNodesLocal[1] = (IndexT) localNodesOnEdge_[edgeIndex][1];
+            return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex],localNodesOnEdge_[edgeIndex]+2);
         }
         else
         {
@@ -232,13 +225,12 @@ namespace Geometry
 
     // ================================== Codimension 3 ============================================
 
-    void ReferenceTriangularPrism::
-    getCodim3EntityLocalIndices(const IndexT nodeIndex, ListOfIndexesT& nodeNodesLocal) const
+    std::vector<std::size_t> ReferenceTriangularPrism::
+    getCodim3EntityLocalIndices(const IndexT nodeIndex) const
     {
         if (nodeIndex < 6)
         {
-            nodeNodesLocal.resize(1); // 2 nodes per edge
-            nodeNodesLocal[0] = nodeIndex;
+            return std::vector<std::size_t>(1,nodeIndex);
         }
         else
         {

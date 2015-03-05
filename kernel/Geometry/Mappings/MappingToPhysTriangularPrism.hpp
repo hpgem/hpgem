@@ -48,9 +48,9 @@ namespace Geometry
         public:
             MappingToPhysTriangularPrism(const PhysicalGeometryT*const);
 
-            virtual void transform(const PointReferenceT&, PointPhysicalT&) const;
+            virtual PointPhysical transform(const PointReferenceT&) const;
 
-            virtual void calcJacobian(const PointReferenceT&, JacobianT&) const;
+            virtual Jacobian calcJacobian(const PointReferenceT&) const;
 
             virtual void reinit(const PhysicalGeometryT*const);
 

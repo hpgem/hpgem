@@ -54,8 +54,8 @@ namespace Geometry
         public:
             MappingToPhysSimplexLinear(const PhysicalGeometryT*const& pG):a(DIM+1,DIM){
                 MappingReferenceToPhysical::setNodesPtr(&pG->getNodes()); reinit(pG); };
-            virtual void transform(const PointReferenceT&, PointPhysicalT&) const;
-            virtual void calcJacobian(const PointReferenceT&, JacobianT&) const;
+            virtual PointPhysical transform(const PointReferenceT&) const;
+            virtual Jacobian calcJacobian(const PointReferenceT&) const;
             virtual void reinit(const PhysicalGeometryT*const);
             virtual std::size_t getTargetDimension() const {return DIM;}
 

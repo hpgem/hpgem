@@ -47,23 +47,23 @@ int main() {
 	nodesAfterTransformation[1]=1;
 
 	for(refPoint[0]=-2.8189;refPoint[0]<3.141;refPoint[0]+=0.1) {
-		test->transform(refPoint,point);
+		point = test->transform(refPoint);
 		assert(("transform",geom.isInternalPoint(refPoint)==geom.isInternalPoint(point)));
 
 		refPoint[0]+=-1.e-8;
-		test->transform(refPoint,compare);
+		compare = test->transform(refPoint);
 		refPoint[0]+=2.e-8;
-		test->transform(refPoint,point);
+		point = test->transform(refPoint);
 
 		refPoint[0]+=-1e-8;
-		test->calcJacobian(refPoint,jac);
+		jac = test->calcJacobian(refPoint);
 		assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 	}
 
 	for(int i=0;i<geom.getNumberOfNodes();++i){
-		geom.getNode(i,refPoint);
-		geom.getNode(nodesAfterTransformation[i],compare);
-		test->transform(refPoint,point);
+		refPoint = geom.getNode(i);
+		compare = geom.getNode(nodesAfterTransformation[i]);
+		point = test->transform(refPoint);
 		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
 	}
 
@@ -75,23 +75,23 @@ int main() {
 	nodesAfterTransformation[1]=0;
 
 	for(refPoint[0]=-2.8189;refPoint[0]<3.141;refPoint[0]+=0.1) {
-		test->transform(refPoint,point);
+		point = test->transform(refPoint);
 		assert(("transform",geom.isInternalPoint(refPoint)==geom.isInternalPoint(point)));
 
 		refPoint[0]+=-1.e-8;
-		test->transform(refPoint,compare);
+		compare = test->transform(refPoint);
 		refPoint[0]+=2.e-8;
-		test->transform(refPoint,point);
+		point = test->transform(refPoint);
 
 		refPoint[0]+=-1e-8;
-		test->calcJacobian(refPoint,jac);
+		jac = test->calcJacobian(refPoint);
 		assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 	}
 
 	for(int i=0;i<geom.getNumberOfNodes();++i){
-		geom.getNode(i,refPoint);
-		geom.getNode(nodesAfterTransformation[i],compare);
-		test->transform(refPoint,point);
+		refPoint = geom.getNode(i);
+		compare = geom.getNode(nodesAfterTransformation[i]);
+		point = test->transform(refPoint);
 		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
 	}
 

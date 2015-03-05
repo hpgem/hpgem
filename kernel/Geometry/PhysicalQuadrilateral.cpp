@@ -34,18 +34,20 @@ namespace Geometry
     {
     }
 
-    void PhysicalQuadrilateral::getGlobalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
+    std::vector<std::size_t> PhysicalQuadrilateral::getGlobalFaceNodeIndices(const std::size_t face) const
     {
-        indexes.resize(2);
+        std::vector<std::size_t> indexes(2);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
         indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,1)];
+        return indexes;
     }
 
-    void PhysicalQuadrilateral::getLocalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
+    std::vector<std::size_t> PhysicalQuadrilateral::getLocalFaceNodeIndices(const std::size_t face) const
     {
-        indexes.resize(2);
+        std::vector<std::size_t> indexes(2);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
         indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
+        return indexes;
     }
 
 	std::size_t PhysicalQuadrilateral::getNrOfFaces() const {

@@ -75,7 +75,7 @@ namespace Base
             throw "The curl of a scalar valued basis function is not implemented. Perhaps you meant evalDeriv?";
         }
         
-        virtual void evalDeriv(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual LinearAlgebra::NumericalVector evalDeriv(const PointReferenceT& p) const;
         
     };
 

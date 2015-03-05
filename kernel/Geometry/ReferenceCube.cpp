@@ -100,16 +100,16 @@ namespace Geometry
         mappingsCubeToCube_[7] = &MappingToRefCubeToCube7::Instance();
     }
 
-    void ReferenceCube::getCenter(PointReferenceT& p) const
+    PointReference ReferenceCube::getCenter() const
     {
-        p[2] = p[1] = p[0] = 0.;
+        return PointReference(3);
     }
 
-    void ReferenceCube::getNode(const IndexT& i, PointReferenceT& point) const
+    const PointReference& ReferenceCube::getNode(const IndexT& i) const
     {
         if (i < 8)
         {
-            point = points_[i];
+            return points_[i];
         }
         else
         {
@@ -221,15 +221,11 @@ namespace Geometry
         }
     }
 
-    void ReferenceCube::getCodim1EntityLocalIndices(const IndexT i, ListOfIndexesT& faceNodesLocal) const
+    std::vector<std::size_t> ReferenceCube::getCodim1EntityLocalIndices(const IndexT i) const
     {
         if (i < 6)
         {
-            faceNodesLocal.resize(4); // 2 nodes per edge
-            faceNodesLocal[0] = localNodeIndexes_[i][0];
-            faceNodesLocal[1] = localNodeIndexes_[i][1];
-            faceNodesLocal[2] = localNodeIndexes_[i][2];
-            faceNodesLocal[3] = localNodeIndexes_[i][3];
+            return std::vector<std::size_t>(localNodeIndexes_[i],localNodeIndexes_[i]+4);
         }
         else
         {
@@ -259,13 +255,11 @@ namespace Geometry
         }
     }
 
-    void ReferenceCube::getCodim2EntityLocalIndices(const IndexT i, ListOfIndexesT& edgeNodesLocal) const
+    std::vector<std::size_t> ReferenceCube::getCodim2EntityLocalIndices(const IndexT i) const
     {
         if (i < 12)
         {
-            edgeNodesLocal.resize(2); // 2 nodes per edge
-            edgeNodesLocal[0] = localNodesOnEdge_[i][0];
-            edgeNodesLocal[1] = localNodesOnEdge_[i][1];
+            return std::vector<std::size_t>(localNodesOnEdge_[i],localNodesOnEdge_[i]+2);
         }
         else
         {

@@ -50,8 +50,7 @@ void testMesh(Base::MeshManipulator* test)
         {
             std::size_t numBasisFuns = el->getNrOfBasisFunctions();
             ret.resize(numBasisFuns);
-            Geometry::PointPhysical pPhys(p.size());
-            el->referenceToPhysical(p, pPhys);
+            Geometry::PointPhysical pPhys = el->referenceToPhysical(p);
             for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
                 ret[i] = el->basisFunction(i, p);

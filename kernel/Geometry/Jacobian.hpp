@@ -46,13 +46,10 @@ namespace Geometry
         /*! (OC): ConcatenatedMapping has to be able to do a matrix product on the
          Jacobians of two (successively applied) mappings. Therefore we provide
          the function multiplyJacobiansInto. */        
-        void multiplyJacobiansInto(const Jacobian& jac2,
-                                   Jacobian& jres)
+        Jacobian multiplyJacobiansInto(const Jacobian& jac2)
         {
-                // TODO: This is very inefficient, because of Anthony's code in LinearAlgebra.
-                LinearAlgebra::Matrix& matRes= jres;
             
-                matRes = this->operator*(jac2);
+                return this->operator*(jac2);
             
         }
 

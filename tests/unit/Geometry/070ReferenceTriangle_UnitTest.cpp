@@ -65,13 +65,13 @@ int main(){
 		}
 	}
 
-	test.getCenter(pTest);
+	pTest = test.getCenter();
 	logger.assert_always((test.isInternalPoint(pTest)&&std::abs(pTest[0]-1./3.)<1e-12&&std::abs(pTest[1]-1./3.)<1e-12),"getCenter");
-	test.getNode(0,pTest);
+	pTest = test.getNode(0);
 	logger.assert_always((std::abs(pTest[0])<1e-12&&std::abs(pTest[1])<1e-12),"getNode 0");
-	test.getNode(1,pTest);
+	pTest = test.getNode(1);
 	logger.assert_always((std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1])<1e-12),"getNode 1");
-	test.getNode(2,pTest);
+	pTest = test.getNode(2);
 	logger.assert_always((std::abs(pTest[0])<1e-12&&std::abs(pTest[1]-1)<1e-12),"getNode 2");
 	std::cout<<test.getName();
 
@@ -129,21 +129,21 @@ int main(){
 	logger.assert_always((test.getCodim1MappingPtr(0)==&Geometry::MappingToRefLineToTriangle0::Instance()),"getCodim1MappingPtr");
 	logger.assert_always((test.getCodim1MappingPtr(1)==&Geometry::MappingToRefLineToTriangle1::Instance()),"getCodim1MappingPtr");
 	logger.assert_always((test.getCodim1MappingPtr(2)==&Geometry::MappingToRefLineToTriangle2::Instance()),"getCodim1MappingPtr");
-	test.getCodim1EntityLocalIndices(0,faceIndices);
+	faceIndices = test.getCodim1EntityLocalIndices(0);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(0,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(0,1)),"getCodim1EntityLocalIndices");
-	test.getCodim1EntityLocalIndices(1,faceIndices);
+	faceIndices = test.getCodim1EntityLocalIndices(1);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(1,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(1,1)),"getCodim1EntityLocalIndices");
-	test.getCodim1EntityLocalIndices(2,faceIndices);
+	faceIndices = test.getCodim1EntityLocalIndices(2);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(2,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(2,1)),"getCodim1EntityLocalIndices");
 	faceIndices.resize(1);
-	test.getCodim2EntityLocalIndices(0,faceIndices);
+	faceIndices = test.getCodim2EntityLocalIndices(0);
 	logger.assert_always((faceIndices[0]==0),"getCodim2EntityLocalIndices");
-	test.getCodim2EntityLocalIndices(1,faceIndices);
+	faceIndices = test.getCodim2EntityLocalIndices(1);
 	logger.assert_always((faceIndices[0]==1),"getCodim2EntityLocalIndices");
-	test.getCodim2EntityLocalIndices(2,faceIndices);
+	faceIndices = test.getCodim2EntityLocalIndices(2);
 	logger.assert_always((faceIndices[0]==2),"getCodim2EntityLocalIndices");
 
 	logger.assert_always((test.getGaussQuadratureRule(3)->order()>=3),"quadrature rules");

@@ -25,29 +25,29 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 #include "ElementCacheData.hpp"
 
-void Base::ShortTermStorageElementBase::referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical) const 
+Geometry::PointPhysical Base::ShortTermStorageElementBase::referenceToPhysical(const PointReferenceT& pointReference) const 
 {
-			element_->referenceToPhysical(pointReference,pointPhysical);
+			return element_->referenceToPhysical(pointReference);
 }
 
-void Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const 
+Geometry::Jacobian Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference) const 
 {
-	jacobian=jac_;
 	if(!(currentPoint_==pointReference))
     {
 		std::cout << "WARNING: you are using slow data access";//todo logger
-		element_->calcJacobian(pointReference,jacobian);
+		return element_->calcJacobian(pointReference);
 	}
+	return jac_;
 }
 
-void Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) 
+Geometry::Jacobian Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference) 
 {
 	if(!(currentPoint_==pointReference))
     {
 		currentPoint_=pointReference;
 		computeData();
 	}
-	jacobian=jac_;
+	return jac_;
 }
 
 void Base::ShortTermStorageElementBase::computeData() 
@@ -64,11 +64,11 @@ void Base::ShortTermStorageElementBase::computeData()
                 }
             }
             currentPointIndex_++;
-            element_->calcJacobian(currentPoint_,jac_);
+            jac_ = element_->calcJacobian(currentPoint_);
 	}
     else
     {
-            element_->calcJacobian(currentPoint_,jac_);
+            jac_ = element_->calcJacobian(currentPoint_);
 	}
 }
 

@@ -132,12 +132,12 @@ namespace Base
             throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
         }
 
-        virtual void calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian);
+        virtual Geometry::Jacobian calcJacobian(const PointReferenceT& pointReference);
 
-        void calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const override;
+        Geometry::Jacobian calcJacobian(const PointReferenceT& pointReference) const override;
 
         //if this is needed a lot, also store this
-        void referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical)const override;
+        Geometry::PointPhysical referenceToPhysical(const PointReferenceT& pointReference)const override;
 
         //caching functionality
 

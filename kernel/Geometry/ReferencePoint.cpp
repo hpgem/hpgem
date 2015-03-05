@@ -45,9 +45,15 @@ namespace Geometry
         return true;
     }
 
-    void ReferencePoint::getCenter(PointReference& p) const { }
+    PointReference ReferencePoint::getCenter() const 
+    {
+        return PointReference(0);
+    }
 
-    void ReferencePoint::getNode(const IndexT& i, PointReference& point) const { }
+    const PointReference& ReferencePoint::getNode(const IndexT& i) const 
+    {
+        return points_[0];
+    }
 
     std::size_t ReferencePoint::getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const
     {

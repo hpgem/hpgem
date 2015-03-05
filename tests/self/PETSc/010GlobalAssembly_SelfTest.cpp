@@ -57,8 +57,7 @@ class Laplace : public Base::HpgemUISimplified{
 
 		void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
 			ret.resize(1);
-			Geometry::PointPhysical pPhys(p.size());
-			el->referenceToPhysical(p,pPhys);
+			Geometry::PointPhysical pPhys = el->referenceToPhysical(p);
 			el->getSolution(0,p,ret);
 			ret[0]-=sourceTerm(pPhys);
 			ret[0]*=ret[0];
@@ -112,8 +111,7 @@ public:
 
 	//RHS
 	void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
-    	PointPhysicalT pPhys(DIM_);
-    	el->referenceToPhysical(p,pPhys);
+    	PointPhysicalT pPhys = el->referenceToPhysical(p);
     	ret.resize(el->getNrOfBasisFunctions());
     	for(std::size_t i=0;i<el->getNrOfBasisFunctions();++i){
     		ret[i]=el->basisFunction(i,p)*sourceTerm(pPhys);
@@ -125,8 +123,7 @@ public:
 	    std::size_t numBasisFuns=fa->getNrOfBasisFunctions();
     	ret.resize(numBasisFuns,numBasisFuns);
     	LinearAlgebra::NumericalVector phiNormalI(DIM_),phiNormalJ(DIM_),phiDerivI(DIM_),phiDerivJ(DIM_);
-		PointPhysicalT pPhys(DIM_);
-		fa->referenceToPhysical(p,pPhys);
+		PointPhysicalT pPhys = fa->referenceToPhysical(p);
     	for(std::size_t i=0;i<numBasisFuns;++i){
 			fa->basisFunctionNormal(i,normal,p,phiNormalI);
 			fa->basisFunctionDeriv(i,p,phiDerivI);
@@ -150,8 +147,7 @@ public:
 	void faceIntegrand(const Base::Face* fa, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
 	    std::size_t numBasisFuns=fa->getNrOfBasisFunctions();
 		ret.resize(numBasisFuns);
-		PointPhysicalT pPhys(DIM_);
-		fa->referenceToPhysical(p,pPhys);
+		PointPhysicalT pPhys = fa->referenceToPhysical(p);
 		if(std::abs(pPhys[0])<1e-9||std::abs(pPhys[0]-1)<1e-9){//Dirichlet
 			LinearAlgebra::NumericalVector phiDeriv(DIM_);
 			for(std::size_t i=0;i<numBasisFuns;++i){

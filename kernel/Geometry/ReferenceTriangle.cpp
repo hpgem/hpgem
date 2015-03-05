@@ -82,14 +82,16 @@ namespace Geometry
         return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
     }
     
-    void ReferenceTriangle::getCenter(PointReferenceT& p) const
+    PointReference ReferenceTriangle::getCenter() const
     {
+        PointReference p(2);
         p[0] = p[1] = 1. / 3.;
+        return p;
     }
 
-    void ReferenceTriangle::getNode(const IndexT& i, PointReferenceT& point) const
+    const PointReference& ReferenceTriangle::getNode(const IndexT& i) const
     {
-        point = points_[i];
+        return points_[i];
     }
 
     std::ostream& operator<<(std::ostream& os, const ReferenceTriangle& triangle)
@@ -156,16 +158,15 @@ namespace Geometry
         }
     }
     // ================================== Codimension 1 ============================================
-    void ReferenceTriangle::
-    getCodim1EntityLocalIndices(const IndexT faceIndex, ListOfIndexesT& faceNodesLocal) const
+    std::vector<std::size_t> ReferenceTriangle::
+    getCodim1EntityLocalIndices(const IndexT faceIndex) const
     {
         if (faceIndex < 3)
         {
-            faceNodesLocal.resize(2); // 2 nodes per face
-            faceNodesLocal[0] = (IndexT) localNodeIndexes_[faceIndex][0];
-            faceNodesLocal[1] = (IndexT) localNodeIndexes_[faceIndex][1];
+            return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+2);
         }
     }
+    
     const ReferenceGeometry* ReferenceTriangle::getCodim1ReferenceGeometry(const IndexT faceIndex) const
     {
         if (faceIndex < 3)

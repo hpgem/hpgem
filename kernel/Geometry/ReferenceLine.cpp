@@ -67,14 +67,14 @@ namespace Geometry
         return ((p[0] >= -1.) && (p[0] <= 1.));
     }
 
-    void ReferenceLine::getCenter(PointReferenceT& p) const
+    PointReference ReferenceLine::getCenter() const
     {
-        p[0] = 0.;
+        return PointReference(1);
     }
 
-    void ReferenceLine::getNode(const IndexT& i, PointReferenceT& point) const
+    const PointReference& ReferenceLine::getNode(const IndexT& i) const
     {
-        point = points_[i];
+        return points_[i];
     }
 
     std::ostream& operator<<(std::ostream& os, const ReferenceLine& line)
@@ -123,15 +123,15 @@ namespace Geometry
 
     // ================================== Codimension 1 ============================================
 
-    void ReferenceLine::
-    getCodim1EntityLocalIndices(const IndexT faceIndex, ListOfIndexesT& faceNodesLocal) const
+    std::vector<std::size_t> ReferenceLine::
+    getCodim1EntityLocalIndices(const IndexT faceIndex) const
     {
         if (faceIndex < 2)
         {
-            faceNodesLocal.resize(1); // 2 nodes per face
-            faceNodesLocal[0] = (IndexT) localNodeIndexes_[faceIndex][0];
+            return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+1);
         }
     }
+    
     const ReferenceGeometry* ReferenceLine::getCodim1ReferenceGeometry(const IndexT faceIndex) const
     {
         if (faceIndex < 2)

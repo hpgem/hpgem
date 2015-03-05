@@ -23,6 +23,7 @@
 #define REFERENCECUBE_HH
 
 #include "ReferenceGeometry.hpp"
+#include "PointReference.hpp"
 #include <vector>
 
 namespace Geometry
@@ -70,10 +71,10 @@ namespace Geometry
         bool        isInternalPoint(const PointReferenceT& p) const;
 
         //! (see ReferenceGeometry.hpp)
-        void        getCenter(PointReferenceT& p) const;
+        PointReference        getCenter() const;
 
         //! (see ReferenceGeometry.hpp)
-        void        getNode(const IndexT& i, PointReferenceT& point) const;
+        const PointReference&        getNode(const IndexT& i) const;
 
         //! (see ReferenceGeometry.hpp)
         String      getName() const {return "ReferenceCube";}
@@ -102,7 +103,7 @@ namespace Geometry
         std::size_t                                getNrOfCodim1Entities() const {return 6;}
 
         //! (see MappingCodimensions.hpp)
-        void                                        getCodim1EntityLocalIndices(const IndexT, ListOfIndexesT& faceNodesLocal) const;
+        std::vector<std::size_t>                                        getCodim1EntityLocalIndices(const IndexT) const;
 
         //! (see MappingCodimensions.hpp)
         const MappingReferenceToReference*    getCodim1MappingPtr(const IndexT) const;
@@ -116,7 +117,7 @@ namespace Geometry
         std::size_t getNrOfCodim2Entities() const {return 12;}
 
         //! (see MappingCodimensions.hpp)
-        void                                        getCodim2EntityLocalIndices(const IndexT, ListOfIndexesT& faceNodesLocal) const;
+        std::vector<std::size_t>                                        getCodim2EntityLocalIndices(const IndexT) const;
 
         //! (see MappingCodimensions.hpp)
         const MappingReferenceToReference*    getCodim2MappingPtr(const IndexT) const;
@@ -130,7 +131,10 @@ namespace Geometry
         std::size_t    getNrOfCodim3Entities() const {return 8;};
 
         //! (see MappingCodimensions.hpp)
-        void            getCodim3EntityLocalIndices(const std::size_t node, std::vector<std::size_t>& ret) const {ret[0]=node; return;}
+        std::vector<std::size_t>            getCodim3EntityLocalIndices(const std::size_t node) const 
+        {
+            return std::vector<std::size_t>(1, node);
+        }
 
         // =============================== Refinement mappings =====================================
         

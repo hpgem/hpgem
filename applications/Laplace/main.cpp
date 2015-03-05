@@ -132,8 +132,7 @@ public:
         int n = face->getNrOfBasisFunctions();
         result.resize(n, n);
         LinearAlgebra::NumericalVector phiNormalI(DIM_), phiNormalJ(DIM_), phiDerivI(DIM_), phiDerivJ(DIM_);
-        PointPhysicalT pPhys(DIM_);
-        face->referenceToPhysical(point, pPhys);
+        PointPhysicalT pPhys = face->referenceToPhysical(point);
         for (int i = 0; i < n; ++i)
         {
             face->basisFunctionNormal(i, normal, point, phiNormalI);
@@ -173,8 +172,7 @@ public:
     {
         int n = face->getNrOfBasisFunctions();
         result.resize(n);
-        PointPhysicalT pPhys(DIM_);
-        face->referenceToPhysical(point, pPhys);
+        PointPhysicalT pPhys = face->referenceToPhysical(point);
         if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1) < 1e-9)
         { //Dirichlet
             LinearAlgebra::NumericalVector phiDeriv(DIM_);
@@ -214,8 +212,7 @@ public:
     ///interpolates the source term
     void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& result)
     {
-        PointPhysicalT pPhys(DIM_);
-        element->referenceToPhysical(point, pPhys);
+        PointPhysicalT pPhys = element->referenceToPhysical(point);
         result.resize(element->getNrOfBasisFunctions());
         for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
         {
@@ -242,8 +239,8 @@ public:
         Geometry::PointReference centre(DIM_ - 1);
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
-            face->getReferenceGeometry()->getCenter(centre);
-            face->referenceToPhysical(centre, pPhys);
+            centre = face->getReferenceGeometry()->getCenter();
+            pPhys = face->referenceToPhysical(centre);
             if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1) < 1e-9)
             {
                 A.getMatrixBCEntries(face, numberOfRows, rows);

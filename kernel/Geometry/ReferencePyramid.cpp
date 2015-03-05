@@ -95,18 +95,20 @@ namespace Geometry
                (std::abs(p[1]) <= (1. - p[2])));
     }
     
-    void ReferencePyramid::getCenter(PointReferenceT& p) const
+    PointReference ReferencePyramid::getCenter() const
     {
+        PointReference p(3);
         p[0] = 0.;
         p[1] = 0.;
         p[2] = 1. / 4.;
+        return p;
     }
     
-    void ReferencePyramid::getNode(const IndexT& nodeIndex, PointReferenceT& point) const
+    const PointReference& ReferencePyramid::getNode(const IndexT& nodeIndex) const
     {
         if (nodeIndex < 5)
         {
-            point = points_[nodeIndex];
+            return points_[nodeIndex];
         }
         else
         {
@@ -172,24 +174,17 @@ namespace Geometry
         }
     }
 
-    void ReferencePyramid::getCodim1EntityLocalIndices(const IndexT faceIndex, ListOfIndexesT& faceNodesLocal) const
+    std::vector<std::size_t> ReferencePyramid::getCodim1EntityLocalIndices(const IndexT faceIndex) const
     {
         if (faceIndex < 5)
         {
             if (faceIndex == 0)
             {
-                faceNodesLocal.resize(4); // 2 nodes per edge
-                faceNodesLocal[0] = localNodeIndexes_[faceIndex][0];
-                faceNodesLocal[1] = localNodeIndexes_[faceIndex][1];
-                faceNodesLocal[2] = localNodeIndexes_[faceIndex][2];
-                faceNodesLocal[3] = localNodeIndexes_[faceIndex][3];
+                return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+4);
             }
             else
             {
-                faceNodesLocal.resize(3); // 2 nodes per edge
-                faceNodesLocal[0] = localNodeIndexes_[faceIndex][0];
-                faceNodesLocal[1] = localNodeIndexes_[faceIndex][1];
-                faceNodesLocal[2] = localNodeIndexes_[faceIndex][2];
+                return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+3);
             }
         }
         else
@@ -220,13 +215,11 @@ namespace Geometry
         }
     }
 
-    void ReferencePyramid::getCodim2EntityLocalIndices(const IndexT edgeIndex, ListOfIndexesT& faceNodesLocal) const
+    std::vector<std::size_t> ReferencePyramid::getCodim2EntityLocalIndices(const IndexT edgeIndex) const
     {
         if (edgeIndex < 8)
         {
-            faceNodesLocal.resize(2); // 2 nodes per edge
-            faceNodesLocal[0] = localNodesOnEdge_[edgeIndex][0];
-            faceNodesLocal[1] = localNodesOnEdge_[edgeIndex][1];
+            return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex],localNodesOnEdge_[edgeIndex]+2);
         }
         else
         {
@@ -236,13 +229,12 @@ namespace Geometry
 
     // ================================== Codimension 3 ============================================
 
-    void ReferencePyramid::
-    getCodim3EntityLocalIndices(const IndexT nodeIndex, ListOfIndexesT& nodeNodesLocal) const
+    std::vector<std::size_t> ReferencePyramid::
+    getCodim3EntityLocalIndices(const IndexT nodeIndex) const
     {
         if (nodeIndex < 5)
         {
-            nodeNodesLocal.resize(1);
-            nodeNodesLocal[0] = nodeIndex;
+            return std::vector<std::size_t>(1,nodeIndex);
         }
         else
         {

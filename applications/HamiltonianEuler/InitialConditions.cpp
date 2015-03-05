@@ -390,9 +390,7 @@ void
 InitCondU::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::NumericalVector& r) const
 {
 
-    PointPhysicalT                    pPhys(3);  // Declare and...
-    
-    element->referenceToPhysical(pRef, pPhys); // ...transform the point.
+    PointPhysicalT                    pPhys = element->referenceToPhysical(pRef); // ...transform the point.
 //
     unsigned int numberOfDegreesOfFreedom = element->getNrOfBasisFunctions();
 //
@@ -417,9 +415,7 @@ InitCondV::InitCondV(const ExactSolutionBase* init) :
 void 
 InitCondV::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::NumericalVector& r) const
 {
-    PointPhysicalT                    pPhys(3);  // Declare and...
-    
-    element->referenceToPhysical(pRef, pPhys); // ...transform the point.
+    PointPhysicalT                    pPhys = element->referenceToPhysical(pRef); // ...transform the point.
     
     unsigned int numberOfDegreesOfFreedom = element->getNrOfBasisFunctions();
     
@@ -441,9 +437,7 @@ void
 InitCondW::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::NumericalVector& r) const
 {
     
-    PointPhysicalT                    pPhys(3);  // Declare and...
-    
-    element->referenceToPhysical(pRef, pPhys); // ...transform the point.
+    PointPhysicalT                    pPhys = element->referenceToPhysical(pRef); // ...transform the point.
     
     unsigned int numberOfDegreesOfFreedom = element->getNrOfBasisFunctions();
     
@@ -463,9 +457,7 @@ InitCondLambda::InitCondLambda(const ExactSolutionBase* init) :
 void
 InitCondLambda::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::NumericalVector& r) const
 {
-    PointPhysicalT                    pPhys(3);  // Declare and...
-    
-    element->referenceToPhysical(pRef, pPhys); // ...transform the point.
+    PointPhysicalT                    pPhys = element->referenceToPhysical(pRef); // ...transform the point.
     
     unsigned int numberOfDegreesOfFreedom = element->getNrOfBasisFunctions();
     

@@ -38,8 +38,7 @@ void Base::ShortTermStorageFaceH1::computeData()
     ShortTermStorageElementBase* elementwrapper = new ShortTermStorageElementH1(currentPoint_.size() + 1);
     int leftFunctions = getPtrElementLeft()->getNrOfBasisFunctions();
     *elementwrapper = *getPtrElementLeft();
-    Geometry::PointReference pElement(currentPoint_.size() + 1);
-    mapRefFaceToRefElemL(currentPoint_, pElement);
+    Geometry::PointReference pElement = mapRefFaceToRefElemL(currentPoint_);
     double norm = Base::L2Norm(normal_);
     for (std::size_t i = 0; i < leftFunctions; ++i)
     {
@@ -54,7 +53,7 @@ void Base::ShortTermStorageFaceH1::computeData()
     if (n > leftFunctions)
     {
         *elementwrapper = *getPtrElementRight();
-        mapRefFaceToRefElemR(currentPoint_, pElement);
+        pElement = mapRefFaceToRefElemR(currentPoint_);
     }
     for (std::size_t i = leftFunctions; i < n; ++i)
     {

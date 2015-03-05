@@ -112,7 +112,7 @@ int main() {
 	for(std::size_t i=0;i<basisFunctions.size();++i){
 		for(refPoint[0]=-1.5;refPoint[0]<1.51;refPoint[0]+=0.1){
 			for(refPoint[1]=-1.5;refPoint[1]<1.51;refPoint[1]+=0.1){
-					test.mapRefFaceToRefElemL(refPoint,point3D);
+					point3D = test.mapRefFaceToRefElemL(refPoint);
 					logger.assert_always((test.basisFunction(i,refPoint)==basisFunctions[i]->eval(point3D)),"basisFunctions");
 					logger.assert_always((test.basisFunctionDeriv(i,0,refPoint)==basisFunctions[i]->evalDeriv0(point3D)),"basisFunctions");
 					logger.assert_always((test.basisFunctionDeriv(i,1,refPoint)==basisFunctions[i]->evalDeriv1(point3D)),"basisFunctions");

@@ -207,17 +207,17 @@ namespace Utilities
         {
             for (std::size_t i = 0; i < 6; ++i)
             {
-                prism.getCodim2EntityLocalIndices(i, vectorOfPointIndexes);
+                vectorOfPointIndexes = prism.getCodim2EntityLocalIndices(i);
                 result->addBasisFunction(new BasisFunction3DEdgePrism_0(vectorOfPointIndexes[0], vectorOfPointIndexes[1], j));
             }
             for (std::size_t i = 6; i < 9; ++i)
             {
-                prism.getCodim2EntityLocalIndices(i, vectorOfPointIndexes);
+                vectorOfPointIndexes = prism.getCodim2EntityLocalIndices(i);
                 result->addBasisFunction(new BasisFunction3DEdgePrism_1(vectorOfPointIndexes[0], vectorOfPointIndexes[1], j));
             }
             for (std::size_t i = 0; i < 2; ++i)
             {
-                prism.getCodim1EntityLocalIndices(i, vectorOfPointIndexes);
+                vectorOfPointIndexes = prism.getCodim1EntityLocalIndices(i);
                 if (j > 0)
                 {
                     for (std::size_t k = 0; k < j; ++k)
@@ -228,7 +228,7 @@ namespace Utilities
             }
             for (std::size_t i = 2; i < 5; ++i)
             {
-                prism.getCodim1EntityLocalIndices(i, vectorOfPointIndexes);
+                vectorOfPointIndexes = prism.getCodim1EntityLocalIndices(i);
                 result->addBasisFunction(new BasisFunction3DFacePrism_1(vectorOfPointIndexes[0], vectorOfPointIndexes[1], vectorOfPointIndexes[2], j, j));
                 for (std::size_t k = 0; k < j; ++k)
                 {
@@ -286,7 +286,7 @@ namespace Utilities
         std::vector<std::size_t> vectorOfPointIndexes(2);
         for (std::size_t i = 0; i < 6; ++i)
         {
-            prism.getCodim2EntityLocalIndices(i, vectorOfPointIndexes);
+            vectorOfPointIndexes = prism.getCodim2EntityLocalIndices(i);
             set = new Base::OrientedBasisFunctionSet(order, 0, i);
             for (std::size_t j = 0; j + 2 <= order; ++j)
             {
@@ -302,7 +302,7 @@ namespace Utilities
         }
         for (int i = 6; i < 9; ++i)
         {
-            prism.getCodim2EntityLocalIndices(i, vectorOfPointIndexes);
+            vectorOfPointIndexes = prism.getCodim2EntityLocalIndices(i);
             set = new Base::OrientedBasisFunctionSet(order, 0, i);
             for (std::size_t j = 0; j + 2 <= order; ++j)
             {
@@ -327,7 +327,7 @@ namespace Utilities
         std::vector<std::size_t> vectorOfPointIndexes(4);
         for (std::size_t i = 0; i < 2; ++i)
         {
-            prism.getCodim1EntityLocalIndices(i, vectorOfPointIndexes);
+            vectorOfPointIndexes = prism.getCodim1EntityLocalIndices(i);
             set = new Base::OrientedBasisFunctionSet(order, 0, i);
             for (std::size_t j = 0; j + 3 <= order; ++j)
             {
@@ -385,7 +385,7 @@ namespace Utilities
         }
         for (std::size_t i = 2; i < 5; ++i)
         {
-            prism.getCodim1EntityLocalIndices(i, vectorOfPointIndexes);
+            vectorOfPointIndexes = prism.getCodim1EntityLocalIndices(i);
             set = new Base::OrientedBasisFunctionSet(order, 0, i);
             for (std::size_t j = 0; j + 2 <= order; ++j)
             {

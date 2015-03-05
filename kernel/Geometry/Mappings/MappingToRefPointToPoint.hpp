@@ -24,6 +24,8 @@
 #define MAPPINGTOREFPOINTTOPOINT_HPP_
 
 #include "Geometry/Mappings/MappingReferenceToReference.hpp"
+#include "Geometry/Jacobian.hpp"
+#include "Geometry/PointReference.hpp"
 
 namespace Geometry {
 
@@ -39,10 +41,8 @@ namespace Geometry {
 	class MappingToRefPointToPoint: public Geometry::MappingReferenceToReference {
 	public:
 		static const MappingToRefPointToPoint& Instance();
-		virtual void transform(const Geometry::PointReference& p1,
-									 Geometry::PointReference& p2) const;
-		virtual void calcJacobian(const Geometry::PointReference&,
-										Geometry::Jacobian&) const;
+            virtual PointReference transform(const Geometry::PointReference& p1) const;
+            virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
         virtual std::size_t getTargetDimension() const {return 0;}
 	private:
 		MappingToRefPointToPoint();

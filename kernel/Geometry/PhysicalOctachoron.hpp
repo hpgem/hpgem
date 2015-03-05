@@ -39,9 +39,9 @@ namespace Geometry
             /// Returns the name of this geometry.
             virtual std::string             getName() const { return "PhysicalOctachron";}
 
-            virtual void getGlobalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const;
+            virtual std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t) const;
 
-            virtual void getLocalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const;
+            virtual std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t) const;
             
             virtual std::size_t getNrOfFaces() const;
 
