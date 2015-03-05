@@ -33,6 +33,8 @@
 #include "libqhullcpp/QhullVertex.h"
 #include "libqhullcpp/QhullVertexSet.h"
 #include "libqhullcpp/Qhull.h"
+//QHull uses assert internally, but the macro definition causes conflicts with the rest of hpGEM
+#undef assert
 #endif
 
 #include "MeshManipulator.hpp"
@@ -60,7 +62,6 @@
 #include "L2Norm.hpp"
 #include "Geometry/Jacobian.hpp"
 
-#include <cassert>
 #include <algorithm>
 #include <iostream>
 #include <unordered_set>
@@ -85,7 +86,7 @@ namespace Base {
      !*/
     bool compareHalfFace(HalfFaceDescription first, HalfFaceDescription second) {
         throw "please send your stack trace to freekjan";
-        assert(first.nodeList.size() == second.nodeList.size());
+        logger.assert(first.nodeList.size() == second.nodeList.size(),"mismatching amount of face nodes provided");
         for (std::size_t i = 0; i < first.nodeList.size(); ++i) {
             if (first.nodeList[i] > second.nodeList[i]) {
                 return true;
@@ -781,11 +782,11 @@ namespace Base {
                 Element* newElement = addElement(globalNodeID[i]);
                 for (std::size_t j = 0; j < globalVertexID[i].size(); ++j)
                 {
-                    assert(i < globalVertexID.size());
-                    assert(j < globalVertexID[i].size());
-                    assert(globalVertexID[i][j]<totalNumOfVertices);
-                    assert(globalVertexID[i][j] >= 0);
-                    assert(vertices.size() == totalNumOfVertices);
+                    logger.assert(i < globalVertexID.size(),"");
+                    logger.assert(j < globalVertexID[i].size(),"");
+                    logger.assert(globalVertexID[i][j]<totalNumOfVertices,"");
+                    logger.assert(globalVertexID[i][j] >= 0,"");
+                    logger.assert(vertices.size() == totalNumOfVertices,"");
                     vertices[globalVertexID[i][j]]->addElement(newElement,j);
                 }
             }
@@ -1909,7 +1910,7 @@ namespace Base {
 
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             centaurFile.read(reinterpret_cast<char*> (&numberOfPanels), sizeof (numberOfPanels));
-            assert(numberOfPanels == facesForEachCentaurPanel.size());
+            logger.assert(numberOfPanels == facesForEachCentaurPanel.size(),"Not enough faces in centaur file");
             centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
             if (checkInt != sizeOfLine) {
                 std::cerr << "Error in centaur file " << std::endl;
@@ -1941,7 +1942,7 @@ namespace Base {
 
             centaurFile.read(reinterpret_cast<char*> (&sizeOfLine), sizeof (sizeOfLine));
             centaurFile.read(reinterpret_cast<char*> (&numberOfBoundaryGroups), sizeof (numberOfBoundaryGroups));
-            assert(numberOfBoundaryGroups == facesForEachBoundaryGroup.size());
+            logger.assert(numberOfBoundaryGroups == facesForEachBoundaryGroup.size(),"Not enough boundary groups in centaur file");
             centaurFile.read(reinterpret_cast<char*> (&checkInt), sizeof (checkInt));
             if (checkInt != sizeOfLine) {
                 std::cerr << "Error in centaur file " << std::endl;
@@ -2191,7 +2192,7 @@ namespace Base {
     {
         //impossible to create a mesh with more fixed nodes that total nodes
         //note that when equality is met, this will only do a delaunay triangulation
-        assert(fixedPoints.size() <= TotalNoNodes);
+        logger.assert(fixedPoints.size() <= TotalNoNodes,"Cannot create a mesh with more fixed nodes than total nodes");
 
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
@@ -2203,7 +2204,7 @@ namespace Base {
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
 
         //periodic unstructured mesh generation not yet implemented
-        assert(!(periodicX_ || periodicY_ || periodicZ_));
+        logger.assert(!(periodicX_ || periodicY_ || periodicZ_),"Unstructured mesh generator does not support periodic boundaries");
 
         //guess the required distance between two nodes
         double dist = std::pow(double(TotalNoNodes), -1. / double(dimension()));
@@ -2220,7 +2221,7 @@ namespace Base {
         PointPhysicalT nextPoint = BottomLeft;
         for (std::size_t i = 0; i < fixedPoints.size(); ++i)
         {
-            assert(domainDescription(fixedPoints[i]) < 1e-10);
+            logger.assert(domainDescription(fixedPoints[i]) < 1e-10, "One of the fixed points is outside of the domain");
             theMesh_.addVertex();
             theMesh_.addNode(fixedPoints[i]);
         }
@@ -2243,9 +2244,9 @@ namespace Base {
         }
         std::size_t nFixedPoints = fixedPoints.size();
         //there are not enough points to do a triangulation
-        assert(DIM < nFixedPoints);
+        logger.assert(DIM < nFixedPoints, "Could not construct enough points for the initial triangulation");
         //there is inherent rounding down in the gridding and some nodes are outside the domain (so they are discarded)
-        assert(hpGEMCoordinates.size() <= TotalNoNodes);
+        logger.assert(hpGEMCoordinates.size() <= TotalNoNodes, "Constructed too many nodes");
 
         while (hpGEMCoordinates.size() < TotalNoNodes)
         {
@@ -2314,7 +2315,7 @@ namespace Base {
                 else
                 {
                     //cannot deliberately construct tangled meshes
-                    assert(newLength > 0);
+                    logger.assert(newLength > 0, "Found an edge that is supposed to have a negative length");
                     knownLengths.insert( { newLength, i });
                 }
             }
@@ -2356,9 +2357,8 @@ namespace Base {
                 //the algorithm is mostly dimension independent, but the data type it operates on is not
                 for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
-                    element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                    Geometry::PointPhysical firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
+                    Geometry::PointPhysical secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                     currentLength.push_back(L2Norm(firstNode - secondNode));
                     totalcurrentLength += currentLength.back();
                     totalexpectedLength += expectedLength[element->getNode(0)->getID()] / 2;
@@ -2370,10 +2370,9 @@ namespace Base {
                 for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    std::vector<std::size_t> nodeIndices;
-                    face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
+                    firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                    secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                     currentLength.push_back(L2Norm(firstNode - secondNode));
                     totalcurrentLength += currentLength.back() * currentLength.back();
                     totalexpectedLength += std::pow(expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()] + expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()], 2.) / 4.;
@@ -2384,10 +2383,9 @@ namespace Base {
                 for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    std::vector<std::size_t> nodeIndices;
-                    edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
-                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
+                    firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                    secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                     currentLength.push_back(L2Norm(firstNode - secondNode));
                     totalcurrentLength += currentLength.back() * currentLength.back() * currentLength.back();
                     totalexpectedLength += std::pow(expectedLength[edge->getElement(0)->getNode(nodeIndices[0])->getID()] + expectedLength[edge->getElement(0)->getNode(nodeIndices[1])->getID()], 3.) / 8.;
@@ -2395,7 +2393,7 @@ namespace Base {
             }
 
             //all regions of the domain where elements are allowed to be as large as possible must be connected to regions where relativeEdgeLength provides a limitation
-            assert(!std::isnan(totalexpectedLength)&&!std::isinf(totalexpectedLength));
+            logger.assert(!std::isnan(totalexpectedLength)&&!std::isinf(totalexpectedLength),"could not infer edge sizes for the entirety of the domain");
 
             //sort the centers of the edges such that the centers of the large edges are indexed first
             //note that in this case the inverse measure is computed, because that will result in a more natural force computation later on
@@ -2406,8 +2404,8 @@ namespace Base {
                 for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
-                    element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                    firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
+                    secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                     //length is scaled in case somebody hasty decides to add smoothing at this point
                     //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.5 times as large
                     //remember to scale back from a volume measure to a length measure
@@ -2420,10 +2418,9 @@ namespace Base {
                 for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    std::vector<std::size_t> nodeIndices;
-                    face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
+                    firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                    secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                     //length is scaled in case somebody hasty decides to add smoothing at this point
                     //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.5 times as large
                     //remember to scale back from a volume measure to a length measure
@@ -2436,10 +2433,9 @@ namespace Base {
                 for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    std::vector<std::size_t> nodeIndices;
-                    edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
-                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
+                    firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                    secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                     //length is scaled in case somebody hasty decides to add smoothing at this point
                     //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.5 times as large
                     //remember to scale back from a volume measure to a length measure
@@ -2536,12 +2532,12 @@ namespace Base {
         {
             PointPhysicalT point { DIM };
             PointPhysicalT compare { DIM };
-            node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0), point);
+            point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
             std::set<std::size_t> equivalentIndices { };
             equivalentIndices.insert(node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0)));
             for (std::size_t i = 1; i < node->getNrOfElements(); ++i)
             {
-                node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(i), compare);
+                compare = node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(i));
                 if (compare != point)
                 {
                     equivalentIndices.insert(node->getElement(i)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(i)));
@@ -2571,8 +2567,7 @@ namespace Base {
             double totalexpectedLength = 0;
             for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
             {
-                PointPhysicalT point { DIM };
-                node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0), point);
+                PointPhysicalT point  = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
                 unscaledShift.push_back(L2Norm(oldNodeLocations_[expectedLength.size()] - point));
                 expectedLength.push_back(relativeEdgeLength(point));
                 if (isnan(expectedLength.back()) || isinf(expectedLength.back()))
@@ -2621,8 +2616,8 @@ namespace Base {
                 for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
-                    element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                    firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
+                    secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                     currentLength.push_back(L2Norm(firstNode - secondNode));
                     totalCurrentLength += currentLength.back();
                     totalexpectedLength += expectedLength[element->getNode(0)->getID()] / 2;
@@ -2637,10 +2632,9 @@ namespace Base {
                 for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    std::vector<std::size_t> nodeIndices;
-                    face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
+                    firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                    secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                     currentLength.push_back(L2Norm(firstNode - secondNode));
                     totalCurrentLength += currentLength.back() * currentLength.back();
                     totalexpectedLength += std::pow(expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()] + expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()], 2.) / 4.;
@@ -2664,10 +2658,9 @@ namespace Base {
                 for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    std::vector<std::size_t> nodeIndices;
-                    edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
-                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
+                    firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                    secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                     currentLength.push_back(L2Norm(firstNode - secondNode));
                     totalCurrentLength += currentLength.back() * currentLength.back() * currentLength.back();
                     totalexpectedLength += std::pow(expectedLength[edge->getElement(0)->getNode(nodeIndices[0])->getID()] + expectedLength[edge->getElement(0)->getNode(nodeIndices[1])->getID()], 3.) / 8.;
@@ -2677,7 +2670,7 @@ namespace Base {
             }
 
             //all regions of the domain where elements are allowed to be as large as possible must be connected to regions where relativeEdgeLength provides a limitation
-            assert(!std::isnan(totalexpectedLength)&&!std::isinf(totalexpectedLength));
+            logger.assert(!std::isnan(totalexpectedLength)&&!std::isinf(totalexpectedLength),"Could not infer edge sizes for the entirety of the domain");
         }
         std::size_t counter = 0;
         double maxMovement = std::numeric_limits<double>::infinity();
@@ -2739,9 +2732,9 @@ namespace Base {
                 }
 
                 //all periodic boundary pairs are used
-                assert(pairingIterator == periodicPairing.end());
+                logger.assert(pairingIterator == periodicPairing.end(), "Somehow missed some periodic");
                 //the actual amount of vertices and the assigned amount of vertices match
-                assert(currentVertexNumber == theMesh_.getNumberOfVertices(IteratorType::GLOBAL));
+                logger.assert(currentVertexNumber == theMesh_.getNumberOfVertices(IteratorType::GLOBAL),"Missed some node indexes");
 
                 orgQhull::Qhull triangulation(qHullCoordinates, "d PF1e-10 QbB Qx Qc Qt");
 
@@ -2784,7 +2777,7 @@ namespace Base {
                             }
                         }
                     }
-                    assert(node->getNrOfElements() > 0);
+                    logger.assert(node->getNrOfElements() > 0,"There is an node without any elements connected to it");
                 }
                 edgeFactory();
                 faceFactory();
@@ -2800,8 +2793,7 @@ namespace Base {
             double totalexpectedLength = 0.;
             for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
             {
-                PointPhysicalT point { DIM };
-                node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0), point);
+                PointPhysicalT point  = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
                 expectedLength.push_back(relativeEdgeLength(point));
                 if (!isnan(expectedLength.back()) && !isinf(expectedLength.back()))
                 {
@@ -2849,8 +2841,8 @@ namespace Base {
                 for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
-                    element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                    firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
+                    secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                     currentLength[element->getID()] = L2Norm(firstNode - secondNode);
                     totalCurrentLength += currentLength[element->getID()];
                     totalexpectedLength += expectedLength[element->getNode(0)->getID()] / 2.;
@@ -2863,10 +2855,9 @@ namespace Base {
                 for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    std::vector<std::size_t> nodeIndices;
-                    face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
+                    firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                    secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                     currentLength[face->getID()] = L2Norm(firstNode - secondNode);
                     totalCurrentLength += currentLength[face->getID()] * currentLength[face->getID()];
                     totalexpectedLength += std::pow(expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()] + expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()], 2.) / 4.;
@@ -2878,10 +2869,9 @@ namespace Base {
                 for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    std::vector<std::size_t> nodeIndices;
-                    edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
-                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
+                    firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                    secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                     currentLength[edge->getID()] = L2Norm(firstNode - secondNode);
                     totalCurrentLength += currentLength[edge->getID()] * currentLength[edge->getID()] * currentLength[edge->getID()];
                     totalexpectedLength += std::pow(expectedLength[edge->getElement(0)->getNode(nodeIndices[0])->getID()] + expectedLength[edge->getElement(0)->getNode(nodeIndices[1])->getID()], 3.) / 8.;
@@ -2898,8 +2888,8 @@ namespace Base {
                 for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
-                    element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                    firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
+                    secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                     //it is impossible to detect if a node inside the domain should be clipped to the edge
                     //instead make sure that the nodes that DO belong dont get pulled into the interior
                     //roundoff error should make sure that nodes move away from the boundary if there are too many
@@ -2916,10 +2906,9 @@ namespace Base {
                 for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    std::vector<std::size_t> nodeIndices;
-                    face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
+                    firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                    secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                     double length = (expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()] + expectedLength[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()]) / currentLength[face->getID()] * std::pow(1.4 * totalCurrentLength / totalexpectedLength, 1. / 2.) / 2.;
                     movement[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()] += std::max(length - 1., 0.) * (firstNode - secondNode) * (length + 1.) * 0.5;
                     movement[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()] += std::max(length - 1., 0.) * (secondNode - firstNode) * (length + 1.) * 0.5;
@@ -2930,10 +2919,9 @@ namespace Base {
                 for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    std::vector<std::size_t> nodeIndices;
-                    edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
-                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
+                    firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                    secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                     double length = (expectedLength[edge->getElement(0)->getNode(nodeIndices[0])->getID()] + expectedLength[edge->getElement(0)->getNode(nodeIndices[1])->getID()]) / currentLength[edge->getID()] * std::pow(1.4 * totalCurrentLength / totalexpectedLength, 1. / 3.) / 2.;
                     movement[edge->getElement(0)->getNode(nodeIndices[0])->getID()] += std::max(length - 1., 0.) * (firstNode - secondNode) * (length + 1.) * 0.5;
                     movement[edge->getElement(0)->getNode(nodeIndices[1])->getID()] += std::max(length - 1., 0.) * (secondNode - firstNode) * (length + 1.) * 0.5;
@@ -3019,7 +3007,7 @@ namespace Base {
                             //make sure the node stays on the periodic boundary, to prevent faces with 3 or more elements connected to them
                             for (std::size_t k = 0; k < node->getNrOfElements(); ++k)
                             {
-                                node->getElement(k)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(k), point);
+                                point = node->getElement(k)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(k));
                                 double currentValue = domainDescription(point);
                                 if (currentValue > 0)
                                 {
@@ -3047,7 +3035,7 @@ namespace Base {
                         }
                         for (std::size_t j = 0; j < node->getNrOfElements(); ++j)
                         {
-                            node->getElement(j)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(j), point);
+                            point = node->getElement(j)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(j));
                             if (domainDescription(point) > 1e-10)
                             {
                                 std::cout << "NOTE: Failed to move periodic point " << i << " (" << point << ") back to the periodic boundary.\n Distance from boundary is " << domainDescription(point) << ". Algorithm may crash.\n Consider fixing points at corners to remedy this issue." << std::endl;
@@ -3067,8 +3055,8 @@ namespace Base {
                 for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
-                    element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                    firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
+                    secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                     maxMovement = std::max(maxMovement, L2Norm(movement[element->getNode(0)->getID()]) / 10 / currentLength[element->getID()]);
                     maxMovement = std::max(maxMovement, L2Norm(movement[element->getNode(1)->getID()]) / 10 / currentLength[element->getID()]);
                     maxShift = std::max(maxShift, L2Norm(firstNode - oldNodeLocations_[element->getPhysicalGeometry()->getNodeIndex(0)]) / currentLength[element->getID()]);
@@ -3090,10 +3078,9 @@ namespace Base {
                 for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    std::vector<std::size_t> nodeIndices { };
-                    face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                    face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    std::vector<std::size_t> nodeIndices  = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
+                    firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                    secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                     maxMovement = std::max(maxMovement, L2Norm(movement[face->getPtrElementLeft()->getNode(nodeIndices[0])->getID()]) / 10 / currentLength[face->getID()]);
                     maxMovement = std::max(maxMovement, L2Norm(movement[face->getPtrElementLeft()->getNode(nodeIndices[1])->getID()]) / 10 / currentLength[face->getID()]);
                     maxShift = std::max(maxShift, L2Norm(firstNode - oldNodeLocations_[face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(nodeIndices[0])]) / currentLength[face->getID()]);
@@ -3111,19 +3098,16 @@ namespace Base {
                         edgeLengths[i] = currentLength[element->getEdge(i)->getID()];
                     }
                     double average = std::accumulate(edgeLengths.begin(), edgeLengths.end(), 0) / 6;
-                    Geometry::Jacobian jac { 3, 3 };
-                    Geometry::PointReference center { 3 };
-                    element->getReferenceGeometry()->getCenter(center);
-                    element->calcJacobian(center, jac);
+                    Geometry::PointReference center = element->getReferenceGeometry()->getCenter();
+                    Geometry::Jacobian jac = element->calcJacobian(center);
                     worstQuality = std::min(worstQuality, jac.determinant() / average * std::sqrt(2));
                 }
                 for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                 {
                     PointPhysicalT firstNode(DIM), secondNode(DIM);
-                    std::vector<std::size_t> nodeIndices { };
-                    edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
-                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                    edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                    std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
+                    firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                    secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                     maxMovement = std::max(maxMovement, L2Norm(movement[edge->getElement(0)->getNode(nodeIndices[0])->getID()]) / 10 / currentLength[edge->getID()]);
                     maxMovement = std::max(maxMovement, L2Norm(movement[edge->getElement(0)->getNode(nodeIndices[1])->getID()]) / 10 / currentLength[edge->getID()]);
                     maxShift = std::max(maxShift, L2Norm(firstNode - oldNodeLocations_[edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(nodeIndices[0])]) / currentLength[edge->getID()]);
@@ -3142,8 +3126,8 @@ namespace Base {
                     for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                     {
                         PointPhysicalT firstNode(DIM), secondNode(DIM);
-                        element->getPhysicalGeometry()->getLocalNodeCoordinates(0, firstNode);
-                        element->getPhysicalGeometry()->getLocalNodeCoordinates(1, secondNode);
+                        firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
+                        secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                         //length is scaled in case somebody hasty decides to add smoothing at this point
                         //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.5 times as large
                         //remember to scale back from a volume measure to a length measure
@@ -3157,10 +3141,9 @@ namespace Base {
                     for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                     {
                         PointPhysicalT firstNode(DIM), secondNode(DIM);
-                        std::vector<std::size_t> nodeIndices { };
-                        face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft(), nodeIndices);
-                        face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                        face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                        std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
+                        firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                        secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                         //length is scaled in case somebody hasty decides to add smoothing at this point
                         //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.5 times as large
                         //remember to scale back from a volume measure to a length measure
@@ -3174,10 +3157,9 @@ namespace Base {
                     for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                     {
                         PointPhysicalT firstNode(DIM), secondNode(DIM);
-                        std::vector<std::size_t> nodeIndices { };
-                        edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0), nodeIndices);
-                        edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0], firstNode);
-                        edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1], secondNode);
+                        std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
+                        firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
+                        secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
                         //length is scaled in case somebody hasty decides to add smoothing at this point
                         //all edges should be squeezed a little if the algorithm is to work correctly so pretend the volume is 1.5 times as large
                         //remember to scale back from a volume measure to a length measure
@@ -3197,10 +3179,10 @@ namespace Base {
                 PointPhysicalT other { DIM };
                 for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
                 {
-                    node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0), point);
+                    point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
                     for (std::size_t i = 0; i < node->getNrOfElements(); ++i)
                     {
-                        node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(i), other);
+                        other = node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(i));
                         if (point != other)
                         {
                             hasTeleported[node->getID()] = true;
@@ -3300,7 +3282,7 @@ namespace Base {
                     //boundary face
                     if(candidates.size() == 1)
                     {
-                        assert(candidates[0]==element);
+                        logger.assert(candidates[0]==element,"dropped the original element");
                         addFace(element,i,nullptr,0,Geometry::FaceType::WALL_BC);
                     }
                     if(candidates.size() == 2)

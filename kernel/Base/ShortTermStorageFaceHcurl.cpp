@@ -178,16 +178,16 @@ void Base::ShortTermStorageFaceHcurl::computeData()
         if(i < n)
         {
             //std::cout<<"True"<<std::endl;
-            mapRefFaceToRefElemL(currentPoint_, pElement);
-            getPtrElementLeft()->calcJacobian(pElement, jacobian);
+            pElement = mapRefFaceToRefElemL(currentPoint_);
+            jacobian = getPtrElementLeft()->calcJacobian(pElement);
             dummy1 = basisFunctionValues_[i];
             getPtrElementLeft()->basisFunctionCurl(i, pElement, basisFunctionCurlValues_[i]);
         }
         else
         {
             //std::cout<<"False"<<std::endl;
-            mapRefFaceToRefElemR(currentPoint_, pElement);
-            getPtrElementRight()->calcJacobian(pElement, jacobian);
+            pElement = mapRefFaceToRefElemR(currentPoint_);
+            jacobian = getPtrElementRight()->calcJacobian(pElement);
             dummy1 = basisFunctionValues_[i];
             dummy1 *= -1;
         }
@@ -196,7 +196,7 @@ void Base::ShortTermStorageFaceHcurl::computeData()
         basisFunctionCurlValues_[i] = (jacobian / (std::abs(jacobian.determinant()))) * basisFunctionCurlValues_[i];
         
         //Now jacobian contains the inverse of previous self
-        jacobian.inverse(jacobian);
+        jacobian = jacobian.inverse();
         for(int j = 0; j < DIM; ++j)
         {
             for(int k = 0; k < DIM; ++k)

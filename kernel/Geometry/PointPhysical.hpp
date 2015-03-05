@@ -87,6 +87,7 @@ namespace Geometry
             return coordinates_.data();
         }
         
+#endif
 
 //        friend Point operator*(const double& left, const Point& right){return PointPhysical(right.coordinates_*left);}
 

@@ -21,7 +21,7 @@ void Base::ShortTermStorageElementHcurl::computeData(){
     basisFunctionValues_.resize(element_->getNrOfBasisFunctions());
     basisFunctionCurlValues_.resize(element_->getNrOfBasisFunctions());
     jacobian = jac_;
-    jac_.inverse(jac_);
+    jac_ = jac_.inverse();
     for (int i = 0;i < DIM ; ++i)
     {
         for(int j = 0; j < DIM; ++j)
