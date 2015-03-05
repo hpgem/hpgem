@@ -55,7 +55,23 @@ namespace LinearAlgebra
             }
         }
 #else
-
+#ifdef HPGEM_USE_COMPLEX_PETSC
+   NumericalVector::NumericalVector(const std::complex<double> array[], int size)
+    {
+        data_.resize(size);
+        
+        for(int i = 0; i<size; i++)
+        {
+            if(std::imag(array[i]) !=0)
+               {
+                   std::cout<<"Imaginary part nonzero in the entry of vector";
+               }
+               data_[i]=std::real(array[i]);
+        }
+        
+    }
+#endif
+    
     NumericalVector::NumericalVector(const double array[], std::size_t size)
     : data_(array, size) { }
 #endif
@@ -252,6 +268,21 @@ namespace LinearAlgebra
         }
         os<< A(A.data_.size()-1)<<']';
         return os;
-    }    
+    }
+    
+#ifdef HPGEM_USE_COMPLEX_PETSC
+    
+    const std::complex<double>* NumericalVector::data() const
+    {
+        static std::vector<std::complex<double>> new_Data(data_.size());
+        
+        for (std::size_t i = 0; i < data_.size(); i++)
+        {
+            new_Data[i] = data_[i];
+        }
+        
+        return new_Data.data();
+    }
+#endif
     
 }

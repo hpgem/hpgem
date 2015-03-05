@@ -61,6 +61,8 @@ namespace Base
         id_(id),
         basisFunctionSetPositions_(basisFunctionSetPositions)
     {
+        //std::cout<<"numberOfElementMatrixes "<<numberOfElementMatrixes<<std::endl;
+        //std::cout<<"numberOfElementVectors "<<numberOfElementVectors<<std::endl;
         orderCoeff_ = 2;// for safety
         std::size_t numberOfBasisFunctions = 0;
         for (std::size_t i = 0; i < basisFunctionSetPositions_.size(); ++i)

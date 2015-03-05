@@ -82,7 +82,7 @@ namespace Utilities {
             entries.push_back(startPositionsOfVerticesInTheMatrix_[face->getPtrElementLeft()->getNode(i)->getID()]+j);
         }
     }
-#ifdef HPGEM_USE_PETSC
+#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
 
     GlobalPetscMatrix::GlobalPetscMatrix(Base::MeshManipulator* theMesh, int elementMatrixID, int faceMatrixID) :
     GlobalMatrix(theMesh, elementMatrixID, faceMatrixID) {
@@ -100,6 +100,7 @@ namespace Utilities {
 
     GlobalPetscMatrix::~GlobalPetscMatrix() {
         int ierr = MatDestroy(&A_);
+        //giving error about Petsc has generated inconsistent data and likely memory corruption in heap
         CHKERRV(ierr);
     }
 

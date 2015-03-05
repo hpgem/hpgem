@@ -24,7 +24,7 @@
 #ifndef GLOBALVECTOR_HPP_
 #define GLOBALVECTOR_HPP_
 
-#ifdef HPGEM_USE_PETSC
+#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
 #include "petscvec.h"
 #endif
 #include <vector>
@@ -70,7 +70,7 @@ namespace Utilities{
 
 	};
 
-#ifdef HPGEM_USE_PETSC
+#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
         ///\bug this class depends on PETSc and is likely to cause naming conflicts between the c and c++ standard libraries (workaround: make sure to include all other needed hpGEM headers before including this header)
 	class GlobalPetscVector:public GlobalVector{
 

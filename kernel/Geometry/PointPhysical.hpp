@@ -23,7 +23,7 @@
 #define POINTPHYSICAL_HPP_
 
 #include "Point.hpp"
-
+#include <complex>
 namespace Geometry
 {
     class PointPhysical: public Point
@@ -67,12 +67,29 @@ namespace Geometry
             coordinates_.axpy(alpha,x.coordinates_);
         }
         
+        
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        
+        const std::complex<double>* data() const
+        {
+            static std::complex<double>* new_Data;
+            
+            for (unsigned int i = 0; i < PointT::coordinates_.size(); i++)
+            {
+                new_Data[i] = PointT::coordinates_.data()[i];
+            }
+            return new_Data;
+        }
+#else
+        
         const double* data() const
         {
             return coordinates_.data();
         }
         
+
 //        friend Point operator*(const double& left, const Point& right){return PointPhysical(right.coordinates_*left);}
+
     };
 };
 

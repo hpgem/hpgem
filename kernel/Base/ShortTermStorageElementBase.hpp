@@ -296,7 +296,7 @@ namespace Base
 
         Geometry::Jacobian jac_;
 
-        std::vector<LinearAlgebra::NumericalVector> basisFunctionValues_, basisFunctionDerivatives_;
+        std::vector<LinearAlgebra::NumericalVector> basisFunctionValues_, basisFunctionDerivatives_, basisFunctionCurlValues_;
     private:
 
         bool useCache_;

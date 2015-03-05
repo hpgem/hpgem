@@ -24,6 +24,7 @@
 #include "NumericalVector.hpp"
 #include <cassert>
 #include <algorithm>
+#include <complex>
 
 namespace LinearAlgebra
 {
@@ -144,8 +145,8 @@ namespace LinearAlgebra
         {
             data_[i] += other[i];
         }
-        
-        return (*this);            
+        //std::cout<<"Called for matrix addition"<<std::endl;
+        return (*this);
     }
     
     
@@ -608,6 +609,43 @@ namespace LinearAlgebra
         dgesv_(&n,&nrhs,&matThis[0],&n,IPIV,&b[0],&n,&info);
     }
     
+    
+#ifdef HPGEM_USE_COMPLEX_PETSC
+    
+    std::complex<double>* Matrix::data()
+    {
+        static std::vector<std::complex<double>> new_Data( data_.size());
+        
+        double* temp = data_.data();
+        
+        for(std::size_t col = 0; col < nCols_; ++col)
+        {
+            for(std::size_t row = 0; row < nRows_; ++row)
+            {
+                new_Data[row + col * nRows_] = temp[row + col * nRows_];
+            }
+        }
+        
+        return new_Data.data();
+    }
+    
+    const std::complex<double>* Matrix::data() const
+    {
+        static std::vector<std::complex<double>> new_Data(data_.size());
+        
+        for(std::size_t col = 0; col < nCols_; ++col)
+        {
+            for(std::size_t row = 0; row < nRows_; ++row)
+            {
+                new_Data[row + col * nRows_] = data_[row + col * nRows_];
+            }
+        }
+        
+        return new_Data.data();
+    }
+
+#else
+    
     double* Matrix::data() 
     {
         return data_.data();
@@ -618,6 +656,7 @@ namespace LinearAlgebra
         return data_.data();
     }
     
+#endif
     ///Print the matrix with () around each line and [] around the matrix.
     std::ostream& operator<<(std::ostream& os, const Matrix& A)
     {

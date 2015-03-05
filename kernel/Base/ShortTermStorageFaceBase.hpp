@@ -301,7 +301,7 @@ namespace Base
         Geometry::PointReference currentPoint_;
         LinearAlgebra::NumericalVector normal_;
 
-        std::vector<LinearAlgebra::NumericalVector> basisFunctionValues_, basisFunctionsTimesNormal_, basisFunctionDerivatives_;
+        std::vector<LinearAlgebra::NumericalVector> basisFunctionValues_, basisFunctionsTimesNormal_, basisFunctionDerivatives_, basisFunctionCurlValues_;
     private:
 
         bool useCache_;

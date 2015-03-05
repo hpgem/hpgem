@@ -19,53 +19,54 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <vector>
+#ifndef MATRIXASSEMBLY_HPP
+#define MATRIXASSEMBLY_HPP
+
+#include "Integration/ElementIntegrandBase.hpp"
+#include "Integration/FaceIntegrandBase.hpp"
+#include "Base/ShortTermStorageElementHcurl.hpp"
+#include "Base/ShortTermStorageFaceHcurl.hpp"
+
+#include "Base/Face.hpp"
+#include "Base/Element.hpp"
 #include "LinearAlgebra/NumericalVector.hpp"
 
-/**
- * The tesselation in k-space does not fit the hpGEM-framework because of its continuous nature
- * this is a specialized class to store the relevant information and provide the relevant computations
- */
-class KspaceData{
+
+class hpGemUIExtentions;
+class DGMax;
+
+class MatrixAssembly{
     
-    std::vector<LinearAlgebra::NumericalVector> kpoints_,deltak_;
-    std::vector<std::vector<double> > omegaAtKpoints_;
-    std::vector<std::vector<int> > elements_;
-    std::vector<std::vector<LinearAlgebra::NumericalVector> > functionValuesAtKpoints_;
-    int current_;
-    int minimumsize_;
-    
-public:
-    
-    /**
-     * constructor takes a desired number of k-point per direction and constructs a tesselation of small tetrahedra
-     * that can be used for linear interpolation. the actual number of k-points where the eigenvalue problem needs to be solved
-     * is (n)(n+1)(n+2)/6. makes sure the first k-point is the origin so no matrix updates are needed for the first pass
-     */
-    KspaceData(int pointsPerDirection);
-    
-    /**
-     * returns true as long as there is still a point that needs computing
-     */
-    bool hasNextPoint();
-    
-    /**
-     * iterator over the k-points. Call this when you are done for the current k-point and it gets you a update-vector
-     */
-    LinearAlgebra::NumericalVector& nextPoint();
-    
-    /**
-     * sets the found values of omega at the current k-point. Make sure you set the same number of omega each k-point and that they are sorted in the same way (accounting for band crossings)
-     */
-    void setOmega(std::vector<double>& omega);
-    
-    /**
-     * optional: sets the value of f from the expression int(f*delta(omega-omega_n))dk
-     */
-    void setFunctionValues(std::vector<LinearAlgebra::NumericalVector>& functionValues);
-    
-    /**
-     * returns the density of states for a given value omega
-     */
-    void getIntegral(double omega, LinearAlgebra::NumericalVector& result);
+    public:
+        virtual void fillMatrices(hpGemUIExtentions* matrixContainer) = 0;
 };
+
+class MatrixAssemblyIP: public MatrixAssembly
+{
+   
+    //double stabCoeff_;
+    
+    public:
+    //MatrixAssemblyIP(double stabCoeff):stabCoeff_(stabCoeff){}
+    MatrixAssemblyIP(){}
+    
+    virtual void fillMatrices(hpGemUIExtentions* matrixContainer);
+    void CompleteElementIntegrationIP(hpGemUIExtentions*);
+    void CompleteFaceIntegrationIP(hpGemUIExtentions*);
+    
+    
+};
+
+/*
+class MatrixAssemblyBR: public MatrixAssembly
+{
+    double stabCoeff_;
+    public:
+    
+    MatrixAssemblyBR(double stabCoeff):stabCoeff_(stabCoeff()){}
+    virtual void fillMatrices(hpGemUIExtentions* matrixContainer);
+};
+ 
+*/       
+
+#endif

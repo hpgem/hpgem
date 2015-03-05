@@ -30,8 +30,13 @@
 
 
 Base::FaceData::FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors) :
-faceMatrix_(numberOfFaceMatrices), faceVector_(numberOfFaceVectors) 
+faceMatrix_(numberOfFaceMatrices), faceVector_(numberOfFaceVectors)
 {
+    //std::cout<<"numberOfFaceMatrices "<<numberOfFaceMatrices<<std::endl;
+    //std::cout<<"FaceMatrix_ size "<<faceMatrix_.size()<<std::endl;
+    //std::cout<<"numberOfFaceVectors "<<numberOfFaceVectors<<std::endl;
+    //std::cout<<"faceVector_ size = "<<faceVector_.size()<<std::endl;
+
 }
 
 /// \param[in] matrix The standard matrix used to set the FaceMatrix.

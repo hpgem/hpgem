@@ -192,13 +192,16 @@ namespace Integration
 }
 
 void Integration::ElementIntegral::setStorageWrapper(Base::ShortTermStorageElementBase* transform) {
-    if(localElement_!=nullptr)
+    //if(localElement_!=nullptr)
 	delete localElement_;
     localElement_=transform;
+    
     if(useCache_){
             localElement_->cacheOn();
+        
     }else{
             localElement_->cacheOff();
+        //std::cout<<"Working storage Wrapper"<<std::endl;
     }
 }
     //! \brief AXPY operation, i.e. Y = alpha * X + Y, for various data type

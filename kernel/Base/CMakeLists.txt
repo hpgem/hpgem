@@ -51,6 +51,8 @@ add_library(hpGEM_Base SHARED
 		ShortTermStorageElementH1.cpp
 		ShortTermStorageFaceBase.cpp
 		ShortTermStorageFaceH1.cpp
+		ShortTermStorageElementHcurl.cpp
+		ShortTermStorageFaceHcurl.cpp
 	) 
 
 target_link_libraries(hpGEM_Base Geometry Reference_geometries TimeIntegration Logger)

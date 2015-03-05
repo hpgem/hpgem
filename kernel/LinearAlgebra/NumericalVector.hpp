@@ -30,6 +30,7 @@
     #include <valarray>
 #endif
 #include <iostream>
+#include <complex>
 
 
 namespace LinearAlgebra
@@ -59,6 +60,9 @@ namespace LinearAlgebra
         NumericalVector(const NumericalVector& other);
         
         NumericalVector(const double array[], std::size_t size);
+        
+        //Constructor to accomodate complex<double>
+        NumericalVector(const std::complex<double> array[], int size);
 
         void resize(std::size_t size);
 
@@ -114,12 +118,18 @@ namespace LinearAlgebra
         {
             return data_.size();
         }
+#ifdef HPGEM_USE_COMPLEX_PETSC
         
+        const std::complex<double>* data() const;
+        
+#else
         const double* data() const 
         {
             return data_.data();
         }
 
+#endif
+        
         friend NumericalVector operator*(const double& left, const NumericalVector& right);
 
         friend NumericalVector operator-(const NumericalVector& right);

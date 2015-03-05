@@ -41,11 +41,18 @@ namespace Base
     expansionCoefficients_(timeLevels_),
     userData_(nullptr),
     elementMatrix_(nrOfElementMatrixes),
-    elementVector_(nrOfElementVectors) { }
+    elementVector_(nrOfElementVectors) {
+        //std::cout<<"nrOfElementMatrixes "<<nrOfElementMatrixes<<std::endl;
+        //std::cout<<"elementMatrix_ size "<<elementMatrix_.size()<<std::endl;
+        //std::cout<<"nrOfElementVectors "<<nrOfElementVectors<<std::endl;
+        //std::cout<<"elementVector_ size = "<<elementVector_.size()<<std::endl;
+    }
     
     
     void ElementData::setElementMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID)
     {
+        //std::cout<<"matrix ID = "<<matrixID<<std::endl;
+        //std::cout<<"elementMatrix_ size = "<<elementMatrix_.size()<<std::endl;
         if (matrixID >= elementMatrix_.size())
         {
             std::cout << "Warning: Setting an element matrix that was not preallocated. If this is expected, please allocate more element matrixes in the mesh generator" << std::endl;
@@ -69,9 +76,12 @@ namespace Base
     
     void ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID)
     {
+        //std::cout<<"VectorID : "<<vectorID<<std::endl;
+        //std::cout<<"elementVector size : "<<elementVector_.size()<<std::endl;
+        
         if (vectorID >= elementVector_.size())
         {
-            std::cout << "Warning: Setting an element vector that was not preallocated. If this is expected, please allocate more element vectors in the mesh generator" << std::endl;
+            //std::cout << "Warning: Setting an element vector that was not preallocated. If this is expected, please allocate more element vectors in the mesh generator" << std::endl;
             elementVector_.resize(vectorID + 1);
         }
         elementVector_[vectorID] = vector;

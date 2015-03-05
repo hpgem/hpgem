@@ -31,6 +31,7 @@
 #endif
 
 #include "NumericalVector.hpp"
+#include <complex>
 
 namespace LinearAlgebra
 {
@@ -166,10 +167,16 @@ namespace LinearAlgebra
     /// is the input parameter. The result is returned in b.
     void solve(NumericalVector& b) const;
 
-    double* data();
+#ifdef HPGEM_USE_COMPLEX_PETSC
+      std::complex<double>* data();
+      const std::complex<double>* data() const;
 
-    const double* data() const;
-
+#else
+      double* data();
+      const double* data() const;
+#endif
+      
+    
   private:
     /// The actually data of the matrix class
 #ifdef LA_STL_VECTOR

@@ -45,7 +45,7 @@ using PointFaceReferenceT = Geometry::PointReference;
 
 //one there is a default way in hpGEM to configure code without haveing to recompile this and some other things should be grouped in another file
 /**
- * Stores some parameters that should be available everywhere. 
+ * Stores some parameters that should be available everywhere.
  * Attributes need not be constant since this struct will be stored in a constant field.
  */
 struct MaxwellData: public Base::GlobalData{
@@ -64,28 +64,28 @@ struct MaxwellData: public Base::GlobalData{
  * \param [in] orig The matrix to be inverted
  * \param [out] inverse The inverse of the transpose of orig. This may not be the same matrix as orig.
  */
-void InvertAndTranspose(Geometry::Jacobian& orig, Geometry::Jacobian& inverse);
+//void InvertAndTranspose(Geometry::Jacobian& orig, Geometry::Jacobian& inverse);
 
 /**
  * store the basisfunction values for the reference element (i.e. without any transformations) for later reuse
  * this class will also compute basisfunction values if they are not yet available
  */
 class FunctionCache{
-  
+    
     static myMap valueCache_;
     static myMap curlCache_;
-  
+    
 public:
     
     /**
      * gets the function values of the function on the reference element
      */
-    static void getFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& values);
+    //static void getFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& values);
     
     /**
      * gets the curl of the function on the reference element
      */
-    static void getFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& curls);
+    //static void getFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& curls);
 };
 
 /**
@@ -103,12 +103,12 @@ public:
     /**
      * gets the basisfunction values on one mantissa from the reference element and transforms them based on the current element
      */
-    void makeFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& values);
+    //void makeFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& values);
     
     /**
      * gets the curls of the baisfunction values on one mantissa from the reference element and transforms them based on the current element
      */
-    void makeFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& curls);
+    //void makeFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& curls);
 };
 
 

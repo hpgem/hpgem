@@ -227,6 +227,8 @@ namespace Base {
 
         //createNewMeshTree();
         std::cout << "******Mesh creation is finished!**********" << std::endl;
+        //std::cout<<"noOfElementVector = "<<nrOfElementVectors<<std::endl;
+        //std::cout<<"noOfFaceVector = "<<nrOfFaceVectors<<std::endl;
     }
 
     MeshManipulator::MeshManipulator(const MeshManipulator& other) :

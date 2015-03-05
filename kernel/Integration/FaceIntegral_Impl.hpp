@@ -32,6 +32,7 @@ namespace Integration{
         template <class ReturnTrait1>
         ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, FaceIntegrandBase<ReturnTrait1>* integrand, const QuadratureRules::GaussQuadratureRule* qdrRule)
         {
+
             std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc = 
             [=](const Base::Face* face, const LinearAlgebra::NumericalVector& n, const Geometry::PointReference& p){
                 ReturnTrait1 result;

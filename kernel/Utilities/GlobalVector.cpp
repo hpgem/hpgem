@@ -43,7 +43,7 @@ namespace Utilities {
     theMesh_(theMesh), startPositionsOfElementsInTheVector_(), meshLevel_(-2), elementVectorID_(elementVectorID), faceVectorID_(faceVectorID) {
     }
 
-#ifdef HPGEM_USE_PETSC
+#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
 
     GlobalPetscVector::GlobalPetscVector(Base::MeshManipulator* theMesh, int elementVectorID, int faceVectorID) :
     GlobalVector(theMesh, elementVectorID, faceVectorID) {
@@ -418,7 +418,7 @@ namespace Utilities {
     }
 
     void GlobalPetscVector::writeTimeLevelData(int timeLevel, int variable) {
-        double *data;
+        PetscScalar *data;
         
         VecScatter scatter;
         Vec localB;
@@ -456,19 +456,19 @@ namespace Utilities {
             if (theMesh_->dimension() > 1)
                 for (int i = 0; i < (*it)->getPhysicalGeometry()->getNrOfFaces(); ++i) {
                     for (int j = 0; j < (*it)->getFace(i)->getLocalNrOfBasisFunctions(); ++j) {
-                        localData[runningTotal] = data[startPositionsOfFacesInTheVector_[(*it)->getFace(i)->getID()] + j];
+                        localData[runningTotal] = std::real(data[startPositionsOfFacesInTheVector_[(*it)->getFace(i)->getID()] + j]);
                         ++runningTotal;
                     }
                 }
             for (int i = 0; i < (*it)->getNrOfEdges(); ++i) {
                 for (int j = 0; j < (*it)->getEdge(i)->getLocalNrOfBasisFunctions(); ++j) {
-                    localData[runningTotal] = data[startPositionsOfEdgesInTheVector_[(*it)->getEdge(i)->getID()] + j];
+                    localData[runningTotal] = std::real(data[startPositionsOfEdgesInTheVector_[(*it)->getEdge(i)->getID()] + j]);
                     ++runningTotal;
                 }
             }
             for (int i = 0; i < (*it)->getNrOfNodes(); ++i) {
                 for (int j = 0; j < (*it)->getNode(i)->getLocalNrOfBasisFunctions(); ++j) {
-                    localData[runningTotal] = data[startPositionsOfVerticesInTheVector_[(*it)->getNode(i)->getID()] + j];
+                    localData[runningTotal] = std::real(data[startPositionsOfVerticesInTheVector_[(*it)->getNode(i)->getID()] + j]);
                     ++runningTotal;
                 }
             }

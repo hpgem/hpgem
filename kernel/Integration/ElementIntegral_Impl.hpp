@@ -86,6 +86,7 @@ namespace Integration
     // first we calculate the jacobian, then compute the function value on one of
     // the reference points and finally we multiply this value with a weight and
     // the jacobian and save it in result.
+
     Geometry::Jacobian jac = localElement_->calcJacobian(p);
     result = integrandFun(localElement_, p);
     result *= (qdrRuleLoc->weight(0) * std::abs(jac.determinant()));
@@ -94,9 +95,12 @@ namespace Integration
     // add this value multiplied with jacobian and weight to result.
         for (std::size_t i = 1; i < nrOfPoints; ++i)
     {
+
       p = qdrRuleLoc->getPoint(i);
       jac = localElement_->calcJacobian(p);
       value = integrandFun(localElement_, p);
+
+    
 
       //axpy: Y = alpha * X + Y
       result.axpy(qdrRuleLoc->weight(i) * std::abs(jac.determinant()), value);
