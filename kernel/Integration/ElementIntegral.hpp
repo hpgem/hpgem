@@ -43,6 +43,11 @@ namespace Geometry
     class PointReference;
 }
 
+namespace LinearAlgebra
+{
+    class NumericalVector;
+}
+
 namespace Integration
 {
     template<class returntrait1>
@@ -91,6 +96,24 @@ namespace Integration
                 std::function<ReturnType(const ElementT*, const Geometry::PointReference&) > integrand,
                 const QuadratureRulesT * const qdrRule = nullptr);
 
+        /// \brief Compute the integral on a reference element. IntegrandType needs to have the function axpy() implemented.
+        template <typename IntegrandType>
+        IntegrandType referenceElementIntegral
+        (
+         const Base::Element *ptrElement,
+         const std::size_t &time,
+         std::function<IntegrandType(const Base::Element *, const std::size_t &, const Geometry::PointReference &)> integrandFunction
+         );
+        
+        /// \brief Compute the integral on a reference element. IntegrandType needs to have the function axpy() implemented.
+        template <typename IntegrandType>
+        IntegrandType referenceElementIntegral
+        (
+         const Base::Element *ptrElement,
+         const std::size_t &time,
+         const LinearAlgebra::NumericalVector &solutionCoefficients,
+         std::function<IntegrandType (const Base::Element *, const std::size_t &, const Geometry::PointReference &, const LinearAlgebra::NumericalVector &)> integrandFunction
+         );
 
     private:
 

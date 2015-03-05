@@ -126,6 +126,86 @@ ReturnTrait1
         } // if cached data (else)*/
     } // function
 
+    
+    template <typename IntegrandType>
+    IntegrandType FaceIntegral::referenceFaceIntegral
+    (
+     const Base::Face *ptrFace,
+     const std::size_t &time,
+     std::function<IntegrandType (const Base::Face *, const std::size_t &, const Geometry::PointReference &)> integrandFunction
+     )
+    {
+        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrFace->getGaussQuadratureRule();
+        
+        std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
+        std::size_t iPoint = 0; // Index for the quadrature points.
+        
+        Geometry::PointReference pRef = ptrQdrRule->getPoint(iPoint);
+        
+        IntegrandType integral(integrandFunction(ptrFace, time, pRef));
+        integral *= ptrQdrRule->weight(iPoint);
+        for(iPoint = 1; iPoint < numOfPoints; iPoint++)
+        {
+            pRef = ptrQdrRule->getPoint(iPoint);
+            integral.axpy(ptrQdrRule->weight(iPoint), integrandFunction(ptrFace, time, pRef));
+        }
+        
+        return integral;
+    }
+    
+    template <typename IntegrandType>
+    IntegrandType FaceIntegral::referenceFaceIntegral
+    (
+     const Base::Face *ptrFace,
+     const std::size_t &time,
+     const Base::Side &iSide,
+     const Base::Side &jSide,
+     std::function<IntegrandType (const Base::Face *, const std::size_t &, const Geometry::PointReference &, const Base::Side &, const Base::Side &)> integrandFunction
+     )
+    {
+        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrFace->getGaussQuadratureRule();
+        
+        std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
+        std::size_t iPoint = 0; // Index for the quadrature points.
+        
+        Geometry::PointReference pRef = ptrQdrRule->getPoint(iPoint);
+        
+        IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(ptrFace, time, pRef, iSide, jSide));
+        for(iPoint = 1; iPoint < numOfPoints; iPoint++)
+        {
+            pRef = ptrQdrRule->getPoint(iPoint);
+            integral.axpy(ptrQdrRule->weight(iPoint), integrandFunction(ptrFace, time, pRef, iSide, jSide));
+        }
+        return integral;
+    }
+    
+    /// \brief Compute the integral on a reference face.
+    template <typename IntegrandType>
+    IntegrandType FaceIntegral::referenceFaceIntegral
+    (
+     const Base::Face *ptrFace,
+     const std::size_t &time,
+     const Base::Side &iSide,
+     const LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
+     const LinearAlgebra::NumericalVector &solutionCoefficientsRight,
+     std::function<IntegrandType (const Base::Face *, const std::size_t &, const Geometry::PointReference &, const Base::Side &, const LinearAlgebra::NumericalVector &, const LinearAlgebra::NumericalVector &)> integrandFunction
+     )
+    {
+        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrFace->getGaussQuadratureRule();
+        
+        std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
+        std::size_t iPoint = 0; // Index for the quadrature points.
+        
+        Geometry::PointReference pRef = ptrQdrRule->getPoint(iPoint);
+        
+        IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(ptrFace, time, pRef, iSide, solutionCoefficientsLeft, solutionCoefficientsRight));
+        for(iPoint = 1; iPoint < numOfPoints; iPoint++)
+        {
+            pRef = ptrQdrRule->getPoint(iPoint);
+            integral.axpy(ptrQdrRule->weight(iPoint), integrandFunction(ptrFace, time, pRef, iSide, solutionCoefficientsLeft, solutionCoefficientsRight));
+        }
+        return integral;
+    }
 }
 
 

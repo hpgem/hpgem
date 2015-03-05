@@ -104,6 +104,54 @@ namespace Integration
     }
     return result;
   }
+    
+    template <typename IntegrandType>
+    IntegrandType ElementIntegral::referenceElementIntegral
+    (
+     const Base::Element *ptrElement,
+     const std::size_t &time,
+     std::function<IntegrandType(const Base::Element *, const std::size_t &, const Geometry::PointReference &)> integrandFunction
+     )
+    {
+        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
+        
+        std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
+        std::size_t iPoint = 0; // Index for the quadrature points.
+        
+        Geometry::PointReference pRef = ptrQdrRule->getPoint(iPoint);
+        IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(ptrElement, time, pRef));
+        for(iPoint = 1; iPoint < numOfPoints; iPoint++)
+        {
+            pRef = ptrQdrRule->getPoint(iPoint);
+            integral.axpy(ptrQdrRule->weight(iPoint), integrandFunction(ptrElement, time, pRef));
+        }
+        return integral;
+    }
+    
+    template <typename IntegrandType>
+    IntegrandType ElementIntegral::referenceElementIntegral
+    (
+     const Base::Element *ptrElement,
+     const std::size_t &time,
+     const LinearAlgebra::NumericalVector &solutionCoefficients,
+     std::function<IntegrandType (const Base::Element *, const std::size_t &, const Geometry::PointReference &, const LinearAlgebra::NumericalVector &)> integrandFunction
+     )
+    {
+        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
+        
+        std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
+        std::size_t iPoint = 0; // Index for the quadrature points.
+        
+        Geometry::PointReference pRef = ptrQdrRule->getPoint(iPoint);
+        IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(ptrElement, time, pRef, solutionCoefficients));
+        for(iPoint = 1; iPoint < numOfPoints; iPoint++)
+        {
+            pRef = ptrQdrRule->getPoint(iPoint);
+            integral.axpy(ptrQdrRule->weight(iPoint), integrandFunction(ptrElement, time, pRef, solutionCoefficients));
+        }
+        return integral;
+    }
+    
 }
 
 
