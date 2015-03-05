@@ -64,6 +64,15 @@ if (hpGEM_DISABLE_ASSERTS)
   add_definitions( -DHPGEM_NO_ASSERTS )
 endif()
 
+set(hpGEM_ENFORCE_ASSERTS OFF CACHE BOOL "Enables asserts even in release mode - may be slow!")
+mark_as_advanced( FORCE hpGEM_ENFORCE_ASSERTS )
+if (hpGEM_ENFORCE_ASSERTS)
+  if(hpGEM_DISABLE_ASSERTS)
+    message(FATAL_ERROR, "Cannot disable the assertions when they are enforced!!!")
+  endif()
+  add_definitions( -DHPGEM_FORCE_ASSERTS )
+endif()
+
 #=======[ The default loglevel ]========
 set(hpGEM_LOGLEVEL "DEFAULT" CACHE STRING "Verbosity of hpGEM. Default is recommended.")
 set_property( CACHE hpGEM_LOGLEVEL PROPERTY STRINGS FATAL ERROR WARN INFO DEFAULT VERBOSE DEBUG )

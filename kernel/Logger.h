@@ -10,6 +10,9 @@
 #define HPGEM_LOGLEVEL Log::DEFAULT
 #endif
 
+#ifdef HPGEM_FORCE_ASSERTS
+#define HPGEM_ASSERTS true
+#else
 #ifdef HPGEM_NO_ASSERTS
 #define HPGEM_ASSERTS false
 #else
@@ -17,6 +20,7 @@
 #define HPGEM_ASSERTS false
 #else
 #define HPGEM_ASSERTS true
+#endif
 #endif
 #endif
 
@@ -354,14 +358,14 @@ class Logger
      * \arg arg... Any arguments which needs to be replaced.
      */
      template<typename... Args>
-     typename std::enable_if<ASSERTS || HPGEM_ASSERTS || (sizeof...(Args) >= 0), void>::type
+     typename std::enable_if<(ASSERTS || HPGEM_ASSERTS) && (sizeof...(Args) >= 0), void>::type
      assert(bool assertion, const std::string& format, Args&&... arg)
      {
        assert_always(assertion, format, arg...);
      }
      
      template<typename... Args>
-     typename std::enable_if<!(ASSERTS || HPGEM_ASSERTS || sizeof...(Args) >= 0), void>::type
+     typename std::enable_if<!((ASSERTS || HPGEM_ASSERTS) && sizeof...(Args) >= 0), void>::type
      assert(bool assertion, const std::string& format, Args&&... arg)
      {
      }

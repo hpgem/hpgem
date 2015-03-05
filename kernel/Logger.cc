@@ -17,6 +17,7 @@
 #endif
 #include <cstdlib>
 #include <iostream>
+#include <csignal>
 /*
 *  We need these to actually exists. These are used as tags in the template metaprogramming for
 *  the Logger class.
@@ -92,6 +93,8 @@ static void printError(std::string module, std::string msg) {
   }
 #endif
 #endif
+  //send a signal first, in case a debugger can catch it
+  std::raise(SIGTERM);
   std::exit(2);
 }
 
