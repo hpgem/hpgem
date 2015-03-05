@@ -24,7 +24,7 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/ElementGeometry.hpp"
-#include <cassert>
+#include <Logger.h>
 
 #include "Geometry/ReferenceCube.hpp"
 #include "Geometry/ReferenceHypercube.hpp"
@@ -73,19 +73,19 @@ int main(){
 	Geometry::ElementGeometry* test=new Geometry::ElementGeometry(pointIndexes,nodes1D);
 	Geometry::ElementGeometry copy(*test);
 
-	assert(("getReferenceToPhysicalMap",typeid(Geometry::MappingToPhysHypercubeLinear<1>)==typeid(*test->getReferenceToPhysicalMap())));
-	assert(("getPhysicalGeometry",typeid(Geometry::PhysicalLine)==typeid(*test->getPhysicalGeometry())));
-	assert(("getReferenceGeometry",typeid(Geometry::ReferenceLine)==typeid(*test->getReferenceGeometry())));
-	assert(("getNrOfNodes",test->getNrOfNodes()==2));
+	logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<1>)==typeid(*test->getReferenceToPhysicalMap())),"getReferenceToPhysicalMap");
+	logger.assert_always((typeid(Geometry::PhysicalLine)==typeid(*test->getPhysicalGeometry())),"getPhysicalGeometry");
+	logger.assert_always((typeid(Geometry::ReferenceLine)==typeid(*test->getReferenceGeometry())),"getReferenceGeometry");
+	logger.assert_always((test->getNrOfNodes()==2),"getNrOfNodes");
 
 	for(orig1D[0]=-2.8189;orig1D[0]<3.141;orig1D[0]+=0.1){
 		test->getReferenceToPhysicalMap()->transform(orig1D,compare1D);
 		test->referenceToPhysical(orig1D,point1D);
-		assert(("referenceToPhysical",std::abs(point1D[0]-compare1D[0])<1e-12));
+		logger.assert_always((std::abs(point1D[0]-compare1D[0])<1e-12),"referenceToPhysical");
 
 		test->getReferenceToPhysicalMap()->calcJacobian(orig1D,jaccompare);
 		test->calcJacobian(orig1D,jac);
-		assert(("calcJacobian",std::abs(jac[0]-jaccompare[0])<1e-12));
+		logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
 	}
 	std::cout<<*test<<std::endl;
 
@@ -115,24 +115,24 @@ int main(){
 	delete test;
 	test = new Geometry::ElementGeometry(pointIndexes,nodes2D);
 
-	assert(("getReferenceToPhysicalMap",typeid(Geometry::MappingToPhysSimplexLinear<2>)==typeid(*test->getReferenceToPhysicalMap())));
-	assert(("getPhysicalGeometry",typeid(Geometry::PhysicalTriangle)==typeid(*test->getPhysicalGeometry())));
-	assert(("getReferenceGeometry",typeid(Geometry::ReferenceTriangle)==typeid(*test->getReferenceGeometry())));
-	assert(("getNrOfNodes",test->getNrOfNodes()==3));
+	logger.assert_always((typeid(Geometry::MappingToPhysSimplexLinear<2>)==typeid(*test->getReferenceToPhysicalMap())),"getReferenceToPhysicalMap");
+	logger.assert_always((typeid(Geometry::PhysicalTriangle)==typeid(*test->getPhysicalGeometry())),"getPhysicalGeometry");
+	logger.assert_always((typeid(Geometry::ReferenceTriangle)==typeid(*test->getReferenceGeometry())),"getReferenceGeometry");
+	logger.assert_always((test->getNrOfNodes()==3),"getNrOfNodes");
 
 	for(orig2D[0]=-2.8189;orig2D[0]<3.141;orig2D[0]+=0.1){
 		for(orig2D[1]=-2.8189;orig2D[1]<3.141;orig2D[1]+=0.1){
 			test->getReferenceToPhysicalMap()->transform(orig2D,compare2D);
 			test->referenceToPhysical(orig2D,point2D);
-			assert(("referenceToPhysical",std::abs(point2D[0]-compare2D[0])<1e-12));
-			assert(("referenceToPhysical",std::abs(point2D[1]-compare2D[1])<1e-12));
+			logger.assert_always((std::abs(point2D[0]-compare2D[0])<1e-12),"referenceToPhysical");
+			logger.assert_always((std::abs(point2D[1]-compare2D[1])<1e-12),"referenceToPhysical");
 
 			test->getReferenceToPhysicalMap()->calcJacobian(orig2D,jaccompare);
 			test->calcJacobian(orig2D,jac);
-			assert(("calcJacobian",std::abs(jac[0]-jaccompare[0])<1e-12));
-			assert(("calcJacobian",std::abs(jac[1]-jaccompare[1])<1e-12));
-			assert(("calcJacobian",std::abs(jac[2]-jaccompare[2])<1e-12));
-			assert(("calcJacobian",std::abs(jac[3]-jaccompare[3])<1e-12));
+			logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
+			logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
+			logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
+			logger.assert_always((std::abs(jac[3]-jaccompare[3])<1e-12),"calcJacobian");
 		}
 	}
 	std::cout<<*test<<std::endl;
@@ -142,24 +142,24 @@ int main(){
 	delete test;
 	test = new Geometry::ElementGeometry(pointIndexes,nodes2D);
 
-	assert(("getReferenceToPhysicalMap",typeid(Geometry::MappingToPhysHypercubeLinear<2>)==typeid(*test->getReferenceToPhysicalMap())));
-	assert(("getPhysicalGeometry",typeid(Geometry::PhysicalQuadrilateral)==typeid(*test->getPhysicalGeometry())));
-	assert(("getReferenceGeometry",typeid(Geometry::ReferenceSquare)==typeid(*test->getReferenceGeometry())));
-	assert(("getNrOfNodes",test->getNrOfNodes()==4));
+	logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<2>)==typeid(*test->getReferenceToPhysicalMap())),"getReferenceToPhysicalMap");
+	logger.assert_always((typeid(Geometry::PhysicalQuadrilateral)==typeid(*test->getPhysicalGeometry())),"getPhysicalGeometry");
+	logger.assert_always((typeid(Geometry::ReferenceSquare)==typeid(*test->getReferenceGeometry())),"getReferenceGeometry");
+	logger.assert_always((test->getNrOfNodes()==4),"getNrOfNodes");
 
 	for(orig2D[0]=-2.8189;orig2D[0]<3.141;orig2D[0]+=0.1){
 		for(orig2D[1]=-2.8189;orig2D[1]<3.141;orig2D[1]+=0.1){
 			test->getReferenceToPhysicalMap()->transform(orig2D,compare2D);
 			test->referenceToPhysical(orig2D,point2D);
-			assert(("referenceToPhysical",std::abs(point2D[0]-compare2D[0])<1e-12));
-			assert(("referenceToPhysical",std::abs(point2D[1]-compare2D[1])<1e-12));
+			logger.assert_always((std::abs(point2D[0]-compare2D[0])<1e-12),"referenceToPhysical");
+			logger.assert_always((std::abs(point2D[1]-compare2D[1])<1e-12),"referenceToPhysical");
 
 			test->getReferenceToPhysicalMap()->calcJacobian(orig2D,jaccompare);
 			test->calcJacobian(orig2D,jac);
-			assert(("calcJacobian",std::abs(jac[0]-jaccompare[0])<1e-12));
-			assert(("calcJacobian",std::abs(jac[1]-jaccompare[1])<1e-12));
-			assert(("calcJacobian",std::abs(jac[2]-jaccompare[2])<1e-12));
-			assert(("calcJacobian",std::abs(jac[3]-jaccompare[3])<1e-12));
+			logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
+			logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
+			logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
+			logger.assert_always((std::abs(jac[3]-jaccompare[3])<1e-12),"calcJacobian");
 		}
 	}
 	std::cout<<*test<<std::endl;
@@ -208,31 +208,31 @@ int main(){
 	delete test;
 	test = new Geometry::ElementGeometry(pointIndexes,nodes3D);
 
-	assert(("getReferenceToPhysicalMap",typeid(Geometry::MappingToPhysSimplexLinear<3>)==typeid(*test->getReferenceToPhysicalMap())));
-	assert(("getPhysicalGeometry",typeid(Geometry::PhysicalTetrahedron)==typeid(*test->getPhysicalGeometry())));
-	assert(("getReferenceGeometry",typeid(Geometry::ReferenceTetrahedron)==typeid(*test->getReferenceGeometry())));
-	assert(("getNrOfNodes",test->getNrOfNodes()==4));
+	logger.assert_always((typeid(Geometry::MappingToPhysSimplexLinear<3>)==typeid(*test->getReferenceToPhysicalMap())),"getReferenceToPhysicalMap");
+	logger.assert_always((typeid(Geometry::PhysicalTetrahedron)==typeid(*test->getPhysicalGeometry())),"getPhysicalGeometry");
+	logger.assert_always((typeid(Geometry::ReferenceTetrahedron)==typeid(*test->getReferenceGeometry())),"getReferenceGeometry");
+	logger.assert_always((test->getNrOfNodes()==4),"getNrOfNodes");
 
 	for(orig3D[0]=-2.8189;orig3D[0]<3.141;orig3D[0]+=0.2){
 		for(orig3D[1]=-2.8189;orig3D[1]<3.141;orig3D[1]+=0.25){
 			for(orig3D[2]=-2.8189;orig3D[2]<3.141;orig3D[2]+=0.3){
 				test->getReferenceToPhysicalMap()->transform(orig3D,compare3D);
 				test->referenceToPhysical(orig3D,point3D);
-				assert(("referenceToPhysical",std::abs(point3D[0]-compare3D[0])<1e-12));
-				assert(("referenceToPhysical",std::abs(point3D[1]-compare3D[1])<1e-12));
-				assert(("referenceToPhysical",std::abs(point3D[2]-compare3D[2])<1e-12));
+				logger.assert_always((std::abs(point3D[0]-compare3D[0])<1e-12),"referenceToPhysical");
+				logger.assert_always((std::abs(point3D[1]-compare3D[1])<1e-12),"referenceToPhysical");
+				logger.assert_always((std::abs(point3D[2]-compare3D[2])<1e-12),"referenceToPhysical");
 
 				test->getReferenceToPhysicalMap()->calcJacobian(orig3D,jaccompare);
 				test->calcJacobian(orig3D,jac);
-				assert(("calcJacobian",std::abs(jac[0]-jaccompare[0])<1e-12));
-				assert(("calcJacobian",std::abs(jac[1]-jaccompare[1])<1e-12));
-				assert(("calcJacobian",std::abs(jac[2]-jaccompare[2])<1e-12));
-				assert(("calcJacobian",std::abs(jac[3]-jaccompare[3])<1e-12));
-				assert(("calcJacobian",std::abs(jac[4]-jaccompare[4])<1e-12));
-				assert(("calcJacobian",std::abs(jac[5]-jaccompare[5])<1e-12));
-				assert(("calcJacobian",std::abs(jac[6]-jaccompare[6])<1e-12));
-				assert(("calcJacobian",std::abs(jac[7]-jaccompare[7])<1e-12));
-				assert(("calcJacobian",std::abs(jac[8]-jaccompare[8])<1e-12));
+				logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[3]-jaccompare[3])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[4]-jaccompare[4])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[5]-jaccompare[5])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[6]-jaccompare[6])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[7]-jaccompare[7])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[8]-jaccompare[8])<1e-12),"calcJacobian");
 			}
 		}
 	}
@@ -243,31 +243,31 @@ int main(){
 	delete test;
 	test = new Geometry::ElementGeometry(pointIndexes,nodes3D);
 
-	assert(("getReferenceToPhysicalMap",typeid(Geometry::MappingToPhysPyramid)==typeid(*test->getReferenceToPhysicalMap())));
-	assert(("getPhysicalGeometry",typeid(Geometry::PhysicalPyramid)==typeid(*test->getPhysicalGeometry())));
-	assert(("getReferenceGeometry",typeid(Geometry::ReferencePyramid)==typeid(*test->getReferenceGeometry())));
-	assert(("getNrOfNodes",test->getNrOfNodes()==5));
+	logger.assert_always((typeid(Geometry::MappingToPhysPyramid)==typeid(*test->getReferenceToPhysicalMap())),"getReferenceToPhysicalMap");
+	logger.assert_always((typeid(Geometry::PhysicalPyramid)==typeid(*test->getPhysicalGeometry())),"getPhysicalGeometry");
+	logger.assert_always((typeid(Geometry::ReferencePyramid)==typeid(*test->getReferenceGeometry())),"getReferenceGeometry");
+	logger.assert_always((test->getNrOfNodes()==5),"getNrOfNodes");
 
 	for(orig3D[0]=-2.8189;orig3D[0]<3.141;orig3D[0]+=0.2){
 		for(orig3D[1]=-2.8189;orig3D[1]<3.141;orig3D[1]+=0.25){
 			for(orig3D[2]=-2.8189;orig3D[2]<3.141;orig3D[2]+=0.3){
 				test->getReferenceToPhysicalMap()->transform(orig3D,compare3D);
 				test->referenceToPhysical(orig3D,point3D);
-				assert(("referenceToPhysical",std::abs(point3D[0]-compare3D[0])<1e-12));
-				assert(("referenceToPhysical",std::abs(point3D[1]-compare3D[1])<1e-12));
-				assert(("referenceToPhysical",std::abs(point3D[2]-compare3D[2])<1e-12));
+				logger.assert_always((std::abs(point3D[0]-compare3D[0])<1e-12),"referenceToPhysical");
+				logger.assert_always((std::abs(point3D[1]-compare3D[1])<1e-12),"referenceToPhysical");
+				logger.assert_always((std::abs(point3D[2]-compare3D[2])<1e-12),"referenceToPhysical");
 
 				test->getReferenceToPhysicalMap()->calcJacobian(orig3D,jaccompare);
 				test->calcJacobian(orig3D,jac);
-				assert(("calcJacobian",std::abs(jac[0]-jaccompare[0])<1e-12));
-				assert(("calcJacobian",std::abs(jac[1]-jaccompare[1])<1e-12));
-				assert(("calcJacobian",std::abs(jac[2]-jaccompare[2])<1e-12));
-				assert(("calcJacobian",std::abs(jac[3]-jaccompare[3])<1e-12));
-				assert(("calcJacobian",std::abs(jac[4]-jaccompare[4])<1e-12));
-				assert(("calcJacobian",std::abs(jac[5]-jaccompare[5])<1e-12));
-				assert(("calcJacobian",std::abs(jac[6]-jaccompare[6])<1e-12));
-				assert(("calcJacobian",std::abs(jac[7]-jaccompare[7])<1e-12));
-				assert(("calcJacobian",std::abs(jac[8]-jaccompare[8])<1e-12));
+				logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[3]-jaccompare[3])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[4]-jaccompare[4])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[5]-jaccompare[5])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[6]-jaccompare[6])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[7]-jaccompare[7])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[8]-jaccompare[8])<1e-12),"calcJacobian");
 			}
 		}
 	}
@@ -278,31 +278,31 @@ int main(){
 	delete test;
 	test = new Geometry::ElementGeometry(pointIndexes,nodes3D);
 
-	assert(("getReferenceToPhysicalMap",typeid(Geometry::MappingToPhysTriangularPrism)==typeid(*test->getReferenceToPhysicalMap())));
-	assert(("getPhysicalGeometry",typeid(Geometry::PhysicalTriangularPrism)==typeid(*test->getPhysicalGeometry())));
-	assert(("getReferenceGeometry",typeid(Geometry::ReferenceTriangularPrism)==typeid(*test->getReferenceGeometry())));
-	assert(("getNrOfNodes",test->getNrOfNodes()==6));
+	logger.assert_always((typeid(Geometry::MappingToPhysTriangularPrism)==typeid(*test->getReferenceToPhysicalMap())),"getReferenceToPhysicalMap");
+	logger.assert_always((typeid(Geometry::PhysicalTriangularPrism)==typeid(*test->getPhysicalGeometry())),"getPhysicalGeometry");
+	logger.assert_always((typeid(Geometry::ReferenceTriangularPrism)==typeid(*test->getReferenceGeometry())),"getReferenceGeometry");
+	logger.assert_always((test->getNrOfNodes()==6),"getNrOfNodes");
 
 	for(orig3D[0]=-2.8189;orig3D[0]<3.141;orig3D[0]+=0.2){
 		for(orig3D[1]=-2.8189;orig3D[1]<3.141;orig3D[1]+=0.25){
 			for(orig3D[2]=-2.8189;orig3D[2]<3.141;orig3D[2]+=0.3){
 				test->getReferenceToPhysicalMap()->transform(orig3D,compare3D);
 				test->referenceToPhysical(orig3D,point3D);
-				assert(("referenceToPhysical",std::abs(point3D[0]-compare3D[0])<1e-12));
-				assert(("referenceToPhysical",std::abs(point3D[1]-compare3D[1])<1e-12));
-				assert(("referenceToPhysical",std::abs(point3D[2]-compare3D[2])<1e-12));
+				logger.assert_always((std::abs(point3D[0]-compare3D[0])<1e-12),"referenceToPhysical");
+				logger.assert_always((std::abs(point3D[1]-compare3D[1])<1e-12),"referenceToPhysical");
+				logger.assert_always((std::abs(point3D[2]-compare3D[2])<1e-12),"referenceToPhysical");
 
 				test->getReferenceToPhysicalMap()->calcJacobian(orig3D,jaccompare);
 				test->calcJacobian(orig3D,jac);
-				assert(("calcJacobian",std::abs(jac[0]-jaccompare[0])<1e-12));
-				assert(("calcJacobian",std::abs(jac[1]-jaccompare[1])<1e-12));
-				assert(("calcJacobian",std::abs(jac[2]-jaccompare[2])<1e-12));
-				assert(("calcJacobian",std::abs(jac[3]-jaccompare[3])<1e-12));
-				assert(("calcJacobian",std::abs(jac[4]-jaccompare[4])<1e-12));
-				assert(("calcJacobian",std::abs(jac[5]-jaccompare[5])<1e-12));
-				assert(("calcJacobian",std::abs(jac[6]-jaccompare[6])<1e-12));
-				assert(("calcJacobian",std::abs(jac[7]-jaccompare[7])<1e-12));
-				assert(("calcJacobian",std::abs(jac[8]-jaccompare[8])<1e-12));
+				logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[3]-jaccompare[3])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[4]-jaccompare[4])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[5]-jaccompare[5])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[6]-jaccompare[6])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[7]-jaccompare[7])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[8]-jaccompare[8])<1e-12),"calcJacobian");
 			}
 		}
 	}
@@ -314,31 +314,31 @@ int main(){
 	delete test;
 	test = new Geometry::ElementGeometry(pointIndexes,nodes3D);
 
-	assert(("getReferenceToPhysicalMap",typeid(Geometry::MappingToPhysHypercubeLinear<3>)==typeid(*test->getReferenceToPhysicalMap())));
-	assert(("getPhysicalGeometry",typeid(Geometry::PhysicalHexahedron)==typeid(*test->getPhysicalGeometry())));
-	assert(("getReferenceGeometry",typeid(Geometry::ReferenceCube)==typeid(*test->getReferenceGeometry())));
-	assert(("getNrOfNodes",test->getNrOfNodes()==8));
+	logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<3>)==typeid(*test->getReferenceToPhysicalMap())),"getReferenceToPhysicalMap");
+	logger.assert_always((typeid(Geometry::PhysicalHexahedron)==typeid(*test->getPhysicalGeometry())),"getPhysicalGeometry");
+	logger.assert_always((typeid(Geometry::ReferenceCube)==typeid(*test->getReferenceGeometry())),"getReferenceGeometry");
+	logger.assert_always((test->getNrOfNodes()==8),"getNrOfNodes");
 
 	for(orig3D[0]=-2.8189;orig3D[0]<3.141;orig3D[0]+=0.2){
 		for(orig3D[1]=-2.8189;orig3D[1]<3.141;orig3D[1]+=0.25){
 			for(orig3D[2]=-2.8189;orig3D[2]<3.141;orig3D[2]+=0.3){
 				test->getReferenceToPhysicalMap()->transform(orig3D,compare3D);
 				test->referenceToPhysical(orig3D,point3D);
-				assert(("referenceToPhysical",std::abs(point3D[0]-compare3D[0])<1e-12));
-				assert(("referenceToPhysical",std::abs(point3D[1]-compare3D[1])<1e-12));
-				assert(("referenceToPhysical",std::abs(point3D[2]-compare3D[2])<1e-12));
+				logger.assert_always((std::abs(point3D[0]-compare3D[0])<1e-12),"referenceToPhysical");
+				logger.assert_always((std::abs(point3D[1]-compare3D[1])<1e-12),"referenceToPhysical");
+				logger.assert_always((std::abs(point3D[2]-compare3D[2])<1e-12),"referenceToPhysical");
 
 				test->getReferenceToPhysicalMap()->calcJacobian(orig3D,jaccompare);
 				test->calcJacobian(orig3D,jac);
-				assert(("calcJacobian",std::abs(jac[0]-jaccompare[0])<1e-12));
-				assert(("calcJacobian",std::abs(jac[1]-jaccompare[1])<1e-12));
-				assert(("calcJacobian",std::abs(jac[2]-jaccompare[2])<1e-12));
-				assert(("calcJacobian",std::abs(jac[3]-jaccompare[3])<1e-12));
-				assert(("calcJacobian",std::abs(jac[4]-jaccompare[4])<1e-12));
-				assert(("calcJacobian",std::abs(jac[5]-jaccompare[5])<1e-12));
-				assert(("calcJacobian",std::abs(jac[6]-jaccompare[6])<1e-12));
-				assert(("calcJacobian",std::abs(jac[7]-jaccompare[7])<1e-12));
-				assert(("calcJacobian",std::abs(jac[8]-jaccompare[8])<1e-12));
+				logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[3]-jaccompare[3])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[4]-jaccompare[4])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[5]-jaccompare[5])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[6]-jaccompare[6])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[7]-jaccompare[7])<1e-12),"calcJacobian");
+				logger.assert_always((std::abs(jac[8]-jaccompare[8])<1e-12),"calcJacobian");
 			}
 		}
 	}
@@ -441,10 +441,10 @@ int main(){
 	delete test;
 	test = new Geometry::ElementGeometry(pointIndexes,nodes4D);
 
-	assert(("getReferenceToPhysicalMap",typeid(Geometry::MappingToPhysHypercubeLinear<4>)==typeid(*test->getReferenceToPhysicalMap())));
-	assert(("getPhysicalGeometry",typeid(Geometry::PhysicalOctachoron)==typeid(*test->getPhysicalGeometry())));
-	assert(("getReferenceGeometry",typeid(Geometry::ReferenceHypercube)==typeid(*test->getReferenceGeometry())));
-	assert(("getNrOfNodes",test->getNrOfNodes()==16));
+	logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<4>)==typeid(*test->getReferenceToPhysicalMap())),"getReferenceToPhysicalMap");
+	logger.assert_always((typeid(Geometry::PhysicalOctachoron)==typeid(*test->getPhysicalGeometry())),"getPhysicalGeometry");
+	logger.assert_always((typeid(Geometry::ReferenceHypercube)==typeid(*test->getReferenceGeometry())),"getReferenceGeometry");
+	logger.assert_always((test->getNrOfNodes()==16),"getNrOfNodes");
 
 	for(orig4D[0]=-1.5189;orig4D[0]<1.541;orig4D[0]+=0.25){
 		for(orig4D[1]=-1.5189;orig4D[1]<1.541;orig4D[1]+=0.25){
@@ -452,29 +452,29 @@ int main(){
 				for(orig4D[3]=-1.5189;orig4D[3]<1.541;orig4D[3]+=0.3){
 					test->getReferenceToPhysicalMap()->transform(orig4D,compare4D);
 					test->referenceToPhysical(orig4D,point4D);
-					assert(("referenceToPhysical",std::abs(point4D[0]-compare4D[0])<1e-12));
-					assert(("referenceToPhysical",std::abs(point4D[1]-compare4D[1])<1e-12));
-					assert(("referenceToPhysical",std::abs(point4D[2]-compare4D[2])<1e-12));
-					assert(("referenceToPhysical",std::abs(point4D[3]-compare4D[3])<1e-12));
+					logger.assert_always((std::abs(point4D[0]-compare4D[0])<1e-12),"referenceToPhysical");
+					logger.assert_always((std::abs(point4D[1]-compare4D[1])<1e-12),"referenceToPhysical");
+					logger.assert_always((std::abs(point4D[2]-compare4D[2])<1e-12),"referenceToPhysical");
+					logger.assert_always((std::abs(point4D[3]-compare4D[3])<1e-12),"referenceToPhysical");
 
 					test->getReferenceToPhysicalMap()->calcJacobian(orig4D,jaccompare);
 					test->calcJacobian(orig4D,jac);
-					assert(("calcJacobian",std::abs(jac[0]-jaccompare[0])<1e-12));
-					assert(("calcJacobian",std::abs(jac[1]-jaccompare[1])<1e-12));
-					assert(("calcJacobian",std::abs(jac[2]-jaccompare[2])<1e-12));
-					assert(("calcJacobian",std::abs(jac[3]-jaccompare[3])<1e-12));
-					assert(("calcJacobian",std::abs(jac[4]-jaccompare[4])<1e-12));
-					assert(("calcJacobian",std::abs(jac[5]-jaccompare[5])<1e-12));
-					assert(("calcJacobian",std::abs(jac[6]-jaccompare[6])<1e-12));
-					assert(("calcJacobian",std::abs(jac[7]-jaccompare[7])<1e-12));
-					assert(("calcJacobian",std::abs(jac[8]-jaccompare[8])<1e-12));
-					assert(("calcJacobian",std::abs(jac[9]-jaccompare[9])<1e-12));
-					assert(("calcJacobian",std::abs(jac[10]-jaccompare[10])<1e-12));
-					assert(("calcJacobian",std::abs(jac[11]-jaccompare[11])<1e-12));
-					assert(("calcJacobian",std::abs(jac[12]-jaccompare[12])<1e-12));
-					assert(("calcJacobian",std::abs(jac[13]-jaccompare[13])<1e-12));
-					assert(("calcJacobian",std::abs(jac[14]-jaccompare[14])<1e-12));
-					assert(("calcJacobian",std::abs(jac[15]-jaccompare[15])<1e-12));
+					logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[3]-jaccompare[3])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[4]-jaccompare[4])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[5]-jaccompare[5])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[6]-jaccompare[6])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[7]-jaccompare[7])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[8]-jaccompare[8])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[9]-jaccompare[9])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[10]-jaccompare[10])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[11]-jaccompare[11])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[12]-jaccompare[12])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[13]-jaccompare[13])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[14]-jaccompare[14])<1e-12),"calcJacobian");
+					logger.assert_always((std::abs(jac[15]-jaccompare[15])<1e-12),"calcJacobian");
 				}
 			}
 		}

@@ -24,7 +24,7 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/FaceGeometry.hpp"
-#include "cassert"
+#include "Logger.h"
 
 #include "Geometry/ReferenceLine.hpp"
 #include "Geometry/ReferencePoint.hpp"
@@ -80,17 +80,17 @@ int main(){
 		test->getElementGLeft()->referenceToPhysical(compare1D,compare1Dphys);
 		test->mapRefFaceToRefElemL(orig1D,point1D);
 		test->referenceToPhysical(orig1D,point1Dphys);
-		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",std::abs(compare1D[0]-point1D[0])<1e-12));
-		assert(("referenceToPhysical",std::abs(compare1Dphys[0]-point1Dphys[0])<1e-12));
+		logger.assert_always((std::abs(compare1D[0]-point1D[0])<1e-12),"getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
+		logger.assert_always((std::abs(compare1Dphys[0]-point1Dphys[0])<1e-12),"referenceToPhysical");
 		test->getPtrElementGRight()->getReferenceGeometry()->getNode(rightIndices[i],compare1D);
 		test->getPtrElementGRight()->referenceToPhysical(compare1D,compare1Dphys);
 		test->mapRefFaceToRefElemR(orig1D,point1D);
-		assert(("getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace",std::abs(compare1D[0]-point1D[0])<1e-12));
-		assert(("referenceToPhysical",std::abs(compare1Dphys[0]-point1Dphys[0])<1e-12));//probably indirectly verified already, but this is the most important feature of a face
+		logger.assert_always((std::abs(compare1D[0]-point1D[0])<1e-12),"getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
+		logger.assert_always((std::abs(compare1Dphys[0]-point1Dphys[0])<1e-12),"referenceToPhysical");//probably indirectly verified already, but this is the most important feature of a face
 	}
 
-	assert((test->getFaceType()==Geometry::FaceType::INTERNAL));
-	assert((typeid(*test->getReferenceGeometry())==typeid(Geometry::ReferencePoint)));
+	logger.assert_always((test->getFaceType()==Geometry::FaceType::INTERNAL), "Face type internal");
+	logger.assert_always((typeid(*test->getReferenceGeometry())==typeid(Geometry::ReferencePoint)),"Reference geometry point");
 
 	//dim 1
 
@@ -149,21 +149,21 @@ int main(){
 		test->getElementGLeft()->referenceToPhysical(compare2D,compare2Dphys);
 		test->mapRefFaceToRefElemL(orig2D,point2D);
 		test->referenceToPhysical(orig2D,point2Dphys);
-		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",std::abs(compare2D[0]-point2D[0])<1e-12));
-		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",std::abs(compare2D[1]-point2D[1])<1e-12));
-		assert(("referenceToPhysical",std::abs(compare2Dphys[0]-point2Dphys[0])<1e-12));
-		assert(("referenceToPhysical",std::abs(compare2Dphys[1]-point2Dphys[1])<1e-12));
+		logger.assert_always((std::abs(compare2D[0]-point2D[0])<1e-12),"getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
+		logger.assert_always((std::abs(compare2D[1]-point2D[1])<1e-12),"getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
+		logger.assert_always((std::abs(compare2Dphys[0]-point2Dphys[0])<1e-12),"referenceToPhysical");
+		logger.assert_always((std::abs(compare2Dphys[1]-point2Dphys[1])<1e-12),"referenceToPhysical");
 		test->getPtrElementGRight()->getReferenceGeometry()->getNode(rightIndices[i],compare2D);
 		test->getPtrElementGRight()->referenceToPhysical(compare2D,compare2Dphys);
 		test->mapRefFaceToRefElemR(orig2D,point2D);
-		assert(("getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace",std::abs(compare2D[0]-point2D[0])<1e-12));
-		assert(("getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace",std::abs(compare2D[1]-point2D[1])<1e-12));
-		assert(("referenceToPhysical",std::abs(compare2Dphys[0]-point2Dphys[0])<1e-12));//probably indirectly verified already, but this is the most important feature of a face
-		assert(("referenceToPhysical",std::abs(compare2Dphys[1]-point2Dphys[1])<1e-12));
+		logger.assert_always((std::abs(compare2D[0]-point2D[0])<1e-12),"getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
+		logger.assert_always((std::abs(compare2D[1]-point2D[1])<1e-12),"getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
+		logger.assert_always((std::abs(compare2Dphys[0]-point2Dphys[0])<1e-12),"referenceToPhysical");//probably indirectly verified already, but this is the most important feature of a face
+		logger.assert_always((std::abs(compare2Dphys[1]-point2Dphys[1])<1e-12),"referenceToPhysical");
 	}
 
-	assert((test->getFaceType()==Geometry::FaceType::INTERNAL));
-	assert((typeid(*test->getReferenceGeometry())==typeid(Geometry::ReferenceLine)));
+	logger.assert_always((test->getFaceType()==Geometry::FaceType::INTERNAL), "Internal face type");
+	logger.assert_always((typeid(*test->getReferenceGeometry())==typeid(Geometry::ReferenceLine)),"Reference geometry line");
 
 
 
@@ -191,14 +191,14 @@ int main(){
 		test->getElementGLeft()->referenceToPhysical(compare2D,compare2Dphys);
 		test->mapRefFaceToRefElemL(orig2D,point2D);
 		test->referenceToPhysical(orig2D,point2Dphys);
-		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",std::abs(compare2D[0]-point2D[0])<1e-12));
-		assert(("getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL",std::abs(compare2D[1]-point2D[1])<1e-12));
-		assert(("referenceToPhysical",std::abs(compare2Dphys[0]-point2Dphys[0])<1e-12));
-		assert(("referenceToPhysical",std::abs(compare2Dphys[1]-point2Dphys[1])<1e-12));
+		logger.assert_always((std::abs(compare2D[0]-point2D[0])<1e-12),"getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
+		logger.assert_always((std::abs(compare2D[1]-point2D[1])<1e-12),"getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
+		logger.assert_always((std::abs(compare2Dphys[0]-point2Dphys[0])<1e-12),"referenceToPhysical");
+		logger.assert_always((std::abs(compare2Dphys[1]-point2Dphys[1])<1e-12),"referenceToPhysical");
 	}
 
-	assert((test->getFaceType()==Geometry::FaceType::WALL_BC));
-	assert((typeid(*test->getReferenceGeometry())==typeid(Geometry::ReferenceLine)));
-    assert((test->getPtrElementGRight() == nullptr));
+	logger.assert_always((test->getFaceType()==Geometry::FaceType::WALL_BC),"FaceType wall");
+	logger.assert_always((typeid(*test->getReferenceGeometry())==typeid(Geometry::ReferenceLine)), "Reference geometry line");
+    logger.assert_always((test->getPtrElementGRight() == nullptr), "No right element");
 }
 
