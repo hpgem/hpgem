@@ -23,7 +23,7 @@
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
 #include "Integration/QuadratureRules/GaussQuadratureRulesForLine.hpp"
-#include <cassert>
+#include "Logger.h"
 #include <typeinfo>
 
 #include "Utilities/BasisFunctions1DH1ConformingLine.hpp"
@@ -36,9 +36,9 @@
 void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOrder)
 {
     std::cout << test.getName();
-    assert(("dimension", test.dimension() == 1));
-    assert(("order", test.order() >= expectedOrder));
-    assert(("forReferenceGeometry", typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferenceLine)));
+    logger.assert_always((test.dimension() == 1),"dimension");
+    logger.assert_always(( test.order() >= expectedOrder),"order");
+    logger.assert_always(( typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferenceLine)),"forReferenceGeometry");
     Geometry::PointReference point(1);
 
     Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet1DH1Line(expectedOrder);
@@ -53,15 +53,15 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOr
         }
         if(i < 2)
         {
-            assert(("integration", std::abs(integrated - 1) < 1e-12));
+            logger.assert_always(( std::abs(integrated - 1) < 1e-12),"integration");
         }
         else if(i == 2)
         {
-            assert(("integration", std::abs(integrated + std::sqrt(2. / 3.)) < 1e-12));
+            logger.assert_always(( std::abs(integrated + std::sqrt(2. / 3.)) < 1e-12),"integration");
         }
         else
         {
-            assert(("integration", std::abs(integrated) < 1e-12));
+            logger.assert_always(( std::abs(integrated) < 1e-12),"integration");
         }
 
     }

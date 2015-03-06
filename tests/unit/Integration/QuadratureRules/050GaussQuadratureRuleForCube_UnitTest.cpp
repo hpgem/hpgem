@@ -24,7 +24,7 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.hpp"
-#include <cassert>
+#include "Logger.h"
 #include <typeinfo>
 
 #include "Utilities/BasisFunctions3DH1ConformingCube.hpp"
@@ -36,9 +36,9 @@
 
 void testRule(QuadratureRules::GaussQuadratureRule& test,std::size_t expectedOrder){
 	std::cout<<test.getName()<<std::endl;
-	assert(("dimension",test.dimension()==3));
-	assert(("order",test.order()>=expectedOrder));
-	assert(("forReferenceGeometry",typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferenceCube)));
+	logger.assert_always((test.dimension()==3),"dimension");
+	logger.assert_always((test.order()>=expectedOrder),"order");
+	logger.assert_always((typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferenceCube)),"forReferenceGeometry");
 	Geometry::PointReference point(3);
 
 	Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet3DH1Cube(expectedOrder);
@@ -50,15 +50,15 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,std::size_t expectedOrd
 			integrated+=test.weight(j)*functions->eval(i,point);
 		}
 		if(i<8){
-			assert(("integration",std::abs(integrated-1)<1e-12));
+			logger.assert_always((std::abs(integrated-1)<1e-12),"integration");
 		}else if(i<20){
-			assert(("integration",std::abs(integrated+std::sqrt(2./3.))<1e-12));
+			logger.assert_always((std::abs(integrated+std::sqrt(2./3.))<1e-12),"integration");
 		}else if(i<26){
-			assert(("integration",std::abs(integrated-2./3.)<1e-12));
+			logger.assert_always((std::abs(integrated-2./3.)<1e-12),"integration");
 		}else if(i==26){
-			assert(("integration",std::abs(integrated+std::sqrt(2./3.)*2./3.)<1e-12));
+			logger.assert_always((std::abs(integrated+std::sqrt(2./3.)*2./3.)<1e-12),"integration");
 		}else{
-			assert(("integration",std::abs(integrated)<1e-12));
+			logger.assert_always((std::abs(integrated)<1e-12),"integration");
 		}
 
 	}

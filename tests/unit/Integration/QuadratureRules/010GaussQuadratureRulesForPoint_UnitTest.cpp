@@ -24,7 +24,7 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Integration/QuadratureRules/GaussQuadratureRulesForPoint.hpp"
-#include <cassert>
+#include "Logger.h"
 #include <iostream>
 #include <typeinfo>
 #include "Geometry/PointReference.hpp"
@@ -33,9 +33,9 @@
 
 void testRule(QuadratureRules::GaussQuadratureRule& test){
 	std::cout<<test.getName();
-	assert(("dimension",test.dimension()==0));
-	assert(("order",test.order()>11));
-	assert(("forReferenceGeometry",typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferencePoint)));
+	logger.assert_always((test.dimension()==0),"dimension");
+	logger.assert_always((test.order()>11),"order");
+	logger.assert_always((typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferencePoint)),"forReferenceGeometry");
 	Geometry::PointReference point(0);
 	//0D Quadrature rules are special
 	double integrated=0;
@@ -43,7 +43,7 @@ void testRule(QuadratureRules::GaussQuadratureRule& test){
 		integrated+=test.weight(i);
 		point = test.getPoint(i);
 	}
-	assert(("integration",std::abs(integrated-1)<1e-12));
+	logger.assert_always((std::abs(integrated-1)<1e-12),"integration");
 }
 
 int main(){

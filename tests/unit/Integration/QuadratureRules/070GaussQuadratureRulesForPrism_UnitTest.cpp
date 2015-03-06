@@ -24,7 +24,7 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTriangularPrism.hpp"
-#include <cassert>
+#include "Logger.h"
 #include <typeinfo>
 
 #include "Utilities/BasisFunctions3DH1ConformingPrism.hpp"
@@ -36,9 +36,9 @@
 
 void testRule(QuadratureRules::GaussQuadratureRule& test,std::size_t expectedOrder){
 	std::cout<<test.getName()<<std::endl;
-	assert(("dimension",test.dimension()==3));
-	assert(("order",test.order()>=expectedOrder));
-	assert(("forReferenceGeometry",typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferenceTriangularPrism)));
+	logger.assert_always((test.dimension()==3),"dimension");
+	logger.assert_always((test.order()>=expectedOrder),"order");
+	logger.assert_always((typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferenceTriangularPrism)),"forReferenceGeometry");
 	Geometry::PointReference point(3);
 	std::cout.precision(14);
 	Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet3DH1ConformingPrism(expectedOrder);
@@ -49,37 +49,37 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,std::size_t expectedOrd
 			integrated+=test.weight(j)*functions->eval(i,point);
 		}
 		if(i<6){
-			assert(("integration",std::abs(integrated-1./6.)<1e-10));
+			logger.assert_always((std::abs(integrated-1./6.)<1e-10),"integration");
 		}else if(i<12){
-			assert(("integration",std::abs(integrated+0.1020620726159)<1e-10));
+			logger.assert_always((  std::abs(integrated+0.1020620726159)<1e-10),"integration");
 		}else if(11<i&&i<15){
-			assert(("integration",std::abs(integrated+0.1360827634879)<1e-9));
+			logger.assert_always((  std::abs(integrated+0.1360827634879)<1e-9),"integration");
 		}else if(14<i&&i<18){
-			assert(("integration",std::abs(integrated-1./12.)<1e-10));
+			logger.assert_always((  std::abs(integrated-1./12.)<1e-10),"integration");
 		}else if(i==27||i==28){
-			assert(("integration",std::abs(integrated-1./20.)<1e-10));
+			logger.assert_always((  std::abs(integrated-1./20.)<1e-10),"integration");
 		}else if(40<i&&i<47){
-			assert(("integration",std::abs(integrated-0.012991865926298)<1e-10));
+			logger.assert_always((  std::abs(integrated-0.012991865926298)<1e-10),"integration");
 		}else if(i==56||i==61||i==66){
-			assert(("integration",std::abs(integrated+0.01060781410869)<1e-10));
+			logger.assert_always((  std::abs(integrated+0.01060781410869)<1e-10),"integration");
 		}else if(i==69||i==70){
-			assert(("integration",std::abs(integrated-0.008166315725102)<1e-10));
+			logger.assert_always((  std::abs(integrated-0.008166315725102)<1e-10),"integration");
 		}else if(i==75){
-			assert(("integration",std::abs(integrated-0.001369177697178)<1e-10||expectedOrder==7));//actually the p=5 quadrature rule may also be the culprit, but 7 is more likely because it has other flaws
+			logger.assert_always((  std::abs(integrated-0.001369177697178)<1e-10||expectedOrder==7),"integration");//actually the p=5 quadrature rule may also be the culprit, but 7 is more likely because it has other flaws
 		}else if(i==76){
-			assert(("integration",std::abs(integrated+0.001369177697178)<1e-10||expectedOrder==7));
+			logger.assert_always((  std::abs(integrated+0.001369177697178)<1e-10||expectedOrder==7),"integration");
 		}else if(i==87||i==89||i==90||i==92){
-			assert(("integration",std::abs(integrated+0.010001653302483)<1e-10));
+			logger.assert_always((  std::abs(integrated+0.010001653302483)<1e-10),"integration");
 		}else if(i==88||i==91){
-			assert(("integration",std::abs(integrated+0.003968253968254)<1e-10));
+			logger.assert_always((  std::abs(integrated+0.003968253968254)<1e-10),"integration");
 		}else if(i==123||i==124){
-			assert(("integration",std::abs(integrated+0.000465750474069)<1e-10||expectedOrder==7));
+			logger.assert_always((  std::abs(integrated+0.000465750474069)<1e-10||expectedOrder==7),"integration");
 		}else if(i==129){
-			assert(("integration",std::abs(integrated+0.000721656823802)<1e-10||expectedOrder==7));
+			logger.assert_always((  std::abs(integrated+0.000721656823802)<1e-10||expectedOrder==7),"integration");
 		}else if(i==130){
-			assert(("integration",std::abs(integrated-0.000721656823802)<1e-10||expectedOrder==7));
+			logger.assert_always((  std::abs(integrated-0.000721656823802)<1e-10||expectedOrder==7),"integration");
 		}else if(i<132){//I test what I can for p=7, but not all the points
-			assert(("integration",std::abs(integrated)<1e-10));
+			logger.assert_always((  std::abs(integrated)<1e-10),"integration");
 		}
 
 	}
