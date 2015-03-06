@@ -21,7 +21,7 @@
 
 #include <iostream>
 
-#include "Base/TestErrorDebug.hpp"
+#include "Logger.h"
 #include "Geometry/RefinementQuadrilateral.hpp"
 
 #include "PointPhysical.hpp"
@@ -84,7 +84,7 @@ namespace Geometry
 
     void RefinementQuadrilateral::subElementLocalNodeIndices(int refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const
     {
-        TestErrorDebug((iSubElement<nrOfSubElements(refineType)),
+        logger.assert((iSubElement<nrOfSubElements(refineType)),
                         "RefinementQuadrilateral: invalid sub-element index while getting its local node indices!");
 
         LocalNodeIdx.clear();
@@ -258,7 +258,11 @@ namespace Geometry
               
             case 2:    // xy-refinement
               return 2;
+        default:
+            logger(WARN, "refineType % not implemented", refineType);
         }
+        
+        return 1;
     }
 
     void RefinementQuadrilateral::subElementsOnFace(int refineType, std::size_t faLocalIndex, VectorOfIndicesT& localSubElemIdx) const

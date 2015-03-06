@@ -21,7 +21,7 @@
 #include "Base/BasisFunctionSet.hpp"
 
 #include "Base/BaseBasisFunction.hpp"
-#include "TestErrorDebug.hpp"
+#include "Logger.h"
 #include "LinearAlgebra/NumericalVector.hpp"
 
 namespace Base
@@ -64,7 +64,7 @@ namespace Base
     double
     BasisFunctionSet::evalDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const
     {
-        TestErrorDebug((jDir < 4), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
+        logger.assert((jDir < 4), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
 
         switch (jDir)
         {

@@ -34,7 +34,7 @@
 #include "ElementCacheData.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
 #include "Geometry/PointReference.hpp"
-#include "TestErrorDebug.hpp"
+#include "Logger.h"
 #include "Node.hpp"
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 #include "Geometry/Jacobian.hpp"
@@ -168,7 +168,7 @@ namespace Base
 
     double Element::basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p)const
     {
-        TestErrorDebug((jDir<p.size()),"Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
+        logger.assert((jDir<p.size()),"Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
 
         /*if (jDir>= DIM)
             return -1.e50;
@@ -176,7 +176,7 @@ namespace Base
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
             if(j!=-1){
-                int n=basisFunctionSet_->at(j)->size();
+                std::size_t n=basisFunctionSet_->at(j)->size();
                 if(i-basePosition<n){
                     return basisFunctionSet_->at(j)->evalDeriv(i-basePosition, jDir, p);
                 }else{
@@ -195,7 +195,7 @@ namespace Base
         {
         	if(j!=-1)
             {
-        		int n=basisFunctionSet_->at(j)->size();
+        		std::size_t n=basisFunctionSet_->at(j)->size();
 				if(i-basePosition<n)
                 {
 					function=basisFunctionSet_->at(j)->operator[](i-basePosition);
@@ -349,7 +349,7 @@ namespace Base
 
     void Element::setFace(std::size_t localFaceNr, const Face* face)
     {
-    	TestErrorDebug((face->getPtrElementLeft()==this&&face->localFaceNumberLeft()==localFaceNr)||
+    	logger.assert((face->getPtrElementLeft()==this&&face->localFaceNumberLeft()==localFaceNr)||
     			       (face->getPtrElementRight()==this&&face->localFaceNumberRight()==localFaceNr),"You are only allowed to set a face to a local face index that matches");
     	if(facesList_.size()<localFaceNr+1)
     	{

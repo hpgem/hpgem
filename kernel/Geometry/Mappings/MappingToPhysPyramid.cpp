@@ -146,11 +146,11 @@ namespace Geometry
         }
     }
 
-    //* \bug Changed this function to use abs not std::abs is this gave the error error:
-    /*  call to 'abs' is ambiguous, but only if we are using STL vector for the LinearAlgebrea
-    /*  The problem is prob the use of math.h instead of cmath some where in the code but I cannot find it at the moment [Ant]
-     *  (resolved) you forgot to #include <cmath>, but something #include <cstdlib> (where the integer type std::abs is defined) -FB
-     */
+    /* \bug Changed this function to use abs not std::abs is this gave the error error:
+    *  call to 'abs' is ambiguous, but only if we are using STL vector for the LinearAlgebrea
+    *  The problem is prob the use of math.h instead of cmath some where in the code but I cannot find it at the moment [Ant]
+    *  (resolved) you forgot to #include <cmath>, but something #include <cstdlib> (where the integer type std::abs is defined) -FB
+    */
     bool MappingToPhysPyramid::isValidPoint(const PointReference& pointReference) const
     {
         static const double eps = 1.e-14;

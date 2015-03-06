@@ -26,6 +26,7 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferencePoint.hpp"
 #include "LinearAlgebra/Matrix.hpp"
+#include "Logger.h"
 
 namespace Geometry
 {
@@ -181,11 +182,10 @@ namespace Geometry
     std::vector<std::size_t> ReferenceSquare::
     getCodim1EntityLocalIndices(const IndexT faceIndex) const
     {
-        if (faceIndex < 4)
-        {
+        logger.assert(faceIndex < 4, "A square has only 4 edges, while edge % is requested", faceIndex);
             return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+2);
-        }
     }
+    
     const ReferenceGeometry* ReferenceSquare::getCodim1ReferenceGeometry(const IndexT faceIndex) const
     {
         if (faceIndex < 4)

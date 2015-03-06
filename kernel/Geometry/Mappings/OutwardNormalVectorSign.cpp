@@ -116,7 +116,6 @@ namespace Geometry
     double OutwardNormalVectorSign<4>(
 	const MappingReferenceToReference<3, 4>* const map)
     {
-        /*
         if (dynamic_cast<const MappingCubeToHyperCube0*>(map) || // from ReferenceHyperCube
             dynamic_cast<const MappingCubeToHyperCube2*>(map) ||
             dynamic_cast<const MappingCubeToHyperCube4*>(map) ||
@@ -138,7 +137,6 @@ namespace Geometry
                 throw "outwardNormalVectorSign<3> - don't know this face2el-map";
             }
         }
-        *//*
         return 1;
     }*/
 }

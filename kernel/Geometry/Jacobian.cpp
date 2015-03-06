@@ -20,6 +20,7 @@
  */
 
 #include "Jacobian.hpp"
+#include "Logger.h"
 
 namespace Geometry
 {
@@ -48,52 +49,52 @@ namespace Geometry
     }*/
 
         /// The computation of Jacobians are harcoded up until 4D, to make it faster.
+
     double
     Jacobian::determinant()const
     {
-    	std::size_t dimTo(getNRows()),dimFrom(getNCols());
+        std::size_t dimTo(getNRows()), dimFrom(getNCols());
 
-        if (dimFrom != dimTo)
+        logger.assert(dimFrom == dimTo, "Jacobian should be square to have a determinant!");
+
+        switch(dimFrom)
         {
-            std::cout<<"Jacobian should be square to have a determinant!"<<std::endl;
-        }
-        else
-        {
-            switch (dimFrom)
-            {
-                case 1:
-                    return (*this)(0,0);
-                break;
-                case 2:
-                    return (*this)(0,0) * (*this)(1,1) - (*this)(0,1) * (*this)(1,0);
-                break;
+        case 0:
+            return 1;
+            break;
+        case 1:
+            return(*this)(0, 0);
+            break;
+        case 2:
+            return(*this)(0, 0) * (*this)(1, 1) - (*this)(0, 1) * (*this)(1, 0);
+            break;
 
-                case 3:
-                    return (*this)(0,0) * ((*this)(1,1) * (*this)(2,2) - (*this)(1,2) * (*this)(2,1))
-                                      -(*this)(0,1) * ((*this)(1,0) * (*this)(2,2) - (*this)(2,0) * (*this)(1,2))
-                                       +(*this)(0,2) * ((*this)(1,0) * (*this)(2,1) - (*this)(2,0) * (*this)(1,1));
-                break;
+        case 3:
+            return(*this)(0, 0) * ((*this)(1, 1) * (*this)(2, 2) - (*this)(1, 2) * (*this)(2, 1))
+                    -(*this)(0, 1) * ((*this)(1, 0) * (*this)(2, 2) - (*this)(2, 0) * (*this)(1, 2))
+                    +(*this)(0, 2) * ((*this)(1, 0) * (*this)(2, 1) - (*this)(2, 0) * (*this)(1, 1));
+            break;
 
-                case 4:
-                    return ((*this)(3,0)*(*this)(2,1)*(*this)(0,3)-(*this)(2,0)*(*this)(3,1)*(*this)(0,3))*(*this)(1,2)
-                                         +(-(*this)(3,0)*(*this)(0,3)*(*this)(2,2)+(*this)(2,0)*(*this)(0,3)*(*this)(3,2))*(*this)(1,1)
-                                         +((*this)(3,1)*(*this)(0,3)*(*this)(2,2)-(*this)(2,1)*(*this)(0,3)*(*this)(3,2))*(*this)(1,0)
-                                         +(-(*this)(3,0)*(*this)(2,1)*(*this)(1,3)+(*this)(2,0)*(*this)(3,1)*(*this)(1,3)
-                                                 +(-(*this)(2,0)*(*this)(3,3)+(*this)(3,0)*(*this)(2,3))*(*this)(1,1)
-                                                 +((*this)(2,1)*(*this)(3,3)-(*this)(3,1)*(*this)(2,3))*(*this)(1,0))*(*this)(0,2)
-                                                 +((*this)(3,0)*(*this)(1,3)*(*this)(2,2)-(*this)(2,0)*(*this)(1,3)*(*this)(3,2)
-                                                         +((*this)(2,0)*(*this)(3,3)-(*this)(3,0)*(*this)(2,3))*(*this)(1,2)
-                                                         +(-(*this)(2,2)*(*this)(3,3)+(*this)(2,3)*(*this)(3,2))*(*this)(1,0))*(*this)(0,1)
-                                                         +(-(*this)(3,1)*(*this)(1,3)*(*this)(2,2)+(*this)(2,1)*(*this)(1,3)*(*this)(3,2)
-                                                                 +((*this)(3,1)*(*this)(2,3)-(*this)(2,1)*(*this)(3,3))*(*this)(1,2)
-                                                                 +(*this)(1,1)*((*this)(2,2)*(*this)(3,3)-(*this)(2,3)*(*this)(3,2)))*(*this)(0,0);
-                             // ... says Maple; this can possibly be done more efficiently,
-                             // maybe even with LU (with pivoting, though...)
-                    break;
-                default:
-                    std::cout<<"This dimension is not implemented"<<std::endl;
-                    return -1;
-            }
+        case 4:
+            return((*this)(3, 0)*(*this)(2, 1)*(*this)(0, 3)-(*this)(2, 0)*(*this)(3, 1)*(*this)(0, 3))*(*this)(1, 2)
+                    +(-(*this)(3, 0)*(*this)(0, 3)*(*this)(2, 2)+(*this)(2, 0)*(*this)(0, 3)*(*this)(3, 2))*(*this)(1, 1)
+                    +((*this)(3, 1)*(*this)(0, 3)*(*this)(2, 2)-(*this)(2, 1)*(*this)(0, 3)*(*this)(3, 2))*(*this)(1, 0)
+                    +(-(*this)(3, 0)*(*this)(2, 1)*(*this)(1, 3)+(*this)(2, 0)*(*this)(3, 1)*(*this)(1, 3)
+                      +(-(*this)(2, 0)*(*this)(3, 3)+(*this)(3, 0)*(*this)(2, 3))*(*this)(1, 1)
+                      +((*this)(2, 1)*(*this)(3, 3)-(*this)(3, 1)*(*this)(2, 3))*(*this)(1, 0))*(*this)(0, 2)
+                    +((*this)(3, 0)*(*this)(1, 3)*(*this)(2, 2)-(*this)(2, 0)*(*this)(1, 3)*(*this)(3, 2)
+                      +((*this)(2, 0)*(*this)(3, 3)-(*this)(3, 0)*(*this)(2, 3))*(*this)(1, 2)
+                      +(-(*this)(2, 2)*(*this)(3, 3)+(*this)(2, 3)*(*this)(3, 2))*(*this)(1, 0))*(*this)(0, 1)
+                    +(-(*this)(3, 1)*(*this)(1, 3)*(*this)(2, 2)+(*this)(2, 1)*(*this)(1, 3)*(*this)(3, 2)
+                      +((*this)(3, 1)*(*this)(2, 3)-(*this)(2, 1)*(*this)(3, 3))*(*this)(1, 2)
+                      +(*this)(1, 1)*((*this)(2, 2)*(*this)(3, 3)-(*this)(2, 3)*(*this)(3, 2)))*(*this)(0, 0);
+            // ... says Maple; this can possibly be done more efficiently,
+            // maybe even with LU (with pivoting, though...)
+            break;
+        default:
+            logger(ERROR, "Computing the Jacobian for dimension % is not implemented", dimFrom);
+            break;
         }
+        return 0;
     }
-};
+    };

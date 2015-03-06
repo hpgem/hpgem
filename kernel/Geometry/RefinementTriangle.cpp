@@ -21,7 +21,7 @@
 
 #include <iostream>
 
-#include "Base/TestErrorDebug.hpp"
+#include "Logger.h"
 #include "Geometry/RefinementTriangle.hpp"
 #include "LinearAlgebra/Matrix.hpp"
 
@@ -100,7 +100,7 @@ namespace Geometry
 
     void RefinementTriangle::subElementLocalNodeIndices(int refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const
     {
-        TestErrorDebug((iSubElement<nrOfSubElements(refineType)),
+        logger.assert((iSubElement<nrOfSubElements(refineType)),
                         "RefinementQuadrilateral: invalid sub-element index while getting its local node indices!");
 
         LocalNodeIdx.clear();

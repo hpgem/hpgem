@@ -34,6 +34,7 @@
 #include "Base/RectangularMeshDescriptor.hpp"
 #include "Integration/ElementIntegral.hpp"
 #include <cmath>
+#include "Logger.h"
 
 //If this test ever breaks it is not a bad thing per se. However, once this breaks a thorough convergence analysis needs to be done.
 //If the results still show the theoretically optimal order of convergence, and you are convinced that your changes improved the code,
@@ -202,40 +203,40 @@ int main(int argc,char** argv){
 	test0.initialise();
         std::cout.precision(10);
         std::cout<<test0.solve()<<std::endl;
-	assert(("comparison to old results",std::abs(test0.solve()-0.35188045)<1e-8));
+	logger.assert_always((std::abs(test0.solve()-0.35188045)<1e-8),"comparison to old results");
 	Laplace test1(2,3,1,Base::RECTANGULAR);
 	test1.initialise();
         std::cout<<test1.solve()<<std::endl;
-	assert(("comparison to old results",std::abs(test1.solve()-0.01607749)<1e-8));
+	logger.assert_always((std::abs(test1.solve()-0.01607749)<1e-8),"comparison to old results");
 	Laplace test2(4,4,1,Base::RECTANGULAR);
 	test2.initialise();
         std::cout<<test2.solve()<<std::endl;
-	assert(("comparison to old results",std::abs(test2.solve()-0.00007200)<1e-8));
+	logger.assert_always((std::abs(test2.solve()-0.00007200)<1e-8),"comparison to old results");
 	Laplace test3(8,5,1,Base::RECTANGULAR);
 	test3.initialise();
-	assert(("comparison to old results",std::abs(test3.solve()-0.00000008)<1e-8));
+	logger.assert_always((std::abs(test3.solve()-0.00000008)<1e-8),"comparison to old results");
 	Laplace test4(16,1,1,Base::RECTANGULAR);
 	test4.initialise();
         std::cout<<test4.solve()<<std::endl;
-	assert(("comparison to old results",std::abs(test4.solve()-0.00880380)<1e-8));
+	logger.assert_always((std::abs(test4.solve()-0.00880380)<1e-8),"comparison to old results");
 	Laplace test5(1,2,2,Base::TRIANGULAR);
 	test5.initialise();
         std::cout<<test5.solve()<<std::endl;
-	//assert(("comparison to old results",std::abs(test5.solve()-0.18046613)<1e-8));
-	assert(("comparison to old results",std::abs(test5.solve()-0.17226144)<1e-8));
+	//logger.assert_always(("comparison to old results",std::abs(test5.solve()-0.18046613)<1e-8));
+	logger.assert_always((std::abs(test5.solve()-0.17226144)<1e-8),"comparison to old results");
 	Laplace test6(2,3,2,Base::TRIANGULAR);
 	test6.initialise();
         std::cout<<test6.solve()<<std::endl;
-	assert(("comparison to old results",std::abs(test6.solve()-0.01782337)<1e-8));
+	logger.assert_always((std::abs(test6.solve()-0.01782337)<1e-8),"comparison to old results");
 	Laplace test7(4,4,2,Base::TRIANGULAR);
 	test7.initialise();
-	assert(("comparison to old results",std::abs(test7.solve()-0.00035302)<1e-8));
+	logger.assert_always((std::abs(test7.solve()-0.00035302)<1e-8),"comparison to old results");
 	Laplace test8(8,5,2,Base::TRIANGULAR);
 	test8.initialise();
-	assert(("comparison to old results",std::abs(test8.solve()-0.00000061)<1e-8));
+	logger.assert_always((std::abs(test8.solve()-0.00000061)<1e-8),"comparison to old results");
 	Laplace test9(16,1,2,Base::TRIANGULAR);
 	test9.initialise();
         std::cout<<test9.solve()<<std::endl;
-	assert(("comparison to old results",std::abs(test9.solve()-0.00448270)<1e-8));
+	logger.assert_always((std::abs(test9.solve()-0.00448270)<1e-8),"comparison to old results");
 	return 0;
 }

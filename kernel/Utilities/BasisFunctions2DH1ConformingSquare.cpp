@@ -25,7 +25,7 @@
 #include "Base/OrientedBasisFunctionSet.hpp"
 #include "Geometry/ReferenceSquare.hpp"
 #include "Geometry/PointReference.hpp"
-#include "Base/TestErrorDebug.hpp"
+#include "Logger.h"
 
 namespace Utilities {
 
@@ -43,7 +43,7 @@ double BasisFunction2DVertexSquare::evalDeriv1(const Geometry::PointReference& p
 
 BasisFunction2DFaceSquare_0::BasisFunction2DFaceSquare_0(std::size_t node0, std::size_t node1,std::size_t polynomialOrder) :
 		polynomialOrder_(polynomialOrder) {
-	TestErrorDebug((node0 + node1) % 2 == 1,"please use BasisFunction2DFaceSquare_1 for edges that are aligned vertically");
+	logger.assert((node0 + node1) % 2 == 1,"please use BasisFunction2DFaceSquare_1 for edges that are aligned vertically");
 	mirroring_ = (node0 > node1) ? -1 : 1;
 	edgePosition_ = (node0 + node1 < 3) ? -1 : 1;
 }
@@ -63,7 +63,7 @@ double BasisFunction2DFaceSquare_0::evalDeriv1(const Geometry::PointReference& p
 
 BasisFunction2DFaceSquare_1::BasisFunction2DFaceSquare_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder) :
 		polynomialOrder_(polynomialOrder) {
-	TestErrorDebug((node0 + node1) % 2 == 0,"please use BasisFunction2DFaceSquare_0 for edges that are aligned horizontally");
+	logger.assert((node0 + node1) % 2 == 0,"please use BasisFunction2DFaceSquare_0 for edges that are aligned horizontally");
 	mirroring_ = (node0 > node1) ? -1 : 1;
 	edgePosition_ = (node0 + node1 < 3) ? -1 : 1;
 }

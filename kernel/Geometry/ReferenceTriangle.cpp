@@ -25,6 +25,7 @@
 #include "Mappings/MappingToRefTriangleToTriangle.hpp"
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferencePoint.hpp"
+#include "Logger.h"
 
 namespace Geometry
 {
@@ -161,10 +162,8 @@ namespace Geometry
     std::vector<std::size_t> ReferenceTriangle::
     getCodim1EntityLocalIndices(const IndexT faceIndex) const
     {
-        if (faceIndex < 3)
-        {
+        logger.assert(faceIndex < 3, "A triangle has only 3 edges, while edge % is requested", faceIndex);
             return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+2);
-        }
     }
     
     const ReferenceGeometry* ReferenceTriangle::getCodim1ReferenceGeometry(const IndexT faceIndex) const

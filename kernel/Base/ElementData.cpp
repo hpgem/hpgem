@@ -20,7 +20,7 @@
  */
 
 #include "ElementData.hpp"
-#include "TestErrorDebug.hpp"
+#include "Logger.h"
 #include "Element.hpp"
 
 #include "LinearAlgebra/Matrix.hpp"
@@ -62,7 +62,9 @@ namespace Base
     }
     
     const LinearAlgebra::Matrix & ElementData::getElementMatrix(std::size_t matrixID) const{
-        assert(matrixID < elementMatrix_.size());
+        logger.assert(matrixID < elementMatrix_.size(), "Requested matrix %, "
+                "while there are only % matrices for this element.", matrixID, 
+                      elementMatrix_.size());
         return elementMatrix_[matrixID];
     }
     
@@ -89,7 +91,7 @@ namespace Base
     
     void ElementData::getElementVector(LinearAlgebra::NumericalVector& vector, std::size_t vectorID) const
     {
-        TestErrorDebug(vectorID < elementVector_.size(), "insufficient element vectors stored");
+        logger.assert(vectorID < elementVector_.size(), "insufficient element vectors stored");
         vector = elementVector_[vectorID];
     }
 
@@ -130,7 +132,8 @@ namespace Base
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_)
         {
-            assert(expansionCoefficients_[timeLevel].size() == nrOfUnknowns_ * nrOfBasisFunctions_);
+            logger.assert(expansionCoefficients_[timeLevel].size() == nrOfUnknowns_
+            * nrOfBasisFunctions_, "Wrong number of expansion coefficients.");
             return expansionCoefficients_[timeLevel](convertToSingleIndex(basisFunction,unknown));
         }
         else
@@ -261,7 +264,8 @@ namespace Base
     {
         if (timeLevel < timeLevels_)
         {
-            assert(expansionCoefficients_[timeLevel].size() == nrOfUnknowns_ * nrOfBasisFunctions_);
+            logger.assert(expansionCoefficients_[timeLevel].size() == nrOfUnknowns_ * nrOfBasisFunctions_,
+                          "Wrong number of expansion coefficients.");
             return expansionCoefficients_[timeLevel];
         }
         else

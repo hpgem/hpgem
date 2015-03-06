@@ -782,11 +782,10 @@ namespace Base {
                 Element* newElement = addElement(globalNodeID[i]);
                 for (std::size_t j = 0; j < globalVertexID[i].size(); ++j)
                 {
-                    logger.assert(i < globalVertexID.size(),"");
-                    logger.assert(j < globalVertexID[i].size(),"");
-                    logger.assert(globalVertexID[i][j]<totalNumOfVertices,"");
-                    logger.assert(globalVertexID[i][j] >= 0,"");
-                    logger.assert(vertices.size() == totalNumOfVertices,"");
+                    logger.assert(i < globalVertexID.size(),"Requested vertex %, while there are only %",i,globalVertexID.size());
+                    logger.assert(j < globalVertexID[i].size(),"Requested element %, but this vertex only has %.", j, globalVertexID[i].size());
+                    logger.assert(globalVertexID[i][j]<totalNumOfVertices,"Requested vertex %, while there are only %", globalVertexID[i][j], totalNumOfVertices);
+                    logger.assert(vertices.size() == totalNumOfVertices,"Number of vertices is wrong.");
                     vertices[globalVertexID[i][j]]->addElement(newElement,j);
                 }
             }

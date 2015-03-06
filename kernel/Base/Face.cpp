@@ -21,7 +21,7 @@
 #include "Face.hpp"
 #include "Element.hpp"
 
-#include "TestErrorDebug.hpp"
+#include "Logger.h"
 #include <iostream>
 #include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
@@ -49,7 +49,7 @@ namespace Base
     FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknows() +
              ptrElemR->getNrOfBasisFunctions() * ptrElemR->getNrOfUnknows(), numberOfFaceMatrixes, numberOfFaceVectors)
     {
-        TestErrorDebug(ptrElemR != nullptr, "Error: passing a boundary face to the constructor for internal faces!");
+        logger.assert(ptrElemR != nullptr, "Error: passing a boundary face to the constructor for internal faces!");
         createQuadratureRules();
         ptrElemL->setFace(localFaceNumL, this);
         ptrElemR->setFace(localFaceNumR, this);

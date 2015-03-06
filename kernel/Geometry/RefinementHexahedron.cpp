@@ -21,7 +21,7 @@
 
 #include <iostream>
 
-#include "Base/TestErrorDebug.hpp"
+#include "Logger.h"
 #include "Geometry/RefinementHexahedron.hpp"
 
 #include "PointPhysical.hpp"
@@ -188,7 +188,7 @@ namespace Geometry
 
     void RefinementHexahedron::subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const 
     {
-        TestErrorDebug((iSubElement<nrOfSubElements(refineType)),
+        logger.assert((iSubElement<nrOfSubElements(refineType)),
                         "RefinementHexahedron: invalid sub-element index while getting its local node indices!");
 
         LocalNodeIdx.clear();

@@ -21,7 +21,7 @@
 
 #include <iostream>
 
-#include "Base/TestErrorDebug.hpp"
+#include "Logger.h"
 #include "Geometry/RefinementTriangularPrism.hpp"
 
 #include "PointPhysical.hpp"
@@ -155,7 +155,7 @@ namespace Geometry
 
     void RefinementTriangularPrism::subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const 
     {
-        TestErrorDebug((iSubElement<nrOfSubElements(refineType)),
+        logger.assert((iSubElement<nrOfSubElements(refineType)),
                         "RefinementTriangularPrism: invalid sub-element index while getting its local node indices!");
 
         LocalNodeIdx.clear();

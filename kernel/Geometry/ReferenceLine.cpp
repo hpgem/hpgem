@@ -24,6 +24,7 @@
 #include "Mappings/MappingToRefLineToLine.hpp"
 #include "Geometry/ReferencePoint.hpp"
 #include "Geometry/PointReference.hpp"
+#include "Logger.h"
 
 namespace Geometry
 {
@@ -126,10 +127,8 @@ namespace Geometry
     std::vector<std::size_t> ReferenceLine::
     getCodim1EntityLocalIndices(const IndexT faceIndex) const
     {
-        if (faceIndex < 2)
-        {
-            return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+1);
-        }
+        logger.assert(faceIndex < 2, "A line has only 2 endpoints, while endpoint % is requested", faceIndex);
+        return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+1);
     }
     
     const ReferenceGeometry* ReferenceLine::getCodim1ReferenceGeometry(const IndexT faceIndex) const
