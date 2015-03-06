@@ -72,15 +72,14 @@ public:
         
         unsigned int numberOfDegreesOfFreedom=element->getNrOfBasisFunctions();
        
-        LinearAlgebra::NumericalVector sol;
-        element->getSolution(0,p,sol);
+        LinearAlgebra::NumericalVector sol = element->getSolution(0,p);
         
         //This is the grad of the basic function.
         LinearAlgebra::NumericalVector grads(2);
         
         for (unsigned int i=0; i < numberOfDegreesOfFreedom; ++i)
         {
-            element->basisFunctionDeriv(i,p,grads);
+            grads = element->basisFunctionDeriv(i,p);
             
             ret(i,0) = sol(i) * grads[i];
             

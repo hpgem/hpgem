@@ -92,10 +92,10 @@ namespace Base
         vecOfBasisFcn_[i]->eval(p, ret);
     }
     
-    void
-    BasisFunctionSet::evalCurl(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+    LinearAlgebra::NumericalVector
+    BasisFunctionSet::evalCurl(std::size_t i, const PointReferenceT& p) const
     {
-        vecOfBasisFcn_[i]->evalCurl(p, ret);
+        return vecOfBasisFcn_[i]->evalCurl(p);
     }
 }
 

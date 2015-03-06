@@ -361,7 +361,7 @@ namespace Utilities {
             for(Base::Element* element : theMesh_->getElementsList())
             {
                 std::vector<PetscInt> positions = makePositionsInVector(element);
-                element->getElementVector(elementVector, elementVectorID_);
+                elementVector = element->getElementVector(elementVectorID_);
                 int ierr = VecSetValues(b_, positions.size(), positions.data(), elementVector.data(), ADD_VALUES);
                 CHKERRV(ierr);
                 
@@ -384,7 +384,7 @@ namespace Utilities {
                         positions.push_back(a);
                     }
                 }
-                face->getFaceVector(faceVector,faceVectorID_);
+                faceVector = face->getFaceVector(faceVectorID_);
                 int ierr = VecSetValues(b_, positions.size(), positions.data(), faceVector.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }

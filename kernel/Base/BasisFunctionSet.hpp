@@ -64,7 +64,7 @@ namespace Base
         virtual double evalDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const;
 
         ///\brief returns the curl of the i-th basisfunction at point p in ret
-        virtual void evalCurl(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual LinearAlgebra::NumericalVector evalCurl(std::size_t i, const PointReferenceT& p) const;
 
         virtual const BaseBasisFunction* operator[](int i) const
         {

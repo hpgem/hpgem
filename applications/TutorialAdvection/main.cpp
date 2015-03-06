@@ -92,13 +92,11 @@ public:
     {
         std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
         result.resize(numBasisFuncs, numBasisFuncs);
-        LinearAlgebra::NumericalVector phiDerivJ(DIM_);
         for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
             for (std::size_t j = 0; j < numBasisFuncs; ++j)
             {
-                element->basisFunctionDeriv(j, point, phiDerivJ);
-                result(j, i) = element->basisFunction(i, point)*(a * phiDerivJ);
+                result(j, i) = element->basisFunction(i, point)*(a * element->basisFunctionDeriv(j,point));
             }
         }
     }
@@ -131,31 +129,26 @@ public:
         //Note that normal does not have length 1!
         const double A = (a * normal) / Base::L2Norm(normal);
         
-        LinearAlgebra::NumericalVector phiNormalJ(DIM_);
-        
         //Compute all entries of the integrand at this point:
         for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
             for (std::size_t j = 0; j < numBasisFuncs; ++j)
             {
-                //Get phi_j normal_j at this point.
-                face->basisFunctionNormal(j, normal, point, phiNormalJ);
-
                 //Give the terms of the upwind flux.
                 //Advection in the same direction as outward normal of the left element:
                 if ((A > 1e-12) && (i < nLeft)) 
                 {
-                    integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point);
+                    integrandVal(j, i) = -(a * face->basisFunctionNormal(j,normal,point)) * face->basisFunction(i, point);
                 }
                 //Advection in the same direction as outward normal of right element:
                 else if ((A<-1e-12) && (i >= nLeft))
                 {
-                    integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point);
+                    integrandVal(j, i) = -(a * face->basisFunctionNormal(j,normal,point)) * face->basisFunction(i, point);
                 }
                 //Advection orthogonal to normal:
                 else if (std::abs(A) < 1e-12)
                 {
-                    integrandVal(j, i) = -(a * phiNormalJ) * face->basisFunction(i, point) / 2.0;
+                    integrandVal(j, i) = -(a * face->basisFunctionNormal(j,normal,point)) * face->basisFunction(i, point) / 2.0;
                 }
             }
         }
@@ -195,9 +188,7 @@ public:
     ///provide information about your solution that you want to use for visualisation
     void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out)
     {
-        LinearAlgebra::NumericalVector value(1);
-        element->getSolution(0, point, value);
-        out << value[0];
+        out << element->getSolution(0, point)[0];
     }
     
     /// For every element, compute the right hand side of the system of equation,
@@ -232,13 +223,10 @@ public:
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
             std::size_t numBasisFuncs = face->getNrOfBasisFunctions();
-            
-            LinearAlgebra::Matrix faceMatrix(numBasisFuncs, numBasisFuncs);
-            face->getFaceMatrix(faceMatrix);            
             LinearAlgebra::NumericalVector rhs = face->getTimeLevelData(0);
 
             //compute the flux
-            rhs = dt_ * (faceMatrix*rhs);
+            rhs = dt_ * (face->getFaceMatrixMatrix()*rhs);
             face->setResidue(rhs);
         }
     }
@@ -275,9 +263,7 @@ int main(int argc, char **argv)
         //Define how we want the solution to be written in the VTK files
         test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, std::size_t timelevel) -> double
         {
-            LinearAlgebra::NumericalVector solution(1);
-            element->getSolution(timelevel, point, solution);
-            return solution[0];
+            return element->getSolution(timelevel, point)[0];
         }, "value");
         
         //Run the simulation and write the solution

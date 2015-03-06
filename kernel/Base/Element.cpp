@@ -244,16 +244,11 @@ namespace Base
     /// \param[in] timeLevel The index for the time level for which to get the solution.
     /// \param[in] p The reference point for which to get the solution.
     /// \param[in] solution The solution vector where the value at index iV corresponds to the solution for variable iV corresponding to the given time level and reference point.
-    void Element::getSolution(std::size_t timeLevel, const PointReferenceT& p, SolutionVector& solution) const
+    Element::SolutionVector Element::getSolution(std::size_t timeLevel, const PointReferenceT& p) const
     {
         std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
         std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
-        solution.resize(numberOfUnknows);
-        
-        for(std::size_t k = 0; k < numberOfUnknows; ++k)
-        {
-            solution[k] = 0;
-        }
+        SolutionVector solution(numberOfUnknows);
         
         LinearAlgebra::NumericalVector data(numberOfBasisFunctions * numberOfUnknows);
         data = ElementData::getTimeLevelDataVector(timeLevel);
@@ -267,6 +262,7 @@ namespace Base
                 solution[iV] += data(iVB) * basisFunction(iB, p);
             }
         }
+        return solution;
     }
     
     void Element::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
@@ -286,7 +282,7 @@ namespace Base
         throw "in basisFunction: asked for a basisFunction that doesn't exist!";
     }
     
-    void Element::basisFunctionCurl(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+    LinearAlgebra::NumericalVector Element::basisFunctionCurl(std::size_t i, const PointReferenceT& p) const
     {
         int basePosition(0);
         for(int j:basisFunctionSetPositions_)
@@ -295,8 +291,7 @@ namespace Base
         		int n=basisFunctionSet_->at(j)->size();
 				if(i-basePosition<n)
                 {
-					basisFunctionSet_->at(j)->evalCurl(i-basePosition,p,ret);
-					return;
+					return basisFunctionSet_->at(j)->evalCurl(i-basePosition,p);
 				}
                 else
                 {
@@ -307,7 +302,7 @@ namespace Base
         throw "in basisFunctionCurl: asked for a basisFunction that doesn't exist!";
     }
 
-    void Element::basisFunctionDeriv(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* wrapper) const
+    LinearAlgebra::NumericalVector Element::basisFunctionDeriv(std::size_t i, const PointReferenceT& p,const Element* wrapper) const
     {
     	if(wrapper==nullptr)
         {
@@ -327,7 +322,7 @@ namespace Base
         	}
         }
     	Utilities::PhysGradientOfBasisFunction functionGradient(wrapper,function);
-    	functionGradient(p,ret);
+    	return functionGradient(p);
     }
 
 #ifndef NDEBUG

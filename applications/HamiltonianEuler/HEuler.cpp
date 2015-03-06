@@ -192,9 +192,7 @@ void
 HEuler::calculateLocalEnergy(const ElementT& element, const PointReferenceT& p, double& returnValue)
 {
     double extra=0;
-    ElementT::SolutionVector  solution;
-    
-    element.getSolution(0, p, solution);
+    ElementT::SolutionVector  solution = element.getSolution(0, p);
     
     HEulerConfigurationData::SolutionType sType = static_cast<const HEulerConfigurationData*>(configData_)->solutionType_;
     
@@ -224,7 +222,7 @@ HEuler::elementIntegrand(const ElementT* element, const PointReferenceT& p, Elem
     
     for (unsigned int i=0; i < numberOfDegreesOfFreedom; ++i)
     {
-    	element->basisFunctionDeriv(i,p,grads);
+    	grads = element->basisFunctionDeriv(i,p);
         //Utilities::PhysGradientOfBasisFunction obj(element, i);
         //obj(p, grads);
         

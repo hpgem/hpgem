@@ -59,7 +59,7 @@ namespace Utilities
         }
         
             //! Evaluation operator, also compatible with integration routines.
-		void operator ()(const PointReferenceT& p, RetType& r) const;
+		RetType operator ()(const PointReferenceT& p) const;
         
     private:
         const Base::Element*                        myElement_;

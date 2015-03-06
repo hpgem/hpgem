@@ -180,8 +180,7 @@ int main()
     logger.assert_always(testVector == expansionCoefficients, "Expansion coefficients incorrect: % != %", testVector, expansionCoefficients);
     
     Geometry::PointReference pointReference(coords0);
-    LinearAlgebra::NumericalVector solutionVector(nrOfUnknowns);
-    elementRight.getSolution(iTimeLevel, pointReference, solutionVector);
+    LinearAlgebra::NumericalVector solutionVector = elementRight.getSolution(iTimeLevel, pointReference);
     for(iV = 0; iV < nrOfUnknowns; iV++)
     {
         logger.assert_always(solutionVector(iV) == (iV + 1) * solutionVector(0), "Solution vector test failed (%): % != (% + 1) * %",

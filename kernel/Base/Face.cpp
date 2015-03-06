@@ -149,8 +149,9 @@ namespace Base
         }
     }
 
-    void Face::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+    LinearAlgebra::NumericalVector Face::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const
     {
+        LinearAlgebra::NumericalVector ret;
         Geometry::PointReference pElement(p.size() + 1);
         std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < n)
@@ -165,6 +166,7 @@ namespace Base
             ret = normal;
             ret *= -getPtrElementRight()->basisFunction(i - n, pElement) / Base::L2Norm(normal);
         }
+        return ret;
     }
     
     /// \param[in] iSide The index corresponding to the side of the face.
@@ -202,19 +204,19 @@ namespace Base
         }
     }
 
-    void Face::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+    LinearAlgebra::NumericalVector Face::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const
     {
         Geometry::PointReference pElement(p.size() + 1);
         std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < n)
         {
             pElement = mapRefFaceToRefElemL(p);
-            getPtrElementLeft()->basisFunctionDeriv(i, pElement, ret);
+            return getPtrElementLeft()->basisFunctionDeriv(i, pElement);
         }
         else
         {
             pElement = mapRefFaceToRefElemR(p);
-            getPtrElementRight()->basisFunctionDeriv(i - n, pElement, ret);
+            return getPtrElementRight()->basisFunctionDeriv(i - n, pElement);
         }
     }
     
@@ -223,34 +225,32 @@ namespace Base
     /// \param[in] p The reference point on the reference element.
     LinearAlgebra::NumericalVector Face::basisFunctionDeriv(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const
     {
-        LinearAlgebra::NumericalVector Gradient(p.size() + 1);
         Geometry::PointReference pElement(p.size() + 1);
         if (iSide == Side::LEFT)
         {
             pElement = mapRefFaceToRefElemL(p);
-            getPtrElementLeft()->basisFunctionDeriv(iBasisFunction, pElement, Gradient);
+            return getPtrElementLeft()->basisFunctionDeriv(iBasisFunction, pElement);
         }
         else
         {
             pElement = mapRefFaceToRefElemR(p);
-            getPtrElementRight()->basisFunctionDeriv(iBasisFunction, pElement, Gradient);
+            return getPtrElementRight()->basisFunctionDeriv(iBasisFunction, pElement);
         }
-        return Gradient;
     }
 
-    void Face::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+    LinearAlgebra::NumericalVector Face::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const
     {
         Geometry::PointReference pElement(p.size() + 1);
         std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < numBasisFuncsLeft)
         {
             pElement = mapRefFaceToRefElemL(p);
-            getPtrElementLeft()->basisFunctionCurl(i, pElement, ret);
+            return getPtrElementLeft()->basisFunctionCurl(i, pElement);
         }
         else
         {
             pElement = mapRefFaceToRefElemR(p);
-            getPtrElementRight()->basisFunctionCurl(i - numBasisFuncsLeft, pElement, ret);
+            return getPtrElementRight()->basisFunctionCurl(i - numBasisFuncsLeft, pElement);
         }
     }
     

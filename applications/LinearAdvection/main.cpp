@@ -114,7 +114,7 @@ public:
             LinearAlgebra::NumericalVector phiDerivJ(DIM_);
             for (int i = 0; i < n; ++i) {
                 for (int j = 0; j < n; ++j) {
-                    element->basisFunctionDeriv(j, point, phiDerivJ);
+                    phiDerivJ = element->basisFunctionDeriv(j, point);
                     result(j, i) = element->basisFunction(i, point)*(b * phiDerivJ);
                 }
             }
@@ -138,7 +138,7 @@ public:
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < n; ++j) {
                 double A = (b * normal) / Base::L2Norm(normal);
-                face->basisFunctionNormal(j, normal, point, phiNormalJ);
+                phiNormalJ = face->basisFunctionNormal(j, normal, point);
 
                 //upwind flux
                 if ((A > 1e-12)&&(i < nLeft)) {
@@ -180,7 +180,7 @@ public:
 
     void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out) {
         LinearAlgebra::NumericalVector value(1);
-        element->getSolution(0, point, value);
+        value = element->getSolution(0, point);
         out << value[0];
     }
     
@@ -229,7 +229,7 @@ public:
         for (Base::Face* face : meshes_[0]->getFacesList()) {
             int n(face->getNrOfBasisFunctions()), nLeft(face->getPtrElementLeft()->getNrOfBasisFunctions());
             stiffness.resize(n, n);
-            face->getFaceMatrix(stiffness);
+            stiffness = face->getFaceMatrixMatrix();
             residue.resize(n);
 
             ///TODO implement face->getData()
@@ -288,7 +288,7 @@ int main(int argc, char **argv)
         test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, std::size_t timelevel)->double
         {
             LinearAlgebra::NumericalVector solution(1);
-            element->getSolution(timelevel, point, solution);
+            solution = element->getSolution(timelevel, point);
             return solution[0];
         }, "value");
         test.solve();

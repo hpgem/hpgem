@@ -49,7 +49,7 @@ void Base::ShortTermStorageElementHcurl::computeData(){
         basisFunctionValues_[i] = jacobianT  * basisFunctionValues_[i];  //basisFunctionValues_[i][0] = jac_ * basisFunctionValues_[i][0];
         
         basisFunctionCurlValues_[i].resize(3);
-        element_->Element::basisFunctionCurl(i, currentPoint_, basisFunctionCurlValues_[i]);
+        basisFunctionCurlValues_[i] = element_->Element::basisFunctionCurl(i, currentPoint_);
         basisFunctionCurlValues_[i] = (jacobian / (std::abs(jacobian.determinant()))) * basisFunctionCurlValues_[i];
     }
     
@@ -98,7 +98,7 @@ void Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const 
     if(!(p == currentPoint_))
     {
         std::cout<<"Warning: The operator being used is slow";
-        element_->basisFunctionCurl(i, p, ret); // removed the argument this
+        ret = element_->basisFunctionCurl(i, p); // removed the argument this
     }
 
 }

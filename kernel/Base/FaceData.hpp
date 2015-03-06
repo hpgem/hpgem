@@ -54,14 +54,14 @@ namespace Base {
         void setFaceMatrix(const FaceMatrix &faceMatrix, std::size_t matrixID = 0);
             
         /// \brief Gets face matrix number 'matrixID' and return it as a standard matrix. It is advised to use the other version instead, which returns a FaceMatrix.
-		virtual void getFaceMatrix(LinearAlgebra::Matrix& matrix, std::size_t matrixID = 0) const;
+		virtual LinearAlgebra::Matrix getFaceMatrixMatrix(std::size_t matrixID = 0) const;
             
         /// \brief Returns face matrix number 'matrixID'.
         const FaceMatrix & getFaceMatrix(std::size_t matrixID = 0) const;
 
 		void setFaceVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0);
 
-		virtual void getFaceVector(LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0) const;
+		virtual LinearAlgebra::NumericalVector getFaceVector(std::size_t vectorID = 0) const;
 
 		virtual const VecCacheT& getVecCacheData() const 
                 {

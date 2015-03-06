@@ -102,12 +102,12 @@ namespace Base
             return element_->basisFunctionDeriv(i, jDir, p);
         }
 
-        virtual void basisFunctionDeriv(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr)
+        virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr)
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";
         }
 
-        virtual void basisFunctionCurl(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+        virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const PointReferenceT& p)
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
         }
@@ -122,12 +122,12 @@ namespace Base
             throw "No storage functionality was implemented! Are you working in a scalar function space?";
         }
 
-        void basisFunctionDeriv(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* = nullptr) const override
+        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr) const override
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";
         }
 
-        void basisFunctionCurl(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override
+        LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const PointReferenceT& p) const override
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
         }
@@ -170,9 +170,9 @@ namespace Base
             return element_->getGaussQuadratureRule();
         }
 
-        void getSolution(std::size_t timeLevel, const PointReferenceT& p, SolutionVector& solution) const override
+        Element::SolutionVector getSolution(std::size_t timeLevel, const PointReferenceT& p) const override
         {
-            return element_->getSolution(timeLevel, p, solution);
+            return element_->getSolution(timeLevel, p);
         }
 
         std::size_t getLocalNrOfBasisFunctions() const override
@@ -223,9 +223,9 @@ namespace Base
             return element_->getElementMatrix(matrixID);
         }
 
-        void getElementVector(LinearAlgebra::NumericalVector& vec, std::size_t vectorID = 0) const override
+        LinearAlgebra::NumericalVector getElementVector(std::size_t vectorID = 0) const override
         {
-            element_->getElementVector(vec, vectorID);
+            return element_->getElementVector(vectorID);
         }
 
         const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const override

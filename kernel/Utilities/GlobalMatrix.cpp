@@ -191,7 +191,7 @@ namespace Utilities {
                         positions.push_back(a);
                     }
                 }
-                face->getFaceMatrix(faceMatrix, faceMatrixID_);
+                faceMatrix = face->getFaceMatrixMatrix (faceMatrixID_);
                 ierr = MatSetValues(A_, positions.size(), positions.data(), positions.size(), positions.data(), faceMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }

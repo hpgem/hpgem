@@ -89,10 +89,10 @@ namespace Base
         elementVector_[vectorID] = vector;
     }
     
-    void ElementData::getElementVector(LinearAlgebra::NumericalVector& vector, std::size_t vectorID) const
+    LinearAlgebra::NumericalVector ElementData::getElementVector(std::size_t vectorID) const
     {
         logger.assert(vectorID < elementVector_.size(), "insufficient element vectors stored");
-        vector = elementVector_[vectorID];
+        return elementVector_[vectorID];
     }
 
     void ElementData::setNumberOfBasisFunctions(std::size_t number)

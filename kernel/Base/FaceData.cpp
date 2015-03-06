@@ -74,12 +74,12 @@ void Base::FaceData::setFaceMatrix(const Base::FaceMatrix &faceMatrix, std::size
 /// \param[in] matrix The standard matrix which will be used to get the face matrix as one entire matrix.
 /// \param[in] matrixID The index to specify which FaceMatrix to get.
 /// \details To convert a face matrix into a standard matrix is slow and inefficient. It is advised to use the other version of this function that returns a FaceMatrix. This is actually a dated function and should be removed.
-void Base::FaceData::getFaceMatrix(LinearAlgebra::Matrix& matrix, std::size_t matrixID) const
+LinearAlgebra::Matrix Base::FaceData::getFaceMatrixMatrix(std::size_t matrixID) const
 {
     // Check if there are enough faces matrices stored.
     logger.assert(matrixID < faceMatrix_.size(), "Not enough face matrices stored.");
     
-    matrix = faceMatrix_[matrixID].getEntireMatrix();
+    return faceMatrix_[matrixID].getEntireMatrix();
 }
 
 /// \param[in] matrixID The index to specify which FaceMatrix to get.
@@ -102,10 +102,10 @@ void Base::FaceData::setFaceVector(const LinearAlgebra::NumericalVector& vector,
     faceVector_[vectorID] = vector;
 }
 
-void Base::FaceData::getFaceVector(LinearAlgebra::NumericalVector& vector, std::size_t vectorID) const
+LinearAlgebra::NumericalVector Base::FaceData::getFaceVector(std::size_t vectorID) const
 {
     logger.assert(vectorID < faceVector_.size(), "insufficient face vectors stored");
-    vector = faceVector_[vectorID];
+    return faceVector_[vectorID];
 }
 
 const LinearAlgebra::NumericalVector& Base::FaceData::getResidue() const

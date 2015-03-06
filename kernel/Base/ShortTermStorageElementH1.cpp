@@ -31,8 +31,7 @@ void Base::ShortTermStorageElementH1::computeData() {
     for(std::size_t i=0;i<element_->getNrOfBasisFunctions();++i){
         basisFunctionValues_[i].resize(1);
         basisFunctionValues_[i][0]=element_->basisFunction(i,currentPoint_);
-        basisFunctionDerivatives_[i].resize(currentPoint_.size());
-        element_->basisFunctionDeriv(i,currentPoint_,basisFunctionDerivatives_[i],this);
+        basisFunctionDerivatives_[i] = element_->basisFunctionDeriv(i,currentPoint_,this);
         basisFunctionIndividualDerivatives_[i].resize(currentPoint_.size());
         for(std::size_t j=0;j<currentPoint_.size();++j){
             basisFunctionIndividualDerivatives_[i][j]=element_->basisFunctionDeriv(i,j,currentPoint_);
@@ -75,20 +74,20 @@ void Base::ShortTermStorageElementH1::basisFunction(std::size_t i, const PointRe
 }
 
 
-void Base::ShortTermStorageElementH1::basisFunctionDeriv(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* ) {
+LinearAlgebra::NumericalVector Base::ShortTermStorageElementH1::basisFunctionDeriv(std::size_t i, const PointReferenceT& p,const Element* ) {
 	if(!(p==currentPoint_)){
 		currentPoint_=p;
 		computeData();
 	}
-	ret=basisFunctionDerivatives_[i];
+	return basisFunctionDerivatives_[i];
 }
 
-void Base::ShortTermStorageElementH1::basisFunctionDeriv(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element*) const {
-	ret=basisFunctionDerivatives_[i];
+LinearAlgebra::NumericalVector Base::ShortTermStorageElementH1::basisFunctionDeriv(std::size_t i, const PointReferenceT& p,const Element*) const {
 	if(!(p==currentPoint_)){
 		std::cout<<"WARNING: you are using a slow operator";
-		element_->basisFunctionDeriv(i,p,ret,this);
+		return element_->basisFunctionDeriv(i,p,this);
 	}
+	return basisFunctionDerivatives_[i];
 }
 
 double Base::ShortTermStorageElementH1::basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) {

@@ -424,7 +424,7 @@ public:
         std::size_t iVB, jVB;   // Indices for both variable and basisfunction
         for(std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
         {
-            ptrElement->basisFunctionDeriv(jB, pRef, gradientBasisFunction);
+            gradientBasisFunction = ptrElement->basisFunctionDeriv(jB, pRef);
             for(std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
             {
                 valueTestFunction = ptrElement->basisFunction(iB, pRef);
@@ -531,7 +531,7 @@ public:
         }
         for(std::size_t jB = 0; jB < numOfBasisFunctions; jB++) // Index for basis functions
         {
-            ptrElement->basisFunctionDeriv(jB, pRef, gradientBasisFunction);
+            gradientBasisFunction = ptrElement->basisFunctionDeriv(jB, pRef);
             
             for(std::size_t jD = 0; jD < DIM_; jD++)    // Index for derivatives
             {
@@ -848,8 +848,7 @@ public:
     /// \brief Write output to a tecplot file.
     void writeToTecplotFile(const ElementT *ptrElement, const  PointReferenceT &pRef, std::ostream &out)
     {
-        LinearAlgebra::NumericalVector solution(numOfVariables_);
-        ptrElement->getSolution(solutionTimeLevel_, pRef, solution);
+        LinearAlgebra::NumericalVector solution = ptrElement->getSolution(solutionTimeLevel_, pRef);
         
         std::size_t iV = 0; // Index for the variable
         out << solution(iV);

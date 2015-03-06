@@ -59,7 +59,7 @@ class Laplace : public Base::HpgemUISimplified{
 		void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
 			ret.resize(1);
 			Geometry::PointPhysical pPhys = el->referenceToPhysical(p);
-			el->getSolution(0,p,ret);
+			ret = el->getSolution(0,p);
 			ret[0]-=sourceTerm(pPhys);
 			ret[0]*=ret[0];
 		}
@@ -90,9 +90,9 @@ public:
     	LinearAlgebra::NumericalVector phiDerivI(DIM_),phiDerivJ(DIM_);
     	ret.resize(numBasisFuns,numBasisFuns);
     	for(std::size_t i=0;i<numBasisFuns;++i){
-			el->basisFunctionDeriv(i,p,phiDerivI);
+			phiDerivI = el->basisFunctionDeriv(i,p);
     		for(std::size_t j=0;j<numBasisFuns;++j){
-    			el->basisFunctionDeriv(j,p,phiDerivJ);
+    			phiDerivJ = el->basisFunctionDeriv(j,p);
     			ret(j,i)=phiDerivI*phiDerivJ;
     		}
     	}
@@ -126,11 +126,11 @@ public:
     	LinearAlgebra::NumericalVector phiNormalI(DIM_),phiNormalJ(DIM_),phiDerivI(DIM_),phiDerivJ(DIM_);
 		PointPhysicalT pPhys = fa->referenceToPhysical(p);
     	for(std::size_t i=0;i<numBasisFuns;++i){
-			fa->basisFunctionNormal(i,normal,p,phiNormalI);
-			fa->basisFunctionDeriv(i,p,phiDerivI);
+			phiNormalI = fa->basisFunctionNormal(i,normal,p);
+			phiDerivI = fa->basisFunctionDeriv(i,p);
     		for(std::size_t j=0;j<numBasisFuns;++j){
-    			fa->basisFunctionNormal(j,normal,p,phiNormalJ);
-    			fa->basisFunctionDeriv(j,p,phiDerivJ);
+    			phiNormalJ = fa->basisFunctionNormal(j,normal,p);
+    			phiDerivJ = fa->basisFunctionDeriv(j,p);
     			if(fa->isInternal()){
     				ret(j,i)=-(phiNormalI*phiDerivJ+phiNormalJ*phiDerivI)/2+
     							penaltyParameter_*phiNormalI*phiNormalJ;
@@ -152,7 +152,7 @@ public:
 		if(std::abs(pPhys[0])<1e-9||std::abs(pPhys[0]-1)<1e-9){//Dirichlet
 			LinearAlgebra::NumericalVector phiDeriv(DIM_);
 			for(std::size_t i=0;i<numBasisFuns;++i){
-				fa->basisFunctionDeriv(i,p,phiDeriv);
+				phiDeriv = fa->basisFunctionDeriv(i,p);
 				ret[i]=(-normal*phiDeriv/Utilities::norm2(normal)+penaltyParameter_*fa->basisFunction(i,p))*0;
 			}
 		}else{

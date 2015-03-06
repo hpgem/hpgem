@@ -187,10 +187,9 @@ namespace Utilities {
 	 //const DerivativeOfBasisFuncPtr*     myDeriveFunctionPtr_; // a pointer to the derivatives
 	 const unsigned int                  myFunctionNumber_;
 	 };*/
-	void PhysGradientOfBasisFunction::operator ()(const PointReferenceT& p, RetType& r) const {
+	PhysGradientOfBasisFunction::RetType PhysGradientOfBasisFunction::operator ()(const PointReferenceT& p) const {
 		const std::size_t DIM = p.size();
-		r.resize(DIM);
-                r*=0;
+		RetType r(DIM);
 		Geometry::Jacobian jac = myElement_->calcJacobian(p);
 		RetType dummy = myElement_->getReferenceGeometry()->getBasisFunctionDerivative(myFunction_, p);
 		jac = jac.inverse();
@@ -201,6 +200,7 @@ namespace Utilities {
 				r[i] += dummy[j] * jac(j, i);
 			}
 		}
+        return r;
                 //std::cout<<std::endl;
 	}
 

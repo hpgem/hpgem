@@ -75,6 +75,8 @@ private:
 
 ///Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
 ///The first self-contained (no PETSc) program to make it into the SVN
+//This is a scratch-pad application, please verify that nobody went and tested a broken feature
+//please keep the problem modelled here reasonably close to the linear advection problem
 
 class AdvectionTest : public Base::ProblemDescriptorTimeDependent
 {
@@ -139,7 +141,7 @@ public:
         {
             for (std::size_t j = 0; j < numBasisFuncs; ++j)
             {
-                element->basisFunctionDeriv(j, point, phiDerivJ);
+                phiDerivJ = element->basisFunctionDeriv(j, point);
                 result(j, i) = element->basisFunction(i, point)*(a * phiDerivJ);
             }
         }
@@ -182,7 +184,7 @@ public:
             for (std::size_t j = 0; j < numBasisFuncs; ++j)
             {
                 //Get phi_j normal_j at this point.
-                face->basisFunctionNormal(j, normal, point, phiNormalJ);
+                phiNormalJ = face->basisFunctionNormal(j, normal, point);
 
                 //Give the terms of the upwind flux.
                 //Advection in the same direction as outward normal of the left element:
@@ -243,7 +245,7 @@ public:
     void writeToTecplotFile(const ElementT *element, const PointReferenceT& point, std::ostream& out)
     {
         LinearAlgebra::NumericalVector value(1);
-        element->getSolution(0, point, value);
+        value = element->getSolution(0, point);
         out << value[0];
     }
 
@@ -282,7 +284,7 @@ public:
             std::size_t numBasisFuncs = face->getNrOfBasisFunctions();
 
             LinearAlgebra::Matrix faceMatrix(numBasisFuncs, numBasisFuncs);
-            face->getFaceMatrix(faceMatrix);
+            faceMatrix = face->getFaceMatrixMatrix();
             LinearAlgebra::NumericalVector rhs = face->getCurrentData();
 
             //compute the flux
@@ -322,8 +324,7 @@ public:
             errorContainer next;
             next = integral.integrate<errorContainer>(element, { [ & ](const Base::Element* element, const Geometry::PointReference& pRef)->errorContainer
             {
-                LinearAlgebra::NumericalVector temp;
-                element->getSolution(0, pRef, temp);
+                LinearAlgebra::NumericalVector temp = element->getSolution(0, pRef);
                 Geometry::PointPhysical pPhys = element->referenceToPhysical(pRef);
                 //the error is the difference between the numerical solution and the analytical solution
                 return analyticalSolution(pPhys, endTime_) - temp[0];
@@ -391,7 +392,7 @@ int main(int argc, char **argv)
         test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, std::size_t timelevel) -> double
         {
             LinearAlgebra::NumericalVector solution(1);
-                                      element->getSolution(timelevel, point, solution);
+                                      solution = element->getSolution(timelevel, point);
                                       return solution[0];
         }, "value");
 

@@ -97,8 +97,7 @@ void testMesh(Base::MeshManipulator* test)
             }
             for(std::size_t i = 0; i < n; ++i)
             {
-                temp2.resize(p.size());
-                el->basisFunctionDeriv(i, p, temp2);
+                temp2 = el->basisFunctionDeriv(i, p);
                 temp1 += temp2 * el->getData(0, 0, i);
                 //std::cout<<temp2<<" "<<el->getData(0,0,i)<<std::endl;
             }

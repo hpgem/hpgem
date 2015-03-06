@@ -173,7 +173,7 @@ void Base::ShortTermStorageFaceHcurl::computeData()
         basisFunctionsTimesNormal_[i].resize(DIM);
         
         face_->Face::basisFunction(i, currentPoint_, basisFunctionValues_[i]);
-        face_->Face::basisFunctionCurl(i, currentPoint_, basisFunctionCurlValues_[i]);
+        basisFunctionCurlValues_[i] = face_->Face::basisFunctionCurl(i, currentPoint_);
         
         if(i < n)
         {
@@ -181,7 +181,7 @@ void Base::ShortTermStorageFaceHcurl::computeData()
             pElement = mapRefFaceToRefElemL(currentPoint_);
             jacobian = getPtrElementLeft()->calcJacobian(pElement);
             dummy1 = basisFunctionValues_[i];
-            getPtrElementLeft()->basisFunctionCurl(i, pElement, basisFunctionCurlValues_[i]);
+            basisFunctionCurlValues_[i] = getPtrElementLeft()->basisFunctionCurl(i, pElement);
         }
         else
         {
@@ -259,7 +259,7 @@ void Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const L
 	ret=basisFunctionsTimesNormal_[i];   // check how to get vector product of normal and basis function
 	if(!(currentPoint_==p)){
 		std::cout<<"Warning: you are using slow data access";
-		face_->basisFunctionNormal(i,normal,p,ret);
+		ret = face_->basisFunctionNormal(i,normal,p);
 	}
 }
 
@@ -275,7 +275,7 @@ void Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geo
 	ret=basisFunctionCurlValues_[i];
 	if(!(currentPoint_==p)){
 		std::cout<<"Warning: you are using slow data access";
-		face_->basisFunctionCurl(i,p,ret);
+		ret = face_->basisFunctionCurl(i,p);
 	}
 }
 

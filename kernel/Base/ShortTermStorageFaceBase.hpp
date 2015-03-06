@@ -110,12 +110,12 @@ namespace Base
             throw "No storage functionality was implemented! Are you working in a scalar function space?";
         }
 
-        void basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override
+        LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const override
         {
             throw "No storage functionality was implemented! Are you working in an unusual function space?";
         }
 
-        virtual void basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        virtual LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p)
         {
             throw "No storage functionality was implemented! Are you working in an unusual function space?";
         }
@@ -125,22 +125,22 @@ namespace Base
             return face_->basisFunctionDeriv(i, jDir, p);
         }
 
-        void basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override
+        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const override
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";
         }
 
-        virtual void basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p)
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";
         }
 
-        void basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override
+        LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const override
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
         }
 
-        virtual void basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p)
         {
             throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
         }
@@ -261,14 +261,14 @@ namespace Base
             return face_->refFaceToRefElemMapR();
         }
 
-        void getFaceMatrix(LinearAlgebra::Matrix& matrix, std::size_t matrixID = 0) const override
+        LinearAlgebra::Matrix getFaceMatrixMatrix(std::size_t matrixID = 0) const override
         {
-            return face_->getFaceMatrix(matrix, matrixID);
+            return face_->getFaceMatrixMatrix(matrixID);
         }
 
-        void getFaceVector(LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0) const override
+        LinearAlgebra::NumericalVector getFaceVector(std::size_t vectorID = 0) const override
         {
-            return face_->getFaceVector(vector, vectorID);
+            return face_->getFaceVector(vectorID);
         }
 
         const VecCacheT& getVecCacheData() const override

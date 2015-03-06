@@ -111,10 +111,10 @@ public:
         result.resize(n, n);
         for (int i = 0; i < n; ++i)
         {
-            element->basisFunctionDeriv(i, point, phiDerivI);
+            phiDerivI = element->basisFunctionDeriv(i, point);
             for (int j = 0; j < n; ++j)
             {
-                element->basisFunctionDeriv(j, point, phiDerivJ);
+                phiDerivJ = element->basisFunctionDeriv(j, point);
 
                 //the value to compute here is taken from the weak formulation
                 result(j, i) = phiDerivI * phiDerivJ;
@@ -135,12 +135,12 @@ public:
         PointPhysicalT pPhys = face->referenceToPhysical(point);
         for (int i = 0; i < n; ++i)
         {
-            face->basisFunctionNormal(i, normal, point, phiNormalI);
-            face->basisFunctionDeriv(i, point, phiDerivI);
+            phiNormalI = face->basisFunctionNormal(i, normal, point);
+            phiDerivI = face->basisFunctionDeriv(i, point);
             for (int j = 0; j < n; ++j)
             {
-                face->basisFunctionNormal(j, normal, point, phiNormalJ);
-                face->basisFunctionDeriv(j, point, phiDerivJ);
+                phiNormalJ = face->basisFunctionNormal(j, normal, point);
+                phiDerivJ = face->basisFunctionDeriv(j, point);
                 if (face->isInternal())
                 {
                     result(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2
@@ -178,7 +178,7 @@ public:
             LinearAlgebra::NumericalVector phiDeriv(DIM_);
             for (int i = 0; i < n; ++i)
             {
-                face->basisFunctionDeriv(i, point, phiDeriv);
+                phiDeriv = face->basisFunctionDeriv(i, point);
                 result[i] = (-normal * phiDeriv / Utilities::norm2(normal)
                              + penaltyParameter_ * face->basisFunction(i, point)) * 0.;
             }
@@ -224,7 +224,7 @@ public:
     void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out)
     {
         LinearAlgebra::NumericalVector value(1);
-        element->getSolution(0, point, value);
+        value = element->getSolution(0, point);
         out << value[0];
     }
 
@@ -295,7 +295,7 @@ public:
         paraWrite.write([](Base::Element* element, const Geometry::PointReference& point, std::size_t timelevel)->double
         {
             LinearAlgebra::NumericalVector value(1);
-            element->getSolution(timelevel,point,value);
+            value = element->getSolution(timelevel,point);
             return value[0];
         }
         ,"value");

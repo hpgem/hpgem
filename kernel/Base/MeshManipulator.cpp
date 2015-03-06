@@ -61,6 +61,7 @@
 #include "FaceFactory.hpp"
 #include "L2Norm.hpp"
 #include "Geometry/Jacobian.hpp"
+#include "Logger.h"
 
 #include <algorithm>
 #include <iostream>

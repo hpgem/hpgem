@@ -69,14 +69,11 @@ public:
         {
             int numBasisFuns = element->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
-            LinearAlgebra::NumericalVector phiDerivI(DIM), phiDerivJ(DIM);
             for (int i = 0; i < numBasisFuns; ++i)
             {
-                element->basisFunctionDeriv(i, p, phiDerivI);
                 for (int j = 0; j <= i; ++j)
                 {
-                    element->basisFunctionDeriv(j, p, phiDerivJ);
-                    ret(i, j) = ret(j, i) = phiDerivI*phiDerivJ;
+                    ret(i, j) = ret(j, i) = element->basisFunctionDeriv(i,p)*element->basisFunctionDeriv(j,p);
                 }
             }
         }
@@ -146,7 +143,7 @@ public:
             static LinearAlgebra::NumericalVector exact(2);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
             {
-                face->getPtrElementLeft()->getSolution(0, pElement, ret);
+                ret = face->getPtrElementLeft()->getSolution(0, pElement);
                 exactSolution(t, pPhys, exact);
                 ret -= exact;
                 ret[0] *= ret[0];
@@ -202,8 +199,7 @@ public:
     } elementEnergy;
     void writeToTecplotFile(const ElementT* element, const PointReferenceT& p, std::ostream& out)
     {
-        LinearAlgebra::NumericalVector value(2);
-        element->getSolution(0, p, value);
+        LinearAlgebra::NumericalVector value = element->getSolution(0, p);
         out << value[0] << " " << value[1];
         Geometry::PointPhysical pPhys = element->referenceToPhysical(p);
         exactSolution(t, pPhys, value);

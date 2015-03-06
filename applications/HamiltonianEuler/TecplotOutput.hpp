@@ -78,8 +78,7 @@ public:
     {
         double lambda, u, uExact, lambdaExact, v, w, energy, vExact, wExact;
         double energyExact, uError, vError, wError;
-        LinearAlgebra::NumericalVector sol;
-        element->getSolution(0,pRef, sol);
+        LinearAlgebra::NumericalVector sol = element->getSolution(0,pRef);
 //        data.extractState(p, s);
 //        
         lambda      = sol[3];

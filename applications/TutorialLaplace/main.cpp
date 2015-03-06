@@ -108,7 +108,7 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, to which we passed a reference when calling it.
     ///Please note that you pass a reference point to the basisfunctions and the 
     ///transformations are done internally.
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& integrandVal) override
+    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& integrandVal) override
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
         const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
@@ -117,21 +117,13 @@ public:
         //the number of basisfunctions.
         integrandVal.resize(numBasisFunctions, numBasisFunctions);
 
-        //Initialize the vectors that contain gradient(phi_i) and gradient(phi_j)
-        LinearAlgebra::NumericalVector phiDerivI(DIM_), phiDerivJ(DIM_);
-
         for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
-            //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
-            element->basisFunctionDeriv(i, p, phiDerivI);
-
             for (std::size_t j = 0; j < numBasisFunctions; ++j)
             {
-                //The gradient of basisfunction phi_j is computed at point p, the result is stored in phiDerivJ.
-                element->basisFunctionDeriv(j, p, phiDerivJ);
                 //Compute the value of gradient(phi_i).gradient(phi_j) at point p and 
                 //store it at the appropriate place in the matrix integrandVal.
-                integrandVal(j, i) = phiDerivI * phiDerivJ;
+                integrandVal(j, i) = element->basisFunctionDeriv(i, point) * element->basisFunctionDeriv(j, point);
             }
         }
     }
@@ -168,18 +160,20 @@ public:
         for (int i = 0; i < numBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
-            face->basisFunctionNormal(i, normal, p, phiNormalI);
+            phiNormalI = face->basisFunctionNormal(i, normal, p);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
-            face->basisFunctionDeriv(i, p, phiDerivI);
+            phiDerivI = face->basisFunctionDeriv(i, p);
 
             for (int j = 0; j < numBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
-                face->basisFunctionNormal(j, normal, p, phiNormalJ);
+                phiNormalJ = face->basisFunctionNormal(j, normal, p);
                 //The gradient of basisfunction phi_j is computed at point p, the result is stored in phiDerivJ.
-                face->basisFunctionDeriv(j, p, phiDerivJ);
+                phiDerivJ = face->basisFunctionDeriv(j, p);
 
                 //Switch to the correct type of face, and compute the integrand accordingly
+                //you could also compute the integrandVal by directly using face->basisFunctionDeriv
+                //and face->basisFunctionNormal in the following lines, but this results in very long expressions
                 //Internal face:
                 if (face->isInternal())
                 {
@@ -277,9 +271,7 @@ public:
     ///The only thing this has to write in the file is the value of the solution.
     void writeOutput(const ElementT* element, const PointReferenceT& p, std::ostream& out) override
     {
-        LinearAlgebra::NumericalVector value(1);
-        element->getSolution(0, p, value);
-        out << value[0];
+        out << element->getSolution(0, p)[0];
     }
     
     /// \brief Solve the system

@@ -125,7 +125,7 @@ namespace Base
         /// \brief Returns the value of the basisfunction corresponding to index iBasisFunction at the reference point p.
         virtual double basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const;
         
-        virtual void basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const;
         
         /// \brief Returns the physical normal vector times the basis function corresponding to index iBasisFunction.
         virtual LinearAlgebra::NumericalVector basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const;
@@ -134,12 +134,12 @@ namespace Base
         virtual double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference& p) const;
 
         ///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
-        virtual void basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const;
         
         /// \brief Returns the gradient of the physical basis function corresponding to index iBasisFunction.
         virtual LinearAlgebra::NumericalVector basisFunctionDeriv(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const;
 
-        virtual void basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const;
 
         virtual std::size_t getNrOfBasisFunctions() const;
 

@@ -66,7 +66,7 @@ namespace Base
     
         virtual void setElementVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0);
 
-        virtual void getElementVector(LinearAlgebra::NumericalVector&, std::size_t vectorID = 0) const;
+        virtual LinearAlgebra::NumericalVector getElementVector(std::size_t vectorID = 0) const;
 
         /// \brief Sets (and creates if unavailable) the expansion coefficients correspdonding to the given time level.
         void setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::NumericalVector &val);

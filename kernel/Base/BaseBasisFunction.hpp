@@ -22,14 +22,11 @@
 #ifndef BaseBasisFunction_hpp
 #define BaseBasisFunction_hpp
 
+#include "LinearAlgebra/NumericalVector.hpp"
+
 namespace Geometry
 {
     class PointReference;
-}
-
-namespace LinearAlgebra
-{
-    class NumericalVector;
 }
 
 namespace Base
@@ -70,7 +67,7 @@ namespace Base
             throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";
         };
 
-        virtual void evalCurl(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+        virtual LinearAlgebra::NumericalVector evalCurl(const PointReferenceT& p) const
         {
             throw "The curl of a scalar valued basis function is not implemented. Perhaps you meant evalDeriv?";
         }

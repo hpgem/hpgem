@@ -114,12 +114,12 @@ namespace Base
 
         ///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
         ///if some of the data needed for this mapping is already stored on a wrapper class, you can pass the class to this function for more efficient computation
-        virtual void basisFunctionDeriv(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret, const Element* wrapper = nullptr) const;
+        virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* wrapper = nullptr) const;
 
         ///\brief returns the curl of the i-th basisfunction at point p in ret
-        virtual void basisFunctionCurl(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const PointReferenceT& p) const;
 
-        virtual void getSolution(std::size_t timeLevel, const PointReferenceT& p, SolutionVector& solution) const;
+        virtual SolutionVector getSolution(std::size_t timeLevel, const PointReferenceT& p) const;
 
         void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution); ///\TODO not implemented  
 
