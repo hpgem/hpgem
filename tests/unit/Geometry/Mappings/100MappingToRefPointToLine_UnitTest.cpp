@@ -25,7 +25,7 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/Mappings/MappingToRefPointToLine.hpp"
-#include "cassert"
+#include "Logger.h"
 
 #include "Geometry/ReferenceLine.hpp"
 #include "Geometry/ReferencePoint.hpp"
@@ -42,41 +42,41 @@ int main() {
 
 	Geometry::Jacobian jac(1,0);
 
-	std::vector<int> nodesAfterTransformation(1);
+	std::vector<std::size_t> nodesAfterTransformation(1);
 
 	const Geometry::MappingReferenceToReference* test = &Geometry::MappingToRefPointToLine0::Instance();
 	nodesAfterTransformation[0]=0;
 
 	point = test->transform(refPoint);
-	assert(("transform",fGeom.isInternalPoint(refPoint)==eGeom.isInternalPoint(point)));
+	logger.assert_always((fGeom.isInternalPoint(refPoint)==eGeom.isInternalPoint(point)),"transform");
 
 	jac = test->calcJacobian(refPoint);
 
-	for(int i=0;i<fGeom.getNumberOfNodes();++i){
+	for(std::size_t i=0;i<fGeom.getNumberOfNodes();++i){
 		refPoint = fGeom.getNode(i);
 		compare = eGeom.getNode(nodesAfterTransformation[i]);
 		point = test->transform(refPoint);
-		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
+		logger.assert_always((std::abs(point[0]-compare[0])<1e-12),"transform");
 	}
 
-	assert(("getTargetDimension",test->getTargetDimension()==1));
+	logger.assert_always((test->getTargetDimension()==1),"getTargetDimension");
 
 
 	test = &Geometry::MappingToRefPointToLine1::Instance();
 	nodesAfterTransformation[0]=1;
 
 	point = test->transform(refPoint);
-	assert(("transform",fGeom.isInternalPoint(refPoint)==eGeom.isInternalPoint(point)));
+	logger.assert_always((fGeom.isInternalPoint(refPoint)==eGeom.isInternalPoint(point)),"transform");
 
 	jac = test->calcJacobian(refPoint);
 
-	for(int i=0;i<fGeom.getNumberOfNodes();++i){
+	for(std::size_t i=0;i<fGeom.getNumberOfNodes();++i){
 		refPoint = fGeom.getNode(i);
 		compare = eGeom.getNode(nodesAfterTransformation[i]);
 		point = test->transform(refPoint);
 	}
 
-	assert(("getTargetDimension",test->getTargetDimension()==1));
+	logger.assert_always((test->getTargetDimension()==1),"getTargetDimension");
 
 	return 0;
 }

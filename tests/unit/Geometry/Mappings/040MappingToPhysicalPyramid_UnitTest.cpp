@@ -25,7 +25,7 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/Mappings/MappingToPhysPyramid.hpp"
-#include "cassert"
+#include "Logger.h"
 
 #include "Geometry/ReferencePyramid.hpp"
 #include "Geometry/PhysicalPyramid.hpp"
@@ -97,10 +97,10 @@ int main() {
 			for(refPoint3D[2]=-1.5188;refPoint3D[2]<1.541;refPoint3D[2]+=0.2){
 				point3D = mapping3D.transform(refPoint3D);
 				if(rGeom3D.isInternalPoint(refPoint3D))//not perfect, but the degenerate cube face makes the mapping less linear than desired
-					assert(("transform",isInternal3D(point3D)));
+					logger.assert_always((isInternal3D(point3D)),"transform");
 				point3D = reinit3D.transform(refPoint3D);
 				if(rGeom3D.isInternalPoint(refPoint3D))
-					assert(("reinit",isInternal3D(point3D)));
+					logger.assert_always((isInternal3D(point3D)),"reinit");
 
 				refPoint3D[0]+=-1.e-8;
 				compare3D = mapping3D.transform(refPoint3D);
@@ -109,9 +109,9 @@ int main() {
 
 				refPoint3D[0]+=-1e-8;
 				jac3D = mapping3D.calcJacobian(refPoint3D);
-				assert(("jacobian",std::abs(jac3D[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
-				assert(("jacobian",std::abs(jac3D[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are strongly recommended to be more accurate
-				assert(("jacobian",std::abs(jac3D[2]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+				logger.assert_always((std::abs(jac3D[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5),"jacobian");//estimate is a bit rough, but should work for most mappings
+				logger.assert_always((std::abs(jac3D[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5),"jacobian");//implementations are strongly recommended to be more accurate
+				logger.assert_always((std::abs(jac3D[2]-5.e7*(point3D[2]-compare3D[2]))<1e-5),"jacobian");
 
 				refPoint3D[1]+=-1.e-8;
 				compare3D = mapping3D.transform(refPoint3D);
@@ -120,9 +120,9 @@ int main() {
 
 				refPoint3D[1]+=-1e-8;
 				jac3D = mapping3D.calcJacobian(refPoint3D);
-				assert(("jacobian",std::abs(jac3D[3]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
-				assert(("jacobian",std::abs(jac3D[4]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
-				assert(("jacobian",std::abs(jac3D[5]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+				logger.assert_always((std::abs(jac3D[3]-5.e7*(point3D[0]-compare3D[0]))<1e-5),"jacobian");
+				logger.assert_always((std::abs(jac3D[4]-5.e7*(point3D[1]-compare3D[1]))<1e-5),"jacobian");
+				logger.assert_always((std::abs(jac3D[5]-5.e7*(point3D[2]-compare3D[2]))<1e-5),"jacobian");
 
 				refPoint3D[2]+=-1.e-8;
 				compare3D = mapping3D.transform(refPoint3D);
@@ -131,26 +131,26 @@ int main() {
 
 				refPoint3D[2]+=-1e-8;
 				jac3D = mapping3D.calcJacobian(refPoint3D);
-				assert(("jacobian",std::abs(jac3D[6]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
-				assert(("jacobian",std::abs(jac3D[7]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
-				assert(("jacobian",std::abs(jac3D[8]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
+				logger.assert_always((std::abs(jac3D[6]-5.e7*(point3D[0]-compare3D[0]))<1e-5),"jacobian");
+				logger.assert_always((std::abs(jac3D[7]-5.e7*(point3D[1]-compare3D[1]))<1e-5),"jacobian");
+				logger.assert_always((std::abs(jac3D[8]-5.e7*(point3D[2]-compare3D[2]))<1e-5),"jacobian");
 			}
 		}
 	}
 
-	for(int i=0;i<rGeom3D.getNumberOfNodes();++i){
+	for(std::size_t i=0;i<rGeom3D.getNumberOfNodes();++i){
 		refPoint3D = rGeom3D.getNode(i);
 		compare3D = pGeom3D.getNodeCoordinates(i);
 		point3D = mapping3D.transform(refPoint3D);
-		assert(("transform",std::abs(point3D[0]-compare3D[0])<1e-12)&&std::abs(point3D[1]-compare3D[1])<1e-12&&std::abs(point3D[2]-compare3D[2])<1e-12);
+		logger.assert_always((std::abs(point3D[0]-compare3D[0])<1e-12)&&std::abs(point3D[1]-compare3D[1])<1e-12&&std::abs(point3D[2]-compare3D[2])<1e-12,"transform");
 	}
 
-	assert(("getTargetDimension",mapping3D.getTargetDimension()==3));
+	logger.assert_always((mapping3D.getTargetDimension()==3),"getTargetDimension");
 
-	for(int i=0;i<40;++i){
+	for(std::size_t i=0;i<40;++i){
 		compare3D = mapping3D.getNodeCoordinates(i);
 		point3D = pGeom3D.getGlobalNodeCoordinates(i);
-		assert(("getNodeCoordinates",compare3D==point3D));
+		logger.assert_always((compare3D==point3D),"getNodeCoordinates");
 	}
 
 	return 0;

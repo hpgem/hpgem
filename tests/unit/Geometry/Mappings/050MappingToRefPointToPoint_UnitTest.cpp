@@ -25,7 +25,7 @@
 //other 'unit' tests may assume correct execution of all prior unit tests
 
 #include "Geometry/Mappings/MappingToRefPointToPoint.hpp"
-#include <cassert>
+#include <Logger.h>
 
 #include "Geometry/ReferencePoint.hpp"
 #include "Geometry/PointReference.hpp"
@@ -44,17 +44,17 @@ int main() {//The 0D case is mostly testing if there are any crashing functions
 	Geometry::Jacobian jac(0,0);
 
 	point = test->transform(refPoint);
-	assert(("transform",geom.isInternalPoint(refPoint)==geom.isInternalPoint(point)));
+	logger.assert_always((geom.isInternalPoint(refPoint)==geom.isInternalPoint(point)),"transform");
 
 	jac = test->calcJacobian(refPoint);
 
-	for(int i=0;i<geom.getNumberOfNodes();++i){
+	for(std::size_t i=0;i<geom.getNumberOfNodes();++i){
 		refPoint = geom.getNode(i);
 		compare = geom.getNode(i);
 		point = test->transform(refPoint);
 	}
 
-	assert(("getTargetDimension",test->getTargetDimension()==0));
+	logger.assert_always((test->getTargetDimension()==0),"getTargetDimension");
 
 	return 0;
 }
