@@ -45,18 +45,12 @@ namespace Geometry
     template <std::size_t DIM>
     class MappingToPhysSimplexLinear: public MappingReferenceToPhysical
     {
-        private:
-            using PhysicalGeometryT = Geometry::PhysicalGeometry;
-            using PointReferenceT = Geometry::PointReference;
-            using PointPhysicalT = Geometry::PointPhysical;
-            using JacobianT = Geometry::Jacobian;
-
         public:
-            MappingToPhysSimplexLinear(const PhysicalGeometryT*const& pG):a(DIM+1,DIM){
-                MappingReferenceToPhysical::setNodesPtr(&pG->getNodes()); reinit(pG); };
-            virtual PointPhysical transform(const PointReferenceT&) const;
-            virtual Jacobian calcJacobian(const PointReferenceT&) const;
-            virtual void reinit(const PhysicalGeometryT*const);
+            MappingToPhysSimplexLinear(const PhysicalGeometry*const& pG):a(DIM+1,DIM){
+            MappingReferenceToPhysical::setNodesPtr(&pG->getNodes()); reinit(pG); };
+            virtual PointPhysical transform(const PointReference&) const;
+            virtual Jacobian calcJacobian(const PointReference&) const;
+            virtual void reinit(const PhysicalGeometry*const);
             virtual std::size_t getTargetDimension() const {return DIM;}
 
         private:
@@ -64,7 +58,7 @@ namespace Geometry
             //! ~OC~
             //! In this case it is worth using an array for the mapping factors,
             //! since they are just difference vectors (see loop in reinit)
-            std::vector<PointPhysicalT> a;
+            std::vector<PointPhysical> a;
     };
 };
     #include "MappingToPhysSimplexLinear_Impl.hpp"

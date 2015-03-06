@@ -32,7 +32,7 @@
 
 namespace Geometry
 {
-    MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(const PhysicalGeometryT* const physicalGeometry):
+    MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(const PhysicalGeometry* const physicalGeometry):
     		a0(3),a1(3),a2(3),a3(3),a4(3),a5(3)
     {
         MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
@@ -40,7 +40,7 @@ namespace Geometry
     }
 
     PointPhysical MappingToPhysTriangularPrism::
-    transform(const PointReferenceT& pR) const
+    transform(const PointReference& pR) const
     {
         //if (isValidPoint(pR))
         //{
@@ -64,7 +64,7 @@ namespace Geometry
             f2[4] = 0.5 * (t1 + pR[0]);
             f2[5] = 0.5 * (t2 + pR[1]);
 
-            PointPhysicalT p(3);
+            PointPhysical p(3);
 
 
             for (std::size_t i = 0; i < 6; ++i)
@@ -82,7 +82,7 @@ namespace Geometry
     }
 
     Jacobian MappingToPhysTriangularPrism::
-    calcJacobian(const PointReferenceT& pR) const
+    calcJacobian(const PointReference& pR) const
     {
         Jacobian jacobian(3,3);
         //if (isValidPoint(pR))
@@ -160,7 +160,7 @@ namespace Geometry
     }
 
     void
-    MappingToPhysTriangularPrism::reinit(const PhysicalGeometryT*const physicalGeometry)
+    MappingToPhysTriangularPrism::reinit(const PhysicalGeometry*const physicalGeometry)
     {
 #if SAVECOEFFS
         FixedVector<Geometry::PointPhysical<3>, 6> p;
@@ -187,7 +187,7 @@ namespace Geometry
         }
     }
 
-    bool MappingToPhysTriangularPrism::isValidPoint(const PointReferenceT& pointReference) const
+    bool MappingToPhysTriangularPrism::isValidPoint(const PointReference& pointReference) const
     {
         if ((0. <= pointReference[0]) && (pointReference[0] <= 1.) &&
             (0. <= pointReference[1]) && (pointReference[1] <= 1.) &&

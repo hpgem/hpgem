@@ -40,25 +40,19 @@ namespace Geometry
     class MappingToPhysTriangularPrism: public MappingReferenceToPhysical
     {
         public:
-            using PhysicalGeometryT = Geometry::PhysicalGeometry;
-            using PointReferenceT = Geometry::PointReference;
-            using PointPhysicalT = Geometry::PointPhysical;
-            using JacobianT = Geometry::Jacobian;
-        
-        public:
-            MappingToPhysTriangularPrism(const PhysicalGeometryT*const);
+            MappingToPhysTriangularPrism(const PhysicalGeometry*const);
 
-            virtual PointPhysical transform(const PointReferenceT&) const;
+            virtual PointPhysical transform(const PointReference&) const;
 
-            virtual Jacobian calcJacobian(const PointReferenceT&) const;
+            virtual Jacobian calcJacobian(const PointReference&) const;
 
-            virtual void reinit(const PhysicalGeometryT*const);
+            virtual void reinit(const PhysicalGeometry*const);
 
-            bool isValidPoint(const PointReferenceT&) const;
+            bool isValidPoint(const PointReference&) const;
             virtual std::size_t getTargetDimension() const {return 3;}
 
         private:
-            PointPhysicalT a0, a1, a2, a3, a4, a5;
+            PointPhysical a0, a1, a2, a3, a4, a5;
             std::size_t globalNodeIndices_[6];
             //PhysicalGeometryT* physicalGeometry_;
 

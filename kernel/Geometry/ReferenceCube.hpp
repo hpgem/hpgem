@@ -151,12 +151,12 @@ namespace Geometry
                     LinearAlgebra::Matrix& Q) const;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
-        virtual void getCodim1RefinementMappingMatrixL(int refineType, DimT subElementIdx,
-                                DimT faLocalIndex, LinearAlgebra::Matrix& Q) const;
+        virtual void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx,
+                                std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
-        virtual void getCodim1RefinementMappingMatrixR(int refineType, DimT subElementIdx,
-                                DimT faLocalIndex, LinearAlgebra::Matrix& Q) const;
+        virtual void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx,
+                                std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const;
 
       private:
         //! Local node indexes contains the numbering of the vertex of the shape, ordered by faces.

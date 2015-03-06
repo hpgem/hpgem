@@ -32,7 +32,6 @@ namespace Geometry
     class RefinementGeometry
     {
     public:
-        using DimT = std::size_t;
         using PointPhysicalT = PointPhysical;
         using VectorOfPointPhysicalsT = std::vector<PointPhysicalT>;
         using VectorOfIndicesT = std::vector<std::size_t>;       
@@ -73,16 +72,16 @@ namespace Geometry
         //---------------------- Refinement definitions -----------------------------------------
 
         //! \brief Number of new nodes due to the refinement that should be added to the vector of localNodeIndices
-        virtual DimT nrOfNewNodes() const = 0;
+        virtual std::size_t nrOfNewNodes() const = 0;
 
         //! \brief Get all physical nodes: existing nodes and new nodes to be added.
         virtual void getAllNodes(VectorOfPointPhysicalsT& nodes) const = 0;
 
         //! \brief Number of sub-elements due to the refinement
-        virtual DimT nrOfSubElements() const = 0;
+        virtual std::size_t nrOfSubElements() const = 0;
 
         //! \brief Assembly nodes for sub-element
-        virtual void subElementLocalNodeIndices(DimT, VectorOfIndicesT& LocalNodeIdx) const = 0;
+        virtual void subElementLocalNodeIndices(std::size_t, VectorOfIndicesT& LocalNodeIdx) const = 0;
 
         //! \brief Local indices pairs of sub-elements connected by a sub-Internal Face
         virtual void adjacentSubElementsPairs(
@@ -90,13 +89,13 @@ namespace Geometry
                         VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const = 0;
 
         //! \brief Number of sub-elements on a particular parent's face.
-        virtual DimT nrOfSubElementsOnFace(DimT faLocalIndex) const = 0;
+        virtual std::size_t nrOfSubElementsOnFace(std::size_t faLocalIndex) const = 0;
 
         //! \brief Get sub-elements' local index on a particular parent's face.
-        virtual void subElementsOnFace(DimT faLocalIndex, VectorOfIndicesT& LocalNodeIdx) const = 0;
+        virtual void subElementsOnFace(std::size_t faLocalIndex, VectorOfIndicesT& LocalNodeIdx) const = 0;
 
         //! \brief Get sub-face's local face number of on a particular parent's face.
-        virtual DimT getLocalSubFaceNr(DimT localFaceNr, DimT subElementIdx) const = 0;
+        virtual std::size_t getLocalSubFaceNr(std::size_t localFaceNr, std::size_t subElementIdx) const = 0;
 
       protected:
         //! \brief Default constructor.

@@ -70,16 +70,16 @@ namespace Geometry
         //---------------------- Refinement definitions -----------------------------------------
         
         //! Number of new nodes due to a refinement.
-        virtual DimT nrOfNewNodes(int refineType) const;
+        virtual std::size_t nrOfNewNodes(int refineType) const;
         
         //! Get all physical nodes: existing nodes and new nodes to be added.
         virtual void getAllNodes(int refineType, VectorOfPointPhysicalsT& nodes) const;
         
         //! Number of sub-elements due to the refinement.
-        virtual DimT nrOfSubElements(int refineType) const;
+        virtual std::size_t nrOfSubElements(int refineType) const;
 
         //! Assembly nodes for sub-element.
-        virtual void subElementLocalNodeIndices(int refineType, DimT iSubElement, VectorOfIndicesT& LocalNodeIdx) const;
+        virtual void subElementLocalNodeIndices(int refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const;
         
         //! Local indices pairs of sub-elements connected by a sub-Internal Face.
         virtual void adjacentSubElementsPairs(int refineType,
@@ -87,13 +87,13 @@ namespace Geometry
                         VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const;
 
         //! Number of sub-elements on a parent's face.
-        virtual DimT nrOfSubElementsOnFace(int refineType, DimT faLocalIndex) const;
+        virtual std::size_t nrOfSubElementsOnFace(int refineType, std::size_t faLocalIndex) const;
 
         //! Get sub-elements' local index on a parent's face.
-        virtual void subElementsOnFace(int refineType, DimT faLocalIndex, VectorOfIndicesT& localSubElemIdx) const;
+        virtual void subElementsOnFace(int refineType, std::size_t faLocalIndex, VectorOfIndicesT& localSubElemIdx) const;
         
         //! Get sub-face's local face number of on a parent's face.
-        virtual DimT getLocalSubFaceNr(int refineType, DimT localFaceNr, DimT subElementIdx) const;
+        virtual std::size_t getLocalSubFaceNr(int refineType, std::size_t localFaceNr, std::size_t subElementIdx) const;
 
     private:
 

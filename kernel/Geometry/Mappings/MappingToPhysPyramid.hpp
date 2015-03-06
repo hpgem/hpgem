@@ -37,22 +37,16 @@ namespace Geometry
 
     class MappingToPhysPyramid: public MappingReferenceToPhysical
     {
-        private:
-            using PhysicalGeometryT = Geometry::PhysicalGeometry;
-            using PointReferenceT = Geometry::PointReference;
-            using PointPhysicalT = Geometry::PointPhysical;
-            using JacobianT = Geometry::Jacobian;
-        
         public:
-            MappingToPhysPyramid(const PhysicalGeometryT*const physicalGeometry);
+            MappingToPhysPyramid(const PhysicalGeometry*const physicalGeometry);
 
-            virtual PointPhysical transform(const PointReferenceT&) const;
+            virtual PointPhysical transform(const PointReference&) const;
 
-            virtual Jacobian calcJacobian(const PointReferenceT&) const;
+            virtual Jacobian calcJacobian(const PointReference&) const;
 
-            virtual void reinit(const PhysicalGeometryT*const);
+            virtual void reinit(const PhysicalGeometry*const);
 
-            bool isValidPoint(const PointReferenceT&) const;
+            bool isValidPoint(const PointReference&) const;
             virtual std::size_t getTargetDimension() const {return 3;}
 
         private:

@@ -33,14 +33,14 @@
 
 namespace Geometry
 {
-    MappingToPhysPyramid::MappingToPhysPyramid(const PhysicalGeometryT*const physicalGeometry)
+    MappingToPhysPyramid::MappingToPhysPyramid(const PhysicalGeometry*const physicalGeometry)
     {
         MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
 
     PointPhysical MappingToPhysPyramid::
-    transform(const PointReferenceT& pR) const
+    transform(const PointReference& pR) const
     {
         PointPhysical pP(3);
         //if (isValidPoint(pR))
@@ -56,7 +56,7 @@ namespace Geometry
             f8[3] = 0.25 * ( 1. - pR[0] + pR[1] - t1 - pR[2] - t2 );
             f8[4] = 0.25 * ( 1. + pR[0] + pR[1] + t1 - pR[2] + t2 );
 
-            PointPhysicalT p(3);
+            PointPhysical p(3);
 
             pP[0] = pP[1] = pP[2] = 0.0;
 
@@ -72,7 +72,7 @@ namespace Geometry
         //}
             return pP;
     }
-    Jacobian MappingToPhysPyramid::calcJacobian(const PointReferenceT& pR) const
+    Jacobian MappingToPhysPyramid::calcJacobian(const PointReference& pR) const
     {
         Jacobian jacobian(3,3);
         //if (isValidPoint(pR))
@@ -101,9 +101,9 @@ namespace Geometry
             df_dxi2[3] = 0.25 * (-1. - dt6dx2);
             df_dxi2[4] = 0.25 * (-1. + dt6dx2);
 
-            PointPhysicalT d_dxi0(3);
-            PointPhysicalT d_dxi1(3);
-            PointPhysicalT d_dxi2(3);
+            PointPhysical d_dxi0(3);
+            PointPhysical d_dxi1(3);
+            PointPhysical d_dxi2(3);
 
             for (std::size_t i = 0; i < 3; ++i)
             {
@@ -112,7 +112,7 @@ namespace Geometry
                 d_dxi2[i] = 0.;
             }
 
-            PointPhysicalT p(3);
+            PointPhysical p(3);
 
             for (std::size_t i = 0; i < 5; ++i)
             {
@@ -137,7 +137,7 @@ namespace Geometry
             return jacobian;
     }
 
-    void MappingToPhysPyramid::reinit(const PhysicalGeometryT*const physicalGeometry)
+    void MappingToPhysPyramid::reinit(const PhysicalGeometry*const physicalGeometry)
     {
     	globalNodeIndices_.resize(5);
         for (std::size_t i = 0; i < 5; ++i)
@@ -151,7 +151,7 @@ namespace Geometry
     /*  The problem is prob the use of math.h instead of cmath some where in the code but I cannot find it at the moment [Ant]
      *  (resolved) you forgot to #include <cmath>, but something #include <cstdlib> (where the integer type std::abs is defined) -FB
      */
-    bool MappingToPhysPyramid::isValidPoint(const PointReferenceT& pointReference) const
+    bool MappingToPhysPyramid::isValidPoint(const PointReference& pointReference) const
     {
         static const double eps = 1.e-14;
         const double z = pointReference[2];

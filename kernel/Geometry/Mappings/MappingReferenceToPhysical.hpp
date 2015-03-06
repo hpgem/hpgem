@@ -52,12 +52,6 @@ namespace Geometry
     {
         public:
             /// \bug This is a work around for g++ bug 14258 which is fixed in modern compliers so at some point change back
-            //using PointToT = MappingInterface::PointToT           ;
-            //using PointPhysicalT = MappingInterface::PointPhysicalT     ;
-            using PointReferenceT = MappingInterface::PointReferenceT;
-            using JacobianT = MappingInterface::JacobianT;
-
-            using PhysicalGeometryT = PhysicalGeometry;
 
             using VectorOfPointsT = const std::vector<PointPhysical>*;
         
@@ -73,7 +67,7 @@ namespace Geometry
             virtual PointPhysical transform(const PointReference&) const = 0;
             //! ~OC~ Recompute mapping after physical nodes have moved.
             ///\BUG will horribly break everything unless you happen to pass the same  physicalGeometry that you used to construct this mapping
-            virtual void reinit(const PhysicalGeometryT* const) = 0;
+            virtual void reinit(const PhysicalGeometry* const) = 0;
 		const PointPhysical& getNodeCoordinates(const std::size_t index) const;
 
         private:///\TODO fix this properly (for now just made it working)

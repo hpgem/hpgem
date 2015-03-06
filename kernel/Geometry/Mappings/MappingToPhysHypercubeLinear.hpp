@@ -45,21 +45,16 @@ namespace Geometry
     template <>
     class MappingToPhysHypercubeLinear<1>: public MappingReferenceToPhysical
     {
+       
         public:
-            using PhysicalGeometryT = Geometry::PhysicalGeometry;
-            using PointReferenceT = Geometry::PointReference;
-            using PointPhysicalT = Geometry::PointPhysical;
-            using JacobianT = Geometry::Jacobian;
-
-        public:
-            MappingToPhysHypercubeLinear(const PhysicalGeometryT*const&);
-            virtual PointPhysical transform(const PointReferenceT&) const;
-            virtual Jacobian calcJacobian(const PointReferenceT&) const;
-            virtual void reinit(const PhysicalGeometryT* const);
+            MappingToPhysHypercubeLinear(const PhysicalGeometry*const&);
+            virtual PointPhysical transform(const PointReference&) const;
+            virtual Jacobian calcJacobian(const PointReference&) const;
+            virtual void reinit(const PhysicalGeometry* const);
             virtual std::size_t getTargetDimension() const {return 1;}
 
         private:
-            bool isValidPoint(const PointReferenceT&) const;
+            bool isValidPoint(const PointReference&) const;
             double mid, slope;
     };
 
@@ -68,22 +63,16 @@ namespace Geometry
     class MappingToPhysHypercubeLinear<2>: public MappingReferenceToPhysical
     {
         public:
-            using PhysicalGeometryT = Geometry::PhysicalGeometry;
-            using PointReferenceT = Geometry::PointReference;
-            using PointPhysicalT = Geometry::PointPhysical;
-            using JacobianT = Geometry::Jacobian;
-        
-        public:
             // Constructor.
-            MappingToPhysHypercubeLinear(const PhysicalGeometryT*const&);
-            virtual PointPhysicalT transform(const PointReferenceT&) const;
-            virtual JacobianT calcJacobian(const PointReferenceT&) const;
-            virtual void reinit(const PhysicalGeometryT* const);
+            MappingToPhysHypercubeLinear(const PhysicalGeometry*const&);
+            virtual PointPhysical transform(const PointReference&) const;
+            virtual Jacobian calcJacobian(const PointReference&) const;
+            virtual void reinit(const PhysicalGeometry* const);
             virtual std::size_t getTargetDimension() const {return 2;}
 
         private:
-            bool isValidPoint(const PointReferenceT&) const;
-            PointPhysicalT a0, a1, a2, a12;
+            bool isValidPoint(const PointReference&) const;
+            PointPhysical a0, a1, a2, a12;
     };
 
     // ~~~ Dimension 3 ~~~==========================================================================
@@ -91,22 +80,16 @@ namespace Geometry
     class MappingToPhysHypercubeLinear<3>: public MappingReferenceToPhysical
     {
         public:
-            using PhysicalGeometryT = Geometry::PhysicalGeometry;
-            using PointReferenceT = Geometry::PointReference;
-            using PointPhysicalT = Geometry::PointPhysical;
-            using JacobianT = Geometry::Jacobian;
-        
-        public:
             // Constructor.
-            MappingToPhysHypercubeLinear(const PhysicalGeometryT*const&);
-            virtual PointPhysicalT transform(const PointReferenceT&) const;
-            virtual JacobianT calcJacobian(const PointReferenceT&) const;
-            virtual void reinit(const PhysicalGeometryT* const);
+            MappingToPhysHypercubeLinear(const PhysicalGeometry*const&);
+            virtual PointPhysical transform(const PointReference&) const;
+            virtual Jacobian calcJacobian(const PointReference&) const;
+            virtual void reinit(const PhysicalGeometry* const);
             virtual std::size_t getTargetDimension() const {return 3;}
 
         private:
-            bool isValidPoint(const PointReferenceT&) const;
-            PointPhysicalT a0, a1, a2, a3, a12, a23, a13, a123;
+            bool isValidPoint(const PointReference&) const;
+            PointPhysical a0, a1, a2, a3, a12, a23, a13, a123;
     };
 
     // ~~~ Dimension 4 ~~~==========================================================================
@@ -114,22 +97,16 @@ namespace Geometry
     class MappingToPhysHypercubeLinear<4>: public MappingReferenceToPhysical
     {
     public:
-        using PhysicalGeometryT = Geometry::PhysicalGeometry;
-        using PointReferenceT = Geometry::PointReference;
-        using PointPhysicalT = Geometry::PointPhysical;
-        using JacobianT = Geometry::Jacobian;
-
-    public:
         // Constructor.
-        MappingToPhysHypercubeLinear(const PhysicalGeometryT*const&);
-        virtual PointPhysicalT transform(const PointReferenceT&) const;
-        virtual JacobianT calcJacobian(const PointReferenceT&) const;
-        virtual void reinit(const PhysicalGeometryT* const);
+        MappingToPhysHypercubeLinear(const PhysicalGeometry*const&);
+        virtual PointPhysical transform(const PointReference&) const;
+        virtual Jacobian calcJacobian(const PointReference&) const;
+        virtual void reinit(const PhysicalGeometry* const);
         virtual std::size_t getTargetDimension() const {return 4;}
 
     private:
-        bool isValidPoint(const PointReferenceT&) const;
-        PointPhysicalT abar, a0,   a1,   a2,   a3,
+        bool isValidPoint(const PointReference&) const;
+        PointPhysical abar, a0,   a1,   a2,   a3,
                              a01,  a02,  a03,  a12,  a13,  a23,
                              a012, a013, a123, a230, a0123;
     };

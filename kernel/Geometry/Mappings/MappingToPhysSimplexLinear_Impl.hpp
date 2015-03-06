@@ -29,7 +29,7 @@
  *  the origin of the dim-simplex. */
 template<std::size_t DIM>
 Geometry::PointPhysical Geometry::MappingToPhysSimplexLinear<DIM>::
-transform(const PointReferenceT& pointReference) const
+transform(const PointReference& pointReference) const
 {
     Geometry::PointPhysical pointPhysical = a[0];
     for (std::size_t i = 1; i <= DIM; ++i) 
@@ -42,7 +42,7 @@ transform(const PointReferenceT& pointReference) const
 /*! The Jacobian results from the transform function by symbolic derivation. */
 template<std::size_t DIM>
 Geometry::Jacobian Geometry::MappingToPhysSimplexLinear<DIM>::
-calcJacobian(const PointReferenceT& pointReference) const
+calcJacobian(const PointReference& pointReference) const
 {
     Jacobian jacobian(DIM,DIM);
     for (std::size_t i = 0; i < DIM; i++)

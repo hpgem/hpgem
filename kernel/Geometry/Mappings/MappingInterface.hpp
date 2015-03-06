@@ -94,16 +94,10 @@ namespace Geometry
     class MappingInterface
     {
         public:
-            //using PointToT = Point                        ;
-            //using PointPhysicalT = PointPhysical                ;
-            using PointReferenceT = PointReference;
-        using JacobianT = Jacobian;
-
-        public:
             /*! (OC): Jacobian has a gradient in each line, hence as many lines as target
                 space (DIM2) and as many columns as original space (DIM1),
                 \frac{\partial x_i}{\partial \xi_j}. */
-            virtual Jacobian calcJacobian(const PointReferenceT&) const = 0;
+            virtual Jacobian calcJacobian(const PointReference&) const = 0;
             MappingInterface() { }
             virtual ~MappingInterface() { };
 

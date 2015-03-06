@@ -35,9 +35,6 @@ namespace Geometry
     class RefinementMapping
     {
     public:
-        using DimT = std::size_t;
-        using PointReferenceT = PointReference;
-
         //! Default constructor.
         RefinementMapping() {}  
 
@@ -48,7 +45,7 @@ namespace Geometry
 
         //! Transform a reference point using refinement mapping
         virtual void refinementTransform(int refineType, std::size_t subElementIdx,
-                      const PointReferenceT& p, PointReferenceT& pMap) const = 0;
+                      const PointReference& p, PointReference& pMap) const = 0;
 
         //! Transformation matrix of this refinement when located on the LEFT side
         virtual void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx,
@@ -60,13 +57,13 @@ namespace Geometry
 
         //! Refinement mapping on codim1 for a given refinement on codim0
         //! Note: this should also applied on other dimensions
-        virtual void getCodim1RefinementMappingMatrixL(int refineType, DimT subElementIdx,
-                                DimT faLocalIndex, LinearAlgebra::Matrix& Q) const = 0;
+        virtual void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx,
+                                std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const = 0;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
         //! Note: this should also applied on other dimensions
-        virtual void getCodim1RefinementMappingMatrixR(int refineType, DimT subElementIdx,
-                                DimT faLocalIndex, LinearAlgebra::Matrix& Q) const = 0;
+        virtual void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx,
+                                std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const = 0;
     };
 }
 #endif
