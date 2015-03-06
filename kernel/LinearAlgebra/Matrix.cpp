@@ -22,7 +22,7 @@
 #include "Matrix.hpp"
 #include "GlobalNamespaceLinearAlgebra.hpp"
 #include "NumericalVector.hpp"
-#include <cassert>
+#include "Logger.h"
 #include <algorithm>
 #include <complex>
 
@@ -138,7 +138,7 @@ namespace LinearAlgebra
     Matrix& Matrix::operator+=(const Matrix& other)
     {
         //Make sure the matrices are the same size
-        assert (size() == other.size() && nCols_ == other.nCols_);
+        logger.assert(size() == other.size() && nCols_ == other.nCols_, "Dimensions of matrices are not the same.");
         
         //add the matrices element-wise
         for (std::size_t i = 0; i < size(); ++i)
@@ -185,7 +185,7 @@ namespace LinearAlgebra
      */
     Matrix Matrix::operator* (Matrix &other )
     {
-        assert(nCols_ == other.nRows_);        
+        logger.assert(nCols_ == other.nRows_, "Inner dimensions not equal.");        
         
         int i = nRows_;
         int j = nCols_;
@@ -206,7 +206,8 @@ namespace LinearAlgebra
     Matrix Matrix::operator* (const Matrix &other )const
     {
         
-        assert (nCols_ == other.nRows_);        
+        logger.assert(nCols_ == other.nRows_, "Inner dimensions are not the same.");        
+         
         
         int i = nRows_;
         int j = nCols_;
@@ -453,8 +454,8 @@ namespace LinearAlgebra
     {
      
         unsigned int size=nRows_*nCols_;
-        assert( nRows_ == x.nRows_ );
-        assert( nCols_ == x.nCols_ );
+        logger.assert( nRows_ == x.nRows_ , "Dimensions are not the same.");
+        logger.assert( nCols_ == x.nCols_, "Dimensions are not the same.");
         unsigned int i_one=1;
      
 #ifdef LA_STL_VECTOR
@@ -482,7 +483,7 @@ namespace LinearAlgebra
     /// \todo Find a more elegant way to do this.
     void Matrix::concatenate(const Matrix& other)
     {
-        assert(nCols_ == other.nCols_);
+        logger.assert(nCols_ == other.nCols_, "Number of columns is not the same.");
         
 #if LA_STL_VECTOR
         std::vector<double> data_new(nCols_ * (nRows_ + other.nRows_));

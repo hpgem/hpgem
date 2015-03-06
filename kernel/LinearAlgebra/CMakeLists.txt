@@ -1,3 +1,4 @@
+include_directories(${hpGEM_SOURCE_DIR}/kernel/ .)
 add_library(LinearAlgebra SHARED 
 		daxpy.f lsame.f xerbla.f dgemm.f dgemv.f 
 		#Next line for LAPACK stuff inverse and LU factorisation
@@ -10,3 +11,4 @@ add_library(LinearAlgebra SHARED
 		dgesv.f dgetrs.f
 		NumericalVector.cpp
 		Matrix.cpp)
+target_link_libraries(LinearAlgebra Logger)

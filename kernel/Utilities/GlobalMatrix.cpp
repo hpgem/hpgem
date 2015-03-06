@@ -35,7 +35,7 @@
 #include "Geometry/PointReference.hpp"
 #include "Base/Norm2.hpp"
 #include "Base/Mesh.hpp"
-#include "cassert"
+#include "Logger.h"
 #include <numeric>
 
 namespace Utilities {
@@ -156,7 +156,7 @@ namespace Utilities {
 //                positions[j + usedEntries] = j + startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()];
             }
         }
-        assert( pos == positions.end() );
+        logger.assert( pos == positions.end(), "Not all positions are processed.");
         return positions;
     }
 
@@ -234,10 +234,14 @@ namespace Utilities {
         std::partial_sum(MPISendEdgeCounts.begin(), MPISendEdgeCounts.end(), MPISendEdgeStarts.begin());
         std::partial_sum(MPISendNodeCounts.begin(), MPISendNodeCounts.end(), MPISendNodeStarts.begin());
         
-        assert(MPISendElementStarts.back()==theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL));
-        assert(MPISendFaceStarts.back()>=theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL));
-        assert(MPISendEdgeStarts.back()==theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL));
-        assert(MPISendNodeStarts.back()==theMesh_->getNumberOfVertices(Base::IteratorType::GLOBAL));
+        logger.assert(MPISendElementStarts.back()==theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL),
+                      "MPI does not see the right amount of elements");
+        logger.assert(MPISendFaceStarts.back()>=theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL),
+                      "MPI does not see the right amount of faces");
+        logger.assert(MPISendEdgeStarts.back()==theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL),
+                      "MPI does not see the right amount of edges");
+        logger.assert(MPISendNodeStarts.back()==theMesh_->getNumberOfVertices(Base::IteratorType::GLOBAL),
+                      "MPI does not see the right amount of vertices");
         
         //pack the computed data to send it using MPI
         std::vector<std::size_t> MPISendElementNumbers(MPISendElementStarts.back(), std::numeric_limits<std::size_t>::max());
@@ -341,15 +345,23 @@ namespace Utilities {
 
 #ifdef HPGEM_USE_MPI
         
-        assert(currentElementNumber == MPISendElementNumbers.begin() + MPISendElementStarts[rank+1]);
-        assert(currentFaceNumber <= MPISendFaceNumbers.begin() + MPISendFaceStarts[rank+1]);
-        assert(currentEdgeNumber == MPISendEdgeNumbers.begin() + MPISendEdgeStarts[rank+1]);
-        assert(currentNodeNumber == MPISendNodeNumbers.begin() + MPISendNodeStarts[rank+1]);
+        logger.assert(currentElementNumber == MPISendElementNumbers.begin() + MPISendElementStarts[rank+1],
+                      "MPI is not at the correct element.");
+        logger.assert(currentFaceNumber <= MPISendFaceNumbers.begin() + MPISendFaceStarts[rank+1],
+               "MPI is not at the correct face.");
+        logger.assert(currentEdgeNumber == MPISendEdgeNumbers.begin() + MPISendEdgeStarts[rank+1],
+               "MPI is not at the correct edge.");
+        logger.assert(currentNodeNumber == MPISendNodeNumbers.begin() + MPISendNodeStarts[rank+1],
+               "MPI is not at the correct node.");
         
-        assert(currentElementPosition == MPISendElementPositions.begin() + MPISendElementStarts[rank+1]);
-        assert(currentFacePosition <= MPISendFacePositions.begin() + MPISendFaceStarts[rank+1]);
-        assert(currentEdgePosition == MPISendEdgePositions.begin() + MPISendEdgeStarts[rank+1]);
-        assert(currentNodePosition == MPISendNodePositions.begin() + MPISendNodeStarts[rank+1]);
+        logger.assert(currentElementPosition == MPISendElementPositions.begin() + MPISendElementStarts[rank+1].
+                "MPI is not at the correct element.");
+        logger.assert(currentFacePosition <= MPISendFacePositions.begin() + MPISendFaceStarts[rank+1],
+               "MPI is not at the correct face.");
+        logger.assert(currentEdgePosition == MPISendEdgePositions.begin() + MPISendEdgeStarts[rank+1],
+               "MPI is not at the correct edge.");
+        logger.assert(currentNodePosition == MPISendNodePositions.begin() + MPISendNodeStarts[rank+1],
+               "MPI is not at the correct node.");
         
         //offset by one to insert a zero at the front
         std::vector<std::size_t> cumulativeDOF(n + 1);
@@ -392,7 +404,7 @@ namespace Utilities {
                 startOFNextDomain += MPISendElementCounts[currentDomain+1];
                 offset = cumulativeDOF[currentDomain];
             }
-            assert(*currentElementNumber != std::numeric_limits<std::size_t>::max());
+            logger.assert(*currentElementNumber != std::numeric_limits<std::size_t>::max(), "currentElementNumber = -1");
             startPositionsOfElementsInTheMatrix_[*currentElementNumber]=*currentElementPosition+offset;
         }
         
@@ -422,7 +434,7 @@ namespace Utilities {
                 startOFNextDomain += MPISendEdgeCounts[currentDomain+1];
                 offset = cumulativeDOF[currentDomain];
             }
-            assert(*currentEdgeNumber != std::numeric_limits<std::size_t>::max());
+            logger.assert(*currentEdgeNumber != std::numeric_limits<std::size_t>::max(), "currentEdgeNumber = -1");
             startPositionsOfEdgesInTheMatrix_[*currentEdgeNumber]=*currentEdgePosition+offset;
         }
         
@@ -437,7 +449,7 @@ namespace Utilities {
                 startOFNextDomain += MPISendNodeCounts[currentDomain+1];
                 offset = cumulativeDOF[currentDomain];
             }
-            assert(*currentNodeNumber != std::numeric_limits<std::size_t>::max());
+            logger.assert(*currentNodeNumber != std::numeric_limits<std::size_t>::max(), "currentNodeNumber=-1");
             startPositionsOfVerticesInTheMatrix_[*currentNodeNumber]=*currentNodePosition+offset;
         }
         std::size_t MPIOffset = cumulativeDOF[rank];

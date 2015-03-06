@@ -31,7 +31,7 @@
 #include "RectangularMeshDescriptor.hpp"
 #include "ElementCacheData.hpp"
 #include "FaceCacheData.hpp"
-#include "cassert"
+#include "Logger.h"
 #include "CommandLineOptions.hpp"
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "MpiContainer.hpp"
@@ -73,7 +73,7 @@ namespace Base
     bool HpgemUISimplified::solve()
     {
         initialise(); //make the grid
-        assert(checkInitialisation()); //check if we made a grid
+        logger.assert(checkInitialisation(), "Something went wrong with initialisation of the problem."); //check if we made a grid
         doAllElementIntegration(); //compute all element integrals (except stiffness)
         doAllFaceIntegration(); //compute all face integrals (upwind flux)
         interpolate(); //compute the coefficients for the initial conditions
@@ -264,9 +264,9 @@ namespace Base
             {
                 if (configData_->numberOfTimeLevels_ > 0)
                 {
-                    //@dducks: Shouldn't this be nobf * numberOfUnknowns?
-                    //Yes; fixed -FB
-                    assert(el->getTimeLevelDataVector(0).size() == configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_);
+                    logger.assert(el->getTimeLevelDataVector(0).size() == 
+                    configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_,
+                                  "TimeLevelDataVector has the wrong size.");
 
                     //assert(el->getTimeLevelData(0).size()==configData_->numberOfBasisFunctions_);
 //                    LinearAlgebra::NumericalVector timeLevelData(configData_->numberOfBasisFunctions_);
@@ -283,8 +283,9 @@ namespace Base
             {
                 if (configData_->numberOfTimeLevels_ > 0)
                 {
-                    //@dducks: see note above with receive assert!
-                    assert(el->getTimeLevelDataVector(0).size() == configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_);
+                    logger.assert(el->getTimeLevelDataVector(0).size() == 
+                    configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_,
+                                  "TimeLevelDataVector has the wrong size.");
                     MPIContainer::Instance().send(el->getTimeLevelDataVector(0), it.first, el->getID() * 2 + 1);
                     //std::cout<<"Sending element "<<el->getID()<<" to process "<<it.first<<std::endl;
 //                    MPIContainer::Instance().send(el->getTimeLevelData(0), it.first, el->getID() * 2 + 1);

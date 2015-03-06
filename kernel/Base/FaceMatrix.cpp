@@ -20,7 +20,7 @@
  */
 #include "FaceMatrix.hpp"
 
-#include <cassert>
+#include "Logger.h"
 #include <iostream>
 
 namespace Base
@@ -185,8 +185,8 @@ namespace Base
     void FaceMatrix::setElementMatrix(const LinearAlgebra::Matrix & elementMatrix, Side iSide, Side jSide)
     {
         // Check size of the elementMatrix.
-        assert(elementMatrix.getNRows() == getNrOfDegreesOfFreedom(iSide));
-        assert(elementMatrix.getNCols() == getNrOfDegreesOfFreedom(jSide));
+        logger.assert(elementMatrix.getNRows() == getNrOfDegreesOfFreedom(iSide), "elementMatrix has the wrong size.");
+        logger.assert(elementMatrix.getNCols() == getNrOfDegreesOfFreedom(jSide),"elementMatrix has the wrong size.");
         
         if(iSide == Side::LEFT)
         {
@@ -261,8 +261,8 @@ namespace Base
         std::size_t nDOFRight = M_RightRight_.getNRows();
         
         // Check size of entireMatrix.
-        assert(entireMatrix.getNRows() == nDOFLeft + nDOFRight);
-        assert(entireMatrix.getNCols() == nDOFLeft + nDOFRight);
+        logger.assert(entireMatrix.getNRows() == nDOFLeft + nDOFRight,"elementMatrix has the wrong size.");
+        logger.assert(entireMatrix.getNCols() == nDOFLeft + nDOFRight,"elementMatrix has the wrong size.");
         
         // This is probably slow and inefficient.
         for(std::size_t i = 0; i < nDOFLeft; i++)

@@ -23,7 +23,7 @@
 #include "Base/ShortTermStorageFaceH1.hpp"
 
 #include "QuadratureRules/GaussQuadratureRule.hpp"
-#include "Base/TestErrorDebug.hpp"
+#include "Logger.h"
 #include "Base/L2Norm.hpp"
 #include "FaceIntegrandBase.hpp"
 
@@ -57,7 +57,7 @@ ReturnTrait1
 
             // check whether the GaussIntegrationRule is actually for the
             // Element's ReferenceGeometry
-        TestErrorDebug((qdrRuleLoc->forReferenceGeometry() == localFace_->getReferenceGeometry()),
+        logger.assert((qdrRuleLoc->forReferenceGeometry() == localFace_->getReferenceGeometry()),
                        "FaceIntegral: " + qdrRuleLoc->getName() + " rule is not for THIS ReferenceGeometry!");
 
             // value returned by the integrand

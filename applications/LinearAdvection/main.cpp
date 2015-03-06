@@ -34,7 +34,6 @@
 #include "Base/RectangularMeshDescriptor.hpp"
 #include "Base/ElementCacheData.hpp"
 #include "Base/FaceCacheData.hpp"
-#include "cassert"
 #include "Base/CommandLineOptions.hpp"
 #include "Output/TecplotDiscontinuousSolutionWriter.hpp"
 #include "Utilities/BasisFunctions2DH1ConformingSquare.hpp"

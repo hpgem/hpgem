@@ -22,14 +22,11 @@
 #ifndef ELEMENTINTEGRAL_IMPL_HPP_
 #define ELEMENTINTEGRAL_IMPL_HPP_
 
-#include <cassert>
-
 #include "Base/ShortTermStorageElementH1.hpp"
-
+#include "Logger.h"
 #include "ElementIntegrandBase.hpp"
 #include "QuadratureRules/GaussQuadratureRule.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
-#include "Base/TestErrorDebug.hpp"
 #include "ElementIntegral.hpp"
 
 namespace Integration
@@ -70,14 +67,14 @@ namespace Integration
     const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? localElement_->getGaussQuadratureRule() : qdrRule);
 
     // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
-    assert((qdrRuleLoc->forReferenceGeometry() == localElement_->getReferenceGeometry()));
+    logger.assert((qdrRuleLoc->forReferenceGeometry() == localElement_->getReferenceGeometry()), "ElementIntegral: wrong geometry.");
 
     // value returned by the integrand
     ReturnType value,result;
 
     // number of Gauss quadrature points
         std::size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
-    assert(nrOfPoints > 0);
+    logger.assert(nrOfPoints > 0, "Did not get any points from qdrRuleLoc->nrOfPoints");
 
     // Initialize Gauss quadrature point
     Geometry::PointReference p = qdrRuleLoc->getPoint(0);

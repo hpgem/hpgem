@@ -35,7 +35,7 @@
 #include "Geometry/Mappings/OutwardNormalVectorSign.hpp"
 #include "Geometry/Mappings/ConcatenatedMapping.hpp"
 
-#include <cassert>
+#include "Logger.h"
 
 namespace Geometry
 {
@@ -203,12 +203,13 @@ namespace Geometry
            faceType_ == FaceType::PERIODIC_BC ||
            faceType_ == FaceType::SUBDOMAIN_BOUNDARY)
         {
-            assert(rightElementGeom_!=nullptr);
+            ///\todo move this to the unit test
+            logger.assert(rightElementGeom_!=nullptr, "There is no right element, so no internal face.");
             return true;
         }
         else
         {
-            assert(rightElementGeom_==nullptr);
+            logger.assert(rightElementGeom_==nullptr, "There is a right element, so no boundary face.");
             return false;
         }
     }

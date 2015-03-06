@@ -68,14 +68,6 @@ namespace Base
         return elementMatrix_[matrixID];
     }
     
-    /*
-    void ElementData::getElementMatrix(LinearAlgebra::Matrix& matrix, int matrixID) const
-    {
-        TestErrorDebug(matrixID < elementMatrix_.size(), "insufficient element matrixes stored");
-        matrix = elementMatrix_[matrixID];
-    }
-     */
-    
     void ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID)
     {
         //std::cout<<"VectorID : "<<vectorID<<std::endl;
@@ -191,21 +183,7 @@ namespace Base
         }
     } 
     
-    /*
-    ** -- Date Friday 19 Dec 2014
-    ** -- Developer @dducks
-    **
-    ** Guys - can we have a small inline debate about the return type of getTimeLevelData?
-    ** 
-    ** So, getTimeLevelData / setTimeLevelData convert their elements into a NumericalVector from a Matrix
-    ** Why the hell do we do that? This makes additional copies, and causes issues with the MPI synchronisation, since
-    ** everything is done asynchronous. This makes me sad and stuff.
-    **
-    ** Also, there seems to be an asymmetry for solutionId / etc. 
-    **
-    ** For now I've reimplemented these methods which return the direct matrix. PloxFix? <3
-    **
-    */
+    
     /**
       \details This method returns the TimeLevelData present in this Element for the given timeLevel in the form of a matrix. If the data does not exist yet (or better said, is of dimension 0), it will be initialised with the proper dimension. Tbis method is slow since it needs to reshape a vector to a matrix and returns a copy. Therefore it is advised to use getTimeLevelDataVector.
       

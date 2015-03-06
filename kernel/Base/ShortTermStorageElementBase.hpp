@@ -29,7 +29,6 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/Jacobian.hpp"
 #include "Node.hpp"
-#include <cassert>
 
 namespace Base
 {

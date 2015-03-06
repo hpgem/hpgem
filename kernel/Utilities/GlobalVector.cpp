@@ -34,7 +34,7 @@
 #include "Geometry/ReferenceGeometry.hpp"
 #include "Geometry/PointReference.hpp"
 #include "Base/Norm2.hpp"
-#include <cassert>
+#include <Logger.h>
 #include <numeric>
 
 namespace Utilities {
@@ -116,7 +116,7 @@ namespace Utilities {
 //                positions[j + usedEntries] = j + startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()];
             }
         }
-        assert( pos == positions.end() );
+        logger.assert( pos == positions.end(), "GlobalVector: did not process all elements correctly" );
         return positions;
     }
 
@@ -292,7 +292,7 @@ namespace Utilities {
                 startOFNextDomain += MPISendElementCounts[currentDomain+1];
                 offset = cumulativeDOF[currentDomain];
             }
-            assert(*currentElementNumber != std::numeric_limits<std::size_t>::max());
+            logger.assert(*currentElementNumber != std::numeric_limits<std::size_t>::max(), "currentElementNumber = -1");
             startPositionsOfElementsInTheVector_[*currentElementNumber]=*currentElementPosition+offset;
         }
         
@@ -322,7 +322,7 @@ namespace Utilities {
                 startOFNextDomain += MPISendEdgeCounts[currentDomain+1];
                 offset = cumulativeDOF[currentDomain];
             }
-            assert(*currentEdgeNumber != std::numeric_limits<std::size_t>::max());
+            logger.assert(*currentEdgeNumber != std::numeric_limits<std::size_t>::max(), "currentEdgeNumber=-1");
             startPositionsOfEdgesInTheVector_[*currentEdgeNumber]=*currentEdgePosition+offset;
         }
         
@@ -337,7 +337,7 @@ namespace Utilities {
                 startOFNextDomain += MPISendNodeCounts[currentDomain+1];
                 offset = cumulativeDOF[currentDomain];
             }
-            assert(*currentNodeNumber != std::numeric_limits<std::size_t>::max());
+            logger.assert(*currentNodeNumber != std::numeric_limits<std::size_t>::max(), "currentNodeNumber = -1");
             startPositionsOfVerticesInTheVector_[*currentNodeNumber]=*currentNodePosition+offset;
         }
 #endif

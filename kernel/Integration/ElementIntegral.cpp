@@ -20,7 +20,6 @@
  */
 #include "ElementIntegral.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
-#include "Base/TestErrorDebug.hpp"
 #include "Base/ElementCacheData.hpp"
 
 namespace Integration
@@ -101,7 +100,7 @@ namespace Integration
     //        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==nullptr? el->getGaussQuadratureRule(): qdrRule);
 //            
 //            // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
-//        TestErrorDebug((qdrRuleLoc->forReferenceGeometry() == el->getReferenceGeometry()),
+//        logger.assert((qdrRuleLoc->forReferenceGeometry() == el->getReferenceGeometry()),
 //                       "ElementIntegral: " + qdrRuleLoc->getName() + " rule is not for " + el->getReferenceGeometry()->getName() + "!");
 //        
 //            // value returned by the integrand
@@ -109,7 +108,7 @@ namespace Integration
 //
 //            // number of Gauss quadrature points
 //        unsigned int nrOfPoints = qdrRuleLoc->nrOfPoints();
-//        TestErrorDebug(nrOfPoints>0,"ElementIntegral: Invalid quadrature rule!");
+//        logger.assert(nrOfPoints>0,"ElementIntegral: Invalid quadrature rule!");
 //        
 //            // Gauss quadrature point
 //            Geometry::PointReference<DIM> p;

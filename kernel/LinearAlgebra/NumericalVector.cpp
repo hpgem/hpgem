@@ -21,7 +21,7 @@
 
 #include "NumericalVector.hpp"
 
-#include <cassert>
+#include "Logger.h"
 
 namespace LinearAlgebra
 {
@@ -49,7 +49,7 @@ namespace LinearAlgebra
         NumericalVector::NumericalVector(const double array[], std::size_t size)
         {
             data_.resize(size);
-            for (int i=0;i<size;i++)
+            for (std::size_t i=0;i<size;i++)
             {
                 data_[i]=array[i];
             }
@@ -60,7 +60,7 @@ namespace LinearAlgebra
     {
         data_.resize(size);
         
-        for(int i = 0; i<size; i++)
+        for(std::size_t i = 0; i<size; i++)
         {
             if(std::imag(array[i]) !=0)
                {
@@ -94,7 +94,7 @@ namespace LinearAlgebra
     {
         NumericalVector result(*this);
         #ifdef LA_STL_VECTOR
-            assert(data_.size() == right.data_.size());
+            logger.assert(data_.size() == right.data_.size(),"Vectors don't have the same size");
             
             for (std::size_t i = 0; i < data_.size(); i++)
                 result.data_[i] += right.data_[i];
@@ -109,7 +109,7 @@ namespace LinearAlgebra
     {
         NumericalVector result(*this);
         #ifdef LA_STL_VECTOR
-            assert(data_.size() == right.data_.size());
+            logger.assert(data_.size() == right.data_.size(),"Vectors don't have the same size");
             
             for (std::size_t i = 0; i < data_.size(); i++)
                 result.data_[i] -= right.data_[i];
@@ -136,7 +136,7 @@ namespace LinearAlgebra
     {
         ///\TODO replace with BLAS (I dont know where to find them)
         #ifdef LA_STL_VECTOR
-            assert(data_.size() == right.data_.size());
+            logger.assert(data_.size() == right.data_.size(), "Vectors don't have equal length.");
             double sum = 0;
             for (std::size_t i = 0; i < data_.size(); i++)
                 sum += data_[i] * right.data_[i];
@@ -203,7 +203,7 @@ namespace LinearAlgebra
     NumericalVector& NumericalVector::operator+= (const NumericalVector& right)
         {
             #ifdef LA_STL_VECTOR
-                assert(data_.size() == right.data_.size());
+                logger.assert(data_.size() == right.data_.size(), "Vectors don't have the same size");
                 for (std::size_t i = 0; i < data_.size(); i++)
                     data_[i] += right.data_[i];
             #else
@@ -215,7 +215,7 @@ namespace LinearAlgebra
     NumericalVector& NumericalVector::operator-= (const NumericalVector& right)
         {
         #ifdef LA_STL_VECTOR
-            assert(data_.size() == right.data_.size());
+            logger.assert(data_.size() == right.data_.size(),"Vectors don't have the same size");
             for (std::size_t i = 0; i < data_.size(); i++)
                 data_[i] -= right.data_[i];
 
