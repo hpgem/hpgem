@@ -10,6 +10,10 @@
 #define HPGEM_LOGLEVEL Log::DEFAULT
 #endif
 
+#ifdef assert
+#error You included assert before the logger. Please use logger.assert() instead.
+#endif
+
 #ifdef HPGEM_FORCE_ASSERTS
 #define HPGEM_ASSERTS true
 #else
@@ -24,9 +28,6 @@
 #endif
 #endif
 
-#ifdef assert
-#error You included assert before the logger. Please use logger.assert() instead.
-#endif
 /* IMPLEMENTATION DETAIL
  *    - by dducks
  * 
@@ -370,6 +371,13 @@ class Logger
      {
      }
      
+     //the conversion from "" to a std::sting is so slow, it takes 50% of the total run time for a release build...
+     template<typename... Args>
+     typename std::enable_if<!((ASSERTS || HPGEM_ASSERTS) && sizeof...(Args) >= 0), void>::type
+     assert(bool assertion, const char* format, Args&&... arg)
+     {
+     }
+     
      template<typename... Args>
      void assert_always(bool assertion, const std::string& format, Args&&... arg)
      {
@@ -493,5 +501,11 @@ class Logger
  * the output.
  */
 extern Logger<HPGEM_LOGLEVEL> logger;
+
+//just emptying the functions is not sufficiently aggressive in disabling the actual (costly) comparison
+#if !HPGEM_ASSERTS
+#define assert(e,...) assert(true,"")
+#endif
+
 
 #endif

@@ -125,11 +125,13 @@ namespace LinearAlgebra
     /// Recall that the matrix is stored in fortran style i.e. columns first and then rows
     double& Matrix::operator[](const std::size_t n)
     {
+        logger.assert(n<data_.size(),"Requested entry % for a matrix with only % entries",n,data_.size());
         return data_[n];
     }
     
     const double& Matrix::operator[](const std::size_t n) const  
     {
+        logger.assert(n<data_.size(),"Requested entry % for a matrix with only % entries",n,data_.size());
         return data_[n];
     }
     
@@ -156,6 +158,7 @@ namespace LinearAlgebra
      */
     NumericalVector Matrix::operator*( NumericalVector& right) const
     {
+        logger.assert(nCols_==right.size(),"Matrix-vector multiplication with mismatching sizes");
         int nr = nRows_;
         int nc = nCols_;            
         
@@ -171,7 +174,7 @@ namespace LinearAlgebra
 //        if (nr == 0)
 //          *((int*)svnullptr) = 1234;
         
-        dgemv_("N", &nr, &nc, &d_one, &((*(const_cast<Matrix *> (this)))[0]), &nr,&right[0],&i_one, &d_zero, &result[0], &i_one);
+        dgemv_("N", &nr, &nc, &d_one, ((*(const_cast<Matrix *> (this))).data()), &nr,right.data(),&i_one, &d_zero, result.data(), &i_one);
         return result;
     }
     
@@ -198,7 +201,7 @@ namespace LinearAlgebra
         double d_zero = 0.0;              
         
         //Let the actual multiplication be done by Fortran
-        dgemm_("N","N",&i,&k,&j,&d_one,&((*this)[0]),&i,&other[0],&j,&d_zero,&C[0],&i);
+        dgemm_("N","N",&i,&k,&j,&d_one,((*this).data()),&i,other.data(),&j,&d_zero,C.data(),&i);
         
         return C;
     }
@@ -221,7 +224,7 @@ namespace LinearAlgebra
         double d_zero = 0.0;      
                 
         //Let the actual multiplication be done by Fortran
-        dgemm_("N","N",&i,&k,&j,&d_one,&((*(const_cast<Matrix *> (this)))[0]),&i,&(((const_cast<Matrix&> (other)))[0]),&j,&d_zero,&C[0],&i);     
+        dgemm_("N","N",&i,&k,&j,&d_one,((*(const_cast<Matrix *> (this))).data()),&i,(((const_cast<Matrix&> (other))).data()),&j,&d_zero,C.data(),&i);     
         
         return C;
     }
@@ -405,6 +408,7 @@ namespace LinearAlgebra
     /// \see computeWedgeStuffVector (NumericalVector)
     NumericalVector Matrix::computeWedgeStuffVector() const
     {
+        logger.assert(nCols_==nRows_-1,"Matrix has wrong dimensions to construct the wedge stuff vector");
         NumericalVector result(nRows_);
         
         switch (nRows_)
@@ -520,6 +524,7 @@ namespace LinearAlgebra
     
     LinearAlgebra::NumericalVector Matrix::getColumn(std::size_t j) const
     {
+        logger.assert(j<nCols_,"Requested column %, but there are only % columns",j,nCols_);
         LinearAlgebra::NumericalVector ret(nRows_);
         for (std::size_t i = 0; i < nRows_; ++i)
         {
@@ -530,6 +535,7 @@ namespace LinearAlgebra
     
     LinearAlgebra::NumericalVector Matrix::getRow(std::size_t i) const
     {
+        logger.assert(i<nCols_,"Requested row %, but there are only % rows",i,nRows_);
         LinearAlgebra::NumericalVector ret(nCols_);
         for (std::size_t j = 0; j < nCols_; ++j)
         {
@@ -551,7 +557,7 @@ namespace LinearAlgebra
     
         int info;
         
-        dgetrf_(&nr,&nc,&result[0],&nr,iPivot,&info);
+        dgetrf_(&nr,&nc,result.data(),&nr,iPivot,&info);
         
         
         return result;
@@ -572,13 +578,13 @@ namespace LinearAlgebra
         
         int info=0;
         
-        dgetrf_(&nr,&nc,&result[0],&nr,iPivot,&info);
+        dgetrf_(&nr,&nc,result.data(),&nr,iPivot,&info);
         
         int lwork = nRows_*nCols_;
         
         double work[lwork];
         
-        dgetri_(&nc,&result[0],&nc,iPivot,&work[0],&lwork,&info);
+        dgetri_(&nc,result.data(),&nc,iPivot,&work[0],&lwork,&info);
         
         return result;
     }
@@ -586,6 +592,8 @@ namespace LinearAlgebra
     /// \param[in,out] B. On enter is B in Ax=B and on exit is x.
     void Matrix::solve(Matrix& B) const
     {
+        logger.assert(nRows_==nCols_,"can only solve for square matrixes");
+        logger.assert(nRows_==B.nRows_,"size of the RHS does not match the size of the matrix");
         Matrix matThis=*this;
         
         int n = nRows_;
@@ -594,11 +602,13 @@ namespace LinearAlgebra
         
         int IPIV[n];
         
-        dgesv_(&n,&nrhs,&matThis[0],&n,IPIV,&B[0],&n,&info);
+        dgesv_(&n,&nrhs,matThis.data(),&n,IPIV,B.data(),&n,&info);
     }
     
     void Matrix::solve(NumericalVector& b) const
     {
+        logger.assert(nRows_==nCols_,"can only solve for square matrixes");
+        logger.assert(nRows_==b.size(),"size of the RHS does not match the size of the matrix");
         Matrix matThis = (*this);
         
         int n = nRows_;
@@ -607,7 +617,7 @@ namespace LinearAlgebra
         
         int IPIV[n];
         
-        dgesv_(&n,&nrhs,&matThis[0],&n,IPIV,&b[0],&n,&info);
+        dgesv_(&n,&nrhs,matThis.data(),&n,IPIV,b.data(),&n,&info);
     }
     
     

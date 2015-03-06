@@ -77,6 +77,8 @@ namespace LinearAlgebra
 
     double& operator()(std::size_t n, std::size_t m)
     {
+        logger.assert(n<nRows_,"Requested row number % for a matrix with only % rows",n,nRows_);
+        logger.assert(m<nCols_,"Requested column number % for a matrix with only % columns",m,nCols_);
       return data_[n + m * nRows_];
     }
 
@@ -84,6 +86,8 @@ namespace LinearAlgebra
 
     const double& operator() (std::size_t n, std::size_t m) const
     {
+        logger.assert(n<nRows_,"Requested row number % for a matrix with only % rows",n,nRows_);
+        logger.assert(m<nCols_,"Requested column number % for a matrix with only % columns",m,nCols_);
       return data_[n + m * nRows_];
     }
 
@@ -157,7 +161,7 @@ namespace LinearAlgebra
     /// \brief Return the LUfactorisation of the matrix
     Matrix LUfactorisation() const;
 
-    /// \brief return the inverse in the vector result. The size of result must match the matrix.
+    /// \brief return the inverse in the vector result. The size of result matches the matrix.
     Matrix inverse() const;
 
     /// \brief solves Ax=B where A is the current matrix and B is passed in. The result is returned in B.

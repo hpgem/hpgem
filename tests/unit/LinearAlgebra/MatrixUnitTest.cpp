@@ -83,8 +83,9 @@ int main(int argc, char* argv[])
     
     cout<<"axpy"<<endl;
     //Test wedge product both quick form if vector exist and create vector form.
-    B2=BB1.computeWedgeStuffVector();
-    B3=BB1.computeWedgeStuffVector();
+    //Not supposed to be used for square matrices, turned of for now
+    //B2=BB1.computeWedgeStuffVector();
+    //B3=BB1.computeWedgeStuffVector();
     
     //Matrix assigment test
     AA4=2.0;

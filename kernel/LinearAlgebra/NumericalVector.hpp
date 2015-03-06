@@ -23,6 +23,7 @@
 #define NumericalVectorHPP
 
 //This is derived from valarray or vector so import that information
+#include "Logger.h"
 #ifdef LA_STL_VECTOR
     #include <vector>
     #include <cmath>
@@ -101,16 +102,19 @@ namespace LinearAlgebra
 
         const double& operator[](std::size_t n) const
         {
+            logger.assert(n<data_.size(),"Requested entry %, but there are only % entries",n,data_.size());
             return data_[n];
         }
 
         double& operator()(std::size_t n)
         {
+            logger.assert(n<data_.size(),"Requested entry %, but there are only % entries",n,data_.size());
             return data_[n];
         }
 
         const double& operator()(std::size_t n) const
         {
+            logger.assert(n<data_.size(),"Requested entry %, but there are only % entries",n,data_.size());
             return data_[n];
         }
 
@@ -124,6 +128,11 @@ namespace LinearAlgebra
         
 #else
         const double* data() const 
+        {
+            return data_.data();
+        }
+        
+        double* data() 
         {
             return data_.data();
         }

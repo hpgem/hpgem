@@ -200,8 +200,6 @@ public:
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
             //collect data
-            std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
-            stiffness.resize(numBasisFuncs, numBasisFuncs);
             stiffness = element->getElementMatrix(0);
             LinearAlgebra::Matrix mass = element->getMassMatrix();
             
@@ -222,7 +220,6 @@ public:
     {
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
-            std::size_t numBasisFuncs = face->getNrOfBasisFunctions();
             LinearAlgebra::NumericalVector rhs = face->getTimeLevelData(0);
 
             //compute the flux

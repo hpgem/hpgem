@@ -80,21 +80,6 @@ namespace Base
 
         /// \brief Where the user creates a mesh
         bool virtual initialise() = 0;
-        
-        /*
-        /// \brief User-defined element integrand for the left hand side
-        LinearAlgebra::Matrix Integration::ElementIntegrandBase<LinearAlgebra::Matrix>::elementIntegrand(const ElementT* element, const PointReferenceT& p) = 0;
-        
-        /// \brief User-defined element integrand for the right hand side
-        LinearAlgebra::NumericalVector Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>::elementIntegrand(const ElementT* element, const PointReferenceT& p) = 0;
-
-        /// \brief User-defined face integrand for the left hand side
-        LinearAlgebra::Matrix Integration::FaceIntegrandBase<LinearAlgebra::Matrix>::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
-                const PointReferenceT& p) = 0;
-
-        /// \brief User-defined face integrand for the right hand side
-        LinearAlgebra::NumericalVector Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal,
-                const PointReferenceT& p) = 0;*/
 
         /// \brief User-defined initial conditions
         /// \details This function returns the initial condition at the physical point p.
