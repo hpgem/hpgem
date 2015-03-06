@@ -32,7 +32,7 @@
 
 #include "Base/CommandLineOptions.hpp"
 #include "unordered_set"
-#include "cassert"
+#include "Logger.h"
 #include <cmath>
 
 void testMesh(Base::MeshManipulator* test) {
@@ -70,19 +70,19 @@ void testMesh(Base::MeshManipulator* test) {
 		result = elIntegral.integrate(element,&one);
 		total+=result[0];
 	}
-	assert(("total mesh volume",std::abs(total-1.)<1e-12));
+	 logger.assert_always((std::abs(total-1.)<1e-12),"total mesh volume");
 	total=0;
 	for(Base::Element* element:test->getElementsList()){
 		result = elIntegral.integrate(element,&linear);
 		total+=result[0];
 	}
-	assert(("linear function",std::abs(total-.5*test->dimension())<1e-12));
+	 logger.assert_always((std::abs(total-.5*test->dimension())<1e-12),"linear function");
 	total=0;
 	for(Base::Element* element:test->getElementsList()){
 		result = elIntegral.integrate(element,&trilinear);
 		total+=result[0];
     }
-    assert(("trilinear function", std::abs(total - std::pow(0.5, test->dimension())) < 1e-12));
+     logger.assert_always(( std::abs(total - std::pow(0.5, test->dimension())) < 1e-12),"trilinear function");
 }
 
 

@@ -29,7 +29,7 @@
 #include "Utilities/BasisFunctions3DH1ConformingCube.hpp"
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.hpp"
 #include "Utilities/BasisFunctions3DH1ConformingPrism.hpp"
-#include "cassert"
+#include "Logger.h"
 
 #include "Base/BasisFunctionSet.hpp"
 #include "Base/L2Norm.hpp"
@@ -51,7 +51,7 @@ int main() {
         const Base::BaseBasisFunction* test = (*all1DbasisFunctions)[i];
         for(point1D[0]=-1.5;point1D[0]<1.51;point1D[0]+=0.1){
             test->eval(point1D,ret);
-            assert(("eval",(test->eval(point1D)-ret[0])<1e-12));
+            logger.assert_always(((test->eval(point1D)-ret[0])<1e-12),"eval");
 
             point1D[0]+=-1.e-8;
             double x0=test->eval(point1D);
@@ -60,8 +60,8 @@ int main() {
 
             point1D[0]+=-1e-8;
             ret = test->evalDeriv(point1D);
-            assert(("derivative",std::abs(ret[0]-5.e7*(x1-x0))<1e-5));
-            assert(("derivative",std::abs(test->evalDeriv0(point1D)-5.e7*(x1-x0))<1e-5));
+            logger.assert_always((std::abs(ret[0]-5.e7*(x1-x0))<1e-5),"derivative");
+            logger.assert_always(( std::abs(test->evalDeriv0(point1D)-5.e7*(x1-x0))<1e-5),"derivative");
         }
     }
     
@@ -76,7 +76,7 @@ int main() {
         for(point2D[0]=-1.5;point2D[0]<1.51;point2D[0]+=0.1){
             for(point2D[1]=-1.5;point2D[1]<1.51;point2D[1]+=0.1){
                 test->eval(point2D,ret);
-                assert(("eval",(test->eval(point2D)-ret[0])<1e-12));
+                logger.assert_always(( (test->eval(point2D)-ret[0])<1e-12),"eval");
 
                 point2D[0]+=-1.e-8;
                 double x0=test->eval(point2D);
@@ -86,8 +86,8 @@ int main() {
                 point2D[0]+=-1e-8;
                 ret.resize(2);
                 ret = test->evalDeriv(point2D);
-                assert(("derivative",std::abs(ret[0]-5.e7*(x1-x0))<1e-5));
-                assert(("derivative",std::abs(test->evalDeriv0(point2D)-5.e7*(x1-x0))<1e-5));
+                logger.assert_always(( std::abs(ret[0]-5.e7*(x1-x0))<1e-5),"derivative");
+                logger.assert_always(( std::abs(test->evalDeriv0(point2D)-5.e7*(x1-x0))<1e-5),"derivative");
 
                 point2D[1]+=-1.e-8;
                 x0=test->eval(point2D);
@@ -95,8 +95,8 @@ int main() {
                 x1=test->eval(point2D);
 
                 point2D[1]+=-1e-8;
-                assert(("derivative",std::abs(ret[1]-5.e7*(x1-x0))<1e-5));
-                assert(("derivative",std::abs(test->evalDeriv1(point2D)-5.e7*(x1-x0))<1e-5));
+                logger.assert_always(( std::abs(ret[1]-5.e7*(x1-x0))<1e-5),"derivative");
+                logger.assert_always(( std::abs(test->evalDeriv1(point2D)-5.e7*(x1-x0))<1e-5),"derivative");
 
                 ret.resize(1);
             }
@@ -111,7 +111,7 @@ int main() {
         for(point2D[0]=-1.5;point2D[0]<1.51;point2D[0]+=0.1){
             for(point2D[1]=-1.5;point2D[1]<1.51;point2D[1]+=0.1){
                 test->eval(point2D,ret);
-                assert(("eval",(test->eval(point2D)-ret[0])<1e-12));
+                logger.assert_always(( (test->eval(point2D)-ret[0])<1e-12),"eval");
 
                 point2D[0]+=-1.e-8;
                 double x0=test->eval(point2D);
@@ -121,8 +121,8 @@ int main() {
                 point2D[0]+=-1e-8;
                 ret.resize(2);
                 ret = test->evalDeriv(point2D);//exact to within absolute OR relative tolerace of 1e-5
-                assert(("derivative",std::abs(ret[0]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
-                assert(("derivative",std::abs(test->evalDeriv0(point2D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
+                logger.assert_always(( std::abs(ret[0]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
+                logger.assert_always(( std::abs(test->evalDeriv0(point2D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
 
                 point2D[1]+=-1.e-8;
                 x0=test->eval(point2D);
@@ -130,8 +130,8 @@ int main() {
                 x1=test->eval(point2D);
 
                 point2D[1]+=-1e-8;
-                assert(("derivative",std::abs(ret[1]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
-                assert(("derivative",std::abs(test->evalDeriv1(point2D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
+                logger.assert_always(( std::abs(ret[1]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
+                logger.assert_always(( std::abs(test->evalDeriv1(point2D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
 
                 ret.resize(1);
             }
@@ -150,7 +150,7 @@ int main() {
             for(point3D[1]=-1.5;point3D[1]<1.51;point3D[1]+=0.25){
                 for(point3D[2]=-1.5;point3D[2]<1.51;point3D[2]+=0.25){
                     test->eval(point3D,ret);
-                    assert(("eval",(test->eval(point3D)-ret[0])<1e-12));
+                    logger.assert_always(( (test->eval(point3D)-ret[0])<1e-12),"eval");
 
                     point3D[0]+=-1.e-8;
                     double x0=test->eval(point3D);
@@ -160,8 +160,8 @@ int main() {
                     point3D[0]+=-1e-8;
                     ret.resize(3);
                     ret = test->evalDeriv(point3D);
-                    assert(("derivative",std::abs(ret[0]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
-                    assert(("derivative",std::abs(test->evalDeriv0(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
+                    logger.assert_always(( std::abs(ret[0]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
+                    logger.assert_always(( std::abs(test->evalDeriv0(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
 
                     point3D[1]+=-1.e-8;
                     x0=test->eval(point3D);
@@ -169,8 +169,8 @@ int main() {
                     x1=test->eval(point3D);
 
                     point3D[1]+=-1e-8;
-                    assert(("derivative",std::abs(ret[1]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
-                    assert(("derivative",std::abs(test->evalDeriv1(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
+                    logger.assert_always(( std::abs(ret[1]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
+                    logger.assert_always(( std::abs(test->evalDeriv1(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
 
                     point3D[2]+=-1.e-8;
                     x0=test->eval(point3D);
@@ -178,8 +178,8 @@ int main() {
                     x1=test->eval(point3D);
 
                     point3D[2]+=-1e-8;
-                    assert(("derivative",std::abs(ret[2]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[2]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
-                    assert(("derivative",std::abs(test->evalDeriv2(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[2]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
+                    logger.assert_always(( std::abs(ret[2]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[2]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
+                    logger.assert_always(( std::abs(test->evalDeriv2(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[2]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
 
                     ret.resize(1);
                 }
@@ -196,7 +196,7 @@ int main() {
             for(point3D[1]=-1.5;point3D[1]<1.51;point3D[1]+=0.25){
                 for(point3D[2]=-1.5;point3D[2]<1.51;point3D[2]+=0.25){
                     test->eval(point3D,ret);
-                    assert(("eval",(test->eval(point3D)-ret[0])<1e-12));
+                    logger.assert_always(( (test->eval(point3D)-ret[0])<1e-12),"eval");
 
                     point3D[0]+=-1.e-8;
                     double x0=test->eval(point3D);
@@ -206,8 +206,8 @@ int main() {
                     point3D[0]+=-1e-8;
                     ret.resize(3);
                     ret = test->evalDeriv(point3D);
-                    assert(("derivative",std::abs(ret[0]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
-                    assert(("derivative",std::abs(test->evalDeriv0(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
+                    logger.assert_always(( std::abs(ret[0]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
+                    logger.assert_always(( std::abs(test->evalDeriv0(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
 
                     point3D[1]+=-1.e-8;
                     x0=test->eval(point3D);
@@ -215,8 +215,8 @@ int main() {
                     x1=test->eval(point3D);
 
                     point3D[1]+=-1e-8;
-                    assert(("derivative",std::abs(ret[1]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
-                    assert(("derivative",std::abs(test->evalDeriv1(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
+                    logger.assert_always(( std::abs(ret[1]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
+                    logger.assert_always(( std::abs(test->evalDeriv1(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
 
                     point3D[2]+=-1.e-8;
                     x0=test->eval(point3D);
@@ -224,8 +224,8 @@ int main() {
                     x1=test->eval(point3D);
 
                     point3D[2]+=-1e-8;
-                    assert(("derivative",std::abs(ret[2]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[2]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
-                    assert(("derivative",std::abs(test->evalDeriv2(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[2]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
+                    logger.assert_always(( std::abs(ret[2]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[2]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
+                    logger.assert_always(( std::abs(test->evalDeriv2(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[2]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
 
                     ret.resize(1);
                 }
@@ -242,7 +242,7 @@ int main() {
             for(point3D[1]=-1.5;point3D[1]<1.51;point3D[1]+=0.25){
                 for(point3D[2]=-1.5;point3D[2]<1.51;point3D[2]+=0.25){
                     test->eval(point3D,ret);
-                    assert(("eval",(test->eval(point3D)-ret[0])<1e-12));
+                    logger.assert_always(( (test->eval(point3D)-ret[0])<1e-12),"eval");
 
                     point3D[0]+=-1.e-8;
                     double x0=test->eval(point3D);
@@ -252,8 +252,8 @@ int main() {
                     point3D[0]+=-1e-8;
                     ret.resize(3);
                     ret = test->evalDeriv(point3D);
-                    assert(("derivative",std::abs(ret[0]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
-                    assert(("derivative",std::abs(test->evalDeriv0(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
+                    logger.assert_always(( std::abs(ret[0]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
+                    logger.assert_always(( std::abs(test->evalDeriv0(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[0]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
 
                     point3D[1]+=-1.e-8;
                     x0=test->eval(point3D);
@@ -261,8 +261,8 @@ int main() {
                     x1=test->eval(point3D);
 
                     point3D[1]+=-1e-8;
-                    assert(("derivative",std::abs(ret[1]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
-                    assert(("derivative",std::abs(test->evalDeriv1(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
+                    logger.assert_always(( std::abs(ret[1]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
+                    logger.assert_always(( std::abs(test->evalDeriv1(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[1]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
 
                     point3D[2]+=-1.e-8;
                     x0=test->eval(point3D);
@@ -270,8 +270,8 @@ int main() {
                     x1=test->eval(point3D);
 
                     point3D[2]+=-1e-8;
-                    assert(("derivative",std::abs(ret[2]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[2]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
-                    assert(("derivative",std::abs(test->evalDeriv2(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[2]-5.e7*(x1-x0))<1e-5*L2Norm(ret))));
+                    logger.assert_always(( std::abs(ret[2]-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[2]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
+                    logger.assert_always(( std::abs(test->evalDeriv2(point3D)-5.e7*(x1-x0))<1e-5||(L2Norm(ret)>1&&std::abs(ret[2]-5.e7*(x1-x0))<1e-5*L2Norm(ret))),"derivative");
 
                     ret.resize(1);
                 }

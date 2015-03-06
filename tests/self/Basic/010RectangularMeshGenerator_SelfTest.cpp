@@ -40,7 +40,7 @@
 #include "Base/CommandLineOptions.hpp"
 
 #include "unordered_set"
-#include "cassert"
+#include "Logger.h"
 #include "Base/CommandLineOptions.hpp"
 
 void testMesh(Base::MeshManipulator* test) {
@@ -48,29 +48,29 @@ void testMesh(Base::MeshManipulator* test) {
     std::cout << test->getElementsList(Base::IteratorType::GLOBAL).size() << std::endl;
     std::cout << test->getElementsList(Base::IteratorType::LOCAL).size() << std::endl;
     for (Base::Element* element : test->getElementsList()) {
-        assert(("duplicate element ID", elementIDs.find(element->getID()) == elementIDs.end()));
+        logger.assert_always(( elementIDs.find(element->getID()) == elementIDs.end()),"duplicate element ID");
         elementIDs.insert(element->getID());
-        assert(("confusion about the number of faces", element->getNrOfFaces() == element->getReferenceGeometry()->getNrOfCodim1Entities()));
+        logger.assert_always(( element->getNrOfFaces() == element->getReferenceGeometry()->getNrOfCodim1Entities()),"confusion about the number of faces");
         if (test->dimension() == 2) {
-            assert(("confusion about the number of edges", element->getNrOfEdges() == 0));
+            logger.assert_always(( element->getNrOfEdges() == 0),"confusion about the number of edges");
         } else {
-            assert(("confusion about the number of edges", element->getNrOfEdges() == element->getReferenceGeometry()->getNrOfCodim2Entities()));
+            logger.assert_always(( element->getNrOfEdges() == element->getReferenceGeometry()->getNrOfCodim2Entities()),"confusion about the number of edges");
         }
-        assert(("confusion about the number of vertices", element->getNrOfNodes() == element->getReferenceGeometry()->getNumberOfNodes()));
+        logger.assert_always(( element->getNrOfNodes() == element->getReferenceGeometry()->getNumberOfNodes()),"confusion about the number of vertices");
         for (std::size_t i = 0; i < element->getNrOfFaces(); ++i) {
-            assert(("missing Face", element->getFace(i) != nullptr));
+            logger.assert_always(( element->getFace(i) != nullptr),"missing Face");
         }
         for (std::size_t i = 0; i < element->getNrOfEdges(); ++i) {
-            assert(("missing Face", element->getEdge(i) != nullptr));
+            logger.assert_always(( element->getEdge(i) != nullptr),"missing Face");
         }
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i) {
-            assert(("missing Face", element->getNode(i) != nullptr));
+            logger.assert_always(( element->getNode(i) != nullptr),"missing Face");
         }
     }
     for (Base::Face* face : test->getFacesList()) {
-        assert(("duplicate face ID", faceIDs.find(face->getID()) == faceIDs.end()));
+        logger.assert_always(( faceIDs.find(face->getID()) == faceIDs.end()),"duplicate face ID");
         faceIDs.insert(face->getID());
-        assert(("element<->face matching", face->getPtrElementLeft()->getFace(face->localFaceNumberLeft()) == face));
+        logger.assert_always(( face->getPtrElementLeft()->getFace(face->localFaceNumberLeft()) == face),"element<->face matching");
         if (face->isInternal()) {
             std::vector<std::size_t> leftNodes(face->getReferenceGeometry()->getNumberOfNodes()), rightNodes(leftNodes);
             leftNodes = face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft());
@@ -80,23 +80,23 @@ void testMesh(Base::MeshManipulator* test) {
                 for (std::size_t j = 0; j < rightNodes.size(); ++j) {
                     found |= leftNodes[i] == rightNodes[j];
                 }
-                assert(("face positioning", found));
+                logger.assert_always(( found),"face positioning");
             }
-            assert(("face positioning", leftNodes.size() == rightNodes.size()));
-            assert(("element<->face matching", face->getPtrElementRight()->getFace(face->localFaceNumberRight()) == face));
+            logger.assert_always(( leftNodes.size() == rightNodes.size()),"face positioning");
+            logger.assert_always(( face->getPtrElementRight()->getFace(face->localFaceNumberRight()) == face),"element<->face matching");
         }
     }
     for (Base::Edge* edge : test->getEdgesList()) {
-        assert(("duplicate edge ID", edgeIDs.find(edge->getID()) == edgeIDs.end()));
+        logger.assert_always(( edgeIDs.find(edge->getID()) == edgeIDs.end()),"duplicate edge ID");
         edgeIDs.insert(edge->getID());
-        assert(("element<->edge matching", edge->getElement(0)->getEdge(edge->getEdgeNr(0)) == edge));
+        logger.assert_always(( edge->getElement(0)->getEdge(edge->getEdgeNr(0)) == edge),"element<->edge matching");
         std::vector<std::size_t> firstNodes(edge->getElement(0)->getReferenceGeometry()->getCodim2ReferenceGeometry(edge->getEdgeNr(0))->getNumberOfNodes()), otherNodes(firstNodes);
         firstNodes = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
         for (int i = 0; i < firstNodes.size(); ++i) {
             firstNodes[i] = edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(firstNodes[i]);
         }
         for (std::size_t i = 1; i < edge->getNrOfElements(); ++i) {
-            assert(("element<->edge matching", edge->getElement(i)->getEdge(edge->getEdgeNr(i)) == edge));
+            logger.assert_always(( edge->getElement(i)->getEdge(edge->getEdgeNr(i)) == edge),"element<->edge matching");
             otherNodes = edge->getElement(i)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(i));
             for (std::size_t j = 0; j < otherNodes.size(); ++j) {
                 otherNodes[j] = edge->getElement(i)->getPhysicalGeometry()->getNodeIndex(otherNodes[j]);
@@ -106,25 +106,25 @@ void testMesh(Base::MeshManipulator* test) {
                 for (std::size_t j = 0; j < otherNodes.size(); ++j) {
                     found |= firstNodes[k] == otherNodes[j];
                 }
-                assert(("edge positioning", found));
+                logger.assert_always(( found),"edge positioning");
             }
-            assert(("edge positioning", firstNodes.size() == otherNodes.size()));
+            logger.assert_always(( firstNodes.size() == otherNodes.size()),"edge positioning");
         }
     }
     for(Base::Node* vertex : test->getVerticesList()) {
-        assert(("duplicate vertex ID", vertexIDs.find(vertex->getID()) == vertexIDs.end()));
+        logger.assert_always(( vertexIDs.find(vertex->getID()) == vertexIDs.end()),"duplicate vertex ID");
         vertexIDs.insert(vertex->getID());
-        assert(("element<->vertex matching", vertex->getElement(0)->getNode(vertex->getVertexNr(0)) == vertex));
+        logger.assert_always(( vertex->getElement(0)->getNode(vertex->getVertexNr(0)) == vertex),"element<->vertex matching");
         Geometry::PointPhysical pFirst(test->dimension()),pOther(pFirst);
         pFirst = vertex->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getVertexNr(0));
         for(std::size_t i=1; i < vertex->getNrOfElements(); ++i)
         {
-            assert(("element<->vertex matching", vertex->getElement(i)->getNode(vertex->getVertexNr(i)) == vertex));
+            logger.assert_always(( vertex->getElement(i)->getNode(vertex->getVertexNr(i)) == vertex),"element<->vertex matching");
             pOther = vertex->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getVertexNr(i));
-            assert(("vertex positioning", pFirst==pOther));
+            logger.assert_always(( pFirst==pOther),"vertex positioning");
         }
     }
-    assert(("total amount of vertices", test->getNumberOfNodes()==test->getNumberOfVertices()));
+    logger.assert_always(( test->getNumberOfNodes()==test->getNumberOfVertices()),"total amount of vertices");
 }
 
 int main(int argc, char** argv) {
@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
     test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
 
     testMesh(test);
-    assert(("number of elements", test->getNumberOfElements() == 2));
+    logger.assert_always(( test->getNumberOfElements() == 2),"number of elements");
 
     delete test;
     description1D.numElementsInDIM_[0] = 3;
@@ -165,7 +165,7 @@ int main(int argc, char** argv) {
     test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
 
     testMesh(test);
-    assert(("number of elements", test->getNumberOfElements() == 3));
+    logger.assert_always((  test->getNumberOfElements() == 3),"number of elements");
 
     // dim 2
 
@@ -177,7 +177,7 @@ int main(int argc, char** argv) {
     test->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
 
     testMesh(test);
-    assert(("number of elements", test->getNumberOfElements() == 6));
+    logger.assert_always((  test->getNumberOfElements() == 6),"number of elements");
 
     delete test;
     description2D.numElementsInDIM_[0] = 3;
@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
     test->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
 
     testMesh(test);
-    assert(("number of elements", test->getNumberOfElements() == 6));
+    logger.assert_always((  test->getNumberOfElements() == 6),"number of elements");
 
     // dim 3
 
@@ -200,7 +200,7 @@ int main(int argc, char** argv) {
     test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
 
     testMesh(test);
-    assert(("number of elements", test->getNumberOfElements() == 12));
+    logger.assert_always((  test->getNumberOfElements() == 12),"number of elements");
 
     delete test;
     description3D.numElementsInDIM_[0] = 2;
@@ -211,7 +211,7 @@ int main(int argc, char** argv) {
     test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
 
     testMesh(test);
-    assert(("number of elements", test->getNumberOfElements() == 12));
+    logger.assert_always((  test->getNumberOfElements() == 12),"number of elements");
 
     delete test;
     description3D.numElementsInDIM_[0] = 3;
@@ -222,5 +222,6 @@ int main(int argc, char** argv) {
     test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
 
     testMesh(test);
-    assert(("number of elements", test->getNumberOfElements() == 12));
+    logger.assert_always((  test->getNumberOfElements() == 12),"number of elements");
+    return 0;
 }

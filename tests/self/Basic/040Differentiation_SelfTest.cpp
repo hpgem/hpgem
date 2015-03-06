@@ -29,7 +29,7 @@
 #include "Integration/ElementIntegrandBase.hpp"
 
 #include "unordered_set"
-#include "cassert"
+#include "Logger.h"
 
 #include "Utilities/BasisFunctions1DH1ConformingLine.hpp"
 #include "Utilities/BasisFunctions2DH1ConformingSquare.hpp"
@@ -263,5 +263,7 @@ int main(int argc, char** argv)
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
     testMesh(test);
+    
+    return 0;
 }
 

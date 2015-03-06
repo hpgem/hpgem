@@ -25,7 +25,8 @@
 #include "LinearAlgebra/NumericalVector.hpp"
 
           
-using namespace::std;
+using std::cout;
+using std::endl;
 
 int main(int argc, char* argv[])
 {
@@ -47,17 +48,9 @@ int main(int argc, char* argv[])
     cout << b << endl;
     
     a.axpy(3.0,b);
-    cout << a;
+    cout << a << endl;
     
-   /** /*LinearAlgebra::NumericalVector c;
-    Geometry::Point<2> p1 ((double []){1.0,2.0});
-    Geometry::Point<2> p2 ((double []){1.0,3.0});
-    Geometry::Point<2> p3;
-    
-     
-    p3=p1;
-	*/
-    /*
+    LinearAlgebra::NumericalVector c;
     	
 	LinearAlgebra::NumericalVector AA(3);
 	
@@ -65,9 +58,7 @@ int main(int argc, char* argv[])
     
     LinearAlgebra::NumericalVector CC(3);
 	
-    LinearAlgebra::NumericalVector EE;
-	
-    FunnyVector DD(3);
+    LinearAlgebra::NumericalVector DD(3);
 	
 	
 	AA(0)=1;
@@ -94,8 +85,6 @@ int main(int argc, char* argv[])
     CC=AA+BB;
     
     cout << CC << endl;
-    
-    */
 	
 }
 
