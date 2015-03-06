@@ -41,11 +41,11 @@ namespace Base
 {
     class HpgemUISimplified;
 
-    auto& numberOfSnapshots = Base::register_argument<std::size_t>(0, "nOutputFrames", "Number of frames to output", false, 1);
-    auto& endTime = Base::register_argument<double>(0, "endTime", "end time of the simulation", false, 1);
-    auto& startTime = Base::register_argument<double>(0, "startTime", "start time of the simulation", false, 0);
-    auto& dt = Base::register_argument<double>(0, "dt", "time step of the simulation", false);
-    auto& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file (without extentions)", false, "output");
+    extern CommandLineOption<std::size_t> &numberOfSnapshots;
+    extern CommandLineOption<double> &endTime;
+    extern CommandLineOption<double> &startTime;
+    extern CommandLineOption<double> &dt;
+    extern CommandLineOption<std::string> &outputName;
     
     /// \param[in] DIM Dimension of the domain (usually 2 or 3).
     /// \param[in] polynomialOrder Order of the polynomials used for the basis functions.

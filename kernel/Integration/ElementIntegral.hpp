@@ -100,19 +100,8 @@ namespace Integration
         template <typename IntegrandType>
         IntegrandType referenceElementIntegral
         (
-         const Base::Element *ptrElement,
-         const std::size_t &time,
-         std::function<IntegrandType(const Base::Element *, const std::size_t &, const Geometry::PointReference &)> integrandFunction
-         );
-        
-        /// \brief Compute the integral on a reference element. IntegrandType needs to have the function axpy() implemented.
-        template <typename IntegrandType>
-        IntegrandType referenceElementIntegral
-        (
-         const Base::Element *ptrElement,
-         const std::size_t &time,
-         const LinearAlgebra::NumericalVector &solutionCoefficients,
-         std::function<IntegrandType (const Base::Element *, const std::size_t &, const Geometry::PointReference &, const LinearAlgebra::NumericalVector &)> integrandFunction
+         const QuadratureRules::GaussQuadratureRule *ptrQdrRule,
+         std::function<IntegrandType(const Geometry::PointReference &)> integrandFunction
          );
 
     private:

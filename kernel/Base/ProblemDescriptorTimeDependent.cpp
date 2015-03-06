@@ -311,7 +311,7 @@ namespace Base
             {
                 if (configData_->numberOfTimeLevels_ > 0)
                 {
-                    assert(el->getCurrentData().size() == 
+                    logger.assert(el->getCurrentData().size() ==
                             configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_,
                                   "TimeLevelDataVector has the wrong size.");
 
@@ -330,7 +330,7 @@ namespace Base
             {
                 if (configData_->numberOfTimeLevels_ > 0)
                 {
-                    assert(el->getCurrentData().size() == 
+                    logger.assert(el->getCurrentData().size() ==
                             configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_,
                                   "TimeLevelDataVector has the wrong size.");
                     MPIContainer::Instance().send(el->getCurrentData(), it.first, el->getID() * 2 + 1);

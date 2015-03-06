@@ -22,6 +22,8 @@
 #ifndef CONFIGURATIONDATA_H_
 #define CONFIGURATIONDATA_H_
 
+#include <cstdlib>
+
 namespace Base
 {
     struct ConfigurationData

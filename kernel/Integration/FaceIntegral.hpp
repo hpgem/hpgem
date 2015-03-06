@@ -96,38 +96,13 @@ namespace Integration
         template <class ReturnTrait1>
         ReturnTrait1 integrate(FaceT* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc, const QuadratureRulesT* qdrRule = nullptr);
         
-        /// \brief Compute the integral on a reference face. IntegrandType needs to have the function axpy() implemented.
+        /// \brief Compute the integral on a reference element. IntegrandType needs to have the function axpy() implemented.
         template <typename IntegrandType>
         IntegrandType referenceFaceIntegral
         (
-         const Base::Face *ptrFace,
-         const std::size_t &time,
-         std::function<IntegrandType (const Base::Face *, const std::size_t &, const Geometry::PointReference &)> integrandFunction
+         const QuadratureRules::GaussQuadratureRule *ptrQdrRule,
+         std::function<IntegrandType(const Geometry::PointReference &)> integrandFunction
          );
-        
-        /// \brief Compute the integral on a reference face. IntegrandType needs to have the function axpy() implemented.
-        template <typename IntegrandType>
-        IntegrandType referenceFaceIntegral
-        (
-         const Base::Face *ptrFace,
-         const std::size_t &time,
-         const Base::Side &iSide,
-         const Base::Side &jSide,
-         std::function<IntegrandType (const Base::Face *, const std::size_t &, const Geometry::PointReference &, const Base::Side &, const Base::Side &)> integrandFunction
-         );
-        
-        /// \brief Compute the integral on a reference face. IntegrandType needs to have the function axpy() implemented.
-        template <typename IntegrandType>
-        IntegrandType referenceFaceIntegral
-        (
-         const Base::Face *ptrFace,
-         const std::size_t &time,
-         const Base::Side &iSide,
-         const LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
-         const LinearAlgebra::NumericalVector &solutionCoefficientsRight,
-         std::function<IntegrandType (const Base::Face *, const std::size_t &, const Geometry::PointReference &, const Base::Side &, const LinearAlgebra::NumericalVector &, const LinearAlgebra::NumericalVector &)> integrandFunction
-         );
-        
         
         /*template <typename OBJ, typename IntegrandT>
         void    integrate(FaceT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = nullptr);*/

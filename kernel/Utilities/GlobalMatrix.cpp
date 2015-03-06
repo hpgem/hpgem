@@ -354,7 +354,7 @@ namespace Utilities {
         logger.assert(currentNodeNumber == MPISendNodeNumbers.begin() + MPISendNodeStarts[rank+1],
                "MPI is not at the correct node.");
         
-        logger.assert(currentElementPosition == MPISendElementPositions.begin() + MPISendElementStarts[rank+1].
+        logger.assert(currentElementPosition == MPISendElementPositions.begin() + MPISendElementStarts[rank+1],
                 "MPI is not at the correct element.");
         logger.assert(currentFacePosition <= MPISendFacePositions.begin() + MPISendFaceStarts[rank+1],
                "MPI is not at the correct face.");
