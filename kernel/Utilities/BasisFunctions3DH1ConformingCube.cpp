@@ -19,43 +19,43 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "BasisFunctions3DH1ConformingCube.hpp"
-#include "helperFunctions.hpp"
-#include "Base/BasisFunctionSet.hpp"
-#include "Base/OrientedBasisFunctionSet.hpp"
-#include "Geometry/ReferenceCube.hpp"
-#include "Geometry/PointReference.hpp"
+#include "BasisFunctions3DH1ConformingCube.h"
+#include "helperFunctions.h"
+#include "Base/BasisFunctionSet.h"
+#include "Base/OrientedBasisFunctionSet.h"
+#include "Geometry/ReferenceCube.h"
+#include "Geometry/PointReference.h"
 
 namespace Utilities
 {
-
+    
     BasisFunction3DVertexCube::BasisFunction3DVertexCube(std::size_t node)
     {
         nodePosition0_ = (node % 2) * 2 - 1;
         nodePosition1_ = ((node / 2) % 2) * 2 - 1;
         nodePosition2_ = (node / 4) * 2 - 1;
     }
-
+    
     double BasisFunction3DVertexCube::eval(const Geometry::PointReference& p) const
     {
         return (1 + nodePosition0_ * p[0]) * (1 + nodePosition1_ * p[1]) * (1 + nodePosition2_ * p[2]) / 8.;
     }
-
+    
     double BasisFunction3DVertexCube::evalDeriv0(const Geometry::PointReference& p) const
     {
         return nodePosition0_ * (1 + nodePosition1_ * p[1]) * (1 + nodePosition2_ * p[2]) / 8.;
     }
-
+    
     double BasisFunction3DVertexCube::evalDeriv1(const Geometry::PointReference& p) const
     {
         return nodePosition1_ * (1 + nodePosition0_ * p[0]) * (1 + nodePosition2_ * p[2]) / 8.;
     }
-
+    
     double BasisFunction3DVertexCube::evalDeriv2(const Geometry::PointReference& p) const
     {
         return nodePosition2_ * (1 + nodePosition0_ * p[0]) * (1 + nodePosition1_ * p[1]) / 8.;
     }
-
+    
     BasisFunction3DEdgeCube_0::BasisFunction3DEdgeCube_0(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
@@ -63,27 +63,27 @@ namespace Utilities
         edgePosition2_ = (node0 / 4) * 2 - 1;
         mirroring_ = node0 < node1 ? 1 : -1;
     }
-
+    
     double BasisFunction3DEdgeCube_0::eval(const Geometry::PointReference& p) const
     {
         return (1 - p[0]) * (1 + p[0]) * (1 + edgePosition1_ * p[1]) * (1 + edgePosition2_ * p[2]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[0]) / 16.;
     }
-
+    
     double BasisFunction3DEdgeCube_0::evalDeriv0(const Geometry::PointReference& p) const
     {
         return -p[0] * (1 + edgePosition1_ * p[1]) * (1 + edgePosition2_ * p[2]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[0]) / 8. + mirroring_ * (1 - p[0]) * (1 + p[0]) * (1 + edgePosition1_ * p[1]) * (1 + edgePosition2_ * p[2]) * LobattoPolynomialDerivative(polynomialOrder_, mirroring_ * p[0]) / 16.;
     }
-
+    
     double BasisFunction3DEdgeCube_0::evalDeriv1(const Geometry::PointReference& p) const
     {
         return (1 - p[0]) * (1 + p[0]) * edgePosition1_ * (1 + edgePosition2_ * p[2]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[0]) / 16.;
     }
-
+    
     double BasisFunction3DEdgeCube_0::evalDeriv2(const Geometry::PointReference& p) const
     {
         return (1 - p[0]) * (1 + p[0]) * edgePosition2_ * (1 + edgePosition1_ * p[1]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[0]) / 16.;
     }
-
+    
     BasisFunction3DEdgeCube_1::BasisFunction3DEdgeCube_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
@@ -91,27 +91,27 @@ namespace Utilities
         edgePosition2_ = (node0 / 4) * 2 - 1;
         mirroring_ = node0 < node1 ? 1 : -1;
     }
-
+    
     double BasisFunction3DEdgeCube_1::eval(const Geometry::PointReference& p) const
     {
         return (1 - p[1]) * (1 + p[1]) * (1 + edgePosition0_ * p[0]) * (1 + edgePosition2_ * p[2]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[1]) / 16.;
     }
-
+    
     double BasisFunction3DEdgeCube_1::evalDeriv0(const Geometry::PointReference& p) const
     {
         return (1 - p[1]) * (1 + p[1]) * edgePosition0_ * (1 + edgePosition2_ * p[2]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[1]) / 16.;
     }
-
+    
     double BasisFunction3DEdgeCube_1::evalDeriv1(const Geometry::PointReference& p) const
     {
         return -p[1] * (1 + edgePosition0_ * p[0]) * (1 + edgePosition2_ * p[2]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[1]) / 8. + mirroring_ * (1 - p[1]) * (1 + p[1]) * (1 + edgePosition0_ * p[0]) * (1 + edgePosition2_ * p[2]) * LobattoPolynomialDerivative(polynomialOrder_, mirroring_ * p[1]) / 16.;
     }
-
+    
     double BasisFunction3DEdgeCube_1::evalDeriv2(const Geometry::PointReference& p) const
     {
         return (1 - p[1]) * (1 + p[1]) * edgePosition2_ * (1 + edgePosition0_ * p[0]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[1]) / 16.;
     }
-
+    
     BasisFunction3DEdgeCube_2::BasisFunction3DEdgeCube_2(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
@@ -119,27 +119,27 @@ namespace Utilities
         edgePosition1_ = ((node0 / 2) % 2) * 2 - 1;
         mirroring_ = node0 < node1 ? 1 : -1;
     }
-
+    
     double BasisFunction3DEdgeCube_2::evalDeriv0(const Geometry::PointReference& p) const
     {
         return (1 - p[2]) * (1 + p[2]) * edgePosition0_ * (1 + edgePosition1_ * p[1]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[2]) / 16.;
     }
-
+    
     double BasisFunction3DEdgeCube_2::eval(const Geometry::PointReference& p) const
     {
         return (1 - p[2]) * (1 + p[2]) * (1 + edgePosition0_ * p[0]) * (1 + edgePosition1_ * p[1]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[2]) / 16.;
     }
-
+    
     double BasisFunction3DEdgeCube_2::evalDeriv1(const Geometry::PointReference& p) const
     {
         return (1 - p[2]) * (1 + p[2]) * edgePosition1_ * (1 + edgePosition0_ * p[0]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[2]) / 16.;
     }
-
+    
     double BasisFunction3DEdgeCube_2::evalDeriv2(const Geometry::PointReference& p) const
     {
         return -p[2] * (1 + edgePosition0_ * p[0]) * (1 + edgePosition1_ * p[1]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[2]) / 8. + mirroring_ * (1 - p[2]) * (1 + p[2]) * (1 + edgePosition0_ * p[0]) * (1 + edgePosition1_ * p[1]) * LobattoPolynomialDerivative(polynomialOrder_, mirroring_ * p[2]) / 16.;
     }
-
+    
     BasisFunction3DFaceCube_0::BasisFunction3DFaceCube_0(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder1, std::size_t polynomialOrder2)
             : polynomialOrder1_(polynomialOrder1), polynomialOrder2_(polynomialOrder2)
     {
@@ -147,22 +147,22 @@ namespace Utilities
         mirroring2_ = node0 < node2 ? 1 : -1;
         facePosition_ = (node0 % 2) * 2 - 1;
     }
-
+    
     double BasisFunction3DFaceCube_0::eval(const Geometry::PointReference& p) const
     {
         return (1 + facePosition_ * p[0]) * (1 - p[1]) * (1 + p[1]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder1_, mirroring1_ * p[1]) * LobattoPolynomial(polynomialOrder2_, mirroring2_ * p[2]) / 32.;
     }
-
+    
     double BasisFunction3DFaceCube_0::evalDeriv1(const Geometry::PointReference& p) const
     {
         return -p[1] * (1 + facePosition_ * p[0]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder1_, mirroring1_ * p[1]) * LobattoPolynomial(polynomialOrder2_, mirroring2_ * p[2]) / 16. + mirroring1_ * (1 + facePosition_ * p[0]) * (1 - p[1]) * (1 + p[1]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomialDerivative(polynomialOrder1_, mirroring1_ * p[1]) * LobattoPolynomial(polynomialOrder2_, mirroring2_ * p[2]) / 32.;
     }
-
+    
     double BasisFunction3DFaceCube_0::evalDeriv2(const Geometry::PointReference& p) const
     {
         return -p[2] * (1 + facePosition_ * p[0]) * (1 - p[1]) * (1 + p[1]) * LobattoPolynomial(polynomialOrder1_, mirroring1_ * p[1]) * LobattoPolynomial(polynomialOrder2_, mirroring2_ * p[2]) / 16. + mirroring2_ * (1 + facePosition_ * p[0]) * (1 - p[1]) * (1 + p[1]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder1_, mirroring1_ * p[1]) * LobattoPolynomialDerivative(polynomialOrder2_, mirroring2_ * p[2]) / 32.;
     }
-
+    
     BasisFunction3DFaceCube_1::BasisFunction3DFaceCube_1(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder2)
             : polynomialOrder0_(polynomialOrder0), polynomialOrder2_(polynomialOrder2)
     {
@@ -170,27 +170,27 @@ namespace Utilities
         mirroring2_ = node0 < node2 ? 1 : -1;
         facePosition_ = ((node0 / 2) % 2) * 2 - 1;
     }
-
+    
     double BasisFunction3DFaceCube_1::eval(const Geometry::PointReference& p) const
     {
         return (1 + facePosition_ * p[1]) * (1 - p[0]) * (1 + p[0]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder0_, mirroring0_ * p[0]) * LobattoPolynomial(polynomialOrder2_, mirroring2_ * p[2]) / 32.;
     }
-
+    
     double BasisFunction3DFaceCube_1::evalDeriv0(const Geometry::PointReference& p) const
     {
         return -p[0] * (1 + facePosition_ * p[1]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder0_, mirroring0_ * p[0]) * LobattoPolynomial(polynomialOrder2_, mirroring2_ * p[2]) / 16. + mirroring0_ * (1 + facePosition_ * p[1]) * (1 - p[0]) * (1 + p[0]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomialDerivative(polynomialOrder0_, mirroring0_ * p[0]) * LobattoPolynomial(polynomialOrder2_, mirroring2_ * p[2]) / 32.;
     }
-
+    
     double BasisFunction3DFaceCube_1::evalDeriv1(const Geometry::PointReference& p) const
     {
         return facePosition_ * (1 - p[0]) * (1 + p[0]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder0_, mirroring0_ * p[0]) * LobattoPolynomial(polynomialOrder2_, mirroring2_ * p[2]) / 32.;
     }
-
+    
     double BasisFunction3DFaceCube_1::evalDeriv2(const Geometry::PointReference& p) const
     {
         return -p[2] * (1 + facePosition_ * p[1]) * (1 - p[0]) * (1 + p[0]) * LobattoPolynomial(polynomialOrder0_, mirroring0_ * p[0]) * LobattoPolynomial(polynomialOrder2_, mirroring2_ * p[2]) / 16. + mirroring2_ * (1 + facePosition_ * p[1]) * (1 - p[0]) * (1 + p[0]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder0_, mirroring0_ * p[0]) * LobattoPolynomialDerivative(polynomialOrder2_, mirroring2_ * p[2]) / 32.;
     }
-
+    
     BasisFunction3DFaceCube_2::BasisFunction3DFaceCube_2(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1)
             : polynomialOrder1_(polynomialOrder1), polynomialOrder0_(polynomialOrder0)
     {
@@ -198,47 +198,47 @@ namespace Utilities
         mirroring1_ = node0 < node2 ? 1 : -1;
         facePosition_ = (node0 / 4) * 2 - 1;
     }
-
+    
     double BasisFunction3DFaceCube_2::eval(const Geometry::PointReference& p) const
     {
         return (1 + facePosition_ * p[2]) * (1 - p[0]) * (1 + p[0]) * (1 - p[1]) * (1 + p[1]) * LobattoPolynomial(polynomialOrder0_, mirroring0_ * p[0]) * LobattoPolynomial(polynomialOrder1_, mirroring1_ * p[1]) / 32.;
     }
-
+    
     double BasisFunction3DFaceCube_2::evalDeriv0(const Geometry::PointReference& p) const
     {
         return -p[0] * (1 + facePosition_ * p[2]) * (1 - p[1]) * (1 + p[1]) * LobattoPolynomial(polynomialOrder1_, mirroring1_ * p[1]) * LobattoPolynomial(polynomialOrder0_, mirroring0_ * p[0]) / 16. + mirroring0_ * (1 + facePosition_ * p[2]) * (1 - p[0]) * (1 + p[0]) * (1 - p[1]) * (1 + p[1]) * LobattoPolynomial(polynomialOrder1_, mirroring1_ * p[1]) * LobattoPolynomialDerivative(polynomialOrder0_, mirroring0_ * p[0]) / 32.;
     }
-
+    
     double BasisFunction3DFaceCube_2::evalDeriv1(const Geometry::PointReference& p) const
     {
         return -p[1] * (1 + facePosition_ * p[2]) * (1 - p[0]) * (1 + p[0]) * LobattoPolynomial(polynomialOrder1_, mirroring1_ * p[1]) * LobattoPolynomial(polynomialOrder0_, mirroring0_ * p[0]) / 16. + mirroring1_ * (1 + facePosition_ * p[2]) * (1 - p[0]) * (1 + p[0]) * (1 - p[1]) * (1 + p[1]) * LobattoPolynomialDerivative(polynomialOrder1_, mirroring1_ * p[1]) * LobattoPolynomial(polynomialOrder0_, mirroring0_ * p[0]) / 32.;
     }
-
+    
     double BasisFunction3DFaceCube_2::evalDeriv2(const Geometry::PointReference& p) const
     {
         return facePosition_ * (1 - p[0]) * (1 + p[0]) * (1 - p[1]) * (1 + p[1]) * LobattoPolynomial(polynomialOrder1_, mirroring1_ * p[1]) * LobattoPolynomial(polynomialOrder0_, mirroring0_ * p[0]) / 32.;
     }
-
+    
     double BasisFunction3DInteriorCube::eval(const Geometry::PointReference& p) const
     {
         return (1 - p[0]) * (1 + p[0]) * (1 - p[1]) * (1 + p[1]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder0_, p[0]) * LobattoPolynomial(polynomialOrder1_, p[1]) * LobattoPolynomial(polynomialOrder2_, p[2]) / 64.;
     }
-
+    
     double BasisFunction3DInteriorCube::evalDeriv0(const Geometry::PointReference& p) const
     {
         return (1 - p[1]) * (1 + p[1]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder1_, p[1]) * LobattoPolynomial(polynomialOrder2_, p[2]) * (-p[0] * LobattoPolynomial(polynomialOrder0_, p[0]) / 32. + (1 - p[0]) * (1 + p[0]) * LobattoPolynomialDerivative(polynomialOrder0_, p[0]) / 64.);
     }
-
+    
     double BasisFunction3DInteriorCube::evalDeriv1(const Geometry::PointReference& p) const
     {
         return (1 - p[0]) * (1 + p[0]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder0_, p[0]) * LobattoPolynomial(polynomialOrder2_, p[2]) * (-p[1] * LobattoPolynomial(polynomialOrder1_, p[1]) / 32. + (1 - p[1]) * (1 + p[1]) * LobattoPolynomialDerivative(polynomialOrder1_, p[1]) / 64.);
     }
-
+    
     double BasisFunction3DInteriorCube::evalDeriv2(const Geometry::PointReference& p) const
     {
         return (1 - p[0]) * (1 + p[0]) * (1 - p[1]) * (1 + p[1]) * LobattoPolynomial(polynomialOrder0_, p[0]) * LobattoPolynomial(polynomialOrder1_, p[1]) * (-p[2] * LobattoPolynomial(polynomialOrder2_, p[2]) / 32. + (1 - p[2]) * (1 + p[2]) * LobattoPolynomialDerivative(polynomialOrder2_, p[2]) / 64.);
     }
-
+    
     Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Cube(std::size_t order)
     {
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
@@ -305,7 +305,7 @@ namespace Utilities
         }
         return result;
     }
-
+    
     Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(std::size_t order)
     {
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
@@ -321,7 +321,7 @@ namespace Utilities
         }
         return result;
     }
-
+    
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(std::size_t order)
     {
         std::vector<const Base::BasisFunctionSet*> result;
@@ -335,7 +335,7 @@ namespace Utilities
         }
         return result;
     }
-
+    
     std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(std::size_t order)
     {
         std::vector<const Base::OrientedBasisFunctionSet*> result;
@@ -392,7 +392,7 @@ namespace Utilities
         }
         return result;
     }
-
+    
     std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(std::size_t order)
     {
         std::vector<const Base::OrientedBasisFunctionSet*> result;
@@ -839,7 +839,7 @@ namespace Utilities
         result.push_back(set);
         return result;
     }
-
+    
     double BasisFunction3DFaceCube_0::evalDeriv0(const Geometry::PointReference& p) const
     {
         return facePosition_ * (1 - p[1]) * (1 + p[1]) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder1_, mirroring1_ * p[1]) * LobattoPolynomial(polynomialOrder2_, mirroring2_ * p[2]) / 32.;

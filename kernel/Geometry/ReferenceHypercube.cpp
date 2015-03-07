@@ -18,73 +18,115 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "ReferenceHypercube.hpp"
-#include "ReferenceCube.hpp"
-#include "ReferenceSquare.hpp"
-#include "ReferenceLine.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Mappings/MappingToRefCubeToHypercube.hpp"
-
+#include "ReferenceHypercube.h"
+#include "ReferenceCube.h"
+#include "ReferenceSquare.h"
+#include "ReferenceLine.h"
+#include "Geometry/PointReference.h"
+#include "Mappings/MappingToRefCubeToHypercube.h"
 
 namespace Geometry
 {
-    std::size_t ReferenceHypercube::localNodeIndexes_[8][8] =
-    {
-        { 0, 1, 2, 3, 4, 5, 6, 7 },
-        { 0, 1, 2, 3, 8, 9, 10, 11},
-        { 0, 1, 4, 5, 8, 9, 12, 13},
-        { 0, 2, 4, 6, 8, 10, 12, 14},
-        { 1, 3, 5, 7, 9, 11, 13, 15},
-        { 2, 3, 6, 7, 10, 11, 14, 15},
-        { 4, 5, 6, 7, 12, 13, 14, 15},
-        { 8, 9, 10, 11, 12, 13, 14, 15},
-    };
-
-    ReferenceHypercube::ReferenceHypercube():
-        ReferenceGeometry(16,4, HYPERCUBE),
-        referenceGeometryCodim1Ptr_(&ReferenceCube::Instance()),
-        referenceGeometryCodim2Ptr_(&ReferenceSquare::Instance()),
-        referenceGeometryCodim3Ptr_(&ReferenceLine::Instance())
+    std::size_t ReferenceHypercube::localNodeIndexes_[8][8] = { {0, 1, 2, 3, 4, 5, 6, 7}, {0, 1, 2, 3, 8, 9, 10, 11}, {0, 1, 4, 5, 8, 9, 12, 13}, {0, 2, 4, 6, 8, 10, 12, 14}, {1, 3, 5, 7, 9, 11, 13, 15}, {2, 3, 6, 7, 10, 11, 14, 15}, {4, 5, 6, 7, 12, 13, 14, 15}, {8, 9, 10, 11, 12, 13, 14, 15}, };
+    
+    ReferenceHypercube::ReferenceHypercube()
+            : ReferenceGeometry(16, 4, HYPERCUBE), referenceGeometryCodim1Ptr_(&ReferenceCube::Instance()), referenceGeometryCodim2Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim3Ptr_(&ReferenceLine::Instance())
 
     {
         PointReferenceT p0(4), p1(4), p2(4), p3(4), p4(4), p5(4), p6(4), p7(4), p8(4);
         PointReferenceT p9(4), p10(4), p11(4), p12(4), p13(4), p14(4), p15(4);
-
-        p0[0] = -1.0;   p0[1] = -1.0;   p0[2] = -1.0;   p0[3] = -1.0;
-        p1[0] = +1.0;   p1[1] = -1.0;   p1[2] = -1.0;   p1[3] = -1.0;
-
-        p2[0] = -1.0;   p2[1] = +1.0;   p2[2] = -1.0;   p2[3] = -1.0;
-        p3[0] = +1.0;   p3[1] = +1.0;   p3[2] = -1.0;   p3[3] = -1.0;
         
-
-        p4[0] = -1.0;   p4[1] = -1.0;   p4[2] = +1.0;   p4[3] = -1.0;
-        p5[0] = +1.0;   p5[1] = -1.0;   p5[2] = +1.0;   p5[3] = -1.0;
-
-        p6[0] = -1.0;   p6[1] = +1.0;   p6[2] = +1.0;   p6[3] = -1.0;
-        p7[0] = +1.0;   p7[1] = +1.0;   p7[2] = +1.0;   p7[3] = -1.0;
+        p0[0] = -1.0;
+        p0[1] = -1.0;
+        p0[2] = -1.0;
+        p0[3] = -1.0;
+        p1[0] = +1.0;
+        p1[1] = -1.0;
+        p1[2] = -1.0;
+        p1[3] = -1.0;
         
+        p2[0] = -1.0;
+        p2[1] = +1.0;
+        p2[2] = -1.0;
+        p2[3] = -1.0;
+        p3[0] = +1.0;
+        p3[1] = +1.0;
+        p3[2] = -1.0;
+        p3[3] = -1.0;
         
-
-        p8[0] = -1.0;   p8[1] = -1.0;   p8[2] = -1.0;   p8[3] = +1.0;
-        p9[0] = +1.0;   p9[1] = -1.0;   p9[2] = -1.0;   p9[3] = +1.0;
-
-        p10[0] = -1.0;  p10[1] = +1.0;  p10[2] = -1.0;   p10[3] = +1.0;
-        p11[0] = +1.0;  p11[1] = +1.0;  p11[2] = -1.0;   p11[3] = +1.0;
+        p4[0] = -1.0;
+        p4[1] = -1.0;
+        p4[2] = +1.0;
+        p4[3] = -1.0;
+        p5[0] = +1.0;
+        p5[1] = -1.0;
+        p5[2] = +1.0;
+        p5[3] = -1.0;
         
-
-        p12[0] = -1.0;  p12[1] = -1.0;  p12[2] = +1.0;   p12[3] = +1.0;
-        p13[0] = +1.0;  p13[1] = -1.0;  p13[2] = +1.0;   p13[3] = +1.0;
-
-        p14[0] = -1.0;  p14[1] = +1.0;  p14[2] = +1.0;   p14[3] = +1.0;
-        p15[0] = +1.0;  p15[1] = +1.0;  p15[2] = +1.0;   p15[3] = +1.0;
+        p6[0] = -1.0;
+        p6[1] = +1.0;
+        p6[2] = +1.0;
+        p6[3] = -1.0;
+        p7[0] = +1.0;
+        p7[1] = +1.0;
+        p7[2] = +1.0;
+        p7[3] = -1.0;
+        
+        p8[0] = -1.0;
+        p8[1] = -1.0;
+        p8[2] = -1.0;
+        p8[3] = +1.0;
+        p9[0] = +1.0;
+        p9[1] = -1.0;
+        p9[2] = -1.0;
+        p9[3] = +1.0;
+        
+        p10[0] = -1.0;
+        p10[1] = +1.0;
+        p10[2] = -1.0;
+        p10[3] = +1.0;
+        p11[0] = +1.0;
+        p11[1] = +1.0;
+        p11[2] = -1.0;
+        p11[3] = +1.0;
+        
+        p12[0] = -1.0;
+        p12[1] = -1.0;
+        p12[2] = +1.0;
+        p12[3] = +1.0;
+        p13[0] = +1.0;
+        p13[1] = -1.0;
+        p13[2] = +1.0;
+        p13[3] = +1.0;
+        
+        p14[0] = -1.0;
+        p14[1] = +1.0;
+        p14[2] = +1.0;
+        p14[3] = +1.0;
+        p15[0] = +1.0;
+        p15[1] = +1.0;
+        p15[2] = +1.0;
+        p15[3] = +1.0;
         
         ///reference element
         
-        points_[0]  = p0;  points_[1]  = p1;  points_[2]  = p2;  points_[3]  = p3;
-        points_[4]  = p4;  points_[5]  = p5;  points_[6]  = p6;  points_[7]  = p7;
-        points_[8]  = p8;  points_[9]  = p9;  points_[10] = p10; points_[11] = p11;
-        points_[12] = p12; points_[13] = p13; points_[14] = p14; points_[15] = p15;
-
+        points_[0] = p0;
+        points_[1] = p1;
+        points_[2] = p2;
+        points_[3] = p3;
+        points_[4] = p4;
+        points_[5] = p5;
+        points_[6] = p6;
+        points_[7] = p7;
+        points_[8] = p8;
+        points_[9] = p9;
+        points_[10] = p10;
+        points_[11] = p11;
+        points_[12] = p12;
+        points_[13] = p13;
+        points_[14] = p14;
+        points_[15] = p15;
+        
         mappingsCubeToHypercube_[0] = &MappingToRefCubeToHypercube0::Instance();
         mappingsCubeToHypercube_[1] = &MappingToRefCubeToHypercube1::Instance();
         mappingsCubeToHypercube_[2] = &MappingToRefCubeToHypercube2::Instance();
@@ -94,18 +136,13 @@ namespace Geometry
         mappingsCubeToHypercube_[6] = &MappingToRefCubeToHypercube6::Instance();
         mappingsCubeToHypercube_[7] = &MappingToRefCubeToHypercube7::Instance();
     }
-
-    bool
-    ReferenceHypercube::isInternalPoint(const PointReferenceT& p) const
+    
+    bool ReferenceHypercube::isInternalPoint(const PointReferenceT& p) const
     {
-        return ((p[0] >= -1.) && (p[0] <= 1.) &&
-                (p[1] >= -1.) && (p[1] <= 1.) &&
-                (p[2] >= -1.) && (p[2] <= 1.) &&
-                (p[3] >= -1.) && (p[3] <= 1.));
+        return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.) && (p[2] >= -1.) && (p[2] <= 1.) && (p[3] >= -1.) && (p[3] <= 1.));
     }
     
-    PointReference
-    ReferenceHypercube::getCenter() const
+    PointReference ReferenceHypercube::getCenter() const
     {
         return PointReference(4);
     }
@@ -115,37 +152,37 @@ namespace Geometry
     {
         return points_[i];
     }
-
+    
     std::ostream& operator<<(std::ostream& os, const ReferenceHypercube& hypercube)
     {
-        os <<hypercube.getName()<<"=( ";
+        os << hypercube.getName() << "=( ";
         ReferenceHypercube::const_iterator cit = hypercube.points_.begin();
         ReferenceHypercube::const_iterator cend = hypercube.points_.end();
-
-        for ( ; cit != cend; ++cit)
+        
+        for (; cit != cend; ++cit)
         {
             os << (*cit) << ' ';
         }
-        os <<')'<<std::endl;
-
+        os << ')' << std::endl;
+        
         return os;
     }
-
+    
     // ================================== Codimension 0 ============================================
-
+    
     std::size_t ReferenceHypercube::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         throw "ReferenceCube::getCodim0MappingIndex not implemented";
     }
-
+    
     const MappingReferenceToReference*
     ReferenceHypercube::getCodim0MappingPtr(const IndexT i) const
     {
         throw "ReferenceCube::getCodim0MappingPtr not implemented";
     }
-
+    
     // ================================== Codimension 1 ============================================
-
+    
     const MappingReferenceToReference*
     ReferenceHypercube::getCodim1MappingPtr(const IndexT faceIndex) const
     {
@@ -158,7 +195,7 @@ namespace Geometry
             throw "ERROR: ReferenceHypercube::getCodim1MappingPtr requested face index does not exist";
         }
     }
-
+    
     const ReferenceGeometry*
     ReferenceHypercube::getCodim1ReferenceGeometry(const IndexT faceIndex) const
     {
@@ -171,29 +208,29 @@ namespace Geometry
             throw "ERROR: ReferenceHypercube::getCodim1ReferenceGeometry requested face index does not exist";
         }
     }
-
+    
     std::vector<std::size_t> ReferenceHypercube::getCodim1EntityLocalIndices(const IndexT i) const
     {
         if (i < 8)
         {
-            return std::vector<std::size_t>(localNodeIndexes_[i],localNodeIndexes_[i]+8);
+            return std::vector<std::size_t>(localNodeIndexes_[i], localNodeIndexes_[i] + 8);
         }
         else
         {
             throw "ERROR: ReferenceHypercube::getCodim1EntityLocalIndices requested face index does not exist";
         }
-
+        
     }
-
+    
     // ================================== Codimension 2 ============================================
-
+    
     const MappingReferenceToReference*
     ReferenceHypercube::getCodim2MappingPtr(const IndexT lineIndex) const
     {
         /// TODO: Implement face to hypercube mappings.
         throw "ERROR: ReferenceHypercube::getCodim2MappingPtr: face to hypercube mappings not implemented";
     }
-
+    
     const ReferenceGeometry*
     ReferenceHypercube::getCodim2ReferenceGeometry(const IndexT e) const
     {
@@ -206,7 +243,7 @@ namespace Geometry
             throw "ERROR: ReferenceHypercube::getCodim2ReferenceGeometry requested side index does not exist";
         }
     }
-
+    
     std::vector<std::size_t> ReferenceHypercube::getCodim2EntityLocalIndices(const IndexT i) const
     {
         if (i < 24)
@@ -218,9 +255,9 @@ namespace Geometry
             throw "ReferenceHypercube::getCodim2EntityLocalIndices requested side index does not exist";
         }
     }
-
+    
     // ================================== Codimension 3 ============================================
-
+    
     std::vector<std::size_t> ReferenceHypercube::getCodim3EntityLocalIndices(const IndexT i) const
     {
         if (i < 32)
@@ -231,7 +268,8 @@ namespace Geometry
         {
             throw "ReferenceHypercube::getCodim2EntityLocalIndices requested side index does not exist";
         }
-
+        
     }
 
-};
+}
+;

@@ -19,62 +19,75 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Base/ShortTermStorageFaceBase.h"
 
-#include "Base/ShortTermStorageFaceBase.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRule.h"
+#include "FaceCacheData.h"
 
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-#include "FaceCacheData.hpp"
-
-void Base::ShortTermStorageFaceBase::computeData() {
-	if(useCache_){
-		std::vector<FaceCacheData>& cache=const_cast<Face*>(face_)->getVecCacheData();
-		if(recomputeCache_||(cache.size()!=getGaussQuadratureRule()->nrOfPoints())){
-			recomputeCacheOff();
-			std::size_t n=getGaussQuadratureRule()->nrOfPoints();
-			for(std::size_t i=0;i<n;++i){
-				cache[i](*face_,getGaussQuadratureRule()->getPoint(i));
-			}
-		}
-		currentPointIndex_++;
-		normal_ = face_->getNormalVector(currentPoint_);
-	}else{
-		normal_ = face_->getNormalVector(currentPoint_);
-	}
+void Base::ShortTermStorageFaceBase::computeData()
+{
+    if (useCache_)
+    {
+        std::vector<FaceCacheData>& cache = const_cast<Face*>(face_)->getVecCacheData();
+        if (recomputeCache_ || (cache.size() != getGaussQuadratureRule()->nrOfPoints()))
+        {
+            recomputeCacheOff();
+            std::size_t n = getGaussQuadratureRule()->nrOfPoints();
+            for (std::size_t i = 0; i < n; ++i)
+            {
+                cache[i](*face_, getGaussQuadratureRule()->getPoint(i));
+            }
+        }
+        currentPointIndex_++;
+        normal_ = face_->getNormalVector(currentPoint_);
+    }
+    else
+    {
+        normal_ = face_->getNormalVector(currentPoint_);
+    }
 }
 
-
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace) const {
-	if(!(currentPoint_==pRefFace)){
-		std::cout<<"WARNING: you are using slow data access";
-		return face_->getNormalVector(pRefFace);
-	}
-	return normal_;
+LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace) const
+{
+    if (!(currentPoint_ == pRefFace))
+    {
+        std::cout << "WARNING: you are using slow data access";
+        return face_->getNormalVector(pRefFace);
+    }
+    return normal_;
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace) {
-	if(!(currentPoint_==pRefFace)){
-		currentPoint_=pRefFace;
-		computeData();
-	}
-	return normal_;
+LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace)
+{
+    if (!(currentPoint_ == pRefFace))
+    {
+        currentPoint_ = pRefFace;
+        computeData();
+    }
+    return normal_;
 }
 
-Geometry::PointPhysical Base::ShortTermStorageFaceBase::referenceToPhysical(const Geometry::PointReference& pointReference) const {
-		return face_->referenceToPhysical(pointReference);
+Geometry::PointPhysical Base::ShortTermStorageFaceBase::referenceToPhysical(const Geometry::PointReference& pointReference) const
+{
+    return face_->referenceToPhysical(pointReference);
 }
 
-void Base::ShortTermStorageFaceBase::cacheOn() {
-	useCache_=true;
+void Base::ShortTermStorageFaceBase::cacheOn()
+{
+    useCache_ = true;
 }
 
-void Base::ShortTermStorageFaceBase::cacheOff() {
-	useCache_=false;
+void Base::ShortTermStorageFaceBase::cacheOff()
+{
+    useCache_ = false;
 }
 
-void Base::ShortTermStorageFaceBase::recomputeCacheOn() {
-	recomputeCache_=true;
+void Base::ShortTermStorageFaceBase::recomputeCacheOn()
+{
+    recomputeCache_ = true;
 }
 
-void Base::ShortTermStorageFaceBase::recomputeCacheOff() {
-	recomputeCache_=false;
+void Base::ShortTermStorageFaceBase::recomputeCacheOff()
+{
+    recomputeCache_ = false;
 }

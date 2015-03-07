@@ -7,27 +7,27 @@
 
 #define hpGEM_INCLUDE_PETSC_SUPPORT
 
-#include "Base/HpgemUI.hpp"
-#include "Base/Norm2.hpp"
-#include "Output/TecplotSingleElementWriter.hpp"
+#include "Base/HpgemUI.h"
+#include "Base/Norm2.h"
+#include "Output/TecplotSingleElementWriter.h"
 #include <fstream>
-#include "Utilities/BasisFunctions2DH1ConformingSquare.hpp"
-#include "Integration/ElementIntegrandBase.hpp"
-#include "Integration/FaceIntegrandBase.hpp"
-#include "Integration/FaceIntegral.hpp"
-#include "Integration/ElementIntegral.hpp"
-#include "Base/GlobalData.hpp"
-#include "Base/RectangularMeshDescriptor.hpp"
-#include "Base/ConfigurationData.hpp"
-#include "Base/Element.hpp"
-#include "Base/Face.hpp"
-#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
-#include "Base/ElementCacheData.hpp"
-#include "Base/FaceCacheData.hpp"
+#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
+#include "Integration/ElementIntegrandBase.h"
+#include "Integration/FaceIntegrandBase.h"
+#include "Integration/FaceIntegral.h"
+#include "Integration/ElementIntegral.h"
+#include "Base/GlobalData.h"
+#include "Base/RectangularMeshDescriptor.h"
+#include "Base/ConfigurationData.h"
+#include "Base/Element.h"
+#include "Base/Face.h"
+#include "Output/TecplotDiscontinuousSolutionWriter.h"
+#include "Base/ElementCacheData.h"
+#include "Base/FaceCacheData.h"
 #include <cmath>
 
-#include "Utilities/GlobalMatrix.hpp"
-#include "Utilities/GlobalVector.hpp"
+#include "Utilities/GlobalMatrix.h"
+#include "Utilities/GlobalVector.h"
 #include "petscksp.h"
 
 const unsigned int DIM = 2;
@@ -35,8 +35,11 @@ const unsigned int DIM = 2;
 class DGWave : public Base::HpgemUI, public Output::TecplotSingleElementWriter
 {
 public:
-    DGWave(int n, int p) : HpgemUI(new Base::GlobalData(), new Base::ConfigurationData(DIM, 2, p)), n_(n), p_(p) { }
-
+    DGWave(int n, int p)
+            : HpgemUI(new Base::GlobalData(), new Base::ConfigurationData(DIM, 2, p)), n_(n), p_(p)
+    {
+    }
+    
     ///set up the mesh
     bool virtual initialise()
     {
@@ -61,7 +64,7 @@ public:
         meshes_[0]->addFaceBasisFunctionSet(oBFsets);
         return true;
     }
-
+    
     class : public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
     {
     public:
@@ -73,7 +76,7 @@ public:
             {
                 for (int j = 0; j <= i; ++j)
                 {
-                    ret(i, j) = ret(j, i) = element->basisFunctionDeriv(i,p)*element->basisFunctionDeriv(j,p);
+                    ret(i, j) = ret(j, i) = element->basisFunctionDeriv(i, p) * element->basisFunctionDeriv(j, p);
                 }
             }
         }
@@ -89,7 +92,7 @@ public:
             for (int i = 0; i < numBasisFuns; ++i)
             {
                 for (int j = 0; j < numBasisFuns; ++j)
-                {//the basis functions belonging to internal parameters are 0 on the free surface anyway.
+                { //the basis functions belonging to internal parameters are 0 on the free surface anyway.
                     ret(i, j) = face->basisFunction(i, p) * face->basisFunction(j, p);
                 }
             }
@@ -101,8 +104,8 @@ public:
         //ret[0]=cos(2*M_PI*p[0])*cosh(2*M_PI*(p[DIM-1]+1))/cosh(2*M_PI);//standing wave
         //ret[1]=0;
         double k = 2. * M_PI;
-        ret[0] = cosh(k * (p[DIM - 1] + 1)) * sin(-k * p[0]) * sqrt(k * tanh(k)) / cosh(k)*0.001; //moving wave
-        ret[1] = cosh(k * (p[DIM - 1] + 1)) * cos(-k * p[0]) / cosh(k)*0.001;
+        ret[0] = cosh(k * (p[DIM - 1] + 1)) * sin(-k * p[0]) * sqrt(k * tanh(k)) / cosh(k) * 0.001; //moving wave
+        ret[1] = cosh(k * (p[DIM - 1] + 1)) * cos(-k * p[0]) / cosh(k) * 0.001;
     }
     static void exactSolution(const double t, const PointPhysicalT& p, LinearAlgebra::NumericalVector& ret)
     {
@@ -110,11 +113,11 @@ public:
         //ret[0]=cos(2*M_PI*p[0])*cos(sqrt(2*M_PI*tanh(2*M_PI))*t)*cosh(2*M_PI*(p[DIM-1]+1))/cosh(2*M_PI);//standing wave
         //ret[1]=cos(2*M_PI*p[0])*sin(-sqrt(2*M_PI*tanh(2*M_PI))*t)/sqrt(2*M_PI*tanh(2*M_PI))*cosh(2*M_PI*(p[DIM-1]+1))/cosh(2*M_PI);
         double k = 2. * M_PI;
-        ret[0] = cosh(k * (p[DIM - 1] + 1)) * sin(sqrt(k * tanh(k)) * t - k * p[0]) * sqrt(k * tanh(k)) / cosh(k)*0.001; //moving wave
-        ret[1] = cosh(k * (p[DIM - 1] + 1)) * cos(sqrt(k * tanh(k)) * t - k * p[0]) / cosh(k)*0.001;
-
+        ret[0] = cosh(k * (p[DIM - 1] + 1)) * sin(sqrt(k * tanh(k)) * t - k * p[0]) * sqrt(k * tanh(k)) / cosh(k) * 0.001; //moving wave
+        ret[1] = cosh(k * (p[DIM - 1] + 1)) * cos(sqrt(k * tanh(k)) * t - k * p[0]) / cosh(k) * 0.001;
+        
     }
-
+    
     class : public Integration::FaceIntegrandBase<LinearAlgebra::Matrix>
     {
     public:
@@ -155,46 +158,48 @@ public:
     class : public Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>
     {
     public:
-
-        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) {
+        
+        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+        {
             //do not compute energy at the moment becasuse storing multiple variables is broken
             /*PointPhysicalT pPhys(DIM);
-            PointReferenceT pElement(DIM);
-            face->referenceToPhysical(p, pPhys);
-            face->mapRefFaceToRefElemL(p, pElement);
-            ret.resize(1);
-            static LinearAlgebra::NumericalVector dummySolution(2), gradPhi(DIM), temp(DIM);
-            const LinearAlgebra::Matrix& expansioncoefficients = face->getPtrElementLeft()->getTimeLevelData(0);
-            if (std::abs(pPhys[DIM - 1]) < 1e-9)
-            {
-                dummySolution[0] = 0;
-                for (int i = 0; i < face->getNrOfBasisFunctions(); ++i)
-                {
-                    dummySolution[0] += face->basisFunction(i, p) * expansioncoefficients(0, i);
-                }
-                ret[0] = dummySolution[0] * dummySolution[0];
-                ret[0] /= 2; //assumes g=1
-            }*/
+             PointReferenceT pElement(DIM);
+             face->referenceToPhysical(p, pPhys);
+             face->mapRefFaceToRefElemL(p, pElement);
+             ret.resize(1);
+             static LinearAlgebra::NumericalVector dummySolution(2), gradPhi(DIM), temp(DIM);
+             const LinearAlgebra::Matrix& expansioncoefficients = face->getPtrElementLeft()->getTimeLevelData(0);
+             if (std::abs(pPhys[DIM - 1]) < 1e-9)
+             {
+             dummySolution[0] = 0;
+             for (int i = 0; i < face->getNrOfBasisFunctions(); ++i)
+             {
+             dummySolution[0] += face->basisFunction(i, p) * expansioncoefficients(0, i);
+             }
+             ret[0] = dummySolution[0] * dummySolution[0];
+             ret[0] /= 2; //assumes g=1
+             }*/
         }
     } faceEnergy;
 
     class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
     {
     public:
-
-        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) {
+        
+        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        {
             //do not compute energy at the moment becasuse storing multiple variables is broken
             /*int numBasisFuns = element->getNrOfBasisFunctions();
-            ret.resize(1);
-            LinearAlgebra::NumericalVector gradPhi(DIM), temp(DIM);
-            const LinearAlgebra::Matrix& expansioncoefficients = element->getTimeLevelData(0);
-            for (int i = 0; i < numBasisFuns; ++i)
-            {
-                element->basisFunctionDeriv(i, p, temp);
-                temp *= expansioncoefficients(1, i);
-                gradPhi += temp;
-            }
-            ret[0] = (gradPhi * gradPhi) / 2;*/
+             ret.resize(1);
+             LinearAlgebra::NumericalVector gradPhi(DIM), temp(DIM);
+             const LinearAlgebra::Matrix& expansioncoefficients = element->getTimeLevelData(0);
+             for (int i = 0; i < numBasisFuns; ++i)
+             {
+             element->basisFunctionDeriv(i, p, temp);
+             temp *= expansioncoefficients(1, i);
+             gradPhi += temp;
+             }
+             ret[0] = (gradPhi * gradPhi) / 2;*/
         }
     } elementEnergy;
     void writeToTecplotFile(const ElementT* element, const PointReferenceT& p, std::ostream& out)
@@ -205,7 +210,7 @@ public:
         exactSolution(t, pPhys, value);
         out << " " << value[0] << " " << value[1];
     }
-
+    
     //assumes that 'all' means 'all relevant'; computes the mass matrix at the free surface
     void doAllFaceIntegration()
     {
@@ -240,11 +245,11 @@ public:
         LinearAlgebra::Matrix result;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
-        	result = integral.integrate(element, &stifnessIntegrand);
+            result = integral.integrate(element, &stifnessIntegrand);
             element->setElementMatrix(result);
         }
     }
-
+    
     //messy routine that collects the row numbers of basisfunctions active on the free surface for use with PETSc
     void getSurfaceIS(Utilities::GlobalPetscMatrix& S, IS* surface, IS* rest)
     {
@@ -274,7 +279,7 @@ public:
         LinearAlgebra::NumericalVector totalError(2), contribution(2);
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
-        	contribution = integral.integrate(face, &error);
+            contribution = integral.integrate(face, &error);
             totalError += contribution;
             contribution[0] = 0;
             contribution[1] = 0;
@@ -288,13 +293,13 @@ public:
         LinearAlgebra::NumericalVector totalEnergy(1), contribution(1);
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
-        	contribution = faIntegral.integrate(face, &faceEnergy);
+            contribution = faIntegral.integrate(face, &faceEnergy);
             totalEnergy += contribution;
             contribution[0] = 0;
         }
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
-        	contribution = elIntegral.integrate(element, &elementEnergy);
+            contribution = elIntegral.integrate(element, &elementEnergy);
             totalEnergy += contribution;
             contribution[0] = 0;
         }
@@ -305,32 +310,32 @@ public:
         std::cout.precision(14);
         doAllElementIntegration();
         doAllFaceIntegration();
-
+        
         Utilities::GlobalPetscVector eta(meshes_[0]), phi(meshes_[0]);
         Utilities::GlobalPetscMatrix M(meshes_[0], -1, 0), S(meshes_[0], 0, -1);
         Vec phiS, phiOther, etaActually, interiorRHS, surfaceRHS;
         Mat surfaceMass, interiorStifness, surfaceStifness, mixStifness, backStiffness;
-
+        
         IS isSurface, isRest;
         getSurfaceIS(S, &isSurface, &isRest);
-
+        
         std::ofstream outFile("output.dat");
         Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "eta_num,phi_num,eta_exact,phi_exact");
-
+        
         //deal with initial conditions
         double g(1.), dt(M_PI / n_ / 2);
         eta.constructFromTimeLevelData(0, 0);
         phi.constructFromTimeLevelData(0, 1);
-
+        
         int numberOfSnapshots(65); //placeholder parameters
         int numberOfTimeSteps(n_ / 8);
-
+        
         MatGetSubMatrix(M, isSurface, isSurface, MAT_INITIAL_MATRIX, &surfaceMass);
         MatGetSubMatrix(S, isRest, isRest, MAT_INITIAL_MATRIX, &interiorStifness);
         MatGetSubMatrix(S, isSurface, isSurface, MAT_INITIAL_MATRIX, &surfaceStifness);
         MatGetSubMatrix(S, isRest, isSurface, MAT_INITIAL_MATRIX, &mixStifness);
         MatGetSubMatrix(S, isSurface, isRest, MAT_INITIAL_MATRIX, &backStiffness);
-
+        
         KSP interior, surface;
         KSPCreate(PETSC_COMM_WORLD, &interior);
         KSPSetOperators(interior, interiorStifness, interiorStifness);
@@ -341,8 +346,7 @@ public:
         KSPSetFromOptions(surface);
         KSPConvergedReason conferge;
         int iterations;
-
-
+        
         VecGetSubVector(phi, isSurface, &phiS);
         VecGetSubVector(phi, isRest, &phiOther);
         VecGetSubVector(eta, isSurface, &etaActually);
@@ -361,10 +365,10 @@ public:
         VecRestoreSubVector(eta, isSurface, &etaActually);
         VecRestoreSubVector(phi, isSurface, &phiS);
         VecRestoreSubVector(phi, isRest, &phiOther);
-
+        
         eta.writeTimeLevelData(0, 0);
         phi.writeTimeLevelData(0, 1);
-
+        
         writeFunc.write(meshes_[0], "solution at time 0", false, this);
         for (int i = 1; i < numberOfSnapshots; ++i)
         {
@@ -381,7 +385,7 @@ public:
                 KSPGetConvergedReason(interior, &conferge);
                 KSPGetIterationNumber(interior, &iterations);
                 std::cout << "Laplace problem: KSP solver ended because of " << KSPConvergedReasons[conferge] << " in " << iterations << " iterations." << std::endl;
-
+                
                 MatMult(backStiffness, phiOther, surfaceRHS);
                 MatMultAdd(surfaceStifness, phiS, surfaceRHS, surfaceRHS);
                 VecScale(surfaceRHS, dt);
@@ -390,7 +394,7 @@ public:
                 KSPGetConvergedReason(surface, &conferge);
                 KSPGetIterationNumber(surface, &iterations);
                 std::cout << "Updating \\eta: KSP solver ended because of " << KSPConvergedReasons[conferge] << " in " << iterations << " iterations." << std::endl;
-
+                
                 VecAXPY(phiS, -g * dt / 2, etaActually);
             }
             VecRestoreSubVector(phi, isSurface, &phiS);
@@ -404,9 +408,9 @@ public:
         }
         return true;
     }
-
+    
 private:
-
+    
     //number of elements per cardinal direction
     int n_;
 
@@ -415,25 +419,24 @@ private:
     static double t;
 };
 
-double DGWave::t=0;
+double DGWave::t = 0;
 
 auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
 auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
 
-int main(int argc, char **argv){
-    Base::parse_options(argc,argv);
-	try{
-		DGWave test(n.getValue(),p.getValue());
-		test.initialise();
-		test.solve();
-		return 0;
-	}
-	catch(const char* e){
-		std::cout<<e;
-	}
+int main(int argc, char **argv)
+{
+    Base::parse_options(argc, argv);
+    try
+    {
+        DGWave test(n.getValue(), p.getValue());
+        test.initialise();
+        test.solve();
+        return 0;
+    }
+    catch (const char* e)
+    {
+        std::cout << e;
+    }
 }
-
-
-
-
 

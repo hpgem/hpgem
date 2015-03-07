@@ -5,8 +5,8 @@
  *      Author: dducks
  */
 
-#include "CommandLineOptions.hpp"
-#include "MpiContainer.hpp"
+#include "CommandLineOptions.h"
+#include "MpiContainer.h"
 #include <cstring>
 
 #ifdef HPGEM_USE_MPI
@@ -45,11 +45,11 @@ bool Base::parse_isDone()
 int Base::parse_options(int argc, char** argv)
 {
     if (hasParsed)
-        throw ("Arguments have already been parsed");
+        throw("Arguments have already been parsed");
 #ifdef HPGEM_USE_MPI
-
+    
     if (!MPI::Is_initialized())
-    {
+    {   
         //somebody might have been kind enough to actually
         //initialize MPI for us... so yeah. Let's prevent
         //initializing it twice, as this will end in chaos and mayhem
@@ -59,13 +59,13 @@ int Base::parse_options(int argc, char** argv)
         //clue when people are actually going to call this, we just
         //register an on-exit handler.
         std::atexit([]()
-        {
-            MPI::Finalize();
-        });
+                {   
+                    MPI::Finalize();
+                });
     }
 
 #endif
-
+    
 #ifdef HPGEM_USE_PETSC
     //block so I can create variables without affecting the rest of the function
     {
@@ -81,15 +81,15 @@ int Base::parse_options(int argc, char** argv)
             PETSC_COMM_WORLD = MPI::COMM_WORLD.Create(groupID);
 #endif
             PetscInitialize(&argc, &argv, PETSC_NULL, "PETSc help\n");
-
+            
             std::atexit([]()
-            {
+            {   
                 PetscFinalize();
             });
         }
     }
 #endif
-
+    
     Base::Detail::CLOParser parser(argc, argv);
     hasParsed = true;
     return parser.go();
@@ -98,18 +98,17 @@ int Base::Detail::CLOParser::go()
 {
     auto& lmapping = getCLOMapping_long();
     auto& smapping = getCLOMapping_short();
-
+    
     ++(*this);
     try
     {
         while (remaining())
         {
-
+            
             std::string tag = *(*this);
-
+            
             Base::Detail::CommandLineOptionBase* pBase;
-
-
+            
             if (tag.size() >= 2 && tag[0] == '-')
             {
                 if (tag[1] == '-')
@@ -121,15 +120,15 @@ int Base::Detail::CLOParser::go()
                         std::cerr << "Argument " << tag << " not found.\n";
                         std::exit(1);
                     }
-
+                    
                     if (it->second->hasArgument() && remaining() <= 1)
                     {
                         std::cerr << "Argument " << tag << "has an argument, but was not provided one.\n";
                         std::exit(1);
                     }
-
+                    
                     pBase = it->second;
-
+                    
                     pBase->parse(*this);
                 }
                 else
@@ -142,7 +141,7 @@ int Base::Detail::CLOParser::go()
                             std::cerr << "Argument " << tag << " not found.\n";
                             std::exit(1);
                         }
-
+                        
                         pBase = it->second;
                         if (pBase->hasArgument() && (i < (tag.size() - 1) || remaining() <= 1))
                         {
@@ -158,7 +157,7 @@ int Base::Detail::CLOParser::go()
                 std::cerr << "Unknown argument '" << tag << "' found.\n";
                 std::exit(1);
             }
-
+            
             ++(*this);
             //if ()
         }
@@ -186,7 +185,7 @@ int Base::Detail::CLOParser::go()
         std::cerr << std::endl;
         std::exit(1);
     }
-
+    
     bool kill = false;
     for (Base::Detail::CommandLineOptionBase* base : Base::Detail::getCLOList())
     {
@@ -212,7 +211,7 @@ int Base::Detail::CLOParser::go()
             std::cout << "\n\t  " << base->getDescription() << "\n\n";
         }
         kill = true;
-
+        
         std::cout << "\n\n---------------------------\nFeatures:\n";
 #ifdef HPGEM_USE_MPI
         std::cout << "\tMPI\n";

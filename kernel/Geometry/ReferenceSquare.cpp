@@ -19,13 +19,13 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ReferenceSquare.hpp"
-#include "ReferenceLine.hpp"
-#include "Mappings/MappingToRefLineToSquare.hpp"
-#include "Mappings/MappingToRefSquareToSquare.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/ReferencePoint.hpp"
-#include "LinearAlgebra/Matrix.hpp"
+#include "ReferenceSquare.h"
+#include "ReferenceLine.h"
+#include "Mappings/MappingToRefLineToSquare.h"
+#include "Mappings/MappingToRefSquareToSquare.h"
+#include "Geometry/PointReference.h"
+#include "Geometry/ReferencePoint.h"
+#include "LinearAlgebra/Matrix.h"
 #include "Logger.h"
 
 namespace Geometry
@@ -39,24 +39,17 @@ namespace Geometry
      * (-1,-1) 0---0---1 (+1,-1)
      *
      */
-    std::size_t ReferenceSquare::localNodeIndexes_[4][2] =
+    std::size_t ReferenceSquare::localNodeIndexes_[4][2] = { {0, 1}, {0, 2}, {1, 3}, {2, 3}, };
+    
+    ReferenceSquare::ReferenceSquare()
+            : ReferenceGeometry(4, 2, SQUARE), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
-        { 0, 1 },
-        { 0, 2 },
-        { 1, 3 },
-        { 2, 3 },
-    };
-
-    ReferenceSquare::ReferenceSquare():
-        ReferenceGeometry(4,2, SQUARE),
-        referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
-    {
-        // See MappingLineToSquare.hpp for further info.                 Ref.Line     Ref.Sqr.Side
+        // See MappingLineToSquare.h for further info.                 Ref.Line     Ref.Sqr.Side
         mappingsLineToSquare_[0] = &MappingToRefLineToSquare0::Instance(); // x         -> 0:( x,-1)
         mappingsLineToSquare_[1] = &MappingToRefLineToSquare1::Instance(); // x         -> 1:(-1, x)
         mappingsLineToSquare_[2] = &MappingToRefLineToSquare2::Instance(); // x         -> 2:( 1, x)
         mappingsLineToSquare_[3] = &MappingToRefLineToSquare3::Instance(); // x         -> 3:( x, 1)
-
+                
         // See Mapping SquareToSquare for further info.                      Ref. Sq.    Ref. Sq.
         mappingsSquareToSquare_[0] = &MappingToRefSquareToSquare0::Instance(); // (x,y)    -> (x,y)
         mappingsSquareToSquare_[1] = &MappingToRefSquareToSquare1::Instance(); // (x,y)    -> (-y,x)
@@ -66,24 +59,27 @@ namespace Geometry
         mappingsSquareToSquare_[5] = &MappingToRefSquareToSquare5::Instance(); // (x,y)    -> (-x,y)
         mappingsSquareToSquare_[6] = &MappingToRefSquareToSquare6::Instance(); // (x,y)    -> (-y,-x)
         mappingsSquareToSquare_[7] = &MappingToRefSquareToSquare7::Instance(); // (x,y)    -> (y,x)
-
+                
         // We set the actual coordinates (see top comment for drawing).
         PointReferenceT p1(2), p2(2), p3(2), p4(2);
-
-        p1[0] = -1.0; p1[1] = -1.0;
-        p2[0] = +1.0; p2[1] = -1.0;
-        p3[0] = -1.0; p3[1] = +1.0;
-        p4[0] = +1.0; p4[1] = +1.0;
-
+        
+        p1[0] = -1.0;
+        p1[1] = -1.0;
+        p2[0] = +1.0;
+        p2[1] = -1.0;
+        p3[0] = -1.0;
+        p3[1] = +1.0;
+        p4[0] = +1.0;
+        p4[1] = +1.0;
+        
         points_[0] = p1;
         points_[1] = p2;
         points_[2] = p3;
         points_[3] = p4;
     }
     
-    ReferenceSquare::ReferenceSquare(const ReferenceSquare& copy):
-        ReferenceGeometry(copy),
-        referenceGeometryCodim1Ptr_(copy.referenceGeometryCodim1Ptr_)
+    ReferenceSquare::ReferenceSquare(const ReferenceSquare& copy)
+            : ReferenceGeometry(copy), referenceGeometryCodim1Ptr_(copy.referenceGeometryCodim1Ptr_)
     {
     }
     
@@ -101,25 +97,24 @@ namespace Geometry
     {
         return points_[i];
     }
-
+    
     std::ostream& operator<<(std::ostream& os, const ReferenceSquare& square)
     {
-        os <<square.getName()<<"={";
+        os << square.getName() << "={";
         ReferenceSquare::const_iterator it = square.points_.begin();
         ReferenceSquare::const_iterator end = square.points_.end();
-
-        for ( ; it != end; ++it)
+        
+        for (; it != end; ++it)
         {
             os << (*it) << '\t';
         }
-        os <<'}'<<std::endl;
-
+        os << '}' << std::endl;
+        
         return os;
     }
-
+    
     // ================================== Codimension 0 ============================================
-    std::size_t ReferenceSquare::
-    getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
+    std::size_t ReferenceSquare::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         if (list1.size() == 4 && list2.size() == 4)
         {
@@ -165,7 +160,7 @@ namespace Geometry
             throw "ERROR: number of nodes of reference square was larger than 4.";
         }
     }
-
+    
     const MappingReferenceToReference*
     ReferenceSquare::getCodim0MappingPtr(const IndexT i) const
     {
@@ -179,11 +174,10 @@ namespace Geometry
         }
     }
     // ================================== Codimension 1 ============================================
-    std::vector<std::size_t> ReferenceSquare::
-    getCodim1EntityLocalIndices(const IndexT faceIndex) const
+    std::vector<std::size_t> ReferenceSquare::getCodim1EntityLocalIndices(const IndexT faceIndex) const
     {
         logger.assert(faceIndex < 4, "A square has only 4 edges, while edge % is requested", faceIndex);
-            return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+2);
+        return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 2);
     }
     
     const ReferenceGeometry* ReferenceSquare::getCodim1ReferenceGeometry(const IndexT faceIndex) const
@@ -209,218 +203,241 @@ namespace Geometry
             throw "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square!";
         }
     }
-
-	const ReferenceGeometry* ReferenceSquare::getCodim2ReferenceGeometry(const std::size_t) const {
-		return &Geometry::ReferencePoint::Instance();
-	}
-
+    
+    const ReferenceGeometry* ReferenceSquare::getCodim2ReferenceGeometry(const std::size_t) const
+    {
+        return &Geometry::ReferencePoint::Instance();
+    }
+    
     // =============================== Refinement mappings =====================================
     
     //! Transform a reference point using refinement mapping
-    void ReferenceSquare::refinementTransform(int refineType, std::size_t subElementIdx,
-                  const PointReferenceT& p, PointReferenceT& pMap) const 
+    void ReferenceSquare::refinementTransform(int refineType, std::size_t subElementIdx, const PointReferenceT& p, PointReferenceT& pMap) const
     {
         switch (refineType)
         {
-          case 0:
-            switch (subElementIdx)
-            {
-              case 0:
-                pMap[0]= (p[0]-1)/2.;
-                pMap[1]=p[1];
+            case 0:
+                switch (subElementIdx)
+                {
+                    case 0:
+                        pMap[0] = (p[0] - 1) / 2.;
+                        pMap[1] = p[1];
+                        break;
+                    case 1:
+                        pMap[0] = (p[0] + 1) / 2.;
+                        pMap[1] = p[1];
+                        break;
+                }
                 break;
-              case 1:
-                pMap[0]= (p[0]+1)/2.;
-                pMap[1]=p[1];
+                
+            case 1:
+                switch (subElementIdx)
+                {
+                    case 0:
+                        pMap[0] = p[0];
+                        pMap[1] = (p[1] - 1) / 2.;
+                        break;
+                    case 1:
+                        pMap[0] = p[0];
+                        pMap[1] = (p[1] + 1) / 2.;
+                        break;
+                }
                 break;
-            }
-            break;
-            
-          case 1:
-            switch (subElementIdx)
-            {
-              case 0:
-                pMap[0]=p[0];
-                pMap[1]= (p[1]-1)/2.;
+                
+            case 2:
+                switch (subElementIdx)
+                {
+                    case 0:
+                        pMap[0] = (p[0] - 1) / 2.;
+                        pMap[1] = (p[1] - 1) / 2.;
+                        break;
+                    case 1:
+                        pMap[0] = (p[0] + 1) / 2.;
+                        pMap[1] = (p[1] - 1) / 2.;
+                        break;
+                    case 2:
+                        pMap[0] = (p[0] - 1) / 2.;
+                        pMap[1] = (p[1] + 1) / 2.;
+                        break;
+                    case 3:
+                        pMap[0] = (p[0] + 1) / 2.;
+                        pMap[1] = (p[1] + 1) / 2.;
+                        break;
+                }
                 break;
-              case 1:
-                pMap[0]=p[0];
-                pMap[1]= (p[1]+1)/2.;
+                
+            default:
+                pMap = p;
                 break;
-            }
-            break;
-
-          case 2:
-            switch (subElementIdx)
-            {
-              case 0:
-                pMap[0]= (p[0]-1)/2.;
-                pMap[1]= (p[1]-1)/2.;
-                break;
-              case 1:
-                pMap[0]= (p[0]+1)/2.;
-                pMap[1]= (p[1]-1)/2.;
-                break;
-              case 2:
-                pMap[0]= (p[0]-1)/2.;
-                pMap[1]= (p[1]+1)/2.;
-                break;
-              case 3:
-                pMap[0]= (p[0]+1)/2.;
-                pMap[1]= (p[1]+1)/2.;
-                break;
-            }
-            break;
-            
-          default:
-            pMap = p;
-            break;
         }
     }
-
+    
     //! Transformation matrix of this refinement when located on the LEFT side
-    void ReferenceSquare::getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx,
-                LinearAlgebra::Matrix& Q) const 
+    void ReferenceSquare::getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
     {
-        Q.resize(3,3);
+        Q.resize(3, 3);
         Q = 0.;
-        Q(2,2) = 1.;
+        Q(2, 2) = 1.;
         switch (refineType)
         {
-          case 0:
-            switch (subElementIdx)
-            {
-              case 0:
-                Q(0,0) = .5;  Q(0,2) = -.5;
-                Q(1,1) = 1.;
+            case 0:
+                switch (subElementIdx)
+                {
+                    case 0:
+                        Q(0, 0) = .5;
+                        Q(0, 2) = -.5;
+                        Q(1, 1) = 1.;
+                        break;
+                    case 1:
+                        Q(0, 0) = .5;
+                        Q(0, 2) = .5;
+                        Q(1, 1) = 1.;
+                        break;
+                }
                 break;
-              case 1:
-                Q(0,0) = .5;  Q(0,2) =  .5;
-                Q(1,1) = 1.;
+                
+            case 1:
+                switch (subElementIdx)
+                {
+                    case 0:
+                        Q(0, 0) = 1.;
+                        Q(1, 1) = .5;
+                        Q(1, 2) = -.5;
+                        break;
+                    case 1:
+                        Q(0, 0) = 1.;
+                        Q(1, 1) = .5;
+                        Q(1, 2) = .5;
+                        break;
+                }
                 break;
-            }
-            break;
-            
-          case 1:
-            switch (subElementIdx)
-            {
-              case 0:
-                Q(0,0) = 1.;
-                Q(1,1) = .5;  Q(1,2) = -.5;
+                
+            case 2:
+                switch (subElementIdx)
+                {
+                    case 0:
+                        Q(0, 0) = .5;
+                        Q(0, 2) = -.5;
+                        Q(1, 1) = .5;
+                        Q(1, 2) = -.5;
+                        break;
+                    case 1:
+                        Q(0, 0) = .5;
+                        Q(0, 2) = .5;
+                        Q(1, 1) = .5;
+                        Q(1, 2) = -.5;
+                        break;
+                    case 2:
+                        Q(0, 0) = .5;
+                        Q(0, 2) = -.5;
+                        Q(1, 1) = .5;
+                        Q(1, 2) = .5;
+                        break;
+                    case 3:
+                        Q(0, 0) = .5;
+                        Q(0, 2) = .5;
+                        Q(1, 1) = .5;
+                        Q(1, 2) = .5;
+                        break;
+                }
                 break;
-              case 1:
-                Q(0,0) = 1.;
-                Q(1,1) = .5;  Q(1,2) =  .5;
+                
+            default:
+                Q(0, 0) = 1.;
+                Q(1, 1) = 1.;
                 break;
-            }
-            break;
-
-          case 2:
-            switch (subElementIdx)
-            {
-              case 0:
-                Q(0,0) = .5;  Q(0,2) = -.5;
-                Q(1,1) = .5;  Q(1,2) = -.5;
-                break;
-              case 1:
-                Q(0,0) = .5;  Q(0,2) =  .5;
-                Q(1,1) = .5;  Q(1,2) = -.5;
-                break;
-              case 2:
-                Q(0,0) = .5;  Q(0,2) = -.5;
-                Q(1,1) = .5;  Q(1,2) =  .5;
-                break;
-              case 3:
-                Q(0,0) = .5;  Q(0,2) =  .5;
-                Q(1,1) = .5;  Q(1,2) =  .5;
-                break;
-            }
-            break;
-            
-          default:
-            Q(0,0) = 1.;
-            Q(1,1) = 1.;
-            break;
-            
+                
         }
     }
-
+    
     //! Transformation matrix of this refinement when located on the RIGHT side
-    void ReferenceSquare::getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx,
-                LinearAlgebra::Matrix& Q) const 
+    void ReferenceSquare::getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
     {
-        Q.resize(3,3);
+        Q.resize(3, 3);
         Q = 0.;
-        Q(2,2) = 1.;
+        Q(2, 2) = 1.;
         switch (refineType)
         {
-          case 0:
-            switch (subElementIdx)
-            {
-              case 0:
-                Q(0,0) = 2.;  Q(0,2) =  1.;
-                Q(1,1) = 1.;
+            case 0:
+                switch (subElementIdx)
+                {
+                    case 0:
+                        Q(0, 0) = 2.;
+                        Q(0, 2) = 1.;
+                        Q(1, 1) = 1.;
+                        break;
+                    case 1:
+                        Q(0, 0) = 2.;
+                        Q(0, 2) = -1.;
+                        Q(1, 1) = 1.;
+                        break;
+                }
                 break;
-              case 1:
-                Q(0,0) = 2.;  Q(0,2) = -1.;
-                Q(1,1) = 1.;
+                
+            case 1:
+                switch (subElementIdx)
+                {
+                    case 0:
+                        Q(0, 0) = 1.;
+                        Q(1, 1) = 2.;
+                        Q(1, 2) = 1.;
+                        break;
+                    case 1:
+                        Q(0, 0) = 1.;
+                        Q(1, 1) = 2.;
+                        Q(1, 2) = -1.;
+                        break;
+                }
                 break;
-            }
-            break;
-            
-          case 1:
-            switch (subElementIdx)
-            {
-              case 0:
-                Q(0,0) = 1.;
-                Q(1,1) = 2.;  Q(1,2) =  1.;
+                
+            case 2:
+                switch (subElementIdx)
+                {
+                    case 0:
+                        Q(0, 0) = 2.;
+                        Q(0, 2) = 1.;
+                        Q(1, 1) = 2.;
+                        Q(1, 2) = 1.;
+                        break;
+                    case 1:
+                        Q(0, 0) = 2.;
+                        Q(0, 2) = -1.;
+                        Q(1, 1) = 2.;
+                        Q(1, 2) = 1.;
+                        break;
+                    case 2:
+                        Q(0, 0) = 2.;
+                        Q(0, 2) = 1.;
+                        Q(1, 1) = 2.;
+                        Q(1, 2) = -1.;
+                        break;
+                    case 3:
+                        Q(0, 0) = 2.;
+                        Q(0, 2) = -1.;
+                        Q(1, 1) = 2.;
+                        Q(1, 2) = -1.;
+                        break;
+                }
                 break;
-              case 1:
-                Q(0,0) = 1.;
-                Q(1,1) = 2.;  Q(1,2) = -1.;
+                
+            default:
+                Q(0, 0) = 1.;
+                Q(1, 1) = 1.;
                 break;
-            }
-            break;
-
-          case 2:
-            switch (subElementIdx)
-            {
-              case 0:
-                Q(0,0) = 2.;  Q(0,2) =  1.;
-                Q(1,1) = 2.;  Q(1,2) =  1.;
-                break;
-              case 1:
-                Q(0,0) = 2.;  Q(0,2) = -1.;
-                Q(1,1) = 2.;  Q(1,2) =  1.;
-                break;
-              case 2:
-                Q(0,0) = 2.;  Q(0,2) =  1.;
-                Q(1,1) = 2.;  Q(1,2) = -1.;
-                break;
-              case 3:
-                Q(0,0) = 2.;  Q(0,2) = -1.;
-                Q(1,1) = 2.;  Q(1,2) = -1.;
-                break;
-            }
-            break;
-            
-          default:
-            Q(0,0) = 1.;
-            Q(1,1) = 1.;
-            break;
         }
     }
-
+    
     //! Refinement mapping on codim1 for a given refinement on codim0
     //! Note: this should also applied on other dimensions
-    void ReferenceSquare::getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx,
-                            std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
-    {}
-
+    void ReferenceSquare::getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+    {
+    }
+    
     //! Refinement mapping on codim1 for a given refinement on codim0
     //! Note: this should also applied on other dimensions
-    void ReferenceSquare::getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx,
-                            std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const 
-    {}
+    void ReferenceSquare::getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+    {
+    }
 
-};
+}
+;

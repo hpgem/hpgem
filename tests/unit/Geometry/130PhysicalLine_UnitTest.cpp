@@ -22,82 +22,83 @@
 //naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number that will make sure
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
-
-#include "Geometry/PhysicalLine.hpp"
+#include "Geometry/PhysicalLine.h"
 #include "Logger.h"
-#include "Geometry/PointPhysical.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/ReferenceLine.hpp"
+#include "Geometry/PointPhysical.h"
+#include "Geometry/PointReference.h"
+#include "Geometry/ReferenceLine.h"
 
 #include <cmath>
 using Geometry::PhysicalLine;
 
-int main(){
-
-	std::vector<std::size_t> pointIndexes;
-	std::vector<Geometry::PointPhysical> nodes;
-
-	Geometry::PointPhysical point(1);
-
-	pointIndexes.push_back(4);
-	pointIndexes.push_back(7);
-
-	for(double i = 0.0; i < 1; i += 0.1){
-		point[0]=1.+i;
-		nodes.push_back(point);
-	}
-
-	PhysicalLine test(pointIndexes,nodes);
-
-	std::cout<<test;
-
-	pointIndexes = test.getNodeIndexes();
-
-	logger.assert_always((pointIndexes[0]==4&&pointIndexes[1]==7),"getNodeIndexes");
-	logger.assert_always((nodes==test.getNodes()),"getNodes");
-	logger.assert_always((test.getNodeIndex(0)==4&&test.getNodeIndex(1)==7),"getNodeIndex");
-
-	std::cout<<test.getName();
-
-	point = *test.getNodePtr(test.getNodeIndex(0));
-	logger.assert_always((std::abs(point[0]-1.4)<1e-12),"getNodePtr");
-	point = *test.getNodePtr(test.getNodeIndex(1));
-	logger.assert_always((std::abs(point[0]-1.7)<1e-12),"getNodePtr");
-
-	logger.assert_always((test.getNumberOfNodes()==2),"getNumberOfNodes");
-
-	point = test.getNodeCoordinates(0);
-	logger.assert_always((std::abs(point[0]-1.4)<1e-12),"getNodeCoordinates");
-	point = test.getNodeCoordinates(1);
-	logger.assert_always((std::abs(point[0]-1.7)<1e-12),"getNodeCoordinates");
-
-	point = test.getLocalNodeCoordinates(0);
-	logger.assert_always((std::abs(point[0]-1.4)<1e-12),"getLocalNodeCoordinates");
-	point = test.getLocalNodeCoordinates(1);
-	logger.assert_always((std::abs(point[0]-1.7)<1e-12),"getLocalNodeCoordinates");
-
-	for(std::size_t i=0;i<10;++i){
-		point = test.getGlobalNodeCoordinates(i);
-		logger.assert_always((std::abs(point[0]-1.-i/10.)<1e-12),"getGlobalNodeCoordinates");
-	}
-
-	pointIndexes.resize(1);
-
-	pointIndexes = test.getGlobalFaceNodeIndices(0);
-	logger.assert_always((pointIndexes[0]==4),"getGlobalFaceNodeIndices");
-	pointIndexes = test.getGlobalFaceNodeIndices(1);
-	logger.assert_always((pointIndexes[0]==7),"getGlobalFaceNodeIndices");
-
-	pointIndexes = test.getLocalFaceNodeIndices(0);
-	logger.assert_always((pointIndexes[0]==0),"getLocalFaceNodeIndices");
-	pointIndexes = test.getLocalFaceNodeIndices(1);
-	logger.assert_always((pointIndexes[0]==1),"getLocalFaceNodeIndices");
-
-	logger.assert_always((test.getNrOfFaces()==2),"getNrOfFaces");
-
-	logger.assert_always((test.getRefGeometry()==&Geometry::ReferenceLine::Instance()),"getRefGeometry");
-
-
-	return 0;
+int main()
+{
+    
+    std::vector<std::size_t> pointIndexes;
+    std::vector<Geometry::PointPhysical> nodes;
+    
+    Geometry::PointPhysical point(1);
+    
+    pointIndexes.push_back(4);
+    pointIndexes.push_back(7);
+    
+    for (double i = 0.0; i < 1; i += 0.1)
+    {
+        point[0] = 1. + i;
+        nodes.push_back(point);
+    }
+    
+    PhysicalLine test(pointIndexes, nodes);
+    
+    std::cout << test;
+    
+    pointIndexes = test.getNodeIndexes();
+    
+    logger.assert_always((pointIndexes[0] == 4 && pointIndexes[1] == 7), "getNodeIndexes");
+    logger.assert_always((nodes == test.getNodes()), "getNodes");
+    logger.assert_always((test.getNodeIndex(0) == 4 && test.getNodeIndex(1) == 7), "getNodeIndex");
+    
+    std::cout << test.getName();
+    
+    point = *test.getNodePtr(test.getNodeIndex(0));
+    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getNodePtr");
+    point = *test.getNodePtr(test.getNodeIndex(1));
+    logger.assert_always((std::abs(point[0] - 1.7) < 1e-12), "getNodePtr");
+    
+    logger.assert_always((test.getNumberOfNodes() == 2), "getNumberOfNodes");
+    
+    point = test.getNodeCoordinates(0);
+    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getNodeCoordinates");
+    point = test.getNodeCoordinates(1);
+    logger.assert_always((std::abs(point[0] - 1.7) < 1e-12), "getNodeCoordinates");
+    
+    point = test.getLocalNodeCoordinates(0);
+    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getLocalNodeCoordinates");
+    point = test.getLocalNodeCoordinates(1);
+    logger.assert_always((std::abs(point[0] - 1.7) < 1e-12), "getLocalNodeCoordinates");
+    
+    for (std::size_t i = 0; i < 10; ++i)
+    {
+        point = test.getGlobalNodeCoordinates(i);
+        logger.assert_always((std::abs(point[0] - 1. - i / 10.) < 1e-12), "getGlobalNodeCoordinates");
+    }
+    
+    pointIndexes.resize(1);
+    
+    pointIndexes = test.getGlobalFaceNodeIndices(0);
+    logger.assert_always((pointIndexes[0] == 4), "getGlobalFaceNodeIndices");
+    pointIndexes = test.getGlobalFaceNodeIndices(1);
+    logger.assert_always((pointIndexes[0] == 7), "getGlobalFaceNodeIndices");
+    
+    pointIndexes = test.getLocalFaceNodeIndices(0);
+    logger.assert_always((pointIndexes[0] == 0), "getLocalFaceNodeIndices");
+    pointIndexes = test.getLocalFaceNodeIndices(1);
+    logger.assert_always((pointIndexes[0] == 1), "getLocalFaceNodeIndices");
+    
+    logger.assert_always((test.getNrOfFaces() == 2), "getNrOfFaces");
+    
+    logger.assert_always((test.getRefGeometry() == &Geometry::ReferenceLine::Instance()), "getRefGeometry");
+    
+    return 0;
 }
 

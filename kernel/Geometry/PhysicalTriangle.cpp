@@ -18,40 +18,39 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "PhysicalTriangle.hpp"
+#include "PhysicalTriangle.h"
 #include <vector>
 
-#include "Geometry/ReferenceTriangle.hpp"
-#include "Geometry/PointPhysical.hpp"
-#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferenceTriangle.h"
+#include "Geometry/PointPhysical.h"
+#include "Geometry/PointReference.h"
 
 namespace Geometry
 {
-    PhysicalTriangle::PhysicalTriangle(
-            const std::vector<std::size_t>& globalNodeIndexes,
-            const std::vector<PointPhysical>& nodes) :
-    PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceTriangle::Instance())
+    PhysicalTriangle::PhysicalTriangle(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<PointPhysical>& nodes)
+            : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceTriangle::Instance())
     {
     }
-
+    
     std::vector<std::size_t> PhysicalTriangle::getGlobalFaceNodeIndices(const std::size_t face) const
     {
         std::vector<std::size_t> indexes(2);
-        indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
-        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,1)];
+        indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 0)];
+        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 1)];
         return indexes;
     }
-
+    
     std::vector<std::size_t> PhysicalTriangle::getLocalFaceNodeIndices(const std::size_t face) const
     {
         std::vector<std::size_t> indexes(2);
-        indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
-        indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
+        indexes[0] = refGeometry_->getLocalNodeIndex(face, 0);
+        indexes[1] = refGeometry_->getLocalNodeIndex(face, 1);
         return indexes;
     }
-
-	std::size_t PhysicalTriangle::getNrOfFaces() const {
-		return refGeometry_->getNrOfCodim1Entities();
-	}
+    
+    std::size_t PhysicalTriangle::getNrOfFaces() const
+    {
+        return refGeometry_->getNrOfCodim1Entities();
+    }
 
 }

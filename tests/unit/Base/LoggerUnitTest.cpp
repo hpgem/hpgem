@@ -22,7 +22,6 @@
 #include <iostream>
 #include "Logger.h"
 
-
 // --- Declaring a logger.
 // --- This allows you to redefine LogLevels based on command line options.
 #ifndef LOG_MAIN_LEVEL
@@ -32,7 +31,8 @@ Logger<LOG_MAIN_LEVEL> log("Main");
 
 void logMessage(std::string, std::string);
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
     
     std::size_t x = 3;
     
@@ -44,18 +44,18 @@ int main(int argc, char** argv) {
     
     //Usage case for redefining with an function
     loggerOutput->onWarn = logMessage;
-    log(WARN, "Custom logger! % + % = %, %!",
-            3, 5, 3+5, "yay");
+    log(WARN, "Custom logger! % + % = %, %!", 3, 5, 3 + 5, "yay");
     
     logger.assert(true, "Test %", 3);
     
     //Usage case for redefining with a lambda func
-    loggerOutput->onFatal = [](std::string module, std::string message) {
+    loggerOutput->onFatal = [](std::string module, std::string message)
+    {   
         std::cerr << "A fatal error has occurred."
         << "\n  Module: " << module
         << "\n  Message: " << message
         << "\n (This is part of the test.)\n" << std::endl;
-        
+
         std::exit(0);
     };
     
@@ -64,6 +64,7 @@ int main(int argc, char** argv) {
     return -1;
 }
 
-void logMessage(std::string module, std::string msg) {
+void logMessage(std::string module, std::string msg)
+{
     std::cout << "Custom logger. Module " << module << ": " << msg << std::endl;
 }

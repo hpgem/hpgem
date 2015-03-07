@@ -19,57 +19,55 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _ElementGeometry_Impl_hpp
-#define _ElementGeometry_Impl_hpp
+#ifndef _ElementGeometry_Impl_h
+#define _ElementGeometry_Impl_h
 
-#include <ElementGeometry.hpp>
+#include <ElementGeometry.h>
 
-#include "ReferenceTetrahedron.hpp"
-#include "ReferenceLine.hpp"
-#include "ReferenceSquare.hpp"
-#include "ReferenceTriangle.hpp"
-#include "ReferencePyramid.hpp"
-#include "ReferenceTriangularPrism.hpp"
-#include "ReferenceCube.hpp"
-#include "ReferenceHypercube.hpp"
+#include "ReferenceTetrahedron.h"
+#include "ReferenceLine.h"
+#include "ReferenceSquare.h"
+#include "ReferenceTriangle.h"
+#include "ReferencePyramid.h"
+#include "ReferenceTriangularPrism.h"
+#include "ReferenceCube.h"
+#include "ReferenceHypercube.h"
 
-#include "PhysicalTetrahedron.hpp"
-#include "PhysicalLine.hpp"
-#include "PhysicalQuadrilateral.hpp"
-#include "PhysicalTriangle.hpp"
-#include "PhysicalPyramid.hpp"
-#include "PhysicalTriangularPrism.hpp"
-#include "PhysicalHexahedron.hpp"
-#include "PhysicalOctachoron.hpp"
+#include "PhysicalTetrahedron.h"
+#include "PhysicalLine.h"
+#include "PhysicalQuadrilateral.h"
+#include "PhysicalTriangle.h"
+#include "PhysicalPyramid.h"
+#include "PhysicalTriangularPrism.h"
+#include "PhysicalHexahedron.h"
+#include "PhysicalOctachoron.h"
 
-#include "Mappings/MappingReferenceToPhysical.hpp"
-#include "Mappings/MappingToPhysHypercubeLinear.hpp"
-#include "Mappings/MappingToPhysSimplexLinear.hpp"
-#include "Mappings/MappingToPhysPyramid.hpp"
-#include "Mappings/MappingToPhysTriangularPrism.hpp"
+#include "Mappings/MappingReferenceToPhysical.h"
+#include "Mappings/MappingToPhysHypercubeLinear.h"
+#include "Mappings/MappingToPhysSimplexLinear.h"
+#include "Mappings/MappingToPhysPyramid.h"
+#include "Mappings/MappingToPhysTriangularPrism.h"
 
-#include "RefinementLine.hpp"
-#include "RefinementTriangle.hpp"
-#include "RefinementQuadrilateral.hpp"
-#include "RefinementTetrahedron.hpp"
-#include "RefinementPyramid.hpp"
-#include "RefinementTriangularPrism.hpp"
-#include "RefinementHexahedron.hpp"
-#include "RefinementHypercube.hpp"
+#include "RefinementLine.h"
+#include "RefinementTriangle.h"
+#include "RefinementQuadrilateral.h"
+#include "RefinementTetrahedron.h"
+#include "RefinementPyramid.h"
+#include "RefinementTriangularPrism.h"
+#include "RefinementHexahedron.h"
+#include "RefinementHypercube.h"
 
-#include "PointReference.hpp"
-
-
+#include "PointReference.h"
 
 namespace Geometry
 {
     class ElementGeometry;
-
+    
     const ReferenceGeometry * const
     ElementGeometry::createReferenceGeometry(std::size_t size, std::size_t DIM)
-    {///\todo check for consistency of pairs (size,DIM)
+    { ///\todo check for consistency of pairs (size,DIM)
         switch (size)
-        {//select a proper type based on the number of nodes a reference geometry should have
+        { //select a proper type based on the number of nodes a reference geometry should have
             case 2:
                 //        std::cout <<"I am a line" << std::endl;
                 return &ReferenceLine::Instance();
@@ -107,17 +105,15 @@ namespace Geometry
                 throw "No known entities contain this many nodes";
         }
     }
-
+    
     const PhysicalGeometry * const
-    ElementGeometry::createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes,
-                                            const VectorOfPhysicalPointsT& nodes,
-                                            const ReferenceGeometryT * const geo)
+    ElementGeometry::createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes, const ReferenceGeometryT * const geo)
     {
         /*switch(typeid(*geo)){
-        case typeid(ReferenceLine::Instance()):
-                ...
-        case ...
-        }*/
+         case typeid(ReferenceLine::Instance()):
+         ...
+         case ...
+         }*/
         switch (globalNodeIndexes.size())
         {
             case 2:
@@ -155,10 +151,10 @@ namespace Geometry
                 return new Geometry::PhysicalOctachoron(globalNodeIndexes, nodes);
             default:
                 throw "No known entities contain this many nodes";
-
+                
         }
     }
-
+    
     const MappingReferenceToPhysical * const
     ElementGeometry::createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometryT * const pGeo)
     {
@@ -201,7 +197,7 @@ namespace Geometry
                 throw "No known entities contain this many nodes";
         }
     }
-
+    
     std::ostream& operator<<(std::ostream& os, const ElementGeometry& elementGeometry)
     {
         os << "PhysicalGeometry={";
@@ -212,83 +208,75 @@ namespace Geometry
         os << '}' << std::endl;
         return os;
     }
-
-    ElementGeometry::ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes,
-                                     const VectorOfPhysicalPointsT& nodes) :
-    referenceGeometry_(ElementGeometry::createReferenceGeometry(globalNodeIndexes.size(), nodes[0].size())),
-    physicalGeometry_(ElementGeometry::createPhysicalGeometry(globalNodeIndexes, nodes, referenceGeometry_)),
-    referenceToPhysicalMapping_(ElementGeometry::createMappings(globalNodeIndexes.size(), nodes[0].size(), physicalGeometry_)),
-    refinementGeometry_(nullptr)//refinement is turned off by default, to  enable it one needs to call enableRefinement
-    { }
-
+    
+    ElementGeometry::ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes)
+            : referenceGeometry_(ElementGeometry::createReferenceGeometry(globalNodeIndexes.size(), nodes[0].size())), physicalGeometry_(ElementGeometry::createPhysicalGeometry(globalNodeIndexes, nodes, referenceGeometry_)), referenceToPhysicalMapping_(ElementGeometry::createMappings(globalNodeIndexes.size(), nodes[0].size(), physicalGeometry_)), refinementGeometry_(nullptr) //refinement is turned off by default, to  enable it one needs to call enableRefinement
+    {
+    }
+    
     /// Copy constructor
-
-    ElementGeometry::ElementGeometry(const ElementGeometry& other) :
-    referenceGeometry_(other.referenceGeometry_),
-    physicalGeometry_(ElementGeometry::createPhysicalGeometry(other.physicalGeometry_->getNodeIndexes(), other.physicalGeometry_->getNodes(), referenceGeometry_)),
-    referenceToPhysicalMapping_(ElementGeometry::createMappings(other.physicalGeometry_->getNodeIndexes().size(), other.physicalGeometry_->getNodePtr(0)->size(), physicalGeometry_)),
-    refinementGeometry_(other.refinementGeometry_)//refinement is turned off by default, to  enable it one needs to call enableRefinement
-    { }
-
+    
+    ElementGeometry::ElementGeometry(const ElementGeometry& other)
+            : referenceGeometry_(other.referenceGeometry_), physicalGeometry_(ElementGeometry::createPhysicalGeometry(other.physicalGeometry_->getNodeIndexes(), other.physicalGeometry_->getNodes(), referenceGeometry_)), referenceToPhysicalMapping_(ElementGeometry::createMappings(other.physicalGeometry_->getNodeIndexes().size(), other.physicalGeometry_->getNodePtr(0)->size(), physicalGeometry_)), refinementGeometry_(other.refinementGeometry_) //refinement is turned off by default, to  enable it one needs to call enableRefinement
+    {
+    }
+    
     ElementGeometry::~ElementGeometry()
     {
         delete physicalGeometry_;
         delete referenceToPhysicalMapping_;
     }
-
+    
     /// Returns a pointer to the referenceToPhysicalMapping
-
+    
     const MappingReferenceToPhysical * const
     ElementGeometry::getReferenceToPhysicalMap() const
     {
         return referenceToPhysicalMapping_;
     }
-
+    
     /// Returns a pointer to the physicalGeometry object.
-
+    
     const PhysicalGeometry * const
     ElementGeometry::getPhysicalGeometry() const
     {
         return physicalGeometry_;
     }
-
+    
     /// Returns a pointer to the referenceGeometry object.
-
+    
     const ReferenceGeometry * const
     ElementGeometry::getReferenceGeometry() const
     {
         return referenceGeometry_;
     }
-
+    
     /// Returns a pointer to the refinementGeometry object.
-
+    
     const RefinementGeometry*
     ElementGeometry::getRefinementGeometry() const
     {
         return refinementGeometry_;
     }
-
+    
     /// This method gets a PointReference, which specifies a coordinate in the ReferenceGeometry,
     /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
     /// given the mapping.
-
-    PointPhysical
-    ElementGeometry::referenceToPhysical(const PointReferenceT& pointReference) const
+    
+    PointPhysical ElementGeometry::referenceToPhysical(const PointReferenceT& pointReference) const
     {
         return referenceToPhysicalMapping_->transform(pointReference);
     }
-
+    
     /// This method gets a PointReference and returns the corresponding jacobian of the
     /// referenceToPhysicalMapping.
-
-    Jacobian
-    ElementGeometry::calcJacobian(const PointReferenceT& pointReference) const
+    
+    Jacobian ElementGeometry::calcJacobian(const PointReferenceT& pointReference) const
     {
         return referenceToPhysicalMapping_->calcJacobian(pointReference);
     }
-
-    std::size_t
-    ElementGeometry::getNrOfNodes() const
+    
+    std::size_t ElementGeometry::getNrOfNodes() const
     {
         return physicalGeometry_->getNumberOfNodes();
     }

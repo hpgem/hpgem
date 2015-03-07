@@ -19,15 +19,19 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "BaseBasisFunction.hpp"
+#include "BaseBasisFunction.h"
 
-#include "LinearAlgebra/NumericalVector.hpp"
-#include "Geometry/PointReference.hpp"
+#include "LinearAlgebra/NumericalVector.h"
+#include "Geometry/PointReference.h"
 
 namespace Base
 {
-    BaseBasisFunction::BaseBasisFunction() { }
-    BaseBasisFunction::BaseBasisFunction(const BaseBasisFunction& other) { }
+    BaseBasisFunction::BaseBasisFunction()
+    {
+    }
+    BaseBasisFunction::BaseBasisFunction(const BaseBasisFunction& other)
+    {
+    }
     
     void BaseBasisFunction::eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
@@ -42,20 +46,20 @@ namespace Base
         {
             switch (i)
             {
-            case 0:
-                ret[i] = evalDeriv0(p);
-                break;
-            case 1:
-                ret[i] = evalDeriv1(p);
-                break;
-            case 2:
-                ret[i] = evalDeriv2(p);
-                break;
-            case 3:
-                ret[i] = evalDeriv3(p);
-                break;
-            default:
-                throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";
+                case 0:
+                    ret[i] = evalDeriv0(p);
+                    break;
+                case 1:
+                    ret[i] = evalDeriv1(p);
+                    break;
+                case 2:
+                    ret[i] = evalDeriv2(p);
+                    break;
+                case 3:
+                    ret[i] = evalDeriv3(p);
+                    break;
+                default:
+                    throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";
             }
         }
         return ret;

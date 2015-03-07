@@ -18,81 +18,84 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "ReferenceGeometry.hpp"
-#include "Integration/QuadratureRules/AllGaussQuadratureRules.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Base/BaseBasisFunction.hpp"
+#include "ReferenceGeometry.h"
+#include "Integration/QuadratureRules/AllGaussQuadratureRules.h"
+#include "Geometry/PointReference.h"
+#include "Base/BaseBasisFunction.h"
 
-#ifndef _ReferenceGeometry_Impl_hpp
-#define _ReferenceGeometry_Impl_hpp
+#ifndef _ReferenceGeometry_Impl_h
+#define _ReferenceGeometry_Impl_h
 
 namespace Geometry
 {
     
-    ReferenceGeometry::ReferenceGeometry(const TypeOfReferenceGeometry& geoT):
-        geometryType_(geoT)
+    ReferenceGeometry::ReferenceGeometry(const TypeOfReferenceGeometry& geoT)
+            : geometryType_(geoT)
     {
         
     }
     
-    ReferenceGeometry::ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const TypeOfReferenceGeometry& geoT):
-        points_(numberOfNodes,DIM),
-        geometryType_(geoT)
+    ReferenceGeometry::ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const TypeOfReferenceGeometry& geoT)
+            : points_(numberOfNodes, DIM), geometryType_(geoT)
     {
         
     }
-
-	const QuadratureRules::GaussQuadratureRule* const ReferenceGeometry::getGaussQuadratureRule(std::size_t order) const 
+    
+    const QuadratureRules::GaussQuadratureRule* const ReferenceGeometry::getGaussQuadratureRule(std::size_t order) const
     {
-		return QuadratureRules::AllGaussQuadratureRules::instance().getRule(this,order);
-	}
-
-    ReferenceGeometry::ReferenceGeometry(const ReferenceGeometry& other):
-        points_(other.points_),
-        geometryType_(other.geometryType_)
+        return QuadratureRules::AllGaussQuadratureRules::instance().getRule(this, order);
+    }
+    
+    ReferenceGeometry::ReferenceGeometry(const ReferenceGeometry& other)
+            : points_(other.points_), geometryType_(other.geometryType_)
     {
         
     }
-
-    double
-    ReferenceGeometry::getBasisFunctionValue(const Base::BaseBasisFunction* function,const PointReference& p)
+    
+    double ReferenceGeometry::getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p)
     {
-    	try
+        try
         {
-    		return basisfunctionValues_[function].at(p);
-    	}
-        catch(std::out_of_range&)
+            return basisfunctionValues_[function].at(p);
+        }
+        catch (std::out_of_range&)
         {
-    		basisfunctionValues_[function][p]=function->eval(p);
-    		return basisfunctionValues_[function].at(p);
-    	}
-    	return function->eval(p);
+            basisfunctionValues_[function][p] = function->eval(p);
+            return basisfunctionValues_[function].at(p);
+        }
+        return function->eval(p);
     }
-
+    
     LinearAlgebra::NumericalVector&
-    ReferenceGeometry::getBasisFunctionDerivative(const Base::BaseBasisFunction* function,const PointReference& p)
+    ReferenceGeometry::getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p)
     {
-    	try{
-    		return basisfunctionDerivatives_[function].at(p);
-    	}catch(std::out_of_range&){
-    		basisfunctionDerivatives_[function][p]=function->evalDeriv(p);
-    		return basisfunctionDerivatives_[function].at(p);
-    	}
+        try
+        {
+            return basisfunctionDerivatives_[function].at(p);
+        }
+        catch (std::out_of_range&)
+        {
+            basisfunctionDerivatives_[function][p] = function->evalDeriv(p);
+            return basisfunctionDerivatives_[function].at(p);
+        }
+    }
+    
+    const PointReference& ReferenceGeometry::getNode(const IndexT& localIndex) const
+    {
+        return points_[localIndex];
     }
 
-	const PointReference& ReferenceGeometry::getNode(const IndexT& localIndex) const {
-		return points_[localIndex];
-	}
-
-};
+}
+;
 
 std::size_t Geometry::PointHasher::operator()(const Geometry::PointReference& point) const
 {
-	std::hash<double> hasher;
+    std::hash<double> hasher;
     std::size_t ret = 0;
-	for (std::size_t i = 0;i < point.size();++i) {
-		ret ^= hasher(point[i]) + 0x9e3779b9 + (ret << 6) + (ret >> 2);
-	}
-	return ret;
+    for (std::size_t i = 0; i < point.size(); ++i)
+    {
+        ret ^= hasher(point[i]) + 0x9e3779b9 + (ret << 6) + (ret >> 2);
+    }
+    return ret;
 }
 #endif

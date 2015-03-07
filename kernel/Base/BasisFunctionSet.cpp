@@ -18,18 +18,20 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "Base/BasisFunctionSet.hpp"
+#include "Base/BasisFunctionSet.h"
 
-#include "Base/BaseBasisFunction.hpp"
+#include "Base/BaseBasisFunction.h"
 #include "Logger.h"
-#include "LinearAlgebra/NumericalVector.hpp"
+#include "LinearAlgebra/NumericalVector.h"
 
 namespace Base
 {
-
+    
     //class BasisFunctionSet;
-    BasisFunctionSet::BasisFunctionSet(std::size_t order) :
-    order_(order) { }
+    BasisFunctionSet::BasisFunctionSet(std::size_t order)
+            : order_(order)
+    {
+    }
     
     BasisFunctionSet::~BasisFunctionSet()
     {
@@ -55,45 +57,42 @@ namespace Base
         vecOfBasisFcn_.push_back(bf);
     }
     
-    double
-    BasisFunctionSet::eval(std::size_t i, const PointReferenceT& p) const
+    double BasisFunctionSet::eval(std::size_t i, const PointReferenceT& p) const
     {
         return vecOfBasisFcn_[i]->eval(p);
     }
     
-    double
-    BasisFunctionSet::evalDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const
+    double BasisFunctionSet::evalDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const
     {
         logger.assert((jDir < 4), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
-
+        
         switch (jDir)
         {
-        case 0:
-            return vecOfBasisFcn_[i]->evalDeriv0(p);
-            break;
-        case 1:
-            return vecOfBasisFcn_[i]->evalDeriv1(p);
-            break;
-        case 2:
-            return vecOfBasisFcn_[i]->evalDeriv2(p);
-            break;
-        case 3:
-            return vecOfBasisFcn_[i]->evalDeriv3(p);
-            ;
-            break;
-        default: return -1.e50;
+            case 0:
+                return vecOfBasisFcn_[i]->evalDeriv0(p);
+                break;
+            case 1:
+                return vecOfBasisFcn_[i]->evalDeriv1(p);
+                break;
+            case 2:
+                return vecOfBasisFcn_[i]->evalDeriv2(p);
+                break;
+            case 3:
+                return vecOfBasisFcn_[i]->evalDeriv3(p);
+                ;
+                break;
+            default:
+                return -1.e50;
         }
-
+        
     }
     
-    void
-    BasisFunctionSet::eval(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+    void BasisFunctionSet::eval(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
         vecOfBasisFcn_[i]->eval(p, ret);
     }
     
-    LinearAlgebra::NumericalVector
-    BasisFunctionSet::evalCurl(std::size_t i, const PointReferenceT& p) const
+    LinearAlgebra::NumericalVector BasisFunctionSet::evalCurl(std::size_t i, const PointReferenceT& p) const
     {
         return vecOfBasisFcn_[i]->evalCurl(p);
     }

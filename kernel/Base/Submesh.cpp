@@ -19,28 +19,27 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Submesh.hpp"
-#include "Mesh.hpp"
-#include "Element.hpp"
-#include "Face.hpp"
-#include "Edge.hpp"
-#include "Geometry/PointPhysical.hpp" 
-#include "FaceCacheData.hpp"
-#include "ElementCacheData.hpp"
+#include "Submesh.h"
+#include "Mesh.h"
+#include "Element.h"
+#include "Face.h"
+#include "Edge.h"
+#include "Geometry/PointPhysical.h" 
+#include "FaceCacheData.h"
+#include "ElementCacheData.h"
 
 namespace Base
 {
-    Submesh::Submesh() { }
+    Submesh::Submesh()
+    {
+    }
     
-    Submesh::Submesh(const Submesh& orig) :
-    elements_(orig.elements_),
-    edges_(orig.edges_),
-    nodes_(orig.nodes_),
-    faces_(orig.faces_),
-    pullElements_(orig.pullElements_),
-    pushElements_(orig.pushElements_) { }
+    Submesh::Submesh(const Submesh& orig)
+            : elements_(orig.elements_), edges_(orig.edges_), nodes_(orig.nodes_), faces_(orig.faces_), pullElements_(orig.pullElements_), pushElements_(orig.pushElements_)
+    {
+    }
     
-    Submesh::~Submesh() 
+    Submesh::~Submesh()
     {
         //do NOT delete the data: it belongs to Mesh
     }

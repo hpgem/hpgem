@@ -21,18 +21,18 @@
 
 #include <cmath>
 #include <functional>
-#include "Base/CommandLineOptions.hpp"
-#include "Base/ConfigurationData.hpp"
-#include "Base/Element.hpp"
-#include "Base/Face.hpp"
-#include "Base/HpgemUISimplified.hpp"
-#include "Base/RectangularMeshDescriptor.hpp"
-#include "Integration/ElementIntegral.hpp"
-#include "Integration/FaceIntegral.hpp"
-#include "Integration/ReturnTrait1.hpp"
-#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
-#include "Output/TecplotSingleElementWriter.hpp"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
+#include "Base/CommandLineOptions.h"
+#include "Base/ConfigurationData.h"
+#include "Base/Element.h"
+#include "Base/Face.h"
+#include "Base/HpgemUISimplified.h"
+#include "Base/RectangularMeshDescriptor.h"
+#include "Integration/ElementIntegral.h"
+#include "Integration/FaceIntegral.h"
+#include "Integration/ReturnTrait1.h"
+#include "Output/TecplotDiscontinuousSolutionWriter.h"
+#include "Output/TecplotSingleElementWriter.h"
+#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Logger.h"
 
 ///Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
@@ -42,7 +42,8 @@ class Advection : public Base::HpgemUISimplified
 {
 public:
     ///Constructor. Assign all private variables.
-    Advection(int n, int p) : HpgemUISimplified(DIM_, p), numElements_(n), polyOrder_(p)
+    Advection(int n, int p)
+            : HpgemUISimplified(DIM_, p), numElements_(n), polyOrder_(p)
     {
         //Choose the "direction" of the advection.
         //This cannot be implemented with iterators, and since the dimension is
@@ -50,16 +51,16 @@ public:
         a.resize(DIM_);
         for (std::size_t i = 0; i < DIM_; ++i)
         {
-            a[i] = 0.1 + 0.1*i;
-        }        
+            a[i] = 0.1 + 0.1 * i;
+        }
     }
-
+    
     ///set up the mesh
-    bool initialise() 
+    bool initialise()
     {
         //describes a rectangular domain
         RectangularMeshDescriptorT description(DIM_);
-
+        
         //this demo will use the square [0,1]^2
         for (std::size_t i = 0; i < DIM_; ++i)
         {
@@ -67,23 +68,23 @@ public:
             description.topRight_[i] = 1;
             //Define elements in each direction.
             description.numElementsInDIM_[i] = numElements_;
-
+            
             //Choose whether you want periodic boundary conditions or other (solid wall)
             //boundary conditions.
             description.boundaryConditions_[i] = RectangularMeshDescriptorT::PERIODIC;
         }
-
+        
         //create a triangular mesh. The magic two and three magic ones that are passed to this function
         //specify the number of element matrices, the number of element vectors,
         //the number of face matrices and the number of face vectors (in that order).
         addMesh(description, Base::TRIANGULAR, 2, 1, 1, 1);
-
+        
         //tell hpGEM to use basis functions that are discontinuous and are designed for triangles
         //this is likely to get automated by hpGEM at some point in the future
         meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(polyOrder_));
         return true;
     }
-
+    
     ///Compute phi_i*(a.grad(phi_j)) on a reference point on an element for all 
     ///basisfunctions phi_i and phi_j.
     ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
@@ -96,12 +97,11 @@ public:
         {
             for (std::size_t j = 0; j < numBasisFuncs; ++j)
             {
-                result(j, i) = element->basisFunction(i, point)*(a * element->basisFunctionDeriv(j,point));
+                result(j, i) = element->basisFunction(i, point) * (a * element->basisFunctionDeriv(j, point));
             }
         }
     }
-
-
+    
     /// \brief Compute the integrals of the left-hand side associated with faces.
     ///
     ///For every internal face, we want to compute the integral of the flux 
@@ -124,7 +124,7 @@ public:
         //Resize the result to the correct size and set all elements to 0.
         integrandVal.resize(numBasisFuncs, numBasisFuncs);
         integrandVal *= 0;
-
+        
         //Check if the normal is in the same direction as the advection.
         //Note that normal does not have length 1!
         const double A = (a * normal) / Base::L2Norm(normal);
@@ -136,24 +136,24 @@ public:
             {
                 //Give the terms of the upwind flux.
                 //Advection in the same direction as outward normal of the left element:
-                if ((A > 1e-12) && (i < nLeft)) 
+                if ((A > 1e-12) && (i < nLeft))
                 {
-                    integrandVal(j, i) = -(a * face->basisFunctionNormal(j,normal,point)) * face->basisFunction(i, point);
+                    integrandVal(j, i) = -(a * face->basisFunctionNormal(j, normal, point)) * face->basisFunction(i, point);
                 }
                 //Advection in the same direction as outward normal of right element:
-                else if ((A<-1e-12) && (i >= nLeft))
+                else if ((A < -1e-12) && (i >= nLeft))
                 {
-                    integrandVal(j, i) = -(a * face->basisFunctionNormal(j,normal,point)) * face->basisFunction(i, point);
+                    integrandVal(j, i) = -(a * face->basisFunctionNormal(j, normal, point)) * face->basisFunction(i, point);
                 }
                 //Advection orthogonal to normal:
                 else if (std::abs(A) < 1e-12)
                 {
-                    integrandVal(j, i) = -(a * face->basisFunctionNormal(j,normal,point)) * face->basisFunction(i, point) / 2.0;
+                    integrandVal(j, i) = -(a * face->basisFunctionNormal(j, normal, point)) * face->basisFunction(i, point) / 2.0;
                 }
             }
         }
     }
-
+    
     ///The vector edition of the face integrand is meant for implementation of boundary conditions
     ///This is a periodic problem, so it just return 0
     void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result)
@@ -168,7 +168,7 @@ public:
     {
         return (std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]));
     }
-
+    
     ///interpolates the initial conditions
     void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& integrandVal)
     {
@@ -184,7 +184,7 @@ public:
             integrandVal[i] = element->basisFunction(i, point) * initialConditions(pPhys);
         }
     }
-
+    
     ///provide information about your solution that you want to use for visualisation
     void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out)
     {
@@ -221,15 +221,15 @@ public:
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
             LinearAlgebra::NumericalVector rhs = face->getTimeLevelData(0);
-
+            
             //compute the flux
-            rhs = dt_ * (face->getFaceMatrixMatrix()*rhs);
+            rhs = dt_ * (face->getFaceMatrixMatrix() * rhs);
             face->setResidue(rhs);
         }
     }
-
+    
 private:
-
+    
     //number of elements per cardinal direction
     std::size_t numElements_;
 
@@ -238,7 +238,7 @@ private:
 
     //Dimension of the problem
     static const std::size_t DIM_;
-    
+
     ///Advective vector
     LinearAlgebra::NumericalVector a;
 };
@@ -259,7 +259,7 @@ int main(int argc, char **argv)
         
         //Define how we want the solution to be written in the VTK files
         test.registerVTKWriteFunction([](Base::Element* element, const Geometry::PointReference& point, std::size_t timelevel) -> double
-        {
+        {   
             return element->getSolution(timelevel, point)[0];
         }, "value");
         

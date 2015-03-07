@@ -19,30 +19,34 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ConcatenatedMapping.hpp"
+#include "ConcatenatedMapping.h"
 
-#include "Geometry/PointReference.hpp"
-#include "Geometry/Jacobian.hpp"
+#include "Geometry/PointReference.h"
+#include "Geometry/Jacobian.h"
 
-namespace Geometry {
-
-	PointReference ConcatenatedMapping::transform(const PointReference& pIn) const {
-		PointReference pLoc = map1_.transform(pIn);
+namespace Geometry
+{
+    
+    PointReference ConcatenatedMapping::transform(const PointReference& pIn) const
+    {
+        PointReference pLoc = map1_.transform(pIn);
         PointReference pOut = map2_.transform(pLoc);
         return pOut;
-	}
-
-	Jacobian ConcatenatedMapping::calcJacobian(const PointReference& p) const {
-		Jacobian jac(p.size(),map2_.getTargetDimension());
-		PointReference pIntermediate = map1_.transform(p);
-		Jacobian j1 = map1_.calcJacobian(p);
-		Jacobian j2 = map2_.calcJacobian(pIntermediate);
-		jac = j2.multiplyJacobiansInto(j1);
+    }
+    
+    Jacobian ConcatenatedMapping::calcJacobian(const PointReference& p) const
+    {
+        Jacobian jac(p.size(), map2_.getTargetDimension());
+        PointReference pIntermediate = map1_.transform(p);
+        Jacobian j1 = map1_.calcJacobian(p);
+        Jacobian j2 = map2_.calcJacobian(pIntermediate);
+        jac = j2.multiplyJacobiansInto(j1);
         return jac;
-	}
-
-	std::size_t ConcatenatedMapping::getTargetDimension() const {
-		return map2_.getTargetDimension();
-	}
+    }
+    
+    std::size_t ConcatenatedMapping::getTargetDimension() const
+    {
+        return map2_.getTargetDimension();
+    }
 
 }

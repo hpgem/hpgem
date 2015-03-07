@@ -18,75 +18,74 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "ElementIntegral.hpp"
-#include "Geometry/ReferenceGeometry.hpp"
-#include "Base/ElementCacheData.hpp"
+#include "ElementIntegral.h"
+#include "Geometry/ReferenceGeometry.h"
+#include "Base/ElementCacheData.h"
 
 namespace Integration
 {
     
-        //! \brief Construct an ElementIntegral with cache on.
-    ElementIntegral::ElementIntegral(bool useCache):
-        useCache_(useCache)
+    //! \brief Construct an ElementIntegral with cache on.
+    ElementIntegral::ElementIntegral(bool useCache)
+            : useCache_(useCache)
     {
-        localElement_=nullptr;
+        localElement_ = nullptr;
     }
     
-        //! \brief Class destructor
+    //! \brief Class destructor
     ElementIntegral::~ElementIntegral()
     {
-        if(localElement_!=nullptr)
+        if (localElement_ != nullptr)
             delete localElement_;
     }
-        //! \brief Start caching (geometry) information now.
-    void
-    ElementIntegral::cacheOn()
+    //! \brief Start caching (geometry) information now.
+    void ElementIntegral::cacheOn()
     {
         useCache_ = true;
-        if(localElement_!=nullptr){
+        if (localElement_ != nullptr)
+        {
             localElement_->cacheOn();
         }
     }
     
-        //! \brief Stop using cache.
-    void
-    ElementIntegral::cacheOff()
+    //! \brief Stop using cache.
+    void ElementIntegral::cacheOff()
     {
         useCache_ = false;
-        if(localElement_!=nullptr){
-        	localElement_->cacheOff();
+        if (localElement_ != nullptr)
+        {
+            localElement_->cacheOff();
         }
     }
     
-        //! \brief Set recompute the cache ON.
-    void
-    ElementIntegral::recomputeCacheOn()
+    //! \brief Set recompute the cache ON.
+    void ElementIntegral::recomputeCacheOn()
     {
-        if(localElement_!=nullptr){
-        	localElement_->recomputeCacheOn();
+        if (localElement_ != nullptr)
+        {
+            localElement_->recomputeCacheOn();
         }
     }
     
-        //! \brief Set recompute the cache OFF.
-    void
-    ElementIntegral::recomputeCacheOff()
+    //! \brief Set recompute the cache OFF.
+    void ElementIntegral::recomputeCacheOff()
     {
-        if(localElement_!=nullptr){
-        	localElement_->recomputeCacheOff();
+        if (localElement_ != nullptr)
+        {
+            localElement_->recomputeCacheOff();
         }
     }
-    
-    /*!
-     \param[in]  el        the \c Element to be integrated on,
-     \param[in]  rule      the GaussQuadratureRule to use,
-     \param[in]  integrand a function/functor with operator(Element, PointReference<DIM>,ResultType&),
-     \param[out] result    a reference to the variable with result storage.
-     
-     Note that one now has the possibility to leave the \c rule argument
-     away, in which case the default for the \c ReferenceGeometry of
-     the passed element will be used. */
-    
-    
+
+/*!
+ \param[in]  el        the \c Element to be integrated on,
+ \param[in]  rule      the GaussQuadratureRule to use,
+ \param[in]  integrand a function/functor with operator(Element, PointReference<DIM>,ResultType&),
+ \param[out] result    a reference to the variable with result storage.
+ 
+ Note that one now has the possibility to leave the \c rule argument
+ away, in which case the default for the \c ReferenceGeometry of
+ the passed element will be used. */
+
 //    template <unsigned int DIM>
 //    template <template<unsigned int> class OBJ, typename IntegrandT>
 //    void
@@ -97,7 +96,7 @@ namespace Integration
 //                                    const QuadratureRulesT* const qdrRule
 //                                    )                                    
 //    {
-    //        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==nullptr? el->getGaussQuadratureRule(): qdrRule);
+//        const QuadratureRulesT* const qdrRuleLoc = (qdrRule==nullptr? el->getGaussQuadratureRule(): qdrRule);
 //            
 //            // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
 //        logger.assert((qdrRuleLoc->forReferenceGeometry() == el->getReferenceGeometry()),
@@ -190,52 +189,56 @@ namespace Integration
 //    }
 }
 
-void Integration::ElementIntegral::setStorageWrapper(Base::ShortTermStorageElementBase* transform) {
+void Integration::ElementIntegral::setStorageWrapper(Base::ShortTermStorageElementBase* transform)
+{
     //if(localElement_!=nullptr)
-	delete localElement_;
-    localElement_=transform;
+    delete localElement_;
+    localElement_ = transform;
     
-    if(useCache_){
-            localElement_->cacheOn();
+    if (useCache_)
+    {
+        localElement_->cacheOn();
         
-    }else{
-            localElement_->cacheOff();
+    }
+    else
+    {
+        localElement_->cacheOff();
         //std::cout<<"Working storage Wrapper"<<std::endl;
     }
 }
-    //! \brief AXPY operation, i.e. Y = alpha * X + Y, for various data type
-    //        template <typename T>
-    //        void Axpy(double alpha, const T& x, T& y)
-    //        {
-    //            y += alpha * x;
-    //        }
-    //
-    //            //! \brief AXPY operation for Matrix
-    //        inline void Axpy(double a, const LinearAlgebra::Matrix& x, LinearAlgebra::Matrix& y)
-    //        {
-    //            y.axpy(a,x);
-    //        }
-    //
-    //            //! \brief AXPY operation for LinearAlgebra::NumericalVector
-    //        inline void Axpy(double alpha,
-    //                         const LinearAlgebra::NumericalVector& x,
-    //                         LinearAlgebra::NumericalVector& y)
-    //        {
-    //            if (y.size()) // if not empty
-    //                y += (alpha*x);
-    //        }
-    //
-    //            //! \brief AXPY operation for std::vector<double>
-    //        inline void Axpy(double alpha,
-    //                         const std::vector<double>& x,
-    //                         std::vector<double>& y)
-    //        {
-    //            const unsigned int neq = y.size();
-    //            if (neq) // if not empty
-    //            {
-    //                for (unsigned int i=0;i<neq; ++i)
-    //                {
-    //                    y[i] += alpha * x[i];
-    //                }
-    //            }
-    //        }
+//! \brief AXPY operation, i.e. Y = alpha * X + Y, for various data type
+//        template <typename T>
+//        void Axpy(double alpha, const T& x, T& y)
+//        {
+//            y += alpha * x;
+//        }
+//
+//            //! \brief AXPY operation for Matrix
+//        inline void Axpy(double a, const LinearAlgebra::Matrix& x, LinearAlgebra::Matrix& y)
+//        {
+//            y.axpy(a,x);
+//        }
+//
+//            //! \brief AXPY operation for LinearAlgebra::NumericalVector
+//        inline void Axpy(double alpha,
+//                         const LinearAlgebra::NumericalVector& x,
+//                         LinearAlgebra::NumericalVector& y)
+//        {
+//            if (y.size()) // if not empty
+//                y += (alpha*x);
+//        }
+//
+//            //! \brief AXPY operation for std::vector<double>
+//        inline void Axpy(double alpha,
+//                         const std::vector<double>& x,
+//                         std::vector<double>& y)
+//        {
+//            const unsigned int neq = y.size();
+//            if (neq) // if not empty
+//            {
+//                for (unsigned int i=0;i<neq; ++i)
+//                {
+//                    y[i] += alpha * x[i];
+//                }
+//            }
+//        }

@@ -19,8 +19,8 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MappingToRefPointToLine.hpp"
-#include "Geometry/PointReference.hpp"
+#include "MappingToRefPointToLine.h"
+#include "Geometry/PointReference.h"
 
 namespace Geometry
 {
@@ -41,47 +41,58 @@ namespace Geometry
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 0 ~~~==============================================================================
     // ~~~~~~~~~~~~~~~==============================================================================
-
     const MappingToRefPointToLine0& MappingToRefPointToLine0::Instance()
     {
         static const MappingToRefPointToLine0 theInstance;
         return theInstance;
     }
-
+    
     PointReference MappingToRefPointToLine0::transform(const Geometry::PointReference&) const
-    { 
+    {
         PointReference p2(1);
-        p2[0] = -1.0; 
+        p2[0] = -1.0;
         return p2;
     }
-
+    
     Jacobian MappingToRefPointToLine0::calcJacobian(const Geometry::PointReference&) const
-    { return Jacobian(1,0);}
-
-    MappingToRefPointToLine0::MappingToRefPointToLine0() { }
-    MappingToRefPointToLine0::~MappingToRefPointToLine0() { }
-
+    {
+        return Jacobian(1, 0);
+    }
+    
+    MappingToRefPointToLine0::MappingToRefPointToLine0()
+    {
+    }
+    MappingToRefPointToLine0::~MappingToRefPointToLine0()
+    {
+    }
+    
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 1 ~~~==============================================================================
     // ~~~~~~~~~~~~~~~==============================================================================
-
+    
     const MappingToRefPointToLine1& MappingToRefPointToLine1::Instance()
     {
         static const MappingToRefPointToLine1 theInstance;
         return theInstance;
     }
-
+    
     PointReference MappingToRefPointToLine1::transform(const Geometry::PointReference&) const
-    { 
+    {
         PointReference p2(1);
-        p2[0] = 1.0; 
+        p2[0] = 1.0;
         return p2;
     }
-
+    
     Jacobian MappingToRefPointToLine1::calcJacobian(const Geometry::PointReference&) const
-    { return Jacobian(1,0);}
-
-    MappingToRefPointToLine1::MappingToRefPointToLine1() { }
-    MappingToRefPointToLine1::~MappingToRefPointToLine1() { }
+    {
+        return Jacobian(1, 0);
+    }
+    
+    MappingToRefPointToLine1::MappingToRefPointToLine1()
+    {
+    }
+    MappingToRefPointToLine1::~MappingToRefPointToLine1()
+    {
+    }
 
 }

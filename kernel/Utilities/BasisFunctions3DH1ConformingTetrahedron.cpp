@@ -19,104 +19,104 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "BasisFunctions3DH1ConformingTetrahedron.hpp"
-#include "helperFunctions.hpp"
-#include "Base/BasisFunctionSet.hpp"
-#include "Base/OrientedBasisFunctionSet.hpp"
-#include "Geometry/ReferenceTetrahedron.hpp"
-#include "Geometry/PointReference.hpp"
+#include "BasisFunctions3DH1ConformingTetrahedron.h"
+#include "helperFunctions.h"
+#include "Base/BasisFunctionSet.h"
+#include "Base/OrientedBasisFunctionSet.h"
+#include "Geometry/ReferenceTetrahedron.h"
+#include "Geometry/PointReference.h"
 
 namespace Utilities
 {
-
+    
     double BasisFunction3DVertexTetrahedron::eval(const Geometry::PointReference& p) const
     {
         return baricentric_3D(node_, p);
     }
-
+    
     double BasisFunction3DVertexTetrahedron::evalDeriv0(const Geometry::PointReference& p) const
     {
         return baricentricDeriv(node_, 0);
     }
-
+    
     double BasisFunction3DVertexTetrahedron::evalDeriv1(const Geometry::PointReference& p) const
     {
         return baricentricDeriv(node_, 1);
     }
-
+    
     double BasisFunction3DVertexTetrahedron::evalDeriv2(const Geometry::PointReference& p) const
     {
         return baricentricDeriv(node_, 2);
     }
-
+    
     double BasisFunction3DEdgeTetrahedron::eval(const Geometry::PointReference& p) const
     {
         return baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * LobattoPolynomial(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p));
     }
-
+    
     double BasisFunction3DEdgeTetrahedron::evalDeriv0(const Geometry::PointReference& p) const
     {
         return baricentricDeriv(node0_, 0) * (baricentric_3D(node1_, p) * LobattoPolynomial(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p)) + baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p))) + baricentricDeriv(node1_, 0) * (baricentric_3D(node0_, p) * LobattoPolynomial(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p)) - baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p)));
     }
-
+    
     double BasisFunction3DEdgeTetrahedron::evalDeriv1(const Geometry::PointReference& p) const
     {
         return baricentricDeriv(node0_, 1) * (baricentric_3D(node1_, p) * LobattoPolynomial(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p)) + baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p))) + baricentricDeriv(node1_, 1) * (baricentric_3D(node0_, p) * LobattoPolynomial(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p)) - baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p)));
     }
-
+    
     double BasisFunction3DEdgeTetrahedron::evalDeriv2(const Geometry::PointReference& p) const
     {
         return baricentricDeriv(node0_, 2) * (baricentric_3D(node1_, p) * LobattoPolynomial(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p)) + baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p))) + baricentricDeriv(node1_, 2) * (baricentric_3D(node0_, p) * LobattoPolynomial(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p)) - baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_3D(node0_, p) - baricentric_3D(node1_, p)));
     }
-
+    
     double BasisFunction3DFaceTetrahedron::eval(const Geometry::PointReference& p) const
     {
         double x0(baricentric_3D(node0_, p) - baricentric_3D(node1_, p)), x1(baricentric_3D(node1_, p) - baricentric_3D(node2_, p));
         return baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1);
     }
-
+    
     double BasisFunction3DFaceTetrahedron::evalDeriv0(const Geometry::PointReference& p) const
     {
         double x0(baricentric_3D(node0_, p) - baricentric_3D(node1_, p)), x1(baricentric_3D(node1_, p) - baricentric_3D(node2_, p));
         return baricentricDeriv(node0_, 0) * (baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1)) + baricentricDeriv(node1_, 0) * (baricentric_3D(node0_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)) + baricentricDeriv(node2_, 0) * (baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1));
     }
-
+    
     double BasisFunction3DFaceTetrahedron::evalDeriv1(const Geometry::PointReference& p) const
     {
         double x0(baricentric_3D(node0_, p) - baricentric_3D(node1_, p)), x1(baricentric_3D(node1_, p) - baricentric_3D(node2_, p));
         return baricentricDeriv(node0_, 1) * (baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1)) + baricentricDeriv(node1_, 1) * (baricentric_3D(node0_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)) + baricentricDeriv(node2_, 1) * (baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1));
     }
-
+    
     double BasisFunction3DFaceTetrahedron::evalDeriv2(const Geometry::PointReference& p) const
     {
         double x0(baricentric_3D(node0_, p) - baricentric_3D(node1_, p)), x1(baricentric_3D(node1_, p) - baricentric_3D(node2_, p));
         return baricentricDeriv(node0_, 2) * (baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1)) + baricentricDeriv(node1_, 2) * (baricentric_3D(node0_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)) + baricentricDeriv(node2_, 2) * (baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_3D(node0_, p) * baricentric_3D(node1_, p) * baricentric_3D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1));
     }
-
+    
     double BasisFunction3DInteriorTetrahedron::eval(const Geometry::PointReference& p) const
     {
         double x0(baricentric_3D(0, p) - baricentric_3D(1, p)), x1(baricentric_3D(1, p) - baricentric_3D(2, p)), x2(baricentric_3D(2, p) - baricentric_3D(3, p));
         return baricentric_3D(0, p) * baricentric_3D(1, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2);
     }
-
+    
     double BasisFunction3DInteriorTetrahedron::evalDeriv0(const Geometry::PointReference& p) const
     {
         double x0(baricentric_3D(0, p) - baricentric_3D(1, p)), x1(baricentric_3D(1, p) - baricentric_3D(2, p)), x2(baricentric_3D(2, p) - baricentric_3D(3, p));
         return baricentricDeriv(0, 0) * (baricentric_3D(1, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2) + baricentric_3D(0, p) * baricentric_3D(1, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2)) + baricentricDeriv(1, 0) * (baricentric_3D(0, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2) - baricentric_3D(0, p) * baricentric_3D(1, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2) + baricentric_3D(0, p) * baricentric_3D(1, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2));
     }
-
+    
     double BasisFunction3DInteriorTetrahedron::evalDeriv1(const Geometry::PointReference& p) const
     {
         double x0(baricentric_3D(0, p) - baricentric_3D(1, p)), x1(baricentric_3D(1, p) - baricentric_3D(2, p)), x2(baricentric_3D(2, p) - baricentric_3D(3, p));
         return baricentricDeriv(0, 1) * (baricentric_3D(1, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2) + baricentric_3D(0, p) * baricentric_3D(1, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2)) + baricentricDeriv(2, 1) * (baricentric_3D(0, p) * baricentric_3D(1, p) * baricentric_3D(3, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2) - baricentric_3D(0, p) * baricentric_3D(1, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2) + baricentric_3D(0, p) * baricentric_3D(1, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomialDerivative(polynomialOrder2_, x2));
     }
-
+    
     double BasisFunction3DInteriorTetrahedron::evalDeriv2(const Geometry::PointReference& p) const
     {
         double x0(baricentric_3D(0, p) - baricentric_3D(1, p)), x1(baricentric_3D(1, p) - baricentric_3D(2, p)), x2(baricentric_3D(2, p) - baricentric_3D(3, p));
         return baricentricDeriv(0, 2) * (baricentric_3D(1, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2) + baricentric_3D(0, p) * baricentric_3D(1, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2)) + baricentricDeriv(3, 2) * (baricentric_3D(0, p) * baricentric_3D(1, p) * baricentric_3D(2, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, x2) - baricentric_3D(0, p) * baricentric_3D(1, p) * baricentric_3D(2, p) * baricentric_3D(3, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomialDerivative(polynomialOrder2_, x2));
     }
-
+    
     Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
         Base::BasisFunctionSet* result = new Base::BasisFunctionSet(order);
@@ -157,7 +157,7 @@ namespace Utilities
         }
         return result;
     }
-
+    
     Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
         Base::BasisFunctionSet* result = new Base::BasisFunctionSet(order);
@@ -173,7 +173,7 @@ namespace Utilities
         }
         return result;
     }
-
+    
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
         std::vector<const Base::BasisFunctionSet*> result;
@@ -186,7 +186,7 @@ namespace Utilities
         }
         return result;
     }
-
+    
     std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
         std::vector<const Base::OrientedBasisFunctionSet*> result;
@@ -211,7 +211,7 @@ namespace Utilities
         }
         return result;
     }
-
+    
     std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
         std::vector<const Base::OrientedBasisFunctionSet*> result;
