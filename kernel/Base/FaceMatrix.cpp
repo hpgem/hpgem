@@ -206,8 +206,8 @@ namespace Base
         }
     }
     
-    /// \details
-    /// This function will be slow compared to getElementMatrix. It is advised to use getElementMatrix instead when possible.
+    /// \details This function will be slow compared to getElementMatrix. It is 
+    /// advised to use getElementMatrix instead when possible.
     const LinearAlgebra::Matrix FaceMatrix::getEntireMatrix() const
     {
         std::size_t nDOFLeft = M_LeftLeft_.getNRows();

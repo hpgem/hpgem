@@ -79,7 +79,6 @@ namespace Base
             std::cerr << "Other types are yet to be implemented! " << std::endl;
         }
         std::cout << "I just created a mesh!!!" << std::endl;
-        //mesh->outputMesh(std::cout);
         return numOfMeshes;
     }
     
@@ -91,7 +90,6 @@ namespace Base
         mesh->getElementsList();
         meshes_.push_back(mesh);
         std::cout << "I just read a mesh!!!" << std::endl;
-        //mesh->outputMesh(std::cout);
         return numOfMeshes;
     }
     

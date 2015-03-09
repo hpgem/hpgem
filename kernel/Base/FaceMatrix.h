@@ -48,16 +48,16 @@ namespace Base
 
         // Operators
         /// \brief Defines the operator (iSide, iVarBasisFunc, jSide, jVarBasisFunc) such that a reference to data (iVarBasisFunc, jVarBasisFunc) from the element matrix corresponding to (iSide, jSide) will be returned.
-        double & operator()(Side iSide, Side jSide, std::size_t iVarBasisFunction, std::size_t jVarBasisFunction);
+        double& operator()(Side iSide, Side jSide, std::size_t iVarBasisFunction, std::size_t jVarBasisFunction);
 
         /// \brief Defines the operator (i,j) such that a reference to data (i,j) from the face matrix will be returned.
-        double & operator()(std::size_t i, std::size_t j);
+        double& operator()(std::size_t i, std::size_t j);
 
         /// \Sets the face matrix equal to another face matrix.
-        FaceMatrix & operator=(const FaceMatrix &other);
+        FaceMatrix& operator=(const FaceMatrix &other);
 
         /// \brief Adds another face matrix to this face matrix.
-        FaceMatrix & operator+=(const FaceMatrix &other);
+        FaceMatrix& operator+=(const FaceMatrix &other);
 
         /// \brief Multiplies the face matrix by a scalar.
         FaceMatrix & operator*=(const double &scalar);
@@ -76,7 +76,7 @@ namespace Base
         void resize(const std::size_t nDOFLeft, const std::size_t nDOFRight);
 
         /// \brief Returns a reference of the submatrix corresponding to a combination of two elements connected to the face.
-        const LinearAlgebra::Matrix & getElementMatrix(Side iSide, Side jSide) const;
+        const LinearAlgebra::Matrix& getElementMatrix(Side iSide, Side jSide) const;
 
         /// \brief Sets the submatrix corresponding to a combination of two elements connected to the face.
         void setElementMatrix(const LinearAlgebra::Matrix & elementMatrix, Side iSide, Side jSide);

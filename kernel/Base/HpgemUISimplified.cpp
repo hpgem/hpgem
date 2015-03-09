@@ -59,7 +59,7 @@ namespace Base
         startTime_ = startTime.getValue();
         if (!dt.isUsed())
         {
-            ///TODO: compute CFL number
+            ///\TODO: compute CFL number
             dt_ = 1e-3;
         }
         else
@@ -172,8 +172,10 @@ namespace Base
             
             interpolate();
             
+            //The == for doubles works because of the adaption in the beginning 
+            //of this loop.
             if (t == tPlot)
-            { //yes, == for doubles, but see the start of the time loop
+            {
                 tPlot += dtPlot;
                 out.write(meshes_[0], "solution", false, this, t);
                 VTKWrite(VTKout, t);
@@ -300,8 +302,7 @@ namespace Base
     {
         if (HpgemUI::meshes_.size() == 0)
         {
-            //std::cerr << "Error no mesh created : You need to create at least one mesh to solve a problem" << std::endl;
-            return false;
+            logger(ERROR, "Error no mesh created : You need to create at least one mesh to solve a problem");
         }
         return true;
     }

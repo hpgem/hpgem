@@ -34,8 +34,6 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotSingleElementWriter.h"
 
-//temporary; should be removed before the intesive week is over
-#undef assert
 #include "Logger.h"
 
 namespace Base

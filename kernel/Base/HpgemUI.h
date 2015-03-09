@@ -90,9 +90,6 @@ namespace Base
 
         FaceIterator faceColBegin(MeshId mId = 0);
         FaceIterator faceColEnd(MeshId mId = 0);
-
-        /// \brief Virtual function that should be overwritten by specific problem, specifies initial conditions.
-        //virtual void initialCondition() const;
         
     protected:
         VectorOfMeshManipulatorT meshes_;
