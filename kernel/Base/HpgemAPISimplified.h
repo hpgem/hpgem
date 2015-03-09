@@ -26,6 +26,7 @@
 #include "Base/Element.h"
 #include "Base/Face.h"
 #include "Base/HpgemUI.h"
+#include "Base/RectangularMeshDescriptor.h"
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
 #include "Output/TecplotSingleElementWriter.h"
@@ -57,17 +58,29 @@ namespace Base
      */
     /** \details For an example of using this interface see the application 'TutorialAdvection'.
      */
-    class HpgemAPISimplified : public HpgemUI, Output::TecplotSingleElementWriter
+    class HpgemAPISimplified : public HpgemUI, public Output::TecplotSingleElementWriter
     {
     public:
         // Constructor
-        HpgemAPISimplified(const std::size_t dimension, const std::size_t numberOfUnknowns, const std::size_t polynomialOrder, const std::size_t numberOfTimeLevels, const bool useMatrixStorage = false);
+        HpgemAPISimplified
+        (
+         const std::size_t dimension,
+         const std::size_t numberOfUnknowns,
+         const std::size_t polynomialOrder,
+         const std::size_t numberOfTimeLevels,
+         const bool useMatrixStorage = false
+         );
 
-        /// \brief Create the mesh.
-        virtual void createMesh(std::size_t numOfElementsPerDirection, Base::MeshType meshType = Base::MeshType::RECTANGULAR)
+        /// \brief Create a domain
+        virtual Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection)
         {
-            logger(ERROR, "No routine for creating the mesh implemented.");
+            logger(ERROR, "No routine for creating the domain implemented.");
+            Base::RectangularMeshDescriptor description(configData_->dimension_);
+            return description;
         }
+        
+        /// \brief Create the mesh.
+        void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType);
         
         /// \brief Compute the source term at a given physical point.
         virtual double getSourceTerm(const double &time, const PointPhysicalT &pPhys)
@@ -84,7 +97,7 @@ namespace Base
             return realSolution;
         }
         
-        /// \brief Compute the real solution at a given point in space and time.
+        /// \brief Compute the initial solution at a given point in space and time.
         virtual LinearAlgebra::NumericalVector getInitialSolution(const double &startTime, const PointPhysicalT &pPhys)
         {
             logger(ERROR, "No initial solution implemented.");
@@ -157,7 +170,14 @@ namespace Base
         }
         
         /// \brief Compute the right-hand side corresponding to a face
-        virtual LinearAlgebra::NumericalVector computeRightHandSideAtFace(const Base::Face *ptrFace, const double time, const Base::Side side, LinearAlgebra::NumericalVector &solutionCoefficientsLeft, LinearAlgebra::NumericalVector &solutionCoefficientsRight)
+        virtual LinearAlgebra::NumericalVector computeRightHandSideAtFace
+        (
+         const Base::Face *ptrFace,
+         const double time,
+         const Base::Side side,
+         LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
+         LinearAlgebra::NumericalVector &solutionCoefficientsRight
+         )
         {
             logger(ERROR, "No function for computing the right-hand side at a face implemented.");
             LinearAlgebra::NumericalVector rightHandSideFace;
@@ -198,19 +218,13 @@ namespace Base
         }
         
         // \brief Solve the PDE.
-        virtual bool solve(const double startTime, const double endTime, double dt, const std::size_t numOfOutputFrames = 1)
+        virtual bool solve(const double startTime, const double endTime, double dt, const std::size_t numOfOutputFrames)
         {
             logger(ERROR, "No function for solving the problem implemented.");
             return false;
         }
         
     protected:
-        /// Initial time. The PDE is solved over the time interval [startTime,endTime].
-        double startTime_;
-
-        /// Final time. The PDE is solved over the time interval [startTime,endTime].
-        double endTime_;
-
         /// Boolean to indicate if matrices (e.g. mass matrix, stiffness matrix etc) should be stored.
         const bool useMatrixStorage_;
 

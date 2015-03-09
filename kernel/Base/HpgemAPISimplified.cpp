@@ -33,6 +33,11 @@
 #include "Integration/FaceIntegral.h"
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotSingleElementWriter.h"
+#include "Utilities/BasisFunctions1DH1ConformingLine.h"
+#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
+#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
+#include "Utilities/BasisFunctions3DH1ConformingCube.h"
+#include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 
 #include "Logger.h"
 
@@ -47,13 +52,80 @@ namespace Base
     auto& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file (without extentions)", false, "output");
     
     /// \param[in] dimension Dimension of the domain
-    /// \param[in] numberOfVariables Number of variables in the PDE
+    /// \param[in] numOfVariables Number of variables in the PDE
     /// \param[in] polynomialOrder Polynomial order of the basis functions
-    /// \param[in] numberOfTimeLevels Number of time levels
+    /// \param[in] numOfTimeLevels Number of time levels
     /// \param[in] useMatrixStorage Boolean to indicate if element and face matrices for the PDE should be stored
-    HpgemAPISimplified::HpgemAPISimplified(const std::size_t dimension, const std::size_t numberOfVariables, const std::size_t polynomialOrder, const std::size_t numberOfTimeLevels, const bool useMatrixStorage)
-            : HpgemUI(new Base::GlobalData, new Base::ConfigurationData(dimension, numberOfVariables, polynomialOrder, numberOfTimeLevels)), startTime_(0.0), endTime_(0.0), useMatrixStorage_(useMatrixStorage), massMatrixID_(1), stiffnessElementMatrixID_(0), stiffnessFaceMatrixID_(0)
+    HpgemAPISimplified::HpgemAPISimplified
+    (
+     const std::size_t dimension,
+     const std::size_t numOfVariables,
+     const std::size_t polynomialOrder,
+     const std::size_t numOfTimeLevels,
+     const bool useMatrixStorage
+     ) :
+    HpgemUI(new Base::GlobalData, new Base::ConfigurationData(dimension, numOfVariables, polynomialOrder, numOfTimeLevels)),
+    useMatrixStorage_(useMatrixStorage),
+    massMatrixID_(1),
+    stiffnessElementMatrixID_(0),
+    stiffnessFaceMatrixID_(0)
     {
+    }
+    
+    void HpgemAPISimplified::createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType)
+    {
+        const Base::RectangularMeshDescriptor description = createMeshDescription(numOfElementsPerDirection);
+        
+        // Set the number of Element/Face Matrices/Vectors.
+        std::size_t numOfElementMatrices;
+        std::size_t numOfElementVectors;
+        std::size_t numOfFaceMatrices;
+        std::size_t numOfFaceVectors;
+        if (useMatrixStorage_)
+        {
+            numOfElementMatrices = 2;   // Mass matrix and stiffness matrix
+            numOfElementVectors = 0;
+            numOfFaceMatrices = 1;      // Stiffness matrix
+            numOfFaceVectors = 0;
+        }
+        else
+        {
+            numOfElementMatrices = 0;
+            numOfElementVectors = 0;
+            numOfFaceMatrices = 0;
+            numOfFaceVectors = 0;
+        }
+        
+        // Create mesh and set basis functions.
+        if (configData_->dimension_ == 2)
+        {
+            if (meshType == Base::MeshType::TRIANGULAR)
+            {
+                addMesh(description, Base::TRIANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
+                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(configData_->polynomialOrder_));
+            }
+            else if (meshType == Base::MeshType::RECTANGULAR)
+            {
+                addMesh(description, Base::RECTANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
+                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(configData_->polynomialOrder_));
+            }
+        }
+        else if (configData_->dimension_ == 3)
+        {
+            if (meshType == Base::MeshType::TRIANGULAR)
+            {
+                addMesh(description, Base::TRIANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
+                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(configData_->polynomialOrder_));
+            }
+            else if (meshType == Base::MeshType::RECTANGULAR)
+            {
+                addMesh(description, Base::RECTANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
+                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(configData_->polynomialOrder_));
+            }
+        }
+        
+        std::size_t nElements = meshes_[0]->getNumberOfElements();
+        std::cout << "Total number of elements: " << nElements << "\n";
     }
     
     void HpgemAPISimplified::createMassMatrices(const double time)

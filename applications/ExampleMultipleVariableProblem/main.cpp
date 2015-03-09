@@ -25,7 +25,7 @@
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
 #include "Base/Face.h"
-#include "Base/HpgemUI.h"
+#include "Base/HpgemAPISimplified.h"
 #include "Base/MpiContainer.h"
 #include "Base/RectangularMeshDescriptor.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
@@ -75,16 +75,30 @@
  \li The function 'solve' is then used to solve the PDE.
  \li The function 'computeEnergyNormError' is used to compute and display the error.
  */
-class ExampleMultipleVariableProblem : public Base::HpgemUI, public Output::TecplotSingleElementWriter
+class ExampleMultipleVariableProblem : public Base::HpgemAPISimplified
 {
 public:
-    /// \param[in] DIM Dimension of the domain
-    /// \param[in] n Number of elements per direction
-    /// \param[in] p Polynomial order of the basis functions
-    /// \param[in] ptrButcherTableau Pointer to a Butcher Tableau used to solve the time integration
+    /// \param[in] dimension Dimension of the domain
+    /// \param[in] numberOfVariables Number of variables in the PDE
+    /// \param[in] polynomialOrder Polynomial order of the basis functions
+    /// \param[in] numberOfTimeLevels Number of time levels
     /// \param[in] useMatrixStorage Boolean to indicate if element and face matrices for the PDE should be stored
-    ExampleMultipleVariableProblem(const std::size_t DIM, const std::size_t n, const std::size_t p, const Base::ButcherTableau * const ptrButcherTableau, const bool useMatrixStorage = false)
-            : HpgemUI(new Base::GlobalData, new Base::ConfigurationData(DIM, DIM + 1, p, ptrButcherTableau->getNumStages() + 1)), DIM_(DIM), numOfVariables_(DIM + 1), n_(n), p_(p), elementIntegrator_(), faceIntegrator_(), ptrButcherTableau_(ptrButcherTableau), T_(0.0), cInv_(1.0), useMatrixStorage_(useMatrixStorage), stiffnessElementMatrixID_(0), stiffnessFaceMatrixID_(0), massMatrixID_(1)
+    /// \param[in] ptrButcherTableau Pointer to a Butcher Tableau used to do the time integration
+    ExampleMultipleVariableProblem
+    (
+     const std::size_t dimension,
+     const std::size_t numOfVariables,
+     const std::size_t polynomialOrder,
+     const bool useMatrixStorage,
+     const Base::ButcherTableau * const ptrButcherTableau
+     ) :
+    HpgemAPISimplified(dimension, numOfVariables, polynomialOrder, ptrButcherTableau->getNumStages() + 1, useMatrixStorage),
+    DIM_(dimension),
+    numOfVariables_(numOfVariables),
+    elementIntegrator_(),
+    faceIntegrator_(),
+    ptrButcherTableau_(ptrButcherTableau),
+    cInv_(1.0)
     {
         solutionTimeLevel_ = 0;
         for (std::size_t i = 1; i < configData_->numberOfTimeLevels_; i++)
@@ -93,69 +107,20 @@ public:
         }
     }
     
-    /// \brief Create the mesh.
-    void createMesh(Base::MeshType meshType = Base::MeshType::RECTANGULAR)
+    /// \brief Create a domain
+    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override
     {
-        // Create the domain. In this case the domain is the square [0,1]^DIM.
+        // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
         Base::RectangularMeshDescriptor description(DIM_);
         for (int i = 0; i < DIM_; ++i)
         {
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
-            description.numElementsInDIM_[i] = n_;
+            description.numElementsInDIM_[i] = numOfElementPerDirection;
             description.boundaryConditions_[i] = Base::RectangularMeshDescriptor::PERIODIC;
         }
         
-        // Set the number of Element/Face Matrices/Vectors.
-        std::size_t numOfElementMatrices;
-        std::size_t numOfElementVectors;
-        std::size_t numOfFaceMatrices;
-        std::size_t numOfFaceVectors;
-        if (useMatrixStorage_)
-        {
-            numOfElementMatrices = 2; // Mass matrix and stiffness matrix
-            numOfElementVectors = 1; // Source term (not used in this example)
-            numOfFaceMatrices = 1; // Stiffness matrix
-            numOfFaceVectors = 1; // Boundary conditions (not used in this example)
-        }
-        else
-        {
-            numOfElementMatrices = 0;
-            numOfElementVectors = 0;
-            numOfFaceMatrices = 0;
-            numOfFaceVectors = 0;
-        }
-        
-        // Create mesh and set basis functions.
-        if (DIM_ == 2)
-        {
-            if (meshType == Base::MeshType::TRIANGULAR)
-            {
-                addMesh(description, Base::TRIANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(p_));
-            }
-            else if (meshType == Base::MeshType::RECTANGULAR)
-            {
-                addMesh(description, Base::RECTANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(p_));
-            }
-        }
-        else if (DIM_ == 3)
-        {
-            if (meshType == Base::MeshType::TRIANGULAR)
-            {
-                addMesh(description, Base::TRIANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(p_));
-            }
-            else if (meshType == Base::MeshType::RECTANGULAR)
-            {
-                addMesh(description, Base::RECTANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(p_));
-            }
-        }
-        
-        std::size_t nElements = meshes_[0]->getNumberOfElements();
-        std::cout << "Total number of elements: " << nElements << "\n";
+        return description;
     }
     
     /// \brief Set the material parameter.
@@ -172,13 +137,13 @@ public:
     }
     
     /// \brief Compute the source term at a given physical point.
-    double getSourceTerm(const double &time, const PointPhysicalT &pPhys)
+    double getSourceTerm(const double &time, const PointPhysicalT &pPhys) override
     {
         return 0.0;
     }
     
     /// \brief Compute the real solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getRealSolution(const double &time, const PointPhysicalT &pPhys)
+    LinearAlgebra::NumericalVector getRealSolution(const double &time, const PointPhysicalT &pPhys) override
     {
         LinearAlgebra::NumericalVector realSolution(numOfVariables_);
         double c = std::sqrt(1.0 / cInv_); // Wave velocity.
@@ -203,6 +168,12 @@ public:
         }
         
         return realSolution;
+    }
+    
+    /// \brief Compute the initial solution at a given point in space and time.
+    LinearAlgebra::NumericalVector getInitialSolution(const double &startTime, const PointPhysicalT &pPhys) override
+    {
+        return getRealSolution(startTime, pPhys);
     }
     
     /// \brief Compute the integrand for the mass matrix for the reference element.
@@ -513,68 +484,24 @@ public:
     }
     
     /// \brief Compute the mass matrix for a single element.
-    LinearAlgebra::Matrix computeMassMatrixElement(const Base::Element *ptrElement, const double time)
+    LinearAlgebra::Matrix computeMassMatrixAtElement(const Base::Element *ptrElement, const double time) override
     {
-        // Define the integrand function for the mass matrix (I do not know an easier way to define this).
-        std::function<LinearAlgebra::Matrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix
-        {   return this->integrandMassMatrixOnRefElement(ptrElement, time, pRef);};
+        std::function<LinearAlgebra::Matrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix{ return this -> integrandMassMatrixOnRefElement(ptrElement, time, pRef);};
         
         return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
-    }
-    
-    /// \brief Compute and store the mass matrices.
-    void createMassMatrices(const double time)
-    {
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
-        {
-            LinearAlgebra::Matrix massMatrix(computeMassMatrixElement(ptrElement, time));
-            ptrElement->setElementMatrix(massMatrix, massMatrixID_);
-        }
-    }
-    
-    /// \brief Solve the mass matrix equations.
-    /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix.
-    void solveMassMatrixEquations(const std::size_t timeLevel, const double time)
-    {
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
-        {
-            LinearAlgebra::NumericalVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevel));
-            
-            if (useMatrixStorage_)
-            {
-                const LinearAlgebra::Matrix &massMatrix(ptrElement->getElementMatrix(massMatrixID_));
-                massMatrix.solve(solutionCoefficients);
-            }
-            else
-            {
-                LinearAlgebra::Matrix massMatrix(computeMassMatrixElement(ptrElement, time));
-                massMatrix.solve(solutionCoefficients);
-            }
-        }
     }
     
     /// \brief Integrate the initial solution for a single element.
-    LinearAlgebra::NumericalVector integrateInitialSolutionOnElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
+    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override
     {
         // Define the integrand function for the the initial solution integral.
-        std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
-        {   return this->integrandInitialSolutionOnRefElement(ptrElement, startTime, pRef);};
+        std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector { return this -> integrandInitialSolutionOnRefElement(ptrElement, startTime, pRef);};
         
         return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
     }
     
-    /// \brief Integrate the initial solution.
-    void integrateInitialSolution(const std::size_t timeLevelResult, const double startTime, const std::size_t orderTimeDerivative)
-    {
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
-        {
-            LinearAlgebra::NumericalVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(timeLevelResult);
-            solutionCoefficients = integrateInitialSolutionOnElement(ptrElement, startTime, orderTimeDerivative);
-        }
-    }
-    
     /// \brief Compute the stiffness matrix corresponding to an element.
-    LinearAlgebra::Matrix computeStiffnessMatrixElement(const Base::Element *ptrElement, const double time)
+    LinearAlgebra::Matrix computeStiffnessMatrixAtElement(const Base::Element *ptrElement, const double time) override
     {
         // Define the integrand function for the stiffness matrix for the element.
         std::function<LinearAlgebra::Matrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix
@@ -584,7 +511,7 @@ public:
     }
     
     /// \brief Compute the stiffness matrix corresponding to a face.
-    Base::FaceMatrix computeStiffnessMatrixFace(const Base::Face *ptrFace, const double time)
+    Base::FaceMatrix computeStiffnessMatrixAtFace(const Base::Face *ptrFace, const double time) override
     {
         std::size_t numOfBasisFunctionsLeft = 0;
         std::size_t numOfBasisFunctionsRight = 0;
@@ -620,31 +547,10 @@ public:
         return stiffnessFaceMatrix;
     }
     
-    /// \brief Compute and store matrices and vectors for computing the right hand side.
-    void createStiffnessMatrices(const double time)
-    {
-        std::cout << "- Creating stiffness matrices for the elements.\n";
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
-        {
-            LinearAlgebra::Matrix stiffnessMatrix(computeStiffnessMatrixElement(ptrElement, time));
-            ptrElement->setElementMatrix(stiffnessMatrix, stiffnessElementMatrixID_);
-        }
-        
-        std::cout << "- Creating stiffness matrices for the faces.\n";
-        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
-        {
-            Base::FaceMatrix stiffnessFaceMatrix(computeStiffnessMatrixFace(ptrFace, time));
-            ptrFace->setFaceMatrix(stiffnessFaceMatrix, stiffnessFaceMatrixID_);
-        }
-    }
-    
     /// \brief Integrate the energy of the error on a single element.
     /// \details The error is defined as error = realSolution - numericalSolution. The energy of the vector (u, s0, s1) is defined as u^2 + c^{-1} * |s|^2.
-    LinearAlgebra::NumericalVector integrateErrorOnElement(const Base::Element *ptrElement, double time, LinearAlgebra::NumericalVector &solutionCoefficients)
+    LinearAlgebra::NumericalVector integrateEnergyErrorAtElement(const Base::Element *ptrElement, double time, LinearAlgebra::NumericalVector &solutionCoefficients) override
     {
-        if (time < 0)
-            time = T_;
-        
         // Define the integrand function for the error energy.
         std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
         {   return this->integrandErrorOnRefElement(ptrElement, time, pRef, solutionCoefficients);};
@@ -652,77 +558,8 @@ public:
         return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
     }
     
-    /// \brief Compute the energy-norm of the error at final time T_.
-    /// \param[in] time Time corresponding to the current solution. If no input is given the time will be set to final time T_.
-    /// \details The error is defined as error = realSolution - numericalSolution. The energy of the vector (u, s0, s1) is defined as u^2 + c^{-1} * |s|^2. The total energy is the integral over the energy over the entire domain (this energy is conserved in this numerical scheme on a discrete level). The energy-norm is the square root of the total energy.
-    double computeEnergyNormError(double time = -1.0)
-    {
-        LinearAlgebra::NumericalVector totalEnergy(1);
-        totalEnergy(0) = 0;
-        
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
-        {
-            LinearAlgebra::NumericalVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(solutionTimeLevel_);
-            totalEnergy += integrateErrorOnElement(ptrElement, time, solutionCoefficients);
-        }
-        
-#ifdef HPGEM_USE_MPI
-        int world_rank;
-        MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-        int world_size;
-        MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-
-        double energyToAdd;
-        for(std::size_t iRank = 1; iRank < world_size; iRank++)
-        {   
-            if(world_rank == 0)
-            {   
-                MPI_Recv(&energyToAdd, 1, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                totalEnergy(0) += energyToAdd;
-            }
-            else if(world_rank == iRank)
-            {   
-                energyToAdd = totalEnergy(0);
-                MPI_Send(&energyToAdd, 1, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD);
-            }
-        }
-
-        if(world_rank == 0)
-        {   
-            double error;
-            if(totalEnergy(0) >= 0)
-            {   
-                error = std::sqrt(totalEnergy(0));
-            }
-            else
-            {   
-                logger(WARN,"Warning: the total energy of the error is negative.\n");
-                error = std::sqrt(-totalEnergy(0));
-            }
-            std::cout << "Energy norm of the error: " << error << ".\n";
-            return error;
-        }
-        else
-        {   
-            return -1.0;
-        }
-#endif
-        double error;
-        if (totalEnergy(0) >= 0)
-        {
-            error = std::sqrt(totalEnergy(0));
-        }
-        else
-        {
-            logger(WARN, "Warning: the total energy of the error is negative.\n");
-            error = std::sqrt(-totalEnergy(0));
-        }
-        std::cout << "Energy norm of the error: " << error << ".\n";
-        return error;
-    }
-    
     /// \brief Compute the right-hand side corresponding to an element
-    LinearAlgebra::NumericalVector computeRightHandSideElement(const Base::Element *ptrElement, const double time, LinearAlgebra::NumericalVector &solutionCoefficients)
+    LinearAlgebra::NumericalVector computeRightHandSideAtElement(const Base::Element *ptrElement, const double time, LinearAlgebra::NumericalVector &solutionCoefficients) override
     {
         if (useMatrixStorage_)
         {
@@ -739,7 +576,14 @@ public:
     }
     
     /// \brief Compute the right-hand side corresponding to a face
-    LinearAlgebra::NumericalVector computeRightHandSideFace(const Base::Face *ptrFace, const double time, const Base::Side side, LinearAlgebra::NumericalVector &solutionCoefficientsLeft, LinearAlgebra::NumericalVector &solutionCoefficientsRight)
+    LinearAlgebra::NumericalVector computeRightHandSideAtFace
+    (
+     const Base::Face *ptrFace,
+     const double time,
+     const Base::Side side,
+     LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
+     LinearAlgebra::NumericalVector &solutionCoefficientsRight
+     ) override
     {
         if (useMatrixStorage_)
         {
@@ -755,154 +599,6 @@ public:
             
             return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
         }
-    }
-    
-    /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
-    void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
-    {
-        // Apply the right hand side corresponding to integration on the elements.
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
-        {
-            LinearAlgebra::NumericalVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevelIn));
-            LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
-            
-            solutionCoefficientsNew = computeRightHandSideElement(ptrElement, time, solutionCoefficients);
-        }
-        
-        // Apply the right hand side corresponding to integration on the faces.
-        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
-        {
-            LinearAlgebra::NumericalVector &solutionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelIn));
-            LinearAlgebra::NumericalVector &solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelIn));
-            LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
-            LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
-            
-            solutionCoefficientsLeftNew += computeRightHandSideFace(ptrFace, time, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight);
-            solutionCoefficientsRightNew += computeRightHandSideFace(ptrFace, time, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight);
-        }
-    }
-    
-    /// \brief Get a linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels.
-    LinearAlgebra::NumericalVector getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels)
-    {
-        logger.assert(timeLevelsIn.size() == coefficientsTimeLevels.size(), "Number of time levels and number of coefficients should be the same.");
-        logger.assert(timeLevelsIn.size() > 0, "Number of time levels should be bigger than zero.");
-        
-        LinearAlgebra::NumericalVector solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevelsIn[0]));
-        solutionCoefficients *= coefficientsTimeLevels[0];
-        for (std::size_t i = 1; i < timeLevelsIn.size(); i++)
-        {
-            solutionCoefficients.axpy(coefficientsTimeLevels[i], ptrElement->getTimeLevelDataVector(timeLevelsIn[i]));
-        }
-        return solutionCoefficients;
-    }
-    
-    /// \brief Compute the right hand side for the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
-    /// \details Make sure timeLevelResult is different from the timeLevelsIn.
-    void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
-    {
-        // Apply the right hand side corresponding to integration on the elements.
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
-        {
-            LinearAlgebra::NumericalVector solutionCoefficients(getSolutionCoefficients(ptrElement, timeLevelsIn, coefficientsTimeLevels));
-            LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
-            
-            solutionCoefficientsNew = computeRightHandSideElement(ptrElement, time, solutionCoefficients);
-        }
-        
-        // Apply the right hand side corresponding to integration on the faces.
-        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
-        {
-            LinearAlgebra::NumericalVector solutionCoefficientsLeft(getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
-            LinearAlgebra::NumericalVector solutionCoefficientsRight(getSolutionCoefficients(ptrFace->getPtrElementRight(), timeLevelsIn, coefficientsTimeLevels));
-            LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
-            LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
-            
-            solutionCoefficientsLeftNew += computeRightHandSideFace(ptrFace, time, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight);
-            solutionCoefficientsRightNew += computeRightHandSideFace(ptrFace, time, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight);
-        }
-    }
-    
-    /// \brief Synchronize between the different submeshes (when using MPI)
-    void synchronize(const std::size_t timeLevel)
-    {
-#ifdef HPGEM_USE_MPI
-        //Now, set it up.
-        Base::MeshManipulator * meshManipulator = meshes_[0];
-        Base::Submesh& mesh = meshManipulator->getMesh().getSubmesh();
-
-        const auto& pushes = mesh.getPushElements();
-        const auto& pulls = mesh.getPullElements();
-
-        //recieve first for lower overhead
-        for (const auto& it : pulls)
-        {   
-            for (Base::Element* ptrElement : it.second)
-            {   
-                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_ , "Size of time level data vector is wrong.");
-
-                Base::MPIContainer::Instance().receive(ptrElement->getTimeLevelDataVector(timeLevel), it.first, ptrElement->getID());
-            }
-        }
-        for (const auto& it : pushes)
-        {   
-            for (Base::Element* ptrElement : it.second)
-            {   
-                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_, "Size of time level data vector is wrong.");
-
-                Base::MPIContainer::Instance().send(ptrElement->getTimeLevelDataVector(timeLevel), it.first, ptrElement->getID());
-            }
-        }
-        Base::MPIContainer::Instance().sync();
-#endif
-    }
-    
-    /// \brief Scale the solution coefficients of a given time level.
-    void scaleTimeLevel(const std::size_t timeLevel, const double scale)
-    {
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
-        {
-            ptrElement->getTimeLevelDataVector(timeLevel) *= scale;
-        }
-        
-        synchronize(timeLevel);
-    }
-    
-    /// \brief scale and add solution coefficients of a certain time level to the coefficients of another time level.
-    void scaleAndAddTimeLevel(const std::size_t timeLevelToChange, const std::size_t timeLevelToAdd, const double scale)
-    {
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
-        {
-            ptrElement->getTimeLevelDataVector(timeLevelToChange).axpy(scale, ptrElement->getTimeLevelDataVector(timeLevelToAdd));
-        }
-        
-        synchronize(timeLevelToChange);
-    }
-    
-    /// \brief Set the initial numerical solution (w at t=0).
-    void setInitialSolution(const double startTime)
-    {
-        integrateInitialSolution(solutionTimeLevel_, startTime, 0);
-        solveMassMatrixEquations(solutionTimeLevel_, startTime);
-        synchronize(solutionTimeLevel_);
-    }
-    
-    /// \brief Compute the time derivative for a given time level.
-    /// \details Computing the time derivative in this case means applying the right hand side for the solution at time level 'timeLevelIn' and then solving the mass matrix equations. The result is stored at time level 'timeLevelResult'.
-    void computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
-    {
-        computeRightHandSide(timeLevelIn, timeLevelResult, time);
-        solveMassMatrixEquations(timeLevelResult, time);
-        synchronize(timeLevelResult);
-    }
-    
-    /// \brief Compute the time derivative for a given linear combination of solutions at different time levels.
-    /// \details Computing the time derivative in this case means applying the right hand side for the linear combination of solutions at time levels 'timeLevelsIn' with coefficients given by coefficientsTimeLevels, and then solving the mass matrix equations. The result is stored at time level 'timeLevelResult'.
-    void computeTimeDerivative(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
-    {
-        computeRightHandSide(timeLevelsIn, coefficientsTimeLevels, timeLevelResult, time);
-        solveMassMatrixEquations(timeLevelResult, time);
-        synchronize(timeLevelResult);
     }
     
     /// \brief Compute one time step
@@ -939,164 +635,8 @@ public:
         time += dt;
     }
     
-    /*
-     /// \brief Compute one time step.
-     void computeOneTimeStep(double &time, const double dt)
-     {
-     std:size_t numOfStages = ptrButcherTableau_->numStages();
-     std::size_t numOfBasisFunctions;
-     std::size_t numOfBasisFunctionsLeft;
-     std::size_t numOfBasisFunctionsRight;
-     
-     LinearAlgebra::NumericalVector solutionCoefficients;
-     LinearAlgebra::NumericalVector solutionCoefficientsLeft;
-     LinearAlgebra::NumericalVector solutionCoefficientsRight;
-     LinearAlgebra::NumericalVector solutionCoefficientsNew;
-     LinearAlgebra::NumericalVector solutionCoefficientsLeftNew;
-     LinearAlgebra::NumericalVector solutionCoefficientsRightNew;
-     
-     LinearAlgebra::Matrix massMatrix;
-     LinearAlgebra::Matrix stiffnessMatrix;
-     Base::FaceMatrix stiffnessFaceMatrix;
-     
-     // LinearAlgebra::NumericalVector testValuesIntermediate(numOfStages); // For testing
-     
-     // Define the integrand function for the mass matrix.
-     std::function<LinearAlgebra::Matrix (const Base::Element *, const std::size_t &, const Geometry::PointReference &)> integrandFunctionMassMatrix = [=](const Base::Element * ptrElement, const std::size_t & time, const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix{return this->integrandMassMatrixOnRefElement(ptrElement, time, pRef);};
-     
-     // Define the integrand function for the right hand side for the reference element.
-     std::function<LinearAlgebra::NumericalVector (const Base::Element *, const std::size_t &, const Geometry::PointReference &, const LinearAlgebra::NumericalVector &)> integrandFunctionRefElement = [=](const Base::Element *ptrElement, const std::size_t &time, const Geometry::PointReference & pRef, const LinearAlgebra::NumericalVector &solutionCoefficients) -> LinearAlgebra::NumericalVector{return this->integrandRightHandSideOnRefElement(ptrElement, time, pRef, solutionCoefficients);};
-     
-     // Define the integrand function for the right hand side for the reference face corresponding to an internal face.
-     std::function<LinearAlgebra::NumericalVector (const Base::Face *, const std::size_t &, const Geometry::PointReference &, const Base::Side &, const LinearAlgebra::NumericalVector &, const LinearAlgebra::NumericalVector &)> integrandFunctionRefFaceInternal = [=](const Base::Face *ptrFace, const std::size_t &time, const Geometry::PointReference &pRef, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficientsLeft, const LinearAlgebra::NumericalVector &solutionCoefficientsRight) -> LinearAlgebra::NumericalVector{return this->integrandRightHandSideOnRefFace(ptrFace, time, pRef, iSide, solutionCoefficientsLeft, solutionCoefficientsRight);};
-     
-     double stageTime; // Time corresponding to the intermediate stages of the Butcher tableau.
-     
-     // Compute intermediate stages for the time integration.
-     for(std::size_t iStage = 0; iStage < numOfStages; iStage++)
-     {
-     stageTime = time + ptrButcherTableau_->c(iStage) * dt;
-     
-     // Apply the right hand side corresponding to integration on the elements.
-     // std::cout << "Apply the right hand side corresponding to integration on the elements.\n";
-     for(Base::Element *ptrElement : meshes_[0]->getElementsList())
-     {
-     numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
-     
-     solutionCoefficients.resize(numOfVariables_ * numOfBasisFunctions);
-     solutionCoefficientsNew.resize(numOfVariables_ * numOfBasisFunctions);
-     
-     solutionCoefficients = ptrElement->getTimeLevelDataVector(solutionTimeLevel_);
-     for(std::size_t jStage = 0; jStage < iStage; jStage++)
-     {
-     solutionCoefficients += dt * ptrElement->getTimeLevelDataVector(jStage + 1) * ptrButcherTableau_->a(iStage, jStage);
-     }
-     
-     if(useMatrixStorage_)
-     {
-     stiffnessMatrix.resize(numOfBasisFunctions * numOfVariables_, numOfBasisFunctions * numOfVariables_);
-     stiffnessMatrix = ptrElement->getElementMatrix(stiffnessElementMatrixID_);
-     
-     solutionCoefficientsNew = stiffnessMatrix * solutionCoefficients;
-     }
-     else
-     {
-     solutionCoefficientsNew = referenceElementIntegral(ptrElement, stageTime, solutionCoefficients, integrandFunctionRefElement);
-     }
-     ptrElement->setTimeLevelDataVector(iStage + 1, solutionCoefficientsNew);
-     }
-     
-     // Apply the right hand side corresponding to integration on the faces.
-     // std::cout << "Apply the right hand side corresponding to integration on the faces.\n";
-     for(Base::Face *ptrFace : meshes_[0]->getFacesList())
-     {
-     if(ptrFace->isInternal())
-     {
-     numOfBasisFunctionsLeft = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions();
-     numOfBasisFunctionsRight = ptrFace->getPtrElementRight()->getNrOfBasisFunctions();
-     
-     solutionCoefficientsLeft.resize(numOfVariables_ * numOfBasisFunctionsLeft);
-     solutionCoefficientsLeftNew.resize(numOfVariables_ * numOfBasisFunctionsLeft);
-     solutionCoefficientsRight.resize(numOfVariables_ * numOfBasisFunctionsRight);
-     solutionCoefficientsRightNew.resize(numOfVariables_ * numOfBasisFunctionsRight);
-     
-     solutionCoefficientsLeft = ptrFace->getPtrElementLeft()->getTimeLevelDataVector(solutionTimeLevel_);
-     solutionCoefficientsRight = ptrFace->getPtrElementRight()->getTimeLevelDataVector(solutionTimeLevel_);
-     for(std::size_t jStage = 0; jStage < iStage; jStage++)
-     {
-     solutionCoefficientsLeft += dt * ptrFace->getPtrElementLeft()->getTimeLevelDataVector(jStage + 1) * ptrButcherTableau_->a(iStage, jStage);
-     solutionCoefficientsRight += dt * ptrFace->getPtrElementRight()->getTimeLevelDataVector(jStage + 1) * ptrButcherTableau_->a(iStage, jStage);
-     }
-     
-     solutionCoefficientsLeftNew = ptrFace->getPtrElementLeft()->getTimeLevelDataVector(iStage + 1);
-     solutionCoefficientsRightNew = ptrFace->getPtrElementRight()->getTimeLevelDataVector(iStage + 1);
-     if(useMatrixStorage_)
-     {
-     stiffnessFaceMatrix.resize(numOfBasisFunctionsLeft * numOfVariables_, numOfBasisFunctionsRight * numOfVariables_);
-     stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
-     
-     solutionCoefficientsLeftNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * solutionCoefficientsRight;
-     solutionCoefficientsRightNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * solutionCoefficientsRight;
-     }
-     else
-     {
-     solutionCoefficientsLeftNew += referenceFaceIntegral(ptrFace, stageTime, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, integrandFunctionRefFaceInternal);
-     solutionCoefficientsRightNew += referenceFaceIntegral(ptrFace, stageTime, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, integrandFunctionRefFaceInternal);
-     }
-     ptrFace->getPtrElementLeft()->setTimeLevelDataVector(iStage + 1, solutionCoefficientsLeftNew);
-     ptrFace->getPtrElementRight()->setTimeLevelDataVector(iStage + 1, solutionCoefficientsRightNew);
-     }
-     else
-     {
-     std::cout << "Warning: there are internal faces.\n";
-     }
-     }
-     
-     // Solve the mass matrix systems of equations.
-     // std::cout << "Solve the mass matrix systems of equations.\n";
-     for(Base::Element *ptrElement : meshes_[0]->getElementsList())
-     {
-     numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
-     
-     solutionCoefficientsNew.resize(numOfBasisFunctions);
-     massMatrix.resize(numOfVariables_ * numOfBasisFunctions, numOfVariables_ * numOfBasisFunctions);
-     
-     if(useMatrixStorage_)
-     {
-     massMatrix = ptrElement->getElementMatrix(massMatrixID_);
-     }
-     else
-     {
-     massMatrix = referenceElementIntegral(ptrElement, stageTime, integrandFunctionMassMatrix);
-     }
-     solutionCoefficientsNew = ptrElement->getTimeLevelDataVector(iStage + 1);
-     massMatrix.solve(solutionCoefficientsNew);
-     
-     ptrElement->setTimeLevelDataVector(iStage + 1, solutionCoefficientsNew);
-     }
-     }
-     
-     // Update the solution.
-     for(Base::Element *ptrElement : meshes_[0]->getElementsList())
-     {
-     numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
-     solutionCoefficientsNew.resize(numOfVariables_ * numOfBasisFunctions);
-     
-     solutionCoefficientsNew = ptrElement->getTimeLevelDataVector(solutionTimeLevel_);
-     for(std::size_t jStage = 0; jStage < numOfStages; jStage++)
-     {
-     solutionCoefficientsNew += dt * ptrElement->getTimeLevelDataVector(jStage + 1) * ptrButcherTableau_->b(jStage);
-     }
-     ptrElement->setTimeLevelDataVector(solutionTimeLevel_, solutionCoefficientsNew);
-     }
-     
-     // Update the time.
-     time += dt;
-     }
-     */
-
     /// \brief Write output to a tecplot file.
-    void writeToTecplotFile(const ElementT *ptrElement, const PointReferenceT &pRef, std::ostream &out)
+    void writeToTecplotFile(const ElementT *ptrElement, const PointReferenceT &pRef, std::ostream &out) override
     {
         LinearAlgebra::NumericalVector solution(numOfVariables_);
         solution = ptrElement->getSolution(solutionTimeLevel_, pRef);
@@ -1113,7 +653,7 @@ public:
     /// \param[in] T Final time. The solution is solved over the interval [0,T].
     /// \param[in] dt Time step size.
     /// \param[in] numOutputFrames Number of times the solution is written to an output file.
-    bool solve(const double T, double dt, const std::size_t numOfOutputFrames = 1)
+    bool solve(const double startTime, const double endTime, double dt, const std::size_t numOfOutputFrames) override
     {
         // Create output file.
         std::string outFileName = "output";
@@ -1137,7 +677,7 @@ public:
         Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", dimensionsToWrite, variableString);
         
         // Compute parameters for time integration
-        T_ = T;
+        double T = endTime - startTime;
         std::size_t numOfTimeSteps = T / dt;
         std::size_t numOfTimeStepsForOutput;
         if (numOfOutputFrames > 0)
@@ -1153,7 +693,7 @@ public:
         }
         
         // Set the initial time.
-        double time = 0.0;
+        double time = startTime;
         
         // Create and store matrices and vectors for the PDE.
         if (useMatrixStorage_)
@@ -1165,9 +705,8 @@ public:
         }
         
         // Set the initial numerical solution.
-        testValue_ = 1.0;
         std::cout << "Computing and interpolating the initial solution.\n";
-        setInitialSolution(time);
+        setInitialSolution(solutionTimeLevel_, time);
         writeFunc.write(meshes_[0], "discontinuous solution", false, this, time);
         
         // Solve the system of PDE's.
@@ -1190,22 +729,19 @@ public:
             }
         }
         
+        // Compute the energy norm of the error
+        computeEnergyNormError(solutionTimeLevel_, endTime);
+        
         return true;
     }
     
 private:
     /// Dimension of the domain
     const std::size_t DIM_;
-
+    
     /// Number of variables
     const std::size_t numOfVariables_;
-
-    /// Number of elements per cardinal direction
-    const std::size_t n_;
-
-    /// Polynomial order of the basis functions
-    const std::size_t p_;
-
+    
     /// Integrator for the elements
     Integration::ElementIntegral elementIntegrator_;
 
@@ -1215,9 +751,6 @@ private:
     /// Butcher tableau for time integraion. The integration method is assumed to be explicit.
     const Base::ButcherTableau * const ptrButcherTableau_;
 
-    /// Final time. The PDE is solved over the time interval [0,T].
-    double T_;
-
     /// Material parameter c^{-1}
     double cInv_;
 
@@ -1226,29 +759,15 @@ private:
 
     /// Indices to indicate where the intermediate results are stored.
     std::vector<std::size_t> intermediateTimeLevels_;
-
-    /// Boolean to indicate if matrices (e.g. mass matrix, stiffness matrix etc) should be stored.
-    const bool useMatrixStorage_;
-
-    /// Index to indicate where the mass matrix is stored
-    const std::size_t massMatrixID_;
-
-    /// Index to indicate where the stiffness matrix for the elements is stored
-    const std::size_t stiffnessElementMatrixID_;
-
-    /// Index to indicate where the stiffness matrix for the elements is stored
-    const std::size_t stiffnessFaceMatrixID_;
-
-    /// Value for testing and debugging
-    double testValue_;
 };
 
-auto& n = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
-auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
+auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
+auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 
 // Parse options seem to do weird things. Flag 'h' also communicates with Petsc. Several other flags are also already defined in the library, because they are defined in class HpgemUISimplified.
 auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 1);
-auto& T = Base::register_argument<double>('T', "finalTime", "end time of the simulation", false, 1.0);
+auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
+auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 1.0);
 auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.01);
 
 int main(int argc, char **argv)
@@ -1257,27 +776,26 @@ int main(int argc, char **argv)
     try
     {
         // Set parameters for the PDE.
-        const std::size_t DIM = 2;
+        const std::size_t dimension = 2;
         const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
         const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
         const bool useMatrixStorage = true;
-        
         const double c = 1.0;
         
-        // Create problem solver 'test'.
-        ExampleMultipleVariableProblem test(DIM, n.getValue(), p.getValue(), ptrButcherTableau, useMatrixStorage);
+        // Compute parameters for PDE
+        const std::size_t numOfVariables = dimension + 1;
+        
+        // Create problem solver 'test', that can solve the acoustic wave equations.
+        ExampleMultipleVariableProblem test(dimension, numOfVariables, polynomialOrder.getValue(), useMatrixStorage, ptrButcherTableau);
         
         // Create the mesh
-        test.createMesh(meshType);
+        test.createMesh(numOfElements.getValue(), meshType);
         
         // Set the material parameter
         test.setMaterialParameter(c);
         
         // Solve the problem over time interval [0,T].
-        test.solve(T.getValue(), dt.getValue(), numOfOutputFrames.getValue());
-        
-        // Compute the error.
-        test.computeEnergyNormError();
+        test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue());
         
         return 0;
     }

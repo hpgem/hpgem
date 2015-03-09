@@ -55,6 +55,14 @@ add_library(hpGEM_Base SHARED
 		ShortTermStorageFaceH1.cpp
 		ShortTermStorageElementHcurl.cpp
 		ShortTermStorageFaceHcurl.cpp
+
+
+        	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions1DH1ConformingLine.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingSquare.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingTriangle.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DH1ConformingCube.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DH1ConformingTetrahedron.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Utilities/helperFunctions.cpp
 	) 
 
 target_link_libraries(hpGEM_Base Geometry Reference_geometries TimeIntegration Logger)
