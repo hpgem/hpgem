@@ -43,6 +43,7 @@ namespace Utilities
     GlobalVector::GlobalVector(Base::MeshManipulator* theMesh, int elementVectorID, int faceVectorID)
             : theMesh_(theMesh), startPositionsOfElementsInTheVector_(), meshLevel_(-2), elementVectorID_(elementVectorID), faceVectorID_(faceVectorID)
     {
+        logger.assert(theMesh!=nullptr, "Invalid mesh passed");
     }
     
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
@@ -50,6 +51,7 @@ namespace Utilities
     GlobalPetscVector::GlobalPetscVector(Base::MeshManipulator* theMesh, int elementVectorID, int faceVectorID)
             : GlobalVector(theMesh, elementVectorID, faceVectorID)
     {
+        logger.assert(theMesh!=nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
         PetscInitialized(&petscRuns);
         if (petscRuns == PETSC_FALSE)
@@ -80,6 +82,7 @@ namespace Utilities
     
     std::vector<PetscInt> GlobalPetscVector::makePositionsInVector(const Base::Element* element)
     {
+        logger.assert(element!=nullptr, "invalid element passed");
         //we need storage for the amount of basis functions to return
         std::vector<PetscInt> positions(element->getNrOfBasisFunctions());
         

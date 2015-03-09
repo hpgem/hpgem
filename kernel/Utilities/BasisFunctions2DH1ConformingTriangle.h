@@ -45,6 +45,7 @@ namespace Utilities
         BasisFunction2DVertexTriangle(std::size_t node)
                 : node_(node)
         {
+            logger.assert(node < 3, "A triangle only has 3 nodes");
         }
         
         double eval(const Geometry::PointReference& p) const;
@@ -63,6 +64,8 @@ namespace Utilities
         BasisFunction2DFaceTriangle(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
                 : node0_(node0), node1_(node1), polynomialOrder_(polynomialOrder)
         {
+            logger.assert(node0 < 3, "A triangle only has 3 nodes");
+            logger.assert(node1 < 3, "A triangle only has 3 nodes");
         }
         
         double eval(const Geometry::PointReference& p) const;

@@ -31,6 +31,7 @@ namespace Utilities
     
     BasisFunction3DVertexPrism::BasisFunction3DVertexPrism(std::size_t node)
     {
+        logger.assert(node < 6, "A triangular prism only has 6 nodes");
         nodePosition_ = (node / 3) * 2 - 1;
         node_ = node % 3;
     }
@@ -78,6 +79,9 @@ namespace Utilities
     BasisFunction3DEdgePrism_1::BasisFunction3DEdgePrism_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : node_(node0 % 3), polynomialOrder_(polynomialOrder)
     {
+        logger.assert(node0 < 6, "A triangular prism only has 6 nodes");
+        logger.assert(node1 < 6, "A triangular prism only has 6 nodes");
+        logger.assert(node0 % 3 == node1 % 3, "This edge is aligned next to a triangular face");
         mirroring_ = node0 < node1 ? -1 : 1;
     }
     
@@ -104,6 +108,11 @@ namespace Utilities
     BasisFunction3DFacePrism_0::BasisFunction3DFacePrism_0(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1)
             : node0_(node0 % 3), node1_(node1 % 3), node2_(node2 % 3), polynomialOrder0_(polynomialOrder0), polynomialOrder1_(polynomialOrder1)
     {
+        logger.assert(node0 < 6, "A triangular prism only has 6 nodes");
+        logger.assert(node1 < 6, "A triangular prism only has 6 nodes");
+        logger.assert(node2 < 6, "A triangular prism only has 6 nodes");
+        logger.assert(node0 / 3 == node1 / 3, "This is not a triangular face");
+        logger.assert(node0 / 3 == node2 / 3, "This is not a triangular face");
         facePosition_ = (node0 / 3) * 2 - 1;
     }
     
@@ -134,6 +143,9 @@ namespace Utilities
     BasisFunction3DFacePrism_1::BasisFunction3DFacePrism_1(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1)
             : node0_(node0 % 3)
     {
+        logger.assert(node0 < 6, "A triangular prism only has 6 nodes");
+        logger.assert(node1 < 6, "A triangular prism only has 6 nodes");
+        logger.assert(node2 < 6, "A triangular prism only has 6 nodes");
         if (node1 % 3 == node0_)
         {
             mirroring_ = node0 < node1 ? -1 : 1;

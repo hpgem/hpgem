@@ -31,6 +31,7 @@ namespace Utilities
     
     BasisFunction3DVertexCube::BasisFunction3DVertexCube(std::size_t node)
     {
+        logger.assert(node < 8, "A cube only has 8 nodes");
         nodePosition0_ = (node % 2) * 2 - 1;
         nodePosition1_ = ((node / 2) % 2) * 2 - 1;
         nodePosition2_ = (node / 4) * 2 - 1;
@@ -59,6 +60,10 @@ namespace Utilities
     BasisFunction3DEdgeCube_0::BasisFunction3DEdgeCube_0(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
+        logger.assert(node0 < 8, "A cube only has 8 nodes");
+        logger.assert(node1 < 8, "A cube only has 8 nodes");
+        logger.assert(node0 / 4 == node1 / 4, "This class is intended for edges aligned in the x-direction");
+        logger.assert((node0 / 2) % 2 == (node1 / 2) % 2, "This class is intended for edges aligned in the x-direction");
         edgePosition1_ = ((node0 / 2) % 2) * 2 - 1;
         edgePosition2_ = (node0 / 4) * 2 - 1;
         mirroring_ = node0 < node1 ? 1 : -1;
@@ -87,6 +92,10 @@ namespace Utilities
     BasisFunction3DEdgeCube_1::BasisFunction3DEdgeCube_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
+        logger.assert(node0 < 8, "A cube only has 8 nodes");
+        logger.assert(node1 < 8, "A cube only has 8 nodes");
+        logger.assert(node0 / 4 == node1 / 4, "This class is intended for edges aligned in the y-direction");
+        logger.assert(node0 % 2 == node1 % 2, "This class is intended for edges aligned in the y-direction");
         edgePosition0_ = (node0 % 2) * 2 - 1;
         edgePosition2_ = (node0 / 4) * 2 - 1;
         mirroring_ = node0 < node1 ? 1 : -1;
@@ -115,6 +124,10 @@ namespace Utilities
     BasisFunction3DEdgeCube_2::BasisFunction3DEdgeCube_2(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
+        logger.assert(node0 < 8, "A cube only has 8 nodes");
+        logger.assert(node1 < 8, "A cube only has 8 nodes");
+        logger.assert(node0 % 2 == node1 % 2, "This class is intended for edges aligned in the z-direction");
+        logger.assert((node0 / 2) % 2 == (node1 / 2) % 2, "This class is intended for edges aligned in the z-direction");
         edgePosition0_ = (node0 % 2) * 2 - 1;
         edgePosition1_ = ((node0 / 2) % 2) * 2 - 1;
         mirroring_ = node0 < node1 ? 1 : -1;
@@ -143,6 +156,11 @@ namespace Utilities
     BasisFunction3DFaceCube_0::BasisFunction3DFaceCube_0(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder1, std::size_t polynomialOrder2)
             : polynomialOrder1_(polynomialOrder1), polynomialOrder2_(polynomialOrder2)
     {
+        logger.assert(node0 < 8, "A cube only has 8 nodes");
+        logger.assert(node1 < 8, "A cube only has 8 nodes");
+        logger.assert(node2 < 8, "A cube only has 8 nodes");
+        logger.assert(node0 % 2 == node1 % 2, "This class is intended for faces aligned in the x-direction");
+        logger.assert(node0 % 2 == node2 % 2, "This class is intended for faces aligned in the x-direction");
         mirroring1_ = node0 < node1 ? 1 : -1; //choices about mirroring need only be consistent for one face
         mirroring2_ = node0 < node2 ? 1 : -1;
         facePosition_ = (node0 % 2) * 2 - 1;
@@ -166,6 +184,11 @@ namespace Utilities
     BasisFunction3DFaceCube_1::BasisFunction3DFaceCube_1(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder2)
             : polynomialOrder0_(polynomialOrder0), polynomialOrder2_(polynomialOrder2)
     {
+        logger.assert(node0 < 8, "A cube only has 8 nodes");
+        logger.assert(node1 < 8, "A cube only has 8 nodes");
+        logger.assert(node2 < 8, "A cube only has 8 nodes");
+        logger.assert((node0 / 2) % 2 == (node1 / 2) % 2, "This class is intended for faces aligned in the y-direction");
+        logger.assert((node0 / 2) % 2 == (node2 / 2) % 2, "This class is intended for faces aligned in the y-direction");
         mirroring0_ = node0 < node1 ? 1 : -1;
         mirroring2_ = node0 < node2 ? 1 : -1;
         facePosition_ = ((node0 / 2) % 2) * 2 - 1;
@@ -194,6 +217,11 @@ namespace Utilities
     BasisFunction3DFaceCube_2::BasisFunction3DFaceCube_2(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1)
             : polynomialOrder1_(polynomialOrder1), polynomialOrder0_(polynomialOrder0)
     {
+        logger.assert(node0 < 8, "A cube only has 8 nodes");
+        logger.assert(node1 < 8, "A cube only has 8 nodes");
+        logger.assert(node2 < 8, "A cube only has 8 nodes");
+        logger.assert(node0 / 4 == node1 / 4, "This class is intended for faces aligned in the x-direction");
+        logger.assert(node0 / 4 == node2 / 4, "This class is intended for faces aligned in the x-direction");
         mirroring0_ = node0 < node1 ? 1 : -1;
         mirroring1_ = node0 < node2 ? 1 : -1;
         facePosition_ = (node0 / 4) * 2 - 1;

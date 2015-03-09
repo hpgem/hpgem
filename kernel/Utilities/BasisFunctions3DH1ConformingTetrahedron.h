@@ -45,6 +45,7 @@ namespace Utilities
         BasisFunction3DVertexTetrahedron(std::size_t node)
                 : node_(node)
         {
+            logger.assert(node < 4, "A tetrahedron only has 4 nodes");
         }
         
         double eval(const Geometry::PointReference& p) const;
@@ -65,6 +66,8 @@ namespace Utilities
         BasisFunction3DEdgeTetrahedron(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
                 : node0_(node0), node1_(node1), polynomialOrder_(polynomialOrder)
         {
+            logger.assert(node0 < 4, "A tetrahedron only has 4 nodes");
+            logger.assert(node1 < 4, "A tetrahedron only has 4 nodes");
         }
         
         double eval(const Geometry::PointReference& p) const;
@@ -85,6 +88,9 @@ namespace Utilities
         BasisFunction3DFaceTetrahedron(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1)
                 : node0_(node0), node1_(node1), node2_(node2), polynomialOrder0_(polynomialOrder0), polynomialOrder1_(polynomialOrder1)
         {
+            logger.assert(node0 < 4, "A tetrahedron only has 4 nodes");
+            logger.assert(node1 < 4, "A tetrahedron only has 4 nodes");
+            logger.assert(node2 < 4, "A tetrahedron only has 4 nodes");
         }
         
         double eval(const Geometry::PointReference& p) const;

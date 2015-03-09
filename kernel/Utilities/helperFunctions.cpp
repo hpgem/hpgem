@@ -100,6 +100,7 @@ namespace Utilities
     
     double baricentric_3D(std::size_t node, const Geometry::PointReference& p)
     {
+        logger.assert(node < 4, "Function is intended for simplex");
         if (node == 0)
         {
             return 1 - p[0] - p[1] - p[2];
@@ -112,6 +113,7 @@ namespace Utilities
     
     double baricentric_2D(std::size_t node, const Geometry::PointReference& p)
     {
+        logger.assert(node < 3, "Function is intended for simplex");
         if (node == 0)
         {
             return 1 - p[0] - p[1];

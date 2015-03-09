@@ -44,10 +44,12 @@ namespace Utilities
     GlobalMatrix::GlobalMatrix(Base::MeshManipulator* theMesh, int elementMatrixID, int faceMatrixID)
             : meshLevel_(-2), theMesh_(theMesh), elementMatrixID_(elementMatrixID), faceMatrixID_(faceMatrixID)
     {
+        logger.assert(theMesh!=nullptr,"Invalid mesh passed");
     }
     
     void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, int& numberOfEntries, std::vector<int>& entries)
     {
+        logger.assert(face!=nullptr, "Invalid face passed");
         int number = face->getLocalNrOfBasisFunctions();
         numberOfEntries += number;
         for (int i = 0; i < number; ++i)
@@ -96,6 +98,7 @@ namespace Utilities
     GlobalPetscMatrix::GlobalPetscMatrix(Base::MeshManipulator* theMesh, int elementMatrixID, int faceMatrixID)
             : GlobalMatrix(theMesh, elementMatrixID, faceMatrixID)
     {
+        logger.assert(theMesh!=nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
         PetscInitialized(&petscRuns);
         if (petscRuns == PETSC_FALSE)
@@ -127,6 +130,7 @@ namespace Utilities
     
     std::vector<PetscInt> GlobalPetscMatrix::makePositionsInMatrix(const Base::Element* element)
     {
+        logger.assert(element!=nullptr, "Invalid element passed");
         //we need storage for the amount of basis functions to return
         std::vector<PetscInt> positions(element->getNrOfBasisFunctions());
         

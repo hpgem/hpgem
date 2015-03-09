@@ -48,6 +48,8 @@ namespace Utilities
     BasisFunction2DFaceSquare_0::BasisFunction2DFaceSquare_0(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
+        logger.assert(node0 < 4, "A square only has 4 nodes");
+        logger.assert(node1 < 4, "A square only has 4 nodes");
         logger.assert((node0 + node1) % 2 == 1, "please use BasisFunction2DFaceSquare_1 for edges that are aligned vertically");
         mirroring_ = (node0 > node1) ? -1 : 1;
         edgePosition_ = (node0 + node1 < 3) ? -1 : 1;
@@ -71,6 +73,8 @@ namespace Utilities
     BasisFunction2DFaceSquare_1::BasisFunction2DFaceSquare_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
+        logger.assert(node0 < 4, "A square only has 4 nodes");
+        logger.assert(node1 < 4, "A square only has 4 nodes");
         logger.assert((node0 + node1) % 2 == 0, "please use BasisFunction2DFaceSquare_0 for edges that are aligned horizontally");
         mirroring_ = (node0 > node1) ? -1 : 1;
         edgePosition_ = (node0 + node1 < 3) ? -1 : 1;
