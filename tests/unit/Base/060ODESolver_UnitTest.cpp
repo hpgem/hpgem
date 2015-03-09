@@ -11,21 +11,21 @@ double executeOneTimeStep(const Base::ButcherTableau *integrator, double u, doub
 {
     std::vector<double> k;
     //iterate over the stages of the Runge Kutta method, compute temporary solutions
-    for (std::size_t level = 0; level < integrator->numStages(); ++level)
+    for (std::size_t level = 0; level < integrator->getNumStages(); ++level)
     {
         double kNew = u;
         for (std::size_t i = 0; i < level; ++i)
         {
-            kNew += integrator->a(level, i) * k[i] * dt;
+            kNew += integrator->getA(level, i) * k[i] * dt;
         }
         k.push_back(kNew);
     }
     
     //Combine all temporary solutions to the solution for the next time step        
     double newVal = u;
-    for (std::size_t i = 0; i < integrator->numStages(); ++i)
+    for (std::size_t i = 0; i < integrator->getNumStages(); ++i)
     {
-        newVal += dt * (integrator->b(i)) * k[i];
+        newVal += dt * (integrator->getB(i)) * k[i];
     }
     return newVal;
 }

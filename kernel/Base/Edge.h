@@ -45,7 +45,6 @@ namespace Base
                 : ID_(ID), nrOfConformingDOFOnTheEdge_(0)
         {
         }
-        //Edge(std::vector<Element*>& elements,std::vector<std::size_t> localEdgeNrs, std::size_t ID);
         
         virtual ~ Edge()
         {

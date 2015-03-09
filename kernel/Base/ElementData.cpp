@@ -33,16 +33,18 @@ namespace Base
     ElementData::ElementData(std::size_t timeLevels, std::size_t nrOfUnknowns, std::size_t nrOfBasisFunctions, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors)
             : timeLevels_(timeLevels), nrOfUnknowns_(nrOfUnknowns), nrOfBasisFunctions_(nrOfBasisFunctions), expansionCoefficients_(timeLevels_), userData_(nullptr), elementMatrix_(nrOfElementMatrixes), elementVector_(nrOfElementVectors)
     {
-        //std::cout<<"nrOfElementMatrixes "<<nrOfElementMatrixes<<std::endl;
-        //std::cout<<"elementMatrix_ size "<<elementMatrix_.size()<<std::endl;
-        //std::cout<<"nrOfElementVectors "<<nrOfElementVectors<<std::endl;
-        //std::cout<<"elementVector_ size = "<<elementVector_.size()<<std::endl;
+        logger(VERBOSE, "In constructor of ElementData: ");
+        logger(VERBOSE, "nrOfElementMatrixes %", nrOfElementMatrixes);
+        logger(VERBOSE, "elementMatrix_ size %", elementMatrix_.size());
+        logger(VERBOSE, "nrOfElementVectors %", nrOfElementVectors);
+        logger(VERBOSE, "elementVector_ size = %", elementVector_.size());
     }
     
     void ElementData::setElementMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID)
     {
-        //std::cout<<"matrix ID = "<<matrixID<<std::endl;
-        //std::cout<<"elementMatrix_ size = "<<elementMatrix_.size()<<std::endl;
+        logger(VERBOSE, "In ElementData::setElementMatrix:");
+        logger(VERBOSE, "matrix ID = %", matrixID);
+        logger(VERBOSE, "elementMatrix_ size = %", elementMatrix_.size());
         if (matrixID >= elementMatrix_.size())
         {
             std::cout << "Warning: Setting an element matrix that was not preallocated. If this is expected, please allocate more element matrixes in the mesh generator" << std::endl;
@@ -60,12 +62,15 @@ namespace Base
     
     void ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID)
     {
-        //std::cout<<"VectorID : "<<vectorID<<std::endl;
-        //std::cout<<"elementVector size : "<<elementVector_.size()<<std::endl;
+        logger(VERBOSE, "In ElementData::setElementVector");
+        logger(VERBOSE, "VectorID = %", vectorID);
+        logger(VERBOSE, "elementVector size = %", elementVector_.size());
         
         if (vectorID >= elementVector_.size())
         {
-            //std::cout << "Warning: Setting an element vector that was not preallocated. If this is expected, please allocate more element vectors in the mesh generator" << std::endl;
+            logger(WARN, "Warning: Setting an element vector that was not "
+                    "preallocated. If this is expected, please allocate more "
+                    "element vectors in the mesh generator");
             elementVector_.resize(vectorID + 1);
         }
         elementVector_[vectorID] = vector;
@@ -173,17 +178,21 @@ namespace Base
     }
     
     /**
-     \details This method returns the TimeLevelData present in this Element for the given timeLevel in the form of a matrix. If the data does not exist yet (or better said, is of dimension 0), it will be initialised with the proper dimension. Tbis method is slow since it needs to reshape a vector to a matrix and returns a copy. Therefore it is advised to use getTimeLevelDataVector.
+     * \details This method returns the TimeLevelData present in this Element for 
+     * the given timeLevel in the form of a matrix. If the data does not exist yet 
+     * (or better said, is of dimension 0), it will be initialised with the proper
+     * dimension.
      
      \param[in] timeLevel Index corresponding to the time level.
-     \return A matrix M such that M(iV,iB) is the expansion coefficient corresponding to variable iV and basisfunction iB at the given time level.
+     \return A matrix M such that M(iV,iB) is the expansion coefficient corresponding 
+     * to variable iV and basisfunction iB at the given time level.
      */
     LinearAlgebra::Matrix ElementData::getTimeLevelDataMatrix(std::size_t timeLevel)
     {
         if (timeLevel < timeLevels_)
         {
-            // The vector can be of dimension 0 if it hasn't been used before.
-            // So lets resize it first!
+            // The vector can be of dimension 0 if it hasn't been used before, 
+            // therefore it must be resized first.
             if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
             {
                 expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
@@ -210,8 +219,8 @@ namespace Base
     {
         if (timeLevel < timeLevels_)
         {
-            // The vector can be of dimension 0 if it hasn't been used before.
-            // So lets resize it first!
+            // The vector can be of dimension 0 if it hasn't been used before, 
+            // therefore it must be resized first.
             if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
             {
                 expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
@@ -243,8 +252,8 @@ namespace Base
     {
         if (timeLevel < timeLevels_)
         {
-            // The vector can be of dimension 0 if it hasn't been used before.
-            // So lets resize it first!
+            // The vector can be of dimension 0 if it hasn't been used before, 
+            // therefore it must be resized first.
             if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
             {
                 expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
@@ -264,8 +273,8 @@ namespace Base
     
     LinearAlgebra::NumericalVector& ElementData::getCurrentData()
     {
-        // The vector can be of dimension 0 if it hasn't been used before.
-        // So lets resize it first!
+        // The vector can be of dimension 0 if it hasn't been used before, 
+        // therefore it must be resized first.
         if (currentData_.size() != nrOfBasisFunctions_)
         {
             currentData_.resize(nrOfBasisFunctions_);

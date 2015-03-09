@@ -58,29 +58,29 @@ namespace Base
         void setElementMatrix(const LinearAlgebra::Matrix&, std::size_t matrixID = 0);
 
         /// Get the element matrix corresponding to the given matrixiD.
-        virtual const LinearAlgebra::Matrix & getElementMatrix(std::size_t matrixID = 0) const;
-
-        // Dated version of getElementMatrix. Use the version that returns a reference instead!
-        // virtual void getElementMatrix(LinearAlgebra::Matrix&, int matrixID = 0) const;
+        virtual const LinearAlgebra::Matrix& getElementMatrix(std::size_t matrixID = 0) const;
         
-        /// \brief Returns (and creates if unavailable) the expansion coefficients correspdonding to a given timelevel in the form of a matrix. Better use getTimeLevelDataVector instead!
+        /// \brief Returns (and creates if unavailable) the expansion coefficients corresponding to a given timelevel in the form of a matrix. 
+        ///\deprecated This function is much slower than getTimeLevelDataVector,
+        /// since it needs to reshape a vector to a matrix and returns a copy. 
+        /// Therefore it is advised to use getTimeLevelDataVector.
         LinearAlgebra::Matrix getTimeLevelDataMatrix(std::size_t timeLevel);
 
         virtual void setElementVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0);
 
         virtual LinearAlgebra::NumericalVector getElementVector(std::size_t vectorID = 0) const;
 
-        /// \brief Sets (and creates if unavailable) the expansion coefficients correspdonding to the given time level.
+        /// \brief Sets (and creates if unavailable) the expansion coefficients corresponding to the given time level.
         void setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::NumericalVector &val);
 
-        /// \brief Returns a reference to the expansion coefficients correspdonding to the given time level.
-        const LinearAlgebra::NumericalVector & getTimeLevelDataVector(std::size_t timeLevel) const;
-        LinearAlgebra::NumericalVector & getTimeLevelDataVector(std::size_t timeLevel);
+        /// \brief Returns a reference to the expansion coefficients corresponding to the given time level.
+        const LinearAlgebra::NumericalVector& getTimeLevelDataVector(std::size_t timeLevel) const;
+        LinearAlgebra::NumericalVector& getTimeLevelDataVector(std::size_t timeLevel);
 
         /// \brief Specify a time level index and variable index, return a vector containing the corresponding expansion coefficients.
         virtual const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
 
-        /// \brief Specify a time level index and a variable index (unknown), set the corresponding expansionCoefficients. Better use getTimeLevelDataVector if possible!
+        /// \brief Specify a time level index and a variable index (unknown), set the corresponding expansionCoefficients. Better use getTimeLevelDataVector if possible because that's faster!
         void setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::NumericalVector &val);
         void setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::NumericalVector &val);
 
@@ -98,7 +98,6 @@ namespace Base
 
         virtual std::size_t getNrOfBasisFunctions() const;
 
-        //this needs to store information about all variables, so it needs to be a matrix (?)
         virtual const LinearAlgebra::NumericalVector& getResidue() const;
 
         void setResidue(LinearAlgebra::NumericalVector& residue);
@@ -107,7 +106,8 @@ namespace Base
 
         virtual UserElementData* getUserData() const;
 
-        /// \brief Convert the index corresponding to the basis function (iBasisFunction) and the index corresponding to the variable (iVar) to a single index.
+        /// \brief Convert the index corresponding to the basis function (iBasisFunction) 
+        /// and the index corresponding to the variable (iVar) to a single index.
         /// \param[in] iVar The index corresponding to the variable.
         /// \param[in] iBasisFunction The index corresponding to the basisfunction.
         virtual const std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const
@@ -124,7 +124,11 @@ namespace Base
         std::size_t nrOfBasisFunctions_;
 
         /// \brief Stores the expansion coefficients.
-        /// \details The value expansionCoefficients_(iT)(iVB) is the expansion coefficient corresponding to the solution at time level iT and vector basisfunction iVB. Index iVB satisfies iVB = convertToSingleIndex(iB,iV), where iB is the index corresponding to the basis function and iVB the index corresponding to the variable.
+        /// \details The value expansionCoefficients_(iT)(iVB) is the expansion 
+        /// coefficient corresponding to the solution at time level iT and vector 
+        /// basisfunction iVB. Index iVB satisfies iVB = convertToSingleIndex(iB,iV), 
+        /// where iB is the index corresponding to the basis function and iVB the 
+        /// index corresponding to the variable.
         std::vector<LinearAlgebra::NumericalVector> expansionCoefficients_;
 
         ///Stores the result of an element integration
@@ -133,7 +137,8 @@ namespace Base
         ///Store temporary data
         LinearAlgebra::NumericalVector currentData_;
 
-        ///Stores polymorphic pointer to UserDefined Data, internally not used! Used only outside of the Kernel!!!
+        ///Stores polymorphic pointer to UserDefined Data, internally not used. 
+        ///Used only outside of the Kernel.
         UserElementData* userData_;
 
         ///Stores element matrix(es) for this element

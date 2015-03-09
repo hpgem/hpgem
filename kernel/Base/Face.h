@@ -37,8 +37,8 @@ namespace Base
     class Element;
     class FaceCacheData;
     
-    /// Face consists of FaceGeometry and probably FaceData, if needed. FaceGeometry holds all FaceReference related data and appropriate mappings
-    
+    /// Face consists of FaceGeometry and probably FaceData, if needed. 
+    ///FaceGeometry holds all FaceReference related data and appropriate mappings    
     class Face : public Geometry::FaceGeometry, public FaceData
     {
     public:
@@ -127,10 +127,10 @@ namespace Base
         /// \brief Returns the physical normal vector times the basis function corresponding to index iBasisFunction.
         virtual LinearAlgebra::NumericalVector basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const;
 
-        /// jDir=0 means x, and etc.
+        /// \param[in] jDir Direction in which the derivative is taken, jDir=0 means x, and etc.
         virtual double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference& p) const;
 
-        ///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
+        ///\brief The "all directions in one go"-edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
         virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const;
 
         /// \brief Returns the gradient of the physical basis function corresponding to index iBasisFunction.
@@ -175,7 +175,6 @@ namespace Base
         ElementT* elementLeft_;
         ElementT* elementRight_;
         const FaceQuadratureRule* quadratureRule_;
-        VecCacheT vecCacheData_;
 
         std::size_t nrOfConformingDOFOnTheFace_;
         std::size_t faceID_;

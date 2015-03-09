@@ -29,8 +29,6 @@ void Base::ElementCacheData::operator ()(const Element* el, const Geometry::Poin
 {
     Geometry::Jacobian jac(p.size(), p.size());
     jac = el->calcJacobian(p);
-    /// \bug Took out the std::abs and replace with abs for STL vector version (see other bug report.
-    /// (resolved) you forgot to #include <cmath>, but something #include <cstdlib> (where the integer type std::abs is defined) -FB
     absDetJac_ = std::abs(jac.determinant());
     
 }

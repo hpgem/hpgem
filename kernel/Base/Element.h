@@ -95,13 +95,11 @@ namespace Base
         ///\brief returns the value of the i-th basisfunction at point p in ret
         virtual void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 
-        /// jDir=0 means x, and etc.
+        /// \param[in] jDir Direction of the derivative, jDir=0 means x, and etc.
         virtual double basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const;
-        //std::size_t                    getNumberOfDegreesOfFreedom()const;
-        //std::size_t                    getNumberOfDegreesOfFreedom();
         
         ///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
-        ///if some of the data needed for this mapping is already stored on a wrapper class, you can pass the class to this function for more efficient computation
+        ///\details if some of the data needed for this mapping is already stored on a wrapper class, you can pass the class to this function for more efficient computation
         virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* wrapper = nullptr) const;
 
         ///\brief returns the curl of the i-th basisfunction at point p in ret
@@ -153,9 +151,8 @@ namespace Base
         }
         
         ///\brief Return the mass int(phi_i phi_j) matrix of this element.
-        ///If the mass matrix is computed earlier, we just return it. Else, we compute
-        ///the mass matrix, store it and return it.
-        
+        ///\details If the mass matrix is computed earlier, we just return it. 
+        ///Otherwise, the mass matrix is computed, stored and returned.        
         const LinearAlgebra::Matrix& getMassMatrix()
         {
             if (massMatrix_.size() == 0)
@@ -175,8 +172,7 @@ namespace Base
         Element();
 
     public:
-        /// Output operator.
-        
+        /// Output operator.        
         friend std::ostream& operator<<(std::ostream& os, const Element& element)
         {
             os << '(';

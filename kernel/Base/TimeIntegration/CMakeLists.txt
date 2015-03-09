@@ -1,8 +1,7 @@
 include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
 add_library(TimeIntegration STATIC
-        # Gauss quadrature rules
-         ${hpGEM_SOURCE_DIR}/kernel/Base/TimeIntegration/ButcherTableau.cpp
+        #Fully explicit time integrators that depend on butcher tableaus
          ${hpGEM_SOURCE_DIR}/kernel/Base/TimeIntegration/RK4Methods.cpp
          ${hpGEM_SOURCE_DIR}/kernel/Base/TimeIntegration/ForwardEuler.cpp
          ${hpGEM_SOURCE_DIR}/kernel/Base/TimeIntegration/MidPoint.cpp

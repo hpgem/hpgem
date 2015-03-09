@@ -1,8 +1,22 @@
 /*
- * CommandLineOptions.h
- *
- *  Created on: Jun 16, 2014
- *      Author: dducks
+ This file forms part of hpGEM. This package has been developed over a number of years by various people at the University of Twente and a full list of contributors can be found at
+ http://hpgem.org/about-the-code/team
+ 
+ This code is distributed using BSD 3-Clause License. A copy of which can found below.
+ 
+ 
+ Copyright (c) 2014, University of Twente
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef COMMANDLINEOPTIONS_H_
@@ -29,15 +43,13 @@ namespace Base
     
     /**
      * Checks whether or not the arguments have been parsed.
-     *
      */
     bool parse_isDone();
     
     /*
-     * Don't go here. This is nasty and is hidden on purpose.
-     * Black magic happens here, so don't.
-     *
-     * @dducks
+     * The code below this comment is difficult to understand, so don't change
+     * anything unless you know what you're doing and you test your changes 
+     * thoroughly before committing them.
      */
     namespace Detail
     {
@@ -168,31 +180,6 @@ namespace Base
             return retVal;
         }
         
-        /*
-         template<typename T>
-         typename std::enable_if<std::is_same<T, ::Vec3D>::value, T>::type
-         parse_argument(CLOParser& p) {
-         Vec3D retVal;
-         std::size_t idx;
-         if (p.remaining() < 4) {
-         std::string error = "Not enough parameters.";
-         throw error;
-         }
-         for (idx = 0; idx < 3; idx++) {
-         ++p;
-         
-         std::istringstream coord(*p);
-         double tmp;
-         coord >> tmp;
-         if (!coord.eof()) {
-         std::string error = "Argument could not be converted to float.";
-         throw error;
-         }
-         retVal.setComponent(idx, tmp);
-         
-         }
-         return retVal;
-         } */
 
         template<typename T>
         typename std::enable_if<std::is_same<T, std::string>::value, T>::type parse_argument(CLOParser& p)
@@ -207,11 +194,10 @@ namespace Base
     class CommandLineOption;
     
     /**
-     * Returns a REFERENCE, yes really REFERENCE which you need to bind by
-     * guess what, REFERENCE, to the actual CLO. Bind this to some kind of
-     * static variable, and use it within the code to set and get properties.
-     * make sure it is initialized before actually calling the parse_arguments()
-     * function as documented above the magic part.
+     * Returns a REFERENCE which you need to bind by REFERENCE to the actual CLO.
+     * Bind this to some kind of static variable, and use it within the code to
+     * set and get properties. Make sure it is initialized before actually calling
+     * the function parse_options(int, char**).
      *
      * @argument tag is the short version of the argument, or '\0'/0 if no such tag
      * is available. It has to be prefixed by '-'.
@@ -226,10 +212,6 @@ namespace Base
     template<typename T>
     class CommandLineOption : public Detail::CommandLineOptionBase
     {
-        /*template<typename T2>
-         friend CommandLineOption<T2>& register_argument(char tag, std::string long_tag,
-         std::string description,bool required,T2 defaultValue);
-         */
 
         T value;
 
@@ -277,9 +259,7 @@ namespace Base
         {
             smapping[tag] = t;
         }
-        //   if (required) {
         req_list.push_back(t);
-        //  }
         
         return *t;
     }

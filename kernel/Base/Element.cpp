@@ -46,8 +46,8 @@ namespace Base
     Element::Element(const VectorOfPointIndexesT& globalNodeIndexes, const std::vector<const BasisFunctionSetT*>* basisFunctionSet, const VectorOfPhysicalPointsT& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, const std::vector<int>& basisFunctionSetPositions)
             : ElementGeometryT(globalNodeIndexes, allNodes), ElementDataT(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc, numberOfElementMatrixes, numberOfElementVectors), basisFunctionSet_(basisFunctionSet), quadratureRule_(nullptr), vecCacheData_(), id_(id), basisFunctionSetPositions_(basisFunctionSetPositions)
     {
-        //std::cout<<"numberOfElementMatrixes "<<numberOfElementMatrixes<<std::endl;
-        //std::cout<<"numberOfElementVectors "<<numberOfElementVectors<<std::endl;
+        logger(VERBOSE, "numberOfElementMatrixes %", numberOfElementMatrixes);
+        logger(VERBOSE, "numberOfElementVectors %", numberOfElementVectors);
         orderCoeff_ = 2; // for safety
         std::size_t numberOfBasisFunctions = 0;
         for (std::size_t i = 0; i < basisFunctionSetPositions_.size(); ++i)
@@ -72,8 +72,7 @@ namespace Base
     }
     
     ///Very ugly default constructor that's only here because it is needed in
-    ///ShortTermStorageElementBase. 
-    ///\todo Remove the default constructor everywhere.
+    ///ShortTermStorageElementBase.
     Element::Element()
             : ElementDataT(0, 0, 0, 0, 0)
     {
@@ -151,9 +150,6 @@ namespace Base
     {
         logger.assert((jDir < p.size()), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
         
-        /*if (jDir>= DIM)
-         return -1.e50;
-         else*/
         int basePosition(0);
         for (int j : basisFunctionSetPositions_)
         {
@@ -194,7 +190,6 @@ namespace Base
             }
         }
         return getReferenceGeometry()->getBasisFunctionValue(function, p);
-        //return basisFunctionSet_->eval(i,p);
     }
     
     std::size_t Element::getID() const
@@ -298,7 +293,7 @@ namespace Base
     {
         if (wrapper == nullptr)
         {
-            wrapper = this; //Apparently you can't default to this
+            wrapper = this; 
         }
         const Base::BaseBasisFunction* function;
         int basePosition(0);
@@ -346,10 +341,12 @@ namespace Base
     
     void Element::setFace(std::size_t localFaceNr, const Face* face)
     {
-        logger.assert((face->getPtrElementLeft() == this && face->localFaceNumberLeft() == localFaceNr) || (face->getPtrElementRight() == this && face->localFaceNumberRight() == localFaceNr), "You are only allowed to set a face to a local face index that matches");
+        logger.assert((face->getPtrElementLeft() == this && face->localFaceNumberLeft() == localFaceNr) 
+                || (face->getPtrElementRight() == this && face->localFaceNumberRight() == localFaceNr),
+                      "You are only allowed to set a face to a local face index that matches");
         if (facesList_.size() < localFaceNr + 1)
         {
-            //should not happen
+            logger(WARN, "Resizing the facesList, since it's smaller(%) than to localFaceNr + 1(%)", facesList_.size(), localFaceNr + 1);
             facesList_.resize(localFaceNr + 1);
         }
         facesList_[localFaceNr] = face;
@@ -357,9 +354,9 @@ namespace Base
     
     void Element::setEdge(std::size_t localEdgeNr, const Edge* edge)
     {
+        //This if-statement is needed, since it could happen in 4D
         if (edgesList_.size() < localEdgeNr + 1)
         {
-            //could happen in 4D
             edgesList_.resize(localEdgeNr + 1);
         }
         edgesList_[localEdgeNr] = edge;
@@ -369,7 +366,7 @@ namespace Base
     {
         if (nodesList_.size() < localNodeNr + 1)
         {
-            //should not happen
+            logger(WARN, "Resizing the nodesList, since it's smaller(%) than to localNodeNr + 1(%)", nodesList_.size(), localNodeNr + 1);
             nodesList_.resize(localNodeNr + 1);
         }
         nodesList_[localNodeNr] = node;

@@ -32,18 +32,6 @@
 
 namespace Base
 {
-    
-    /*Edge::Edge(std::vector<Element*>& elements,std::vector<std::size_t> localEdgeNrs, std::size_t ID) :
-     ID_(ID), elements_(elements), localEdgeNrs_(localEdgeNrs), nrOfConformingDOFOnTheEdge_(0), orientation_(elements_.size()) {
-     std::vector<std::size_t> indices(2);
-     for (int i = 0; i < elements_.size(); ++i) {
-     elements_[i]->setEdge(localEdgeNrs_[i], this);
-     elements_[i]->getReferenceGeometry()->getCodim2EntityLocalIndices(localEdgeNrs_[i], indices);
-     indices[0] = elements_[i]->getPhysicalGeometry()->getNodeIndex(indices[0]);
-     indices[1] = elements_[i]->getPhysicalGeometry()->getNodeIndex(indices[1]);
-     orientation_[i] = (indices[0] < indices[1]) ? 0 : 1;
-     }
-     }*/
 
     void Edge::addElement(Element* element, std::size_t edgeNr)
     {

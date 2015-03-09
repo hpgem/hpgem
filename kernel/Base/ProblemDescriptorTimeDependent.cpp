@@ -50,7 +50,7 @@ namespace Base
     ///Constructor, GlobalData and ConfigurationData is deleted in HpgemUI
     
     ProblemDescriptorTimeDependent::ProblemDescriptorTimeDependent(std::size_t DIM, std::size_t polynomialOrder, const Base::ButcherTableau* integrator)
-            : HpgemUI(new GlobalData, new ConfigurationData(DIM, 1, polynomialOrder, integrator->numStages() + 1)), integrator_(integrator)
+            : HpgemUI(new GlobalData, new ConfigurationData(DIM, 1, polynomialOrder, integrator->getNumStages() + 1)), integrator_(integrator)
     {
         endTime_ = endTime.getValue();
         startTime_ = startTime.getValue();
@@ -73,7 +73,7 @@ namespace Base
         //initialise the matrices for the right-hand side
         LinearAlgebra::NumericalVector leftResidual, rightResidual, residual;
         
-        for (std::size_t level = 0; level < integrator_->numStages(); ++level)
+        for (std::size_t level = 0; level < integrator_->getNumStages(); ++level)
         {
             //set the data we're going to work with, namely 
             //u_n + sum(a_{level,i} * k_{i+1}) 
@@ -83,7 +83,7 @@ namespace Base
                 LinearAlgebra::NumericalVector currentData = element->getTimeLevelData(0);
                 for (std::size_t i = 0; i < level; ++i)
                 {
-                    currentData += dt_ * integrator_->a(level, i) * element->getTimeLevelData(i + 1);
+                    currentData += dt_ * integrator_->getA(level, i) * element->getTimeLevelData(i + 1);
                 }
                 element->setCurrentData(currentData);
             }
@@ -151,9 +151,9 @@ namespace Base
         for (Base::Element *element : meshes_[0]->getElementsList())
         {
             LinearAlgebra::NumericalVector nextTimeStep = element->getTimeLevelData(0);
-            for (std::size_t level = 0; level < integrator_->numStages(); ++level)
+            for (std::size_t level = 0; level < integrator_->getNumStages(); ++level)
             {
-                nextTimeStep += dt_ * integrator_->b(level) * element->getTimeLevelData(level + 1);
+                nextTimeStep += dt_ * integrator_->getB(level) * element->getTimeLevelData(level + 1);
             }
             element->setTimeLevelData(0, nextTimeStep);
         }

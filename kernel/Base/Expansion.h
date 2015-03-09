@@ -28,8 +28,7 @@
 #include "../LinearAlgebra/Matrix.h"
 namespace Base
 {
-    ///\TODO where is this used? -FB
-///\deprecated Use Element::getSolution instead of this class.
+    ///\deprecated Use Element::getSolution instead of this class.
     class Expansion
     {
         
@@ -96,6 +95,5 @@ namespace Base
     };
 
 }
-;
 
 #endif // Expansion_h

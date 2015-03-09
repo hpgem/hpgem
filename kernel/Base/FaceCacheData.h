@@ -21,7 +21,6 @@
 #ifndef FaceCacheData_h
 #define FaceCacheData_h
 
-///\bug resolves field has incomplete type
 #include "LinearAlgebra/NumericalVector.h"
 
 namespace Geometry

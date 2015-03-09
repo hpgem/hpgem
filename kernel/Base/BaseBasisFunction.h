@@ -44,7 +44,6 @@ namespace Base
         virtual ~ BaseBasisFunction()
         {
         }
-        ;
 
         virtual double eval(const PointReferenceT& p) const = 0;
 
@@ -54,25 +53,21 @@ namespace Base
         {
             throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";
         }
-        ;
 
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
             throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";
         }
-        ;
 
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
             throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";
         }
-        ;
 
         virtual double evalDeriv3(const PointReferenceT& p) const
         {
             throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";
         }
-        ;
 
         virtual LinearAlgebra::NumericalVector evalCurl(const PointReferenceT& p) const
         {

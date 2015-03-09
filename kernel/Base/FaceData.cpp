@@ -29,16 +29,21 @@
 Base::FaceData::FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors)
         : faceMatrix_(numberOfFaceMatrices), faceVector_(numberOfFaceVectors)
 {
-    //std::cout<<"numberOfFaceMatrices "<<numberOfFaceMatrices<<std::endl;
-    //std::cout<<"FaceMatrix_ size "<<faceMatrix_.size()<<std::endl;
-    //std::cout<<"numberOfFaceVectors "<<numberOfFaceVectors<<std::endl;
-    //std::cout<<"faceVector_ size = "<<faceVector_.size()<<std::endl;
+    logger(VERBOSE, "In FaceData constructor:");
+    logger(VERBOSE, "numberOfFaceMatrices = %", numberOfFaceMatrices);
+    logger(VERBOSE, "FaceMatrix_ size = %", faceMatrix_.size());
+    logger(VERBOSE, "numberOfFaceVectors = %", numberOfFaceVectors);
+    logger(VERBOSE, "faceVector_ size = %", faceVector_.size());
     
 }
 
 /// \param[in] matrix The standard matrix used to set the FaceMatrix.
 /// \param[in] matrixID The index to specify which FaceMatrix should be set.
-/// \details To set a FaceMatrix using a standard matrix we must also know the number of basis functions corresponding to the left and right element. Since this class has no access to these numbers, we will assume the number of basis functions are the same on both sides and the input matrix should be a square matrix. For safety and also efficiency it is advised to use the other version of this function instead, which takes a FaceMatrix as input. This is actually a dated function and should be removed.
+/// \details To set a FaceMatrix using a standard matrix we must also know the 
+/// number of basis functions corresponding to the left and right element. Since 
+/// this class has no access to these numbers, we will assume the number of basis
+/// functions are the same on both sides and the input matrix should be a square 
+/// matrix. 
 void Base::FaceData::setFaceMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID)
 {
     if (matrixID >= faceMatrix_.size())
@@ -72,7 +77,9 @@ void Base::FaceData::setFaceMatrix(const Base::FaceMatrix &faceMatrix, std::size
 
 /// \param[in] matrix The standard matrix which will be used to get the face matrix as one entire matrix.
 /// \param[in] matrixID The index to specify which FaceMatrix to get.
-/// \details To convert a face matrix into a standard matrix is slow and inefficient. It is advised to use the other version of this function that returns a FaceMatrix. This is actually a dated function and should be removed.
+/// \details To convert a face matrix into a standard matrix is slow and inefficient.
+/// It is advised to use the other version of this function that returns a FaceMatrix.
+/// This is actually a dated function and should be removed.
 LinearAlgebra::Matrix Base::FaceData::getFaceMatrixMatrix(std::size_t matrixID) const
 {
     // Check if there are enough faces matrices stored.

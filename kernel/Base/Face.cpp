@@ -157,7 +157,7 @@ namespace Base
     
     /// \param[in] iSide The index corresponding to the side of the face.
     /// \param[in] iBasisFunction The index corresponding to the basis function.
-    /// \param[in] normal The normal vector (pointing outwards with respect to the elemeent on the left side).
+    /// \param[in] normal The normal vector (pointing outwards with respect to the element on the left side).
     /// \param[in] p The reference point on the reference element.
     LinearAlgebra::NumericalVector Face::basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const
     {

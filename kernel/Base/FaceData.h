@@ -48,7 +48,10 @@ namespace Base
     public:
         FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices = 0, std::size_t numberOfFaceVactors = 0);
 
-        /// \brief Sets face matrix number 'matrixID' using a standard matrix. Use the other version instead, which uses a FaceMatrix as input!
+        /// \brief Sets face matrix number 'matrixID' using a standard matrix.
+        /// \deprecated For safety and also efficiency it is advised to use the other version
+        /// of this function instead, which takes a FaceMatrix as input. This is actually
+        /// a dated function and should be removed.
         void setFaceMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID = 0);
 
         /// \brief Sets face matrix number 'matrixID' using a standard matrix.
@@ -86,9 +89,11 @@ namespace Base
         virtual const LinearAlgebra::NumericalVector& getResidue() const;
 
         void setResidue(LinearAlgebra::NumericalVector& residue);
+        
+    protected:
+        VecCacheT vecCacheData_;
 
     private:
-        VecCacheT vecCacheData_; //?also in Face?
         UserFaceData* userData_;
         std::vector<FaceMatrix> faceMatrix_;
         std::vector<LinearAlgebra::NumericalVector> faceVector_;

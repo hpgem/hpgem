@@ -84,7 +84,7 @@ public:
     /// \param[in] ptrButcherTableau Pointer to a Butcher Tableau used to solve the time integration
     /// \param[in] useMatrixStorage Boolean to indicate if element and face matrices for the PDE should be stored
     ExampleMultipleVariableProblem(const std::size_t DIM, const std::size_t n, const std::size_t p, const Base::ButcherTableau * const ptrButcherTableau, const bool useMatrixStorage = false)
-            : HpgemUI(new Base::GlobalData, new Base::ConfigurationData(DIM, DIM + 1, p, ptrButcherTableau->numStages() + 1)), DIM_(DIM), numOfVariables_(DIM + 1), n_(n), p_(p), elementIntegrator_(), faceIntegrator_(), ptrButcherTableau_(ptrButcherTableau), T_(0.0), cInv_(1.0), useMatrixStorage_(useMatrixStorage), stiffnessElementMatrixID_(0), stiffnessFaceMatrixID_(0), massMatrixID_(1)
+            : HpgemUI(new Base::GlobalData, new Base::ConfigurationData(DIM, DIM + 1, p, ptrButcherTableau->getNumStages() + 1)), DIM_(DIM), numOfVariables_(DIM + 1), n_(n), p_(p), elementIntegrator_(), faceIntegrator_(), ptrButcherTableau_(ptrButcherTableau), T_(0.0), cInv_(1.0), useMatrixStorage_(useMatrixStorage), stiffnessElementMatrixID_(0), stiffnessFaceMatrixID_(0), massMatrixID_(1)
     {
         solutionTimeLevel_ = 0;
         for (std::size_t i = 1; i < configData_->numberOfTimeLevels_; i++)
@@ -908,12 +908,12 @@ public:
     /// \brief Compute one time step
     void computeOneTimeStep(double &time, const double dt)
     {
-        std: size_t numOfStages = ptrButcherTableau_->numStages();
+        std: size_t numOfStages = ptrButcherTableau_->getNumStages();
         
         // Compute intermediate Runge-Kutta stages
         for (std::size_t iStage = 0; iStage < numOfStages; iStage++)
         {
-            double stageTime = time + ptrButcherTableau_->c(iStage) * dt;
+            double stageTime = time + ptrButcherTableau_->getC(iStage) * dt;
             
             std::vector<std::size_t> timeLevelsIn;
             std::vector<double> coefficientsTimeLevels;
@@ -923,7 +923,7 @@ public:
             for (std::size_t jStage = 0; jStage < iStage; jStage++)
             {
                 timeLevelsIn.push_back(intermediateTimeLevels_[jStage]);
-                coefficientsTimeLevels.push_back(dt * ptrButcherTableau_->a(iStage, jStage));
+                coefficientsTimeLevels.push_back(dt * ptrButcherTableau_->getA(iStage, jStage));
             }
             
             computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime);
@@ -932,7 +932,7 @@ public:
         // Update the solution
         for (std::size_t jStage = 0; jStage < numOfStages; jStage++)
         {
-            scaleAndAddTimeLevel(solutionTimeLevel_, intermediateTimeLevels_[jStage], dt * ptrButcherTableau_->b(jStage));
+            scaleAndAddTimeLevel(solutionTimeLevel_, intermediateTimeLevels_[jStage], dt * ptrButcherTableau_->getB(jStage));
         }
         
         // Update the time.
