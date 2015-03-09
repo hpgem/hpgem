@@ -89,6 +89,8 @@ namespace Output
      */
     void TecplotDiscontinuousSolutionWriter::write(const Base::MeshManipulator* mesh, const std::string& zoneTitle, const bool sameGeometry, TecplotSingleElementWriter* writeDataClass, const double time)
     {
+        logger.assert(mesh!=nullptr, "Invalid mesh passed to this writer");
+        logger.assert(writeDataClass!=nullptr, "Invalid write class passed");
         
         std::size_t posNumberOfNodes(0);
         std::size_t posNumberOfElements(0);

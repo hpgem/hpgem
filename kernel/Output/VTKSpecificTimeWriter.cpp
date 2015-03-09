@@ -44,8 +44,6 @@
 #include <unordered_map>
 #include <typeindex>
 
-static Logger<HPGEM_LOGLEVEL> loggerVTK("VTK discontinuous solution writer (single time)");
-
 /////////////////////////////////////
 //some VTK specific helper routines//
 /////////////////////////////////////
@@ -64,6 +62,7 @@ static std::unordered_map<std::type_index, VTKElementName> hpGEMToVTK = { {std::
 Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName, const Base::MeshManipulator* mesh, std::size_t timelevel)
         : mesh_(mesh), totalPoints_(0), timelevel_(timelevel)
 {
+    logger.assert(mesh!=nullptr,"Invalid mesh passed");
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     std::uint32_t totalData;
     if (id == 0)
@@ -71,7 +70,7 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
         masterFile_.open(baseName + ".pvtu");
         if (!masterFile_.good())
         {
-            loggerVTK(FATAL, "failed to open main paraview output file %.pvtu", baseName);
+            logger(FATAL, "failed to open main paraview output file %.pvtu", baseName);
             exit(1);
         }
         masterFile_ << "<?xml version=\"1.0\"?>" << std::endl;
@@ -92,7 +91,7 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
     localFile_.open(baseName + std::to_string(id) + ".vtu");
     if (!localFile_.good())
     {
-        loggerVTK(ERROR, "failed to open local paraview output file %.vtu, part of the output will not be written", baseName);
+        logger(ERROR, "failed to open local paraview output file %.vtu, part of the output will not be written", baseName);
     }
     localFile_ << "<?xml version=\"1.0\"?>" << std::endl;
     localFile_ << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"" << (Detail::isBigEndian() ? "BigEndian" : "LittleEndian") << "\">" << std::endl;

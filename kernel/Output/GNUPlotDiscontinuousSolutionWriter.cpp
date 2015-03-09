@@ -61,7 +61,8 @@ namespace Output
      */
     void GNUPlotDiscontinuousSolutionWriter::write(const Base::MeshManipulator* mesh, SingleElementWriter* writeDataClass)
     {
-        
+        logger.assert(mesh!=nullptr, "Invalid mesh passed to this writer");
+        logger.assert(writeDataClass!=nullptr, "Invalid write class passed");
         using ElementT = Base::Element;
         using ListOfElementsT = std::vector<ElementT*>;
         

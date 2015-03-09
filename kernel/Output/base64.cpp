@@ -20,6 +20,7 @@
  */
 
 #include "base64.h"
+#include "logger.h"
 
 #include <cstdlib>
 
@@ -33,6 +34,7 @@ bool Output::Detail::isBigEndian()
 
 std::string Output::Detail::toBase64(void* rawData, std::size_t len)
 {
+    logger.assert(rawData!=nullptr,"no raw data passed");
     const char* cRawData = (const char*) rawData;
     std::string result;
     result.reserve((len + 2) / 3 * 4);
