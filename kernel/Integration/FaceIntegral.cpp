@@ -126,6 +126,7 @@ namespace Integration
 
 void Integration::FaceIntegral::setStorageWrapper(Base::ShortTermStorageFaceBase* transform)
 {
+    logger.assert(transform!=nullptr, "Invalid coordinate transformation detected");
     delete localFace_;
     localFace_ = transform;
     if (useCache_)

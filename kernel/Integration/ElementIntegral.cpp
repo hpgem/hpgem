@@ -191,6 +191,7 @@ namespace Integration
 
 void Integration::ElementIntegral::setStorageWrapper(Base::ShortTermStorageElementBase* transform)
 {
+    logger.assert(transform!=nullptr, "Invalid coordinate transformation");
     //if(localElement_!=nullptr)
     delete localElement_;
     localElement_ = transform;

@@ -33,7 +33,9 @@ namespace Integration
     template<class ReturnTrait1>
     ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, FaceIntegrandBase<ReturnTrait1>* integrand, const QuadratureRules::GaussQuadratureRule* qdrRule)
     {
-        
+        logger.assert(fa!=nullptr, "Invalid face detected");
+        logger.assert(integrand!=nullptr, "Invalid integrand detected");
+        //quadrature rule is allowed to be equal to nullptr!
         std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc = [=](const Base::Face* face, const LinearAlgebra::NumericalVector& n, const Geometry::PointReference& p)
         {   
             ReturnTrait1 result;
@@ -46,6 +48,8 @@ namespace Integration
     template<class ReturnTrait1>
     ReturnTrait1 FaceIntegral::integrate(FaceT* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc, const QuadratureRulesT* const qdrRule)
     {
+        logger.assert(fa!=nullptr, "Invalid face detected");
+        //quadrature rule is allowed to be equal to nullptr!
         if (localFace_ == nullptr)
         {
             localFace_ = new Base::ShortTermStorageFaceH1(fa->getGaussQuadratureRule()->dimension() + 1);
