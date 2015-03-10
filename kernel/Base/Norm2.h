@@ -32,6 +32,7 @@ namespace Geometry
 namespace Utilities
 {
     /*! Compute the 2 norm of a point-vector. */
+    ///\deprecated Use L2Norm(const Geometry::PointPhysical&) instead.
     double norm2(const Geometry::PointPhysical& v);
 }
 

@@ -81,12 +81,6 @@ namespace Base
         return true;
     }
     
-    //void Mesh::addEdge(std::vector< Element*> elements, std::vector<std::size_t> localEdgeNrs) {
-    //    edges_.push_back(new Edge(elements, localEdgeNrs, edgeCounter_));
-    //    ++edgeCounter_;
-    //    hasToSplit_ = true;
-    //}
-    
     void Mesh::addEdge()
     {
         edges_.push_back(new Edge(edgeCounter_));
@@ -97,7 +91,7 @@ namespace Base
     void Mesh::addNode(Geometry::PointPhysical node)
     {
         points_.push_back(node);
-        //dont distribute the points, it will confuse the elements (dont ask)
+        //don't distribute the points here, it will confuse the elements
     }
     
     void Mesh::addVertex()
@@ -187,7 +181,7 @@ namespace Base
             //Are we part of this face?
             if (partition[face->getPtrElementLeft()->getID()] == pid || (face->isInternal() && partition[face->getPtrElementRight()->getID()] == pid))
             {
-                //yeah we are
+                //if we are a part of this face
                 submeshes_.add(face);
                 
                 if (face->isInternal() && (partition[face->getPtrElementLeft()->getID()] != partition[face->getPtrElementRight()->getID()]))
@@ -195,9 +189,9 @@ namespace Base
                     face->setFaceType(Geometry::FaceType::SUBDOMAIN_BOUNDARY);
                     if (partition[face->getPtrElementLeft()->getID()] == pid)
                     {
-                        //dont send to yourself, ask the element on the other side what pid to sent to
+                        //don't send to yourself, ask the element on the other side what pid to sent to
                         submeshes_.addPush(face->getPtrElementLeft(), partition[face->getPtrElementRight()->getID()]);
-                        //if you recieve, the source is the owner of the element
+                        //if you receive, the source is the owner of the element
                         submeshes_.addPull(face->getPtrElementRight(), partition[face->getPtrElementRight()->getID()]);
                     }
                     else
@@ -379,13 +373,15 @@ namespace Base
     
     const std::vector<Geometry::PointPhysical>& Mesh::getNodes() const
     {
-        //for historic reasons points_ is referenced directly during element creation and therefore cannot be distributed
+        //for historic reasons points_ is referenced directly during element 
+        //creation and therefore cannot be distributed
         return points_;
     }
     
     std::vector<Geometry::PointPhysical>& Mesh::getNodes()
     {
-        //for historic reasons points_ is referenced directly during element creation and therefore cannot be distributed
+        //for historic reasons points_ is referenced directly during element 
+        //creation and therefore cannot be distributed
         return points_;
     }
 

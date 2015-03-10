@@ -35,13 +35,13 @@ namespace Base
     template<class V>
     LevelTree<V>::~LevelTree()
     {
-//             std::cout << "\n-------------Deleting LevelTree....\n";
+        logger(VERBOSE, "-------------Deleting LevelTree....");
         while (!entries_.empty())
         {
             delete entries_.back();
             entries_.pop_back();
         }
-//             std::cout << "-------------LevelTree is deleted.\n\n";
+        logger(VERBOSE, "-------------LevelTree is deleted.");
     }
     
     template<class V>

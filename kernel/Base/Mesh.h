@@ -59,7 +59,6 @@ namespace Base
 
         bool addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType = Geometry::FaceType::WALL_BC);
 
-        //void addEdge(std::vector< Element*> elements, std::vector<std::size_t> localEdgeNrs);
         void addEdge();
 
         void addNode(Geometry::PointPhysical node);
@@ -208,7 +207,8 @@ namespace Base
     private:
         
         //! 'distributes' the mesh across the nodes
-        //! this routine assumes all threads generated the mesh in the same way (so no randomness or thread dependence)
+        //! this routine assumes all threads generated the mesh in the same way 
+        //! (so no randomness or thread dependence)
         void split();
 
         bool hasToSplit_;
@@ -221,10 +221,12 @@ namespace Base
         std::size_t faceCounter_;
         std::size_t edgeCounter_;
         std::size_t nodeCounter_;
-        //! List of all elements. TODO: this should be replaced by the mesh-tree structure
+        //! List of all elements. 
+        //! \TODO: this should be replaced by the mesh-tree structure
         std::vector<Element*> elements_;
 
-        //! List of all faces. TODO: this should be replaced by the mesh-tree structure
+        //! List of all faces. 
+        //! \TODO: this should be replaced by the mesh-tree structure
         std::vector<Face*> faces_;
 
         //! List of all edges.

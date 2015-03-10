@@ -26,6 +26,7 @@
 #include <deque>
 #include <vector>
 #include <iostream>
+#include "Logger.h"
 //------------------------------------------------------------------------------
 // Package includes:
 

@@ -47,19 +47,19 @@ namespace Base
         //!provide the non-constant information and get an Element!
         Element* makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical>& points, std::size_t elementcounter);
 
-        //!mesh creation routines can use this to set their desired defualts
+        //!mesh creation routines can use this to set their desired defaults
         void setCollectionOfBasisFunctionSets(std::vector<const BasisFunctionSet*>const * functions);
 
-        //!mesh creation routines can use this to set their desired defualts
+        //!mesh creation routines can use this to set their desired defaults
         void setNumberOfUnknowns(std::size_t unknowns);
 
-        //!mesh creation routines can use this to set their desired defualts
+        //!mesh creation routines can use this to set their desired defaults
         void setNumberOfTimeLevels(std::size_t timeLevels);
 
-        //!mesh creation routines can use this to set their desired defualts
+        //!mesh creation routines can use this to set their desired defaults
         void setNumberOfMatrices(std::size_t matrices);
 
-        //!mesh creation routines can use this to set their desired defualts
+        //!mesh creation routines can use this to set their desired defaults
         void setNumberOfVectors(std::size_t vectors);
 
     private:

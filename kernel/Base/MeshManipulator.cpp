@@ -69,21 +69,13 @@
 #include <array>
 #include <numeric>
 
-//
-//  MeshManipulator.cpp
-//
-//
-//  Created by Shavarsh Nurijanyan on 9/4/13.
-//
-//
-
 namespace Base
 {
-    /// \brief This is the function that checks if two halfFaces nned to swapped or not.
-    /// \details
     
     /*!
-     *  Implements a named version of operator<() that sorts first on first index, then on second index and so on
+     * \brief This is the function that checks if two halfFaces need to swapped or not.
+     *  \details Implements a named version of operator<() that sorts first on 
+     * first index, then on second index and so on.
      !*/
     bool compareHalfFace(HalfFaceDescription first, HalfFaceDescription second)
     {
@@ -103,11 +95,6 @@ namespace Base
         //give a consistent return value
         return first.elementNum > second.elementNum;
     }
-    
-    //deleted a failed attempt to implement compareHalfFace that was already commented out see revision <325 for details -FB 
-    //***********************************************************************************************************************
-    //***********************************************************************************************************************
-    //***********************************************************************************************************************
     
     void MeshManipulator::createDefaultBasisFunctions(std::size_t order)
     {
@@ -213,11 +200,8 @@ namespace Base
     
     MeshManipulator::MeshManipulator(const ConfigurationData* config, bool xPer, bool yPer, bool zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrtixes, std::size_t nrOfFaceVectors)
             : configData_(config), periodicX_(xPer), periodicY_(yPer), periodicZ_(zPer),
-            //activeMeshTree_(0),
-            //numMeshTree_(0),
             numberOfElementMatrixes_(nrOfElementMatrixes), numberOfElementVectors_(nrOfElementVectors), numberOfFaceMatrixes_(nrOfFaceMatrtixes), numberOfFaceVectors_(nrOfFaceVectors), meshMover_(nullptr)
     {
-        
         std::cout << "******Mesh creation started!**************" << std::endl;
         std::size_t DIM = configData_->dimension_;
         for (std::size_t i = 0; i < DIM; ++i)
@@ -234,21 +218,15 @@ namespace Base
         
         //createNewMeshTree();
         std::cout << "******Mesh creation is finished!**********" << std::endl;
-        //std::cout<<"noOfElementVector = "<<nrOfElementVectors<<std::endl;
-        //std::cout<<"noOfFaceVector = "<<nrOfFaceVectors<<std::endl;
+        logger(VERBOSE, "nrOfElementVector = %", nrOfElementVectors);
+        logger(VERBOSE, "nrOfFaceVector = %", nrOfFaceVectors);
     }
     
     MeshManipulator::MeshManipulator(const MeshManipulator& other)
             : configData_(other.configData_), theMesh_(other.theMesh_), periodicX_(other.periodicX_), periodicY_(other.periodicY_), periodicZ_(other.periodicZ_), meshMover_(other.meshMover_),
-            //defaultSetOfBasisFunctions_(other.defaultSetOfBasisFunctions_),
             collBasisFSet_(other.collBasisFSet_),
-            //activeMeshTree_(other.activeMeshTree_),
-            //numMeshTree_(other.numMeshTree_),
-            //vecOfElementTree_(other.vecOfElementTree_),
-            //vecOfFaceTree_(other.vecOfFaceTree_),
             numberOfElementMatrixes_(other.numberOfElementMatrixes_), numberOfElementVectors_(other.numberOfElementVectors_), numberOfFaceMatrixes_(other.numberOfFaceMatrixes_), numberOfFaceVectors_(other.numberOfFaceVectors_)
-    {
-        
+    {        
     }
     
     MeshManipulator::~MeshManipulator()
@@ -257,17 +235,11 @@ namespace Base
         for (typename CollectionOfBasisFunctionSets::iterator bit = collBasisFSet_.begin(); bit != collBasisFSet_.end(); ++bit)
         {
             const BasisFunctionSetT* bf = *bit;
-            delete bf; ///\bug segfaults when using two meshes with the same sets of basisfunctions
+            ///\bug segfaults when using two meshes with the same sets of basisfunctions
+            delete bf; 
         }
         
         delete meshMover_;
-        //delete defaultSetOfBasisFunctions_;
-        
-        // Kill all elements in all mesh-tree
-        //while (!vecOfElementTree_.empty()) {
-        //delete vecOfElementTree_.back();
-        //vecOfElementTree_.pop_back();
-        //}
     }
     
     void MeshManipulator::setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet)
@@ -352,6 +324,7 @@ namespace Base
         {
             collBasisFSet_.push_back(it);
         }
+        logger(DEBUG, "In MeshManipulator::addEdgeBasisFunctionSet: ");
         for (Edge* edge : getEdgesList())
         {
             for (std::size_t i = 0; i < edge->getNrOfElements(); ++i)
@@ -361,7 +334,8 @@ namespace Base
                     if (bFsets[j]->checkOrientation(edge->getOrientation(i), edge->getEdgeNr(i)))
                     {
                         edge->getElement(i)->setEdgeBasisFunctionSet(firstNewEntry + j, edge->getEdgeNr(i));
-                        //cout<<edge->getOrientation(i)<<edge->getEdgeNr(i)<<bFsets[j]->size()<<endl;
+                        logger(DEBUG, "% % %", edge->getOrientation(i), 
+                               edge->getEdgeNr(i), bFsets[j]->size());
                     }
                 }
             }
@@ -385,9 +359,6 @@ namespace Base
                 meshMover_->movePoint(p);
             }
         }
-        /*for(Base::Element* element:getElementsList()){
-         const_cast<Geometry::MappingReferenceToPhysical*>(element->getReferenceToPhysicalMap())->reinit(element->getPhysicalGeometry());
-         }*/
     }
     
     void MeshManipulator::setMeshMover(const MeshMoverBase* meshMover)
@@ -399,11 +370,6 @@ namespace Base
     {
         return theMesh_.addFace(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, faceType);
     }
-    
-    //void
-    //MeshManipulator::addEdge(std::vector< Element*> elements, std::vector<std::size_t> localEdgeNrs) {
-    //    theMesh_.addEdge(elements, localEdgeNrs);
-    //}
     
     void MeshManipulator::addEdge()
     {
@@ -429,15 +395,6 @@ namespace Base
             os << "Element " << element->getID() << " " << element << std::endl;
             elementNum++;
         }
-        
-        /*int faceNum=0;
-         for (typename ListOfFacesT::const_iterator cit=faces_.begin(); cit !=faces_.end(); ++cit)
-         {
-         /// \bug need at output routine for the face to test this.
-         // os << "Face " <<faceNum <<" " <<(*cit)<<endl;
-         faceNum++;
-         }*/
-
     }
     
     void MeshManipulator::createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const VectorOfPointIndicesT& linearNoElements)
@@ -540,10 +497,6 @@ namespace Base
         
         std::vector<std::size_t> elementNdId(DIM), nodeNdId(DIM), vertexNdId(DIM), globalNodeID(verticesPerElement), globalVertexID(verticesPerElement);
         
-        //This will store a two array, which goes elementNumber and the n-DIMensional coordinate of that element. This is only used for the face creation (step 4).
-        //std::vector<std::vector<std::size_t> > allElementNdId;
-        //allElementNdId.resize(totalNumOfElements);
-        
         auto& vertexlist = getVerticesList(IteratorType::GLOBAL);
         auto& elementlist = getElementsList(IteratorType::GLOBAL);
         
@@ -594,8 +547,9 @@ namespace Base
         
     }
     
-    //createTrianglularMesh follows the same structure as createRectangularMesh. Where createRectangularMesh makes rectangular elements, createTrianglularMesh splits the elements into a partition of triangles.
-    
+    //createTrianglularMesh follows the same structure as createRectangularMesh. 
+    //Where createRectangularMesh makes rectangular elements, createTrianglularMesh
+    //splits the elements into a partition of triangles.    
     void MeshManipulator::createTriangularMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, const VectorOfPointIndicesT& linearNoElements)
     {
         //set to correct value in case some other meshmanipulator changed things
@@ -681,13 +635,6 @@ namespace Base
             numOfNodesInEachSubspace[idim] = numOfNodesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + 1);
             numOfVerticesInEachSubspace[idim] = numOfVerticesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + (periodicDIM[idim - 1] ? 0 : 1));
         }
-        
-        //'elements' in this counter denote groups of trianglesPerRectangle elements
-        //totalNumOfElements*=(trianglesPerRectangle);
-        //for(int idim=0;idim<DIM;++idim)
-        //{
-        // numOfElementsInEachSubspace[idim]*=(trianglesPerRectangle);
-        //}
         
         PointPhysicalT x(DIM);
         
@@ -991,7 +938,6 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             if (numberOfTriangles > 0)
             {
-                //unsigned int triGlobalNodeIndexes[3];
                 std::vector<std::uint32_t> globalNodeIndexes(3);
                 std::vector<std::size_t> globalNodeIndexesSizeT(3);
                 
@@ -1132,7 +1078,6 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
             //read the half-faces and store them until we get to the boundary information
-            //std::uint32_t nodesForEachFace[2];
             std::vector<HalfFaceDescription> boundaryFaces(numberOfBoundaryFaces);
             
             for (uint_fast32_t i = 0; i < numberOfBoundaryFaces; ++i)
@@ -1531,7 +1476,8 @@ namespace Base
                 nodeCoordPointFormat[0] = nodeCoord[0];
                 nodeCoordPointFormat[1] = nodeCoord[1];
                 nodeCoordPointFormat[2] = nodeCoord[2];
-                //std::cout << nodeCoordPointFormat << std::endl;
+                logger(DEBUG, "In MeshManipulator::readCentaurMesh3D, "
+                        "nodeCoordPointFormat = %", nodeCoordPointFormat);
                 theMesh_.addNode(nodeCoordPointFormat);
                 
             }
@@ -1572,7 +1518,6 @@ namespace Base
                     return;
                 }
                 
-                //std::uint32_t hexahedralGlobalNodeIndexes[8];
                 std::uint32_t temp;
                 std::vector<std::uint32_t> globalNodeIndexes(8);
                 std::vector<std::size_t> globalNodeIndexesSizeT(8);
@@ -1650,7 +1595,6 @@ namespace Base
                 return;
             }
             
-            //unsigned int prismaticGlobalNodeIndexes[6];
             std::vector<std::uint32_t> globalNodeIndexes(6);
             std::vector<std::size_t> globalNodeIndexesSizeT(6);
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -1718,7 +1662,6 @@ namespace Base
                     return;
                 }
                 
-                //unsigned int pyramidGlobalNodeIndexes[5];
                 std::uint32_t temp;
                 globalNodeIndexes.resize(5);
                 globalNodeIndexesSizeT.resize(5);
@@ -1825,7 +1768,6 @@ namespace Base
                 return;
             }
             
-            //unsigned int tetrahedralGlobalNodeIndexes[4];
             globalNodeIndexes.resize(4);
             globalNodeIndexesSizeT.resize(4);
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -3524,8 +3466,7 @@ namespace Base
     
     //the algorithm for the edge factory is based on that of the face factory
     //with some minor adaptation to account for the fact that there may be
-    //more than two elements per edge
-    
+    //more than two elements per edge    
     ///\bug does not do 4D yet
     void MeshManipulator::edgeFactory()
     {
@@ -3576,666 +3517,18 @@ namespace Base
             }
         }
     }
-    
-    //---------------------------------------------------------------------
-    
-    /*int MeshManipulator::getNumberOfMeshes() const {
-     return vecOfElementTree_.size();
-     }
 
-     //! Create a new (empty) mesh-tree.
-
-     void MeshManipulator::createNewMeshTree() {
-     //vecOfElementTree_.push_back(new ElementLevelTreeT);
-     //vecOfFaceTree_.push_back(new FaceLevelTreeT);
-     //++numMeshTree_;
-     //setActiveMeshTree(numMeshTree_ - 1);
-     }
-
-     //! Get the element container of a specific mesh-tree.
-
-     typename MeshManipulator::ElementLevelTreeT*
-     MeshManipulator::ElCont(int meshTreeIdx) const {
-     int onIndex;
-     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_)) {
-     onIndex = meshTreeIdx;
-     } else if ((meshTreeIdx == -1) && (activeMeshTree_ >= 0)) {
-     onIndex = activeMeshTree_;
-     } else
-     throw "MeshManipulator::ElCont(): invalid mesh-tree index or no active mesh-tree.";
-
-     return vecOfElementTree_[onIndex];
-     }
-
-     //! Get the face container of a specific mesh-tree.
-
-     typename MeshManipulator::FaceLevelTreeT*
-     MeshManipulator::FaCont(int meshTreeIdx) const {
-     int onIndex;
-     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_)) {
-     onIndex = meshTreeIdx;
-     } else if ((meshTreeIdx == -1) && (activeMeshTree_ >= 0)) {
-     onIndex = activeMeshTree_;
-     } else
-     throw "MeshManipulator::FaCont(): invalid mesh-tree index or no active mesh-tree.";
-
-     return vecOfFaceTree_[onIndex];
-     }
-
-     //! Some mesh generator: centaur / rectangular / triangle / tetrahedra / triangular-prism.
-
-     void
-     MeshManipulator::someMeshGenerator(int meshTreeIdx) {
-     //set to correct value in case some other meshmanipulator changed things
-     ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
-     ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
-     ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
-     ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
-     ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
-     FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
-     FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
-     int onIndex;
-     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
-     {
-     onIndex = meshTreeIdx;
-     }
-     else if ((meshTreeIdx == -1) && (activeMeshTree_ >= 0))
-     {
-     onIndex = activeMeshTree_;
-     }
-     else
-     throw "MeshManipulator::someMeshGenerator(): invalid mesh-tree index or no active mesh-tree.";
-     
-     const int numberOfElement = 1 + (rand() % 10);
-     const int startElementId = (onIndex+1)*1000;
-     for (int id=startElementId; id<startElementId+numberOfElement; ++id)
-     {
-     ElementT el(id);
-     vecOfElementTree_[onIndex]->addEntry(el);
-     }
-
-     const int numberOfFace = 1 + (rand() % 10);
-     const int startFaceId = (onIndex+1)*1000;
-     for (int id=startFaceId; id<startFaceId+numberOfFace; ++id)
-     {
-     FaceT fa(id);
-     vecOfFaceTree_[onIndex]->addEntry(fa);
-     }
-     }
-
-     //! Set active mesh-tree.
-
-     void
-     MeshManipulator::setActiveMeshTree(std::size_t meshTreeIdx) {
-     if (meshTreeIdx < numMeshTree_)
-     activeMeshTree_ = meshTreeIdx;
-     else
-     throw "MeshManipulator<DIM>::setActiveMeshTree(): invalid mesh-tree index.\n";
-     }
-
-     //! Get active mesh-tree index.
-
-     int
-     MeshManipulator::getActiveMeshTree() const {
-     return activeMeshTree_;
-     }
-
-     //! Reset active mesh-tree.
-
-     void
-     MeshManipulator::resetActiveMeshTree() {
-     activeMeshTree_ = -1;
-     }*/
-
-    Mesh&
-    MeshManipulator::getMesh()
+    Mesh& MeshManipulator::getMesh()
     {
         return theMesh_;
     }
     
-    const Mesh&
-    MeshManipulator::getMesh() const
+    const Mesh& MeshManipulator::getMesh() const
     {
         return theMesh_;
     }
     
-    //! Get maximum h-level of a specific mesh-tree.
-    
-    /*std::size_t
-     MeshManipulator::getMaxLevel(int meshTreeIdx) const {
-     int onIndex;
-     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_))
-     {
-     onIndex = meshTreeIdx;
-     }
-     else if ((meshTreeIdx == -1) && (activeMeshTree_ >= 0))
-     {
-     onIndex = activeMeshTree_;
-     }
-     else
-     throw "MeshManipulator::getMaxLevel(): invalid mesh-tree index or no active mesh-tree.";
-     
-     return vecOfElementTree_[onIndex]->maxLevel();
-     }
-
-     //! Set active level of a specific mesh-tree.
-
-     void
-     MeshManipulator::setActiveLevel(std::size_t meshTreeIdx, int level) {
-     int onIndex;
-     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_)) {
-     onIndex = meshTreeIdx;
-     } else if ((meshTreeIdx == -1) && (activeMeshTree_ >= 0)) {
-     onIndex = activeMeshTree_;
-     } else
-     throw "MeshManipulator::setActiveLevel(): invalid mesh-tree index or no active mesh-tree.";
-
-     //if ((level >= 0) && (level <= vecOfElementTree_[onIndex]->maxLevel()))
-     //{
-     //  vecOfElementTree_[onIndex]->setActiveLevel(level);
-     //  vecOfFaceTree_[onIndex]->setActiveLevel(level);
-     //}
-     //else
-     throw "MeshManipulator::setActiveLevel(): invalid level.";
-
-     }
-
-     //! Get active level of a specific mesh-tree.
-
-     int
-     MeshManipulator::getActiveLevel(int meshTreeIdx) const {
-     int onIndex;
-     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_)) {
-     onIndex = meshTreeIdx;
-     } else if ((meshTreeIdx == -1) && (activeMeshTree_ >= 0)) {
-     onIndex = activeMeshTree_;
-     } else
-     throw "MeshManipulator::getActiveLevel(): invalid mesh-tree index or no active mesh-tree.";
-
-     //return vecOfElementTree_[onIndex]->getActiveLevel();
-     }
-
-     //! Reset active level of a specific mesh-tree.
-
-     void
-     MeshManipulator::resetActiveLevel(int meshTreeIdx) {
-     int onIndex;
-     if ((meshTreeIdx >= 0) && (meshTreeIdx < numMeshTree_)) {
-     onIndex = meshTreeIdx;
-     } else if ((meshTreeIdx == -1) && (activeMeshTree_ >= 0)) {
-     onIndex = activeMeshTree_;
-     } else
-     throw "MeshManipulator::resetActiveLevel(): invalid mesh-tree index or no active mesh-tree.";
-
-     //vecOfElementTree_[onIndex]->resetActiveLevel();
-     //vecOfFaceTree_[onIndex]->resetActiveLevel();
-     }
-
-     //! Duplicate mesh contents including all refined meshes.
-
-     void
-     MeshManipulator::duplicate(std::size_t fromMeshTreeIdx, std::size_t toMeshTreeIdx, std::size_t upToLevel) {
-     ///\todo implement method
-     }
-
-     //! Refine a specific mesh-tree.
-
-     void
-     MeshManipulator::doRefinement(std::size_t meshTreeIdx, int refinementType) {
-     int level = getMaxLevel(meshTreeIdx);
-     setActiveLevel(meshTreeIdx, level);
-
-     if (refinementType == -1) {
-     // elements should have been flagged before calling this
-     std::cout << "MeshManipulator::doRefinement(Mesh(" << meshTreeIdx << "))\n";
-     doElementRefinement(meshTreeIdx);
-     doFaceRefinement(meshTreeIdx);
-     //for (ElementIteratorT it=ElCont(meshTreeIdx)->beginLevel(level); it != ElCont(meshTreeIdx)->end(); ++it)
-     {
-     // reset element's marking for refinement
-     //           it->unsetRefineType();
-     //           it->setBeingRefinedOff();
-     }
-     } else {
-     // apply the uniform mesh refinement
-     for (ElementIteratorT it=ElCont(meshTreeIdx)->beginLevel(level); it != ElCont(meshTreeIdx)->end(); ++it)
-     {
-     // mark element for refinement
-     it->setRefineType(refinementType);
-     }
-
-     std::cout << "MeshManipulator<" << DIM << ">::doRefinement(" << meshTreeIdx << "," << refinementType << ")\n";
-     doElementRefinement(meshTreeIdx);
-     doFaceRefinement(meshTreeIdx);
-     for (ElementIteratorT it=ElCont(meshTreeIdx).beginLevel(level); it != ElCont(meshTreeIdx).end(); ++it)
-     {
-     // reset element's marking for refinement
-     //           it->unsetRefineType();
-     //           it->setBeingRefinedOff();
-     }
-     }
-
-     level = getMaxLevel(meshTreeIdx);
-     setActiveLevel(meshTreeIdx, level);
-     }
-
-     //! Do refinement on the elements.
-
-     void
-     MeshManipulator::doElementRefinement(std::size_t meshTreeIdx) {
-     std::size_t needDummyFaceOnLevel = 0;
-     std::vector<ElementT*> vecElementsToRefined; // list of unrefined elements
-     //for (ElementIteratorT el=ElCont(meshTreeIdx)->begin(); el != ElCont(meshTreeIdx)->end(); ++el)
-     {
-     Geometry::RefinementGeometry* RG = el->getRefinementGeometry();
-     
-     int refineType;
-     //         refineType = el->getRefineType();   // TODO: add this to Element
-
-
-
-     if (refineType  < 0)   // not refined, just duplicate the element
-     {
-     vecElementsToRefined.push_back(&(*el));
-     needDummyFaceOnLevel = el->getLevel()+1;
-     continue;
-     }
-
-     // ********* Add new nodes to the container
-     //----------------------------------------
-     RG->getAllNodes(refineType, VectorOfPointPhysicalsT& nodes);
-     std::size_t nrNewNodes = nrOfNewNodes(refineType);
-     std::size_t nrAllNodes = nodes.size();
-     std::size_t nrOldNodes = nrAllNodes - nrNewNodes;
-     
-     // get physical nodes of this elements
-     VectorOfPhysicalPointsT nodesPhys;    // vector of physical points
-     VectorOfPointIndexesT   nodesIdx;     // vector of global indices
-     for (PointIndexT j=0; j<nrVertices; ++j)
-     {
-     PointPhysicalT p;       // a physical node
-     PointIndexT pIdx;       // a global index
-     PG->getVertexPoint (j, p);
-     pIdx = PG->getVertexIndex (j);
-     nodesPhys.push_back(p);
-     nodesIdx.push_back(pIdx);
-     }
-
-     // get new physical nodes due to the refinement, and add them
-     // up to the nodes collection of this element
-     PG->NewPhysicalNodes(refineType, nodesPhys);
-
-     // add the new physical nodes into the nodes container
-     // and get their global indices
-     for (LocalPointIndexT j=nrVertices; j<nodesPhys.size(); ++j)
-     {
-     int pIdx = PCptr->getGlobalIndex(nodesPhys[j]);
-     if (pIdx >= 0)
-     {
-     // it's already exist
-     nodesIdx.push_back(pIdx);
-     }
-     else
-     {
-     // it's not exist yet.  Add it to the node container
-     MeshBase<DIM>::AllNodes.addRoot(nodesPhys[j]);
-     nodesIdx.push_back(PCptr->size()-1);
-     }
-     }
-     // Now we already have all nodes: being used by this element and
-     // to be used by the new sub-elements.
-
-     // ********* Add sub-elements to the container
-     //----------------------------------------
-     std::size_t nrNewElements = PG->nrOfSubElements(refineType);
-     std::vector<ElementBase*> vecSubElements;
-     for (std::size_t j=0; j<nrNewElements; ++j)
-     {
-     VectorOfPointIndexesT localNodeIndexes;
-     PG->SubElementNodeIndexes(refineType, j, localNodeIndexes);
-     ElementDescriptor elDescriptor(localNodeIndexes.size());
-     for (VectorOfPointIndexesT k=0; k<localNodeIndexes.size(); ++k)
-     {
-     elDescriptor.addNode(nodesIdx[localNodeIndexes[k]]);
-     }
-
-     //             ElementFactory<DIM> elFactory(*this);
-     //             ElementT *elem = elFactory.makeElement(&elDescriptor);
-     //             elem->setRefinementType(refineType);
-     //             vecSubElements.push_back(elem);
-     }
-     
-     // Add the sub-elements as the children of this element
-     ElementIteratorT elIt = ElCont(meshTreeIdx).addChildren(el, vecSubElements);
-     
-     // Clear up the storage
-     nodesPhys.clear(); // clear vector of physical points
-     nodesIdx.clear();  // clear vector of global index
-
-     
-     // ********* Add sub-Internal Faces to the container
-     //----------------------------------------
-     VectorOfPointIndexesT elementIdx1;
-     VectorOfPointIndexesT elementIdx2;
-     VectorOfPointIndexesT localFaceIdx1;
-     VectorOfPointIndexesT localFaceIdx2;
-     PG->AdjacentSubElementsPairs(refineType, elementIdx1,localFaceIdx1, elementIdx2,localFaceIdx2);
-     std::size_t nrOfNewFaces = elementIdx1.size();
-
-     std::vector<FaceT*> vecSubFaces;
-     for (std::size_t j=0; j<nrOfNewFaces; ++j)
-     {
-     // Create the face, connecting the two elements
-     ElementT* el1 = vecSubElements[elementIdx1[j]];
-     ElementT* el2 = vecSubElements[elementIdx2[j]];
-     FaceT* iFace = new FaceT( el1, localFaceIdx1[j], el2, localFaceIdx2[j]);
-     vecSubFaces.push_back(iFace);
-     }
-     // Add them to the container as the children of a dummy face
-     FaceIteratorT fa = FaCont(meshTreeIdx).getDummyFace(el->getLevel());
-
-     FaCont(meshTreeIdx).addChildren(fa, vecSubFaces);
-     vecSubFaces.clear();
-     
-     // Mark that this element was just refined
-     el->setJustRefined();
-     vecSubElements.clear();
-
-     } // end of loop over elements
-
-     if (needDummyFaceOnLevel)
-     {
-     FaCont(meshTreeIdx).getDummyFace(needDummyFaceOnLevel);
-     }
-     
-     std::vector<ElementT*> vecEmpty;  // empty list of new elements
-     while(!vecElementsToRefined.empty()) 
-     {
-     ElementT *elem = vecElementsToRefined.back();
-     ElementIteratorT elIt = ElCont(meshTreeIdx).addChildren(elem->getIterator(), vecEmpty);
-     vecElementsToRefined.pop_back();
-     }
-     }
-
-     //! Do refinement on the faces.
-
-     void
-     MeshManipulator::doFaceRefinement(std::size_t meshTreeIdx) {
-     ///\bug nothing happens
-     }
-
-
-     //! Check whether the two elements may be connected by a face or not.
-
-     void
-     MeshManipulator::pairingCheck(const ElementIterator elL, std::size_t locFaceNrL,
-     const ElementIterator elR, std::size_t locFaceNrR,
-     int& pairingValue, bool& sizeOrder)
-     // pairingValue: 0=not match, 1=partial match, 2=perfect match
-     // sizeOrder: true = LR,  false = RL
-     {
-     // get node numbers from left (and right) sides
-     std::vector<PointIndexT> globNodesL;
-     std::vector<PointIndexT> globNodesR;
-
-     const Geometry::PhysicalGeometry * const leftPG = (*elL)->getPhysicalGeometry();
-     const Geometry::PhysicalGeometry* rightPG;
-
-     leftPG->getGlobalFaceNodeIndices(locFaceNrL, globNodesL);
-     if (*elR != 0) {
-     rightPG = (*elR)->getPhysicalGeometry();
-     rightPG->getGlobalFaceNodeIndices(locFaceNrR, globNodesR);
-     }
-
-     // store them as sets
-     std::set<PointIndexT> setL(globNodesL.data(), globNodesL.data() + globNodesL.size());
-     std::set<PointIndexT> setR(globNodesR.data(), globNodesR.data() + globNodesR.size());
-
-     if (setL == setR) {
-     // nodes of the faces are match
-     pairingValue = 2;
-     sizeOrder = true;
-     return;
-     }
-
-     std::set<PointIndexT> commNodes;
-     std::set_intersection(setL.begin(), setL.end(), setR.begin(), setR.end(), std::inserter(commNodes, commNodes.begin()));
-
-     std::size_t nrNodesL = globNodesL.size();
-     std::size_t nrNodesR = globNodesR.size();
-     if (nrNodesL != nrNodesR) {
-     pairingValue = 0;
-     return;
-     }
-
-     std::set<PointIndexT> diffNodesL;
-     std::set_difference(setL.begin(), setL.end(), commNodes.begin(), commNodes.end(), std::inserter(diffNodesL, diffNodesL.end()));
-
-     std::set<PointIndexT> diffNodesR;
-     std::set_difference(setR.begin(), setR.end(), commNodes.begin(), commNodes.end(), std::inserter(diffNodesR, diffNodesR.end()));
-
-     using SetIterType = std::set<PointIndexT>::iterator;
-
-     // do collinear test for all possible pairs
-     pairingValue = 1;
-
-     // order of face sizes: true = LR;  false = RL
-     sizeOrder = true;
-
-     std::size_t DIM = configData_->dimension_;
-
-     // loop until empty or until the faces proved not collinear
-     while (!diffNodesL.empty()) {
-     SetIterType itDiffL = diffNodesL.begin();
-     PointPhysicalT ppL(DIM);
-     leftPG->getGlobalNodeCoordinates(*itDiffL, ppL);
-
-     bool foundCollinear(false);
-     SetIterType itDiffL2;
-     SetIterType itDiffR;
-     SetIterType itDiffR2;
-     for (itDiffR = diffNodesR.begin(); itDiffR != diffNodesR.end(); ++itDiffR) {
-     PointPhysicalT ppR(DIM);
-     rightPG->getGlobalNodeCoordinates(*itDiffR, ppR);
-
-     if (commNodes.size() > 0) {
-     for (SetIterType itCommon = commNodes.begin(); itCommon != commNodes.end(); ++itCommon) {
-     PointPhysicalT pp0(DIM);
-     leftPG->getGlobalNodeCoordinates(*itCommon, pp0);
-
-     //-------------
-     // perform 3-nodes collinear test
-     PointPhysicalT dL(ppL - pp0);
-     PointPhysicalT dR(ppR - pp0);
-
-     double ratio = 0.;
-     std::size_t d;
-     for (d = 0; d < DIM; ++d) {
-     if (std::abs(dR[d]) > Geometry::SmallerDoubleThanMinimalSizeOfTheMesh) {
-     ratio = dL[d] / dR[d];
-     break;
-     }
-     }
-
-     if (ratio < 0.) {
-     pairingValue = 0;
-     return;
-     }
-
-     foundCollinear = true;
-     for (; d < DIM; ++d) {
-     if (std::abs(dR[d]) > Geometry::SmallerDoubleThanMinimalSizeOfTheMesh) {
-     if (dL[d] / dR[d] < 0.) {
-     foundCollinear = false;
-     break;
-     }
-
-     if (std::abs(dL[d] / dR[d] - ratio) > Geometry::SmallerDoubleThanMinimalSizeOfTheMesh) {
-     foundCollinear = false;
-     break;
-     }
-     }
-     }
-
-     // order of face sizes: true = LR;  false = RL
-     sizeOrder = (sizeOrder && (ratio <= 1.0));
-
-     // found a collinear nodes pair
-     if (foundCollinear) break;
-     } // for itCommon
-     }// if (commNodes.size() > 0)
-     else
-     // no common nodes
-     {
-     for (itDiffL2 = diffNodesL.begin(); itDiffL2 != diffNodesL.end(); ++itDiffL2) {
-     if ((itDiffL2 == itDiffL) || (itDiffL2 == itDiffR))
-     continue;
-
-     PointPhysicalT ppL2(DIM);
-     leftPG->getGlobalNodeCoordinates(*itDiffL2, ppL2);
-
-     for (itDiffR2 = diffNodesR.begin(); itDiffR2 != diffNodesR.end(); ++itDiffR2) {
-     if ((*itDiffR2 == *itDiffR) || (*itDiffR2 == *itDiffL) || (*itDiffR2 == *itDiffL2))
-     continue;
-
-     PointPhysicalT ppR2(DIM);
-     rightPG->getGlobalNodeCoordinates(*itDiffR2, ppR2);
-
-     //-------------
-     // perform two 3-nodes pairs collinear test 
-     PointPhysicalT dL1(ppL - ppR);
-     PointPhysicalT dR1(ppL2 - ppR);
-
-     PointPhysicalT dL2(ppL2 - ppR);
-     PointPhysicalT dR2(ppR2 - ppR);
-
-     PointPhysicalT dL3(ppL - ppR2);
-     PointPhysicalT dR3(ppR - ppR2);
-
-     double ratio1 = 0.;
-     double ratio2 = 0.;
-     double ratio3 = 0.;
-     std::size_t d1;
-     std::size_t d2;
-     std::size_t d3;
-     for (d1 = 0; d1 < DIM; ++d1) {
-     if (std::abs(dR1[d1]) > Geometry::SmallerDoubleThanMinimalSizeOfTheMesh) {
-     ratio1 = dL1[d1] / dR1[d1];
-     break;
-     }
-     }
-
-     for (d2 = 0; d2 < DIM; ++d2) {
-     if (std::abs(dR2[d2]) > Geometry::SmallerDoubleThanMinimalSizeOfTheMesh) {
-     ratio2 = dL2[d2] / dR2[d2];
-     break;
-     }
-     }
-
-     for (d3 = 0; d3 < DIM; ++d3) {
-     if (std::abs(dR3[d3]) > Geometry::SmallerDoubleThanMinimalSizeOfTheMesh) {
-     ratio3 = dL3[d3] / dR3[d3];
-     break;
-     }
-     }
-
-     if ((ratio1 < 0) || (ratio2 < 0) || (ratio3 < 0)) {
-     pairingValue = 0;
-     return;
-     }
-
-     foundCollinear = true;
-     for (; d1 < DIM; ++d1) {
-     if (std::abs(dR1[d1]) > Geometry::SmallerDoubleThanMinimalSizeOfTheMesh) {
-     if (dL1[d1] / dR1[d1] < 0.) {
-     pairingValue = 0;
-     return;
-     }
-
-     if (std::abs(dL1[d1] / dR1[d1] - ratio1) > Geometry::SmallerDoubleThanMinimalSizeOfTheMesh) {
-     foundCollinear = false;
-     break;
-     }
-     }
-     }
-
-     for (; (d2 < DIM) && foundCollinear; ++d2) {
-     if (std::abs(dR2[d2]) > Geometry::SmallerDoubleThanMinimalSizeOfTheMesh) {
-     if (dL2[d2] / dR2[d2] < 0.) {
-     pairingValue = 0;
-     return;
-     }
-
-     if (std::abs(dL2[d2] / dR2[d2] - ratio2) > Geometry::SmallerDoubleThanMinimalSizeOfTheMesh) {
-     foundCollinear = false;
-     break;
-     }
-     }
-     }
-
-     for (; (d3 < DIM) && foundCollinear; ++d3) {
-     if (std::abs(dR3[d3]) > Geometry::SmallerDoubleThanMinimalSizeOfTheMesh) {
-     if (dL3[d3] / dR3[d3] < 0.) {
-     pairingValue = 0;
-     return;
-     }
-
-     if (std::abs(dL3[d3] / dR3[d3] - ratio3) > Geometry::SmallerDoubleThanMinimalSizeOfTheMesh) {
-     foundCollinear = false;
-     break;
-     }
-     }
-     }
-
-     // found a collinear nodes pair
-     if (foundCollinear) break; // itDiffR2 will be deleted
-     }
-     // found a collinear nodes pair
-     if (foundCollinear) break; // itDiffL2 will be deleted
-     } // for itDiffL2
-     } //  else, no common nodes
-
-     // found a collinear nodes pair
-     if (foundCollinear) break; // itDiffR will be deleted
-     } // for itDiffR
-
-     if (foundCollinear)
-     // found a collinear nodes pair
-     {
-     if (commNodes.size() > 0) {
-     diffNodesR.erase(itDiffR);
-     } else {
-     diffNodesL.erase(itDiffL2);
-     diffNodesR.erase(itDiffR);
-     diffNodesR.erase(itDiffR2);
-     }
-     } else
-     // the faces are not collinear
-     {
-     pairingValue = 0;
-     break;
-     }
-
-     diffNodesL.erase(itDiffL);
-     } // end while-loop
-
-     if (!diffNodesR.empty())
-     pairingValue = 0;
-
-     } // end pairingCheck
-
-     //! Check whether the two elements may be connected by a face or not in periodic face case.
-     void
-     MeshManipulator::periodicPairingCheck(const FaceIteratorT fa,
-     const ElementIteratorT elL, std::size_t localFaceNrL,
-     const ElementIteratorT elR, std::size_t localFaceNrR,
-     int& pairingValue, bool& sizeOrder)
-     {
-     
-     }*/
-    //---------------------------------------------------------------------
-    std::size_t MeshManipulator //: public MeshRefiner <DIM>
-    ::dimension() const
+    std::size_t MeshManipulator::dimension() const
     {
         return configData_->dimension_;
     }
