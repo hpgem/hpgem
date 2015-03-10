@@ -24,6 +24,19 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "ElementCacheData.h"
 
+#include <limits>
+
+Base::Element& Base::ShortTermStorageElementBase::operator=(const Base::Element& element)
+{
+    logger.assert(this != &element, "Trying to assign an Element of the type ShortTermStorageElementBase to itself.");
+
+    element_ = &element;
+
+    currentPoint_[0] = std::numeric_limits<double>::quiet_NaN();
+    currentPointIndex_ = -1;
+    return *this;
+}
+
 Geometry::PointPhysical Base::ShortTermStorageElementBase::referenceToPhysical(const PointReferenceT& pointReference) const
 {
     return element_->referenceToPhysical(pointReference);

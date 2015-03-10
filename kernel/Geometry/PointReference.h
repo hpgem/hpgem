@@ -31,14 +31,6 @@ namespace Geometry
         
     public:
         
-        //using CoordTypeT = double;
-        //using PointT = Point;
-        //using PointReferenceT = PointReference;
-        //using VectorOfCoordsT = PointT::VectorOfCoordsT;
-        //using IndexT = PointT::IndexT; //replace IndexT by unsigned int
-        
-    public:
-        
         PointReference(std::size_t DIM)
                 : PointT(DIM)
         {
@@ -59,22 +51,7 @@ namespace Geometry
         {
         }
         
-        PointReference operator *(double right);
 
-        PointReference operator *(double right) const;
-
-        PointReference operator +(const PointReference& right);
-
-        PointReference operator +(const PointReference& right) const;
-
-        PointReference operator -(const PointReference& right);
-
-        PointReference operator -(const PointReference& right) const;
-
-        PointReference& operator =(const PointReference& rhs);
-        
-//        friend PointT operator*(const double& left, const PointReference& right){return PointReference(right.coordinates_*left)}
-        
     };
 
 }

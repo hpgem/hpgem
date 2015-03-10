@@ -33,11 +33,8 @@ namespace Geometry
     public:
         
     public:
-        /// Typedefs.
-        //using CoordTypeT = double; //should be removed
         using PointT = Geometry::Point;
         using VectorOfCoordsT = LinearAlgebra::NumericalVector;
-        //using IndexT = unsigned int; //should be removed
         
     public:
         /// Constructors.
@@ -49,11 +46,11 @@ namespace Geometry
 
         Point(const VectorOfCoordsT& coord);
 
-        void setCoordinate(unsigned int n, const double& coord);
+        void setCoordinate(std::size_t n, const double& coord);
         void setCoordinates(const VectorOfCoordsT& coord);
 
-        double& operator[](unsigned int n);
-        const double& operator[](unsigned int n) const;
+        double& operator[](std::size_t n);
+        const double& operator[](std::size_t n) const;
 
         //        double&         operator () (unsigned int n);
         //        const double&   operator () (unsigned int n) const;
@@ -87,7 +84,7 @@ namespace Geometry
 
         std::size_t size();
 
-        double getCoordinate(unsigned int n) const;
+        double getCoordinate(std::size_t n) const;
         const VectorOfCoordsT& getCoordinates() const;
 
         friend PointT operator-(const Point& right)

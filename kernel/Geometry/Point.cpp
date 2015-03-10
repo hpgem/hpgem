@@ -130,7 +130,7 @@ namespace Geometry
         return coordinates_.size();
     }
     
-    double Point::getCoordinate(unsigned int n) const
+    double Point::getCoordinate(std::size_t n) const
     {
         if (n < this->size())
         {
@@ -151,7 +151,7 @@ namespace Geometry
         return coordinates_;
     }
     
-    void Point::setCoordinate(unsigned int n, const double& coord)
+    void Point::setCoordinate(std::size_t n, const double& coord)
     {
         if (n < this->size())
         {
@@ -179,13 +179,13 @@ namespace Geometry
     }
     
     double&
-    Point::operator [](unsigned int n)
+    Point::operator [](std::size_t n)
     { ///\bug no size checking
         return coordinates_[n];
     }
     
     const double&
-    Point::operator [](unsigned int n) const
+    Point::operator [](std::size_t n) const
     { ///\bug no size checking
         return coordinates_[n];
     }

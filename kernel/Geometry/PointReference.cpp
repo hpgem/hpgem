@@ -24,41 +24,6 @@
 namespace Geometry
 {
     
-    PointReference PointReference::operator *(double right) const
-    {
-        return PointReference(Point::coordinates_ * right);
-    }
     
-    PointReference PointReference::operator *(double right)
-    {
-        return PointReference(Point::coordinates_ * right);
-    }
-    
-    PointReference PointReference::operator +(const PointReference& right) const
-    {
-        return PointReference(Point::coordinates_ + right.coordinates_);
-    }
-    
-    PointReference PointReference::operator +(const PointReference& right)
-    {
-        return PointReference(Point::coordinates_ + right.coordinates_);
-    }
-    
-    PointReference PointReference::operator -(const PointReference& right) const
-    {
-        return PointReference(Point::coordinates_ - right.coordinates_);
-    }
-    
-    PointReference PointReference::operator -(const PointReference& right)
-    {
-        return PointReference(Point::coordinates_ - right.coordinates_);
-    }
-    
-    PointReference& PointReference::operator =(const PointReference& rhs)
-    {
-        this->coordinates_ = rhs.coordinates_;
-        return *this;
-    }
-
 }
 

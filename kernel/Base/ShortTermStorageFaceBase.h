@@ -24,11 +24,11 @@
 
 #include "Base/Face.h"
 
-///\bug resolves field has incomplete type
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/NumericalVector.h"
 #include "Side.h"
 #include "BasisFunctionSet.h"
+
 
 namespace Base
 {
@@ -55,30 +55,24 @@ namespace Base
     class ShortTermStorageFaceBase : public Face
     {
     public:
-        
+        //The user should be able to use this as if it were a Face, and it is
+        //quicker in integration routines than Face, since it stores the values
+        //of the transformed basisfunctions and derivatives of basisfunctions.
+        //Note that in the constructor the face on which all operations in this
+        //object are performed is a null-pointer until the operator= is called.
+        //While this is suboptimal, in practice the user makes only one
+        //ShortTermStorageFaceBase which gets assigned all face in a for-loop.
+        //Therefore, if the user loops over all the faces anyway, it is not
+        //necessary to assign any face in the constructor.
         ShortTermStorageFaceBase(std::size_t dimension, bool useCache = false)
-                : Face(), face_(nullptr), //I dont like that face_ is not defined before operator= is called at least once
-                currentPoint_(dimension - 1), //but I want to give users the ability to pass alternative wrappers to the integrators
-                normal_(dimension), //without forcing them to pick a random face that is going to be discarded anyway
+                : Face(), face_(nullptr),
+                currentPoint_(dimension - 1),
+                normal_(dimension),
                 recomputeCache_(true), useCache_(useCache), currentPointIndex_(-1)
         {
         }
         
-        virtual Face& operator=(const Face& face)
-        { //todo check that &face and this are different things (logger)
-            face_ = &face;
-            if (currentPoint_.size() == 0)
-            {
-                computeData();
-            }
-            else
-            {
-                /// \bug This should go back to NAN at some point. Again to fix problems with math and STL::vector
-                currentPoint_[0] = 1. / 0.;
-            }
-            currentPointIndex_ = -1;
-            return *this;
-        }
+        virtual Face& operator=(const Face& face);
         
         virtual void computeData();
 
@@ -183,9 +177,7 @@ namespace Base
         {
             return face_->isInternal();
         }
-        
-        //virtual VecCacheT&       getVecCacheData() { return vecCacheData_; } not sure if ugly or non-const for a reason
-        
+
         std::size_t getNrOfBasisFunctions() const override
         {
             return face_->getNrOfBasisFunctions();
@@ -288,7 +280,10 @@ namespace Base
         
     private:
         
-        //ShortTermStorageFaceBase(const ShortTermStorageFaceBase&){throw "you are already storing the data, no need to store it twice!";}
+        ShortTermStorageFaceBase(const ShortTermStorageFaceBase&): currentPoint_(0)
+        {
+            throw "you are already storing the data, no need to store it twice!";
+        }
         
         ShortTermStorageFaceBase& operator=(const ShortTermStorageFaceBase&)
         {

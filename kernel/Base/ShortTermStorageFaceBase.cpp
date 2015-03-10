@@ -19,10 +19,28 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Base/ShortTermStorageFaceBase.h"
+#include <limits>
 
+#include "ShortTermStorageFaceBase.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "FaceCacheData.h"
+#include "Logger.h"
+
+Base::Face& Base::ShortTermStorageFaceBase::operator=(const Base::Face& face)
+{
+    logger.assert(this != &face, "Trying to assign a Face of the type ShortTermStorageFaceBase to itself.");
+    face_ = &face;
+    if (currentPoint_.size() == 0)
+    {
+        computeData();
+    }
+    else
+    {
+        currentPoint_[0] = std::numeric_limits<double>::quiet_NaN();
+    }
+    currentPointIndex_ = -1;
+    return *this;
+}
 
 void Base::ShortTermStorageFaceBase::computeData()
 {

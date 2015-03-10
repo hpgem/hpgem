@@ -76,16 +76,7 @@ namespace Base
         ///recomputes the jacobian, the physical point, functionvalues and derivatives of functions based on the current point
         virtual void computeData();
 
-        Element& operator=(const Element& element)
-        {
-            logger.assert(this != &element, "Trying to assign an Element of the type ShortTermStorageElementBase to itself.");
-            
-            element_ = &element;
-            
-            currentPoint_[0] = std::numeric_limits<double>::quiet_NaN();
-            currentPointIndex_ = -1;
-            return *this;
-        }
+        Element& operator=(const Element& element);
         
         ShortTermStorageElementBase(const ShortTermStorageElementBase& copy)
                 : element_(copy.element_), currentPoint_(copy.currentPoint_), jac_(copy.jac_), useCache_(copy.useCache_), currentPointIndex_(copy.currentPointIndex_), recomputeCache_(copy.recomputeCache_)

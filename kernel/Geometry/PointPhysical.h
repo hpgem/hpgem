@@ -31,13 +31,6 @@ namespace Geometry
         
     public:
         
-        //using PointT = Point;
-        //using PointPhysicalT = PointPhysical; //to be removed
-        //using CoordTypeT = double;
-        //using VectorOfCoordsT = Point::VectorOfCoordsT;
-        
-    public:
-        
         PointPhysical(std::size_t DIM)
                 : Point(DIM)
         {
@@ -51,32 +44,6 @@ namespace Geometry
         PointPhysical(const VectorOfCoordsT& coord)
                 : Point(coord)
         {
-        }
-        
-        PointPhysical operator*(double right) const
-        {
-            return PointPhysical(Point::coordinates_ * right);
-        }
-        
-        PointPhysical operator/(double right) const
-        {
-            return PointPhysical(Point::coordinates_ / right);
-        }
-        
-        PointPhysical operator+(const PointPhysical& right) const
-        {
-            return PointPhysical(Point::coordinates_ + right.coordinates_);
-        }
-        
-        PointPhysical operator-(const PointPhysical& right) const
-        {
-            return PointPhysical(Point::coordinates_ - right.coordinates_);
-        }
-        
-        PointPhysical& operator=(const PointPhysical& right)
-        {
-            Point::coordinates_ = right.coordinates_;
-            return *this;
         }
         
         void axpy(const double& alpha, const PointPhysical& x)
@@ -104,9 +71,6 @@ namespace Geometry
         }
         
 #endif
-        
-//        friend Point operator*(const double& left, const Point& right){return PointPhysical(right.coordinates_*left);}
-        
     };
 }
 ;
