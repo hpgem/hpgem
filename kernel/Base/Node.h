@@ -30,8 +30,7 @@ namespace Base
     
     class Element;
     
-    ///\brief an identification token for vertices that is more likely to be the same when it should be then a PointPhysical
-    
+    ///\brief an identification token for vertices that is more likely to be the same when it should be then a PointPhysical    
     class Node
     {
     public:

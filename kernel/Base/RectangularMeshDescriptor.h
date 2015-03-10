@@ -25,7 +25,6 @@
 #include <iostream>
 #include <vector>
 
-///\bug resolves field has incomplete type
 #include "Geometry/PointPhysical.h"
 
 namespace Base
@@ -33,7 +32,7 @@ namespace Base
     
     struct RectangularMeshDescriptor
     {
-        RectangularMeshDescriptor(unsigned int DIM)
+        RectangularMeshDescriptor(std::size_t DIM)
                 : bottomLeft_(DIM), topRight_(DIM), numElementsInDIM_(DIM), boundaryConditions_(DIM)
         {
         }
@@ -45,8 +44,9 @@ namespace Base
         Geometry::PointPhysical bottomLeft_;
         Geometry::PointPhysical topRight_;
 
+        //The order of the dimensions are x = 0, y = 1, z = 2.
         std::vector<std::size_t> numElementsInDIM_;
-        std::vector<std::size_t> boundaryConditions_; //x,y,z// according to this order!!!
+        std::vector<std::size_t> boundaryConditions_;
     };
 
 }

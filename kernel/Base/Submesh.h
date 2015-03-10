@@ -42,9 +42,12 @@ namespace Base
     class Submesh
     {
     private:
-        //Design note: I dont want mesh messing with private data members, but I only want mesh to access the functionality of mesh
-        //Form a meta-physical point of view mesh is not derived from submesh (and it cannot provede the functionality of submesh),
-        //so I feel this is the best imperfect solution. If you have a better idea, feel free to change the implementation -FB
+        //Design note: Mesh is a friend of this class, because we want mesh to 
+        //access the functionality of the Submesh, not because of mesh messing 
+        //with private data members.
+        //Form a meta-physical point of view mesh is not derived from submesh 
+        //(and it cannot provide the functionality of submesh), so currently this
+        //is probably the best imperfect solution.
         friend Mesh;
         friend std::vector<Submesh>::allocator_type;
 
@@ -130,10 +133,12 @@ namespace Base
         }
         
     private:
-        //! List of all elements. TODO: this should be replaced by the mesh-tree structure
+        //! List of all elements. 
+        ///\TODO: this should be replaced by the mesh-tree structure
         std::vector<Element*> elements_;
 
-        //! List of all faces. TODO: this should be replaced by the mesh-tree structure
+        //! List of all faces. 
+        ///\TODO: this should be replaced by the mesh-tree structure
         //! This contains the list of all faces connected to at least one element in this sub-domain
         std::vector<Face*> faces_;
 

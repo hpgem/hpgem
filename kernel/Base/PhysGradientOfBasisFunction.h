@@ -50,8 +50,6 @@ namespace Utilities
     struct PhysGradientOfBasisFunction
     {
         using PointReferenceT = Geometry::PointReference;
-
-        //typedef double (*DerivativeOfBasisFuncPtr)(const PointReferenceT&);
         using RetType = LinearAlgebra::NumericalVector;
 
         PhysGradientOfBasisFunction(const Base::Element* e, const Base::BaseBasisFunction* function)
