@@ -51,9 +51,9 @@ namespace Base
     /// \param[in] polynomialOrder Order of the polynomials used for the basis functions.
     /// \param[in] nrOfUnknowns The number of variables in the system of PDE's.
     ///
-    /// Constructor, GlobalData and ConfigurationData is deleted in HpgemUI
+    /// Constructor, GlobalData and ConfigurationData is deleted in HpgemAPIBase
     HpgemUISimplified::HpgemUISimplified(std::size_t DIM, std::size_t polynomialOrder, std::size_t nrOfUnknowns)
-            : HpgemUI(new GlobalData, new ConfigurationData(DIM, nrOfUnknowns, polynomialOrder, numberOfSnapshots.getValue()))
+            : HpgemAPIBase(new GlobalData, new ConfigurationData(DIM, nrOfUnknowns, polynomialOrder, numberOfSnapshots.getValue()))
     {
         endTime_ = endTime.getValue();
         startTime_ = startTime.getValue();
@@ -199,7 +199,7 @@ namespace Base
         FaceIntegralT faceIntegral(useCache);
         faceIntegral.setStorageWrapper(new Base::ShortTermStorageFaceH1(meshes_[meshID]->dimension()));
         
-        for (MeshManipulator::FaceIterator citFe = Base::HpgemUI::faceColBegin(); citFe != Base::HpgemUI::faceColEnd(); ++citFe)
+        for (MeshManipulator::FaceIterator citFe = Base::HpgemAPIBase::faceColBegin(); citFe != Base::HpgemAPIBase::faceColEnd(); ++citFe)
         {
             std::size_t numBasisFuncs = (*citFe)->getNrOfBasisFunctions();
             fMatrixData = faceIntegral.integrate<LinearAlgebra::Matrix>((*citFe), this);
@@ -215,7 +215,7 @@ namespace Base
         //numberOfUnknowns_ is the number of unknowns in the "real problem" you want a
         //solution for, this is automatically set to 1 in the contructor of hpgemUISimplified
         //ndof is now the size of your element matrix
-        std::size_t ndof = HpgemUI::configData_->numberOfBasisFunctions_;
+        std::size_t ndof = HpgemAPIBase::configData_->numberOfBasisFunctions_;
         
         //initialise the element matrix and element vector.
         LinearAlgebra::Matrix eMatrixData(ndof, ndof);
@@ -225,7 +225,7 @@ namespace Base
         Integration::ElementIntegral elIntegral(isUseCache);
         elIntegral.setStorageWrapper(new ShortTermStorageElementH1(meshes_[meshID]->dimension()));
         
-        for (ElementIterator it = HpgemUI::meshes_[meshID]->elementColBegin(); it != HpgemUI::meshes_[meshID]->elementColEnd(); ++it)
+        for (ElementIterator it = HpgemAPIBase::meshes_[meshID]->elementColBegin(); it != HpgemAPIBase::meshes_[meshID]->elementColEnd(); ++it)
         {
             eMatrixData = elIntegral.integrate<LinearAlgebra::Matrix>((*it), this);
             (*it)->setElementMatrix(eMatrixData);
@@ -300,7 +300,7 @@ namespace Base
     
     bool HpgemUISimplified::checkInitialisation()
     {
-        if (HpgemUI::meshes_.size() == 0)
+        if (HpgemAPIBase::meshes_.size() == 0)
         {
             logger(ERROR, "Error no mesh created : You need to create at least one mesh to solve a problem");
         }

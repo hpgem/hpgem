@@ -255,10 +255,10 @@ public:
         
         //create the global matrix using the first element matrix (first zero)
         //and the first face matrix (second zero)
-        Utilities::GlobalPetscMatrix A(HpgemUI::meshes_[0], 0, 0);
+        Utilities::GlobalPetscMatrix A(HpgemAPIBase::meshes_[0], 0, 0);
         
         //do the same for the global vectors
-        Utilities::GlobalPetscVector b(HpgemUI::meshes_[0], 0, 0), x(HpgemUI::meshes_[0]);
+        Utilities::GlobalPetscVector b(HpgemAPIBase::meshes_[0], 0, 0), x(HpgemAPIBase::meshes_[0]);
         
         //you explicitly have to tell the global vectors to assemble, because there are also
         //global vectors that have no initial data. An example is x, which will be used to store the solution

@@ -64,7 +64,7 @@ namespace Base
      const std::size_t numOfTimeLevels,
      const bool useMatrixStorage
      ) :
-    HpgemUI(new Base::GlobalData, new Base::ConfigurationData(dimension, numOfVariables, polynomialOrder, numOfTimeLevels)),
+    HpgemAPIBase(new Base::GlobalData, new Base::ConfigurationData(dimension, numOfVariables, polynomialOrder, numOfTimeLevels)),
     useMatrixStorage_(useMatrixStorage),
     massMatrixID_(1),
     stiffnessElementMatrixID_(0),

@@ -462,7 +462,7 @@ void hpGemUIExtentions::makeOutput(char* filename)
 }
 
 hpGemUIExtentions::hpGemUIExtentions(int argc, char** argv, MaxwellData* globalConfig, Base::ConfigurationData* elementConfig, MatrixAssembly* fluxType)
-        : HpgemUI(globalConfig, elementConfig), assembler(fluxType)
+        : HpgemAPIBase(globalConfig, elementConfig), assembler(fluxType)
 {
     ierr_ = SlepcInitialize(&argc, &argv, (char*) 0, "PETSc help");
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);

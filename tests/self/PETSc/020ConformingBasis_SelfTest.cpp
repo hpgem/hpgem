@@ -239,8 +239,8 @@ public:
     double solve()
     {
         doAllElementIntegration();
-        Utilities::GlobalPetscMatrix A(HpgemUI::meshes_[0], 0, -1);
-        Utilities::GlobalPetscVector b(HpgemUI::meshes_[0], 0, -1), x(HpgemUI::meshes_[0]);
+        Utilities::GlobalPetscMatrix A(HpgemAPIBase::meshes_[0], 0, -1);
+        Utilities::GlobalPetscVector b(HpgemAPIBase::meshes_[0], 0, -1), x(HpgemAPIBase::meshes_[0]);
         
         b.assemble();
         VecSet(x, 0);

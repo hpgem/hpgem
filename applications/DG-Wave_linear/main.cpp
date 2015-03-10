@@ -7,7 +7,7 @@
 
 #define hpGEM_INCLUDE_PETSC_SUPPORT
 
-#include "Base/HpgemUI.h"
+#include "Base/HpgemAPIBase.h"
 #include "Base/Norm2.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include <fstream>
@@ -32,11 +32,11 @@
 
 const unsigned int DIM = 2;
 
-class DGWave : public Base::HpgemUI, public Output::TecplotSingleElementWriter
+class DGWave : public Base::HpgemAPIBase, public Output::TecplotSingleElementWriter
 {
 public:
     DGWave(int n, int p)
-            : HpgemUI(new Base::GlobalData(), new Base::ConfigurationData(DIM, 2, p)), n_(n), p_(p)
+            : HpgemAPIBase(new Base::GlobalData(), new Base::ConfigurationData(DIM, 2, p)), n_(n), p_(p)
     {
     }
     

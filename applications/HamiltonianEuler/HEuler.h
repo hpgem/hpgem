@@ -12,7 +12,7 @@ using std::string;
 #include "LinearAlgebra/NumericalVector.h"
 #include "Base/GlobalData.h"
 #include "Base/ConfigurationData.h"
-#include "Base/HpgemUI.h"
+#include "Base/HpgemAPIBase.h"
 #include "Base/Norm2.h"
 #include "Base/PhysGradientOfBasisFunction.h"
 #include "Base/UserData.h"
@@ -26,7 +26,7 @@ using std::string;
 #include "Base/FaceCacheData.h"
 #include "Base/ElementCacheData.h"
 using Base::RectangularMeshDescriptor;
-using Base::HpgemUI;
+using Base::HpgemAPIBase;
 using Base::GlobalData;
 using Base::ConfigurationData;
 using namespace Base;
@@ -168,17 +168,14 @@ public:
     double onePeriod_;
 };
 
-class HEuler : public HpgemUI, public Integration::ElementIntegrandBase<ElementIntegralData>, public Integration::FaceIntegrandBase<FluxData>, public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
+class HEuler : public HpgemAPIBase, public Integration::ElementIntegrandBase<ElementIntegralData>, public Integration::FaceIntegrandBase<FluxData>, public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
 {
 public:
-    using HpgemUIT = HpgemUI;
     using ElementIntegralT = Integration::ElementIntegral;
     using FaceIntegralT = Integration::FaceIntegral;
     using ExactSolutionT = ExactSolutionBase;
     using PointReferenceOnTheFaceT = PointReference;
 
-    //using HpgemUIT::ElementT;
-    //    using HpgemUIT::PointReferenceT;
     
 public:
     HEuler(HEulerGlobalVariables* global, const HEulerConfigurationData* config);

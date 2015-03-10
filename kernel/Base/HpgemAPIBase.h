@@ -64,7 +64,7 @@ namespace Base
         
         HpgemAPIBase(GlobalData * const global, const ConfigurationData* config);
 
-        ///Destructor, destructs the meshes, configData_ and globalData_
+        /// \brief Destructor, destructs the meshes, configData_ and globalData_
         virtual ~HpgemAPIBase();
 
         /// \brief Gives the pointer of meshMoverBase class to mesh.
@@ -72,6 +72,7 @@ namespace Base
 
         /// Creating a mesh with in-house remesher.
         MeshId addMesh(const RectangularMeshDescriptorT& meshDescriptor, const MeshType& meshType = RECTANGULAR, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
+        
         /// Reading a mesh from a file, currently only Centaur is supported.
         MeshId addMesh(const String& fileName, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
 

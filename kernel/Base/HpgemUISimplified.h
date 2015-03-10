@@ -22,7 +22,7 @@
 #ifndef BaseSimplifiedHPP
 #define BaseSimplifiedHPP
 
-#include "Base/HpgemUI.h"
+#include "Base/HpgemAPIBase.h"
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
 #include "Output/TecplotSingleElementWriter.h"
@@ -55,7 +55,7 @@ namespace Base
      */
     /** \details For an example of using this interface see the application 'TutorialAdvection'.
      */
-    class HpgemUISimplified : public HpgemUI, Integration::ElementIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>, Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>, public Output::TecplotSingleElementWriter
+    class HpgemUISimplified : public HpgemAPIBase, Integration::ElementIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>, Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>, public Output::TecplotSingleElementWriter
     {
     public:
         

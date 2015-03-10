@@ -205,8 +205,8 @@ public:
     {
         doAllElementIntegration();
         doAllFaceIntegration();
-        Utilities::GlobalPetscMatrix A(HpgemUI::meshes_[0], 0, 0);
-        Utilities::GlobalPetscVector b(HpgemUI::meshes_[0], 0, 0), x(HpgemUI::meshes_[0]);
+        Utilities::GlobalPetscMatrix A(HpgemAPIBase::meshes_[0], 0, 0);
+        Utilities::GlobalPetscVector b(HpgemAPIBase::meshes_[0], 0, 0), x(HpgemAPIBase::meshes_[0]);
         
         b.assemble();
         VecSet(x, 0);

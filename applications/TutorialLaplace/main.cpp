@@ -285,9 +285,9 @@ public:
         //Compute all face integrals.
         doAllFaceIntegration();
         //Assemble the matrix A of the system Ax = b.
-        Utilities::GlobalPetscMatrix A(HpgemUI::meshes_[0], 0, 0);
+        Utilities::GlobalPetscMatrix A(HpgemAPIBase::meshes_[0], 0, 0);
         //Declare the vectors x and b of the system Ax = b.
-        Utilities::GlobalPetscVector b(HpgemUI::meshes_[0], 0, 0), x(HpgemUI::meshes_[0]);
+        Utilities::GlobalPetscVector b(HpgemAPIBase::meshes_[0], 0, 0), x(HpgemAPIBase::meshes_[0]);
         
         //Assemble the vector b. This is needed because Petsc assumes you don't know
         //yet whether a vector is a variable or right-hand side the moment it is 

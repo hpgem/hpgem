@@ -25,7 +25,7 @@
 #include <functional>
 
 #include "Base/Element.h"
-#include "Base/HpgemUI.h"
+#include "Base/HpgemAPIBase.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
@@ -40,7 +40,7 @@ namespace Integration
 namespace Base
 {
     
-    class ProblemDescriptorTimeDependent : public HpgemUI, Integration::ElementIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>, Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>, public Output::TecplotSingleElementWriter
+    class ProblemDescriptorTimeDependent : public HpgemAPIBase, Integration::ElementIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>, Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>, public Output::TecplotSingleElementWriter
     {
     public:
         

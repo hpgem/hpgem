@@ -23,7 +23,7 @@
 #include "Base/RectangularMeshDescriptor.h"
 
 HEuler::HEuler(HEulerGlobalVariables* global, const HEulerConfigurationData* config)
-        : Base::HpgemUI(global, config), P_(), Q_()
+        : Base::HpgemAPIBase(global, config), P_(), Q_()
 {
     switch (config->solutionType_)
     {

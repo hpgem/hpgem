@@ -27,7 +27,7 @@
 #include "Base/MeshManipulator.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
-#include "Base/HpgemUI.h"
+#include "Base/HpgemAPIBase.h"
 #include <Base/Norm2.h>
 #include <petscksp.h>
 #include <slepceps.h>
@@ -103,7 +103,7 @@ private:
 /**
  * This class provides some significant extentions to HpgemUI that may also be useful for other problems
  */
-class hpGemUIExtentions : public Base::HpgemUI, Output::TecplotSingleElementWriter, Integration::ElementIntegrandBase<errorData>, Integration::FaceIntegrandBase<errorData>
+class hpGemUIExtentions : public Base::HpgemAPIBase, Output::TecplotSingleElementWriter, Integration::ElementIntegrandBase<errorData>, Integration::FaceIntegrandBase<errorData>
 {
     
 public:

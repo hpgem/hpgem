@@ -25,7 +25,7 @@
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
 #include "Base/Face.h"
-#include "Base/HpgemUI.h"
+#include "Base/HpgemAPIBase.h"
 #include "Base/RectangularMeshDescriptor.h"
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
@@ -58,7 +58,7 @@ namespace Base
      */
     /** \details For an example of using this interface see the application 'TutorialAdvection'.
      */
-    class HpgemAPISimplified : public HpgemUI, public Output::TecplotSingleElementWriter
+    class HpgemAPISimplified : public HpgemAPIBase, public Output::TecplotSingleElementWriter
     {
     public:
         // Constructor

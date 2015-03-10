@@ -38,7 +38,6 @@ add_library(hpGEM_Base SHARED
  		Node.cpp
 		HpgemAPIBase.cpp
 		HpgemAPISimplified.cpp
- 		HpgemUI.cpp
                 HpgemUISimplified.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp

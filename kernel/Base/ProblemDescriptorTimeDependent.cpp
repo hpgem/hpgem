@@ -47,10 +47,10 @@ namespace Base
     extern CommandLineOption<double> &dt;
     extern CommandLineOption<std::string> &outputName;
     
-    ///Constructor, GlobalData and ConfigurationData is deleted in HpgemUI
+    ///Constructor, GlobalData and ConfigurationData is deleted in HpgemAPIBase
     
     ProblemDescriptorTimeDependent::ProblemDescriptorTimeDependent(std::size_t DIM, std::size_t polynomialOrder, const Base::ButcherTableau* integrator)
-            : HpgemUI(new GlobalData, new ConfigurationData(DIM, 1, polynomialOrder, integrator->getNumStages() + 1)), integrator_(integrator)
+            : HpgemAPIBase(new GlobalData, new ConfigurationData(DIM, 1, polynomialOrder, integrator->getNumStages() + 1)), integrator_(integrator)
     {
         endTime_ = endTime.getValue();
         startTime_ = startTime.getValue();
@@ -242,7 +242,7 @@ namespace Base
         FaceIntegralT faceIntegral(useCache);
         faceIntegral.setStorageWrapper(new Base::ShortTermStorageFaceH1(meshes_[meshID]->dimension()));
         
-        for (MeshManipulator::FaceIterator citFe = Base::HpgemUI::faceColBegin(); citFe != Base::HpgemUI::faceColEnd(); ++citFe)
+        for (MeshManipulator::FaceIterator citFe = Base::HpgemAPIBase::faceColBegin(); citFe != Base::HpgemAPIBase::faceColEnd(); ++citFe)
         {
             std::size_t numBasisFuncs = (*citFe)->getNrOfBasisFunctions();
             fMatrixData = faceIntegral.integrate<LinearAlgebra::Matrix>((*citFe), this);
@@ -258,7 +258,7 @@ namespace Base
         //numberOfUnknowns_ is the number of unknowns in the "real problem" you want a
         //solution for, this is automatically set to 1 in the contructor of hpgemUISimplified
         //ndof is now the size of your element matrix
-        std::size_t ndof = HpgemUI::configData_->numberOfBasisFunctions_;
+        std::size_t ndof = HpgemAPIBase::configData_->numberOfBasisFunctions_;
         
         //initialise the element matrix and element vector.
         LinearAlgebra::Matrix eMatrixData(ndof, ndof);
@@ -268,7 +268,7 @@ namespace Base
         Integration::ElementIntegral elIntegral(isUseCache);
         elIntegral.setStorageWrapper(new ShortTermStorageElementH1(meshes_[meshID]->dimension()));
         
-        for (ElementIterator it = HpgemUI::meshes_[meshID]->elementColBegin(); it != HpgemUI::meshes_[meshID]->elementColEnd(); ++it)
+        for (ElementIterator it = HpgemAPIBase::meshes_[meshID]->elementColBegin(); it != HpgemAPIBase::meshes_[meshID]->elementColEnd(); ++it)
         {
             eMatrixData = elIntegral.integrate<LinearAlgebra::Matrix>((*it), this);
             (*it)->setElementMatrix(eMatrixData);
@@ -343,7 +343,7 @@ namespace Base
     
     bool ProblemDescriptorTimeDependent::checkInitialisation()
     {
-        if (HpgemUI::meshes_.size() == 0)
+        if (HpgemAPIBase::meshes_.size() == 0)
         {
             return false;
         }

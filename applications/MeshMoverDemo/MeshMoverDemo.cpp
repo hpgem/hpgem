@@ -19,7 +19,7 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Base/HpgemUI.h"
+#include "Base/HpgemAPIBase.h"
 #include "Base/RectangularMeshDescriptor.h"
 #include "MeshMover.h"
 #include "Base/GlobalData.h"
@@ -46,12 +46,12 @@ public:
     }
 };
 
-class MeshMoverExampleProblem : public Base::HpgemUI
+class MeshMoverExampleProblem : public Base::HpgemAPIBase
 {
     
 public:
     MeshMoverExampleProblem(GlobalData* const global, const ConfigurationData* config)
-            : Base::HpgemUI(global, config)
+            : Base::HpgemAPIBase(global, config)
     {
     }
     
@@ -67,7 +67,7 @@ public:
         rectangularMesh.numElementsInDIM_[0] = 8;
         rectangularMesh.numElementsInDIM_[1] = 8;
         
-        Base::HpgemUI::MeshId id = addMesh(rectangularMesh);
+        Base::HpgemAPIBase::MeshId id = addMesh(rectangularMesh);
         
         //Set up the move of the mesh;
         const MeshMover* meshMover = new MeshMover;
