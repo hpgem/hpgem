@@ -83,8 +83,6 @@ namespace Base
         using ConstFaceIterator = ListOfFacesT::const_iterator;
         using FaceIterator = ListOfFacesT::iterator;
 
-        //for old functions that were commented out, see revision <422.
-        //for the old version of compareHalfFace, see revision <325.
     public:
         /// idRangeBegin is the beginning of the range, from where the Element's ids should be assigned.
         /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
@@ -283,25 +281,25 @@ namespace Base
 
         // ********THESE SHOULD BE REPLACED by ITERABLE EDITIONS LATER**********
         
-        //! Get const list of elements        
+        //! Get const list of elements
         const ListOfElementsT& getElementsList(IteratorType part = IteratorType::LOCAL) const
         {
             return theMesh_.getElementsList(part);
         }
         
-        //! Get non-const list of elements        
+        //! Get non-const list of elements
         ListOfElementsT& getElementsList(IteratorType part = IteratorType::LOCAL)
         {
             return theMesh_.getElementsList(part);
         }
         
-        //! Get const list of faces        
+        //! Get const list of faces
         const ListOfFacesT& getFacesList(IteratorType part = IteratorType::LOCAL) const
         {
             return theMesh_.getFacesList(part);
         }
         
-        //! Get non-const list of faces        
+        //! Get non-const list of faces
         ListOfFacesT& getFacesList(IteratorType part = IteratorType::LOCAL)
         {
             return theMesh_.getFacesList(part);
@@ -351,12 +349,57 @@ namespace Base
         {
             return theMesh_.getNodes();
         }
-
         /**
          * Retrieves the Mesh as stored in this MeshManipulator
          */
         Mesh& getMesh();
         const Mesh& getMesh() const;
+        
+        //routines that deal with level trees
+        //---------------------------------------------------------------------
+        //! Get the number of mesh-tree.
+        /*int getNumberOfMeshes() const;
+
+         //! Create a new (empty) mesh-tree.
+         void createNewMeshTree();
+
+         //! Get the element container of a specific mesh-tree.
+         ElementLevelTreeT* ElCont(int meshTreeIdx) const;
+
+         //! Get the face container of a specific mesh-tree.
+         FaceLevelTreeT* FaCont(int meshTreeIdx) const;
+
+         //! Some mesh generator: centaur / rectangular / triangle / tetrahedra / triangular-prism.
+         void someMeshGenerator(int meshTreeIdx);
+
+         //! Set active mesh-tree.
+         void setActiveMeshTree(std::size_t meshTreeIdx);
+
+         //! Get active mesh-tree index.
+         int getActiveMeshTree() const;
+
+         //! Reset active mesh-tree.
+         void resetActiveMeshTree();
+
+         //! Get maximum h-level of a specific mesh-tree.
+         std::size_t getMaxLevel(int meshTreeIdx) const;
+
+         //! Set active level of a specific mesh-tree.
+         void setActiveLevel(std::size_t meshTreeIdx, int level);
+
+         //! Get active level of a specific mesh-tree.
+         int getActiveLevel(int meshTreeIdx) const;
+
+         //! Reset active level of a specific mesh-tree.
+         void resetActiveLevel(int meshTreeIdx);
+
+         //! Duplicate mesh contents including all refined meshes.
+         void duplicate(std::size_t fromMeshTreeIdx, std::size_t toMeshTreeIdx, std::size_t upToLevel);
+
+         //! Refine a specific mesh-tree.
+         void doRefinement(std::size_t meshTreeIdx, int refinementType);*/
+
+        
         //---------------------------------------------------------------------
     private:
         
@@ -372,6 +415,24 @@ namespace Base
         //!Construct the faces based on connectivity information about elements and nodes
         void edgeFactory();
 
+        //! Do refinement on the elements.
+        /*void doElementRefinement(std::size_t meshTreeIdx);
+
+         //! Do refinement on the faces.
+         void doFaceRefinement(std::size_t meshTreeIdx);
+
+         //! Check whether the two elements may be connected by a face or not.
+         void pairingCheck(const ElementIterator elL, std::size_t locFaceNrL,
+         const ElementIterator elR, std::size_t locFaceNrR,
+         int& pairingValue, bool& sizeOrder);*/
+
+        //! Check whether the two elements may be connected by a face or not in periodic face case.
+        //void                            periodicPairingCheck(const FaceIteratorT fa,
+        //                                                     const ElementIteratorT elL, std::size_t localFaceNrL,
+        //                                                     const ElementIteratorT elR, std::size_t localFaceNrR,
+        //                                                     int& pairingValue, bool& sizeOrder);
+        //---------------------------------------------------------------------
+        
     private:
         
         Mesh theMesh_;
@@ -391,6 +452,20 @@ namespace Base
 
         //! Collection of additional basis function set, if p-refinement is applied
         CollectionOfBasisFunctionSets collBasisFSet_;
+
+        //const BasisFunctionSetT*        defaultSetOfBasisFunctions_;
+        
+        //! Active mesh-tree.
+        //int activeMeshTree_;
+        
+        //! Number of mesh-tree.
+        //int numMeshTree_;
+        
+        //! Vector elements LevelTree.
+        //VecOfElementLevelTreePtrT vecOfElementTree_;
+        
+        //! Vector faces LevelTree.
+        //VecOfFaceLevelTreePtrT vecOfFaceTree_;
         
         std::size_t numberOfElementMatrixes_;
         std::size_t numberOfFaceMatrixes_;
