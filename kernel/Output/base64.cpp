@@ -20,7 +20,7 @@
  */
 
 #include "base64.h"
-#include "logger.h"
+#include "Logger.h"
 
 #include <cstdlib>
 
