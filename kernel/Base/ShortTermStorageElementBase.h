@@ -23,11 +23,10 @@
 #define SHORTTERMSTORAGEELEMENT_HPP_
 
 #include "Base/Element.h"
-
-///\BUG resolves field has incomplete type
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
 #include "Node.h"
+#include <limits>
 
 namespace Base
 {
@@ -56,12 +55,20 @@ namespace Base
     class ShortTermStorageElementBase : public Element
     {
     public:
-        
+        //The user should be able to use this as if it were an Element, and it is
+        //quicker in integration routines than Element, since it stores the values
+        //of the transformed basisfunctions and derivatives of basisfunctions.
+        //Note that in the constructor the element on which all operations in this
+        //object are performed is a null-pointer until the operator= is called.
+        //While this is suboptimal, in practice the user makes only one 
+        //ShortTermStorageElementBase which gets assigned all elements in a for-loop.
+        //Therefore, if the user loops over all the elements anyway, it is not 
+        //necessary to assign any element in the constructor.
         ShortTermStorageElementBase(std::size_t dimension, bool useCache = false)
-                : Element(), //the superclass is not meant for actual use
-                element_(nullptr), //I dont like that face_ is not defined before operator= is called at least once
-                currentPoint_(dimension), //but I want to give users the ability to pass alternative wrappers to the integrators
-                jac_(dimension, dimension), //without forcing them to pick a random face that is going to be discarded anyway
+                : Element(),
+                element_(nullptr), 
+                currentPoint_(dimension),
+                jac_(dimension, dimension),
                 recomputeCache_(true), currentPointIndex_(-1), useCache_(useCache)
         {
         }
@@ -70,11 +77,12 @@ namespace Base
         virtual void computeData();
 
         Element& operator=(const Element& element)
-        { //todo check that &element and this are different things (errorChecker)
+        {
+            logger.assert(this != &element, "Trying to assign an Element of the type ShortTermStorageElementBase to itself.");
+            
             element_ = &element;
-            /// \bug This should go back to NAN at some point. Again to fix problems with math and STL::vector
-            ///\bug placing 0/0 here breaks one of the PETSc based self tests
-            currentPoint_[0] = 1. / 0.;
+            
+            currentPoint_[0] = std::numeric_limits<double>::quiet_NaN();
             currentPointIndex_ = -1;
             return *this;
         }
