@@ -21,8 +21,6 @@ add_executable( DG-Max.out
 		${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
                 ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/AllGaussQuadratureRules.cpp
                 ${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
-${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalMatrix.cpp
-${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalVector.cpp
       		)
 target_link_libraries(DG-Max.out Output ${PETSC_LIBRARIES} ${SLEPC_LIBRARIES} )
 

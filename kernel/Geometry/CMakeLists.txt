@@ -2,7 +2,6 @@ add_subdirectory(Mappings)
 
 include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
-#guys, this is a bad idea. Linking non-PIC with PIC code is a bad idea.
 add_library(Reference_geometries STATIC
 #add_library(Reference_geometries SHARED
 	${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferencePoint.cpp
