@@ -57,7 +57,6 @@ namespace Integration
     {
     public:
         using QuadratureRulesT = QuadratureRules::GaussQuadratureRule;
-        using ElementT = Base::Element;
         using PointReferenceT = Geometry::PointReference;
     public:
         
@@ -88,10 +87,10 @@ namespace Integration
         //! \brief Directly integrate the integrand and return ReturnTraits1.
         //! ReturnTrait1 needs to have the function axpy() implemented
         template<class ReturnTrait1>
-        ReturnTrait1 integrate(ElementT* el, ElementIntegrandBase<ReturnTrait1>* integrand, const QuadratureRulesT * const qdrRule = nullptr);
+        ReturnTrait1 integrate(Base::Element* el, ElementIntegrandBase<ReturnTrait1>* integrand, const QuadratureRulesT * const qdrRule = nullptr);
 
         template<class ReturnType>
-        ReturnType integrate(ElementT* el, std::function<ReturnType(const ElementT*, const Geometry::PointReference&)> integrand, const QuadratureRulesT * const qdrRule = nullptr);
+        ReturnType integrate(Base::Element* el, std::function<ReturnType(const Base::Element*, const Geometry::PointReference&)> integrand, const QuadratureRulesT * const qdrRule = nullptr);
 
         /// \brief Compute the integral on a reference element. IntegrandType needs to have the function axpy() implemented.
         template<typename IntegrandType>

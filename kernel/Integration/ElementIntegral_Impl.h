@@ -33,13 +33,13 @@ namespace Integration
 {
     
     template<typename ReturnTrait1>
-    ReturnTrait1 ElementIntegral::integrate(ElementT* el, ElementIntegrandBase<ReturnTrait1>* integrand, const QuadratureRulesT * const qdrRule)
+    ReturnTrait1 ElementIntegral::integrate(Base::Element* el, ElementIntegrandBase<ReturnTrait1>* integrand, const QuadratureRulesT * const qdrRule)
     {
         logger.assert(el!=nullptr, "Invalid element detected");
         logger.assert(integrand!=nullptr, "Invalid integrand detected");
         //quadrature rule is allowed to be equal to nullptr!
         //(@dducks) this lambda definition is not allowed inside the integrate(), why not?
-        std::function<ReturnTrait1(const ElementT*, const PointReferenceT&)> integrandFun = [=](const ElementT* el, const PointReferenceT& p)-> ReturnTrait1
+        std::function<ReturnTrait1(const Base::Element*, const PointReferenceT&)> integrandFun = [=](const Base::Element* el, const PointReferenceT& p)-> ReturnTrait1
         {   
             ReturnTrait1 result;
             integrand -> elementIntegrand(el, p, result);
@@ -49,7 +49,7 @@ namespace Integration
     }
     
     template<typename ReturnType>
-    ReturnType ElementIntegral::integrate(ElementT* el, std::function<ReturnType(const ElementT*, const PointReferenceT&)> integrandFun, const QuadratureRulesT * const qdrRule)
+    ReturnType ElementIntegral::integrate(Base::Element* el, std::function<ReturnType(const Base::Element*, const PointReferenceT&)> integrandFun, const QuadratureRulesT * const qdrRule)
     {
         logger.assert(el!=nullptr, "Invalid element detected");
         //quadrature rule is allowed to be equal to nullptr!

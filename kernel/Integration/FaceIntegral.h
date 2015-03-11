@@ -66,8 +66,6 @@ namespace Integration
         //typedef typename Base::Face::VecCacheT                     VecCacheT;
         
         using QuadratureRulesT = QuadratureRules::GaussQuadratureRule;
-        using FaceT = Base::Face;
-
     public:
         //! \brief Construct an FaceIntegral with cache on.
         FaceIntegral(bool useCache = false);
@@ -94,18 +92,18 @@ namespace Integration
 
         //! \brief Do the face integration using given Gauss integration rule.
         template<class ReturnTrait1>
-        ReturnTrait1 integrate(FaceT* fa, FaceIntegrandBase<ReturnTrait1>* integrand, const QuadratureRulesT* qdrRule = nullptr);
+        ReturnTrait1 integrate(Base::Face* fa, FaceIntegrandBase<ReturnTrait1>* integrand, const QuadratureRulesT* qdrRule = nullptr);
 
         //! \brief Nice version accepting an appropriate std::function
         template<class ReturnTrait1>
-        ReturnTrait1 integrate(FaceT* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc, const QuadratureRulesT* qdrRule = nullptr);
+        ReturnTrait1 integrate(Base::Face* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc, const QuadratureRulesT* qdrRule = nullptr);
 
         /// \brief Compute the integral on a reference element. IntegrandType needs to have the function axpy() implemented.
         template<typename IntegrandType>
         IntegrandType referenceFaceIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference &)> integrandFunction);
 
         /*template <typename OBJ, typename IntegrandT>
-         void    integrate(FaceT* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = nullptr);*/
+         void    integrate(Base::Face* el, IntegrandT& integrand, typename ReturnTrait1<IntegrandT>::ReturnType& result, OBJ* objPtr, const QuadratureRulesT* const qdrRule = nullptr);*/
 
     private:
         

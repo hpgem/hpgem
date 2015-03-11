@@ -46,7 +46,7 @@ namespace Integration
     }
     
     template<class ReturnTrait1>
-    ReturnTrait1 FaceIntegral::integrate(FaceT* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc, const QuadratureRulesT* const qdrRule)
+    ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc, const QuadratureRulesT* const qdrRule)
     {
         logger.assert(fa!=nullptr, "Invalid face detected");
         //quadrature rule is allowed to be equal to nullptr!
