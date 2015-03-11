@@ -94,7 +94,7 @@ namespace Geometry
         return PointReference(2);
     }
     
-    const PointReference& ReferenceSquare::getNode(const IndexT& i) const
+    const PointReference& ReferenceSquare::getNode(const std::size_t& i) const
     {
         logger.assert(i<getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
         return points_[i];
@@ -164,7 +164,7 @@ namespace Geometry
     }
     
     const MappingReferenceToReference*
-    ReferenceSquare::getCodim0MappingPtr(const IndexT i) const
+    ReferenceSquare::getCodim0MappingPtr(const std::size_t i) const
     {
         if (i < 8)
         {
@@ -176,13 +176,13 @@ namespace Geometry
         }
     }
     // ================================== Codimension 1 ============================================
-    std::vector<std::size_t> ReferenceSquare::getCodim1EntityLocalIndices(const IndexT faceIndex) const
+    std::vector<std::size_t> ReferenceSquare::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
         logger.assert(faceIndex < 4, "A square has only 4 edges, while edge % is requested", faceIndex);
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 2);
     }
     
-    const ReferenceGeometry* ReferenceSquare::getCodim1ReferenceGeometry(const IndexT faceIndex) const
+    const ReferenceGeometry* ReferenceSquare::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
         if (faceIndex < 4)
         {
@@ -194,7 +194,7 @@ namespace Geometry
         }
     }
     const MappingReferenceToReference*
-    ReferenceSquare::getCodim1MappingPtr(const IndexT faceIndex) const
+    ReferenceSquare::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         if (faceIndex < 4)
         {

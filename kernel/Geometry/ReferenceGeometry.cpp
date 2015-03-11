@@ -82,7 +82,7 @@ namespace Geometry
         }
     }
     
-    const PointReference& ReferenceGeometry::getNode(const IndexT& localIndex) const
+    const PointReference& ReferenceGeometry::getNode(const std::size_t& localIndex) const
     {
         logger.assert(localIndex<getNumberOfNodes(), "Asked for node %, but there are only % nodes", localIndex, getNumberOfNodes());
         return points_[localIndex];

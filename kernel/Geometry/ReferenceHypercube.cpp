@@ -149,7 +149,7 @@ namespace Geometry
     }
     
     const PointReference&
-    ReferenceHypercube::getNode(const IndexT& i) const
+    ReferenceHypercube::getNode(const std::size_t& i) const
     {
         logger.assert(i < getNumberOfNodes(), "Asked for node %, but a hypercube only has % nodes", i, getNumberOfNodes());
         return points_[i];
@@ -178,7 +178,7 @@ namespace Geometry
     }
     
     const MappingReferenceToReference*
-    ReferenceHypercube::getCodim0MappingPtr(const IndexT i) const
+    ReferenceHypercube::getCodim0MappingPtr(const std::size_t i) const
     {
         throw "ReferenceCube::getCodim0MappingPtr not implemented";
     }
@@ -186,7 +186,7 @@ namespace Geometry
     // ================================== Codimension 1 ============================================
     
     const MappingReferenceToReference*
-    ReferenceHypercube::getCodim1MappingPtr(const IndexT faceIndex) const
+    ReferenceHypercube::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         if (faceIndex < 8)
         {
@@ -199,7 +199,7 @@ namespace Geometry
     }
     
     const ReferenceGeometry*
-    ReferenceHypercube::getCodim1ReferenceGeometry(const IndexT faceIndex) const
+    ReferenceHypercube::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
         if (faceIndex < 8)
         {
@@ -211,7 +211,7 @@ namespace Geometry
         }
     }
     
-    std::vector<std::size_t> ReferenceHypercube::getCodim1EntityLocalIndices(const IndexT i) const
+    std::vector<std::size_t> ReferenceHypercube::getCodim1EntityLocalIndices(const std::size_t i) const
     {
         if (i < 8)
         {
@@ -227,14 +227,14 @@ namespace Geometry
     // ================================== Codimension 2 ============================================
     
     const MappingReferenceToReference*
-    ReferenceHypercube::getCodim2MappingPtr(const IndexT lineIndex) const
+    ReferenceHypercube::getCodim2MappingPtr(const std::size_t lineIndex) const
     {
         /// TODO: Implement face to hypercube mappings.
         throw "ERROR: ReferenceHypercube::getCodim2MappingPtr: face to hypercube mappings not implemented";
     }
     
     const ReferenceGeometry*
-    ReferenceHypercube::getCodim2ReferenceGeometry(const IndexT e) const
+    ReferenceHypercube::getCodim2ReferenceGeometry(const std::size_t e) const
     {
         if (e < 24)
         {
@@ -246,7 +246,7 @@ namespace Geometry
         }
     }
     
-    std::vector<std::size_t> ReferenceHypercube::getCodim2EntityLocalIndices(const IndexT i) const
+    std::vector<std::size_t> ReferenceHypercube::getCodim2EntityLocalIndices(const std::size_t i) const
     {
         if (i < 24)
         {
@@ -260,7 +260,7 @@ namespace Geometry
     
     // ================================== Codimension 3 ============================================
     
-    std::vector<std::size_t> ReferenceHypercube::getCodim3EntityLocalIndices(const IndexT i) const
+    std::vector<std::size_t> ReferenceHypercube::getCodim3EntityLocalIndices(const std::size_t i) const
     {
         if (i < 32)
         {

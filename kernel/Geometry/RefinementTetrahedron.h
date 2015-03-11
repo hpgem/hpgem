@@ -30,16 +30,11 @@ namespace Geometry
     class RefinementTetrahedron : public Geometry::RefinementGeometry
     {
     public:
-        using PointT = Point;
-        using PointPhysicalT = PointPhysical;
-        using PointReferenceT = PointReference;
-        using PhysicalGeometryT = PhysicalGeometry;
-        using ReferenceGeometryT = ReferenceGeometry;
-        using VectorOfPointPhysicalsT = std::vector<PointPhysicalT>;
-        using VectorOfIndicesT = std::vector<std::size_t>;
+        using VectorOfPointPhysicalsT = std::vector<PointPhysical>;
+        
 
         /// Constructors.
-        RefinementTetrahedron(const ReferenceGeometryT* const referenceGeometry, const PhysicalGeometryT* const physicalGeometry)
+        RefinementTetrahedron(const ReferenceGeometry* const referenceGeometry, const PhysicalGeometry* const physicalGeometry)
                 : referenceGeometry_(referenceGeometry), physicalGeometry_(physicalGeometry)
         {
             std::cout << "RefinementTetrahedron(referenceGeometry, physicalGeometry)\n";
@@ -84,12 +79,12 @@ namespace Geometry
         }
         
         /// Assembly nodes for sub-element
-        virtual void subElementLocalNodeIndices(int refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const
+        virtual void subElementLocalNodeIndices(int refineType, std::size_t iSubElement, std::vector<std::size_t>& LocalNodeIdx) const
         {
         }
         
         /// Local indices pairs of sub-elements connected by a sub-Internal Face
-        virtual void adjacentSubElementsPairs(int refineType, VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1, VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const
+        virtual void adjacentSubElementsPairs(int refineType, std::vector<std::size_t>& elemIdx1, std::vector<std::size_t>& localFaceIdx1, std::vector<std::size_t>& elemIdx2, std::vector<std::size_t>& localFaceIdx2) const
         {
         }
         
@@ -100,7 +95,7 @@ namespace Geometry
         }
         
         /// Get sub-elements' local index on a parent's face.
-        virtual void subElementsOnFace(int refineType, std::size_t faLocalIndex, VectorOfIndicesT& localSubElemIdx) const
+        virtual void subElementsOnFace(int refineType, std::size_t faLocalIndex, std::vector<std::size_t>& localSubElemIdx) const
         {
         }
         
@@ -119,10 +114,10 @@ namespace Geometry
         
         /// The physicalGeometry object contains pointers to the actual physical nodes, and
         /// a container of global node indexes.
-        const PhysicalGeometryT* physicalGeometry_;
+        const PhysicalGeometry* physicalGeometry_;
 
         /// The corresponding referenceGeometry object
-        const ReferenceGeometryT* const referenceGeometry_;
+        const ReferenceGeometry* const referenceGeometry_;
     };
 }
 #endif

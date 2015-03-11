@@ -93,7 +93,7 @@ namespace Geometry
         return p;
     }
     
-    const PointReference& ReferencePyramid::getNode(const IndexT& nodeIndex) const
+    const PointReference& ReferencePyramid::getNode(const std::size_t& nodeIndex) const
     {
         if (nodeIndex < 5)
         {
@@ -127,7 +127,7 @@ namespace Geometry
         throw "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 mappings for Pyramid.";
     }
     
-    const MappingReferenceToReference* ReferencePyramid::getCodim0MappingPtr(const IndexT i) const
+    const MappingReferenceToReference* ReferencePyramid::getCodim0MappingPtr(const std::size_t i) const
     {
         throw "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 mappings for Pyramid.";
     }
@@ -135,7 +135,7 @@ namespace Geometry
     // ================================== Codimension 1 ============================================
     
     const MappingReferenceToReference*
-    ReferencePyramid::getCodim1MappingPtr(const IndexT faceIndex) const
+    ReferencePyramid::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         if (faceIndex < 5)
         {
@@ -148,7 +148,7 @@ namespace Geometry
     }
     
     const ReferenceGeometry*
-    ReferencePyramid::getCodim1ReferenceGeometry(const IndexT faceIndex) const
+    ReferencePyramid::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
         if (faceIndex < 5)
         {
@@ -163,7 +163,7 @@ namespace Geometry
         }
     }
     
-    std::vector<std::size_t> ReferencePyramid::getCodim1EntityLocalIndices(const IndexT faceIndex) const
+    std::vector<std::size_t> ReferencePyramid::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
         if (faceIndex < 5)
         {
@@ -186,13 +186,13 @@ namespace Geometry
     // ================================== Codimension 2 ============================================
     
     const MappingReferenceToReference*
-    ReferencePyramid::getCodim2MappingPtr(const IndexT edgeIndex) const
+    ReferencePyramid::getCodim2MappingPtr(const std::size_t edgeIndex) const
     {
         throw "ERROR: There are no edge to pyramid mappings.";
     }
     
     const ReferenceGeometry*
-    ReferencePyramid::getCodim2ReferenceGeometry(const IndexT edgeIndex) const
+    ReferencePyramid::getCodim2ReferenceGeometry(const std::size_t edgeIndex) const
     {
         if (edgeIndex < 8)
         {
@@ -204,7 +204,7 @@ namespace Geometry
         }
     }
     
-    std::vector<std::size_t> ReferencePyramid::getCodim2EntityLocalIndices(const IndexT edgeIndex) const
+    std::vector<std::size_t> ReferencePyramid::getCodim2EntityLocalIndices(const std::size_t edgeIndex) const
     {
         if (edgeIndex < 8)
         {
@@ -218,7 +218,7 @@ namespace Geometry
     
     // ================================== Codimension 3 ============================================
     
-    std::vector<std::size_t> ReferencePyramid::getCodim3EntityLocalIndices(const IndexT nodeIndex) const
+    std::vector<std::size_t> ReferencePyramid::getCodim3EntityLocalIndices(const std::size_t nodeIndex) const
     {
         if (nodeIndex < 5)
         {

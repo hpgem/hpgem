@@ -41,13 +41,11 @@ namespace Geometry
     class ReferenceSquare : public ReferenceGeometry
     {
     public:
-        using ReferenceGeometryT = ReferenceGeometry;
         //         typedef QuadratureRules::GaussQuadratureRule<TwoD>  GaussQuadratureRuleT;
         //         typedef std::vector<QuadratureRules::GaussQuadratureRule<TwoD>*>            ListOfGaussQuadratureRulePtrT;
-        using ReferenceGeometryT::IndexT;
-        using ReferenceGeometryT::PointReferenceT;
-        using ReferenceGeometryT::String;
-        using ReferenceGeometryT::ListOfIndexesT;
+        using ReferenceGeometry::PointReferenceT;
+        using ReferenceGeometry::String;
+        using ReferenceGeometry::ListOfIndexesT;
 
     public:
         
@@ -72,7 +70,7 @@ namespace Geometry
         PointReference getCenter() const;
 
         //! (see ReferenceGeometry.h)
-        const PointReference& getNode(const IndexT& i) const;
+        const PointReference& getNode(const std::size_t& i) const;
 
         //! (see ReferenceGeometry.h)
         
@@ -92,7 +90,7 @@ namespace Geometry
         }
         
         //! (see ReferenceGeometry.h) //! (see ReferenceGeometry.h) duplicating the referenceGeometry.getNumberofNodes(), thus commented out
-        //IndexT          getId() const {return 4;}
+        //std::size_t          getId() const {return 4;}
         
         //! Output routine.
         friend std::ostream& operator<<(std::ostream& os, const ReferenceSquare& point);
@@ -103,7 +101,7 @@ namespace Geometry
         std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim0MappingPtr(const IndexT) const;
+        const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t) const;
 
         using MappingCodimensions::getCodim0MappingPtr;
 
@@ -117,13 +115,13 @@ namespace Geometry
         }
         
         //! (see MappingCodimensions.h)
-        std::vector<std::size_t> getCodim1EntityLocalIndices(const IndexT) const;
+        std::vector<std::size_t> getCodim1EntityLocalIndices(const std::size_t) const;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim1MappingPtr(const IndexT) const;
+        const MappingReferenceToReference* getCodim1MappingPtr(const std::size_t) const;
 
         //! (see MappingCodimensions.h)
-        const ReferenceGeometry* getCodim1ReferenceGeometry(const IndexT) const;
+        const ReferenceGeometry* getCodim1ReferenceGeometry(const std::size_t) const;
 
         // ================================== Codimension 2 ========================================
         

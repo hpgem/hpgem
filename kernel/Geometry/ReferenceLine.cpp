@@ -69,7 +69,7 @@ namespace Geometry
         return PointReference(1);
     }
     
-    const PointReference& ReferenceLine::getNode(const IndexT& i) const
+    const PointReference& ReferenceLine::getNode(const std::size_t& i) const
     {
         logger.assert(i < getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
         return points_[i];
@@ -106,7 +106,7 @@ namespace Geometry
     }
     
     const MappingReferenceToReference*
-    ReferenceLine::getCodim0MappingPtr(const IndexT i) const
+    ReferenceLine::getCodim0MappingPtr(const std::size_t i) const
     {
         if (i < 2)
         {
@@ -120,13 +120,13 @@ namespace Geometry
     
     // ================================== Codimension 1 ============================================
     
-    std::vector<std::size_t> ReferenceLine::getCodim1EntityLocalIndices(const IndexT faceIndex) const
+    std::vector<std::size_t> ReferenceLine::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
         logger.assert(faceIndex < 2, "A line has only 2 endpoints, while endpoint % is requested", faceIndex);
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 1);
     }
     
-    const ReferenceGeometry* ReferenceLine::getCodim1ReferenceGeometry(const IndexT faceIndex) const
+    const ReferenceGeometry* ReferenceLine::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
         if (faceIndex < 2)
         {
@@ -138,7 +138,7 @@ namespace Geometry
         }
     }
     const MappingReferenceToReference*
-    ReferenceLine::getCodim1MappingPtr(const IndexT faceIndex) const
+    ReferenceLine::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         if (faceIndex < 2)
         {

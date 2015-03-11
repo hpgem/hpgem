@@ -96,7 +96,7 @@ namespace Geometry
         return PointReference(3);
     }
     
-    const PointReference& ReferenceCube::getNode(const IndexT& i) const
+    const PointReference& ReferenceCube::getNode(const std::size_t& i) const
     {
         if (i < 8)
         {
@@ -173,7 +173,7 @@ namespace Geometry
     }
     
     const MappingReferenceToReference*
-    ReferenceCube::getCodim0MappingPtr(const IndexT i) const
+    ReferenceCube::getCodim0MappingPtr(const std::size_t i) const
     {
         if (i < 8)
         {
@@ -188,7 +188,7 @@ namespace Geometry
     // ================================== Codimension 1 ============================================
     
     const MappingReferenceToReference*
-    ReferenceCube::getCodim1MappingPtr(const IndexT faceIndex) const
+    ReferenceCube::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         if (faceIndex < 6)
         {
@@ -201,7 +201,7 @@ namespace Geometry
     }
     
     const ReferenceGeometry*
-    ReferenceCube::getCodim1ReferenceGeometry(const IndexT e) const
+    ReferenceCube::getCodim1ReferenceGeometry(const std::size_t e) const
     {
         if (e < 8)
         {
@@ -213,7 +213,7 @@ namespace Geometry
         }
     }
     
-    std::vector<std::size_t> ReferenceCube::getCodim1EntityLocalIndices(const IndexT i) const
+    std::vector<std::size_t> ReferenceCube::getCodim1EntityLocalIndices(const std::size_t i) const
     {
         if (i < 6)
         {
@@ -229,14 +229,14 @@ namespace Geometry
     // ================================== Codimension 2 ============================================
     
     const MappingReferenceToReference*
-    ReferenceCube::getCodim2MappingPtr(const IndexT lineIndex) const
+    ReferenceCube::getCodim2MappingPtr(const std::size_t lineIndex) const
     {
         logger.assert(lineIndex < getNrOfCodim2Entities(), "Asked for line %, but a cube only has % lines", lineIndex, getNrOfCodim2Entities());
         return nullptr;
     }
     
     const ReferenceGeometry*
-    ReferenceCube::getCodim2ReferenceGeometry(const IndexT e) const
+    ReferenceCube::getCodim2ReferenceGeometry(const std::size_t e) const
     {
         if (e < 12)
         {
@@ -248,7 +248,7 @@ namespace Geometry
         }
     }
     
-    std::vector<std::size_t> ReferenceCube::getCodim2EntityLocalIndices(const IndexT i) const
+    std::vector<std::size_t> ReferenceCube::getCodim2EntityLocalIndices(const std::size_t i) const
     {
         if (i < 12)
         {

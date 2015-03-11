@@ -77,12 +77,11 @@ namespace Geometry
     public:
         /// \bug this is a workaround for a g++ bug. Should read using typenames;
         using String = std::string;
-        using IndexT = std::size_t;
         using PointReferenceT = Geometry::PointReference;
         using VectorOfReferencePointsT = std::vector<PointReferenceT >;
         using iterator = VectorOfReferencePointsT::iterator;
         using const_iterator = VectorOfReferencePointsT::const_iterator;
-        using ListOfIndexesT = std::vector<IndexT>;
+        using ListOfIndexesT = std::vector<std::size_t>;
 
     public:
         
@@ -108,7 +107,7 @@ namespace Geometry
         }
         
         /// \brief Given a local index, return (assign to point) the corresponding node.
-        virtual const PointReference& getNode(const IndexT& localIndex) const;
+        virtual const PointReference& getNode(const std::size_t& localIndex) const;
 
         virtual std::size_t getLocalNodeIndex(std::size_t face, std::size_t node) const = 0;
 

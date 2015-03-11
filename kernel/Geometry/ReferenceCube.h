@@ -43,13 +43,10 @@ namespace Geometry
     class ReferenceCube : public ReferenceGeometry
     {
     public:
-        using ReferenceGeometryT = ReferenceGeometry;
+        using typename ReferenceGeometry::PointReferenceT;
+        using typename ReferenceGeometry::VectorOfReferencePointsT;
 
-        using typename ReferenceGeometryT::IndexT;
-        using typename ReferenceGeometryT::PointReferenceT;
-        using typename ReferenceGeometryT::VectorOfReferencePointsT;
-
-        using ReferenceGeometryT::String;
+        using ReferenceGeometry::String;
 
     public:
         
@@ -74,7 +71,7 @@ namespace Geometry
         PointReference getCenter() const;
 
         //! (see ReferenceGeometry.h)
-        const PointReference& getNode(const IndexT& i) const;
+        const PointReference& getNode(const std::size_t& i) const;
 
         //! (see ReferenceGeometry.h)
         String getName() const
@@ -100,7 +97,7 @@ namespace Geometry
         std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim0MappingPtr(const IndexT) const;
+        const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t) const;
 
         using MappingCodimensions::getCodim0MappingPtr;
 
@@ -113,13 +110,13 @@ namespace Geometry
         }
         
         //! (see MappingCodimensions.h)
-        std::vector<std::size_t> getCodim1EntityLocalIndices(const IndexT) const;
+        std::vector<std::size_t> getCodim1EntityLocalIndices(const std::size_t) const;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim1MappingPtr(const IndexT) const;
+        const MappingReferenceToReference* getCodim1MappingPtr(const std::size_t) const;
 
         //! (see MappingCodimensions.h)
-        const ReferenceGeometry* getCodim1ReferenceGeometry(const IndexT) const;
+        const ReferenceGeometry* getCodim1ReferenceGeometry(const std::size_t) const;
 
         // ================================== Codimension 2 ========================================
         
@@ -130,13 +127,13 @@ namespace Geometry
         }
         
         //! (see MappingCodimensions.h)
-        std::vector<std::size_t> getCodim2EntityLocalIndices(const IndexT) const;
+        std::vector<std::size_t> getCodim2EntityLocalIndices(const std::size_t) const;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim2MappingPtr(const IndexT) const;
+        const MappingReferenceToReference* getCodim2MappingPtr(const std::size_t) const;
 
         //! (see MappingCodimensions.h)
-        const ReferenceGeometry* getCodim2ReferenceGeometry(const IndexT) const;
+        const ReferenceGeometry* getCodim2ReferenceGeometry(const std::size_t) const;
 
         // ================================== Codimension 3 ========================================
         

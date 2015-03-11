@@ -52,7 +52,7 @@ namespace Geometry
         return PointReference(0);
     }
     
-    const PointReference& ReferencePoint::getNode(const IndexT& i) const
+    const PointReference& ReferencePoint::getNode(const std::size_t& i) const
     {
         logger.assert(i==0, "Asked for node %, but there are only 1 nodes", i);
         return points_[0];
@@ -65,7 +65,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToReference* ReferencePoint::getCodim0MappingPtr(const IndexT a) const
+    const MappingReferenceToReference* ReferencePoint::getCodim0MappingPtr(const std::size_t a) const
     {
         logger.assert(a==0, "Asked for index %, but there are only 1 mappings", a);
         return mappingsPointToPoint_;

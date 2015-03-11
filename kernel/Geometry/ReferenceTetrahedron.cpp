@@ -43,7 +43,7 @@ namespace Geometry
             : /// Tetrahedron has four nodes 3D + 1
             ReferenceGeometry(4, 3, TETRAHEDRON), referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
-        PointReferenceT p1(3), p2(3), p3(3), p4(3);
+        PointReference p1(3), p2(3), p3(3), p4(3);
         
         p1[0] = +0.0;
         p1[1] = +0.0;
@@ -77,7 +77,7 @@ namespace Geometry
     {
     }
     
-    bool ReferenceTetrahedron::isInternalPoint(const PointReferenceT& p) const
+    bool ReferenceTetrahedron::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==3, "The dimension of the reference point is incorrect");
         return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]) && (p[2] >= 0.) && (p[2] <= 1. - p[0] - p[1]));
@@ -90,7 +90,7 @@ namespace Geometry
         return p;
     }
     
-    const PointReference& ReferenceTetrahedron::getNode(const IndexT& i) const
+    const PointReference& ReferenceTetrahedron::getNode(const std::size_t& i) const
     {
         logger.assert(i<getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
         return points_[i];
@@ -120,7 +120,7 @@ namespace Geometry
     }
     
     const MappingReferenceToReference*
-    ReferenceTetrahedron::getCodim0MappingPtr(const IndexT i) const
+    ReferenceTetrahedron::getCodim0MappingPtr(const std::size_t i) const
     {
         /// TODO: Implement tetrahedron to tetrahedron mappings.
         throw "ERROR: Tetrahedron to tetrahedron mappings do not exist";
@@ -128,7 +128,7 @@ namespace Geometry
     
     // ================================== Codimension 1 ============================================
     
-    std::vector<std::size_t> ReferenceTetrahedron::getCodim1EntityLocalIndices(const IndexT faceIndex) const
+    std::vector<std::size_t> ReferenceTetrahedron::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
         if (faceIndex < 4)
         {
@@ -141,7 +141,7 @@ namespace Geometry
     }
     
     const ReferenceGeometry*
-    ReferenceTetrahedron::getCodim1ReferenceGeometry(const IndexT faceIndex) const
+    ReferenceTetrahedron::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
         if (faceIndex < 4)
         {
@@ -154,7 +154,7 @@ namespace Geometry
     }
     
     const MappingReferenceToReference*
-    ReferenceTetrahedron::getCodim1MappingPtr(const IndexT faceIndex) const
+    ReferenceTetrahedron::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         if (faceIndex < 4)
         {
@@ -168,7 +168,7 @@ namespace Geometry
     
     // ================================== Codimension 2 ============================================
     
-    std::vector<std::size_t> ReferenceTetrahedron::getCodim2EntityLocalIndices(const IndexT edgeIndex) const
+    std::vector<std::size_t> ReferenceTetrahedron::getCodim2EntityLocalIndices(const std::size_t edgeIndex) const
     {
         if (edgeIndex < 6)
         {
@@ -181,7 +181,7 @@ namespace Geometry
     }
     
     const ReferenceGeometry*
-    ReferenceTetrahedron::getCodim2ReferenceGeometry(const IndexT edgeIndex) const
+    ReferenceTetrahedron::getCodim2ReferenceGeometry(const std::size_t edgeIndex) const
     {
         if (edgeIndex < 6)
         {
@@ -194,7 +194,7 @@ namespace Geometry
     }
     
     const MappingReferenceToReference*
-    ReferenceTetrahedron::getCodim2MappingPtr(const IndexT faceIndex) const
+    ReferenceTetrahedron::getCodim2MappingPtr(const std::size_t faceIndex) const
     {
         /// TODO: Implement line to tetrahedron mappings.
         throw "ERROR: Line to tetrahedron mappings do not exist";
@@ -202,7 +202,7 @@ namespace Geometry
     
     // ================================== Codimension 3 ============================================
     
-    std::vector<std::size_t> ReferenceTetrahedron::getCodim3EntityLocalIndices(const IndexT nodeIndex) const
+    std::vector<std::size_t> ReferenceTetrahedron::getCodim3EntityLocalIndices(const std::size_t nodeIndex) const
     {
         if (nodeIndex < 4)
         {

@@ -38,13 +38,10 @@ namespace Geometry
     {
         
     public:
-        using ReferenceGeometryT = ReferenceGeometry;
-
-        using ReferenceGeometryT::PointReferenceT;
-        using ReferenceGeometryT::VectorOfReferencePointsT;
-        using ReferenceGeometryT::IndexT;
-        using ReferenceGeometryT::String;
-        using ReferenceGeometryT::const_iterator;
+        using ReferenceGeometry::PointReferenceT;
+        using ReferenceGeometry::VectorOfReferencePointsT;
+        using ReferenceGeometry::String;
+        using ReferenceGeometry::const_iterator;
         using ListOfIndexesT = std::vector<std::size_t>;
         using Ref1ToRef1MappingT = MappingReferenceToReference; // Numbers indicate dim.
         using Ref0ToRef1MappingT = MappingReferenceToReference;
@@ -71,7 +68,7 @@ namespace Geometry
         PointReference getCenter() const;
 
         //! (see ReferenceGeometry.h)
-        const PointReference& getNode(const IndexT& i) const;
+        const PointReference& getNode(const std::size_t& i) const;
 
         //! (see ReferenceGeometry.h)
         String getName() const
@@ -98,7 +95,7 @@ namespace Geometry
         std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim0MappingPtr(const IndexT) const;
+        const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t) const;
 
         using MappingCodimensions::getCodim0MappingPtr;
 
@@ -111,13 +108,13 @@ namespace Geometry
         }
         
         //! (see MappingCodimensions.h)
-        std::vector<std::size_t> getCodim1EntityLocalIndices(const IndexT) const;
+        std::vector<std::size_t> getCodim1EntityLocalIndices(const std::size_t) const;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim1MappingPtr(const IndexT) const;
+        const MappingReferenceToReference* getCodim1MappingPtr(const std::size_t) const;
 
         //! (see MappingCodimensions.h)
-        const ReferenceGeometry* getCodim1ReferenceGeometry(const IndexT) const;
+        const ReferenceGeometry* getCodim1ReferenceGeometry(const std::size_t) const;
 
         // =============================== Refinement mappings =====================================
         

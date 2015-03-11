@@ -93,7 +93,7 @@ namespace Geometry
         return p;
     }
     
-    const PointReference& ReferenceTriangularPrism::getNode(const IndexT& i) const
+    const PointReference& ReferenceTriangularPrism::getNode(const std::size_t& i) const
     {
         logger.assert(i<getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
         return points_[i];
@@ -123,7 +123,7 @@ namespace Geometry
     }
     
     const MappingReferenceToReference*
-    ReferenceTriangularPrism::getCodim0MappingPtr(const IndexT i) const
+    ReferenceTriangularPrism::getCodim0MappingPtr(const std::size_t i) const
     {
         /// TODO: Implement tetrahedron to tetrahedron mappings.
         throw "ReferenceTetrahedron::getCodim0MappingPtr: T.p to T.p mappings do not exist";
@@ -131,7 +131,7 @@ namespace Geometry
     
     // ================================== Codimension 1 ============================================
     
-    std::vector<std::size_t> ReferenceTriangularPrism::getCodim1EntityLocalIndices(const IndexT faceIndex) const
+    std::vector<std::size_t> ReferenceTriangularPrism::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
         if (faceIndex < 2)
         {
@@ -148,7 +148,7 @@ namespace Geometry
     }
     
     const ReferenceGeometry*
-    ReferenceTriangularPrism::getCodim1ReferenceGeometry(const IndexT faceIndex) const
+    ReferenceTriangularPrism::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
         if (faceIndex < 2)
         {
@@ -165,7 +165,7 @@ namespace Geometry
     }
     
     const MappingReferenceToReference*
-    ReferenceTriangularPrism::getCodim1MappingPtr(const IndexT faceIndex) const
+    ReferenceTriangularPrism::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         if (faceIndex < 5)
         {
@@ -179,7 +179,7 @@ namespace Geometry
     
     // ================================== Codimension 2 ============================================
     
-    std::vector<std::size_t> ReferenceTriangularPrism::getCodim2EntityLocalIndices(const IndexT edgeIndex) const
+    std::vector<std::size_t> ReferenceTriangularPrism::getCodim2EntityLocalIndices(const std::size_t edgeIndex) const
     {
         if (edgeIndex < 9)
         {
@@ -192,7 +192,7 @@ namespace Geometry
     }
     
     const ReferenceGeometry*
-    ReferenceTriangularPrism::getCodim2ReferenceGeometry(const IndexT edgeIndex) const
+    ReferenceTriangularPrism::getCodim2ReferenceGeometry(const std::size_t edgeIndex) const
     {
         if (edgeIndex < 9)
         {
@@ -205,7 +205,7 @@ namespace Geometry
     }
     
     const MappingReferenceToReference*
-    ReferenceTriangularPrism::getCodim2MappingPtr(const IndexT faceIndex) const
+    ReferenceTriangularPrism::getCodim2MappingPtr(const std::size_t faceIndex) const
     {
         /// TODO: Implement line to t.p. mappings.
         throw "ReferenceTriangularPrism::getCodim2MappingPtr: Line to TP mappings do not exist";
@@ -213,7 +213,7 @@ namespace Geometry
     
     // ================================== Codimension 3 ============================================
     
-    std::vector<std::size_t> ReferenceTriangularPrism::getCodim3EntityLocalIndices(const IndexT nodeIndex) const
+    std::vector<std::size_t> ReferenceTriangularPrism::getCodim3EntityLocalIndices(const std::size_t nodeIndex) const
     {
         if (nodeIndex < 6)
         {

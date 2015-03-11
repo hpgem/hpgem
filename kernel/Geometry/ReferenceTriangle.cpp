@@ -88,7 +88,7 @@ namespace Geometry
         return p;
     }
     
-    const PointReference& ReferenceTriangle::getNode(const IndexT& i) const
+    const PointReference& ReferenceTriangle::getNode(const std::size_t& i) const
     {
         logger.assert(i<getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
         return points_[i];
@@ -145,7 +145,7 @@ namespace Geometry
     }
     
     const MappingReferenceToReference*
-    ReferenceTriangle::getCodim0MappingPtr(const IndexT i) const
+    ReferenceTriangle::getCodim0MappingPtr(const std::size_t i) const
     {
         if (i < 6)
         {
@@ -157,13 +157,13 @@ namespace Geometry
         }
     }
     // ================================== Codimension 1 ============================================
-    std::vector<std::size_t> ReferenceTriangle::getCodim1EntityLocalIndices(const IndexT faceIndex) const
+    std::vector<std::size_t> ReferenceTriangle::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
         logger.assert(faceIndex < 3, "A triangle has only 3 edges, while edge % is requested", faceIndex);
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 2);
     }
     
-    const ReferenceGeometry* ReferenceTriangle::getCodim1ReferenceGeometry(const IndexT faceIndex) const
+    const ReferenceGeometry* ReferenceTriangle::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
         if (faceIndex < 3)
         {
@@ -175,7 +175,7 @@ namespace Geometry
         }
     }
     const MappingReferenceToReference*
-    ReferenceTriangle::getCodim1MappingPtr(const IndexT faceIndex) const
+    ReferenceTriangle::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         if (faceIndex < 3)
         {

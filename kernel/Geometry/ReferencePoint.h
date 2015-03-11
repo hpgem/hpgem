@@ -40,8 +40,7 @@ namespace Geometry
 
         using ReferenceGeometryT::PointReferenceT;
         using ReferenceGeometryT::VectorOfReferencePointsT;
-        using ReferenceGeometryT::IndexT;
-        using ListOfIndexesT = std::vector<IndexT>;
+        using ListOfIndexesT = std::vector<std::size_t>;
 
     public:
         static ReferencePoint& Instance()
@@ -65,7 +64,7 @@ namespace Geometry
         PointReference getCenter() const;
 
         /// \brief (see ReferenceGeometry.h)
-        const PointReference& getNode(const IndexT& i) const;
+        const PointReference& getNode(const std::size_t& i) const;
 
         /// \brief (see ReferenceGeometry.h)
         String getName() const
@@ -87,7 +86,7 @@ namespace Geometry
         std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
 
         /// \brief Returns 0.
-        const MappingReferenceToReference* getCodim0MappingPtr(const IndexT a) const;
+        const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t a) const;
 
         using MappingCodimensions::getCodim0MappingPtr;
 
