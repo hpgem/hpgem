@@ -26,11 +26,12 @@
 #include "Logger.h"
 #include "Base/L2Norm.h"
 #include "FaceIntegrandBase.h"
+#include "LinearAlgebra/Axpy.h"
 
 namespace Integration
 {
     
-    template<class ReturnTrait1>
+    template<typename ReturnTrait1>
     ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, FaceIntegrandBase<ReturnTrait1>* integrand, const QuadratureRules::GaussQuadratureRule* qdrRule)
     {
         logger.assert(fa!=nullptr, "Invalid face detected");
@@ -45,7 +46,7 @@ namespace Integration
         return integrate(fa, integrandFunc, qdrRule);
     }
     
-    template<class ReturnTrait1>
+    template<typename ReturnTrait1>
     ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc, const QuadratureRulesT* const qdrRule)
     {
         logger.assert(fa!=nullptr, "Invalid face detected");
@@ -70,8 +71,6 @@ namespace Integration
         // Gauss quadrature point
         Geometry::PointReference p = qdrRuleLoc->getPoint(0);
         
-        //if (!useCache_)//caching of transformation data is delegated to ShortTermStorageBase
-        //{
         LinearAlgebra::NumericalVector Normal = localFace_->getNormalVector(p);
         
         // first Gauss point;
@@ -86,46 +85,10 @@ namespace Integration
             value = integrandFunc(localFace_, Normal, p);
             
             //Y = alpha * X + Y
-            result.axpy(qdrRuleLoc->weight(i) * Base::L2Norm(Normal), value);
+            LinearAlgebra::axpy(qdrRuleLoc->weight(i) * Base::L2Norm(Normal), value, result);
             
         }
         return result;
-        //}
-        /*else  // useCache_
-         {///\TODO long term cache dont work well with short term cache
-         // get vector of cache data
-         VecCacheT vecCache = fa->getVecCacheData();
-
-         // Calculate the cache
-         if ((vecCache.size()!=nrOfPoints) || recomputeCache_)
-         {
-         std::cout << qdrRuleLoc->getName() << " ";
-         std::cout << "FaceIntegral: filling up the cache (" << nrOfPoints << "points)!\n";
-
-         vecCache.resize(nrOfPoints,qdrRuleLoc->dimension()+1);
-         for (std::size_t i=0; i<nrOfPoints; ++i)
-         {
-         qdrRuleLoc->getPoint(i, p);
-         vecCache[i](*fa,p);//this non-intuitive bit of notation computes and stores the outward-pointing normal vector and its norm
-         }
-         }
-
-         // first Gauss point
-         qdrRuleLoc->getPoint(0, p);
-         integrand->faceIntegrand(fa, vecCache[0].Normal, p, result);
-         result *= (qdrRuleLoc->weight(0) * vecCache[0].L2Normal);
-
-         // next Gauss point(s)
-         for (std::size_t i = 1; i < nrOfPoints; ++i)
-         {
-         qdrRuleLoc->getPoint(i, p);
-         integrand->faceIntegrand(fa, vecCache[i].Normal, p, value);
-
-         //Y = alpha * X + Y
-         result.axpy(qdrRuleLoc->weight(i) * vecCache[i].L2Normal,value);
-
-         } // for integration points
-         } // if cached data (else)*/
     } // function
     
     template<typename IntegrandType>
@@ -139,7 +102,7 @@ namespace Integration
         for (iPoint = 1; iPoint < numOfPoints; iPoint++)
         {
             pRef = ptrQdrRule->getPoint(iPoint);
-            integral.axpy(ptrQdrRule->weight(iPoint), integrandFunction(pRef));
+            LinearAlgebra::axpy(ptrQdrRule->weight(iPoint), integrandFunction(pRef), integral);
         }
         return integral;
     }

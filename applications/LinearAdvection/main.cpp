@@ -26,7 +26,6 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Base/Element.h"
-#include "Integration/ReturnTrait1.h"
 #include "Base/Element.h"
 #include "Integration/FaceIntegral.h"
 #include "Integration/ElementIntegral.h"

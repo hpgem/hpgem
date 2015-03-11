@@ -61,7 +61,7 @@ namespace LinearAlgebra
 
         NumericalVector(const double array[], std::size_t size);
 
-        //Constructor to accomodate complex<double>
+        //Constructor to accommodate complex<double>
         NumericalVector(const std::complex<double> array[], int size);
 
         void resize(std::size_t size);
@@ -74,6 +74,7 @@ namespace LinearAlgebra
 
         NumericalVector operator*(const double& right) const;
 
+        ///Computes inner product between two vectors.
         double operator*(const NumericalVector& right) const;
 
         NumericalVector& operator/=(const double& right);

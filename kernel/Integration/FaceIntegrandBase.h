@@ -33,7 +33,16 @@ namespace LinearAlgebra
 
 namespace Integration
 {
-    /// HORRIBLY UGLY HACK TO ALLOW TEMPLATING ON THE RETURN TYPE AND INHERITING MULTIPLE INSTANCES
+    /**
+     * If you want to integrate over elements it is likely you already have the functions
+     * faceIntegrand(const Base::Face*, const Geometry::PointReference&, LinearAlgebra::Matrix) and
+     * faceIntegrand(const Base::Face*, const Geometry::PointReference&, LinearAlgebra::NumericalVector)
+     * implemented in some class already, so that class can simply inherit from FaceIntegrandBase<LinearAlgebra::Matrix>
+     * and FaceIntegrandBase<LinearAlgebra::NumericalVector> to signal the integrators that it does so.
+     * This abstract base class is very ugly, and allows templating on
+     * the return type, which is given in the final parameter, and inheriting multiple instances.
+     * \deprecated Please use an std::function to pass the integrand to FaceIntegral::integrate.
+     */
     template<typename T>
     class FaceIntegrandBase
     {

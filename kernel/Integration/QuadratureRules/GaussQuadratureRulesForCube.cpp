@@ -31,7 +31,6 @@
 #include <cmath>
 //---------------------------------------------------------------------------
 // Package includes:
-#include "Integration/GlobalNamespaceIntegration.h"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.h"
 #include "Geometry/ReferenceCube.h"
 #include "GaussQuadratureRulesForLine.h"

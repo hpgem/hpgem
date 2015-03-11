@@ -23,7 +23,6 @@
 #include <cmath>
 //---------------------------------------------------------------------------
 // Package includes:
-#include "Integration/GlobalNamespaceIntegration.h"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTriangularPrism.h"
 #include "Geometry/ReferenceTriangularPrism.h"
 #include "Geometry/PointReference.h"

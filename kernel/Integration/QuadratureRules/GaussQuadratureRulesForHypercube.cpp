@@ -31,7 +31,6 @@
 #include <cmath>
 //---------------------------------------------------------------------------
 // Package includes:
-#include "Integration/GlobalNamespaceIntegration.h"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForHypercube.h"
 #include "Geometry/ReferenceHypercube.h"
 #include "Geometry/PointReference.h"

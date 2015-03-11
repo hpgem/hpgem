@@ -32,7 +32,6 @@
 #include "Base/TimeIntegration/ButcherTableau.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
-#include "Integration/ReturnTrait1.h"
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"

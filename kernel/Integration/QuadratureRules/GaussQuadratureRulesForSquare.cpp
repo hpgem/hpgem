@@ -23,7 +23,6 @@
 #include <cmath>
 //---------------------------------------------------------------------------
 // Package includes:
-#include "Integration/GlobalNamespaceIntegration.h"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForSquare.h"
 #include "Geometry/ReferenceSquare.h"
 #include "GaussQuadratureRulesForLine.h"

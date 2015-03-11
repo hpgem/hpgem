@@ -30,7 +30,7 @@ namespace LinearAlgebra
 
     {
         
-        ///This is the gernal scale times vector + vector from blas, hence from blas level 1. Here we also use on a matrix by treating as a vector
+        ///This is the general scalar times vector + vector from blas, hence from blas level 1. Here we also use on a matrix by treating as a vector
         int daxpy_(unsigned int* N, double* DA, double* DX, unsigned int* INCX, double* DY, unsigned int* INCY);
     
     }
@@ -134,7 +134,7 @@ namespace LinearAlgebra
     
     double NumericalVector::operator*(const NumericalVector& right) const
     {
-        ///\TODO replace with BLAS (I dont know where to find them)
+        ///\TODO replace with BLAS 
         logger.assert(data_.size() == right.data_.size(), "Vectors don't have equal length.");
 #ifdef LA_STL_VECTOR
         double sum = 0;

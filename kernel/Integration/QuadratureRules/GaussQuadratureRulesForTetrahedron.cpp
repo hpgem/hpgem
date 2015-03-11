@@ -23,7 +23,6 @@
 #include <cmath>
 //---------------------------------------------------------------------------
 // Package includes:
-#include "Integration/GlobalNamespaceIntegration.h"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTetrahedron.h"
 #include "Geometry/ReferenceTetrahedron.h"
 #include "Geometry/PointReference.h"

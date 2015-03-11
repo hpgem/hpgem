@@ -84,15 +84,15 @@ namespace Integration
         ///this class will take over responsibility for the data management
         void setStorageWrapper(Base::ShortTermStorageElementBase *transform);
 
-        //! \brief Directly integrate the integrand and return ReturnTraits1.
-        //! ReturnTrait1 needs to have the function axpy() implemented
+        //! \brief Directly integrate the integrand and return ReturnTrait1.
+        //! ReturnTrait1 needs to have the function LinearAlgebra::axpy() implemented
         template<class ReturnTrait1>
         ReturnTrait1 integrate(Base::Element* el, ElementIntegrandBase<ReturnTrait1>* integrand, const QuadratureRulesT * const qdrRule = nullptr);
 
         template<class ReturnType>
         ReturnType integrate(Base::Element* el, std::function<ReturnType(const Base::Element*, const Geometry::PointReference&)> integrand, const QuadratureRulesT * const qdrRule = nullptr);
 
-        /// \brief Compute the integral on a reference element. IntegrandType needs to have the function axpy() implemented.
+        /// \brief Compute the integral on a reference element. IntegrandType needs to have the function LinearAlgebra::axpy() implemented.
         template<typename IntegrandType>
         IntegrandType referenceElementIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference &)> integrandFunction);
 

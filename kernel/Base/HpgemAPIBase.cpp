@@ -22,7 +22,6 @@
 #include "HpgemAPIBase.h"
 
 #include "Base/Element.h"
-#include "Integration/ReturnTrait1.h"
 
 #include "RectangularMeshDescriptor.h"
 #include "Geometry/PointPhysical.h"

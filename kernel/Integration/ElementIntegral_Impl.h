@@ -28,17 +28,29 @@
 #include "QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "ElementIntegral.h"
+#include "LinearAlgebra/Axpy.h"
 
 namespace Integration
 {
-    
+    /*!
+    \param[in]  el        the Element to be integrated on,
+    \param[in]  rule      the GaussQuadratureRule to use,
+    \param[in]  integrand a function/functor with operator(Element, PointReference, ResultType&),
+    \return    a reference to the variable with result storage.
+
+    This function integrates the function in integrand over the element el with
+    the given Gauss Quadrature rule.
+    Note that one has the possibility to leave the rule argument
+    away, in which case the default for the ReferenceGeometry of
+    the passed element will be used.
+    \deprecated Please use integrate(Element*, std::function<...>, const QuadratureRulesT) wherever possible.
+     */
     template<typename ReturnTrait1>
     ReturnTrait1 ElementIntegral::integrate(Base::Element* el, ElementIntegrandBase<ReturnTrait1>* integrand, const QuadratureRulesT * const qdrRule)
     {
         logger.assert(el!=nullptr, "Invalid element detected");
         logger.assert(integrand!=nullptr, "Invalid integrand detected");
         //quadrature rule is allowed to be equal to nullptr!
-        //(@dducks) this lambda definition is not allowed inside the integrate(), why not?
         std::function<ReturnTrait1(const Base::Element*, const PointReferenceT&)> integrandFun = [=](const Base::Element* el, const PointReferenceT& p)-> ReturnTrait1
         {   
             ReturnTrait1 result;
@@ -48,6 +60,18 @@ namespace Integration
         return integrate(el, integrandFun, qdrRule);
     }
     
+    /*!
+    \param[in]  el        the Element to be integrated on
+    \param[in]  rule      the GaussQuadratureRule to use
+    \param[in]  integrand a function with parameters Element, PointReference, ResultType&
+    \return    a reference to the variable with result storage
+
+    This function integrates the function in integrand over the element el with
+    the given Gauss Quadrature rule.
+    Note that one has the possibility to leave the rule argument
+    away, in which case the default for the ReferenceGeometry of
+    the passed element will be used.
+    */
     template<typename ReturnType>
     ReturnType ElementIntegral::integrate(Base::Element* el, std::function<ReturnType(const Base::Element*, const PointReferenceT&)> integrandFun, const QuadratureRulesT * const qdrRule)
     {
@@ -100,7 +124,7 @@ namespace Integration
             value = integrandFun(localElement_, p);
             
             //axpy: Y = alpha * X + Y
-            result.axpy(qdrRuleLoc->weight(i) * std::abs(jac.determinant()), value);
+            LinearAlgebra::axpy(qdrRuleLoc->weight(i) * std::abs(jac.determinant()), value, result);
         }
         return result;
     }
@@ -116,7 +140,7 @@ namespace Integration
         for (iPoint = 1; iPoint < numOfPoints; iPoint++)
         {
             pRef = ptrQdrRule->getPoint(iPoint);
-            integral.axpy(ptrQdrRule->weight(iPoint), integrandFunction(pRef));
+            LinearAlgebra::axpy(ptrQdrRule->weight(iPoint), integrandFunction(pRef), integral);
         }
         return integral;
     }

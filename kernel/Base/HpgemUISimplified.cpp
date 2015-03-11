@@ -20,7 +20,6 @@
  */
 
 #include "HpgemUISimplified.h"
-#include "Integration/ReturnTrait1.h"
 #include "Base/Element.h"
 #include "Base/ShortTermStorageElementH1.h"
 #include "Base/ShortTermStorageFaceH1.h"

@@ -23,7 +23,6 @@
 #include <cmath>
 //---------------------------------------------------------------------------
 // Package includes:
-#include "Integration/GlobalNamespaceIntegration.h"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForPyramid.h"
 #include "Geometry/ReferencePyramid.h"
 #include "Geometry/PointReference.h"

@@ -77,51 +77,6 @@ namespace Integration
         }
     }
 
-//! \brief Do the face integration using given Gauss integration rule.
-
-/*! \brief Integration class for face integrals, a specialization for 1D case
- *  Call to the integrand: must pass the face reference, since that allows
- *  access to the elements' data.  We use no cache for 1D case. */
-//-----------------------------------------
-//----------------------------------------- Specialization for 1D case
-//-----------------------------------------
-/*template <>
- class FaceIntegral<1>
- {
- public:
- //! Construct a FaceIntegral, without geometry cache.
- FaceIntegral(bool) {}
- 
- ~FaceIntegral()
- {}
- 
- template <class IntegrandT>
- void integrate(Base::Face<1>* fa,
- IntegrandT& integrand,
- typename ReturnTrait1<IntegrandT>::ReturnType& result,
- const QuadratureRules::GaussQuadratureRule<0>* qdrRule = nullptr)
- {
- Geometry::PointReference<0> p;
- Geometry::PointPhysical<1> Normal;
- 
- fa->getNormalVector(p, Normal);
- integrand(fa, Normal, p, result);
- }
-
- template <class IntegrandT,class OBJ>
- void integrate(Base::Face<1>* fa,
- IntegrandT& integrand,
- typename ReturnTrait1<IntegrandT>::ReturnType& result,OBJ* objPtr,
- const QuadratureRules::GaussQuadratureRule<0>* qdrRule = nullptr)
- {
- Geometry::PointReference<0> p;
- Geometry::PointPhysical<1> Normal;
-
- fa->getNormalVector(p, Normal);
- (objPtr->*integrand)(fa, Normal, p, result);
- }
- };*/
-
 }
 
 void Integration::FaceIntegral::setStorageWrapper(Base::ShortTermStorageFaceBase* transform)

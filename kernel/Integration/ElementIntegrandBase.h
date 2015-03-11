@@ -39,8 +39,10 @@ namespace Integration
      * elementIntegrand(const Base::Element*, const Geometry::PointReference&, LinearAlgebra::Matrix) and
      * elementIntegrand(const Base::Element*, const Geometry::PointReference&, LinearAlgebra::NumericalVector)
      * implemented in some class already, so that class can simply inherit from ElementIntegrandBase<LinearAlgebra::Matrix>
-     * and ElementIntegrandBase<LinearAlgebra::NumericalVector> to signal the integrators that it does so
-     * HORRIBLY UGLY HACK TO ALLOW TEMPLATING ON THE RETURN TYPE AND INHERITING MULTIPLE INSTANCES
+     * and ElementIntegrandBase<LinearAlgebra::NumericalVector> to signal the integrators that it does so.
+     * This abstract base class is very ugly, and allows templating on
+     * the return type, which is given in the final parameter, and inheriting multiple instances.
+     * \deprecated Please use an std::function to pass the integrand to ElementIntegral::integrate.
      */
     template<class T>
     class ElementIntegrandBase
