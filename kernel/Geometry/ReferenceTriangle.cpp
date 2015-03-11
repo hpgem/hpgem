@@ -77,6 +77,7 @@ namespace Geometry
     
     bool ReferenceTriangle::isInternalPoint(const PointReferenceT& p) const
     {
+        logger.assert(p.size()==2, "The dimension of the reference point is incorrect");
         return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
     }
     
@@ -89,6 +90,7 @@ namespace Geometry
     
     const PointReference& ReferenceTriangle::getNode(const IndexT& i) const
     {
+        logger.assert(i<getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
         return points_[i];
     }
     

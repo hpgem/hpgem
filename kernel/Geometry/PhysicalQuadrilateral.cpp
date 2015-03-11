@@ -34,6 +34,7 @@ namespace Geometry
     
     std::vector<std::size_t> PhysicalQuadrilateral::getGlobalFaceNodeIndices(const std::size_t face) const
     {
+        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
         std::vector<std::size_t> indexes(2);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 0)];
         indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 1)];
@@ -42,6 +43,7 @@ namespace Geometry
     
     std::vector<std::size_t> PhysicalQuadrilateral::getLocalFaceNodeIndices(const std::size_t face) const
     {
+        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
         std::vector<std::size_t> indexes(2);
         indexes[0] = refGeometry_->getLocalNodeIndex(face, 0);
         indexes[1] = refGeometry_->getLocalNodeIndex(face, 1);

@@ -47,15 +47,17 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefPointToLine0::transform(const Geometry::PointReference&) const
+    PointReference MappingToRefPointToLine0::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==0, "Reference point has the wrong dimension");
         PointReference p2(1);
         p2[0] = -1.0;
         return p2;
     }
     
-    Jacobian MappingToRefPointToLine0::calcJacobian(const Geometry::PointReference&) const
+    Jacobian MappingToRefPointToLine0::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==0, "Reference point has the wrong dimension");
         return Jacobian(1, 0);
     }
     

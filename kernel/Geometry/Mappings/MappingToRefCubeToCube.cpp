@@ -38,6 +38,7 @@ namespace Geometry
     
     PointReference MappingToRefCubeToCube0::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = p1[1];
@@ -45,8 +46,9 @@ namespace Geometry
         return p2;
     }
     
-    Jacobian MappingToRefCubeToCube0::calcJacobian(const Geometry::PointReference&) const
+    Jacobian MappingToRefCubeToCube0::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
         jacobian(0, 0) = 1.0;
         jacobian(0, 1) = 0.0;
@@ -77,6 +79,7 @@ namespace Geometry
     
     PointReference MappingToRefCubeToCube1::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = -p1[2];
@@ -84,8 +87,9 @@ namespace Geometry
         return p2;
     }
     
-    Jacobian MappingToRefCubeToCube1::calcJacobian(const Geometry::PointReference&) const
+    Jacobian MappingToRefCubeToCube1::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
         jacobian(0, 0) = 1.0;
         jacobian(0, 1) = 0.0;
@@ -116,6 +120,7 @@ namespace Geometry
     
     PointReference MappingToRefCubeToCube2::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = -p1[1];
@@ -123,8 +128,9 @@ namespace Geometry
         return p2;
     }
     
-    Jacobian MappingToRefCubeToCube2::calcJacobian(const Geometry::PointReference&) const
+    Jacobian MappingToRefCubeToCube2::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
         jacobian(0, 0) = 1.0;
         jacobian(0, 1) = 0.0;
@@ -155,6 +161,7 @@ namespace Geometry
     
     PointReference MappingToRefCubeToCube3::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = p1[2];
@@ -162,8 +169,9 @@ namespace Geometry
         return p2;
     }
     
-    Jacobian MappingToRefCubeToCube3::calcJacobian(const Geometry::PointReference&) const
+    Jacobian MappingToRefCubeToCube3::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
         jacobian(0, 0) = 1.0;
         jacobian(0, 1) = 0.0;
@@ -194,6 +202,7 @@ namespace Geometry
     
     PointReference MappingToRefCubeToCube4::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = p1[1];
@@ -201,8 +210,9 @@ namespace Geometry
         return p2;
     }
     
-    Jacobian MappingToRefCubeToCube4::calcJacobian(const Geometry::PointReference&) const
+    Jacobian MappingToRefCubeToCube4::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
         jacobian(0, 0) = 1.0;
         jacobian(0, 1) = 0.0;
@@ -233,6 +243,7 @@ namespace Geometry
     
     PointReference MappingToRefCubeToCube5::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = -p1[1];
@@ -240,8 +251,9 @@ namespace Geometry
         return p2;
     }
     
-    Jacobian MappingToRefCubeToCube5::calcJacobian(const Geometry::PointReference&) const
+    Jacobian MappingToRefCubeToCube5::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
         jacobian(0, 0) = 1.0;
         jacobian(0, 1) = 0.0;
@@ -272,6 +284,7 @@ namespace Geometry
     
     PointReference MappingToRefCubeToCube6::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = -p1[2];
@@ -279,8 +292,9 @@ namespace Geometry
         return p2;
     }
     
-    Jacobian MappingToRefCubeToCube6::calcJacobian(const Geometry::PointReference&) const
+    Jacobian MappingToRefCubeToCube6::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
         jacobian(0, 0) = 1.0;
         jacobian(0, 1) = 0.0;
@@ -311,6 +325,7 @@ namespace Geometry
     
     PointReference MappingToRefCubeToCube7::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = p1[2];
@@ -318,8 +333,9 @@ namespace Geometry
         return p2;
     }
     
-    Jacobian MappingToRefCubeToCube7::calcJacobian(const Geometry::PointReference&) const
+    Jacobian MappingToRefCubeToCube7::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
         jacobian(0, 0) = 1.0;
         jacobian(0, 1) = 0.0;

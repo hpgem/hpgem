@@ -49,12 +49,15 @@ namespace Geometry
     FaceGeometry::FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometryT* ptrElemR, const LocalFaceNrType& localFaceNumR)
             : leftElementGeom_(ptrElemL), localFaceNumberLeft_(localFaceNumL), rightElementGeom_(ptrElemR), localFaceNumberRight_(localFaceNumR), faceType_(FaceType::INTERNAL), faceToFaceMapIndex_(Geometry::MAXSIZET)
     {
+        logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
+        logger.assert(ptrElemR!=nullptr, "This constructor is intended for internal faces");
     }
     
     //! Constructor for boundary faces.
     FaceGeometry::FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, const FaceType& boundaryLabel)
             : leftElementGeom_(ptrElemL), rightElementGeom_(nullptr), localFaceNumberLeft_(localFaceNumL), localFaceNumberRight_(Geometry::MAXSIZET), faceToFaceMapIndex_(0), faceType_(boundaryLabel)
     {
+        logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
     }
     
     /// The referenceGeometry is returned. It is taken from left element, to always ensure its existence
@@ -179,9 +182,10 @@ namespace Geometry
         return getElementGLeft()->referenceToPhysical(pElement);
     }
     
-    //finding node numbers here is way to hard (see also the 288 lines of commented out constructor), leave that to someplace else
+    //finding node numbers here is way to hard, leave that to someplace else
     void FaceGeometry::initialiseFaceToFaceMapIndex(const std::vector<std::size_t>& leftVertices, const std::vector<std::size_t>& rightVertices)
     {
+        logger.assert(leftVertices.size()==rightVertices.size(), "Inconsistent amount of vertices for left and right face");
         faceToFaceMapIndex_ = getReferenceGeometry()->getCodim0MappingIndex(leftVertices, rightVertices);
     }
     

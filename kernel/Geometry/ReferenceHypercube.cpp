@@ -139,6 +139,7 @@ namespace Geometry
     
     bool ReferenceHypercube::isInternalPoint(const PointReferenceT& p) const
     {
+        logger.assert(p.size()==4, "The dimension of the point is wrong");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.) && (p[2] >= -1.) && (p[2] <= 1.) && (p[3] >= -1.) && (p[3] <= 1.));
     }
     
@@ -150,6 +151,7 @@ namespace Geometry
     const PointReference&
     ReferenceHypercube::getNode(const IndexT& i) const
     {
+        logger.assert(i < getNumberOfNodes(), "Asked for node %, but a hypercube only has % nodes", i, getNumberOfNodes());
         return points_[i];
     }
     

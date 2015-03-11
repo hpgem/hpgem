@@ -49,21 +49,6 @@ namespace LinearAlgebra
         
         /// This is used for solve Ax=B for x. Again this is from LAPACK.
         void dgesv_(int* N, int* NRHS, double* A, int* lda, int* IPIV, double* B, int* LDB, int* INFO);
-        
-        //Tito's def
-        void sgetrf_(const int*, const int*, float*, const int*, int*, int*);
-        //void dgetrf_(const int*, const int*, double*, const int*, int*, int*);
-        
-        void sgetrs_(const char*, const int*, const int*, const float*, const int*, const int*, float*, const int*, int*);
-        void dgetrs_(const char*, const int*, const int*, const double*, const int*, const int*, double*, const int*, int*);
-        
-        void sgesv_(const int*, const int*, float*, const int*, int*, float*, const int*, int*);
-    // void dgesv_(const int*, const int*, double*, const int*, int*, double*, const int*, int*);
-    
-    // call dgemv(trans, m, n, alpha, a, lda, x, incx, beta, y, incy)
-    
-    //int dgemm_(const char *transA, const char *transB, int *M, int *N, int *k, double *alpha, double *A, int *LDA, double *B, int *LDB, double *beta, double *C, int *LDC);
-    
     }
     
     Matrix::Matrix()

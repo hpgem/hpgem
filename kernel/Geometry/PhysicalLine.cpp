@@ -34,6 +34,7 @@ namespace Geometry
     
     std::vector<std::size_t> PhysicalLine::getGlobalFaceNodeIndices(const std::size_t face) const
     {
+        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
         std::vector<std::size_t> indexes(1);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 0)];
         return indexes;
@@ -41,6 +42,7 @@ namespace Geometry
     
     std::vector<std::size_t> PhysicalLine::getLocalFaceNodeIndices(const std::size_t face) const
     {
+        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
         std::vector<std::size_t> indexes(1);
         indexes[0] = refGeometry_->getLocalNodeIndex(face, 0);
         return indexes;

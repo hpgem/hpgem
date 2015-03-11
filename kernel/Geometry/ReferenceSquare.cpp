@@ -85,6 +85,7 @@ namespace Geometry
     
     bool ReferenceSquare::isInternalPoint(const PointReferenceT& p) const
     {
+        logger.assert(p.size()==2, "The passed reference point has the wrong dimension");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.));
     }
     
@@ -95,6 +96,7 @@ namespace Geometry
     
     const PointReference& ReferenceSquare::getNode(const IndexT& i) const
     {
+        logger.assert(i<getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
         return points_[i];
     }
     

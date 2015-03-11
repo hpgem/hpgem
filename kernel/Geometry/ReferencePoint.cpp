@@ -43,6 +43,7 @@ namespace Geometry
     
     bool ReferencePoint::isInternalPoint(const PointReference& p) const
     {
+        logger.assert(p.size()==0, "The dimension of the reference point is wrong");
         return true;
     }
     
@@ -53,16 +54,20 @@ namespace Geometry
     
     const PointReference& ReferencePoint::getNode(const IndexT& i) const
     {
+        logger.assert(i==0, "Asked for node %, but there are only 1 nodes", i);
         return points_[0];
     }
     
-    std::size_t ReferencePoint::getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const
+    std::size_t ReferencePoint::getCodim0MappingIndex(const ListOfIndexesT& left, const ListOfIndexesT& right) const
     {
+        logger.assert(left.size() == right.size(), "The amount on indices in the left and right list do not match");
+        logger.assert(left.size() == 1, "Incorrect number of indices passed");
         return 0;
     }
     
     const MappingReferenceToReference* ReferencePoint::getCodim0MappingPtr(const IndexT a) const
     {
+        logger.assert(a==0, "Asked for index %, but there are only 1 mappings", a);
         return mappingsPointToPoint_;
     }
 

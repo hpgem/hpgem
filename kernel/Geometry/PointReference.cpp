@@ -36,21 +36,25 @@ namespace Geometry
     
     PointReference PointReference::operator +(const PointReference& right) const
     {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
         return PointReference(Point::coordinates_ + right.coordinates_);
     }
     
     PointReference PointReference::operator +(const PointReference& right)
     {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
         return PointReference(Point::coordinates_ + right.coordinates_);
     }
     
     PointReference PointReference::operator -(const PointReference& right) const
     {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
         return PointReference(Point::coordinates_ - right.coordinates_);
     }
     
     PointReference PointReference::operator -(const PointReference& right)
     {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
         return PointReference(Point::coordinates_ - right.coordinates_);
     }
     

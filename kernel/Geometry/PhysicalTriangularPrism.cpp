@@ -33,6 +33,7 @@ namespace Geometry
     
     std::vector<std::size_t> PhysicalTriangularPrism::getGlobalFaceNodeIndices(const std::size_t face) const
     {
+        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
         std::vector<std::size_t> indexes;
         if (face <= 4)
         {
@@ -57,6 +58,7 @@ namespace Geometry
     
     std::vector<std::size_t> PhysicalTriangularPrism::getLocalFaceNodeIndices(const std::size_t face) const
     {
+        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
         std::vector<std::size_t> indexes;
         if (face <= 4)
         {

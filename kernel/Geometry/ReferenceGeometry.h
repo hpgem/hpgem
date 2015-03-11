@@ -127,6 +127,7 @@ namespace Geometry
 
         double getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p) const
         {
+            logger.assert(function!=nullptr, "Invalid basis function passed");
             return const_cast<ReferenceGeometry*>(this)->getBasisFunctionValue(function, p);
         }
         
@@ -136,6 +137,7 @@ namespace Geometry
 
         LinearAlgebra::NumericalVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p) const
         {
+            logger.assert(function!=nullptr, "Invalid basis function passed");
             return const_cast<ReferenceGeometry*>(this)->getBasisFunctionDerivative(function, p);
         }
         

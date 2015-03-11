@@ -23,6 +23,7 @@
 #define REFERENCETOPHYSICALM_H_
 
 #include "MappingInterface.h"
+#include "Logger.h"
 #include <vector>
 
 namespace Geometry
@@ -63,6 +64,7 @@ namespace Geometry
         // Sets.
         void setNodesPtr(VectorOfPointsT nodes)
         {
+            logger.assert(nodes!=nullptr, "Invalid cooridantes passed");
             nodes_ = nodes;
         }
         

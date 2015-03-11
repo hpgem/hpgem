@@ -84,6 +84,8 @@ namespace Geometry
         ///\bug this name makes me expect a map from a global node index to a local one
         std::size_t getLocalNodeIndex(std::size_t face, std::size_t node) const
         {
+            logger.assert(face < getNrOfCodim1Entities(), "Asked for face %, but a % only has % faces", face, getName(), getNrOfCodim1Entities());
+            logger.assert(node < getCodim1ReferenceGeometry(face)->getNumberOfNodes(), "Asked for node % of face %, but this face only has % nodes", node, face, getCodim1ReferenceGeometry(face)->getNumberOfNodes());
             return localNodeIndexes_[face][node];
         }
         

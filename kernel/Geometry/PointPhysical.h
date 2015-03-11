@@ -62,11 +62,13 @@ namespace Geometry
         //of the Point::operator+
         PointPhysical operator+(const PointPhysical& right) const
         {
+            logger.assert(size()==right.size(), "The sizes of the points do not match");
             return PointPhysical(Point::coordinates_ + right.coordinates_);
         }
         
         PointPhysical operator-(const PointPhysical& right) const
         {
+            logger.assert(size()==right.size(), "The sizes of the points do not match");
             return PointPhysical(Point::coordinates_ - right.coordinates_);
         }
         
@@ -78,6 +80,7 @@ namespace Geometry
         
         void axpy(const double& alpha, const PointPhysical& x)
         {
+            logger.assert(size()==x.size(), "The sizes of the points do not match");
             coordinates_.axpy(alpha, x.coordinates_);
         }
         

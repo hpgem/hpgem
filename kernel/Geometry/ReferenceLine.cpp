@@ -60,6 +60,7 @@ namespace Geometry
     
     bool ReferenceLine::isInternalPoint(const PointReferenceT& p) const
     {
+        logger.assert(p.size()==1, "The dimension of the point is wrong");
         return ((p[0] >= -1.) && (p[0] <= 1.));
     }
     
@@ -70,6 +71,7 @@ namespace Geometry
     
     const PointReference& ReferenceLine::getNode(const IndexT& i) const
     {
+        logger.assert(i < getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
         return points_[i];
     }
     

@@ -37,6 +37,7 @@ namespace Geometry
     
     PointReference MappingToRefLineToSquare0::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
         PointReference p2(2);
         p2[0] = p1[0];
         p2[1] = -1.0;
@@ -45,6 +46,7 @@ namespace Geometry
     
     Jacobian MappingToRefLineToSquare0::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
         Jacobian jacobian(2, 1);
         jacobian(0, 0) = 1.0;
         jacobian(1, 0) = 0.0;
@@ -70,6 +72,7 @@ namespace Geometry
     
     PointReference MappingToRefLineToSquare1::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
         PointReference p2(2);
         p2[0] = -1.0;
         p2[1] = p1[0];
@@ -78,6 +81,7 @@ namespace Geometry
     
     Jacobian MappingToRefLineToSquare1::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
         Jacobian jacobian(2, 1);
         jacobian(0, 0) = 0.0;
         jacobian(1, 0) = 1.0;
@@ -103,6 +107,7 @@ namespace Geometry
     
     PointReference MappingToRefLineToSquare2::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
         PointReference p2(2);
         p2[0] = 1.0;
         p2[1] = p1[0];
@@ -111,6 +116,7 @@ namespace Geometry
     
     Jacobian MappingToRefLineToSquare2::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
         Jacobian jacobian(2, 1);
         jacobian(0, 0) = 0.0;
         jacobian(1, 0) = 1.0;
@@ -136,6 +142,7 @@ namespace Geometry
     
     PointReference MappingToRefLineToSquare3::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
         PointReference p2(2);
         p2[0] = p1[0];
         p2[1] = 1.0;
@@ -144,6 +151,7 @@ namespace Geometry
     
     Jacobian MappingToRefLineToSquare3::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
         Jacobian jacobian(2, 1);
         jacobian(0, 0) = 1.0;
         jacobian(1, 0) = 0.0;

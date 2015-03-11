@@ -2137,7 +2137,6 @@ namespace Base
                     std::cout << "wake boundary for group " << i << " assigned as OPEN_BC" << std::endl;
                     for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
-                        //big assumption on the nature of elementIDs here...
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
                 }
@@ -2146,7 +2145,6 @@ namespace Base
                     std::cout << "moving wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
-                        //big assumption on the nature of elementIDs here...
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 }
@@ -2155,7 +2153,6 @@ namespace Base
                     std::cout << "alternative boundary condition for group " << i << " assigned as WALL_BC" << std::endl;
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
-                        //big assumption on the nature of elementIDs here...
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 }

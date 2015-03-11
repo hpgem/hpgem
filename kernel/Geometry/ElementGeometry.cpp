@@ -69,9 +69,11 @@ namespace Geometry
         switch (size)
         { //select a proper type based on the number of nodes a reference geometry should have
             case 2:
+                logger.assert(DIM==1, "This Dimension does not contain entities with 2 nodes");
                 //        std::cout <<"I am a line" << std::endl;
                 return &ReferenceLine::Instance();
             case 3:
+                logger.assert(DIM==2, "This Dimension does not contain entities with 3 nodes");
                 //            std::cout <<"I am a triangle" << std::endl;
                 return &ReferenceTriangle::Instance();
             case 4:
@@ -90,15 +92,19 @@ namespace Geometry
                     throw "This DIMension does not contain entities with 4 nodes";
                 }
             case 5:
+                logger.assert(DIM==3, "This Dimension does not contain entities with 5 nodes");
                 //            std::cout <<"I am a pyramid" << std::endl;
                 return &ReferencePyramid::Instance();
             case 6:
+                logger.assert(DIM==3, "This Dimension does not contain entities with 6 nodes");
                 //            std::cout <<"I am a triangularPrism" << std::endl;
                 return &ReferenceTriangularPrism::Instance();
             case 8:
+                logger.assert(DIM==3, "This Dimension does not contain entities with 8 nodes");
                 //            std::cout <<"I am a cube" << std::endl;
                 return &ReferenceCube::Instance();
             case 16:
+                logger.assert(DIM==4, "This Dimension does not contain entities with 16 nodes");
                 //            std::cout <<"I am a hypercube" << std::endl;
                 return &ReferenceHypercube::Instance();
             default:
@@ -109,6 +115,7 @@ namespace Geometry
     const PhysicalGeometry * const
     ElementGeometry::createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes, const ReferenceGeometryT * const geo)
     {
+        logger.assert(geo!=nullptr, "Invalid reference geometry passed");
         /*switch(typeid(*geo)){
          case typeid(ReferenceLine::Instance()):
          ...
@@ -117,9 +124,11 @@ namespace Geometry
         switch (globalNodeIndexes.size())
         {
             case 2:
+                logger.assert(nodes[0].size()==1, "This Dimension does not contain entities with 2 nodes");
                 //        std::cout <<"I am a line" << std::endl;
                 return new Geometry::PhysicalLine(globalNodeIndexes, nodes);
             case 3:
+                logger.assert(nodes[0].size()==2, "This Dimension does not contain entities with 3 nodes");
                 //            std::cout <<"I am a triangle" << std::endl;
                 return new Geometry::PhysicalTriangle(globalNodeIndexes, nodes);
             case 4:
@@ -138,15 +147,19 @@ namespace Geometry
                     throw "This DIMension does not contain entities with 4 nodes";
                 }
             case 5:
+                logger.assert(nodes[0].size()==3, "This Dimension does not contain entities with 5 nodes");
                 //            std::cout <<"I am a pyramid" << std::endl;
                 return new Geometry::PhysicalPyramid(globalNodeIndexes, nodes);
             case 6:
+                logger.assert(nodes[0].size()==3, "This Dimension does not contain entities with 6 nodes");
                 //            std::cout <<"I am a triangularPrism" << std::endl;
                 return new Geometry::PhysicalTriangularPrism(globalNodeIndexes, nodes);
             case 8:
+                logger.assert(nodes[0].size()==3, "This Dimension does not contain entities with 8 nodes");
                 //            std::cout <<"I am a cube" << std::endl;
                 return new Geometry::PhysicalHexahedron(globalNodeIndexes, nodes);
             case 16:
+                logger.assert(nodes[0].size()==4, "This Dimension does not contain entities with 16 nodes");
                 //            std::cout <<"I am a hypercube" << std::endl;
                 return new Geometry::PhysicalOctachoron(globalNodeIndexes, nodes);
             default:
@@ -158,12 +171,15 @@ namespace Geometry
     const MappingReferenceToPhysical * const
     ElementGeometry::createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometryT * const pGeo)
     {
+        logger.assert(pGeo!=nullptr, "Invalid physical geometry passed");
         switch (size)
         {
             case 2:
+                logger.assert(DIM==1, "This Dimension does not contain entities with 2 nodes");
                 //			std::cout <<"I am a line" << std::endl;
                 return new Geometry::MappingToPhysHypercubeLinear<1>(pGeo);
             case 3:
+                logger.assert(DIM==2, "This Dimension does not contain entities with 3 nodes");
                 //            std::cout <<"I am a triangle" << std::endl;
                 return new Geometry::MappingToPhysSimplexLinear<2>(pGeo);
             case 4:
@@ -182,15 +198,19 @@ namespace Geometry
                     throw "This DIMension does not contain entities with 4 nodes";
                 }
             case 5:
+                logger.assert(DIM==3, "This Dimension does not contain entities with 5 nodes");
                 //            std::cout <<"I am a pyramid" << std::endl;
                 return new Geometry::MappingToPhysPyramid(pGeo);
             case 6:
+                logger.assert(DIM==3, "This Dimension does not contain entities with 6 nodes");
                 //            std::cout <<"I am a triangularPrism" << std::endl;
                 return new Geometry::MappingToPhysTriangularPrism(pGeo);
             case 8:
+                logger.assert(DIM==3, "This Dimension does not contain entities with 8 nodes");
                 //            std::cout <<"I am a cube" << std::endl;
                 return new Geometry::MappingToPhysHypercubeLinear<3>(pGeo);
             case 16:
+                logger.assert(DIM==4, "This Dimension does not contain entities with 16 nodes");
                 //            std::cout <<"I am a hypercube" << std::endl;
                 return new Geometry::MappingToPhysHypercubeLinear<4>(pGeo);
             default:

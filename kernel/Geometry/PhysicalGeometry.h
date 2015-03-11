@@ -62,6 +62,7 @@ namespace Geometry
         PhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const refG)
                 : globalNodeIndexes_(globalNodeIndexes), nodes_(nodes), refGeometry_(refG)
         {
+            logger.assert(refG!=nullptr, "Invalid reference geometry passed");
         }
         
         virtual ~ PhysicalGeometry()
@@ -95,12 +96,14 @@ namespace Geometry
         /// \brief Given a local index relative to globalNodeIndexes_, return the global node index.
         std::size_t getNodeIndex(std::size_t localIndex) const
         {
+            logger.assert(localIndex < getNumberOfNodes(), "Asked for local index %, but this geometry only has % nodes",localIndex,getNumberOfNodes());
             return globalNodeIndexes_[localIndex];
         }
         
         /// \brief Given a global index, returns a pointer to the corresponding point.
         const PointPhysical* getNodePtr(const std::size_t globalIndex) const
         {
+            logger.assert(globalIndex < nodes_.size(),"This mesh does not contain a node with index %",globalIndex);
             return &(nodes_[globalIndex]);
         }
         

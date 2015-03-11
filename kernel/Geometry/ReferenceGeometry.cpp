@@ -54,6 +54,7 @@ namespace Geometry
     
     double ReferenceGeometry::getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p)
     {
+        logger.assert(function!=nullptr, "Invalid basis function passed");
         try
         {
             return basisfunctionValues_[function].at(p);
@@ -69,6 +70,7 @@ namespace Geometry
     LinearAlgebra::NumericalVector&
     ReferenceGeometry::getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p)
     {
+        logger.assert(function!=nullptr, "Invalid basis function passed");
         try
         {
             return basisfunctionDerivatives_[function].at(p);
@@ -82,6 +84,7 @@ namespace Geometry
     
     const PointReference& ReferenceGeometry::getNode(const IndexT& localIndex) const
     {
+        logger.assert(localIndex<getNumberOfNodes(), "Asked for node %, but there are only % nodes", localIndex, getNumberOfNodes());
         return points_[localIndex];
     }
 

@@ -48,6 +48,7 @@ namespace Geometry
         MappingToPhysSimplexLinear(const PhysicalGeometry* const & pG)
                 : a(DIM + 1, DIM)
         {
+            logger.assert(pG!=nullptr, "Invalid physical geometry passed");
             MappingReferenceToPhysical::setNodesPtr(&pG->getNodes());
             reinit(pG);
         }

@@ -35,6 +35,7 @@ namespace Geometry
     // =============================================================================================
     MappingToPhysHypercubeLinear<1>::MappingToPhysHypercubeLinear(const PhysicalGeometry* const & physicalGeometry)
     {
+        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         mid = slope = 0.0;
         MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
@@ -42,6 +43,7 @@ namespace Geometry
     
     PointPhysical MappingToPhysHypercubeLinear<1>::transform(const PointReference& pointReference) const
     {
+        logger.assert(pointReference.size()==1, "Reference point has the wrong dimension");
         PointPhysical pointPhysical(1);
         if (isValidPoint(pointReference))
         {
@@ -57,6 +59,7 @@ namespace Geometry
     
     void MappingToPhysHypercubeLinear<1>::reinit(const PhysicalGeometry* const physicalGeometry)
     {
+        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         PointPhysical p0 = physicalGeometry->getNodeCoordinates(0);
         PointPhysical p1 = physicalGeometry->getNodeCoordinates(1);
         mid = 0.5 * (p1[0] + p0[0]);
@@ -65,14 +68,16 @@ namespace Geometry
     
     bool MappingToPhysHypercubeLinear<1>::isValidPoint(const PointReference& pointReference) const
     {
+        logger.assert(pointReference.size()==1, "Reference point has the wrong dimension");
         if ((pointReference[0] < -1.) || (pointReference[0] > 1.))
             return false;
         else
             return true;
     }
     
-    Jacobian MappingToPhysHypercubeLinear<1>::calcJacobian(const PointReference&) const
+    Jacobian MappingToPhysHypercubeLinear<1>::calcJacobian(const PointReference& pointReference) const
     {
+        logger.assert(pointReference.size()==1, "Reference point has the wrong dimension");
         Jacobian jac(1, 1);
         jac[0] = slope;
         return jac;
@@ -85,11 +90,13 @@ namespace Geometry
     MappingToPhysHypercubeLinear<2>::MappingToPhysHypercubeLinear(const PhysicalGeometry* const & physicalGeometry)
             : MappingReferenceToPhysical(), a0(2), a1(2), a12(2), a2(2)
     {
+        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
     PointPhysical MappingToPhysHypercubeLinear<2>::transform(const PointReference& pointReference) const
     {
+        logger.assert(pointReference.size()==2, "Reference point has the wrong dimension");
         PointPhysical pointPhysical(2);
         //assert(L2norm(a1)>1e-14&&L2norm(a2 + pointReference[0] * a12)>1e-14);
         if (isValidPoint(pointReference))
@@ -118,6 +125,7 @@ namespace Geometry
     
     Jacobian MappingToPhysHypercubeLinear<2>::calcJacobian(const PointReference& pointReference) const
     {
+        logger.assert(pointReference.size()==2, "Reference point has the wrong dimension");
         Jacobian jacobian(2, 2);
         //if (isValidPoint(pointReference))
         //{
@@ -135,18 +143,14 @@ namespace Geometry
     
     void MappingToPhysHypercubeLinear<2>::reinit(const PhysicalGeometry* const physicalGeometry)
     {
-        /*
-         PointPhysicalT p0(2),p1(2),p2(2),p3(2);
-         physicalGeometry->getNodeCoordinates(0, p0);
-         physicalGeometry->getNodeCoordinates(1, p1);
-         physicalGeometry->getNodeCoordinates(2, p2);
-         physicalGeometry->getNodeCoordinates(3, p3);
-
-         a0  = 0.25 * (p0 + p1 + p2 + p3);
-         a1  = 0.25 * (p1 - p0 + p3 - p2);
-         a2  = 0.25 * (p2 - p0 + p3 - p1);
-         a12 = 0.25 * (p3 - p1 + p0 - p2);
-         */
+        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
+        
+        //this routine computes the following quantities
+        // a0  = 0.25 * (p0 + p1 + p2 + p3);
+        // a1  = 0.25 * (p1 - p0 + p3 - p2);
+        // a2  = 0.25 * (p2 - p0 + p3 - p1);
+        // a12 = 0.25 * (p3 - p1 + p0 - p2);
+        
 
         a0 = physicalGeometry->getNodeCoordinates(0);
         a1 = physicalGeometry->getNodeCoordinates(1);
@@ -171,6 +175,7 @@ namespace Geometry
     
     bool MappingToPhysHypercubeLinear<2>::isValidPoint(const PointReference& pointReference) const
     {
+        logger.assert(pointReference.size()==2, "Reference point has the wrong dimension");
         if ((pointReference[0] < -1.) || (pointReference[0] > 1.) || (pointReference[1] < -1.) || (pointReference[1] > 1.))
             return false;
         else
@@ -184,12 +189,14 @@ namespace Geometry
     MappingToPhysHypercubeLinear<3>::MappingToPhysHypercubeLinear(const PhysicalGeometry* const & physicalGeometry)
             : a1(3), a12(3), a13(3), a123(3), a0(3), a2(3), a23(3), a3(3)
     {
+        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
     
     PointPhysical MappingToPhysHypercubeLinear<3>::transform(const PointReference& pR) const
     {
+        logger.assert(pR.size()==3, "Reference point has the wrong dimension");
         //assert(L2norm(a3)>1e-14&&L2norm(a2 + pR[2] * a23)>1e-14&&L2norm(a1 + pR[1]*(a12+pR[2]*a123) pR[2] * a23)>1e-14);
         if (isValidPoint(pR))
         {
@@ -204,6 +211,7 @@ namespace Geometry
     
     Jacobian MappingToPhysHypercubeLinear<3>::calcJacobian(const PointReference& pR) const
     {
+        logger.assert(pR.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
         //if (isValidPoint(pR))
         //{
@@ -235,7 +243,7 @@ namespace Geometry
     
     void MappingToPhysHypercubeLinear<3>::reinit(const PhysicalGeometry* const physicalGeometry)
     {
-        
+        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         PointPhysical p0 = physicalGeometry->getNodeCoordinates(0);
         PointPhysical p1 = physicalGeometry->getNodeCoordinates(1);
         PointPhysical p2 = physicalGeometry->getNodeCoordinates(2);
@@ -257,6 +265,7 @@ namespace Geometry
     
     bool MappingToPhysHypercubeLinear<3>::isValidPoint(const PointReference& pointReference) const
     {
+        logger.assert(pointReference.size()==3, "Reference point has the wrong dimension");
         if ((pointReference[0] < -1.) || (pointReference[0] > 1.) || (pointReference[1] < -1.) || (pointReference[1] > 1.) || (pointReference[2] < -1.) || (pointReference[2] > 1.))
             return false;
         else
@@ -270,12 +279,14 @@ namespace Geometry
     MappingToPhysHypercubeLinear<4>::MappingToPhysHypercubeLinear(const PhysicalGeometry* const & physicalGeometry)
             : abar(4), a0(4), a01(4), a02(4), a03(4), a012(4), a013(4), a0123(4), a1(4), a12(4), a13(4), a123(4), a2(4), a23(4), a230(4), a3(4)
     {
+        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
     
     PointPhysical MappingToPhysHypercubeLinear<4>::transform(const PointReference& pR) const
     {
+        logger.assert(pR.size()==4, "Reference point has the wrong dimension");
         //if (isValidPoint(pR))
         //{
         return abar + pR[0] * a0 + pR[1] * a1 + pR[2] * a2 + pR[3] * a3;
@@ -288,6 +299,7 @@ namespace Geometry
     
     Jacobian MappingToPhysHypercubeLinear<4>::calcJacobian(const PointReference& pR) const
     {
+        logger.assert(pR.size()==4, "Reference point has the wrong dimension");
         Jacobian jacobian(4, 4);
         //assert(...)
         //if (isValidPoint(pR))
@@ -312,6 +324,7 @@ namespace Geometry
     
     void MappingToPhysHypercubeLinear<4>::reinit(const PhysicalGeometry* const physicalGeometry)
     {
+        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         std::vector<PointPhysical> P;
         P.reserve(16);
         for (std::size_t i = 0; i < 16; ++i)
@@ -333,6 +346,7 @@ namespace Geometry
     
     bool MappingToPhysHypercubeLinear<4>::isValidPoint(const PointReference& pointReference) const
     {
+        logger.assert(pointReference.size()==4, "Reference point has the wrong dimension");
         if ((pointReference[0] < -1.) || (pointReference[0] > 1.) || (pointReference[1] < -1.) || (pointReference[1] > 1.) || (pointReference[2] < -1.) || (pointReference[2] > 1.) || (pointReference[3] < -1.) || (pointReference[3] > 1.))
             return false;
         else

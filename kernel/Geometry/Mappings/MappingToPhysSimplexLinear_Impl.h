@@ -30,6 +30,7 @@
 template<std::size_t DIM>
 Geometry::PointPhysical Geometry::MappingToPhysSimplexLinear<DIM>::transform(const PointReference& pointReference) const
 {
+    logger.assert(pointReference.size()==DIM, "Reference point has the wrong dimension");
     Geometry::PointPhysical pointPhysical = a[0];
     for (std::size_t i = 1; i <= DIM; ++i)
     {
@@ -42,6 +43,7 @@ Geometry::PointPhysical Geometry::MappingToPhysSimplexLinear<DIM>::transform(con
 template<std::size_t DIM>
 Geometry::Jacobian Geometry::MappingToPhysSimplexLinear<DIM>::calcJacobian(const PointReference& pointReference) const
 {
+    logger.assert(pointReference.size()==DIM, "Reference point has the wrong dimension");
     Jacobian jacobian(DIM, DIM);
     for (std::size_t i = 0; i < DIM; i++)
     {
@@ -57,7 +59,7 @@ Geometry::Jacobian Geometry::MappingToPhysSimplexLinear<DIM>::calcJacobian(const
 template<std::size_t DIM>
 void Geometry::MappingToPhysSimplexLinear<DIM>::reinit(const PhysicalGeometry* const physicalGeometry)
 {
-    ;
+    logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
     a[0] = physicalGeometry->getNodeCoordinates(0);
     for (std::size_t i = 1; i <= DIM; ++i)
     {

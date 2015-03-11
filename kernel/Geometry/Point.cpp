@@ -40,21 +40,11 @@ namespace Geometry
     Point::Point(const Point& other)
             : coordinates_(other.coordinates_)
     {
-        if (this->size() != other.size())
-        { ///\bug this should be checked BEFORE data is copied
-            std::cout << "ERROR HANDLER!!!!" << "Sizes do not coincide." << endl;
-            //throw exception;
-        }
     }
     
     Point::Point(const VectorOfCoordsT& coord)
             : coordinates_(coord)
     {
-        if (coord.size() != this->size())
-        { ///\bug this should be checked BEFORE data is copied
-            std::cout << "ERROR HANDLER!!!!" << "Sizes do not coincide." << endl;
-            //throw exception;
-        }
     }
     
     bool Point::operator ==(const Point& right) const
@@ -74,12 +64,14 @@ namespace Geometry
     
     Point& Point::operator +=(const Point& right)
     {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
         coordinates_ += right.coordinates_;
         return *this;
     }
     
     Point& Point::operator -=(const Point& right)
     {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
         coordinates_ -= right.coordinates_;
         return *this;
     }
@@ -102,21 +94,25 @@ namespace Geometry
     
     Point Point::operator +(const Point& right) const
     {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
         return Point(coordinates_ + right.coordinates_);
     }
     
     Point Point::operator +(const Point& right)
     {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
         return Point(coordinates_ + right.coordinates_);
     }
     
     Point Point::operator -(const Point& right) const
     {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
         return Point(coordinates_ - right.coordinates_);
     }
     
     Point Point::operator -(const Point& right)
     {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
         return Point(coordinates_ - right.coordinates_);
     }
     
@@ -157,12 +153,14 @@ namespace Geometry
     double& Point::operator [](std::size_t n)
     { 
         logger.assert(n < size(), "In Point::operator[], entry % is requested while the dimension is %", n, size());
+        logger.assert(n < size(), "Asked for component %, but the dimension is only %", n, size());
         return coordinates_[n];
     }
     
     const double& Point::operator [](std::size_t n) const
     {
         logger.assert(n < size(), "In Point::operator[] const, entry % is requested while the dimension is %", n, size());
+        logger.assert(n < size(), "Asked for component %, but the dimension is only %", n, size());
         return coordinates_[n];
     }
     

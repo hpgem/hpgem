@@ -80,6 +80,7 @@ namespace Geometry
     
     bool ReferenceTriangularPrism::isInternalPoint(const PointReferenceT& p) const
     {
+        logger.assert(p.size()==3, "The dimension of the reference point is incorrect");
         return ((-1. <= p[2]) && (1. >= p[2]) && (p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
     }
     
@@ -94,6 +95,7 @@ namespace Geometry
     
     const PointReference& ReferenceTriangularPrism::getNode(const IndexT& i) const
     {
+        logger.assert(i<getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
         return points_[i];
     }
     

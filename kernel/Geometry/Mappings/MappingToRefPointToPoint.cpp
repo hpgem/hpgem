@@ -45,11 +45,13 @@ namespace Geometry
     
     PointReference MappingToRefPointToPoint::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==0, "Reference point has the wrong dimension");
         return PointReference(0);
     }
     
     Jacobian MappingToRefPointToPoint::calcJacobian(const Geometry::PointReference& p) const
     {
+        logger.assert(p.size()==0, "Reference point has the wrong dimension");
         return Jacobian(0, 0);
     }
 

@@ -35,6 +35,7 @@ namespace Geometry
     
     PointReference MappingToRefFaceToPyramid0::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = p1[0];
         p2[1] = -p1[1];
@@ -44,6 +45,7 @@ namespace Geometry
     
     Jacobian MappingToRefFaceToPyramid0::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 2);
         jacobian(0, 0) = 1.0;
         jacobian(1, 0) = 0.0;
@@ -72,6 +74,7 @@ namespace Geometry
     
     PointReference MappingToRefFaceToPyramid1::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = -1.0 + p1[1];
         p2[1] = +1.0 - 2.0 * p1[0] - p1[1];
@@ -81,6 +84,7 @@ namespace Geometry
     
     Jacobian MappingToRefFaceToPyramid1::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 2);
         jacobian(0, 0) = 0.0;
         jacobian(1, 0) = -2.0;
@@ -109,6 +113,7 @@ namespace Geometry
     
     PointReference MappingToRefFaceToPyramid2::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = 1.0 - p1[1];
         p2[1] = -1.0 + 2.0 * p1[0] + p1[1];
@@ -118,6 +123,7 @@ namespace Geometry
     
     Jacobian MappingToRefFaceToPyramid2::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 2);
         jacobian(0, 0) = 0.0;
         jacobian(1, 0) = 2.0;
@@ -146,6 +152,7 @@ namespace Geometry
     
     PointReference MappingToRefFaceToPyramid3::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = -1.0 + 2.0 * p1[0] + p1[1];
         p2[1] = -1.0 + p1[1];
@@ -155,6 +162,7 @@ namespace Geometry
     
     Jacobian MappingToRefFaceToPyramid3::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 2);
         jacobian(0, 0) = 2.0;
         jacobian(1, 0) = 0.0;
@@ -183,6 +191,7 @@ namespace Geometry
     
     PointReference MappingToRefFaceToPyramid4::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         PointReference p2(3);
         p2[0] = 1.0 - 2.0 * p1[0] - p1[1];
         p2[1] = 1.0 - p1[1];
@@ -192,6 +201,7 @@ namespace Geometry
     
     Jacobian MappingToRefFaceToPyramid4::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 2);
         jacobian(0, 0) = -2.0;
         jacobian(1, 0) = 0.0;

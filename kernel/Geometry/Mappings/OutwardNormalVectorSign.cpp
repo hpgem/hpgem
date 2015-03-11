@@ -35,6 +35,7 @@ namespace Geometry
     // Added by M.T. Julianto, Feb 16, 2010
     double OutwardNormalVectorSign(const MappingReferenceToReference* const map)
     {
+        logger.assert(map!=nullptr, "Invalid mapping passed");
         if (typeid(*map) == typeid(const MappingToRefPointToLine0) || typeid(*map) == typeid(const MappingToRefLineToTriangle0) || typeid(*map) == typeid(const MappingToRefLineToTriangle2) || typeid(*map) == typeid(const MappingToRefLineToSquare0) || typeid(*map) == typeid(const MappingToRefLineToSquare2) || typeid(*map) == typeid(const MappingToRefSquareToCube0) || typeid(*map) == typeid(const MappingToRefSquareToCube2) || typeid(*map) == typeid(const MappingToRefSquareToCube4))
         {
             return -1;

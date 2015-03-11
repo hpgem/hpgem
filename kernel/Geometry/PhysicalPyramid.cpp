@@ -33,6 +33,7 @@ namespace Geometry
     
     std::vector<std::size_t> PhysicalPyramid::getGlobalFaceNodeIndices(const std::size_t face) const
     {
+        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
         std::vector<std::size_t> indexes(4);
         if (face == 0)
         {
@@ -53,6 +54,7 @@ namespace Geometry
     
     std::vector<std::size_t> PhysicalPyramid::getLocalFaceNodeIndices(const std::size_t face) const
     {
+        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
         std::vector<std::size_t> indexes(4);
         if (face == 0)
         {

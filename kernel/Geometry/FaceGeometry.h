@@ -145,7 +145,6 @@ namespace Geometry
      that had to be made by the user to implement their own face
      classes. Instead, to quickly decide whether a face is a boundary one,
      test whether elementPtrR() == 0.
-     (Irana: I would like to see this material)
      
      Face does not need a reference to its own reference geometry, since it
      can easily access it via the reference geometry of its left neighbour
@@ -211,13 +210,13 @@ namespace Geometry
         {
             if (isInternal())
             {
-                faceType_ = newFace;
                 logger.assert(isInternal(), "This face should be internal (%)", newFace);
+                faceType_ = newFace;
             }
             else
             {
-                faceType_ = newFace;
                 logger.assert(!isInternal(), "This face should not be internal (%)", newFace);
+                faceType_ = newFace;
             }
         }
         

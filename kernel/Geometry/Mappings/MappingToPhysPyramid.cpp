@@ -34,12 +34,14 @@ namespace Geometry
 {
     MappingToPhysPyramid::MappingToPhysPyramid(const PhysicalGeometry* const physicalGeometry)
     {
+        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
     
     PointPhysical MappingToPhysPyramid::transform(const PointReference& pR) const
     {
+        logger.assert(pR.size()==3, "Reference point has the wrong dimension");
         PointPhysical pP(3);
         //if (isValidPoint(pR))
         //{
@@ -72,6 +74,7 @@ namespace Geometry
     }
     Jacobian MappingToPhysPyramid::calcJacobian(const PointReference& pR) const
     {
+        logger.assert(pR.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
         //if (isValidPoint(pR))
         //{
@@ -137,6 +140,7 @@ namespace Geometry
     
     void MappingToPhysPyramid::reinit(const PhysicalGeometry* const physicalGeometry)
     {
+        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         globalNodeIndices_.resize(5);
         for (std::size_t i = 0; i < 5; ++i)
         {
@@ -151,6 +155,7 @@ namespace Geometry
      */
     bool MappingToPhysPyramid::isValidPoint(const PointReference& pointReference) const
     {
+        logger.assert(pointReference.size()==3, "Reference point has the wrong dimension");
         static const double eps = 1.e-14;
         const double z = pointReference[2];
         if ((std::abs(pointReference[0]) <= 1. - z + eps) && (std::abs(pointReference[1]) <= 1. - z + eps) && (z >= 0. - eps) && (z <= 1. + eps))

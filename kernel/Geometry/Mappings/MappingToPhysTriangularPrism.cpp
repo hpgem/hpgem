@@ -34,12 +34,14 @@ namespace Geometry
     MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(const PhysicalGeometry* const physicalGeometry)
             : a0(3), a1(3), a2(3), a3(3), a4(3), a5(3)
     {
+        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
     
     PointPhysical MappingToPhysTriangularPrism::transform(const PointReference& pR) const
     {
+        logger.assert(pR.size()==3, "Reference point has the wrong dimension");
         //if (isValidPoint(pR))
         //{
 #if SAVECOEFFS
@@ -80,6 +82,7 @@ namespace Geometry
     
     Jacobian MappingToPhysTriangularPrism::calcJacobian(const PointReference& pR) const
     {
+        logger.assert(pR.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
         //if (isValidPoint(pR))
         //{
@@ -157,6 +160,7 @@ namespace Geometry
     
     void MappingToPhysTriangularPrism::reinit(const PhysicalGeometry* const physicalGeometry)
     {
+        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
 #if SAVECOEFFS
         FixedVector<Geometry::PointPhysical<3>, 6> p;
 
@@ -184,6 +188,7 @@ namespace Geometry
     
     bool MappingToPhysTriangularPrism::isValidPoint(const PointReference& pointReference) const
     {
+        logger.assert(pointReference.size()==3, "Reference point has the wrong dimension");
         if ((0. <= pointReference[0]) && (pointReference[0] <= 1.) && (0. <= pointReference[1]) && (pointReference[1] <= 1.) && (pointReference[0] + pointReference[1] - 1. <= 1.e-16) && (pointReference[2] >= -1.) && (pointReference[2] <= 1.))
             return true;
         else

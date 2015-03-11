@@ -110,6 +110,7 @@ namespace Geometry
     
     bool ReferenceCube::isInternalPoint(const PointReferenceT& p) const
     {
+        logger.assert(p.size()==3, "Passed a point with the wrong dimension");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.) && (p[2] >= -1.) && (p[2] <= 1.));
     }
     
@@ -230,7 +231,8 @@ namespace Geometry
     const MappingReferenceToReference*
     ReferenceCube::getCodim2MappingPtr(const IndexT lineIndex) const
     {
-        return 0;
+        logger.assert(lineIndex < getNrOfCodim2Entities(), "Asked for line %, but a cube only has % lines", lineIndex, getNrOfCodim2Entities());
+        return nullptr;
     }
     
     const ReferenceGeometry*
