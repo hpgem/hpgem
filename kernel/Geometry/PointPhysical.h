@@ -36,6 +36,8 @@ namespace Geometry
         {
         }
         
+        ///\todo This destroys type-safety, but Mappings breaks when this constructor is
+        ///made explicit.
         PointPhysical(const Point& p)
                 : Point(p)
         {
@@ -44,6 +46,34 @@ namespace Geometry
         PointPhysical(const VectorOfCoordsT& coord)
                 : Point(coord)
         {
+        }
+        
+        PointPhysical operator*(double right) const
+        {
+            return PointPhysical(Point::coordinates_ * right);
+        }
+        
+        PointPhysical operator/(double right) const
+        {
+            return PointPhysical(Point::coordinates_ / right);
+        }
+        
+        //please note that for type-safety this function cannot be removed in favour
+        //of the Point::operator+
+        PointPhysical operator+(const PointPhysical& right) const
+        {
+            return PointPhysical(Point::coordinates_ + right.coordinates_);
+        }
+        
+        PointPhysical operator-(const PointPhysical& right) const
+        {
+            return PointPhysical(Point::coordinates_ - right.coordinates_);
+        }
+        
+        PointPhysical& operator=(const PointPhysical& right)
+        {
+            Point::coordinates_ = right.coordinates_;
+            return *this;
         }
         
         void axpy(const double& alpha, const PointPhysical& x)

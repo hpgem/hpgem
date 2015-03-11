@@ -18,3 +18,5 @@
 # The contents of the svn:ignore property on the branch root.
 /.commitfile.kate-swp
 /nbproject
+/.cproject
+/.project

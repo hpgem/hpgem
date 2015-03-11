@@ -39,7 +39,9 @@ namespace Geometry
     public:
         /// Constructors.
         Point(std::size_t DIM);
+        
         /// Warning!!! This way Point ctr will truncate and take sizeof(dimension) points and will not give any warning. Be sure you took the right dimension.
+        ///\deprecated Because of the reason above, please use Point(LinearAlgebra::NumericalVector&) instead.
         Point(double coords[], std::size_t DIM);
 
         Point(const Point& other);
@@ -52,9 +54,7 @@ namespace Geometry
         double& operator[](std::size_t n);
         const double& operator[](std::size_t n) const;
 
-        //        double&         operator () (unsigned int n);
-        //        const double&   operator () (unsigned int n) const;
-        PointT& operator=(const Point& rhs);
+        Point& operator=(const Point& rhs);
 
         bool operator==(const Point& right) const;
 
@@ -87,9 +87,9 @@ namespace Geometry
         double getCoordinate(std::size_t n) const;
         const VectorOfCoordsT& getCoordinates() const;
 
-        friend PointT operator-(const Point& right)
+        friend Point operator-(const Point& right)
         {
-            return PointT(right * -1.0);
+            return Point(right * -1.0);
         }
         
         friend Point operator*(const double& left, const Point& right);
@@ -104,4 +104,4 @@ namespace Geometry
 }
 ;
 
-#endif /* defined(_NODE_HPP) */
+#endif /* defined(_POINT_HPP) */

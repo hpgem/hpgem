@@ -32,12 +32,12 @@ namespace Geometry
     public:
         
         PointReference(std::size_t DIM)
-                : PointT(DIM)
+                : Point(DIM)
         {
         }
         
-        PointReference(const PointT& p)
-                : PointT(p)
+        PointReference(const Point& p)
+                : Point(p)
         {
         }
         
@@ -47,11 +47,27 @@ namespace Geometry
         }
         
         PointReference(const VectorOfCoordsT& coord)
-                : PointT(coord)
+                : Point(coord)
         {
         }
         
+        PointReference operator *(double right);
 
+        PointReference operator *(double right) const;
+
+        //please note that for type-safety this function cannot be removed in favour
+        //of the Point::operator+
+        PointReference operator +(const PointReference& right);
+
+        PointReference operator +(const PointReference& right) const;
+
+        PointReference operator -(const PointReference& right);
+
+        PointReference operator -(const PointReference& right) const;
+
+        PointReference& operator =(const PointReference& rhs);
+        
+        
     };
 
 }
