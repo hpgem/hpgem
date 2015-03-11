@@ -55,6 +55,10 @@ int main(int argc, char* argv[])
     BB1(1, 0) = 3.0;
     BB1(1, 1) = 4.0;
     
+    logger.assert_always(2.0 == BB1[2], "Test the [] operator, Matrix should column-major.");
+    logger.assert_always(3.0 == BB1[1], "Test the [] operator, Matrix should column-major.");
+    logger.assert_always(BB1(0,1) == 2.0, "Test the () operator. Expected 2.0, but got %", BB1(0,1));
+    
     cout << "This is BB1 \n" << BB1 << "\n";
     
     //now test divide
@@ -93,10 +97,6 @@ int main(int argc, char* argv[])
     LinearAlgebra::Matrix CC3(2, 2);
     
     CC3 = CC1 * CC2;
-    
-    cout << "axpy" << endl;
-    
-    //CC1.axpy(2.0,CC2);
     
     cout << CC1 << std::endl;
     

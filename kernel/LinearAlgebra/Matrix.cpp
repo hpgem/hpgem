@@ -108,10 +108,8 @@ namespace LinearAlgebra
     
     /// \param[in] n The number of the row you want the element from
     /// \return double i.e. the value of the element you requested
-    /// \bug Range checking has not been added yet.
     ///
-    /// \details
-    /// Recall that the matrix is stored in fortran style i.e. columns first and then rows
+    /// \details Recall that the matrix is stored in fortran style i.e. columns first and then rows
     double& Matrix::operator[](const std::size_t n)
     {
         logger.assert(n < data_.size(), "Requested entry % for a matrix with only % entries", n, data_.size());
@@ -136,17 +134,22 @@ namespace LinearAlgebra
         {
             data_[i] += other[i];
         }
-        //std::cout<<"Called for matrix addition"<<std::endl;
+        logger(DEBUG, "Called for matrix addition");
         return (*this);
     }
     
-    /// \details
-    /*! Computes Matrix * vector and return the vector
+    /*! \details Computes Matrix * vector and return the vector
      This is done by calling the BLAS (level 2) routine dgemv.
      */
     NumericalVector Matrix::operator*(NumericalVector& right) const
     {
         logger.assert(nCols_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
+        
+        if (nRows_ == 0)
+        {
+            logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
+            return NumericalVector(0);
+        }
         int nr = nRows_;
         int nc = nCols_;
         
@@ -156,11 +159,7 @@ namespace LinearAlgebra
         
         NumericalVector result(nc);
         
-//        std::cout << __PRETTY_FUNCTION__ << "\n";
-//        std::cout << "Mat: " << nr << "x" << nc << "\n";
-//        std::cout << "Vec: " << right.size() << std::endl;
-//        if (nr == 0)
-//          *((int*)svnullptr) = 1234;
+        logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
         
         dgemv_("N", &nr, &nc, &d_one, ((*(const_cast<Matrix *>(this))).data()), &nr, right.data(), &i_one, &d_zero, result.data(), &i_one);
         return result;
@@ -173,7 +172,7 @@ namespace LinearAlgebra
     /*! This uses the BLAS level 3 libaray dgemm to undertake the calculated
      Note it create the matrix that is return, but this is required as the return matrix may be a different size.
      */
-    Matrix Matrix::operator*(Matrix &other)
+    Matrix Matrix::operator*(const Matrix &other)
     {
         logger.assert(nCols_ == other.nRows_, "Inner dimensions not equal.");
         
@@ -188,7 +187,7 @@ namespace LinearAlgebra
         double d_zero = 0.0;
         
         //Let the actual multiplication be done by Fortran
-        dgemm_("N", "N", &i, &k, &j, &d_one, ((*this).data()), &i, other.data(), &j, &d_zero, C.data(), &i);
+        dgemm_("N", "N", &i, &k, &j, &d_one, ((*this).data()), &i, const_cast<double*>(other.data()), &j, &d_zero, C.data(), &i);
         
         return C;
     }
@@ -251,8 +250,7 @@ namespace LinearAlgebra
     
     /// \param [in] double c the  value all the entries of the matrix are set to
     ///
-    /// \details
-    /// Sets all the entries in the matrix equal to the scalar c.
+    /// \details Sets all the entries in the matrix equal to the scalar c.
     Matrix& Matrix::operator=(const double& c)
     {
         if (size() != 1)
@@ -269,8 +267,7 @@ namespace LinearAlgebra
         return *this;
     }
     
-    /// \param[in] Matrix : this is the matrix of the right hand side of the assigment
-    /// \bug Error checking needs to be added
+    /// \param[in] Matrix : this is the matrix of the right hand side of the assignment
     Matrix& Matrix::operator=(const Matrix& right)
     {
         data_ = (right.data_);
@@ -286,112 +283,18 @@ namespace LinearAlgebra
         nCols_ = right.nCols_;
         return *this;
     }
-    
-    /// \param[out] result : This returns the result in a passed in NumericalVector 
-    /// \details
-    /// \see computeWedgeStuffVector()
-    /*! This is the computeWedgeStuffVector magic taken directly from hpGEM version 1.0
-     Here we repeat the orginal commment from hpGEM 1.0
-     Compute the wedge product to find a vector which completes the
-     vectors in the columns of the Jacobian matrix to a basis.
-     
-     Wedge product means: the i-th component of the solution vector is found by
-     augmenting the Jacobian matrix on the right with the i-th standard basis
-     vector, and computing the determinant of this square matrix.  At least for
-     dimension 2 and three I do not form the square matrices, since the
-     evaluation of the determinant is easy and can be inserted directly.
-     */
-    /*void Matrix::computeWedgeStuffVector(NumericalVector& result)
-     {
-     
-     //if (nRows_ != nCols_){throw("Wedge product only defined for square matrices");}///Wrong...
-     
-     if (nRows_ != result.size()){throw("Passed vector is the wrong size for a wedge product");}
-     
-     
-     switch (nRows_)
-     {
-     case 2 :
-     result[0] = - (*this)(1,0);
-     result[1] = + (*this)(0,0);
-     break;
-     case 3:
-     result[0] = (*this)(1,0) * (*this)(2,1) - (*this)(2,0) * (*this)(1,1);
-     result[1] = (*this)(0,1) * (*this)(2,0) - (*this)(0,0) * (*this)(2,1); // includes minus sign already!
-     result[2] = (*this)(0,0) * (*this)(1,1) - (*this)(1,0) * (*this)(0,1);
-     break;
-     case 4:
-     result[0] = (*this)(1,0) * (-(*this)(2,1)*(*this)(3,2) + (*this)(3,1)*(*this)(2,2)) +
-     (*this)(2,0) * ( (*this)(1,1)*(*this)(3,2) - (*this)(3,1)*(*this)(1,2)) +
-     (*this)(3,0) * (-(*this)(1,1)*(*this)(2,2) + (*this)(2,1)*(*this)(1,2));
-     
-     result[1] = (*this)(0,0) * ( (*this)(2,1)*(*this)(3,2) - (*this)(3,1)*(*this)(2,2)) +
-     (*this)(2,0) * (-(*this)(0,1)*(*this)(3,2) + (*this)(3,1)*(*this)(0,2)) +
-     (*this)(3,0) * ( (*this)(0,1)*(*this)(2,2) - (*this)(2,1)*(*this)(0,2));
-     result[2] = (*this)(0,0) * (-(*this)(1,1)*(*this)(3,2) + (*this)(3,1)*(*this)(1,2)) +
-     (*this)(1,0) * ( (*this)(0,1)*(*this)(3,2) - (*this)(3,1)*(*this)(0,2)) +
-     (*this)(3,0) * (-(*this)(0,1)*(*this)(1,2) + (*this)(1,1)*(*this)(0,2));
-     result[3] = (*this)(0,0) * ( (*this)(1,1)*(*this)(2,2) - (*this)(2,1)*(*this)(1,2)) +
-     (*this)(1,0) * (-(*this)(0,1)*(*this)(2,2) + (*this)(2,1)*(*this)(0,2)) +
-     (*this)(2,0) * ( (*this)(0,1)*(*this)(1,2) - (*this)(1,1)*(*this)(0,2));
-     break;
-     default:
-     throw("Wedge product not defined for this dimension");
-     }//end switch
-     
-     
-     }*/
 
-    /// \details
-    /// \param[out] result : This returns the result in a passed in NumericalVector 
-    /// \see computeWedgeStuffVector()
-    /*! This is the computeWedgeStuffVector magic taken directly from hpGEM version 1.0
-     Here we repeat the orginal commment from hpGEM 1.0
-     Compute the wedge product to find a vector which completes the
-     vectors in the columns of the Jacobian matrix to a basis.
+    ///\return NumericalVector : The answer is return in this vector which is created by this function call
+    ///\details This is the computeWedgeStuffVector magic taken directly from hpGEM version 1.0
+    ///Here we repeat the orginal commment from hpGEM 1.0
+    ///Compute the wedge product to find a vector which completes the
+    ///vectors in the columns of the Jacobian matrix to a basis.
      
-     Wedge product means: the i-th component of the solution vector is found by
-     augmenting the Jacobian matrix on the right with the i-th standard basis
-     vector, and computing the determinant of this square matrix.  At least for
-     dimension 2 and three I do not form the square matrices, since the
-     evaluation of the determinant is easy and can be inserted directly.
-     */
-    /*void Matrix::computeWedgeStuffVector(NumericalVector& result) const
-     {
-     switch (nRows_)
-     {
-     case 2 :
-     result[0] = - (*this)(1,0);
-     result[1] = + (*this)(0,0);
-     break;
-     case 3:
-     result[0] = (*this)(1,0) * (*this)(2,1) - (*this)(2,0) * (*this)(1,1);
-     result[1] = (*this)(0,1) * (*this)(2,0) - (*this)(0,0) * (*this)(2,1); // includes minus sign already!
-     result[2] = (*this)(0,0) * (*this)(1,1) - (*this)(1,0) * (*this)(0,1);
-     break;
-     case 4:
-     result[0] = (*this)(1,0) * (-(*this)(2,1)*(*this)(3,2) + (*this)(3,1)*(*this)(2,2)) +
-     (*this)(2,0) * ( (*this)(1,1)*(*this)(3,2) - (*this)(3,1)*(*this)(1,2)) +
-     (*this)(3,0) * (-(*this)(1,1)*(*this)(2,2) + (*this)(2,1)*(*this)(1,2));
-     
-     result[1] = (*this)(0,0) * ( (*this)(2,1)*(*this)(3,2) - (*this)(3,1)*(*this)(2,2)) +
-     (*this)(2,0) * (-(*this)(0,1)*(*this)(3,2) + (*this)(3,1)*(*this)(0,2)) +
-     (*this)(3,0) * ( (*this)(0,1)*(*this)(2,2) - (*this)(2,1)*(*this)(0,2));
-     result[2] = (*this)(0,0) * (-(*this)(1,1)*(*this)(3,2) + (*this)(3,1)*(*this)(1,2)) +
-     (*this)(1,0) * ( (*this)(0,1)*(*this)(3,2) - (*this)(3,1)*(*this)(0,2)) +
-     (*this)(3,0) * (-(*this)(0,1)*(*this)(1,2) + (*this)(1,1)*(*this)(0,2));
-     result[3] = (*this)(0,0) * ( (*this)(1,1)*(*this)(2,2) - (*this)(2,1)*(*this)(1,2)) +
-     (*this)(1,0) * (-(*this)(0,1)*(*this)(2,2) + (*this)(2,1)*(*this)(0,2)) +
-     (*this)(2,0) * ( (*this)(0,1)*(*this)(1,2) - (*this)(1,1)*(*this)(0,2));
-     break;
-     default:
-     std::cout<<"Wedge product not defined for this dimension"<<std::endl;
-     }//end switch
-     
-     }*/
-
-    /// \return NumericalVector : The answer is return in this vector which is created by this function call
-    /// \see computeWedgeStuffVector (NumericalVector)
+    ///Wedge product means: the i-th component of the solution vector is found by
+    ///augmenting the Jacobian matrix on the right with the i-th standard basis
+    ///vector, and computing the determinant of this square matrix.  At least for
+    ///dimension 2 and 3 I do not form the square matrices, since the
+    ///evaluation of the determinant is easy and can be inserted directly.
     NumericalVector Matrix::computeWedgeStuffVector() const
     {
         logger.assert(nCols_ == nRows_ - 1, "Matrix has wrong dimensions to construct the wedge stuff vector");
@@ -428,10 +331,7 @@ namespace LinearAlgebra
     /// \param[in] a : double scalar that is multiple by the matrix x
     /// \param[in] x : matrix that is multiple 
     ///
-    /// \details
-    /*!
-     *  Adds to the matrix a*X_ij where a is scalar and X is a matrix
-     !*/
+    /// \details Adds to the matrix a*X_ij where a is scalar and X is a matrix
     void Matrix::axpy(double a, const Matrix& x)
     {
         
@@ -490,13 +390,13 @@ namespace LinearAlgebra
         data_ = data_new;
     }
     
-    /// \return int : the total number of entries
+    /// \return the total number of entries
     const std::size_t Matrix::size() const
     {
         return nRows_ * nCols_;
     }
     
-    /// \return int : the number of rows
+    /// \return the number of rows
     const std::size_t Matrix::getNRows() const
     {
         return nRows_;
@@ -550,10 +450,9 @@ namespace LinearAlgebra
     }
     
     /// \param[out] result this is the inverse of the current matrix
-    /// \bug if the dimensions of result are correct is not checked.
     Matrix Matrix::inverse() const
     {
-        
+        logger.assert(nRows_ == nCols_, "Cannot invert a non-square matrix");
         Matrix result = (*this);
         
         int nr = nRows_;
