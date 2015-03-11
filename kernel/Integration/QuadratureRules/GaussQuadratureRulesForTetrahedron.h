@@ -63,15 +63,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class Tn3_2_1 : public GaussQuadratureRule
+    class Tn3_2_4 : public GaussQuadratureRule
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
         using PointReferenceT = PointReference;
     public:
-        static Tn3_2_1& Instance()
+        static Tn3_2_4& Instance()
         {
-            static Tn3_2_1 theInstance;
+            static Tn3_2_4 theInstance;
             return theInstance;
         }
         
@@ -84,9 +84,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        Tn3_2_1();
-        Tn3_2_1(const Tn3_2_1&);
-        virtual ~Tn3_2_1();
+        Tn3_2_4();
+        Tn3_2_4(const Tn3_2_4&);
+        virtual ~Tn3_2_4();
     private:
         const std::string name_;
         double weight_[4];
@@ -95,15 +95,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class Tn3_3_1 : public GaussQuadratureRule
+    class Tn3_3_5 : public GaussQuadratureRule
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
         using PointReferenceT = PointReference;
     public:
-        static Tn3_3_1& Instance()
+        static Tn3_3_5& Instance()
         {
-            static Tn3_3_1 theInstance;
+            static Tn3_3_5 theInstance;
             return theInstance;
         }
         
@@ -116,9 +116,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        Tn3_3_1();
-        Tn3_3_1(const Tn3_3_1&);
-        virtual ~Tn3_3_1();
+        Tn3_3_5();
+        Tn3_3_5(const Tn3_3_5&);
+        virtual ~Tn3_3_5();
     private:
         const std::string name_;
         double weight_[5];
@@ -127,15 +127,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class Tn3_4_1 : public GaussQuadratureRule
+    class Tn3_4_11 : public GaussQuadratureRule
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
         using PointReferenceT = PointReference;
     public:
-        static Tn3_4_1& Instance()
+        static Tn3_4_11& Instance()
         {
-            static Tn3_4_1 theInstance;
+            static Tn3_4_11 theInstance;
             return theInstance;
         }
         
@@ -148,9 +148,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        Tn3_4_1();
-        Tn3_4_1(const Tn3_4_1&);
-        virtual ~Tn3_4_1();
+        Tn3_4_11();
+        Tn3_4_11(const Tn3_4_11&);
+        virtual ~Tn3_4_11();
     private:
         const std::string name_;
         double weight_[11];
@@ -159,15 +159,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class T3_5_1 : public GaussQuadratureRule
+    class T3_5_14 : public GaussQuadratureRule
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
         using PointReferenceT = PointReference;
     public:
-        static T3_5_1& Instance()
+        static T3_5_14& Instance()
         {
-            static T3_5_1 theInstance;
+            static T3_5_14 theInstance;
             return theInstance;
         }
         
@@ -180,9 +180,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        T3_5_1();
-        T3_5_1(const T3_5_1&);
-        virtual ~T3_5_1();
+        T3_5_14();
+        T3_5_14(const T3_5_14&);
+        virtual ~T3_5_14();
     private:
         const std::string name_;
         double weight_[14];
@@ -191,15 +191,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class T3_6_1 : public GaussQuadratureRule
+    class T3_6_24 : public GaussQuadratureRule
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
         using PointReferenceT = PointReference;
     public:
-        static T3_6_1& Instance()
+        static T3_6_24& Instance()
         {
-            static T3_6_1 theInstance;
+            static T3_6_24 theInstance;
             return theInstance;
         }
         
@@ -212,9 +212,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        T3_6_1();
-        T3_6_1(const T3_6_1&);
-        virtual ~T3_6_1();
+        T3_6_24();
+        T3_6_24(const T3_6_24&);
+        virtual ~T3_6_24();
     private:
         const std::string name_;
         double weight_[24];
@@ -223,15 +223,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class T3_7_1 : public GaussQuadratureRule
+    class T3_7_31 : public GaussQuadratureRule
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
         using PointReferenceT = PointReference;
     public:
-        static T3_7_1& Instance()
+        static T3_7_31& Instance()
         {
-            static T3_7_1 theInstance;
+            static T3_7_31 theInstance;
             return theInstance;
         }
         
@@ -244,9 +244,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        T3_7_1();
-        T3_7_1(const T3_7_1&);
-        virtual ~T3_7_1();
+        T3_7_31();
+        T3_7_31(const T3_7_31&);
+        virtual ~T3_7_31();
     private:
         const std::string name_;
         double weight_[31];
@@ -255,15 +255,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class T3_8_1 : public GaussQuadratureRule
+    class T3_8_43 : public GaussQuadratureRule
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
         using PointReferenceT = PointReference;
     public:
-        static T3_8_1& Instance()
+        static T3_8_43& Instance()
         {
-            static T3_8_1 theInstance;
+            static T3_8_43 theInstance;
             return theInstance;
         }
         
@@ -276,9 +276,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        T3_8_1();
-        T3_8_1(const T3_8_1&);
-        virtual ~T3_8_1();
+        T3_8_43();
+        T3_8_43(const T3_8_43&);
+        virtual ~T3_8_43();
     private:
         const std::string name_;
         double weight_[43];
@@ -287,15 +287,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class T3_9_1 : public GaussQuadratureRule
+    class T3_9_53 : public GaussQuadratureRule
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
         using PointReferenceT = PointReference;
     public:
-        static T3_9_1& Instance()
+        static T3_9_53& Instance()
         {
-            static T3_9_1 theInstance;
+            static T3_9_53 theInstance;
             return theInstance;
         }
         
@@ -308,9 +308,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        T3_9_1();
-        T3_9_1(const T3_9_1&);
-        virtual ~T3_9_1();
+        T3_9_53();
+        T3_9_53(const T3_9_53&);
+        virtual ~T3_9_53();
     private:
         const std::string name_;
         double weight_[53];
@@ -319,15 +319,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class T3_10_1 : public GaussQuadratureRule
+    class T3_10_126 : public GaussQuadratureRule
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
         using PointReferenceT = PointReference;
     public:
-        static T3_10_1& Instance()
+        static T3_10_126& Instance()
         {
-            static T3_10_1 theInstance;
+            static T3_10_126 theInstance;
             return theInstance;
         }
         
@@ -340,9 +340,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        T3_10_1();
-        T3_10_1(const T3_10_1&);
-        virtual ~T3_10_1();
+        T3_10_126();
+        T3_10_126(const T3_10_126&);
+        virtual ~T3_10_126();
     private:
         const std::string name_;
         double weight_[126];

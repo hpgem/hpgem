@@ -19,28 +19,15 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//------------------------------------------------------------------------------
-// File: GaussQuadratureRulesForCube.cpp 
-// Implementation of Gauss quadrature rules for reference cube.
-// Lars Pesch, Fri Mar  3 12:59:11 CET 2006
-//----
-// Modified from original file allGaussQuadratureRules.h
-// by M.T. Julianto, Wed Feb 23 10:45:06 UTC 2013
-//---------------------------------------------------------------------------
-// System includes and names imported from them:
 #include <cmath>
-//---------------------------------------------------------------------------
-// Package includes:
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.h"
 #include "Geometry/ReferenceCube.h"
 #include "GaussQuadratureRulesForLine.h"
 #include "Geometry/PointReference.h"
 using Geometry::ReferenceCube;
 
-//---------------------------------------------------------------------------
 namespace QuadratureRules
 {
-//---------------------------------------------------------------------------
     std::string Cn3_1_1::getName() const
     {
         return name_;
@@ -427,14 +414,14 @@ namespace QuadratureRules
     C3_7_2::C3_7_2()
             : name_("C3_7_2"), refGeoPtr_(&ReferenceCube::Instance()), gp_(64, 3)
     {
-        int position(0);
-        C1_7_x& ruleForLine = C1_7_x::Instance();
+        std::size_t position(0);
+        C1_7_4& ruleForLine = C1_7_4::Instance();
         Geometry::PointReference point1D(1);
-        for (int i = 0; i < ruleForLine.nrOfPoints(); ++i)
+        for (std::size_t i = 0; i < ruleForLine.nrOfPoints(); ++i)
         {
-            for (int j = 0; j < ruleForLine.nrOfPoints(); ++j)
+            for (std::size_t j = 0; j < ruleForLine.nrOfPoints(); ++j)
             {
-                for (int k = 0; k < ruleForLine.nrOfPoints(); ++k)
+                for (std::size_t k = 0; k < ruleForLine.nrOfPoints(); ++k)
                 {
                     weight_[position] = ruleForLine.weight(i) * ruleForLine.weight(j) * ruleForLine.weight(k);
                     point1D = ruleForLine.getPoint(i);
@@ -447,176 +434,6 @@ namespace QuadratureRules
                 }
             }
         }
-        /*weight_[0] = 1078. / 3645.;//rule breaks for (1-z)(1-x^2)(1-y^2)(5x^2-1)(5y^2-1)
-         gp_[0][0] = +std::sqrt((6. / 7.));//and some others
-         gp_[0][1] = 0.;
-         gp_[0][2] = 0.;
-
-         weight_[1] = 1078. / 3645.;
-         gp_[1][0] = -std::sqrt((6. / 7.));
-         gp_[1][1] = 0.;
-         gp_[1][2] = 0.;
-
-         weight_[2] = 1078. / 3645.;
-         gp_[2][0] = 0.;
-         gp_[2][1] = +std::sqrt((6. / 7.));
-         gp_[2][2] = 0.;
-
-         weight_[3] = 1078. / 3645.;
-         gp_[3][0] = 0.;
-         gp_[3][1] = -std::sqrt((6. / 7.));
-         gp_[3][2] = 0.;
-
-         weight_[4] = 1078. / 3645.;
-         gp_[4][0] = 0.;
-         gp_[4][1] = 0.;
-         gp_[4][2] = +std::sqrt((6. / 7.));
-
-         weight_[5] = 1078. / 3645.;
-         gp_[5][0] = 0.;
-         gp_[5][1] = 0.;
-         gp_[5][2] = -std::sqrt((6. / 7.));
-
-         weight_[6] = 343. / 3645.;
-         gp_[6][0] = +std::sqrt((6. / 7.));
-         gp_[6][1] = +std::sqrt((6. / 7.));
-         gp_[6][2] = 0.;
-
-         weight_[7] = 343. / 3645.;
-         gp_[7][0] = -std::sqrt((6. / 7.));
-         gp_[7][1] = +std::sqrt((6. / 7.));
-         gp_[7][2] = 0.;
-
-         weight_[8] = 343. / 3645.;
-         gp_[8][0] = +std::sqrt((6. / 7.));
-         gp_[8][1] = -std::sqrt((6. / 7.));
-         gp_[8][2] = 0.;
-
-         weight_[9] = 343. / 3645.;
-         gp_[9][0] = -std::sqrt((6. / 7.));
-         gp_[9][1] = -std::sqrt((6. / 7.));
-         gp_[9][2] = 0.;
-
-         weight_[10] = 343. / 3645.;
-         gp_[10][0] = +std::sqrt((6. / 7.));
-         gp_[10][1] = 0.;
-         gp_[10][2] = +std::sqrt((6. / 7.));
-
-         weight_[11] = 343. / 3645.;
-         gp_[11][0] = -std::sqrt((6. / 7.));
-         gp_[11][1] = 0.;
-         gp_[11][2] = +std::sqrt((6. / 7.));
-
-         weight_[12] = 343. / 3645.;
-         gp_[12][0] = +std::sqrt((6. / 7.));
-         gp_[12][1] = 0.;
-         gp_[12][2] = -std::sqrt((6. / 7.));
-
-         weight_[13] = 343. / 3645.;
-         gp_[13][0] = -std::sqrt((6. / 7.));
-         gp_[13][1] = 0.;
-         gp_[13][2] = -std::sqrt((6. / 7.));
-
-         weight_[14] = 343. / 3645.;
-         gp_[14][0] = 0.;
-         gp_[14][1] = +std::sqrt((6. / 7.));
-         gp_[14][2] = +std::sqrt((6. / 7.));
-
-         weight_[15] = 343. / 3645.;
-         gp_[15][0] = 0.;
-         gp_[15][1] = -std::sqrt((6. / 7.));
-         gp_[15][2] = +std::sqrt((6. / 7.));
-
-         weight_[16] = 343. / 3645.;
-         gp_[16][0] = 0.;
-         gp_[16][1] = +std::sqrt((6. / 7.));
-         gp_[16][2] = -std::sqrt((6. / 7.));
-
-         weight_[17] = 343. / 3645.;
-         gp_[17][0] = 0.;
-         gp_[17][1] = -std::sqrt((6. / 7.));
-         gp_[17][2] = -std::sqrt((6. / 7.));
-
-         weight_[18] = (774. * ((960. + 3. * std::sqrt(28798.)) / 2726.) - 230.) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[18][0] = +std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[18][1] = +std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[18][2] = +std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[19] = (774. * ((960. + 3. * std::sqrt(28798.)) / 2726.) - 230.) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[19][0] = -std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[19][1] = +std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[19][2] = +std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[20] = (774. * ((960. + 3. * std::sqrt(28798.)) / 2726.) - 230.) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[20][0] = +std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[20][1] = -std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[20][2] = +std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[21] = (774. * ((960. + 3. * std::sqrt(28798.)) / 2726.) - 230.) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[21][0] = -std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[21][1] = -std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[21][2] = +std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[22] = (774. * ((960. + 3. * std::sqrt(28798.)) / 2726.) - 230.) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[22][0] = +std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[22][1] = +std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[22][2] = -std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[23] = (774. * ((960. + 3. * std::sqrt(28798.)) / 2726.) - 230.) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[23][0] = -std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[23][1] = +std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[23][2] = -std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[24] = (774. * ((960. + 3. * std::sqrt(28798.)) / 2726.) - 230.) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[24][0] = +std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[24][1] = -std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[24][2] = -std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[25] = (774. * ((960. + 3. * std::sqrt(28798.)) / 2726.) - 230.) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[25][0] = -std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[25][1] = -std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-         gp_[25][2] = -std::sqrt(((960. - 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[26] = (230. - 774. * ((960. - 3. * std::sqrt(28798.)) / 2726.)) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[26][0] = +std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[26][1] = +std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[26][2] = +std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[27] = (230. - 774. * ((960. - 3. * std::sqrt(28798.)) / 2726.)) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[27][0] = -std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[27][1] = +std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[27][2] = +std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[28] = (230. - 774. * ((960. - 3. * std::sqrt(28798.)) / 2726.)) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[28][0] = +std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[28][1] = -std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[28][2] = +std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[29] = (230. - 774. * ((960. - 3. * std::sqrt(28798.)) / 2726.)) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[29][0] = -std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[29][1] = -std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[29][2] = +std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[30] = (230. - 774. * ((960. - 3. * std::sqrt(28798.)) / 2726.)) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[30][0] = +std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[30][1] = +std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[30][2] = -std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[31] = (230. - 774. * ((960. - 3. * std::sqrt(28798.)) / 2726.)) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[31][0] = -std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[31][1] = +std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[31][2] = -std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[32] = (230. - 774. * ((960. - 3. * std::sqrt(28798.)) / 2726.)) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[32][0] = +std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[32][1] = -std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[32][2] = -std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-
-         weight_[33] = (230. - 774. * ((960. - 3. * std::sqrt(28798.)) / 2726.)) / (1215. * (((960. + 3. * std::sqrt(28798.)) / 2726.) - ((960. - 3. * std::sqrt(28798.)) / 2726.)));
-         gp_[33][0] = -std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[33][1] = -std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         gp_[33][2] = -std::sqrt(((960. + 3. * std::sqrt(28798.)) / 2726.));
-         */
     }
     
     C3_7_2::~C3_7_2()
@@ -670,14 +487,14 @@ namespace QuadratureRules
     C3_9_2::C3_9_2()
             : name_("C3_9_2"), refGeoPtr_(&ReferenceCube::Instance()), gp_(125, 3)
     {
-        int position(0);
-        C1_9_25& ruleForLine = C1_9_25::Instance();
+        std::size_t position(0);
+        C1_9_5& ruleForLine = C1_9_5::Instance();
         Geometry::PointReference point1D(1);
-        for (int i = 0; i < ruleForLine.nrOfPoints(); ++i)
+        for (std::size_t i = 0; i < ruleForLine.nrOfPoints(); ++i)
         {
-            for (int j = 0; j < ruleForLine.nrOfPoints(); ++j)
+            for (std::size_t j = 0; j < ruleForLine.nrOfPoints(); ++j)
             {
-                for (int k = 0; k < ruleForLine.nrOfPoints(); ++k)
+                for (std::size_t k = 0; k < ruleForLine.nrOfPoints(); ++k)
                 {
                     weight_[position] = ruleForLine.weight(i) * ruleForLine.weight(j) * ruleForLine.weight(k);
                     point1D = ruleForLine.getPoint(i);
@@ -743,14 +560,14 @@ namespace QuadratureRules
     C3_11_2::C3_11_2()
             : name_("C3_11_2"), refGeoPtr_(&ReferenceCube::Instance()), gp_(216, 3)
     {
-        int position(0);
-        C1_11_36& ruleForLine = C1_11_36::Instance();
+        std::size_t position(0);
+        C1_11_6& ruleForLine = C1_11_6::Instance();
         Geometry::PointReference point1D(1);
-        for (int i = 0; i < ruleForLine.nrOfPoints(); ++i)
+        for (std::size_t i = 0; i < ruleForLine.nrOfPoints(); ++i)
         {
-            for (int j = 0; j < ruleForLine.nrOfPoints(); ++j)
+            for (std::size_t j = 0; j < ruleForLine.nrOfPoints(); ++j)
             {
-                for (int k = 0; k < ruleForLine.nrOfPoints(); ++k)
+                for (std::size_t k = 0; k < ruleForLine.nrOfPoints(); ++k)
                 {
                     weight_[position] = ruleForLine.weight(i) * ruleForLine.weight(j) * ruleForLine.weight(k);
                     point1D = ruleForLine.getPoint(i);

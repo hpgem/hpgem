@@ -33,8 +33,7 @@ namespace Geometry
 namespace QuadratureRules
 {
     
-    ///'Quadrature rule' for a single point is always exact (and just does an evaluation)
-    
+    ///'Quadrature rule' for a single point is always exact (and just does an evaluation)    
     class Cn0_inf_1 : public QuadratureRules::GaussQuadratureRule
     {
     public:

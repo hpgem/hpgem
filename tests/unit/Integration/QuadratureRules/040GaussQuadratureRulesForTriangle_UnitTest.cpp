@@ -176,16 +176,16 @@ int main()
 {
     
     testRule(QuadratureRules::Tn2_1_1::Instance(), 1);
-    testRule(QuadratureRules::Tn2_2_1::Instance(), 2);
-    testRule(QuadratureRules::Tn2_3_1::Instance(), 3);
-    testRule(QuadratureRules::Tn2_4_1::Instance(), 4);
-    testRule(QuadratureRules::T2_5_1::Instance(), 5);
-    testRule(QuadratureRules::T2_6_1::Instance(), 6);
-    testRule(QuadratureRules::T2_7_1::Instance(), 7);
-    testRule(QuadratureRules::T2_8_1::Instance(), 8);
-    testRule(QuadratureRules::T2_9_1::Instance(), 9);
-    testRule(QuadratureRules::T2_10_1::Instance(), 10);
-    testRule(QuadratureRules::T2_11_1::Instance(), 10); ///\BUG there are no 11th order polynomials yet...
+    testRule(QuadratureRules::Tn2_2_3::Instance(), 2);
+    testRule(QuadratureRules::Tn2_3_4::Instance(), 3);
+    testRule(QuadratureRules::Tn2_4_6::Instance(), 4);
+    testRule(QuadratureRules::T2_5_7::Instance(), 5);
+    testRule(QuadratureRules::T2_6_12::Instance(), 6);
+    testRule(QuadratureRules::T2_7_13::Instance(), 7);
+    testRule(QuadratureRules::T2_8_16::Instance(), 8);
+    testRule(QuadratureRules::T2_9_19::Instance(), 9);
+    testRule(QuadratureRules::T2_10_25::Instance(), 10);
+    testRule(QuadratureRules::T2_11_28::Instance(), 10); ///\BUG there are no 11th order polynomials yet...
             
     return 0;
 }

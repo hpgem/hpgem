@@ -32,15 +32,15 @@ namespace QuadratureRules
     using Geometry::ReferenceGeometry;
     
 //---------------------------------------------------------------------------
-    class Pyramid_1_1 : public GaussQuadratureRule
+    class Pyramid_1_4 : public GaussQuadratureRule
     {
     public:
         using PointReferenceT = PointReference;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
-        static Pyramid_1_1& Instance()
+        static Pyramid_1_4& Instance()
         {
-            static Pyramid_1_1 theInstance;
+            static Pyramid_1_4 theInstance;
             return theInstance;
         }
         
@@ -53,9 +53,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        Pyramid_1_1();
-        Pyramid_1_1(const Pyramid_1_1&);
-        virtual ~Pyramid_1_1();
+        Pyramid_1_4();
+        Pyramid_1_4(const Pyramid_1_4&);
+        virtual ~Pyramid_1_4();
     private:
         
         const std::string name_;
@@ -65,15 +65,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class Pyramid_3_1 : public GaussQuadratureRule
+    class Pyramid_3_16 : public GaussQuadratureRule
     {
     public:
         using PointReferenceT = PointReference;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
-        static Pyramid_3_1& Instance()
+        static Pyramid_3_16& Instance()
         {
-            static Pyramid_3_1 theInstance;
+            static Pyramid_3_16 theInstance;
             return theInstance;
         }
         
@@ -86,9 +86,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        Pyramid_3_1();
-        Pyramid_3_1(const Pyramid_3_1&);
-        virtual ~Pyramid_3_1();
+        Pyramid_3_16();
+        Pyramid_3_16(const Pyramid_3_16&);
+        virtual ~Pyramid_3_16();
     private:
         const std::string name_;
         double weight_[16];
@@ -97,15 +97,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class Pyramid_5_1 : public GaussQuadratureRule
+    class Pyramid_5_36 : public GaussQuadratureRule
     {
     public:
         using PointReferenceT = PointReference;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
-        static Pyramid_5_1& Instance()
+        static Pyramid_5_36& Instance()
         {
-            static Pyramid_5_1 theInstance;
+            static Pyramid_5_36 theInstance;
             return theInstance;
         }
         
@@ -118,9 +118,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        Pyramid_5_1();
-        Pyramid_5_1(const Pyramid_5_1&);
-        virtual ~Pyramid_5_1();
+        Pyramid_5_36();
+        Pyramid_5_36(const Pyramid_5_36&);
+        virtual ~Pyramid_5_36();
     private:
         const std::string name_;
         double weight_[36];
@@ -129,15 +129,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class Pyramid_7_1 : public GaussQuadratureRule
+    class Pyramid_7_48 : public GaussQuadratureRule
     {
     public:
         using PointReferenceT = PointReference;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
-        static Pyramid_7_1& Instance()
+        static Pyramid_7_48& Instance()
         {
-            static Pyramid_7_1 theInstance;
+            static Pyramid_7_48 theInstance;
             return theInstance;
         }
         
@@ -150,9 +150,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        Pyramid_7_1();
-        Pyramid_7_1(const Pyramid_7_1&);
-        virtual ~Pyramid_7_1();
+        Pyramid_7_48();
+        Pyramid_7_48(const Pyramid_7_48&);
+        virtual ~Pyramid_7_48();
     private:
         const std::string name_;
         double weight_[48];

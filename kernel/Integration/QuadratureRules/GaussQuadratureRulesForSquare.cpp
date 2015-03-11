@@ -413,7 +413,7 @@ namespace QuadratureRules
             : name_("C2_9_5"), refGeoPtr_(&ReferenceSquare::Instance()), gp_(25, 2)
     {
         int position(0);
-        C1_9_25& ruleForLine = C1_9_25::Instance();
+        C1_9_5& ruleForLine = C1_9_5::Instance();
         Geometry::PointReference point1D(1);
         for (int i = 0; i < ruleForLine.nrOfPoints(); ++i)
         {
@@ -482,7 +482,7 @@ namespace QuadratureRules
             : name_("C2_11_6"), refGeoPtr_(&ReferenceSquare::Instance()), gp_(36, 2)
     {
         int position(0);
-        C1_11_36& ruleForLine = C1_11_36::Instance();
+        C1_11_6& ruleForLine = C1_11_6::Instance();
         Geometry::PointReference point1D(1);
         for (int i = 0; i < ruleForLine.nrOfPoints(); ++i)
         {

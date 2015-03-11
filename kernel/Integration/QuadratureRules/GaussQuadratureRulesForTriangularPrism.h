@@ -64,15 +64,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class TriPrism_3_1 : public GaussQuadratureRule
+    class TriPrism_3_8 : public GaussQuadratureRule
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
         using PointReferenceT = PointReference;
     public:
-        static TriPrism_3_1& Instance()
+        static TriPrism_3_8& Instance()
         {
-            static TriPrism_3_1 theInstance;
+            static TriPrism_3_8 theInstance;
             return theInstance;
         }
         
@@ -85,9 +85,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        TriPrism_3_1();
-        TriPrism_3_1(const TriPrism_3_1&);
-        virtual ~TriPrism_3_1();
+        TriPrism_3_8();
+        TriPrism_3_8(const TriPrism_3_8&);
+        virtual ~TriPrism_3_8();
     private:
         const std::string name_;
         double weight_[8];
@@ -96,15 +96,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class TriPrism_5_1 : public GaussQuadratureRule
+    class TriPrism_5_21 : public GaussQuadratureRule
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
         using PointReferenceT = PointReference;
     public:
-        static TriPrism_5_1& Instance()
+        static TriPrism_5_21& Instance()
         {
-            static TriPrism_5_1 theInstance;
+            static TriPrism_5_21 theInstance;
             return theInstance;
         }
         
@@ -117,9 +117,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        TriPrism_5_1();
-        TriPrism_5_1(const TriPrism_5_1&);
-        virtual ~TriPrism_5_1();
+        TriPrism_5_21();
+        TriPrism_5_21(const TriPrism_5_21&);
+        virtual ~TriPrism_5_21();
     private:
         const std::string name_;
         double weight_[21];
@@ -128,15 +128,15 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
-    class TriPrism_7_1 : public GaussQuadratureRule
+    class TriPrism_7_64 : public GaussQuadratureRule
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
         using PointReferenceT = PointReference;
     public:
-        static TriPrism_7_1& Instance()
+        static TriPrism_7_64& Instance()
         {
-            static TriPrism_7_1 theInstance;
+            static TriPrism_7_64 theInstance;
             return theInstance;
         }
         
@@ -149,9 +149,9 @@ namespace QuadratureRules
         virtual ReferenceGeometryT* forReferenceGeometry() const;
 
     private:
-        TriPrism_7_1();
-        TriPrism_7_1(const TriPrism_7_1&);
-        virtual ~TriPrism_7_1();
+        TriPrism_7_64();
+        TriPrism_7_64(const TriPrism_7_64&);
+        virtual ~TriPrism_7_64();
     private:
         const std::string name_;
         double weight_[64];

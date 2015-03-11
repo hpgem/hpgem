@@ -90,27 +90,27 @@ namespace QuadratureRules
     }
     
 //---------------------------------------------------------------------------
-    std::string TriPrism_3_1::getName() const
+    std::string TriPrism_3_8::getName() const
     {
         return name_;
     }
     
-    std::size_t TriPrism_3_1::order() const
+    std::size_t TriPrism_3_8::order() const
     {
         return 3;
     }
     
-    std::size_t TriPrism_3_1::dimension() const
+    std::size_t TriPrism_3_8::dimension() const
     {
         return 3;
     }
     
-    std::size_t TriPrism_3_1::nrOfPoints() const
+    std::size_t TriPrism_3_8::nrOfPoints() const
     {
         return 8;
     }
     
-    double TriPrism_3_1::weight(std::size_t i) const
+    double TriPrism_3_8::weight(std::size_t i) const
     {
         if (i < 8)
             return weight_[i];
@@ -119,7 +119,7 @@ namespace QuadratureRules
     }
     
     const Geometry::PointReference&
-    TriPrism_3_1::getPoint(std::size_t i) const
+    TriPrism_3_8::getPoint(std::size_t i) const
     {
         if (i < nrOfPoints())
             return gp_[i];
@@ -127,13 +127,13 @@ namespace QuadratureRules
             throw name_ + "::getPoint -  wrong index!";
     }
     
-    TriPrism_3_1::ReferenceGeometryT*
-    TriPrism_3_1::forReferenceGeometry() const
+    TriPrism_3_8::ReferenceGeometryT*
+    TriPrism_3_8::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
-    TriPrism_3_1::TriPrism_3_1()
+    TriPrism_3_8::TriPrism_3_8()
             : name_("TriPrism_3_1"), refGeoPtr_(&ReferenceTriangularPrism::Instance()), gp_(8, 3)
     {
         weight_[0] = (-9. / 32.) * (1.0);
@@ -178,32 +178,32 @@ namespace QuadratureRules
         
     }
     
-    TriPrism_3_1::~TriPrism_3_1()
+    TriPrism_3_8::~TriPrism_3_8()
     {
     }
     
 //---------------------------------------------------------------------------
-    std::string TriPrism_5_1::getName() const
+    std::string TriPrism_5_21::getName() const
     {
         return name_;
     }
     
-    std::size_t TriPrism_5_1::order() const
+    std::size_t TriPrism_5_21::order() const
     {
         return 5;
     }
     
-    std::size_t TriPrism_5_1::dimension() const
+    std::size_t TriPrism_5_21::dimension() const
     {
         return 3;
     }
     
-    std::size_t TriPrism_5_1::nrOfPoints() const
+    std::size_t TriPrism_5_21::nrOfPoints() const
     {
         return 21;
     }
     
-    double TriPrism_5_1::weight(std::size_t i) const
+    double TriPrism_5_21::weight(std::size_t i) const
     {
         if (i < 21)
             return weight_[i];
@@ -212,7 +212,7 @@ namespace QuadratureRules
     }
     
     const Geometry::PointReference&
-    TriPrism_5_1::getPoint(std::size_t i) const
+    TriPrism_5_21::getPoint(std::size_t i) const
     {
         if (i < nrOfPoints())
             return gp_[i];
@@ -220,13 +220,13 @@ namespace QuadratureRules
             throw name_ + "::getPoint -  wrong index!";
     }
     
-    TriPrism_5_1::ReferenceGeometryT*
-    TriPrism_5_1::forReferenceGeometry() const
+    TriPrism_5_21::ReferenceGeometryT*
+    TriPrism_5_21::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
-    TriPrism_5_1::TriPrism_5_1()
+    TriPrism_5_21::TriPrism_5_21()
             : name_("TriPrism_5_1"), refGeoPtr_(&ReferenceTriangularPrism::Instance()), gp_(21, 3)
     {
         weight_[0] = (9. / 80.) * (5. / 9.);
@@ -336,32 +336,32 @@ namespace QuadratureRules
         
     }
     
-    TriPrism_5_1::~TriPrism_5_1()
+    TriPrism_5_21::~TriPrism_5_21()
     {
     }
     
 //---------------------------------------------------------------------------
-    std::string TriPrism_7_1::getName() const
+    std::string TriPrism_7_64::getName() const
     {
         return name_;
     }
     
-    std::size_t TriPrism_7_1::order() const
+    std::size_t TriPrism_7_64::order() const
     {
         return 7;
     }
     
-    std::size_t TriPrism_7_1::dimension() const
+    std::size_t TriPrism_7_64::dimension() const
     {
         return 3;
     }
     
-    std::size_t TriPrism_7_1::nrOfPoints() const
+    std::size_t TriPrism_7_64::nrOfPoints() const
     {
         return 64;
     }
     
-    double TriPrism_7_1::weight(std::size_t i) const
+    double TriPrism_7_64::weight(std::size_t i) const
     {
         if (i < 64)
             return weight_[i];
@@ -370,7 +370,7 @@ namespace QuadratureRules
     }
     
     const Geometry::PointReference&
-    TriPrism_7_1::getPoint(std::size_t i) const
+    TriPrism_7_64::getPoint(std::size_t i) const
     {
         if (i < nrOfPoints())
             return gp_[i];
@@ -378,13 +378,13 @@ namespace QuadratureRules
             throw name_ + "::getPoint -  wrong index!";
     }
     
-    TriPrism_7_1::ReferenceGeometryT*
-    TriPrism_7_1::forReferenceGeometry() const
+    TriPrism_7_64::ReferenceGeometryT*
+    TriPrism_7_64::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
-    TriPrism_7_1::TriPrism_7_1()
+    TriPrism_7_64::TriPrism_7_64()
             : name_("TriPrism_7_1"), refGeoPtr_(&ReferenceTriangularPrism::Instance()), gp_(64, 3)
     {
         weight_[0] = ((0.1739274226) * (0.1355069134)) * ((2. * 0.1739274226));
@@ -709,7 +709,7 @@ namespace QuadratureRules
         
     }
     
-    TriPrism_7_1::~TriPrism_7_1()
+    TriPrism_7_64::~TriPrism_7_64()
     {
     }
 

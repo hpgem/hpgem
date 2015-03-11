@@ -39,11 +39,11 @@ namespace QuadratureRules
         addRule(&Cn0_inf_1::Instance());
         //*************************LINE QUADRATURES*****************************
         addRule(&Cn1_1_1::Instance());
-        addRule(&Cn1_3_4::Instance());
-        addRule(&Cn1_5_9::Instance());
-        addRule(&C1_7_x::Instance());
-        addRule(&C1_9_25::Instance());
-        addRule(&C1_11_36::Instance());
+        addRule(&Cn1_3_2::Instance());
+        addRule(&Cn1_5_3::Instance());
+        addRule(&C1_7_4::Instance());
+        addRule(&C1_9_5::Instance());
+        addRule(&C1_11_6::Instance());
         //*************************SQUARE QUADRATURES*****************************
         addRule(&Cn2_1_1::Instance());
         addRule(&Cn2_3_4::Instance());
@@ -53,16 +53,16 @@ namespace QuadratureRules
         addRule(&C2_11_6::Instance());
         //*************************TRIANGLE QUADRATURES*****************************
         addRule(&Tn2_1_1::Instance());
-        addRule(&Tn2_2_1::Instance());
-        addRule(&Tn2_3_1::Instance());
-        addRule(&Tn2_4_1::Instance());
-        addRule(&T2_5_1::Instance());
-        addRule(&T2_6_1::Instance());
-        addRule(&T2_7_1::Instance());
-        addRule(&T2_8_1::Instance());
-        addRule(&T2_9_1::Instance());
-        addRule(&T2_10_1::Instance());
-        addRule(&T2_11_1::Instance());
+        addRule(&Tn2_2_3::Instance());
+        addRule(&Tn2_3_4::Instance());
+        addRule(&Tn2_4_6::Instance());
+        addRule(&T2_5_7::Instance());
+        addRule(&T2_6_12::Instance());
+        addRule(&T2_7_13::Instance());
+        addRule(&T2_8_16::Instance());
+        addRule(&T2_9_19::Instance());
+        addRule(&T2_10_25::Instance());
+        addRule(&T2_11_28::Instance());
         //*************************CUBE QUADRATURES*****************************
         addRule(&Cn3_1_1::Instance());
         addRule(&Cn3_3_4::Instance());
@@ -71,29 +71,29 @@ namespace QuadratureRules
         addRule(&C3_9_2::Instance());
         addRule(&C3_11_2::Instance());
         //*************************PYRAMID QUADRATURES*****************************
-        addRule(&Pyramid_1_1::Instance());
-        addRule(&Pyramid_3_1::Instance());
-        addRule(&Pyramid_5_1::Instance());
-        addRule(&Pyramid_7_1::Instance());
+        addRule(&Pyramid_1_4::Instance());
+        addRule(&Pyramid_3_16::Instance());
+        addRule(&Pyramid_5_36::Instance());
+        addRule(&Pyramid_7_48::Instance());
         //*************************TETRAHEDRON QUADRATURES*****************************
         addRule(&Tn3_1_1::Instance());
-        addRule(&Tn3_2_1::Instance());
-        addRule(&Tn3_3_1::Instance());
-        addRule(&Tn3_4_1::Instance());
-        addRule(&T3_5_1::Instance());
-        addRule(&T3_6_1::Instance());
-        addRule(&T3_7_1::Instance());
-        addRule(&T3_8_1::Instance());
-        addRule(&T3_9_1::Instance());
-        addRule(&T3_10_1::Instance());
+        addRule(&Tn3_2_4::Instance());
+        addRule(&Tn3_3_5::Instance());
+        addRule(&Tn3_4_11::Instance());
+        addRule(&T3_5_14::Instance());
+        addRule(&T3_6_24::Instance());
+        addRule(&T3_7_31::Instance());
+        addRule(&T3_8_43::Instance());
+        addRule(&T3_9_53::Instance());
+        addRule(&T3_10_126::Instance());
         //*************************TRIANGULARPRISM QUADRATURES*****************************
         addRule(&TriPrism_1_1::Instance());
-        addRule(&TriPrism_3_1::Instance());
-        addRule(&TriPrism_5_1::Instance());
-        addRule(&TriPrism_7_1::Instance());
+        addRule(&TriPrism_3_8::Instance());
+        addRule(&TriPrism_5_21::Instance());
+        addRule(&TriPrism_7_64::Instance());
         //*************************HYPERCUBE QUADRATURES*****************************
         addRule(&Cn4_1_1::Instance());
-        addRule(&Cn4_3_4::Instance());
+        addRule(&Cn4_3_16::Instance());
     }
     
     AllGaussQuadratureRules& AllGaussQuadratureRules::instance()

@@ -19,18 +19,7 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//------------------------------------------------------------------------------
-// File: GaussQuadratureRulesForHypercube.cpp 
-// Implementation of Gauss quadrature rules for reference hypercube.
-// Lars Pesch, Fri Mar  3 12:59:11 CET 2006
-//----
-// Modified from original file allGaussQuadratureRules.h
-// by M.T. Julianto, Wed Feb 25 10:45:06 UTC 2013
-//---------------------------------------------------------------------------
-// System includes and names imported from them:
 #include <cmath>
-//---------------------------------------------------------------------------
-// Package includes:
 #include "Integration/QuadratureRules/GaussQuadratureRulesForHypercube.h"
 #include "Geometry/ReferenceHypercube.h"
 #include "Geometry/PointReference.h"
@@ -100,27 +89,27 @@ namespace QuadratureRules
     }
     
 //---------------------------------------------------------------------------
-    std::string Cn4_3_4::getName() const
+    std::string Cn4_3_16::getName() const
     {
         return name_;
     }
     
-    std::size_t Cn4_3_4::order() const
+    std::size_t Cn4_3_16::order() const
     {
         return 3;
     }
     
-    std::size_t Cn4_3_4::dimension() const
+    std::size_t Cn4_3_16::dimension() const
     {
         return 4;
     }
     
-    std::size_t Cn4_3_4::nrOfPoints() const
+    std::size_t Cn4_3_16::nrOfPoints() const
     {
         return 16;
     }
     
-    double Cn4_3_4::weight(std::size_t i) const
+    double Cn4_3_16::weight(std::size_t i) const
     {
         if (i < 16)
             return weight_[i];
@@ -129,7 +118,7 @@ namespace QuadratureRules
     }
     
     const Geometry::PointReference&
-    Cn4_3_4::getPoint(std::size_t i) const
+    Cn4_3_16::getPoint(std::size_t i) const
     {
         if (i < 16)
             return gp_[i];
@@ -137,13 +126,13 @@ namespace QuadratureRules
             throw name_ + "::getPoint -  wrong index!";
     }
     
-    Cn4_3_4::ReferenceGeometryT*
-    Cn4_3_4::forReferenceGeometry() const
+    Cn4_3_16::ReferenceGeometryT*
+    Cn4_3_16::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
-    Cn4_3_4::Cn4_3_4()
+    Cn4_3_16::Cn4_3_16()
             : name_("Cn4_3_4"), refGeoPtr_(&ReferenceHypercube::Instance()), gp_(16, 4)
     {
         weight_[0] = 1.0;
@@ -244,7 +233,7 @@ namespace QuadratureRules
         
     }
     
-    Cn4_3_4::~Cn4_3_4()
+    Cn4_3_16::~Cn4_3_16()
     {
     }
 //---------------------------------------------------------------------------

@@ -73,11 +73,11 @@ int main()
 {
     
     testRule(QuadratureRules::Cn1_1_1::Instance(), 1);
-    testRule(QuadratureRules::Cn1_3_4::Instance(), 3);
-    testRule(QuadratureRules::Cn1_5_9::Instance(), 5);
-    testRule(QuadratureRules::C1_7_x::Instance(), 7);
-    testRule(QuadratureRules::C1_9_25::Instance(), 9);
-    testRule(QuadratureRules::C1_11_36::Instance(), 10); ///\BUG there are no 11th order polynomials yet...
+    testRule(QuadratureRules::Cn1_3_2::Instance(), 3);
+    testRule(QuadratureRules::Cn1_5_3::Instance(), 5);
+    testRule(QuadratureRules::C1_7_4::Instance(), 7);
+    testRule(QuadratureRules::C1_9_5::Instance(), 9);
+    testRule(QuadratureRules::C1_11_6::Instance(), 10); ///\BUG there are no 11th order polynomials yet...
             
     return 0;
 }

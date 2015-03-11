@@ -19,17 +19,6 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//------------------------------------------------------------------------------
-// File: GaussQuadratureRule.h 
-// The abstract base class for quadrature rules that calculate the integral
-// as a weighted sum of function values at certain points.
-// Lars Pesch, Thu Aug 18 17:44:27 CEST 2005
-//----
-// Modified by M.T. Julianto, Wed Feb 13 10:45:06 UTC 2013
-//     -> GaussIntegrationRule and IntegrationRuleBase classes are merged into
-//        this abstract base class.
-//     -> Rule's id and rule criterion stuffs are removed.
-//------------------------------------------------------------------------------
 #ifndef GaussQuadratureRule_h
 #define GaussQuadratureRule_h
 

@@ -288,15 +288,15 @@ int main()
 {
     
     testRule(QuadratureRules::Tn3_1_1::Instance(), 1);
-    testRule(QuadratureRules::Tn3_2_1::Instance(), 2);
-    testRule(QuadratureRules::Tn3_3_1::Instance(), 3);
-    testRule(QuadratureRules::Tn3_4_1::Instance(), 4);
-    testRule(QuadratureRules::T3_5_1::Instance(), 5);
-    testRule(QuadratureRules::T3_6_1::Instance(), 6);
-    testRule(QuadratureRules::T3_7_1::Instance(), 7);
-    testRule(QuadratureRules::T3_8_1::Instance(), 8);
-    testRule(QuadratureRules::T3_9_1::Instance(), 9);
-    testRule(QuadratureRules::T3_10_1::Instance(), 10); ///\TODO implement 11th order quadrature
+    testRule(QuadratureRules::Tn3_2_4::Instance(), 2);
+    testRule(QuadratureRules::Tn3_3_5::Instance(), 3);
+    testRule(QuadratureRules::Tn3_4_11::Instance(), 4);
+    testRule(QuadratureRules::T3_5_14::Instance(), 5);
+    testRule(QuadratureRules::T3_6_24::Instance(), 6);
+    testRule(QuadratureRules::T3_7_31::Instance(), 7);
+    testRule(QuadratureRules::T3_8_43::Instance(), 8);
+    testRule(QuadratureRules::T3_9_53::Instance(), 9);
+    testRule(QuadratureRules::T3_10_126::Instance(), 10); ///\TODO implement 11th order quadrature
             
     return 0;
 }

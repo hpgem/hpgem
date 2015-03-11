@@ -32,27 +32,27 @@ using Geometry::ReferencePyramid;
 namespace QuadratureRules
 {
 //---------------------------------------------------------------------------
-    std::string Pyramid_1_1::getName() const
+    std::string Pyramid_1_4::getName() const
     {
         return name_;
     }
     
-    std::size_t Pyramid_1_1::order() const
+    std::size_t Pyramid_1_4::order() const
     {
         return 1;
     }
     
-    std::size_t Pyramid_1_1::dimension() const
+    std::size_t Pyramid_1_4::dimension() const
     {
         return 3;
     }
     
-    std::size_t Pyramid_1_1::nrOfPoints() const
+    std::size_t Pyramid_1_4::nrOfPoints() const
     {
         return 4;
     }
     
-    double Pyramid_1_1::weight(std::size_t i) const
+    double Pyramid_1_4::weight(std::size_t i) const
     {
         if (i < 4)
             return weight_[i];
@@ -61,7 +61,7 @@ namespace QuadratureRules
     }
     
     const Geometry::PointReference&
-    Pyramid_1_1::getPoint(std::size_t i) const
+    Pyramid_1_4::getPoint(std::size_t i) const
     {
         if (i < nrOfPoints())
             return gp_[i];
@@ -69,13 +69,13 @@ namespace QuadratureRules
             throw name_ + "::getPoint -  wrong index!";
     }
     
-    Pyramid_1_1::ReferenceGeometryT*
-    Pyramid_1_1::forReferenceGeometry() const
+    Pyramid_1_4::ReferenceGeometryT*
+    Pyramid_1_4::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
-    Pyramid_1_1::Pyramid_1_1()
+    Pyramid_1_4::Pyramid_1_4()
             : name_("Pyramid_1_1"), refGeoPtr_(&ReferencePyramid::Instance()), gp_(4, 3)
     {
         weight_[0] = ((2.0) * (2.0)) * (0.1108884156);
@@ -100,32 +100,32 @@ namespace QuadratureRules
         
     }
     
-    Pyramid_1_1::~Pyramid_1_1()
+    Pyramid_1_4::~Pyramid_1_4()
     {
     }
     
 //---------------------------------------------------------------------------
-    std::string Pyramid_3_1::getName() const
+    std::string Pyramid_3_16::getName() const
     {
         return name_;
     }
     
-    std::size_t Pyramid_3_1::order() const
+    std::size_t Pyramid_3_16::order() const
     {
         return 3;
     }
     
-    std::size_t Pyramid_3_1::dimension() const
+    std::size_t Pyramid_3_16::dimension() const
     {
         return 3;
     }
     
-    std::size_t Pyramid_3_1::nrOfPoints() const
+    std::size_t Pyramid_3_16::nrOfPoints() const
     {
         return 16;
     }
     
-    double Pyramid_3_1::weight(std::size_t i) const
+    double Pyramid_3_16::weight(std::size_t i) const
     {
         if (i < 16)
             return weight_[i];
@@ -134,7 +134,7 @@ namespace QuadratureRules
     }
     
     const Geometry::PointReference&
-    Pyramid_3_1::getPoint(std::size_t i) const
+    Pyramid_3_16::getPoint(std::size_t i) const
     {
         if (i < nrOfPoints())
             return gp_[i];
@@ -142,13 +142,13 @@ namespace QuadratureRules
             throw name_ + "::getPoint -  wrong index!";
     }
     
-    Pyramid_3_1::ReferenceGeometryT*
-    Pyramid_3_1::forReferenceGeometry() const
+    Pyramid_3_16::ReferenceGeometryT*
+    Pyramid_3_16::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
-    Pyramid_3_1::Pyramid_3_1()
+    Pyramid_3_16::Pyramid_3_16()
             : name_("Pyramid_3_1"), refGeoPtr_(&ReferencePyramid::Instance()), gp_(16, 3)
     {
         weight_[0] = ((1.0) * (1.0)) * (0.1108884156);
@@ -233,32 +233,32 @@ namespace QuadratureRules
         
     }
     
-    Pyramid_3_1::~Pyramid_3_1()
+    Pyramid_3_16::~Pyramid_3_16()
     {
     }
     
 //---------------------------------------------------------------------------
-    std::string Pyramid_5_1::getName() const
+    std::string Pyramid_5_36::getName() const
     {
         return name_;
     }
     
-    std::size_t Pyramid_5_1::order() const
+    std::size_t Pyramid_5_36::order() const
     {
         return 5;
     }
     
-    std::size_t Pyramid_5_1::dimension() const
+    std::size_t Pyramid_5_36::dimension() const
     {
         return 3;
     }
     
-    std::size_t Pyramid_5_1::nrOfPoints() const
+    std::size_t Pyramid_5_36::nrOfPoints() const
     {
         return 36;
     }
     
-    double Pyramid_5_1::weight(std::size_t i) const
+    double Pyramid_5_36::weight(std::size_t i) const
     {
         if (i < 36)
             return weight_[i];
@@ -267,7 +267,7 @@ namespace QuadratureRules
     }
     
     const Geometry::PointReference&
-    Pyramid_5_1::getPoint(std::size_t i) const
+    Pyramid_5_36::getPoint(std::size_t i) const
     {
         if (i < nrOfPoints())
             return gp_[i];
@@ -275,13 +275,13 @@ namespace QuadratureRules
             throw name_ + "::getPoint -  wrong index!";
     }
     
-    Pyramid_5_1::ReferenceGeometryT*
-    Pyramid_5_1::forReferenceGeometry() const
+    Pyramid_5_36::ReferenceGeometryT*
+    Pyramid_5_36::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
-    Pyramid_5_1::Pyramid_5_1()
+    Pyramid_5_36::Pyramid_5_36()
             : name_("Pyramid_5_1"), refGeoPtr_(&ReferencePyramid::Instance()), gp_(36, 3)
     {
         weight_[0] = ((5. / 9.) * (5. / 9.)) * (0.1108884156);
@@ -466,32 +466,32 @@ namespace QuadratureRules
         
     }
     
-    Pyramid_5_1::~Pyramid_5_1()
+    Pyramid_5_36::~Pyramid_5_36()
     {
     }
     
 //---------------------------------------------------------------------------
-    std::string Pyramid_7_1::getName() const
+    std::string Pyramid_7_48::getName() const
     {
         return name_;
     }
     
-    std::size_t Pyramid_7_1::order() const
+    std::size_t Pyramid_7_48::order() const
     {
         return 7;
     }
     
-    std::size_t Pyramid_7_1::dimension() const
+    std::size_t Pyramid_7_48::dimension() const
     {
         return 3;
     }
     
-    std::size_t Pyramid_7_1::nrOfPoints() const
+    std::size_t Pyramid_7_48::nrOfPoints() const
     {
         return 48;
     }
     
-    double Pyramid_7_1::weight(std::size_t i) const
+    double Pyramid_7_48::weight(std::size_t i) const
     {
         if (i < 48)
             return weight_[i];
@@ -500,7 +500,7 @@ namespace QuadratureRules
     }
     
     const Geometry::PointReference&
-    Pyramid_7_1::getPoint(std::size_t i) const
+    Pyramid_7_48::getPoint(std::size_t i) const
     {
         if (i < nrOfPoints())
             return gp_[i];
@@ -508,13 +508,13 @@ namespace QuadratureRules
             throw name_ + "::getPoint -  wrong index!";
     }
     
-    Pyramid_7_1::ReferenceGeometryT*
-    Pyramid_7_1::forReferenceGeometry() const
+    Pyramid_7_48::ReferenceGeometryT*
+    Pyramid_7_48::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
-    Pyramid_7_1::Pyramid_7_1()
+    Pyramid_7_48::Pyramid_7_48()
             : name_("Pyramid_7_1"), refGeoPtr_(&ReferencePyramid::Instance()), gp_(48, 3)
     {
         weight_[0] = (98. / 405.) * (0.1108884156);
@@ -759,7 +759,7 @@ namespace QuadratureRules
         
     }
     
-    Pyramid_7_1::~Pyramid_7_1()
+    Pyramid_7_48::~Pyramid_7_48()
     {
     }
 
