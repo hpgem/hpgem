@@ -103,7 +103,7 @@ namespace Integration
          std::cout << "FaceIntegral: filling up the cache (" << nrOfPoints << "points)!\n";
 
          vecCache.resize(nrOfPoints,qdrRuleLoc->dimension()+1);
-         for (unsigned int i=0; i<nrOfPoints; ++i)
+         for (std::size_t i=0; i<nrOfPoints; ++i)
          {
          qdrRuleLoc->getPoint(i, p);
          vecCache[i](*fa,p);//this non-intuitive bit of notation computes and stores the outward-pointing normal vector and its norm
@@ -116,7 +116,7 @@ namespace Integration
          result *= (qdrRuleLoc->weight(0) * vecCache[0].L2Normal);
 
          // next Gauss point(s)
-         for (unsigned int i = 1; i < nrOfPoints; ++i)
+         for (std::size_t i = 1; i < nrOfPoints; ++i)
          {
          qdrRuleLoc->getPoint(i, p);
          integrand->faceIntegrand(fa, vecCache[i].Normal, p, value);

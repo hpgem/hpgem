@@ -1,4 +1,4 @@
-/*
+ /*
  This file forms part of hpGEM. This package has been developed over a number of years by various people at the University of Twente and a full list of contributors can be found at
  http://hpgem.org/about-the-code/team
 
@@ -160,7 +160,7 @@ namespace Geometry
 #if SAVECOEFFS
         FixedVector<Geometry::PointPhysical<3>, 6> p;
 
-        for (unsigned int i = 0; i < 6; ++i)
+        for (std::size_t i = 0; i < 6; ++i)
         {   
             physicalGeometry->getVertexPoint(i, p[i]);
         }

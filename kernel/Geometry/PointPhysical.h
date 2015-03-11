@@ -87,7 +87,7 @@ namespace Geometry
         {   
             static std::complex<double>* new_Data;
 
-            for (unsigned int i = 0; i < PointT::coordinates_.size(); i++)
+            for (std::size_t i = 0; i < PointT::coordinates_.size(); i++)
             {   
                 new_Data[i] = PointT::coordinates_.data()[i];
             }
