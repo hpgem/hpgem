@@ -27,6 +27,7 @@
 #include "Base/Face.h"
 #include "Base/HpgemAPIBase.h"
 #include "Base/RectangularMeshDescriptor.h"
+#include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
 #include "Output/TecplotSingleElementWriter.h"
@@ -41,22 +42,31 @@ namespace Integration
 namespace Base
 {
     /// \brief Simplified Interface for solving PDE's.
+    /** This class is well-suited for problems of the form \f[ l(\partial_t^k \vec{u},t) = f(\vec{u},t) \f], where \f$ \vec{u} \f$ is some vector function, \f$ l(\partial_t^k \vec{u},t)\f$ is some linear function, applied on the k-th order time-derivative of \f$ u \f$, and \f$ f(\vec{u},t) \f$ is some function of \f$ \vec{u} \f$ that can depend on arbitrary order spatial derivatives of \f$\vec{u}\f$. This last term will be referred to as the right-hand side. The resulting set of ODE's will have the form \f[ M\partial_t^ku = f(u,t)\f], where \f$ M\f$ is the mass matrix, \f$u\f$ is the numerical solution vector and \f$f(u)\f$ is the right-hand side. In case the problem is linear it most likely has the form \f[ M\partial_t^ku = Au + f(t)\f], where \f$A\f$ is the stiffness matrix and \f$f(t)\f$ is the source term. If the problem is of this linear form, one can set the bool 'useMatrixStorage' to true, to solve the problem by storing the mass matrices and stiffness matrices globally.
+     */
     /** \details To solve some linear time depent PDE you should do the following:
      * \li Create your own class that inherits this class.
-     * \li Implement the function 'initialise' for creating the mesh.
-     * \li Implement the function 'initialConditions' to define the initial conditions of your problem.
-     * \li Implement the functions 'elementIntegrand' and 'faceIntegrand' for defining the integrands for element matrices and vectors and face matrices and vectors.
-     * \li Implement the functions 'computeRhsLocal' and 'computeRhsFaces' for computing the right-hand-side corresponding to your time integration method.
-     * \li Implement the function 'beforeTimeIntegration' when multiple element/face matrices/vectors are required.
-     * \li Override the function 'solve' when using another time integration routine than forward Euler.
-     * \li Implement the function 'writeToTecplotFile' to determine what data to write to the output file.
+     * \li Implement the function 'createMeshDescription' to create a mesh description (e.g. domain, number of elements, etc.).
+     * \li Implement the function 'getSourceTerm' to define some source term (e.g. external force).
+     * \li Implement the function 'getRealSolution' if you know the analytic solution and want to compute the error.
+     * \li Implement the function 'initialConditions' to define the initial condition(s) of your problem.
+     * \li Implement the function 'computeMassMatrixAtElement' when you want to store the mass matrices.
+     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element.
+     * \li Implement the function 'solveMassMatrixEquationsAtElement' for solving the mass matrix equtions at an element. This function is used when you do not store the mass matrices.
+     * \li Implement the functions 'computeStiffnessMatrixAtElement' and 'computeStiffnessMatrixAtFace' when you want to store the stiffness matrices.
+     * \li Implement the functions 'computeRightHandSideAtElement' and 'computeRightHandSideAtFace' to compute the right-hand side corresponding to an element or face.
+     * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element.
+     * \li Override the function 'writeToTecplotFile' to determine what data to write to the output file.
+     * \li Override the function 'showProgress' to determine how you want to show the progress of the time integration routine.
+     * \li Override the function 'solve' when using another time integration routine than a Runge-Kutta integration method.
      */
     /** \details To solve the PDE do the following in the main routine:
-     * \li Create an object of your own class.
-     * \li Define how the solution should be written in the VTK files using the function 'registerVTKWriteFunction'.
+     * \li Create an object of your own class, that inherits from this class and has the necessary functions implemented (see list above).
+     * \li Call the function 'CreateMesh' to create the mesh.
+     * \li Call the function 'setOutputNames' to set the names for the output files.
      * \li Call the function 'solve'.
      */
-    /** \details For an example of using this interface see the application 'TutorialAdvection'.
+    /** \details For an example of using this interface see the application 'ExampleMultipleVariableProblem'.
      */
     class HpgemAPISimplified : public HpgemAPIBase, public Output::TecplotSingleElementWriter
     {
@@ -67,8 +77,10 @@ namespace Base
          const std::size_t dimension,
          const std::size_t numberOfUnknowns,
          const std::size_t polynomialOrder,
-         const std::size_t numberOfTimeLevels,
-         const bool useMatrixStorage = false
+         const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
+         const std::size_t numOfTimeLevels = 1,
+         const bool useMatrixStorage = false,
+         const bool useSourceTerm = false
          );
 
         /// \brief Create a domain
@@ -83,14 +95,14 @@ namespace Base
         void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType);
         
         /// \brief Compute the source term at a given physical point.
-        virtual double getSourceTerm(const double &time, const PointPhysicalT &pPhys)
+        virtual double getSourceTerm(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No source term implemented.");
             return 0.0;
         }
         
         /// \brief Compute the real solution at a given point in space and time.
-        virtual LinearAlgebra::NumericalVector getRealSolution(const double &time, const PointPhysicalT &pPhys)
+        virtual LinearAlgebra::NumericalVector getRealSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No real solution implemented.");
             LinearAlgebra::NumericalVector realSolution(configData_->numberOfUnknowns_);
@@ -98,7 +110,7 @@ namespace Base
         }
         
         /// \brief Compute the initial solution at a given point in space and time.
-        virtual LinearAlgebra::NumericalVector getInitialSolution(const double &startTime, const PointPhysicalT &pPhys)
+        virtual LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No initial solution implemented.");
             LinearAlgebra::NumericalVector realSolution(configData_->numberOfUnknowns_);
@@ -106,7 +118,7 @@ namespace Base
         }
         
         /// \brief Compute the mass matrix for a single element.
-        virtual LinearAlgebra::Matrix computeMassMatrixAtElement(const Base::Element *ptrElement, const double time)
+        virtual LinearAlgebra::Matrix computeMassMatrixAtElement(const Base::Element *ptrElement)
         {
             logger(ERROR, "No function for computing the mass matrix at an element implemented.");
             LinearAlgebra::Matrix massMatrix;
@@ -114,10 +126,17 @@ namespace Base
         }
         
         /// \brief Compute and store the mass matrices.
-        void createMassMatrices(const double time);
+        void createMassMatrices();
+        
+        /// \brief Solve the mass matrix equations for a single element.
+        /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$ for a single element, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix. The input is the right hand side here called 'solutionCoefficients' and the result is returned in this same vector.
+        virtual void solveMassMatrixEquationsAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients)
+        {
+            logger(ERROR, "No function for solving the mass matrix equations at an element implemented.");
+        }
 
         /// \brief Solve the mass matrix equations.
-        void solveMassMatrixEquations(const std::size_t timeLevel, const double time);
+        void solveMassMatrixEquations(const std::size_t timeLevel);
 
         /// \brief Integrate the initial solution at a single element.
         virtual LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
@@ -131,15 +150,15 @@ namespace Base
         void integrateInitialSolution(const std::size_t timeLevelResult, const double startTime, const std::size_t orderTimeDerivative);
 
         /// \brief Compute the stiffness matrix corresponding to an element.
-        virtual LinearAlgebra::Matrix computeStiffnessMatrixAtElement(const Base::Element *ptrElement, const double time)
+        virtual LinearAlgebra::Matrix computeStiffnessMatrixAtElement(const Base::Element *ptrElement)
         {
             logger(ERROR, "No function for computing the stiffness matrix at an element implemented.");
-            LinearAlgebra::Matrix massMatrix;
-            return massMatrix;
+            LinearAlgebra::Matrix stiffnessMatrix;
+            return stiffnessMatrix;
         }
         
         /// \brief Compute the stiffness matrix corresponding to a face.
-        virtual Base::FaceMatrix computeStiffnessMatrixAtFace(const Base::Face *ptrFace, const double time)
+        virtual Base::FaceMatrix computeStiffnessMatrixAtFace(const Base::Face *ptrFace)
         {
             logger(ERROR, "No function for computing the stiffness matrix at a face implemented.");
             Base::FaceMatrix stiffnessMatrix;
@@ -147,22 +166,35 @@ namespace Base
         }
         
         /// \brief Compute and store stiffness matrices for computing the right hand side.
-        void createStiffnessMatrices(const double time);
+        void createStiffnessMatrices();
 
-        /// \brief Integrate the energy of the error on a single element.
-        /// \details The energy of the error is defined here as \f$ e^tMe\f$, where \f$ M\f$ is the mass matrix and \f$ e\f$ is the error. In most cases this is equivalent to the \f$ L^2 \f$ norm of the error.
-        virtual LinearAlgebra::NumericalVector integrateEnergyErrorAtElement(const Base::Element *ptrElement, const double time, LinearAlgebra::NumericalVector &solutionCoefficients)
+        /// \brief Integrate the square of some norm of the error on a single element.
+        virtual LinearAlgebra::NumericalVector integrateErrorAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
         {
             logger(ERROR, "No function for computing the error at an element implemented.");
             LinearAlgebra::NumericalVector errorAtElement(1);
             return errorAtElement;
         }
         
-        /// \brief Compute the energy-norm of the error.
-        double computeEnergyNormError(const std::size_t solutionTimeLevel, const double time);
+        /// \brief Compute the norm of the total error.
+        double computeTotalError(const std::size_t solutionTimeLevel, const double time);
 
+        /// \brief Integrate the source term at a single element
+        virtual LinearAlgebra::NumericalVector integrateSourceTermAtElement(const Base::Element * ptrElement, const double time, const std::size_t orderTimeDerivative)
+        {
+            logger(ERROR, "No function for computing the integral for the source term at an element implemented.");
+            LinearAlgebra::NumericalVector integralInitialSolution;
+            return integralInitialSolution;
+        }
+        
         /// \brief Compute the right-hand side corresponding to an element
-        virtual LinearAlgebra::NumericalVector computeRightHandSideAtElement(const Base::Element *ptrElement, const double time, LinearAlgebra::NumericalVector &solutionCoefficients)
+        virtual LinearAlgebra::NumericalVector computeRightHandSideAtElement
+        (
+         const Base::Element *ptrElement,
+         LinearAlgebra::NumericalVector &solutionCoefficients,
+         const double time,
+         const std::size_t orderTimeDerivative
+        )
         {
             logger(ERROR, "No function for computing the right-hand side at an element implemented.");
             LinearAlgebra::NumericalVector rightHandSideElement;
@@ -173,10 +205,11 @@ namespace Base
         virtual LinearAlgebra::NumericalVector computeRightHandSideAtFace
         (
          const Base::Face *ptrFace,
-         const double time,
          const Base::Side side,
          LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
-         LinearAlgebra::NumericalVector &solutionCoefficientsRight
+         LinearAlgebra::NumericalVector &solutionCoefficientsRight,
+         const double time,
+         const std::size_t orderTimeDerivative
          )
         {
             logger(ERROR, "No function for computing the right-hand side at a face implemented.");
@@ -185,13 +218,13 @@ namespace Base
         }
         
         /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
-        void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time);
+        void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
 
         /// \brief Get a linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels.
         LinearAlgebra::NumericalVector getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels);
 
         /// \brief Compute the right hand side for the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
-        void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time);
+        void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
 
         /// \brief Synchronize between the different submeshes (when using MPI)
         void synchronize(const std::size_t timeLevel);
@@ -203,30 +236,44 @@ namespace Base
         void scaleAndAddTimeLevel(const std::size_t timeLevelToChange, const std::size_t timeLevelToAdd, const double scale);
 
         /// \brief Set the initial numerical solution (w at t=0).
-        void setInitialSolution(const std::size_t solutionTimeLevel, const double startTime);
+        void setInitialSolution(const std::size_t solutionTimeLevel, const double startTime, const std::size_t orderTimeDerivative);
 
         /// \brief Compute the time derivative for a given time level.
-        void computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time);
+        void computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
 
         /// \brief Compute the time derivative for a given linear combination of solutions at different time levels.
-        void computeTimeDerivative(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time);
-
+        void computeTimeDerivative(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
+        
+        /// \brief Compute one time step, using a Runge-Kutta scheme.
+        virtual void computeOneTimeStep(double &time, const double dt);
+        
+        /// \brief Set output names.
+        void setOutputNames(std::string outputFileName, std::string internalFileTitle, std::string solutionTitle, std::string variableNames);
+        
         /// \brief Write output to a tecplot file.
-        virtual void writeToTecplotFile(const ElementT *ptrElement, const PointReferenceT &pRef, std::ostream &out)
+        virtual void writeToTecplotFile(const ElementT *ptrElement, const PointReferenceT &pRef, std::ostream &out) override;
+        
+        /// \brief Show the progress of the time integration.
+        virtual void showProgress(const double time, const std::size_t timeStepID)
         {
-            logger(ERROR, "No function for writing to a tecplot file implemented.");
+            if (timeStepID % 10 == 0)
+            {
+                std::cout << timeStepID << " time steps computed.\n";
+            }
         }
         
-        // \brief Solve the PDE.
-        virtual bool solve(const double startTime, const double endTime, double dt, const std::size_t numOfOutputFrames)
-        {
-            logger(ERROR, "No function for solving the problem implemented.");
-            return false;
-        }
+        /// \brief Solve the PDE, using a Runge-Kutta scheme.
+        virtual bool solve(const double startTime, const double endTime, double dt, const std::size_t numOfOutputFrames, bool doComputeError);
         
     protected:
-        /// Boolean to indicate if matrices (e.g. mass matrix, stiffness matrix etc) should be stored.
+        /// Butcher tableau for time integraion. The integration method is assumed to be explicit.
+        const Base::ButcherTableau * const ptrButcherTableau_;
+        
+        /// Boolean to indicate if the matrices (mass matrix and stiffness) should be stored.
         const bool useMatrixStorage_;
+        
+        /// Boolean to indicate if there is a source term.
+        const bool useSourceTerm_;
 
         /// Index to indicate where the mass matrix is stored
         const std::size_t massMatrixID_;
@@ -237,6 +284,23 @@ namespace Base
         /// Index to indicate where the stiffness matrix for the elements is stored
         const std::size_t stiffnessFaceMatrixID_;
         
+        /// Index to indicate where the coefficients for the solution are stored.
+        std::size_t solutionTimeLevel_;
+        
+        /// Indices to indicate where the intermediate results are stored.
+        std::vector<std::size_t> intermediateTimeLevels_;
+        
+        /// Name of the complete output file (including extensions like .dat).
+        std::string outputFileName_;
+        
+        /// Title of the file as used by Tecplot internally.
+        std::string internalFileTitle_;
+        
+        /// Title of the solution
+        std::string solutionTitle_;
+        
+        /// String of variable names. The string should have the form "nameVar1,nameVar2,..,nameVarN".
+        std::string variableNames_;
     };
 }
 

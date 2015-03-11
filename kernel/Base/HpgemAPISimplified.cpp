@@ -54,22 +54,33 @@ namespace Base
     /// \param[in] dimension Dimension of the domain
     /// \param[in] numOfVariables Number of variables in the PDE
     /// \param[in] polynomialOrder Polynomial order of the basis functions
-    /// \param[in] numOfTimeLevels Number of time levels
+    /// \param[in] butcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
+    /// \param[in] numOfTimeLevels Number of time levels. If a butcherTableau is set and the number of time levels is too low, this will be corrected automatically.
     /// \param[in] useMatrixStorage Boolean to indicate if element and face matrices for the PDE should be stored
+    /// \param[in] useSourceTerm Boolean to indicate if there is a source term.
     HpgemAPISimplified::HpgemAPISimplified
     (
      const std::size_t dimension,
      const std::size_t numOfVariables,
      const std::size_t polynomialOrder,
+     const Base::ButcherTableau * const ptrButcherTableau,
      const std::size_t numOfTimeLevels,
-     const bool useMatrixStorage
+     const bool useMatrixStorage,
+     const bool useSourceTerm
      ) :
-    HpgemAPIBase(new Base::GlobalData, new Base::ConfigurationData(dimension, numOfVariables, polynomialOrder, numOfTimeLevels)),
+    HpgemAPIBase(new Base::GlobalData, new Base::ConfigurationData(dimension, numOfVariables, polynomialOrder, (ptrButcherTableau->getNumStages() + 1 > numOfTimeLevels) ? ptrButcherTableau->getNumStages() + 1 : numOfTimeLevels)),
+    ptrButcherTableau_(ptrButcherTableau),
     useMatrixStorage_(useMatrixStorage),
+    useSourceTerm_(useSourceTerm),
     massMatrixID_(1),
     stiffnessElementMatrixID_(0),
     stiffnessFaceMatrixID_(0)
     {
+        solutionTimeLevel_ = 0;
+        for (std::size_t i = 1; i < configData_->numberOfTimeLevels_; i++)
+        {
+            intermediateTimeLevels_.push_back(i);
+        }
     }
     
     void HpgemAPISimplified::createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType)
@@ -128,17 +139,17 @@ namespace Base
         std::cout << "Total number of elements: " << nElements << "\n";
     }
     
-    void HpgemAPISimplified::createMassMatrices(const double time)
+    void HpgemAPISimplified::createMassMatrices()
     {
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::Matrix massMatrix(computeMassMatrixAtElement(ptrElement, time));
+            LinearAlgebra::Matrix massMatrix(computeMassMatrixAtElement(ptrElement));
             ptrElement->setElementMatrix(massMatrix, massMatrixID_);
         }
     }
     
     /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix.
-    void HpgemAPISimplified::solveMassMatrixEquations(const std::size_t timeLevel, const double time)
+    void HpgemAPISimplified::solveMassMatrixEquations(const std::size_t timeLevel)
     {
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
@@ -151,22 +162,21 @@ namespace Base
             }
             else
             {
-                LinearAlgebra::Matrix massMatrix(computeMassMatrixAtElement(ptrElement, time));
-                massMatrix.solve(solutionCoefficients);
+                solveMassMatrixEquationsAtElement(ptrElement, solutionCoefficients);
             }
         }
     }
     
-    void HpgemAPISimplified::integrateInitialSolution(const std::size_t timeLevelResult, const double startTime, const std::size_t orderTimeDerivative)
+    void HpgemAPISimplified::integrateInitialSolution(const std::size_t timeLevelResult, const double intialTime, const std::size_t orderTimeDerivative)
     {
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
             LinearAlgebra::NumericalVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(timeLevelResult);
-            solutionCoefficients = integrateInitialSolutionAtElement(ptrElement, startTime, orderTimeDerivative);
+            solutionCoefficients = integrateInitialSolutionAtElement(ptrElement, intialTime, orderTimeDerivative);
         }
     }
     
-    void HpgemAPISimplified::createStiffnessMatrices(const double time)
+    void HpgemAPISimplified::createStiffnessMatrices()
     {
         if (!useMatrixStorage_)
             return;
@@ -174,22 +184,22 @@ namespace Base
         std::cout << "- Creating stiffness matrices for the elements.\n";
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::Matrix stiffnessMatrix(computeStiffnessMatrixAtElement(ptrElement, time));
+            LinearAlgebra::Matrix stiffnessMatrix(computeStiffnessMatrixAtElement(ptrElement));
             ptrElement->setElementMatrix(stiffnessMatrix, stiffnessElementMatrixID_);
         }
         
         std::cout << "- Creating stiffness matrices for the faces.\n";
         for (Base::Face *ptrFace : meshes_[0]->getFacesList())
         {
-            Base::FaceMatrix stiffnessFaceMatrix(computeStiffnessMatrixAtFace(ptrFace, time));
+            Base::FaceMatrix stiffnessFaceMatrix(computeStiffnessMatrixAtFace(ptrFace));
             ptrFace->setFaceMatrix(stiffnessFaceMatrix, stiffnessFaceMatrixID_);
         }
     }
     
     /// \param[in] solutionTimeLevel Time level where the solution is stored.
     /// \param[in] time Time corresponding to the current solution.
-    /// \details The energy-norm of the error is the square-root of the total energy of the error. The energy of the error is defined here as \f$ e^tMe\f$, where \f$ M\f$ is the mass matrix and \f$ e\f$ is the error. In most cases this is equivalent to the \f$ L^2 \f$ norm of the error.
-    double HpgemAPISimplified::computeEnergyNormError(const std::size_t solutionTimeLevel, const double time)
+    /// \details The square of the total error is defined as \f[ \int \|e\|^2 \,dV \f], where $\|e\|$ is some user-defined norm of the error.
+    double HpgemAPISimplified::computeTotalError(const std::size_t solutionTimeLevel, const double time)
     {
         LinearAlgebra::NumericalVector totalError(1);
         totalError(0) = 0;
@@ -197,8 +207,10 @@ namespace Base
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
             LinearAlgebra::NumericalVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(solutionTimeLevel);
-            totalError += integrateEnergyErrorAtElement(ptrElement, time, solutionCoefficients);
+            totalError += integrateErrorAtElement(ptrElement, solutionCoefficients, time);
         }
+        
+        double error;
         
 #ifdef HPGEM_USE_MPI
         int world_rank;
@@ -222,8 +234,7 @@ namespace Base
         }
 
         if(world_rank == 0)
-        {   
-            double error;
+        {
             if(totalError(0) >= 0)
             {   
                 error = std::sqrt(totalError(0));
@@ -233,15 +244,24 @@ namespace Base
                 logger(WARN,"Warning: the total energy of the error is negative.\n");
                 error = std::sqrt(-totalError(0));
             }
-            std::cout << "Energy norm of the error: " << error << ".\n";
-            return error;
         }
-        else
-        {   
-            return -1.0;
+        
+        
+        for(std::size_t iRank = 1; iRank < world_size; iRank++)
+        {
+            if(world_rank == 0)
+            {
+                MPI_Send(&error, 1, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD);
+            }
+            else if(world_rank == iRank)
+            {
+                MPI_Recv(&error, 1, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            }
         }
+        
+        return error;
 #endif
-        double error;
+        
         if (totalError(0) >= 0)
         {
             error = std::sqrt(totalError(0));
@@ -256,7 +276,7 @@ namespace Base
     }
     
     /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
-    void HpgemAPISimplified::computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
+    void HpgemAPISimplified::computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
     {
         // Apply the right hand side corresponding to integration on the elements.
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
@@ -264,7 +284,18 @@ namespace Base
             LinearAlgebra::NumericalVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevelIn));
             LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
             
-            solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement, time, solutionCoefficients);
+            if(useMatrixStorage_)
+            {
+                solutionCoefficientsNew = ptrElement->getElementMatrix(stiffnessElementMatrixID_) * solutionCoefficients;
+                if(useSourceTerm_)
+                {
+                    solutionCoefficientsNew += integrateSourceTermAtElement(ptrElement, time, orderTimeDerivative);
+                }
+            }
+            else
+            {
+                solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time, orderTimeDerivative);
+            }
         }
         
         // Apply the right hand side corresponding to integration on the faces.
@@ -275,8 +306,18 @@ namespace Base
             LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
             LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
             
-            solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, time, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight);
-            solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, time, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight);
+            if(useMatrixStorage_)
+            {
+                const Base::FaceMatrix &stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
+                
+                solutionCoefficientsLeftNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * solutionCoefficientsRight;
+                solutionCoefficientsRightNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * solutionCoefficientsRight;
+            }
+            else
+            {
+                solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
+                solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
+            }
         }
     }
     
@@ -295,7 +336,7 @@ namespace Base
     }
     
     /// \details Make sure timeLevelResult is different from the timeLevelsIn.
-    void HpgemAPISimplified::computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
+    void HpgemAPISimplified::computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
     {
         // Apply the right hand side corresponding to integration on the elements.
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
@@ -303,7 +344,18 @@ namespace Base
             LinearAlgebra::NumericalVector solutionCoefficients(getSolutionCoefficients(ptrElement, timeLevelsIn, coefficientsTimeLevels));
             LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
             
-            solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement, time, solutionCoefficients);
+            if(useMatrixStorage_)
+            {
+                solutionCoefficientsNew = ptrElement->getElementMatrix(stiffnessElementMatrixID_) * solutionCoefficients;
+                if(useSourceTerm_)
+                {
+                    solutionCoefficientsNew += integrateSourceTermAtElement(ptrElement, time, orderTimeDerivative);
+                }
+            }
+            else
+            {
+                solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time, orderTimeDerivative);
+            }
         }
         
         // Apply the right hand side corresponding to integration on the faces.
@@ -314,8 +366,18 @@ namespace Base
             LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
             LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
             
-            solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, time, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight);
-            solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, time, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight);
+            if(useMatrixStorage_)
+            {
+                const Base::FaceMatrix &stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
+                
+                solutionCoefficientsLeftNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * solutionCoefficientsRight;
+                solutionCoefficientsRightNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * solutionCoefficientsRight;
+            }
+            else
+            {
+                solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
+                solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
+            }
         }
     }
     
@@ -332,7 +394,7 @@ namespace Base
         //recieve first for lower overhead
         for (const auto& it : pulls)
         {   
-            for (Base::Element* ptrElement : it.second)
+            for (Base::Element *ptrElement : it.second)
             {   
                 logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_ , "Size of time level data vector is wrong.");
 
@@ -341,7 +403,7 @@ namespace Base
         }
         for (const auto& it : pushes)
         {   
-            for (Base::Element* ptrElement : it.second)
+            for (Base::Element *ptrElement : it.second)
             {   
                 logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_, "Size of time level data vector is wrong.");
 
@@ -372,28 +434,169 @@ namespace Base
         synchronize(timeLevelToChange);
     }
     
-    void HpgemAPISimplified::setInitialSolution(const std::size_t solutionTimeLevel, const double startTime)
+    void HpgemAPISimplified::setInitialSolution(const std::size_t solutionTimeLevel, const double intialTime, const std::size_t orderTimeDerivative)
     {
-        integrateInitialSolution(solutionTimeLevel, startTime, 0);
-        solveMassMatrixEquations(solutionTimeLevel, startTime);
+        integrateInitialSolution(solutionTimeLevel, intialTime, orderTimeDerivative);
+        solveMassMatrixEquations(solutionTimeLevel);
         synchronize(solutionTimeLevel);
     }
     
     /// \details Computing the time derivative in this case means applying the right hand side for the solution at time level 'timeLevelIn' and then solving the mass matrix equations. The result is stored at time level 'timeLevelResult'.
-    void HpgemAPISimplified::computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
+    void HpgemAPISimplified::computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
     {
-        computeRightHandSide(timeLevelIn, timeLevelResult, time);
-        solveMassMatrixEquations(timeLevelResult, time);
+        computeRightHandSide(timeLevelIn, timeLevelResult, time, orderTimeDerivative);
+        solveMassMatrixEquations(timeLevelResult);
         synchronize(timeLevelResult);
     }
     
     /// \details Computing the time derivative in this case means applying the right hand side for the linear combination of solutions at time levels 'timeLevelsIn' with coefficients given by coefficientsTimeLevels, and then solving the mass matrix equations. The result is stored at time level 'timeLevelResult'.
-    void HpgemAPISimplified::computeTimeDerivative(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
+    void HpgemAPISimplified::computeTimeDerivative(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
     {
-        computeRightHandSide(timeLevelsIn, coefficientsTimeLevels, timeLevelResult, time);
-        solveMassMatrixEquations(timeLevelResult, time);
+        computeRightHandSide(timeLevelsIn, coefficientsTimeLevels, timeLevelResult, time, orderTimeDerivative);
+        solveMassMatrixEquations(timeLevelResult);
         synchronize(timeLevelResult);
     }
-
+    
+    void HpgemAPISimplified::computeOneTimeStep(double &time, const double dt)
+    {
+        std::size_t numOfStages = ptrButcherTableau_->getNumStages();
+        
+        // Compute intermediate Runge-Kutta stages
+        for (std::size_t iStage = 0; iStage < numOfStages; iStage++)
+        {
+            double stageTime = time + ptrButcherTableau_->getC(iStage) * dt;
+            
+            std::vector<std::size_t> timeLevelsIn;
+            std::vector<double> coefficientsTimeLevels;
+            
+            timeLevelsIn.push_back(solutionTimeLevel_);
+            coefficientsTimeLevels.push_back(1);
+            for (std::size_t jStage = 0; jStage < iStage; jStage++)
+            {
+                timeLevelsIn.push_back(intermediateTimeLevels_[jStage]);
+                coefficientsTimeLevels.push_back(dt * ptrButcherTableau_->getA(iStage, jStage));
+            }
+            
+            computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime, 1);
+        }
+        
+        // Update the solution
+        for (std::size_t jStage = 0; jStage < numOfStages; jStage++)
+        {
+            scaleAndAddTimeLevel(solutionTimeLevel_, intermediateTimeLevels_[jStage], dt * ptrButcherTableau_->getB(jStage));
+        }
+        
+        // Update the time.
+        time += dt;
+    }
+    
+    /// \param[in] outputFileName Name of the output file (minus extensions like .dat).
+    /// \param[in] internalFileTitle Title of the file as used by Tecplot internally.
+    /// \param[in] solutionTitle Title of the solution.
+    /// \param[in] variableNames String of variable names. The string should have the form "nameVar1,nameVar2,..,nameVarN".
+    void HpgemAPISimplified::setOutputNames(std::string outputFileName, std::string internalFileTitle, std::string solutionTitle, std::string variableNames)
+    {
+        outputFileName_ = outputFileName;
+#ifdef HPGEM_USE_MPI
+        outputFileName_ = outputFileName_ + "." + std::to_string(Base::MPIContainer::Instance().getProcessorID());
+#endif
+        outputFileName_ = outputFileName_ + ".dat";
+        
+        internalFileTitle_ = internalFileTitle;
+        solutionTitle_ = solutionTitle;
+        variableNames_ = variableNames;
+    }
+    
+    void HpgemAPISimplified::writeToTecplotFile(const ElementT *ptrElement, const PointReferenceT &pRef, std::ostream &out)
+    {
+        std::size_t numOfVariables = configData_->numberOfUnknowns_;
+        
+        LinearAlgebra::NumericalVector solution(numOfVariables);
+        solution = ptrElement->getSolution(solutionTimeLevel_, pRef);
+         
+        std::size_t iV = 0; // Index for the variable
+        out << solution(iV);
+        for (iV = 1; iV < numOfVariables; iV++)
+        {
+            out << " " << solution(iV);
+        }
+    }
+    
+    /// \brief Solve the PDE over the time domain [intialTime, finalTime].
+    /// \param[in] intialTime Initial time
+    /// \param[in] finalTime End time
+    /// \param[in] dt Size of the time step
+    /// \param[in] numOutputFrames Number of times the solution is written to an output file.
+    /// \param[in] doComputeError Boolean to indicate if the error should be computed.
+    bool HpgemAPISimplified::solve(const double intialTime, const double finalTime, double dt, const std::size_t numOfOutputFrames, bool doComputeError)
+    {
+        // Create output file for Tecplot.
+        std::ofstream outFile(outputFileName_);
+        std::string dimensionsToWrite = "";
+        for(std::size_t i = 0; i < configData_->dimension_; i++)
+        {
+            dimensionsToWrite = dimensionsToWrite + std::to_string(i);
+        }
+        Output::TecplotDiscontinuousSolutionWriter tecplotWriter(outFile, solutionTitle_, dimensionsToWrite, variableNames_);
+        
+        // Compute parameters for time integration
+        double T = finalTime - intialTime;     // Time interval
+        std::size_t numOfTimeSteps = T / dt;
+        std::size_t numOfTimeStepsForOutput;
+        if (numOfOutputFrames > 0)
+        {
+            // Round off to above such that the number of time steps is a multiple of the number of output frames.
+            numOfTimeSteps += (numOfOutputFrames - (numOfTimeSteps % numOfOutputFrames)) % numOfOutputFrames;
+            
+            // Recompute dt.
+            dt = T / numOfTimeSteps;
+            
+            // Compute the number of timesteps after which to create an output frame.
+            numOfTimeStepsForOutput = (std::size_t) numOfTimeSteps / numOfOutputFrames;
+        }
+        
+        // Set the initial time.
+        double time = intialTime;
+        
+        // Create and store matrices and vectors for the PDE.
+        if (useMatrixStorage_)
+        {
+            std::cout << "Computing the mass matrices.\n";
+            createMassMatrices();
+            std::cout << "Computing stiffness matrices.\n";
+            createStiffnessMatrices();
+        }
+        
+        // Set the initial numerical solution.
+        std::cout << "Computing and interpolating the initial solution.\n";
+        setInitialSolution(solutionTimeLevel_, time, 0);
+        tecplotWriter.write(meshes_[0], "discontinuous solution", false, this, time);
+        
+        // Solve the system of PDE's.
+        std::cout << "Solving the system of PDE's.\n";
+        std::cout << "dt: " << dt << ".\n";
+        std::cout << "Total number of time steps: " << numOfTimeSteps << ".\n";
+        std::cout << "Number of time steps for output: " << numOfTimeStepsForOutput << ".\n";
+        for (std::size_t iT = 1; iT <= numOfTimeSteps; iT++)
+        {
+            computeOneTimeStep(time, dt);
+            
+            if (iT % numOfTimeStepsForOutput == 0)
+            {
+                tecplotWriter.write(meshes_[0], solutionTitle_, false, this, time);
+            }
+            showProgress(time, iT);
+        }
+        
+        // Compute the energy norm of the error
+        if(doComputeError)
+        {
+            std::cout << "finalTime:" << time << "\n";
+            double error = computeTotalError(solutionTimeLevel_, finalTime);
+            std::cout << "Energy norm of the error: " << error << ".\n";
+        }
+        
+        return true;
+    }
 }
 
