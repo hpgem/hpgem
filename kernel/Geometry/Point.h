@@ -40,8 +40,7 @@ namespace Geometry
         /// Constructors.
         Point(std::size_t DIM);
         
-        /// Warning!!! This way Point ctr will truncate and take sizeof(dimension) points and will not give any warning. Be sure you took the right dimension.
-        ///\deprecated Because of the reason above, please use Point(LinearAlgebra::NumericalVector&) instead.
+        ///\deprecated Because this Point ctr will truncate and take sizeof(dimension) points and will not give any warning. If possible, use Point(LinearAlgebra::NumericalVector&) instead.
         Point(double coords[], std::size_t DIM);
 
         Point(const Point& other);

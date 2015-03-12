@@ -38,7 +38,7 @@ namespace Geometry
      * vertex of each simplex, an order which is kept by the mappings.
      * No specialization is needed because the mapping is general for geometries of vertex number
      * (vn) one greater than dimension (d), that is, vn = d+1;
-     * \BUG this mapping does not work for DIM=1 (use MappingToPhysHypercubeLinear<1> instead)
+     * Do not use this mapping for DIM=1, use MappingToPhysHypercubeLinear<1> instead
      */
 
     template<std::size_t DIM>
@@ -62,7 +62,7 @@ namespace Geometry
         }
         
     private:
-        //bool isValidPoint(const PointReferenceT&) const; //TODO: Implement this function.
+        //bool isValidPoint(const PointReferenceT&) const; ///\TODO: Implement this function.
         //! ~OC~
         //! In this case it is worth using an array for the mapping factors,
         //! since they are just difference vectors (see loop in reinit)

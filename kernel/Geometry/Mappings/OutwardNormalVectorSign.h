@@ -18,13 +18,6 @@
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-//------------------------------------------------------------------------------
-// ~OC~
-// File: outwardNormalVectorSign.hh
-// Hack to avoid rearranging the face generation wrt
-// ReferenceGeometries and Mappings. This will vanish with the geometry remake.
-// Lars Pesch, Wed Aug 17 15:05:17 CEST 2005
-//------------------------------------------------------------------------------
 #ifndef OUTWARDNORMALVECTORSIGN_HH
 #define OUTWARDNORMALVECTORSIGN_HH
 
@@ -33,15 +26,14 @@ namespace Geometry
     class MappingReferenceToReference;
     
     /*!
-     *  Welcome!, to the most ugly piece of code of hpGEM. Warning!, mental sanity in danger!
-     *  ~OC~
-     *  This function is a temporary fix: some of Henk's old face-to-element mappings have inward
-     *  normal vectors and thus need a sign to conform to the convention that they all must be
-     *  outward. This sign is applied in the function getNormalVector of Face (the only client of
-     *  outwardNormalVectorSign). For all newly added reference geometries all face-to-element
-     *  mappings were designed from the outset so that the normal vector is outward.
+     * Some of the Mappings from reference geometries to other reference geometries
+     * are oriented such that the normal vector is inward, so there 
+     * the normal vector must be multiplied by -1 to get the outward normal vector.
+     * This function determines whether or not the normal vector of a certain mapping
+     * is inward or outward. It returns -1 if the normal vector is inward, and 1
+     * if it is outward.
      *
-     * TODO: Switch old mappings to be outward.
+     * \TODO: Switch old mappings to be outward.
      */
     double OutwardNormalVectorSign(const MappingReferenceToReference* const map);
 }

@@ -117,5 +117,4 @@ namespace Geometry
         virtual ~MappingToRefTriangleToTetrahedron3();
     };
 }
-;
 #endif

@@ -42,8 +42,6 @@ namespace Geometry
     PointPhysical MappingToPhysTriangularPrism::transform(const PointReference& pR) const
     {
         logger.assert(pR.size()==3, "Reference point has the wrong dimension");
-        //if (isValidPoint(pR))
-        //{
 #if SAVECOEFFS
         return a0
         + a1 * xi[0]
@@ -73,19 +71,12 @@ namespace Geometry
         }
         return pP;
 #endif
-        //}
-        //else
-        //{
-        //    throw "ERROR: MappingToPhysTriangularPrism::transform, mapping point outside geometry.";
-        //}
     }
     
     Jacobian MappingToPhysTriangularPrism::calcJacobian(const PointReference& pR) const
     {
         logger.assert(pR.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
-        //if (isValidPoint(pR))
-        //{
 #ifdef SAVECOEFFS
         Geometry::PointPhysical<3> d_dxi0(a1 + xi[2] * a4);
         Geometry::PointPhysical<3> d_dxi1(a2 + xi[2] * a5);
@@ -149,11 +140,6 @@ namespace Geometry
             jacobian(i, 1) = d_dxi1[i];
             jacobian(i, 2) = d_dxi2[i];
         }
-        //}
-        //else
-        //{
-        //    // ERROR
-        //}
 #endif
         return jacobian;
     }
@@ -176,8 +162,6 @@ namespace Geometry
         a3 = 0.5 * (-p[0] + p[3]);
         a4 = 0.5 * (p[0] + p[4] - p[3] - p[1]);
         a5 = 0.5 * (p[0] + p[5] - p[3] - p[2]);
-#else
-        //  physicalGeometry_ = physicalGeometry;
 #endif
         
         for (std::size_t i = 0; i < 6; ++i)

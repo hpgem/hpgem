@@ -24,8 +24,6 @@
 
 #include <vector>
 #include "MappingReferenceToPhysical.h"
-
-///\bug resolves field has incomplete type
 #include "Geometry/PointPhysical.h"
 
 namespace Geometry
@@ -56,7 +54,6 @@ namespace Geometry
     private:
         PointPhysical a0, a1, a2, a3, a4, a5;
         std::size_t globalNodeIndices_[6];
-        //PhysicalGeometryT* physicalGeometry_;
         
     };
 }

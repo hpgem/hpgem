@@ -26,10 +26,6 @@
 
 namespace Geometry
 {
-    /*
-     *
-     */
-
     // ~~~ index 0 ~~~==============================================================================
     class MappingToRefFaceToPyramid0 : public MappingReferenceToReference
     {
@@ -125,5 +121,4 @@ namespace Geometry
     };
 
 }
-;
 #endif

@@ -39,9 +39,10 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/Jacobian.h"
 
+#include <limits>
+
 namespace Base
 {
-    //class Element;
     
     Element::Element(const VectorOfPointIndexesT& globalNodeIndexes, const std::vector<const BasisFunctionSetT*>* basisFunctionSet, const VectorOfPhysicalPointsT& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, const std::vector<int>& basisFunctionSetPositions)
             : ElementGeometryT(globalNodeIndexes, allNodes), ElementDataT(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc, numberOfElementMatrixes, numberOfElementVectors), basisFunctionSet_(basisFunctionSet), quadratureRule_(nullptr), vecCacheData_(), id_(id), basisFunctionSetPositions_(basisFunctionSetPositions)

@@ -250,5 +250,4 @@ namespace Geometry
     {
     }
 }
-;
 #endif /* MAPPINGSIMPLECUBENLINEAR_C_ */

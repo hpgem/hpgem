@@ -51,7 +51,7 @@ namespace Geometry
         }
         else
         {
-            // ERROR ///\TODO emit a warning at a non-deadly priority level
+            logger(WARN, "In MappingToPhysHypercubeLinear<1>::transform, the given PointReference is not between -1 and 1.");
             pointPhysical[0] = mid + pointReference[0] * slope;
         }
         return pointPhysical;
@@ -98,10 +98,9 @@ namespace Geometry
     {
         logger.assert(pointReference.size()==2, "Reference point has the wrong dimension");
         PointPhysical pointPhysical(2);
-        //assert(L2norm(a1)>1e-14&&L2norm(a2 + pointReference[0] * a12)>1e-14);
         if (isValidPoint(pointReference))
         {
-            //pointPhysical = a0 + pointReference[0] * a1
+            //In the part below, we compute: pointPhysical = a0 + pointReference[0] * a1
             //                   + pointReference[1] * (a2 + pointReference[0] * a12);
             pointPhysical = a2;
             pointPhysical.axpy(pointReference[0], a12);
@@ -111,8 +110,9 @@ namespace Geometry
         }
         else
         {
-            // ERROR///\TODO emit a warning at a non-deadly priority level
-            //pointPhysical = a0 + pointReference[0] * a1
+            logger(WARN, "In MappingToPhysHypercubeLinear<2>::transform, the "
+                    "given pointReference is not in the square [-1,1]x[-1,1]");
+            //In the part below, we compute: pointPhysical = a0 + pointReference[0] * a1
             //                   + pointReference[1] * (a2 + pointReference[0] * a12);
             pointPhysical = a2;
             pointPhysical.axpy(pointReference[0], a12);
@@ -127,17 +127,10 @@ namespace Geometry
     {
         logger.assert(pointReference.size()==2, "Reference point has the wrong dimension");
         Jacobian jacobian(2, 2);
-        //if (isValidPoint(pointReference))
-        //{
         jacobian(0, 0) = a1[0] + pointReference[1] * a12[0];
         jacobian(0, 1) = a2[0] + pointReference[0] * a12[0];
         jacobian(1, 0) = a1[1] + pointReference[1] * a12[1];
         jacobian(1, 1) = a2[1] + pointReference[0] * a12[1];
-        //}
-        //else
-        //{
-        //    // ERROR///\TODO emit a warning at a non-deadly priority level
-        //}
         return jacobian;
     }
     
@@ -197,7 +190,6 @@ namespace Geometry
     PointPhysical MappingToPhysHypercubeLinear<3>::transform(const PointReference& pR) const
     {
         logger.assert(pR.size()==3, "Reference point has the wrong dimension");
-        //assert(L2norm(a3)>1e-14&&L2norm(a2 + pR[2] * a23)>1e-14&&L2norm(a1 + pR[1]*(a12+pR[2]*a123) pR[2] * a23)>1e-14);
         if (isValidPoint(pR))
         {
             return a0 + pR[0] * (a1 + pR[1] * (a12 + pR[2] * a123) + pR[2] * a13) + pR[1] * (a2 + pR[2] * a23) + pR[2] * a3;
@@ -213,8 +205,6 @@ namespace Geometry
     {
         logger.assert(pR.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
-        //if (isValidPoint(pR))
-        //{
         for (std::size_t i = 0; i < 3; ++i)
         {
             double pR01 = pR[0] * pR[1];
@@ -233,11 +223,6 @@ namespace Geometry
             jacobian(2, 1) = a2[2] + pR[0] * a12[2] + pR[2] * a23[2] + pR02 * a123[2];
             jacobian(2, 2) = a3[2] + pR[0] * a13[2] + pR[1] * a23[2] + pR01 * a123[2];
         }
-        //}
-        //else
-        //{
-        //    // ERROR
-        //}
         return jacobian;
     }
     
@@ -287,23 +272,13 @@ namespace Geometry
     PointPhysical MappingToPhysHypercubeLinear<4>::transform(const PointReference& pR) const
     {
         logger.assert(pR.size()==4, "Reference point has the wrong dimension");
-        //if (isValidPoint(pR))
-        //{
         return abar + pR[0] * a0 + pR[1] * a1 + pR[2] * a2 + pR[3] * a3;
-        //}
-        //else
-        //{
-        // ERROR
-        //}
     }
     
     Jacobian MappingToPhysHypercubeLinear<4>::calcJacobian(const PointReference& pR) const
     {
         logger.assert(pR.size()==4, "Reference point has the wrong dimension");
         Jacobian jacobian(4, 4);
-        //assert(...)
-        //if (isValidPoint(pR))
-        //{
         for (std::size_t i = 0; i < 4; ++i)
         {
             jacobian(i, 0) = a0[i] + a01[i] * pR[1] + a02[i] * pR[2] + a03[i] * pR[3] + a012[i] * pR[1] * pR[2] + a013[i] * pR[1] * pR[3] + a230[i] * pR[2] * pR[3] + a0123[i] * pR[1] * pR[2] * pR[3];
@@ -314,11 +289,6 @@ namespace Geometry
             
             jacobian(i, 3) = a3[i] + a03[i] * pR[0] + a13[i] * pR[1] + a23[i] * pR[2] + a013[i] * pR[0] * pR[1] + a230[i] * pR[0] * pR[2] + a123[i] * pR[1] * pR[2] + a0123[i] * pR[0] * pR[1] * pR[2];
         }
-        //}
-        //else
-        //{
-        //    // ERROR
-        //}
         return jacobian;
     }
     

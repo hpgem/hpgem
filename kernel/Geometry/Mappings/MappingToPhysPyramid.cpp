@@ -43,8 +43,6 @@ namespace Geometry
     {
         logger.assert(pR.size()==3, "Reference point has the wrong dimension");
         PointPhysical pP(3);
-        //if (isValidPoint(pR))
-        //{
         const double t1 = pR[0] * pR[1];
         const double t2 = pR[0] * pR[1] * pR[2] / (1 - pR[2] + 1e-50); //prevents trouble at the tip of the pyramid
                 
@@ -65,19 +63,12 @@ namespace Geometry
             p = getNodeCoordinates(globalNodeIndices_[i]);
             pP += f8[i] * p;
         }
-        //}
-        //else  //while I agree this is a bad situation I dont want a mapping deciding for me that a crappy quadrature rule is illegal
-        //{
-        //    throw "ERROR: MappingToPhysPyramid::transform, mapping point outside geometry.";
-        //}
         return pP;
     }
     Jacobian MappingToPhysPyramid::calcJacobian(const PointReference& pR) const
     {
         logger.assert(pR.size()==3, "Reference point has the wrong dimension");
         Jacobian jacobian(3, 3);
-        //if (isValidPoint(pR))
-        //{
         std::vector<double> df_dxi0(5), df_dxi1(5), df_dxi2(5);
         
         const double dt6dx0 = pR[1] * pR[2] / (1. - pR[2]);
@@ -130,11 +121,6 @@ namespace Geometry
             jacobian(i, 1) = d_dxi1[i];
             jacobian(i, 2) = d_dxi2[i];
         }
-        //}
-        //else
-        //{
-        //    throw "ERROR: MappingToPhysPyramid::calcJacobian, mapping point outside geometry.";
-        //}
         return jacobian;
     }
     
@@ -148,11 +134,6 @@ namespace Geometry
         }
     }
     
-    /* \bug Changed this function to use abs not std::abs is this gave the error error:
-     *  call to 'abs' is ambiguous, but only if we are using STL vector for the LinearAlgebrea
-     *  The problem is prob the use of math.h instead of cmath some where in the code but I cannot find it at the moment [Ant]
-     *  (resolved) you forgot to #include <cmath>, but something #include <cstdlib> (where the integer type std::abs is defined) -FB
-     */
     bool MappingToPhysPyramid::isValidPoint(const PointReference& pointReference) const
     {
         logger.assert(pointReference.size()==3, "Reference point has the wrong dimension");

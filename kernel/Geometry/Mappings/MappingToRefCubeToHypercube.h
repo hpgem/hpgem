@@ -26,9 +26,6 @@
 
 namespace Geometry
 {
-    /*
-     *
-     */
 
     // ~~~ index 0 ~~~==============================================================================
     class MappingToRefCubeToHypercube0 : public MappingReferenceToReference
@@ -181,5 +178,4 @@ namespace Geometry
         virtual ~MappingToRefCubeToHypercube7();
     };
 }
-;
 #endif

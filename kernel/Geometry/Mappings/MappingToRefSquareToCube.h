@@ -45,8 +45,6 @@ namespace Geometry
      *              4: (2,3,6,7)
      *              5: (4,5,6,7)
      *
-     * ~OC~
-     *
      * This implements the mappings of a Square [-1,1]^2 onto a cube [-1,1]^3 depending on the
      * faceindex. The mappings are defined as:
      *
@@ -174,5 +172,4 @@ namespace Geometry
     };
 
 }
-;
 #endif /* MAPPINGSIMPLECUBENLINEAR_H_ */

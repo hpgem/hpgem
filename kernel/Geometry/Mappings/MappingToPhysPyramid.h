@@ -52,14 +52,7 @@ namespace Geometry
         }
         
     private:
-        // ~OC~ Only undefined version is tested
-#undef SAVECOEFFS
-#ifdef SAVECOEFFS
-        PointPhysicalT a0, a1, a2, a3, a4;
-#else
         std::vector<std::size_t> globalNodeIndices_;
-#endif
     };
 }
-;
 #endif

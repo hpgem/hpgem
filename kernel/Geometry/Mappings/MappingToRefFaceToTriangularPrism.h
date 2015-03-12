@@ -26,9 +26,6 @@
 
 namespace Geometry
 {
-    /*
-     *
-     */
 
     // ~~~ index 0 ~~~==============================================================================
     class MappingToRefFaceToTriangularPrism0 : public MappingReferenceToReference
@@ -125,5 +122,4 @@ namespace Geometry
     };
 
 }
-;
 #endif

@@ -105,7 +105,7 @@ namespace Geometry
         }
         ;
 
-        ///concatenated mapping needs to know what kind of intermedeate point to create
+        ///concatenated mapping needs to know what kind of intermediate point to create
         virtual std::size_t getTargetDimension() const =0;
     };
 }

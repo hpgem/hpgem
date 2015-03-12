@@ -151,5 +151,4 @@ namespace Geometry
         virtual ~MappingToRefTriangleToTriangle5();
     };
 }
-;
 #endif

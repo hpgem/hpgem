@@ -28,7 +28,7 @@ namespace Geometry
 {
     /*!
      *
-     * This implements the linear mappings of a Cube [-1,1]^2 onto itself.
+     * This implements the linear mappings of a Cube [-1,1]^3 onto itself.
      * The ordering of the vertex and faces in a cube:
      *
      *     6o---------o7
@@ -40,8 +40,7 @@ namespace Geometry
      *   |/        |/
      *  0o---------o1
      *
-     * ~OC~
-     * \todo I don't understand what is 't', and why do we use the same mappings as in a square
+     * This is only used as a face-to-face map in space-time discretisation.
      *
      * There are 8 implemented mappings:
      *

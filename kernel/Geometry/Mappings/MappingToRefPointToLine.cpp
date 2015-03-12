@@ -34,7 +34,6 @@ namespace Geometry
      *      index 0: () -> -1.0
      *      index 1: () -> 1.0
      *
-     * \todo I don't quite get this.
      *
      */
 
