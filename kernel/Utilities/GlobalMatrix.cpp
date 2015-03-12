@@ -57,11 +57,6 @@ namespace Utilities
             entries.push_back(startPositionsOfFacesInTheMatrix_[face->getID()] + i);
         }
         std::vector<std::size_t> nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft());
-        //for (int i = 0; i < face->getReferenceGeometry()->getNumberOfVertices(); ++i) {
-        //    for (int j = 0; j < face->getPtrElementLeft()->getLocalNrOfBasisFunctionsVertex(); ++j) {
-        //        entries.push_back(startPositionsOfVerticesInTheMatrix_[nodeEntries[i]] + j);
-        //    }
-        //}
         std::vector<std::size_t> edgeIndex(2);
         for (int i = 0; i < face->getPtrElementLeft()->getNrOfEdges(); ++i)
         {

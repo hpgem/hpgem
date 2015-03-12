@@ -44,7 +44,7 @@ namespace Utilities
     {
         
     public:
-        ///use the deconstructor of the subclass in case this is needed
+        ///use the destructor of the subclass in case this is needed
         virtual ~GlobalVector()
         {
         }
