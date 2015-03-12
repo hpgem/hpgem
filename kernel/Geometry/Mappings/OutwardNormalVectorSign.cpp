@@ -43,7 +43,7 @@ namespace Geometry
         }
         else
         {
-            throw "outwardNormalVectorSign - don't know this face2el-map";
+            logger(FATAL, "Face to Element mapping not known for given case. \n");
         }
     }
 }

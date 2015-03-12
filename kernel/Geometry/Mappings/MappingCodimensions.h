@@ -23,6 +23,7 @@
 #define MAPPINGCODIMENSIONS_HPP_
 
 #include <vector>
+#include "Logger.h"
 
 namespace Geometry
 {
@@ -63,17 +64,22 @@ namespace Geometry
         
         virtual std::vector<std::size_t> getCodim1EntityLocalIndices(const std::size_t) const
         {
-            throw "The DIMension of this entity is too low to warrant maps of this codimension";
+            std::vector<std::size_t> dummy(1);
+            logger(ERROR, "The dimension of given entity is too low to warrant maps of this codimension.\n");
+            return dummy;
+        
         }
         
         virtual const MappingReferenceToReference* getCodim1MappingPtr(const std::size_t) const
         {
-            throw "The DIMension of this entity is too low to warrant maps of this codimension";
+            logger(ERROR, "The dimension of given entity is too low to warrant maps of this codimension.\n");
+            return 0;
         }
         
         virtual const ReferenceGeometry* getCodim1ReferenceGeometry(const std::size_t) const
         {
-            throw "The DIMension of this entity is too low to warrant maps of this codimension";
+            logger(ERROR, "The dimension of given entity is too low to warrant maps of this codimension.\n");
+            return 0;
         }
         
         virtual std::size_t getNrOfCodim2Entities() const
@@ -83,17 +89,21 @@ namespace Geometry
         
         virtual std::vector<std::size_t> getCodim2EntityLocalIndices(const std::size_t) const
         {
-            throw "The DIMension of this entity is too low to warrant maps of this codimension";
+            std::vector<std::size_t> dummy(1);
+            logger(ERROR, "The dimension of given entity is too low to warrant maps of this codimension.\n");
+            return dummy;
         }
         
         virtual const MappingReferenceToReference* getCodim2MappingPtr(const std::size_t) const
         {
-            throw "The DIMension of this entity is too low to warrant maps of this codimension";
+            logger(ERROR, "The dimension of given entity is too low to warrant maps of this codimension.\n");
+            return 0;
         }
         
         virtual const ReferenceGeometry* getCodim2ReferenceGeometry(const std::size_t) const
         {
-            throw "The DIMension of this entity is too low to warrant maps of this codimension";
+            logger(ERROR, "The dimension of given entity is too low to warrant maps of this codimension.\n");
+            return 0;
         }
         
         virtual std::size_t getNrOfCodim3Entities() const
@@ -103,7 +113,9 @@ namespace Geometry
         
         virtual std::vector<std::size_t> getCodim3EntityLocalIndices(const std::size_t) const
         {
-            throw "The DIMension of this entity is too low to warrant maps of this codimension";
+            std::vector<std::size_t> dummy(1);
+            logger(ERROR, "The dimension of given entity is too low to warrant maps of this codimension.\n");
+            return dummy;
         }
         
         virtual ~MappingCodimensions()
