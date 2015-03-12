@@ -95,11 +95,7 @@ namespace Utilities
         logger.assert(theMesh!=nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
         PetscInitialized(&petscRuns);
-        if (petscRuns == PETSC_FALSE)
-        { //PETSc thinks real bools are troublesome...
-            throw "this happened way too early; please parse the command line arguments as the first thing in your code";
-        }
-        
+        logger.assert(petscRuns == PETSC_FALSE, "Early call, firstly the command line arguments should be parsed");
         //temporary
         MatCreateSeqAIJ(PETSC_COMM_SELF, 1, 1, 1, PETSC_NULL, &A_);
         

@@ -49,9 +49,9 @@ namespace Utilities
             case 8:
                 return std::sqrt(19. / 2.) * ((((2431 * x * x - 4004) * x * x + 2002) * x * x - 308) * x * x + 7) / -64.;
             case 9:
-                throw "cannot find this one";
+                logger(ERROR, "cannot find this degree.\n");
             default:
-                throw "lobatto polynomials of this order have not been implemented";
+                logger(FATAL, "Lobatto polynomials of this order have not been implemented.\n");
         }
     }
     
@@ -68,7 +68,7 @@ namespace Utilities
             case 3:
                 return -2 * std::sqrt(9. / 2.) * (5.25 * x * x - .75);
             default:
-                throw "derivatives of lobatto polynomials of this order have not been implemented";
+                logger(FATAL, "Derivatives of Lobatto polynomials of this order have not been implemented");
         }
     }
     
