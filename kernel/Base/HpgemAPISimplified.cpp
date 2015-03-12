@@ -56,25 +56,16 @@ namespace Base
     /// \param[in] polynomialOrder Polynomial order of the basis functions
     /// \param[in] butcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
     /// \param[in] numOfTimeLevels Number of time levels. If a butcherTableau is set and the number of time levels is too low, this will be corrected automatically.
-    /// \param[in] useMatrixStorage Boolean to indicate if element and face matrices for the PDE should be stored
-    /// \param[in] useSourceTerm Boolean to indicate if there is a source term.
     HpgemAPISimplified::HpgemAPISimplified
     (
      const std::size_t dimension,
      const std::size_t numOfVariables,
      const std::size_t polynomialOrder,
      const Base::ButcherTableau * const ptrButcherTableau,
-     const std::size_t numOfTimeLevels,
-     const bool useMatrixStorage,
-     const bool useSourceTerm
+     const std::size_t numOfTimeLevels
      ) :
     HpgemAPIBase(new Base::GlobalData, new Base::ConfigurationData(dimension, numOfVariables, polynomialOrder, (ptrButcherTableau->getNumStages() + 1 > numOfTimeLevels) ? ptrButcherTableau->getNumStages() + 1 : numOfTimeLevels)),
-    ptrButcherTableau_(ptrButcherTableau),
-    useMatrixStorage_(useMatrixStorage),
-    useSourceTerm_(useSourceTerm),
-    massMatrixID_(1),
-    stiffnessElementMatrixID_(0),
-    stiffnessFaceMatrixID_(0)
+    ptrButcherTableau_(ptrButcherTableau)
     {
         solutionTimeLevel_ = 0;
         for (std::size_t i = 1; i < configData_->numberOfTimeLevels_; i++)
@@ -88,24 +79,10 @@ namespace Base
         const Base::RectangularMeshDescriptor description = createMeshDescription(numOfElementsPerDirection);
         
         // Set the number of Element/Face Matrices/Vectors.
-        std::size_t numOfElementMatrices;
-        std::size_t numOfElementVectors;
-        std::size_t numOfFaceMatrices;
-        std::size_t numOfFaceVectors;
-        if (useMatrixStorage_)
-        {
-            numOfElementMatrices = 2;   // Mass matrix and stiffness matrix
-            numOfElementVectors = 0;
-            numOfFaceMatrices = 1;      // Stiffness matrix
-            numOfFaceVectors = 0;
-        }
-        else
-        {
-            numOfElementMatrices = 0;
-            numOfElementVectors = 0;
-            numOfFaceMatrices = 0;
-            numOfFaceVectors = 0;
-        }
+        std::size_t numOfElementMatrices = 0;
+        std::size_t numOfElementVectors = 0;
+        std::size_t numOfFaceMatrices = 0;
+        std::size_t numOfFaceVectors = 0;
         
         // Create mesh and set basis functions.
         if (configData_->dimension_ == 2)
@@ -139,15 +116,6 @@ namespace Base
         std::cout << "Total number of elements: " << nElements << "\n";
     }
     
-    void HpgemAPISimplified::createMassMatrices()
-    {
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
-        {
-            LinearAlgebra::Matrix massMatrix(computeMassMatrixAtElement(ptrElement));
-            ptrElement->setElementMatrix(massMatrix, massMatrixID_);
-        }
-    }
-    
     /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix.
     void HpgemAPISimplified::solveMassMatrixEquations(const std::size_t timeLevel)
     {
@@ -155,15 +123,7 @@ namespace Base
         {
             LinearAlgebra::NumericalVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevel));
             
-            if (useMatrixStorage_)
-            {
-                const LinearAlgebra::Matrix &massMatrix(ptrElement->getElementMatrix(massMatrixID_));
-                massMatrix.solve(solutionCoefficients);
-            }
-            else
-            {
-                solveMassMatrixEquationsAtElement(ptrElement, solutionCoefficients);
-            }
+            solveMassMatrixEquationsAtElement(ptrElement, solutionCoefficients);
         }
     }
     
@@ -176,29 +136,9 @@ namespace Base
         }
     }
     
-    void HpgemAPISimplified::createStiffnessMatrices()
-    {
-        if (!useMatrixStorage_)
-            return;
-        
-        std::cout << "- Creating stiffness matrices for the elements.\n";
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
-        {
-            LinearAlgebra::Matrix stiffnessMatrix(computeStiffnessMatrixAtElement(ptrElement));
-            ptrElement->setElementMatrix(stiffnessMatrix, stiffnessElementMatrixID_);
-        }
-        
-        std::cout << "- Creating stiffness matrices for the faces.\n";
-        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
-        {
-            Base::FaceMatrix stiffnessFaceMatrix(computeStiffnessMatrixAtFace(ptrFace));
-            ptrFace->setFaceMatrix(stiffnessFaceMatrix, stiffnessFaceMatrixID_);
-        }
-    }
-    
     /// \param[in] solutionTimeLevel Time level where the solution is stored.
     /// \param[in] time Time corresponding to the current solution.
-    /// \details The square of the total error is defined as \f[ \int \|e\|^2 \,dV \f], where $\|e\|$ is some user-defined norm of the error.
+    /// \details The square of the total error is defined as \f[ \int \|e\|^2 \,dV \f], where \f$\|e\|\f$ is some user-defined norm of the error.
     double HpgemAPISimplified::computeTotalError(const std::size_t solutionTimeLevel, const double time)
     {
         LinearAlgebra::NumericalVector totalError(1);
@@ -284,18 +224,7 @@ namespace Base
             LinearAlgebra::NumericalVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevelIn));
             LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
             
-            if(useMatrixStorage_)
-            {
-                solutionCoefficientsNew = ptrElement->getElementMatrix(stiffnessElementMatrixID_) * solutionCoefficients;
-                if(useSourceTerm_)
-                {
-                    solutionCoefficientsNew += integrateSourceTermAtElement(ptrElement, time, orderTimeDerivative);
-                }
-            }
-            else
-            {
-                solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time, orderTimeDerivative);
-            }
+            solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time, orderTimeDerivative);
         }
         
         // Apply the right hand side corresponding to integration on the faces.
@@ -306,18 +235,8 @@ namespace Base
             LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
             LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
             
-            if(useMatrixStorage_)
-            {
-                const Base::FaceMatrix &stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
-                
-                solutionCoefficientsLeftNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * solutionCoefficientsRight;
-                solutionCoefficientsRightNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * solutionCoefficientsRight;
-            }
-            else
-            {
-                solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
-                solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
-            }
+            solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
+            solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
         }
     }
     
@@ -344,18 +263,7 @@ namespace Base
             LinearAlgebra::NumericalVector solutionCoefficients(getSolutionCoefficients(ptrElement, timeLevelsIn, coefficientsTimeLevels));
             LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
             
-            if(useMatrixStorage_)
-            {
-                solutionCoefficientsNew = ptrElement->getElementMatrix(stiffnessElementMatrixID_) * solutionCoefficients;
-                if(useSourceTerm_)
-                {
-                    solutionCoefficientsNew += integrateSourceTermAtElement(ptrElement, time, orderTimeDerivative);
-                }
-            }
-            else
-            {
-                solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time, orderTimeDerivative);
-            }
+            solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time, orderTimeDerivative);
         }
         
         // Apply the right hand side corresponding to integration on the faces.
@@ -366,18 +274,8 @@ namespace Base
             LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
             LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
             
-            if(useMatrixStorage_)
-            {
-                const Base::FaceMatrix &stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
-                
-                solutionCoefficientsLeftNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * solutionCoefficientsRight;
-                solutionCoefficientsRightNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * solutionCoefficientsRight;
-            }
-            else
-            {
-                solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
-                solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
-            }
+            solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
+            solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
         }
     }
     
@@ -477,7 +375,7 @@ namespace Base
                 coefficientsTimeLevels.push_back(dt * ptrButcherTableau_->getA(iStage, jStage));
             }
             
-            computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime, 1);
+            computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime, 0);
         }
         
         // Update the solution
@@ -558,14 +456,8 @@ namespace Base
         // Set the initial time.
         double time = intialTime;
         
-        // Create and store matrices and vectors for the PDE.
-        if (useMatrixStorage_)
-        {
-            std::cout << "Computing the mass matrices.\n";
-            createMassMatrices();
-            std::cout << "Computing stiffness matrices.\n";
-            createStiffnessMatrices();
-        }
+        // Create and Store things before solving the problem.
+        tasksBeforeSolving();
         
         // Set the initial numerical solution.
         std::cout << "Computing and interpolating the initial solution.\n";
@@ -591,7 +483,6 @@ namespace Base
         // Compute the energy norm of the error
         if(doComputeError)
         {
-            std::cout << "finalTime:" << time << "\n";
             double error = computeTotalError(solutionTimeLevel_, finalTime);
             std::cout << "Energy norm of the error: " << error << ".\n";
         }

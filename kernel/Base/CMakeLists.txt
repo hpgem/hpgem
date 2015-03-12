@@ -37,6 +37,7 @@ add_library(hpGEM_Base SHARED
  		Edge.cpp
  		Node.cpp
 		HpgemAPIBase.cpp
+		HpgemAPILinear.cpp
 		HpgemAPISimplified.cpp
                 HpgemUISimplified.cpp
 		#miscellaneous required stuff

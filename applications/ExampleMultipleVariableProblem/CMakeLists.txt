@@ -3,7 +3,9 @@ include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 #First declare the rules that will form the executable tests#
 #############################################################
    
-add_executable(ExampleMultipleVariableProblem.out 
+add_executable(ExampleMultipleVariableProblem.out
+		AcousticWave.cpp
+		AcousticWaveLinear.cpp
 		main.cpp
 
         	${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp
