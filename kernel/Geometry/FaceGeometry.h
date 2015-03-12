@@ -34,7 +34,6 @@
 
 //--------------------------------------------------------------------------------------------------
 //
-// SHOULD THIS GO INTO THE DOXYGEN DOCUMENTATION?
 //
 // Example Internal Face Illustration:
 //
@@ -159,8 +158,7 @@ namespace Geometry
         using VectorOfLocalNodes = std::vector<std::size_t>;
         using ReferencePointT = PointReference;
         using LocalFaceNrType = std::size_t;
-        using RefFaceToRefElementMapping = std::shared_ptr<const MappingReferenceToReference >; // doing new later and passing, should handle its own deletion.
-        //the ref->ref mappings are all singletons and should never be deleted (bug?) -FB
+        using RefFaceToRefElementMappingPtr = std::shared_ptr<const MappingReferenceToReference >;
         
         using ReferenceFaceGeometryT = ReferenceGeometry;
         using ElementGeometryT = ElementGeometry;
@@ -241,11 +239,11 @@ namespace Geometry
         /// Get a normal at a given RefPoint
         virtual LinearAlgebra::NumericalVector getNormalVector(const ReferencePointT& pRefFace) const;
 
-        //! Return a Mapping (not pointer or reference! Ok, wrapped by auto_ptr) /bug why?
-        virtual RefFaceToRefElementMapping refFaceToRefElemMapL() const;
+        //! Return a Mapping 
+        virtual RefFaceToRefElementMappingPtr refFaceToRefElemMapL() const;
 
         //! Return a mapping to the right reference element.
-        virtual RefFaceToRefElementMapping refFaceToRefElemMapR() const;
+        virtual RefFaceToRefElementMappingPtr refFaceToRefElemMapR() const;
 
         virtual PointPhysical referenceToPhysical(const Geometry::PointReference& pointReference) const;
 
@@ -263,7 +261,6 @@ namespace Geometry
         virtual bool isInternal() const;
 
     protected:
-        //MatrixT                     faceToFaceMapMatrix_;
         
         ///\brief default constructor - for use with wrapper classes
         FaceGeometry()

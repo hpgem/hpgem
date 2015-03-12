@@ -60,10 +60,10 @@ template<std::size_t DIM>
 void Geometry::MappingToPhysSimplexLinear<DIM>::reinit(const PhysicalGeometry* const physicalGeometry)
 {
     logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
-    a[0] = physicalGeometry->getNodeCoordinates(0);
+    a[0] = physicalGeometry->getLocalNodeCoordinates(0);
     for (std::size_t i = 1; i <= DIM; ++i)
     {
-        a[i] = physicalGeometry->getNodeCoordinates(i) - a[0];
+        a[i] = physicalGeometry->getLocalNodeCoordinates(i) - a[0];
     }
 }
 #endif /* MAPPINGSIMPLECUBENLINEAR_H_ */

@@ -146,7 +146,7 @@ int main()
     for (std::size_t i = 0; i < rGeom3D.getNumberOfNodes(); ++i)
     {
         refPoint3D = rGeom3D.getNode(i);
-        compare3D = pGeom3D.getNodeCoordinates(i);
+        compare3D = pGeom3D.getLocalNodeCoordinates(i);
         point3D = mapping3D.transform(refPoint3D);
         logger.assert_always((std::abs(point3D[0] - compare3D[0]) < 1e-12) && std::abs(point3D[1] - compare3D[1]) < 1e-12 && std::abs(point3D[2] - compare3D[2]) < 1e-12, "transform");
     }

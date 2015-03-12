@@ -26,22 +26,17 @@
 namespace Geometry
 {
     
-    PointPhysical PhysicalGeometry::getNodeCoordinates(const std::size_t localIndex) const
-    {
-        logger.assert(localIndex < getNumberOfNodes(), "Asked for index %, but this geometry only has % nodes",localIndex,getNumberOfNodes());
-        return (nodes_)[globalNodeIndexes_[localIndex]]; //.getCoordinates();
-    }
     
     PointPhysical PhysicalGeometry::getLocalNodeCoordinates(const std::size_t localIndex) const
     {
         logger.assert(localIndex < getNumberOfNodes(), "Asked for local index %, but this geometry only has % nodes",localIndex,getNumberOfNodes());
-        return (nodes_)[globalNodeIndexes_[localIndex]]; //.getCoordinates();
+        return (nodes_)[globalNodeIndexes_[localIndex]];
     }
     
     PointPhysical PhysicalGeometry::getGlobalNodeCoordinates(const std::size_t globalIndex) const
     {
         logger.assert(globalIndex < nodes_.size(), "Asked for global index %, but there are only % nodes",globalIndex,getNumberOfNodes());
-        return (nodes_)[globalIndex]; //.getCoordinates();
+        return (nodes_)[globalIndex];
     }
 
 }

@@ -58,7 +58,7 @@ namespace Geometry
             return PointPhysical(Point::coordinates_ / right);
         }
         
-        //please note that for type-safety this function cannot be removed in favour
+        //please note that for type-safety this function cannot be removed in favor
         //of the Point::operator+
         PointPhysical operator+(const PointPhysical& right) const
         {

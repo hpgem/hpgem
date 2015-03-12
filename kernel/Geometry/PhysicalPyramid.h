@@ -52,11 +52,6 @@ namespace Geometry
         {
             return 5;
         }
-        
-        //PhysicalGeometries getId() const {return id_;}
-        
-    private:
-        //            const ReferencePyramid* pyramid_;
     };
 }
 #endif

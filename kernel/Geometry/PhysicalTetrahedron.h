@@ -29,10 +29,6 @@ namespace Geometry
     
     class PhysicalTetrahedron : public PhysicalGeometry
     {
-    public:
-        
-        using PhysicalGeometry3D = PhysicalGeometry;
-        using PhysicalGeometry3D::VectorOfPhysicalPointsT;
 
     public:
         

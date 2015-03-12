@@ -60,8 +60,8 @@ namespace Geometry
     void MappingToPhysHypercubeLinear<1>::reinit(const PhysicalGeometry* const physicalGeometry)
     {
         logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
-        PointPhysical p0 = physicalGeometry->getNodeCoordinates(0);
-        PointPhysical p1 = physicalGeometry->getNodeCoordinates(1);
+        PointPhysical p0 = physicalGeometry->getLocalNodeCoordinates(0);
+        PointPhysical p1 = physicalGeometry->getLocalNodeCoordinates(1);
         mid = 0.5 * (p1[0] + p0[0]);
         slope = 0.5 * (p1[0] - p0[0]);
     }
@@ -152,10 +152,10 @@ namespace Geometry
         // a12 = 0.25 * (p3 - p1 + p0 - p2);
         
 
-        a0 = physicalGeometry->getNodeCoordinates(0);
-        a1 = physicalGeometry->getNodeCoordinates(1);
-        a2 = physicalGeometry->getNodeCoordinates(2);
-        PointPhysical temp = physicalGeometry->getNodeCoordinates(3);
+        a0 = physicalGeometry->getLocalNodeCoordinates(0);
+        a1 = physicalGeometry->getLocalNodeCoordinates(1);
+        a2 = physicalGeometry->getLocalNodeCoordinates(2);
+        PointPhysical temp = physicalGeometry->getLocalNodeCoordinates(3);
         a0 += temp;
         a12 = a1;
         a12 += a2;
@@ -244,14 +244,14 @@ namespace Geometry
     void MappingToPhysHypercubeLinear<3>::reinit(const PhysicalGeometry* const physicalGeometry)
     {
         logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
-        PointPhysical p0 = physicalGeometry->getNodeCoordinates(0);
-        PointPhysical p1 = physicalGeometry->getNodeCoordinates(1);
-        PointPhysical p2 = physicalGeometry->getNodeCoordinates(2);
-        PointPhysical p3 = physicalGeometry->getNodeCoordinates(3);
-        PointPhysical p4 = physicalGeometry->getNodeCoordinates(4);
-        PointPhysical p5 = physicalGeometry->getNodeCoordinates(5);
-        PointPhysical p6 = physicalGeometry->getNodeCoordinates(6);
-        PointPhysical p7 = physicalGeometry->getNodeCoordinates(7);
+        PointPhysical p0 = physicalGeometry->getLocalNodeCoordinates(0);
+        PointPhysical p1 = physicalGeometry->getLocalNodeCoordinates(1);
+        PointPhysical p2 = physicalGeometry->getLocalNodeCoordinates(2);
+        PointPhysical p3 = physicalGeometry->getLocalNodeCoordinates(3);
+        PointPhysical p4 = physicalGeometry->getLocalNodeCoordinates(4);
+        PointPhysical p5 = physicalGeometry->getLocalNodeCoordinates(5);
+        PointPhysical p6 = physicalGeometry->getLocalNodeCoordinates(6);
+        PointPhysical p7 = physicalGeometry->getLocalNodeCoordinates(7);
         
         a0 = 0.125 * (p0 + p1 + p2 + p3 + p4 + p5 + p6 + p7);
         a1 = 0.125 * (p1 - p0 + p3 - p2 + p5 - p4 + p7 - p6);
@@ -329,7 +329,7 @@ namespace Geometry
         P.reserve(16);
         for (std::size_t i = 0; i < 16; ++i)
         {
-            P.push_back(physicalGeometry->getNodeCoordinates(i));
+            P.push_back(physicalGeometry->getLocalNodeCoordinates(i));
         }
         
         abar = 0.0625 * (P[0] + P[1] + P[2] + P[3] + P[4] + P[5] + P[6] + P[7] + P[8] + P[9] + P[10] + P[11] + P[12] + P[13] + P[14] + P[15]);

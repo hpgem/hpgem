@@ -98,18 +98,18 @@ namespace Geometry
     }
     
     //! Return a Mapping
-    FaceGeometry::RefFaceToRefElementMapping FaceGeometry::refFaceToRefElemMapL() const
+    FaceGeometry::RefFaceToRefElementMappingPtr FaceGeometry::refFaceToRefElemMapL() const
     {
-        return RefFaceToRefElementMapping(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_));
+        return RefFaceToRefElementMappingPtr(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_));
     }
     
     //! Return a mapping to the right reference element.
-    typename FaceGeometry::RefFaceToRefElementMapping FaceGeometry::refFaceToRefElemMapR() const
+    typename FaceGeometry::RefFaceToRefElementMappingPtr FaceGeometry::refFaceToRefElemMapR() const
     {
         const MappingReferenceToReference * const m1Ptr = this->getReferenceGeometry()->getCodim0MappingPtr(faceToFaceMapIndex_);
         const MappingReferenceToReference * const m2Ptr = leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_);
         
-        return RefFaceToRefElementMapping(new ConcatenatedMapping(*m1Ptr, *m2Ptr));
+        return RefFaceToRefElementMappingPtr(new ConcatenatedMapping(*m1Ptr, *m2Ptr));
     }
     
     /*!Compute the normal vector at a given point (in face coords).
@@ -204,44 +204,4 @@ namespace Geometry
         }
     }
 
-///(@tito) why ask for a face when you only copy fields of the faceGeometry???
-/*void FaceGeometry::copyFromParent(const FaceGeometryT& fa)
- {
- faceToFaceMapIndex_ = fa.faceToFaceMapIndex_;
- faceToFaceMapMatrix_ = fa.faceToFaceMapMatrix_;
- }*/
-
-/*void FaceGeometry::invertFaceToFaceMapMatrix()
- {
- // invert the matrix
- double a = faceToFaceMapMatrix_(0, 0);
- double b = faceToFaceMapMatrix_(0, 1);
- double c = faceToFaceMapMatrix_(0, 2);
- double d = faceToFaceMapMatrix_(1, 0);
- double e = faceToFaceMapMatrix_(1, 1);
- double f = faceToFaceMapMatrix_(1, 2);
- double g = faceToFaceMapMatrix_(2, 0);
- double h = faceToFaceMapMatrix_(2, 1);
- double k = faceToFaceMapMatrix_(2, 2);
-
- double det = a * (e * k - f * h) - b * (k * d - f * g) + c * (d * h - e * g);
-
- faceToFaceMapMatrix_(0, 0) = (e * k - f * h) / det;
- faceToFaceMapMatrix_(1, 0) = (f * g - d * k) / det;
- faceToFaceMapMatrix_(2, 0) = (d * h - e * g) / det;
- faceToFaceMapMatrix_(0, 1) = (c * h - b * k) / det;
- faceToFaceMapMatrix_(1, 1) = (a * k - c * g) / det;
- faceToFaceMapMatrix_(2, 1) = (g * b - a * h) / det;
- faceToFaceMapMatrix_(0, 2) = (b * f - c * e) / det;
- faceToFaceMapMatrix_(1, 2) = (c * d - a * f) / det;
- faceToFaceMapMatrix_(2, 2) = (a * e - b * d) / det;
- }*/
-
-//!Print the matrix that maps the physical face to the reference face.
-/*void FaceGeometry::printRefMatrix() const
- {
- std::cout << "(" << faceToFaceMapIndex_ << ") refMatrix: " << faceToFaceMapMatrix_ << "\n";
- }*/
-
 }
-;

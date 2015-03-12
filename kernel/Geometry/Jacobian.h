@@ -28,13 +28,11 @@ namespace Geometry
 {
     class Jacobian : public LinearAlgebra::Matrix
     {
-    public:
-        using JacobianT = Jacobian;
 
     public:
         // Constructors.
         Jacobian(std::size_t dimTo, std::size_t dimFrom);
-        Jacobian(const JacobianT& jacobian);
+        Jacobian(const Jacobian& jacobian);
 
         Jacobian(const LinearAlgebra::Matrix& matrix)
                 : LinearAlgebra::Matrix(matrix)
@@ -47,14 +45,12 @@ namespace Geometry
         {
         }
         
-        /*! (OC): ConcatenatedMapping has to be able to do a matrix product on the
+        /*! ConcatenatedMapping has to be able to do a matrix product on the
          Jacobians of two (successively applied) mappings. Therefore we provide
          the function multiplyJacobiansInto. */
         Jacobian multiplyJacobiansInto(const Jacobian& jac2)
-        {
-            
-            return this->operator*(jac2);
-            
+        {            
+            return this->operator*(jac2);            
         }
         
     };

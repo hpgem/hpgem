@@ -243,12 +243,12 @@ namespace Base
             return face_->mapRefFaceToRefFace(pIn);
         }
         
-        RefFaceToRefElementMapping refFaceToRefElemMapL() const override
+        RefFaceToRefElementMappingPtr refFaceToRefElemMapL() const override
         {
             return face_->refFaceToRefElemMapL();
         }
         
-        RefFaceToRefElementMapping refFaceToRefElemMapR() const override
+        RefFaceToRefElementMappingPtr refFaceToRefElemMapR() const override
         {
             return face_->refFaceToRefElemMapR();
         }

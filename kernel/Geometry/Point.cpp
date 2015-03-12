@@ -166,7 +166,7 @@ namespace Geometry
     
     Point&
     Point::operator =(const Point& rhs)
-    { ///\bug no size checking
+    {
         logger.assert(size() == rhs.size(), "In Point::operator=, the dimension of the given Point does not coincide with the dimension of the point.");
         coordinates_ = rhs.coordinates_;
         return *this;

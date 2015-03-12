@@ -31,24 +31,12 @@ namespace Geometry
     {
     }
     
-    Jacobian::Jacobian(const JacobianT& jacobian)
+    Jacobian::Jacobian(const Jacobian& jacobian)
             : LinearAlgebra::Matrix(jacobian)
     {
     }
-    
-    /*void
-     Jacobian::computeWedgeStuffVector(NumericalVector& p)const
-     {
-     NumericalVector&      v((NumericalVector&)p);
-     
-     const LinearAlgebra::Matrix& jac=*this;
 
-     //cout << "jacobian="<<jac<<endl;
-
-     jac.computeWedgeStuffVector(v);
-     }*/
-
-    /// The computation of Jacobians are harcoded up until 4D, to make it faster.
+    /// The computation of Jacobians are hardcoded up until 4D, to make it faster.
     double Jacobian::determinant() const
     {
         std::size_t dimTo(getNRows()), dimFrom(getNCols());
@@ -83,4 +71,3 @@ namespace Geometry
         return 0;
     }
 }
-;

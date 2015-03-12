@@ -79,19 +79,6 @@ int main()
     
     logger.assert_always((test.getNumberOfNodes() == 4), "getNumberOfNodes");
     
-    point = test.getNodeCoordinates(0);
-    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getNodeCoordinates");
-    logger.assert_always((std::abs(point[1] - 2.4) < 1e-12), "getNodeCoordinates");
-    point = test.getNodeCoordinates(1);
-    logger.assert_always((std::abs(point[0] - 1.7) < 1e-12), "getNodeCoordinates");
-    logger.assert_always((std::abs(point[1] - 2.7) < 1e-12), "getNodeCoordinates");
-    point = test.getNodeCoordinates(2);
-    logger.assert_always((std::abs(point[0] - 3.5) < 1e-12), "getNodeCoordinates");
-    logger.assert_always((std::abs(point[1] - 4.6) < 1e-12), "getNodeCoordinates");
-    point = test.getNodeCoordinates(3);
-    logger.assert_always((std::abs(point[0] - 6.7) < 1e-12), "getNodeCoordinates");
-    logger.assert_always((std::abs(point[1] - 2.8) < 1e-12), "getNodeCoordinates");
-    
     point = test.getLocalNodeCoordinates(0);
     logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getLocalNodeCoordinates");
     logger.assert_always((std::abs(point[1] - 2.4) < 1e-12), "getLocalNodeCoordinates");

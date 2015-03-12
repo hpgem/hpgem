@@ -41,14 +41,12 @@ namespace Geometry
     class ElementGeometry
     {
     public:
-        //using PointT = Point;
         using PointPhysicalT = PointPhysical;
         using PointReferenceT = PointReference;
         using PhysicalGeometryT = PhysicalGeometry;
         using ReferenceGeometryT = ReferenceGeometry;
         using RefinementGeometryT = RefinementGeometry;
         using MappingReferenceToPhysicalT = MappingReferenceToPhysical;
-        //using MatrixT = LinearAlgebra::Matrix;
         using JacobianT = Jacobian;
         using PointIndexT = std::size_t;
         using VectorOfPhysicalPointsT = std::vector<PointPhysicalT>;
@@ -82,19 +80,6 @@ namespace Geometry
         /// This method gets a PointReference and returns the corresponding jacobian of the
         /// referenceToPhysicalMapping.
         virtual Jacobian calcJacobian(const PointReferenceT& pointReference) const;
-
-        /*! \brief Transform a physical space function on the reference element.
-
-         To be able to query a function that takes physical space coordinates
-         at reference space points we wrap it with a class that offers the
-         necessary operator(), which takes care of the necessary
-         transformations. */
-
-        /*template <class FType>///\todo put this function in a proper class
-         Base::PhysicalSpaceFunctor<FType> transformToReferenceElement(const FType& f) const
-         {
-         return Base::PhysicalSpaceFunctor<FType>(this, f);
-         }*/
 
         void enableRefinement();
 

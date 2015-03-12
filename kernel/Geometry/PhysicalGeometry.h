@@ -27,7 +27,6 @@
 
 #include "PointPhysical.h"
 #include "PointReference.h"
-//#include "Output/PhysicalGeometryAcceptor.h"
 
 namespace Geometry
 {
@@ -36,7 +35,7 @@ namespace Geometry
     
     class PhysicalGeometry
     {
-        /*! \class PhysicalGeometry
+        /*!\class PhysicalGeometry
          * \brief PhysicalGeometry describes an actual physical shape in real space.
          * \details
          * You shouldn't create a PhysicalGeometry (although it is possible), but a particular
@@ -68,9 +67,6 @@ namespace Geometry
         virtual ~ PhysicalGeometry()
         {
         }
-        
-        /// \brief Returns a pointer to the container of the global node indexes.
-        //std::vector<std::size_t>&          getNodeIndexes() {return globalNodeIndexes_;}
         
         /// \brief Returns a constant pointer to the container of the global node indexes.
         const std::vector<std::size_t>& getNodeIndexes() const
@@ -113,14 +109,10 @@ namespace Geometry
             return globalNodeIndexes_.size();
         }
         
-        /// \brief Given a local index, assigns the physical coordinates of the corresponding point.
-        // MTJ: TODO: this should be renamed to getLocalNodeCoordinates.............
-        ///\TODO remove duplicate code
-        PointPhysical getNodeCoordinates(const std::size_t localIndex) const;
-
+        /// \brief Given a local index, return the physical coordinates of the corresponding point.
         PointPhysical getLocalNodeCoordinates(const std::size_t localIndex) const;
 
-        /// \brief Given a global index, assigns the physical coordinates of the corresponding point.
+        /// \brief Given a global index, return the physical coordinates of the corresponding point.
         PointPhysical getGlobalNodeCoordinates(const std::size_t globalIndex) const;
 
         /// \brief Given a local face index, return the global indices of the entities contained on that face.
