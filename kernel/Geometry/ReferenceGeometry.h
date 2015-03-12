@@ -122,7 +122,7 @@ namespace Geometry
         /// contain the values of all basisFunctions at all reference points
         ///\todo The basisfunctions are not a responsibility of the reference geometry,
         /// but of the basisfunction set. Switch this function to BasisFunction or BasisFunctionSet
-        /// or implement it directly in Element.
+        /// or implement it directly in a separate class.
         double getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p);
 
         double getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p) const
@@ -135,7 +135,7 @@ namespace Geometry
         /// contain the values of all basisFunctions at all reference points
         ///\todo The basisfunctions are not a responsibility of the reference geometry,
         /// but of the basisfunction set. Switch this function to BasisFunction or BasisFunctionSet
-        /// or implement it directly in Element.
+        /// or implement it directly in a separate class.
         LinearAlgebra::NumericalVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p);
 
         LinearAlgebra::NumericalVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p) const

@@ -29,6 +29,12 @@
 #include "FaceCacheData.h"
 #include "Mesh.h"
 
+namespace Base
+{
+    class MeshManipulator;
+}
+
+std::ostream& operator<<(std::ostream&, Base::MeshManipulator);
 namespace Geometry
 {
     class PointPhysical;
@@ -271,8 +277,7 @@ namespace Base
         }, double growFactor = 1.1);
 #endif
         
-        ///\todo Make an operator << of this.
-        void outputMesh(std::ostream& os) const;
+        friend std::ostream& operator<<(std::ostream& os, const MeshManipulator&);
 
         //! Set MeshMoverBase object pointer, for moving meshes if needed
         void setMeshMover(const MeshMoverBaseT * const meshMover);
@@ -475,6 +480,7 @@ namespace Base
         //when the mesh is updated, persistently store original node coordinates to see if retriangulation is in order
         std::vector<PointPhysicalT> oldNodeLocations_;
     };
+    
 
 }
 

@@ -30,7 +30,7 @@ namespace Geometry
 {
     class PointPhysical;
 }
-///\todo merge with duplicate file Norm2.h
+
 namespace Base
 {
     /*! Compute the 2 norm of a vector. */

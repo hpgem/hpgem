@@ -84,6 +84,35 @@ namespace Output
     {
         logger.assert(mesh!=nullptr, "Invalid mesh passed to this writer");
         logger.assert(writeDataClass!=nullptr, "Invalid write class passed");
+        std::function<void(const Base::Element*, const Geometry::PointReference&, std::ostream&)> function = 
+        [=](const Base::Element* el, const Geometry::PointReference& pR, std::ostream& os){
+            writeDataClass->writeToTecplotFile(el,pR,os);
+        };
+        write(mesh,zoneTitle,sameGeometry,function,time);
+        
+    }
+    
+    /*!
+     * The variables should be the same as in the specification for the file given to the ctor.
+     *
+     * The function will iterate over the elements of the mesh m.
+     *
+     * The zoneTitle will go to the corresponding tecplot variable, e.g. this can be the time
+     * in case several timesteps are put into one file (as different zones).
+     *
+     * If sameGeometry is true then the node coordinates will not be written but reused from
+     * the first zone. Use this if the mesh is not changing.
+     *
+     * WriteFunctor must have an operator()(EType&, const Point<dim>&, ostream&); the point
+     * given to it is in the coordinates of the reference element.
+     *
+     * WriteFunctor(EType&, const Point<dim>&, ostream&) can also be a function
+     *
+     * Setting the variable time enables you to create animations in TecPlot.
+     */
+    void TecplotDiscontinuousSolutionWriter::write(const Base::MeshManipulator* mesh, const std::string& zoneTitle, const bool sameGeometry, std::function<void(const Base::Element*, const Geometry::PointReference&, std::ostream&)>writeDataFun, const double time)
+    {
+        logger.assert(mesh!=nullptr, "Invalid mesh passed to this writer");
         
         std::size_t posNumberOfNodes(0);
         std::size_t posNumberOfElements(0);
@@ -172,7 +201,7 @@ namespace Output
                 // function
                 output_.precision(8);
                 output_.width(16);
-                writeDataClass->writeToTecplotFile(*iterator, pRef, output_);
+                writeDataFun(*iterator, pRef, output_);
                 output_ << "\n";
                 
             } // 'nodes of element' loop

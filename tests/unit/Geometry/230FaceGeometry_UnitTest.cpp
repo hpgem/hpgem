@@ -54,8 +54,8 @@ int main()
     
     for (double i = 0.; i < 1; i += 0.1)
     {
-        point1D[0] = 1. + i / 10.;
-        nodes1D.push_back(point1D);
+        point1Dphys[0] = 1. + i / 10.;
+        nodes1D.push_back(point1Dphys);
     }
     
     Geometry::ElementGeometry *left(new Geometry::ElementGeometry(pointIndexes, nodes1D));
@@ -107,20 +107,20 @@ int main()
     
     for (double i = 0.; i < 1; i += 0.1)
     {
-        point2D[0] = 1. + i / 10.;
-        point2D[1] = 2. + i / 10.;
-        nodes2D.push_back(point2D);
+        point2Dphys[0] = 1. + i / 10.;
+        point2Dphys[1] = 2. + i / 10.;
+        nodes2D.push_back(point2Dphys);
     }
     
-    point2D[0] = 3.5;
-    point2D[1] = 4.6;
-    nodes2D.push_back(point2D);
-    point2D[0] = 6.7;
-    point2D[1] = 2.8;
-    nodes2D.push_back(point2D);
-    point2D[0] = 1.41;
-    point2D[1] = 6.82;
-    nodes2D.push_back(point2D);
+    point2Dphys[0] = 3.5;
+    point2Dphys[1] = 4.6;
+    nodes2D.push_back(point2Dphys);
+    point2Dphys[0] = 6.7;
+    point2Dphys[1] = 2.8;
+    nodes2D.push_back(point2Dphys);
+    point2Dphys[0] = 1.41;
+    point2Dphys[1] = 6.82;
+    nodes2D.push_back(point2Dphys);
     
     pointIndexes.push_back(12);
     

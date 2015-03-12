@@ -36,7 +36,7 @@ namespace Geometry
         {
         }
         
-        PointReference(const Point& p)
+        explicit PointReference(const Point& p)
                 : Point(p)
         {
         }
@@ -70,6 +70,8 @@ namespace Geometry
         
     };
 
+    PointReference operator*(double left, const PointReference& right);
+    
 }
 ;
 

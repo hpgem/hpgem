@@ -31,6 +31,12 @@
 namespace Base
 {
     class MeshManipulator;
+    class Element;
+}
+
+namespace Geometry
+{
+    class PointReference;
 }
 
 namespace Output
@@ -47,8 +53,11 @@ namespace Output
         TecplotDiscontinuousSolutionWriter(std::ostream& output, const std::string& fileTitle, const std::string& dimensionsToWrite, const std::string& variableString);
 
         /// Write a zone with data from the current mesh to the stream held by the object.
-        /// \todo Make a version that takes an std::function instead of a TecplotSingleElementWriter*.
+        ///\deprecated please use the other write instead
         void write(const Base::MeshManipulator* mesh, const std::string& zoneTitle, const bool sameGeometry, TecplotSingleElementWriter* writeDataClass, const double time = 0);
+        
+        /// Write a zone with data from the current mesh to the stream held by the object.
+        void write(const Base::MeshManipulator* mesh, const std::string& zoneTitle, const bool sameGeometry, std::function<void(const Base::Element*, const Geometry::PointReference&, std::ostream&)>, const double time = 0);
 
         ~TecplotDiscontinuousSolutionWriter()
         {

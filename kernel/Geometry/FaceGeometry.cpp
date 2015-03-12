@@ -193,7 +193,7 @@ namespace Geometry
     {
         if (faceType_ == FaceType::INTERNAL || faceType_ == FaceType::PERIODIC_BC || faceType_ == FaceType::SUBDOMAIN_BOUNDARY)
         {
-            ///\todo move this to the unit test
+            ///\todo move this assertion to the unit test
             logger.assert(rightElementGeom_ != nullptr, "There is no right element, so no internal face.");
             return true;
         }

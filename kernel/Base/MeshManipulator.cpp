@@ -23,10 +23,10 @@
 #define meshmanipulator_impl_h_
 
 #ifdef HPGEM_USE_QHULL
+#include "libqhullcpp/QhullFacet.h"
 #include "libqhullcpp/QhullQh.h"
 #include "libqhullcpp/RboxPoints.h"
 #include "libqhullcpp/QhullError.h"
-#include "libqhullcpp/QhullFacet.h"
 #include "libqhullcpp/QhullFacetList.h"
 #include "libqhullcpp/QhullFacetSet.h"
 #include "libqhullcpp/QhullLinkedList.h"
@@ -378,22 +378,24 @@ namespace Base
     {
         theMesh_.addVertex();
     }
-    
-    void MeshManipulator::outputMesh(std::ostream& os) const
+}
+
+std::ostream& operator<<(std::ostream& os, const Base::MeshManipulator& mesh)
+{
+    for (Geometry::PointPhysical p : mesh.getNodes())
     {
-        for (Geometry::PointPhysical p : getNodes())
-        {
-            os << "Node " << " " << p << std::endl;
-        }
-        
-        std::size_t elementNum = 0;
-        
-        for (Element* element : getElementsList())
-        {
-            os << "Element " << element->getID() << " " << element << std::endl;
-            elementNum++;
-        }
+        os << "Node " << " " << p << std::endl;
     }
+
+    for (Base::Element* element : mesh.getElementsList())
+    {
+        os << "Element " << element->getID() << " " << element << std::endl;
+    }
+    return os;
+}
+    
+namespace Base
+{
     
     void MeshManipulator::createRectangularMesh(const PointPhysicalT& bottomLeft, const PointPhysicalT& topRight, const VectorOfPointIndicesT& linearNoElements)
     {

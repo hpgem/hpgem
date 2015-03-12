@@ -60,7 +60,7 @@ int main()
 
      myTwoDDemoMesh.readCentaurMesh(filename.str());
      
-     myTwoDDemoMesh.outputMesh(std::cout);
+     std::cout << myTwoDDemoMesh << std::endl;
      
      
      std::ofstream file2D;
@@ -85,7 +85,7 @@ int main()
      
      triQuadTwoDDemoMesh.readCentaurMesh(filename2.str());
      
-     triQuadTwoDDemoMesh.outputMesh(std::cout);
+     std::cout << triQuadTwoDDemoMesh << std::endl;
      
      file2D.open ("SavedCentaurMinimum.dat");
      

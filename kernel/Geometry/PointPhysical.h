@@ -36,9 +36,7 @@ namespace Geometry
         {
         }
         
-        ///\todo This destroys type-safety, but Mappings breaks when this constructor is
-        ///made explicit.
-        PointPhysical(const Point& p)
+        explicit PointPhysical(const Point& p)
                 : Point(p)
         {
         }
@@ -70,6 +68,11 @@ namespace Geometry
         {
             logger.assert(size()==right.size(), "The sizes of the points do not match");
             return PointPhysical(Point::coordinates_ - right.coordinates_);
+        }
+        
+        PointPhysical operator-() const
+        {
+            return *this * -1.;
         }
         
         PointPhysical& operator=(const PointPhysical& right)
@@ -105,7 +108,8 @@ namespace Geometry
         
 #endif
     };
+    
+    PointPhysical operator*(double left, const PointPhysical& right);
 }
-;
 
 #endif /* POINTPHYSICAL_HPP_ */
