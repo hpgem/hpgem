@@ -33,10 +33,6 @@ namespace Base
     {
     }
     
-    ElementFactory::ElementFactory(const ElementFactory& orig)
-    {
-    }
-    
     ElementFactory::~ElementFactory()
     {
     }
@@ -50,6 +46,8 @@ namespace Base
     //!mesh creation routines can use this to set their desired defaults
     void ElementFactory::setCollectionOfBasisFunctionSets(std::vector<const BasisFunctionSet*>const * functions)
     {
+        logger.assert(functions!=nullptr, "Invalid basis function set passed");
+        logger.assert(functions->size()>0, "Not enough basis functions passed");
         basisFunctionSets_ = functions;
     }
     

@@ -20,6 +20,7 @@
  */
 
 #include "RK4Methods.h"
+#include "Logger.h"
 
 namespace Base
 {
@@ -61,16 +62,20 @@ namespace Base
     
     double RK4_4::getA(std::size_t i, std::size_t j) const
     {
+        logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());
+        logger.assert(j<i, "Asked for implicit coefficient %, but this is an explicit butcher tableau", j);
         return a_[i][j];
     }
     
     double RK4_4::getB(std::size_t i) const
     {
+        logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());
         return b_[i];
     }
     
     double RK4_4::getC(std::size_t i) const
     {
+        logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());
         return c_[i];
     }
 }

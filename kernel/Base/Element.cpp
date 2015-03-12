@@ -46,14 +46,19 @@ namespace Base
     Element::Element(const VectorOfPointIndexesT& globalNodeIndexes, const std::vector<const BasisFunctionSetT*>* basisFunctionSet, const VectorOfPhysicalPointsT& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, const std::vector<int>& basisFunctionSetPositions)
             : ElementGeometryT(globalNodeIndexes, allNodes), ElementDataT(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc, numberOfElementMatrixes, numberOfElementVectors), basisFunctionSet_(basisFunctionSet), quadratureRule_(nullptr), vecCacheData_(), id_(id), basisFunctionSetPositions_(basisFunctionSetPositions)
     {
-        logger(VERBOSE, "numberOfElementMatrixes %", numberOfElementMatrixes);
-        logger(VERBOSE, "numberOfElementVectors %", numberOfElementVectors);
+        logger.assert(basisFunctionSet!=nullptr, "Invalid basis function set passed");
+        logger.assert(basisFunctionSet->size()>0, "Not enough basis function sets passed");
+        logger(VERBOSE, "numberOfElementMatrixes: %", numberOfElementMatrixes);
+        logger(VERBOSE, "numberOfElementVectors: %", numberOfElementVectors);
         orderCoeff_ = 2; // for safety
         std::size_t numberOfBasisFunctions = 0;
         for (std::size_t i = 0; i < basisFunctionSetPositions_.size(); ++i)
         {
+            logger.assert(basisFunctionSetPositions_[i]<basisFunctionSet->size(), "Not enough basis function sets passed");
+            logger.assert(basisFunctionSet->at(basisFunctionSetPositions_[i])!=nullptr, "Invalid basis function set passed");
             numberOfBasisFunctions += basisFunctionSet_->at(basisFunctionSetPositions_[i])->size();
         }
+        logger.assert(nrOfBasisFunc==numberOfBasisFunctions, "Redundant argument set to the wrong value");
         setNumberOfBasisFunctions(numberOfBasisFunctions);
         setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(basisFunctionSetPositions_[0])->getOrder() + 1);
         nrOfDOFinTheElement_ = basisFunctionSet_->at(basisFunctionSetPositions_[0])->size();
@@ -85,6 +90,7 @@ namespace Base
     
     void Element::setDefaultBasisFunctionSet(std::size_t position)
     {
+        logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
         basisFunctionSetPositions_.resize(1, -1);
         basisFunctionSetPositions_[0] = position;
         int numberOfBasisFunctions(0);
@@ -100,6 +106,8 @@ namespace Base
     
     void Element::setFaceBasisFunctionSet(std::size_t position, std::size_t localFaceIndex)
     {
+        logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
+        logger.assert(localFaceIndex < getNrOfFaces(), "Asked for face %, but there are only % faces", localFaceIndex, getNrOfFaces());
         if (basisFunctionSetPositions_.size() < 1 + getNrOfFaces())
         {
             basisFunctionSetPositions_.resize(1 + getNrOfFaces(), -1);
@@ -116,6 +124,8 @@ namespace Base
     
     void Element::setEdgeBasisFunctionSet(std::size_t position, std::size_t localEdgeIndex)
     {
+        logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
+        logger.assert(localEdgeIndex < getNrOfEdges(), "Asked for edge %, but there are only % edges", localEdgeIndex, getNrOfEdges());
         if (basisFunctionSetPositions_.size() < 1 + getNrOfFaces() + getNrOfEdges())
         {
             basisFunctionSetPositions_.resize(1 + getNrOfFaces() + getNrOfEdges(), -1);
@@ -132,6 +142,8 @@ namespace Base
     
     void Element::setVertexBasisFunctionSet(std::size_t position, std::size_t localVertexIndex)
     {
+        logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
+        logger.assert(localVertexIndex < getNrOfNodes(), "Asked for node %, but there are only % nodes", localVertexIndex, getNrOfNodes());
         if (basisFunctionSetPositions_.size() < 1 + getNrOfFaces() + getNrOfEdges() + getNrOfNodes())
         {
             basisFunctionSetPositions_.resize(1 + getNrOfFaces() + getNrOfEdges() + getNrOfNodes(), -1);
@@ -148,6 +160,7 @@ namespace Base
     
     double Element::basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const
     {
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         logger.assert((jDir < p.size()), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
         
         int basePosition(0);
@@ -166,11 +179,13 @@ namespace Base
                 }
             }
         }
-        throw "in basisFunctionDeriv(jdir): asked for a basisFunction that doesn't exist!";
+        logger(ERROR, "This is not supposed to happen, please try again with assertions turned on");
+        return std::numeric_limits<double>::quiet_NaN();
     }
     
     double Element::basisFunction(std::size_t i, const PointReferenceT& p) const
     {
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         const Base::BaseBasisFunction* function;
         int basePosition(0);
         for (int j : basisFunctionSetPositions_)
@@ -209,6 +224,7 @@ namespace Base
     
     void Element::setGaussQuadratureRule(GaussQuadratureRuleT* const quadR)
     {
+        logger.assert(quadR!=nullptr, "Invalid quadrature rule passed");
         quadratureRule_ = quadR;
     }
     
@@ -248,6 +264,7 @@ namespace Base
     
     void Element::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         int basePosition(0);
         for (int j : basisFunctionSetPositions_)
         {
@@ -265,11 +282,11 @@ namespace Base
                 }
             }
         }
-        throw "in basisFunction: asked for a basisFunction that doesn't exist!";
     }
     
     LinearAlgebra::NumericalVector Element::basisFunctionCurl(std::size_t i, const PointReferenceT& p) const
     {
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         int basePosition(0);
         for (int j : basisFunctionSetPositions_)
         {
@@ -286,11 +303,13 @@ namespace Base
                 }
             }
         }
-        throw "in basisFunctionCurl: asked for a basisFunction that doesn't exist!";
+        logger(ERROR, "This is not supposed to happen, please try again with assertions turned on");
+        return LinearAlgebra::NumericalVector(0);
     }
     
     LinearAlgebra::NumericalVector Element::basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* wrapper) const
     {
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         if (wrapper == nullptr)
         {
             wrapper = this; 
@@ -320,6 +339,7 @@ namespace Base
 #ifndef NDEBUG
     const Base::BaseBasisFunction* Element::getBasisFunction(std::size_t i) const
     {
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         int basePosition = 0;
         for (int j : basisFunctionSetPositions_)
         {
@@ -335,12 +355,15 @@ namespace Base
                 }
             }
         }
-        throw "in getBasisFunction(): asked for a basisFunction that doesn't exist!";
+        logger(ERROR, "This is not supposed to happen, please try again with assertions turned on");
+        return nullptr;
     }
 #endif
     
     void Element::setFace(std::size_t localFaceNr, const Face* face)
     {
+        logger.assert(localFaceNr < getNrOfFaces(), "Asked for face %, but there are only % faces", localFaceNr, getNrOfFaces());
+        logger.assert(face!=nullptr, "Invalid face passed");
         logger.assert((face->getPtrElementLeft() == this && face->localFaceNumberLeft() == localFaceNr) 
                 || (face->getPtrElementRight() == this && face->localFaceNumberRight() == localFaceNr),
                       "You are only allowed to set a face to a local face index that matches");
@@ -354,6 +377,8 @@ namespace Base
     
     void Element::setEdge(std::size_t localEdgeNr, const Edge* edge)
     {
+        logger.assert(localEdgeNr < getNrOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNr, getNrOfEdges());
+        logger.assert(edge!=nullptr, "Invalid edge passed");
         //This if-statement is needed, since it could happen in 4D
         if (edgesList_.size() < localEdgeNr + 1)
         {
@@ -364,6 +389,8 @@ namespace Base
     
     void Element::setNode(std::size_t localNodeNr, const Node* node)
     {
+        logger.assert(localNodeNr < getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());
+        logger.assert(node!=nullptr, "Invalid node passed");
         if (nodesList_.size() < localNodeNr + 1)
         {
             logger(WARN, "Resizing the nodesList, since it's smaller(%) than to localNodeNr + 1(%)", nodesList_.size(), localNodeNr + 1);

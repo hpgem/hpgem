@@ -23,6 +23,7 @@
 #define ____PhysGradientOfBasisFunction__
 
 #include <iostream>
+#include "Logger.h"
 
 namespace LinearAlgebra
 {
@@ -55,7 +56,8 @@ namespace Utilities
         PhysGradientOfBasisFunction(const Base::Element* e, const Base::BaseBasisFunction* function)
                 : myElement_(e), myFunction_(function)
         {
-            
+            logger.assert(e!=nullptr, "Invalid element passed");
+            logger.assert(function!=nullptr, "Invalid function passed");
         }
         
         //! Evaluation operator, also compatible with integration routines.

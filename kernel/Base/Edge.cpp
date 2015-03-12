@@ -35,6 +35,7 @@ namespace Base
 
     void Edge::addElement(Element* element, std::size_t edgeNr)
     {
+        logger.assert(element!=nullptr, "Invalid element detected");
         elements_.push_back(element);
         localEdgeNrs_.push_back(edgeNr);
         element->setEdge(edgeNr, this);
@@ -44,13 +45,14 @@ namespace Base
         orientation_.push_back((indices[0] < indices[1] ? 0 : 1));
     }
     
-    int Edge::getNrOfElements()
+    std::size_t Edge::getNrOfElements()
     {
         return elements_.size();
     }
     
     Element* Edge::getElement(std::size_t i)
     {
+        logger.assert(i < getNrOfElements(), "Asked for element %, but there are only % elements", i, getNrOfElements());
         return elements_[i];
     }
 

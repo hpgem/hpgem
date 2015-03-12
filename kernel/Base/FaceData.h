@@ -83,6 +83,7 @@ namespace Base
         
         void setUserData(UserFaceData* data)
         {
+            //the user may pass any kind of data he/she wants (including nullptr) even if this does not seem to make sense
             userData_ = data;
         }
         

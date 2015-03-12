@@ -41,6 +41,7 @@ namespace Base
     Face::Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, ElementT* ptrElemR, const LocalFaceNrTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
             : FaceGeometryT((ElementGeometryT*) ptrElemL, localFaceNumL, (ElementGeometryT*) ptrElemR, localFaceNumR), elementLeft_(ptrElemL), elementRight_(ptrElemR), faceID_(faceID), nrOfConformingDOFOnTheFace_(0), FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknows() + ptrElemR->getNrOfBasisFunctions() * ptrElemR->getNrOfUnknows(), numberOfFaceMatrixes, numberOfFaceVectors)
     {
+        logger.assert(ptrElemL != nullptr, "Invalid element passed");
         logger.assert(ptrElemR != nullptr, "Error: passing a boundary face to the constructor for internal faces!");
         createQuadratureRules();
         ptrElemL->setFace(localFaceNumL, this);
@@ -59,6 +60,7 @@ namespace Base
     Face::Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
             : FaceGeometryT((ElementGeometryT*) ptrElemL, localFaceNumL, faceType), elementLeft_(ptrElemL), elementRight_(nullptr), faceID_(faceID), nrOfConformingDOFOnTheFace_(0), FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknows(), numberOfFaceMatrixes, numberOfFaceVectors)
     {
+        logger.assert(ptrElemL != nullptr, "Invalid element passed");
         createQuadratureRules();
         ptrElemL->setFace(localFaceNumL, this);
     }
@@ -93,6 +95,7 @@ namespace Base
     
     double Face::basisFunction(std::size_t i, const Geometry::PointReference& p) const
     {
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         std::size_t n(getPtrElementLeft()->getNrOfBasisFunctions());
         if (i < n)
         {
@@ -106,6 +109,7 @@ namespace Base
     
     void Face::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
     {
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         Geometry::PointReference pElement(p.size() + 1);
         std::size_t n(getPtrElementLeft()->getNrOfBasisFunctions());
         if (i < n)
@@ -127,16 +131,20 @@ namespace Base
     {
         if (iSide == Side::LEFT)
         {
+            logger.assert(iBasisFunction < getPtrElementLeft()->getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementLeft()->getNrOfBasisFunctions());
             return getPtrElementLeft()->basisFunction(iBasisFunction, mapRefFaceToRefElemL(p));
         }
         else
         {
+            logger.assert(isInternal(), "boundary faces only have a \"left\" element");
+            logger.assert(iBasisFunction < getPtrElementRight()->getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementRight()->getNrOfBasisFunctions());
             return getPtrElementRight()->basisFunction(iBasisFunction, mapRefFaceToRefElemR(p));
         }
     }
     
     LinearAlgebra::NumericalVector Face::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const
     {
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         LinearAlgebra::NumericalVector ret;
         Geometry::PointReference pElement(p.size() + 1);
         std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
@@ -164,11 +172,14 @@ namespace Base
         Geometry::PointReference pElement(p.size() + 1);
         if (iSide == Side::LEFT)
         {
+            logger.assert(iBasisFunction < getPtrElementLeft()->getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementLeft()->getNrOfBasisFunctions());
             pElement = mapRefFaceToRefElemL(p);
             return getPtrElementLeft()->basisFunction(iBasisFunction, pElement) * normal / Base::L2Norm(normal);
         }
         else
         {
+            logger.assert(isInternal(), "boundary faces only have a \"left\" element");
+            logger.assert(iBasisFunction < getPtrElementRight()->getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementRight()->getNrOfBasisFunctions());
             pElement = mapRefFaceToRefElemR(p);
             return -getPtrElementRight()->basisFunction(iBasisFunction, pElement) * normal / Base::L2Norm(normal);
         }
@@ -176,6 +187,7 @@ namespace Base
     
     double Face::basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference& p) const
     {
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         Geometry::PointReference pElement(p.size() + 1);
         std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < n)
@@ -192,6 +204,7 @@ namespace Base
     
     LinearAlgebra::NumericalVector Face::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const
     {
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         Geometry::PointReference pElement(p.size() + 1);
         std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < n)
@@ -214,11 +227,14 @@ namespace Base
         Geometry::PointReference pElement(p.size() + 1);
         if (iSide == Side::LEFT)
         {
+            logger.assert(iBasisFunction < getPtrElementLeft()->getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementLeft()->getNrOfBasisFunctions());
             pElement = mapRefFaceToRefElemL(p);
             return getPtrElementLeft()->basisFunctionDeriv(iBasisFunction, pElement);
         }
         else
         {
+            logger.assert(isInternal(), "boundary faces only have a \"left\" element");
+            logger.assert(iBasisFunction < getPtrElementRight()->getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementRight()->getNrOfBasisFunctions());
             pElement = mapRefFaceToRefElemR(p);
             return getPtrElementRight()->basisFunctionDeriv(iBasisFunction, pElement);
         }
@@ -226,6 +242,7 @@ namespace Base
     
     LinearAlgebra::NumericalVector Face::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const
     {
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         Geometry::PointReference pElement(p.size() + 1);
         std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < numBasisFuncsLeft)
@@ -281,12 +298,16 @@ namespace Base
     /// \param[in] iBasisFunction The index corresponding to the basisfunction.
     const std::size_t Face::convertToSingleIndex(Side iSide, std::size_t iBasisFunction, std::size_t iVar) const
     {
+        logger.assert(iVar < getPtrElementLeft()->getNrOfUnknows(), "Asked for unknown %, but there are only % unknowns", iVar, getPtrElementLeft()->getNrOfUnknows());
         if (iSide == Side::LEFT)
         {
+            logger.assert(iBasisFunction < getPtrElementLeft()->getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementLeft()->getNrOfBasisFunctions());
             return iVar * getPtrElementLeft()->getNrOfBasisFunctions() + iBasisFunction;
         }
         else
         {
+            logger.assert(isInternal(), "boundary faces only have a \"left\" element");
+            logger.assert(iBasisFunction < getPtrElementLeft()->getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementLeft()->getNrOfBasisFunctions());
             std::size_t nDOFLeft = getPtrElementLeft()->getNrOfUnknows() * getPtrElementLeft()->getNrOfBasisFunctions();
             return nDOFLeft + iVar * getPtrElementRight()->getNrOfBasisFunctions() + iBasisFunction;
         }

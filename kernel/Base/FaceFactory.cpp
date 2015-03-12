@@ -41,10 +41,13 @@ namespace Base
     
     Face* FaceFactory::makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Geometry::FaceType faceType, std::size_t faceID)
     {
+        logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
         return new Face(leftElementPtr, leftElementLocalFaceNo, faceType, faceID, numberOfFaceMatrices_, numberOfFaceVectors_);
     }
     Face* FaceFactory::makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, std::size_t faceID)
     {
+        logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
+        logger.assert(rightElementPtr!=nullptr, "This routine is intended for internal faces");
         return new Face(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, faceID, numberOfFaceMatrices_, numberOfFaceVectors_);
     }
     

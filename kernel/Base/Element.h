@@ -122,16 +122,19 @@ namespace Base
         
         virtual const Face* getFace(std::size_t localFaceNr) const
         {
+            logger.assert(localFaceNr<getNrOfFaces(), "Asked for face %, but there are only % faces", localFaceNr, getNrOfFaces());
             return facesList_[localFaceNr];
         }
         
         virtual const Edge* getEdge(std::size_t localEdgeNr) const
         {
+            logger.assert(localEdgeNr<getNrOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNr, getNrOfEdges());
             return edgesList_[localEdgeNr];
         }
         
         virtual const Node* getNode(std::size_t localNodeNr) const
         {
+            logger.assert(localNodeNr<getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());
             return nodesList_[localNodeNr];
         }
         
@@ -152,7 +155,8 @@ namespace Base
         
         ///\brief Return the mass int(phi_i phi_j) matrix of this element.
         ///\details If the mass matrix is computed earlier, we just return it. 
-        ///Otherwise, the mass matrix is computed, stored and returned.        
+        ///Otherwise, the mass matrix is computed, stored and returned. 
+        ///\bug does not work for moving meshes
         const LinearAlgebra::Matrix& getMassMatrix()
         {
             if (massMatrix_.size() == 0)

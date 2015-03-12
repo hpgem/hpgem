@@ -101,6 +101,7 @@ namespace Base
 
         void setGaussQuadratureRule(const FaceQuadratureRule* quadratureRule)
         {
+            logger.assert(quadratureRule!=nullptr, "Invalid quadrature rule passed");
             quadratureRule_ = quadratureRule;
         }
         

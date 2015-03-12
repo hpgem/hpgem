@@ -154,6 +154,7 @@ namespace Base
     
     void ElementData::setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::NumericalVector& val)
     {
+        logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
         setTimeLevelData(timeLevel, 0, val);
     }
     
@@ -299,6 +300,7 @@ namespace Base
     
     void ElementData::setUserData(UserElementData* data)
     {
+        //the user may pass any kind of data he/she wants (including nullptr) even if this does not seem to make sense
         userData_ = data;
     }
     

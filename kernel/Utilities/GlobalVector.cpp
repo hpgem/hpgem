@@ -73,10 +73,6 @@ namespace Utilities
     
     GlobalPetscVector::operator Vec()
     {
-        //if(meshLevel_!=theMesh_->getActiveLevel(0)){
-        //std::cout<<"Warning: global vector does not match currently active refinement level!";
-        //}
-        //VecView(b_,PETSC_VIEWER_DRAW_WORLD);
         return b_;
     }
     
@@ -94,7 +90,6 @@ namespace Utilities
         {
             *pos = i + startPositionsOfElementsInTheVector_[element->getID()];
             pos++;
-            //positions[i] = i + startPositionsOfElementsInTheMatrix_[element->getID()];
         }
         
         //Push forward our iterator
@@ -106,7 +101,6 @@ namespace Utilities
             {
                 *pos = j + startPositionsOfFacesInTheVector_[element->getFace(i)->getID()];
                 pos++;
-                //positions[j + usedEntries] = j + startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()];
             }
         }
         
@@ -118,7 +112,6 @@ namespace Utilities
             {
                 *pos = j + startPositionsOfEdgesInTheVector_[element->getEdge(i)->getID()];
                 pos++;
-                //positions[j + usedEntries] = j + startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()];
             }
         }
         
@@ -130,7 +123,6 @@ namespace Utilities
             {
                 *pos = j + startPositionsOfVerticesInTheVector_[element->getNode(i)->getID()];
                 pos++;
-//                positions[j + usedEntries] = j + startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()];
             }
         }
         logger.assert(pos == positions.end(), "GlobalVector: did not process all elements correctly");
@@ -139,8 +131,6 @@ namespace Utilities
     
     void GlobalPetscVector::reset()
     {
-        //if(meshLevel_!=theMesh_->getActiveLevel(0)){
-        //meshLevel_=theMesh_->getActiveLevel(0);
         int ierr = VecDestroy(&b_);
 #ifdef HPGEM_USE_MPI
         std::size_t n = Base::MPIContainer::Instance().getNumProcessors();
@@ -362,10 +352,6 @@ namespace Utilities
         
         ierr = VecCreateMPI(PETSC_COMM_WORLD, totalNrOfDOF, PETSC_DETERMINE, &b_);
         CHKERRV(ierr);
-        //}else{
-        //	int ierr=VecZeroEntries(b_);
-        //	CHKERRV(ierr);
-        //}
     }
     
     void GlobalPetscVector::assemble()

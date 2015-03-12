@@ -20,6 +20,7 @@
  */
 
 #include "ForwardEuler.h"
+#include "Logger.h"
 
 namespace Base
 {
@@ -50,16 +51,20 @@ namespace Base
     
     double ForwardEuler::getA(std::size_t i, std::size_t j) const
     {
+        logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());
+        logger.assert(j<i, "Asked for implicit coefficient %, but this is an explicit butcher tableau", j);
         return a_[i][j];
     }
     
     double ForwardEuler::getB(std::size_t i) const
     {
+        logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());
         return b_[i];
     }
     
     double ForwardEuler::getC(std::size_t i) const
     {
+        logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());
         return c_[i];
     }
 }

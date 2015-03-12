@@ -116,10 +116,6 @@ namespace Utilities
     
     GlobalPetscMatrix::operator Mat()
     {
-        //if(meshLevel_!=theMesh_->getActiveLevel(0)){
-        //	std::cout<<"Warning: global matrix does not match currently active refinement level!";
-        //}
-        //MatView(A_,PETSC_VIEWER_STDOUT_WORLD);
         return A_;
     }
     
@@ -137,7 +133,6 @@ namespace Utilities
         {
             *pos = i + startPositionsOfElementsInTheMatrix_[element->getID()];
             pos++;
-            //positions[i] = i + startPositionsOfElementsInTheMatrix_[element->getID()];
         }
         
         //Push forward our iterator
@@ -149,7 +144,6 @@ namespace Utilities
             {
                 *pos = j + startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()];
                 pos++;
-                //positions[j + usedEntries] = j + startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()];
             }
         }
         
@@ -161,7 +155,6 @@ namespace Utilities
             {
                 *pos = j + startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()];
                 pos++;
-                //positions[j + usedEntries] = j + startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()];
             }
         }
         
@@ -173,7 +166,6 @@ namespace Utilities
             {
                 *pos = j + startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()];
                 pos++;
-//                positions[j + usedEntries] = j + startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()];
             }
         }
         logger.assert(pos == positions.end(), "Not all positions are processed.");
@@ -229,8 +221,6 @@ namespace Utilities
     ///\todo figure out a nice way to keep local data local
     void GlobalPetscMatrix::reAssemble()
     {
-        //if(meshLevel_!=theMesh_->getActiveLevel(0)){
-        //meshLevel_=theMesh_->getActiveLevel(0);
         MatDestroy(&A_);
 #ifdef HPGEM_USE_MPI
         std::size_t n = Base::MPIContainer::Instance().getNumProcessors();
@@ -540,7 +530,6 @@ namespace Utilities
         MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE); //the estimate is known to be wrong for conforming cases
         ierr = MatSetUp(A_);
         CHKERRV(ierr);
-        //}
         reset();
     }
 #endif

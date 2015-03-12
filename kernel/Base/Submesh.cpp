@@ -46,31 +46,37 @@ namespace Base
     
     void Submesh::add(Element* element)
     {
+        logger.assert(element!=nullptr, "Invalid element passed");
         elements_.push_back(element);
     }
     
     void Submesh::addPush(Element* element, int processorID)
     {
+        logger.assert(element!=nullptr, "Invalid element passed");
         pushElements_[processorID].push_back(element);
     }
     
     void Submesh::addPull(Element* element, int processorID)
     {
+        logger.assert(element!=nullptr, "Invalid element passed");
         pullElements_[processorID].push_back(element);
     }
     
     void Submesh::add(Face* face)
     {
+        logger.assert(face!=nullptr, "Invalid face passed");
         faces_.push_back(face);
     }
     
     void Submesh::add(Edge* edge)
     {
+        logger.assert(edge!=nullptr, "Invalid edge passed");
         edges_.push_back(edge);
     }
     
     void Submesh::add(Node* node)
     {
+        logger.assert(node!=nullptr, "Invalid node passed");
         nodes_.push_back(node);
     }
     

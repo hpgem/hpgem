@@ -43,22 +43,7 @@ namespace Base
     {   
         return MPI::Datatype::Match_size(MPI_TYPECLASS_REAL,sizeof(T));
     }
-
-#if 0
-//DDucks: There might be pointers? I do not assume to this to be safe :(
-    template<class T>
-    typename std::enable_if<!std::is_fundamental<T>::value && std::is_trivially_copyable<T>::value, MPI::Datatype>::type
-    toMPIType(T t)
-    {   
-        //just copy into an array of char for transfer
-        MPI::Datatype result = MPI::Datatype::Match_size(MPI_TYPECLASS_INTEGER,1);
-        result = result.Create_contiguous(sizeof(t));
-    }
-#endif
     
-//inline MPI::Datatype toMPIType(int i) {
-//    return MPI::INT;
-//}
     
 #endif // HPGEM_USE_MPI
 }

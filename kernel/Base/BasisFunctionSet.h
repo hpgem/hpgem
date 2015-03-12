@@ -23,6 +23,7 @@
 #define BasisFunctionSet_h
 
 #include <vector>
+#include "Logger.h"
 
 namespace LinearAlgebra
 {
@@ -68,6 +69,7 @@ namespace Base
 
         virtual const BaseBasisFunction* operator[](int i) const
         {
+            logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
             return vecOfBasisFcn_[i];
         }
         

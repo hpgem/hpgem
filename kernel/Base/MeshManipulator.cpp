@@ -72,30 +72,6 @@
 namespace Base
 {
     
-    /*!
-     * \brief This is the function that checks if two halfFaces need to swapped or not.
-     *  \details Implements a named version of operator<() that sorts first on 
-     * first index, then on second index and so on.
-     !*/
-    bool compareHalfFace(HalfFaceDescription first, HalfFaceDescription second)
-    {
-        throw "please send your stack trace to freekjan";
-        logger.assert(first.nodeList.size() == second.nodeList.size(), "mismatching amount of face nodes provided");
-        for (std::size_t i = 0; i < first.nodeList.size(); ++i)
-        {
-            if (first.nodeList[i] > second.nodeList[i])
-            {
-                return true;
-            }
-            else if (second.nodeList[i] > first.nodeList[i])
-            {
-                return false;
-            }
-        }
-        //give a consistent return value
-        return first.elementNum > second.elementNum;
-    }
-    
     void MeshManipulator::createDefaultBasisFunctions(std::size_t order)
     {
         Base::BasisFunctionSet* bFset1 = new Base::BasisFunctionSet(order);
@@ -204,6 +180,9 @@ namespace Base
             //numMeshTree_(0),
             numberOfElementMatrixes_(nrOfElementMatrixes), numberOfElementVectors_(nrOfElementVectors), numberOfFaceMatrixes_(nrOfFaceMatrtixes), numberOfFaceVectors_(nrOfFaceVectors), meshMover_(nullptr)
     {
+        logger.assert(config!=nullptr, "Invalid configuration passed");
+        logger.assert(orderOfFEM==config->polynomialOrder_, "Inconsistent redundant information passed");
+        logger.assert(idRangeBegin==0, "c++ starts counting at 0");
         std::cout << "******Mesh creation started!**************" << std::endl;
         std::size_t DIM = configData_->dimension_;
         for (std::size_t i = 0; i < DIM; ++i)
@@ -256,6 +235,7 @@ namespace Base
     
     void MeshManipulator::setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet)
     {
+        logger.assert(bFSet!=nullptr, "Invalid basis function set passed");
         delete collBasisFSet_[0];
         collBasisFSet_[0] = bFSet;
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ = bFSet->size();
@@ -280,9 +260,10 @@ namespace Base
     void MeshManipulator::addVertexBasisFunctionSet(CollectionOfBasisFunctionSets& bFsets)
     {
         std::size_t firstNewEntry = collBasisFSet_.size();
-        for (const BasisFunctionSet* it : bFsets)
+        for (const BasisFunctionSet* set : bFsets)
         {
-            collBasisFSet_.push_back(it);
+            logger.assert(set!=nullptr, "Invalid basis function set detected");
+            collBasisFSet_.push_back(set);
         }
         for (Node* node : getVerticesList())
         {
@@ -298,9 +279,10 @@ namespace Base
     void MeshManipulator::addFaceBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets)
     {
         std::size_t firstNewEntry = collBasisFSet_.size();
-        for (const BasisFunctionSet* it : bFsets)
+        for (const BasisFunctionSet* set : bFsets)
         {
-            collBasisFSet_.push_back(it);
+            logger.assert(set!=nullptr, "Invalid basis function set detected");
+            collBasisFSet_.push_back(set);
         }
         for (Face* face : getFacesList())
         {
@@ -332,9 +314,10 @@ namespace Base
     void MeshManipulator::addEdgeBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets)
     {
         std::size_t firstNewEntry = collBasisFSet_.size();
-        for (const BasisFunctionSet* it : bFsets)
+        for (const BasisFunctionSet* set : bFsets)
         {
-            collBasisFSet_.push_back(it);
+            logger.assert(set!=nullptr, "Invalid basis function set detected");
+            collBasisFSet_.push_back(set);
         }
         logger(DEBUG, "In MeshManipulator::addEdgeBasisFunctionSet: ");
         for (Edge* edge : getEdgesList())
@@ -375,11 +358,14 @@ namespace Base
     
     void MeshManipulator::setMeshMover(const MeshMoverBase* meshMover)
     {
+        //can be set to nullptr if you dont want to move the mesh anymore
         meshMover_ = meshMover;
     }
     
     bool MeshManipulator::addFace(ElementT* leftElementPtr, std::size_t leftElementLocalFaceNo, ElementT* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType)
     {
+        logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
+        //rightElementPtr may be nullptr for boundary faces
         return theMesh_.addFace(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, faceType);
     }
     
@@ -409,8 +395,11 @@ namespace Base
         }
     }
     
-    void MeshManipulator::createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const VectorOfPointIndicesT& linearNoElements)
+    void MeshManipulator::createRectangularMesh(const PointPhysicalT& bottomLeft, const PointPhysicalT& topRight, const VectorOfPointIndicesT& linearNoElements)
     {
+        logger.assert(bottomLeft.size()==topRight.size(), "The corners of the mesh must have the same dimension");
+        logger.assert(bottomLeft.size()==configData_->dimension_, "The corners of the mesh have the wrong dimension");
+        logger.assert(linearNoElements.size()==configData_->dimension_, "There are amounts of elements spicified in % dimensions, but there are % dimensions", linearNoElements.size(), configData_->dimension_);
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
@@ -444,7 +433,7 @@ namespace Base
         
         for (std::size_t i = 0; i < DIM; i++)
         {
-            delta_x[i] = (TopRight[i] - BottomLeft[i]) / (linearNoElements[i]);
+            delta_x[i] = (topRight[i] - bottomLeft[i]) / (linearNoElements[i]);
         }
         
         //This stores the number of nodes in each coDIMension i.e. if you have 2 by 2 element it is 3 nodes 
@@ -489,7 +478,7 @@ namespace Base
             
             for (int iDIM = DIM - 1; iDIM > -1; --iDIM)
             {
-                x[iDIM] = BottomLeft[iDIM] + (nodeIndexRemain / numOfNodesInEachSubspace[iDIM] * delta_x[iDIM]);
+                x[iDIM] = bottomLeft[iDIM] + (nodeIndexRemain / numOfNodesInEachSubspace[iDIM] * delta_x[iDIM]);
                 nodeIndexRemain %= numOfNodesInEachSubspace[iDIM];
             }
             
@@ -562,8 +551,11 @@ namespace Base
     //createTrianglularMesh follows the same structure as createRectangularMesh. 
     //Where createRectangularMesh makes rectangular elements, createTrianglularMesh
     //splits the elements into a partition of triangles.    
-    void MeshManipulator::createTriangularMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, const VectorOfPointIndicesT& linearNoElements)
+    void MeshManipulator::createTriangularMesh(PointPhysicalT bottomLeft, PointPhysicalT topRight, const VectorOfPointIndicesT& linearNoElements)
     {
+        logger.assert(bottomLeft.size()==topRight.size(), "The corners of the mesh must have the same dimension");
+        logger.assert(bottomLeft.size()==configData_->dimension_, "The corners of the mesh have the wrong dimension");
+        logger.assert(linearNoElements.size()==configData_->dimension_, "There are amounts of elements spicified in % dimensions, but there are % dimensions", linearNoElements.size(), configData_->dimension_);
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
@@ -614,7 +606,7 @@ namespace Base
         
         for (std::size_t i = 0; i < DIM; ++i)
         {
-            delta_x[i] = (TopRight[i] - BottomLeft[i]) / (linearNoElements[i]);
+            delta_x[i] = (topRight[i] - bottomLeft[i]) / (linearNoElements[i]);
         }
         
         std::vector<std::size_t> numOfNodesInEachSubspace(DIM), numOfVerticesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM);
@@ -657,7 +649,7 @@ namespace Base
             std::size_t nodeIndexRemain = nodeIndex;
             for (int idim = DIM - 1; idim > -1; --idim)
             {
-                x[idim] = BottomLeft[idim] + (nodeIndexRemain / numOfNodesInEachSubspace[idim] * delta_x[idim]);
+                x[idim] = bottomLeft[idim] + (nodeIndexRemain / numOfNodesInEachSubspace[idim] * delta_x[idim]);
                 nodeIndexRemain %= numOfNodesInEachSubspace[idim];
             }
             theMesh_.addNode(x);

@@ -64,7 +64,7 @@ namespace Base
 
     private:
         ElementFactory();
-        ElementFactory(const ElementFactory& orig);
+        ElementFactory(const ElementFactory& orig) = delete;
         virtual ~ElementFactory();
 
         std::size_t unknowns_;

@@ -54,16 +54,19 @@ namespace Base
     
     void BasisFunctionSet::addBasisFunction(BaseBasisFunctionT* bf)
     {
+        logger.assert(bf!=nullptr, "Invalid basis function passed");
         vecOfBasisFcn_.push_back(bf);
     }
     
     double BasisFunctionSet::eval(std::size_t i, const PointReferenceT& p) const
     {
+        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
         return vecOfBasisFcn_[i]->eval(p);
     }
     
     double BasisFunctionSet::evalDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const
     {
+        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
         logger.assert((jDir < 4), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
         
         switch (jDir)
@@ -89,11 +92,13 @@ namespace Base
     
     void BasisFunctionSet::eval(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
+        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
         vecOfBasisFcn_[i]->eval(p, ret);
     }
     
     LinearAlgebra::NumericalVector BasisFunctionSet::evalCurl(std::size_t i, const PointReferenceT& p) const
     {
+        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
         return vecOfBasisFcn_[i]->evalCurl(p);
     }
 }

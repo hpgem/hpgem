@@ -27,6 +27,7 @@
 
 void Base::ElementCacheData::operator ()(const Element* el, const Geometry::PointReference& p)
 {
+    logger.assert(el!=nullptr, "Invalid element passed");
     Geometry::Jacobian jac(p.size(), p.size());
     jac = el->calcJacobian(p);
     absDetJac_ = std::abs(jac.determinant());

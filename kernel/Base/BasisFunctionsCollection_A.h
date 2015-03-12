@@ -39,10 +39,12 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==1, "Reference point has incorrect dimension");
             return 1;
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==1, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -52,10 +54,12 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==1, "Reference point has incorrect dimension");
             return p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==1, "Reference point has incorrect dimension");
             return 1.;
         }
     };
@@ -65,10 +69,12 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==1, "Reference point has incorrect dimension");
             return p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==1, "Reference point has incorrect dimension");
             return 2. * p[0];
         }
     };
@@ -78,10 +84,12 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==1, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==1, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0];
         }
     };
@@ -91,10 +99,12 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==1, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==1, "Reference point has incorrect dimension");
             return 4. * p[0] * p[0] * p[0];
         }
     };
@@ -104,10 +114,12 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==1, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==1, "Reference point has incorrect dimension");
             return 5. * p[0] * p[0] * p[0] * p[0];
         }
     };
@@ -120,14 +132,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 1;
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -137,14 +152,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 1.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -154,14 +172,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 1.;
         }
     };
@@ -171,14 +192,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0];
         }
     };
@@ -188,14 +212,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 2. * p[0];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -205,14 +232,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 2. * p[1];
         }
     };
@@ -222,14 +252,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0];
         }
     };
@@ -239,14 +272,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[1] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1];
         }
     };
@@ -256,14 +292,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -273,14 +312,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 3. * p[1] * p[1];
         }
     };
@@ -290,14 +332,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0];
         }
     };
@@ -307,14 +352,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[1];
         }
     };
@@ -324,14 +372,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 3. * p[0] * p[1] * p[1];
         }
     };
@@ -341,14 +392,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 4. * p[0] * p[0] * p[0];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -358,14 +412,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 4. * p[1] * p[1] * p[1];
         }
     };
@@ -375,14 +432,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 4. * p[0] * p[0] * p[0] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0];
         }
     };
@@ -392,14 +452,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[1] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[0] * p[1];
         }
     };
@@ -409,14 +472,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[1] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[1] * p[1];
         }
     };
@@ -426,14 +492,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 4. * p[0] * p[1] * p[1] * p[1];
         }
     };
@@ -443,14 +512,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 5. * p[0] * p[0] * p[0] * p[0];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -460,14 +532,17 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==2, "Reference point has incorrect dimension");
             return 5. * p[1] * p[1] * p[1] * p[1];
         }
     };
@@ -480,18 +555,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 1;
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -501,18 +580,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 1.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -522,18 +605,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 1.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -543,18 +630,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 1.;
         }
     };
@@ -564,18 +655,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -585,18 +680,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0];
         }
     };
@@ -606,18 +705,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1];
         }
     };
@@ -626,18 +729,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[1];
         }
     };
@@ -646,18 +753,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -667,18 +778,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[1];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -688,18 +803,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[2];
         }
     };
@@ -709,18 +828,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -730,18 +853,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0];
         }
     };
@@ -751,18 +878,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -772,18 +903,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[1] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1];
         }
     };
@@ -793,18 +928,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[2];
         }
     };
@@ -814,18 +953,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[1] * p[2];
         }
     };
@@ -835,18 +978,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -856,18 +1003,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[1] * p[1];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -877,18 +1028,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[2] * p[2];
         }
     };
@@ -898,18 +1053,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1];
         }
     };
@@ -919,18 +1078,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1];
         }
     };
@@ -940,18 +1103,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[2] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[2] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[2];
         }
     };
@@ -961,18 +1128,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -982,18 +1153,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0];
         }
     };
@@ -1003,18 +1178,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[1] * p[1] * p[0];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1024,18 +1203,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[1] * p[1] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1];
         }
     };
@@ -1045,18 +1228,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[2] * p[2] * p[0];
         }
     };
@@ -1066,18 +1253,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[2] * p[2] * p[1];
         }
     };
@@ -1087,18 +1278,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[1];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1108,18 +1303,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[1] * p[2] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[1] * p[1] * p[2];
         }
     };
@@ -1129,18 +1328,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[2] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[2];
         }
     };
@@ -1150,18 +1353,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 4. * p[0] * p[0] * p[0];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1171,18 +1378,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 4. * p[1] * p[1] * p[1];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1192,18 +1403,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 4. * p[2] * p[2] * p[2];
         }
     };
@@ -1213,18 +1428,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[1] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[1] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[1];
         }
     };
@@ -1234,18 +1453,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1] * p[1] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[1] * p[1] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1] * p[1];
         }
     };
@@ -1255,18 +1478,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[2] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[2] * p[2] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[2] * p[2] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[1] * p[2] * p[2];
         }
     };
@@ -1276,18 +1503,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[1] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[1] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[1] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[1];
         }
     };
@@ -1297,18 +1528,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[2] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[2] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[1] * p[2];
         }
     };
@@ -1318,18 +1553,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[2] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[2] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[1] * p[2];
         }
     };
@@ -1339,18 +1578,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 4. * p[0] * p[0] * p[0] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1360,18 +1603,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 4. * p[0] * p[0] * p[0] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0];
         }
     };
@@ -1381,18 +1628,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 4. * p[1] * p[1] * p[1] * p[0];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1402,18 +1653,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 4. * p[1] * p[1] * p[1] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1];
         }
     };
@@ -1423,18 +1678,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[2] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 4. * p[2] * p[2] * p[2] * p[0];
         }
     };
@@ -1444,18 +1703,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[2] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 4. * p[2] * p[2] * p[2] * p[1];
         }
     };
@@ -1465,18 +1728,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[1] * p[1];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[0] * p[1];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1486,18 +1753,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[2] * p[2];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[0] * p[2];
         }
     };
@@ -1507,18 +1778,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[1] * p[1] * p[1] * p[0];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[1] * p[1] * p[0] * p[0];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1528,18 +1803,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[1] * p[1] * p[2] * p[2];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[1] * p[1] * p[1] * p[2];
         }
     };
@@ -1549,18 +1828,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[2] * p[2] * p[2] * p[0];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[2] * p[2] * p[0] * p[0];
         }
     };
@@ -1570,18 +1853,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 2. * p[2] * p[2] * p[2] * p[1];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 3. * p[2] * p[2] * p[1] * p[1];
         }
     };
@@ -1591,18 +1878,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0] * p[0];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 5. * p[0] * p[0] * p[0] * p[0];
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1612,18 +1903,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1] * p[1];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 5. * p[1] * p[1] * p[1] * p[1];
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1633,18 +1928,22 @@ namespace Base
     {
         virtual double eval(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[2] * p[2];
         }
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 0.;
         }
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
+            logger.assert(p.size()==3, "Reference point has incorrect dimension");
             return 5. * p[2] * p[2] * p[2] * p[2];
         }
     };

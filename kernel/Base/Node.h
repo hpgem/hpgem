@@ -25,6 +25,8 @@
 #include <cstdlib>
 #include <vector>
 
+#include "Logger.h"
+
 namespace Base
 {
     
@@ -68,6 +70,7 @@ namespace Base
         
         std::size_t getVertexNr(std::size_t i) const
         {
+            logger.assert(i < getNrOfElements(), "Asked for element %, but there are only % elements", i, getNrOfElements());
             return localNodeNrs_[i];
         }
         

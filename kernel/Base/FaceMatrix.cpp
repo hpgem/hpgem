@@ -48,6 +48,8 @@ namespace Base
     /// \param[in] jVarBasisFunction Index for both the variable and basis function corresponding to the solution at the element on side jSide.
     double & FaceMatrix::operator()(Side iSide, Side jSide, std::size_t iVarBasisFunction, std::size_t jVarBasisFunction)
     {
+        logger.assert(iVarBasisFunction < getNrOfDegreesOfFreedom(iSide), "Asked for degree of freedom %, but there are only % degrees of freedom", iVarBasisFunction, getNrOfDegreesOfFreedom(iSide));
+        logger.assert(jVarBasisFunction < getNrOfDegreesOfFreedom(jSide), "Asked for degree of freedom %, but there are only % degrees of freedom", jVarBasisFunction, getNrOfDegreesOfFreedom(jSide));
         if (iSide == Side::LEFT)
         {
             if (jSide == Side::LEFT)
@@ -79,6 +81,8 @@ namespace Base
     /// The index i indicates the side of the adjacent element as well as the variable and basis function at this element corresponding to the test function. Idem for j, but now for the solution instead of the test function.
     double & FaceMatrix::operator()(std::size_t i, std::size_t j)
     {
+        logger.assert(i < getNrOfDegreesOfFreedom(Side::LEFT) + getNrOfDegreesOfFreedom(Side::RIGHT), "Asked for degree of freedom %, but there are only % degrees of freedom", i, getNrOfDegreesOfFreedom(Side::LEFT) + getNrOfDegreesOfFreedom(Side::RIGHT));
+        logger.assert(j < getNrOfDegreesOfFreedom(Side::LEFT) + getNrOfDegreesOfFreedom(Side::RIGHT), "Asked for degree of freedom %, but there are only % degrees of freedom", j, getNrOfDegreesOfFreedom(Side::LEFT) + getNrOfDegreesOfFreedom(Side::RIGHT));
         std::size_t nDOFLeft = M_LeftLeft_.getNRows();
         if (i < nDOFLeft)
         {

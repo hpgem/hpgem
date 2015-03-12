@@ -68,6 +68,7 @@ namespace Base
     
     bool Mesh::addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType)
     {
+        logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
         if (rightElementPtr == nullptr)
         {
             faces_.push_back(FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, faceType, faceCounter_));
