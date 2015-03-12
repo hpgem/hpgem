@@ -41,29 +41,8 @@ namespace Output
     {
         // sort in the sequences in BACKWARD order!
         // see tecplot manual chapter 4.3
-        
-        // 4D FE hyper cube: ORDER IS GUESS
-        /*
-         hypercubeNodes.push_back(14);
-         hypercubeNodes.push_back(15);
-         hypercubeNodes.push_back(13);
-         hypercubeNodes.push_back(12);
-         hypercubeNodes.push_back(10);
-         hypercubeNodes.push_back(11);
-         hypercubeNodes.push_back(9);
-         hypercubeNodes.push_back(8);
-
-         hypercubeNodes.push_back(6);
-         hypercubeNodes.push_back(7);
-         hypercubeNodes.push_back(5);
-         hypercubeNodes.push_back(4);
-         hypercubeNodes.push_back(2);
-         hypercubeNodes.push_back(3);
-         hypercubeNodes.push_back(1);
-         hypercubeNodes.push_back(0);
 
          // 3D FE volumes: (all as bricks)
-         */
         hexahedronNodes.push_back(6);
         hexahedronNodes.push_back(7);
         hexahedronNodes.push_back(5);
@@ -113,7 +92,7 @@ namespace Output
                 
         // for the FE-QUADRILATERAL element type
         
-        // 1D data - is this supported by tecplot?
+        // 1D data - it is untested if this is supported by tecplot
         lineNodes.push_back(1);
         lineNodes.push_back(0);
     }
@@ -159,14 +138,6 @@ namespace Output
             throw "unsuccesfull";
         }
     }
-    
-    /*
-     void TecplotPhysicalGeometryIterator::acceptHyperCubeGeometry(const Geometry::PhysicalHypercube&)
-     {
-     currentSequencePtr = &hypercubeNodes;
-     currentNode = hypercubeNodes.size() - 1;
-     }
-     */
 
     void TecplotPhysicalGeometryIterator::acceptHexahedronGeometry(const Geometry::PhysicalHexahedron*)
     {

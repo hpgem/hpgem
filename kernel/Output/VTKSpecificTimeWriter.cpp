@@ -53,13 +53,25 @@
 //smaller underlying type allows for easy conversion to base64
 enum class VTKElementName
     : std::uint8_t
-    {   
+{   
         VERTEX = 1, LINE = 3, TRIANGLE = 5, QUAD = 9, TETRA = 10, HEXAHEDRON = 12, WEDGE = 13, PYRAMID = 14
 };
 
-static std::unordered_map<std::type_index, VTKElementName> hpGEMToVTK = { {std::type_index(typeid(Geometry::ReferencePoint)), VTKElementName::VERTEX}, {std::type_index(typeid(Geometry::ReferenceLine)), VTKElementName::LINE}, {std::type_index(typeid(Geometry::ReferenceTriangle)), VTKElementName::TRIANGLE}, {std::type_index(typeid(Geometry::ReferenceSquare)), VTKElementName::QUAD}, {std::type_index(typeid(Geometry::ReferenceTetrahedron)), VTKElementName::TETRA}, {std::type_index(typeid(Geometry::ReferenceCube)), VTKElementName::HEXAHEDRON}, {std::type_index(typeid(Geometry::ReferenceTriangularPrism)), VTKElementName::WEDGE}, {std::type_index(typeid(Geometry::ReferencePyramid)), VTKElementName::PYRAMID}};
+static std::unordered_map<std::type_index, VTKElementName> hpGEMToVTK = 
+{ 
+    {std::type_index(typeid(Geometry::ReferencePoint)), VTKElementName::VERTEX},
+    {std::type_index(typeid(Geometry::ReferenceLine)), VTKElementName::LINE}, 
+    {std::type_index(typeid(Geometry::ReferenceTriangle)), VTKElementName::TRIANGLE}, 
+    {std::type_index(typeid(Geometry::ReferenceSquare)), VTKElementName::QUAD}, 
+    {std::type_index(typeid(Geometry::ReferenceTetrahedron)), VTKElementName::TETRA}, 
+    {std::type_index(typeid(Geometry::ReferenceCube)), VTKElementName::HEXAHEDRON}, 
+    {std::type_index(typeid(Geometry::ReferenceTriangularPrism)), VTKElementName::WEDGE}, 
+    {std::type_index(typeid(Geometry::ReferencePyramid)), VTKElementName::PYRAMID}
+};
 
-Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName, const Base::MeshManipulator* mesh, std::size_t timelevel)
+Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName, 
+                                                     const Base::MeshManipulator* mesh, 
+                                                     std::size_t timelevel)
         : mesh_(mesh), totalPoints_(0), timelevel_(timelevel)
 {
     logger.assert(mesh!=nullptr,"Invalid mesh passed");

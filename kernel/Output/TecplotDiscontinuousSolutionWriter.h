@@ -47,24 +47,13 @@ namespace Output
         TecplotDiscontinuousSolutionWriter(std::ostream& output, const std::string& fileTitle, const std::string& dimensionsToWrite, const std::string& variableString);
 
         /// Write a zone with data from the current mesh to the stream held by the object.
+        /// \todo Make a version that takes an std::function instead of a TecplotSingleElementWriter*.
         void write(const Base::MeshManipulator* mesh, const std::string& zoneTitle, const bool sameGeometry, TecplotSingleElementWriter* writeDataClass, const double time = 0);
 
-        /// Write a zone with data from the current mesh to the stream held by the object. (class member write function)
-        /// Has the exact same behaviour as the other write function except it uses OBJ::writeDataFunc() as the write function
-        /*    template <typename OBJ, typename WriteFunction>
-         void write(const Base::MeshManipulator* mesh,
-         const std::string& zoneTitle,
-         const bool sameGeometry,
-         WriteFunction& writeDataFunc,
-         OBJ* objPtr                   
-         );*/
-
-        /// \TODO: Perfect this destructor.
-        /// should dimensionsToWrite_ and dimNrs be deallocated here?
         ~TecplotDiscontinuousSolutionWriter()
         {
             output_.flush();
-            delete dimNrs;
+            delete[] dimNrs;
         }
         
     private:
@@ -78,8 +67,6 @@ namespace Output
         std::size_t previousNrOfNodes_;
 
         std::string elementType_[5];
-
-        std::size_t* dimensionsToWrite_;
 
         const std::size_t nDimensionsToWrite_;
 

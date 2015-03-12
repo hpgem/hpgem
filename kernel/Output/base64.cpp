@@ -27,7 +27,7 @@
 bool Output::Detail::isBigEndian()
 {
     std::uint32_t test = 0x01020304;
-    //yes, I really dont want the compiler to touch the underlying binary data
+    //Do NOT let the compiler touch the underlying binary data
     std::uint8_t* pFirstByte = reinterpret_cast<std::uint8_t*>(&test);
     return *pFirstByte == 1;
 }

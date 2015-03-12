@@ -55,8 +55,8 @@ namespace Output
      * of the results to the stream output_. It does this by iterating over the elements
      * and the nodes in each element, find out its physical coordinates and then 
      * call the function writeToFile which has to be defined in the writeDataClass.
-     * @param[in] mesh           Mesh on which the values are already computed
-     * @param[in] writeDataClass Class which is a child of the class SingleElementWriter
+     * \param[in] mesh           Mesh on which the values are already computed
+     * \param[in] writeDataClass Class which is a child of the class SingleElementWriter
      *                           which has defined the function writeToFile.
      */
     void GNUPlotDiscontinuousSolutionWriter::write(const Base::MeshManipulator* mesh, SingleElementWriter* writeDataClass)

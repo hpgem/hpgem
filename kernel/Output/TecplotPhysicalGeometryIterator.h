@@ -33,7 +33,7 @@ namespace Geometry
 namespace Output
 {
     
-    /// TODO: Implement other geometries. For that we need the physical geometries.
+    /// \TODO: Implement other geometries. For that we need the physical geometries.
     class TecplotPhysicalGeometryIterator : public PhysicalGeometryAcceptor
     {
         
@@ -47,9 +47,6 @@ namespace Output
         }
         
         void acceptG(const Geometry::PhysicalGeometry* geo);
-
-        /// \brief Choose node sequence for the hypercube.
-        //virtual void acceptHyperCubeGeometry(const Geometry::PhysicalHypercube&);
         
         /// \brief Choose node sequence for the hexahedron.
         virtual void acceptHexahedronGeometry(const Geometry::PhysicalHexahedron*);

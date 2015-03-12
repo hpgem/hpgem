@@ -46,18 +46,11 @@ namespace Output
         elementType_[3] = "FEBRICK";
         elementType_[4] = "UNKNOWN";
         
-        /// See if the dimensionsToWrite array makes sense.\todo think of a way to check this
-        /*if (nDimensionsToWrite_ > DIM)
-         {
-         throw "TecplotDiscontinuousSolutionWriter: Printing more dimensions that there are";
-         }*/
         dimNrs = new std::size_t[nDimensionsToWrite_];
         for (std::size_t i = 0; i < nDimensionsToWrite_; ++i)
         {
             std::istringstream istr(dimensionsToWrite.substr(i, 1));
             istr >> dimNrs[i];
-            //            if (dimensionsToWrite_[0] > DIM)
-            //throw "TecplotDiscontinuousSolutionWriter: Requested an invalid dimension to print";
         }
         
         output_ << "TITLE = \"" << fileTitle << "\"\n";
@@ -130,7 +123,6 @@ namespace Output
         
         using MeshType = Base::MeshManipulator;
         using ElementT = Base::Element;
-        //using ListOfElementsT = Base::MeshManipulator<DIM>::ListOfElementsT ;
         using ListOfElementsT = std::vector<ElementT*>;
         
         std::size_t nrOfNodes; // i.e. on one element
@@ -143,7 +135,6 @@ namespace Output
         
         // 1. Element cycle, print physical coordinates.
         
-        // mesh->outputMesh(std::cout);
         for (typename ListOfElementsT::const_iterator iterator = elements.begin(), end = elements.end(); iterator != end; ++iterator)
         {
             totalNrOfElements++;
@@ -166,10 +157,8 @@ namespace Output
                 if (!sameGeometry)
                 {
                     // First write the (possibly reduced) coordinates of the point;
-                    // note: PHYSICAL coordinates here!
-                    
+                    // note: PHYSICAL coordinates here!                    
                     pPhys = (*iterator)->referenceToPhysical(pRef);
-                    //(*iterator)->getPhysicalGeometry()->getNodeCoordinates(localNode, pPhys);
                     
                     for (std::size_t i = 0; i < nDimensionsToWrite_; ++i)
                     {
@@ -183,18 +172,12 @@ namespace Output
                 // function
                 output_.precision(8);
                 output_.width(16);
-                //output_ << "0.0";
                 writeDataClass->writeToTecplotFile(*iterator, pRef, output_);
                 output_ << "\n";
                 
             } // 'nodes of element' loop
             
-            /*
-             if (((unsigned int) 1 << nrOfDimensionsWritten) != nrOfNodes)
-             {
-             throw "TecplotDiscontinuousSolutionWriter: wrong number of nodes written";
-             }
-             */
+            
             totalNrOfVertices += nrOfNodes;
         }
         

@@ -22,7 +22,6 @@
 #ifndef PHYSICALGEOMETRYACCEPTOR_HPP_
 #define PHYSICALGEOMETRYACCEPTOR_HPP_
 
-//class Geometry::PhysicalQuadrilateral;
 
 namespace Geometry
 {
@@ -38,13 +37,12 @@ namespace Geometry
 namespace Output
 {
     
-    /// TODO: Implement other geometries.
+    /// \TODO: Implement other geometries.
     class PhysicalGeometryAcceptor
     {
         
     public:
         
-//        virtual void acceptHyperCubeGeometry(const Geometry::PhysicalHypercube&) = 0;
         virtual void acceptTetrahedronGeometry(const Geometry::PhysicalTetrahedron*) = 0;
         virtual void acceptPyramidGeometry(const Geometry::PhysicalPyramid*) = 0;
         virtual void acceptTriangularPrismGeometry(const Geometry::PhysicalTriangularPrism*) = 0;
