@@ -44,8 +44,6 @@ namespace Base
         using ElementIterator = MeshManipulator::ElementIterator;
         using ConstFaceIterator = MeshManipulator::ConstFaceIterator;
         using FaceIterator = MeshManipulator::FaceIterator;
-
-    public:
         using ElementT = Base::Element;
         using FaceT = Base::Face;
         using RectangularMeshDescriptorT = RectangularMeshDescriptor;

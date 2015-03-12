@@ -167,7 +167,7 @@ namespace Base
         
         if (entries_.empty())
         {
-            throw "LevelTree<V>::setAsTheCoarsestEntries() error: the mesh is empty!\n";
+            logger(ERROR, "LevelTree<V>::setAsTheCoarsestEntries() error: the mesh is empty!");
         }
         
         int numRoots = 0;
@@ -200,14 +200,14 @@ namespace Base
     {
         if (!coarsestEntriesSet_)
         {
-            throw "LevelTree<V>::beginLevel() error: the coarsest entries has not been set!";
+            logger(ERROR, "LevelTree<V>::beginLevel() error: the coarsest entries has not been set!");
         }
         
         iterator fci;
         
         if ((level < minLevel_) || (level > maxLevel_))
         {
-            throw "LevelTree<V>::beginLevel() error: the level must in the valid range!";
+            logger(ERROR, "LevelTree<V>::beginLevel() error: the level must in the valid range!");
             
             fci.end_ = entries_.end();
             fci.ptr_ = fci.end_;
@@ -241,7 +241,7 @@ namespace Base
     {
         if (!coarsestEntriesSet_)
         {
-            throw "LevelTree<V>::beginLeaf() error: the coarsest entries has not been set!";
+            logger(ERROR, "LevelTree<V>::beginLeaf() error: the coarsest entries has not been set!");
         }
         
         iterator fci;
@@ -271,7 +271,7 @@ namespace Base
     {
         if (!coarsestEntriesSet_)
         {
-            throw "LevelTree<V>::beginPreOrder() error: the coarsest entries has not been set!";
+            logger(ERROR, "LevelTree<V>::beginPreOrder() error: the coarsest entries has not been set!");
         }
         
         iterator fci;
@@ -300,7 +300,7 @@ namespace Base
     {
         if (!coarsestEntriesSet_)
         {
-            throw "LevelTree<V>::beginPostOrder() error: the coarsest entries has not been set!";
+            logger(ERROR, "LevelTree<V>::beginPostOrder() error: the coarsest entries has not been set!");
         }
         
         iterator fci;
@@ -344,7 +344,7 @@ namespace Base
     {
         if (!coarsestEntriesSet_)
         {
-            throw "LevelTree<V>::addTreeChildren() error: the coarsest entries has not been set!";
+            logger(ERROR, "LevelTree<V>::addTreeChildren() error: the coarsest entries has not been set!");
         }
         
         DimT numSubEntries = subEntries.size();
@@ -381,7 +381,7 @@ namespace Base
     {
         if (!coarsestEntriesSet_)
         {
-            throw "LevelTree<V>::eraseChildsOf() error: the coarsest entries has not been set!";
+            logger(ERROR, "LevelTree<V>::eraseChildsOf() error: the coarsest entries has not been set!");
         }
         
         if (fci->hasChild())
@@ -402,7 +402,7 @@ namespace Base
     {
         if ((!fci->isLastSibling()) || !(fci->isLeaf()))
         {
-            throw "LevelTree<V>::eraseLastLeaf() error: eraseLastLeaf not the last leaf node!";
+            logger(ERROR, "LevelTree<V>::eraseLastLeaf() error: eraseLastLeaf not the last leaf node!");
         }
         
         if (fci->canDecreaseCounter())

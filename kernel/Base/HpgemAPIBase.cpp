@@ -37,7 +37,9 @@ namespace Base
     {
         if (!parse_isDone())
         {
-            std::cerr << "Warning: Command line arguments have not been parsed.\n" << "  Please call Base::parse_options(argc, argv); first.\n" << "  This application may not behave as intended." << std::endl;
+            logger(WARN, "Warning: Command line arguments have not been parsed.\n" 
+                    "  Please call Base::parse_options(argc, argv); first.\n"
+                    "  This application may not behave as intended.");
         }
     }
     
@@ -75,9 +77,9 @@ namespace Base
         }
         else
         {
-            std::cerr << "Other types are yet to be implemented! " << std::endl;
+            logger(ERROR, "The only mesh types that are implemented are RECTANGULAR and TRIANGULAR. % is not implemented.", meshType);
         }
-        std::cout << "I just created a mesh!!!" << std::endl;
+        logger(INFO, "HpgemAPIBase::addMesh created a mesh.");
         return numOfMeshes;
     }
     
@@ -88,7 +90,7 @@ namespace Base
         mesh->readCentaurMesh(fileName); //boundary information (^) is ignored
         mesh->getElementsList();
         meshes_.push_back(mesh);
-        std::cout << "I just read a mesh!!!" << std::endl;
+        logger(INFO, "HpgemAPIBase::addMesh read a mesh.");
         return numOfMeshes;
     }
     

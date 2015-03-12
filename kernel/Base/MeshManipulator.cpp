@@ -99,7 +99,7 @@ namespace Base
                         Base::AssembleBasisFunctionSet_1D_Ord5_A0(*bFset1);
                         break;
                     default:
-                        std::cout << "WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2" << std::endl;
+                        logger(WARN, "WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2");
                         const_cast<Base::ConfigurationData*>(configData_)->polynomialOrder_ = 2;
                         delete bFset1;
                         bFset1 = new Base::BasisFunctionSet(2);
@@ -128,7 +128,7 @@ namespace Base
                         Base::AssembleBasisFunctionSet_2D_Ord5_A1(*bFset1);
                         break;
                     default:
-                        std::cout << "WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2" << std::endl;
+                        logger(WARN, "WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2");
                         const_cast<Base::ConfigurationData*>(configData_)->polynomialOrder_ = 2;
                         delete bFset1;
                         bFset1 = new Base::BasisFunctionSet(2);
@@ -157,7 +157,7 @@ namespace Base
                         Base::AssembleBasisFunctionSet_3D_Ord5_A1(*bFset1);
                         break;
                     default:
-                        std::cout << "WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2" << std::endl;
+                        logger(WARN, "WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2");
                         const_cast<Base::ConfigurationData*>(configData_)->polynomialOrder_ = 2;
                         delete bFset1;
                         bFset1 = new Base::BasisFunctionSet(2);
@@ -165,7 +165,7 @@ namespace Base
                 }
                 break;
             default:
-                throw "No basisfunctions exist in this dimension";
+                logger(ERROR, "No basisfunctions exist in this dimension");
         }
         if (collBasisFSet_.size() == 0)
         {
@@ -183,22 +183,22 @@ namespace Base
         logger.assert(config!=nullptr, "Invalid configuration passed");
         logger.assert(orderOfFEM==config->polynomialOrder_, "Inconsistent redundant information passed");
         logger.assert(idRangeBegin==0, "c++ starts counting at 0");
-        std::cout << "******Mesh creation started!**************" << std::endl;
+        logger(INFO, "******Mesh creation started!**************");
         std::size_t DIM = configData_->dimension_;
         for (std::size_t i = 0; i < DIM; ++i)
         {
             if (i == 0)
-                std::cout << "Boundries: " << (periodicX_ ? "Periodic  " : "Solid Wall") << " in X direction" << std::endl;
+                logger(INFO, "Boundries: % in X direction", (periodicX_ ? "Periodic  " : "Solid Wall"));
             if (i == 1)
-                std::cout << "Boundries: " << (periodicY_ ? "Periodic " : "Solid Wall") << " in Y direction" << std::endl;
+                logger(INFO, "Boundries: % in Y direction", (periodicY_ ? "Periodic  " : "Solid Wall"));
             if (i == 2)
-                std::cout << "Boundries: " << (periodicZ_ ? "Periodic " : "Solid Wall") << " in Z direction" << std::endl;
+                logger(INFO, "Boundries: % in Z direction", (periodicZ_ ? "Periodic  " : "Solid Wall"));
         }
         createDefaultBasisFunctions(orderOfFEM);
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ = collBasisFSet_[0]->size();
         
         //createNewMeshTree();
-        std::cout << "******Mesh creation is finished!**********" << std::endl;
+        logger(INFO, "******Mesh creation is finished!**********");
         logger(VERBOSE, "nrOfElementVector = %", nrOfElementVectors);
         logger(VERBOSE, "nrOfFaceVector = %", nrOfFaceVectors);
     }
@@ -410,11 +410,7 @@ namespace Base
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
         std::size_t DIM = configData_->dimension_;
-        if (linearNoElements.size() != DIM)
-        {
-            std::cout << "The number of Linear Intervals has to map the size of the problem and current it does not" << std::endl;
-            throw(10);
-        }
+        logger.assert(linearNoElements == DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
         std::vector<bool> periodicDIM;
         for (std::size_t i = 0; i < DIM; ++i)
         {
@@ -567,26 +563,11 @@ namespace Base
         
         //Stage 0 : Check for required requirements
         std::size_t DIM = configData_->dimension_;
-        if (linearNoElements.size() != DIM)
-        {
-            std::cout << "The number of Linear Intervals has to map the size of the problem and current it does not" << std::endl;
-            throw(10);
-        }
+        logger.assert(linearNoElements == DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
         
-        if (DIM == 3 && periodicX_ && linearNoElements[0] % 2 == 1)
-        {
-            throw "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension X";
-        }
-        
-        if (DIM == 3 && periodicY_ && linearNoElements[1] % 2 == 1)
-        {
-            throw "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Y";
-        }
-        
-        if (DIM == 3 && periodicZ_ && linearNoElements[2] % 2 == 1)
-        {
-            throw "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Z";
-        }
+        logger.assert(!(DIM == 3 && periodicX_ && linearNoElements[0] % 2 == 1), "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension X");
+        logger.assert(!(DIM == 3 && periodicY_ && linearNoElements[1] % 2 == 1), "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Y");
+        logger.assert(!(DIM == 3 && periodicZ_ && linearNoElements[2] % 2 == 1), "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Z");
         
         //place the boundary conditions together in a vector.
         std::vector<bool> periodicDIM;
@@ -822,10 +803,7 @@ namespace Base
         std::ifstream centaurFile;
         
         centaurFile.open(filename.c_str(), std::ios::binary);
-        if (!centaurFile.is_open())
-        {
-            throw("Cannot open Centaur meshfile.");
-        }
+        logger.assert_always(centaurFile.is_open(), "Cannot open Centaur meshfile.");
         
         switch (configData_->dimension_)
         {
@@ -836,7 +814,7 @@ namespace Base
                 readCentaurMesh3D(centaurFile);
                 break;
             default:
-                std::cerr << "Centaur mesh reader has not been implemented in this DIMension" << std::endl;
+                logger(ERROR, "Centaur mesh reader has not been implemented in this DIMension (%)", configData_->dimension_);
         }
         
         //Finally close the file
@@ -857,15 +835,15 @@ namespace Base
         // Version number of the Centaur mesh file 0.1 if using Tito's matlab generator
         float version;
         centaurFile.read(reinterpret_cast<char*>(&version), sizeof(version));
-        std::cout << "This read mesh is in Centaur version " << version << " format" << std::endl;
+        logger(INFO, "This read mesh is in Centaur version % format", version);
         
         // Centaur File Type <0 is two DIMensional and >0 is three DIMensional
         int32_t centaurFileType;
         centaurFile.read(reinterpret_cast<char*>(&centaurFileType), sizeof(centaurFileType));
         
-        if (centaurFileType < 0)
-        {
-            std::cout << "Reading a two DIMensional centaur mesh" << std::endl;
+        logger.assert_always(centaurFileType < 0, "Incorrect mesh file. This mesh appears to contain three DIMensional data");
+            
+            logger(INFO, "Reading a two DIMensional centaur mesh");
             
             //The rest of the first line is junk
             char junk[1024];
@@ -875,11 +853,7 @@ namespace Base
             
             //Check the first line was read correctly : each line in centaur start and end with the line size as a check
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //Start the second line
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -887,15 +861,11 @@ namespace Base
             //Next read the total number of nodes
             std::uint32_t numberOfNodes;
             centaurFile.read(reinterpret_cast<char*>(&numberOfNodes), sizeof(numberOfNodes));
-            std::cout << "File contains " << numberOfNodes << " nodes" << std::endl;
+            logger(INFO, "File contains % nodes", numberOfNodes);
             
             //Check the second line was read correctly : each line in centaur start and end with the line size as a check
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //placeholder for vertices until we know where the periodic boundaries are
             std::vector<std::vector<std::size_t> > listOfElementsForEachNode(numberOfNodes);
@@ -918,26 +888,18 @@ namespace Base
             }
             //Now check the node line was read correctly : each line in centaur start and end with the line size as a check
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //Now check how many triangle in the file
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             // Number of triangular elements
             std::uint32_t numberOfTriangles;
             centaurFile.read(reinterpret_cast<char*>(&numberOfTriangles), sizeof(numberOfTriangles));
-            std::cout << "File contains " << numberOfTriangles << " triangle(s)" << std::endl;
+            logger(INFO, "File contains % triangle(s)", numberOfTriangles);
             
             //Check the line was read correctly : each line in centaur start and end with the line size as a check
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             if (numberOfTriangles > 0)
@@ -965,24 +927,16 @@ namespace Base
                 
             }
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //Now check the number of quaduratiles in the file
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             std::uint32_t numberOfQuads;
             centaurFile.read(reinterpret_cast<char*>(&numberOfQuads), sizeof(numberOfQuads));
-            std::cout << "File contains " << numberOfQuads << " quaduratile(s)" << std::endl;
+            logger(INFO, "File contains % quaduratile(s)", numberOfQuads);
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //Now read the quaduritles in
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -1021,11 +975,7 @@ namespace Base
             }
             //Check the line was read correctly : each line in centaur start and end with the line size as a check
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //now read boundary data
             //nodes first
@@ -1036,11 +986,7 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(&numberOfBoundaryNodes), sizeof(numberOfBoundaryNodes));
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
@@ -1058,11 +1004,7 @@ namespace Base
             }
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //then faces
             
@@ -1072,11 +1014,7 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(&numberOfBoundaryFaces), sizeof(numberOfBoundaryFaces));
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
@@ -1098,11 +1036,7 @@ namespace Base
                 std::set_intersection(leftNodeElements.begin(), leftNodeElements.end(), rightNodeElements.begin(), rightNodeElements.end(), std::back_inserter(candidateElements));
                 
                 //boundary faces *should* border only one element
-                if (candidateElements.size() > 1)
-                {
-                    std::cerr << "candidate boundary face lies at two or more elements" << std::endl;
-                    return;
-                }
+                logger.assert_always(candidateElements.size() < 2, "candidate boundary face lies at two or more elements"); 
                 boundaryFaces[i].elementNum = candidateElements[0];
                 
                 Element* current = elementslist[candidateElements[0]];
@@ -1121,11 +1055,7 @@ namespace Base
             }
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //now read a list of boundary segments (that will link the faces to boundary conditions later on)
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -1134,11 +1064,7 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(faceToSegment.data()), sizeof(std::uint32_t) * numberOfBoundaryFaces);
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //now couple the segments to boundary groups
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -1147,11 +1073,7 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(&numberOfSegments), sizeof(numberOfSegments));
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
@@ -1159,11 +1081,7 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(segmentToGroup.data()), sizeof(std::uint32_t) * numberOfSegments);
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //now we get the actual boundary information; centaur distinguishes the following
 //            1   -1000  - Viscous Wall
@@ -1184,11 +1102,7 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(numberOfGroups), sizeof(std::uint32_t));
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
@@ -1196,85 +1110,77 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(groupBCType.data()), sizeof(std::uint32_t) * numberOfGroups);
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             for (uint_fast32_t i = 0; i < numberOfBoundaryFaces; ++i)
             {
                 std::uint32_t boundaryType = groupBCType[segmentToGroup[faceToSegment[i]]];
                 if (boundaryType < 1001)
                 {
-                    std::cout << "Viscous Wall boundary for face " << i << " assigned as WALL_BC" << std::endl;
+                    logger(INFO, "Viscous Wall boundary for face % assigned as WALL_BC", i);
                     addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                 }
                 else if (boundaryType < 2001)
                 {
-                    std::cout << "Inviscid Wall boundary for face " << i << " assigned as WALL_BC" << std::endl;
+                    logger(INFO, "Inviscid Wall boundary for face % assigned as WALL_BC", i);
                     addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                 }
                 else if (boundaryType < 3001)
                 {
-                    std::cout << "symmetry plane boundary for face " << i << " assigned as WALL_BC" << std::endl;
+                    logger(INFO,  "symmetry plane boundary for face % assigned as WALL_BC", i);
                     addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                 }
                 else if (boundaryType < 4001)
                 {
-                    std::cout << "inlet pipe boundary for face " << i << " assigned as OPEN_BC" << std::endl;
+                    logger(INFO, "inlet pipe boundary for face % assigned as OPEN_BC", i);
                     addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                 }
                 else if (boundaryType < 5001)
                 {
-                    std::cout << "outlet pipe boundary for face " << i << " assigned as OPEN_BC" << std::endl;
+                    logger(INFO, "outlet pipe boundary for face % assigned as OPEN_BC", i);
                     addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                 }
                 else if (boundaryType < 6001)
                 {
-                    std::cout << "farfield boundary for face " << i << " assigned as OPEN_BC" << std::endl;
+                    logger(INFO, "farfield boundary for face % assigned as OPEN_BC", i);
                     addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                 }
                 else if (boundaryType < 7001)
                 {
-                    std::cout << "periodic boundary for face " << i << " ignored for being internal; node connections will be assigned later" << std::endl;
+                    logger(INFO,  "periodic boundary for face % ignored for being internal; node connections will be assigned later", i);
                 }
                 else if (boundaryType < 8001)
                 {
-                    std::cout << "shadow boundary for face " << i << " ignored for being internal; node connections will be assigned later" << std::endl;
+                    logger(INFO, "shadow boundary for face % ignored for being internal; node connections will be assigned later", i);
                 }
                 else if (boundaryType < 8501)
                 {
-                    std::cout << "interface boundary for face " << i << " ignored for being internal" << std::endl;
+                    logger(INFO, "interface boundary for face % ignored for being internal", i);
                 }
                 else if (boundaryType < 9001)
                 {
-                    std::cout << "wake boundary for face " << i << " assigned as OPEN_BC" << std::endl;
+                    logger(INFO, "wake boundary for face % assigned as OPEN_BC", i);
                     addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                 }
                 else if (boundaryType < 10001)
                 {
-                    std::cout << "moving wall boundary for face " << i << " assigned as WALL_BC" << std::endl;
+                    logger(INFO, "moving wall boundary for face % assigned as WALL_BC", i);
                     addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                 }
                 else
                 {
-                    std::cout << "alternative boundary condition for face " << i << " assigned as WALL_BC" << std::endl;
+                    logger(INFO, "alternative boundary condition for face % assigned as WALL_BC", i);
                     addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                 }
             }
             
-            //I dont care about the names of the groups, just skip them
+            //I don't care about the names of the groups, just skip them
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
             centaurFile.ignore(80 * numberOfGroups);
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //now read periodic information and link corresponding vertices
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -1283,11 +1189,7 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(&numberOfTransforms), sizeof(numberOfTransforms));
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             for (uint_fast32_t i = 0; i < numberOfTransforms; ++i)
             {
@@ -1297,21 +1199,13 @@ namespace Base
                 centaurFile.ignore(9 * sizeof(std::uint32_t));
                 
                 centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                if (checkInt != sizeOfLine)
-                {
-                    std::cerr << "Error in centaur file " << std::endl;
-                    return;
-                }
+                logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                 centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                 
                 centaurFile.ignore(9 * sizeof(uint));
                 
                 centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                if (checkInt != sizeOfLine)
-                {
-                    std::cerr << "Error in centaur file " << std::endl;
-                    return;
-                }
+                logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                 
                 std::uint32_t numberOfNodePairs;
                 centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -1319,11 +1213,7 @@ namespace Base
                 centaurFile.read(reinterpret_cast<char*>(&numberOfNodePairs), sizeof(numberOfNodePairs));
                 
                 centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                if (checkInt != sizeOfLine)
-                {
-                    std::cerr << "Error in centaur file " << std::endl;
-                    return;
-                }
+                logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                 
                 centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                 
@@ -1341,11 +1231,7 @@ namespace Base
                 }
                 
                 centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                if (checkInt != sizeOfLine)
-                {
-                    std::cerr << "Error in centaur file " << std::endl;
-                    return;
-                }
+                logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                 
             }
             
@@ -1383,12 +1269,6 @@ namespace Base
             //construct the rest of the faces
             faceFactory();
             
-        }
-        else
-        {
-            std::cerr << "Incorrect mesh file. This mesh appears to contain three DIMensional data" << std::endl;
-            
-        }
     }
     
     void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
@@ -1405,15 +1285,14 @@ namespace Base
         // Version number of the Centaur mesh file 0.1 if using Tito's matlab generator
         float version;
         centaurFile.read(reinterpret_cast<char*>(&version), sizeof(version));
-        std::cout << "This read mesh is in Centaur version " << version << " format" << std::endl;
+        logger(INFO, "This read mesh is in Centaur version % format", version);
         
         // Centaur File Type <0 is two DIMensional and >0 is three DIMensional
         std::uint32_t centaurFileType;
         centaurFile.read(reinterpret_cast<char*>(&centaurFileType), sizeof(centaurFileType));
         
-        if (centaurFileType > 0)
-        {
-            std::cout << "Reading a three DIMensional centaur mesh" << std::endl;
+        logger.assert_always(centaurFileType > 0, "Incorrect mesh file. This mesh appears to contain two DIMensional data");
+            logger(INFO, "Reading a three DIMensional centaur mesh");
             
             //The rest of the first line is junk
             char junk[1024];
@@ -1423,11 +1302,7 @@ namespace Base
             
             //Check the first line was read correctly : each line in centaur start and end with the line size as a check
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //Start the second line
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -1435,23 +1310,19 @@ namespace Base
             //Next read the total number of nodes
             std::uint32_t numberOfNodes;
             centaurFile.read(reinterpret_cast<char*>(&numberOfNodes), sizeof(numberOfNodes));
-            std::cout << "File contains " << numberOfNodes << " nodes" << std::endl;
+            logger(INFO, "File contains % nodes", numberOfNodes);
             
             //new centaur versions support splitting this list over multiple lines
             std::uint32_t numberOfNodesPerLine(numberOfNodes);
             if (centaurFileType > 4)
             {
                 centaurFile.read(reinterpret_cast<char*>(&numberOfNodesPerLine), sizeof(numberOfNodesPerLine));
-                std::cout << "One line in the file contains at most " << numberOfNodesPerLine << " nodes" << std::endl;
+                logger(INFO, "One line in the file contains at most % nodes.", numberOfNodesPerLine);
             }
             
             //Check the second line was read correctly : each line in centaur start and end with the line size as a check
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //Now we will read in all the nodes
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -1463,11 +1334,7 @@ namespace Base
                 {
                     //If all the nodes on a line are read end the line and start a new one
                     centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                    if (checkInt != sizeOfLine)
-                    {
-                        std::cerr << "Error in centaur file " << std::endl;
-                        return;
-                    }
+                    logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                     centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                 }
                 
@@ -1486,11 +1353,7 @@ namespace Base
             }
             //Now check the node line was read correctly : each line in centaur start and end with the line size as a check
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //Keep track of the node->Element connectivity to ease face creation later on
             std::vector<std::vector<std::size_t> > listOfElementsForEachNode(numberOfNodes);
@@ -1504,22 +1367,18 @@ namespace Base
                 // Number of hexahedral elements
                 std::uint32_t numberOfHexahedra;
                 centaurFile.read(reinterpret_cast<char*>(&numberOfHexahedra), sizeof(numberOfHexahedra));
-                std::cout << "File contains " << numberOfHexahedra << " hexahedron(s)" << std::endl;
+                logger(INFO,  "File contains  hexahedron(s)", numberOfHexahedra);
                 
                 //new centaur versions support splitting this list over multiple lines
                 std::uint32_t numberOfHexahedraPerLine(numberOfHexahedra);
                 if (centaurFileType > 4)
                 {
                     centaurFile.read(reinterpret_cast<char*>(&numberOfHexahedraPerLine), sizeof(numberOfHexahedraPerLine));
-                    std::cout << "One line in the file contains at most " << numberOfHexahedraPerLine << " hexahedra" << std::endl;
+                    logger(INFO, "One line in the file contains at most  hexahedra", numberOfHexahedraPerLine);
                 }
                 
                 centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                if (checkInt != sizeOfLine)
-                {
-                    std::cerr << "Error in centaur file " << std::endl;
-                    return;
-                }
+                logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                 
                 std::uint32_t temp;
                 std::vector<std::uint32_t> globalNodeIndexes(8);
@@ -1531,11 +1390,7 @@ namespace Base
                     {
                         //If all the nodes on a line are read end the line and start a new one
                         centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                        if (checkInt != sizeOfLine)
-                        {
-                            std::cerr << "Error in centaur file " << std::endl;
-                            return;
-                        }
+                        logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                         centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                     }
                     
@@ -1569,11 +1424,7 @@ namespace Base
                     }
                 }
                 centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                if (checkInt != sizeOfLine)
-                {
-                    std::cerr << "Error in centaur file " << std::endl;
-                    return;
-                }
+                logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             }
             
             //Now check how many triangular prisms in the file
@@ -1581,22 +1432,18 @@ namespace Base
             // Number of prismatic elements
             std::uint32_t numberOfPrisms;
             centaurFile.read(reinterpret_cast<char*>(&numberOfPrisms), sizeof(numberOfPrisms));
-            std::cout << "File contains " << numberOfPrisms << " triangular prism(s)" << std::endl;
+            logger(INFO,  "File contains % triangular prism(s)", numberOfPrisms);
             
             //new centaur versions support splitting this list over multiple lines
             std::uint32_t numberOfPrismsPerLine(numberOfPrisms);
             if (centaurFileType > 4)
             {
                 centaurFile.read(reinterpret_cast<char*>(&numberOfPrismsPerLine), sizeof(numberOfPrismsPerLine));
-                std::cout << "One line in the file contains at most " << numberOfPrismsPerLine << " prisms" << std::endl;
+                logger(INFO, "One line in the file contains at most % prisms", numberOfPrismsPerLine);
             }
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             std::vector<std::uint32_t> globalNodeIndexes(6);
             std::vector<std::size_t> globalNodeIndexesSizeT(6);
@@ -1607,11 +1454,7 @@ namespace Base
                 {
                     //If all the nodes on a line are read end the line and start a new one
                     centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                    if (checkInt != sizeOfLine)
-                    {
-                        std::cerr << "Error in centaur file " << std::endl;
-                        return;
-                    }
+                    logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                     centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                 }
                 
@@ -1634,11 +1477,7 @@ namespace Base
                 }
             }
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //file version 1 has no lines about pyramids
             if (centaurFileType > 1)
@@ -1648,22 +1487,18 @@ namespace Base
                 // Number of pyramids elements
                 std::uint32_t numberOfPyraminds;
                 centaurFile.read(reinterpret_cast<char*>(&numberOfPyraminds), sizeof(numberOfPyraminds));
-                std::cout << "File contains " << numberOfPyraminds << " pyramid(s)" << std::endl;
+                logger(INFO, "File contains % pyramid(s)", numberOfPyraminds);
                 
                 //new centaur versions support splitting this list over multiple lines
                 std::uint32_t numberOfPyramindsPerLine(numberOfPyraminds);
                 if (centaurFileType > 4)
                 {
                     centaurFile.read(reinterpret_cast<char*>(&numberOfPyramindsPerLine), sizeof(numberOfPyramindsPerLine));
-                    std::cout << "One line in the file contains at most " << numberOfPyramindsPerLine << " pyramids" << std::endl;
+                    logger(INFO, "One line in the file contains at most % pyramids", numberOfPyramindsPerLine);
                 }
                 
                 centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                if (checkInt != sizeOfLine)
-                {
-                    std::cerr << "Error in centaur file " << std::endl;
-                    return;
-                }
+                logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                 
                 std::uint32_t temp;
                 globalNodeIndexes.resize(5);
@@ -1675,11 +1510,7 @@ namespace Base
                     {
                         //If all the nodes on a line are read end the line and start a new one
                         centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                        if (checkInt != sizeOfLine)
-                        {
-                            std::cerr << "Error in centaur file " << std::endl;
-                            return;
-                        }
+                        logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                         centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                     }
                     
@@ -1742,11 +1573,7 @@ namespace Base
                     }
                 }
                 centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                if (checkInt != sizeOfLine)
-                {
-                    std::cerr << "Error in centaur file " << std::endl;
-                    return;
-                }
+                logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             }
             
             //Now check how many tetrahedra in the file
@@ -1754,22 +1581,18 @@ namespace Base
             // Number of tetrahedral elements
             std::uint32_t numberOfTetrahedra;
             centaurFile.read(reinterpret_cast<char*>(&numberOfTetrahedra), sizeof(numberOfTetrahedra));
-            std::cout << "File contains " << numberOfTetrahedra << " tetrahedron(s)" << std::endl;
+            logger(INFO,  "File contains % tetrahedron(s)", numberOfTetrahedra);
             
             //new centaur versions support splitting this list over multiple lines
             std::uint32_t numberOfTetrahedraPerLine(numberOfTetrahedra);
             if (centaurFileType > 4)
             {
                 centaurFile.read(reinterpret_cast<char*>(&numberOfTetrahedraPerLine), sizeof(numberOfTetrahedraPerLine));
-                std::cout << "One line in the file contains at most " << numberOfTetrahedraPerLine << " tetrahedra" << std::endl;
+                logger(INFO, "One line in the file contains at most % tetrahedra", numberOfTetrahedraPerLine);
             }
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             globalNodeIndexes.resize(4);
             globalNodeIndexesSizeT.resize(4);
@@ -1780,11 +1603,7 @@ namespace Base
                 {
                     //If all the tetrahedra on a line are read end the line and start a new one
                     centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                    if (checkInt != sizeOfLine)
-                    {
-                        std::cerr << "Error in centaur file " << std::endl;
-                        return;
-                    }
+                    logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                     centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                 }
                 
@@ -1807,11 +1626,7 @@ namespace Base
                 }
             }
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //    Read number of boundary faces and face to node
             //    
@@ -1855,13 +1670,13 @@ namespace Base
             //number of boundary faces
             std::uint32_t numberOfBoundaryFaces;
             centaurFile.read(reinterpret_cast<char*>(&numberOfBoundaryFaces), sizeof(numberOfBoundaryFaces));
-            std::cout << "File contains " << numberOfBoundaryFaces << " boundaryFace(s)" << std::endl;
+            logger(INFO, "File contains % boundaryFace(s)", numberOfBoundaryFaces);
             
             std::uint32_t boundaryFacesPerLine(numberOfBoundaryFaces);
             if (centaurFileType > 4)
             {
                 centaurFile.read(reinterpret_cast<char*>(&boundaryFacesPerLine), sizeof(boundaryFacesPerLine));
-                std::cout << "One line in the file contains at most " << boundaryFacesPerLine << " tetrahedra" << std::endl;
+                logger(INFO, "One line in the file contains at most % tetrahedra", numberOfTetrahedraPerLine);
             }
             
             HalfFaceDescription *boundarFaces = new HalfFaceDescription[numberOfBoundaryFaces];
@@ -1871,11 +1686,7 @@ namespace Base
             std::uint32_t nodalDescriptionOfTheFace[centaurFileType > 3 ? 8 : 7];
             std::uint32_t panelNumber, ijunk;
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //first read the information about the faces
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -1886,11 +1697,7 @@ namespace Base
                 {
                     //If all the tetrahedra on a line are read end the line and start a new one
                     centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                    if (checkInt != sizeOfLine)
-                    {
-                        std::cerr << "Error in centaur file " << std::endl;
-                        return;
-                    }
+                    logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                     centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                 }
                 
@@ -1910,11 +1717,7 @@ namespace Base
                 std::set_intersection(firstNodeList.begin(), firstNodeList.end(), secondNodeList.begin(), secondNodeList.end(), std::back_inserter(temp));
                 std::set_intersection(temp.begin(), temp.end(), thirdNodeList.begin(), thirdNodeList.end(), std::back_inserter(candidates));
                 
-                if (candidates.size() > 1)
-                {
-                    std::cerr << "candidate boundary face lies at two or more elements" << std::endl;
-                    return;
-                }
+                logger.assert_always(candidates.size() < 2, "candidate boundary face lies at two or more elements");
                 
                 boundarFaces[i].elementNum = candidates[0];
                 
@@ -1961,11 +1764,7 @@ namespace Base
             }
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //modern centaur file version store panel information separately
             if (centaurFileType > 3)
@@ -1977,11 +1776,7 @@ namespace Base
                     {
                         //If all the tetrahedra on a line are read end the line and start a new one
                         centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                        if (checkInt != sizeOfLine)
-                        {
-                            std::cerr << "Error in centaur file " << std::endl;
-                            return;
-                        }
+                        logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                         centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                     }
                     centaurFile.read(reinterpret_cast<char*>(&panelNumber), sizeof(panelNumber));
@@ -1992,11 +1787,7 @@ namespace Base
                     facesForEachCentaurPanel[panelNumber - 1].push_back(i);
                 }
                 centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                if (checkInt != sizeOfLine)
-                {
-                    std::cerr << "Error in centaur file " << std::endl;
-                    return;
-                }
+                logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             }
             
             //put the centaur panels in their boudary group
@@ -2010,11 +1801,7 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(&numberOfPanels), sizeof(numberOfPanels));
             logger.assert(numberOfPanels == facesForEachCentaurPanel.size(), "Not enough faces in centaur file");
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //then read the panel to group connections
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -2031,11 +1818,7 @@ namespace Base
                 }
             }
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             std::uint32_t centaurBCType;
             char nameOfBoundaryCondition[80];
@@ -2047,11 +1830,7 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(&numberOfBoundaryGroups), sizeof(numberOfBoundaryGroups));
             logger.assert(numberOfBoundaryGroups == facesForEachBoundaryGroup.size(), "Not enough boundary groups in centaur file");
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //now set the boundary conditions for each group
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -2060,7 +1839,7 @@ namespace Base
                 centaurFile.read(reinterpret_cast<char*>(&centaurBCType), sizeof(centaurBCType));
                 if (centaurBCType < 1001)
                 {
-                    std::cout << "Viscous Wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
+                    logger(INFO, "Viscous Wall boundary for group % assigned as WALL_BC", i);
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         //big assumption on the nature of elementIDs here...
@@ -2069,7 +1848,7 @@ namespace Base
                 }
                 else if (centaurBCType < 2001)
                 {
-                    std::cout << "Inviscid Wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
+                    logger(INFO, "Inviscid Wall boundary for group % assigned as WALL_BC", i);
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         //big assumption on the nature of elementIDs here...
@@ -2078,7 +1857,7 @@ namespace Base
                 }
                 else if (centaurBCType < 3001)
                 {
-                    std::cout << "symmetry plane boundary for group " << i << " assigned as WALL_BC" << std::endl;
+                    logger(INFO, "symmetry plane boundary for group % assigned as WALL_BC", i);
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         //big assumption on the nature of elementIDs here...
@@ -2087,7 +1866,7 @@ namespace Base
                 }
                 else if (centaurBCType < 4001)
                 {
-                    std::cout << "inlet pipe boundary for group " << i << " assigned as OPEN_BC" << std::endl;
+                    logger(INFO, "inlet pipe boundary for group % assigned as OPEN_BC", i);
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         //big assumption on the nature of elementIDs here...
@@ -2096,7 +1875,7 @@ namespace Base
                 }
                 else if (centaurBCType < 5001)
                 {
-                    std::cout << "outlet pipe boundary for group " << i << " assigned as OPEN_BC" << std::endl;
+                    logger(INFO, "outlet pipe boundary for group % assigned as OPEN_BC", i);
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         //big assumption on the nature of elementIDs here...
@@ -2105,7 +1884,7 @@ namespace Base
                 }
                 else if (centaurBCType < 6001)
                 {
-                    std::cout << "farfield boundary for group " << i << " assigned as OPEN_BC" << std::endl;
+                    logger(INFO, "farfield boundary for group % assigned as OPEN_BC", i);
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         //big assumption on the nature of elementIDs here...
@@ -2114,27 +1893,27 @@ namespace Base
                 }
                 else if (centaurBCType < 7001)
                 {
-                    std::cout << "periodic boundary for group " << i << " ignored for being internal; node connections will be assigned later" << std::endl;
+                    logger(INFO, "periodic boundary for group % ignored for being internal; node connections will be assigned later", i);
                 }
                 else if (centaurBCType < 8001)
                 {
-                    std::cout << "shadow boundary for group " << i << " ignored for being internal; node connections will be assigned later" << std::endl;
+                    logger(INFO, "shadow boundary for group % ignored for being internal; node connections will be assigned later", i);
                 }
                 else if (centaurBCType < 8501)
                 {
-                    std::cout << "interface boundary for group " << i << " ignored for being internal" << std::endl;
+                    logger(INFO, "interface boundary for group % ignored for being internal", i);
                 }
                 else if (centaurBCType < 9001)
                 {
-                    std::cout << "wake boundary for group " << i << " assigned as OPEN_BC" << std::endl;
-                    for (int j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
+                    logger(INFO,  "wake boundary for group % assigned as OPEN_BC", i);
+                    for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
                 }
                 else if (centaurBCType < 10001)
                 {
-                    std::cout << "moving wall boundary for group " << i << " assigned as WALL_BC" << std::endl;
+                    logger(INFO, "moving wall boundary for group % assigned as WALL_BC", i);
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
@@ -2142,34 +1921,26 @@ namespace Base
                 }
                 else
                 {
-                    std::cout << "alternative boundary condition for group " << i << " assigned as WALL_BC" << std::endl;
+                    logger(INFO, "alternative boundary condition for group % assigned as WALL_BC", i);
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 }
-                std::cout << "total number of boundary faces: " << getFacesList().size() << std::endl;
+                logger(INFO, "total number of boundary faces: %", getFacesList().size());
             }
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //This is where centaur tells the names of all the boundary groups
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             for (std::size_t i = 0; i < numberOfBoundaryGroups; ++i)
             {
                 centaurFile.read(reinterpret_cast<char*>(&nameOfBoundaryCondition[0]), sizeof(nameOfBoundaryCondition));
-                std::cout << "boundary condition " << i << " is called " << nameOfBoundaryCondition << std::endl;
+                logger(INFO, "boundary condition % is called %", i, nameOfBoundaryCondition);
             }
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-            if (checkInt != sizeOfLine)
-            {
-                std::cerr << "Error in centaur file " << std::endl;
-                return;
-            }
+            logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             
             //Then comes periodic boundary information
             //file versions 3 and greater store some extra information that hpGEM will be constructing itself
@@ -2183,13 +1954,9 @@ namespace Base
                 std::uint32_t numberOfPeriodicTransformations;
                 centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                 centaurFile.read(reinterpret_cast<char*>(&numberOfPeriodicTransformations), sizeof(numberOfPeriodicTransformations));
-                std::cout << "There are " << numberOfPeriodicTransformations << " periodic boundary -> shadow boundary transformation(s)" << std::endl;
+                logger(INFO, "There are % periodic boundary -> shadow boundary transformation(s)", numberOfPeriodicTransformations);
                 centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                if (checkInt != sizeOfLine)
-                {
-                    std::cerr << "Error in centaur file " << std::endl;
-                    return;
-                }
+                logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                 for (std::size_t i = 0; i < numberOfPeriodicTransformations; ++i)
                 {
                     //information on how to do the transformation can be computed later so just throw it away now
@@ -2197,31 +1964,19 @@ namespace Base
                     centaurFile.read(reinterpret_cast<char*>(&ijunk), sizeof(ijunk));
                     centaurFile.read(reinterpret_cast<char*>(&transformationData[0]), sizeof(transformationData));
                     centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                    if (checkInt != sizeOfLine)
-                    {
-                        std::cerr << "Error in centaur file " << std::endl;
-                        return;
-                    }
+                    logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                     centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                     centaurFile.read(reinterpret_cast<char*>(&ijunk), sizeof(ijunk));
                     centaurFile.read(reinterpret_cast<char*>(&transformationData[0]), sizeof(transformationData));
                     centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                    if (checkInt != sizeOfLine)
-                    {
-                        std::cerr << "Error in centaur file " << std::endl;
-                        return;
-                    }
+                    logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                     
                     //now read the amount of periodic nodes
                     centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                     centaurFile.read(reinterpret_cast<char*>(&numberOfPeriodicNodes), sizeof(numberOfPeriodicNodes));
-                    std::cout << "transformation group " << i << " contains " << numberOfPeriodicNodes << " node -> node matching(s)" << std::endl;
+                    logger(INFO, "transformation group % contains % node->node matching(s)", i, numberOfPeriodicNodes);
                     centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                    if (checkInt != sizeOfLine)
-                    {
-                        std::cerr << "Error in centaur file " << std::endl;
-                        return;
-                    }
+                    logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                     
                     //and the actual pairing information
                     centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -2242,11 +1997,7 @@ namespace Base
                         listOfElementsForEachNode[matchingNodes[1]] = listOfElementsForEachNode[matchingNodes[0]];
                     }
                     centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                    if (checkInt != sizeOfLine)
-                    {
-                        std::cerr << "Error in centaur file " << std::endl;
-                        return;
-                    }
+                    logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                 }
             }
             else
@@ -2254,13 +2005,9 @@ namespace Base
                 //now read the amount of periodic nodes
                 centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                 centaurFile.read(reinterpret_cast<char*>(&numberOfPeriodicNodes), sizeof(numberOfPeriodicNodes));
-                std::cout << "the transformation group contains " << numberOfPeriodicNodes << " node -> node matching(s)" << std::endl;
+                logger(INFO, "the transformation group contains % node -> node matching(s)", numberOfPeriodicNodes);
                 centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                if (checkInt != sizeOfLine)
-                {
-                    std::cerr << "Error in centaur file " << std::endl;
-                    return;
-                }
+                logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
                 
                 //and the actual pairing information
                 centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
@@ -2280,14 +2027,10 @@ namespace Base
                     listOfElementsForEachNode[matchingNodes[1]] = listOfElementsForEachNode[matchingNodes[0]];
                 }
                 centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
-                if (checkInt != sizeOfLine)
-                {
-                    std::cerr << "Error in centaur file " << std::endl;
-                    return;
-                }
+                logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
             }
             
-            std::cout << "begin constructing internal faces and internal \"boundaries\"" << std::endl;
+            logger(INFO, "begin constructing internal faces and internal \"boundaries\"");
             
             //now we know periodicity information, construct the vertices
             //remember that listOfElementsForEachNode will in general contain duplicates
@@ -2322,13 +2065,6 @@ namespace Base
             edgeFactory();
             
             delete[] boundarFaces;
-        }
-        else
-        {
-            
-            std::cerr << "Incorrect mesh file. This mesh appears to contain two DIMensional data" << std::endl;
-            
-        }
         
     }
     
@@ -3391,27 +3127,9 @@ namespace Base
                     }
                     
                     //the current element does not bound the face or more than two elements bound the face
-                    if (candidates.size() == 0 || candidates.size() > 2)
-                    {
-                        std::cerr << "Invalid number of bounding elements detected for face " << theMesh_.getFacesList(IteratorType::GLOBAL).size() + 1 << std::endl;
-                        std::cout << "current element " << *element << std::endl;
-                        std::cout << "face with nodes ";
-                        for (const Node* local : localNodes)
-                        {
-                            std::cout << local->getID() << " ";
-                        }
-                        std::cout << std::endl;
-                        for (Element* candidate : candidates)
-                        {
-                            std::cout << "candidate element " << *candidate;
-                            for (std::size_t j = 0; j < candidate->getNrOfNodes(); ++j)
-                            {
-                                std::cout << candidate->getNode(j)->getID() << " ";
-                            }
-                            std::cout << std::endl;
-                        }
-                        return;
-                    }
+                    logger.assert_always(candidates.size() == 1 || candidates.size() == 2, 
+                                         "Invalid number of bounding elements detected for face %", 
+                                         theMesh_.getFacesList(IteratorType::GLOBAL).size() + 1);
                     //boundary face
                     if (candidates.size() == 1)
                     {
@@ -3444,24 +3162,21 @@ namespace Base
                             }
                             if (match)
                             {
-                                if (matchFound)
-                                {
-                                    std::cerr << "Found two opposing faces for face " << i << " of element " << element->getID() << " in opposing element " << other->getID() << std::endl;
-                                }
+                                logger.assert(!matchFound,"Found two opposing faces for face % " 
+                                     " of element % in opposing element %." 
+                                    , i, element->getID(),other->getID());
                                 addFace(element, i, other, j);
                                 matchFound = true;
                             }
                         }
-                        if (!matchFound)
-                        {
-                            std::cerr << "Could not find matching face for face " << i << " of element " << element->getID() << " in opposing element " << other->getID() << std::endl;
-                        }
+                        logger.assert(matchFound, "Could not find matching face for face % "
+                                "of element % in opposing element %." , i, element->getID(), other->getID());
                     }
                 }
             }
         }
         
-        std::cout << "Total number of Faces: " << getFacesList(IteratorType::GLOBAL).size() << std::endl;
+        logger(INFO, "Total number of Faces: %", getFacesList(IteratorType::GLOBAL).size());
     }
     
     //the algorithm for the edge factory is based on that of the face factory
@@ -3490,11 +3205,7 @@ namespace Base
                         auto& rightElements = element->getNode(nodeList[1])->getElements();
                         std::set_intersection(leftElements.begin(), leftElements.end(), rightElements.begin(), rightElements.end(), std::back_inserter(candidates), [](Element* a, Element* b)
                         {   return a->getID()<b->getID();});
-                        if (candidates.size() == 0)
-                        {
-                            std::cerr << "current element is not adjacent to its own edges" << std::endl;
-                            return;
-                        }
+                        logger.assert(candidates.size() > 0, "current element is not adjacent to its own edges"); 
                         addEdge();
                         nodes[0] = element->getNode(nodeList[0]);
                         nodes[1] = element->getNode(nodeList[1]);

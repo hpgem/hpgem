@@ -21,16 +21,10 @@
 //
 #ifndef LevelTree_h
 #define LevelTree_h
-//------------------------------------------------------------------------------
-// System includes and names imported from them:
 #include <deque>
 #include <vector>
 #include <iostream>
 #include "Logger.h"
-//------------------------------------------------------------------------------
-// Package includes:
-
-//------------------------------------------------------------------------------
 
 namespace Base
 {

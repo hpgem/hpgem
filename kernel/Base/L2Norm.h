@@ -20,10 +20,6 @@
  */
 #ifndef L2Norm_h
 #define L2Norm_h
-//------------------------------------------------------------------------------
-// Package includes:
-
-//------------------------------------------------------------------------------
 
 namespace LinearAlgebra
 {
@@ -43,8 +39,3 @@ namespace Base
     double L2Norm(const Geometry::PointPhysical&);
 }
 #endif
-//------------------------------------------------------------------------------
-// Local variables:
-// mode:c++
-// comment-column: 48
-// End:

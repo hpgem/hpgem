@@ -216,7 +216,7 @@ namespace Base
         {
             if (timeStepID % 10 == 0)
             {
-                std::cout << timeStepID << " time steps computed.\n";
+                logger(VERBOSE, "% time steps computed.", timeStepID);
             }
         }
         
@@ -229,7 +229,7 @@ namespace Base
         virtual bool solve(const double startTime, const double endTime, double dt, const std::size_t numOfOutputFrames, bool doComputeError);
         
     protected:
-        /// Butcher tableau for time integraion. The integration method is assumed to be explicit.
+        /// Butcher tableau for time integration. The integration method is assumed to be explicit.
         const Base::ButcherTableau * const ptrButcherTableau_;
         
         /// Index to indicate where the coefficients for the solution are stored.

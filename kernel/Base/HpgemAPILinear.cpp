@@ -105,7 +105,7 @@ namespace Base
         }
         
         std::size_t nElements = meshes_[0]->getNumberOfElements();
-        std::cout << "Total number of elements: " << nElements << "\n";
+        logger(VERBOSE, "Total number of elements: %", nElements);
     }
     
     void HpgemAPILinear::createMassMatrices()
@@ -131,14 +131,14 @@ namespace Base
     
     void HpgemAPILinear::createStiffnessMatrices()
     {
-        std::cout << "- Creating stiffness matrices for the elements.\n";
+        logger(INFO, "- Creating stiffness matrices for the elements.");
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
             LinearAlgebra::Matrix stiffnessMatrix(computeStiffnessMatrixAtElement(ptrElement));
             ptrElement->setElementMatrix(stiffnessMatrix, stiffnessElementMatrixID_);
         }
         
-        std::cout << "- Creating stiffness matrices for the faces.\n";
+        logger(INFO, "- Creating stiffness matrices for the faces.");
         for (Base::Face *ptrFace : meshes_[0]->getFacesList())
         {
             Base::FaceMatrix stiffnessFaceMatrix(computeStiffnessMatrixAtFace(ptrFace));
@@ -210,9 +210,9 @@ namespace Base
     
     void HpgemAPILinear::tasksBeforeSolving()
     {
-        std::cout << "Computing the mass matrices.\n";
+        logger(INFO, "Computing the mass matrices.");
         createMassMatrices();
-        std::cout << "Computing stiffness matrices.\n";
+        logger(INFO, "Computing stiffness matrices.");
         createStiffnessMatrices();
     }
 }

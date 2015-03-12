@@ -114,7 +114,7 @@ namespace Base
 
         if (pid == 0 && nProcs > 1)
         {   
-            std::cout << "start of metis" << std::endl;
+            logger(INFO, "start of metis");
 
             int one = 1; //actually the number of constraints. This can be increased for example when we want to distribute an entire mesh tree in one go (while keeping each of the levels balanced) - increasing this number turns imbalance into a vector
             int numberOfElements = elements_.size();

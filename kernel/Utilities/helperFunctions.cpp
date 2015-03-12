@@ -49,10 +49,12 @@ namespace Utilities
             case 8:
                 return std::sqrt(19. / 2.) * ((((2431 * x * x - 4004) * x * x + 2002) * x * x - 308) * x * x + 7) / -64.;
             case 9:
-                logger(ERROR, "cannot find this degree.\n");
+                logger(ERROR, "cannot find this degree.\n");\
             default:
                 logger(FATAL, "Lobatto polynomials of this order have not been implemented.\n");
         }
+        //Be nice to the compiler and don't remove this.
+        return 0;
     }
     
     double LobattoPolynomialDerivative(std::size_t degree, double x)
@@ -70,6 +72,8 @@ namespace Utilities
             default:
                 logger(FATAL, "Derivatives of Lobatto polynomials of this order have not been implemented");
         }
+        //Be nice to the compiler and don't remove this.
+        return 0;
     }
     
     double LegendrePolynomial(std::size_t degree, double x)

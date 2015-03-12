@@ -141,7 +141,7 @@ namespace Base
         /// \details See some for example the application 'TutorialAdvection' to find out how to implement this function.
         virtual void writeToTecplotFile(const ElementT*, const PointReferenceT&, std::ostream&)
         {
-            throw "If you want to call the function \'writeToTecplotFile\', please implement it";
+            logger(ERROR, "If you want to call the function \'writeToTecplotFile\', please implement it");
         }
         
     protected:

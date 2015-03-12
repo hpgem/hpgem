@@ -113,7 +113,7 @@ namespace Base
         }
         
         std::size_t nElements = meshes_[0]->getNumberOfElements();
-        std::cout << "Total number of elements: " << nElements << "\n";
+        logger(VERBOSE, "Total number of elements: %", nElements);
     }
     
     /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix.
@@ -181,7 +181,7 @@ namespace Base
             }
             else
             {   
-                logger(WARN,"Warning: the total energy of the error is negative.\n");
+                logger(WARN,"Warning: the total energy of the error is negative.");
                 error = std::sqrt(-totalError(0));
             }
         }
@@ -208,10 +208,10 @@ namespace Base
         }
         else
         {
-            logger(WARN, "Warning: the total energy of the error is negative.\n");
+            logger(WARN, "Warning: the total energy of the error is negative.");
             error = std::sqrt(-totalError(0));
         }
-        std::cout << "Energy norm of the error: " << error << ".\n";
+        logger(INFO, "Energy norm of the error: %.", error);
         return error;
     }
     
@@ -460,15 +460,15 @@ namespace Base
         tasksBeforeSolving();
         
         // Set the initial numerical solution.
-        std::cout << "Computing and interpolating the initial solution.\n";
+        logger(INFO, "Computing and interpolating the initial solution.");
         setInitialSolution(solutionTimeLevel_, time, 0);
         tecplotWriter.write(meshes_[0], "discontinuous solution", false, this, time);
         
         // Solve the system of PDE's.
-        std::cout << "Solving the system of PDE's.\n";
-        std::cout << "dt: " << dt << ".\n";
-        std::cout << "Total number of time steps: " << numOfTimeSteps << ".\n";
-        std::cout << "Number of time steps for output: " << numOfTimeStepsForOutput << ".\n";
+        logger(INFO,"Solving the system of PDE's.");
+        logger(INFO, "dt: %.", dt);
+        logger(INFO, "Total number of time steps: %.", numOfTimeSteps);
+        logger(INFO, "Number of time steps for output: %.", numOfTimeStepsForOutput);
         for (std::size_t iT = 1; iT <= numOfTimeSteps; iT++)
         {
             computeOneTimeStep(time, dt);
@@ -484,7 +484,7 @@ namespace Base
         if(doComputeError)
         {
             double error = computeTotalError(solutionTimeLevel_, finalTime);
-            std::cout << "Energy norm of the error: " << error << ".\n";
+            logger(INFO, "Energy norm of the error: %.", error);
         }
         
         return true;
