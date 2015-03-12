@@ -42,10 +42,10 @@ int main(int argc, char **argv)
     Base::parse_options(argc, argv);
     try
     {
-        const bool useLinearSolver = true;
+        const bool useLinearSolver = false;
         
         // Set parameters for the PDE.
-        const std::size_t dimension = 3;
+        const std::size_t dimension = 2;
         const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
         const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
         const double c = 1.0;

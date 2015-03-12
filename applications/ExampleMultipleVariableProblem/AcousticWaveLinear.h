@@ -58,7 +58,7 @@
  This class consists of the following parts:
  \li A constructor to set the dimension, number of elements, polynomial order, butcher tableau.
  \li The functions 'createMeshDescription' and 'setMaterialParameter' are used to create the mesh and set the material parameters.
- \li The functions 'getCInv', 'getSourceTerm' and 'getRealSolution' return the material parameters, source term and analytic solution.
+ \li The functions 'getCInv', 'getSourceTerm' and 'getExactSolution' return the material parameters, source term and analytic solution.
  \li The functions 'integrand...OnRefElement' and 'integrand...OnRefElement' compute the integrand for ... for the reference element/face. These functions are necessary to compute the mass matrix, stiffness matrix, initial solution and numerical error.
  \li The function 'solve' solves the PDE over the time interval [startTime, endTime].
  \li The function 'writeToTecplotFile' is used to determine which data should be written to the output file.
@@ -99,7 +99,7 @@ public:
     }
     
     /// \brief Compute the real solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getRealSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override;
+    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override;
     
     /// \brief Compute the initial solution at a given point in space and time.
     LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override;

@@ -57,7 +57,7 @@ Base::RectangularMeshDescriptor AcousticWave::createMeshDescription(const std::s
     return description;
 }
 
-LinearAlgebra::NumericalVector AcousticWave::getRealSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
+LinearAlgebra::NumericalVector AcousticWave::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
 {
     LinearAlgebra::NumericalVector realSolution(numOfVariables_);
     double c = std::sqrt(1.0 / cInv_); // Wave velocity.
@@ -87,7 +87,7 @@ LinearAlgebra::NumericalVector AcousticWave::getRealSolution(const PointPhysical
 /// \brief Compute the initial solution at a given point in space and time.
 LinearAlgebra::NumericalVector AcousticWave::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
-    return getRealSolution(pPhys, startTime, orderTimeDerivative);
+    return getExactSolution(pPhys, startTime, orderTimeDerivative);
 }
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
@@ -282,7 +282,7 @@ LinearAlgebra::NumericalVector AcousticWave::integrandErrorOnRefElement
     
     Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
     
-    LinearAlgebra::NumericalVector realSolution(getRealSolution(pPhys, time));
+    LinearAlgebra::NumericalVector realSolution(getExactSolution(pPhys, time));
     LinearAlgebra::NumericalVector numericalSolution(numOfVariables_);
     
     std::size_t jVB; // Index for both variable and basis function.

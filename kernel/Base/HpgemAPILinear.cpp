@@ -108,6 +108,54 @@ namespace Base
         logger(VERBOSE, "Total number of elements: %", nElements);
     }
     
+    /// \details By default this function computes the mass matrix that corresponds to the integral of the inner product of the test functions on the element.
+    LinearAlgebra::Matrix HpgemAPILinear::computeMassMatrixAtElement(const Base::Element *ptrElement)
+    {
+        // Get number of basis functions
+        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        
+        // Make the mass matrix of the correct size and set all entries to zero.
+        LinearAlgebra::Matrix massMatrix(numOfBasisFunctions * configData_->numberOfUnknowns_, numOfBasisFunctions * configData_->numberOfUnknowns_, 0);
+        
+        // Declare integrand
+        LinearAlgebra::Matrix integrandMassMatrix(numOfBasisFunctions * configData_->numberOfUnknowns_, numOfBasisFunctions * configData_->numberOfUnknowns_, 0);
+        
+        // Get quadrature rule and number of points.
+        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
+        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        
+        // For each quadrature point, compute the value of the product of the
+        // basisfunctions, then add it with the correct weight to massMatrix
+        for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
+        {
+            Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
+            Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+            
+            LinearAlgebra::NumericalVector valueBasisFunction(numOfBasisFunctions);
+            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            {
+                valueBasisFunction(iB) = ptrElement->basisFunction(iB, pRef);
+            }
+            
+            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            {
+                for(std::size_t jB = 0; jB < numOfBasisFunctions; ++jB)
+                {
+                    double massProduct = valueBasisFunction(iB) * valueBasisFunction(jB);
+                    for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                    {
+                        std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
+                        std::size_t jVB = ptrElement->convertToSingleIndex(jB,iV);
+                        integrandMassMatrix(iVB,jVB) = massProduct;
+                    }
+                }
+            }
+            massMatrix.axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandMassMatrix);
+        }
+        
+        return massMatrix;
+    }
+    
     void HpgemAPILinear::createMassMatrices()
     {
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())

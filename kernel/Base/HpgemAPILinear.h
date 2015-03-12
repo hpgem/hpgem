@@ -43,9 +43,9 @@ namespace Base
      * \li Create your own class that inherits this class.
      * \li Implement the function 'createMeshDescription' to create a mesh description (e.g. domain, number of elements, etc.).
      * \li Implement the function 'getSourceTerm' to define the source term (e.g. external force).
-     * \li Implement the function 'getRealSolution' if you know the analytic solution and want to compute the error.
+     * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
      * \li Implement the function 'initialConditions' to define the initial condition(s) of your problem.
-     * \li Implement the function 'computeMassMatrixAtElement' for computing the mass matrix at an element.
+     * \li Implement the function 'computeMassMatrixAtElement' for computing the mass matrix at an element (if this is not the matrix resulting from the standard L2 inner product).
      * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element.
      * \li Implement the functions 'computeStiffnessMatrixAtElement' and 'computeStiffnessMatrixAtFace' for computing the stiffness matrix at an element or face.
      * \li Implement the function 'integrateSourceTermAtElement' to compute the source term at an element (if there is a source term).
@@ -87,12 +87,7 @@ namespace Base
         }
         
         /// \brief Compute the mass matrix for a single element.
-        virtual LinearAlgebra::Matrix computeMassMatrixAtElement(const Base::Element *ptrElement) override
-        {
-            logger(ERROR, "No function for computing the mass matrix at an element implemented.");
-            LinearAlgebra::Matrix massMatrix;
-            return massMatrix;
-        }
+        virtual LinearAlgebra::Matrix computeMassMatrixAtElement(const Base::Element *ptrElement);
         
         /// \brief Compute and store the mass matrices.
         virtual void createMassMatrices();

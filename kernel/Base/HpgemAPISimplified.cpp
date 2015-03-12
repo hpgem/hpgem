@@ -127,6 +127,50 @@ namespace Base
         }
     }
     
+    /// \brief By default this function copmutes the integral of the inner product of the initial solution (for given order time derivative) and the test function on the element.
+    LinearAlgebra::NumericalVector HpgemAPISimplified::integrateInitialSolutionAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
+    {
+        // Get number of basis functions
+        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        
+        // Declare integral initial solution
+        LinearAlgebra::NumericalVector integralInitialSolution(numOfBasisFunctions * configData_->numberOfUnknowns_);
+        
+        // Declare integrand
+        LinearAlgebra::NumericalVector integrandInitialSolution(numOfBasisFunctions * configData_->numberOfUnknowns_);
+        
+        // Get quadrature rule and number of points.
+        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
+        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        
+        // For each quadrature point, compute the value of the product of the
+        // test function and the initial solution, then add it with the correct weight to the integral solution.
+        for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
+        {
+            Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
+            Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+            
+            Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+            
+            LinearAlgebra::NumericalVector initialSolution = getInitialSolution(pPhys, startTime, orderTimeDerivative);
+            
+            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            {
+                double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
+                
+                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                {
+                    std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
+                    
+                    integrandInitialSolution(iVB) = initialSolution(iV) * valueBasisFunction;
+                }
+            }
+            integralInitialSolution.axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandInitialSolution);
+        }
+        
+        return integralInitialSolution;
+    }
+    
     void HpgemAPISimplified::integrateInitialSolution(const std::size_t timeLevelResult, const double intialTime, const std::size_t orderTimeDerivative)
     {
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())

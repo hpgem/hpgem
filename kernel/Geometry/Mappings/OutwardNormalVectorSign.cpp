@@ -27,6 +27,7 @@
 #include "MappingToRefSquareToCube.h"
 #include "MappingToRefTriangleToTetrahedron.h"
 #include <typeinfo>
+#include <limits>
 
 namespace Geometry
 {
@@ -44,6 +45,7 @@ namespace Geometry
         else
         {
             logger(FATAL, "Face to Element mapping not known for given case. \n");
+            return std::numeric_limits<double>::quiet_NaN();
         }
     }
 }

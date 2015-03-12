@@ -410,7 +410,7 @@ namespace Base
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
         std::size_t DIM = configData_->dimension_;
-        logger.assert(linearNoElements == DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
+        logger.assert(linearNoElements.size() == DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
         std::vector<bool> periodicDIM;
         for (std::size_t i = 0; i < DIM; ++i)
         {
@@ -563,7 +563,7 @@ namespace Base
         
         //Stage 0 : Check for required requirements
         std::size_t DIM = configData_->dimension_;
-        logger.assert(linearNoElements == DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
+        logger.assert(linearNoElements.size() == DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
         
         logger.assert(!(DIM == 3 && periodicX_ && linearNoElements[0] % 2 == 1), "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension X");
         logger.assert(!(DIM == 3 && periodicY_ && linearNoElements[1] % 2 == 1), "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Y");

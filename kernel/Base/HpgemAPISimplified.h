@@ -47,9 +47,9 @@ namespace Base
     /** \details To solve some linear time depent PDE you should do the following:
      * \li Create your own class that inherits this class.
      * \li Implement the function 'createMeshDescription' to create a mesh description (e.g. domain, number of elements, etc.).
-     * \li Implement the function 'getRealSolution' if you know the analytic solution and want to compute the error.
+     * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
      * \li Implement the function 'initialConditions' to define the initial condition(s) of your problem.
-     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element.
+     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (if this is not the standard L2 inner product).
      * \li Implement the function 'solveMassMatrixEquationsAtElement' for solving the mass matrix equtions without computing the mass matrix first.
      * \li Implement the functions 'computeRightHandSideAtElement' and 'computeRightHandSideAtFace' to compute the right-hand side corresponding to an element or face.
      * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element.
@@ -90,7 +90,7 @@ namespace Base
         virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType);
         
         /// \brief Compute the real solution at a given point in space and time.
-        virtual LinearAlgebra::NumericalVector getRealSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
+        virtual LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No real solution implemented.");
             LinearAlgebra::NumericalVector realSolution(configData_->numberOfUnknowns_);
@@ -105,14 +105,6 @@ namespace Base
             return realSolution;
         }
         
-        /// \brief Compute the mass matrix for a single element.
-        virtual LinearAlgebra::Matrix computeMassMatrixAtElement(const Base::Element *ptrElement)
-        {
-            logger(ERROR, "No function for computing the mass matrix at an element implemented.");
-            LinearAlgebra::Matrix massMatrix;
-            return massMatrix;
-        }
-        
         /// \brief Solve the mass matrix equations for a single element.
         /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$ for a single element, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix. The input is the right hand side here called 'solutionCoefficients' and the result is returned in this same vector.
         virtual void solveMassMatrixEquationsAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients)
@@ -124,12 +116,7 @@ namespace Base
         virtual void solveMassMatrixEquations(const std::size_t timeLevel);
 
         /// \brief Integrate the initial solution at a single element.
-        virtual LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
-        {
-            logger(ERROR, "No function for computing the integral for an initial solution at an element implemented.");
-            LinearAlgebra::NumericalVector integralInitialSolution;
-            return integralInitialSolution;
-        }
+        virtual LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
         
         /// \brief Integrate the initial solution.
         void integrateInitialSolution(const std::size_t timeLevelResult, const double startTime, const std::size_t orderTimeDerivative);
