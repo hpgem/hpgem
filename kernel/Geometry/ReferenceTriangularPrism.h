@@ -29,20 +29,10 @@
 
 namespace Geometry
 {
-    /* TriangularPrism:
-     *
-     * \TODO write documentation
-     *
-     *
-     *
-     *
-     *
-     *
-     */
+    ///\todo Draw an ASCII-triangular prism with node ordering.
     class ReferenceTriangularPrism : public ReferenceGeometry
     {
     public:
-        using ReferenceGeometry::PointReferenceT;
         using ReferenceGeometry::String;
         using ReferenceGeometry::const_iterator;
 
@@ -62,7 +52,7 @@ namespace Geometry
     public:
         
         //! (see ReferenceGeometry.h)
-        bool isInternalPoint(const PointReferenceT& point) const;
+        bool isInternalPoint(const PointReference& point) const;
 
         //! (see ReferenceGeometry.h)
         PointReference getCenter() const;
@@ -78,7 +68,7 @@ namespace Geometry
         
         //! Given a face index, and an index of the node position relative to the face,
         //! return the local index of the node.
-        std::size_t getLocalNodeIndex(std::size_t face, std::size_t node) const
+        std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const
         {
             logger.assert(face < getNrOfCodim1Entities(), "Asked for face %, but a % only has % faces", face, getName(), getNrOfCodim1Entities());
             logger.assert(node < getCodim1ReferenceGeometry(face)->getNumberOfNodes(), "Asked for node % of face %, but this face only has % nodes", node, face, getCodim1ReferenceGeometry(face)->getNumberOfNodes());
@@ -147,7 +137,7 @@ namespace Geometry
         // =============================== Refinement mappings =====================================
         
         //! Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReferenceT& p, PointReferenceT& pMap) const;
+        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const;
 
         //! Transformation matrix of this refinement when located on the LEFT side
         void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const;
@@ -170,10 +160,10 @@ namespace Geometry
         static std::size_t localNodeIndexes_[5][4];
         static std::size_t localNodesOnEdge_[9][2];
 
-        //! Codimension 0 mappings, from triangular prisms. TODO: Where is this used? clarify here.
+        //! Codimension 0 mappings, from triangular prisms. 
         const MappingReferenceToReference* mappingsTriangularPrismToTriangularPrism_[1];
 
-        //! Codimension 1 mappings, from a square or triangle to a triangular prism face. TODO: Where is this used? clarify here.
+        //! Codimension 1 mappings, from a square or triangle to a triangular prism face.
         const MappingReferenceToReference* mappingsFaceToTriangularPrism_[5];
 
         //! Pointer to the Codimension 1 reference geometry.

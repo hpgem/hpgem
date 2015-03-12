@@ -63,8 +63,8 @@ int main()
     logger.assert_always((std::abs(pTest[0] - 1) < 1e-12), "getNode 1");
     std::cout << test.getName();
     
-    logger.assert_always((test.getLocalNodeIndex(0, 0) == 0), "getLocalNodeIndex 0");
-    logger.assert_always((test.getLocalNodeIndex(1, 0) == 1), "getLocalNodeIndex 1");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0) == 0), "getLocalNodeIndex 0");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) == 1), "getLocalNodeIndex 1");
     
     std::cout << test;
     
@@ -87,9 +87,9 @@ int main()
     logger.assert_always((test.getCodim1MappingPtr(0) == &Geometry::MappingToRefPointToLine0::Instance()), "getCodim1MappingPtr");
     logger.assert_always((test.getCodim1MappingPtr(1) == &Geometry::MappingToRefPointToLine1::Instance()), "getCodim1MappingPtr");
     faceIndices = test.getCodim1EntityLocalIndices(0);
-    logger.assert_always((faceIndices[0] == test.getLocalNodeIndex(0, 0)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)), "getCodim1EntityLocalIndices");
     faceIndices = test.getCodim1EntityLocalIndices(1);
-    logger.assert_always((faceIndices[0] == test.getLocalNodeIndex(1, 0)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)), "getCodim1EntityLocalIndices");
     
     logger.assert_always((test.getGaussQuadratureRule(3)->order() >= 3), "quadrature rules");
     logger.assert_always((test.getGaussQuadratureRule(5)->order() >= 5), "quadrature rules");

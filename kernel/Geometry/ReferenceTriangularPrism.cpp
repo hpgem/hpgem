@@ -35,7 +35,7 @@ namespace Geometry
     ReferenceTriangularPrism::ReferenceTriangularPrism()
             : ReferenceGeometry(6, 3, TRIANGULARPRISM), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
-        PointReferenceT p1(3), p2(3), p3(3), p4(3), p5(3), p6(3);
+        PointReference p1(3), p2(3), p3(3), p4(3), p5(3), p6(3);
         
         p1[0] = +0.0;
         p1[1] = +0.0;
@@ -78,7 +78,7 @@ namespace Geometry
     {
     }
     
-    bool ReferenceTriangularPrism::isInternalPoint(const PointReferenceT& p) const
+    bool ReferenceTriangularPrism::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==3, "The dimension of the reference point is incorrect");
         return ((-1. <= p[2]) && (1. >= p[2]) && (p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
@@ -118,14 +118,14 @@ namespace Geometry
     
     std::size_t ReferenceTriangularPrism::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
-        /// TODO: Implement tetrahedron to tetrahedron mappings.
+        /// \TODO: Implement tetrahedron to tetrahedron mappings.
         throw "ReferenceTriangularPrism::getCodim0MappingIndex: T.p to t.p mappings do not exist";
     }
     
     const MappingReferenceToReference*
     ReferenceTriangularPrism::getCodim0MappingPtr(const std::size_t i) const
     {
-        /// TODO: Implement tetrahedron to tetrahedron mappings.
+        /// \TODO: Implement tetrahedron to tetrahedron mappings.
         throw "ReferenceTetrahedron::getCodim0MappingPtr: T.p to T.p mappings do not exist";
     }
     
@@ -207,7 +207,7 @@ namespace Geometry
     const MappingReferenceToReference*
     ReferenceTriangularPrism::getCodim2MappingPtr(const std::size_t faceIndex) const
     {
-        /// TODO: Implement line to t.p. mappings.
+        /// \TODO: Implement line to t.p. mappings.
         throw "ReferenceTriangularPrism::getCodim2MappingPtr: Line to TP mappings do not exist";
     }
     
@@ -227,7 +227,7 @@ namespace Geometry
     
     // =============================== Refinement mappings =====================================
     
-    void ReferenceTriangularPrism::refinementTransform(int refineType, std::size_t subElementIdx, const PointReferenceT& p, PointReferenceT& pMap) const
+    void ReferenceTriangularPrism::refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const
     {
         switch (refineType)
         {

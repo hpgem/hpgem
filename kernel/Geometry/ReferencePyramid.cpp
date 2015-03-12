@@ -39,7 +39,7 @@ namespace Geometry
             : /// pyramid has three nodes 3D + 2
             ReferenceGeometry(5, 3, PYRAMID), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
-        PointReferenceT p1(3), p2(3), p3(3), p4(3), p5(3);
+        PointReference p1(3), p2(3), p3(3), p4(3), p5(3);
         
         p1[0] = +0.0;
         p1[1] = +0.0;
@@ -78,7 +78,7 @@ namespace Geometry
     {
     }
     
-    bool ReferencePyramid::isInternalPoint(const PointReferenceT& p) const
+    bool ReferencePyramid::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==3, "The reference point has the wrong dimension");
         return ((0. <= p[2]) && (1. >= p[2]) && (std::abs(p[0]) <= (1. - p[2])) && (std::abs(p[1]) <= (1. - p[2])));

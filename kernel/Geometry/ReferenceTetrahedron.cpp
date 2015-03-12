@@ -115,14 +115,14 @@ namespace Geometry
     
     std::size_t ReferenceTetrahedron::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
-        /// TODO: Implement tetrahedron to tetrahedron mappings.
+        /// \TODO: Implement tetrahedron to tetrahedron mappings.
         throw "ERROR: Tetrahedron to tetrahedron mappings do not exist";
     }
     
     const MappingReferenceToReference*
     ReferenceTetrahedron::getCodim0MappingPtr(const std::size_t i) const
     {
-        /// TODO: Implement tetrahedron to tetrahedron mappings.
+        /// \TODO: Implement tetrahedron to tetrahedron mappings.
         throw "ERROR: Tetrahedron to tetrahedron mappings do not exist";
     }
     
@@ -196,7 +196,7 @@ namespace Geometry
     const MappingReferenceToReference*
     ReferenceTetrahedron::getCodim2MappingPtr(const std::size_t faceIndex) const
     {
-        /// TODO: Implement line to tetrahedron mappings.
+        /// \TODO: Implement line to tetrahedron mappings.
         throw "ERROR: Line to tetrahedron mappings do not exist";
     }
     

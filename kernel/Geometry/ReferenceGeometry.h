@@ -75,10 +75,8 @@ namespace Geometry
          * Only one of every needed type is necessary.
          */
     public:
-        /// \bug this is a workaround for a g++ bug. Should read using typenames;
         using String = std::string;
-        using PointReferenceT = Geometry::PointReference;
-        using VectorOfReferencePointsT = std::vector<PointReferenceT >;
+        using VectorOfReferencePointsT = std::vector<PointReference>;
         using iterator = VectorOfReferencePointsT::iterator;
         using const_iterator = VectorOfReferencePointsT::const_iterator;
         using ListOfIndexesT = std::vector<std::size_t>;
@@ -91,7 +89,7 @@ namespace Geometry
         ;
 
         /// \brief Check whether a given point is within the ReferenceGeometry.
-        virtual bool isInternalPoint(const PointReferenceT& point) const = 0;
+        virtual bool isInternalPoint(const PointReference& point) const = 0;
 
         /// \brief Each reference geometry knows its center of mass.
         virtual PointReference getCenter() const = 0;
@@ -109,7 +107,7 @@ namespace Geometry
         /// \brief Given a local index, return (assign to point) the corresponding node.
         virtual const PointReference& getNode(const std::size_t& localIndex) const;
 
-        virtual std::size_t getLocalNodeIndex(std::size_t face, std::size_t node) const = 0;
+        virtual std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const = 0;
 
         /// \brief For debugging and checkpointing: a human-readable name.
         virtual std::string getName() const = 0;
@@ -122,6 +120,9 @@ namespace Geometry
         ///\bug getBasisFunctionValue and getBasisFunctionDerivative have functionality that is completely independent from the rest of ReferenceGeometry
         ///\bug getBasisFunctionValue does some lazy initialization, so it can't be const, unless you consider the state to
         /// contain the values of all basisFunctions at all reference points
+        ///\todo The basisfunctions are not a responsibility of the reference geometry,
+        /// but of the basisfunction set. Switch this function to BasisFunction or BasisFunctionSet
+        /// or implement it directly in Element.
         double getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p);
 
         double getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p) const
@@ -132,6 +133,9 @@ namespace Geometry
         
         ///\bug getBasisFunctionDerivative does some lazy initialization, so it can't be const, unless you consider the state to
         /// contain the values of all basisFunctions at all reference points
+        ///\todo The basisfunctions are not a responsibility of the reference geometry,
+        /// but of the basisfunction set. Switch this function to BasisFunction or BasisFunctionSet
+        /// or implement it directly in Element.
         LinearAlgebra::NumericalVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p);
 
         LinearAlgebra::NumericalVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p) const
@@ -152,13 +156,13 @@ namespace Geometry
         const TypeOfReferenceGeometry geometryType_;
 
     private:
-        
+        ///\todo check if this can safely be removed if the basis functions are not
+        /// a responsibility of the geometry anymore.
         std::map<const Base::BaseBasisFunction*, std::unordered_map<Geometry::PointReference, double, PointHasher> > basisfunctionValues_;
         std::map<const Base::BaseBasisFunction*, std::unordered_map<Geometry::PointReference, LinearAlgebra::NumericalVector, PointHasher> > basisfunctionDerivatives_;
         
     };
 
 }
-;
 
 #endif

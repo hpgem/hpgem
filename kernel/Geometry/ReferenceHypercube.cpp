@@ -33,8 +33,8 @@ namespace Geometry
             : ReferenceGeometry(16, 4, HYPERCUBE), referenceGeometryCodim1Ptr_(&ReferenceCube::Instance()), referenceGeometryCodim2Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim3Ptr_(&ReferenceLine::Instance())
 
     {
-        PointReferenceT p0(4), p1(4), p2(4), p3(4), p4(4), p5(4), p6(4), p7(4), p8(4);
-        PointReferenceT p9(4), p10(4), p11(4), p12(4), p13(4), p14(4), p15(4);
+        PointReference p0(4), p1(4), p2(4), p3(4), p4(4), p5(4), p6(4), p7(4), p8(4);
+        PointReference p9(4), p10(4), p11(4), p12(4), p13(4), p14(4), p15(4);
         
         p0[0] = -1.0;
         p0[1] = -1.0;
@@ -137,7 +137,7 @@ namespace Geometry
         mappingsCubeToHypercube_[7] = &MappingToRefCubeToHypercube7::Instance();
     }
     
-    bool ReferenceHypercube::isInternalPoint(const PointReferenceT& p) const
+    bool ReferenceHypercube::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==4, "The dimension of the point is wrong");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.) && (p[2] >= -1.) && (p[2] <= 1.) && (p[3] >= -1.) && (p[3] <= 1.));

@@ -39,14 +39,14 @@ namespace Geometry
         {
             for (std::size_t i = 0; i < 4; ++i)
             {
-                indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, i)];
+                indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, i)];
             }
         }
         else
         {
             for (std::size_t i = 0; i < 3; ++i)
             {
-                indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, i)];
+                indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, i)];
             }
         }
         return indexes;
@@ -60,14 +60,14 @@ namespace Geometry
         {
             for (std::size_t i = 0; i < 4; ++i)
             {
-                indexes[i] = refGeometry_->getLocalNodeIndex(face, i);
+                indexes[i] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, i);
             }
         }
         else
         {
             for (std::size_t i = 0; i < 3; ++i)
             {
-                indexes[i] = refGeometry_->getLocalNodeIndex(face, i);
+                indexes[i] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, i);
             }
         }
         return indexes;

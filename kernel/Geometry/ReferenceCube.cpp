@@ -38,7 +38,7 @@ namespace Geometry
     ReferenceCube::ReferenceCube()
             : ReferenceGeometry(8, 3, CUBE), referenceGeometryCodim1Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
-        PointReferenceT p1(3), p2(3), p3(3), p4(3), p5(3), p6(3), p7(3), p8(3);
+        PointReference p1(3), p2(3), p3(3), p4(3), p5(3), p6(3), p7(3), p8(3);
         
         p1[0] = -1.0;
         p1[1] = -1.0;
@@ -108,7 +108,7 @@ namespace Geometry
         }
     }
     
-    bool ReferenceCube::isInternalPoint(const PointReferenceT& p) const
+    bool ReferenceCube::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==3, "Passed a point with the wrong dimension");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.) && (p[2] >= -1.) && (p[2] <= 1.));
@@ -158,7 +158,7 @@ namespace Geometry
             }
             else if ((list1[0] == list2[3]) && (list1[4] == list2[7]))
             {
-                if ((list1[1] == list2[1])) // (list1(3)==list2(0)) // Holds for both 2 and 6!
+                if ((list1[1] == list2[1])) 
                     return 6;
                 else
                     return 2;
@@ -263,7 +263,7 @@ namespace Geometry
     
     // =============================== Refinement mappings =====================================
     
-    void ReferenceCube::refinementTransform(int refineType, std::size_t subElementIdx, const PointReferenceT& p, PointReferenceT& pMap) const
+    void ReferenceCube::refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const
     {
         switch (refineType)
         {
@@ -996,4 +996,3 @@ namespace Geometry
     } // end of getCodim1RefinementMappingMatrixR
     
 }
-;

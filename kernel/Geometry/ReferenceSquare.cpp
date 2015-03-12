@@ -61,7 +61,7 @@ namespace Geometry
         mappingsSquareToSquare_[7] = &MappingToRefSquareToSquare7::Instance(); // (x,y)    -> (y,x)
                 
         // We set the actual coordinates (see top comment for drawing).
-        PointReferenceT p1(2), p2(2), p3(2), p4(2);
+        PointReference p1(2), p2(2), p3(2), p4(2);
         
         p1[0] = -1.0;
         p1[1] = -1.0;
@@ -83,7 +83,7 @@ namespace Geometry
     {
     }
     
-    bool ReferenceSquare::isInternalPoint(const PointReferenceT& p) const
+    bool ReferenceSquare::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==2, "The passed reference point has the wrong dimension");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.));
@@ -149,7 +149,7 @@ namespace Geometry
             }
             else
             {
-                if (list1[1] == list2[1]) // (list1(3)==list2(0)) // Holds for both 2 and 6!
+                if (list1[1] == list2[1]) 
                     return 6;
                 else if (list1[1] == list2[2])
                     return 2;
@@ -214,7 +214,7 @@ namespace Geometry
     // =============================== Refinement mappings =====================================
     
     //! Transform a reference point using refinement mapping
-    void ReferenceSquare::refinementTransform(int refineType, std::size_t subElementIdx, const PointReferenceT& p, PointReferenceT& pMap) const
+    void ReferenceSquare::refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const
     {
         switch (refineType)
         {

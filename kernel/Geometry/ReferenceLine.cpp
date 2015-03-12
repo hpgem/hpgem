@@ -39,7 +39,7 @@ namespace Geometry
             : ReferenceGeometry(2, 1, LINE), /// Line has two points 1+1
             referenceGeometryCodim1Ptr_(&ReferencePoint::Instance())
     {
-        PointReferenceT p1(1), p2(1);
+        PointReference p1(1), p2(1);
         p1[0] = -1.0;
         p2[0] = 1.0;
         points_[0] = p1;
@@ -58,7 +58,7 @@ namespace Geometry
     {
     }
     
-    bool ReferenceLine::isInternalPoint(const PointReferenceT& p) const
+    bool ReferenceLine::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==1, "The dimension of the point is wrong");
         return ((p[0] >= -1.) && (p[0] <= 1.));

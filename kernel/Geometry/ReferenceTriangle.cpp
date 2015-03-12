@@ -57,7 +57,7 @@ namespace Geometry
         mappingsTriangleToTriangle_[4] = &MappingToRefTriangleToTriangle4::Instance(); // (x,y) -> (x,-y)
         mappingsTriangleToTriangle_[5] = &MappingToRefTriangleToTriangle5::Instance(); // (x,y) -> (-x,y)
                 
-        PointReferenceT p1(2), p2(2), p3(2);
+        PointReference p1(2), p2(2), p3(2);
         p1[0] = 0.0;
         p1[1] = 0.0;
         p2[0] = 1.0;
@@ -75,7 +75,7 @@ namespace Geometry
     {
     }
     
-    bool ReferenceTriangle::isInternalPoint(const PointReferenceT& p) const
+    bool ReferenceTriangle::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==2, "The dimension of the reference point is incorrect");
         return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));

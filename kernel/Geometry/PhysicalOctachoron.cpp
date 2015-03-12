@@ -35,14 +35,14 @@ namespace Geometry
     {
         logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
         std::vector<std::size_t> indexes(8);
-        indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 0)];
-        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 1)];
-        indexes[2] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 2)];
-        indexes[3] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 3)];
-        indexes[4] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 4)];
-        indexes[5] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 5)];
-        indexes[6] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 6)];
-        indexes[7] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 7)];
+        indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0)];
+        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 1)];
+        indexes[2] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 2)];
+        indexes[3] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 3)];
+        indexes[4] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 4)];
+        indexes[5] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 5)];
+        indexes[6] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 6)];
+        indexes[7] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 7)];
         return indexes;
     }
     
@@ -50,14 +50,14 @@ namespace Geometry
     {
         logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
         std::vector<std::size_t> indexes(8);
-        indexes[0] = refGeometry_->getLocalNodeIndex(face, 0);
-        indexes[1] = refGeometry_->getLocalNodeIndex(face, 1);
-        indexes[2] = refGeometry_->getLocalNodeIndex(face, 2);
-        indexes[3] = refGeometry_->getLocalNodeIndex(face, 3);
-        indexes[4] = refGeometry_->getLocalNodeIndex(face, 4);
-        indexes[5] = refGeometry_->getLocalNodeIndex(face, 5);
-        indexes[6] = refGeometry_->getLocalNodeIndex(face, 6);
-        indexes[7] = refGeometry_->getLocalNodeIndex(face, 7);
+        indexes[0] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0);
+        indexes[1] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 1);
+        indexes[2] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 2);
+        indexes[3] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 3);
+        indexes[4] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 4);
+        indexes[5] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 5);
+        indexes[6] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 6);
+        indexes[7] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 7);
         return indexes;
     }
     

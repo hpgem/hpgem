@@ -24,7 +24,7 @@
 
 namespace Geometry
 {
-    /* Behold the reference point, ruler of them all:
+    /* The reference point just looks like:
      *
      *                  0.
      *

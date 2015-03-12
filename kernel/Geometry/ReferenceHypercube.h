@@ -31,8 +31,7 @@ namespace Geometry
     class ReferenceHypercube : public ReferenceGeometry
     {
     public:
-        using typename ReferenceGeometry::PointReferenceT;
-        using typename ReferenceGeometry::VectorOfReferencePointsT;
+        using ReferenceGeometry::VectorOfReferencePointsT;
         using ReferenceGeometry::String;
 
     public:
@@ -51,7 +50,7 @@ namespace Geometry
     public:
         
         //! (see ReferenceGeometry.h)
-        bool isInternalPoint(const PointReferenceT& point) const;
+        bool isInternalPoint(const PointReference& point) const;
 
         //! (see ReferenceGeometry.h)
         PointReference getCenter() const;
@@ -67,7 +66,7 @@ namespace Geometry
         
         //! Given a face index, and an index of the node position relative to the face,
         //! return the local index of the node.
-        std::size_t getLocalNodeIndex(std::size_t face, std::size_t node) const
+        std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const
         {
             logger.assert(face < getNrOfCodim1Entities(), "Asked for face %, but a % only has % faces", face, getName(), getNrOfCodim1Entities());
             logger.assert(node < getCodim1ReferenceGeometry(face)->getNumberOfNodes(), "Asked for node % of face %, but this face only has % nodes", node, face, getCodim1ReferenceGeometry(face)->getNumberOfNodes());
@@ -135,7 +134,7 @@ namespace Geometry
         // =============================== Refinement mappings =====================================
         
         //! Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReferenceT& p, PointReferenceT& pMap) const
+        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const
         {
         }
         
@@ -164,10 +163,6 @@ namespace Geometry
     private:
         //! Local node indexes contains the numbering of the vertex of the shape, ordered by faces.
         static std::size_t localNodeIndexes_[8][8]; // 8 'faces' (cubes) with 8 vertex.
-        
-        //! The nodes on edge contains the local index of the two nodes in every edge.
-        //has the wrong numers and isnt used
-        //static int                                          localNodesOnEdge_[24][2]; //!< 24 edges with 2 nodes
         
         //! Codimension 1 mappings, from a cube to a hypercube. TODO: Where is this used? clarify here.
         const MappingReferenceToReference* mappingsCubeToHypercube_[8];

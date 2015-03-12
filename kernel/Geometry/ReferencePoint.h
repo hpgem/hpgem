@@ -37,8 +37,6 @@ namespace Geometry
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-
-        using ReferenceGeometryT::PointReferenceT;
         using ReferenceGeometryT::VectorOfReferencePointsT;
         using ListOfIndexesT = std::vector<std::size_t>;
 
@@ -57,8 +55,8 @@ namespace Geometry
 
     public:
         
-        /// \brief Return true. TODO: Why?
-        bool isInternalPoint(const PointReferenceT& p) const;
+        /// \brief Return true.
+        bool isInternalPoint(const PointReference& p) const;
 
         /// \brief (see ReferenceGeometry.h)
         PointReference getCenter() const;
@@ -74,7 +72,7 @@ namespace Geometry
         
         /// \brief Given a face index, and an index of the node position relative to the face,
         /// return the local index of the node. Dummy function, doesn't make sense for point
-        std::size_t getLocalNodeIndex(std::size_t face, std::size_t node) const
+        std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const
         {
             std::cout << "WARNING: ReferencePoint::getLocalNodeIndex might have unexpected behaviour." << std::endl;
             return -1;
@@ -93,7 +91,7 @@ namespace Geometry
         // =============================== Refinement mappings =====================================
         
         /// \brief Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReferenceT& p, PointReferenceT& pMap) const
+        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const
         {
         }
         

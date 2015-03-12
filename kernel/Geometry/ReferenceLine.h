@@ -38,7 +38,6 @@ namespace Geometry
     {
         
     public:
-        using ReferenceGeometry::PointReferenceT;
         using ReferenceGeometry::VectorOfReferencePointsT;
         using ReferenceGeometry::String;
         using ReferenceGeometry::const_iterator;
@@ -62,7 +61,7 @@ namespace Geometry
     public:
         
         //! (see ReferenceGeometry.h)
-        bool isInternalPoint(const PointReferenceT&) const;
+        bool isInternalPoint(const PointReference&) const;
 
         //! (see ReferenceGeometry.h)
         PointReference getCenter() const;
@@ -78,8 +77,7 @@ namespace Geometry
         
         //! Given a face index, and an index of the node position relative to the face,
         //! return the local index of the node.
-        ///\bug this name makes me expect a map from a global node index to a local one
-        std::size_t getLocalNodeIndex(std::size_t face, std::size_t node) const
+        std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const
         {
             logger.assert(face < getNrOfCodim1Entities(), "Asked for face %, but a % only has % faces", face, getName(), getNrOfCodim1Entities());
             logger.assert(node < getCodim1ReferenceGeometry(face)->getNumberOfNodes(), "Asked for node % of face %, but this face only has % nodes", node, face, getCodim1ReferenceGeometry(face)->getNumberOfNodes());
@@ -119,7 +117,7 @@ namespace Geometry
         // =============================== Refinement mappings =====================================
         
         //! Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReferenceT& p, PointReferenceT& pMap) const
+        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const
         {
         }
         

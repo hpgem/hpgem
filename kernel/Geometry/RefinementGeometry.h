@@ -142,7 +142,7 @@ namespace Geometry
         //! type of refinement to be applied
         std::size_t refineType_;
 
-        //! a flag for marking unfinished refinement proccess
+        //! a flag for marking unfinished refinement process
         bool beingRefined_;
     };
 }

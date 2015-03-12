@@ -116,7 +116,7 @@ int main()
         pointIndexes = test.getGlobalFaceNodeIndices(i);
         for (std::size_t j = 0; j < 3; ++j)
         {
-            logger.assert_always((pointIndexes[j] == test.getNodeIndex(test.getRefGeometry()->getLocalNodeIndex(i, j))), "getGlobalFaceNodeIndices");
+            logger.assert_always((pointIndexes[j] == test.getNodeIndex(test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(i, j))), "getGlobalFaceNodeIndices");
         }
     }
     
@@ -125,7 +125,7 @@ int main()
         pointIndexes = test.getLocalFaceNodeIndices(i);
         for (std::size_t j = 0; j < 3; ++j)
         {
-            logger.assert_always((pointIndexes[j] == test.getRefGeometry()->getLocalNodeIndex(i, j)), "getLocalFaceNodeIndices");
+            logger.assert_always((pointIndexes[j] == test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(i, j)), "getLocalFaceNodeIndices");
         }
     }
     

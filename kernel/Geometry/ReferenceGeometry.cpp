@@ -89,7 +89,6 @@ namespace Geometry
     }
 
 }
-;
 
 std::size_t Geometry::PointHasher::operator()(const Geometry::PointReference& point) const
 {

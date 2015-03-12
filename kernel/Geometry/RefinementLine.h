@@ -99,8 +99,6 @@ namespace Geometry
         {
         }
         
-        //! type of refinement to be applied. 
-        
         //! The physicalGeometry object contains pointers to the actual physical nodes, and
         //! a container of global node indexes.
         const PhysicalGeometryT* physicalGeometry_;

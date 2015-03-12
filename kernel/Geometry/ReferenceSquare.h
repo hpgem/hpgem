@@ -41,9 +41,6 @@ namespace Geometry
     class ReferenceSquare : public ReferenceGeometry
     {
     public:
-        //         typedef QuadratureRules::GaussQuadratureRule<TwoD>  GaussQuadratureRuleT;
-        //         typedef std::vector<QuadratureRules::GaussQuadratureRule<TwoD>*>            ListOfGaussQuadratureRulePtrT;
-        using ReferenceGeometry::PointReferenceT;
         using ReferenceGeometry::String;
         using ReferenceGeometry::ListOfIndexesT;
 
@@ -64,7 +61,7 @@ namespace Geometry
     public:
         
         //! (see ReferenceGeometry.h)
-        bool isInternalPoint(const PointReferenceT& point) const;
+        bool isInternalPoint(const PointReference& point) const;
 
         //! (see ReferenceGeometry.h)
         PointReference getCenter() const;
@@ -72,25 +69,20 @@ namespace Geometry
         //! (see ReferenceGeometry.h)
         const PointReference& getNode(const std::size_t& i) const;
 
-        //! (see ReferenceGeometry.h)
-        
+        //! (see ReferenceGeometry.h)        
         String getName() const
         {
             return "ReferenceSquare";
         }
         
         //! Given a face index, and an index of the node position relative to the face,
-        //! return the local index of the node.
-        
-        std::size_t getLocalNodeIndex(std::size_t face, std::size_t node) const
+        //! return the local index of the node.        
+        std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const
         {
             logger.assert(face < getNrOfCodim1Entities(), "Asked for face %, but a % only has % faces", face, getName(), getNrOfCodim1Entities());
             logger.assert(node < getCodim1ReferenceGeometry(face)->getNumberOfNodes(), "Asked for node % of face %, but this face only has % nodes", node, face, getCodim1ReferenceGeometry(face)->getNumberOfNodes());
             return localNodeIndexes_[face][node];
         }
-        
-        //! (see ReferenceGeometry.h) //! (see ReferenceGeometry.h) duplicating the referenceGeometry.getNumberofNodes(), thus commented out
-        //std::size_t          getId() const {return 4;}
         
         //! Output routine.
         friend std::ostream& operator<<(std::ostream& os, const ReferenceSquare& point);
@@ -107,8 +99,7 @@ namespace Geometry
 
         // ================================== Codimension 1 ========================================
         
-        //! (see MappingCodimensions.h)
-        
+        //! (see MappingCodimensions.h)        
         std::size_t getNrOfCodim1Entities() const
         {
             return 4;
@@ -143,7 +134,7 @@ namespace Geometry
         // =============================== Refinement mappings =====================================
         
         //! Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReferenceT& p, PointReferenceT& pMap) const;
+        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const;
 
         //! Transformation matrix of this refinement when located on the LEFT side
         void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const;
@@ -178,5 +169,4 @@ namespace Geometry
     };
 
 }
-;
 #endif

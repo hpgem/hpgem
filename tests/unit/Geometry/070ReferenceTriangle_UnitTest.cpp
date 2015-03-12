@@ -83,12 +83,12 @@ int main()
     logger.assert_always((std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1] - 1) < 1e-12), "getNode 2");
     std::cout << test.getName();
     
-    logger.assert_always((test.getLocalNodeIndex(0, 0) == 0), "getLocalNodeIndex 0"); //the nodes of the face must always be specified IN THIS SPECIFIC ORDER
-    logger.assert_always((test.getLocalNodeIndex(0, 1) == 1), "getLocalNodeIndex 0"); //im not sure if I like this myself, but this should at least verify
-    logger.assert_always((test.getLocalNodeIndex(1, 0) == 0), "getLocalNodeIndex 1"); //that all face nodes are specified, none are specified twice
-    logger.assert_always((test.getLocalNodeIndex(1, 1) == 2), "getLocalNodeIndex 1"); //and only face nodes are specified and the ordering of the nodes is consistent
-    logger.assert_always((test.getLocalNodeIndex(2, 0) == 1), "getLocalNodeIndex 2"); //across function calls
-    logger.assert_always((test.getLocalNodeIndex(2, 1) == 2), "getLocalNodeIndex 2");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0) == 0), "getLocalNodeIndex 0"); //the nodes of the face must always be specified IN THIS SPECIFIC ORDER
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1) == 1), "getLocalNodeIndex 0"); //im not sure if I like this myself, but this should at least verify
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) == 0), "getLocalNodeIndex 1"); //that all face nodes are specified, none are specified twice
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1) == 2), "getLocalNodeIndex 1"); //and only face nodes are specified and the ordering of the nodes is consistent
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 0) == 1), "getLocalNodeIndex 2"); //across function calls
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 1) == 2), "getLocalNodeIndex 2");
     
     std::cout << test;
     
@@ -134,14 +134,14 @@ int main()
     logger.assert_always((test.getCodim1MappingPtr(1) == &Geometry::MappingToRefLineToTriangle1::Instance()), "getCodim1MappingPtr");
     logger.assert_always((test.getCodim1MappingPtr(2) == &Geometry::MappingToRefLineToTriangle2::Instance()), "getCodim1MappingPtr");
     faceIndices = test.getCodim1EntityLocalIndices(0);
-    logger.assert_always((faceIndices[0] == test.getLocalNodeIndex(0, 0)), "getCodim1EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == test.getLocalNodeIndex(0, 1)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1)), "getCodim1EntityLocalIndices");
     faceIndices = test.getCodim1EntityLocalIndices(1);
-    logger.assert_always((faceIndices[0] == test.getLocalNodeIndex(1, 0)), "getCodim1EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == test.getLocalNodeIndex(1, 1)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1)), "getCodim1EntityLocalIndices");
     faceIndices = test.getCodim1EntityLocalIndices(2);
-    logger.assert_always((faceIndices[0] == test.getLocalNodeIndex(2, 0)), "getCodim1EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == test.getLocalNodeIndex(2, 1)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 0)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 1)), "getCodim1EntityLocalIndices");
     faceIndices.resize(1);
     faceIndices = test.getCodim2EntityLocalIndices(0);
     logger.assert_always((faceIndices[0] == 0), "getCodim2EntityLocalIndices");
