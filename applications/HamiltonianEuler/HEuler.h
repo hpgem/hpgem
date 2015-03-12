@@ -4,7 +4,6 @@
 #include <string>
 using std::string;
 
-//#include <petscmat.h>
 #include <petscksp.h>
 
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
@@ -13,7 +12,6 @@ using std::string;
 #include "Base/GlobalData.h"
 #include "Base/ConfigurationData.h"
 #include "Base/HpgemAPIBase.h"
-#include "Base/Norm2.h"
 #include "Base/PhysGradientOfBasisFunction.h"
 #include "Base/UserData.h"
 #include "Integration/ElementIntegral.h"

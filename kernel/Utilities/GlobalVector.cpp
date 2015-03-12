@@ -33,7 +33,6 @@
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "Geometry/PointReference.h"
-#include "Base/Norm2.h"
 #include <Logger.h>
 #include <numeric>
 

@@ -24,12 +24,12 @@
 #include "petscksp.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
-#include "Base/Norm2.h"
 #include "Base/ShortTermStorageElementH1.h"
 #include "Base/FaceCacheData.h"
 #include "Base/ElementCacheData.h"
 #include "Geometry/PointPhysical.h"
 #include "Base/RectangularMeshDescriptor.h"
+#include "Base/L2Norm.h"
 #include "Integration/ElementIntegral.h"
 #include <cmath>
 #include "Logger.h"
@@ -178,7 +178,7 @@ public:
             for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
                 phiDeriv = fa->basisFunctionDeriv(i, p);
-                ret[i] = (-normal * phiDeriv / Utilities::norm2(normal) + penaltyParameter_ * fa->basisFunction(i, p)) * 0;
+                ret[i] = (-normal * phiDeriv / Base::L2Norm(normal) + penaltyParameter_ * fa->basisFunction(i, p)) * 0;
             }
         }
         else

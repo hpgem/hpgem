@@ -227,7 +227,7 @@ void HEuler::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVect
     ret.resize(face->getNrOfBasisFunctions());
     if (face->isInternal())
     {
-        const double magn = Utilities::norm2(normal);
+        const double magn = Base::L2Norm(normal);
         unsigned int numberOfDegreesOfFreedom = face->getPtrElementLeft()->getNrOfBasisFunctions();
         
         PointReferenceT pL(3), pR(3);

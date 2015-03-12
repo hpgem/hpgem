@@ -25,7 +25,6 @@
 #include "Output/TecplotPhysicalGeometryIterator.h"
 #include "LinearAlgebra/NumericalVector.h"
 #include "Base/PhysGradientOfBasisFunction.h"
-#include "Base/Norm2.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include "Base/ElementCacheData.h"
 #include "Base/FaceCacheData.h"

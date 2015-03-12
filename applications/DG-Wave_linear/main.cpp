@@ -8,7 +8,7 @@
 #define hpGEM_INCLUDE_PETSC_SUPPORT
 
 #include "Base/HpgemAPIBase.h"
-#include "Base/Norm2.h"
+#include "Base/L2Norm.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include <fstream>
 #include "Utilities/BasisFunctions2DH1ConformingSquare.h"

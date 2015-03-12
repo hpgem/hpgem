@@ -3,7 +3,6 @@ add_subdirectory(Mappings)
 include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
 add_library(Reference_geometries STATIC
-#add_library(Reference_geometries SHARED
 	${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferencePoint.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceLine.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceTriangle.cpp
@@ -56,7 +55,6 @@ add_library(Geometry SHARED
         # Mappings
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysHypercubeLinear.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysPyramid.cpp
-       # ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefCubeToHypercube.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysTriangularPrism.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/OutwardNormalVectorSign.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingReferenceToPhysical.cpp
@@ -70,5 +68,5 @@ add_library(Geometry SHARED
 
       )
 
-target_link_libraries(Reference_geometries LinearAlgebra QuadratureRules Logger)
-target_link_libraries(Geometry Reference_geometries LinearAlgebra Logger)
+target_link_libraries(Reference_geometries LinearAlgebra QuadratureRules)
+target_link_libraries(Geometry Reference_geometries)

@@ -13,12 +13,7 @@ if(hpGEM_USE_QHULL)
   include_directories(${QHULL_INCLUDE_DIR})
 endif()
 
-add_library(hpGEM_Base SHARED
-		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp	
-                ${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter.cpp
-                ${hpGEM_SOURCE_DIR}/kernel/Output/VTKTimeDependentWriter.cpp
-                ${hpGEM_SOURCE_DIR}/kernel/Output/VTKSpecificTimeWriter.cpp
-                ${hpGEM_SOURCE_DIR}/kernel/Output/base64.cpp
+add_library(hpGEM_Base STATIC
  		${hpGEM_SOURCE_DIR}/kernel/Base/BasisFunctionSet.cpp	
  		BaseBasisFunction.cpp	  
 		CommandLineOptions.cpp
@@ -47,7 +42,6 @@ add_library(hpGEM_Base SHARED
                 Submesh.cpp
         	${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
- 		${hpGEM_SOURCE_DIR}/kernel/Base/Norm2.cpp
                 MpiContainer.cpp
 		ShortTermStorageElementBase.cpp
 		ShortTermStorageElementH1.cpp
@@ -68,7 +62,9 @@ add_library(hpGEM_Base SHARED
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalVector.cpp
 	) 
 
-target_link_libraries(hpGEM_Base Geometry Reference_geometries TimeIntegration Logger)
+target_link_libraries(hpGEM_Base Output Geometry TimeIntegration)
+
+set_target_properties(hpGEM_Base PROPERTIES POSITION_INDEPENDENT_CODE true)
 
 set( DEP_COMPILE_FLAGS "" )
 set( DEP_LINKER_FLAGS "" )

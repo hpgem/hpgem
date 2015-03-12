@@ -23,8 +23,7 @@
 #include "Geometry/PointReference.h"
 #include "Base/BaseBasisFunction.h"
 
-#ifndef _ReferenceGeometry_Impl_h
-#define _ReferenceGeometry_Impl_h
+#include <stdexcept>
 
 namespace Geometry
 {
@@ -100,4 +99,3 @@ std::size_t Geometry::PointHasher::operator()(const Geometry::PointReference& po
     }
     return ret;
 }
-#endif

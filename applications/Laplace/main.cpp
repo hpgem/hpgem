@@ -21,7 +21,7 @@
 
 #include "Base/MpiContainer.h"
 #include "Base/HpgemUISimplified.h"
-#include "Base/Norm2.h"
+#include "Base/L2Norm.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 #include "petscksp.h"
@@ -178,7 +178,7 @@ public:
             for (int i = 0; i < n; ++i)
             {
                 phiDeriv = face->basisFunctionDeriv(i, point);
-                result[i] = (-normal * phiDeriv / Utilities::norm2(normal) + penaltyParameter_ * face->basisFunction(i, point)) * 0.;
+                result[i] = (-normal * phiDeriv / Base::L2Norm(normal) + penaltyParameter_ * face->basisFunction(i, point)) * 0.;
             }
             /*}else if(std::abs(pPhys[1]-1)<1e-9){//Neumann and robin
              for(int i=0;i<n;++i){//be careful in 1D; this boundary condition always concerns df/dn

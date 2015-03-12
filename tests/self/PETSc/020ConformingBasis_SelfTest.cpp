@@ -24,7 +24,6 @@
 #include "petscksp.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
-#include "Base/Norm2.h"
 #include "Utilities/BasisFunctions1DH1ConformingLine.h"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Base/ShortTermStorageElementH1.h"
@@ -34,6 +33,7 @@
 #include "Integration/ElementIntegral.h"
 #include <cmath>
 #include "Logger.h"
+#include "Base/L2Norm.h"
 
 //If this test ever breaks it is not a bad thing per se. However, once this breaks a thorough convergence analysis needs to be done.
 //If the results still show the theoretically optimal order of convergence, and you are convinced that your changes improved the code,
@@ -201,7 +201,7 @@ public:
             for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
                 phiDeriv = fa->basisFunctionDeriv(i, p);
-                ret[i] = (-normal * phiDeriv / Utilities::norm2(normal) + penaltyParameter_ * fa->basisFunction(i, p)) * 0;
+                ret[i] = (-normal * phiDeriv / Base::L2Norm(normal) + penaltyParameter_ * fa->basisFunction(i, p)) * 0;
             }
         }
         else

@@ -25,11 +25,11 @@
 #include "Output/TecplotPhysicalGeometryIterator.h"
 #include "LinearAlgebra/NumericalVector.h"
 #include "Base/PhysGradientOfBasisFunction.h"
-#include "Base/Norm2.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include "Base/ElementCacheData.h"
 #include "Base/FaceCacheData.h"
 #include "Base/Element.h"
+#include "Base/L2Norm.h"
 
 using Base::RectangularMeshDescriptor;
 using Base::HpgemUISimplified;
@@ -95,7 +95,7 @@ public:
         if (face->isInternal())
         {
             
-            const double magn = Utilities::norm2(normal);
+            const double magn = Base::L2Norm(normal);
             unsigned int numberOfDegreesOfFreedom = face->getPtrElementLeft()->getNrOfBasisFunctions();
             
         }

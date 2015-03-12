@@ -153,7 +153,6 @@ namespace LinearAlgebra
     /// \param[in] other : Matrix on the right of the multiplication
     /// \return Matrix
     /// \details
-    /// \bug Direct calculation may be quicker this needs testing.
     /*! This uses the BLAS level 3 libaray dgemm to undertake the calculated
      Note it create the matrix that is return, but this is required as the return matrix may be a different size.
      */

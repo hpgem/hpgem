@@ -33,8 +33,6 @@
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 #include "petscksp.h"
-
-#include "Base/Norm2.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include "Geometry/ReferenceTetrahedron.h"
 #include "Base/Element.h"

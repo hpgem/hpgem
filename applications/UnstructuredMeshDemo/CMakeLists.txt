@@ -11,6 +11,6 @@ if(hpGEM_USE_QHULL)
 add_executable(rotor.out
 		app1.cpp
       		)
-target_link_libraries(rotor.out hpGEM_Base QuadratureRules)
+target_link_libraries(rotor.out hpGEM_Base Output)
 
 endif()

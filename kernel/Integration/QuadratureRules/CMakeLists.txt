@@ -13,6 +13,6 @@ add_library(QuadratureRules STATIC
         ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/GaussQuadratureRulesForCube.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/GaussQuadratureRulesForHypercube.cpp
         )
-target_link_libraries(QuadratureRules Reference_geometries)
+target_link_libraries(QuadratureRules Reference_geometries Logger)
 
 set_target_properties(QuadratureRules PROPERTIES POSITION_INDEPENDENT_CODE true)
