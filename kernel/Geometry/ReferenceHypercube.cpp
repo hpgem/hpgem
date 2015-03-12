@@ -201,14 +201,8 @@ namespace Geometry
     const ReferenceGeometry*
     ReferenceHypercube::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        if (faceIndex < 8)
-        {
-            return referenceGeometryCodim1Ptr_;
-        }
-        else
-        {
-            throw "ERROR: ReferenceHypercube::getCodim1ReferenceGeometry requested face index does not exist";
-        }
+        logger.assert(faceIndex < 8, "You requested face %, but it does not exist", faceIndex);
+        return referenceGeometryCodim1Ptr_;
     }
     
     std::vector<std::size_t> ReferenceHypercube::getCodim1EntityLocalIndices(const std::size_t i) const

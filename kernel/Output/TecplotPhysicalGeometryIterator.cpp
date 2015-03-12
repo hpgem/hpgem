@@ -135,7 +135,8 @@ namespace Output
         }
         else
         {
-            throw "unsuccesfull";
+            logger(ERROR, "The call to given physical geometry is unsuccssful.\n ");
+            
         }
     }
 
