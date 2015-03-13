@@ -61,7 +61,8 @@ namespace Base
     HpgemAPIBase::MeshId HpgemAPIBase::addMesh(const RectangularMeshDescriptorT& meshDscr, const MeshType& meshType, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
     {
         std::size_t numOfMeshes = meshes_.size();
-        MeshManipulator* mesh = new MeshManipulator(configData_, meshDscr.boundaryConditions_[0], (configData_->dimension_ > 1) ? meshDscr.boundaryConditions_[1] : false, (configData_->dimension_ > 2) ? meshDscr.boundaryConditions_[2] : false, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
+        MeshManipulator* mesh = new MeshManipulator(configData_, meshDscr.boundaryConditions_[0],
+                                                    (configData_->dimension_ > 1) ? meshDscr.boundaryConditions_[1] : Boundary::SOLID_WALL, (configData_->dimension_ > 2) ? meshDscr.boundaryConditions_[2] : Boundary::SOLID_WALL, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
         
         if (meshType == RECTANGULAR)
         {
@@ -86,7 +87,7 @@ namespace Base
     HpgemAPIBase::MeshId HpgemAPIBase::addMesh(const HpgemAPIBase::String& fileName, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
     {
         std::size_t numOfMeshes = meshes_.size();
-        MeshManipulator* mesh = new MeshManipulator(configData_, false, false, false, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
+        MeshManipulator* mesh = new MeshManipulator(configData_, Boundary::SOLID_WALL, Boundary::SOLID_WALL, Boundary::SOLID_WALL, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
         mesh->readCentaurMesh(fileName); //boundary information (^) is ignored
         mesh->getElementsList();
         meshes_.push_back(mesh);

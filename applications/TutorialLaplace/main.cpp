@@ -89,7 +89,7 @@ public:
             //squares can be divided in two triangles each if a triangular mesh is desired.
             description.numElementsInDIM_[i] = n_;
             //define whether you have periodic boundary conditions or a solid wall in this direction.
-            description.boundaryConditions_[i] = RectangularMeshDescriptorT::SOLID_WALL;
+            description.boundaryConditions_[i] = Base::Boundary::SOLID_WALL;
         }
         //Make a triangular mesh from the mesh descriptor. 
         addMesh(description, Base::TRIANGULAR, 1, 1, 1, 1);

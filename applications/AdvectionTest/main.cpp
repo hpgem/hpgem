@@ -114,7 +114,7 @@ public:
             
             //Choose whether you want periodic boundary conditions or other (solid wall)
             //boundary conditions.
-            description.boundaryConditions_[i] = RectangularMeshDescriptorT::PERIODIC;
+            description.boundaryConditions_[i] = Base::Boundary::PERIODIC;
         }
         
         //create a triangular mesh. The magic two and three magic ones that are passed to this function

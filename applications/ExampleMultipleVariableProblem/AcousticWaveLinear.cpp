@@ -50,7 +50,7 @@ Base::RectangularMeshDescriptor AcousticWaveLinear::createMeshDescription(const 
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
         description.numElementsInDIM_[i] = numOfElementPerDirection;
-        description.boundaryConditions_[i] = Base::RectangularMeshDescriptor::PERIODIC;
+        description.boundaryConditions_[i] = Base::Boundary::PERIODIC;
     }
     
     return description;

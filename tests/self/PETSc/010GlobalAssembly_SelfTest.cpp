@@ -86,7 +86,7 @@ public:
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
             description.numElementsInDIM_[i] = n_;
-            description.boundaryConditions_[i] = RectangularMeshDescriptorT::SOLID_WALL;
+            description.boundaryConditions_[i] = Base::Boundary::SOLID_WALL;
         }
         addMesh(description, type_, 1, 1, 1, 1);
         return true;

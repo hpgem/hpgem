@@ -36,17 +36,13 @@ namespace Base
                 : bottomLeft_(DIM), topRight_(DIM), numElementsInDIM_(DIM), boundaryConditions_(DIM)
         {
         }
-        enum Boundary
-        {
-            SOLID_WALL = 0, PERIODIC = 1
-        };
 
         Geometry::PointPhysical bottomLeft_;
         Geometry::PointPhysical topRight_;
 
         //The order of the dimensions are x = 0, y = 1, z = 2.
         std::vector<std::size_t> numElementsInDIM_;
-        std::vector<std::size_t> boundaryConditions_;
+        std::vector<Boundary> boundaryConditions_;
     };
 
 }

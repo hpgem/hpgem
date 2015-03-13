@@ -71,7 +71,7 @@ public:
             //once we decide what names of boundary conditions to support
             //it will become possible to appropriate boundary conditions
             //for your problem here
-            description.boundaryConditions_[i] = RectangularMeshDescriptorT::SOLID_WALL;
+            description.boundaryConditions_[i] = Base::Boundary::SOLID_WALL;
         }
         
         //create a triangular mesh. The four magic ones that are passed to this function
