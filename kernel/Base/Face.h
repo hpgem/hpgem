@@ -35,7 +35,7 @@ namespace QuadratureRules
 namespace Base
 {
     class Element;
-    class FaceCacheData;
+    struct FaceCacheData;
     
     /// Face consists of FaceGeometry and probably FaceData, if needed. 
     ///FaceGeometry holds all FaceReference related data and appropriate mappings    
@@ -173,7 +173,7 @@ namespace Base
         
         ///\brief default constructor - for use with wrapper classes
         Face()
-                : FaceData(0, 0, 0), FaceGeometry(), elementLeft_(nullptr), elementRight_(nullptr), quadratureRule_(nullptr)
+                : FaceGeometry(), FaceData(0, 0, 0), elementLeft_(nullptr), elementRight_(nullptr), quadratureRule_(nullptr)
         {
         }
         

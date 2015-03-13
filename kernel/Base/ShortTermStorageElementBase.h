@@ -69,7 +69,7 @@ namespace Base
                 element_(nullptr), 
                 currentPoint_(dimension),
                 jac_(dimension, dimension),
-                recomputeCache_(true), currentPointIndex_(-1), useCache_(useCache)
+                useCache_(useCache), recomputeCache_(true), currentPointIndex_(-1)
         {
         }
         
@@ -79,7 +79,7 @@ namespace Base
         Element& operator=(const Element& element);
         
         ShortTermStorageElementBase(const ShortTermStorageElementBase& copy)
-                : element_(copy.element_), currentPoint_(copy.currentPoint_), jac_(copy.jac_), useCache_(copy.useCache_), currentPointIndex_(copy.currentPointIndex_), recomputeCache_(copy.recomputeCache_)
+                : element_(copy.element_), currentPoint_(copy.currentPoint_), jac_(copy.jac_), useCache_(copy.useCache_), recomputeCache_(copy.recomputeCache_), currentPointIndex_(copy.currentPointIndex_)
         {
         }
         

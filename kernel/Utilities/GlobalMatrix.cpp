@@ -41,7 +41,7 @@ namespace Utilities
 {
     
     GlobalMatrix::GlobalMatrix(Base::MeshManipulator* theMesh, int elementMatrixID, int faceMatrixID)
-            : meshLevel_(-2), theMesh_(theMesh), elementMatrixID_(elementMatrixID), faceMatrixID_(faceMatrixID)
+            : meshLevel_(-2), elementMatrixID_(elementMatrixID), faceMatrixID_(faceMatrixID), theMesh_(theMesh)
     {
         logger.assert(theMesh!=nullptr,"Invalid mesh passed");
     }

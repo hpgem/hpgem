@@ -34,13 +34,13 @@ namespace Geometry
         
         // Constructors.
         RefinementPyramid(const ReferenceGeometry* const referenceGeometry, const PhysicalGeometry* const physicalGeometry)
-                : referenceGeometry_(referenceGeometry), physicalGeometry_(physicalGeometry)
+                : physicalGeometry_(physicalGeometry), referenceGeometry_(referenceGeometry)
         {
             std::cout << "RefinementPyramid(referenceGeometry, physicalGeometry)\n";
         }
         
         RefinementPyramid(const RefinementPyramid& other)
-                : referenceGeometry_(other.referenceGeometry_), physicalGeometry_(other.physicalGeometry_)
+                : physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
         {
             std::cout << "RefinementPyramid(other)\n";
         }
@@ -59,7 +59,7 @@ namespace Geometry
         
         /// Number of new nodes due to the refinement that should be added to
         /// the vector of localNodeIndices
-        virtual std::size_t nrOfNewNodes(int refineType) const
+        virtual std::size_t nrOfNewNodes(std::size_t refineType) const
         {
             return 0;
         }
@@ -67,39 +67,39 @@ namespace Geometry
         /// New physical nodes due to refinement to the nodes vector
         /// \param newPoints On input, this vector contains the element's physical nodes.  
         /// On exit, the new physical nodes are added.
-        virtual void getAllNodes(int refineType, VectorOfPointPhysicalsT& nodes) const
+        virtual void getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const
         {
         }
         
         /// Number of sub-elements due to the refinement
-        virtual std::size_t nrOfSubElements(int refineType) const
+        virtual std::size_t nrOfSubElements(std::size_t refineType) const
         {
             return 0;
         }
         
         /// Assembly nodes for sub-element
-        virtual void subElementLocalNodeIndices(int refineType, std::size_t iSubElement, std::vector<std::size_t>& LocalNodeIdx) const
+        virtual void subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, std::vector<std::size_t>& LocalNodeIdx) const
         {
         }
         
         /// Local indices pairs of sub-elements connected by a sub-Internal Face
-        virtual void adjacentSubElementsPairs(int refineType, std::vector<std::size_t>& elemIdx1, std::vector<std::size_t>& localFaceIdx1, std::vector<std::size_t>& elemIdx2, std::vector<std::size_t>& localFaceIdx2) const
+        virtual void adjacentSubElementsPairs(std::size_t refineType, std::vector<std::size_t>& elemIdx1, std::vector<std::size_t>& localFaceIdx1, std::vector<std::size_t>& elemIdx2, std::vector<std::size_t>& localFaceIdx2) const
         {
         }
         
         /// Number of sub-elements on a parent's face.
-        virtual std::size_t nrOfSubElementsOnFace(int refineType, std::size_t faLocalIndex) const
+        virtual std::size_t nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
         {
             return 0;
         }
         
         /// Get sub-elements' local index on a parent's face.
-        virtual void subElementsOnFace(int refineType, std::size_t faLocalIndex, std::vector<std::size_t>& localSubElemIdx) const
+        virtual void subElementsOnFace(std::size_t refineType, std::size_t faLocalIndex, std::vector<std::size_t>& localSubElemIdx) const
         {
         }
         
         /// Get sub-face's local face number of on a parent's face.
-        virtual std::size_t getLocalSubFaceNr(int refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
+        virtual std::size_t getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
         {
             return 0;
         }
@@ -107,7 +107,7 @@ namespace Geometry
     private:
         
         RefinementPyramid()
-                : referenceGeometry_(&Geometry::ReferencePyramid::Instance()), physicalGeometry_(nullptr)
+                : physicalGeometry_(nullptr), referenceGeometry_(&Geometry::ReferencePyramid::Instance())
         {
         }
         

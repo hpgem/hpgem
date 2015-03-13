@@ -216,11 +216,6 @@ namespace Base
         std::size_t localProcessorID_;
 
         Submesh submeshes_;
-
-        std::size_t elementcounter_;
-        std::size_t faceCounter_;
-        std::size_t edgeCounter_;
-        std::size_t nodeCounter_;
         //! List of all elements. 
         //! \TODO: this should be replaced by the mesh-tree structure
         std::vector<Element*> elements_;
@@ -234,6 +229,11 @@ namespace Base
 
         //! List of all nodes. (connectivity-based location of vertices)
         std::vector<Node*> nodes_;
+
+        std::size_t elementcounter_;
+        std::size_t faceCounter_;
+        std::size_t edgeCounter_;
+        std::size_t nodeCounter_;
 
         //! Global vector of physical nodes. (physical location of vertices)
         std::vector<Geometry::PointPhysical> points_;

@@ -32,8 +32,6 @@ using Base::RectangularMeshDescriptor;
 using Base::ConfigurationData;
 using Base::GlobalData;
 
-const unsigned int DIM = 2;
-
 //Note: the intended use of the prototype classes is to merge Dummy with MeshMoverExampleProblem
 class Dummy : public Output::TecplotSingleElementWriter
 {
@@ -80,7 +78,6 @@ public:
     {
         std::ofstream file2D;
         file2D.open("out.dat");
-        int dimensionsToWrite[2] = {0, 1};
         Output::TecplotDiscontinuousSolutionWriter out(file2D, "RectangularMesh", "01", "xy");
         
         Dummy d;

@@ -264,12 +264,12 @@ namespace Geometry
         
         ///\brief default constructor - for use with wrapper classes
         FaceGeometry()
-                : rightElementGeom_(nullptr), leftElementGeom_(nullptr)
+                : leftElementGeom_(nullptr), rightElementGeom_(nullptr)
         {
         }
         
-        const ElementGeometryT* rightElementGeom_;
         const ElementGeometryT* leftElementGeom_;
+        const ElementGeometryT* rightElementGeom_;
 
         LocalFaceNrType localFaceNumberLeft_;
         LocalFaceNrType localFaceNumberRight_;

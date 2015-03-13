@@ -178,7 +178,7 @@ namespace Base
             : configData_(config),
             //activeMeshTree_(0),
             //numMeshTree_(0),
-            numberOfElementMatrixes_(nrOfElementMatrixes), numberOfElementVectors_(nrOfElementVectors), numberOfFaceMatrixes_(nrOfFaceMatrtixes), numberOfFaceVectors_(nrOfFaceVectors), meshMover_(nullptr)
+            meshMover_(nullptr), numberOfElementMatrixes_(nrOfElementMatrixes), numberOfFaceMatrixes_(nrOfFaceMatrtixes), numberOfElementVectors_(nrOfElementVectors), numberOfFaceVectors_(nrOfFaceVectors)
     {
         logger.assert(config!=nullptr, "Invalid configuration passed");
         logger.assert(orderOfFEM==config->polynomialOrder_, "Inconsistent redundant information passed");
@@ -207,13 +207,13 @@ namespace Base
     }
     
     MeshManipulator::MeshManipulator(const MeshManipulator& other)
-            : configData_(other.configData_), theMesh_(other.theMesh_), periodicX_(other.periodicX_), periodicY_(other.periodicY_), periodicZ_(other.periodicZ_), meshMover_(other.meshMover_),
+            : theMesh_(other.theMesh_), configData_(other.configData_), periodicX_(other.periodicX_), periodicY_(other.periodicY_), periodicZ_(other.periodicZ_), meshMover_(other.meshMover_),
             collBasisFSet_(other.collBasisFSet_),
             //activeMeshTree_(other.activeMeshTree_),
             //numMeshTree_(other.numMeshTree_),
             //vecOfElementTree_(other.vecOfElementTree_),
             //vecOfFaceTree_(other.vecOfFaceTree_),
-            numberOfElementMatrixes_(other.numberOfElementMatrixes_), numberOfElementVectors_(other.numberOfElementVectors_), numberOfFaceMatrixes_(other.numberOfFaceMatrixes_), numberOfFaceVectors_(other.numberOfFaceVectors_)
+            numberOfElementMatrixes_(other.numberOfElementMatrixes_), numberOfFaceMatrixes_(other.numberOfFaceMatrixes_), numberOfElementVectors_(other.numberOfElementVectors_), numberOfFaceVectors_(other.numberOfFaceVectors_)
     {        
     }
     
@@ -500,7 +500,6 @@ namespace Base
         std::vector<std::size_t> elementNdId(DIM), nodeNdId(DIM), vertexNdId(DIM), globalNodeID(verticesPerElement), globalVertexID(verticesPerElement);
         
         auto& vertexlist = getVerticesList(IteratorType::GLOBAL);
-        auto& elementlist = getElementsList(IteratorType::GLOBAL);
         
         //elementNdId is DIM coordinate of the bottom left node i.e. in two (0,0), (1,0) ,(2,0) ... etc are the first three (if at least three elements in x)
         for (std::size_t elementIndex = 0; elementIndex < totalNumOfElements; ++elementIndex)
@@ -647,7 +646,6 @@ namespace Base
         }
         
         auto& vertices = getVerticesList(IteratorType::GLOBAL);
-        auto& elements = getElementsList(IteratorType::GLOBAL);
         
         //Stage 3 : Create the elements
         
@@ -1104,7 +1102,7 @@ namespace Base
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             
             std::uint32_t numberOfGroups;
-            centaurFile.read(reinterpret_cast<char*>(numberOfGroups), sizeof(std::uint32_t));
+            centaurFile.read(reinterpret_cast<char*>(&numberOfGroups), sizeof(std::uint32_t));
             
             centaurFile.read(reinterpret_cast<char*>(&checkInt), sizeof(checkInt));
             logger.assert_always(checkInt == sizeOfLine, "Error in centaur file.");
@@ -2184,8 +2182,8 @@ namespace Base
             std::multimap<double, std::size_t> knownLengths;
             std::vector<double> currentLength;
             //for proper scaling
-            double totalcurrentLength;
-            double totalexpectedLength;
+            double totalcurrentLength = 0;
+            double totalexpectedLength = 0;
             bool needsExpansion = false;
             
             //compute the expected relative length at the coordinates
@@ -3097,9 +3095,7 @@ namespace Base
     
     /// \bug does not do the bc flags yet
     void MeshManipulator::faceFactory()
-    {
-        std::size_t DIM = configData_->dimension_;
-        
+    {   
         std::vector<std::size_t> nodeIndices;
         std::vector<Element*> candidates;
         

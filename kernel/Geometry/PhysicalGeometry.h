@@ -59,7 +59,7 @@ namespace Geometry
         /// \brief Constructor gets indexes of the nodes, a reference to the node container, and a pointer to the corresponding reference geometry.
         
         PhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const refG)
-                : globalNodeIndexes_(globalNodeIndexes), nodes_(nodes), refGeometry_(refG)
+                : nodes_(nodes), globalNodeIndexes_(globalNodeIndexes), refGeometry_(refG)
         {
             logger.assert(refG!=nullptr, "Invalid reference geometry passed");
         }

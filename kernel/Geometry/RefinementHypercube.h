@@ -40,13 +40,13 @@ namespace Geometry
 
         /// Constructors.
         RefinementHypercube(const ReferenceGeometryT* const referenceGeometry, const PhysicalGeometryT* const physicalGeometry)
-                : referenceGeometry_(referenceGeometry), physicalGeometry_(physicalGeometry)
+                : physicalGeometry_(physicalGeometry), referenceGeometry_(referenceGeometry)
         {
             std::cout << "RefinementHypercube(referenceGeometry, physicalGeometry)\n";
         }
         
         RefinementHypercube(const RefinementHypercube& other)
-                : referenceGeometry_(other.referenceGeometry_), physicalGeometry_(other.physicalGeometry_)
+                : physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
         {
             std::cout << "RefinementHypercube(other)\n";
         }
@@ -65,7 +65,7 @@ namespace Geometry
         
         /// Number of new nodes due to the refinement that should be added to
         /// the vector of localNodeIndices
-        virtual std::size_t nrOfNewNodes(int refineType) const
+        virtual std::size_t nrOfNewNodes(std::size_t refineType) const
         {
             return 0;
         }
@@ -73,39 +73,39 @@ namespace Geometry
         /// New physical nodes due to refinement to the nodes vector
         /// \param newPoints On input, this vector contains the element's physical nodes.  
         /// On exit, the new physical nodes are added.
-        virtual void getAllNodes(int refineType, VectorOfPointPhysicalsT& nodes) const
+        virtual void getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const
         {
         }
         
         /// Number of sub-elements due to the refinement
-        virtual std::size_t nrOfSubElements(int refineType) const
+        virtual std::size_t nrOfSubElements(std::size_t refineType) const
         {
             return 0;
         }
         
         /// Assembly nodes for sub-element
-        virtual void subElementLocalNodeIndices(int refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const
+        virtual void subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const
         {
         }
         
         /// Local indices pairs of sub-elements connected by a sub-Internal Face
-        virtual void adjacentSubElementsPairs(int refineType, VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1, VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const
+        virtual void adjacentSubElementsPairs(std::size_t refineType, VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1, VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const
         {
         }
         
         /// Number of sub-elements on a parent's face.
-        virtual std::size_t nrOfSubElementsOnFace(int refineType, std::size_t faLocalIndex) const
+        virtual std::size_t nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
         {
             return 0;
         }
         
         /// Get sub-elements' local index on a parent's face.
-        virtual void subElementsOnFace(int refineType, std::size_t faLocalIndex, VectorOfIndicesT& localSubElemIdx) const
+        virtual void subElementsOnFace(std::size_t refineType, std::size_t faLocalIndex, VectorOfIndicesT& localSubElemIdx) const
         {
         }
         
         /// Get sub-face's local face number of on a parent's face.
-        virtual std::size_t getLocalSubFaceNr(int refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
+        virtual std::size_t getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
         {
             return 0;
         }
@@ -113,7 +113,7 @@ namespace Geometry
     private:
         
         RefinementHypercube()
-                : referenceGeometry_(&Geometry::ReferenceHypercube::Instance()), physicalGeometry_(nullptr)
+                : physicalGeometry_(nullptr), referenceGeometry_(&Geometry::ReferenceHypercube::Instance())
         {
         }
         

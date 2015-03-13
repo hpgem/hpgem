@@ -42,7 +42,7 @@ class TutorialAdvection : public Base::HpgemAPILinear
 public:
     ///Constructor. Assign all private variables.
     TutorialAdvection(int p)
-            : HpgemAPILinear(DIM_, 1, p), polyOrder_(p)
+            : HpgemAPILinear(DIM_, 1, p)
     {
         //Choose the "direction" of the advection.
         //This cannot be implemented with iterators, and since the dimension is
@@ -161,9 +161,6 @@ public:
     }
     
 private:
-
-    //polynomial order of the approximation
-    std::size_t polyOrder_;
 
     //Dimension of the problem
     static const std::size_t DIM_;

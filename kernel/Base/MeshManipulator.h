@@ -51,7 +51,7 @@ namespace Base
     template<class V>
     class LevelTree;
     class Element;
-    class ConfigurationData;
+    struct ConfigurationData;
     class Edge;
     
     struct HalfFaceDescription

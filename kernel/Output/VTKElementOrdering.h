@@ -19,15 +19,15 @@ namespace Output
         logger.assert(VTKIndex < shape->getNumberOfNodes(), "A % only has % indices", shape->getName(), shape->getNumberOfNodes());
         if (typeid(*shape) == typeid(Geometry::ReferenceSquare))
         {
-            return std::array<std::size_t, 4> {0, 1, 3, 2}[VTKIndex];
+            return std::array<std::size_t, 4> {{0, 1, 3, 2}}[VTKIndex];
         }
         if (typeid(*shape) == typeid(Geometry::ReferenceCube))
         {
-            return std::array<std::size_t, 8> {0, 1, 3, 2, 4, 5, 7, 6}[VTKIndex];
+            return std::array<std::size_t, 8> {{0, 1, 3, 2, 4, 5, 7, 6}}[VTKIndex];
         }
         if (typeid(*shape) == typeid(Geometry::ReferencePyramid))
         {
-            return std::array<std::size_t, 5> {3, 4, 2, 1, 0}[VTKIndex];
+            return std::array<std::size_t, 5> {{3, 4, 2, 1, 0}}[VTKIndex];
         }
         //all other cases use the same numbering
         return VTKIndex;

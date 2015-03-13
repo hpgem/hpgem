@@ -42,7 +42,7 @@ namespace QuadratureRules
     }
     
     Cn0_inf_1::Cn0_inf_1()
-            : refGeoPtr_(&Geometry::ReferencePoint::Instance()), name_("Cn0_inf_1")
+            : name_("Cn0_inf_1"), refGeoPtr_(&Geometry::ReferencePoint::Instance())
     {
         weight_[0] = 1;
         gp_.resize(1, {0});

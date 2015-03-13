@@ -44,13 +44,13 @@ namespace Geometry
 
         /// Constructors.
         RefinementTriangularPrism(const ReferenceGeometryT* const referenceGeometry, const PhysicalGeometryT* const physicalGeometry)
-                : referenceGeometry_(referenceGeometry), physicalGeometry_(physicalGeometry)
+                : physicalGeometry_(physicalGeometry), referenceGeometry_(referenceGeometry)
         {
             std::cout << "RefinementTriangularPrism(referenceGeometry, physicalGeometry)\n";
         }
         
         RefinementTriangularPrism(const RefinementTriangularPrism& other)
-                : referenceGeometry_(other.referenceGeometry_), physicalGeometry_(other.physicalGeometry_)
+                : physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
         {
             std::cout << "RefinementTriangularPrism(other)\n";
         }
@@ -94,7 +94,7 @@ namespace Geometry
     private:
         
         RefinementTriangularPrism()
-                : referenceGeometry_(&Geometry::ReferenceTriangularPrism::Instance()), physicalGeometry_(nullptr)
+                : physicalGeometry_(nullptr), referenceGeometry_(&Geometry::ReferenceTriangularPrism::Instance())
         {
         }
         

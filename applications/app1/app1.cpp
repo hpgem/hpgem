@@ -34,8 +34,6 @@
 using Base::RectangularMeshDescriptor;
 using Base::HpgemUISimplified;
 
-const unsigned int DIM = 2;
-
 //Note: the intended use of the prototype classes is to merge Dummy with SimpleDemoProblem
 class Dummy : public Output::TecplotSingleElementWriter
 {
@@ -89,20 +87,28 @@ public:
         
     }
     
-    void faceIntegrand(const FaceT* face, const PointPhysicalT& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+    {
+        
+    }
+    
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
     {
         
         if (face->isInternal())
         {
             
-            const double magn = Base::L2Norm(normal);
-            unsigned int numberOfDegreesOfFreedom = face->getPtrElementLeft()->getNrOfBasisFunctions();
             
         }
         else
         {
             //here you have to implement the boundary conditions
         }
+        
+    }
+    
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
+    {
         
     }
     
@@ -115,7 +121,6 @@ public:
     {
         std::ofstream file2D;
         file2D.open("out.dat");
-        int dimensionsToWrite[2] = {0, 1};
         Output::TecplotDiscontinuousSolutionWriter out(file2D, "RectangularMesh", "01", "xy");
         Dummy d;
         out.write(meshes_[0], "holi", false, &d);

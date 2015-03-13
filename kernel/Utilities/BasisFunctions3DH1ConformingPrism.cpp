@@ -106,7 +106,7 @@ namespace Utilities
     }
     
     BasisFunction3DFacePrism_0::BasisFunction3DFacePrism_0(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1)
-            : node0_(node0 % 3), node1_(node1 % 3), node2_(node2 % 3), polynomialOrder0_(polynomialOrder0), polynomialOrder1_(polynomialOrder1)
+            : polynomialOrder0_(polynomialOrder0), polynomialOrder1_(polynomialOrder1), node0_(node0 % 3), node1_(node1 % 3), node2_(node2 % 3)
     {
         logger.assert(node0 < 6, "A triangular prism only has 6 nodes");
         logger.assert(node1 < 6, "A triangular prism only has 6 nodes");

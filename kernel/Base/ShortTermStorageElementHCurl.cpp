@@ -90,7 +90,7 @@ void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t i, const Poin
     }
 }
 
-void Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+LinearAlgebra::NumericalVector Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const PointReferenceT& p)
 {
     if (!(p == currentPoint_))
     {
@@ -98,22 +98,23 @@ void Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const 
         computeData();
     }
     //define basisFunctionCurlValues_ as basisFunctionDerivatives_ from H1 function
-    ret = basisFunctionCurlValues_[i];
+    return basisFunctionCurlValues_[i];
             
 }
 
-void Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+LinearAlgebra::NumericalVector Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const PointReferenceT& p) const
 {
-    ret = basisFunctionCurlValues_[i];
     if (!(p == currentPoint_))
     {
         logger(WARN, "WARNING: you are using a slow operator");
-        ret = element_->basisFunctionCurl(i, p);
+        LinearAlgebra::NumericalVector ret = element_->basisFunctionCurl(i, p);
         //apply the coordinate transformation
         
         Geometry::Jacobian jac = element_->calcJacobian(p);
         ret = jac * ret / jac.determinant();
+        return ret;
     }
+    return basisFunctionCurlValues_[i];
     
 }
 

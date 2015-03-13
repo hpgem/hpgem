@@ -45,7 +45,7 @@ namespace Base
 {
     
     Element::Element(const VectorOfPointIndexesT& globalNodeIndexes, const std::vector<const BasisFunctionSetT*>* basisFunctionSet, const VectorOfPhysicalPointsT& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, const std::vector<int>& basisFunctionSetPositions)
-            : ElementGeometryT(globalNodeIndexes, allNodes), ElementDataT(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc, numberOfElementMatrixes, numberOfElementVectors), basisFunctionSet_(basisFunctionSet), quadratureRule_(nullptr), vecCacheData_(), id_(id), basisFunctionSetPositions_(basisFunctionSetPositions)
+            : ElementGeometryT(globalNodeIndexes, allNodes), ElementDataT(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc, numberOfElementMatrixes, numberOfElementVectors), quadratureRule_(nullptr), basisFunctionSet_(basisFunctionSet), vecCacheData_(), id_(id), basisFunctionSetPositions_(basisFunctionSetPositions)
     {
         logger.assert(basisFunctionSet!=nullptr, "Invalid basis function set passed");
         logger.assert(basisFunctionSet->size()>0, "Not enough basis function sets passed");
@@ -72,7 +72,7 @@ namespace Base
     }
     
     Element::Element(const Element& other)
-            : ElementGeometryT(other), ElementDataT(other), basisFunctionSet_(other.basisFunctionSet_), quadratureRule_(other.quadratureRule_), vecCacheData_(other.vecCacheData_), id_(other.id_), orderCoeff_(other.orderCoeff_), basisFunctionSetPositions_(other.basisFunctionSetPositions_), nrOfDOFinTheElement_(other.nrOfDOFinTheElement_), facesList_(other.facesList_), edgesList_(other.edgesList_), nodesList_(other.nodesList_)
+            : ElementGeometryT(other), ElementDataT(other), quadratureRule_(other.quadratureRule_), basisFunctionSet_(other.basisFunctionSet_), vecCacheData_(other.vecCacheData_), id_(other.id_), orderCoeff_(other.orderCoeff_), basisFunctionSetPositions_(other.basisFunctionSetPositions_), facesList_(other.facesList_), edgesList_(other.edgesList_), nodesList_(other.nodesList_), nrOfDOFinTheElement_(other.nrOfDOFinTheElement_)
 
     {
     }

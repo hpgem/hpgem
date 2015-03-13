@@ -26,7 +26,7 @@
 #include "Base/CommandLineOptions.h"
 
 Output::VTKTimeDependentWriter::VTKTimeDependentWriter(std::string baseFileName, Base::MeshManipulator* mesh)
-        : mesh_(mesh), currentFile_(nullptr), baseName_(baseFileName), time_(0), numberOfFilesWritten_(0)
+        : baseName_(baseFileName), mesh_(mesh), currentFile_(nullptr), time_(0), numberOfFilesWritten_(0)
 {
     logger.assert(mesh!=nullptr,"Invalid mesh passed");
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();

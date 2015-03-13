@@ -30,7 +30,7 @@ namespace Base
     {
         
         ConfigurationData(std::size_t DIMension, std::size_t numberOfUnknowns, std::size_t polynomialOrder, std::size_t numberOfTimeLevels = 1)
-                : numberOfUnknowns_(numberOfUnknowns), polynomialOrder_(polynomialOrder), numberOfTimeLevels_(numberOfTimeLevels), dimension_(DIMension)
+                : dimension_(DIMension), numberOfUnknowns_(numberOfUnknowns), numberOfTimeLevels_(numberOfTimeLevels), polynomialOrder_(polynomialOrder)
         {
         }
         

@@ -32,7 +32,7 @@
 
 namespace Geometry
 {
-    std::size_t RefinementLine::nrOfNewNodes(int refineType) const
+    std::size_t RefinementLine::nrOfNewNodes(std::size_t refineType) const
     {
         if (refineType == 0)
             return 1;
@@ -40,7 +40,7 @@ namespace Geometry
             return 0;
     }
     
-    void RefinementLine::getAllNodes(int refineType, VectorOfPointPhysicalsT& nodes) const
+    void RefinementLine::getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const
     {
         // get all element's nodes
         nodes.clear();
@@ -59,7 +59,7 @@ namespace Geometry
         }
     }
     
-    std::size_t RefinementLine::nrOfSubElements(int refineType) const
+    std::size_t RefinementLine::nrOfSubElements(std::size_t refineType) const
     {
         if (refineType == 0)
             return 2;
@@ -67,7 +67,7 @@ namespace Geometry
             return 0;
     }
     
-    void RefinementLine::subElementLocalNodeIndices(int refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const
+    void RefinementLine::subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const
     {
         logger.assert((iSubElement < nrOfSubElements(refineType)), "RefinementQuadrilateral: invalid sub-element index while getting its local node indices!");
         
@@ -96,7 +96,7 @@ namespace Geometry
         
     }
     
-    void RefinementLine::adjacentSubElementsPairs(int refineType, VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1, VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const
+    void RefinementLine::adjacentSubElementsPairs(std::size_t refineType, VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1, VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const
     {
         elemIdx1.clear();
         elemIdx2.clear();
@@ -113,7 +113,7 @@ namespace Geometry
         } // end if
     }
     
-    std::size_t RefinementLine::nrOfSubElementsOnFace(int refineType, std::size_t faLocalIndex) const
+    std::size_t RefinementLine::nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
     {
         if (refineType == 0)
             return 1;
@@ -121,7 +121,7 @@ namespace Geometry
             return 0;
     }
     
-    void RefinementLine::subElementsOnFace(int refineType, std::size_t faLocalIndex, VectorOfIndicesT& localSubElemIdx) const
+    void RefinementLine::subElementsOnFace(std::size_t refineType, std::size_t faLocalIndex, VectorOfIndicesT& localSubElemIdx) const
     {
         localSubElemIdx.clear();
         if (refineType == 0)
@@ -139,7 +139,7 @@ namespace Geometry
         } // end if
     }
     
-    std::size_t RefinementLine::getLocalSubFaceNr(int refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
+    std::size_t RefinementLine::getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
     {
         return localFaceNr;
     }

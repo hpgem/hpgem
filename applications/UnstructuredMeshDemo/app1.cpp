@@ -120,7 +120,7 @@ public:
         std::function<double(Geometry::PointPhysical)> domain = std::bind(meshDescription, std::placeholders::_1, 0);
         
         PointPhysicalT newPoint {DIM};
-        std::array<double, 4> cornerLocations = {0., 0.45, 0.55, 1.};
+        std::array<double, 4> cornerLocations = {{0., 0.45, 0.55, 1.}};
         for (double first : cornerLocations)
         {
             newPoint[0] = first;
@@ -186,7 +186,6 @@ public:
     {
         std::ofstream file2D;
         file2D.open("out.dat");
-        int dimensionsToWrite[2] = {0, 1};
         Output::TecplotDiscontinuousSolutionWriter out(file2D, "RectangularMesh", "01", "one");
         Dummy d;
         out.write(meshes_[0], "holi", false, &d, t);
@@ -197,7 +196,6 @@ public:
     {
         std::ofstream file2D;
         file2D.open("out.dat");
-        int dimensionsToWrite[2] = {0, 1};
         Output::TecplotDiscontinuousSolutionWriter out(file2D, "RectangularMesh", "01", "one");
         Dummy d;
         
@@ -224,7 +222,7 @@ public:
             }
             
             PointPhysicalT newPoint {DIM};
-            std::array<double, 4> cornerLocations = {0., 0.45, 0.55, 1.};
+            std::array<double, 4> cornerLocations = {{0., 0.45, 0.55, 1.}};
             //rotate the corners of the rotor
             std::size_t nodeIndex = 0;
             std::size_t extraIndex = 16;

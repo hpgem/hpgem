@@ -29,7 +29,7 @@ namespace Base
 {
     
     ElementFactory::ElementFactory()
-            : numberOfElementMatrices_(0), numberOfElementVectors_(0), unknowns_(1), timeLevels_(1)
+            : unknowns_(1), timeLevels_(1), numberOfElementMatrices_(0), numberOfElementVectors_(0)
     {
     }
     

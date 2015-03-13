@@ -215,7 +215,7 @@ namespace Utilities
     }
     
     BasisFunction3DFaceCube_2::BasisFunction3DFaceCube_2(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1)
-            : polynomialOrder1_(polynomialOrder1), polynomialOrder0_(polynomialOrder0)
+            : polynomialOrder0_(polynomialOrder0), polynomialOrder1_(polynomialOrder1)
     {
         logger.assert(node0 < 8, "A cube only has 8 nodes");
         logger.assert(node1 < 8, "A cube only has 8 nodes");

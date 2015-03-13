@@ -44,7 +44,7 @@ namespace Base
     public:
         
         explicit Edge(std::size_t ID)
-                : ID_(ID), nrOfConformingDOFOnTheEdge_(0)
+                : nrOfConformingDOFOnTheEdge_(0), ID_(ID)
         {
         }
         

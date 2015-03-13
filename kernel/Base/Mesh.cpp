@@ -43,12 +43,12 @@ namespace Base
 {
     
     Mesh::Mesh()
-            : elementcounter_(0), faceCounter_(0), edgeCounter_(0), nodeCounter_(0), localProcessorID_(0), hasToSplit_(false)
+            : hasToSplit_(false), localProcessorID_(0), elementcounter_(0), faceCounter_(0), edgeCounter_(0), nodeCounter_(0)
     {
     }
     
     Mesh::Mesh(const Mesh& orig)
-            : elements_(orig.elements_), edges_(orig.edges_), nodes_(orig.nodes_), faces_(orig.faces_), points_(orig.points_), elementcounter_(orig.elementcounter_), faceCounter_(orig.faceCounter_), edgeCounter_(orig.edgeCounter_), nodeCounter_(orig.nodeCounter_), hasToSplit_(orig.hasToSplit_)
+            : hasToSplit_(orig.hasToSplit_), localProcessorID_(orig.localProcessorID_), elements_(orig.elements_), faces_(orig.faces_), edges_(orig.edges_), nodes_(orig.nodes_), elementcounter_(orig.elementcounter_), faceCounter_(orig.faceCounter_), edgeCounter_(orig.edgeCounter_), nodeCounter_(orig.nodeCounter_), points_(orig.points_)
     {
     }
     

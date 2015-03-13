@@ -286,7 +286,6 @@ public:
         LinearAlgebra::Matrix stifness;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
-            int n(element->getNrOfBasisFunctions());
             stifness = elIntegral.integrate(element, &advection);
             element->setElementMatrix(stifness, 1);
         }

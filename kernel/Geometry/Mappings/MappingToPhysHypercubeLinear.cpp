@@ -88,7 +88,7 @@ namespace Geometry
     // =============================================================================================
     
     MappingToPhysHypercubeLinear<2>::MappingToPhysHypercubeLinear(const PhysicalGeometry* const & physicalGeometry)
-            : MappingReferenceToPhysical(), a0(2), a1(2), a12(2), a2(2)
+            : MappingReferenceToPhysical(), a0(2), a1(2), a2(2), a12(2)
     {
         logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
@@ -180,7 +180,7 @@ namespace Geometry
     // =============================================================================================
     
     MappingToPhysHypercubeLinear<3>::MappingToPhysHypercubeLinear(const PhysicalGeometry* const & physicalGeometry)
-            : a1(3), a12(3), a13(3), a123(3), a0(3), a2(3), a23(3), a3(3)
+            : a0(3), a1(3), a2(3), a3(3), a12(3), a23(3), a13(3), a123(3)
     {
         logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
@@ -262,7 +262,7 @@ namespace Geometry
     // =============================================================================================
     
     MappingToPhysHypercubeLinear<4>::MappingToPhysHypercubeLinear(const PhysicalGeometry* const & physicalGeometry)
-            : abar(4), a0(4), a01(4), a02(4), a03(4), a012(4), a013(4), a0123(4), a1(4), a12(4), a13(4), a123(4), a2(4), a23(4), a230(4), a3(4)
+            : abar(4), a0(4), a1(4), a2(4), a3(4), a01(4), a02(4), a03(4), a12(4), a13(4), a23(4), a012(4), a013(4), a123(4), a230(4), a0123(4)
     {
         logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());

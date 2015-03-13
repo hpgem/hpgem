@@ -30,121 +30,6 @@
 #include "Geometry/ReferenceGeometry.h"
 #include "Geometry/PointPhysical.h"
 
-/*
- void Base::ShortTermStorageFaceHcurl::computeData() {
- ShortTermStorageFaceBase::computeData();
- int n=face_->getNrOfBasisFunctions();
- LinearAlgebra::NumericalVector dummy(3), normedNormal(3), ret;//dummy gives basisFunctionValues for given point and normedNormal gives normalised unit normal vector
- basisFunctionValues_.resize(n);
- basisFunctionCurlValues_.resize(n);
- basisFunctionsTimesNormal_.resize(n);
- static ShortTermStorageElementBase* elementwrapper(NULL);
- if(elementwrapper==NULL){
- elementwrapper=new ShortTermStorageElementHcurl(currentPoint_.size()+1);
- }else if(elementwrapper->getPhysicalGeometry()->getNodePtr(0)->size()!=currentPoint_.size()+1){
- delete elementwrapper;
- elementwrapper=new ShortTermStorageElementHcurl(currentPoint_.size()+1);
- }
- 
- 
- 
- normedNormal[0] = (normal_ * (1/Base::L2Norm(normal_)))[0];
- normedNormal[1] = (normal_ * (1/Base::L2Norm(normal_)))[1];
- normedNormal[2] = (normal_ * (1/Base::L2Norm(normal_)))[2];
- 
- int leftFunctions = getPtrElementLeft()->getNrOfBasisFunctions();
- *elementwrapper = *getPtrElementLeft();
- Geometry::PointReference pElement(currentPoint_.size()+1);
- mapRefFaceToRefElemL(currentPoint_,pElement);
- for(int i=0;i<leftFunctions;++i)
- {
- 
- Geometry::Jacobian Inverse(3, 3), jacobian(3, 3);
- elementwrapper->calcJacobian(pElement, jacobian);
- 
- basisFunctionCurlValues_[i].resize(3);
- elementwrapper->basisFunctionCurl(i,pElement,basisFunctionCurlValues_[i]);
- basisFunctionCurlValues_[i] = (jacobian / (std::abs(jacobian.determinant()))) * basisFunctionCurlValues_[i];
- 
- 
- basisFunctionValues_[i].resize(3);
- elementwrapper->basisFunction(i, pElement, basisFunctionValues_[i]);//basisFunctionValues_[i][0] = elementwrapper->basisFunction(i, pElement);
- //jac_.inverse(jac_);
- //Inverse stores the inverted and transposed matrix
- 
- Inverse(0,0) = jacobian(1,1) * jacobian(2,2) - jacobian(1,2) * jacobian(2,1);
- Inverse(1,0) = jacobian(2,1) * jacobian(0,2) - jacobian(2,2) * jacobian(0,1);
- Inverse(2,0) = jacobian(0,1) * jacobian(1,2) - jacobian(0,2) * jacobian(1,1);
- Inverse(0,1) = jacobian(1,2) * jacobian(2,0) - jacobian(1,0) * jacobian(2,2);
- Inverse(1,1) = jacobian(2,2) * jacobian(0,0) - jacobian(2,0) * jacobian(0,2);
- Inverse(2,1) = jacobian(0,2) * jacobian(1,0) - jacobian(0,0) * jacobian(1,2);
- Inverse(0,2) = jacobian(1,0) * jacobian(2,1) - jacobian(1,1) * jacobian(2,0);
- Inverse(1,2) = jacobian(2,0) * jacobian(0,1) - jacobian(2,1) * jacobian(0,0);
- Inverse(2,2) = jacobian(0,0) * jacobian(1,1) - jacobian(0,1) * jacobian(1,0);
- 
- Inverse /= std::abs(jacobian.determinant());
- 
- basisFunctionValues_[i] = Inverse  * basisFunctionValues_[i];//basisFunctionValues_[i][0] = jac_ * basisFunctionValues_[i][0];
- dummy = basisFunctionValues_[i];
- 
- //this should change to accommodate vector product of normal with phi
- ret.resize(3);
- basisFunctionsTimesNormal_[i].resize(currentPoint_.size()+1);
- ret[0] = normedNormal[1] * dummy[2] - normedNormal[2] * dummy[1];
- ret[1] = normedNormal[2] * dummy[0] - normedNormal[0] * dummy[2];
- ret[2] = normedNormal[0] * dummy[1] - normedNormal[1] * dummy[0];
- 
- basisFunctionsTimesNormal_[i] = ret;
- 
- 
- }
- if(n>leftFunctions){
- *elementwrapper=*getPtrElementRight();
- mapRefFaceToRefElemR(currentPoint_,pElement);
- }
- for(int i=leftFunctions;i<n;++i)
- {
- 
- 
- Geometry::Jacobian Inverse(3, 3), jacobian(3, 3);
- elementwrapper->calcJacobian(pElement, jacobian);
- basisFunctionCurlValues_[i].resize(3);
- elementwrapper->basisFunctionCurl(i-leftFunctions,pElement,basisFunctionCurlValues_[i]);
- basisFunctionCurlValues_[i] = (jacobian / (std::abs(jacobian.determinant()))) * basisFunctionCurlValues_[i];
-
- //jac_.inverse(jac_);
- //Inverse stores the inverted and transposed matrix
- 
- Inverse(0,0) = jacobian(1,1) * jacobian(2,2) - jacobian(1,2) * jacobian(2,1);
- Inverse(1,0) = jacobian(2,1) * jacobian(0,2) - jacobian(2,2) * jacobian(0,1);
- Inverse(2,0) = jacobian(0,1) * jacobian(1,2) - jacobian(0,2) * jacobian(1,1);
- Inverse(0,1) = jacobian(1,2) * jacobian(2,0) - jacobian(1,0) * jacobian(2,2);
- Inverse(1,1) = jacobian(2,2) * jacobian(0,0) - jacobian(2,0) * jacobian(0,2);
- Inverse(2,1) = jacobian(0,2) * jacobian(1,0) - jacobian(0,0) * jacobian(1,2);
- Inverse(0,2) = jacobian(1,0) * jacobian(2,1) - jacobian(1,1) * jacobian(2,0);
- Inverse(1,2) = jacobian(2,0) * jacobian(0,1) - jacobian(2,1) * jacobian(0,0);
- Inverse(2,2) = jacobian(0,0) * jacobian(1,1) - jacobian(0,1) * jacobian(1,0);
- Inverse /= std::abs(jacobian.determinant());
- 
- basisFunctionValues_[i].resize(3);
- elementwrapper->basisFunction(i-leftFunctions, pElement, basisFunctionValues_[i]); //basisFunctionValues_[i][0] = elementwrapper->basisFunction(i-leftFunctions,pElement);
- ret.resize(3);
- basisFunctionValues_[i] = Inverse * basisFunctionValues_[i];//basisFunctionValues_[i][0] = jac_ * basisFunctionValues_[i][0];
- dummy = basisFunctionValues_[i];
- dummy *= -1;
- 
- //this should change to accommodate vector product of normal with phi, using concept from line 169-171 from Fill Matrices
- 
- basisFunctionsTimesNormal_[i].resize(currentPoint_.size()+1);
- ret[0] = normedNormal[1] * dummy[2] - normedNormal[2] * dummy[1];
- ret[1] = normedNormal[2] * dummy[0] - normedNormal[0] * dummy[2];
- ret[2] = normedNormal[0] * dummy[1] - normedNormal[1] * dummy[0];
- 
- basisFunctionsTimesNormal_[i] = ret;
- 
- }
- }
- */
 void Base::ShortTermStorageFaceHcurl::computeData()
 {
     logger(DEBUG, "Called ShortTermStorageFaceHcurl computeData");
@@ -270,7 +155,7 @@ void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t i, const Geometr
     }
 }
 
-void Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p)
 {
     if (!(currentPoint_ == p))
     {
@@ -278,15 +163,15 @@ void Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const L
         computeData();
     }
     
-    ret = basisFunctionsTimesNormal_[i];
+    return basisFunctionsTimesNormal_[i];
 }
 
-void Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const
 {
-    ret = basisFunctionsTimesNormal_[i]; // check how to get vector product of normal and basis function
     if (!(currentPoint_ == p))
     {
         logger(WARN, "Warning: you are using slow data access");
+        LinearAlgebra::NumericalVector ret(p.size());
         LinearAlgebra::NumericalVector dummy(ret);
         face_->basisFunction(i, p, dummy);
         //apply the coordinate transformation
@@ -326,26 +211,27 @@ void Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const L
             ret[1] = normedNormal[2] * dummy[0] - normedNormal[0] * dummy[2];
             ret[2] = normedNormal[0] * dummy[1] - normedNormal[1] * dummy[0];
         }
+        return ret;
     }
+    return basisFunctionsTimesNormal_[i]; // check how to get vector product of normal and basis function
 }
 
-void Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p)
 {
     if (!(currentPoint_ == p))
     {
         currentPoint_ = p;
         computeData();
     }
-    ret = basisFunctionCurlValues_[i];
+    return basisFunctionCurlValues_[i];
 }
 
-void Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const
 {
-    ret = basisFunctionCurlValues_[i];
     if (!(currentPoint_ == p))
     {
         logger(WARN, "Warning: you are using slow data access");
-        ret = face_->basisFunctionCurl(i, p);
+        LinearAlgebra::NumericalVector ret = face_->basisFunctionCurl(i, p);
         //apply the coordinate transformation
         if(i < getPtrElementLeft()->getNrOfBasisFunctions())
         {
@@ -359,6 +245,8 @@ void Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geo
             ret = jac * ret / jac.determinant();
             
         }
+        return ret;
     }
+    return basisFunctionCurlValues_[i];
 }
 

@@ -187,7 +187,6 @@ namespace LinearAlgebra
         //The result of the matrix is left.Nrows, right.NCols()
         Matrix C(i, k);
         
-        int i_one = 1;
         double d_one = 1.0;
         double d_zero = 0.0;
         

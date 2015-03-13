@@ -243,7 +243,6 @@ namespace Base
         
         for (MeshManipulator::FaceIterator citFe = Base::HpgemAPIBase::faceColBegin(); citFe != Base::HpgemAPIBase::faceColEnd(); ++citFe)
         {
-            std::size_t numBasisFuncs = (*citFe)->getNrOfBasisFunctions();
             fMatrixData = faceIntegral.integrate<LinearAlgebra::Matrix>((*citFe), this);
             (*citFe)->setFaceMatrix(fMatrixData);
             fVectorData = faceIntegral.integrate<LinearAlgebra::NumericalVector>((*citFe), this);

@@ -44,13 +44,13 @@ namespace Geometry
 
         /// Constructors.
         RefinementHexahedron(const ReferenceGeometryT* const referenceGeometry, const PhysicalGeometryT* const physicalGeometry)
-                : referenceGeometry_(referenceGeometry), physicalGeometry_(physicalGeometry)
+                : physicalGeometry_(physicalGeometry), referenceGeometry_(referenceGeometry)
         {
             std::cout << "RefinementHexahedron(referenceGeometry, physicalGeometry)\n";
         }
         
         RefinementHexahedron(const RefinementHexahedron& other)
-                : referenceGeometry_(other.referenceGeometry_), physicalGeometry_(other.physicalGeometry_)
+                : physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_) 
         {
             std::cout << "RefinementHexahedron(other)\n";
         }
@@ -94,7 +94,7 @@ namespace Geometry
     private:
         
         RefinementHexahedron()
-                : referenceGeometry_(&Geometry::ReferenceCube::Instance()), physicalGeometry_(nullptr)
+                : physicalGeometry_(nullptr), referenceGeometry_(&Geometry::ReferenceCube::Instance())
         {
         }
         

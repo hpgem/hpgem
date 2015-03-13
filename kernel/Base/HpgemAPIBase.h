@@ -32,9 +32,9 @@
 namespace Base
 {
     class MeshMoverBase;
-    class RectangularMeshDescriptor;
-    class GlobalData;
-    class ConfigurationData;
+    struct RectangularMeshDescriptor;
+    struct GlobalData;
+    struct ConfigurationData;
     
     /// Basic interface that can create meshes. This class can be used to construct more advanced interfaces.
     class HpgemAPIBase

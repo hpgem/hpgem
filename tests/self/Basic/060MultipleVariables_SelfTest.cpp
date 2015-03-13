@@ -137,7 +137,6 @@ int main()
     
     // Declare indices.
     std::size_t i;
-    std::size_t j;
     std::size_t iVB;
     std::size_t iV;
     std::size_t iB;

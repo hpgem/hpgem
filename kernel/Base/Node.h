@@ -38,7 +38,7 @@ namespace Base
     public:
         
         explicit Node(std::size_t ID)
-                : nrOfConformingDOFOnTheNode_(0), ID_(ID), elements_(), localNodeNrs_()
+                : elements_(), localNodeNrs_(), nrOfConformingDOFOnTheNode_(0), ID_(ID)
         {
         }
         

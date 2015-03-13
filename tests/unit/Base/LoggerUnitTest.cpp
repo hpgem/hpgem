@@ -34,11 +34,11 @@ void logMessage(std::string, std::string);
 int main(int argc, char** argv)
 {
     
-    std::size_t x = 3;
-    
     //Basic use cases
+    
+    //std::size_t x = 3;
 //    log.log(Log::ERROR, "Oopsie!");
-//    log.log(Log::FATAL, "Mweh. x = %", x);
+//    log.log(Log::FATAL, "x is not supposed to be %!!!", x);
     log(DEBUG, "You won't see me!");
     log(WARN, "Escapes are possible! %\% sure!", 100.01f);
     
@@ -60,8 +60,8 @@ int main(int argc, char** argv)
     };
     
     log(FATAL, "Null pointer passed!");
-    std::cout << "You shouldn't see me." << std::endl;
-    return -1;
+    std::cout << "In a normal application you wouldn't see me, but someone redefined onFatal for the purpose of this demonstration" << std::endl;
+    return 0;
 }
 
 void logMessage(std::string module, std::string msg)

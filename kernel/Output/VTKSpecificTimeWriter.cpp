@@ -72,7 +72,7 @@ static std::unordered_map<std::type_index, VTKElementName> hpGEMToVTK =
 Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName, 
                                                      const Base::MeshManipulator* mesh, 
                                                      std::size_t timelevel)
-        : mesh_(mesh), totalPoints_(0), timelevel_(timelevel)
+        : totalPoints_(0), mesh_(mesh), timelevel_(timelevel)
 {
     logger.assert(mesh!=nullptr,"Invalid mesh passed");
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();

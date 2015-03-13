@@ -49,7 +49,7 @@ public:
     ///constructor: set the dimension of the problem, start the API of hpGEM and initialise the other fields
     //initialisation order is not fixed so DIM_ has to be passed to hpGEMUISimplified in a hardcoded way
     Laplace(int n, int p)
-            : HpgemUISimplified(3, p), DIM_(3), n_(n), p_(p)
+            : HpgemUISimplified(3, p), n_(n), p_(p), DIM_(3)
     {
         penaltyParameter_ = 3 * n_ * p_ * (p_ + DIM_ - 1) + 1;
     }

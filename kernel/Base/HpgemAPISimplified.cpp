@@ -594,6 +594,8 @@ namespace Base
         // Create output files for Tecplot.
 #ifdef HPGEM_USE_MPI
         std::string outputFileName = outputFileName_ + "." + std::to_string(Base::MPIContainer::Instance().getProcessorID());
+#else
+        std::string outputFileName = outputFileName_;
 #endif
         std::string outputFileNameTecplot = outputFileName + ".dat";
         std::string dimensionsToWrite = "";

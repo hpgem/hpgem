@@ -47,7 +47,7 @@ namespace Geometry
     ///faces. 
     ///\todo Find out what faceToFaceMapIndex_ does and why it takes UINT_MAX
     FaceGeometry::FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometryT* ptrElemR, const LocalFaceNrType& localFaceNumR)
-            : leftElementGeom_(ptrElemL), localFaceNumberLeft_(localFaceNumL), rightElementGeom_(ptrElemR), localFaceNumberRight_(localFaceNumR), faceType_(FaceType::INTERNAL), faceToFaceMapIndex_(Geometry::MAXSIZET)
+            : leftElementGeom_(ptrElemL), rightElementGeom_(ptrElemR), localFaceNumberLeft_(localFaceNumL), localFaceNumberRight_(localFaceNumR), faceToFaceMapIndex_(Geometry::MAXSIZET), faceType_(FaceType::INTERNAL)
     {
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
         logger.assert(ptrElemR!=nullptr, "This constructor is intended for internal faces");

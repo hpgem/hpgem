@@ -36,7 +36,7 @@ namespace LinearAlgebra
 namespace Base
 {
     
-    class FaceCacheData;
+    struct FaceCacheData;
     class UserFaceData;
     
     class FaceData
@@ -67,7 +67,7 @@ namespace Base
 
         virtual LinearAlgebra::NumericalVector getFaceVector(std::size_t vectorID = 0) const;
 
-        virtual const VecCacheT& getVecCacheData() const
+        virtual VecCacheT& getVecCacheData()
         {
             return vecCacheData_;
         }

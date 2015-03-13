@@ -68,7 +68,7 @@ namespace Base
                 : Face(), face_(nullptr),
                 currentPoint_(dimension - 1),
                 normal_(dimension),
-                recomputeCache_(true), useCache_(useCache), currentPointIndex_(-1)
+                useCache_(useCache), recomputeCache_(true), currentPointIndex_(-1)
         {
         }
         
@@ -76,7 +76,7 @@ namespace Base
         
         virtual void computeData();
 
-        virtual ~ShortTermStorageFaceBase() override
+        virtual ~ShortTermStorageFaceBase()
         {
             //keep the face alive!
         }
@@ -89,8 +89,20 @@ namespace Base
             logger(ERROR, "No storage functionality was implemented! Are you working in a vector valued function space?");
             return 0;
         }
+
+        double basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const override
+        {
+            logger(ERROR, "No storage functionality was implemented! Are you working in a vector valued function space?");
+            return 0;
+        }
         
         virtual double basisFunction(std::size_t i, const Geometry::PointReference& p)
+        {
+            logger(ERROR, "No storage functionality was implemented! Are you working in a vector valued function space?");
+            return 0;
+        }
+        
+        virtual double basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p)
         {
             logger(ERROR, "No storage functionality was implemented! Are you working in a vector valued function space?");
             return 0;
@@ -112,7 +124,19 @@ namespace Base
             return LinearAlgebra::NumericalVector();
         }
         
+        LinearAlgebra::NumericalVector basisFunctionNormal(Side iSide, std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const override
+        {
+            logger(ERROR, "No storage functionality was implemented! Are you working in an unusual function space?");
+            return LinearAlgebra::NumericalVector();
+        }
+        
         virtual LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p)
+        {
+            logger(ERROR, "No storage functionality was implemented! Are you working in an unusual function space?");
+            return LinearAlgebra::NumericalVector();
+        }
+        
+        virtual LinearAlgebra::NumericalVector basisFunctionNormal(Side iSide, std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p)
         {
             logger(ERROR, "No storage functionality was implemented! Are you working in an unusual function space?");
             return LinearAlgebra::NumericalVector();
@@ -129,7 +153,19 @@ namespace Base
             return LinearAlgebra::NumericalVector();
         }
         
+        LinearAlgebra::NumericalVector basisFunctionDeriv(Side iSide, std::size_t i, const Geometry::PointReference& p) const override
+        {
+            logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionCurl?");
+            return LinearAlgebra::NumericalVector();
+        }
+        
         virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p)
+        {
+            logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionCurl?");
+            return LinearAlgebra::NumericalVector();
+        }
+        
+        virtual LinearAlgebra::NumericalVector basisFunctionDeriv(Side iSide, std::size_t i, const Geometry::PointReference& p)
         {
             logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionCurl?");
             return LinearAlgebra::NumericalVector();
@@ -269,11 +305,6 @@ namespace Base
         LinearAlgebra::NumericalVector getFaceVector(std::size_t vectorID = 0) const override
         {
             return face_->getFaceVector(vectorID);
-        }
-        
-        const VecCacheT& getVecCacheData() const override
-        {
-            return face_->FaceData::getVecCacheData();
         }
         
         UserFaceData* getUserData() const override

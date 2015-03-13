@@ -167,7 +167,6 @@ namespace Output
             totalNrOfElements++;
             nrOfNodes = 0;
             // Tell the TecplotPhysicalGeometryIterator which shape is to be iterated next
-            const Base::Element& el = *(*iterator);
             nodeIt.acceptG((*iterator)->getPhysicalGeometry());
             
             // Cycle through nodes
