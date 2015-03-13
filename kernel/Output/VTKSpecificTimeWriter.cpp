@@ -82,7 +82,14 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
         masterFile_.open(baseName + ".pvtu");
         if (!masterFile_.good())
         {
-            logger(FATAL, "failed to open main paraview output file %.pvtu", baseName);
+            if (baseName.find('/') != std::string::npos)
+            {
+                logger(FATAL, "failed to open main paraview output file %.pvtu, does the directory % exist?", baseName, baseName.substr(0, baseName.find_last_of('/') + 1));
+            }
+            else
+            {
+                logger(FATAL, "failed to open main paraview output file %.pvtu", baseName);
+            }
             exit(1);
         }
         masterFile_ << "<?xml version=\"1.0\"?>" << std::endl;

@@ -31,6 +31,10 @@
 #ifdef HPGEM_USE_PETSC
 #include <petscsys.h>
 #endif
+
+//special flags
+auto& isDone = Base::register_argument<bool>('\0', "", "Signals the end of the arguments passed to hpGEM, the rest will be passed to linked libraries", false, false);
+
 std::map<std::string, Base::Detail::CommandLineOptionBase*>&
 Base::Detail::getCLOMapping_long()
 {
@@ -57,7 +61,7 @@ bool Base::parse_isDone()
 {
     return hasParsed;
 }
-int Base::parse_options(int argc, char** argv)
+void Base::parse_options(int argc, char** argv)
 {
     logger.assert(!hasParsed, "Arguments have already been parsed");
 #ifdef HPGEM_USE_MPI
@@ -79,6 +83,13 @@ int Base::parse_options(int argc, char** argv)
     }
 
 #endif
+    
+    Base::Detail::CLOParser parser(argc, argv);
+    hasParsed = true;
+    int count = parser.go();
+    
+    argc -= count;
+    argv += count;
     
 #ifdef HPGEM_USE_PETSC
     //block so variables can be created without affecting the rest of the function
@@ -103,76 +114,58 @@ int Base::parse_options(int argc, char** argv)
         }
     }
 #endif
-    
-    Base::Detail::CLOParser parser(argc, argv);
-    hasParsed = true;
-    return parser.go();
 }
 int Base::Detail::CLOParser::go()
 {
     auto& lmapping = getCLOMapping_long();
     auto& smapping = getCLOMapping_short();
     
+    char** firstArg = this->pData;
+    bool done = false;
+    
     ++(*this);
     try
     {
-        while (remaining())
+        while (remaining() && !done)
         {
-            
             std::string tag = *(*this);
             
             Base::Detail::CommandLineOptionBase* pBase;
             
-            if (tag.size() >= 2 && tag[0] == '-')
+            logger.assert_always(tag.size() >= 2 && tag[0] == '-', "Unknown argument % found", tag);
+            if (tag[1] == '-')
             {
-                if (tag[1] == '-')
-                {
-                    std::string realtag = tag.substr(2);
-                    auto it = lmapping.find(realtag);
-                    if (it == lmapping.end())
-                    {
-                        std::cerr << "Argument " << tag << " not found.\n";
-                        std::exit(1);
-                    }
-                    
-                    if (it->second->hasArgument() && remaining() <= 1)
-                    {
-                        std::cerr << "Argument " << tag << "has an argument, but was not provided one.\n";
-                        std::exit(1);
-                    }
-                    
-                    pBase = it->second;
-                    
-                    pBase->parse(*this);
-                }
-                else
-                {
-                    for (std::string::size_type i = 1; i < tag.size(); i++)
-                    {
-                        auto it = smapping.find(tag[i]);
-                        if (it == smapping.end())
-                        {
-                            std::cerr << "Argument " << tag << " not found.\n";
-                            std::exit(1);
-                        }
-                        
-                        pBase = it->second;
-                        if (pBase->hasArgument() && (i < (tag.size() - 1) || remaining() <= 1))
-                        {
-                            std::cerr << "Argument " << tag << "has an argument, but was not provided one.\n";
-                            std::exit(1); // Tag with arg, with more flags following..
-                        }
-                        pBase->parse(*this);
-                    }
-                }
+                std::string realtag = tag.substr(2);
+                auto it = lmapping.find(realtag);
+                logger.assert_always(it!=lmapping.end(), "Argument % not found.", tag);
+                logger.assert_always(!(it->second->hasArgument() && remaining() <= 1), "Argument % has an argument, but was not provided one.", tag);
+
+                pBase = it->second;
+
+                pBase->parse(*this);
             }
             else
             {
-                std::cerr << "Unknown argument '" << tag << "' found.\n";
-                std::exit(1);
+                for (std::string::size_type i = 1; i < tag.size(); i++)
+                {
+                    auto it = smapping.find(tag[i]);
+                    logger.assert_always(it!=smapping.end(), "Argument % not found.", tag);
+                    logger.assert_always(!(it->second->hasArgument() && (i < (tag.size() - 1) || remaining() <= 1)), "Argument % has an argument, but was not provided one.", tag);
+
+                    pBase = it->second;
+
+                    pBase->parse(*this);
+                }
             }
-            
-            ++(*this);
+            if(isDone.isUsed() && isDone.getValue())
+            {
+                *(this->pData) = *firstArg;
+                done=true;
+            }
+            else
+            {
+                ++(*this);
+            }
         }
     }
     catch (const std::string& explain)
@@ -202,6 +195,7 @@ int Base::Detail::CLOParser::go()
     bool kill = false;
     for (Base::Detail::CommandLineOptionBase* base : Base::Detail::getCLOList())
     {
+        //do not use logger, because also print help
         if (base->isRequired() && !base->isUsed())
         {
             std::cerr << "Argument \'" << base->getLongTag() << "\' required.\n";
@@ -241,8 +235,10 @@ int Base::Detail::CLOParser::go()
 #ifdef HPGEM_USE_SLEPC
         std::cout << "\tSLEPC\n";
 #endif
+#ifdef HPGEM_USE_QHULL
+        std::cout << "\tQHull\n";
+#endif
     }
-    if (kill)
-        std::exit(1);
-    return 0;
+    logger.assert_always(!kill, "Help printed, terminating program...");
+    return currCount;
 }

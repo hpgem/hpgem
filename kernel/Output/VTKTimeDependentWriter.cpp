@@ -35,7 +35,14 @@ Output::VTKTimeDependentWriter::VTKTimeDependentWriter(std::string baseFileName,
         masterFile_.open(baseFileName + ".pvd");
         if (!masterFile_.good())
         {
-            logger(FATAL, "failed to open main paraview output file %.pvd", baseFileName);
+            if (baseFileName.find('/') != std::string::npos)
+            {
+                logger(FATAL, "failed to open main paraview output file %.pvd, does the directory % exist?", baseFileName, baseFileName.substr(0, baseFileName.find_last_of('/') + 1));
+            }
+            else
+            {
+                logger(FATAL, "failed to open main paraview output file %.pvd", baseFileName);
+            }
             exit(1);
         }
         masterFile_ << "<?xml version=\"1.0\"?>" << std::endl;

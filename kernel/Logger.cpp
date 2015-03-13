@@ -54,6 +54,12 @@ LL<Log::DEBUG> DEBUG;
 /* Actual definition of the default logger. */
 Logger<HPGEM_LOGLEVEL> logger("hpGEM Kernel");
 
+/* Default implementation for logging basic information */
+static void printInfo(std::string module, std::string msg)
+{
+    std::cout << msg << std::endl;
+}
+
 /* Default implementation for logging warnings / messages */
 static void printMessage(std::string module, std::string msg)
 {
@@ -122,8 +128,8 @@ static void printError(std::string module, std::string msg)
 LoggerOutput loggerOutputDefaultImpl = {printError, //onFatal
         printError, //onError
         printMessage, //onWarn
-        printMessage, //onInfo
-        printMessage, //onVerbose
+        printInfo, //onInfo
+        printInfo, //onVerbose
         printMessage //onDebug
         };
 

@@ -111,8 +111,8 @@ public:
         //it is still a useful way to make estimates for element sizes in terms of quantities used elsewhere in hpGEM
         rectangularMesh.numElementsInDIM_[0] = 32;
         rectangularMesh.numElementsInDIM_[1] = 16;
-        rectangularMesh.boundaryConditions_[0] = RectangularMeshDescriptor::SOLID_WALL;
-        rectangularMesh.boundaryConditions_[1] = RectangularMeshDescriptor::SOLID_WALL;
+        rectangularMesh.boundaryConditions_[0] = Base::Boundary::SOLID_WALL;
+        rectangularMesh.boundaryConditions_[1] = Base::Boundary::SOLID_WALL;
         
         std::vector<PointPhysicalT> corners;
         

@@ -28,6 +28,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "Logger.h"
 
 namespace Base
 {
@@ -36,10 +37,8 @@ namespace Base
      * Actually parses the arguments and uses the linked in CLO's
      * @param argc argc as specified by a main() call
      * @param argv argv as specified by a main() call
-     * @return anything else than 0 means something went wrong.
-     *         preferably crash the program and return the same value
      */
-    int parse_options(int argc, char** argv);
+    void parse_options(int argc, char** argv);
     
     /**
      * Checks whether or not the arguments have been parsed.
@@ -59,7 +58,7 @@ namespace Base
             std::size_t currCount;
             std::size_t count;
             char** pData;
-            friend int Base::parse_options(int argc, char** argv);
+            friend void Base::parse_options(int argc, char** argv);
 
             CLOParser(const CLOParser& other) = delete;
             CLOParser(CLOParser&& other) = delete;
@@ -71,12 +70,14 @@ namespace Base
             {
             }
             
+            //does the actual parsing
+            //returns the number of arguments parsed
             int go();
         public:
             
-            inline std::string operator*() const
+            inline char* operator*() const
             {
-                return std::string(pData[currCount]);
+                return pData[currCount];
             }
             
             inline CLOParser& operator++()
@@ -173,7 +174,7 @@ namespace Base
                 {
                     error += typeid(T).name();
                 }
-                throw error;
+                logger(ERROR, error);
                 
             }
             
