@@ -166,12 +166,12 @@ namespace Base
 
         //make sure all the other functions map to the other face
         
-        const ElementT* getPtrElementLeft() const override
+        const Element* getPtrElementLeft() const override
         {
             return face_->getPtrElementLeft();
         }
         
-        const ElementT* getPtrElementRight() const override
+        const Element* getPtrElementRight() const override
         {
             return face_->getPtrElementRight();
         }

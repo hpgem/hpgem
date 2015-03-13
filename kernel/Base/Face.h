@@ -43,7 +43,6 @@ namespace Base
     {
     public:
         
-        using ElementT = Base::Element;
         using ElementGeometryT = Geometry::ElementGeometry;
         using LocalFaceNrTypeT = Geometry::FaceGeometry::LocalFaceNrType;
         using CacheT = Base::FaceCacheData;
@@ -53,39 +52,39 @@ namespace Base
 
     public:
         
-        Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, ElementT* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfFaceVectors = 0);
+        Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, Element* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfFaceVectors = 0);
 
         virtual ~Face()
         {
         }
         
-        Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& ftype, std::size_t faceID, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
+        Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& ftype, std::size_t faceID, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
 
         /// Return the pointer to the left element.
-        virtual ElementT* getPtrElementLeft()
+        virtual Element* getPtrElementLeft()
         {
             return elementLeft_;
         }
         
         /// Return the pointer to the right element, nullptr if inexistent for boundaries.
-        virtual ElementT* getPtrElementRight()
+        virtual Element* getPtrElementRight()
         {
             return elementRight_;
         }
         
-        virtual const ElementT* getPtrElementLeft() const
+        virtual const Element* getPtrElementLeft() const
         {
             return elementLeft_;
         }
         
         /// Return the pointer to the right element, nullptr if inexistent for boundaries.
-        virtual const ElementT* getPtrElementRight() const
+        virtual const Element* getPtrElementRight() const
         {
             return elementRight_;
         }
         
         /// \brief Return the pointer to the element on side iSide.
-        virtual const ElementT* getPtrElement(Side iSide) const
+        virtual const Element* getPtrElement(Side iSide) const
         {
             if (iSide == Side::LEFT)
             {
@@ -173,8 +172,8 @@ namespace Base
         }
         
     private:
-        ElementT* elementLeft_;
-        ElementT* elementRight_;
+        Element* elementLeft_;
+        Element* elementRight_;
         const FaceQuadratureRule* quadratureRule_;
 
         std::size_t nrOfConformingDOFOnTheFace_;

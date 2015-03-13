@@ -38,7 +38,7 @@ namespace Base
 {
     
     class Face;
-    Face::Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, ElementT* ptrElemR, const LocalFaceNrTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
+    Face::Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, Element* ptrElemR, const LocalFaceNrTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
             : FaceGeometryT((ElementGeometryT*) ptrElemL, localFaceNumL, (ElementGeometryT*) ptrElemR, localFaceNumR), elementLeft_(ptrElemL), elementRight_(ptrElemR), faceID_(faceID), nrOfConformingDOFOnTheFace_(0), FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknows() + ptrElemR->getNrOfBasisFunctions() * ptrElemR->getNrOfUnknows(), numberOfFaceMatrixes, numberOfFaceVectors)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
@@ -57,7 +57,7 @@ namespace Base
         }
         initialiseFaceToFaceMapIndex(leftVertices, rightVertices);
     }
-    Face::Face(ElementT* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
+    Face::Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
             : FaceGeometryT((ElementGeometryT*) ptrElemL, localFaceNumL, faceType), elementLeft_(ptrElemL), elementRight_(nullptr), faceID_(faceID), nrOfConformingDOFOnTheFace_(0), FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknows(), numberOfFaceMatrixes, numberOfFaceVectors)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
@@ -67,6 +67,7 @@ namespace Base
     
     void Face::createQuadratureRules()
     {
+        //order of quadrature rules:
         std::size_t rightOrder = (elementRight_ == nullptr ? 0 : elementRight_->getGaussQuadratureRule()->order());
         std::size_t leftOrder = elementLeft_->getGaussQuadratureRule()->order();
         if (leftOrder >= rightOrder)
@@ -75,7 +76,7 @@ namespace Base
         }
         else
         {
-            std::cout << "again..... Face<DIM>::createQuadratureRules(): " << leftOrder << " " << rightOrder << std::endl;
+            logger(DEBUG, "again..... Face<DIM>::createQuadratureRules(): % %.", leftOrder, rightOrder);
             quadratureRule_ = elementRight_->getReferenceGeometry()->getCodim1ReferenceGeometry(FaceGeometryT::localFaceNumberRight_)->getGaussQuadratureRule(rightOrder);
         }
         

@@ -2637,7 +2637,7 @@ namespace Base
                     }
                     if (!triangle.isGood() && !triangle.isUpperDelaunay())
                     {
-                        std::cout << "small element " << triangle << " ignored" << std::endl;
+                        logger(INFO, "small element % ignored", triangle);
                     }
                 }
                 for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
@@ -2649,7 +2649,7 @@ namespace Base
                         {
                             if (vertexIndex[i] == node->getID())
                             {
-                                std::cout << i << " " << theMesh_.getNodes()[i] << " " << domainDescription(theMesh_.getNodes()[i]) << std::endl;
+                                logger(DEBUG, "% % %", i, theMesh_.getNodes()[i], domainDescription(theMesh_.getNodes()[i]));
                             }
                         }
                     }
@@ -2817,11 +2817,7 @@ namespace Base
                     Node* node = theMesh_.getVerticesList(IteratorType::GLOBAL)[i];
                     PointPhysicalT& point = theMesh_.getNodes()[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0))];
                     point += 0.1 * (*moveIterator);
-                    if (std::isnan(point[0]))
-                    {
-                        std::cout << i << std::endl;
-                        throw i;
-                    }
+                    logger.assert(!(std::isnan(point[0])), "%", i);
                     bool isPeriodic = false;
                     std::map<std::size_t, bool> hasMoved {};
                     hasMoved[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0))] = true;
@@ -2866,7 +2862,9 @@ namespace Base
                             currentValue = domainDescription(point);
                             if (currentValue > 1e-10)
                             {
-                                std::cout << "NOTE: Failed to move point " << i << " (" << point << ") back into the domain.\n Distance from boundary is " << currentValue << ". Algorithm may crash.\n Consider fixing points at corners to remedy this issue." << std::endl;
+                                logger(WARN, "NOTE: Failed to move point % (%) back into the domain."
+                                        "\n Distance from boundary is %. Algorithm may crash.\n Consider fixing "
+                                        "points at corners to remedy this issue.", i, point, currentValue);
                             }
                         }
                     }
@@ -2910,7 +2908,9 @@ namespace Base
                             point = node->getElement(j)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(j));
                             if (domainDescription(point) > 1e-10)
                             {
-                                std::cout << "NOTE: Failed to move periodic point " << i << " (" << point << ") back to the periodic boundary.\n Distance from boundary is " << domainDescription(point) << ". Algorithm may crash.\n Consider fixing points at corners to remedy this issue." << std::endl;
+                                logger(WARN, "NOTE: Failed to move periodic point % (%) back to the periodic boundary.\n "
+                                        "Distance from boundary is %. Algorithm may crash.\n "
+                                        "Consider fixing points at corners to remedy this issue.", i, point, domainDescription(point));
                             }
                         };
                     }
@@ -3082,7 +3082,7 @@ namespace Base
         }
         if (counter == 10000)
         {
-            std::cout << "WARNING: Maximum iteration count reached, mesh quality may not be optimal" << std::endl;
+            logger(WARN, "WARNING: Maximum iteration count reached, mesh quality may not be optimal");
         }
         //coordinate transformation may have changed, update to the current situation
         for (Element* element : theMesh_.getElementsList())

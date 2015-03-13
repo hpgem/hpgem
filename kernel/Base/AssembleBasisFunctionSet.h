@@ -111,6 +111,4 @@ namespace Base
     void AssembleBasisFunctionSet_3D_Ord5_A1(Base::BasisFunctionSet& myBFSet);
 
 }
-;
-
 #endif

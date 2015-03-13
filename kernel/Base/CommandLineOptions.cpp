@@ -21,6 +21,7 @@
 
 #include "CommandLineOptions.h"
 #include "MpiContainer.h"
+#include "Logger.h"
 #include <cstring>
 
 #ifdef HPGEM_USE_MPI
@@ -58,8 +59,7 @@ bool Base::parse_isDone()
 }
 int Base::parse_options(int argc, char** argv)
 {
-    if (hasParsed)
-        throw("Arguments have already been parsed");
+    logger.assert(!hasParsed, "Arguments have already been parsed");
 #ifdef HPGEM_USE_MPI
     
     if (!MPI::Is_initialized())

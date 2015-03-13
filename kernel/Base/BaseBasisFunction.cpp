@@ -59,7 +59,7 @@ namespace Base
                     ret[i] = evalDeriv3(p);
                     break;
                 default:
-                    throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";
+                    logger(ERROR, "The DIMension of your problem is too low to warrant taking a derivative in this direction");
             }
         }
         return ret;

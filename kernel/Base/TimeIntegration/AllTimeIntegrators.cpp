@@ -24,6 +24,7 @@
 #include "RK4Methods.h"
 #include "ForwardEuler.h"
 #include "MidPoint.h"
+#include "Logger.h"
 
 namespace Base
 {
@@ -49,6 +50,7 @@ namespace Base
                 return rule;
             }
         }
-        throw "Could not find the Runge Kutta method you're looking for.";
+        logger(ERROR, "Could not find the Runge Kutta method you're looking for.");
+        return nullptr;
     }
 }

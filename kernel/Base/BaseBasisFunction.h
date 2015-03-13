@@ -51,27 +51,32 @@ namespace Base
 
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
-            throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";
+            logger(ERROR, "The DIMension of your basis function is too low to warrant taking a derivative in this direction");
+            return 0;
         }
 
         virtual double evalDeriv1(const PointReferenceT& p) const
         {
-            throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";
+            logger(ERROR, "The DIMension of your basis function is too low to warrant taking a derivative in this direction");
+            return 0;
         }
 
         virtual double evalDeriv2(const PointReferenceT& p) const
         {
-            throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";
+            logger(ERROR, "The DIMension of your basis function is too low to warrant taking a derivative in this direction");
+            return 0;
         }
 
         virtual double evalDeriv3(const PointReferenceT& p) const
         {
-            throw "The DIMension of your basis function is too low to warrant taking a derivative in this direction";
+            logger(ERROR, "The DIMension of your basis function is too low to warrant taking a derivative in this direction");
+            return 0;
         }
 
         virtual LinearAlgebra::NumericalVector evalCurl(const PointReferenceT& p) const
         {
-            throw "The curl of a scalar valued basis function is not implemented. Perhaps you meant evalDeriv?";
+            logger(ERROR, "The curl of a scalar valued basis function is not implemented. Perhaps you meant evalDeriv?");
+            return LinearAlgebra::NumericalVector();
         }
         
         virtual LinearAlgebra::NumericalVector evalDeriv(const PointReferenceT& p) const;
