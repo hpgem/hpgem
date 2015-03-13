@@ -119,14 +119,16 @@ namespace Geometry
     std::size_t ReferenceTriangularPrism::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         /// \TODO: Implement tetrahedron to tetrahedron mappings.
-        throw "ReferenceTriangularPrism::getCodim0MappingIndex: T.p to t.p mappings do not exist";
+        logger(FATAL, "ReferenceTriangularPrism::getCodim0MappingIndex: T.p to t.p mappings do not exist.\n");
+        return 0;
     }
     
     const MappingReferenceToReference*
     ReferenceTriangularPrism::getCodim0MappingPtr(const std::size_t i) const
     {
         /// \TODO: Implement tetrahedron to tetrahedron mappings.
-        throw "ReferenceTetrahedron::getCodim0MappingPtr: T.p to T.p mappings do not exist";
+        logger(FATAL, "ReferenceTetrahedron::getCodim0MappingPtr: T.p to T.p mappings do not exist.\n");
+        return 0;
     }
     
     // ================================== Codimension 1 ============================================
@@ -143,8 +145,10 @@ namespace Geometry
         }
         else
         {
-            throw "ReferenceTriangularPrism::getCodim1EntityLocalIndices: Index out of range. T.p has 5 faces.";
+            logger(ERROR, "ReferenceTriangularPrism::getCodim1EntityLocalIndices: Index out of range. T.p has 5 faces.\n");
         }
+        std::vector<std::size_t> dummy(1);
+        return dummy;
     }
     
     const ReferenceGeometry*
@@ -160,69 +164,47 @@ namespace Geometry
         }
         else
         {
-            throw "ReferenceTriangularPrism::getCodim1ReferenceGeometry: Index out of range. T.p has 5 faces.";
+            logger(ERROR, "ReferenceTriangularPrism::getCodim1ReferenceGeometry: Index out of range. T.p has 5 faces.\n");
         }
+        return 0;
     }
     
     const MappingReferenceToReference*
     ReferenceTriangularPrism::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        if (faceIndex < 5)
-        {
-            return mappingsFaceToTriangularPrism_[faceIndex];
-        }
-        else
-        {
-            throw "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square!";
-        }
+        logger.assert((faceIndex < 5), "Asked for a square point index larger than 3. There are only 4 nodes in a square!.\n");
+        return mappingsFaceToTriangularPrism_[faceIndex];
     }
     
     // ================================== Codimension 2 ============================================
     
     std::vector<std::size_t> ReferenceTriangularPrism::getCodim2EntityLocalIndices(const std::size_t edgeIndex) const
     {
-        if (edgeIndex < 9)
-        {
-            return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex], localNodesOnEdge_[edgeIndex] + 2);
-        }
-        else
-        {
-            throw "ReferenceTriangularPrism::getCodim2EntityLocalIndices Index out of range. T.p has only 9 edges.";
-        }
+        logger.assert((edgeIndex < 9), "ReferenceTriangularPrism::getCodim2EntityLocalIndices Index out of range. T.p has only 9 edges.\n");
+        return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex], localNodesOnEdge_[edgeIndex] + 2);
     }
     
     const ReferenceGeometry*
     ReferenceTriangularPrism::getCodim2ReferenceGeometry(const std::size_t edgeIndex) const
     {
-        if (edgeIndex < 9)
-        {
-            return referenceGeometryCodim2Ptr_;
-        }
-        else
-        {
-            throw "ReferenceTriangularPrism::getCodim2ReferenceGeometry Index out of range. T.p has only 9 edges.";
-        }
+        logger.assert((edgeIndex < 9), "ReferenceTriangularPrism::getCodim2ReferenceGeometry Index out of range. T.p has only 9 edges.\n");
+        return referenceGeometryCodim2Ptr_;
     }
     
     const MappingReferenceToReference*
     ReferenceTriangularPrism::getCodim2MappingPtr(const std::size_t faceIndex) const
     {
         /// \TODO: Implement line to t.p. mappings.
-        throw "ReferenceTriangularPrism::getCodim2MappingPtr: Line to TP mappings do not exist";
+        logger(FATAL, "ReferenceTriangularPrism::getCodim2MappingPtr: Line to TP mappings do not exist.\n");
+        return 0;
     }
     
     // ================================== Codimension 3 ============================================
     
     std::vector<std::size_t> ReferenceTriangularPrism::getCodim3EntityLocalIndices(const std::size_t nodeIndex) const
     {
-        if (nodeIndex < 6)
-        {
-            return std::vector<std::size_t>(1, nodeIndex);
-        }
-        else
-        {
-            throw "ReferenceTriangularPrism::Index out of range. TP has only 6 nodes.";
-        }
+        logger.assert((nodeIndex < 6), "ReferenceTriangularPrism::Index out of range. TP has only 6 nodes.\n");
+        return std::vector<std::size_t>(1, nodeIndex);
     }
     
     // =============================== Refinement mappings =====================================
@@ -362,7 +344,7 @@ namespace Geometry
                         
                     case 0:
                     case 1:
-                        std::cout << "gotcha!  this must be an error!  subelement-0 and -1 are hexahedrons\n";
+                        logger(ERROR, "Subelement-0 and -1 are hexahedrons. \n");
                         break;
                 }
                 break;
@@ -383,7 +365,7 @@ namespace Geometry
                         
                     case 0:
                     case 1:
-                        std::cout << "gotcha!  this must be an error!  subelement-0 and -1 are hexahedrons\n";
+                        logger(ERROR, "subelement-0 and -1 are hexahedrons. \n");
                         break;
                 }
                 break;
@@ -409,7 +391,7 @@ namespace Geometry
                         break;
                         
                     case 2:
-                        std::cout << "gotcha!  this must be an error!  subelement-2 is a hexahedron\n";
+                        logger(ERROR, "subelement-2 is a hexahedron.\n");
                         break;
                 }
                 break;
@@ -435,7 +417,7 @@ namespace Geometry
                         break;
                         
                     case 2:
-                        std::cout << "gotcha!  this must be an error!  subelement-2 is a hexahedron\n";
+                        logger(ERROR, "Subelement-2 is a hexahedron.\n");
                         break;
                 }
                 break;
