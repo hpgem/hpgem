@@ -41,7 +41,7 @@ namespace Geometry
     
     ReferenceTetrahedron::ReferenceTetrahedron()
             : /// Tetrahedron has four nodes 3D + 1
-            ReferenceGeometry(4, 3, TETRAHEDRON), referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+            ReferenceGeometry(4, 3, ReferenceGeometryType::TETRAHEDRON), referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
         PointReference p1(3), p2(3), p3(3), p4(3);
         

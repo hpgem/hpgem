@@ -55,8 +55,7 @@ namespace Geometry
         std::size_t operator()(const Geometry::PointReference& point) const;
     };
     
-///\todo make enum class
-    enum TypeOfReferenceGeometry
+    enum class ReferenceGeometryType
     {
         POINT, LINE, TRIANGLE, SQUARE, TETRAHEDRON, PYRAMID, CUBE, TRIANGULARPRISM, HYPERCUBE
     };
@@ -99,7 +98,7 @@ namespace Geometry
         {
             return points_.size();
         }
-        TypeOfReferenceGeometry getGeometryType() const
+        ReferenceGeometryType getGeometryType() const
         {
             return geometryType_;
         }
@@ -145,15 +144,15 @@ namespace Geometry
         }
         
     protected:
-        ReferenceGeometry(const TypeOfReferenceGeometry& geoT);
-        ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const TypeOfReferenceGeometry& geoT);
+        ReferenceGeometry(const ReferenceGeometryType& geoT);
+        ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT);
         ReferenceGeometry(const ReferenceGeometry& other);
 
     protected:
         /// Container of the actual points (no reference).
         VectorOfReferencePointsT points_;
         /// An identifier of the type of referenceGeometry, that some say shouldn't be used.
-        const TypeOfReferenceGeometry geometryType_;
+        const ReferenceGeometryType geometryType_;
 
     private:
         ///\todo check if this can safely be removed if the basis functions are not

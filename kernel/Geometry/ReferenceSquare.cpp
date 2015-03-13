@@ -42,7 +42,7 @@ namespace Geometry
     std::size_t ReferenceSquare::localNodeIndexes_[4][2] = { {0, 1}, {0, 2}, {1, 3}, {2, 3}, };
     
     ReferenceSquare::ReferenceSquare()
-            : ReferenceGeometry(4, 2, SQUARE), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(4, 2, ReferenceGeometryType::SQUARE), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
         // See MappingLineToSquare.h for further info.                 Ref.Line     Ref.Sqr.Side
         mappingsLineToSquare_[0] = &MappingToRefLineToSquare0::Instance(); // x         -> 0:( x,-1)

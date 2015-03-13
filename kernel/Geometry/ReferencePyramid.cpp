@@ -37,7 +37,7 @@ namespace Geometry
     
     ReferencePyramid::ReferencePyramid()
             : /// pyramid has three nodes 3D + 2
-            ReferenceGeometry(5, 3, PYRAMID), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+            ReferenceGeometry(5, 3, ReferenceGeometryType::PYRAMID), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
         PointReference p1(3), p2(3), p3(3), p4(3), p5(3);
         

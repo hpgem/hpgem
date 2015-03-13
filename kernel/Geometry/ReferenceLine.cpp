@@ -36,7 +36,7 @@ namespace Geometry
     std::size_t ReferenceLine::localNodeIndexes_[2][1] = { {0}, {1}};
     
     ReferenceLine::ReferenceLine()
-            : ReferenceGeometry(2, 1, LINE), /// Line has two points 1+1
+            : ReferenceGeometry(2, 1, ReferenceGeometryType::LINE), /// Line has two points 1+1
             referenceGeometryCodim1Ptr_(&ReferencePoint::Instance())
     {
         PointReference p1(1), p2(1);

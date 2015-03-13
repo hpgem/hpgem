@@ -33,7 +33,7 @@ namespace Geometry
     std::size_t ReferenceTriangularPrism::localNodesOnEdge_[9][2] = { {0, 1}, {0, 2}, {1, 2}, {3, 4}, {3, 5}, {4, 5}, {0, 3}, {1, 4}, {2, 5}};
     
     ReferenceTriangularPrism::ReferenceTriangularPrism()
-            : ReferenceGeometry(6, 3, TRIANGULARPRISM), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(6, 3, ReferenceGeometryType::TRIANGULARPRISM), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
         PointReference p1(3), p2(3), p3(3), p4(3), p5(3), p6(3);
         

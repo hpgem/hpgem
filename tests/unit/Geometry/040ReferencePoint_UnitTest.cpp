@@ -65,7 +65,7 @@ int main()
     //testing functionality of abstract parent classes
     
     logger.assert_always((test.getNumberOfNodes() == 1), "number of nodes");
-    logger.assert_always((test.getGeometryType() == Geometry::POINT), "type of geometry");
+    logger.assert_always((test.getGeometryType() == Geometry::ReferenceGeometryType::POINT), "type of geometry");
     
     //getBasisFunctionValue and getBasisFunctionDerivative require 0D basisfunctions to be implemented
     

@@ -189,7 +189,7 @@ int main()
     //testing functionality of abstract parent classes
     
     logger.assert_always((test.getNumberOfNodes() == 4), "number of nodes");
-    logger.assert_always((test.getGeometryType() == Geometry::TETRAHEDRON), "type of geometry");
+    logger.assert_always((test.getGeometryType() == Geometry::ReferenceGeometryType::TETRAHEDRON), "type of geometry");
     
     return (0);
     ///\TODO if it is decided that getBasisFunctionValue and getBasisFucntionDerivative remain here, test them

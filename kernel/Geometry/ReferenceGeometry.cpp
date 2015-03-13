@@ -28,13 +28,13 @@
 namespace Geometry
 {
     
-    ReferenceGeometry::ReferenceGeometry(const TypeOfReferenceGeometry& geoT)
+    ReferenceGeometry::ReferenceGeometry(const ReferenceGeometryType& geoT)
             : geometryType_(geoT)
     {
         
     }
     
-    ReferenceGeometry::ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const TypeOfReferenceGeometry& geoT)
+    ReferenceGeometry::ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT)
             : points_(numberOfNodes, DIM), geometryType_(geoT)
     {
         
