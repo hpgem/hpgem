@@ -90,7 +90,7 @@ namespace Geometry
                 }
                 else
                 {
-                    throw "This DIMension does not contain entities with 4 nodes";
+                    logger(ERROR, "This dimension does not contain entities with 4 nodes. \n");
                 }
             case 5:
                 logger.assert(DIM==3, "This Dimension does not contain entities with 5 nodes");
@@ -109,8 +109,9 @@ namespace Geometry
                 logger(VERBOSE, "ElementGeometry created a reference hypercube.");
                 return &ReferenceHypercube::Instance();
             default:
-                throw "No known entities contain this many nodes";
+                logger(FATAL, "No know entities contain this many nodes. \n");
         }
+        return 0;
     }
     
     const PhysicalGeometry * const
@@ -140,7 +141,7 @@ namespace Geometry
                 }
                 else
                 {
-                    throw "This DIMension does not contain entities with 4 nodes";
+                    logger(ERROR, "This dimension does not contain entities with 4 nodes. \n");
                 }
             case 5:
                 logger.assert(nodes[0].size()==3, "This Dimension does not contain entities with 5 nodes");
@@ -159,9 +160,9 @@ namespace Geometry
                 logger(VERBOSE, "ElementGeometry created a physical hypercube.");
                 return new Geometry::PhysicalOctachoron(globalNodeIndexes, nodes);
             default:
-                throw "No known entities contain this many nodes";
-                
+                logger(FATAL, "No know entities contain this many nodes. \n");
         }
+        return 0;
     }
     
     const MappingReferenceToPhysical * const
@@ -191,7 +192,7 @@ namespace Geometry
                 }
                 else
                 {
-                    throw "This DIMension does not contain entities with 4 nodes";
+                    logger(ERROR, "This dimension does not contain entities with 4 nodes. \n");
                 }
             case 5:
                 logger.assert(DIM==3, "This Dimension does not contain entities with 5 nodes");
@@ -210,8 +211,9 @@ namespace Geometry
                 logger(VERBOSE, "ElementGeometry created a mapping for a hypercube.");
                 return new Geometry::MappingToPhysHypercubeLinear<4>(pGeo);
             default:
-                throw "No known entities contain this many nodes";
+                logger(FATAL, "No know entities contain this many nodes. \n");
         }
+        return 0;
     }
     
     std::ostream& operator<<(std::ostream& os, const ElementGeometry& elementGeometry)
