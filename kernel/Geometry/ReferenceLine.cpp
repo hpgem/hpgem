@@ -101,21 +101,16 @@ namespace Geometry
         }
         else
         {
-            throw "ERROR: number of nodes of reference square was larger than 4.";
+            logger(ERROR, "number of nodes of reference square was larger than 4.\n");
         }
+        return 0;
     }
     
     const MappingReferenceToReference*
     ReferenceLine::getCodim0MappingPtr(const std::size_t i) const
     {
-        if (i < 2)
-        {
-            return mappingsLineToLine_[i];
-        }
-        else
-        {
-            throw "ERROR: Asked for a mappingSquareToSquare larger than 7. There are only 8!";
-        }
+        logger.assert((i < 2), "ERROR: Asked for a mappingSquareToSquare larger than 7. There are only 8!");
+        return mappingsLineToLine_[i];
     }
     
     // ================================== Codimension 1 ============================================
@@ -128,26 +123,15 @@ namespace Geometry
     
     const ReferenceGeometry* ReferenceLine::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        if (faceIndex < 2)
-        {
-            return referenceGeometryCodim1Ptr_;
-        }
-        else
-        {
-            throw "ERROR: Asked for a line face index larger than 1. There are only 2 'faces' in a line!";
-        }
+        logger.assert((faceIndex < 2), "ERROR: Asked for a line face index larger than 1. There are only 2 'faces' in a line!");
+        return referenceGeometryCodim1Ptr_;
     }
     const MappingReferenceToReference*
     ReferenceLine::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        if (faceIndex < 2)
-        {
-            return mappingsPointToLine_[faceIndex];
-        }
-        else
-        {
-            throw "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square!";
-        }
+        logger.assert((faceIndex < 2), "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square!.\n");
+        return mappingsPointToLine_[faceIndex];
+
     }
 
 }
