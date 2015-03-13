@@ -95,14 +95,8 @@ namespace Geometry
     
     const PointReference& ReferencePyramid::getNode(const std::size_t& nodeIndex) const
     {
-        if (nodeIndex < 5)
-        {
-            return points_[nodeIndex];
-        }
-        else
-        {
-            throw "ERROR: ReferencePyramid::getNode Index out of range. Only 5 faces for pyramid.";
-        }
+        logger.assert((nodeIndex < 5), "ERROR: ReferencePyramid::getNode Index out of range. Only 5 faces for pyramid.\n");
+        return points_[nodeIndex];
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferencePyramid& pyramid)
@@ -124,12 +118,14 @@ namespace Geometry
     
     std::size_t ReferencePyramid::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
-        throw "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 mappings for Pyramid.";
+        logger(FATAL, "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 mappings for Pyramid.\n");
+        return 0;
     }
     
     const MappingReferenceToReference* ReferencePyramid::getCodim0MappingPtr(const std::size_t i) const
     {
-        throw "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 mappings for Pyramid.";
+        logger(FATAL, "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 mappings for Pyramid.\n");
+        return 0;
     }
     
     // ================================== Codimension 1 ============================================
@@ -137,37 +133,24 @@ namespace Geometry
     const MappingReferenceToReference*
     ReferencePyramid::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        if (faceIndex < 5)
-        {
-            return mappingsFaceToPyramid_[faceIndex];
-        }
-        else
-        {
-            throw "ReferencePyramid::getCodim1MappingPtr Index out of range. Only 5 faces for pyramid.";
-        }
+        logger.assert((faceIndex < 5), "ReferencePyramid::getCodim1MappingPtr Index out of range. Only 5 faces for pyramid.\n");
+        return mappingsFaceToPyramid_[faceIndex];
     }
     
     const ReferenceGeometry*
     ReferencePyramid::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        if (faceIndex < 5)
-        {
-            if (faceIndex == 0)
+        logger.assert((faceIndex < 5), "ReferencePyramid::getCodim1ReferenceGeometry Index out of range. Only 5 faces for pyramid.\n");
+        if (faceIndex == 0)
                 return referenceGeometryCodim1SquarePtr_;
             else
                 return referenceGeometryCodim1TrianglePtr_;
-        }
-        else
-        {
-            throw "ReferencePyramid::getCodim1ReferenceGeometry Index out of range. Only 5 faces for pyramid.";
-        }
     }
     
     std::vector<std::size_t> ReferencePyramid::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
-        if (faceIndex < 5)
-        {
-            if (faceIndex == 0)
+        logger.assert((faceIndex < 5), "ReferencePyramid::getCodim1EntityLocalIndices Index out of range. Only 5 faces for pyramid.\n");
+        if (faceIndex == 0)
             {
                 return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 4);
             }
@@ -175,12 +158,6 @@ namespace Geometry
             {
                 return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 3);
             }
-        }
-        else
-        {
-            throw "ReferencePyramid::getCodim1EntityLocalIndices Index out of range. Only 5 faces for pyramid.";
-        }
-        
     }
     
     // ================================== Codimension 2 ============================================
@@ -188,46 +165,29 @@ namespace Geometry
     const MappingReferenceToReference*
     ReferencePyramid::getCodim2MappingPtr(const std::size_t edgeIndex) const
     {
-        throw "ERROR: There are no edge to pyramid mappings.";
+        logger(ERROR, "There are no edge to pyramid mappings. \n");
+        return 0;
     }
     
     const ReferenceGeometry*
     ReferencePyramid::getCodim2ReferenceGeometry(const std::size_t edgeIndex) const
     {
-        if (edgeIndex < 8)
-        {
-            return referenceGeometryCodim2Ptr_;
-        }
-        else
-        {
-            throw "ReferencePyramid::getCodim2ReferenceGeometry Index out of range. Only 8 edges in pyramid.";
-        }
+        logger.assert((edgeIndex < 8), "ReferencePyramid::getCodim2ReferenceGeometry Index out of range. Only 8 edges in pyramid.\n");
+       return referenceGeometryCodim2Ptr_;
     }
     
     std::vector<std::size_t> ReferencePyramid::getCodim2EntityLocalIndices(const std::size_t edgeIndex) const
     {
-        if (edgeIndex < 8)
-        {
-            return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex], localNodesOnEdge_[edgeIndex] + 2);
-        }
-        else
-        {
-            throw "ReferencePyramid::getCodim1EntityLocalIndices Index out of range. Only 8 edges in pyramid.";
-        }
+        logger.assert((edgeIndex < 8), "ReferencePyramid::getCodim1EntityLocalIndices Index out of range. Only 8 edges in pyramid.\n");
+        return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex], localNodesOnEdge_[edgeIndex] + 2);
     }
     
     // ================================== Codimension 3 ============================================
     
     std::vector<std::size_t> ReferencePyramid::getCodim3EntityLocalIndices(const std::size_t nodeIndex) const
     {
-        if (nodeIndex < 5)
-        {
-            return std::vector<std::size_t>(1, nodeIndex);
-        }
-        else
-        {
-            throw "ReferencePyramid::getCodim3EntityLocalIndices Index out of range. Pyramid has 5 nodes.";
-        }
+        logger.assert((nodeIndex < 5), "ReferencePyramid::getCodim3EntityLocalIndices Index out of range. Pyramid has 5 nodes.\n");
+        return std::vector<std::size_t>(1, nodeIndex);
     }
 }
 ;
