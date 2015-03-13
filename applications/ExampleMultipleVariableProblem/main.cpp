@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     Base::parse_options(argc, argv);
     try
     {
-        const bool useLinearSolver = false;
+        const bool useLinearSolver = true;
         
         // Set parameters for the PDE.
         const std::size_t dimension = 2;

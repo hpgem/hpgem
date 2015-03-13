@@ -126,16 +126,26 @@ public:
      );
     
     /// \brief Compute the mass matrix for a single element.
-    LinearAlgebra::Matrix computeMassMatrixAtElement(const Base::Element *ptrElement) override;
+    LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement) override;
     
     /// \brief Integrate the initial solution for a single element.
     LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override;
     
     /// \brief Compute the stiffness matrix corresponding to an element.
-    LinearAlgebra::Matrix computeStiffnessMatrixAtElement(const Base::Element *ptrElement) override;
+    LinearAlgebra::Matrix computeStiffnessMatrixAtElement(Base::Element *ptrElement) override;
 
     /// \brief Compute the stiffness matrix corresponding to a face.
-    Base::FaceMatrix computeStiffnessMatrixAtFace(const Base::Face *ptrFace) override;
+    Base::FaceMatrix computeStiffnessMatrixAtFace(Base::Face *ptrFace) override;
+    
+    
+    /// \brief Show the progress of the time integration.
+    virtual void showProgress(const double time, const std::size_t timeStepID) override
+    {
+        if (timeStepID % 10 == 0)
+        {
+            logger(INFO, "% time steps computed.", timeStepID);
+        }
+    }
     
     /// \brief Integrate the energy of the error on a single element.
     LinearAlgebra::NumericalVector integrateErrorAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time) override;
@@ -146,12 +156,6 @@ const std::size_t DIM_;
 
 /// Number of variables
 const std::size_t numOfVariables_;
-
-/// Integrator for the elements
-Integration::ElementIntegral elementIntegrator_;
-
-/// Integrator for the faces
-Integration::FaceIntegral faceIntegrator_;
 
 /// Material parameter c^{-1}
 double cInv_;

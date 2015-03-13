@@ -39,26 +39,29 @@ namespace Base
     /// \brief Simplified Interface for solving linear PDE's.
     /** At the moment this class is well-suited for problems of the form \f[ l(\partial_t^k \vec{u},t) = f(\vec{u},t) \f], where \f$ \vec{u} \f$ is some vector function, \f$ l(\partial_t^k \vec{u},t)\f$ is some linear function, applied on the k-th order time-derivative of \f$ u \f$, and \f$ f(\vec{u},t) \f$ is the right-hand side, which is some linear function of \f$ \vec{u} \f$ (that can depend on arbitrary order spatial derivatives of \f$\vec{u}\f$) plus some source term. The resulting set of ODE's will have the form \f[ M\partial_t^ku = Au + f(t)\f], where \f$A\f$ is the stiffness matrix and \f$f(t)\f$ is the source term. If you do not want to store all element- and face matrices for the mass matrix and stiffness matrix, it is advised to use the superclass HpgemAPISimplified instead.
      */
-    /** \details To solve some linear time depent PDE you should do the following:
+    /** \details To solve some linear time depent PDE with this class you should at least do the following:
      * \li Create your own class that inherits this class.
      * \li Implement the function 'createMeshDescription' to create a mesh description (e.g. domain, number of elements, etc.).
-     * \li Implement the function 'getSourceTerm' to define the source term (e.g. external force).
-     * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
      * \li Implement the function 'initialConditions' to define the initial condition(s) of your problem.
-     * \li Implement the function 'computeMassMatrixAtElement' for computing the mass matrix at an element (if this is not the matrix resulting from the standard L2 inner product).
-     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element.
+     * \li Implement the function 'getSourceTerm' to define the source term (e.g. external force) if there is one.
      * \li Implement the functions 'computeStiffnessMatrixAtElement' and 'computeStiffnessMatrixAtFace' for computing the stiffness matrix at an element or face.
      * \li Implement the function 'integrateSourceTermAtElement' to compute the source term at an element (if there is a source term).
-     * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at the element.
-     * \li Override the function 'writeToTecplotFile' to determine what data to write to the output file.
-     * \li Override the function 'showProgress' to determine how you want to show the progress of the time integration routine.
-     * \li Override the function 'solve' when using another time integration routine than a Runge-Kutta integration method.
      */
     /** \details To solve the PDE do the following in the main routine:
      * \li Create an object of your own class, that inherits from this class and has the necessary functions implemented (see list above).
      * \li Call the function 'CreateMesh' to create the mesh.
      * \li Call the function 'setOutputNames' to set the names for the output files.
      * \li Call the function 'solve'.
+     */
+    /** \details Some other thinsgs you can do:
+     * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
+     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (if this is not the standard L2 inner product).
+     * \li Implement the function 'computeMassMatrixAtElement' if the mass matrix is not constructed by the standard L2 inner product.
+     * \li Override the function 'solveMassMatrixEquationsAtElement' if you want to solve the mass matrix equtions without computing the mass matrix first.
+     * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element.
+     * \li Override the function 'writeToTecplotFile' to determine what data to write to the output file.
+     * \li Override the function 'showProgress' to determine how you want to show the progress of the time integration routine.
+     * \li Override the function 'solve' when using another time integration routine than a Runge-Kutta integration method.
      */
     /** \details For an example of using this interface see the application 'ExampleMultipleVariableProblem'.
      */
@@ -86,30 +89,33 @@ namespace Base
             return 0.0;
         }
         
-        /// \brief Compute the mass matrix for a single element.
-        virtual LinearAlgebra::Matrix computeMassMatrixAtElement(const Base::Element *ptrElement);
-        
         /// \brief Compute and store the mass matrices.
         virtual void createMassMatrices();
         
         /// \brief Solve the mass matrix equations.
-        virtual void solveMassMatrixEquations(const std::size_t timeLevel);
+        virtual void solveMassMatrixEquations(const std::size_t timeLevel) override;
+        
+        /// \brief Compute the integrand for the stiffness matrix.
+        virtual LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef)
+        {
+            logger(ERROR, "No function for computing the integrand for the stiffness matrix at an element implemented.");
+            LinearAlgebra::Matrix integrandStiffnessMatrix;
+            return integrandStiffnessMatrix;
+        }
         
         /// \brief Compute the stiffness matrix corresponding to an element.
-        virtual LinearAlgebra::Matrix computeStiffnessMatrixAtElement(const Base::Element *ptrElement)
+        virtual LinearAlgebra::Matrix computeStiffnessMatrixAtElement(Base::Element *ptrElement);
+        
+        /// \brief Compute the integrand for the stiffness matrix.
+        virtual Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face *ptrFace, const LinearAlgebra::NumericalVector &normal, const Geometry::PointReference &pRef)
         {
-            logger(ERROR, "No function for computing the stiffness matrix at an element implemented.");
-            LinearAlgebra::Matrix stiffnessMatrix;
-            return stiffnessMatrix;
+            logger(ERROR, "No function for computing the integrand for the stiffness matrix at a face implemented.");
+            Base::FaceMatrix integrandStiffnessMatrix;
+            return integrandStiffnessMatrix;
         }
         
         /// \brief Compute the stiffness matrix corresponding to a face.
-        virtual Base::FaceMatrix computeStiffnessMatrixAtFace(const Base::Face *ptrFace)
-        {
-            logger(ERROR, "No function for computing the stiffness matrix at a face implemented.");
-            Base::FaceMatrix stiffnessMatrix;
-            return stiffnessMatrix;
-        }
+        virtual Base::FaceMatrix computeStiffnessMatrixAtFace(Base::Face *ptrFace);
         
         /// \brief Compute and store stiffness matrices for computing the right hand side.
         virtual void createStiffnessMatrices();

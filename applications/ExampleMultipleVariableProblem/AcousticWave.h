@@ -140,10 +140,10 @@ public:
      );
 
     /// \brief Compute the mass matrix for a single element.
-    LinearAlgebra::Matrix computeMassMatrixAtElement(const Base::Element *ptrElement);
+    LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement) override;
 
     /// \brief Solve the mass matrix equations for a single element.
-    void solveMassMatrixEquationsAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients) override;
+    void solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients) override;
 
     /// \brief Integrate the initial solution for a single element.
     LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override;
@@ -152,18 +152,27 @@ public:
     LinearAlgebra::NumericalVector integrateErrorAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time) override;
 
     /// \brief Compute the right-hand side corresponding to an element
-    LinearAlgebra::NumericalVector computeRightHandSideAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time, const std::size_t orderTimeDerivative = 0) override;
+    LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time, const std::size_t orderTimeDerivative = 0) override;
 
     /// \brief Compute the right-hand side corresponding to a face
     LinearAlgebra::NumericalVector computeRightHandSideAtFace
     (
-     const Base::Face *ptrFace,
+     Base::Face *ptrFace,
      const Base::Side side,
      LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
      LinearAlgebra::NumericalVector &solutionCoefficientsRight,
      const double time,
      const std::size_t orderTimeDerivative = 0
      ) override;
+    
+    /// \brief Show the progress of the time integration.
+    virtual void showProgress(const double time, const std::size_t timeStepID) override
+    {
+    if (timeStepID % 10 == 0)
+    {
+        logger(INFO, "% time steps computed.", timeStepID);
+    }
+}
 
     private:
     /// Dimension of the domain
@@ -171,12 +180,6 @@ public:
 
     /// Number of variables
     const std::size_t numOfVariables_;
-
-    /// Integrator for the elements
-    Integration::ElementIntegral elementIntegrator_;
-
-    /// Integrator for the faces
-    Integration::FaceIntegral faceIntegrator_;
 
     /// Material parameter c^{-1}
     double cInv_;

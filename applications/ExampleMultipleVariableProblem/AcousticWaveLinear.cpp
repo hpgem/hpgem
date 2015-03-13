@@ -37,8 +37,6 @@ AcousticWaveLinear::AcousticWaveLinear
 HpgemAPILinear(dimension, numOfVariables, polynomialOrder, ptrButcherTableau, 1, useSourceTerm),
 DIM_(dimension),
 numOfVariables_(numOfVariables),
-elementIntegrator_(),
-faceIntegrator_(),
 cInv_(1.0)
 {
 }
@@ -288,7 +286,7 @@ LinearAlgebra::NumericalVector AcousticWaveLinear::integrandErrorOnRefElement
     return integrand;
 }
 
-LinearAlgebra::Matrix AcousticWaveLinear::computeMassMatrixAtElement(const Base::Element *ptrElement)
+LinearAlgebra::Matrix AcousticWaveLinear::computeMassMatrixAtElement(Base::Element *ptrElement)
 {
     std::function<LinearAlgebra::Matrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix{ return this -> integrandMassMatrixOnRefElement(ptrElement, pRef);};
     
@@ -315,7 +313,7 @@ LinearAlgebra::NumericalVector AcousticWaveLinear::integrateErrorAtElement(const
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }
 
-LinearAlgebra::Matrix AcousticWaveLinear::computeStiffnessMatrixAtElement(const Base::Element *ptrElement)
+LinearAlgebra::Matrix AcousticWaveLinear::computeStiffnessMatrixAtElement(Base::Element *ptrElement)
 {
     // Define the integrand function for the stiffness matrix for the element.
     std::function<LinearAlgebra::Matrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix
@@ -324,7 +322,7 @@ LinearAlgebra::Matrix AcousticWaveLinear::computeStiffnessMatrixAtElement(const 
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }
 
-Base::FaceMatrix AcousticWaveLinear::computeStiffnessMatrixAtFace(const Base::Face *ptrFace)
+Base::FaceMatrix AcousticWaveLinear::computeStiffnessMatrixAtFace(Base::Face *ptrFace)
 {
     std::size_t numOfBasisFunctionsLeft = 0;
     std::size_t numOfBasisFunctionsRight = 0;

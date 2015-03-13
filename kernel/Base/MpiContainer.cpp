@@ -10,6 +10,8 @@
 #include <mpi.h>
 #endif
 
+#include "Logger.h"
+
 namespace Base
 {
     

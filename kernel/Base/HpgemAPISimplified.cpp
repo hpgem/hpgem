@@ -116,6 +116,59 @@ namespace Base
         logger(VERBOSE, "Total number of elements: %", nElements);
     }
     
+    /// \details By default this function computes the mass matrix that corresponds to the integral of the inner product of the test functions on the element.
+    LinearAlgebra::Matrix HpgemAPISimplified::computeMassMatrixAtElement(Base::Element *ptrElement)
+    {
+        // Get number of basis functions
+        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        
+        // Make the mass matrix of the correct size and set all entries to zero.
+        LinearAlgebra::Matrix massMatrix(numOfBasisFunctions * configData_->numberOfUnknowns_, numOfBasisFunctions * configData_->numberOfUnknowns_, 0);
+        
+        // Declare integrand
+        LinearAlgebra::Matrix integrandMassMatrix(numOfBasisFunctions * configData_->numberOfUnknowns_, numOfBasisFunctions * configData_->numberOfUnknowns_, 0);
+        
+        // Get quadrature rule and number of points.
+        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
+        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        
+        // For each quadrature point, compute the value of the product of the
+        // basisfunctions, then add it with the correct weight to massMatrix
+        for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
+        {
+            Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
+            Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+            
+            LinearAlgebra::NumericalVector valueBasisFunction(numOfBasisFunctions);
+            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            {
+                valueBasisFunction(iB) = ptrElement->basisFunction(iB, pRef);
+            }
+            
+            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            {
+                for(std::size_t jB = 0; jB < numOfBasisFunctions; ++jB)
+                {
+                    double massProduct = valueBasisFunction(iB) * valueBasisFunction(jB);
+                    for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                    {
+                        std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
+                        std::size_t jVB = ptrElement->convertToSingleIndex(jB,iV);
+                        integrandMassMatrix(iVB,jVB) = massProduct;
+                    }
+                }
+            }
+            massMatrix.axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandMassMatrix);
+        }
+        
+        return massMatrix;
+    }
+    
+    void HpgemAPISimplified::solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients)
+    {
+        computeMassMatrixAtElement(ptrElement).solve(solutionCoefficients);
+    }
+    
     /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix.
     void HpgemAPISimplified::solveMassMatrixEquations(const std::size_t timeLevel)
     {
@@ -180,9 +233,58 @@ namespace Base
         }
     }
     
+    /// By default the square of the standard L2 norm is integrated.
+    LinearAlgebra::NumericalVector HpgemAPISimplified::integrateErrorAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
+    {
+        // Get number of basis functions
+        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        
+        // Declare integral initial solution
+        LinearAlgebra::NumericalVector integralError(1);
+        
+        // Declare integrand
+        LinearAlgebra::NumericalVector integrandError(1);
+        
+        // Get quadrature rule and number of points.
+        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
+        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        
+        // For each quadrature point, compute the value of the product of the
+        // test function and the initial solution, then add it with the correct weight to the integral solution.
+        for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
+        {
+            Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
+            Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+            
+            Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+            
+            LinearAlgebra::NumericalVector exactSolution = getExactSolution(pPhys, time, 0);
+            
+            LinearAlgebra::NumericalVector numericalSolution(configData_->numberOfUnknowns_);
+            numericalSolution *= 0;
+            
+            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            {
+                double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
+                
+                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                {
+                    std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
+                    
+                    numericalSolution(iV) += solutionCoefficients(iVB) * valueBasisFunction;
+                }
+            }
+            integrandError(0) = (numericalSolution - exactSolution) * (numericalSolution - exactSolution);
+            
+            integralError.axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandError);
+        }
+        
+        return integralError;
+    }
+    
     /// \param[in] solutionTimeLevel Time level where the solution is stored.
     /// \param[in] time Time corresponding to the current solution.
-    /// \details The square of the total error is defined as \f[ \int \|e\|^2 \,dV \f], where \f$\|e\|\f$ is some user-defined norm of the error.
+    /// \details The square of the total error is defined as \f[ \int \|e\|^2 \,dV \f], where \f$\|e\|\f$ is some user-defined norm (based on the (weighted) inner product) of the error.
     double HpgemAPISimplified::computeTotalError(const std::size_t solutionTimeLevel, const double time)
     {
         LinearAlgebra::NumericalVector totalError(1);
@@ -419,7 +521,7 @@ namespace Base
                 coefficientsTimeLevels.push_back(dt * ptrButcherTableau_->getA(iStage, jStage));
             }
             
-            computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime, 0);
+            computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime, 1);
         }
         
         // Update the solution

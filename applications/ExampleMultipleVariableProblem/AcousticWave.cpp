@@ -36,8 +36,6 @@ AcousticWave::AcousticWave
 HpgemAPISimplified(dimension, numOfVariables, polynomialOrder, ptrButcherTableau),
 DIM_(dimension),
 numOfVariables_(numOfVariables),
-elementIntegrator_(),
-faceIntegrator_(),
 cInv_(1.0)
 {
 }
@@ -311,7 +309,7 @@ LinearAlgebra::NumericalVector AcousticWave::integrandErrorOnRefElement
     return integrand;
 }
 
-LinearAlgebra::Matrix AcousticWave::computeMassMatrixAtElement(const Base::Element *ptrElement)
+LinearAlgebra::Matrix AcousticWave::computeMassMatrixAtElement(Base::Element *ptrElement)
 {
     std::function<LinearAlgebra::Matrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix{ return this -> integrandMassMatrixOnRefElement(ptrElement, pRef);};
     
@@ -319,7 +317,7 @@ LinearAlgebra::Matrix AcousticWave::computeMassMatrixAtElement(const Base::Eleme
 }
 
 /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$ for a single element, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix. The input is the right hand side here called 'solutionCoefficients' and the result is returned in this same vector.
-void AcousticWave::solveMassMatrixEquationsAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients)
+void AcousticWave::solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients)
 {
     LinearAlgebra::Matrix massMatrix(computeMassMatrixAtElement(ptrElement));
     massMatrix.solve(solutionCoefficients);
@@ -345,7 +343,7 @@ LinearAlgebra::NumericalVector AcousticWave::integrateErrorAtElement(const Base:
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }
 
-LinearAlgebra::NumericalVector AcousticWave::computeRightHandSideAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time, const std::size_t orderTimeDerivative)
+LinearAlgebra::NumericalVector AcousticWave::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time, const std::size_t orderTimeDerivative)
 {
     // Define the integrand function for the right hand side for the reference element.
     std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
@@ -356,7 +354,7 @@ LinearAlgebra::NumericalVector AcousticWave::computeRightHandSideAtElement(const
 
 LinearAlgebra::NumericalVector AcousticWave::computeRightHandSideAtFace
 (
- const Base::Face *ptrFace,
+ Base::Face *ptrFace,
  const Base::Side side,
  LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
  LinearAlgebra::NumericalVector &solutionCoefficientsRight,

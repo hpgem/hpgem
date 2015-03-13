@@ -294,23 +294,51 @@ namespace Base
         return dataLeft;
     }
     
-    /// \param[in] iSide The index corresponding to the side of the face.
-    /// \param[in] iVar The index corresponding to the variable.
-    /// \param[in] iBasisFunction The index corresponding to the basisfunction.
-    const std::size_t Face::convertToSingleIndex(Side iSide, std::size_t iBasisFunction, std::size_t iVar) const
+    /// \param[in] side The side of the face.
+    /// \param[in] varId The index corresponding to the variable.
+    /// \param[in] scalarBasisFunctionId The index corresponding to the basisfunction.
+    const std::size_t Face::convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId) const
     {
-        logger.assert(iVar < getPtrElementLeft()->getNrOfUnknows(), "Asked for unknown %, but there are only % unknowns", iVar, getPtrElementLeft()->getNrOfUnknows());
-        if (iSide == Side::LEFT)
+        logger.assert(varId < getPtrElementLeft()->getNrOfUnknows(), "Asked for unknown %, but there are only % unknowns", varId, getPtrElementLeft()->getNrOfUnknows());
+        if (side == Side::LEFT)
         {
-            logger.assert(iBasisFunction < getPtrElementLeft()->getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementLeft()->getNrOfBasisFunctions());
-            return iVar * getPtrElementLeft()->getNrOfBasisFunctions() + iBasisFunction;
+            logger.assert(scalarBasisFunctionId < getPtrElementLeft()->getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", scalarBasisFunctionId, getPtrElementLeft()->getNrOfBasisFunctions());
+            return varId * getPtrElementLeft()->getNrOfBasisFunctions() + scalarBasisFunctionId;
         }
         else
         {
             logger.assert(isInternal(), "boundary faces only have a \"left\" element");
-            logger.assert(iBasisFunction < getPtrElementLeft()->getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementLeft()->getNrOfBasisFunctions());
+            logger.assert(scalarBasisFunctionId < getPtrElementLeft()->getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", scalarBasisFunctionId, getPtrElementLeft()->getNrOfBasisFunctions());
             std::size_t nDOFLeft = getPtrElementLeft()->getNrOfUnknows() * getPtrElementLeft()->getNrOfBasisFunctions();
-            return nDOFLeft + iVar * getPtrElementRight()->getNrOfBasisFunctions() + iBasisFunction;
+            return nDOFLeft + varId * getPtrElementRight()->getNrOfBasisFunctions() + scalarBasisFunctionId;
+        }
+    }
+    
+    const Side Face::getSide(std::size_t faceBasisFunctionId) const
+    {
+        std::size_t nDOFLeft = getPtrElementLeft()->getNrOfUnknows() * getPtrElementLeft()->getNrOfBasisFunctions();
+        if(faceBasisFunctionId < nDOFLeft)
+        {
+            return Side::LEFT;
+        }
+        else
+        {
+            logger.assert(faceBasisFunctionId > nDOFLeft + (isInternal() ? 0 :getPtrElementRight()->getNrOfUnknows() * getPtrElementRight()->getNrOfBasisFunctions()), "The index for the face basis function is larger than the number of basis functions at the adjacent elements");
+            return Side::RIGHT;
+        }
+    }
+    
+    const std::size_t Face::getElementBasisFunctionId(std::size_t faceBasisFunctionId) const
+    {
+        std::size_t nDOFLeft = getPtrElementLeft()->getNrOfUnknows() * getPtrElementLeft()->getNrOfBasisFunctions();
+        if(faceBasisFunctionId < nDOFLeft)
+        {
+            return faceBasisFunctionId;
+        }
+        else
+        {
+            logger.assert(faceBasisFunctionId > nDOFLeft + (isInternal() ? 0 :getPtrElementRight()->getNrOfUnknows() * getPtrElementRight()->getNrOfBasisFunctions()), "The index for the face basis function is larger than the number of basis functions at the adjacent elements");
+            return faceBasisFunctionId - nDOFLeft;
         }
     }
 }

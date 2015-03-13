@@ -30,6 +30,8 @@
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
+#include "Integration/ElementIntegral.h"
+#include "Integration/FaceIntegral.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include "Output/VTKTimeDependentWriter.h"
 #include <functional>
@@ -44,24 +46,27 @@ namespace Base
     /// \brief Simplified Interface for solving PDE's.
     /** This class is well-suited for problems of the form \f[ l(\partial_t^k \vec{u},t) = f(\vec{u},t) \f], where \f$ \vec{u} \f$ is some vector function, \f$ l(\partial_t^k \vec{u},t)\f$ is some linear function, applied on the k-th order time-derivative of \f$ u \f$, and \f$ f(\vec{u},t) \f$ is some function of \f$ \vec{u} \f$ that can depend on arbitrary order spatial derivatives of \f$\vec{u}\f$. This last term will be referred to as the right-hand side. The resulting set of ODE's will have the form \f[ M\partial_t^ku = f(u,t)\f], where \f$ M\f$ is the mass matrix, \f$u\f$ is the numerical solution vector and \f$f(u)\f$ is the right-hand side.
      */
-    /** \details To solve some linear time depent PDE you should do the following:
+    /** \details To solve some linear time depent PDE with this class you should at least do the following:
      * \li Create your own class that inherits this class.
      * \li Implement the function 'createMeshDescription' to create a mesh description (e.g. domain, number of elements, etc.).
-     * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
      * \li Implement the function 'initialConditions' to define the initial condition(s) of your problem.
-     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (if this is not the standard L2 inner product).
-     * \li Implement the function 'solveMassMatrixEquationsAtElement' for solving the mass matrix equtions without computing the mass matrix first.
      * \li Implement the functions 'computeRightHandSideAtElement' and 'computeRightHandSideAtFace' to compute the right-hand side corresponding to an element or face.
-     * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element.
-     * \li Override the function 'writeToTecplotFile' to determine what data to write to the output file.
-     * \li Override the function 'showProgress' to determine how you want to show the progress of the time integration routine.
-     * \li Override the function 'solve' when using another time integration routine than a Runge-Kutta integration method.
      */
     /** \details To solve the PDE do the following in the main routine:
      * \li Create an object of your own class, that inherits from this class and has the necessary functions implemented (see list above).
      * \li Call the function 'CreateMesh' to create the mesh.
      * \li Call the function 'setOutputNames' to set the names for the output files.
      * \li Call the function 'solve'.
+     */
+    /** \details Some other thinsgs you can do:
+     * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
+     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (if this is not the standard L2 inner product).
+     * \li Implement the function 'computeMassMatrixAtElement' if you want to compute the mass matrix and the mass matrix is not constructed by the standard L2 inner product.
+     * \li Override the function 'solveMassMatrixEquationsAtElement' if you want to solve the mass matrix equtions without computing the mass matrix first.
+     * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element.
+     * \li Override the function 'writeToTecplotFile' to determine what data to write to the output file.
+     * \li Override the function 'showProgress' to determine how you want to show the progress of the time integration routine.
+     * \li Override the function 'solve' when using another time integration routine than a Runge-Kutta integration method.
      */
     /** \details For an example of using this interface see the application 'ExampleMultipleVariableProblem'.
      */
@@ -105,12 +110,12 @@ namespace Base
             return realSolution;
         }
         
+        /// \brief Compute the mass matrix for a single element.
+        virtual LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement);
+        
         /// \brief Solve the mass matrix equations for a single element.
         /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$ for a single element, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix. The input is the right hand side here called 'solutionCoefficients' and the result is returned in this same vector.
-        virtual void solveMassMatrixEquationsAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients)
-        {
-            logger(ERROR, "No function for solving the mass matrix equations at an element implemented.");
-        }
+        virtual void solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients);
 
         /// \brief Solve the mass matrix equations.
         virtual void solveMassMatrixEquations(const std::size_t timeLevel);
@@ -122,20 +127,15 @@ namespace Base
         void integrateInitialSolution(const std::size_t timeLevelResult, const double startTime, const std::size_t orderTimeDerivative);
 
         /// \brief Integrate the square of some norm of the error on a single element.
-        virtual LinearAlgebra::NumericalVector integrateErrorAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
-        {
-            logger(ERROR, "No function for computing the error at an element implemented.");
-            LinearAlgebra::NumericalVector errorAtElement(1);
-            return errorAtElement;
-        }
+        virtual LinearAlgebra::NumericalVector integrateErrorAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
         
-        /// \brief Compute the norm of the total error.
+        /// \brief Compute the (weighted) L2-norm of the error.
         double computeTotalError(const std::size_t solutionTimeLevel, const double time);
         
         /// \brief Compute the right-hand side corresponding to an element
         virtual LinearAlgebra::NumericalVector computeRightHandSideAtElement
         (
-         const Base::Element *ptrElement,
+         Base::Element *ptrElement,
          LinearAlgebra::NumericalVector &solutionCoefficients,
          const double time,
          const std::size_t orderTimeDerivative
@@ -149,7 +149,7 @@ namespace Base
         /// \brief Compute the right-hand side corresponding to a face
         virtual LinearAlgebra::NumericalVector computeRightHandSideAtFace
         (
-         const Base::Face *ptrFace,
+         Base::Face *ptrFace,
          const Base::Side side,
          LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
          LinearAlgebra::NumericalVector &solutionCoefficientsRight,
@@ -236,6 +236,12 @@ namespace Base
         
         /// String of variable names. The string should have the form "nameVar1,nameVar2,..,nameVarN".
         std::string variableNames_;
+        
+        /// Integrator for the elements
+        Integration::ElementIntegral elementIntegrator_;
+        
+        /// Integrator for the faces
+        Integration::FaceIntegral faceIntegrator_;
     };
 }
 
