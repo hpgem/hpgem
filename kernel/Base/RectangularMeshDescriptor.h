@@ -42,7 +42,7 @@ namespace Base
 
         //The order of the dimensions are x = 0, y = 1, z = 2.
         std::vector<std::size_t> numElementsInDIM_;
-        std::vector<Boundary> boundaryConditions_;
+        std::vector<BoundaryType> boundaryConditions_;
     };
 
 }

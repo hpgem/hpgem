@@ -146,16 +146,16 @@ int main(int argc, char** argv)
     description3D.topRight_[0] = 1;
     description3D.topRight_[1] = 1;
     description3D.topRight_[2] = 1;
-    description1D.boundaryConditions_[0] = Base::Boundary::SOLID_WALL;
-    description2D.boundaryConditions_[0] = Base::Boundary::SOLID_WALL;
-    description2D.boundaryConditions_[1] = Base::Boundary::SOLID_WALL;
-    description3D.boundaryConditions_[0] = Base::Boundary::SOLID_WALL;
-    description3D.boundaryConditions_[1] = Base::Boundary::SOLID_WALL;
-    description3D.boundaryConditions_[2] = Base::Boundary::SOLID_WALL;
+    description1D.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
+    description2D.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
+    description2D.boundaryConditions_[1] = Base::BoundaryType::SOLID_WALL;
+    description3D.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
+    description3D.boundaryConditions_[1] = Base::BoundaryType::SOLID_WALL;
+    description3D.boundaryConditions_[2] = Base::BoundaryType::SOLID_WALL;
     
     description1D.numElementsInDIM_[0] = 2;
     //1D triangular meshes dont exist
-    Base::MeshManipulator *test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 1), Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, 2, 0);
+    Base::MeshManipulator *test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet1DH1Line(2));
@@ -163,7 +163,7 @@ int main(int argc, char** argv)
     
     delete test;
     description1D.numElementsInDIM_[0] = 3;
-    test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 1), Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, 2, 0);
+    test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet1DH1Line(2));
@@ -175,7 +175,7 @@ int main(int argc, char** argv)
     description2D.numElementsInDIM_[0] = 2;
     description2D.numElementsInDIM_[1] = 3;
     
-    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, 2, 0);
+    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
     
     testMesh(test);
@@ -183,7 +183,7 @@ int main(int argc, char** argv)
     testMesh(test);
     
     delete test;
-    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, 2, 0);
+    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
@@ -193,7 +193,7 @@ int main(int argc, char** argv)
     description2D.numElementsInDIM_[0] = 3;
     description2D.numElementsInDIM_[1] = 2;
     
-    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, 2, 0);
+    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
     
     testMesh(test);
@@ -201,7 +201,7 @@ int main(int argc, char** argv)
     testMesh(test);
     
     delete test;
-    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, 2, 0);
+    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
@@ -214,7 +214,7 @@ int main(int argc, char** argv)
     description3D.numElementsInDIM_[2] = 3;
     
     Base::ConfigurationData* configData = new Base::ConfigurationData(3, 1, 3, 1);
-    test = new Base::MeshManipulator(configData, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, 3, 0);
+    test = new Base::MeshManipulator(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 3, 0);
     test->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     
     testMesh(test);
@@ -225,7 +225,7 @@ int main(int argc, char** argv)
     delete configData;
     
     configData = new Base::ConfigurationData(3, 1, 2, 1);
-    test = new Base::MeshManipulator(configData, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, 2, 0);
+    test = new Base::MeshManipulator(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
@@ -239,7 +239,7 @@ int main(int argc, char** argv)
     description3D.numElementsInDIM_[2] = 2;
     
     configData = new Base::ConfigurationData(3, 1, 3, 1);
-    test = new Base::MeshManipulator(configData, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, 3, 0);
+    test = new Base::MeshManipulator(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 3, 0);
     test->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     
     testMesh(test);
@@ -250,7 +250,7 @@ int main(int argc, char** argv)
     delete configData;
     
     configData = new Base::ConfigurationData(3, 1, 2, 1);
-    test = new Base::MeshManipulator(configData, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, 2, 0);
+    test = new Base::MeshManipulator(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
@@ -264,7 +264,7 @@ int main(int argc, char** argv)
     description3D.numElementsInDIM_[2] = 2;
     
     configData = new Base::ConfigurationData(3, 1, 3, 1);
-    test = new Base::MeshManipulator(configData, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, 3, 0);
+    test = new Base::MeshManipulator(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 3, 0);
     test->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     
     testMesh(test);
@@ -275,7 +275,7 @@ int main(int argc, char** argv)
     delete configData;
     
     configData = new Base::ConfigurationData(3, 1, 2, 1);
-    test = new Base::MeshManipulator(configData, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, Base::Boundary::SOLID_WALL, 2, 0);
+    test = new Base::MeshManipulator(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));

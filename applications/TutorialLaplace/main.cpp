@@ -89,10 +89,10 @@ public:
             //squares can be divided in two triangles each if a triangular mesh is desired.
             description.numElementsInDIM_[i] = n_;
             //define whether you have periodic boundary conditions or a solid wall in this direction.
-            description.boundaryConditions_[i] = Base::Boundary::SOLID_WALL;
+            description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
         }
         //Make a triangular mesh from the mesh descriptor. 
-        addMesh(description, Base::TRIANGULAR, 1, 1, 1, 1);
+        addMesh(description, Base::MeshType::TRIANGULAR, 1, 1, 1, 1);
         //On this mesh, make the default basisfunctions the standard DG basisfunctions on a triangle.
         meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(p_));
         return true;

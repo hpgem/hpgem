@@ -30,11 +30,6 @@
 #include <vector>
 #include <iostream>
 
-namespace Geometry
-{
-    class PointReference;
-}
-
 namespace QuadratureRules
 {
     class GaussQuadratureRule;
@@ -48,7 +43,7 @@ namespace Base
     class BasisFunctionSet;
     class ElementCacheData;
     class BaseBasisFunction;
-    
+
     class Element : public Geometry::ElementGeometry, public ElementData
     {
     public:

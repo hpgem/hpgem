@@ -122,21 +122,21 @@ bool HEuler::initialiseMesh()
     
     if (config->solutionType_ == HEulerConfigurationData::COMPRESSIBLE_WALLS || config->solutionType_ == HEulerConfigurationData::INCOMPRESSIBLE_WALLS)
     {
-        rectangularMesh.boundaryConditions_[0] = Base::Boundary::SOLID_WALL;
-        rectangularMesh.boundaryConditions_[1] = Base::Boundary::SOLID_WALL;
-        rectangularMesh.boundaryConditions_[2] = Base::Boundary::SOLID_WALL;
+        rectangularMesh.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
+        rectangularMesh.boundaryConditions_[1] = Base::BoundaryType::SOLID_WALL;
+        rectangularMesh.boundaryConditions_[2] = Base::BoundaryType::SOLID_WALL;
     }
     else if (config->solutionType_ == HEulerConfigurationData::COMPRESSIBLE_PERIODIC || config->solutionType_ == HEulerConfigurationData::INCOMPRESSIBLE_PERIODIC)
     {
-        rectangularMesh.boundaryConditions_[0] = Base::Boundary::PERIODIC;
-        rectangularMesh.boundaryConditions_[1] = Base::Boundary::PERIODIC;
-        rectangularMesh.boundaryConditions_[2] = Base::Boundary::PERIODIC;
+        rectangularMesh.boundaryConditions_[0] = Base::BoundaryType::PERIODIC;
+        rectangularMesh.boundaryConditions_[1] = Base::BoundaryType::PERIODIC;
+        rectangularMesh.boundaryConditions_[2] = Base::BoundaryType::PERIODIC;
     }
     else if (config->solutionType_ == HEulerConfigurationData::INCOMPRESSIBLE_ONETHIRDPERIODIC)
     {
-        rectangularMesh.boundaryConditions_[0] = Base::Boundary::SOLID_WALL;
-        rectangularMesh.boundaryConditions_[1] = Base::Boundary::PERIODIC;
-        rectangularMesh.boundaryConditions_[2] = Base::Boundary::SOLID_WALL;
+        rectangularMesh.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
+        rectangularMesh.boundaryConditions_[1] = Base::BoundaryType::PERIODIC;
+        rectangularMesh.boundaryConditions_[2] = Base::BoundaryType::SOLID_WALL;
     }
     rectangularMesh.bottomLeft_[0] = 0;
     rectangularMesh.bottomLeft_[1] = 0;

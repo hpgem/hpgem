@@ -87,7 +87,7 @@ public:
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
             description.numElementsInDIM_[i] = n_;
-            description.boundaryConditions_[i] = Base::Boundary::SOLID_WALL;
+            description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
         }
         addMesh(description, type_, 1, 1, 1, 1);
         if (DIM_ == 1)
@@ -272,44 +272,44 @@ int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
     //no 3D testing due to speed related issues
-    Laplace test0(1, 2, 1, Base::RECTANGULAR);
+    Laplace test0(1, 2, 1, Base::MeshType::RECTANGULAR);
     test0.initialise();
     std::cout.precision(10);
     std::cout << test0.solve() << std::endl;
     logger.assert_always((std::abs(test0.solve() - 0.48478776) < 1e-8), "comparison to old results");
-    Laplace test1(2, 3, 1, Base::RECTANGULAR);
+    Laplace test1(2, 3, 1, Base::MeshType::RECTANGULAR);
     test1.initialise();
     std::cout << test1.solve() << std::endl;
     logger.assert_always((std::abs(test1.solve() - 0.02225892) < 1e-8), "comparison to old results");
-    Laplace test2(4, 4, 1, Base::RECTANGULAR);
+    Laplace test2(4, 4, 1, Base::MeshType::RECTANGULAR);
     test2.initialise();
     std::cout << test2.solve() << std::endl;
     logger.assert_always((std::abs(test2.solve() - 0.00008248) < 1e-8), "comparison to old results");
-    Laplace test3(8, 5, 1, Base::RECTANGULAR);
+    Laplace test3(8, 5, 1, Base::MeshType::RECTANGULAR);
     test3.initialise();
     std::cout << test3.solve() << std::endl;
     logger.assert_always((std::abs(test3.solve() - 0.00000008) < 1e-8), "comparison to old results");
-    Laplace test4(16, 1, 1, Base::RECTANGULAR);
+    Laplace test4(16, 1, 1, Base::MeshType::RECTANGULAR);
     test4.initialise();
     std::cout << test4.solve() << std::endl;
     logger.assert_always((std::abs(test4.solve() - 0.00904309) < 1e-8), "comparison to old results");
-    Laplace test5(1, 2, 2, Base::TRIANGULAR);
+    Laplace test5(1, 2, 2, Base::MeshType::TRIANGULAR);
     test5.initialise();
     std::cout << test5.solve() << std::endl;
     logger.assert_always((std::abs(test5.solve() - 0.21870166) < 1e-8), "comparison to old results");
-    Laplace test6(2, 3, 2, Base::TRIANGULAR);
+    Laplace test6(2, 3, 2, Base::MeshType::TRIANGULAR);
     test6.initialise();
     std::cout << test6.solve() << std::endl;
     logger.assert_always((std::abs(test6.solve() - 0.02345377) < 1e-8), "comparison to old results");
-    Laplace test7(4, 4, 2, Base::TRIANGULAR);
+    Laplace test7(4, 4, 2, Base::MeshType::TRIANGULAR);
     test7.initialise();
     std::cout << test7.solve() << std::endl;
     logger.assert_always((std::abs(test7.solve() - 0.00039351) < 1e-8), "comparison to old results");
-    Laplace test8(8, 5, 2, Base::TRIANGULAR);
+    Laplace test8(8, 5, 2, Base::MeshType::TRIANGULAR);
     test8.initialise();
     std::cout << test8.solve() << std::endl;
     logger.assert_always((std::abs(test8.solve() - 0.00000066) < 1e-8), "comparison to old results");
-    Laplace test9(16, 1, 2, Base::TRIANGULAR);
+    Laplace test9(16, 1, 2, Base::MeshType::TRIANGULAR);
     test9.initialise();
     std::cout << test9.solve() << std::endl;
     logger.assert_always((std::abs(test9.solve() - 0.00911139) < 1e-8), "comparison to old results");

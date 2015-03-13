@@ -174,7 +174,7 @@ namespace Base
         collBasisFSet_[0] = bFset1;
     }
     
-    MeshManipulator::MeshManipulator(const ConfigurationData* config, Boundary xPer, Boundary yPer, Boundary zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrtixes, std::size_t nrOfFaceVectors)
+    MeshManipulator::MeshManipulator(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrtixes, std::size_t nrOfFaceVectors)
             : configData_(config),
             //activeMeshTree_(0),
             //numMeshTree_(0),
@@ -185,9 +185,9 @@ namespace Base
         logger.assert(idRangeBegin==0, "c++ starts counting at 0");
         logger(INFO, "******Mesh creation started!**************");
         std::size_t DIM = configData_->dimension_;
-        periodicX_ = (xPer == Boundary::PERIODIC);
-        periodicY_ = (yPer == Boundary::PERIODIC);
-        periodicZ_ = (zPer == Boundary::PERIODIC);
+        periodicX_ = (xPer == BoundaryType::PERIODIC);
+        periodicY_ = (yPer == BoundaryType::PERIODIC);
+        periodicZ_ = (zPer == BoundaryType::PERIODIC);
         for (std::size_t i = 0; i < DIM; ++i)
         {
             if (i == 0)

@@ -71,13 +71,13 @@ public:
             //once we decide what names of boundary conditions to support
             //it will become possible to appropriate boundary conditions
             //for your problem here
-            description.boundaryConditions_[i] = Base::Boundary::SOLID_WALL;
+            description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
         }
         
         //create a triangular mesh. The four magic ones that are passed to this function
         //specify the number of element matrices, the number of element vectors,
         //the number of face matrices and the number of face vectors (in that order)
-        addMesh(description, Base::TRIANGULAR, 1, 1, 1, 1);
+        addMesh(description, Base::MeshType::TRIANGULAR, 1, 1, 1, 1);
         
         //tell hpGEM to use basis functions that are discontinuous and are designed for triangles
         //this is likely to get automated by hpGEM at some point in the future

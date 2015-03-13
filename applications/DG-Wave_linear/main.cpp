@@ -49,12 +49,12 @@ public:
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
             description.numElementsInDIM_[i] = n_;
-            description.boundaryConditions_[i] = Base::Boundary::PERIODIC;
+            description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
         }
         description.topRight_[DIM - 1] = -1;
         description.numElementsInDIM_[DIM - 1] /= 8;
-        description.boundaryConditions_[DIM - 1] = Base::Boundary::SOLID_WALL;
-        addMesh(description, Base::RECTANGULAR, 1, 1, 1, 1);
+        description.boundaryConditions_[DIM - 1] = Base::BoundaryType::SOLID_WALL;
+        addMesh(description, Base::MeshType::RECTANGULAR, 1, 1, 1, 1);
         meshes_[0]->setDefaultBasisFunctionSet(Utilities::createInteriorBasisFunctionSet2DH1Square(p_));
         std::vector<const Base::BasisFunctionSet*> bFsets;
         bFsets = Utilities::createVertexBasisFunctionSet2DH1Square(p_);

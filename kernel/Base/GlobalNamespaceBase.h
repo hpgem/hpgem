@@ -24,16 +24,16 @@
 
 namespace Base
 {
-    enum MeshType
+    enum class MeshType
     {
         RECTANGULAR, TRIANGULAR
     };
     
     
-        enum class Boundary
-        {
-            SOLID_WALL, PERIODIC
-        };
+    enum class BoundaryType
+    {
+        SOLID_WALL, PERIODIC
+    };
 
 }
 

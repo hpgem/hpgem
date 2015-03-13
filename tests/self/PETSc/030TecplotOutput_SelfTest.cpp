@@ -85,7 +85,7 @@ public:
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
             description.numElementsInDIM_[i] = n_;
-            description.boundaryConditions_[i] = Base::Boundary::SOLID_WALL;
+            description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
         }
         addMesh(description, type_, 1, 1, 1, 1);
         return true;
@@ -231,7 +231,7 @@ public:
 int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
-    Laplace test8(8, 5, 2, Base::TRIANGULAR);
+    Laplace test8(8, 5, 2, Base::MeshType::TRIANGULAR);
     test8.initialise();
     test8.solve();
     //actual test is done by comparing output files
