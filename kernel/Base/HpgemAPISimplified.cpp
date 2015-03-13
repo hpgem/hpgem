@@ -65,12 +65,20 @@ namespace Base
      const std::size_t numOfTimeLevels
      ) :
     HpgemAPIBase(new Base::GlobalData, new Base::ConfigurationData(dimension, numOfVariables, polynomialOrder, (ptrButcherTableau->getNumStages() + 1 > numOfTimeLevels) ? ptrButcherTableau->getNumStages() + 1 : numOfTimeLevels)),
-    ptrButcherTableau_(ptrButcherTableau)
+    ptrButcherTableau_(ptrButcherTableau),
+    outputFileName_("output"),
+    internalFileTitle_("output"),
+    solutionTitle_("solution")
     {
         solutionTimeLevel_ = 0;
         for (std::size_t i = 1; i < configData_->numberOfTimeLevels_; i++)
         {
             intermediateTimeLevels_.push_back(i);
+        }
+        for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV++)
+        {
+            std::string variableName = "variable" + std::to_string(iV);
+            variableNames_.push_back(variableName);
         }
     }
     
@@ -538,14 +546,9 @@ namespace Base
     /// \param[in] internalFileTitle Title of the file as used by Tecplot internally.
     /// \param[in] solutionTitle Title of the solution.
     /// \param[in] variableNames String of variable names. The string should have the form "nameVar1,nameVar2,..,nameVarN".
-    void HpgemAPISimplified::setOutputNames(std::string outputFileName, std::string internalFileTitle, std::string solutionTitle, std::string variableNames)
+    void HpgemAPISimplified::setOutputNames(std::string outputFileName, std::string internalFileTitle, std::string solutionTitle, std::vector<std::string> variableNames)
     {
         outputFileName_ = outputFileName;
-#ifdef HPGEM_USE_MPI
-        outputFileName_ = outputFileName_ + "." + std::to_string(Base::MPIContainer::Instance().getProcessorID());
-#endif
-        outputFileName_ = outputFileName_ + ".dat";
-        
         internalFileTitle_ = internalFileTitle;
         solutionTitle_ = solutionTitle;
         variableNames_ = variableNames;
@@ -566,6 +569,14 @@ namespace Base
         }
     }
     
+    void HpgemAPISimplified::registerVTKWriteFunctions()
+    {
+        for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV++)
+        {
+            registerVTKWriteFunction([=](Base::Element* element, const Geometry::PointReference& pRef, std::size_t timeLevel) -> double{ return element->getSolution(timeLevel, pRef)[iV];}, variableNames_[iV]);
+        }
+    }
+    
     /// \brief Solve the PDE over the time domain [intialTime, finalTime].
     /// \param[in] intialTime Initial time
     /// \param[in] finalTime End time
@@ -574,14 +585,31 @@ namespace Base
     /// \param[in] doComputeError Boolean to indicate if the error should be computed.
     bool HpgemAPISimplified::solve(const double intialTime, const double finalTime, double dt, const std::size_t numOfOutputFrames, bool doComputeError)
     {
-        // Create output file for Tecplot.
-        std::ofstream outFile(outputFileName_);
+        // Create output files for Paraview.
+        std::string outputFileNameVTK = outputFileName_;
+        
+        registerVTKWriteFunctions();
+        Output::VTKTimeDependentWriter VTKWriter(outputFileNameVTK, meshes_[0]);
+        
+        // Create output files for Tecplot.
+#ifdef HPGEM_USE_MPI
+        std::string outputFileName = outputFileName_ + "." + std::to_string(Base::MPIContainer::Instance().getProcessorID());
+#endif
+        std::string outputFileNameTecplot = outputFileName + ".dat";
         std::string dimensionsToWrite = "";
         for(std::size_t i = 0; i < configData_->dimension_; i++)
         {
             dimensionsToWrite = dimensionsToWrite + std::to_string(i);
         }
-        Output::TecplotDiscontinuousSolutionWriter tecplotWriter(outFile, solutionTitle_, dimensionsToWrite, variableNames_);
+        
+        std::string variableString = variableNames_[0];
+        for(std::size_t iV = 1; iV < variableNames_.size(); iV++)
+        {
+            variableString = variableString + "," + variableNames_[iV];
+        }
+        
+        std::ofstream outputFile(outputFileNameTecplot);
+        Output::TecplotDiscontinuousSolutionWriter tecplotWriter(outputFile, solutionTitle_, dimensionsToWrite, variableString);
         
         // Compute parameters for time integration
         double T = finalTime - intialTime;     // Time interval
@@ -609,6 +637,7 @@ namespace Base
         logger(INFO, "Computing and interpolating the initial solution.");
         setInitialSolution(solutionTimeLevel_, time, 0);
         tecplotWriter.write(meshes_[0], "discontinuous solution", false, this, time);
+        VTKWrite(VTKWriter, time, solutionTimeLevel_);
         
         // Solve the system of PDE's.
         logger(INFO,"Solving the system of PDE's.");
@@ -622,6 +651,7 @@ namespace Base
             if (iT % numOfTimeStepsForOutput == 0)
             {
                 tecplotWriter.write(meshes_[0], solutionTitle_, false, this, time);
+                VTKWrite(VTKWriter, time, solutionTimeLevel_);
             }
             showProgress(time, iT);
         }

@@ -50,14 +50,12 @@ int main(int argc, char **argv)
         const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
         const double c = 1.0;
         
-        std::string variableString;
-        if (dimension == 2)
+        std::vector<std::string> variableNames;
+        variableNames.push_back("v");
+        for(std::size_t i = 0; i < dimension; i++)
         {
-            variableString = "v,s0,s1";
-        }
-        else if (dimension == 3)
-        {
-            variableString = "v,s0,s1,s2";
+            std::string variableName = "s" + std::to_string(i);
+            variableNames.push_back(variableName);
         }
         
         // Compute parameters for PDE
@@ -75,7 +73,7 @@ int main(int argc, char **argv)
             test.setMaterialParameter(c);
             
             // Set the names for the output file
-            test.setOutputNames("output","acousticWaveLinear","acousticWaveLinear",variableString);
+            test.setOutputNames("output", "acousticWaveLinear", "acousticWaveLinear", variableNames);
             
             // Solve the problem over time interval [startTime,endTime].
             test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
@@ -92,7 +90,7 @@ int main(int argc, char **argv)
             test.setMaterialParameter(c);
             
             // Set the names for the output file
-            test.setOutputNames("output","acousticWave","acousticWave",variableString);
+            test.setOutputNames("output","acousticWave","acousticWave",variableNames);
             
             // Solve the problem over time interval [startTime,endTime].
             test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);

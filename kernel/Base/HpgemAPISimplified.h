@@ -193,10 +193,29 @@ namespace Base
         virtual void computeOneTimeStep(double &time, const double dt);
         
         /// \brief Set output names.
-        void setOutputNames(std::string outputFileName, std::string internalFileTitle, std::string solutionTitle, std::string variableNames);
+        void setOutputNames(std::string outputFileName, std::string internalFileTitle, std::string solutionTitle, std::vector<std::string> variableNames);
         
         /// \brief Write output to a tecplot file.
         virtual void writeToTecplotFile(const ElementT *ptrElement, const PointReferenceT &pRef, std::ostream &out) override;
+        
+        /// \brief Define how the solution should be written in the VTK files.
+        /// \details For an example of using this function, see for example the application 'TutorialAdvection' to find out how to use this function.
+        void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        {
+            VTKDoubleWrite_.push_back( {function, name});
+        }
+        
+        void registerVTKWriteFunction(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        {
+            VTKVectorWrite_.push_back( {function, name});
+        }
+        
+        void registerVTKWriteFunction(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        {
+            VTKMatrixWrite_.push_back( {function, name});
+        }
+        
+        virtual void registerVTKWriteFunctions();
         
         /// \brief Show the progress of the time integration.
         virtual void showProgress(const double time, const std::size_t timeStepID)
@@ -234,14 +253,37 @@ namespace Base
         /// Title of the solution
         std::string solutionTitle_;
         
-        /// String of variable names. The string should have the form "nameVar1,nameVar2,..,nameVarN".
-        std::string variableNames_;
+        /// Vector of variable names.
+        std::vector<std::string> variableNames_;
         
         /// Integrator for the elements
         Integration::ElementIntegral elementIntegrator_;
         
         /// Integrator for the faces
         Integration::FaceIntegral faceIntegrator_;
+        
+    private:
+        void VTKWrite(Output::VTKTimeDependentWriter& out, double t, std::size_t timeLevel)
+        {
+            //you would say this could be done more efficiently, but p.first has different types each time
+            for (auto p : VTKDoubleWrite_)
+            {
+                out.write(p.first, p.second, t, timeLevel);
+            }
+            for (auto p : VTKVectorWrite_)
+            {
+                out.write(p.first, p.second, t, timeLevel);
+            }
+            for (auto p : VTKMatrixWrite_)
+            {
+                out.write(p.first, p.second, t, timeLevel);
+            }
+        }
+        
+        std::vector<std::pair<std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKDoubleWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKVectorWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKMatrixWrite_;
+        
     };
 }
 
