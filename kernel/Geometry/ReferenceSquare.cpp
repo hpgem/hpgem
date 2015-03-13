@@ -127,7 +127,7 @@ namespace Geometry
                 else if (list1[3] == list2[3])
                     return 7;
                 else
-                    throw "ERROR: reference square indexes where given in impossible order.";
+                    logger(FATAL, "reference square indexes were given in impossible order.\n");
             }
             else if (list1[0] == list2[1])
             {
@@ -136,7 +136,7 @@ namespace Geometry
                 else if (list1[1] == list2[3])
                     return 3;
                 else
-                    throw "ERROR: reference square indexes where given in impossible order.";
+                    logger(FATAL, "reference square indexes were given in impossible order.\n");
             }
             else if (list1[0] == list2[2])
             {
@@ -145,7 +145,7 @@ namespace Geometry
                 else if (list1[2] == list2[3])
                     return 1;
                 else
-                    throw "ERROR: reference square indexes where given in impossible order.";
+                    logger(FATAL, "reference square indexes were given in impossible order.\n");
             }
             else
             {
@@ -154,56 +154,39 @@ namespace Geometry
                 else if (list1[1] == list2[2])
                     return 2;
                 else
-                    throw "ERROR: reference square indexes where given in impossible order.";
+                    logger(FATAL, "reference square indexes were given in impossible order.\n");
             }
         }
         else
         {
-            throw "ERROR: number of nodes of reference square was larger than 4.";
+            logger(FATAL, "Number of nodes of reference square was larger than 4. \n");
         }
+        return 0;
     }
     
     const MappingReferenceToReference*
     ReferenceSquare::getCodim0MappingPtr(const std::size_t i) const
     {
-        if (i < 8)
-        {
-            return mappingsSquareToSquare_[i];
-        }
-        else
-        {
-            throw "ERROR: Asked for a mappingSquareToSquare larger than 7. There are only 8!";
-        }
+        logger.assert((i < 8), "ERROR: Asked for a mappingSquareToSquare larger than 7. There are only 8.\n");
+        return mappingsSquareToSquare_[i];
     }
     // ================================== Codimension 1 ============================================
     std::vector<std::size_t> ReferenceSquare::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
-        logger.assert(faceIndex < 4, "A square has only 4 edges, while edge % is requested", faceIndex);
+        logger.assert(faceIndex < 4, "ERROR: A square has only 4 edges, while edge % is requested", faceIndex);
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 2);
     }
     
     const ReferenceGeometry* ReferenceSquare::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        if (faceIndex < 4)
-        {
-            return referenceGeometryCodim1Ptr_;
-        }
-        else
-        {
-            throw "ERROR: Asked for a square face index larger than 3. There are only 4 faces in a square!";
-        }
+        logger.assert((faceIndex < 4), "ERROR: Asked for a square face index larger than 3. There are only 4 faces in a square.\n");
+        return referenceGeometryCodim1Ptr_;
     }
     const MappingReferenceToReference*
     ReferenceSquare::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        if (faceIndex < 4)
-        {
-            return mappingsLineToSquare_[faceIndex];
-        }
-        else
-        {
-            throw "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square!";
-        }
+        logger.assert((faceIndex < 4), "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square.\n");
+        return mappingsLineToSquare_[faceIndex];
     }
     
     const ReferenceGeometry* ReferenceSquare::getCodim2ReferenceGeometry(const std::size_t) const
