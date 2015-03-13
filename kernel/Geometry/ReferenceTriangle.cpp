@@ -140,21 +140,16 @@ namespace Geometry
         }
         else
         {
-            throw "ERROR: number of nodes of reference triangle was larger than 3.";
+            logger(ERROR, "number of nodes of reference triangle was larger than 3.\n");
         }
+        return 0;
     }
     
     const MappingReferenceToReference*
     ReferenceTriangle::getCodim0MappingPtr(const std::size_t i) const
     {
-        if (i < 6)
-        {
-            return mappingsTriangleToTriangle_[i];
-        }
-        else
-        {
-            throw "ERROR: Asked for a mappingTriangleToTriangle larger than 5. There are only 6!";
-        }
+        logger.assert((i < 6), "ERROR: Asked for a mappingTriangleToTriangle larger than 5. There are only 6.\n");
+        return mappingsTriangleToTriangle_[i];
     }
     // ================================== Codimension 1 ============================================
     std::vector<std::size_t> ReferenceTriangle::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
@@ -165,26 +160,14 @@ namespace Geometry
     
     const ReferenceGeometry* ReferenceTriangle::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        if (faceIndex < 3)
-        {
-            return referenceGeometryCodim1Ptr_;
-        }
-        else
-        {
-            throw "ERROR: Asked for a triangle face index larger than 2. There are only 3 faces in a triangle!";
-        }
+        logger.assert((faceIndex < 3), "ERROR: Asked for a triangle face index larger than 2. There are only 3 faces in a triangle.\n");
+        return referenceGeometryCodim1Ptr_;
     }
     const MappingReferenceToReference*
     ReferenceTriangle::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        if (faceIndex < 3)
-        {
-            return mappingsLineToTriangle_[faceIndex];
-        }
-        else
-        {
-            throw "ERROR: Asked for a triangle point index larger than 3. There are only 3 nodes in a triangle!";
-        }
+        logger.assert((faceIndex < 3), "ERROR: Asked for a triangle point index larger than 3. There are only 3 nodes in a triangle.\n");
+        return mappingsLineToTriangle_[faceIndex];
     }
     
     const ReferenceGeometry* ReferenceTriangle::getCodim2ReferenceGeometry(const std::size_t) const

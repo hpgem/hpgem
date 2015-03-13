@@ -115,103 +115,69 @@ namespace Geometry
     
     std::size_t ReferenceTetrahedron::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
-        /// \TODO: Implement tetrahedron to tetrahedron mappings.
-        throw "ERROR: Tetrahedron to tetrahedron mappings do not exist";
+        logger(FATAL, "Tetrahedron to tetrahedron mappings do not exist.\n");
+        return 0;
     }
     
     const MappingReferenceToReference*
     ReferenceTetrahedron::getCodim0MappingPtr(const std::size_t i) const
     {
         /// \TODO: Implement tetrahedron to tetrahedron mappings.
-        throw "ERROR: Tetrahedron to tetrahedron mappings do not exist";
+        logger(FATAL, "ERROR: Tetrahedron to tetrahedron mappings do not exist.\n");
+        return 0;
     }
     
     // ================================== Codimension 1 ============================================
     
     std::vector<std::size_t> ReferenceTetrahedron::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
-        if (faceIndex < 4)
-        {
-            return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 3);
-        }
-        else
-        {
-            throw "ERROR: Index out of range. Tetrahedron has only 3 faces.";
-        }
+        logger.assert((faceIndex < 4), "ERROR: Index out of range. Tetrahedron has only 3 faces.\n");
+        return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 3);
     }
     
     const ReferenceGeometry*
     ReferenceTetrahedron::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        if (faceIndex < 4)
-        {
-            return referenceGeometryCodim1Ptr_;
-        }
-        else
-        {
-            throw "ERROR: Index out of range. Tetrahedron has only 3 faces.";
-        }
+        logger.assert((faceIndex < 4), "ERROR: Index out of range. Tetrahedron has only 3 faces.\n");
+        return referenceGeometryCodim1Ptr_;
     }
     
     const MappingReferenceToReference*
     ReferenceTetrahedron::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        if (faceIndex < 4)
-        {
-            return mappingsTriangleToTetrahedron_[faceIndex];
-        }
-        else
-        {
-            throw "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square!";
-        }
+        logger.assert((faceIndex < 4), "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square.\n");
+        return mappingsTriangleToTetrahedron_[faceIndex];
     }
     
     // ================================== Codimension 2 ============================================
     
     std::vector<std::size_t> ReferenceTetrahedron::getCodim2EntityLocalIndices(const std::size_t edgeIndex) const
     {
-        if (edgeIndex < 6)
-        {
-            return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex], localNodesOnEdge_[edgeIndex] + 2);
-        }
-        else
-        {
-            throw "ERROR: Index out of range. Tetrahedron has only 6 edges.";
-        }
+        logger.assert((edgeIndex < 6), "ERROR: Index out of range. Tetrahedron has only 6 edges.\n");
+        return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex], localNodesOnEdge_[edgeIndex] + 2);
     }
     
     const ReferenceGeometry*
     ReferenceTetrahedron::getCodim2ReferenceGeometry(const std::size_t edgeIndex) const
     {
-        if (edgeIndex < 6)
-        {
-            return referenceGeometryCodim2Ptr_;
-        }
-        else
-        {
-            throw "ERROR: Index out of range. Tetrahedron has only 6 edges.";
-        }
+        logger.assert((edgeIndex < 6), "ERROR: Index out of range. Tetrahedron has only 6 edges.\n");
+        return referenceGeometryCodim2Ptr_;
     }
     
     const MappingReferenceToReference*
     ReferenceTetrahedron::getCodim2MappingPtr(const std::size_t faceIndex) const
     {
         /// \TODO: Implement line to tetrahedron mappings.
-        throw "ERROR: Line to tetrahedron mappings do not exist";
+        logger(FATAL, "ERROR: Line to tetrahedron mappings do not exist.\n");
+        return 0;
     }
     
     // ================================== Codimension 3 ============================================
     
     std::vector<std::size_t> ReferenceTetrahedron::getCodim3EntityLocalIndices(const std::size_t nodeIndex) const
     {
-        if (nodeIndex < 4)
-        {
-            return std::vector<std::size_t>(1, nodeIndex);
-        }
-        else
-        {
-            throw "ERROR: Index out of range. Tetrahedron has only 4 nodes.";
-        }
+        logger.assert((nodeIndex < 4), "ERROR: Index out of range. Tetrahedron has only 4 nodes.\n");
+        return std::vector<std::size_t>(1, nodeIndex);
     }
 
 }
