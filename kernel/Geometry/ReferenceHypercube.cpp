@@ -174,13 +174,15 @@ namespace Geometry
     
     std::size_t ReferenceHypercube::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
-        throw "ReferenceCube::getCodim0MappingIndex not implemented";
+        logger(FATAL, "ReferenceCube::getCodim0MappingIndex not implemented.\n");
+        return 0;
     }
     
     const MappingReferenceToReference*
     ReferenceHypercube::getCodim0MappingPtr(const std::size_t i) const
     {
-        throw "ReferenceCube::getCodim0MappingPtr not implemented";
+        logger(FATAL, "ReferenceCube::getCodim0MappingPtr not implemented.\n");
+        return 0;
     }
     
     // ================================== Codimension 1 ============================================
@@ -188,14 +190,8 @@ namespace Geometry
     const MappingReferenceToReference*
     ReferenceHypercube::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        if (faceIndex < 8)
-        {
-            return mappingsCubeToHypercube_[faceIndex];
-        }
-        else
-        {
-            throw "ERROR: ReferenceHypercube::getCodim1MappingPtr requested face index does not exist";
-        }
+        logger.assert((faceIndex < 8), "ERROR: ReferenceHypercube::getCodim1MappingPtr requested face index does not exist.\n");
+        return mappingsCubeToHypercube_[faceIndex];
     }
     
     const ReferenceGeometry*
@@ -207,14 +203,8 @@ namespace Geometry
     
     std::vector<std::size_t> ReferenceHypercube::getCodim1EntityLocalIndices(const std::size_t i) const
     {
-        if (i < 8)
-        {
-            return std::vector<std::size_t>(localNodeIndexes_[i], localNodeIndexes_[i] + 8);
-        }
-        else
-        {
-            throw "ERROR: ReferenceHypercube::getCodim1EntityLocalIndices requested face index does not exist";
-        }
+        logger.assert((i<8), "ERROR: ReferenceHypercube::getCodim1EntityLocalIndices requested face index does not exist.\n");
+        return std::vector<std::size_t>(localNodeIndexes_[i], localNodeIndexes_[i] + 8);
         
     }
     
@@ -224,47 +214,33 @@ namespace Geometry
     ReferenceHypercube::getCodim2MappingPtr(const std::size_t lineIndex) const
     {
         /// TODO: Implement face to hypercube mappings.
-        throw "ERROR: ReferenceHypercube::getCodim2MappingPtr: face to hypercube mappings not implemented";
+        logger(FATAL, "ERROR: ReferenceHypercube::getCodim2MappingPtr: face to hypercube mappings not implemented.\n");
+        return 0;
     }
     
     const ReferenceGeometry*
     ReferenceHypercube::getCodim2ReferenceGeometry(const std::size_t e) const
     {
-        if (e < 24)
-        {
-            return referenceGeometryCodim2Ptr_;
-        }
-        else
-        {
-            throw "ERROR: ReferenceHypercube::getCodim2ReferenceGeometry requested side index does not exist";
-        }
+        logger.assert((e < 24), "ERROR: ReferenceHypercube::getCodim2ReferenceGeometry requested side index does not exist.\n");
+        return referenceGeometryCodim2Ptr_;
     }
     
     std::vector<std::size_t> ReferenceHypercube::getCodim2EntityLocalIndices(const std::size_t i) const
     {
-        if (i < 24)
-        {
-            throw "ReferenceHypercube::getCodim2EntityLocalIndices: not implemented";
-        }
-        else
-        {
-            throw "ReferenceHypercube::getCodim2EntityLocalIndices requested side index does not exist";
-        }
+        logger.assert((i < 24), "ReferenceHypercube::getCodim2EntityLocalIndices: not implemented.\n");
+        logger(ERROR, "ReferenceHypercube::getCodim2EntityLocalIndices requested side index does not exist.\n");
+        std::vector<std::size_t> dummy(1);
+        return dummy;
     }
     
     // ================================== Codimension 3 ============================================
     
     std::vector<std::size_t> ReferenceHypercube::getCodim3EntityLocalIndices(const std::size_t i) const
     {
-        if (i < 32)
-        {
-            throw "ReferenceHypercube::getCodim3EntityLocalIndices not implemented";
-        }
-        else
-        {
-            throw "ReferenceHypercube::getCodim2EntityLocalIndices requested side index does not exist";
-        }
-        
+        logger.assert((i < 32), "ReferenceHypercube::getCodim3EntityLocalIndices not implemented.\n");
+        logger(ERROR, "ReferenceHypercube::getCodim2EntityLocalIndices requested side index does not exist.\n");
+        std::vector<std::size_t> dummy(1);
+        return dummy;
     }
 
 }
