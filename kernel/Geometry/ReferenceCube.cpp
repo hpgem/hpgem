@@ -98,14 +98,8 @@ namespace Geometry
     
     const PointReference& ReferenceCube::getNode(const std::size_t& i) const
     {
-        if (i < 8)
-        {
-            return points_[i];
-        }
-        else
-        {
-            throw "ERROR: Index is greater than the number of points";
-        }
+        logger.assert((i < 8), "ERROR: Index is greater than the number of points.\n");
+        return points_[i];
     }
     
     bool ReferenceCube::isInternalPoint(const PointReference& p) const
@@ -166,23 +160,17 @@ namespace Geometry
         }
         else
         {
-            throw "ERROR: Number of node indexes was different than 8 -> not a cube.";
+            logger(ERROR, "Number of node indexes was different than 8, so this is not a cube.\n");
         }
-        throw "ERROR: in ReferenceCube, we should not get to the end without returning!";
+        logger(ERROR, "in ReferenceCube, we should not get to the end without returning!. \n");
         return -1;
     }
     
     const MappingReferenceToReference*
     ReferenceCube::getCodim0MappingPtr(const std::size_t i) const
     {
-        if (i < 8)
-        {
-            return mappingsCubeToCube_[i];
-        }
-        else
-        {
-            throw "ERROR: Cube50";
-        }
+        logger.assert((i < 8), "ERROR: Cube50.\n");
+        return mappingsCubeToCube_[i];
     }
     
     // ================================== Codimension 1 ============================================
@@ -190,40 +178,21 @@ namespace Geometry
     const MappingReferenceToReference*
     ReferenceCube::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        if (faceIndex < 6)
-        {
-            return mappingsSquareToCube_[faceIndex];
-        }
-        else
-        {
-            throw "ERROR: Cube100";
-        }
+        logger.assert((faceIndex < 6), "Cube100.\n");
+        return mappingsSquareToCube_[faceIndex];
     }
     
     const ReferenceGeometry*
     ReferenceCube::getCodim1ReferenceGeometry(const std::size_t e) const
     {
-        if (e < 8)
-        {
-            return referenceGeometryCodim1Ptr_;
-        }
-        else
-        {
-            throw "ERROR: Cube150";
-        }
+        logger.assert((e < 8), "Cube150.\n");
+        return referenceGeometryCodim1Ptr_;
     }
     
     std::vector<std::size_t> ReferenceCube::getCodim1EntityLocalIndices(const std::size_t i) const
     {
-        if (i < 6)
-        {
-            return std::vector<std::size_t>(localNodeIndexes_[i], localNodeIndexes_[i] + 4);
-        }
-        else
-        {
-            throw "ERROR: Cube75";
-        }
-        
+        logger.assert((i < 6), "Cube75.\n");
+        return std::vector<std::size_t>(localNodeIndexes_[i], localNodeIndexes_[i] + 4);
     }
     
     // ================================== Codimension 2 ============================================
@@ -238,27 +207,14 @@ namespace Geometry
     const ReferenceGeometry*
     ReferenceCube::getCodim2ReferenceGeometry(const std::size_t e) const
     {
-        if (e < 12)
-        {
-            return referenceGeometryCodim2Ptr_;
-        }
-        else
-        {
-            throw "ERROR: Cube150";
-        }
+        logger.assert((e < 12), "Cube150.\n");
+        return referenceGeometryCodim2Ptr_;
     }
     
     std::vector<std::size_t> ReferenceCube::getCodim2EntityLocalIndices(const std::size_t i) const
     {
-        if (i < 12)
-        {
-            return std::vector<std::size_t>(localNodesOnEdge_[i], localNodesOnEdge_[i] + 2);
-        }
-        else
-        {
-            throw "ERROR: Cube200";
-        }
-        
+        logger.assert((i < 12), "Cube200.\n");
+        return std::vector<std::size_t>(localNodesOnEdge_[i], localNodesOnEdge_[i] + 2);
     }
     
     // =============================== Refinement mappings =====================================
@@ -460,7 +416,7 @@ namespace Geometry
                         break;
                         
                     case 2:
-                        std::cout << "gotcha!  this must be an error!  subelement-2 is a triangular-prism\n";
+                        logger(FATAL, "Subelement-2 is a triangular prism. \n");
                         break;
                 }
                 break;
@@ -486,7 +442,7 @@ namespace Geometry
                         break;
                         
                     case 2:
-                        std::cout << "gotcha!  this must be an error!  subelement-2 is a triangular-prism\n";
+                        logger(FATAL, "Subelement-2 is a triangular prism. \n");
                         break;
                 }
                 break;
