@@ -55,19 +55,15 @@ namespace QuadratureRules
     
     double Cn2_1_1::weight(std::size_t i) const
     {
-        if (i < 1)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     Cn2_1_1::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     Cn2_1_1::ReferenceGeometryT*
@@ -112,19 +108,15 @@ namespace QuadratureRules
     
     double Cn2_3_4::weight(std::size_t i) const
     {
-        if (i < 4)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     Cn2_3_4::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     Cn2_3_4::ReferenceGeometryT*
@@ -181,19 +173,15 @@ namespace QuadratureRules
     
     double Cn2_5_9::weight(std::size_t i) const
     {
-        if (i < 9)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     Cn2_5_9::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     Cn2_5_9::ReferenceGeometryT*
@@ -271,19 +259,15 @@ namespace QuadratureRules
     
     double C2_7_4::weight(std::size_t i) const
     {
-        if (i < 16)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     C2_7_4::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     C2_7_4::ReferenceGeometryT*
@@ -388,19 +372,15 @@ namespace QuadratureRules
     
     double C2_9_5::weight(std::size_t i) const
     {
-        if (i < 25)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     C2_9_5::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     C2_9_5::ReferenceGeometryT*
@@ -457,19 +437,15 @@ namespace QuadratureRules
     
     double C2_11_6::weight(std::size_t i) const
     {
-        if (i < 36)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     C2_11_6::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     C2_11_6::ReferenceGeometryT*
@@ -481,12 +457,12 @@ namespace QuadratureRules
     C2_11_6::C2_11_6()
             : name_("C2_11_6"), refGeoPtr_(&ReferenceSquare::Instance()), gp_(36, 2)
     {
-        int position(0);
+        std::size_t position(0);
         C1_11_6& ruleForLine = C1_11_6::Instance();
         Geometry::PointReference point1D(1);
-        for (int i = 0; i < ruleForLine.nrOfPoints(); ++i)
+        for (std::size_t i = 0; i < ruleForLine.nrOfPoints(); ++i)
         {
-            for (int j = 0; j < ruleForLine.nrOfPoints(); ++j)
+            for (std::size_t j = 0; j < ruleForLine.nrOfPoints(); ++j)
             {
                 weight_[position] = ruleForLine.weight(i) * ruleForLine.weight(j);
                 point1D = ruleForLine.getPoint(i);

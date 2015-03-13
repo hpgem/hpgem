@@ -20,7 +20,6 @@
  */
 
 #include "Matrix.h"
-#include "GlobalNamespaceLinearAlgebra.h"
 #include "NumericalVector.h"
 #include "Logger.h"
 #include <algorithm>
@@ -303,7 +302,7 @@ namespace LinearAlgebra
                 result[3] = (*this)(0, 0) * ((*this)(1, 1) * (*this)(2, 2) - (*this)(2, 1) * (*this)(1, 2)) + (*this)(1, 0) * (-(*this)(0, 1) * (*this)(2, 2) + (*this)(2, 1) * (*this)(0, 2)) + (*this)(2, 0) * ((*this)(0, 1) * (*this)(1, 2) - (*this)(1, 1) * (*this)(0, 2));
                 break;
             default:
-                std::cout << "Wedge product not defined for this dimension" << std::endl;
+                logger(WARN, "Wedge product not defined for this dimension");
         } //end switch
         
         return (result);

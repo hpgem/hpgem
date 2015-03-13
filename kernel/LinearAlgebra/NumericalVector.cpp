@@ -65,7 +65,7 @@ namespace LinearAlgebra
         {   
             if(std::imag(array[i]) !=0)
             {   
-                std::cout<<"Imaginary part nonzero in the entry of vector";
+                logger(INFO, "Imaginary part nonzero in the entry of vector");
             }
             data_[i]=std::real(array[i]);
         }

@@ -54,19 +54,15 @@ namespace QuadratureRules
     
     double TriPrism_1_1::weight(std::size_t i) const
     {
-        if (i < 1)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     TriPrism_1_1::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     TriPrism_1_1::ReferenceGeometryT*
@@ -112,19 +108,15 @@ namespace QuadratureRules
     
     double TriPrism_3_8::weight(std::size_t i) const
     {
-        if (i < 8)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     TriPrism_3_8::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     TriPrism_3_8::ReferenceGeometryT*
@@ -205,19 +197,15 @@ namespace QuadratureRules
     
     double TriPrism_5_21::weight(std::size_t i) const
     {
-        if (i < 21)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     TriPrism_5_21::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     TriPrism_5_21::ReferenceGeometryT*
@@ -363,19 +351,15 @@ namespace QuadratureRules
     
     double TriPrism_7_64::weight(std::size_t i) const
     {
-        if (i < 64)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     TriPrism_7_64::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     TriPrism_7_64::ReferenceGeometryT*

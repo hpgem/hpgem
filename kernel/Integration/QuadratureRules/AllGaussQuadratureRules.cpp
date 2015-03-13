@@ -126,7 +126,8 @@ namespace QuadratureRules
                 return rule;
             }
         }
-        throw "Tried to find a quadrature rule but didn't find one";
+        logger(ERROR, "Tried to find a quadrature rule but didn't find one");
+        return nullptr;
     }
 
 }

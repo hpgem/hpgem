@@ -54,19 +54,15 @@ namespace QuadratureRules
     
     double Pyramid_1_4::weight(std::size_t i) const
     {
-        if (i < 4)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     Pyramid_1_4::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     Pyramid_1_4::ReferenceGeometryT*
@@ -125,21 +121,17 @@ namespace QuadratureRules
         return 16;
     }
     
-    double Pyramid_3_16::weight(std::size_t i) const
+    double Pyramid_3_16::weight(std::size_t i) const    
     {
-        if (i < 16)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     Pyramid_3_16::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     Pyramid_3_16::ReferenceGeometryT*
@@ -260,19 +252,15 @@ namespace QuadratureRules
     
     double Pyramid_5_36::weight(std::size_t i) const
     {
-        if (i < 36)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     Pyramid_5_36::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     Pyramid_5_36::ReferenceGeometryT*
@@ -493,19 +481,15 @@ namespace QuadratureRules
     
     double Pyramid_7_48::weight(std::size_t i) const
     {
-        if (i < 48)
-            return weight_[i];
-        else
-            throw name_ + "::weight - wrong index!";
+        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        return weight_[i];
     }
     
     const Geometry::PointReference&
     Pyramid_7_48::getPoint(std::size_t i) const
     {
-        if (i < nrOfPoints())
-            return gp_[i];
-        else
-            throw name_ + "::getPoint -  wrong index!";
+        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        return gp_[i];
     }
     
     Pyramid_7_48::ReferenceGeometryT*
