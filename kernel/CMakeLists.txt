@@ -1,4 +1,4 @@
-add_library(Logger SHARED Logger.cc)
+add_library(Logger SHARED Logger.cpp)
 set_target_properties(Logger PROPERTIES POSITION_INDEPENDENT_CODE true)
 
 if( hpGEM_STACKTRACE_DEMANGLE )

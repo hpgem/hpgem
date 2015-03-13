@@ -47,8 +47,8 @@ add_library(hpGEM_Base STATIC
 		ShortTermStorageElementH1.cpp
 		ShortTermStorageFaceBase.cpp
 		ShortTermStorageFaceH1.cpp
-		ShortTermStorageElementHcurl.cpp
-		ShortTermStorageFaceHcurl.cpp
+		ShortTermStorageElementHCurl.cpp
+		ShortTermStorageFaceHCurl.cpp
 
 
         	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions1DH1ConformingLine.cpp
