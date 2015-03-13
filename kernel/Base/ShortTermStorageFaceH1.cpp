@@ -79,7 +79,7 @@ double Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry
 {
     if (!(currentPoint_ == p))
     {
-        std::cout << "Warning: you are using slow data access";
+        logger(WARN, "Warning: you are using slow data access");
         return face_->basisFunction(i, p);
     }
     return basisFunctionValues_[i][0];
@@ -100,7 +100,7 @@ void Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::
     ret = basisFunctionValues_[i];
     if (!(currentPoint_ == p))
     {
-        std::cout << "Warning: you are using slow data access";
+        logger(WARN, "Warning: you are using slow data access");
         face_->basisFunction(i, p, ret);
     }
 }
@@ -120,7 +120,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceH1::basisFunctionNormal
 {
     if (!(currentPoint_ == p))
     {
-        std::cout << "Warning: you are using slow data access";
+        logger(WARN, "Warning: you are using slow data access");
         return face_->basisFunctionNormal(i, normal, p);
     }
     return basisFunctionsTimesNormal_[i];
@@ -140,7 +140,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceH1::basisFunctionDeriv(
 {
     if (!(currentPoint_ == p))
     {
-        std::cout << "Warning: you are using slow data access";
+        logger(WARN, "Warning: you are using slow data access");
         return face_->basisFunctionDeriv(i, p);
     }
     return basisFunctionDerivatives_[i];

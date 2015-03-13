@@ -39,7 +39,7 @@ namespace Integration
 
 namespace Base
 {
-    
+    ///\deprecated Please build your application in either HpgemAPIBase, HpgemAPISimplified or HpgemAPILinear
     class ProblemDescriptorTimeDependent : public HpgemAPIBase, Integration::ElementIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>, Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>, public Output::TecplotSingleElementWriter
     {
     public:

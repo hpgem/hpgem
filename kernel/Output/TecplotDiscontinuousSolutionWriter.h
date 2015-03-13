@@ -27,6 +27,7 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <functional>
 
 namespace Base
 {

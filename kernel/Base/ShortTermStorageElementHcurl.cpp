@@ -76,7 +76,7 @@ void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t i, const Poin
     ret = basisFunctionValues_[i];
     if (!(p == currentPoint_))
     {
-        std::cout << "Warning : The operator being used is slow";
+        logger(WARN, "WARNING: you are using a slow operator");
         element_->basisFunction(i, p, ret);
     }
 }
@@ -98,7 +98,7 @@ void Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const 
     ret = basisFunctionCurlValues_[i];
     if (!(p == currentPoint_))
     {
-        std::cout << "Warning: The operator being used is slow";
+        logger(WARN, "WARNING: you are using a slow operator");
         ret = element_->basisFunctionCurl(i, p);
     }
     

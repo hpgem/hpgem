@@ -147,23 +147,20 @@
  */
 void Base::ShortTermStorageFaceHcurl::computeData()
 {
-    //std::cout<<"ShortTermStorageFaceHcurl computeData"<<std::endl;
+    logger(DEBUG, "Calling ShortTermStorageFaceHcurl computeData");
     ShortTermStorageFaceBase::computeData();
-    //std::cout<<"ShortTermStorageFaceBase computeData"<<std::endl;
+    logger(DEBUG, "Calling ShortTermStorageFaceBase computeData");
     
-    int DIM = currentPoint_.size() + 1;
-    //std::cout<<DIM<<std::endl;
+    std::size_t DIM = currentPoint_.size() + 1;
+    logger(DEBUG, "Dimension of the system: %", DIM);
     Geometry::Jacobian jacobianT(DIM, DIM), jacobian(DIM, DIM);
-    //std::cout<<"Jacobian done"<<std::endl;
+    logger(DEBUG, "Jacobian has been computed");
     
-    int n(getPtrElementLeft()->getNrOfBasisFunctions());
-    //std::cout<<n<<std::endl;
-    //std::cout<<"n initialised"<<std::endl;
+    std::size_t n(getPtrElementLeft()->getNrOfBasisFunctions());
+    logger(DEBUG, "n initialised with value %", n);
     
-    //int M(getPtrElementLeft()->getNrOfBasisFunctions() + getPtrElementRight()->getNrOfBasisFunctions());
-    int M(face_->getNrOfBasisFunctions());
-    //std::cout<<M<<std::endl;
-    //std::cout<<"n and M initialised"<<std::endl;
+    std::size_t M(face_->getNrOfBasisFunctions());
+    logger(DEBUG, "M initialised with value %", M);
     
     basisFunctionValues_.resize(M);
     basisFunctionCurlValues_.resize(M);
@@ -175,10 +172,10 @@ void Base::ShortTermStorageFaceHcurl::computeData()
     normedNormal[2] = (normal_ * (1 / Base::L2Norm(normal_)))[2];
     
     Geometry::PointReference pElement(DIM);
-    //std::cout<<"Loop to be started"<<std::endl;
-    for (int i = 0; i < M; ++i)
+    logger(DEBUG, "Loop to be started");
+    for (std::size_t i = 0; i < M; ++i)
     {
-        //std::cout<<i<<std::endl;
+        logger(DEBUG, "i: %", i);
         
         basisFunctionValues_[i].resize(DIM);
         basisFunctionCurlValues_[i].resize(DIM);
@@ -189,7 +186,7 @@ void Base::ShortTermStorageFaceHcurl::computeData()
         
         if (i < n)
         {
-            //std::cout<<"True"<<std::endl;
+            logger(DEBUG, "True");
             pElement = mapRefFaceToRefElemL(currentPoint_);
             jacobian = getPtrElementLeft()->calcJacobian(pElement);
             dummy1 = basisFunctionValues_[i];
@@ -197,7 +194,7 @@ void Base::ShortTermStorageFaceHcurl::computeData()
         }
         else
         {
-            //std::cout<<"False"<<std::endl;
+            logger(DEBUG, "False");
             pElement = mapRefFaceToRefElemR(currentPoint_);
             jacobian = getPtrElementRight()->calcJacobian(pElement);
             dummy1 = basisFunctionValues_[i];
@@ -227,7 +224,7 @@ void Base::ShortTermStorageFaceHcurl::computeData()
         basisFunctionsTimesNormal_[i][2] = normedNormal[0] * dummy1[1] - normedNormal[1] * dummy1[0];
         
     }
-    //std::cout<<"End"<<std::endl;
+    logger(DEBUG, "End");
 }
 
 void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
@@ -245,7 +242,7 @@ void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t i, const Geometr
     ret = basisFunctionValues_[i];
     if (!(currentPoint_ == p))
     {
-        std::cout << "Warning: you are using slow data access";
+        logger(WARN, "Warning: you are using slow data access");
         face_->basisFunction(i, p, ret);
     }
 }
@@ -275,7 +272,7 @@ void Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const L
     ret = basisFunctionsTimesNormal_[i]; // check how to get vector product of normal and basis function
     if (!(currentPoint_ == p))
     {
-        std::cout << "Warning: you are using slow data access";
+        logger(WARN, "Warning: you are using slow data access");
         ret = face_->basisFunctionNormal(i, normal, p);
     }
 }
@@ -295,7 +292,7 @@ void Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geo
     ret = basisFunctionCurlValues_[i];
     if (!(currentPoint_ == p))
     {
-        std::cout << "Warning: you are using slow data access";
+        logger(WARN, "Warning: you are using slow data access");
         ret = face_->basisFunctionCurl(i, p);
     }
 }

@@ -90,12 +90,13 @@ namespace Base
         
         virtual double basisFunction(std::size_t i, const PointReferenceT& p)
         {
-            throw "No storage functionality was implemented! Are you working in a vector valued function space?";
+            logger(ERROR, "No storage functionality was implemented! Are you working in a vector valued function space?");
+            return 0;
         }
         
         virtual void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
         {
-            throw "No storage functionality was implemented! Are you working in a scalar function space?";
+            logger(ERROR, "No storage functionality was implemented! Are you working in a scalar function space?");
         }
         
         double basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const override
@@ -105,32 +106,37 @@ namespace Base
         
         virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr)
         {
-            throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";
+            logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionCurl?");
+            return LinearAlgebra::NumericalVector();
         }
         
         virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const PointReferenceT& p)
         {
-            throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
+            logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionDeriv?");
+            return LinearAlgebra::NumericalVector();
         }
         
         double basisFunction(std::size_t i, const PointReferenceT& p) const override
         {
-            throw "No storage functionality was implemented! Are you working in a vector valued function space?";
+            logger(ERROR, "No storage functionality was implemented! Are you working in a vector valued function space?");
+            return 0;
         }
         
         void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override
         {
-            throw "No storage functionality was implemented! Are you working in a scalar function space?";
+            logger(ERROR, "No storage functionality was implemented! Are you working in a scalar function space?");
         }
         
         LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr) const override
         {
-            throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";
+            logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionCurl?");
+            return LinearAlgebra::NumericalVector();
         }
         
         LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const PointReferenceT& p) const override
         {
-            throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
+            logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionDeriv?");
+            return LinearAlgebra::NumericalVector();
         }
         
         virtual Geometry::Jacobian calcJacobian(const PointReferenceT& pointReference);
@@ -288,7 +294,8 @@ namespace Base
         
         ShortTermStorageElementBase& operator=(const ShortTermStorageElementBase&)
         {
-            throw "you are already storing the data, no need to store it twice!";
+            logger(ERROR, "you are already storing the data, no need to store it twice!");
+            return *this;
         }
         
     protected:

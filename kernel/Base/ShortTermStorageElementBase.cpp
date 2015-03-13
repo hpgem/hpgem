@@ -46,7 +46,7 @@ Geometry::Jacobian Base::ShortTermStorageElementBase::calcJacobian(const PointRe
 {
     if (!(currentPoint_ == pointReference))
     {
-        std::cout << "WARNING: you are using slow data access"; //todo logger
+        logger(WARN, "WARNING: you are using slow data access by using ShortTermStorageElementBase::calcJacobian const, use the non-const version instead.");
         return element_->calcJacobian(pointReference);
     }
     return jac_;
@@ -70,8 +70,8 @@ void Base::ShortTermStorageElementBase::computeData()
         if (recomputeCache_ || (cache.size() != getGaussQuadratureRule()->nrOfPoints()))
         {
             recomputeCacheOff();
-            int n = getGaussQuadratureRule()->nrOfPoints();
-            for (int i = 0; i < n; ++i)
+            std::size_t n = getGaussQuadratureRule()->nrOfPoints();
+            for (std::size_t i = 0; i < n; ++i)
             {
                 cache[i](element_, getGaussQuadratureRule()->getPoint(i));
             }

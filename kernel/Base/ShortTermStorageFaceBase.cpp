@@ -69,7 +69,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(c
 {
     if (!(currentPoint_ == pRefFace))
     {
-        std::cout << "WARNING: you are using slow data access";
+        logger(WARN, "WARNING: you are using slow data access.");
         return face_->getNormalVector(pRefFace);
     }
     return normal_;

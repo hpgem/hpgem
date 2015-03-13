@@ -31,8 +31,6 @@
 #include "Base/ElementCacheData.h"
 #include "Base/FaceCacheData.h"
 
-#include <list>
-
 namespace Output
 {
     

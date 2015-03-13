@@ -55,7 +55,7 @@ double Base::ShortTermStorageElementH1::basisFunction(std::size_t i, const Point
 {
     if (!(p == currentPoint_))
     {
-        std::cout << "WARNING: you are using a slow operator";
+        logger(WARN, "WARNING: you are using a slow operator");
         return element_->basisFunction(i, p);
     }
     return basisFunctionValues_[i][0];
@@ -76,7 +76,7 @@ void Base::ShortTermStorageElementH1::basisFunction(std::size_t i, const PointRe
     ret = basisFunctionValues_[i];
     if (!(p == currentPoint_))
     {
-        std::cout << "WARNING: you are using a slow operator";
+        logger(WARN, "WARNING: you are using a slow operator");
         element_->basisFunction(i, p, ret);
     }
 }
@@ -95,7 +95,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageElementH1::basisFunctionDer
 {
     if (!(p == currentPoint_))
     {
-        std::cout << "WARNING: you are using a slow operator";
+        logger(WARN, "WARNING: you are using a slow operator");
         return element_->basisFunctionDeriv(i, p, this);
     }
     return basisFunctionDerivatives_[i];
@@ -115,7 +115,7 @@ double Base::ShortTermStorageElementH1::basisFunctionDeriv(std::size_t i, std::s
 {
     if (!(p == currentPoint_))
     {
-        std::cout << "WARNING: you are using a slow operator";
+        logger(WARN, "WARNING: you are using a slow operator");
         return element_->basisFunctionDeriv(i, jDir, p);
     }
     return basisFunctionIndividualDerivatives_[i][jDir];
