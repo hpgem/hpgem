@@ -65,6 +65,7 @@ namespace Base
      */
     /** \details For an example of using this interface see the application 'ExampleMultipleVariableProblem'.
      */
+    
     class HpgemAPILinear : public HpgemAPISimplified
     {
     public:

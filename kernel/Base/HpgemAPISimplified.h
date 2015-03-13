@@ -70,6 +70,12 @@ namespace Base
      */
     /** \details For an example of using this interface see the application 'ExampleMultipleVariableProblem'.
      */
+    
+    extern CommandLineOption<double>& startTime;
+    extern CommandLineOption<double>& endTime;
+    extern CommandLineOption<double>& dt;
+    extern CommandLineOption<std::size_t>& numberOfSnapshots;
+    
     class HpgemAPISimplified : public HpgemAPIBase, public Output::TecplotSingleElementWriter
     {
     public:
@@ -83,7 +89,7 @@ namespace Base
          const std::size_t numOfTimeLevels = 1
          );
 
-        /// \brief Create a domain
+        /// \brief Create a mesh description
         virtual Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection)
         {
             logger(ERROR, "No routine for creating the domain implemented.");
