@@ -31,7 +31,6 @@
 namespace Base
 {
     // H curl conforming space
-    class ShortTermStorageElementBase;
     
     class ShortTermStorageElementHcurl : public ShortTermStorageElementBase
     {

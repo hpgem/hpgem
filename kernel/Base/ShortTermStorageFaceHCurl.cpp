@@ -147,33 +147,29 @@
  */
 void Base::ShortTermStorageFaceHcurl::computeData()
 {
-    logger(DEBUG, "Calling ShortTermStorageFaceHcurl computeData");
+    logger(DEBUG, "Called ShortTermStorageFaceHcurl computeData");
     ShortTermStorageFaceBase::computeData();
-    logger(DEBUG, "Calling ShortTermStorageFaceBase computeData");
+    logger(DEBUG, "Called ShortTermStorageFaceBase computeData");
     
     std::size_t DIM = currentPoint_.size() + 1;
     logger(DEBUG, "Dimension of the system: %", DIM);
-    Geometry::Jacobian jacobianT(DIM, DIM), jacobian(DIM, DIM);
-    logger(DEBUG, "Jacobian has been computed");
+    Geometry::Jacobian jacobian(DIM, DIM);
     
-    std::size_t n(getPtrElementLeft()->getNrOfBasisFunctions());
-    logger(DEBUG, "n initialised with value %", n);
+    std::size_t nLeft(getPtrElementLeft()->getNrOfBasisFunctions());
+    logger(DEBUG, "n initialised with value %", nLeft);
     
-    std::size_t M(face_->getNrOfBasisFunctions());
-    logger(DEBUG, "M initialised with value %", M);
+    std::size_t nTotal(face_->getNrOfBasisFunctions());
+    logger(DEBUG, "M initialised with value %", nTotal);
     
-    basisFunctionValues_.resize(M);
-    basisFunctionCurlValues_.resize(M);
-    basisFunctionsTimesNormal_.resize(M);
+    basisFunctionValues_.resize(nTotal);
+    basisFunctionCurlValues_.resize(nTotal);
+    basisFunctionsTimesNormal_.resize(nTotal);
     
-    LinearAlgebra::NumericalVector dummy1(3), normedNormal(3), dummy2(3);
-    normedNormal[0] = (normal_ * (1 / Base::L2Norm(normal_)))[0];
-    normedNormal[1] = (normal_ * (1 / Base::L2Norm(normal_)))[1];
-    normedNormal[2] = (normal_ * (1 / Base::L2Norm(normal_)))[2];
+    LinearAlgebra::NumericalVector normedNormal = normal_ / Base::L2Norm(normal_);
     
     Geometry::PointReference pElement(DIM);
     logger(DEBUG, "Loop to be started");
-    for (std::size_t i = 0; i < M; ++i)
+    for (std::size_t i = 0; i < nTotal; ++i)
     {
         logger(DEBUG, "i: %", i);
         
@@ -181,24 +177,20 @@ void Base::ShortTermStorageFaceHcurl::computeData()
         basisFunctionCurlValues_[i].resize(DIM);
         basisFunctionsTimesNormal_[i].resize(DIM);
         
-        face_->Face::basisFunction(i, currentPoint_, basisFunctionValues_[i]);
-        basisFunctionCurlValues_[i] = face_->Face::basisFunctionCurl(i, currentPoint_);
+        face_->basisFunction(i, currentPoint_, basisFunctionValues_[i]);
+        basisFunctionCurlValues_[i] = face_->basisFunctionCurl(i, currentPoint_);
         
-        if (i < n)
+        if (i < nLeft)
         {
             logger(DEBUG, "True");
             pElement = mapRefFaceToRefElemL(currentPoint_);
             jacobian = getPtrElementLeft()->calcJacobian(pElement);
-            dummy1 = basisFunctionValues_[i];
-            basisFunctionCurlValues_[i] = getPtrElementLeft()->basisFunctionCurl(i, pElement);
         }
         else
         {
             logger(DEBUG, "False");
             pElement = mapRefFaceToRefElemR(currentPoint_);
             jacobian = getPtrElementRight()->calcJacobian(pElement);
-            dummy1 = basisFunctionValues_[i];
-            dummy1 *= -1;
         }
         
         //Curl of Phi
@@ -208,20 +200,24 @@ void Base::ShortTermStorageFaceHcurl::computeData()
         jacobian = jacobian.inverse();
         for (int j = 0; j < DIM; ++j)
         {
-            for (int k = 0; k < DIM; ++k)
+            for (int k = 0; k < j; ++k)
             {
-                jacobianT(j, k) = jacobian(k, j);
+                std::swap(jacobian(j, k), jacobian(k, j));
             }
             
         }
         
         //Phi
-        basisFunctionValues_[i] = jacobianT * basisFunctionValues_[i];
+        basisFunctionValues_[i] = jacobian * basisFunctionValues_[i];
         
         //Vector production of Normal and Vector basis Function
-        basisFunctionsTimesNormal_[i][0] = normedNormal[1] * dummy1[2] - normedNormal[2] * dummy1[1];
-        basisFunctionsTimesNormal_[i][1] = normedNormal[2] * dummy1[0] - normedNormal[0] * dummy1[2];
-        basisFunctionsTimesNormal_[i][2] = normedNormal[0] * dummy1[1] - normedNormal[1] * dummy1[0];
+        basisFunctionsTimesNormal_[i][0] = normedNormal[1] * basisFunctionValues_[i][2] - normedNormal[2] * basisFunctionValues_[i][1];
+        basisFunctionsTimesNormal_[i][1] = normedNormal[2] * basisFunctionValues_[i][0] - normedNormal[0] * basisFunctionValues_[i][2];
+        basisFunctionsTimesNormal_[i][2] = normedNormal[0] * basisFunctionValues_[i][1] - normedNormal[1] * basisFunctionValues_[i][0];
+        if(i > nLeft)
+        {
+            basisFunctionsTimesNormal_[i] *= -1.;
+        }
         
     }
     logger(DEBUG, "End");
@@ -244,6 +240,33 @@ void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t i, const Geometr
     {
         logger(WARN, "Warning: you are using slow data access");
         face_->basisFunction(i, p, ret);
+        //apply the coordinate transformation
+        if(i < getPtrElementLeft()->getNrOfBasisFunctions())
+        {
+            Geometry::Jacobian jac = getPtrElementLeft()->calcJacobian(mapRefFaceToRefElemL(p));
+            jac = jac.inverse();
+            for(std::size_t i = 0; i < p.size() + 1; ++i)
+            {
+                for(std::size_t j=0; j < i; ++j)
+                {
+                    std::swap(jac(i, j), jac(j, i));
+                }
+            }
+            ret = jac * ret;
+        }
+        else
+        {
+            Geometry::Jacobian jac = getPtrElementRight()->calcJacobian(mapRefFaceToRefElemR(p));
+            jac = jac.inverse();
+            for(std::size_t i = 0; i < p.size(); ++i)
+            {
+                for(std::size_t j=0; j < i; ++j)
+                {
+                    std::swap(jac(i, j), jac(j, i));
+                }
+            }
+            ret = jac * ret;
+        }
     }
 }
 
@@ -253,15 +276,6 @@ void Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const L
     {
         currentPoint_ = p;
         computeData();
-        basisFunctionsTimesNormal_[i].resize(currentPoint_.size() + 1);
-        LinearAlgebra::NumericalVector dummy1(3), normedNormal(3), dummy2(3);
-        normedNormal[0] = (normal * (1 / Base::L2Norm(normal)))[0];
-        normedNormal[1] = (normal * (1 / Base::L2Norm(normal)))[1];
-        normedNormal[2] = (normal * (1 / Base::L2Norm(normal)))[2];
-        
-        basisFunctionsTimesNormal_[i][0] = normedNormal[1] * dummy1[2] - normedNormal[2] * dummy1[1];
-        basisFunctionsTimesNormal_[i][1] = normedNormal[2] * dummy1[0] - normedNormal[0] * dummy1[2];
-        basisFunctionsTimesNormal_[i][2] = normedNormal[0] * dummy1[1] - normedNormal[1] * dummy1[0];
     }
     
     ret = basisFunctionsTimesNormal_[i];
@@ -273,7 +287,45 @@ void Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const L
     if (!(currentPoint_ == p))
     {
         logger(WARN, "Warning: you are using slow data access");
-        ret = face_->basisFunctionNormal(i, normal, p);
+        LinearAlgebra::NumericalVector dummy(ret);
+        face_->basisFunction(i, p, dummy);
+        //apply the coordinate transformation
+        if(i < getPtrElementLeft()->getNrOfBasisFunctions())
+        {
+            Geometry::Jacobian jac = getPtrElementLeft()->calcJacobian(mapRefFaceToRefElemL(p));
+            jac = jac.inverse();
+            for(std::size_t i = 0; i < p.size() + 1; ++i)
+            {
+                for(std::size_t j=0; j < i; ++j)
+                {
+                    std::swap(jac(i, j), jac(j, i));
+                }
+            }
+            LinearAlgebra::NumericalVector normedNormal = getNormalVector(p) / Base::L2Norm(getNormalVector(p));
+            dummy = jac * dummy;
+        
+            ret[0] = normedNormal[1] * dummy[2] - normedNormal[2] * dummy[1];
+            ret[1] = normedNormal[2] * dummy[0] - normedNormal[0] * dummy[2];
+            ret[2] = normedNormal[0] * dummy[1] - normedNormal[1] * dummy[0];
+        }
+        else
+        {
+            Geometry::Jacobian jac = getPtrElementRight()->calcJacobian(mapRefFaceToRefElemR(p));
+            jac = jac.inverse();
+            for(std::size_t i = 0; i < p.size(); ++i)
+            {
+                for(std::size_t j=0; j < i; ++j)
+                {
+                    std::swap(jac(i, j), jac(j, i));
+                }
+            }
+            LinearAlgebra::NumericalVector normedNormal = getNormalVector(p) / Base::L2Norm(getNormalVector(p));
+            dummy = jac * dummy * -1.;
+        
+            ret[0] = normedNormal[1] * dummy[2] - normedNormal[2] * dummy[1];
+            ret[1] = normedNormal[2] * dummy[0] - normedNormal[0] * dummy[2];
+            ret[2] = normedNormal[0] * dummy[1] - normedNormal[1] * dummy[0];
+        }
     }
 }
 
@@ -294,6 +346,19 @@ void Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geo
     {
         logger(WARN, "Warning: you are using slow data access");
         ret = face_->basisFunctionCurl(i, p);
+        //apply the coordinate transformation
+        if(i < getPtrElementLeft()->getNrOfBasisFunctions())
+        {
+            Geometry::Jacobian jac = getPtrElementLeft()->calcJacobian(mapRefFaceToRefElemL(p));
+            ret = jac * ret / jac.determinant();
+            
+        }
+        else
+        {
+            Geometry::Jacobian jac = getPtrElementRight()->calcJacobian(mapRefFaceToRefElemR(p));
+            ret = jac * ret / jac.determinant();
+            
+        }
     }
 }
 

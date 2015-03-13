@@ -31,16 +31,14 @@ void Base::ShortTermStorageElementHcurl::computeData()
     
     ShortTermStorageElementBase::computeData(); // calculates the Jacobian in jac_
     std::size_t DIM = currentPoint_.size();
-    Geometry::Jacobian jacobianT(DIM, DIM), jacobian(DIM, DIM);
     basisFunctionValues_.resize(element_->getNrOfBasisFunctions());
     basisFunctionCurlValues_.resize(element_->getNrOfBasisFunctions());
-    jacobian = jac_;
-    jac_ = jac_.inverse();
+    Geometry::Jacobian jacInvTrans = jac_.inverse();
     for (std::size_t i = 0; i < DIM; ++i)
     {
-        for (std::size_t j = 0; j < DIM; ++j)
+        for (std::size_t j = 0; j < i; ++j)
         {
-            jacobianT(i, j) = jac_(j, i);
+            std::swap(jacInvTrans(i, j), jacInvTrans(j, i));
         }
     }
 
@@ -50,11 +48,11 @@ void Base::ShortTermStorageElementHcurl::computeData()
         //Compute the values of basis function i on the current point. Note that we return in the last parameter.
         element_->Element::basisFunction(i, currentPoint_, basisFunctionValues_[i]);
         //Multiplies the values of basis function i with the transposed inverse Jacobian.
-        basisFunctionValues_[i] = jacobianT * basisFunctionValues_[i];
+        basisFunctionValues_[i] = jacInvTrans * basisFunctionValues_[i];
                 
         basisFunctionCurlValues_[i].resize(3);
         basisFunctionCurlValues_[i] = element_->Element::basisFunctionCurl(i, currentPoint_);
-        basisFunctionCurlValues_[i] = (jacobian / (std::abs(jacobian.determinant()))) * basisFunctionCurlValues_[i];
+        basisFunctionCurlValues_[i] = (jac_ / (std::abs(jac_.determinant()))) * basisFunctionCurlValues_[i];
     }
     
 }
@@ -78,6 +76,17 @@ void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t i, const Poin
     {
         logger(WARN, "WARNING: you are using a slow operator");
         element_->basisFunction(i, p, ret);
+        //apply the coordinate transformation
+        Geometry::Jacobian jac = element_->calcJacobian(p);
+        jac = jac.inverse();
+        for(std::size_t i = 0; i < p.size(); ++i)
+        {
+            for(std::size_t j=0; j < i; ++j)
+            {
+                std::swap(jac(i, j), jac(j, i));
+            }
+        }
+        ret = jac * ret;
     }
 }
 
@@ -100,6 +109,10 @@ void Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const 
     {
         logger(WARN, "WARNING: you are using a slow operator");
         ret = element_->basisFunctionCurl(i, p);
+        //apply the coordinate transformation
+        
+        Geometry::Jacobian jac = element_->calcJacobian(p);
+        ret = jac * ret / jac.determinant();
     }
     
 }
