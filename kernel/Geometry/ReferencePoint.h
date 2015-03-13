@@ -26,6 +26,7 @@
 
 #include "ReferenceGeometry.h"
 #include <vector>
+#include "Logger.h"
 
 namespace Geometry
 {
@@ -74,7 +75,7 @@ namespace Geometry
         /// return the local index of the node. Dummy function, doesn't make sense for point
         std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const
         {
-            std::cout << "WARNING: ReferencePoint::getLocalNodeIndex might have unexpected behaviour." << std::endl;
+            logger(WARN, "ReferencePoint::getLocalNodeIndex might have unexpected behaviour.\n");
             return -1;
         }
         
