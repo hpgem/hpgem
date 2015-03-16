@@ -19,37 +19,37 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Base/HpgemUI.hpp"
-#include "Base/RectangularMeshDescriptor.hpp"
-#include "MeshMover.hpp"
-#include "Base/GlobalData.hpp"
-#include "Base/ConfigurationData.hpp"
-#include "Output/TecplotSingleElementWriter.hpp"
+#include "Base/HpgemAPIBase.h"
+#include "Base/RectangularMeshDescriptor.h"
+#include "MeshMover.h"
+#include "Base/GlobalData.h"
+#include "Base/ConfigurationData.h"
+#include "Output/TecplotSingleElementWriter.h"
 
-#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
-#include "Output/TecplotPhysicalGeometryIterator.hpp"
+#include "Output/TecplotDiscontinuousSolutionWriter.h"
+#include "Output/TecplotPhysicalGeometryIterator.h"
 using Base::RectangularMeshDescriptor;
 using Base::ConfigurationData;
 using Base::GlobalData;
 
-const unsigned int DIM = 2;
-
 //Note: the intended use of the prototype classes is to merge Dummy with MeshMoverExampleProblem
-class Dummy:public Output::TecplotSingleElementWriter
+class Dummy : public Output::TecplotSingleElementWriter
 {
 public:
-    Dummy(){}
+    Dummy()
+    {
+    }
     void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, std::ostream& os)
     {
     }
 };
 
-class MeshMoverExampleProblem : public Base::HpgemUI
+class MeshMoverExampleProblem : public Base::HpgemAPIBase
 {
     
 public:
-    MeshMoverExampleProblem(GlobalData* const global, const ConfigurationData* config):
-        Base::HpgemUI(global, config)
+    MeshMoverExampleProblem(GlobalData* const global, const ConfigurationData* config)
+            : Base::HpgemAPIBase(global, config)
     {
     }
     
@@ -65,10 +65,10 @@ public:
         rectangularMesh.numElementsInDIM_[0] = 8;
         rectangularMesh.numElementsInDIM_[1] = 8;
         
-        Base::HpgemUI::MeshId id = addMesh(rectangularMesh);
-
+        Base::HpgemAPIBase::MeshId id = addMesh(rectangularMesh);
+        
         //Set up the move of the mesh;
-        const MeshMover* meshMover= new MeshMover;
+        const MeshMover* meshMover = new MeshMover;
         initialiseMeshMover(meshMover, id);
         
         return true;
@@ -77,17 +77,16 @@ public:
     void output()
     {
         std::ofstream file2D;
-        file2D.open ("out.dat");
-        int dimensionsToWrite[2] = {0,1};
-        Output::TecplotDiscontinuousSolutionWriter out(file2D,"RectangularMesh","01","xy");
+        file2D.open("out.dat");
+        Output::TecplotDiscontinuousSolutionWriter out(file2D, "RectangularMesh", "01", "xy");
         
         Dummy d;
-        out.write(meshes_[0],"holi",false, &d);
+        out.write(meshes_[0], "holi", false, &d);
     }
     
     void solve()
     {
-     
+        
         meshes_[0]->move();
         
     }
@@ -96,18 +95,19 @@ public:
 
 int main(int argc, char **argv)
 {
-   
+    Base::parse_options(argc, argv);
+    
     Base::GlobalData globalData;
     
-    Base::ConfigurationData config(1,1,1);
+    Base::ConfigurationData config(2, 1, 1, 1);
     
-    config.numberOfUnknowns_       = 1;
-    config.numberOfTimeLevels_     = 1;
+    config.numberOfUnknowns_ = 1;
+    config.numberOfTimeLevels_ = 1;
     config.numberOfBasisFunctions_ = 1;
     
-    globalData.numberOfUnknowns_=10;
-    globalData.numberOfTimeLevels_=1;
-
+    globalData.numberOfUnknowns_ = 10;
+    globalData.numberOfTimeLevels_ = 1;
+    
     MeshMoverExampleProblem problem(&globalData, &config);
     
     problem.initialise();

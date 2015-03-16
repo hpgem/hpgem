@@ -18,57 +18,58 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "PhysicalPyramid.hpp"
+#include "PhysicalPyramid.h"
 
-#include "ReferencePyramid.hpp"
-#include "PointPhysical.hpp"
-#include "PointReference.hpp"
+#include "ReferencePyramid.h"
+#include "PointPhysical.h"
+#include "PointReference.h"
 
 namespace Geometry
 {
-    PhysicalPyramid::PhysicalPyramid(
-        const VectorOfPointIndexesT& globalNodeIndexes,
-        const VectorOfPhysicalPointsT& nodes,
-        const ReferencePyramid* const refPyramid) :
-        PhysicalGeometry(globalNodeIndexes,nodes, refPyramid)
+    PhysicalPyramid::PhysicalPyramid(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<PointPhysical>& nodes)
+            : PhysicalGeometry(globalNodeIndexes, nodes, &ReferencePyramid::Instance())
     {
     }
-
-    void PhysicalPyramid::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    
+    std::vector<std::size_t> PhysicalPyramid::getGlobalFaceNodeIndices(const std::size_t face) const
     {
-        indexes.resize(4);
-        if (face==0)
+        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
+        std::vector<std::size_t> indexes(4);
+        if (face == 0)
         {
-            for (int i = 0; i < 4; ++i)
+            for (std::size_t i = 0; i < 4; ++i)
             {
-                indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,i)];
+                indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, i)];
             }
         }
         else
         {
-            for (int i = 0; i < 3; ++i)
+            for (std::size_t i = 0; i < 3; ++i)
             {
-                indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,i)];
+                indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, i)];
             }
         }
+        return indexes;
     }
-
-    void PhysicalPyramid::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    
+    std::vector<std::size_t> PhysicalPyramid::getLocalFaceNodeIndices(const std::size_t face) const
     {
-        indexes.resize(4);
-        if (face==0)
+        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
+        std::vector<std::size_t> indexes(4);
+        if (face == 0)
         {
-            for (int i = 0; i < 4; ++i)
+            for (std::size_t i = 0; i < 4; ++i)
             {
-                 indexes[i] = refGeometry_->getLocalNodeIndex(face,i);
+                indexes[i] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, i);
             }
         }
         else
         {
-            for (int i = 0; i < 3; ++i)
+            for (std::size_t i = 0; i < 3; ++i)
             {
-                indexes[i] = refGeometry_->getLocalNodeIndex(face,i);
+                indexes[i] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, i);
             }
         }
+        return indexes;
     }
 }

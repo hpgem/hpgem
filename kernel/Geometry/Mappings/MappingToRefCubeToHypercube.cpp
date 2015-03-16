@@ -19,322 +19,386 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MappingToRefCubeToHypercube.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/Jacobian.hpp"
+#include "MappingToRefCubeToHypercube.h"
+#include "Geometry/PointReference.h"
+#include "Geometry/Jacobian.h"
 
 namespace Geometry
 {
     // ~~~ index 0 ~~~==============================================================================
-
+    
     const MappingToRefCubeToHypercube0& MappingToRefCubeToHypercube0::Instance()
     {
         static const MappingToRefCubeToHypercube0 theInstance;
         return theInstance;
     }
-
-    void MappingToRefCubeToHypercube0::transform(const Geometry::PointReference& p1,
-                                                  Geometry::PointReference& p2) const
+    
+    PointReference MappingToRefCubeToHypercube0::transform(const Geometry::PointReference& p1) const
     {
-        p2[0] =  p1[0];
-        p2[1] =  p1[1];
-        p2[2] =  p1[2];
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        PointReference p2(4);
+        p2[0] = p1[0];
+        p2[1] = p1[1];
+        p2[2] = p1[2];
         p2[3] = -1.0;
+        return p2;
     }
-
-    void MappingToRefCubeToHypercube0::calcJacobian(const Geometry::PointReference& p1,
-                                                     Geometry::Jacobian& jacobian) const
+    
+    Jacobian MappingToRefCubeToHypercube0::calcJacobian(const Geometry::PointReference& p1) const
     {
-        jacobian(0,0) = 1.0;
-        jacobian(1,0) = 0.0;
-        jacobian(2,0) = 0.0;
-        jacobian(3,0) = 0.0;
-
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 1.0;
-        jacobian(2,1) = 0.0;
-        jacobian(3,1) = 0.0;
-
-        jacobian(0,2) = 0.0;
-        jacobian(1,2) = 0.0;
-        jacobian(2,2) = 1.0;
-        jacobian(3,2) = 0.0;
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        Jacobian jacobian(4, 3);
+        jacobian(0, 0) = 1.0;
+        jacobian(1, 0) = 0.0;
+        jacobian(2, 0) = 0.0;
+        jacobian(3, 0) = 0.0;
+        
+        jacobian(0, 1) = 0.0;
+        jacobian(1, 1) = 1.0;
+        jacobian(2, 1) = 0.0;
+        jacobian(3, 1) = 0.0;
+        
+        jacobian(0, 2) = 0.0;
+        jacobian(1, 2) = 0.0;
+        jacobian(2, 2) = 1.0;
+        jacobian(3, 2) = 0.0;
+        return jacobian;
     }
-
-    MappingToRefCubeToHypercube0::MappingToRefCubeToHypercube0() { }
-    MappingToRefCubeToHypercube0::~MappingToRefCubeToHypercube0() { }
-
+    
+    MappingToRefCubeToHypercube0::MappingToRefCubeToHypercube0()
+    {
+    }
+    MappingToRefCubeToHypercube0::~MappingToRefCubeToHypercube0()
+    {
+    }
+    
     // ~~~ index 1 ~~~==============================================================================
-
+    
     const MappingToRefCubeToHypercube1& MappingToRefCubeToHypercube1::Instance()
     {
         static const MappingToRefCubeToHypercube1 theInstance;
         return theInstance;
     }
-
-    void MappingToRefCubeToHypercube1::transform(const Geometry::PointReference& p1,
-                                                  Geometry::PointReference& p2) const
+    
+    PointReference MappingToRefCubeToHypercube1::transform(const Geometry::PointReference& p1) const
     {
-        p2[0] =  p1[0];
-        p2[1] =  p1[1];
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        PointReference p2(4);
+        p2[0] = p1[0];
+        p2[1] = p1[1];
         p2[2] = -1.0;
-        p2[3] =  p1[2];
+        p2[3] = p1[2];
+        return p2;
     }
-
-    void MappingToRefCubeToHypercube1::calcJacobian(const Geometry::PointReference& p1,
-                                                     Geometry::Jacobian& jacobian) const
+    
+    Jacobian MappingToRefCubeToHypercube1::calcJacobian(const Geometry::PointReference& p1) const
     {
-        jacobian(0,0) = 1.0;
-        jacobian(1,0) = 0.0;
-        jacobian(2,0) = 0.0;
-        jacobian(3,0) = 0.0;
-
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 1.0;
-        jacobian(2,1) = 0.0;
-        jacobian(3,1) = 0.0;
-
-        jacobian(0,2) = 0.0;
-        jacobian(1,2) = 0.0;
-        jacobian(2,2) = 0.0;
-        jacobian(3,2) = 1.0;
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        Jacobian jacobian(4, 3);
+        jacobian(0, 0) = 1.0;
+        jacobian(1, 0) = 0.0;
+        jacobian(2, 0) = 0.0;
+        jacobian(3, 0) = 0.0;
+        
+        jacobian(0, 1) = 0.0;
+        jacobian(1, 1) = 1.0;
+        jacobian(2, 1) = 0.0;
+        jacobian(3, 1) = 0.0;
+        
+        jacobian(0, 2) = 0.0;
+        jacobian(1, 2) = 0.0;
+        jacobian(2, 2) = 0.0;
+        jacobian(3, 2) = 1.0;
+        return jacobian;
     }
-
-    MappingToRefCubeToHypercube1::MappingToRefCubeToHypercube1() { }
-    MappingToRefCubeToHypercube1::~MappingToRefCubeToHypercube1() { }
-
+    
+    MappingToRefCubeToHypercube1::MappingToRefCubeToHypercube1()
+    {
+    }
+    MappingToRefCubeToHypercube1::~MappingToRefCubeToHypercube1()
+    {
+    }
+    
     // ~~~ index 2 ~~~==============================================================================
-
+    
     const MappingToRefCubeToHypercube2& MappingToRefCubeToHypercube2::Instance()
     {
         static const MappingToRefCubeToHypercube2 theInstance;
         return theInstance;
     }
-
-    void MappingToRefCubeToHypercube2::transform(const Geometry::PointReference& p1,
-                                                  Geometry::PointReference& p2) const
+    
+    PointReference MappingToRefCubeToHypercube2::transform(const Geometry::PointReference& p1) const
     {
-        p2[0] =  p1[0];
-        p2[1] =  -1.0;
-        p2[2] =  p1[1];
-        p2[3] =  p1[2];
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        PointReference p2(4);
+        p2[0] = p1[0];
+        p2[1] = -1.0;
+        p2[2] = p1[1];
+        p2[3] = p1[2];
+        return p2;
     }
-
-    void MappingToRefCubeToHypercube2::calcJacobian(const Geometry::PointReference& p1,
-                                                     Geometry::Jacobian& jacobian) const
+    
+    Jacobian MappingToRefCubeToHypercube2::calcJacobian(const Geometry::PointReference& p1) const
     {
-        jacobian(0,0) = 1.0;
-        jacobian(1,0) = 0.0;
-        jacobian(2,0) = 0.0;
-        jacobian(3,0) = 0.0;
-
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 1.0;
-        jacobian(3,1) = 0.0;
-
-        jacobian(0,2) = 0.0;
-        jacobian(1,2) = 0.0;
-        jacobian(2,2) = 0.0;
-        jacobian(3,2) = 1.0;
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        Jacobian jacobian(4, 3);
+        jacobian(0, 0) = 1.0;
+        jacobian(1, 0) = 0.0;
+        jacobian(2, 0) = 0.0;
+        jacobian(3, 0) = 0.0;
+        
+        jacobian(0, 1) = 0.0;
+        jacobian(1, 1) = 0.0;
+        jacobian(2, 1) = 1.0;
+        jacobian(3, 1) = 0.0;
+        
+        jacobian(0, 2) = 0.0;
+        jacobian(1, 2) = 0.0;
+        jacobian(2, 2) = 0.0;
+        jacobian(3, 2) = 1.0;
+        return jacobian;
     }
-
-    MappingToRefCubeToHypercube2::MappingToRefCubeToHypercube2() { }
-    MappingToRefCubeToHypercube2::~MappingToRefCubeToHypercube2() { }
-
+    
+    MappingToRefCubeToHypercube2::MappingToRefCubeToHypercube2()
+    {
+    }
+    MappingToRefCubeToHypercube2::~MappingToRefCubeToHypercube2()
+    {
+    }
+    
     // ~~~ index 3 ~~~==============================================================================
-
+    
     const MappingToRefCubeToHypercube3& MappingToRefCubeToHypercube3::Instance()
     {
         static const MappingToRefCubeToHypercube3 theInstance;
         return theInstance;
     }
-
-    void MappingToRefCubeToHypercube3::transform(const Geometry::PointReference& p1,
-                                                  Geometry::PointReference& p2) const
+    
+    PointReference MappingToRefCubeToHypercube3::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        PointReference p2(4);
         p2[0] = -1.0;
-        p2[1] =  p1[0];
-        p2[2] =  p1[1];
-        p2[3] =  p1[2];
+        p2[1] = p1[0];
+        p2[2] = p1[1];
+        p2[3] = p1[2];
+        return p2;
     }
-
-    void MappingToRefCubeToHypercube3::calcJacobian(const Geometry::PointReference& p1,
-                                                     Geometry::Jacobian& jacobian) const
+    
+    Jacobian MappingToRefCubeToHypercube3::calcJacobian(const Geometry::PointReference& p1) const
     {
-        jacobian(0,0) = 0.0;
-        jacobian(1,0) = 1.0;
-        jacobian(2,0) = 0.0;
-        jacobian(3,0) = 0.0;
-
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 1.0;
-        jacobian(3,1) = 0.0;
-
-        jacobian(0,2) = 0.0;
-        jacobian(1,2) = 0.0;
-        jacobian(2,2) = 0.0;
-        jacobian(3,2) = 1.0;
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        Jacobian jacobian(4, 3);
+        jacobian(0, 0) = 0.0;
+        jacobian(1, 0) = 1.0;
+        jacobian(2, 0) = 0.0;
+        jacobian(3, 0) = 0.0;
+        
+        jacobian(0, 1) = 0.0;
+        jacobian(1, 1) = 0.0;
+        jacobian(2, 1) = 1.0;
+        jacobian(3, 1) = 0.0;
+        
+        jacobian(0, 2) = 0.0;
+        jacobian(1, 2) = 0.0;
+        jacobian(2, 2) = 0.0;
+        jacobian(3, 2) = 1.0;
+        return jacobian;
     }
-
-    MappingToRefCubeToHypercube3::MappingToRefCubeToHypercube3() { }
-    MappingToRefCubeToHypercube3::~MappingToRefCubeToHypercube3() { }
-
+    
+    MappingToRefCubeToHypercube3::MappingToRefCubeToHypercube3()
+    {
+    }
+    MappingToRefCubeToHypercube3::~MappingToRefCubeToHypercube3()
+    {
+    }
+    
     // ~~~ index 4 ~~~==============================================================================
-
+    
     const MappingToRefCubeToHypercube4& MappingToRefCubeToHypercube4::Instance()
     {
         static const MappingToRefCubeToHypercube4 theInstance;
         return theInstance;
     }
-
-    void MappingToRefCubeToHypercube4::transform(const Geometry::PointReference& p1,
-                                                  Geometry::PointReference& p2) const
+    
+    PointReference MappingToRefCubeToHypercube4::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        PointReference p2(4);
         p2[0] = +1.0;
-        p2[1] =  p1[0];
-        p2[2] =  p1[1];
-        p2[3] =  p1[2];
+        p2[1] = p1[0];
+        p2[2] = p1[1];
+        p2[3] = p1[2];
+        return p2;
     }
-
-    void MappingToRefCubeToHypercube4::calcJacobian(const Geometry::PointReference& p1,
-                                                     Geometry::Jacobian& jacobian) const
+    
+    Jacobian MappingToRefCubeToHypercube4::calcJacobian(const Geometry::PointReference& p1) const
     {
-        jacobian(0,0) = 0.0;
-        jacobian(1,0) = 1.0;
-        jacobian(2,0) = 0.0;
-        jacobian(3,0) = 0.0;
-
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 1.0;
-        jacobian(3,1) = 0.0;
-
-        jacobian(0,2) = 0.0;
-        jacobian(1,2) = 0.0;
-        jacobian(2,2) = 0.0;
-        jacobian(3,2) = 1.0;
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        Jacobian jacobian(4, 3);
+        jacobian(0, 0) = 0.0;
+        jacobian(1, 0) = 1.0;
+        jacobian(2, 0) = 0.0;
+        jacobian(3, 0) = 0.0;
+        
+        jacobian(0, 1) = 0.0;
+        jacobian(1, 1) = 0.0;
+        jacobian(2, 1) = 1.0;
+        jacobian(3, 1) = 0.0;
+        
+        jacobian(0, 2) = 0.0;
+        jacobian(1, 2) = 0.0;
+        jacobian(2, 2) = 0.0;
+        jacobian(3, 2) = 1.0;
+        return jacobian;
     }
-
-    MappingToRefCubeToHypercube4::MappingToRefCubeToHypercube4() { }
-    MappingToRefCubeToHypercube4::~MappingToRefCubeToHypercube4() { }
-
+    
+    MappingToRefCubeToHypercube4::MappingToRefCubeToHypercube4()
+    {
+    }
+    MappingToRefCubeToHypercube4::~MappingToRefCubeToHypercube4()
+    {
+    }
+    
     // ~~~ index 5 ~~~==============================================================================
-
+    
     const MappingToRefCubeToHypercube5& MappingToRefCubeToHypercube5::Instance()
     {
         static const MappingToRefCubeToHypercube5 theInstance;
         return theInstance;
     }
-
-    void MappingToRefCubeToHypercube5::transform(const Geometry::PointReference& p1,
-                                                  Geometry::PointReference& p2) const
+    
+    PointReference MappingToRefCubeToHypercube5::transform(const Geometry::PointReference& p1) const
     {
-        p2[0] =  p1[0];
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        PointReference p2(4);
+        p2[0] = p1[0];
         p2[1] = +1.0;
-        p2[2] =  p1[1];
-        p2[3] =  p1[2];
+        p2[2] = p1[1];
+        p2[3] = p1[2];
+        return p2;
     }
-
-    void MappingToRefCubeToHypercube5::calcJacobian(const Geometry::PointReference& p1,
-                                                     Geometry::Jacobian& jacobian) const
+    
+    Jacobian MappingToRefCubeToHypercube5::calcJacobian(const Geometry::PointReference& p1) const
     {
-        jacobian(0,0) = 1.0;
-        jacobian(1,0) = 0.0;
-        jacobian(2,0) = 0.0;
-        jacobian(3,0) = 0.0;
-
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 0.0;
-        jacobian(2,1) = 1.0;
-        jacobian(3,1) = 0.0;
-
-        jacobian(0,2) = 0.0;
-        jacobian(1,2) = 0.0;
-        jacobian(2,2) = 0.0;
-        jacobian(3,2) = 1.0;
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        Jacobian jacobian(4, 3);
+        jacobian(0, 0) = 1.0;
+        jacobian(1, 0) = 0.0;
+        jacobian(2, 0) = 0.0;
+        jacobian(3, 0) = 0.0;
+        
+        jacobian(0, 1) = 0.0;
+        jacobian(1, 1) = 0.0;
+        jacobian(2, 1) = 1.0;
+        jacobian(3, 1) = 0.0;
+        
+        jacobian(0, 2) = 0.0;
+        jacobian(1, 2) = 0.0;
+        jacobian(2, 2) = 0.0;
+        jacobian(3, 2) = 1.0;
+        return jacobian;
     }
-
-    MappingToRefCubeToHypercube5::MappingToRefCubeToHypercube5() { }
-    MappingToRefCubeToHypercube5::~MappingToRefCubeToHypercube5() { }
-
+    
+    MappingToRefCubeToHypercube5::MappingToRefCubeToHypercube5()
+    {
+    }
+    MappingToRefCubeToHypercube5::~MappingToRefCubeToHypercube5()
+    {
+    }
+    
     // ~~~ index 6 ~~~==============================================================================
-
+    
     const MappingToRefCubeToHypercube6& MappingToRefCubeToHypercube6::Instance()
     {
         static const MappingToRefCubeToHypercube6 theInstance;
         return theInstance;
     }
-
-    void MappingToRefCubeToHypercube6::transform(const Geometry::PointReference& p1,
-                                                  Geometry::PointReference& p2) const
+    
+    PointReference MappingToRefCubeToHypercube6::transform(const Geometry::PointReference& p1) const
     {
-        p2[0] =  p1[0];
-        p2[1] =  p1[1];
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        PointReference p2(4);
+        p2[0] = p1[0];
+        p2[1] = p1[1];
         p2[2] = +1.0;
-        p2[3] =  p1[2];
+        p2[3] = p1[2];
+        return p2;
     }
-
-    void MappingToRefCubeToHypercube6::calcJacobian(const Geometry::PointReference& p1,
-                                                     Geometry::Jacobian& jacobian) const
+    
+    Jacobian MappingToRefCubeToHypercube6::calcJacobian(const Geometry::PointReference& p1) const
     {
-        jacobian(0,0) = 1.0;
-        jacobian(1,0) = 0.0;
-        jacobian(2,0) = 0.0;
-        jacobian(3,0) = 0.0;
-
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 1.0;
-        jacobian(2,1) = 0.0;
-        jacobian(3,1) = 0.0;
-
-        jacobian(0,2) = 0.0;
-        jacobian(1,2) = 0.0;
-        jacobian(2,2) = 0.0;
-        jacobian(3,2) = 1.0;
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        Jacobian jacobian(4, 3);
+        jacobian(0, 0) = 1.0;
+        jacobian(1, 0) = 0.0;
+        jacobian(2, 0) = 0.0;
+        jacobian(3, 0) = 0.0;
+        
+        jacobian(0, 1) = 0.0;
+        jacobian(1, 1) = 1.0;
+        jacobian(2, 1) = 0.0;
+        jacobian(3, 1) = 0.0;
+        
+        jacobian(0, 2) = 0.0;
+        jacobian(1, 2) = 0.0;
+        jacobian(2, 2) = 0.0;
+        jacobian(3, 2) = 1.0;
+        return jacobian;
     }
-
-    MappingToRefCubeToHypercube6::MappingToRefCubeToHypercube6() { }
-    MappingToRefCubeToHypercube6::~MappingToRefCubeToHypercube6() { }
-
+    
+    MappingToRefCubeToHypercube6::MappingToRefCubeToHypercube6()
+    {
+    }
+    MappingToRefCubeToHypercube6::~MappingToRefCubeToHypercube6()
+    {
+    }
+    
     // ~~~ index 7 ~~~==============================================================================
-
+    
     const MappingToRefCubeToHypercube7& MappingToRefCubeToHypercube7::Instance()
     {
         static const MappingToRefCubeToHypercube7 theInstance;
         return theInstance;
     }
-
-    void MappingToRefCubeToHypercube7::transform(const Geometry::PointReference& p1,
-                                                  Geometry::PointReference& p2) const
+    
+    PointReference MappingToRefCubeToHypercube7::transform(const Geometry::PointReference& p1) const
     {
-        p2[0] =  p1[0];
-        p2[1] =  p1[1];
-        p2[2] =  p1[2];
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        PointReference p2(4);
+        p2[0] = p1[0];
+        p2[1] = p1[1];
+        p2[2] = p1[2];
         p2[3] = +1.0;
-
+        return p2;
+        
     }
-
-    void MappingToRefCubeToHypercube7::calcJacobian(const Geometry::PointReference& p1,
-                                                     Geometry::Jacobian& jacobian) const
+    
+    Jacobian MappingToRefCubeToHypercube7::calcJacobian(const Geometry::PointReference& p1) const
     {
-        jacobian(0,0) = 1.0;
-        jacobian(1,0) = 0.0;
-        jacobian(2,0) = 0.0;
-        jacobian(3,0) = 0.0;
-
-        jacobian(0,1) = 0.0;
-        jacobian(1,1) = 1.0;
-        jacobian(2,1) = 0.0;
-        jacobian(3,1) = 0.0;
-
-        jacobian(0,2) = 0.0;
-        jacobian(1,2) = 0.0;
-        jacobian(2,2) = 1.0;
-        jacobian(3,2) = 0.0;
+        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        Jacobian jacobian(4, 3);
+        jacobian(0, 0) = 1.0;
+        jacobian(1, 0) = 0.0;
+        jacobian(2, 0) = 0.0;
+        jacobian(3, 0) = 0.0;
+        
+        jacobian(0, 1) = 0.0;
+        jacobian(1, 1) = 1.0;
+        jacobian(2, 1) = 0.0;
+        jacobian(3, 1) = 0.0;
+        
+        jacobian(0, 2) = 0.0;
+        jacobian(1, 2) = 0.0;
+        jacobian(2, 2) = 1.0;
+        jacobian(3, 2) = 0.0;
+        return jacobian;
     }
-
-    MappingToRefCubeToHypercube7::MappingToRefCubeToHypercube7() { }
-    MappingToRefCubeToHypercube7::~MappingToRefCubeToHypercube7() { }
+    
+    MappingToRefCubeToHypercube7::MappingToRefCubeToHypercube7()
+    {
+    }
+    MappingToRefCubeToHypercube7::~MappingToRefCubeToHypercube7()
+    {
+    }
 }

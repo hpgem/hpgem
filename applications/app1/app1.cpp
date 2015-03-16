@@ -19,26 +19,28 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Base/HpgemUISimplified.hpp"
-#include "Base/RectangularMeshDescriptor.hpp"
-#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
-#include "Output/TecplotPhysicalGeometryIterator.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
-#include "Base/PhysGradientOfBasisFunction.hpp"
-#include "Base/Norm2.hpp"
-#include "Output/TecplotSingleElementWriter.hpp"
-#include "Base/ElementCacheData.hpp"
-#include "Base/FaceCacheData.hpp"
+#include "Base/HpgemUISimplified.h"
+#include "Base/RectangularMeshDescriptor.h"
+#include "Output/TecplotDiscontinuousSolutionWriter.h"
+#include "Output/TecplotPhysicalGeometryIterator.h"
+#include "LinearAlgebra/NumericalVector.h"
+#include "Base/PhysGradientOfBasisFunction.h"
+#include "Output/TecplotSingleElementWriter.h"
+#include "Base/ElementCacheData.h"
+#include "Base/FaceCacheData.h"
+#include "Base/Element.h"
+#include "Base/L2Norm.h"
+
 using Base::RectangularMeshDescriptor;
 using Base::HpgemUISimplified;
 
-const unsigned int DIM = 2;
-
 //Note: the intended use of the prototype classes is to merge Dummy with SimpleDemoProblem
-class Dummy: public Output::TecplotSingleElementWriter
+class Dummy : public Output::TecplotSingleElementWriter
 {
 public:
-    Dummy(){}
+    Dummy()
+    {
+    }
     void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, std::ostream& os)
     {
     }
@@ -64,58 +66,64 @@ public:
         
         return true;
     }
-
+    
     void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
     {
         
-        unsigned int numberOfDegreesOfFreedom=element->getNrOfBasisFunctions();
-       
-        LinearAlgebra::NumericalVector sol;
-        element->getSolution(0,p,sol);
+        unsigned int numberOfDegreesOfFreedom = element->getNrOfBasisFunctions();
+        
+        LinearAlgebra::NumericalVector sol = element->getSolution(0, p);
         
         //This is the grad of the basic function.
         LinearAlgebra::NumericalVector grads(2);
         
-        for (unsigned int i=0; i < numberOfDegreesOfFreedom; ++i)
+        for (unsigned int i = 0; i < numberOfDegreesOfFreedom; ++i)
         {
-            element->basisFunctionDeriv(i,p,grads);
+            grads = element->basisFunctionDeriv(i, p);
             
-            ret(i,0) = sol(i) * grads[i];
+            ret(i, 0) = sol(i) * grads[i];
             
         }
-    
         
     }
     
-    void faceIntegrand(const FaceT* face, const PointPhysicalT& normal, 
-                       const PointReferenceT& p,  LinearAlgebra::NumericalVector& ret)
+    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+    {
+        
+    }
+    
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
     {
         
         if (face->isInternal())
         {
-         
-            const double magn                     = Utilities::norm2(normal);
-            unsigned int numberOfDegreesOfFreedom = face->getPtrElementLeft()->getNrOfBasisFunctions();
+            
             
         }
         else
         {
             //here you have to implement the boundary conditions
         }
-
-    
+        
     }
     
-    double initialConditions(const PointPhysicalT& p){return 0;}
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
+    {
+        
+    }
+    
+    double initialConditions(const PointPhysicalT& p)
+    {
+        return 0;
+    }
     
     void output()
     {
         std::ofstream file2D;
-        file2D.open ("out.dat");
-        int dimensionsToWrite[2] = {0,1};
-        Output::TecplotDiscontinuousSolutionWriter out(file2D,"RectangularMesh","01","xy");
+        file2D.open("out.dat");
+        Output::TecplotDiscontinuousSolutionWriter out(file2D, "RectangularMesh", "01", "xy");
         Dummy d;
-        out.write(meshes_[0],"holi",false, &d);
+        out.write(meshes_[0], "holi", false, &d);
     }
     
 };
@@ -128,5 +136,4 @@ int main(int argc, char **argv)
 //     
 //     problem.output();
 }
-
 

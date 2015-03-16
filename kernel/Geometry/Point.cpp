@@ -19,7 +19,7 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <iostream>
-#include "Point.hpp"
+#include "Point.h"
 using std::cout;
 using std::endl;
 
@@ -27,177 +27,168 @@ namespace Geometry
 {
     class Point;
     
-    Point::Point(unsigned int DIM):
-        coordinates_(DIM)
+    Point::Point(std::size_t DIM)
+            : coordinates_(DIM)
     {
     }
     
-    Point::Point( CoordTypeT coords[],unsigned int DIM):
-        coordinates_(coords,DIM)
+    Point::Point(double coords[], std::size_t DIM)
+            : coordinates_(coords, DIM)
     {
-    }
-
-    Point::Point(const PointT& other):
-        coordinates_(other.coordinates_)
-    {
-            if (this->size() != other.size())
-            {///\bug this should be checked BEFORE data is copied
-                std::cout<<"ERROR HANDLER!!!!"<<"Sizes do not coincide."<<endl;
-                    //throw exception;
-            }
     }
     
-    Point::Point(const VectorOfCoordsT& coord):
-        coordinates_(coord)
+    Point::Point(const Point& other)
+            : coordinates_(other.coordinates_)
     {
-        if (coord.size()!=this->size())
-        {///\bug this should be checked BEFORE data is copied
-            std::cout<<"ERROR HANDLER!!!!"<<"Sizes do not coincide."<<endl;
-                //throw exception;
-        }
     }
-
-	bool Point::operator ==(const Point& right) {
-		return coordinates_ == right.coordinates_;
-	}
-
-	bool Point::operator ==(const Point& right) const {
-		return coordinates_ == right.coordinates_;
-	}
-
-	bool Point::operator <(const Point& right) const {
-		return coordinates_ < right.coordinates_;
-	}
-
-	Point& Point::operator +=(const Point& right) {
-		coordinates_ += right.coordinates_;
-		return *this;
-	}
-
-	Point& Point::operator -=(const Point& right) {
-		coordinates_ -= right.coordinates_;
-		return *this;
-	}
-
-	Point& Point::operator *=(double right) {
-		coordinates_.operator *=(right);
-		return *this;
-	}
-
-	Point Point::operator *(double right) const {
-		return PointT(coordinates_ * right);
-	}
-
-	Point Point::operator *(double right) {
-		return PointT(coordinates_ * right);
-	}
-
-	Point Point::operator +(const Point& right) const {
-		return PointT(coordinates_ + right.coordinates_);
-	}
-
-	Point Point::operator +(const Point& right) {
-		return PointT(coordinates_ + right.coordinates_);
-	}
-
-	Point Point::operator -(const Point& right) const {
-		return PointT(coordinates_ - right.coordinates_);
-	}
-
-	Point Point::operator -(const Point& right) {
-		return PointT(coordinates_ - right.coordinates_);
-	}
-
-	unsigned int Point::size() {
-		return coordinates_.size();
-	}
-
-	unsigned int Point::size() const {
-		return coordinates_.size();
-	}
-
-	typename Point::CoordTypeT Point::getCoordinate(IndexT n) const {
-		if (n < this->size()) {
-			return coordinates_[n];
-		} else {
-			std::cout << "ERROR HANDLER!!!!" << "Sizes do not coincide." << endl;
-			//throw exception;
-			return 0.0;
-		}
-	}
-
-    const typename Point::VectorOfCoordsT&
-    Point::getCoordinates() const
+    
+    Point::Point(const VectorOfCoordsT& coord)
+            : coordinates_(coord)
     {
-        //cout << "###################" << coordinates_;
-        return coordinates_;
     }
-
-    void
-    Point::setCoordinate(IndexT n, const CoordTypeT& coord)
+    
+    bool Point::operator ==(const Point& right) const
     {
-        if (n<this->size())
-        {
-            coordinates_[n]=coord;
-        }
-        else
-        {
-            std::cout<<"ERROR HANDLER!!!!"<<"Sizes do not coincide."<<endl;
-                //throw exception;
-        }
+        return coordinates_ == right.coordinates_;
     }
-
-    void
-    Point::setCoordinates(const VectorOfCoordsT& coord)
+    
+    bool Point::operator!=(const Point& right) const
     {
-        if (coord.size()==this->size())
-        {
-            coordinates_ = coord;
-        }
-        else
-        {
-            std::cout<<"ERROR HANDLER!!!!"<<"Sizes do not coincide."<<endl;
-                //throw exception;
-        }
-
+        return !(*this == right);
     }
-
-
-    typename Point::CoordTypeT&
-    Point::operator [] (IndexT n)
-    {///\bug no size checking
+    
+    bool Point::operator <(const Point& right) const
+    {
+        return coordinates_ < right.coordinates_;
+    }
+    
+    Point& Point::operator +=(const Point& right)
+    {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
+        coordinates_ += right.coordinates_;
+        return *this;
+    }
+    
+    Point& Point::operator -=(const Point& right)
+    {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
+        coordinates_ -= right.coordinates_;
+        return *this;
+    }
+    
+    Point& Point::operator *=(double right)
+    {
+        coordinates_.operator *=(right);
+        return *this;
+    }
+    
+    Point Point::operator *(double right) const
+    {
+        return Point(coordinates_ * right);
+    }
+    
+    Point Point::operator *(double right)
+    {
+        return Point(coordinates_ * right);
+    }
+    
+    Point Point::operator +(const Point& right) const
+    {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
+        return Point(coordinates_ + right.coordinates_);
+    }
+    
+    Point Point::operator +(const Point& right)
+    {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
+        return Point(coordinates_ + right.coordinates_);
+    }
+    
+    Point Point::operator -(const Point& right) const
+    {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
+        return Point(coordinates_ - right.coordinates_);
+    }
+    
+    Point Point::operator -(const Point& right)
+    {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
+        return Point(coordinates_ - right.coordinates_);
+    }
+    
+    std::size_t Point::size()
+    {
+        return coordinates_.size();
+    }
+    
+    std::size_t Point::size() const
+    {
+        return coordinates_.size();
+    }
+    
+    double Point::getCoordinate(std::size_t n) const
+    {
+        logger.assert(n < size(), "In Point::getCoordinate, entry % is requested while the dimension is %", n, size());
         return coordinates_[n];
     }
     
-    const typename Point::CoordTypeT&
-    Point::operator [] (IndexT n)const
-    {///\bug no size checking
+    const typename Point::VectorOfCoordsT&
+    Point::getCoordinates() const
+    {
+        return coordinates_;
+    }
+    
+    void Point::setCoordinate(std::size_t n, const double& coord)
+    {
+        logger.assert(n < size(), "In Point::setCoordinate, trying to set entry % while the dimension is %", n, size());
+        coordinates_[n] = coord;
+    }
+    
+    void Point::setCoordinates(const VectorOfCoordsT& coord)
+    {
+        logger.assert(size() == coord.size(), "In Point::setCoordinates, the size of the given vector does not coincide with the dimension of the point.");
+        coordinates_ = coord;        
+    }
+    
+    double& Point::operator [](std::size_t n)
+    { 
+        logger.assert(n < size(), "In Point::operator[], entry % is requested while the dimension is %", n, size());
+        logger.assert(n < size(), "Asked for component %, but the dimension is only %", n, size());
+        return coordinates_[n];
+    }
+    
+    const double& Point::operator [](std::size_t n) const
+    {
+        logger.assert(n < size(), "In Point::operator[] const, entry % is requested while the dimension is %", n, size());
+        logger.assert(n < size(), "Asked for component %, but the dimension is only %", n, size());
         return coordinates_[n];
     }
     
     Point&
-    Point::operator = (const PointT& rhs)
-    {///\bug no size checking
-        coordinates_ = rhs.coordinates_;return *this;
+    Point::operator =(const Point& rhs)
+    {
+        logger.assert(size() == rhs.size(), "In Point::operator=, the dimension of the given Point does not coincide with the dimension of the point.");
+        coordinates_ = rhs.coordinates_;
+        return *this;
     }
-
-
-	std::ostream& operator <<(std::ostream& os, const Point& point) {
-		// cout << "Size in ostream="<< point.coordinates_.size()<<endl;
-		os << "point={";
-		for (unsigned int i = 0; i < point.coordinates_.size(); i++) {
-			if (i < point.coordinates_.size() - 1)
-				os << point.coordinates_[i] << ',';
-			else
-				os << point.coordinates_[i];
-		}
-		os << "} ";
-		return os;
-	}
-
-
-
-	Point operator *(const double& left, const Point& right) {
-		return Point(right.coordinates_ * left);
-	}
-};
+    
+    std::ostream& operator <<(std::ostream& os, const Point& point)
+    {
+        os << "point={";
+        for (std::size_t i = 0; i < point.coordinates_.size(); i++)
+        {
+            if (i < point.coordinates_.size() - 1)
+                os << point.coordinates_[i] << ',';
+            else
+                os << point.coordinates_[i];
+        }
+        os << "} ";
+        return os;
+    }
+    
+    Point operator *(const double& left, const Point& right)
+    {
+        return Point(right.coordinates_ * left);
+    }
+}
+;

@@ -19,64 +19,93 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <limits>
 
-#include "Base/ShortTermStorageFaceBase.hpp"
+#include "ShortTermStorageFaceBase.h"
+#include "Integration/QuadratureRules/GaussQuadratureRule.h"
+#include "FaceCacheData.h"
+#include "Logger.h"
 
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-#include "FaceCacheData.hpp"
-
-void Base::ShortTermStorageFaceBase::computeData() {
-	if(useCache_){
-		std::vector<FaceCacheData>& cache=const_cast<Face*>(face_)->getVecCacheData();
-		if(recomputeCache_||(cache.size()!=getGaussQuadratureRule()->nrOfPoints())){
-			recomputeCacheOff();
-			int n=getGaussQuadratureRule()->nrOfPoints();
-			for(int i=0;i<n;++i){
-				Geometry::PointReference p(currentPoint_.size());
-				getGaussQuadratureRule()->getPoint(i,p);
-				cache[i](*face_,p);
-			}
-		}
-		currentPointIndex_++;
-		face_->getNormalVector(currentPoint_,normal_);
-	}else{
-		face_->getNormalVector(currentPoint_,normal_);
-	}
+Base::Face& Base::ShortTermStorageFaceBase::operator=(const Base::Face& face)
+{
+    logger.assert(this != &face, "Trying to assign a Face of the type ShortTermStorageFaceBase to itself.");
+    face_ = &face;
+    if (currentPoint_.size() == 0)
+    {
+        computeData();
+    }
+    else
+    {
+        currentPoint_[0] = std::numeric_limits<double>::quiet_NaN();
+    }
+    currentPointIndex_ = -1;
+    return *this;
 }
 
-
-void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v) const {
-	v=normal_;
-	if(!(currentPoint_==pRefFace)){
-		std::cout<<"WARNING: you are using slow data access";
-		face_->getNormalVector(pRefFace,v);
-	}
+void Base::ShortTermStorageFaceBase::computeData()
+{
+    if (useCache_)
+    {
+        std::vector<FaceCacheData>& cache = const_cast<Face*>(face_)->getVecCacheData();
+        if (recomputeCache_ || (cache.size() != getGaussQuadratureRule()->nrOfPoints()))
+        {
+            recomputeCacheOff();
+            std::size_t n = getGaussQuadratureRule()->nrOfPoints();
+            for (std::size_t i = 0; i < n; ++i)
+            {
+                cache[i](*face_, getGaussQuadratureRule()->getPoint(i));
+            }
+        }
+        currentPointIndex_++;
+        normal_ = face_->getNormalVector(currentPoint_);
+    }
+    else
+    {
+        normal_ = face_->getNormalVector(currentPoint_);
+    }
 }
 
-void Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointOnTheFaceT& pRefFace, LinearAlgebra::NumericalVector& v) {
-	if(!(currentPoint_==pRefFace)){
-		currentPoint_=pRefFace;
-		computeData();
-	}
-	v=normal_;
+LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace) const
+{
+    if (!(currentPoint_ == pRefFace))
+    {
+        logger(WARN, "WARNING: you are using slow data access.");
+        return face_->getNormalVector(pRefFace);
+    }
+    return normal_;
 }
 
-void Base::ShortTermStorageFaceBase::referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical) const {
-		face_->referenceToPhysical(pointReference,pointPhysical);
+LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace)
+{
+    if (!(currentPoint_ == pRefFace))
+    {
+        currentPoint_ = pRefFace;
+        computeData();
+    }
+    return normal_;
 }
 
-void Base::ShortTermStorageFaceBase::cacheOn() {
-	useCache_=true;
+Geometry::PointPhysical Base::ShortTermStorageFaceBase::referenceToPhysical(const Geometry::PointReference& pointReference) const
+{
+    return face_->referenceToPhysical(pointReference);
 }
 
-void Base::ShortTermStorageFaceBase::cacheOff() {
-	useCache_=false;
+void Base::ShortTermStorageFaceBase::cacheOn()
+{
+    useCache_ = true;
 }
 
-void Base::ShortTermStorageFaceBase::recomputeCacheOn() {
-	recomputeCache_=true;
+void Base::ShortTermStorageFaceBase::cacheOff()
+{
+    useCache_ = false;
 }
 
-void Base::ShortTermStorageFaceBase::recomputeCacheOff() {
-	recomputeCache_=false;
+void Base::ShortTermStorageFaceBase::recomputeCacheOn()
+{
+    recomputeCache_ = true;
+}
+
+void Base::ShortTermStorageFaceBase::recomputeCacheOff()
+{
+    recomputeCache_ = false;
 }

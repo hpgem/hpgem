@@ -19,195 +19,249 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ElementData.hpp"
-#include "TestErrorDebug.hpp"
+#include "ElementData.h"
+#include "Logger.h"
+#include "Element.h"
 
-#include "LinearAlgebra/Matrix.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
+#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/NumericalVector.h"
 #include <iostream>
+#include <functional>
 
 namespace Base
 {
-    
-    ElementData::ElementData(unsigned int timeLevels,
-                                  unsigned int nrOfUnkowns,
-                                  unsigned int nrOfBasisFunctions,
-                                  unsigned int nrOfElementMatrixes,
-                                  unsigned int nrOfElementVectors):
-        timeLevels_(timeLevels),
-        nrOfUnkowns_(nrOfUnkowns),
-        nrOfBasisFunctions_(nrOfBasisFunctions),
-        expansionCoefficients_(timeLevels_),
-        userData_(NULL),
-        elementMatrix_(nrOfElementMatrixes),
-        elementVector_(nrOfElementVectors)
+    ElementData::ElementData(std::size_t timeLevels, std::size_t nrOfUnknowns, std::size_t nrOfBasisFunctions, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors)
+            : timeLevels_(timeLevels), nrOfUnknowns_(nrOfUnknowns), nrOfBasisFunctions_(nrOfBasisFunctions), expansionCoefficients_(timeLevels_), userData_(nullptr), elementMatrix_(nrOfElementMatrixes), elementVector_(nrOfElementVectors)
     {
-        for (typename VectorOfMatrices::iterator cit=expansionCoefficients_.begin(); cit!=expansionCoefficients_.end(); ++cit)
-            cit->resize(nrOfUnkowns_, nrOfBasisFunctions);
-        for(typename VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
-        	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
-        for(std::vector<LinearAlgebra::NumericalVector>::iterator it=elementVector_.begin();it!=elementVector_.end();++it)
-        	it->resize(nrOfUnkowns*nrOfBasisFunctions);
-    }
-
-    void
-    ElementData::setElementMatrix(const LinearAlgebra::Matrix& matrix,int matrixID)
-    {
-    	if(matrixID>=elementMatrix_.size()){
-    		std::cout<<"Warning: Setting an element matrix that was not preallocated. If this is expected, please allocate more element matrixes in the mesh generator"<<std::endl;
-    		elementMatrix_.resize(matrixID+1);
-            for(typename VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
-            	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
-    	}
-    	elementMatrix_[matrixID]=matrix;
-    }
-
-    void
-    ElementData::getElementMatrix(LinearAlgebra::Matrix& matrix, int matrixID) const
-    {
-    	TestErrorDebug(matrixID<elementMatrix_.size(),"insufficient element matrixes stored");
-    	matrix=elementMatrix_[matrixID];
-    }
-
-    void
-    ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, int vectorID)
-    {
-    	if(vectorID>=elementVector_.size()){
-    		std::cout<<"Warning: Setting an element vector that was not preallocated. If this is expected, please allocate more element vectors in the mesh generator"<<std::endl;
-    		elementVector_.resize(vectorID+1);
-            for(std::vector<LinearAlgebra::NumericalVector>::iterator cit=elementVector_.begin();cit!=elementVector_.end();++cit)
-            	cit->resize(nrOfUnkowns_*nrOfBasisFunctions_);
-    	}
-    	elementVector_[vectorID]=vector;
-    }
-
-    void
-    ElementData::getElementVector(LinearAlgebra::NumericalVector& vector, int vectorID) const
-    {
-    	TestErrorDebug(vectorID<elementVector_.size(),"insufficient element vectors stored");
-    	vector=elementVector_[vectorID];
-    }
-
-    void
-    ElementData::setNumberOfBasisFunctions(unsigned int number)
-    {
-    	nrOfBasisFunctions_=number;
-    	residue_.resize(number);
-    	for(VectorOfMatrices::iterator cit=expansionCoefficients_.begin();cit!=expansionCoefficients_.end();++cit)
-    		cit->resize(nrOfUnkowns_,nrOfBasisFunctions_);
-    	for(VectorOfMatrices::iterator cit=elementMatrix_.begin();cit!=elementMatrix_.end();++cit)
-    		cit->resize(nrOfUnkowns_*nrOfBasisFunctions_,nrOfUnkowns_*nrOfBasisFunctions_);
-        for(std::vector<LinearAlgebra::NumericalVector>::iterator it=elementVector_.begin();it!=elementVector_.end();++it)
-        	it->resize(nrOfUnkowns_*nrOfBasisFunctions_);
-    }
-
-    const LinearAlgebra::Matrix&
-    ElementData::getTimeLevelData(unsigned int timeLevel) const
-    {
-        if (timeLevel < timeLevels_)
-        {
-            return expansionCoefficients_[timeLevel];
-        }
-        else
-        {
-            throw "Error: Asked for a time level greater than the amount of time levels";
-        }
-    }
-
-
-    double
-    ElementData::getData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction) const
-    {
-        if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
-        {
-            /// \todo these seems to be a hack, not the case the users sets inconsist function. We should actually stop the user from being able to do thos
-            if(expansionCoefficients_[timeLevel].size()!=nrOfUnkowns_*nrOfBasisFunctions_){
-                const_cast<LinearAlgebra::Matrix *>(&expansionCoefficients_[timeLevel])->resize(nrOfUnkowns_,nrOfBasisFunctions_);
-            }
-            return expansionCoefficients_[timeLevel](unknown, basisFunction);
-        }
-        else
-        {
-            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
-        }
-    }
-
-    void
-    ElementData::setData(unsigned int timeLevel, unsigned int unknown, unsigned int basisFunction, double val)
-    {
-        if (timeLevel < timeLevels_ && unknown < nrOfUnkowns_ * nrOfBasisFunctions_)
-        {
-            expansionCoefficients_[timeLevel](unknown, basisFunction)=val;
-        }
-        else
-        {
-            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
-        }
+        logger(VERBOSE, "In constructor of ElementData: ");
+        logger(VERBOSE, "nrOfElementMatrixes %", nrOfElementMatrixes);
+        logger(VERBOSE, "elementMatrix_ size %", elementMatrix_.size());
+        logger(VERBOSE, "nrOfElementVectors %", nrOfElementVectors);
+        logger(VERBOSE, "elementVector_ size = %", elementVector_.size());
     }
     
-
-    
-        ///Rewrite with swap!!! and for all variables immediately
-    void
-    ElementData::setTimeLevelData(unsigned int timeLevel, unsigned int solutionId, const LinearAlgebra::NumericalVector& unknown)
+    void ElementData::setElementMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID)
     {
-        if (timeLevel < timeLevels_ && solutionId < nrOfUnkowns_)
+        logger(VERBOSE, "In ElementData::setElementMatrix:");
+        logger(VERBOSE, "matrix ID = %", matrixID);
+        logger(VERBOSE, "elementMatrix_ size = %", elementMatrix_.size());
+        if (matrixID >= elementMatrix_.size())
         {
-                //cout << "came here with "<< "solutionId="<<solutionId<< ",unknown="<<unknown[0]<<endl;
-            LinearAlgebra::Matrix& mat = expansionCoefficients_[timeLevel];
-                // cout << mat<<"before setting"<<endl;
-    
-            for (int i = 0; i < unknown.size(); ++i)
-            {
-                mat(solutionId, i) = unknown[i];
-//                cout << "was here"<<solutionId<<endl;
-            }
-            
-                // cout << mat<<"after setting"<<endl;
+            logger(WARN, "Warning: Setting an element matrix that was not preallocated. If this is expected, please allocate more element matrixes in the mesh generator");
+            elementMatrix_.resize(matrixID + 1);
         }
-        else
-        {
-            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";
-        }
+        elementMatrix_[matrixID] = matrix;
     }
     
-    void
-    ElementData::setTimeLevelData(unsigned int timeLevel, const LinearAlgebra::Matrix& unknown)
+    const LinearAlgebra::Matrix & ElementData::getElementMatrix(std::size_t matrixID) const
     {
-	if(timeLevel<timeLevels_){
-	    expansionCoefficients_[timeLevel]=LinearAlgebra::Matrix(unknown);
-	}else{
-            throw "Error: Asked for a time level, or unknown, greater than the amount of time levels";	    
-	}
+        logger.assert(matrixID < elementMatrix_.size(), "Requested matrix %, "
+                "while there are only % matrices for this element.", matrixID, elementMatrix_.size());
+        return elementMatrix_[matrixID];
     }
     
-    int
-    ElementData::getNrOfUnknows() const
+    void ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID)
     {
-        return nrOfUnkowns_;
-    }
+        logger(VERBOSE, "In ElementData::setElementVector");
+        logger(VERBOSE, "VectorID = %", vectorID);
+        logger(VERBOSE, "elementVector size = %", elementVector_.size());
         
-    int
-    ElementData::getNrOfBasisFunctions() const
+        if (vectorID >= elementVector_.size())
+        {
+            logger(WARN, "Warning: Setting an element vector that was not "
+                    "preallocated. If this is expected, please allocate more "
+                    "element vectors in the mesh generator");
+            elementVector_.resize(vectorID + 1);
+        }
+        elementVector_[vectorID] = vector;
+    }
+    
+    LinearAlgebra::NumericalVector ElementData::getElementVector(std::size_t vectorID) const
+    {
+        logger.assert(vectorID < elementVector_.size(), "insufficient element vectors stored");
+        return elementVector_[vectorID];
+    }
+    
+    void ElementData::setNumberOfBasisFunctions(std::size_t number)
+    {
+        nrOfBasisFunctions_ = number;
+    }
+    
+    std::size_t ElementData::getNrOfBasisFunctions() const
     {
         return nrOfBasisFunctions_;
     }
     
-    const typename ElementData::VectorOfDoubles&
-    ElementData::getResidue() const
+    /// \param[in] timeLevel Index corresponding to the time level.
+    /// \param[in] unknown Index corresponding to the variable.
+    /// \param[in] basisFunction Index corresponding to the basisFunction.
+    /// \param[in] val Value to set the expansionCoeffient.
+    void ElementData::setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, double val)
+    {
+        logger.assert((timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
+        if(expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
+        {
+            expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
+        }
+        expansionCoefficients_[timeLevel](convertToSingleIndex(basisFunction, unknown)) = val;
+    }
+    
+    /// \param[in] timeLevel Index corresponding to the time level.
+    /// \param[in] unknown Index corresponding to the variable.
+    /// \param[in] basisFunction Index corresponding to the basisFunction.
+    double ElementData::getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const
+    {
+        logger.assert((timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
+        logger.assert(expansionCoefficients_[timeLevel].size() == nrOfUnknowns_ * nrOfBasisFunctions_, "Wrong number of expansion coefficients.");
+        return expansionCoefficients_[timeLevel](convertToSingleIndex(basisFunction, unknown));
+    }
+
+    /// \details Rewrite with swap!!! This method is slow and inefficient. It is therefore advised to use getTimeLevelDataVector instead.
+    /// \param[in] timeLevel Index corresponding to the time level.
+    /// \param[in] unknown Index corresponding to the variable.
+    /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.
+
+    void ElementData::setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::NumericalVector& val)
+    {
+        logger.assert((timeLevel < timeLevels_ && unknown < nrOfUnknowns_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
+        if(expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
+        {
+            expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
+        }
+
+        for(std::size_t iB = 0; iB < val.size(); ++iB) // iB = iBasisFunction
+        {
+            expansionCoefficients_[timeLevel](convertToSingleIndex(iB, unknown)) = val[iB];
+        }
+    }
+
+    void ElementData::setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::NumericalVector& val)
+    {
+        logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
+        setTimeLevelData(timeLevel, 0, val);
+    }
+
+    /// \param[in] timeLevel Index corresponding to the time level.
+    /// \param[in] unknown Index corresponding to the variable.
+
+    const LinearAlgebra::NumericalVector
+    ElementData::getTimeLevelData(std::size_t timeLevel, std::size_t unknown) const
+    {
+        logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
+
+        LinearAlgebra::NumericalVector timeLevelData(nrOfBasisFunctions_);
+        for(std::size_t iB = 0; iB < nrOfBasisFunctions_; iB++) // iB = iBasisFunction
+        {
+            timeLevelData(iB) = expansionCoefficients_[timeLevel](convertToSingleIndex(iB, unknown));
+        }
+        return timeLevelData;
+    }
+
+    /**
+     * \details This method returns the TimeLevelData present in this Element for 
+     * the given timeLevel in the form of a matrix. If the data does not exist yet 
+     * (or better said, is of dimension 0), it will be initialised with the proper
+     * dimension.
+     
+     \param[in] timeLevel Index corresponding to the time level.
+     \return A matrix M such that M(iV,iB) is the expansion coefficient corresponding 
+     * to variable iV and basisfunction iB at the given time level.
+     */
+    LinearAlgebra::Matrix ElementData::getTimeLevelDataMatrix(std::size_t timeLevel)
+    {
+        logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
+        // The vector can be of dimension 0 if it hasn't been used before, 
+        // therefore it must be resized first.
+        if(expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
+        {
+            expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
+        }
+        LinearAlgebra::Matrix M(nrOfUnknowns_, nrOfBasisFunctions_);
+        for(std::size_t iV = 0; iV < nrOfUnknowns_; iV++) // iV = iVariable
+        {
+            for(std::size_t iB = 0; iB < nrOfBasisFunctions_; iB++) // iB = iBasisFunction
+            {
+                M(iV, iB) = expansionCoefficients_[timeLevel](convertToSingleIndex(iB, iV));
+            }
+        }
+        return M;
+    }
+    
+    /// \param[in] timeLevel Index corresponding to the time level.
+    /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.
+    void ElementData::setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::NumericalVector &val)
+    {
+        logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there"
+                      " are only % time levels", timeLevel, timeLevels_);
+        // The vector can be of dimension 0 if it hasn't been used before, 
+        // therefore it must be resized first.
+        if(expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
+        {
+            expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
+        }
+        expansionCoefficients_[timeLevel] = val;
+    }
+    
+    /// \param[in] timeLevel Index corresponding to the time level.
+    /// \return The expansion coefficient corresponding to the given time level.
+    const LinearAlgebra::NumericalVector & ElementData::getTimeLevelDataVector(std::size_t timeLevel) const
+    {
+        logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
+        logger.assert(expansionCoefficients_[timeLevel].size() == nrOfUnknowns_ * nrOfBasisFunctions_, "Wrong number of expansion coefficients.");
+        return expansionCoefficients_[timeLevel];
+    }
+    
+    LinearAlgebra::NumericalVector & ElementData::getTimeLevelDataVector(std::size_t timeLevel)
+    {
+        logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
+        // The vector can be of dimension 0 if it hasn't been used before, 
+        // therefore it must be resized first.
+        if(expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
+        {
+            expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
+        }
+        return expansionCoefficients_[timeLevel];
+    }
+    
+    void ElementData::setCurrentData(const LinearAlgebra::NumericalVector& data)
+    {
+        currentData_ = data;
+    }
+    
+    LinearAlgebra::NumericalVector& ElementData::getCurrentData()
+    {
+        // The vector can be of dimension 0 if it hasn't been used before, 
+        // therefore it must be resized first.
+        if (currentData_.size() != nrOfBasisFunctions_)
+        {
+            currentData_.resize(nrOfBasisFunctions_);
+        }
+        return currentData_;
+    }
+    
+    std::size_t ElementData::getNrOfUnknows() const
+    {
+        return nrOfUnknowns_;
+    }
+    
+    void ElementData::setResidue(LinearAlgebra::NumericalVector& residue)
+    {
+        residue_ = residue;
+    }
+    
+    const typename LinearAlgebra::NumericalVector& ElementData::getResidue() const
     {
         return residue_;
     }
     
-    void
-    ElementData::setResidue(VectorOfDoubles& residue)
+    void ElementData::setUserData(UserElementData* data)
     {
-        residue_=residue;
+        //the user may pass any kind of data he/she wants (including nullptr) even if this does not seem to make sense
+        userData_ = data;
     }
-
-    void
-    ElementData::setUserData(UserElementData* data)
+    
+    UserElementData* ElementData::getUserData() const
     {
-        userData_=data;
+        return userData_;
     }
 }

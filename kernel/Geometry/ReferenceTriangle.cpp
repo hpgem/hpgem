@@ -19,12 +19,13 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ReferenceTriangle.hpp"
-#include "ReferenceLine.hpp"
-#include "Mappings/MappingToRefLineToTriangle.hpp"
-#include "Mappings/MappingToRefTriangleToTriangle.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/ReferencePoint.hpp"
+#include "ReferenceTriangle.h"
+#include "ReferenceLine.h"
+#include "Mappings/MappingToRefLineToTriangle.h"
+#include "Mappings/MappingToRefTriangleToTriangle.h"
+#include "Geometry/PointReference.h"
+#include "Geometry/ReferencePoint.h"
+#include "Logger.h"
 
 namespace Geometry
 {
@@ -37,23 +38,17 @@ namespace Geometry
      *   (0,0) 0---0---1 (1,0)
      *
      */
-    int ReferenceTriangle::localNodeIndexes_[3][2] =
+    std::size_t ReferenceTriangle::localNodeIndexes_[3][2] = { {0, 1}, {0, 2}, {1, 2}};
+    
+    ReferenceTriangle::ReferenceTriangle()
+            : ReferenceGeometry(3, 2, ReferenceGeometryType::TRIANGLE), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
-        { 0, 1 },
-        { 0, 2 },
-        { 1, 2 }
-    };
-
-    ReferenceTriangle::ReferenceTriangle():
-        ReferenceGeometry(3,2,TRIANGLE),
-        referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
-    {
-
-        // See MappingLineToTriangle.hpp for further info.                   Ref.Line->Ref.Tr.Side
+        
+        // See MappingLineToTriangle.h for further info.                   Ref.Line->Ref.Tr.Side
         mappingsLineToTriangle_[0] = &MappingToRefLineToTriangle0::Instance(); // x -> 0:((1+x)/2,0)
         mappingsLineToTriangle_[1] = &MappingToRefLineToTriangle1::Instance(); // x -> 1:(0,(1+x)/2)
         mappingsLineToTriangle_[2] = &MappingToRefLineToTriangle2::Instance(); // x -> 2:((1-x)/2,(1+x)/2)
-
+                
         // See Mapping TriangleToTriangle for further info.                          Ref.Tr. Ref. Tr.
         mappingsTriangleToTriangle_[0] = &MappingToRefTriangleToTriangle0::Instance(); // (x,y) -> (x,y)
         mappingsTriangleToTriangle_[1] = &MappingToRefTriangleToTriangle1::Instance(); // (x,y) -> (-y,x)
@@ -61,54 +56,60 @@ namespace Geometry
         mappingsTriangleToTriangle_[3] = &MappingToRefTriangleToTriangle3::Instance(); // (x,y) -> (y,x)
         mappingsTriangleToTriangle_[4] = &MappingToRefTriangleToTriangle4::Instance(); // (x,y) -> (x,-y)
         mappingsTriangleToTriangle_[5] = &MappingToRefTriangleToTriangle5::Instance(); // (x,y) -> (-x,y)
-
-        PointReferenceT p1(2), p2(2), p3(2);
-        p1[0] = 0.0; p1[1] = 0.0;
-        p2[0] = 1.0; p2[1] = 0.0;
-        p3[0] = 0.0; p3[1] = 1.0;
-
+                
+        PointReference p1(2), p2(2), p3(2);
+        p1[0] = 0.0;
+        p1[1] = 0.0;
+        p2[0] = 1.0;
+        p2[1] = 0.0;
+        p3[0] = 0.0;
+        p3[1] = 1.0;
+        
         points_[0] = p1;
         points_[1] = p2;
         points_[2] = p3;
     }
     
-    ReferenceTriangle::ReferenceTriangle(const ReferenceTriangle& copy):
-        ReferenceGeometry(copy),
-        referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
-    {}
-    
-    bool ReferenceTriangle::isInternalPoint(const PointReferenceT& p) const
+    ReferenceTriangle::ReferenceTriangle(const ReferenceTriangle& copy)
+            : ReferenceGeometry(copy), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
+    }
+    
+    bool ReferenceTriangle::isInternalPoint(const PointReference& p) const
+    {
+        logger.assert(p.size()==2, "The dimension of the reference point is incorrect");
         return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
     }
     
-    void ReferenceTriangle::getCenter(PointReferenceT& p) const
+    PointReference ReferenceTriangle::getCenter() const
     {
+        PointReference p(2);
         p[0] = p[1] = 1. / 3.;
+        return p;
     }
-
-    void ReferenceTriangle::getNode(const IndexT& i, PointReferenceT& point) const
+    
+    const PointReference& ReferenceTriangle::getNode(const std::size_t& i) const
     {
-        point = points_[i];
+        logger.assert(i<getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
+        return points_[i];
     }
-
+    
     std::ostream& operator<<(std::ostream& os, const ReferenceTriangle& triangle)
     {
-        os <<triangle.getName()<<" =( ";
+        os << triangle.getName() << " =( ";
         ReferenceTriangle::const_iterator it = triangle.points_.begin();
         ReferenceTriangle::const_iterator end = triangle.points_.end();
-
-        for ( ; it != end; ++it)
+        
+        for (; it != end; ++it)
         {
             os << (*it) << ' ';
         }
-        os <<')'<<std::endl;
-
+        os << ')' << std::endl;
+        
         return os;
     }
     // ================================== Codimension 0 ============================================
-    int ReferenceTriangle::
-    getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
+    std::size_t ReferenceTriangle::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         if (list1.size() == 3 && list2.size() == 3)
         {
@@ -139,59 +140,40 @@ namespace Geometry
         }
         else
         {
-            throw "ERROR: number of nodes of reference triangle was larger than 3.";
+            logger(ERROR, "number of nodes of reference triangle was larger than 3.\n");
         }
+        return 0;
     }
-
+    
     const MappingReferenceToReference*
-    ReferenceTriangle::getCodim0MappingPtr(const IndexT i) const
+    ReferenceTriangle::getCodim0MappingPtr(const std::size_t i) const
     {
-        if (i < 6)
-        {
-            return mappingsTriangleToTriangle_[i];
-        }
-        else
-        {
-            throw "ERROR: Asked for a mappingTriangleToTriangle larger than 5. There are only 6!";
-        }
+        logger.assert((i < 6), "ERROR: Asked for a mappingTriangleToTriangle larger than 5. There are only 6.\n");
+        return mappingsTriangleToTriangle_[i];
     }
     // ================================== Codimension 1 ============================================
-    void ReferenceTriangle::
-    getCodim1EntityLocalIndices(const IndexT faceIndex, ListOfIndexesT& faceNodesLocal) const
+    std::vector<std::size_t> ReferenceTriangle::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
-        if (faceIndex < 3)
-        {
-            faceNodesLocal.resize(2); // 2 nodes per face
-            faceNodesLocal[0] = (IndexT) localNodeIndexes_[faceIndex][0];
-            faceNodesLocal[1] = (IndexT) localNodeIndexes_[faceIndex][1];
-        }
+        logger.assert(faceIndex < 3, "A triangle has only 3 edges, while edge % is requested", faceIndex);
+        return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 2);
     }
-    const ReferenceGeometry* ReferenceTriangle::getCodim1ReferenceGeometry(const IndexT faceIndex) const
+    
+    const ReferenceGeometry* ReferenceTriangle::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        if (faceIndex < 3)
-        {
-            return referenceGeometryCodim1Ptr_;
-        }
-        else
-        {
-            throw "ERROR: Asked for a triangle face index larger than 2. There are only 3 faces in a triangle!";
-        }
+        logger.assert((faceIndex < 3), "ERROR: Asked for a triangle face index larger than 2. There are only 3 faces in a triangle.\n");
+        return referenceGeometryCodim1Ptr_;
     }
     const MappingReferenceToReference*
-    ReferenceTriangle::getCodim1MappingPtr(const IndexT faceIndex) const
+    ReferenceTriangle::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        if (faceIndex < 3)
-        {
-            return mappingsLineToTriangle_[faceIndex];
-        }
-        else
-        {
-            throw "ERROR: Asked for a triangle point index larger than 3. There are only 3 nodes in a triangle!";
-        }
+        logger.assert((faceIndex < 3), "ERROR: Asked for a triangle point index larger than 3. There are only 3 nodes in a triangle.\n");
+        return mappingsLineToTriangle_[faceIndex];
+    }
+    
+    const ReferenceGeometry* ReferenceTriangle::getCodim2ReferenceGeometry(const std::size_t) const
+    {
+        return &Geometry::ReferencePoint::Instance();
     }
 
-	const ReferenceGeometry* ReferenceTriangle::getCodim2ReferenceGeometry(const unsigned int) const {
-		return &Geometry::ReferencePoint::Instance();
-	}
-
-};
+}
+;

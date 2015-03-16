@@ -19,117 +19,149 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MappingToRefLineToSquare.hpp"
-#include "Geometry/Jacobian.hpp"
-#include "Geometry/PointReference.hpp"
+#include "MappingToRefLineToSquare.h"
+#include "Geometry/Jacobian.h"
+#include "Geometry/PointReference.h"
 
 namespace Geometry
 {
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 0 ~~~==============================================================================
     // ~~~~~~~~~~~~~~~==============================================================================
-
+    
     const MappingToRefLineToSquare0& MappingToRefLineToSquare0::Instance()
     {
         static const MappingToRefLineToSquare0 theInstance;
         return theInstance;
     }
-
-    void MappingToRefLineToSquare0::transform(const Geometry::PointReference& p1,
-                                               Geometry::PointReference& p2) const
+    
+    PointReference MappingToRefLineToSquare0::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
+        PointReference p2(2);
         p2[0] = p1[0];
         p2[1] = -1.0;
+        return p2;
     }
-
-    void MappingToRefLineToSquare0::calcJacobian(const Geometry::PointReference& p1,
-                                                  Geometry::Jacobian& jacobian) const
+    
+    Jacobian MappingToRefLineToSquare0::calcJacobian(const Geometry::PointReference& p1) const
     {
-        jacobian(0,0) = 1.0;
-        jacobian(1,0) = 0.0;
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
+        Jacobian jacobian(2, 1);
+        jacobian(0, 0) = 1.0;
+        jacobian(1, 0) = 0.0;
+        return jacobian;
     }
-
-    MappingToRefLineToSquare0::MappingToRefLineToSquare0() { }
-    MappingToRefLineToSquare0::~MappingToRefLineToSquare0() { }
-
+    
+    MappingToRefLineToSquare0::MappingToRefLineToSquare0()
+    {
+    }
+    MappingToRefLineToSquare0::~MappingToRefLineToSquare0()
+    {
+    }
+    
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 1 ~~~==============================================================================
     // ~~~~~~~~~~~~~~~==============================================================================
-
+    
     const MappingToRefLineToSquare1& MappingToRefLineToSquare1::Instance()
     {
         static const MappingToRefLineToSquare1 theInstance;
         return theInstance;
     }
-
-    void MappingToRefLineToSquare1::transform(const Geometry::PointReference& p1,
-                                               Geometry::PointReference& p2) const
+    
+    PointReference MappingToRefLineToSquare1::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
+        PointReference p2(2);
         p2[0] = -1.0;
         p2[1] = p1[0];
+        return p2;
     }
-
-    void MappingToRefLineToSquare1::calcJacobian(const Geometry::PointReference& p1,
-                                                  Geometry::Jacobian& jacobian) const
+    
+    Jacobian MappingToRefLineToSquare1::calcJacobian(const Geometry::PointReference& p1) const
     {
-        jacobian(0,0) = 0.0;
-        jacobian(1,0) = 1.0;
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
+        Jacobian jacobian(2, 1);
+        jacobian(0, 0) = 0.0;
+        jacobian(1, 0) = 1.0;
+        return jacobian;
     }
-
-    MappingToRefLineToSquare1::MappingToRefLineToSquare1() { }
-    MappingToRefLineToSquare1::~MappingToRefLineToSquare1() { }
-
+    
+    MappingToRefLineToSquare1::MappingToRefLineToSquare1()
+    {
+    }
+    MappingToRefLineToSquare1::~MappingToRefLineToSquare1()
+    {
+    }
+    
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 2 ~~~==============================================================================
     // ~~~~~~~~~~~~~~~==============================================================================
-
+    
     const MappingToRefLineToSquare2& MappingToRefLineToSquare2::Instance()
     {
         static const MappingToRefLineToSquare2 theInstance;
         return theInstance;
     }
-
-    void MappingToRefLineToSquare2::transform(const Geometry::PointReference& p1,
-                                               Geometry::PointReference& p2) const
+    
+    PointReference MappingToRefLineToSquare2::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
+        PointReference p2(2);
         p2[0] = 1.0;
         p2[1] = p1[0];
+        return p2;
     }
-
-    void MappingToRefLineToSquare2::calcJacobian(const Geometry::PointReference& p1,
-                                                  Geometry::Jacobian& jacobian) const
+    
+    Jacobian MappingToRefLineToSquare2::calcJacobian(const Geometry::PointReference& p1) const
     {
-        jacobian(0,0) = 0.0;
-        jacobian(1,0) = 1.0;
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
+        Jacobian jacobian(2, 1);
+        jacobian(0, 0) = 0.0;
+        jacobian(1, 0) = 1.0;
+        return jacobian;
     }
-
-    MappingToRefLineToSquare2::MappingToRefLineToSquare2() { }
-    MappingToRefLineToSquare2::~MappingToRefLineToSquare2() { }
-
+    
+    MappingToRefLineToSquare2::MappingToRefLineToSquare2()
+    {
+    }
+    MappingToRefLineToSquare2::~MappingToRefLineToSquare2()
+    {
+    }
+    
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 3 ~~~==============================================================================
     // ~~~~~~~~~~~~~~~==============================================================================
-
+    
     const MappingToRefLineToSquare3& MappingToRefLineToSquare3::Instance()
     {
         static const MappingToRefLineToSquare3 theInstance;
         return theInstance;
     }
-
-    void MappingToRefLineToSquare3::transform(const Geometry::PointReference& p1,
-                                               Geometry::PointReference& p2) const
+    
+    PointReference MappingToRefLineToSquare3::transform(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
+        PointReference p2(2);
         p2[0] = p1[0];
         p2[1] = 1.0;
+        return p2;
     }
-
-    void MappingToRefLineToSquare3::calcJacobian(const Geometry::PointReference& p1,
-                                                  Geometry::Jacobian& jacobian) const
+    
+    Jacobian MappingToRefLineToSquare3::calcJacobian(const Geometry::PointReference& p1) const
     {
-        jacobian(0,0) = 1.0;
-        jacobian(1,0) = 0.0;
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
+        Jacobian jacobian(2, 1);
+        jacobian(0, 0) = 1.0;
+        jacobian(1, 0) = 0.0;
+        return jacobian;
     }
-
-    MappingToRefLineToSquare3::MappingToRefLineToSquare3() { }
-    MappingToRefLineToSquare3::~MappingToRefLineToSquare3() { }
+    
+    MappingToRefLineToSquare3::MappingToRefLineToSquare3()
+    {
+    }
+    MappingToRefLineToSquare3::~MappingToRefLineToSquare3()
+    {
+    }
 }

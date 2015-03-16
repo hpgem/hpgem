@@ -17,6 +17,7 @@ add_library(Reference_geometries STATIC
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceGeometry.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Point.cpp 
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointReference.cpp 
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointPhysical.cpp 
 	# Mappings
 
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefCubeToHypercube.cpp
@@ -34,6 +35,7 @@ add_library(Reference_geometries STATIC
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/ConcatenatedMapping.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefPointToPoint.cpp)
 
+set_target_properties(Reference_geometries PROPERTIES POSITION_INDEPENDENT_CODE true)
 
 
 add_library(Geometry SHARED
@@ -54,7 +56,6 @@ add_library(Geometry SHARED
         # Mappings
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysHypercubeLinear.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysPyramid.cpp
-       # ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefCubeToHypercube.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysTriangularPrism.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/OutwardNormalVectorSign.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingReferenceToPhysical.cpp
@@ -69,5 +70,4 @@ add_library(Geometry SHARED
       )
 
 target_link_libraries(Reference_geometries LinearAlgebra QuadratureRules)
-target_link_libraries(Geometry Reference_geometries LinearAlgebra)
-
+target_link_libraries(Geometry Reference_geometries)

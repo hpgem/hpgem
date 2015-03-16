@@ -19,38 +19,55 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Geometry/PointReference.hpp"
+#include "Geometry/PointReference.h"
 
-namespace Geometry {
+namespace Geometry
+{
+    
+    PointReference PointReference::operator *(double right) const
+    {
+        return PointReference(Point::coordinates_ * right);
+    }
+    
+    PointReference PointReference::operator *(double right)
+    {
+        return PointReference(Point::coordinates_ * right);
+    }
+    
+    PointReference PointReference::operator +(const PointReference& right) const
+    {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
+        return PointReference(Point::coordinates_ + right.coordinates_);
+    }
+    
+    PointReference PointReference::operator +(const PointReference& right)
+    {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
+        return PointReference(Point::coordinates_ + right.coordinates_);
+    }
+    
+    PointReference PointReference::operator -(const PointReference& right) const
+    {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
+        return PointReference(Point::coordinates_ - right.coordinates_);
+    }
+    
+    PointReference PointReference::operator -(const PointReference& right)
+    {
+        logger.assert(size()==right.size(), "The sizes of the points do not match");
+        return PointReference(Point::coordinates_ - right.coordinates_);
+    }
+    
+    PointReference& PointReference::operator =(const PointReference& rhs)
+    {
+        this->coordinates_ = rhs.coordinates_;
+        return *this;
+    }
 
-	PointReference PointReference::operator *(double right) const {
-		return PointReferenceT(PointT::coordinates_ * right);
-	}
-
-	PointReference PointReference::operator *(double right) {
-		return PointReferenceT(PointT::coordinates_ * right);
-	}
-
-	PointReference PointReference::operator +(const PointReferenceT& right) const {
-		return PointReferenceT(PointT::coordinates_ + right.coordinates_);
-	}
-
-	PointReference PointReference::operator +(const PointReferenceT& right) {
-		return PointReferenceT(PointT::coordinates_ + right.coordinates_);
-	}
-
-	PointReference PointReference::operator -(const PointReferenceT& right) const {
-		return PointReferenceT(PointT::coordinates_ - right.coordinates_);
-	}
-
-	PointReference PointReference::operator -(const PointReferenceT& right) {
-		return PointReferenceT(PointT::coordinates_ - right.coordinates_);
-	}
-
-	PointReference& PointReference::operator =(const PointReferenceT& rhs) {
-		this->coordinates_ = rhs.coordinates_;
-		return *this;
-	}
-
+    
+    PointReference operator*(double left, const PointReference& right)
+    {
+        return right * left;
+    }
 }
 

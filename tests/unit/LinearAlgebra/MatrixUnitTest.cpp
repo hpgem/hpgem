@@ -22,119 +22,123 @@
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
-#include "LinearAlgebra/Matrix.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
+#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/NumericalVector.h"
 
-
-using namespace::std;
+using namespace ::std;
 
 int main(int argc, char* argv[])
 {
-  
+    
     //First test the empty constructor
     LinearAlgebra::Matrix AA1;
     
     //Second test the constuctor which defines the size
-    LinearAlgebra::Matrix AA2(2,3);
+    LinearAlgebra::Matrix AA2(2, 3);
     
     //Third test the constuctor to initiate to a set value e.g. 2 by 3 matrix with all values initised to 1.5
-    LinearAlgebra::Matrix AA3(2,3,1.5);
+    LinearAlgebra::Matrix AA3(2, 3, 1.5);
     
     //Check the copy constructor
     LinearAlgebra::Matrix AA4(AA3);
     
     //Check resizing the matrix
-    AA4.resize(2,5);
+    AA4.resize(2, 5);
     
     //Check the Matrix assigment
-    AA2=AA3;
+    AA2 = AA3;
     
     //Now test Matrix times vector
-    LinearAlgebra::Matrix BB1(2,2);
-    BB1(0,0)=1.0;
-    BB1(0,1)=2.0;
-    BB1(1,0)=3.0;
-    BB1(1,1)=4.0;
+    LinearAlgebra::Matrix BB1(2, 2);
+    BB1(0, 0) = 1.0;
+    BB1(0, 1) = 2.0;
+    BB1(1, 0) = 3.0;
+    BB1(1, 1) = 4.0;
     
+    logger.assert_always(2.0 == BB1[2], "Test the [] operator, Matrix should column-major.");
+    logger.assert_always(3.0 == BB1[1], "Test the [] operator, Matrix should column-major.");
+    logger.assert_always(BB1(0,1) == 2.0, "Test the () operator. Expected 2.0, but got %", BB1(0,1));
     
-    cout << "This is BB1 \n" << BB1 << "\n"; 
+    cout << "This is BB1 \n" << BB1 << "\n";
     
     //now test divide
     
-    
-    BB1/=2.0;
+    BB1 /= 2.0;
     cout << "This is BB1 divided by 2 \n" << BB1 << "\n";
     
-    cout << "and by 2.0 again but using inline divide \n" << BB1/2.0 << "\n";
+    cout << "and by 2.0 again but using inline divide \n" << BB1 / 2.0 << "\n";
     
     //Now test output
     
-    cout << BB1 <<"\n";
+    cout << BB1 << "\n";
     
-    cout << AA3 <<endl;
-   
+    cout << AA3 << endl;
+    
     LinearAlgebra::NumericalVector B2(2);
     LinearAlgebra::NumericalVector B3;
-    B2(0)=1.0;
-    B2(1)=2.0;
+    B2(0) = 1.0;
+    B2(1) = 2.0;
     
-    cout<<"axpy"<<endl;
-    B3=BB1*B2;
+    cout << "axpy" << endl;
+    B3 = BB1 * B2;
     
-    cout<<"axpy"<<endl;
+    cout << "axpy" << endl;
     //Test wedge product both quick form if vector exist and create vector form.
-    BB1.computeWedgeStuffVector(B2);
-    B3=BB1.computeWedgeStuffVector();
+    //Not supposed to be used for square matrices, turned of for now
+    //B2=BB1.computeWedgeStuffVector();
+    //B3=BB1.computeWedgeStuffVector();
     
     //Matrix assigment test
-    AA4=2.0;
+    AA4 = 2.0;
     
     //Matrix times matrix test
-    LinearAlgebra::Matrix CC1(2,3,2);
-    LinearAlgebra::Matrix CC2(3,2,2);
-    LinearAlgebra::Matrix CC3(2,2);
+    LinearAlgebra::Matrix CC1(2, 3, 2);
+    LinearAlgebra::Matrix CC2(3, 2, 2);
+    LinearAlgebra::Matrix CC3(2, 2);
     
-    CC3=CC1*CC2;
+    CC3 = CC1 * CC2;
     
+    cout << CC1 << std::endl;
     
-    cout<<"axpy"<<endl;
+    LinearAlgebra::Matrix CC2_fix(3, 2, 4);
+    std::cout << "CC2_fix PRE" << std::endl;
+    std::cout << CC2_fix << std::endl;
     
-    CC1.axpy(2.0,CC2);
+    CC2.axpy(2.0, CC2_fix);
     
+    std::cout << "CC2_fix POST" << std::endl;
+    std::cout << CC2_fix << std::endl;
     
+    std::cout << CC2 << std::endl;
     
-    cout << CC1;
-    
-
-    CC3=BB1;
-    CC3=BB1.LUfactorisation();
+    CC3 = BB1;
+    CC3 = BB1.LUfactorisation();
     
     cout << "\n Now the LU factorisation \n";
     
     cout << "Before : \n";
     
     cout << BB1;
-     
+    
     cout << "After : \n";
     cout << CC3;
     
-    cout << "\n Now the inverse"  <<endl;
+    cout << "\n Now the inverse" << endl;
     
-    CC3(0,0)=0.8147;
-    CC3(0,1)=0.1270;
-    CC3(1,0)=0.9058;
-    CC3(1,1)=0.9134;
+    CC3(0, 0) = 0.8147;
+    CC3(0, 1) = 0.1270;
+    CC3(1, 0) = 0.9058;
+    CC3(1, 1) = 0.9134;
     
-    LinearAlgebra::Matrix CC4(2,2);
+    LinearAlgebra::Matrix CC4(2, 2);
     
-    CC3.inverse(CC4);
+    CC4 = CC3.inverse();
     
-    cout << CC4; 
+    cout << CC4;
     
-    CC3=CC3*CC4;
+    CC3 = CC3 * CC4;
     
     cout << CC3;
-    
     
     cout << "\n Now test the solution of Ax=B \n ";
     
@@ -144,29 +148,28 @@ int main(int argc, char* argv[])
     
     cout << "\n Now test the inverse of a 3 by3 \n";
     
-    LinearAlgebra::Matrix DD(3,3);
+    LinearAlgebra::Matrix DD(3, 3);
     
+    DD(0, 0) = 0.6324;
+    DD(0, 1) = 0.5469;
+    DD(0, 2) = 0.1576;
+    DD(1, 0) = 0.0975;
+    DD(1, 1) = 0.9575;
+    DD(1, 2) = 0.9706;
+    DD(2, 0) = 0.2785;
+    DD(2, 1) = 0.9649;
+    DD(2, 2) = 0.9572;
     
-    DD(0,0)=0.6324;
-    DD(0,1)=0.5469;
-    DD(0,2)=0.1576;
-    DD(1,0)=0.0975;
-    DD(1,1)=0.9575;
-    DD(1,2)=0.9706;
-    DD(2,0)=0.2785;
-    DD(2,1)=0.9649;
-    DD(2,2)=0.9572;
+    LinearAlgebra::Matrix ans(3, 3);
     
-    LinearAlgebra::Matrix ans(3,3);
+    ans = DD.inverse();
     
-    DD.inverse(ans);
+    cout << ans << std::endl;
     
-    cout << ans;
+    return 0;
     
-
 }
-	
-	
+
 //	LinearAlgebra::Matrix<double> AA(3,2);
 //	
 //	LinearAlgebra::Matrix<double> BB(2,3);
@@ -241,5 +244,4 @@ int main(int argc, char* argv[])
 //	
 //	
 // 	;
-
 

@@ -19,9 +19,9 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MappingToRefLineToLine.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/Jacobian.hpp"
+#include "MappingToRefLineToLine.h"
+#include "Geometry/PointReference.h"
+#include "Geometry/Jacobian.h"
 
 namespace Geometry
 {
@@ -40,43 +40,66 @@ namespace Geometry
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 0 ~~~==============================================================================
     // ~~~~~~~~~~~~~~~==============================================================================
-
     const MappingToRefLineToLine0& MappingToRefLineToLine0::Instance()
     {
         static const MappingToRefLineToLine0 theInstance;
         return theInstance;
     }
-
-    void MappingToRefLineToLine0::transform(const Geometry::PointReference& p1,
-                                             Geometry::PointReference& p2) const
-    { p2[0] = p1[0]; }
-
-    void MappingToRefLineToLine0::calcJacobian(const Geometry::PointReference& p1,
-                                                Geometry::Jacobian& jacobian) const
-    { jacobian(0,0) = 1.0; }
-
-    MappingToRefLineToLine0::MappingToRefLineToLine0() { }
-    MappingToRefLineToLine0::~MappingToRefLineToLine0() { }
-
+    
+    PointReference MappingToRefLineToLine0::transform(const Geometry::PointReference& p1) const
+    {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
+        PointReference p2(1);
+        p2[0] = p1[0];
+        return p2;
+    }
+    
+    Jacobian MappingToRefLineToLine0::calcJacobian(const Geometry::PointReference& p1) const
+    {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
+        Jacobian jacobian(1, 1);
+        jacobian(0, 0) = 1.0;
+        return jacobian;
+    }
+    
+    MappingToRefLineToLine0::MappingToRefLineToLine0()
+    {
+    }
+    MappingToRefLineToLine0::~MappingToRefLineToLine0()
+    {
+    }
+    
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 1 ~~~==============================================================================
     // ~~~~~~~~~~~~~~~==============================================================================
-
+    
     const MappingToRefLineToLine1& MappingToRefLineToLine1::Instance()
     {
         static const MappingToRefLineToLine1 theInstance;
         return theInstance;
     }
-
-    void MappingToRefLineToLine1::transform(const Geometry::PointReference& p1,
-                                             Geometry::PointReference& p2) const
-    { p2[0] = -p1[0]; }
-
-    void MappingToRefLineToLine1::calcJacobian(const Geometry::PointReference& p1,
-                                                Geometry::Jacobian& jacobian) const
-    { jacobian(0,0) = -1.0; }
-
-    MappingToRefLineToLine1::MappingToRefLineToLine1() { }
-    MappingToRefLineToLine1::~MappingToRefLineToLine1() { }
+    
+    PointReference MappingToRefLineToLine1::transform(const Geometry::PointReference& p1) const
+    {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
+        PointReference p2(1);
+        p2[0] = -p1[0];
+        return p2;
+    }
+    
+    Jacobian MappingToRefLineToLine1::calcJacobian(const Geometry::PointReference& p1) const
+    {
+        logger.assert(p1.size()==1, "Reference point has the wrong dimension");
+        Jacobian jacobian(1, 1);
+        jacobian(0, 0) = -1.0;
+        return jacobian;
+    }
+    
+    MappingToRefLineToLine1::MappingToRefLineToLine1()
+    {
+    }
+    MappingToRefLineToLine1::~MappingToRefLineToLine1()
+    {
+    }
 
 }
