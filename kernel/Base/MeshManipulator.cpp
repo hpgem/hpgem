@@ -3229,3 +3229,4 @@ namespace Base
     {
         return configData_->dimension_;
     }
+}
