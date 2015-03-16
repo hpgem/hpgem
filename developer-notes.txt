@@ -9,6 +9,8 @@ The intended use of assertions in general and logger.assert for hpGEM is to chec
 
 Assertions should be used freely, but checking everything, all the time, is expensive. Therefore assertions are compiled out of the code completely in Release configuration. However, this also means that if you accidentally do something that has side effects in an assertion, the behaviour of your code may change between configurations. For example, NEVER DO 'logger.assert(x=4, "/// WRONG!!");'
 
+Preparing data for the assertions is also expensive. If you want to assert something that depends on data that is not yet computed and not needed elsewhere in the function, do NOT compute it before the assertion. Rather write a dedicated function checkThisCondition that return bool and call it inside the assertion. (make sure to think of a better name for the function!)
+
 == About optimisation ==
 
 Optimising code only makes sense if you are building in Release mode, before doing anything else, set CMAKE_BUILD_TYPE to Release and make sure hpGEM_ENFORCE_ASSERTIONS is OFF. All effort spend in other configurations is almost certainly wasted and probably even counterproductive. Make sure you have some timing information to compare before and after, to see if you made any improvements.
