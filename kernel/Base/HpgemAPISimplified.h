@@ -138,6 +138,12 @@ namespace Base
         /// \brief Compute the (weighted) L2-norm of the error.
         double computeTotalError(const std::size_t solutionTimeLevel, const double time);
         
+        /// \brief Compute the L-infinity norm (essential supremum) of the error at an element.
+        virtual LinearAlgebra::NumericalVector computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
+        
+        /// \brief Compute the L-infinity norm (essential supremum) of the error.
+        LinearAlgebra::NumericalVector computeMaxError(const std::size_t solutionTimeLevel, const double time);
+        
         /// \brief Compute the right-hand side corresponding to an element
         virtual LinearAlgebra::NumericalVector computeRightHandSideAtElement
         (

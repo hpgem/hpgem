@@ -261,8 +261,7 @@ namespace Base
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
         std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
         
-        // For each quadrature point, compute the value of the product of the
-        // test function and the initial solution, then add it with the correct weight to the integral solution.
+        // For each quadrature point, compute the square of the error, then add it with the correct weight to the integral solution.
         for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
         {
             Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
@@ -356,9 +355,8 @@ namespace Base
                 MPI_Recv(&error, 1, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             }
         }
-        
         return error;
-#endif
+#else
         
         if (totalError(0) >= 0)
         {
@@ -370,6 +368,138 @@ namespace Base
             error = std::sqrt(-totalError(0));
         }
         return error;
+#endif
+    }
+    
+    /// \details This function returns a vector of the suprema of the error of every variable.
+    LinearAlgebra::NumericalVector HpgemAPISimplified::computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
+    {
+        // Get number of basis functions
+        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        
+        // Declare vector of maxima of the error.
+        LinearAlgebra::NumericalVector maxError(configData_->numberOfUnknowns_);
+        maxError *= 0;
+        
+        // Get quadrature rule and number of points.
+        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
+        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        
+        // For each quadrature point update the maxima of the error.
+        for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
+        {
+            Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
+            Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+            
+            LinearAlgebra::NumericalVector exactSolution = getExactSolution(pPhys, time, 0);
+            
+            LinearAlgebra::NumericalVector numericalSolution(configData_->numberOfUnknowns_);
+            numericalSolution *= 0;
+            
+            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            {
+                double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
+                
+                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                {
+                    std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
+                    
+                    numericalSolution(iV) += solutionCoefficients(iVB) * valueBasisFunction;
+                }
+            }
+            
+            for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+            {
+                if(std::abs(numericalSolution(iV) - exactSolution(iV)) > maxError(iV))
+                {
+                    maxError(iV) = std::abs(numericalSolution(iV) - exactSolution(iV));
+                }
+            }
+        }
+        
+        return maxError;
+    }
+    
+    /// \param[in] solutionTimeLevel Time level where the solution is stored.
+    /// \param[in] time Time corresponding to the current solution.
+    LinearAlgebra::NumericalVector HpgemAPISimplified::computeMaxError(const std::size_t solutionTimeLevel, const double time)
+    {
+        
+        LinearAlgebra::NumericalVector maxError(configData_->numberOfUnknowns_);
+        maxError *= 0;
+        
+        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
+        {
+            LinearAlgebra::NumericalVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(solutionTimeLevel);
+            
+            LinearAlgebra::NumericalVector maxErrorAtElement(computeMaxErrorAtElement(ptrElement, solutionCoefficients, time));
+            
+            for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+            {
+                if(maxErrorAtElement(iV) > maxError(iV))
+                {
+                    maxError(iV) = maxErrorAtElement(iV);
+                }
+            }
+        }
+        
+#ifdef HPGEM_USE_MPI
+        int world_rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+        int world_size;
+        MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+        
+        
+        for(std::size_t iRank = 1; iRank < world_size; iRank++)
+        {
+            if(world_rank == 0)
+            {
+                double maxErrorToReceive[configData_->numberOfUnknowns_];
+                MPI_Recv(maxErrorToReceive, configData_->numberOfUnknowns_, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                {
+                    if(maxErrorToReceive[iV] > maxError(iV))
+                    {
+                        maxError(iV) = maxErrorToReceive[iV];
+                    }
+                }
+            }
+            else if(world_rank == iRank)
+            {
+                double maxErrorToSend[configData_->numberOfUnknowns_];
+                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                {
+                    maxErrorToSend[iV] = maxError(iV);
+                }
+                MPI_Send(maxErrorToSend, configData_->numberOfUnknowns_, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD);
+            }
+        }
+        
+        for(std::size_t iRank = 1; iRank < world_size; iRank++)
+        {
+            if(world_rank == 0)
+            {
+                double maxErrorToSend[configData_->numberOfUnknowns_];
+                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                {
+                    maxErrorToSend[iV] = maxError(iV);
+                }
+                MPI_Send(maxErrorToSend, configData_->numberOfUnknowns_, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD);
+            }
+            else if(world_rank == iRank)
+            {
+                double maxErrorToReceive[configData_->numberOfUnknowns_];
+                MPI_Recv(maxErrorToReceive, configData_->numberOfUnknowns_, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                {
+                    maxError(iV) = maxErrorToReceive[iV];
+                }
+            }
+        }
+        return maxError;
+#else
+        return maxError;
+#endif
     }
     
     /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
@@ -556,6 +686,7 @@ namespace Base
         outputFileName_ = outputFileName;
         internalFileTitle_ = internalFileTitle;
         solutionTitle_ = solutionTitle;
+        logger.assert(variableNames_.size() == configData_->numberOfUnknowns_, "Number of variable names (%) is not equal to the number of variables (%)", variableNames_.size(), configData_->numberOfUnknowns_);
         variableNames_ = variableNames;
     }
     
@@ -666,8 +797,14 @@ namespace Base
         // Compute the energy norm of the error
         if(doComputeError)
         {
-            double error = computeTotalError(solutionTimeLevel_, finalTime);
-            logger(INFO, "Total error: %.", error);
+            double totalError = computeTotalError(solutionTimeLevel_, finalTime);
+            logger(INFO, "Total error: %.", totalError);
+            LinearAlgebra::NumericalVector maxError = computeMaxError(solutionTimeLevel_, finalTime);
+            logger.assert(maxError.size() == configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), configData_->numberOfUnknowns_);
+            for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV ++)
+            {
+                logger(INFO, "Maximum error %: %", variableNames_[iV], maxError(iV));
+            }
         }
         
         return true;

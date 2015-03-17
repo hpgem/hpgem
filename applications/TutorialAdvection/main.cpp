@@ -41,8 +41,8 @@ class TutorialAdvection : public Base::HpgemAPILinear
 {
 public:
     ///Constructor. Assign all private variables.
-    TutorialAdvection(int p)
-            : HpgemAPILinear(DIM_, 1, p)
+    TutorialAdvection(int p) :
+        HpgemAPILinear(DIM_, 1, p)
     {
         //Choose the "direction" of the advection.
         //This cannot be implemented with iterators, and since the dimension is
@@ -128,16 +128,17 @@ public:
         //Compute all entries of the integrand at this point:
         for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
+            Base::Side sideBasisFunction = face->getSide(i);
             for (std::size_t j = 0; j < numBasisFuncs; ++j)
             {
                 //Give the terms of the upwind flux.
                 //Advection in the same direction as outward normal of the left element:
-                if ((A > 1e-12) && (i < nLeft))
+                if ((A > 1e-12) && (sideBasisFunction == Base::Side::LEFT))
                 {
                     integrandVal(j, i) = -(a * face->basisFunctionNormal(j, normal, point)) * face->basisFunction(i, point);
                 }
                 //Advection in the same direction as outward normal of right element:
-                else if ((A < -1e-12) && (i >= nLeft))
+                else if ((A < -1e-12) && (sideBasisFunction == Base::Side::RIGHT))
                 {
                     integrandVal(j, i) = -(a * face->basisFunctionNormal(j, normal, point)) * face->basisFunction(i, point);
                 }
@@ -152,12 +153,34 @@ public:
         return integrandVal;
     }
     
-    ///Define the initial conditions, in this case sin(2pi x)* sin(2pi y).
+    /// Define a solution at time zero.
+    double getSolutionAtTimeZero(const PointPhysicalT& point)
+    {
+        return (std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]));
+    }
+    
+    /// Define the exact solution. In this case that is \f$ u_0(\vec{x}-\vec{a}t) \f$, where \f$ u_0 \f$ is the solution at time zero.
+    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT& point, const double &time, const std::size_t orderTimeDerivative) override
+    {
+        LinearAlgebra::NumericalVector exactSolution(1);
+        if(orderTimeDerivative == 0)
+        {
+            PointPhysicalT displacement(-a*time);
+            exactSolution(0) = getSolutionAtTimeZero(point + displacement);
+            return exactSolution;
+        }
+        else
+        {
+            logger(ERROR, "No exact solution for order time derivative % implemented", orderTimeDerivative);
+            exactSolution(0) = 0;
+            return exactSolution;
+        }
+    }
+    
+    /// Define the initial conditions. In this case it is just the exact solution at the start time.
     LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT& point, const double &startTime, const std::size_t orderTimeDerivative) override
     {
-        LinearAlgebra::NumericalVector initialSolution(1);
-        initialSolution(0) = (std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]));
-        return initialSolution;
+        return getExactSolution(point, startTime, orderTimeDerivative);
     }
     
 private:
@@ -197,7 +220,7 @@ int main(int argc, char **argv)
         test.setOutputNames("output", "TutorialAdvection", "TutorialAdvection", variableNames);
         
         //Run the simulation and write the solution
-        test.solve(0, Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), false);
+        test.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), true);
         
         return 0;
     }

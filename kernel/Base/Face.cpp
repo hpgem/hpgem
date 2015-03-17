@@ -323,7 +323,7 @@ namespace Base
         }
         else
         {
-            logger.assert(faceBasisFunctionId > nDOFLeft + (isInternal() ? 0 :getPtrElementRight()->getNrOfUnknows() * getPtrElementRight()->getNrOfBasisFunctions()), "The index for the face basis function is larger than the number of basis functions at the adjacent elements");
+            logger.assert(faceBasisFunctionId < nDOFLeft + (isInternal() ? getPtrElementRight()->getNrOfUnknows() * getPtrElementRight()->getNrOfBasisFunctions() : 0), "The index for the face basis (vector)function (%) is larger than the number of basis (vector)functions at the adjacent elements (%)", faceBasisFunctionId, nDOFLeft + (isInternal() ? getPtrElementRight()->getNrOfUnknows() * getPtrElementRight()->getNrOfBasisFunctions() : 0));
             return Side::RIGHT;
         }
     }
@@ -337,7 +337,7 @@ namespace Base
         }
         else
         {
-            logger.assert(faceBasisFunctionId > nDOFLeft + (isInternal() ? 0 :getPtrElementRight()->getNrOfUnknows() * getPtrElementRight()->getNrOfBasisFunctions()), "The index for the face basis function is larger than the number of basis functions at the adjacent elements");
+            logger.assert(faceBasisFunctionId < nDOFLeft + (isInternal() ? getPtrElementRight()->getNrOfUnknows() * getPtrElementRight()->getNrOfBasisFunctions() : 0), "The index for the face basis (vector)function (%) is larger than the number of basis (vector)functions at the adjacent elements (%)", faceBasisFunctionId, nDOFLeft + (isInternal() ? getPtrElementRight()->getNrOfUnknows() * getPtrElementRight()->getNrOfBasisFunctions() : 0));
             return faceBasisFunctionId - nDOFLeft;
         }
     }
