@@ -43,13 +43,18 @@ namespace Integration
 
 namespace Base
 {
+    extern CommandLineOption<double>& startTime;
+    extern CommandLineOption<double>& endTime;
+    extern CommandLineOption<double>& dt;
+    extern CommandLineOption<std::size_t>& numberOfSnapshots;
+    
     /// \brief Simplified Interface for solving PDE's.
     /** This class is well-suited for problems of the form \f[ l(\partial_t^k \vec{u},t) = f(\vec{u},t) \f], where \f$ \vec{u} \f$ is some vector function, \f$ l(\partial_t^k \vec{u},t)\f$ is some linear function, applied on the k-th order time-derivative of \f$ u \f$, and \f$ f(\vec{u},t) \f$ is some function of \f$ \vec{u} \f$ that can depend on arbitrary order spatial derivatives of \f$\vec{u}\f$. This last term will be referred to as the right-hand side. The resulting set of ODE's will have the form \f[ M\partial_t^ku = f(u,t)\f], where \f$ M\f$ is the mass matrix, \f$u\f$ is the numerical solution vector and \f$f(u)\f$ is the right-hand side.
      */
     /** \details To solve some linear time depent PDE with this class you should at least do the following:
      * \li Create your own class that inherits this class.
      * \li Implement the function 'createMeshDescription' to create a mesh description (e.g. domain, number of elements, etc.).
-     * \li Implement the function 'initialConditions' to define the initial condition(s) of your problem.
+     * \li Implement the function 'getInitialConditions' to define the initial condition(s) of your problem.
      * \li Implement the functions 'computeRightHandSideAtElement' and 'computeRightHandSideAtFace' to compute the right-hand side corresponding to an element or face.
      */
     /** \details To solve the PDE do the following in the main routine:
@@ -60,21 +65,16 @@ namespace Base
      */
     /** \details Some other thinsgs you can do:
      * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
-     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (if this is not the standard L2 inner product).
-     * \li Implement the function 'computeMassMatrixAtElement' if you want to compute the mass matrix and the mass matrix is not constructed by the standard L2 inner product.
+     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (by default this function computes the standard L2 inner product).
+     * \li Implement the function 'computeMassMatrixAtElement' if you want to compute the mass matrix (by default a mass matrix is computed based on the L2 norm).
      * \li Override the function 'solveMassMatrixEquationsAtElement' if you want to solve the mass matrix equtions without computing the mass matrix first.
-     * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element.
+     * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element (by default the L2-norm is computed).
      * \li Override the function 'writeToTecplotFile' to determine what data to write to the output file.
      * \li Override the function 'showProgress' to determine how you want to show the progress of the time integration routine.
      * \li Override the function 'solve' when using another time integration routine than a Runge-Kutta integration method.
      */
     /** \details For an example of using this interface see the application 'ExampleMultipleVariableProblem'.
      */
-    
-    extern CommandLineOption<double>& startTime;
-    extern CommandLineOption<double>& endTime;
-    extern CommandLineOption<double>& dt;
-    extern CommandLineOption<std::size_t>& numberOfSnapshots;
     
     class HpgemAPISimplified : public HpgemAPIBase, public Output::TecplotSingleElementWriter
     {
@@ -127,13 +127,13 @@ namespace Base
         virtual void solveMassMatrixEquations(const std::size_t timeLevel);
 
         /// \brief Integrate the initial solution at a single element.
-        virtual LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
+        virtual LinearAlgebra::NumericalVector integrateInitialSolutionAtElement( Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
         
         /// \brief Integrate the initial solution.
         void integrateInitialSolution(const std::size_t timeLevelResult, const double startTime, const std::size_t orderTimeDerivative);
 
         /// \brief Integrate the square of some norm of the error on a single element.
-        virtual LinearAlgebra::NumericalVector integrateErrorAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
+        virtual LinearAlgebra::NumericalVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
         
         /// \brief Compute the (weighted) L2-norm of the error.
         double computeTotalError(const std::size_t solutionTimeLevel, const double time);
@@ -143,8 +143,7 @@ namespace Base
         (
          Base::Element *ptrElement,
          LinearAlgebra::NumericalVector &solutionCoefficients,
-         const double time,
-         const std::size_t orderTimeDerivative
+         const double time
         )
         {
             logger(ERROR, "No function for computing the right-hand side at an element implemented.");
@@ -159,8 +158,7 @@ namespace Base
          const Base::Side side,
          LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
          LinearAlgebra::NumericalVector &solutionCoefficientsRight,
-         const double time,
-         const std::size_t orderTimeDerivative
+         const double time
          )
         {
             logger(ERROR, "No function for computing the right-hand side at a face implemented.");
@@ -169,13 +167,13 @@ namespace Base
         }
         
         /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
-        virtual void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
+        virtual void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time);
 
         /// \brief Get a linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels.
         LinearAlgebra::NumericalVector getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels);
 
         /// \brief Compute the right hand side for the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
-        virtual void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
+        virtual void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time);
 
         /// \brief Synchronize between the different submeshes (when using MPI)
         void synchronize(const std::size_t timeLevel);
@@ -190,10 +188,10 @@ namespace Base
         void setInitialSolution(const std::size_t solutionTimeLevel, const double startTime, const std::size_t orderTimeDerivative);
 
         /// \brief Compute the time derivative for a given time level.
-        virtual void computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
+        virtual void computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time);
 
         /// \brief Compute the time derivative for a given linear combination of solutions at different time levels.
-        virtual void computeTimeDerivative(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
+        virtual void computeTimeDerivative(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time);
         
         /// \brief Compute one time step, using a Runge-Kutta scheme.
         virtual void computeOneTimeStep(double &time, const double dt);
@@ -203,23 +201,6 @@ namespace Base
         
         /// \brief Write output to a tecplot file.
         virtual void writeToTecplotFile(const ElementT *ptrElement, const PointReferenceT &pRef, std::ostream &out) override;
-        
-        /// \brief Define how the solution should be written in the VTK files.
-        /// \details For an example of using this function, see for example the application 'TutorialAdvection' to find out how to use this function.
-        void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
-        {
-            VTKDoubleWrite_.push_back( {function, name});
-        }
-        
-        void registerVTKWriteFunction(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
-        {
-            VTKVectorWrite_.push_back( {function, name});
-        }
-        
-        void registerVTKWriteFunction(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
-        {
-            VTKMatrixWrite_.push_back( {function, name});
-        }
         
         virtual void registerVTKWriteFunctions();
         
@@ -269,6 +250,23 @@ namespace Base
         Integration::FaceIntegral faceIntegrator_;
         
     private:
+        /// \brief Define how the solution should be written in the VTK files.
+        /// \details For an example of using this function, see for example the application 'TutorialAdvection' to find out how to use this function.
+        void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        {
+            VTKDoubleWrite_.push_back( {function, name});
+        }
+        
+        void registerVTKWriteFunction(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        {
+            VTKVectorWrite_.push_back( {function, name});
+        }
+        
+        void registerVTKWriteFunction(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        {
+            VTKMatrixWrite_.push_back( {function, name});
+        }
+        
         void VTKWrite(Output::VTKTimeDependentWriter& out, double t, std::size_t timeLevel)
         {
             //you would say this could be done more efficiently, but p.first has different types each time

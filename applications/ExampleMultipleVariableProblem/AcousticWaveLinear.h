@@ -129,7 +129,7 @@ public:
     LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement) override;
     
     /// \brief Integrate the initial solution for a single element.
-    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override;
+    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override;
     
     /// \brief Compute the stiffness matrix corresponding to an element.
     LinearAlgebra::Matrix computeStiffnessMatrixAtElement(Base::Element *ptrElement) override;
@@ -148,7 +148,7 @@ public:
     }
     
     /// \brief Integrate the energy of the error on a single element.
-    LinearAlgebra::NumericalVector integrateErrorAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time) override;
+    LinearAlgebra::NumericalVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time) override;
 
 private:
 /// Dimension of the domain

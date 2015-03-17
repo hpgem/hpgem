@@ -186,10 +186,12 @@ namespace Base
             
             solveMassMatrixEquationsAtElement(ptrElement, solutionCoefficients);
         }
+        
+        synchronize(timeLevel);
     }
     
     /// \brief By default this function copmutes the integral of the inner product of the initial solution (for given order time derivative) and the test function on the element.
-    LinearAlgebra::NumericalVector HpgemAPISimplified::integrateInitialSolutionAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
+    LinearAlgebra::NumericalVector HpgemAPISimplified::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
     {
         // Get number of basis functions
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
@@ -232,17 +234,19 @@ namespace Base
         return integralInitialSolution;
     }
     
-    void HpgemAPISimplified::integrateInitialSolution(const std::size_t timeLevelResult, const double intialTime, const std::size_t orderTimeDerivative)
+    void HpgemAPISimplified::integrateInitialSolution(const std::size_t timeLevelResult, const double initialTime, const std::size_t orderTimeDerivative)
     {
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
             LinearAlgebra::NumericalVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(timeLevelResult);
-            solutionCoefficients = integrateInitialSolutionAtElement(ptrElement, intialTime, orderTimeDerivative);
+            solutionCoefficients = integrateInitialSolutionAtElement(ptrElement, initialTime, orderTimeDerivative);
         }
+        
+        synchronize(timeLevelResult);
     }
     
     /// By default the square of the standard L2 norm is integrated.
-    LinearAlgebra::NumericalVector HpgemAPISimplified::integrateErrorAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
+    LinearAlgebra::NumericalVector HpgemAPISimplified::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
@@ -292,7 +296,7 @@ namespace Base
     
     /// \param[in] solutionTimeLevel Time level where the solution is stored.
     /// \param[in] time Time corresponding to the current solution.
-    /// \details The square of the total error is defined as \f[ \int \|e\|^2 \,dV \f], where \f$\|e\|\f$ is some user-defined norm (based on the (weighted) inner product) of the error.
+    /// \details The square of the total error is defined as \f[ \int \|e\|^2 \,dV \f], where \f$\|e\|\f$ is some user-defined norm (based on the (weighted) inner product) of the error. By default this is the standard L2 norm.
     double HpgemAPISimplified::computeTotalError(const std::size_t solutionTimeLevel, const double time)
     {
         LinearAlgebra::NumericalVector totalError(1);
@@ -335,7 +339,7 @@ namespace Base
             }
             else
             {   
-                logger(WARN,"Warning: the total energy of the error is negative.");
+                logger(WARN,"Warning: the computed total error is negative.");
                 error = std::sqrt(-totalError(0));
             }
         }
@@ -362,15 +366,14 @@ namespace Base
         }
         else
         {
-            logger(WARN, "Warning: the total energy of the error is negative.");
+            logger(WARN, "Warning: the computed total error is negative.");
             error = std::sqrt(-totalError(0));
         }
-        logger(INFO, "Energy norm of the error: %.", error);
         return error;
     }
     
     /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
-    void HpgemAPISimplified::computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
+    void HpgemAPISimplified::computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
     {
         // Apply the right hand side corresponding to integration on the elements.
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
@@ -378,7 +381,7 @@ namespace Base
             LinearAlgebra::NumericalVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevelIn));
             LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
             
-            solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time, orderTimeDerivative);
+            solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time);
         }
         
         // Apply the right hand side corresponding to integration on the faces.
@@ -389,9 +392,11 @@ namespace Base
             LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
             LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
             
-            solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
-            solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
+            solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
+            solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
         }
+        
+        synchronize(timeLevelResult);
     }
     
     LinearAlgebra::NumericalVector HpgemAPISimplified::getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels)
@@ -409,7 +414,7 @@ namespace Base
     }
     
     /// \details Make sure timeLevelResult is different from the timeLevelsIn.
-    void HpgemAPISimplified::computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
+    void HpgemAPISimplified::computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
     {
         // Apply the right hand side corresponding to integration on the elements.
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
@@ -417,7 +422,7 @@ namespace Base
             LinearAlgebra::NumericalVector solutionCoefficients(getSolutionCoefficients(ptrElement, timeLevelsIn, coefficientsTimeLevels));
             LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
             
-            solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time, orderTimeDerivative);
+            solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time);
         }
         
         // Apply the right hand side corresponding to integration on the faces.
@@ -428,9 +433,11 @@ namespace Base
             LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
             LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
             
-            solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
-            solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time, orderTimeDerivative);
+            solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
+            solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
         }
+        
+        synchronize(timeLevelResult);
     }
     
     void HpgemAPISimplified::synchronize(const std::size_t timeLevel)
@@ -486,25 +493,23 @@ namespace Base
         synchronize(timeLevelToChange);
     }
     
-    void HpgemAPISimplified::setInitialSolution(const std::size_t solutionTimeLevel, const double intialTime, const std::size_t orderTimeDerivative)
+    void HpgemAPISimplified::setInitialSolution(const std::size_t solutionTimeLevel, const double initialTime, const std::size_t orderTimeDerivative)
     {
-        integrateInitialSolution(solutionTimeLevel, intialTime, orderTimeDerivative);
+        integrateInitialSolution(solutionTimeLevel, initialTime, orderTimeDerivative);
         solveMassMatrixEquations(solutionTimeLevel);
-        synchronize(solutionTimeLevel);
     }
     
     /// \details Computing the time derivative in this case means applying the right hand side for the solution at time level 'timeLevelIn' and then solving the mass matrix equations. The result is stored at time level 'timeLevelResult'.
-    void HpgemAPISimplified::computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
+    void HpgemAPISimplified::computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
     {
-        computeRightHandSide(timeLevelIn, timeLevelResult, time, orderTimeDerivative);
+        computeRightHandSide(timeLevelIn, timeLevelResult, time);
         solveMassMatrixEquations(timeLevelResult);
-        synchronize(timeLevelResult);
     }
     
     /// \details Computing the time derivative in this case means applying the right hand side for the linear combination of solutions at time levels 'timeLevelsIn' with coefficients given by coefficientsTimeLevels, and then solving the mass matrix equations. The result is stored at time level 'timeLevelResult'.
-    void HpgemAPISimplified::computeTimeDerivative(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
+    void HpgemAPISimplified::computeTimeDerivative(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
     {
-        computeRightHandSide(timeLevelsIn, coefficientsTimeLevels, timeLevelResult, time, orderTimeDerivative);
+        computeRightHandSide(timeLevelsIn, coefficientsTimeLevels, timeLevelResult, time);
         solveMassMatrixEquations(timeLevelResult);
         synchronize(timeLevelResult);
     }
@@ -529,7 +534,7 @@ namespace Base
                 coefficientsTimeLevels.push_back(dt * ptrButcherTableau_->getA(iStage, jStage));
             }
             
-            computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime, 1);
+            computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime);
         }
         
         // Update the solution
@@ -577,13 +582,13 @@ namespace Base
         }
     }
     
-    /// \brief Solve the PDE over the time domain [intialTime, finalTime].
-    /// \param[in] intialTime Initial time
+    /// \brief Solve the PDE over the time domain [initialTime, finalTime].
+    /// \param[in] initialTime Initial time
     /// \param[in] finalTime End time
     /// \param[in] dt Size of the time step
     /// \param[in] numOutputFrames Number of times the solution is written to an output file.
     /// \param[in] doComputeError Boolean to indicate if the error should be computed.
-    bool HpgemAPISimplified::solve(const double intialTime, const double finalTime, double dt, const std::size_t numOfOutputFrames, bool doComputeError)
+    bool HpgemAPISimplified::solve(const double initialTime, const double finalTime, double dt, const std::size_t numOfOutputFrames, bool doComputeError)
     {
         // Create output files for Paraview.
         std::string outputFileNameVTK = outputFileName_;
@@ -611,11 +616,11 @@ namespace Base
         }
         
         std::ofstream outputFile(outputFileNameTecplot);
-        Output::TecplotDiscontinuousSolutionWriter tecplotWriter(outputFile, solutionTitle_, dimensionsToWrite, variableString);
+        Output::TecplotDiscontinuousSolutionWriter tecplotWriter(outputFile, internalFileTitle_, dimensionsToWrite, variableString);
         
         // Compute parameters for time integration
-        double T = finalTime - intialTime;     // Time interval
-        std::size_t numOfTimeSteps = T / dt;
+        double T = finalTime - initialTime;     // Time interval
+        std::size_t numOfTimeSteps = std::ceil(T / dt);
         std::size_t numOfTimeStepsForOutput;
         if (numOfOutputFrames > 0)
         {
@@ -630,7 +635,7 @@ namespace Base
         }
         
         // Set the initial time.
-        double time = intialTime;
+        double time = initialTime;
         
         // Create and Store things before solving the problem.
         tasksBeforeSolving();
@@ -638,7 +643,7 @@ namespace Base
         // Set the initial numerical solution.
         logger(INFO, "Computing and interpolating the initial solution.");
         setInitialSolution(solutionTimeLevel_, time, 0);
-        tecplotWriter.write(meshes_[0], "discontinuous solution", false, this, time);
+        tecplotWriter.write(meshes_[0], solutionTitle_, false, this, time);
         VTKWrite(VTKWriter, time, solutionTimeLevel_);
         
         // Solve the system of PDE's.
@@ -662,7 +667,7 @@ namespace Base
         if(doComputeError)
         {
             double error = computeTotalError(solutionTimeLevel_, finalTime);
-            logger(INFO, "Energy norm of the error: %.", error);
+            logger(INFO, "Total error: %.", error);
         }
         
         return true;

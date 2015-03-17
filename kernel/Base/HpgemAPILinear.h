@@ -42,9 +42,9 @@ namespace Base
     /** \details To solve some linear time depent PDE with this class you should at least do the following:
      * \li Create your own class that inherits this class.
      * \li Implement the function 'createMeshDescription' to create a mesh description (e.g. domain, number of elements, etc.).
-     * \li Implement the function 'initialConditions' to define the initial condition(s) of your problem.
+     * \li Implement the function 'getInitialConditions' to define the initial condition(s) of your problem.
      * \li Implement the function 'getSourceTerm' to define the source term (e.g. external force) if there is one.
-     * \li Implement the functions 'computeStiffnessMatrixAtElement' and 'computeStiffnessMatrixAtFace' for computing the stiffness matrix at an element or face.
+     * \li Implement the functions 'computeStiffnessMatrixAtElement' and 'computeStiffnessMatrixAtFace' for computing the stiffness matrix at an element or face. One can also choose to implement the functions 'computeIntegrandStiffnessMatrixAtElement' and 'computeIntegrandStiffnessMatrixAtFace' for computing the integrands at the face and element. The integration will be done by an automatic routine. 
      * \li Implement the function 'integrateSourceTermAtElement' to compute the source term at an element (if there is a source term).
      */
     /** \details To solve the PDE do the following in the main routine:
@@ -55,10 +55,9 @@ namespace Base
      */
     /** \details Some other thinsgs you can do:
      * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
-     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (if this is not the standard L2 inner product).
-     * \li Implement the function 'computeMassMatrixAtElement' if the mass matrix is not constructed by the standard L2 inner product.
-     * \li Override the function 'solveMassMatrixEquationsAtElement' if you want to solve the mass matrix equtions without computing the mass matrix first.
-     * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element.
+     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (by default this function computes the standard L2 inner product).
+     * \li Implement the function 'computeMassMatrixAtElement' if you want to compute the mass matrix (by default a mass matrix is computed based on the L2 norm).
+     * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element (by default the L2-norm is computed).
      * \li Override the function 'writeToTecplotFile' to determine what data to write to the output file.
      * \li Override the function 'showProgress' to determine how you want to show the progress of the time integration routine.
      * \li Override the function 'solve' when using another time integration routine than a Runge-Kutta integration method.
@@ -122,18 +121,27 @@ namespace Base
         virtual void createStiffnessMatrices();
         
         /// \brief Integrate the source term at a single element.
-        virtual LinearAlgebra::NumericalVector integrateSourceTermAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
+        virtual LinearAlgebra::NumericalVector integrateSourceTermAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No function for computing the integral for the source term at an element implemented.");
-            LinearAlgebra::NumericalVector integralInitialSolution;
-            return integralInitialSolution;
+            LinearAlgebra::NumericalVector integralSourceTerm;
+            return integralSourceTerm;
         }
         
-        /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
-        virtual void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative) override;
+        /// \brief Multiply the stiffness matrices with the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'.
+        virtual void multiplyStiffnessMatrices(const std::size_t timeLevelIn, const std::size_t timeLevelResult);
+        
+        /// \brief Multiply the stiffness matrices with the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
+        virtual void multiplyStiffnessMatrices(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult);
+        
+        /// \brief Add the source term to the solution at time level 'timeLevelResult'.
+        virtual void addSourceTerm(const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
+        
+        /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'.
+        virtual void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time) override;
         
         /// \brief Compute the right hand side for the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
-        virtual void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative) override;
+        virtual void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time) override;
         
         /// \brief Create and Store things before solving the problem.
         virtual void tasksBeforeSolving() override;

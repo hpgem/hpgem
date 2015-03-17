@@ -293,7 +293,7 @@ LinearAlgebra::Matrix AcousticWaveLinear::computeMassMatrixAtElement(Base::Eleme
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }
 
-LinearAlgebra::NumericalVector AcousticWaveLinear::integrateInitialSolutionAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
+LinearAlgebra::NumericalVector AcousticWaveLinear::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
 {
     // Define the integrand function for the the initial solution integral.
     std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector { return this -> integrandInitialSolutionOnRefElement(ptrElement, startTime, pRef);};
@@ -302,7 +302,7 @@ LinearAlgebra::NumericalVector AcousticWaveLinear::integrateInitialSolutionAtEle
 }
 
 /// \details The error is defined as error = realSolution - numericalSolution. The energy of the vector (u, s0, s1) is defined as u^2 + c^{-1} * |s|^2.
-LinearAlgebra::NumericalVector AcousticWaveLinear::integrateErrorAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time)
+LinearAlgebra::NumericalVector AcousticWaveLinear::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time)
 {
     // Define the integrand function for the error energy.
     std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
