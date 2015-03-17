@@ -32,6 +32,7 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
+
 #include "Logger.h"
 
 ///Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
@@ -208,7 +209,7 @@ int main(int argc, char **argv)
         
         // Choose variable name(s). Since we have a scalar function, we only need to chooes one name.
         std::vector<std::string> variableNames;
-        variableNames.push_back("variable");
+        variableNames.push_back("u");
         
         //Construct our problem with n elements in every direction and polynomial order p
         TutorialAdvection test(p.getValue());
