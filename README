@@ -2,7 +2,7 @@
 
 == hpGEM ==
 
-hpGEM is a c++ partial differential equation solver. It is intended for Discontinuous Galerkin Finite Element Methods, but can also do normal (continuous) Finite Element Methods and Finite Volume.
+hpGEM is a c++ partial differential equation solver. It is intended for Discontinuous Galerkin Finite Element Methods, but can also do normal (conforming) Finite Element Methods and Finite Volume.
 
 == Installation ==
 

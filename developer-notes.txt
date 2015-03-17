@@ -23,9 +23,9 @@ Between steps and after you are done, make sure to compare with your old timings
 
 Debugging conde only makes sense if you are building in Debug mode, before doing anything else, set CMAKE_BUILD_TYPE to Debug. If this changes the behaviour of your code, first toggle hpGEM_DISABLE_ASSERTIONS to see if someone made a mistake in an assertion. If this did not alter the behaviour you have to hope a combination of CMAKE_BUILD_TYPE=RelWithDebInfo and hpGEM_ENFORCE_ASSERTIONS provides enough useful information
 
-If something unexpected happens in the kernel of hpGEM this likely has one of the three following causes:
+If something unexpected happens in the kernel of hpGEM this likely has one of the four following causes:
 
-=== Case 1: Nonsense arguments were passed to a functions and therefore it returned nonsense ===
+=== Case 1: Nonsense arguments were passed to a function and therefore it returned nonsense ===
 
 This happens for example when some function tries to request entry 12 of an array of size 4. This situation should be debugged by adding assertions until the function successfully detects the erroneous arguments. In the example this means adding the line 'logger.assert(entry < 4, "This array only has 4 entries")'. Your code will now crash when 12 is passed to the array, making it more easy to find the places where stuff actually went wrong. Other developers may have the same issue, please commit the extra assertions.
 
@@ -35,7 +35,7 @@ This happens for example when someone constructs a face with a weird element. Th
 
 === Case 3: All arguments and the state of the class are valid, but it still breaks ===
 
-This happens because of a programmer error. Add a unit-test that detects the current problem and change things in the kernel until all unit tests pass. Once they do please commit the bugfix.
+This happens because of a programming error. Add a unit-test that detects the current problem and change things in the kernel until all unit tests pass. Once they do please commit the bugfix.
 
 === Case 4: Everything is fine, but there is an assertion or a unit test that fails ===
 
