@@ -46,7 +46,12 @@ namespace Base
         explicit Edge(std::size_t ID)
                 : nrOfConformingDOFOnTheEdge_(0), ID_(ID)
         {
-        }
+        }     
+                
+        //private default constructor and copy constructor: these are not 
+        //intended for use and are therefore deleted.
+        Edge() = delete;
+        Edge(const Edge& other) = delete;
         
         virtual ~ Edge()
         {
@@ -86,8 +91,6 @@ namespace Base
         }
         
     private:
-        
-        Edge(const Edge& other);
 
         std::vector<Element*> elements_;
         std::vector<std::size_t> localEdgeNrs_;

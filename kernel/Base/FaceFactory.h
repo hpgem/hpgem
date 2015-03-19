@@ -46,7 +46,7 @@ namespace Base
 
     private:
         FaceFactory();
-        FaceFactory(const FaceFactory& orig);
+        FaceFactory(const FaceFactory& orig) = delete;
         virtual ~FaceFactory();
 
         std::size_t numberOfFaceMatrices_;

@@ -42,12 +42,15 @@ namespace Base
     class BasisFunctionSet
     {
     public:
-        using BaseBasisFunctionT = BaseBasisFunction;
-        using BaseBasisFunctions = std::vector<BaseBasisFunctionT*>; //check again
+        using BaseBasisFunctions = std::vector<BaseBasisFunction*>; //check again
         using PointReferenceT = Geometry::PointReference;
 
-    public:
-        BasisFunctionSet(std::size_t order);
+        explicit BasisFunctionSet(std::size_t order);        
+        
+        //private default constructor and copy constructor: these are not 
+        //intended for use and are therefore deleted.
+        BasisFunctionSet() = delete;
+        BasisFunctionSet(const BasisFunctionSet& other) = delete;
 
         virtual ~BasisFunctionSet();
 
@@ -55,7 +58,7 @@ namespace Base
 
         virtual std::size_t getOrder() const;
 
-        virtual void addBasisFunction(BaseBasisFunctionT* bf);
+        virtual void addBasisFunction(BaseBasisFunction* bf);
 
         virtual double eval(std::size_t i, const PointReferenceT& p) const;
 
@@ -74,8 +77,6 @@ namespace Base
         }
         
     private:
-        BasisFunctionSet();
-        BasisFunctionSet(const BasisFunctionSet& other);
 
     private:
         std::size_t order_;

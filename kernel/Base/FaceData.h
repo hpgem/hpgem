@@ -46,7 +46,15 @@ namespace Base
         using VecCacheT = std::vector<CacheT>;
 
     public:
-        FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices = 0, std::size_t numberOfFaceVactors = 0);
+        FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices = 0, std::size_t numberOfFaceVactors = 0);        
+        
+        ///Since the public constructor should always be called, the default constructor
+        ///of FaceData is deleted. 
+        FaceData() = delete;
+        
+        ///Since FaceData is only used in Face, and Face does not have a copy constructor
+        ///FaceData does not need a copy constructor.
+        FaceData(const FaceData& other) = delete;
 
         /// \brief Sets face matrix number 'matrixID' using a standard matrix.
         /// \deprecated For safety and also efficiency it is advised to use the other version
@@ -95,6 +103,7 @@ namespace Base
         VecCacheT vecCacheData_;
 
     private:
+        
         UserFaceData* userData_;
         std::vector<FaceMatrix> faceMatrix_;
         std::vector<LinearAlgebra::NumericalVector> faceVector_;

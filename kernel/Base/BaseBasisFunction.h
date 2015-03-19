@@ -35,11 +35,11 @@ namespace Base
     class BaseBasisFunction
     {
     public:
+        using PointReferenceT = Geometry::PointReference;
+        
         BaseBasisFunction();
 
         BaseBasisFunction(const BaseBasisFunction& other);
-
-        using PointReferenceT = Geometry::PointReference;
 
         virtual ~ BaseBasisFunction()
         {

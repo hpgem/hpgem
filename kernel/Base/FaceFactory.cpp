@@ -31,10 +31,6 @@ namespace Base
     {
     }
     
-    FaceFactory::FaceFactory(const FaceFactory& orig)
-    {
-    }
-    
     FaceFactory::~FaceFactory()
     {
     }

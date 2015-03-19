@@ -288,7 +288,9 @@ LinearAlgebra::NumericalVector AcousticWaveLinear::integrandErrorOnRefElement
 
 LinearAlgebra::Matrix AcousticWaveLinear::computeMassMatrixAtElement(Base::Element *ptrElement)
 {
-    std::function<LinearAlgebra::Matrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix{ return this -> integrandMassMatrixOnRefElement(ptrElement, pRef);};
+    std::function<LinearAlgebra::Matrix(const Geometry::PointReference &)> integrandFunction = 
+        [=](const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix
+        { return this -> integrandMassMatrixOnRefElement(ptrElement, pRef);};
     
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }

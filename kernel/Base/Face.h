@@ -53,13 +53,18 @@ namespace Base
     public:
         
         Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, Element* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfFaceVectors = 0);
+        
+        Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& ftype, std::size_t faceID, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
+                
+        ///copy constructor should not be used: if adjacent elements are the same,
+        ///then the Face already exists and there is no need for another, if 
+        ///adjacent elements are different, the copy is not really a copy
+        Face(const Face& other) = delete;
 
         virtual ~Face()
         {
-        }
+        }        
         
-        Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& ftype, std::size_t faceID, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
-
         /// Return the pointer to the left element.
         virtual Element* getPtrElementLeft()
         {
@@ -172,12 +177,12 @@ namespace Base
     protected:
         
         ///\brief default constructor - for use with wrapper classes
-        Face()
-                : FaceGeometry(), FaceData(0, 0, 0), elementLeft_(nullptr), elementRight_(nullptr), quadratureRule_(nullptr)
+        Face() : FaceGeometry(), FaceData(0, 0, 0), elementLeft_(nullptr), elementRight_(nullptr), quadratureRule_(nullptr)
         {
         }
         
     private:
+
         Element* elementLeft_;
         Element* elementRight_;
         const FaceQuadratureRule* quadratureRule_;

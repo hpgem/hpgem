@@ -53,15 +53,13 @@ namespace Base
         using MappingReferenceToPhysicalT = Geometry::MappingReferenceToPhysical;
         using ElementGeometryT = Geometry::ElementGeometry;
         using CacheT = Base::ElementCacheData;
-        using BasisFunctionSetT = Base::BasisFunctionSet;
         using GaussQuadratureRuleT = QuadratureRules::GaussQuadratureRule;
-        using ElementDataT = Base::ElementData;
         using VecCacheT = std::vector<CacheT>;
         using SolutionVector = LinearAlgebra::NumericalVector;
 
     public:
         
-        Element(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<const BasisFunctionSetT*>* basisFunctionSet, const std::vector<Geometry::PointPhysical>& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrices = 0, std::size_t numberOfElementVectors = 0, const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
+        Element(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<const BasisFunctionSet*>* basisFunctionSet, const std::vector<Geometry::PointPhysical>& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrices = 0, std::size_t numberOfElementVectors = 0, const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
 
         Element(const Element& other);
 
@@ -187,7 +185,7 @@ namespace Base
         void computeMassMatrix();
 
         const GaussQuadratureRuleT* quadratureRule_;
-        const std::vector<const BasisFunctionSetT*>* basisFunctionSet_;
+        const std::vector<const BasisFunctionSet*>* basisFunctionSet_;
         VecCacheT vecCacheData_;
         std::size_t id_;
         double orderCoeff_;

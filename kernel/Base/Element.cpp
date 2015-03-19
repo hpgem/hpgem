@@ -44,8 +44,20 @@
 namespace Base
 {
     
-    Element::Element(const VectorOfPointIndexesT& globalNodeIndexes, const std::vector<const BasisFunctionSetT*>* basisFunctionSet, const VectorOfPhysicalPointsT& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, const std::vector<int>& basisFunctionSetPositions)
-            : ElementGeometryT(globalNodeIndexes, allNodes), ElementDataT(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc, numberOfElementMatrixes, numberOfElementVectors), quadratureRule_(nullptr), basisFunctionSet_(basisFunctionSet), vecCacheData_(), id_(id), basisFunctionSetPositions_(basisFunctionSetPositions)
+    Element::Element(const VectorOfPointIndexesT& globalNodeIndexes, 
+                     const std::vector<const BasisFunctionSet*>* basisFunctionSet, 
+                     const VectorOfPhysicalPointsT& allNodes, 
+                     std::size_t nrOfUnkowns, 
+                     std::size_t nrOfTimeLevels, 
+                     std::size_t nrOfBasisFunc, 
+                     std::size_t id, 
+                     std::size_t numberOfElementMatrixes, 
+                     std::size_t numberOfElementVectors, 
+                     const std::vector<int>& basisFunctionSetPositions)
+            : ElementGeometryT(globalNodeIndexes, allNodes), 
+        ElementData(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc, numberOfElementMatrixes, numberOfElementVectors), 
+        quadratureRule_(nullptr), basisFunctionSet_(basisFunctionSet), 
+        vecCacheData_(), id_(id), basisFunctionSetPositions_(basisFunctionSetPositions)
     {
         logger.assert(basisFunctionSet!=nullptr, "Invalid basis function set passed");
         logger.assert(basisFunctionSet->size()>0, "Not enough basis function sets passed");
@@ -71,16 +83,23 @@ namespace Base
         nodesList_.assign(getReferenceGeometry()->getNumberOfNodes(), nullptr);
     }
     
+    //the mass matrix is not copied for safety, in case this element gets slightly
+    //changed before the mass matrix is needed. If one wants to use the mass matrix,
+    //it gets computed in getMassMatrix anyway.
     Element::Element(const Element& other)
-            : ElementGeometryT(other), ElementDataT(other), quadratureRule_(other.quadratureRule_), basisFunctionSet_(other.basisFunctionSet_), vecCacheData_(other.vecCacheData_), id_(other.id_), orderCoeff_(other.orderCoeff_), basisFunctionSetPositions_(other.basisFunctionSetPositions_), facesList_(other.facesList_), edgesList_(other.edgesList_), nodesList_(other.nodesList_), nrOfDOFinTheElement_(other.nrOfDOFinTheElement_)
-
+            : ElementGeometryT(other), ElementData(other), 
+        quadratureRule_(other.quadratureRule_), basisFunctionSet_(other.basisFunctionSet_), 
+        vecCacheData_(other.vecCacheData_), id_(other.id_), orderCoeff_(other.orderCoeff_), 
+        basisFunctionSetPositions_(other.basisFunctionSetPositions_), 
+        facesList_(other.facesList_), edgesList_(other.edgesList_), nodesList_(other.nodesList_), 
+        nrOfDOFinTheElement_(other.nrOfDOFinTheElement_)
     {
     }
     
     ///Very ugly default constructor that's only here because it is needed in
     ///ShortTermStorageElementBase.
     Element::Element()
-            : ElementDataT(0, 0, 0, 0, 0)
+            : ElementData(0, 0, 0, 0, 0)
     {
     }
     

@@ -49,6 +49,8 @@ namespace Base
         using VectorOfMatrices = std::vector<LinearAlgebra::Matrix>;
 
         ElementData(std::size_t timeLevels, std::size_t nrOfUnkowns, std::size_t nrOfBasisFunctions, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0);
+        
+        ElementData(const ElementData& other);
 
         virtual ~ ElementData()
         {
