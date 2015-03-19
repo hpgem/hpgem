@@ -175,14 +175,14 @@ namespace Base
         else*/
         int basePosition(0);
         for(int j:basisFunctionSetPositions_){
-        	if(j!=-1){
-        		int n=basisFunctionSet_->at(j)->size();
-				if(i-basePosition<n){
-					return basisFunctionSet_->at(j)->evalDeriv(i-basePosition, jDir, p);
-				}else{
-					basePosition+=n;
-				}
-        	}
+            if(j!=-1){
+                int n=basisFunctionSet_->at(j)->size();
+                if(i-basePosition<n){
+                    return basisFunctionSet_->at(j)->evalDeriv(i-basePosition, jDir, p);
+                }else{
+                    basePosition+=n;
+                }
+            }
         }
         throw "in basisFunctionDeriv(jdir): asked for a basisFunction that doesn't exist!";
     }
@@ -250,6 +250,10 @@ namespace Base
         unsigned int numberOfUnknows = ElementData::getNrOfUnknows();
         solution.resize(numberOfUnknows);
         
+        for(int k=0;k<numberOfUnknows;++k){
+            solution[k]=0;
+        }
+        
         const LinearAlgebra::Matrix& data = ElementData::getTimeLevelData(0);
         for (int i=0; i < ElementData::getNrOfBasisFunctions(); ++i)
         {
@@ -275,7 +279,7 @@ namespace Base
 				}
         	}
         }
-        throw "in basisFunctionDeriv(jdir): asked for a basisFunction that doesn't exist!";
+        throw "in basisFunction: asked for a basisFunction that doesn't exist!";
     }
     
     void
@@ -293,7 +297,7 @@ namespace Base
 				}
         	}
         }
-        throw "in basisFunctionDeriv(jdir): asked for a basisFunction that doesn't exist!";
+        throw "in basisFunctionCurl: asked for a basisFunction that doesn't exist!";
     }
 
     void

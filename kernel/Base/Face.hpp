@@ -76,7 +76,7 @@ namespace Base
         
         void            createQuadratureRules();
     
-        void setGaussQuadratureRule(FaceQuadratureRule* quadratureRule)
+        void setGaussQuadratureRule(const FaceQuadratureRule* quadratureRule)
         {
             quadratureRule_ = quadratureRule;
         }

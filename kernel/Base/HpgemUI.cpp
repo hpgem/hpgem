@@ -64,11 +64,13 @@ namespace Base
         if (meshType== RECTANGULAR)
         {   
             mesh->createRectangularMesh(meshDscr.bottomLeft_, meshDscr.topRight_, meshDscr.numElementsInDIM_);
+            mesh->getElementsList();
             meshes_.push_back(mesh);
         }
         else if (meshType==TRIANGULAR)
         {
         	mesh->createTriangularMesh(meshDscr.bottomLeft_,meshDscr.topRight_,meshDscr.numElementsInDIM_);
+            mesh->getElementsList();
         	meshes_.push_back(mesh);
         }
         else
@@ -86,6 +88,7 @@ namespace Base
         unsigned int numOfMeshes=meshes_.size();
         MeshManipulator* mesh = new MeshManipulator(configData_,false,false,false,configData_->polynomialOrder_,0,nrOfElementMatrixes,nrOfElementVectors,nrOfFaceMatrixes,nrOfFaceVectors);
         mesh->readCentaurMesh(fileName);  //boundary information (^) is ignored
+            mesh->getElementsList();
         meshes_.push_back(mesh);
         std::cout<<"I just read a mesh!!!"<<std::endl;
             //mesh->outputMesh(std::cout);

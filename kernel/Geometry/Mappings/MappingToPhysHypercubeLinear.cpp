@@ -96,14 +96,24 @@ namespace Geometry
     	//assert(L2norm(a1)>1e-14&&L2norm(a2 + pointReference[0] * a12)>1e-14);
         if (isValidPoint(pointReference))
         {
-            pointPhysical = a0 + pointReference[0] * a1
-                               + pointReference[1] * (a2 + pointReference[0] * a12);
+            //pointPhysical = a0 + pointReference[0] * a1
+            //                   + pointReference[1] * (a2 + pointReference[0] * a12);
+            pointPhysical=a2;
+            pointPhysical.axpy(pointReference[0],a12);
+            pointPhysical*=pointReference[1];
+            pointPhysical+=a0;
+            pointPhysical.axpy(pointReference[0],a1);
         }
         else
         {
             // ERROR///\TODO emit a warning at a non-deadly priority level
-            pointPhysical = a0 + pointReference[0] * a1
-                               + pointReference[1] * (a2 + pointReference[0] * a12);
+            //pointPhysical = a0 + pointReference[0] * a1
+            //                   + pointReference[1] * (a2 + pointReference[0] * a12);
+            pointPhysical=a2;
+            pointPhysical.axpy(pointReference[0],a12);
+            pointPhysical*=pointReference[1];
+            pointPhysical+=a0;
+            pointPhysical.axpy(pointReference[0],a1);
         }
     }
 
@@ -125,6 +135,7 @@ namespace Geometry
 
     void MappingToPhysHypercubeLinear<2>::reinit(const PhysicalGeometryT*const physicalGeometry)
     {
+        /*
         PointPhysicalT p0(2),p1(2),p2(2),p3(2);
         physicalGeometry->getNodeCoordinates(0, p0);
         physicalGeometry->getNodeCoordinates(1, p1);
@@ -135,6 +146,27 @@ namespace Geometry
         a1  = 0.25 * (p1 - p0 + p3 - p2);
         a2  = 0.25 * (p2 - p0 + p3 - p1);
         a12 = 0.25 * (p3 - p1 + p0 - p2);
+        */
+        
+        PointPhysical temp(2);
+        physicalGeometry->getNodeCoordinates(0,a0);
+        physicalGeometry->getNodeCoordinates(1,a1);
+        physicalGeometry->getNodeCoordinates(2,a2);
+        physicalGeometry->getNodeCoordinates(3,temp);
+        a0+=temp;
+        a12=a1;
+        a12+=a2;
+        a12-=a0;
+        a12*=-0.25;
+        a0+=a1;
+        a0+=a2;
+        a1+=temp;
+        a2+=temp;
+        a1.axpy(-0.5,a0);
+        a2.axpy(-0.5,a0);
+        a0*=0.25;
+        a1*=0.5;
+        a2*=0.5;
 
     }
 

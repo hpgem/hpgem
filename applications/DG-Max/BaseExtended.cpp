@@ -627,8 +627,8 @@ void hpGemUIExtentions::exportMatrixes(){
 	PetscViewer viewM, viewS;
 	PetscViewerASCIIOpen(MPI_COMM_WORLD,"M.m", &viewM);
 	PetscViewerASCIIOpen(MPI_COMM_WORLD,"S.m", &viewS);
-	PetscViewerSetFormat(viewM,PETSC_VIEWER_ASCII_MATLAB);
-	PetscViewerSetFormat(viewS,PETSC_VIEWER_ASCII_MATLAB);
+	PetscViewerSetFormat(viewM,PETSC_VIEWER_NOFORMAT);
+	PetscViewerSetFormat(viewS,PETSC_VIEWER_NOFORMAT);
 	MatView(M_,viewM);
 	MatView(S_,viewS);
 	PetscViewerDestroy(&viewM);

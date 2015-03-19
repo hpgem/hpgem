@@ -69,8 +69,10 @@ namespace Base{
 
 		Element& operator=(const Element& element){//todo check that &element and this are different things (errorChecker)
 			element_=&element;
+
             /// \bug This should go back to NAN at some point. Again to fix problems with math and STL::vector
 			currentPoint_[0]=0/0;
+            
 			currentPointIndex_=-1;
 			return *this;
 		}
@@ -85,7 +87,7 @@ namespace Base{
 
 		virtual void                            basisFunction(unsigned int i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) {throw "No storage functionality was implemented! Are you working in a scalar function space?";}
 
-		virtual double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) {throw "No storage functionality was implemented! Why are you calling this anyway?";}
+		virtual double                          basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p) const {return element_->basisFunctionDeriv(i,jDir,p);}
 
 		virtual void                            basisFunctionDeriv(unsigned int i,const PointReferenceT& p, LinearAlgebra::NumericalVector& ret,const Element* =NULL) {throw "No storage functionality was implemented! Did you mean basisFunctionCurl?";}
 

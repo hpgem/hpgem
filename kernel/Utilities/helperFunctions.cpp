@@ -21,7 +21,7 @@
 
 #include "helperFunctions.hpp"
 
-#include <math.h>
+#include <cmath>
 #include "Geometry/PointReference.hpp"
 namespace Utilities {
 

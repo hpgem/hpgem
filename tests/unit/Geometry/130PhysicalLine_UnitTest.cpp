@@ -29,6 +29,8 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferenceLine.hpp"
 
+#include <cmath>
+using std::fabs;
 using Geometry::PhysicalLine;
 
 int main(){

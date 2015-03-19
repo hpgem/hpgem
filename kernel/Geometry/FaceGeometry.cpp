@@ -509,37 +509,40 @@ namespace Geometry {
     {
     	unsigned int DIM=v.size();
     	if(DIM>1){
-			// first Jacobian (mapping reference face -> reference element)
-			Jacobian    j1(DIM-1,DIM);
+            // first Jacobian (mapping reference face -> reference element)
+            static Jacobian    j1(DIM-1,DIM);
+            j1.resize(DIM,DIM-1);///\BUG argument ordering in Matrix::resize() does not match argument ordering in Matrix::Matrix()
 
-			leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_) // this is the refFace2RefElemMap
-			->calcJacobian(pRefFace, j1);
+            leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_) // this is the refFace2RefElemMap
+            ->calcJacobian(pRefFace, j1);
 
-			// second Jacobian (mapping reference element -> phys. element),
-			// for this we first need the points coordinates on the
-			// reference element
-			ReferencePointT pRefElement(DIM);
-			mapRefFaceToRefElemL(pRefFace, pRefElement);
+            // second Jacobian (mapping reference element -> phys. element),
+            // for this we first need the points coordinates on the
+            // reference element
+            ReferencePointT pRefElement(DIM);
+            mapRefFaceToRefElemL(pRefFace, pRefElement);
 
-			Jacobian j2(DIM,DIM);
+            static Jacobian j2(DIM,DIM);
+            j2.resize(DIM,DIM);
 
-			leftElementGeom_->calcJacobian(pRefElement, j2);
+            leftElementGeom_->calcJacobian(pRefElement, j2);
 
-			Jacobian j3(DIM-1,DIM);
+            static Jacobian j3(DIM-1,DIM);
+            j3.resize(DIM,DIM-1);
 
-			j2.multiplyJacobiansInto(j1, j3);
+            j2.multiplyJacobiansInto(j1, j3);
 
-			j3.computeWedgeStuffVector(v);
+            j3.computeWedgeStuffVector(v);
 
-			double det = j2.determinant();
+            double det = j2.determinant();
 
-			//sgn==(x > 0) - (x < 0)
-	//        cout << "det="<<det<<endl;
-	//        cout << "localFaceNumberLeft_="<<localFaceNumberLeft_<<endl;
-	//        cout << "v="<<v<<endl;
+            //sgn==(x > 0) - (x < 0)
+            //        cout << "det="<<det<<endl;
+            //        cout << "localFaceNumberLeft_="<<localFaceNumberLeft_<<endl;
+            //        cout << "v="<<v<<endl;
 
-			double sign =OutwardNormalVectorSign(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_));
-	//        cout << "sign="<<sign<<endl;
+            double sign =OutwardNormalVectorSign(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_));
+            //        cout << "sign="<<sign<<endl;
 			v *= ((det>0)-(det<0))*sign;
     	}else{//if DIM==1
     		//for one dimension the fancy wedge stuff wont work

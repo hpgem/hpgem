@@ -65,6 +65,10 @@ namespace Geometry
         PointPhysical& operator= (const PointPhysical& right)
                 {PointT::coordinates_ = right.coordinates_; return *this;}
         
+        void axpy(const double& alpha, const PointPhysical& x){
+            coordinates_.axpy(alpha,x.coordinates_);
+        }
+        
 //        friend PointT operator*(const double& left, const PointT& right){return PointPhysical(right.coordinates_*left);}
     };
 };

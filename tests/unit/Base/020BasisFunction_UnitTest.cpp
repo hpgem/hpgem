@@ -38,6 +38,8 @@
 #include "LinearAlgebra/NumericalVector.hpp"
 #include "Base/BaseBasisFunction.hpp"
 
+#include <cmath>
+using std::fabs;
 int main() {
 
 	// 1D

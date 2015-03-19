@@ -34,6 +34,7 @@
 #include "Geometry/PhysicalGeometry.hpp"
 #include "Geometry/ReferenceGeometry.hpp"
 #include "Geometry/PointReference.hpp"
+#include "Base/Norm2.hpp"
 
 namespace Utilities{
 
@@ -103,32 +104,67 @@ namespace Utilities{
 		return A_;
 	}
 
-	void GlobalPetscMatrix::makePositionsInMatrix(int amountOfPositions, const Base::Element* element, int positions[]){
-		for(unsigned int i=0;i<amountOfPositions;++i){
-			int usedEntries(0);
-			if(i<element->getLocalNrOfBasisFunctions()){
+	void GlobalPetscMatrix::makePositionsInMatrix(int amountOfPositions, const Base::Element* element, int* positions){
+            if(amountOfPositions>0){
+                int n=element->getLocalNrOfBasisFunctions();
+                int usedEntries(0);
+                for(int i=0;i<n;++i){
+                    positions[i]=i+startPositionsOfElementsInTheMatrix_[element->getID()];
+                }
+                usedEntries+=n;
+                int m=element->getPhysicalGeometry()->getNrOfFaces();
+                for(int i=0;i<m;++i){
+                    n=element->getFace(i)->getLocalNrOfBasisFunctions();
+                    for(int j=0;j<n;++j){
+                        positions[j+usedEntries]=j+startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()];
+                    }
+                    usedEntries+=n;
+                }
+                m=element->getNrOfEdges();
+                for(int i=0;i<m;++i){
+                    n=element->getEdge(i)->getLocalNrOfBasisFunctions();
+                    for(int j=0;j<n;++j){
+                        positions[j+usedEntries]=j+startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()];
+                    }
+                    usedEntries+=n;
+                }
+                m=element->getNrOfNodes();
+                for(int i=0;i<m;++i){
+                    n=element->getLocalNrOfBasisFunctionsVertex();
+                    for(int j=0;j<n;++j){
+                        positions[j+usedEntries]=j+startPositionsOfVerticesInTheMatrix_[element->getPhysicalGeometry()->getNodeIndex(i)];
+                    }
+                    usedEntries+=n;
+                }
+            }
+            
+            /*	for(unsigned int i=0;i<amountOfPositions;++i){
+			int usedEntries(element->getLocalNrOfBasisFunctions());
+			if(i<usedEntries){
 				positions[i]=i+startPositionsOfElementsInTheMatrix_[element->getID()];
 			}
-			usedEntries+=element->getLocalNrOfBasisFunctions();
-			for(int j=0;j<element->getPhysicalGeometry()->getNrOfFaces();++j){
+                        int n=element->getPhysicalGeometry()->getNrOfFaces();
+			for(int j=0;j<n;++j){
 				if(i-usedEntries<element->getFace(j)->getLocalNrOfBasisFunctions()){
 					positions[i]=i-usedEntries+startPositionsOfFacesInTheMatrix_[element->getFace(j)->getID()];
 				}
 				usedEntries+=element->getFace(j)->getLocalNrOfBasisFunctions();
 			}
-			for(int j=0;j<element->getNrOfEdges();++j){
+                        n=element->getNrOfEdges();
+			for(int j=0;j<n;++j){
 				if(i-usedEntries<element->getEdge(j)->getLocalNrOfBasisFunctions()){
 					positions[i]=i-usedEntries+startPositionsOfEdgesInTheMatrix_[element->getEdge(j)->getID()];
 				}
 				usedEntries+=element->getEdge(j)->getLocalNrOfBasisFunctions();
 			}
-			for(int j=0;j<element->getNrOfNodes();++j){
+                        n=element->getNrOfNodes();
+			for(int j=0;j<n;++j){
 				if(i-usedEntries<element->getLocalNrOfBasisFunctionsVertex()){
 					positions[i]=i-usedEntries+startPositionsOfVerticesInTheMatrix_[element->getPhysicalGeometry()->getNodeIndex(j)];
 				}
 				usedEntries+=element->getLocalNrOfBasisFunctionsVertex();
 			}
-		}
+		}*/
 	}
 
 	void GlobalPetscMatrix::reset(){
@@ -153,8 +189,9 @@ namespace Utilities{
 			for(Base::MeshManipulator::FaceIterator it=theMesh_->faceColBegin();it!=theMesh_->faceColEnd();++it){
 				const Base::Element* elLeft((*it)->getPtrElementLeft()),*elRight((*it)->getPtrElementRight());
 				int nLeft(elLeft->getNrOfBasisFunctions()),n(nLeft);
-				if((*it)->isInternal())
+				if((*it)->isInternal()){
 					n+=elRight->getNrOfBasisFunctions();
+                                }
 				int positions[n];
 				makePositionsInMatrix(n-nLeft,elRight,positions+nLeft);
 				makePositionsInMatrix(nLeft,elLeft,positions);
@@ -204,11 +241,59 @@ namespace Utilities{
 			totalNrOfDOF+=DOFForAVertex;
 		}
 
+                //make vertices periodic ///\bug periodic boundary conditions not set for edges
+                std::vector<unsigned int> leftIndexes,rightIndexes;
+                Geometry::PointReference centre(DIM-1),leftRef(DIM),rightRef(DIM);
+                Geometry::PointPhysical leftPhys(DIM),rightPhys(DIM),displacement(DIM);
+                for(Base::Face* face:theMesh_->getFacesList()){
+                    if(face->isInternal()){
+                        face->getReferenceGeometry()->getCenter(centre);
+                        face->mapRefFaceToRefElemL(centre,leftRef);
+                        face->mapRefFaceToRefElemR(centre,rightRef);
+                        face->getPtrElementLeft()->referenceToPhysical(leftRef,leftPhys);
+                        face->getPtrElementRight()->referenceToPhysical(rightRef,rightPhys);
+                        displacement=leftPhys;
+                        displacement-=rightPhys;
+                        if(Utilities::norm2(displacement)>1e-9){//this is a periodic boundary
+                            face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft(),leftIndexes);
+                            face->getPtrElementRight()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberRight(),rightIndexes);
+                            const std::vector<Geometry::PointPhysical> locations=face->getPtrElementLeft()->getPhysicalGeometry()->getNodes();
+                            for(int i=0;i<leftIndexes.size();++i){
+                                for(int j=0;j<rightIndexes.size();++j){
+                                    if(Utilities::norm2(displacement-locations[leftIndexes[i]]+locations[rightIndexes[j]])<1e-9){//if the nodes have the same displacement as the centre
+                                        if(startPositionsOfVerticesInTheMatrix_[leftIndexes[i]]!=startPositionsOfVerticesInTheMatrix_[rightIndexes[j]]){//and they do not map into the same location in the matrix yet
+                                            int oldPosition=startPositionsOfVerticesInTheMatrix_[rightIndexes[j]];
+                                            for(int k=0;k<leftIndexes[i];++k){//before leftIndices[i] connect and shift
+                                                if(startPositionsOfVerticesInTheMatrix_[k]==oldPosition){
+                                                    startPositionsOfVerticesInTheMatrix_[k]=startPositionsOfVerticesInTheMatrix_[leftIndexes[i]];
+                                                }
+                                                if(startPositionsOfVerticesInTheMatrix_[k]>oldPosition){
+                                                    startPositionsOfVerticesInTheMatrix_[k]-=DOFForAVertex;
+                                                }
+                                            }
+                                            for(int k=leftIndexes[i];k<startPositionsOfVerticesInTheMatrix_.size();++k){
+                                                if(startPositionsOfVerticesInTheMatrix_[k]>oldPosition){
+                                                    startPositionsOfVerticesInTheMatrix_[k]-=DOFForAVertex;//shift all startposition later then index(j) back a bit
+                                                }else if(startPositionsOfVerticesInTheMatrix_[k]==oldPosition){//and connect the nodes (also connect previous connections))
+                                                    startPositionsOfVerticesInTheMatrix_[k]=startPositionsOfVerticesInTheMatrix_[leftIndexes[i]];
+                                                }
+                                            }
+                                            totalNrOfDOF-=DOFForAVertex;
+                                            //std::cout<<leftIndexes[i]<<" "<<rightIndexes[j]<<std::endl;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+
 		int numberOfPositionsPerRow[totalNrOfDOF];
 		for(int i=0;i<totalNrOfDOF;++i){
 			numberOfPositionsPerRow[i]=0;
 		}
-
+                
 		for(Base::Element* element:theMesh_->getElementsList()){
 			for(int j=0;j<element->getLocalNrOfBasisFunctions();++j){
 				numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()]+j]+=element->getNrOfBasisFunctions();
@@ -217,7 +302,7 @@ namespace Utilities{
 				for(int j=0;j<element->getFace(i)->getLocalNrOfBasisFunctions();++j){
 					numberOfPositionsPerRow[startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()]+j]+=element->getNrOfBasisFunctions();
 				}
-				for(int j=0;j<element->getLocalNrOfBasisFunctions();++j){//for DG
+				for(int j=0;j<element->getLocalNrOfBasisFunctions();++j){
 					numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()]+j]+=element->getNrOfBasisFunctions();
 				}
 			}
@@ -234,15 +319,13 @@ namespace Utilities{
 		}
 
 		for(int i=0;i<totalNrOfDOF;++i){
-			if(totalNrOfDOF<numberOfPositionsPerRow[i])
-				numberOfPositionsPerRow[i]=2*totalNrOfDOF;
-                        else{
-                            numberOfPositionsPerRow[i]*=2;
-                        }
+                    if(numberOfPositionsPerRow[i]>totalNrOfDOF){
+                        numberOfPositionsPerRow[i]=totalNrOfDOF;//a row cant have more nonzero entries than the number of columns
+                    }
 		}
 
-
 		int ierr=MatCreateAIJ(MPI_COMM_WORLD,totalNrOfDOF,totalNrOfDOF,PETSC_DETERMINE,PETSC_DETERMINE,-1,numberOfPositionsPerRow,0,NULL,&A_);
+                MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);//the estimate is accurate for most matrices, but if you want to do something conforming with face matrices you need more
 		ierr=MatSetUp(A_);
 		CHKERRV(ierr);
 		//}

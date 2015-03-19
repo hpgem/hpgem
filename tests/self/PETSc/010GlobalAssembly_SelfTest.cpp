@@ -216,6 +216,7 @@ int main(){
 	assert(("comparison to old results",(test4.solve()-0.00880382)<1e-8));
 	Laplace test5(1,2,2,Base::TRIANGULAR);
 	test5.initialise();
+        std::cout<<test5.solve()<<std::endl;
 	assert(("comparison to old results",(test5.solve()-0.18046613)<1e-8));
 	Laplace test6(2,3,2,Base::TRIANGULAR);
 	test6.initialise();

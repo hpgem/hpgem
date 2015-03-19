@@ -29,6 +29,8 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferenceCube.hpp"
 
+#include <cmath>
+using std::fabs;
 using Geometry::PhysicalHexahedron;
 
 int main(){

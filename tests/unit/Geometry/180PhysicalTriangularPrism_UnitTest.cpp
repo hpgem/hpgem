@@ -29,6 +29,8 @@
 #include "Geometry/PointReference.hpp"
 #include "Geometry/ReferenceTriangularPrism.hpp"
 
+#include <cmath>
+using std::fabs;
 using Geometry::PhysicalTriangularPrism;
 
 int main(){
