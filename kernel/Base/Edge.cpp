@@ -18,37 +18,42 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "Edge.hpp"
+#include "Edge.h"
 
-#include "Element.hpp"
-#include "Geometry/ReferenceGeometry.hpp"
-#include "Geometry/PhysicalGeometry.hpp"
-#include "LinearAlgebra/Matrix.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
-#include "ElementCacheData.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/PointPhysical.hpp"
+#include "Element.h"
+#include "Geometry/ReferenceGeometry.h"
+#include "Geometry/PhysicalGeometry.h"
+#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/NumericalVector.h"
+#include "ElementCacheData.h"
+#include "Geometry/PointReference.h"
+#include "Geometry/PointPhysical.h"
+#include <vector>
 
-namespace Base {
+namespace Base
+{
 
-Edge::Edge(std::vector<Element*>& elements,std::vector<unsigned int> localEdgeNrs, unsigned int ID) :
-		ID_(ID), elements_(elements), localEdgeNrs_(localEdgeNrs), nrOfConformingDOFOnTheEdge_(0), orientation_(elements_.size()) {
-	std::vector<unsigned int> indices(2);
-	for (int i = 0; i < elements_.size(); ++i) {
-		elements_[i]->setEdge(localEdgeNrs_[i], this);
-		elements_[i]->getReferenceGeometry()->getCodim2EntityLocalIndices(localEdgeNrs_[i], indices);
-		indices[0] = elements_[i]->getPhysicalGeometry()->getNodeIndex(indices[0]);
-		indices[1] = elements_[i]->getPhysicalGeometry()->getNodeIndex(indices[1]);
-		orientation_[i] = (indices[0] < indices[1]) ? 0 : 1;
-	}
-}
-
-	int Edge::getNrOfElements() {
-		return elements_.size();
-	}
-
-	Element* Edge::getElement(int i) {
-		return elements_[i];
-	}
+    void Edge::addElement(Element* element, std::size_t edgeNr)
+    {
+        logger.assert(element!=nullptr, "Invalid element detected");
+        elements_.push_back(element);
+        localEdgeNrs_.push_back(edgeNr);
+        element->setEdge(edgeNr, this);
+        std::vector<std::size_t> indices = element->getReferenceGeometry()->getCodim2EntityLocalIndices(edgeNr);
+        indices[0] = element->getPhysicalGeometry()->getNodeIndex(indices[0]);
+        indices[1] = element->getPhysicalGeometry()->getNodeIndex(indices[1]);
+        orientation_.push_back((indices[0] < indices[1] ? 0 : 1));
+    }
+    
+    std::size_t Edge::getNrOfElements()
+    {
+        return elements_.size();
+    }
+    
+    Element* Edge::getElement(std::size_t i)
+    {
+        logger.assert(i < getNrOfElements(), "Asked for element %, but there are only % elements", i, getNrOfElements());
+        return elements_[i];
+    }
 
 }

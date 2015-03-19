@@ -255,7 +255,7 @@
      $   RETURN
       C2 = SUBNAM( 2: 3 )
       C3 = SUBNAM( 4: 6 )
-      C4 = C3( 2: 3 )
+      C4 = SUBNAM( 5: 6 )
 *
       GO TO ( 50, 60, 70 )ISPEC
 *

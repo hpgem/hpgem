@@ -18,39 +18,41 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "PhysicalQuadrilateral.hpp"
+#include "PhysicalQuadrilateral.h"
 #include <vector>
 
-#include "Geometry/ReferenceSquare.hpp"
-#include "Geometry/PointPhysical.hpp"
-#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferenceSquare.h"
+#include "Geometry/PointPhysical.h"
+#include "Geometry/PointReference.h"
 
 namespace Geometry
 {
-    PhysicalQuadrilateral::PhysicalQuadrilateral(
-        const VectorOfPointIndexesT& globalNodeIndexes,
-        const VectorOfPhysicalPointsT& nodes,
-        const ReferenceSquare* const square) :
-        PhysicalGeometry(globalNodeIndexes,nodes, square)
+    PhysicalQuadrilateral::PhysicalQuadrilateral(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<PointPhysical>& nodes)
+            : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceSquare::Instance())
     {
     }
-
-    void PhysicalQuadrilateral::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    
+    std::vector<std::size_t> PhysicalQuadrilateral::getGlobalFaceNodeIndices(const std::size_t face) const
     {
-        indexes.resize(2);
-        indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
-        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,1)];
+        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
+        std::vector<std::size_t> indexes(2);
+        indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0)];
+        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 1)];
+        return indexes;
     }
-
-    void PhysicalQuadrilateral::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
+    
+    std::vector<std::size_t> PhysicalQuadrilateral::getLocalFaceNodeIndices(const std::size_t face) const
     {
-        indexes.resize(2);
-        indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
-        indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
+        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
+        std::vector<std::size_t> indexes(2);
+        indexes[0] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0);
+        indexes[1] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 1);
+        return indexes;
     }
-
-	unsigned int PhysicalQuadrilateral::getNrOfFaces() const {
-		return refGeometry_->getNrOfCodim1Entities();
-	}
+    
+    std::size_t PhysicalQuadrilateral::getNrOfFaces() const
+    {
+        return refGeometry_->getNrOfCodim1Entities();
+    }
 
 }

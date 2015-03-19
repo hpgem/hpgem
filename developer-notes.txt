@@ -1,0 +1,42 @@
+== About code conventions ==
+
+The code conventions can be found online at http://www.hpgem.org/development/coding-style-of-the-kernel
+They are intended to make the code more uniform. Uniform code is more easy to read. If you ignore the coding conventions, you may find that you suddenly have to resolve some mayor text conflicts or even tree conflicts, because somebody decided to clean up.
+
+== About assertions ==
+
+The intended use of assertions in general and logger.assert for hpGEM is to check blatant assumptions on the arguments provided to the functions. For example, if you are trying to request entry 12 of an array of size 4, this is clearly wrong and you should change your function. 
+
+Assertions should be used freely, but checking everything, all the time, is expensive. Therefore assertions are compiled out of the code completely in Release configuration. However, this also means that if you accidentally do something that has side effects in an assertion, the behaviour of your code may change between configurations. For example, NEVER DO 'logger.assert(x=4, "/// WRONG!!");'
+
+Preparing data for the assertions is also expensive. If you want to assert something that depends on data that is not yet computed and not needed elsewhere in the function, do NOT compute it before the assertion. Rather write a dedicated function checkThisCondition that return bool and call it inside the assertion. (make sure to think of a better name for the function!)
+
+== About optimisation ==
+
+Optimising code only makes sense if you are building in Release mode, before doing anything else, set CMAKE_BUILD_TYPE to Release and make sure hpGEM_ENFORCE_ASSERTIONS is OFF. All effort spend in other configurations is almost certainly wasted and probably even counterproductive. Make sure you have some timing information to compare before and after, to see if you made any improvements.
+
+Before changing anything, you want to know where the bottlenecks are. To do this, us a profiler, such as gprof(linux) or Instruments(mac), on a representative application. With this information in hand either make sure the most expensive methods get called less often or try to improve the efficiency of this method. Note that saving information will most likely speed up your application, but comes at the cost of a larger memory footprint. This may mean large applications no longer run. This is NOT an ideal situation.
+
+Between steps and after you are done, make sure to compare with your old timings. If things went worse, discard your changes and try again.
+
+== About debugging ==
+
+Debugging conde only makes sense if you are building in Debug mode, before doing anything else, set CMAKE_BUILD_TYPE to Debug. If this changes the behaviour of your code, first toggle hpGEM_DISABLE_ASSERTIONS to see if someone made a mistake in an assertion. If this did not alter the behaviour you have to hope a combination of CMAKE_BUILD_TYPE=RelWithDebInfo and hpGEM_ENFORCE_ASSERTIONS provides enough useful information
+
+If something unexpected happens in the kernel of hpGEM this likely has one of the four following causes:
+
+=== Case 1: Nonsense arguments were passed to a function and therefore it returned nonsense ===
+
+This happens for example when some function tries to request entry 12 of an array of size 4. This situation should be debugged by adding assertions until the function successfully detects the erroneous arguments. In the example this means adding the line 'logger.assert(entry < 4, "This array only has 4 entries")'. Your code will now crash when 12 is passed to the array, making it more easy to find the places where stuff actually went wrong. Other developers may have the same issue, please commit the extra assertions.
+
+=== Case 2: Some fields in a class contain nonsense and therefore it produces nonsense ===
+
+This happens for example when someone constructs a face with a weird element. This means you are detecting one of the other two causes in an unfortunate place. Check the other functions that interact with the erroneous field for the actual source of the error.
+
+=== Case 3: All arguments and the state of the class are valid, but it still breaks ===
+
+This happens because of a programming error. Add a unit-test that detects the current problem and change things in the kernel until all unit tests pass. Once they do please commit the bugfix.
+
+=== Case 4: Everything is fine, but there is an assertion or a unit test that fails ===
+
+Unit-tests and assertions are great for detecting something is wrong, but unfortunately it may also be the unit-test or the assertion itself that is wrong. Please be extra careful to make sure it is actually the unit-test or the assertion that is wrong and when in doubt ask. When you commit the fix, clearly state in you commit message that you changed assertions or unit-tests because they were broken.

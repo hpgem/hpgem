@@ -20,45 +20,51 @@
  */
 
 #include <iostream>
-#include "Base/Logger.h"
-
+#include "Logger.h"
 
 // --- Declaring a logger.
 // --- This allows you to redefine LogLevels based on command line options.
 #ifndef LOG_MAIN_LEVEL
-#define LOG_MAIN_LEVEL Log::FATAL
+#define LOG_MAIN_LEVEL Log::DEBUG
 #endif
 Logger<LOG_MAIN_LEVEL> log("Main");
 
 void logMessage(std::string, std::string);
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
     
-    int x = 3;
     //Basic use cases
-    log.log(Log::ERROR, "Oopsie!");
-    log.log(Log::FATAL, "Mweh. x = %", x);
-    log.log(Log::DEBUG, "You won't see me!");
-    log.log(Log::WARN, "Escapes are possible! %\% sure!", 100.01f);
+    
+    //std::size_t x = 3;
+//    log.log(Log::ERROR, "Oopsie!");
+//    log.log(Log::FATAL, "x is not supposed to be %!!!", x);
+    log(DEBUG, "You won't see me!");
+    log(WARN, "Escapes are possible! %\% sure!", 100.01f);
     
     //Usage case for redefining with an function
     loggerOutput->onWarn = logMessage;
-    log.log(Log::WARN, "Custom logger! % + % = %, %!",
-            3, 5, 3+5, "yay");
+    log(WARN, "Custom logger! % + % = %, %!", 3, 5, 3 + 5, "yay");
+    
+    logger.assert(true, "Test %", 3);
     
     //Usage case for redefining with a lambda func
-    loggerOutput->onFatal = [](std::string module, std::string message) {
+    loggerOutput->onFatal = [](std::string module, std::string message)
+    {   
         std::cerr << "A fatal error has occurred."
         << "\n  Module: " << module
-        << "\n  Message: " << message << std::endl;
-//        std::exit(-1);
+        << "\n  Message: " << message
+        << "\n (This is part of the test.)\n" << std::endl;
+
+        std::exit(0);
     };
     
-    log.log(Log::FATAL, "Null pointer passed!");
-    std::cout << "You shouldn't see me." << std::endl;
+    log(FATAL, "Null pointer passed!");
+    std::cout << "In a normal application you wouldn't see me, but someone redefined onFatal for the purpose of this demonstration" << std::endl;
     return 0;
 }
 
-void logMessage(std::string module, std::string msg) {
+void logMessage(std::string module, std::string msg)
+{
     std::cout << "Custom logger. Module " << module << ": " << msg << std::endl;
 }
