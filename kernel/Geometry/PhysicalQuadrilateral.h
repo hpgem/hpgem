@@ -28,26 +28,13 @@ namespace Geometry
 {
     class ReferenceSquare;
     
+    /// \deprecated just pass a referenceSquare to the constructor of a PhysicalGeometry
+    /// if you want to create a quadrilateral
     class PhysicalQuadrilateral : public PhysicalGeometry
     {
     public:
         
         PhysicalQuadrilateral(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
-
-        ~PhysicalQuadrilateral()
-        {
-        }
-        
-        virtual std::string getName() const
-        {
-            return "PhysicalQuadrilateral";
-        }
-        
-        std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t) const;
-
-        std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t) const;
-
-        std::size_t getNrOfFaces() const;
     };
 
 }

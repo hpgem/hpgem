@@ -63,7 +63,7 @@ namespace Base
 
         Element(const Element& other) = delete;
 
-        ~ Element();
+        virtual ~ Element();
 
         virtual std::size_t getID() const;
 

@@ -61,9 +61,6 @@ namespace Geometry
     MappingToRefSquareToSquare0::MappingToRefSquareToSquare0()
     {
     }
-    MappingToRefSquareToSquare0::~MappingToRefSquareToSquare0()
-    {
-    }
     
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 1 ~~~==============================================================================
@@ -96,9 +93,6 @@ namespace Geometry
     }
     
     MappingToRefSquareToSquare1::MappingToRefSquareToSquare1()
-    {
-    }
-    MappingToRefSquareToSquare1::~MappingToRefSquareToSquare1()
     {
     }
     
@@ -135,9 +129,6 @@ namespace Geometry
     MappingToRefSquareToSquare2::MappingToRefSquareToSquare2()
     {
     }
-    MappingToRefSquareToSquare2::~MappingToRefSquareToSquare2()
-    {
-    }
     
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 3 ~~~==============================================================================
@@ -170,9 +161,6 @@ namespace Geometry
     }
     
     MappingToRefSquareToSquare3::MappingToRefSquareToSquare3()
-    {
-    }
-    MappingToRefSquareToSquare3::~MappingToRefSquareToSquare3()
     {
     }
     
@@ -209,9 +197,6 @@ namespace Geometry
     MappingToRefSquareToSquare4::MappingToRefSquareToSquare4()
     {
     }
-    MappingToRefSquareToSquare4::~MappingToRefSquareToSquare4()
-    {
-    }
     
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 5 ~~~==============================================================================
@@ -244,9 +229,6 @@ namespace Geometry
     }
     
     MappingToRefSquareToSquare5::MappingToRefSquareToSquare5()
-    {
-    }
-    MappingToRefSquareToSquare5::~MappingToRefSquareToSquare5()
     {
     }
     
@@ -283,9 +265,6 @@ namespace Geometry
     MappingToRefSquareToSquare6::MappingToRefSquareToSquare6()
     {
     }
-    MappingToRefSquareToSquare6::~MappingToRefSquareToSquare6()
-    {
-    }
     
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 7 ~~~==============================================================================
@@ -318,9 +297,6 @@ namespace Geometry
     }
     
     MappingToRefSquareToSquare7::MappingToRefSquareToSquare7()
-    {
-    }
-    MappingToRefSquareToSquare7::~MappingToRefSquareToSquare7()
     {
     }
 }

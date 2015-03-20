@@ -52,12 +52,12 @@ namespace Geometry
         }
         
         //! Transformation is simply via the intermediate space.
-        virtual PointReference transform(const PointReference& pIn) const;
+        PointReference transform(const PointReference& pIn) const override final;
 
         //! To compute the Jacobian, the two component ones have to multiplied.
-        virtual Jacobian calcJacobian(const PointReference& p) const;
+        Jacobian calcJacobian(const PointReference& p) const override final;
 
-        virtual std::size_t getTargetDimension() const;
+        std::size_t getTargetDimension() const override final;
 
     private:
         const MappingReferenceToReference& map1_;

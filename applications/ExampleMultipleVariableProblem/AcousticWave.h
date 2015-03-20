@@ -83,7 +83,7 @@ public:
      );
         
     /// \brief Create a domain
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override;
+    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final;
 
     /// \brief Set the material parameter.
     /// \param[in] c Material parameter corresponding to the speed with which waves can propagate.
@@ -99,10 +99,10 @@ public:
     }
 
     /// \brief Compute the real solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override;
+    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
 
     /// \brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override;
+    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
 
     /// \brief Compute the integrand for the mass matrix for the reference element.
     LinearAlgebra::Matrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
@@ -140,7 +140,7 @@ public:
      );
 
     /// \brief Compute the mass matrix for a single element.
-    LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement) override;
+    LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement) override final;
 
     /*
     /// \brief Solve the mass matrix equations for a single element.
@@ -148,13 +148,13 @@ public:
      */
 
     /// \brief Integrate the initial solution for a single element.
-    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override;
+    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override final;
 
     /// \brief Integrate the energy of the error on a single element.
-    LinearAlgebra::NumericalVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time) override;
+    LinearAlgebra::NumericalVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time) override final;
 
     /// \brief Compute the right-hand side corresponding to an element
-    LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time) override;
+    LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time) override final;
 
     /// \brief Compute the right-hand side corresponding to a face
     LinearAlgebra::NumericalVector computeRightHandSideAtFace
@@ -164,10 +164,10 @@ public:
      LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
      LinearAlgebra::NumericalVector &solutionCoefficientsRight,
      const double time
-     ) override;
+     ) override final;
     
     /// \brief Show the progress of the time integration.
-    virtual void showProgress(const double time, const std::size_t timeStepID) override
+    void showProgress(const double time, const std::size_t timeStepID) override final
     {
     if (timeStepID % 10 == 0)
     {

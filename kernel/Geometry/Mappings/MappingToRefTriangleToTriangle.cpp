@@ -61,9 +61,6 @@ namespace Geometry
     MappingToRefTriangleToTriangle0::MappingToRefTriangleToTriangle0()
     {
     }
-    MappingToRefTriangleToTriangle0::~MappingToRefTriangleToTriangle0()
-    {
-    }
     
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 1 ~~~==============================================================================
@@ -96,9 +93,6 @@ namespace Geometry
     }
     
     MappingToRefTriangleToTriangle1::MappingToRefTriangleToTriangle1()
-    {
-    }
-    MappingToRefTriangleToTriangle1::~MappingToRefTriangleToTriangle1()
     {
     }
     
@@ -135,9 +129,6 @@ namespace Geometry
     MappingToRefTriangleToTriangle2::MappingToRefTriangleToTriangle2()
     {
     }
-    MappingToRefTriangleToTriangle2::~MappingToRefTriangleToTriangle2()
-    {
-    }
     
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 3 ~~~==============================================================================
@@ -170,9 +161,6 @@ namespace Geometry
     }
     
     MappingToRefTriangleToTriangle3::MappingToRefTriangleToTriangle3()
-    {
-    }
-    MappingToRefTriangleToTriangle3::~MappingToRefTriangleToTriangle3()
     {
     }
     
@@ -209,9 +197,6 @@ namespace Geometry
     MappingToRefTriangleToTriangle4::MappingToRefTriangleToTriangle4()
     {
     }
-    MappingToRefTriangleToTriangle4::~MappingToRefTriangleToTriangle4()
-    {
-    }
     
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 5 ~~~==============================================================================
@@ -244,9 +229,6 @@ namespace Geometry
     }
     
     MappingToRefTriangleToTriangle5::MappingToRefTriangleToTriangle5()
-    {
-    }
-    MappingToRefTriangleToTriangle5::~MappingToRefTriangleToTriangle5()
     {
     }
 }

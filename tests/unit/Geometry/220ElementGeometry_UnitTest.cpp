@@ -74,7 +74,6 @@ int main()
     Geometry::ElementGeometry* test = new Geometry::ElementGeometry(pointIndexes, nodes1D);
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<1>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
-    logger.assert_always((typeid(Geometry::PhysicalLine) == typeid(*test->getPhysicalGeometry())), "getPhysicalGeometry");
     logger.assert_always((typeid(Geometry::ReferenceLine) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
     logger.assert_always((test->getNrOfNodes() == 2), "getNrOfNodes");
     
@@ -118,7 +117,6 @@ int main()
     test = new Geometry::ElementGeometry(pointIndexes, nodes2D);
     
     logger.assert_always((typeid(Geometry::MappingToPhysSimplexLinear<2>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
-    logger.assert_always((typeid(Geometry::PhysicalTriangle) == typeid(*test->getPhysicalGeometry())), "getPhysicalGeometry");
     logger.assert_always((typeid(Geometry::ReferenceTriangle) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
     logger.assert_always((test->getNrOfNodes() == 3), "getNrOfNodes");
     
@@ -147,7 +145,6 @@ int main()
     test = new Geometry::ElementGeometry(pointIndexes, nodes2D);
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<2>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
-    logger.assert_always((typeid(Geometry::PhysicalQuadrilateral) == typeid(*test->getPhysicalGeometry())), "getPhysicalGeometry");
     logger.assert_always((typeid(Geometry::ReferenceSquare) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
     logger.assert_always((test->getNrOfNodes() == 4), "getNrOfNodes");
     
@@ -216,7 +213,6 @@ int main()
     test = new Geometry::ElementGeometry(pointIndexes, nodes3D);
     
     logger.assert_always((typeid(Geometry::MappingToPhysSimplexLinear<3>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
-    logger.assert_always((typeid(Geometry::PhysicalTetrahedron) == typeid(*test->getPhysicalGeometry())), "getPhysicalGeometry");
     logger.assert_always((typeid(Geometry::ReferenceTetrahedron) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
     logger.assert_always((test->getNrOfNodes() == 4), "getNrOfNodes");
     
@@ -254,7 +250,6 @@ int main()
     test = new Geometry::ElementGeometry(pointIndexes, nodes3D);
     
     logger.assert_always((typeid(Geometry::MappingToPhysPyramid) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
-    logger.assert_always((typeid(Geometry::PhysicalPyramid) == typeid(*test->getPhysicalGeometry())), "getPhysicalGeometry");
     logger.assert_always((typeid(Geometry::ReferencePyramid) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
     logger.assert_always((test->getNrOfNodes() == 5), "getNrOfNodes");
     
@@ -292,7 +287,6 @@ int main()
     test = new Geometry::ElementGeometry(pointIndexes, nodes3D);
     
     logger.assert_always((typeid(Geometry::MappingToPhysTriangularPrism) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
-    logger.assert_always((typeid(Geometry::PhysicalTriangularPrism) == typeid(*test->getPhysicalGeometry())), "getPhysicalGeometry");
     logger.assert_always((typeid(Geometry::ReferenceTriangularPrism) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
     logger.assert_always((test->getNrOfNodes() == 6), "getNrOfNodes");
     
@@ -331,7 +325,6 @@ int main()
     test = new Geometry::ElementGeometry(pointIndexes, nodes3D);
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<3>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
-    logger.assert_always((typeid(Geometry::PhysicalHexahedron) == typeid(*test->getPhysicalGeometry())), "getPhysicalGeometry");
     logger.assert_always((typeid(Geometry::ReferenceCube) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
     logger.assert_always((test->getNrOfNodes() == 8), "getNrOfNodes");
     
@@ -462,7 +455,6 @@ int main()
     test = new Geometry::ElementGeometry(pointIndexes, nodes4D);
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<4>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
-    logger.assert_always((typeid(Geometry::PhysicalOctachoron) == typeid(*test->getPhysicalGeometry())), "getPhysicalGeometry");
     logger.assert_always((typeid(Geometry::ReferenceHypercube) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
     logger.assert_always((test->getNrOfNodes() == 16), "getNrOfNodes");
     

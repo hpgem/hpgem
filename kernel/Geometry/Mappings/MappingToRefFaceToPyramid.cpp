@@ -60,9 +60,6 @@ namespace Geometry
     MappingToRefFaceToPyramid0::MappingToRefFaceToPyramid0()
     {
     }
-    MappingToRefFaceToPyramid0::~MappingToRefFaceToPyramid0()
-    {
-    }
     
     // ~~~ index 1 ~~~==============================================================================
     
@@ -97,9 +94,6 @@ namespace Geometry
     }
     
     MappingToRefFaceToPyramid1::MappingToRefFaceToPyramid1()
-    {
-    }
-    MappingToRefFaceToPyramid1::~MappingToRefFaceToPyramid1()
     {
     }
     
@@ -138,9 +132,6 @@ namespace Geometry
     MappingToRefFaceToPyramid2::MappingToRefFaceToPyramid2()
     {
     }
-    MappingToRefFaceToPyramid2::~MappingToRefFaceToPyramid2()
-    {
-    }
     
     // ~~~ index 3 ~~~==============================================================================
     
@@ -177,9 +168,6 @@ namespace Geometry
     MappingToRefFaceToPyramid3::MappingToRefFaceToPyramid3()
     {
     }
-    MappingToRefFaceToPyramid3::~MappingToRefFaceToPyramid3()
-    {
-    }
     
     // ~~~ index 4 ~~~==============================================================================
     
@@ -214,9 +202,6 @@ namespace Geometry
     }
     
     MappingToRefFaceToPyramid4::MappingToRefFaceToPyramid4()
-    {
-    }
-    MappingToRefFaceToPyramid4::~MappingToRefFaceToPyramid4()
     {
     }
 

@@ -34,10 +34,6 @@ namespace Base
         {
         }
         
-        virtual ~ConfigurationData()
-        {
-        }
-        
         std::size_t dimension_;
         std::size_t numberOfUnknowns_;
         std::size_t numberOfBasisFunctions_;

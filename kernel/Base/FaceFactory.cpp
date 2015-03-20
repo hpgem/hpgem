@@ -31,10 +31,6 @@ namespace Base
     {
     }
     
-    FaceFactory::~FaceFactory()
-    {
-    }
-    
     Face* FaceFactory::makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Geometry::FaceType faceType, std::size_t faceID)
     {
         logger.assert(leftElementPtr!=nullptr, "Invalid element passed");

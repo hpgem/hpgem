@@ -55,7 +55,7 @@ public:
     }
     
     /// Create a mesh description
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override
+    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
         RectangularMeshDescriptorT description(DIM_);
@@ -80,7 +80,7 @@ public:
     ///basisfunctions phi_i and phi_j.
     ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
     ///so you wont have to do any transformations yourself
-    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const ElementT *element, const PointReferenceT &point) override
+    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const ElementT *element, const PointReferenceT &point) override final
     {
         std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
         LinearAlgebra::Matrix  result(numBasisFuncs, numBasisFuncs, 0);
@@ -105,7 +105,7 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, to which we passed a reference when calling it.
     ///Please note that you pass a reference point to the basisfunctions and the 
     ///transformations are done internally. The class FaceMatrix consists of four element matrices for internal faces and one element matrix for faces on the boundary. Each element matrix corresponds to a pair of two adjacent elements of the face.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const FaceT *face, const LinearAlgebra::NumericalVector &normal, const PointReferenceT &point) override
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const FaceT *face, const LinearAlgebra::NumericalVector &normal, const PointReferenceT &point) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
@@ -160,25 +160,17 @@ public:
     }
     
     /// Define the exact solution. In this case that is \f$ u_0(\vec{x}-\vec{a}t) \f$, where \f$ u_0 \f$ is the solution at time zero.
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT& point, const double &time, const std::size_t orderTimeDerivative) override
+    /// Note that this function can be used to compute time derivatives of the initial conditions, but for the advection equations this does not make sense
+    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT& point, const double &time, const std::size_t orderTimeDerivative) override final
     {
-        LinearAlgebra::NumericalVector exactSolution(1);
-        if(orderTimeDerivative == 0)
-        {
-            PointPhysicalT displacement(-a*time);
-            exactSolution(0) = getSolutionAtTimeZero(point + displacement);
-            return exactSolution;
-        }
-        else
-        {
-            logger(ERROR, "No exact solution for order time derivative % implemented", orderTimeDerivative);
-            exactSolution(0) = 0;
-            return exactSolution;
-        }
+        logger.assert(orderTimeDerivative == 0, "No exact solution for order time derivative % implemented");
+        LinearAlgebra::NumericalVector result(1);
+        result[0] = getSolutionAtTimeZero(point - a * time );
+        return result;
     }
     
     /// Define the initial conditions. In this case it is just the exact solution at the start time.
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT& point, const double &startTime, const std::size_t orderTimeDerivative) override
+    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT& point, const double &startTime, const std::size_t orderTimeDerivative) override final
     {
         return getExactSolution(point, startTime, orderTimeDerivative);
     }

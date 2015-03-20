@@ -85,7 +85,6 @@ namespace Geometry
         virtual ~ReferenceGeometry()
         {
         }
-        ;
 
         /// \brief Check whether a given point is within the ReferenceGeometry.
         virtual bool isInternalPoint(const PointReference& point) const = 0;
@@ -104,17 +103,25 @@ namespace Geometry
         }
         
         /// \brief Given a local index, return (assign to point) the corresponding node.
-        virtual const PointReference& getNode(const std::size_t& localIndex) const;
+        const PointReference& getNode(const std::size_t& localIndex) const;
 
-        virtual std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const = 0;
+        std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const
+        {
+            logger.assert(face < getNrOfCodim1Entities(), "Asked for face %, but there are only % faces", face, getNrOfCodim1Entities());
+            logger.assert(node < getCodim1ReferenceGeometry(face)->getNumberOfNodes(), "Asked for node %, but there are only % nodes", node, getCodim1ReferenceGeometry(face)->getNumberOfNodes());
+            return getCodim1EntityLocalIndices(face)[node];
+        }
 
         /// \brief For debugging and checkpointing: a human-readable name.
-        virtual std::string getName() const = 0;
+        std::string getName() const
+        {
+            return name;
+        }
 
         // ================================== Quadrature rules =====================================
         
         /// \brief Get a valid quadrature for this geometry.
-        virtual const QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(std::size_t order) const;
+        const QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(std::size_t order) const;
 
         ///\bug getBasisFunctionValue and getBasisFunctionDerivative have functionality that is completely independent from the rest of ReferenceGeometry
         ///\bug getBasisFunctionValue does some lazy initialization, so it can't be const, unless you consider the state to
@@ -153,6 +160,8 @@ namespace Geometry
         VectorOfReferencePointsT points_;
         /// An identifier of the type of referenceGeometry, that some say shouldn't be used.
         const ReferenceGeometryType geometryType_;
+
+        std::string name;
 
     private:
         ///\todo check if this can safely be removed if the basis functions are not

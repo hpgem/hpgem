@@ -42,18 +42,18 @@ namespace Base
         
         void computeData() override;
 
-        double basisFunction(std::size_t i, const PointReferenceT& p) override;
-        double basisFunction(std::size_t i, const PointReferenceT& p) const override;
+        double basisFunction(std::size_t i, const PointReferenceT& p) override final;
+        double basisFunction(std::size_t i, const PointReferenceT& p) const override final;
 
-        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override;
-        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override;
+        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final;
+        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override final;
 
-        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr) override;
-        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr) const override;
+        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr) override final;
+        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr) const override final;
 
         ///special case derivative: compute individual components, then mix and match as desired !warning! this routine assumes the user wants to construct a specialized transformation and will not premultiply by the Jacobian
-        virtual double basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p);
-        double basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const override;
+        double basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p);
+        double basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const override final;
 
     private:
         

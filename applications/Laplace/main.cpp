@@ -55,7 +55,7 @@ public:
     }
     
     ///set up the mesh
-    bool virtual initialise()
+    bool initialise() override final
     {
         //describes a rectangular domain
         RectangularMeshDescriptorT description(DIM_);
@@ -104,7 +104,7 @@ public:
     
     ///You pass the reference point to the basis functions. Internally the basis functions will be mapped to the physical element
     ///so you wont have to do any transformations yourself
-    virtual void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result)
+    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result) override final
     {
         //be careful that n changes meaning inside integration routines to represent the number of basis functions involved
         int n = element->getNrOfBasisFunctions();
@@ -128,7 +128,7 @@ public:
     ///that basis functions belonging to the left element are indexed first
     ///note that using a consistent flux has no effect if you also use conforming basis functions
     //this routine is only needed if you use discontinuous basis functions
-    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::Matrix& result)
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::Matrix& result) override final
     {
         int n = face->getNrOfBasisFunctions();
         result.resize(n, n);
@@ -167,7 +167,7 @@ public:
     
     ///The vector edition of the face integrand is meant for implementation of the boundary conditions
     //for conforming problems this functions only deals with non-homogeneous Neumann and Robin boundary conditions 
-    virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result)
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result) override final
     {
         int n = face->getNrOfBasisFunctions();
         result.resize(n);
@@ -197,7 +197,7 @@ public:
     //hpGEMUISimplified is originally designed for hyperbolic problems
     //those need initial conditions. Laplace and Poisson equations dont need
     //initial conditions, so just provide a dummy implementation
-    virtual double initialConditions(const PointPhysicalT& point)
+    double initialConditions(const PointPhysicalT& point) override final
     {
         // initial conditions are not needed for a steady-state problem
         return 0;
@@ -208,7 +208,7 @@ public:
     }
     
     ///interpolates the source term
-    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& result)
+    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& result) override final
     {
         PointPhysicalT pPhys = element->referenceToPhysical(point);
         result.resize(element->getNrOfBasisFunctions());
@@ -219,7 +219,7 @@ public:
     }
     
     ///provide information about your solution that you want to use for visualisation
-    void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out)
+    void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out) override final
     {
         LinearAlgebra::NumericalVector value(1);
         value = element->getSolution(0, point);

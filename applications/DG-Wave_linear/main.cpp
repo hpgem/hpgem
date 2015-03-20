@@ -41,7 +41,7 @@ public:
     }
     
     ///set up the mesh
-    bool virtual initialise()
+    bool initialise()
     {
         RectangularMeshDescriptorT description(DIM);
         for (int i = 0; i < DIM; ++i)
@@ -68,7 +68,7 @@ public:
     class : public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
     {
     public:
-        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret)
+        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret) override final
         {
             int numBasisFuns = element->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
@@ -85,7 +85,7 @@ public:
     class : public Integration::FaceIntegrandBase<LinearAlgebra::Matrix>
     {
     public:
-        void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret)
+        void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret) override final
         {
             int numBasisFuns = face->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
@@ -98,6 +98,7 @@ public:
             }
         }
     } massIntegrand;
+
     static void initialConditions(const PointPhysicalT& p, LinearAlgebra::NumericalVector& ret)
     {
         ret.resize(2);
@@ -107,6 +108,7 @@ public:
         ret[0] = cosh(k * (p[DIM - 1] + 1)) * sin(-k * p[0]) * sqrt(k * tanh(k)) / cosh(k) * 0.001; //moving wave
         ret[1] = cosh(k * (p[DIM - 1] + 1)) * cos(-k * p[0]) / cosh(k) * 0.001;
     }
+
     static void exactSolution(const double t, const PointPhysicalT& p, LinearAlgebra::NumericalVector& ret)
     {
         ret.resize(2);
@@ -118,19 +120,19 @@ public:
         
     }
     
-    class : public Integration::FaceIntegrandBase<LinearAlgebra::Matrix>
+    class : public Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>
     {
     public:
-        void faceIntegrand(const FaceT* element, const LinearAlgebra::NumericalVector&, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
+        void faceIntegrand(const FaceT* element, const LinearAlgebra::NumericalVector&, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
         {
             PointPhysicalT pPhys = element->referenceToPhysical(p);
-            ret.resize(2, element->getNrOfBasisFunctions());
+            ret.resize(2 * element->getNrOfBasisFunctions());
             LinearAlgebra::NumericalVector data;
             initialConditions(pPhys, data);
             for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
             {
-                ret(0, i) = element->basisFunction(i, p) * data[0];
-                ret(1, i) = element->basisFunction(i, p) * data[1];
+                ret(i) = element->basisFunction(i, p) * data[0];
+                ret(i + element->getNrOfBasisFunctions()) = element->basisFunction(i, p) * data[1];
             }
         }
     } interpolator;
@@ -138,7 +140,7 @@ public:
     class : public Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>
     {
     public:
-        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+        void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
         {
             PointPhysicalT pPhys = face->referenceToPhysical(p);
             PointReferenceT pElement = face->mapRefFaceToRefElemL(p);
@@ -159,26 +161,23 @@ public:
     {
     public:
         
-        virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+        void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
         {
-            //do not compute energy at the moment becasuse storing multiple variables is broken
-            /*PointPhysicalT pPhys(DIM);
-             PointReferenceT pElement(DIM);
-             face->referenceToPhysical(p, pPhys);
-             face->mapRefFaceToRefElemL(p, pElement);
-             ret.resize(1);
-             static LinearAlgebra::NumericalVector dummySolution(2), gradPhi(DIM), temp(DIM);
-             const LinearAlgebra::Matrix& expansioncoefficients = face->getPtrElementLeft()->getTimeLevelData(0);
-             if (std::abs(pPhys[DIM - 1]) < 1e-9)
-             {
-             dummySolution[0] = 0;
-             for (int i = 0; i < face->getNrOfBasisFunctions(); ++i)
-             {
-             dummySolution[0] += face->basisFunction(i, p) * expansioncoefficients(0, i);
-             }
-             ret[0] = dummySolution[0] * dummySolution[0];
-             ret[0] /= 2; //assumes g=1
-             }*/
+            PointPhysicalT pPhys = face->referenceToPhysical(p);
+            PointReferenceT pElement = face->mapRefFaceToRefElemL(p);
+            ret.resize(1);
+            static LinearAlgebra::NumericalVector dummySolution(2), gradPhi(DIM), temp(DIM);
+            const LinearAlgebra::NumericalVector& expansioncoefficients = face->getPtrElementLeft()->getTimeLevelData(0, 0);
+            if (std::abs(pPhys[DIM - 1]) < 1e-9)
+            {
+                dummySolution[0] = 0;
+                for (int i = 0; i < face->getNrOfBasisFunctions(); ++i)
+                {
+                    dummySolution[0] += face->basisFunction(i, p) * expansioncoefficients(i);
+                }
+                ret[0] = dummySolution[0] * dummySolution[0];
+                ret[0] /= 2; //assumes g=1
+            }
         }
     } faceEnergy;
 
@@ -186,23 +185,23 @@ public:
     {
     public:
         
-        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) override final
         {
-            //do not compute energy at the moment becasuse storing multiple variables is broken
-            /*int numBasisFuns = element->getNrOfBasisFunctions();
-             ret.resize(1);
-             LinearAlgebra::NumericalVector gradPhi(DIM), temp(DIM);
-             const LinearAlgebra::Matrix& expansioncoefficients = element->getTimeLevelData(0);
-             for (int i = 0; i < numBasisFuns; ++i)
-             {
-             element->basisFunctionDeriv(i, p, temp);
-             temp *= expansioncoefficients(1, i);
-             gradPhi += temp;
-             }
-             ret[0] = (gradPhi * gradPhi) / 2;*/
+            int numBasisFuns = element->getNrOfBasisFunctions();
+            ret.resize(1);
+            LinearAlgebra::NumericalVector gradPhi(DIM), temp(DIM);
+            const LinearAlgebra::NumericalVector& expansioncoefficients = element->getTimeLevelData(0, 1);
+            for (int i = 0; i < numBasisFuns; ++i)
+            {
+                temp = element->basisFunctionDeriv(i, p);
+                temp *= expansioncoefficients(i);
+                gradPhi += temp;
+            }
+            ret[0] = (gradPhi * gradPhi) / 2;
         }
     } elementEnergy;
-    void writeToTecplotFile(const ElementT* element, const PointReferenceT& p, std::ostream& out)
+
+    void writeToTecplotFile(const ElementT* element, const PointReferenceT& p, std::ostream& out) override final
     {
         LinearAlgebra::NumericalVector value = element->getSolution(0, p);
         out << value[0] << " " << value[1];
@@ -217,7 +216,8 @@ public:
         Integration::FaceIntegral integral(false);
         Geometry::PointReference p(DIM - 1);
         Geometry::PointPhysical pPhys(DIM);
-        LinearAlgebra::Matrix result, initialconditions;
+        LinearAlgebra::Matrix result;
+        LinearAlgebra::NumericalVector initialconditions;
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
             p = face->getReferenceGeometry()->getCenter();
@@ -226,7 +226,7 @@ public:
             {
                 result = integral.integrate(face, &massIntegrand);
                 initialconditions = integral.integrate(face, &interpolator);
-                //face->getPtrElementLeft()->setTimeLevelData(0, initialconditions);
+                face->getPtrElementLeft()->setTimeLevelData(0, initialconditions);
             }
             else
             {
@@ -239,6 +239,7 @@ public:
             face->setFaceMatrix(result);
         }
     }
+
     void doAllElementIntegration()
     {
         Integration::ElementIntegral integral(false);
@@ -273,6 +274,7 @@ public:
         ISDestroy(surface);
         ISComplement(*rest, 0, numBasisFuns, surface); //the complement of the complement does not contain duplicates
     }
+
     void printError()
     {
         Integration::FaceIntegral integral(false);
@@ -286,6 +288,7 @@ public:
         }
         std::cout << "t: " << t << " eta: " << sqrt(totalError[0]) << " phi: " << sqrt(totalError[1]) << std::endl;
     }
+
     void computeEnergy()
     {
         Integration::ElementIntegral elIntegral(false);
@@ -305,6 +308,7 @@ public:
         }
         std::cout << "Energy: " << totalEnergy[0] << std::endl;
     }
+
     bool solve()
     {
         std::cout.precision(14);

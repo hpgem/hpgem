@@ -53,9 +53,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefTriangleToTriangle0& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 2;
         }
@@ -63,16 +63,15 @@ namespace Geometry
         MappingToRefTriangleToTriangle0();
         MappingToRefTriangleToTriangle0(const MappingToRefTriangleToTriangle0&);
         MappingToRefTriangleToTriangle0& operator=(const MappingToRefTriangleToTriangle0&);
-        virtual ~MappingToRefTriangleToTriangle0();
     };
     // ~~~ index 1 ~~~==============================================================================
     class MappingToRefTriangleToTriangle1 : public MappingReferenceToReference
     {
     public:
         static const MappingToRefTriangleToTriangle1& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 2;
         }
@@ -80,16 +79,15 @@ namespace Geometry
         MappingToRefTriangleToTriangle1();
         MappingToRefTriangleToTriangle1(const MappingToRefTriangleToTriangle1&);
         MappingToRefTriangleToTriangle1& operator=(const MappingToRefTriangleToTriangle1&);
-        virtual ~MappingToRefTriangleToTriangle1();
     };
     // ~~~ index 2 ~~~==============================================================================
     class MappingToRefTriangleToTriangle2 : public MappingReferenceToReference
     {
     public:
         static const MappingToRefTriangleToTriangle2& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 2;
         }
@@ -97,16 +95,15 @@ namespace Geometry
         MappingToRefTriangleToTriangle2();
         MappingToRefTriangleToTriangle2(const MappingToRefTriangleToTriangle2&);
         MappingToRefTriangleToTriangle2& operator=(const MappingToRefTriangleToTriangle2&);
-        virtual ~MappingToRefTriangleToTriangle2();
     };
     // ~~~ index 3 ~~~==============================================================================
     class MappingToRefTriangleToTriangle3 : public MappingReferenceToReference
     {
     public:
         static const MappingToRefTriangleToTriangle3& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 2;
         }
@@ -114,16 +111,15 @@ namespace Geometry
         MappingToRefTriangleToTriangle3();
         MappingToRefTriangleToTriangle3(const MappingToRefTriangleToTriangle3&);
         MappingToRefTriangleToTriangle3& operator=(const MappingToRefTriangleToTriangle3&);
-        virtual ~MappingToRefTriangleToTriangle3();
     };
     // ~~~ index 4 ~~~==============================================================================
     class MappingToRefTriangleToTriangle4 : public MappingReferenceToReference
     {
     public:
         static const MappingToRefTriangleToTriangle4& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 2;
         }
@@ -131,16 +127,15 @@ namespace Geometry
         MappingToRefTriangleToTriangle4();
         MappingToRefTriangleToTriangle4(const MappingToRefTriangleToTriangle4&);
         MappingToRefTriangleToTriangle4& operator=(const MappingToRefTriangleToTriangle4&);
-        virtual ~MappingToRefTriangleToTriangle4();
     };
     // ~~~ index 5 ~~~==============================================================================
     class MappingToRefTriangleToTriangle5 : public MappingReferenceToReference
     {
     public:
         static const MappingToRefTriangleToTriangle5& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 2;
         }
@@ -148,7 +143,6 @@ namespace Geometry
         MappingToRefTriangleToTriangle5();
         MappingToRefTriangleToTriangle5(const MappingToRefTriangleToTriangle5&);
         MappingToRefTriangleToTriangle5& operator=(const MappingToRefTriangleToTriangle5&);
-        virtual ~MappingToRefTriangleToTriangle5();
     };
 }
 #endif

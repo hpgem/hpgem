@@ -73,7 +73,7 @@ public:
     ///First define the domain, number of elements in each direction and whether or
     ///no there are periodic boundary conditions. Then make a triangular mesh and 
     ///generate the basisfunctions on the reference domain.
-    bool initialise() override
+    bool initialise() override final
     {
         //Make the framework for the mesh
         RectangularMeshDescriptorT description(DIM_);
@@ -106,7 +106,7 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, to which we passed a reference when calling it.
     ///Please note that you pass a reference point to the basisfunctions and the 
     ///transformations are done internally.
-    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& integrandVal) override
+    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& integrandVal) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
         const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
@@ -139,7 +139,7 @@ public:
     ///transformations are done internally. If you expect 4 matrices here, 
     ///you can assume that integrandVal is block structured with 4 blocks in total such
     ///that basisfunctions belonging to the left element are on the left and top.
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::Matrix& integrandVal) override
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::Matrix& integrandVal) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero at this face.
         const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
@@ -195,7 +195,7 @@ public:
     ///
     ///In a non-steady state problem, the initial conditions can be inserted here.
     ///Since we have a steady state problem, there is no initial condition
-    double initialConditions(const PointPhysicalT& p) override
+    double initialConditions(const PointPhysicalT& p) override final
     {
         return 0;
     }
@@ -219,7 +219,7 @@ public:
     ///integral on the right-hand side. However, in our application we do not have
     ///contributions for the boundary conditions, so the vector has only zeroes.
     ///The input/output structure is the same as the other faceIntegrand function.
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& integrandVal) override
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& integrandVal) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
         const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
@@ -242,7 +242,7 @@ public:
     ///times the source term for all basisfunctions. The set of all basisfunctions
     ///is the same as the set of all basisfunctions per element for all elements,
     ///so we can just integrate this for all basisfunctions for all elements.
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& integrandVal) override
+    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& integrandVal) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
         const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
@@ -265,7 +265,7 @@ public:
     ///This function is used by other functions to write the tecplot file, so it is
     ///not a function to write the whole file.
     ///The only thing this has to write in the file is the value of the solution.
-    void writeOutput(const ElementT* element, const PointReferenceT& p, std::ostream& out) override
+    void writeOutput(const ElementT* element, const PointReferenceT& p, std::ostream& out) override final
     {
         out << element->getSolution(0, p)[0];
     }

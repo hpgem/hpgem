@@ -61,7 +61,8 @@ namespace Base
         std::size_t localFaceIndex;
     };
     
-    class MeshManipulator
+    //class is made final so we don't have to create a v-table specifically for the destructor
+    class MeshManipulator final
     {
     public:
         
@@ -97,7 +98,7 @@ namespace Base
 
         MeshManipulator(const MeshManipulator& other);
 
-        virtual ~MeshManipulator();
+        ~MeshManipulator();
 
         void createDefaultBasisFunctions(std::size_t order);
 

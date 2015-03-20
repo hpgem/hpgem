@@ -48,12 +48,13 @@ namespace Base
         LOCAL, GLOBAL
     };
     
-    class Mesh
+    //class is made final so we don't have to create a v-table specifically for the destructor
+    class Mesh final
     {
     public:
         Mesh();
         Mesh(const Mesh& orig);
-        virtual ~Mesh();
+        ~Mesh();
 
         Element* addElement(const std::vector<std::size_t>& globalNodeIndexes);
 

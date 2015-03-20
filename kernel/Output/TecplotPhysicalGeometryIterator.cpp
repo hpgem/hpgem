@@ -23,14 +23,14 @@
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/PointPhysical.h"
 
-#include "Geometry/PhysicalHexahedron.h"
-#include "Geometry/PhysicalLine.h"
-#include "Geometry/PhysicalOctachoron.h"
-#include "Geometry/PhysicalPyramid.h"
-#include "Geometry/PhysicalQuadrilateral.h"
-#include "Geometry/PhysicalTetrahedron.h"
-#include "Geometry/PhysicalTriangle.h"
-#include "Geometry/PhysicalTriangularPrism.h"
+#include "Geometry/ReferenceCube.h"
+#include "Geometry/ReferenceLine.h"
+#include "Geometry/ReferenceHypercube.h"
+#include "Geometry/ReferencePyramid.h"
+#include "Geometry/ReferenceSquare.h"
+#include "Geometry/ReferenceTetrahedron.h"
+#include "Geometry/ReferenceTriangle.h"
+#include "Geometry/ReferenceTriangularPrism.h"
 
 #include "Logger.h"
 #include <typeinfo>
@@ -99,38 +99,38 @@ namespace Output
     
     void TecplotPhysicalGeometryIterator::acceptG(const Geometry::PhysicalGeometry* geo)
     {
-        if (typeid(*geo) == typeid(const Geometry::PhysicalLine))
+        if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceLine))
         {
-            acceptLineGeometry(dynamic_cast<const Geometry::PhysicalLine*>(geo));
+            acceptLineGeometry(geo);
         }
-        else if (typeid(*geo) == typeid(const Geometry::PhysicalTriangle))
+        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceTriangle))
         {
-            acceptTriangleGeometry(dynamic_cast<const Geometry::PhysicalTriangle*>(geo));
+            acceptTriangleGeometry(geo);
         }
-        else if (typeid(*geo) == typeid(const Geometry::PhysicalQuadrilateral))
+        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceSquare))
         {
-            acceptQuadrilateralGeometry(dynamic_cast<const Geometry::PhysicalQuadrilateral*>(geo));
+            acceptQuadrilateralGeometry(geo);
         }
-        else if (typeid(*geo) == typeid(const Geometry::PhysicalHexahedron))
+        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceCube))
         {
-            acceptHexahedronGeometry(dynamic_cast<const Geometry::PhysicalHexahedron*>(geo));
+            acceptHexahedronGeometry(geo);
         }
-        else if (typeid(*geo) == typeid(const Geometry::PhysicalTetrahedron))
+        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceTetrahedron))
         {
-            acceptTetrahedronGeometry(dynamic_cast<const Geometry::PhysicalTetrahedron*>(geo));
+            acceptTetrahedronGeometry(geo);
         }
-        else if (typeid(*geo) == typeid(const Geometry::PhysicalTriangularPrism))
+        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceTriangularPrism))
         {
-            acceptTriangularPrismGeometry(dynamic_cast<const Geometry::PhysicalTriangularPrism*>(geo));
+            acceptTriangularPrismGeometry(geo);
         }
-        else if (typeid(*geo) == typeid(const Geometry::PhysicalPyramid))
+        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferencePyramid))
         {
-            acceptPyramidGeometry(dynamic_cast<const Geometry::PhysicalPyramid*>(geo));
+            acceptPyramidGeometry(geo);
         }
-        else if (typeid(*geo) == typeid(const Geometry::PhysicalOctachoron))
+        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceHypercube))
         {
             logger(FATAL, "This physical geometry is not supported by the Tecplot output writer yet.\n"
-                    "  classname = % ", typeid(geo).name());
+                    "  classname = % ", typeid(geo->getRefGeometry()).name());
             //acceptOctachoronGeometry(dynamic_cast<const Geometry::PhysicalOctachoron*>(geo));
         }
         else
@@ -140,43 +140,43 @@ namespace Output
         }
     }
 
-    void TecplotPhysicalGeometryIterator::acceptHexahedronGeometry(const Geometry::PhysicalHexahedron*)
+    void TecplotPhysicalGeometryIterator::acceptHexahedronGeometry(const Geometry::PhysicalGeometry*)
     {
         currentSequencePtr = &hexahedronNodes;
         currentNode = hexahedronNodes.size() - 1;
     }
     
-    void TecplotPhysicalGeometryIterator::acceptTriangularPrismGeometry(const Geometry::PhysicalTriangularPrism*)
+    void TecplotPhysicalGeometryIterator::acceptTriangularPrismGeometry(const Geometry::PhysicalGeometry*)
     {
         currentSequencePtr = &triangularPrismNodes;
         currentNode = triangularPrismNodes.size() - 1;
     }
     
-    void TecplotPhysicalGeometryIterator::acceptPyramidGeometry(const Geometry::PhysicalPyramid*)
+    void TecplotPhysicalGeometryIterator::acceptPyramidGeometry(const Geometry::PhysicalGeometry*)
     {
         currentSequencePtr = &pyramidNodes;
         currentNode = pyramidNodes.size() - 1;
     }
     
-    void TecplotPhysicalGeometryIterator::acceptTetrahedronGeometry(const Geometry::PhysicalTetrahedron*)
+    void TecplotPhysicalGeometryIterator::acceptTetrahedronGeometry(const Geometry::PhysicalGeometry*)
     {
         currentSequencePtr = &tetrahedronNodes;
         currentNode = tetrahedronNodes.size() - 1;
     }
     
-    void TecplotPhysicalGeometryIterator::acceptQuadrilateralGeometry(const Geometry::PhysicalQuadrilateral*)
+    void TecplotPhysicalGeometryIterator::acceptQuadrilateralGeometry(const Geometry::PhysicalGeometry*)
     {
         currentSequencePtr = &quadrilateralNodes;
         currentNode = quadrilateralNodes.size() - 1; // inverse transverse
     }
     
-    void TecplotPhysicalGeometryIterator::acceptTriangleGeometry(const Geometry::PhysicalTriangle*)
+    void TecplotPhysicalGeometryIterator::acceptTriangleGeometry(const Geometry::PhysicalGeometry*)
     {
         currentSequencePtr = &triangleNodes;
         currentNode = triangleNodes.size() - 1;
     }
     
-    void TecplotPhysicalGeometryIterator::acceptLineGeometry(const Geometry::PhysicalLine*)
+    void TecplotPhysicalGeometryIterator::acceptLineGeometry(const Geometry::PhysicalGeometry*)
     {
         currentSequencePtr = &lineNodes;
         currentNode = lineNodes.size() - 1;

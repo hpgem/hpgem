@@ -94,7 +94,6 @@ public:
 private:
     MPIContainer();
     MPIContainer(const MPIContainer& orig) = delete;
-    virtual ~MPIContainer();
 
     int processorID_;
     int numProcessors_;

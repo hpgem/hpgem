@@ -47,9 +47,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefTriangleToTetrahedron0& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -57,7 +57,6 @@ namespace Geometry
         MappingToRefTriangleToTetrahedron0();
         MappingToRefTriangleToTetrahedron0(const MappingToRefTriangleToTetrahedron0&);
         MappingToRefTriangleToTetrahedron0& operator=(const MappingToRefTriangleToTetrahedron0&);
-        virtual ~MappingToRefTriangleToTetrahedron0();
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -66,9 +65,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefTriangleToTetrahedron1& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -76,7 +75,6 @@ namespace Geometry
         MappingToRefTriangleToTetrahedron1();
         MappingToRefTriangleToTetrahedron1(const MappingToRefTriangleToTetrahedron1&);
         MappingToRefTriangleToTetrahedron1& operator=(const MappingToRefTriangleToTetrahedron1&);
-        virtual ~MappingToRefTriangleToTetrahedron1();
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -85,9 +83,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefTriangleToTetrahedron2& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -95,7 +93,6 @@ namespace Geometry
         MappingToRefTriangleToTetrahedron2();
         MappingToRefTriangleToTetrahedron2(const MappingToRefTriangleToTetrahedron2&);
         MappingToRefTriangleToTetrahedron1& operator=(const MappingToRefTriangleToTetrahedron2&);
-        virtual ~MappingToRefTriangleToTetrahedron2();
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -104,9 +101,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefTriangleToTetrahedron3& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -114,7 +111,6 @@ namespace Geometry
         MappingToRefTriangleToTetrahedron3();
         MappingToRefTriangleToTetrahedron3(const MappingToRefTriangleToTetrahedron3&);
         MappingToRefTriangleToTetrahedron3& operator=(const MappingToRefTriangleToTetrahedron3&);
-        virtual ~MappingToRefTriangleToTetrahedron3();
     };
 }
 #endif

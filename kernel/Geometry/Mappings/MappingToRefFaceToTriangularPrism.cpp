@@ -60,9 +60,6 @@ namespace Geometry
     MappingToRefFaceToTriangularPrism0::MappingToRefFaceToTriangularPrism0()
     {
     }
-    MappingToRefFaceToTriangularPrism0::~MappingToRefFaceToTriangularPrism0()
-    {
-    }
     
     // ~~~ index 1 ~~~==============================================================================
     
@@ -97,9 +94,6 @@ namespace Geometry
     }
     
     MappingToRefFaceToTriangularPrism1::MappingToRefFaceToTriangularPrism1()
-    {
-    }
-    MappingToRefFaceToTriangularPrism1::~MappingToRefFaceToTriangularPrism1()
     {
     }
     
@@ -138,9 +132,6 @@ namespace Geometry
     MappingToRefFaceToTriangularPrism2::MappingToRefFaceToTriangularPrism2()
     {
     }
-    MappingToRefFaceToTriangularPrism2::~MappingToRefFaceToTriangularPrism2()
-    {
-    }
     
     // ~~~ index 3 ~~~==============================================================================
     
@@ -177,9 +168,6 @@ namespace Geometry
     MappingToRefFaceToTriangularPrism3::MappingToRefFaceToTriangularPrism3()
     {
     }
-    MappingToRefFaceToTriangularPrism3::~MappingToRefFaceToTriangularPrism3()
-    {
-    }
     
     // ~~~ index 4 ~~~==============================================================================
     
@@ -214,9 +202,6 @@ namespace Geometry
     }
     
     MappingToRefFaceToTriangularPrism4::MappingToRefFaceToTriangularPrism4()
-    {
-    }
-    MappingToRefFaceToTriangularPrism4::~MappingToRefFaceToTriangularPrism4()
     {
     }
 

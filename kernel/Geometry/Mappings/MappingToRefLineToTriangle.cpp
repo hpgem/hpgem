@@ -56,9 +56,6 @@ namespace Geometry
     MappingToRefLineToTriangle0::MappingToRefLineToTriangle0()
     {
     }
-    MappingToRefLineToTriangle0::~MappingToRefLineToTriangle0()
-    {
-    }
     
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 1 ~~~==============================================================================
@@ -91,9 +88,6 @@ namespace Geometry
     MappingToRefLineToTriangle1::MappingToRefLineToTriangle1()
     {
     }
-    MappingToRefLineToTriangle1::~MappingToRefLineToTriangle1()
-    {
-    }
     
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 2 ~~~==============================================================================
@@ -124,9 +118,6 @@ namespace Geometry
     }
     
     MappingToRefLineToTriangle2::MappingToRefLineToTriangle2()
-    {
-    }
-    MappingToRefLineToTriangle2::~MappingToRefLineToTriangle2()
     {
     }
 }

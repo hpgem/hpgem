@@ -30,10 +30,6 @@ namespace Base
 #endif
     }
     
-    MPIContainer::~MPIContainer()
-    {
-    }
-    
     int MPIContainer::getNumProcessors()
     {
         return numProcessors_;

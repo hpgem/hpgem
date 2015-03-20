@@ -49,25 +49,25 @@ namespace Output
         void acceptG(const Geometry::PhysicalGeometry* geo);
         
         /// \brief Choose node sequence for the hexahedron.
-        virtual void acceptHexahedronGeometry(const Geometry::PhysicalHexahedron*);
+        void acceptHexahedronGeometry(const Geometry::PhysicalGeometry*) override final;
 
         /// \brief Choose node sequence for the prism.
-        virtual void acceptTriangularPrismGeometry(const Geometry::PhysicalTriangularPrism*);
+        void acceptTriangularPrismGeometry(const Geometry::PhysicalGeometry*) override final;
 
         /// \brief Choose node sequence for the pyramid.
-        virtual void acceptPyramidGeometry(const Geometry::PhysicalPyramid*);
+        void acceptPyramidGeometry(const Geometry::PhysicalGeometry*) override final;
 
         /// \brief Choose node sequence for the tetrahedron.
-        virtual void acceptTetrahedronGeometry(const Geometry::PhysicalTetrahedron*);
+        void acceptTetrahedronGeometry(const Geometry::PhysicalGeometry*) override final;
 
         /// \brief Choose node sequence for quadrilateral.
-        virtual void acceptQuadrilateralGeometry(const Geometry::PhysicalQuadrilateral*);
+        void acceptQuadrilateralGeometry(const Geometry::PhysicalGeometry*) override final;
 
         /// \brief Choose node sequence for triangle.
-        virtual void acceptTriangleGeometry(const Geometry::PhysicalTriangle*);
+        void acceptTriangleGeometry(const Geometry::PhysicalGeometry*) override final;
 
         /// \brief Choose node sequence for line.
-        virtual void acceptLineGeometry(const Geometry::PhysicalLine*);
+        void acceptLineGeometry(const Geometry::PhysicalGeometry*) override final;
 
         /// \brief Check whether all nodes of current shape have been used.
         bool more() const;
@@ -79,9 +79,6 @@ namespace Output
         TecplotPhysicalGeometryIterator();
         TecplotPhysicalGeometryIterator(const TecplotPhysicalGeometryIterator&) = delete;
         TecplotPhysicalGeometryIterator& operator=(const TecplotPhysicalGeometryIterator&) = delete;
-        virtual ~TecplotPhysicalGeometryIterator()
-        {
-        }
         
         using InternalIndexType = int;
         using VectorOfNodeIndexes = std::vector<std::size_t>;

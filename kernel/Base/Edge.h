@@ -53,10 +53,6 @@ namespace Base
         Edge() = delete;
         Edge(const Edge& other) = delete;
         
-        virtual ~ Edge()
-        {
-        }
-        
         void addElement(Element* element, std::size_t edgeNr);
 
         std::size_t getLocalNrOfBasisFunctions() const

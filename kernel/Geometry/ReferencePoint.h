@@ -57,64 +57,47 @@ namespace Geometry
     public:
         
         /// \brief Return true.
-        bool isInternalPoint(const PointReference& p) const;
+        bool isInternalPoint(const PointReference& p) const override final;
 
         /// \brief (see ReferenceGeometry.h)
-        PointReference getCenter() const;
-
-        /// \brief (see ReferenceGeometry.h)
-        const PointReference& getNode(const std::size_t& i) const;
-
-        /// \brief (see ReferenceGeometry.h)
-        String getName() const
-        {
-            return "ReferencePoint";
-        }
-        
-        /// \brief Given a face index, and an index of the node position relative to the face,
-        /// return the local index of the node. Dummy function, doesn't make sense for point
-        std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const
-        {
-            logger(WARN, "ReferencePoint::getLocalNodeIndex might have unexpected behaviour.\n");
-            return -1;
-        }
+        PointReference getCenter() const override final;
         
         // ================================== Codimension 0 ========================================
         
         /// \brief Returns 0.
-        std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
+        std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const override final;
 
         /// \brief Returns 0.
-        const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t a) const;
+        const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t a) const override final;
 
         using MappingCodimensions::getCodim0MappingPtr;
 
         // =============================== Refinement mappings =====================================
         
         /// \brief Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const
+        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const override final
         {
         }
         
         /// \brief Transformation matrix of this refinement when located on the LEFT side
-        void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
+        void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const override final
         {
         }
         
         /// \brief Transformation matrix of this refinement when located on the RIGHT side
-        void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
+        void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const override final
         {
         }
         
         /// \brief Refinement mapping on codim1 for a given refinement on codim0
         /// Note: this should also applied on other dimensions
-        void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+        void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const override final
         {
         }
         
         /// \brief Refinement mapping on codim1 for a given refinement on codim0
         /// \brief Note: this should also applied on other dimensions
-        void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+        void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const override final
         {
         }
         

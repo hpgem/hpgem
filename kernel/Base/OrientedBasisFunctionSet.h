@@ -40,10 +40,6 @@ namespace Base
                 : BasisFunctionSet(order), orientation_(orientation), face_(face)
         {
         }
-        virtual ~OrientedBasisFunctionSet()
-        {
-        }
-        ;
 
         bool checkOrientation(std::size_t codim0mapIndex, std::size_t faceIndex) const
         {

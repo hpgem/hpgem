@@ -33,10 +33,6 @@ namespace Base
     {
     }
     
-    ElementFactory::~ElementFactory()
-    {
-    }
-    
     //!provide the non-constant information and get an Element!
     Element* ElementFactory::makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical>& points, std::size_t elementcounter)
     {

@@ -54,7 +54,7 @@ public:
     
     ///set up the mesh
     
-    bool initialise() override
+    bool initialise() override final
     {
         
         //describes a rectangular domain
@@ -88,7 +88,7 @@ public:
     ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
     ///so you wont have to do any transformations yourself (constructs the mass matrix)
     
-    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result) override
+    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::Matrix& result) override final
     {
         int n = element->getNrOfBasisFunctions();
         result.resize(n, n);
@@ -107,7 +107,7 @@ public:
     {
     public:
         
-        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& point, LinearAlgebra::Matrix& result) override
+        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& point, LinearAlgebra::Matrix& result) override final
         {
             int n = element->getNrOfBasisFunctions();
             result.resize(n, n);
@@ -134,7 +134,7 @@ public:
     ///so you wont have to do any transformations yourself. If you expect 4 matrices here, you can assume that ret is block structured such
     ///that basisfunctions belonging to the left element are indexed first
     
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::Matrix& result) override
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::Matrix& result) override final
     {
         int n = face->getNrOfBasisFunctions(), nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
         result.resize(n, n);
@@ -173,14 +173,14 @@ public:
     ///The vector edition of the face integrand is meant for implementation of boundary conditions
     ///This is a periodic problem, so it just return 0
     
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result) override
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& point, LinearAlgebra::NumericalVector& result) override final
     {
         int n = face->getNrOfBasisFunctions();
         result.resize(n);
         result *= 0;
     }
     
-    virtual double initialConditions(const PointPhysicalT& point)
+    double initialConditions(const PointPhysicalT& point) override final
     {
         return std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]); //*std::sin(2*M_PI*p[2]);
         //return p[0]+p[1];//+p[2];
@@ -188,7 +188,7 @@ public:
     
     ///interpolates the initial conditions
     
-    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& result)
+    void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& result) override final
     {
         PointPhysicalT pPhys = element->referenceToPhysical(point);
         result.resize(element->getNrOfBasisFunctions());
@@ -200,16 +200,16 @@ public:
     
     ///provide information about your solution that you want to use for visualisation
     
-    void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out)
+    void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out) override final
     {
         LinearAlgebra::NumericalVector value(1);
         value = element->getSolution(0, point);
         out << value[0];
     }
     
-    ///TODO this cannot be automated because I dont know where the mass matrix is
+    ///TODO replace with automatic interpolation using element->getMassMatrix
     // solve Mx=`residue`
-    void interpolate() override
+    void interpolate() override final
     {
         LinearAlgebra::Matrix mass;
         LinearAlgebra::NumericalVector solution;
@@ -225,7 +225,7 @@ public:
         }
     }
     
-    void computeRhsLocal() override
+    void computeRhsLocal() override final
     {
         LinearAlgebra::Matrix mass, stiffness;
         LinearAlgebra::NumericalVector oldData, residual;
@@ -246,7 +246,7 @@ public:
         }
     }
     
-    void computeRhsFaces() override
+    void computeRhsFaces() override final
     {
         LinearAlgebra::Matrix stiffness;
         LinearAlgebra::NumericalVector residue;
@@ -278,7 +278,7 @@ public:
         }
     }
     
-    void beforeTimeIntegration() override
+    void beforeTimeIntegration() override final
     {
         
         //manual integration example

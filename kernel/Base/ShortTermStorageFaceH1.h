@@ -42,17 +42,17 @@ namespace Base
         
         void computeData() override;
 
-        double basisFunction(std::size_t i, const Geometry::PointReference& p) override;
-        double basisFunction(std::size_t i, const Geometry::PointReference& p) const override;
+        double basisFunction(std::size_t i, const Geometry::PointReference& p) override final;
+        double basisFunction(std::size_t i, const Geometry::PointReference& p) const override final;
 
-        void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) override;
-        void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override;
+        void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) override final;
+        void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override final;
 
-        LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) override;
-        LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const override;
+        LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) override final;
+        LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const override final;
 
-        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) override;
-        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const override;
+        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) override final;
+        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const override final;
         
     };
 }

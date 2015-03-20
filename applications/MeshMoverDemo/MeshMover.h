@@ -42,7 +42,7 @@ public:
     }
     ;
 
-    void movePoint(PointPhysicalT& point) const
+    void movePoint(PointPhysicalT& point) const override final
     {
         std::cout << "we are moving" << std::endl;
         

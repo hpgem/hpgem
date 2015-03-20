@@ -25,13 +25,8 @@ namespace Base
 {
     struct GlobalData
     {
-        virtual ~GlobalData()
-        {
-        }
-        
         std::size_t numberOfUnknowns_;
         std::size_t numberOfTimeLevels_;
-        
     };
 }
 ;

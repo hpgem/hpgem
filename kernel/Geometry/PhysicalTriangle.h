@@ -27,26 +27,13 @@ namespace Geometry
 {
     class ReferenceTriangle;
     
+    /// \deprecated just pass a referenceCube to the constructor of a PhysicalGeometry
+    /// if you want to create a hexahedron
     class PhysicalTriangle : public PhysicalGeometry
     {
     public:
         
         PhysicalTriangle(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
-
-        ~PhysicalTriangle()
-        {
-        }
-        
-        virtual std::string getName() const
-        {
-            return "PhysicalTriangle";
-        }
-        
-        virtual std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t) const;
-
-        virtual std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t) const;
-
-        std::size_t getNrOfFaces() const;
     };
 
 }

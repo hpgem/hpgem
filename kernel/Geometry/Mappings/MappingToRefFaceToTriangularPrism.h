@@ -32,9 +32,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism0& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -42,7 +42,6 @@ namespace Geometry
         MappingToRefFaceToTriangularPrism0();
         MappingToRefFaceToTriangularPrism0(const MappingToRefFaceToTriangularPrism0&);
         MappingToRefFaceToTriangularPrism0& operator=(const MappingToRefFaceToTriangularPrism0&);
-        virtual ~MappingToRefFaceToTriangularPrism0();
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -51,9 +50,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism1& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -61,7 +60,6 @@ namespace Geometry
         MappingToRefFaceToTriangularPrism1();
         MappingToRefFaceToTriangularPrism1(const MappingToRefFaceToTriangularPrism1&);
         MappingToRefFaceToTriangularPrism1& operator=(const MappingToRefFaceToTriangularPrism1&);
-        virtual ~MappingToRefFaceToTriangularPrism1();
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -70,9 +68,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism2& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -80,7 +78,6 @@ namespace Geometry
         MappingToRefFaceToTriangularPrism2();
         MappingToRefFaceToTriangularPrism2(const MappingToRefFaceToTriangularPrism2&);
         MappingToRefFaceToTriangularPrism1& operator=(const MappingToRefFaceToTriangularPrism2&);
-        virtual ~MappingToRefFaceToTriangularPrism2();
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -89,9 +86,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism3& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -99,7 +96,6 @@ namespace Geometry
         MappingToRefFaceToTriangularPrism3();
         MappingToRefFaceToTriangularPrism3(const MappingToRefFaceToTriangularPrism3&);
         MappingToRefFaceToTriangularPrism3& operator=(const MappingToRefFaceToTriangularPrism3&);
-        virtual ~MappingToRefFaceToTriangularPrism3();
     };
     
     // ~~~ index 4 ~~~==============================================================================
@@ -108,9 +104,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism4& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -118,7 +114,6 @@ namespace Geometry
         MappingToRefFaceToTriangularPrism4();
         MappingToRefFaceToTriangularPrism4(const MappingToRefFaceToTriangularPrism4&);
         MappingToRefFaceToTriangularPrism4& operator=(const MappingToRefFaceToTriangularPrism4&);
-        virtual ~MappingToRefFaceToTriangularPrism4();
     };
 
 }

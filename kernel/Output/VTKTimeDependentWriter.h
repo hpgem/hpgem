@@ -38,7 +38,8 @@ namespace Output
     ///once you write at time y, where y!=x, you can no longer write to time x
     ///also I'm not sure if VTK allows negative time steps, so be careful with those
     ///If you thing this class produces too much output files, use an existing folder as part of your filename
-    class VTKTimeDependentWriter
+    //class is final because the destructor would be the only virtual function
+    class VTKTimeDependentWriter final
     {
     public:
         ///\brief write front matter and open file stream
@@ -48,7 +49,7 @@ namespace Output
         VTKTimeDependentWriter(std::string baseFileName, Base::MeshManipulator* mesh);
 
         ///\brief write end matter and close the file stream
-        virtual ~VTKTimeDependentWriter();
+        ~VTKTimeDependentWriter();
 
         ///\brief write a scalar field
         void write(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name, double time, std::size_t timelevel = 0);

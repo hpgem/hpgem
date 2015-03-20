@@ -47,7 +47,8 @@ namespace Base
     extern CommandLineOption<std::string> &outputName;
     
     ///Constructor, GlobalData and ConfigurationData is deleted in HpgemAPIBase
-    
+    ///\deprecated, use HpgemAPI* instead
+    ///\todo clean up dependencies and delete this class
     ProblemDescriptorTimeDependent::ProblemDescriptorTimeDependent(std::size_t DIM, std::size_t polynomialOrder, const Base::ButcherTableau* integrator)
             : HpgemAPIBase(new GlobalData, new ConfigurationData(DIM, 1, polynomialOrder, integrator->getNumStages() + 1)), integrator_(integrator)
     {

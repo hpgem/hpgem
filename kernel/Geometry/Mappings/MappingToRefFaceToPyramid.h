@@ -31,9 +31,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToPyramid0& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -41,7 +41,6 @@ namespace Geometry
         MappingToRefFaceToPyramid0();
         MappingToRefFaceToPyramid0(const MappingToRefFaceToPyramid0&);
         MappingToRefFaceToPyramid0& operator=(const MappingToRefFaceToPyramid0&);
-        virtual ~MappingToRefFaceToPyramid0();
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -50,9 +49,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToPyramid1& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -60,7 +59,6 @@ namespace Geometry
         MappingToRefFaceToPyramid1();
         MappingToRefFaceToPyramid1(const MappingToRefFaceToPyramid1&);
         MappingToRefFaceToPyramid1& operator=(const MappingToRefFaceToPyramid1&);
-        virtual ~MappingToRefFaceToPyramid1();
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -69,9 +67,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToPyramid2& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -79,7 +77,6 @@ namespace Geometry
         MappingToRefFaceToPyramid2();
         MappingToRefFaceToPyramid2(const MappingToRefFaceToPyramid2&);
         MappingToRefFaceToPyramid1& operator=(const MappingToRefFaceToPyramid2&);
-        virtual ~MappingToRefFaceToPyramid2();
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -88,9 +85,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToPyramid3& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -98,7 +95,6 @@ namespace Geometry
         MappingToRefFaceToPyramid3();
         MappingToRefFaceToPyramid3(const MappingToRefFaceToPyramid3&);
         MappingToRefFaceToPyramid3& operator=(const MappingToRefFaceToPyramid3&);
-        virtual ~MappingToRefFaceToPyramid3();
     };
     
     // ~~~ index 4 ~~~==============================================================================
@@ -107,9 +103,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToPyramid4& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -117,7 +113,6 @@ namespace Geometry
         MappingToRefFaceToPyramid4();
         MappingToRefFaceToPyramid4(const MappingToRefFaceToPyramid4&);
         MappingToRefFaceToPyramid4& operator=(const MappingToRefFaceToPyramid4&);
-        virtual ~MappingToRefFaceToPyramid4();
     };
 
 }

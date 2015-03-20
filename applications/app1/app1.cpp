@@ -41,7 +41,7 @@ public:
     Dummy()
     {
     }
-    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, std::ostream& os)
+    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, std::ostream& os) override final
     {
     }
 };
@@ -51,7 +51,7 @@ class SimpleDemoProblem : public HpgemUISimplified
     
 public:
     
-    bool initialise()
+    bool initialise() override final
     {
         RectangularMeshDescriptor rectangularMesh(2);
         
@@ -67,7 +67,7 @@ public:
         return true;
     }
     
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
+    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& ret) override final
     {
         
         unsigned int numberOfDegreesOfFreedom = element->getNrOfBasisFunctions();
@@ -87,12 +87,12 @@ public:
         
     }
     
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
     {
         
     }
     
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
     {
         
         if (face->isInternal())
@@ -107,12 +107,12 @@ public:
         
     }
     
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::Matrix& ret) override final
     {
         
     }
     
-    double initialConditions(const PointPhysicalT& p)
+    double initialConditions(const PointPhysicalT& p) override final
     {
         return 0;
     }

@@ -32,6 +32,7 @@ namespace Geometry
     ReferencePoint::ReferencePoint()
             : ReferenceGeometry(1, 0, ReferenceGeometryType::POINT)
     {
+        name = "ReferencePoint";
         mappingsPointToPoint_ = &MappingToRefPointToPoint::Instance();
         points_[0] = Geometry::PointReference(0);
     }
@@ -45,12 +46,6 @@ namespace Geometry
     PointReference ReferencePoint::getCenter() const
     {
         return PointReference(0);
-    }
-    
-    const PointReference& ReferencePoint::getNode(const std::size_t& i) const
-    {
-        logger.assert(i==0, "Asked for node %, but there are only 1 nodes", i);
-        return points_[0];
     }
     
     std::size_t ReferencePoint::getCodim0MappingIndex(const ListOfIndexesT& left, const ListOfIndexesT& right) const

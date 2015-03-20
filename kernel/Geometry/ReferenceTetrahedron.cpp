@@ -43,6 +43,7 @@ namespace Geometry
             : /// Tetrahedron has four nodes 3D + 1
             ReferenceGeometry(4, 3, ReferenceGeometryType::TETRAHEDRON), referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
+        name = "ReferenceTetrahedron";
         PointReference p1(3), p2(3), p3(3), p4(3);
         
         p1[0] = +0.0;
@@ -83,12 +84,6 @@ namespace Geometry
         PointReference p(3);
         p[0] = p[1] = p[2] = 1. / 4.;
         return p;
-    }
-    
-    const PointReference& ReferenceTetrahedron::getNode(const std::size_t& i) const
-    {
-        logger.assert(i<getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
-        return points_[i];
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceTetrahedron& tetra)

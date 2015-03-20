@@ -40,8 +40,6 @@ namespace Base
         static AllTimeIntegrators& Instance();
 
         ButcherTableau* getRule(std::size_t order, std::size_t numStages);
-
-        virtual ~AllTimeIntegrators() = default;
         
     private:
         AllTimeIntegrators();

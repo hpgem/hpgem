@@ -68,9 +68,6 @@ namespace Geometry
     MappingToRefCubeToHypercube0::MappingToRefCubeToHypercube0()
     {
     }
-    MappingToRefCubeToHypercube0::~MappingToRefCubeToHypercube0()
-    {
-    }
     
     // ~~~ index 1 ~~~==============================================================================
     
@@ -113,9 +110,6 @@ namespace Geometry
     }
     
     MappingToRefCubeToHypercube1::MappingToRefCubeToHypercube1()
-    {
-    }
-    MappingToRefCubeToHypercube1::~MappingToRefCubeToHypercube1()
     {
     }
     
@@ -162,9 +156,6 @@ namespace Geometry
     MappingToRefCubeToHypercube2::MappingToRefCubeToHypercube2()
     {
     }
-    MappingToRefCubeToHypercube2::~MappingToRefCubeToHypercube2()
-    {
-    }
     
     // ~~~ index 3 ~~~==============================================================================
     
@@ -207,9 +198,6 @@ namespace Geometry
     }
     
     MappingToRefCubeToHypercube3::MappingToRefCubeToHypercube3()
-    {
-    }
-    MappingToRefCubeToHypercube3::~MappingToRefCubeToHypercube3()
     {
     }
     
@@ -256,9 +244,6 @@ namespace Geometry
     MappingToRefCubeToHypercube4::MappingToRefCubeToHypercube4()
     {
     }
-    MappingToRefCubeToHypercube4::~MappingToRefCubeToHypercube4()
-    {
-    }
     
     // ~~~ index 5 ~~~==============================================================================
     
@@ -301,9 +286,6 @@ namespace Geometry
     }
     
     MappingToRefCubeToHypercube5::MappingToRefCubeToHypercube5()
-    {
-    }
-    MappingToRefCubeToHypercube5::~MappingToRefCubeToHypercube5()
     {
     }
     
@@ -350,9 +332,6 @@ namespace Geometry
     MappingToRefCubeToHypercube6::MappingToRefCubeToHypercube6()
     {
     }
-    MappingToRefCubeToHypercube6::~MappingToRefCubeToHypercube6()
-    {
-    }
     
     // ~~~ index 7 ~~~==============================================================================
     
@@ -396,9 +375,6 @@ namespace Geometry
     }
     
     MappingToRefCubeToHypercube7::MappingToRefCubeToHypercube7()
-    {
-    }
-    MappingToRefCubeToHypercube7::~MappingToRefCubeToHypercube7()
     {
     }
 }

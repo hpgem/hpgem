@@ -44,31 +44,31 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const
+        std::string getName() const override final
         {
             return name_;
         }
         
-        virtual std::size_t order() const
+        std::size_t order() const override final
         {
             return std::numeric_limits<std::size_t>::max();
         }
         
-        virtual std::size_t dimension() const
+        std::size_t dimension() const override final
         {
             return 0;
         }
         
-        virtual std::size_t nrOfPoints() const
+        std::size_t nrOfPoints() const override final
         {
             return 1;
         }
         
-        virtual double weight(std::size_t i) const;
+        double weight(std::size_t i) const override final;
 
-        virtual const Geometry::PointReference& getPoint(std::size_t i) const;
+        const Geometry::PointReference& getPoint(std::size_t i) const override final;
 
-        virtual Geometry::ReferenceGeometry* forReferenceGeometry() const
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final
         {
             return refGeoPtr_;
         }
@@ -77,10 +77,6 @@ namespace QuadratureRules
         Cn0_inf_1();
 
         Cn0_inf_1(const Cn0_inf_1&) = delete;
-        
-        virtual ~Cn0_inf_1()
-        {
-        }
     private:
         const std::string name_;
         double weight_[1];

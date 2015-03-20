@@ -33,6 +33,7 @@ namespace Geometry
             : ReferenceGeometry(16, 4, ReferenceGeometryType::HYPERCUBE), referenceGeometryCodim1Ptr_(&ReferenceCube::Instance()), referenceGeometryCodim2Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim3Ptr_(&ReferenceLine::Instance())
 
     {
+        name = "ReferenceHypercube";
         PointReference p0(4), p1(4), p2(4), p3(4), p4(4), p5(4), p6(4), p7(4), p8(4);
         PointReference p9(4), p10(4), p11(4), p12(4), p13(4), p14(4), p15(4);
         
@@ -146,13 +147,6 @@ namespace Geometry
     PointReference ReferenceHypercube::getCenter() const
     {
         return PointReference(4);
-    }
-    
-    const PointReference&
-    ReferenceHypercube::getNode(const std::size_t& i) const
-    {
-        logger.assert(i < getNumberOfNodes(), "Asked for node %, but a hypercube only has % nodes", i, getNumberOfNodes());
-        return points_[i];
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceHypercube& hypercube)

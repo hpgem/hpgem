@@ -27,28 +27,14 @@ namespace Geometry
 {
     class ReferenceTetrahedron;
     
+    /// \deprecated just pass a referenceCube to the constructor of a PhysicalGeometry
+    /// if you want to create a hexahedron
     class PhysicalTetrahedron : public PhysicalGeometry
     {
 
     public:
         
         PhysicalTetrahedron(const std::vector<std::size_t>&, VectorOfPhysicalPointsT&);
-
-        ~PhysicalTetrahedron()
-        {
-        }
-        
-        virtual std::string getName() const
-        {
-            return "PhysicalTetrahedron";
-        }
-        
-        std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t) const;
-
-        std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t) const;
-
-        std::size_t getNrOfFaces() const;
     };
-
 }
 #endif

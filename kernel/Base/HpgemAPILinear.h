@@ -80,7 +80,7 @@ namespace Base
          );
         
         /// \brief Create the mesh.
-        virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType);
+        void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType) override;
         
         /// \brief Compute the source term at a given physical point.
         virtual double getSourceTerm(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
@@ -93,7 +93,7 @@ namespace Base
         virtual void createMassMatrices();
         
         /// \brief Solve the mass matrix equations.
-        virtual void solveMassMatrixEquations(const std::size_t timeLevel) override;
+        void solveMassMatrixEquations(const std::size_t timeLevel) override;
         
         /// \brief Compute the integrand for the stiffness matrix.
         virtual LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef)
@@ -138,13 +138,13 @@ namespace Base
         virtual void addSourceTerm(const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
         
         /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'.
-        virtual void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time) override;
+        void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time) override;
         
         /// \brief Compute the right hand side for the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
-        virtual void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time) override;
+        void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time) override;
         
         /// \brief Create and Store things before solving the problem.
-        virtual void tasksBeforeSolving() override;
+        void tasksBeforeSolving() override;
         
     protected:
         /// Boolean to indicate if there is a source term.

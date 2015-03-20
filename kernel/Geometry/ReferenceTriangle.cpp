@@ -43,6 +43,7 @@ namespace Geometry
     ReferenceTriangle::ReferenceTriangle()
             : ReferenceGeometry(3, 2, ReferenceGeometryType::TRIANGLE), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
+        name = "ReferenceTriangle";
         
         // See MappingLineToTriangle.h for further info.                   Ref.Line->Ref.Tr.Side
         mappingsLineToTriangle_[0] = &MappingToRefLineToTriangle0::Instance(); // x -> 0:((1+x)/2,0)
@@ -81,12 +82,6 @@ namespace Geometry
         PointReference p(2);
         p[0] = p[1] = 1. / 3.;
         return p;
-    }
-    
-    const PointReference& ReferenceTriangle::getNode(const std::size_t& i) const
-    {
-        logger.assert(i<getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
-        return points_[i];
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceTriangle& triangle)

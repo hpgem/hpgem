@@ -53,7 +53,6 @@ namespace Base
 
         Submesh();
         Submesh(const Submesh& orig);
-        virtual ~Submesh();
 
         //! adds an element to this submesh
         void add(Element* element);

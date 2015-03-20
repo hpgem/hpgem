@@ -54,23 +54,23 @@ namespace Base
 
         virtual ~BasisFunctionSet();
 
-        virtual std::size_t size() const;
+        std::size_t size() const;
 
-        virtual std::size_t getOrder() const;
+        std::size_t getOrder() const;
 
-        virtual void addBasisFunction(BaseBasisFunction* bf);
+        void addBasisFunction(BaseBasisFunction* bf);
 
-        virtual double eval(std::size_t i, const PointReferenceT& p) const;
+        double eval(std::size_t i, const PointReferenceT& p) const;
 
         ///\brief returns the value of the i-th basisfunction at point p in ret
-        virtual void eval(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
+        void eval(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 
-        virtual double evalDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const;
+        double evalDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const;
 
         ///\brief returns the curl of the i-th basisfunction at point p in ret
-        virtual LinearAlgebra::NumericalVector evalCurl(std::size_t i, const PointReferenceT& p) const;
+        LinearAlgebra::NumericalVector evalCurl(std::size_t i, const PointReferenceT& p) const;
 
-        virtual const BaseBasisFunction* operator[](int i) const
+        const BaseBasisFunction* operator[](int i) const
         {
             logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
             return vecOfBasisFcn_[i];

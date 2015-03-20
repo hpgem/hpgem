@@ -65,7 +65,6 @@ namespace Base
     private:
         ElementFactory();
         ElementFactory(const ElementFactory& orig) = delete;
-        virtual ~ElementFactory();
 
         std::size_t unknowns_;
         std::vector<const BasisFunctionSet*>const * basisFunctionSets_;

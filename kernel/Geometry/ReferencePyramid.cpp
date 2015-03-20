@@ -39,6 +39,7 @@ namespace Geometry
             : /// pyramid has three nodes 3D + 2
             ReferenceGeometry(5, 3, ReferenceGeometryType::PYRAMID), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
+        name = "ReferencePyramid";
         PointReference p1(3), p2(3), p3(3), p4(3), p5(3);
         
         p1[0] = +0.0;
@@ -86,12 +87,6 @@ namespace Geometry
         p[1] = 0.;
         p[2] = 1. / 4.;
         return p;
-    }
-    
-    const PointReference& ReferencePyramid::getNode(const std::size_t& nodeIndex) const
-    {
-        logger.assert((nodeIndex < 5), "ERROR: ReferencePyramid::getNode Index out of range. Only 5 faces for pyramid.\n");
-        return points_[nodeIndex];
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferencePyramid& pyramid)
