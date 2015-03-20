@@ -59,9 +59,9 @@ namespace Base
 
     public:
         
-        Element(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<const BasisFunctionSet*>* basisFunctionSet, const std::vector<Geometry::PointPhysical>& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrices = 0, std::size_t numberOfElementVectors = 0, const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
+        Element(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<const BasisFunctionSet*>* basisFunctionSet, std::vector<Geometry::PointPhysical>& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrices = 0, std::size_t numberOfElementVectors = 0, const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
 
-        Element(const Element& other);
+        Element(const Element& other) = delete;
 
         ~ Element();
 

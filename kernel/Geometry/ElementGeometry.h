@@ -54,18 +54,21 @@ namespace Geometry
     public:
         
         /// New style constructor with one less pass
-        ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes);
+        ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes);
 
         /// Copy constructor
-        ElementGeometry(const ElementGeometry& other);
+        ElementGeometry(const ElementGeometry& other) = delete;
 
         virtual ~ElementGeometry();
 
         /// Returns a pointer to the referenceToPhysicalMapping
         virtual const MappingReferenceToPhysicalT* const getReferenceToPhysicalMap() const;
+        virtual MappingReferenceToPhysicalT* const getReferenceToPhysicalMap();
 
         /// Returns a pointer to the physicalGeometry object.
         virtual const PhysicalGeometryT* const getPhysicalGeometry() const;
+        /// Returns a pointer to the physicalGeometry object.
+        virtual PhysicalGeometryT* const getPhysicalGeometry();
         /// Returns a pointer to the physicalGeometry object.
         virtual std::size_t getNrOfNodes() const;
         /// Returns a pointer to the referenceGeometry object.
@@ -99,9 +102,9 @@ namespace Geometry
         
         static const ReferenceGeometryT* const createReferenceGeometry(std::size_t size, std::size_t DIM);
 
-        static const PhysicalGeometryT* const createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes, const ReferenceGeometryT* const geo);
+        static PhysicalGeometryT* const createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometryT* const geo);
 
-        static const MappingReferenceToPhysicalT* const createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometryT* const pGeo);
+        static MappingReferenceToPhysicalT* const createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometryT* const pGeo);
 
     protected:
         /// The corresponding referenceGeometry object, for integration.
@@ -109,11 +112,11 @@ namespace Geometry
 
         /// The physicalGeometry object contains pointers to the actual physical points, and
         /// a container of global node indexes.
-        const PhysicalGeometryT* const physicalGeometry_;
+        PhysicalGeometryT* const physicalGeometry_;
 
         /// The referenceToPhysicalMapping relates the coordinates of the reference object to the
         /// physical object; basically a matrix transformation.
-        const MappingReferenceToPhysicalT* const referenceToPhysicalMapping_;
+        MappingReferenceToPhysicalT* const referenceToPhysicalMapping_;
 
         /// The corresponding refinementGeometry object
         RefinementGeometryT* refinementGeometry_;

@@ -50,6 +50,11 @@ namespace LinearAlgebra
     {
     }
     
+    NumericalVector::NumericalVector(NumericalVector&& other)
+            : data_(std::move(other.data_))
+    {
+    }
+    
 #ifdef LA_STL_VECTOR
     NumericalVector::NumericalVector(const double array[], std::size_t size)
             : data_(array, array + size)

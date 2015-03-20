@@ -73,11 +73,6 @@ namespace Geometry
         mappingsPyramidToPyramid_[0] = 0;
     }
     
-    ReferencePyramid::ReferencePyramid(const ReferencePyramid& copy)
-            : ReferenceGeometry(copy), referenceGeometryCodim1SquarePtr_(copy.referenceGeometryCodim1SquarePtr_), referenceGeometryCodim1TrianglePtr_(copy.referenceGeometryCodim1TrianglePtr_), referenceGeometryCodim2Ptr_(copy.referenceGeometryCodim2Ptr_)
-    {
-    }
-    
     bool ReferencePyramid::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==3, "The reference point has the wrong dimension");

@@ -72,7 +72,7 @@ namespace Base
         {
         }
         
-        virtual Face& operator=(const Face& face);
+        virtual Face& operator=(Face& face);
         
         virtual void computeData();
 
@@ -207,7 +207,17 @@ namespace Base
             return face_->getPtrElementLeft();
         }
         
+        Element* getPtrElementLeft() override
+        {
+            return face_->getPtrElementLeft();
+        }
+        
         const Element* getPtrElementRight() const override
+        {
+            return face_->getPtrElementRight();
+        }
+        
+        Element* getPtrElementRight() override
         {
             return face_->getPtrElementRight();
         }
@@ -341,7 +351,7 @@ namespace Base
         }
         
     protected:
-        const Face* face_;
+        Face* face_;
 
         Geometry::PointReference currentPoint_;
         LinearAlgebra::NumericalVector normal_;

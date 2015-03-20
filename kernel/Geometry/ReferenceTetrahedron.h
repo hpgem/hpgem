@@ -56,7 +56,7 @@ namespace Geometry
         
         ReferenceTetrahedron();
 
-        ReferenceTetrahedron(const ReferenceTetrahedron& copy);
+        ReferenceTetrahedron(const ReferenceTetrahedron& copy) = delete;
 
     public:
         

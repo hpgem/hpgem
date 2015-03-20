@@ -37,6 +37,9 @@
 
 /// Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
 /// This class is meant for testing purposes.
+//  Please verify that nobody went and tested a broken feature
+//  Please keep the problem modelled here reasonably close to the linear advection problem
+///\todo Write self-test
 class AdvectionTest : public Base::HpgemAPILinear
 {
 public:
@@ -206,7 +209,7 @@ int main(int argc, char **argv)
         // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
         const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
         
-        // Choose variable name(s). Since we have a scalar function, we only need to chooes one name.
+        // Choose variable name(s). Since we have a scalar function, we only need to choose one name.
         std::vector<std::string> variableNames;
         variableNames.push_back("u");
         
@@ -220,7 +223,14 @@ int main(int argc, char **argv)
         test.setOutputNames("output", "AdvectionTest", "AdvectionTest", variableNames);
         
         //Run the simulation and write the solution
+        
+        auto startTime = std::chrono::steady_clock::now();
+        
         test.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), true);
+        
+        auto endTime = std::chrono::steady_clock::now();
+        
+        logger(INFO, "Simulation took %ms.", std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
         
         return 0;
     }

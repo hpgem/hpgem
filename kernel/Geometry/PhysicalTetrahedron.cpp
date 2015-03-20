@@ -27,7 +27,7 @@
 
 namespace Geometry
 {
-    PhysicalTetrahedron::PhysicalTetrahedron(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<PointPhysical>& nodes)
+    PhysicalTetrahedron::PhysicalTetrahedron(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical>& nodes)
             : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceTetrahedron::Instance())
     {
     }

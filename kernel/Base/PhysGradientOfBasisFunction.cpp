@@ -31,20 +31,17 @@ namespace Utilities
     PhysGradientOfBasisFunction::RetType PhysGradientOfBasisFunction::operator ()(const PointReferenceT& p) const
     {
         const std::size_t DIM = p.size();
-        RetType r(DIM);
+        RetType r = myElement_->getReferenceGeometry()->getBasisFunctionDerivative(myFunction_, p);
         Geometry::Jacobian jac = myElement_->calcJacobian(p);
-        RetType dummy = myElement_->getReferenceGeometry()->getBasisFunctionDerivative(myFunction_, p);
-        jac = jac.inverse();
-        ///\todo can someone who knows BLAS update the linAlg routines?
-        //Compute r*=jac:
-        for (std::size_t i = 0; i < DIM; ++i)
+        //we need the transpose jacobian
+        for(std::size_t i = 0; i < DIM; ++i)
         {
-            logger(DEBUG, "Element % of gradient in reference space: %", i, dummy[i]);
-            for (std::size_t j = 0; j < DIM; ++j)
+            for(std::size_t j=0; j < i; ++j)
             {
-                r[i] += dummy[j] * jac(j, i);
+                std::swap(jac(i, j), jac(j, i));
             }
         }
+        jac.solve(r);
         return r;
     }
 

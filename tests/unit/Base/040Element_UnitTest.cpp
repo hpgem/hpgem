@@ -98,15 +98,15 @@ int main()
     
     std::vector<const Base::BasisFunctionSet*> vectorOfFunctions(1, &basisFunctions);
     
-    Base::Element test(pointIndexes, &vectorOfFunctions, nodes, 3, 14, basisFunctions.size(), 18), copy(test);
+    Base::Element test(pointIndexes, &vectorOfFunctions, nodes, 3, 14, basisFunctions.size(), 18);
     
     logger.assert_always((test.getGaussQuadratureRule() != nullptr), "quadrature rule");
     
     test.setQuadratureRulesWithOrder(8);
-    copy.setGaussQuadratureRule(&QuadratureRules::Cn3_3_4::Instance());
     
     logger.assert_always((test.getGaussQuadratureRule()->order() >= 8), "setQuadratureRule");
-    logger.assert_always((typeid(*copy.getGaussQuadratureRule()) == typeid(QuadratureRules::Cn3_3_4::Instance())), "setQuadratureRule");
+    test.setGaussQuadratureRule(&QuadratureRules::Cn3_3_4::Instance());
+    logger.assert_always((typeid(*test.getGaussQuadratureRule()) == typeid(QuadratureRules::Cn3_3_4::Instance())), "setQuadratureRule");
     
     //check set*BasisFunctionSet without breaking preconditions...
     

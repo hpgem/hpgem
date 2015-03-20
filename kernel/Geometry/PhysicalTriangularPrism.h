@@ -31,7 +31,7 @@ namespace Geometry
     {
     public:
         
-        PhysicalTriangularPrism(const std::vector<std::size_t>&, const std::vector<PointPhysical>&);
+        PhysicalTriangularPrism(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
 
         ~PhysicalTriangularPrism()
         {

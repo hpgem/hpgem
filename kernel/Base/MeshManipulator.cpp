@@ -245,7 +245,7 @@ namespace Base
         }
     }
     
-    void MeshManipulator::addVertexBasisFunctionSet(CollectionOfBasisFunctionSets& bFsets)
+    void MeshManipulator::addVertexBasisFunctionSet(const CollectionOfBasisFunctionSets& bFsets)
     {
         std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet* set : bFsets)
@@ -264,7 +264,7 @@ namespace Base
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getNrOfNodes() * bFsets[0]->size();
     }
     
-    void MeshManipulator::addFaceBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets)
+    void MeshManipulator::addFaceBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets)
     {
         std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet* set : bFsets)
@@ -299,7 +299,7 @@ namespace Base
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getPhysicalGeometry()->getNrOfFaces() * bFsets[0]->size();
     }
     
-    void MeshManipulator::addEdgeBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets)
+    void MeshManipulator::addEdgeBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets)
     {
         std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet* set : bFsets)
@@ -792,6 +792,7 @@ namespace Base
         
         centaurFile.open(filename.c_str(), std::ios::binary);
         logger.assert_always(centaurFile.is_open(), "Cannot open Centaur meshfile.");
+        logger.assert_always(centaurFile.good(), "Something is not so good about this mesh");
         
         switch (configData_->dimension_)
         {
@@ -3073,7 +3074,7 @@ namespace Base
         //coordinate transformation may have changed, update to the current situation
         for (Element* element : theMesh_.getElementsList())
         {
-            const_cast<Geometry::MappingReferenceToPhysical*>(element->getReferenceToPhysicalMap())->reinit(element->getPhysicalGeometry());
+            element->getReferenceToPhysicalMap()->reinit(element->getPhysicalGeometry());
         }
     }
 #endif

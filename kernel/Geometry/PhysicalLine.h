@@ -32,7 +32,7 @@ namespace Geometry
         
     public:
         
-        PhysicalLine(const std::vector<std::size_t>&, const std::vector<PointPhysical>&);
+        PhysicalLine(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
 
         ~PhysicalLine()
         {

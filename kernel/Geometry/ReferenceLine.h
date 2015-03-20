@@ -56,7 +56,7 @@ namespace Geometry
         
         ReferenceLine();
 
-        ReferenceLine(const ReferenceLine&);
+        ReferenceLine(const ReferenceLine&) = delete;
 
     public:
         

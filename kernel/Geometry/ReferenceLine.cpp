@@ -53,11 +53,6 @@ namespace Geometry
         
     }
     
-    ReferenceLine::ReferenceLine(const ReferenceLine& copy)
-            : ReferenceGeometry(copy), referenceGeometryCodim1Ptr_(&ReferencePoint::Instance())
-    {
-    }
-    
     bool ReferenceLine::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==1, "The dimension of the point is wrong");

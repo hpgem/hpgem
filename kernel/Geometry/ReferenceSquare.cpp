@@ -78,11 +78,6 @@ namespace Geometry
         points_[3] = p4;
     }
     
-    ReferenceSquare::ReferenceSquare(const ReferenceSquare& copy)
-            : ReferenceGeometry(copy), referenceGeometryCodim1Ptr_(copy.referenceGeometryCodim1Ptr_)
-    {
-    }
-    
     bool ReferenceSquare::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==2, "The passed reference point has the wrong dimension");

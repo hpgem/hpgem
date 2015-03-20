@@ -36,11 +36,6 @@ namespace Geometry
         points_[0] = Geometry::PointReference(0);
     }
     
-    ReferencePoint::ReferencePoint(const ReferencePoint& copy)
-            : ReferenceGeometry(copy), mappingsPointToPoint_(copy.mappingsPointToPoint_)
-    {
-    }
-    
     bool ReferencePoint::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==0, "The dimension of the reference point is wrong");

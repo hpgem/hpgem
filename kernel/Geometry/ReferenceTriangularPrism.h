@@ -47,7 +47,7 @@ namespace Geometry
         
         ReferenceTriangularPrism();
 
-        ReferenceTriangularPrism(const ReferenceTriangularPrism& copy);
+        ReferenceTriangularPrism(const ReferenceTriangularPrism& copy) = delete;
 
     public:
         

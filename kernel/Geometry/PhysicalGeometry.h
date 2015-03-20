@@ -58,7 +58,7 @@ namespace Geometry
         
         /// \brief Constructor gets indexes of the nodes, a reference to the node container, and a pointer to the corresponding reference geometry.
         
-        PhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const refG)
+        PhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const refG)
                 : nodes_(nodes), globalNodeIndexes_(globalNodeIndexes), refGeometry_(refG)
         {
             logger.assert(refG!=nullptr, "Invalid reference geometry passed");
@@ -75,7 +75,7 @@ namespace Geometry
         }
         
         /// \brief Returns a pointer to the global container of nodes.
-        const VectorOfPhysicalPointsT& getNodes()
+        VectorOfPhysicalPointsT& getNodes()
         {
             return nodes_;
         }
@@ -98,6 +98,13 @@ namespace Geometry
         
         /// \brief Given a global index, returns a pointer to the corresponding point.
         const PointPhysical* getNodePtr(const std::size_t globalIndex) const
+        {
+            logger.assert(globalIndex < nodes_.size(),"This mesh does not contain a node with index %",globalIndex);
+            return &(nodes_[globalIndex]);
+        }
+        
+        /// \brief Given a global index, returns a pointer to the corresponding point.
+        PointPhysical* getNodePtr(const std::size_t globalIndex)
         {
             logger.assert(globalIndex < nodes_.size(),"This mesh does not contain a node with index %",globalIndex);
             return &(nodes_[globalIndex]);
@@ -146,7 +153,7 @@ namespace Geometry
         
     protected:
         /// Reference to the global node container.
-        const VectorOfPhysicalPointsT& nodes_;
+        VectorOfPhysicalPointsT& nodes_;
 
         /// Reference to the container of global indexes of the nodes, relative to nodes_.
         std::vector<std::size_t> globalNodeIndexes_;

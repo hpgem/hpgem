@@ -72,7 +72,6 @@ int main()
     }
     
     Geometry::ElementGeometry* test = new Geometry::ElementGeometry(pointIndexes, nodes1D);
-    Geometry::ElementGeometry copy(*test);
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<1>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::PhysicalLine) == typeid(*test->getPhysicalGeometry())), "getPhysicalGeometry");
@@ -505,7 +504,6 @@ int main()
         }
     }
     std::cout << *test << std::endl;
-    std::cout << copy << std::endl;
     
     return 0;
 }

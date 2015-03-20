@@ -52,7 +52,7 @@ namespace Geometry
         
         ReferencePoint();
 
-        ReferencePoint(const ReferencePoint&);
+        ReferencePoint(const ReferencePoint&) = delete;
 
     public:
         

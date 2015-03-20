@@ -56,7 +56,7 @@ namespace Geometry
         
         ReferenceSquare();
 
-        ReferenceSquare(const ReferenceSquare& copy);
+        ReferenceSquare(const ReferenceSquare& copy) = delete;
 
     public:
         

@@ -51,23 +51,24 @@ LL<Log::DEFAULT> DEFAULT;
 LL<Log::VERBOSE> VERBOSE;
 LL<Log::DEBUG> DEBUG;
 
-/* Actual definition of the default logger. */
+// Actual definition of the default logger. 
 Logger<HPGEM_LOGLEVEL> logger("hpGEM Kernel");
 
-/* Default implementation for logging basic information */
+// Default implementation for logging basic information 
 static void printInfo(std::string module, std::string msg)
 {
     std::cout << msg << std::endl;
 }
 
-/* Default implementation for logging warnings / messages */
+// Default implementation for logging warnings / messages 
 static void printMessage(std::string module, std::string msg)
 {
     std::cout << "Module " << module << ":\n" << msg << std::endl;
 }
 
-/* Default implementation for logging errors / fatals */
-static void printError(std::string module, std::string msg)
+// Default implementation for logging errors / fatals 
+// [[noreturn]] indicates this function may not return
+[[noreturn]] static void printError(std::string module, std::string msg)
 {
     std::cerr << "Module " << module << ":\n" << msg << std::endl;
 #ifdef HPGEM_STACKTRACE_ENABLE

@@ -26,7 +26,7 @@
 #include "FaceCacheData.h"
 #include "Logger.h"
 
-Base::Face& Base::ShortTermStorageFaceBase::operator=(const Base::Face& face)
+Base::Face& Base::ShortTermStorageFaceBase::operator=(Base::Face& face)
 {
     logger.assert(this != &face, "Trying to assign a Face of the type ShortTermStorageFaceBase to itself.");
     face_ = &face;
@@ -46,7 +46,7 @@ void Base::ShortTermStorageFaceBase::computeData()
 {
     if (useCache_)
     {
-        std::vector<FaceCacheData>& cache = const_cast<Face*>(face_)->getVecCacheData();
+        std::vector<FaceCacheData>& cache = face_->getVecCacheData();
         if (recomputeCache_ || (cache.size() != getGaussQuadratureRule()->nrOfPoints()))
         {
             recomputeCacheOff();

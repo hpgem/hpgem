@@ -72,11 +72,6 @@ namespace Geometry
         mappingsTetrahedronToTetrahedron_[0] = 0;
     }
     
-    ReferenceTetrahedron::ReferenceTetrahedron(const ReferenceTetrahedron& copy)
-            : ReferenceGeometry(copy), referenceGeometryCodim1Ptr_(copy.referenceGeometryCodim1Ptr_), referenceGeometryCodim2Ptr_(copy.referenceGeometryCodim2Ptr_)
-    {
-    }
-    
     bool ReferenceTetrahedron::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==3, "The dimension of the reference point is incorrect");

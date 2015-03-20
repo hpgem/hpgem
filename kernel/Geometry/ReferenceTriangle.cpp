@@ -70,11 +70,6 @@ namespace Geometry
         points_[2] = p3;
     }
     
-    ReferenceTriangle::ReferenceTriangle(const ReferenceTriangle& copy)
-            : ReferenceGeometry(copy), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
-    {
-    }
-    
     bool ReferenceTriangle::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==2, "The dimension of the reference point is incorrect");

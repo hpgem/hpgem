@@ -57,7 +57,7 @@ namespace Geometry
         
         ReferenceTriangle();
 
-        ReferenceTriangle(const ReferenceTriangle& copy);
+        ReferenceTriangle(const ReferenceTriangle& copy) = delete;
 
     public:
         

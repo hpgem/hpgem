@@ -39,9 +39,9 @@ namespace Geometry
     /// The computation of Jacobians are hardcoded up until 4D, to make it faster.
     double Jacobian::determinant() const
     {
-        std::size_t dimTo(getNRows()), dimFrom(getNCols());
+        std::size_t dimFrom(getNCols());
         
-        logger.assert(dimFrom == dimTo, "Jacobian should be square to have a determinant!");
+        logger.assert(dimFrom == getNRows(), "Jacobian should be square to have a determinant!");
         
         switch (dimFrom)
         {

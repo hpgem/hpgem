@@ -44,7 +44,7 @@ namespace Geometry
         
         ReferencePyramid();
 
-        ReferencePyramid(const ReferencePyramid& copy);
+        ReferencePyramid(const ReferencePyramid& copy) = delete;
 
     public:
         

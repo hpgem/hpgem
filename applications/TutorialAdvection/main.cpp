@@ -37,12 +37,11 @@
 
 ///Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
 ///The first self-contained (no PETSc) program to make it into the SVN
-///\todo Write self-test
 class TutorialAdvection : public Base::HpgemAPILinear
 {
 public:
     ///Constructor. Assign all private variables.
-    TutorialAdvection(int p) :
+    TutorialAdvection(std::size_t p) :
         HpgemAPILinear(DIM_, 1, p)
     {
         //Choose the "direction" of the advection.

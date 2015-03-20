@@ -333,13 +333,13 @@ namespace Base
         void setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet);
 
         //! Adds vertex based degrees of freedom to the set of basisfunctions for this mesh and all of its vertices. This routine will assume that the first basisfunctionset connects to the first vertex (local numbering) and so on
-        void addVertexBasisFunctionSet(CollectionOfBasisFunctionSets& bFsets); ///\TODO support for mixed meshes
+        void addVertexBasisFunctionSet(const CollectionOfBasisFunctionSets& bFsets); ///\TODO support for mixed meshes
                 
         //! Adds face based degrees of freedom to the set of basisfunctions for this mesh and all of its faces. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
-        void addFaceBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets); ///\TODO support for mixed meshes
+        void addFaceBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets); ///\TODO support for mixed meshes
                 
         //! Adds edge based degrees of freedom to the set of basisfunctions for this mesh and all of its edges. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
-        void addEdgeBasisFunctionSet(std::vector<const OrientedBasisFunctionSet*>& bFsets); ///\TODO support for mixed meshes
+        void addEdgeBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets); ///\TODO support for mixed meshes
                 
         std::size_t dimension() const;
 

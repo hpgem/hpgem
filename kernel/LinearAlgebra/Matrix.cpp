@@ -449,9 +449,20 @@ namespace LinearAlgebra
         
         int lwork = nRows_ * nCols_;
         
-        double work[lwork];
-        
-        dgetri_(&nc, result.data(), &nc, iPivot, &work[0], &lwork, &info);
+        //use the heap for large amounts of data
+        //'magic' boundary of 16 comes from the fact that Jacobeans are not expected to be larger than 4x4
+        //but element matrices can easily reach 20x20 or larger
+        if(lwork <= 16)
+        {
+            double work[lwork];
+
+            dgetri_(&nc, result.data(), &nc, iPivot, work, &lwork, &info);
+        }
+        else
+        {
+            Matrix work(nRows_, nCols_);
+            dgetri_(&nc, result.data(), &nc, iPivot, work.data(), &lwork, &info);
+        }
         
         return result;
     }
@@ -461,7 +472,6 @@ namespace LinearAlgebra
     {
         logger.assert(nRows_ == nCols_, "can only solve for square matrixes");
         logger.assert(nRows_ == B.nRows_, "size of the RHS does not match the size of the matrix");
-        Matrix matThis = *this;
         
         int n = nRows_;
         int nrhs = B.getNCols();
@@ -469,14 +479,27 @@ namespace LinearAlgebra
         
         int IPIV[n];
         
-        dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
+        //use the stack for small amounts of data
+        //'magic' boundary of 16 comes from the fact that Jacobeans are not expected to be larger than 4x4
+        //but element matrices can easily reach 20x20 or larger
+        if(nRows_ * nCols_ <= 16)
+        {
+            //gdesv destroys the copy
+            double copy[nRows_ * nCols_];
+            std::copy(this->data(), this->data() + nRows_ * nCols_, copy);
+            dgesv_(&n, &nrhs, copy, &n, IPIV, B.data(), &n, &info);
+        }
+        else
+        {
+            Matrix matThis = *this;
+            dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
+        }
     }
     
     void Matrix::solve(NumericalVector& b) const
     {
         logger.assert(nRows_ == nCols_, "can only solve for square matrixes");
         logger.assert(nRows_ == b.size(), "size of the RHS does not match the size of the matrix");
-        Matrix matThis = (*this);
         
         int n = nRows_;
         int nrhs = 1;
@@ -484,7 +507,21 @@ namespace LinearAlgebra
         
         int IPIV[n];
         
-        dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
+        //use the stack for small amounts of data
+        //'magic' boundary of 16 comes from the fact that Jacobeans are not expected to be larger than 4x4
+        //but element matrices can easily reach 20x20 or larger
+        if(nRows_ * nCols_ <= 16)
+        {
+            //gdesv destroys the copy
+            double copy[nRows_ * nCols_];
+            std::copy(this->data(), this->data() + nRows_ * nCols_, copy);
+            dgesv_(&n, &nrhs, copy, &n, IPIV, b.data(), &n, &info);
+        }
+        else
+        {
+            Matrix matThis = *this;
+            dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
+        }
     }
     
 #ifdef HPGEM_USE_COMPLEX_PETSC

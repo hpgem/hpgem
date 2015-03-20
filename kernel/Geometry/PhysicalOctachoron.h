@@ -30,7 +30,7 @@ namespace Geometry
     {
     public:
         
-        PhysicalOctachoron(const std::vector<std::size_t>&, const std::vector<PointPhysical> &);
+        PhysicalOctachoron(const std::vector<std::size_t>&, std::vector<PointPhysical> &);
 
         ~PhysicalOctachoron()
         {

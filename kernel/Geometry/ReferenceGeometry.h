@@ -146,7 +146,7 @@ namespace Geometry
     protected:
         ReferenceGeometry(const ReferenceGeometryType& geoT);
         ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT);
-        ReferenceGeometry(const ReferenceGeometry& other);
+        ReferenceGeometry(const ReferenceGeometry& other) = delete;
 
     protected:
         /// Container of the actual points (no reference).

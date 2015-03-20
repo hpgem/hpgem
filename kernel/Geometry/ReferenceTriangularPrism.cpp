@@ -73,11 +73,6 @@ namespace Geometry
         mappingsFaceToTriangularPrism_[4] = &MappingToRefFaceToTriangularPrism4::Instance();
     }
     
-    ReferenceTriangularPrism::ReferenceTriangularPrism(const ReferenceTriangularPrism& copy)
-            : ReferenceGeometry(copy), referenceGeometryCodim1TrianglePtr_(copy.referenceGeometryCodim1TrianglePtr_), referenceGeometryCodim1SquarePtr_(copy.referenceGeometryCodim1SquarePtr_), referenceGeometryCodim2Ptr_(copy.referenceGeometryCodim2Ptr_)
-    {
-    }
-    
     bool ReferenceTriangularPrism::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==3, "The dimension of the reference point is incorrect");

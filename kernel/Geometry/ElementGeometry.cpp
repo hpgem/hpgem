@@ -114,8 +114,8 @@ namespace Geometry
         return 0;
     }
     
-    const PhysicalGeometry * const
-    ElementGeometry::createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes, const ReferenceGeometryT * const geo)
+    PhysicalGeometry * const
+    ElementGeometry::createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometryT * const geo)
     {
         logger.assert(geo!=nullptr, "Invalid reference geometry passed");
         switch (globalNodeIndexes.size())
@@ -165,7 +165,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToPhysical * const
+    MappingReferenceToPhysical * const
     ElementGeometry::createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometryT * const pGeo)
     {
         logger.assert(pGeo!=nullptr, "Invalid physical geometry passed");
@@ -227,17 +227,17 @@ namespace Geometry
         return os;
     }
     
-    ElementGeometry::ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes)
+    ElementGeometry::ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes)
             : referenceGeometry_(ElementGeometry::createReferenceGeometry(globalNodeIndexes.size(), nodes[0].size())), physicalGeometry_(ElementGeometry::createPhysicalGeometry(globalNodeIndexes, nodes, referenceGeometry_)), referenceToPhysicalMapping_(ElementGeometry::createMappings(globalNodeIndexes.size(), nodes[0].size(), physicalGeometry_)), refinementGeometry_(nullptr) //refinement is turned off by default, to  enable it one needs to call enableRefinement
     {
     }
     
     /// Copy constructor
     
-    ElementGeometry::ElementGeometry(const ElementGeometry& other)
+    /*ElementGeometry::ElementGeometry(const ElementGeometry& other)
             : referenceGeometry_(other.referenceGeometry_), physicalGeometry_(ElementGeometry::createPhysicalGeometry(other.physicalGeometry_->getNodeIndexes(), other.physicalGeometry_->getNodes(), referenceGeometry_)), referenceToPhysicalMapping_(ElementGeometry::createMappings(other.physicalGeometry_->getNodeIndexes().size(), other.physicalGeometry_->getNodePtr(0)->size(), physicalGeometry_)), refinementGeometry_(other.refinementGeometry_) //refinement is turned off by default, to  enable it one needs to call enableRefinement
     {
-    }
+    }*/
     
     ElementGeometry::~ElementGeometry()
     {
@@ -253,10 +253,22 @@ namespace Geometry
         return referenceToPhysicalMapping_;
     }
     
+    MappingReferenceToPhysical * const
+    ElementGeometry::getReferenceToPhysicalMap()
+    {
+        return referenceToPhysicalMapping_;
+    }
+    
     /// Returns a pointer to the physicalGeometry object.
     
     const PhysicalGeometry * const
     ElementGeometry::getPhysicalGeometry() const
+    {
+        return physicalGeometry_;
+    }
+    
+    PhysicalGeometry * const
+    ElementGeometry::getPhysicalGeometry()
     {
         return physicalGeometry_;
     }

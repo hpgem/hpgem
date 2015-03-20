@@ -59,7 +59,7 @@ namespace Geometry
         
         ReferenceCube();
 
-        ReferenceCube(const ReferenceCube& other);
+        ReferenceCube(const ReferenceCube& other) = delete;
 
     public:
         

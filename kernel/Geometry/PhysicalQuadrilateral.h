@@ -32,7 +32,7 @@ namespace Geometry
     {
     public:
         
-        PhysicalQuadrilateral(const std::vector<std::size_t>&, const std::vector<PointPhysical>&);
+        PhysicalQuadrilateral(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
 
         ~PhysicalQuadrilateral()
         {

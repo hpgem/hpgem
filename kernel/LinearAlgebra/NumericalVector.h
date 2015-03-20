@@ -58,6 +58,8 @@ namespace LinearAlgebra
         explicit NumericalVector(std::size_t m);
 
         NumericalVector(const NumericalVector& other);
+        
+        NumericalVector(NumericalVector&& other);
 
         NumericalVector(const double array[], std::size_t size);
 

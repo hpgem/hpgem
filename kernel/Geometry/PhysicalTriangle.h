@@ -31,7 +31,7 @@ namespace Geometry
     {
     public:
         
-        PhysicalTriangle(const std::vector<std::size_t>&, const std::vector<PointPhysical>&);
+        PhysicalTriangle(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
 
         ~PhysicalTriangle()
         {

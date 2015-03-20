@@ -45,7 +45,7 @@ namespace Geometry
         
         ReferenceHypercube();
 
-        ReferenceHypercube(const ReferenceHypercube& copy);
+        ReferenceHypercube(const ReferenceHypercube& copy) = delete;
 
     public:
         

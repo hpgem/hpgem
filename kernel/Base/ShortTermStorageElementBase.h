@@ -76,7 +76,7 @@ namespace Base
         ///recomputes the jacobian, the physical point, functionvalues and derivatives of functions based on the current point
         virtual void computeData();
 
-        Element& operator=(const Element& element);
+        Element& operator=(Element& element);
         
         ShortTermStorageElementBase(const ShortTermStorageElementBase& copy)
                 : element_(copy.element_), currentPoint_(copy.currentPoint_), jac_(copy.jac_), useCache_(copy.useCache_), recomputeCache_(copy.recomputeCache_), currentPointIndex_(copy.currentPointIndex_)
@@ -270,7 +270,17 @@ namespace Base
             return element_->getReferenceToPhysicalMap();
         }
         
+        MappingReferenceToPhysicalT * const getReferenceToPhysicalMap() override
+        {
+            return element_->getReferenceToPhysicalMap();
+        }
+        
         const PhysicalGeometryT * const getPhysicalGeometry() const override
+        {
+            return element_->getPhysicalGeometry();
+        }
+        
+        PhysicalGeometryT * const getPhysicalGeometry() override
         {
             return element_->getPhysicalGeometry();
         }
@@ -299,7 +309,7 @@ namespace Base
         }
         
     protected:
-        const Element* element_;
+        Element* element_;
         Geometry::PointReference currentPoint_;
 
         Geometry::Jacobian jac_;

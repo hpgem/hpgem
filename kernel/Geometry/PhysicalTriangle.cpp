@@ -27,7 +27,7 @@
 
 namespace Geometry
 {
-    PhysicalTriangle::PhysicalTriangle(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<PointPhysical>& nodes)
+    PhysicalTriangle::PhysicalTriangle(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical>& nodes)
             : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceTriangle::Instance())
     {
     }

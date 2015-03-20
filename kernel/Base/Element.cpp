@@ -46,7 +46,7 @@ namespace Base
     
     Element::Element(const VectorOfPointIndexesT& globalNodeIndexes, 
                      const std::vector<const BasisFunctionSet*>* basisFunctionSet, 
-                     const VectorOfPhysicalPointsT& allNodes, 
+                     VectorOfPhysicalPointsT& allNodes, 
                      std::size_t nrOfUnkowns, 
                      std::size_t nrOfTimeLevels, 
                      std::size_t nrOfBasisFunc, 
@@ -86,7 +86,7 @@ namespace Base
     //the mass matrix is not copied for safety, in case this element gets slightly
     //changed before the mass matrix is needed. If one wants to use the mass matrix,
     //it gets computed in getMassMatrix anyway.
-    Element::Element(const Element& other)
+    /*Element::Element(const Element& other)
             : ElementGeometryT(other), ElementData(other), 
         quadratureRule_(other.quadratureRule_), basisFunctionSet_(other.basisFunctionSet_), 
         vecCacheData_(other.vecCacheData_), id_(other.id_), orderCoeff_(other.orderCoeff_), 
@@ -94,7 +94,7 @@ namespace Base
         facesList_(other.facesList_), edgesList_(other.edgesList_), nodesList_(other.nodesList_), 
         nrOfDOFinTheElement_(other.nrOfDOFinTheElement_)
     {
-    }
+    }*/
     
     ///Very ugly default constructor that's only here because it is needed in
     ///ShortTermStorageElementBase.
@@ -334,7 +334,6 @@ namespace Base
         {
             wrapper = this; 
         }
-        const Base::BaseBasisFunction* function;
         int basePosition(0);
         for (int j : basisFunctionSetPositions_)
         {
@@ -343,8 +342,8 @@ namespace Base
                 std::size_t n = basisFunctionSet_->at(j)->size();
                 if (i - basePosition < n)
                 {
-                    function = basisFunctionSet_->at(j)->operator[](i - basePosition);
-                    basePosition += n;
+                    Utilities::PhysGradientOfBasisFunction functionGradient(wrapper, basisFunctionSet_->at(j)->operator[](i - basePosition));
+                    return functionGradient(p);
                 }
                 else
                 {
@@ -352,8 +351,8 @@ namespace Base
                 }
             }
         }
-        Utilities::PhysGradientOfBasisFunction functionGradient(wrapper, function);
-        return functionGradient(p);
+        logger(ERROR, "It should not be possible to reach this line");
+        return LinearAlgebra::NumericalVector(0);
     }
     
 #ifndef NDEBUG

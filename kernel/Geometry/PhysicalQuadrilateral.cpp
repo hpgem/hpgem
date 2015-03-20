@@ -27,7 +27,7 @@
 
 namespace Geometry
 {
-    PhysicalQuadrilateral::PhysicalQuadrilateral(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<PointPhysical>& nodes)
+    PhysicalQuadrilateral::PhysicalQuadrilateral(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical>& nodes)
             : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceSquare::Instance())
     {
     }

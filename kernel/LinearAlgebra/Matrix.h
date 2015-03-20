@@ -74,7 +74,7 @@ namespace LinearAlgebra
 
         /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B and A are both matrices
         Matrix(const Matrix& other);
-
+        
         /// \brief Move Matrix from another Matrix
         Matrix(Matrix&& other);
 
