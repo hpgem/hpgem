@@ -29,7 +29,7 @@
 #include <string>
 #include <functional>
 
-#include "logger.h"
+#include "Logger.h"
 
 namespace Base
 {
