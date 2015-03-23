@@ -714,6 +714,15 @@ namespace Base
         }
     }
     
+    bool HpgemAPISimplified::checkBeforeSolving()
+    {
+        if (HpgemAPIBase::meshes_.size() == 0)
+        {
+            logger(ERROR, "Error no mesh created : You need to create at least one mesh to solve a problem");
+        }
+        return true;
+    }
+    
     /// \brief Solve the PDE over the time domain [initialTime, finalTime].
     /// \param[in] initialTime Initial time
     /// \param[in] finalTime End time
@@ -722,6 +731,8 @@ namespace Base
     /// \param[in] doComputeError Boolean to indicate if the error should be computed.
     bool HpgemAPISimplified::solve(const double initialTime, const double finalTime, double dt, const std::size_t numOfOutputFrames, bool doComputeError)
     {
+        checkBeforeSolving();
+        
         // Create output files for Paraview.
         std::string outputFileNameVTK = outputFileName_;
         

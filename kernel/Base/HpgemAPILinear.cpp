@@ -49,6 +49,7 @@ namespace Base
     /// \param[in] butcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
     /// \param[in] numOfTimeLevels Number of time levels. If a butcherTableau is set and the number of time levels is too low, this will be corrected automatically.
     /// \param[in] useSourceTerm Boolean to indicate if there is a source term.
+    /// \param[in] useSourceTerm Boolean to indicate if there is a source term at the domain boundary.
     HpgemAPILinear::HpgemAPILinear
     (
      const std::size_t dimension,
@@ -56,10 +57,12 @@ namespace Base
      const std::size_t polynomialOrder,
      const Base::ButcherTableau * const ptrButcherTableau,
      const std::size_t numOfTimeLevels,
-     const bool useSourceTerm
+     const bool useSourceTerm,
+     const bool useSourceTermAtBoundary
      ) :
     HpgemAPISimplified(dimension, numOfVariables, polynomialOrder, ptrButcherTableau, numOfTimeLevels),
     useSourceTerm_(useSourceTerm),
+    useSourceTermAtBoundary_(useSourceTermAtBoundary),
     massMatrixID_(1),
     stiffnessElementMatrixID_(0),
     stiffnessFaceMatrixID_(0)
@@ -149,6 +152,59 @@ namespace Base
         return faceIntegrator_.integrate(ptrFace, integrandFunction);
     }
     
+    LinearAlgebra::NumericalVector HpgemAPILinear::integrateSourceTermAtFace(Base::Face *ptrFace, const double time, const std::size_t orderTimeDerivative)
+    {
+        // Define a function for the integrand of the stiffness matrix at a element.
+        std::function<LinearAlgebra::NumericalVector(const Base::Face *, const LinearAlgebra::NumericalVector &, const Geometry::PointReference &)> integrandFunction = [=](const Base::Face *ptrFace, const LinearAlgebra::NumericalVector &normal, const Geometry::PointReference &pRef) -> LinearAlgebra::NumericalVector
+        {return this->computeIntegrandSourceTermAtFace(ptrFace, normal, pRef, time, orderTimeDerivative);};
+        
+        return faceIntegrator_.integrate(ptrFace, integrandFunction);
+    }
+    
+    /// \details By default, the standard L2 inner product with the source term is computed.
+    LinearAlgebra::NumericalVector HpgemAPILinear::integrateSourceTermAtElement(Base::Element * ptrElement, const double time, const std::size_t orderTimeDerivative)
+    {
+        // Get number of basis functions
+        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        
+        // Declare integral source term
+        LinearAlgebra::NumericalVector integralSourceTerm(numOfBasisFunctions * configData_->numberOfUnknowns_);
+        
+        // Declare integrand
+        LinearAlgebra::NumericalVector integrandSourceTerm(numOfBasisFunctions * configData_->numberOfUnknowns_);
+        
+        // Get quadrature rule and number of points.
+        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
+        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        
+        // For each quadrature point, compute the value of the product of the
+        // test function and the source term, then add it with the correct weight to the integral solution.
+        for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
+        {
+            Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
+            Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+            
+            Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+            
+            LinearAlgebra::NumericalVector sourceTerm = getSourceTerm(pPhys, time, orderTimeDerivative);
+            
+            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            {
+                double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
+                
+                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                {
+                    std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
+                    
+                    integrandSourceTerm(iVB) = sourceTerm(iV) * valueBasisFunction;
+                }
+            }
+            integralSourceTerm.axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandSourceTerm);
+        }
+        
+        return integralSourceTerm;
+    }
+    
     void HpgemAPILinear::createStiffnessMatrices()
     {
         logger(INFO, "- Creating stiffness matrices for the elements.");
@@ -165,7 +221,6 @@ namespace Base
             ptrFace->setFaceMatrix(stiffnessFaceMatrix, stiffnessFaceMatrixID_);
         }
     }
-    
     
     /// \details Make sure timeLevelIn is different from timeLevelResult.
     void HpgemAPILinear::multiplyStiffnessMatrices(const std::size_t timeLevelIn, const std::size_t timeLevelResult)
@@ -228,14 +283,28 @@ namespace Base
     void HpgemAPILinear::addSourceTerm(const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
     {
         
-        // Multiply the stiffness matrices corresponding to the elements.
+        // Add the source terms corresponding to the elements.
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
             LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
             
             solutionCoefficientsNew += integrateSourceTermAtElement(ptrElement, time, orderTimeDerivative);
         }
-        
+        synchronize(timeLevelResult);
+    }
+    
+    void HpgemAPILinear::addSourceTermAtBoundary(const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
+    {
+        // Add the source terms corresponding to the faces at the boundary
+        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
+        {
+            if(ptrFace->isInternal())
+            {
+                LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                
+                solutionCoefficientsNew += integrateSourceTermAtFace(ptrFace, time, orderTimeDerivative);
+            }
+        }
         synchronize(timeLevelResult);
     }
     

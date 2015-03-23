@@ -285,8 +285,8 @@ public:
         //so it can be used for post-processing
         std::ofstream outFile("output." + std::to_string(Base::MPIContainer::Instance().getProcessorID()) + ".dat");
         //write tecplot data
-        //Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "012", "value");
-        //writeFunc.write(meshes_[0], "discontinuous solution", false, this);
+        Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "012", "value");
+        writeFunc.write(meshes_[0], "discontinuous solution", false, this);
         //AND paraview data
         Output::VTKSpecificTimeWriter paraWrite("output", meshes_[0]);
         paraWrite.write([](Base::Element* element, const Geometry::PointReference& point, std::size_t timelevel)->double

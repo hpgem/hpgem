@@ -49,7 +49,7 @@ namespace Base
     extern CommandLineOption<std::size_t>& numberOfSnapshots;
     
     /// \brief Simplified Interface for solving PDE's.
-    /** This class is well-suited for problems of the form \f[ l(\partial_t^k \vec{u},t) = f(\vec{u},t) \f], where \f$ \vec{u} \f$ is some vector function, \f$ l(\partial_t^k \vec{u},t)\f$ is some linear function, applied on the k-th order time-derivative of \f$ u \f$, and \f$ f(\vec{u},t) \f$ is some function of \f$ \vec{u} \f$ that can depend on arbitrary order spatial derivatives of \f$\vec{u}\f$. This last term will be referred to as the right-hand side. The resulting set of ODE's will have the form \f[ M\partial_t^ku = f(u,t)\f], where \f$ M\f$ is the mass matrix, \f$u\f$ is the numerical solution vector and \f$f(u)\f$ is the right-hand side.
+    /** This class is well-suited for problems of the form \f[ l(\partial_t^k \vec{u}) = f(\vec{u},t) \f], where \f$ \vec{u} \f$ is some vector function, \f$ l(\partial_t^k \vec{u})\f$ is some linear function, applied on the k-th order time-derivative of \f$ u \f$, and \f$ f(\vec{u},t) \f$ is some function of \f$ \vec{u} \f$ that can depend on arbitrary order spatial derivatives of \f$\vec{u}\f$. This last term will be referred to as the right-hand side. The resulting set of ODE's will have the form \f[ M\partial_t^ku = f(u,t)\f], where \f$ M\f$ is the mass matrix, \f$u\f$ is the numerical solution vector and \f$f(u)\f$ is the right-hand side.
      */
     /** \details To solve some linear time depent PDE with this class you should at least do the following:
      * \li Create your own class that inherits this class.
@@ -223,6 +223,9 @@ namespace Base
         virtual void tasksBeforeSolving()
         {
         }
+        
+        /// \brief Check things before solving (e.g. check if a mesh is created.)
+        virtual bool checkBeforeSolving();
         
         /// \brief Solve the PDE, using a Runge-Kutta scheme.
         virtual bool solve(const double startTime, const double endTime, double dt, const std::size_t numOfOutputFrames, bool doComputeError);
