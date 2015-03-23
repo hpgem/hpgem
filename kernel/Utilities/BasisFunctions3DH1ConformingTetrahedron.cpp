@@ -26,6 +26,9 @@
 #include "Geometry/ReferenceTetrahedron.h"
 #include "Geometry/PointReference.h"
 
+//only uses the constant basis functions
+#include "BasisFunctionsCollection_A.h"
+
 namespace Utilities
 {
     
@@ -120,46 +123,54 @@ namespace Utilities
     Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
         Base::BasisFunctionSet* result = new Base::BasisFunctionSet(order);
-        Geometry::ReferenceTetrahedron& tetrahedron = Geometry::ReferenceTetrahedron::Instance();
-        std::vector<std::size_t> vectorOfPointIndexes(3);
-        for (std::size_t i = 0; i < 4; ++i)
+        if(order > 0)
         {
-            result->addBasisFunction(new BasisFunction3DVertexTetrahedron(i));
+            Geometry::ReferenceTetrahedron& tetrahedron = Geometry::ReferenceTetrahedron::Instance();
+            std::vector<std::size_t> vectorOfPointIndexes(3);
+            for (std::size_t i = 0; i < 4; ++i)
+            {
+                result->addBasisFunction(new BasisFunction3DVertexTetrahedron(i));
+            }
+            for (std::size_t j = 0; j + 2 <= order; ++j)
+            {
+                for (std::size_t i = 0; i < 6; ++i)
+                {
+                    vectorOfPointIndexes = tetrahedron.getCodim2EntityLocalIndices(i);
+                    result->addBasisFunction(new BasisFunction3DEdgeTetrahedron(vectorOfPointIndexes[0], vectorOfPointIndexes[1], j));
+                }
+                if (j > 0)
+                {
+                    for (std::size_t i = 0; i < 4; ++i)
+                    {
+                        vectorOfPointIndexes = tetrahedron.getCodim1EntityLocalIndices(i);
+                        for (std::size_t k = 0; k + 1 <= j; ++k)
+                        {
+                            result->addBasisFunction(new BasisFunction3DFaceTetrahedron(vectorOfPointIndexes[0], vectorOfPointIndexes[1], vectorOfPointIndexes[2], j - k - 1, k));
+                        }
+                    }
+                }
+                if (j > 1)
+                {
+                    for (std::size_t i = 0; i + 2 <= j; ++i)
+                    {
+                        for (std::size_t k = 0; (i + k) + 2 <= j; ++k)
+                        {
+                            result->addBasisFunction(new BasisFunction3DInteriorTetrahedron(i, j - i - k - 2, k));
+                        }
+                    }
+                }
+            }
         }
-        for (std::size_t j = 0; j + 2 <= order; ++j)
+        else
         {
-            for (std::size_t i = 0; i < 6; ++i)
-            {
-                vectorOfPointIndexes = tetrahedron.getCodim2EntityLocalIndices(i);
-                result->addBasisFunction(new BasisFunction3DEdgeTetrahedron(vectorOfPointIndexes[0], vectorOfPointIndexes[1], j));
-            }
-            if (j > 0)
-            {
-                for (std::size_t i = 0; i < 4; ++i)
-                {
-                    vectorOfPointIndexes = tetrahedron.getCodim1EntityLocalIndices(i);
-                    for (std::size_t k = 0; k + 1 <= j; ++k)
-                    {
-                        result->addBasisFunction(new BasisFunction3DFaceTetrahedron(vectorOfPointIndexes[0], vectorOfPointIndexes[1], vectorOfPointIndexes[2], j - k - 1, k));
-                    }
-                }
-            }
-            if (j > 1)
-            {
-                for (std::size_t i = 0; i + 2 <= j; ++i)
-                {
-                    for (std::size_t k = 0; (i + k) + 2 <= j; ++k)
-                    {
-                        result->addBasisFunction(new BasisFunction3DInteriorTetrahedron(i, j - i - k - 2, k));
-                    }
-                }
-            }
+            result->addBasisFunction(new Base::Basis_A0_3D);
         }
         return result;
     }
     
     Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         Base::BasisFunctionSet* result = new Base::BasisFunctionSet(order);
         for (std::size_t i = 0; i + 4 <= order; ++i)
         {
@@ -176,6 +187,7 @@ namespace Utilities
     
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set;
         for (std::size_t i = 0; i < 4; ++i)
@@ -189,6 +201,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceTetrahedron& tetrahedron = Geometry::ReferenceTetrahedron::Instance();
@@ -214,6 +227,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceTetrahedron& tetrahedron = Geometry::ReferenceTetrahedron::Instance();

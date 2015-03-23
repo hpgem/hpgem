@@ -26,6 +26,9 @@
 #include "Geometry/ReferenceCube.h"
 #include "Geometry/PointReference.h"
 
+//only uses the constant basis functions
+#include "BasisFunctionsCollection_A.h"
+
 namespace Utilities
 {
     
@@ -270,72 +273,80 @@ namespace Utilities
     Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Cube(std::size_t order)
     {
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
-        Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
-        std::vector<std::size_t> vectorOfPointIndices(4);
-        for (std::size_t i = 0; i < cube.getNrOfCodim3Entities(); ++i)
+        if(order > 0)
         {
-            result->addBasisFunction(new BasisFunction3DVertexCube(i));
-        }
-        for (std::size_t j = 0; j + 2 <= order; ++j)
-        {
-            for (int i = 0; i < 4; ++i)
+            Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
+            std::vector<std::size_t> vectorOfPointIndices(4);
+            for (std::size_t i = 0; i < cube.getNrOfCodim3Entities(); ++i)
             {
-                vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
-                result->addBasisFunction(new BasisFunction3DEdgeCube_0(vectorOfPointIndices[0], vectorOfPointIndices[1], j));
+                result->addBasisFunction(new BasisFunction3DVertexCube(i));
             }
-            for (std::size_t i = 4; i < 8; ++i)
+            for (std::size_t j = 0; j + 2 <= order; ++j)
             {
-                vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
-                result->addBasisFunction(new BasisFunction3DEdgeCube_1(vectorOfPointIndices[0], vectorOfPointIndices[1], j));
-            }
-            for (std::size_t i = 8; i < 12; ++i)
-            {
-                vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
-                result->addBasisFunction(new BasisFunction3DEdgeCube_2(vectorOfPointIndices[0], vectorOfPointIndices[1], j));
-            }
-            result->addBasisFunction(new BasisFunction3DFaceCube_2(0, 1, 2, j, j));
-            result->addBasisFunction(new BasisFunction3DFaceCube_1(0, 1, 4, j, j));
-            result->addBasisFunction(new BasisFunction3DFaceCube_0(0, 2, 4, j, j));
-            result->addBasisFunction(new BasisFunction3DFaceCube_0(1, 3, 5, j, j));
-            result->addBasisFunction(new BasisFunction3DFaceCube_1(2, 3, 6, j, j));
-            result->addBasisFunction(new BasisFunction3DFaceCube_2(4, 5, 6, j, j));
-            result->addBasisFunction(new BasisFunction3DInteriorCube(j, j, j));
-            for (std::size_t i = 0; i < j; ++i)
-            {
-                result->addBasisFunction(new BasisFunction3DFaceCube_2(0, 1, 2, i, j));
-                result->addBasisFunction(new BasisFunction3DFaceCube_1(0, 1, 4, i, j));
-                result->addBasisFunction(new BasisFunction3DFaceCube_0(0, 2, 4, i, j));
-                result->addBasisFunction(new BasisFunction3DFaceCube_0(1, 3, 5, i, j));
-                result->addBasisFunction(new BasisFunction3DFaceCube_1(2, 3, 6, i, j));
-                result->addBasisFunction(new BasisFunction3DFaceCube_2(4, 5, 6, i, j));
-                result->addBasisFunction(new BasisFunction3DFaceCube_2(0, 1, 2, j, i));
-                result->addBasisFunction(new BasisFunction3DFaceCube_1(0, 1, 4, j, i));
-                result->addBasisFunction(new BasisFunction3DFaceCube_0(0, 2, 4, j, i));
-                result->addBasisFunction(new BasisFunction3DFaceCube_0(1, 3, 5, j, i));
-                result->addBasisFunction(new BasisFunction3DFaceCube_1(2, 3, 6, j, i));
-                result->addBasisFunction(new BasisFunction3DFaceCube_2(4, 5, 6, j, i));
-                result->addBasisFunction(new BasisFunction3DInteriorCube(i, i, j));
-                result->addBasisFunction(new BasisFunction3DInteriorCube(i, j, i));
-                result->addBasisFunction(new BasisFunction3DInteriorCube(j, i, i));
-                result->addBasisFunction(new BasisFunction3DInteriorCube(j, j, i));
-                result->addBasisFunction(new BasisFunction3DInteriorCube(j, i, j));
-                result->addBasisFunction(new BasisFunction3DInteriorCube(i, j, j));
-                for (std::size_t k = 0; k < i; ++k)
+                for (int i = 0; i < 4; ++i)
                 {
-                    result->addBasisFunction(new BasisFunction3DInteriorCube(i, j, k));
-                    result->addBasisFunction(new BasisFunction3DInteriorCube(i, k, j));
-                    result->addBasisFunction(new BasisFunction3DInteriorCube(j, i, k));
-                    result->addBasisFunction(new BasisFunction3DInteriorCube(j, k, i));
-                    result->addBasisFunction(new BasisFunction3DInteriorCube(k, i, j));
-                    result->addBasisFunction(new BasisFunction3DInteriorCube(k, j, i));
+                    vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
+                    result->addBasisFunction(new BasisFunction3DEdgeCube_0(vectorOfPointIndices[0], vectorOfPointIndices[1], j));
+                }
+                for (std::size_t i = 4; i < 8; ++i)
+                {
+                    vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
+                    result->addBasisFunction(new BasisFunction3DEdgeCube_1(vectorOfPointIndices[0], vectorOfPointIndices[1], j));
+                }
+                for (std::size_t i = 8; i < 12; ++i)
+                {
+                    vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
+                    result->addBasisFunction(new BasisFunction3DEdgeCube_2(vectorOfPointIndices[0], vectorOfPointIndices[1], j));
+                }
+                result->addBasisFunction(new BasisFunction3DFaceCube_2(0, 1, 2, j, j));
+                result->addBasisFunction(new BasisFunction3DFaceCube_1(0, 1, 4, j, j));
+                result->addBasisFunction(new BasisFunction3DFaceCube_0(0, 2, 4, j, j));
+                result->addBasisFunction(new BasisFunction3DFaceCube_0(1, 3, 5, j, j));
+                result->addBasisFunction(new BasisFunction3DFaceCube_1(2, 3, 6, j, j));
+                result->addBasisFunction(new BasisFunction3DFaceCube_2(4, 5, 6, j, j));
+                result->addBasisFunction(new BasisFunction3DInteriorCube(j, j, j));
+                for (std::size_t i = 0; i < j; ++i)
+                {
+                    result->addBasisFunction(new BasisFunction3DFaceCube_2(0, 1, 2, i, j));
+                    result->addBasisFunction(new BasisFunction3DFaceCube_1(0, 1, 4, i, j));
+                    result->addBasisFunction(new BasisFunction3DFaceCube_0(0, 2, 4, i, j));
+                    result->addBasisFunction(new BasisFunction3DFaceCube_0(1, 3, 5, i, j));
+                    result->addBasisFunction(new BasisFunction3DFaceCube_1(2, 3, 6, i, j));
+                    result->addBasisFunction(new BasisFunction3DFaceCube_2(4, 5, 6, i, j));
+                    result->addBasisFunction(new BasisFunction3DFaceCube_2(0, 1, 2, j, i));
+                    result->addBasisFunction(new BasisFunction3DFaceCube_1(0, 1, 4, j, i));
+                    result->addBasisFunction(new BasisFunction3DFaceCube_0(0, 2, 4, j, i));
+                    result->addBasisFunction(new BasisFunction3DFaceCube_0(1, 3, 5, j, i));
+                    result->addBasisFunction(new BasisFunction3DFaceCube_1(2, 3, 6, j, i));
+                    result->addBasisFunction(new BasisFunction3DFaceCube_2(4, 5, 6, j, i));
+                    result->addBasisFunction(new BasisFunction3DInteriorCube(i, i, j));
+                    result->addBasisFunction(new BasisFunction3DInteriorCube(i, j, i));
+                    result->addBasisFunction(new BasisFunction3DInteriorCube(j, i, i));
+                    result->addBasisFunction(new BasisFunction3DInteriorCube(j, j, i));
+                    result->addBasisFunction(new BasisFunction3DInteriorCube(j, i, j));
+                    result->addBasisFunction(new BasisFunction3DInteriorCube(i, j, j));
+                    for (std::size_t k = 0; k < i; ++k)
+                    {
+                        result->addBasisFunction(new BasisFunction3DInteriorCube(i, j, k));
+                        result->addBasisFunction(new BasisFunction3DInteriorCube(i, k, j));
+                        result->addBasisFunction(new BasisFunction3DInteriorCube(j, i, k));
+                        result->addBasisFunction(new BasisFunction3DInteriorCube(j, k, i));
+                        result->addBasisFunction(new BasisFunction3DInteriorCube(k, i, j));
+                        result->addBasisFunction(new BasisFunction3DInteriorCube(k, j, i));
+                    }
                 }
             }
+        }
+        else
+        {
+            result->addBasisFunction(new Base::Basis_A0_3D);
         }
         return result;
     }
     
     Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
         for (std::size_t i = 0; i + 2 <= order; ++i)
         {
@@ -352,6 +363,7 @@ namespace Utilities
     
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set;
         Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
@@ -366,6 +378,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
@@ -423,6 +436,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set; //todo write clever code
         Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();

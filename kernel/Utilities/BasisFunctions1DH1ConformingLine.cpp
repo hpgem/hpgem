@@ -24,6 +24,9 @@
 #include "Base/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 
+//only uses the constant basis functions
+#include "BasisFunctionsCollection_A.h"
+
 namespace Utilities
 {
     
@@ -50,17 +53,25 @@ namespace Utilities
     Base::BasisFunctionSet* createDGBasisFunctionSet1DH1Line(std::size_t polynomialOrder)
     {
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(polynomialOrder));
-        result->addBasisFunction(new BasisFunction1DVertexLine(0));
-        result->addBasisFunction(new BasisFunction1DVertexLine(1));
-        for (std::size_t i = 0; i + 2 <= polynomialOrder; ++i)
+        if(polynomialOrder > 0)
         {
-            result->addBasisFunction(new BasisFunction1DInteriorLine(i));
+            result->addBasisFunction(new BasisFunction1DVertexLine(0));
+            result->addBasisFunction(new BasisFunction1DVertexLine(1));
+            for (std::size_t i = 0; i + 2 <= polynomialOrder; ++i)
+            {
+                result->addBasisFunction(new BasisFunction1DInteriorLine(i));
+            }
+        }
+        else
+        {
+            result->addBasisFunction(new Base::Basis_A0_1D);
         }
         return result;
     }
     
     Base::BasisFunctionSet* createInteriorBasisFunctionSet1DH1Line(std::size_t polynomialOrder)
     {
+        logger.assert(polynomialOrder > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(polynomialOrder));
         for (int i = 0; i + 2 <= polynomialOrder; ++i)
         {
@@ -71,6 +82,7 @@ namespace Utilities
     
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet1DH1Line(std::size_t polynomialOrder)
     {
+        logger.assert(polynomialOrder > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set(new Base::BasisFunctionSet(polynomialOrder));
         set->addBasisFunction(new BasisFunction1DVertexLine(0));

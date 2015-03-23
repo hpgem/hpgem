@@ -27,6 +27,9 @@
 #include "Geometry/PointReference.h"
 #include "Logger.h"
 
+//only uses the constant basis functions
+#include "BasisFunctionsCollection_A.h"
+
 namespace Utilities
 {
     
@@ -113,26 +116,34 @@ namespace Utilities
     Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Square(std::size_t order)
     {
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
-        for (std::size_t i = 0; i < 4; ++i)
+        if(order > 0)
         {
-            result->addBasisFunction(new BasisFunction2DVertexSquare(i));
-        }
-        for (std::size_t i = 0; i + 2 <= order; ++i)
-        {
-            result->addBasisFunction(new BasisFunction2DFaceSquare_0(0, 1, i));
-            result->addBasisFunction(new BasisFunction2DFaceSquare_0(2, 3, i));
-            result->addBasisFunction(new BasisFunction2DFaceSquare_1(0, 2, i));
-            result->addBasisFunction(new BasisFunction2DFaceSquare_1(1, 3, i));
-            for (std::size_t j = 0; j + 2 <= order; ++j)
+            for (std::size_t i = 0; i < 4; ++i)
             {
-                result->addBasisFunction(new BasisFunction2DInteriorSquare(i, j));
+                result->addBasisFunction(new BasisFunction2DVertexSquare(i));
             }
+            for (std::size_t i = 0; i + 2 <= order; ++i)
+            {
+                result->addBasisFunction(new BasisFunction2DFaceSquare_0(0, 1, i));
+                result->addBasisFunction(new BasisFunction2DFaceSquare_0(2, 3, i));
+                result->addBasisFunction(new BasisFunction2DFaceSquare_1(0, 2, i));
+                result->addBasisFunction(new BasisFunction2DFaceSquare_1(1, 3, i));
+                for (std::size_t j = 0; j + 2 <= order; ++j)
+                {
+                    result->addBasisFunction(new BasisFunction2DInteriorSquare(i, j));
+                }
+            }
+        }
+        else
+        {
+            result->addBasisFunction(new Base::Basis_A0_2D);
         }
         return result;
     }
     
     Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
         for (std::size_t i = 0; i + 2 <= order; ++i)
         {
@@ -146,6 +157,7 @@ namespace Utilities
     
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set;
         for (std::size_t i = 0; i < 4; ++i)
@@ -159,6 +171,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Square(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Geometry::ReferenceSquare& square = Geometry::ReferenceSquare::Instance();
         Base::OrientedBasisFunctionSet* set;
