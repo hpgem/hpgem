@@ -78,7 +78,7 @@ namespace Base
          );
         
         /// \brief Create the mesh.
-        virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType) override;
+        void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType) override;
         
         /// \brief Compute the source term at a given physical point.
         virtual LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &pPhys)
@@ -89,7 +89,7 @@ namespace Base
         }
         
         /// \brief Compute the source term at a given physical point.
-        virtual LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override
+        LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override
         {
             return getSourceTerm(pPhys);
         }
@@ -106,10 +106,23 @@ namespace Base
         
         /// \brief Get the source term at the boundary at a given physical point.
         /// \details The source term at the boundary can be a result of certain boundary conditions (e.g. Neumann boundary conditions).
-        virtual LinearAlgebra::NumericalVector getSourceTermAtBoundary(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override
+        LinearAlgebra::NumericalVector getSourceTermAtBoundary(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override
         {
-            
             return getSourceTermAtBoundary(pPhys);
+        }
+        
+        /// \brief Compute the integrand for the source term at a face at the boundary.
+        virtual LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::NumericalVector &normal, const Geometry::PointReference &pRef)
+        {
+            logger(ERROR, "No function for computing the integrand for the source term at a face at the domain boundary implemented.");
+            LinearAlgebra::NumericalVector integrandSourceTerm;
+            return integrandSourceTerm;
+        }
+        
+        /// \brief Compute the integrand for the source term at a face at the boundary.
+        LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::NumericalVector &normal, const Geometry::PointReference &pRef, const double time, const std::size_t orderTimeDerivative) override
+        {
+            return computeIntegrandSourceTermAtFace(ptrFace, normal, pRef);
         }
         
         /// \brief Create and store the source terms.

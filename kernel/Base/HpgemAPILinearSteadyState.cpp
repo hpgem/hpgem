@@ -31,7 +31,6 @@
 #include "Geometry/PointReference.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
-#include "petscksp.h"
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include "Utilities/BasisFunctions1DH1ConformingLine.h"
@@ -41,6 +40,10 @@
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
+
+#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
+    #include "petscksp.h"
+#endif
 
 #include "Logger.h"
 
@@ -195,9 +198,11 @@ namespace Base
         
         x.writeTimeLevelData(solutionTimeLevel_);
         
-        return
+        tecplotWriter.write(meshes_[0], solutionTitle_, false, this, 0);
+        VTKWrite(VTKWriter, 0, solutionTimeLevel_);
+        return;
 #endif
-        logger(ERROR, "Pects is need to solve the steady state problem using this function (solveSteadyStateWithPetsc).");
+        logger(ERROR, "Petsc is needed to solve the steady state problem using this function (solveSteadyStateWithPetsc).");
     }
 }
 

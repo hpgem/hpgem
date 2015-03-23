@@ -298,7 +298,7 @@ namespace Base
         // Add the source terms corresponding to the faces at the boundary
         for (Base::Face *ptrFace : meshes_[0]->getFacesList())
         {
-            if(ptrFace->isInternal())
+            if(!ptrFace->isInternal())
             {
                 LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
                 
@@ -316,6 +316,10 @@ namespace Base
         {
             addSourceTerm(timeLevelResult, time, 0);
         }
+        if(useSourceTermAtBoundary_)
+        {
+            addSourceTermAtBoundary(timeLevelResult, time, 0);
+        }
     }
     
     /// \details Make sure timeLevelResult is different from the timeLevelsIn.
@@ -325,6 +329,10 @@ namespace Base
         if(useSourceTerm_)
         {
             addSourceTerm(timeLevelResult, time, 0);
+        }
+        if(useSourceTermAtBoundary_)
+        {
+            addSourceTermAtBoundary(timeLevelResult, time, 0);
         }
     }
     

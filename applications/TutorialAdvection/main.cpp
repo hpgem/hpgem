@@ -117,7 +117,7 @@ public:
             nRight = face->getPtrElementLeft()->getNrOfBasisFunctions();
         }
         
-        //Resize the result to the correct size and set all elements to 0.
+        //Create the result with the correct size and set all elements to 0.
         Base::FaceMatrix integrandVal(nLeft, nRight);
         integrandVal *= 0;
         

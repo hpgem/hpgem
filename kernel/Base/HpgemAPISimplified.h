@@ -208,6 +208,23 @@ namespace Base
         /// \brief Write output to a tecplot file.
         virtual void writeToTecplotFile(const ElementT *ptrElement, const PointReferenceT &pRef, std::ostream &out) override;
         
+        void VTKWrite(Output::VTKTimeDependentWriter& out, double t, std::size_t timeLevel)
+        {
+            //you would say this could be done more efficiently, but p.first has different types each time
+            for (auto p : VTKDoubleWrite_)
+            {
+                out.write(p.first, p.second, t, timeLevel);
+            }
+            for (auto p : VTKVectorWrite_)
+            {
+                out.write(p.first, p.second, t, timeLevel);
+            }
+            for (auto p : VTKMatrixWrite_)
+            {
+                out.write(p.first, p.second, t, timeLevel);
+            }
+        }
+        
         virtual void registerVTKWriteFunctions();
         
         /// \brief Show the progress of the time integration.
@@ -274,23 +291,6 @@ namespace Base
         void registerVTKWriteFunction(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
         {
             VTKMatrixWrite_.push_back( {function, name});
-        }
-        
-        void VTKWrite(Output::VTKTimeDependentWriter& out, double t, std::size_t timeLevel)
-        {
-            //you would say this could be done more efficiently, but p.first has different types each time
-            for (auto p : VTKDoubleWrite_)
-            {
-                out.write(p.first, p.second, t, timeLevel);
-            }
-            for (auto p : VTKVectorWrite_)
-            {
-                out.write(p.first, p.second, t, timeLevel);
-            }
-            for (auto p : VTKMatrixWrite_)
-            {
-                out.write(p.first, p.second, t, timeLevel);
-            }
         }
         
         std::vector<std::pair<std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKDoubleWrite_;
