@@ -49,7 +49,14 @@ Base::RectangularMeshDescriptor AcousticWave::createMeshDescription(const std::s
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
         description.numElementsInDIM_[i] = numOfElementPerDirection;
-        description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
+        if(i == 0)
+        {
+            description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
+        }
+        else
+        {
+            description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
+        }
     }
     
     return description;
@@ -60,23 +67,18 @@ LinearAlgebra::NumericalVector AcousticWave::getExactSolution(const PointPhysica
     LinearAlgebra::NumericalVector realSolution(numOfVariables_);
     double c = std::sqrt(1.0 / cInv_); // Wave velocity.
     
-    double xWave = 0; // The inner product of the physical point and some direction vector. In this case the direction (1,..,1).
-    for (std::size_t iD = 0; iD < DIM_; iD++) // Index for the dimension.
+    double x0 = pPhys[0];
+    double x1 = 0;
+    for (std::size_t iD = 1; iD < DIM_; iD++) // Index for the dimension.
     {
-        xWave += pPhys[iD];
+        x1 += pPhys[iD];
     }
     
-    for (std::size_t iV = 0; iV < numOfVariables_; iV++) // iV is the index for the variable.
+    realSolution(0) = - std::sqrt(DIM_) * c * (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM_) * c * time));
+    realSolution(1) = - (2 * M_PI) * std::sin(2 * M_PI * x0) * std::sin(2 * M_PI * (x1 - std::sqrt(DIM_) * c * time)) / cInv_;
+    for (std::size_t iV = 2; iV < numOfVariables_; iV++) // iV is the index for the variable.
     {
-        realSolution(iV) = 2 * M_PI * std::cos(2 * M_PI * (xWave - std::sqrt(DIM_) * c * time));
-        if (iV == 0)
-        {
-            realSolution(iV) *= -std::sqrt(DIM_) * c;
-        }
-        else
-        {
-            realSolution(iV) /= cInv_;
-        }
+        realSolution(iV) = (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM_) * c * time)) / cInv_;
     }
     
     return realSolution;
@@ -206,7 +208,68 @@ LinearAlgebra::NumericalVector AcousticWave::integrandRightHandSideOnRefElement(
 }
 
 /// \details The integrand for the reference face is the same as the physical face, but scaled with the reference-to-physical face scale. This face scale is absorbed in the normal vector, since it is relatively cheap to compute the normal vector with a length (L2-norm) equal to the reference-to-physical face scale.
-LinearAlgebra::NumericalVector AcousticWave::integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficientsLeft, const LinearAlgebra::NumericalVector &solutionCoefficientsRight)
+LinearAlgebra::NumericalVector AcousticWave::integrandRightHandSideOnRefFace
+(
+ const Base::Face *ptrFace,
+ const double &time,
+ const Geometry::PointReference &pRef,
+ const LinearAlgebra::NumericalVector &solutionCoefficients
+ )
+{
+    std::size_t numOfBasisFunctions = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions();
+    
+    LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfBasisFunctions);
+    
+    LinearAlgebra::NumericalVector numericalSolution(numOfVariables_);
+    
+    // Compute the numerical solution at the given point.
+    std::size_t jVB; // Index for both variable and basis function.
+    for (std::size_t jV = 0; jV < numOfVariables_; jV++)
+    {
+        numericalSolution(jV) = 0;
+        for (std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
+        {
+            jVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(jB, jV);
+            numericalSolution(jV) += ptrFace->basisFunction(Base::Side::LEFT, jB, pRef) * solutionCoefficients(jVB);
+        }
+    }
+    
+    // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
+    LinearAlgebra::NumericalVector normal = ptrFace->getNormalVector(pRef);
+    
+    // Compute the jump of the vector function.
+    double jumpVectorFunction = 0;
+    for (std::size_t jD = 0; jD < DIM_; jD++)
+    {
+        jumpVectorFunction += normal(jD) * (numericalSolution(jD + 1));
+    }
+    
+    // Compute integrand on the reference element.
+    std::size_t iVB; // Index for both variable and basis function.
+    for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+    {
+        iVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(iB, 0);
+        integrand(iVB) = - ptrFace->basisFunction(Base::Side::LEFT, iB, pRef) * jumpVectorFunction;
+        
+        for (std::size_t iD = 0; iD < DIM_; iD++) // Index for direction
+        {
+            iVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(iB, iD + 1);
+            integrand(iVB) = 0;
+        }
+    }
+    return integrand;
+}
+
+/// \details The integrand for the reference face is the same as the physical face, but scaled with the reference-to-physical face scale. This face scale is absorbed in the normal vector, since it is relatively cheap to compute the normal vector with a length (L2-norm) equal to the reference-to-physical face scale.
+LinearAlgebra::NumericalVector AcousticWave::integrandRightHandSideOnRefFace
+(
+ const Base::Face *ptrFace,
+ const double &time,
+ const Geometry::PointReference &pRef,
+ const Base::Side &iSide,
+ const LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
+ const LinearAlgebra::NumericalVector &solutionCoefficientsRight
+ )
 {
     std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
     std::size_t numOfSolutionBasisFunctionsLeft = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions();
@@ -316,15 +379,6 @@ LinearAlgebra::Matrix AcousticWave::computeMassMatrixAtElement(Base::Element *pt
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }
 
-/*
-/// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$ for a single element, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix. The input is the right hand side here called 'solutionCoefficients' and the result is returned in this same vector.
-void AcousticWave::solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients)
-{
-    LinearAlgebra::Matrix massMatrix(computeMassMatrixAtElement(ptrElement));
-    massMatrix.solve(solutionCoefficients);
-}
- */
-
 LinearAlgebra::NumericalVector AcousticWave::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
 {
     // Define the integrand function for the the initial solution integral.
@@ -352,6 +406,20 @@ LinearAlgebra::NumericalVector AcousticWave::computeRightHandSideAtElement(Base:
     {   return this->integrandRightHandSideOnRefElement(ptrElement, time, pRef, solutionCoefficients);};
     
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+}
+
+LinearAlgebra::NumericalVector AcousticWave::computeRightHandSideAtFace
+(
+ Base::Face *ptrFace,
+ LinearAlgebra::NumericalVector &solutionCoefficients,
+ const double time
+ )
+{
+    // Define the integrand function for the right hand side for the reference face.
+    std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference &pRef) -> LinearAlgebra::NumericalVector
+    {   return this->integrandRightHandSideOnRefFace(ptrFace, time, pRef, solutionCoefficients);};
+    
+    return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
 }
 
 LinearAlgebra::NumericalVector AcousticWave::computeRightHandSideAtFace

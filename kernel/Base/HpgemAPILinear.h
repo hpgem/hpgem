@@ -45,7 +45,7 @@ namespace Base
      * \li Implement the function 'getInitialConditions' to define the initial condition(s) of your problem.
      * \li Implement the function 'getSourceTerm' to define the source term (e.g. external force) if there is one.
      * \li Implement the function 'getSourceTermAtBoundary' to get the source term (e.g. because of a boundary force / boundary condition) if there is one.
-     * \li Implement the function 'integrateSourceTermAtFace' for integrating the source term at a boundary face.
+     * \li Implement the function 'integrateSourceTermAtFace' for integrating the source term at a boundary face. One can also choose to implemen the function 'computeIntegrandSourceTermAtFace' for computing the integrand. The integration will be done by an automatic routine.
      * \li Implement the functions 'computeStiffnessMatrixAtElement' and 'computeStiffnessMatrixAtFace' for computing the stiffness matrix at an element or face. One can also choose to implement the functions 'computeIntegrandStiffnessMatrixAtElement' and 'computeIntegrandStiffnessMatrixAtFace' for computing the integrands at the face and element. The integration will be done by an automatic routine.
      */
     /** \details To solve the PDE do the following in the main routine:

@@ -44,8 +44,8 @@ int main(int argc, char **argv)
         const bool useLinearSolver = false;
         
         // Set parameters for the PDE.
-        const std::size_t dimension = 2;
-        const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
+        const std::size_t dimension = 2;    // Either 2 or 3
+        const Base::MeshType meshType = Base::MeshType::RECTANGULAR;    // Either TRIANGULAR or RECTANGULAR.
         const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
         const double c = 1.0;
         

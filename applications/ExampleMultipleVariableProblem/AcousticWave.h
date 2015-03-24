@@ -47,13 +47,14 @@
 
 /// \brief Class to demonstrate how a system of multiple PDE's can be solved, using the interface HpgemAPISimplified.
 /** \details
- Currently only periodic boundary conditions are used in this example and we do not use a source term.
  
  This class can solve the scalar wave equation in 2D or 3D written as a first order system of PDE's. The original scalar wave equation is given by \f[ \partial_t^2 u = \nabla \cdot c \nabla u \f], where \f$u \f$ is the scalar variable and \f$c \f$ a material parameter corresponding to the velocity with which waves can propagate.
  
  For a first order scheme we define the scalar function \f$ v := \partial_t u \f$ and the vector function \f$ s := c \nabla u \f$. We can then obtain the equations \f[ \partial_t v = \nabla \cdot s \f] and \f[ c^{-1} \partial_t s = \nabla v \f]
  
  We define a new vector function \f$w = [w_0, w_1, w_2, ..] = [v, s_0, s_1, ..]\f$. We can then rewrite the system of PDE's as follows: \f[ \partial_t w_0 = \partial_i w_{i+1} \f] summing over i = 0 .. (DIM-1) and \f[ c^{-1} \partial_t w_{i+1} = \partial_i w_0 \f] for i = 0 .. (DIM-1).
+ 
+ We use periodic boundary conditions or free surface conditions (\f$ \hat{n}\cdot s=0 \f$, with \f$ \hat{n} \f$ the normal unit vector). 
  
  This class consists of the following parts:
  \li A constructor to set the dimension, number of elements, polynomial order, butcher tableau, and boolean for storing matrices.
@@ -118,6 +119,15 @@ public:
      const Geometry::PointReference &pRef,
      const LinearAlgebra::NumericalVector &solutionCoefficients
      );
+    
+    /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
+    LinearAlgebra::NumericalVector integrandRightHandSideOnRefFace
+    (
+     const Base::Face *ptrFace,
+     const double &time,
+     const Geometry::PointReference &pRef,
+     const LinearAlgebra::NumericalVector &solutionCoefficients
+     );
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
     LinearAlgebra::NumericalVector integrandRightHandSideOnRefFace
@@ -155,8 +165,16 @@ public:
 
     /// \brief Compute the right-hand side corresponding to an element
     LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time) override final;
-
-    /// \brief Compute the right-hand side corresponding to a face
+    
+    /// \brief Compute the right-hand side corresponding to a boundary face
+    LinearAlgebra::NumericalVector computeRightHandSideAtFace
+    (
+     Base::Face *ptrFace,
+     LinearAlgebra::NumericalVector &solutionCoefficients,
+     const double time
+     ) override final;
+    
+    /// \brief Compute the right-hand side corresponding to an internal face
     LinearAlgebra::NumericalVector computeRightHandSideAtFace
     (
      Base::Face *ptrFace,
@@ -169,13 +187,13 @@ public:
     /// \brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID) override final
     {
-    if (timeStepID % 10 == 0)
-    {
-        logger(INFO, "% time steps computed.", timeStepID);
+        if (timeStepID % 10 == 0)
+        {
+            logger(INFO, "% time steps computed.", timeStepID);
+        }
     }
-}
 
-    private:
+private:
     /// Dimension of the domain
     const std::size_t DIM_;
 

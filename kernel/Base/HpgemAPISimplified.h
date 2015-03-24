@@ -170,7 +170,7 @@ namespace Base
             return rightHandSideFace;
         }
         
-        /// \brief Compute the right-hand side corresponding to a face
+        /// \brief Compute the right-hand side corresponding to an internal face
         virtual LinearAlgebra::NumericalVector computeRightHandSideAtFace
         (
          Base::Face *ptrFace,
