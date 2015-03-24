@@ -157,6 +157,19 @@ namespace Base
             return rightHandSideElement;
         }
         
+        /// \brief Compute the right-hand side corresponding to a boundary face
+        virtual LinearAlgebra::NumericalVector computeRightHandSideAtFace
+        (
+         Base::Face *ptrFace,
+         LinearAlgebra::NumericalVector &solutionCoefficients,
+         const double time
+         )
+        {
+            logger(ERROR, "No function for computing the right-hand side at a boundary face implemented.");
+            LinearAlgebra::NumericalVector rightHandSideFace;
+            return rightHandSideFace;
+        }
+        
         /// \brief Compute the right-hand side corresponding to a face
         virtual LinearAlgebra::NumericalVector computeRightHandSideAtFace
         (
@@ -167,7 +180,7 @@ namespace Base
          const double time
          )
         {
-            logger(ERROR, "No function for computing the right-hand side at a face implemented.");
+            logger(ERROR, "No function for computing the right-hand side at an internal face implemented.");
             LinearAlgebra::NumericalVector rightHandSideFace;
             return rightHandSideFace;
         }
