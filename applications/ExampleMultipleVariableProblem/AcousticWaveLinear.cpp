@@ -50,7 +50,14 @@ Base::RectangularMeshDescriptor AcousticWaveLinear::createMeshDescription(const 
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
         description.numElementsInDIM_[i] = numOfElementPerDirection;
-        description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
+        if(i == 0)
+        {
+            description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
+        }
+        else
+        {
+            description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
+        }
     }
     
     return description;
@@ -61,23 +68,18 @@ LinearAlgebra::NumericalVector AcousticWaveLinear::getExactSolution(const PointP
     LinearAlgebra::NumericalVector realSolution(numOfVariables_);
     double c = std::sqrt(1.0 / cInv_); // Wave velocity.
     
-    double xWave = 0; // The inner product of the physical point and some direction vector. In this case the direction (1,..,1).
-    for (std::size_t iD = 0; iD < DIM_; iD++) // Index for the dimension.
+    double x0 = pPhys[0];
+    double x1 = 0;
+    for (std::size_t iD = 1; iD < DIM_; iD++) // Index for the dimension.
     {
-        xWave += pPhys[iD];
+        x1 += pPhys[iD];
     }
     
-    for (std::size_t iV = 0; iV < numOfVariables_; iV++) // iV is the index for the variable.
+    realSolution(0) = - std::sqrt(DIM_) * c * (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM_) * c * time));
+    realSolution(1) = - (2 * M_PI) * std::sin(2 * M_PI * x0) * std::sin(2 * M_PI * (x1 - std::sqrt(DIM_) * c * time)) / cInv_;
+    for (std::size_t iV = 2; iV < numOfVariables_; iV++) // iV is the index for the variable.
     {
-        realSolution(iV) = 2 * M_PI * std::cos(2 * M_PI * (xWave - std::sqrt(DIM_) * c * time));
-        if (iV == 0)
-        {
-            realSolution(iV) *= -std::sqrt(DIM_) * c;
-        }
-        else
-        {
-            realSolution(iV) /= cInv_;
-        }
+        realSolution(iV) = (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM_) * c * time)) / cInv_;
     }
     
     return realSolution;
@@ -225,7 +227,14 @@ LinearAlgebra::Matrix AcousticWaveLinear::integrandStiffnessMatrixOnRefFace(cons
             for (std::size_t jD = 0; jD < DIM_; jD++) // index for the direction
             {
                 jVB = ptrFace->getPtrElement(jSide)->convertToSingleIndex(jB, jD + 1);
-                integrand(iVB, jVB) = -0.5 * normal(jD) * valueBasisFunction * valueTestFunction;
+                if(ptrFace->isInternal())
+                {
+                    integrand(iVB, jVB) = -0.5 * normal(jD) * valueBasisFunction * valueTestFunction;
+                }
+                else
+                {
+                    integrand(iVB, jVB) = - normal(jD) * valueBasisFunction * valueTestFunction;
+                }
                 
             }
             
@@ -233,7 +242,14 @@ LinearAlgebra::Matrix AcousticWaveLinear::integrandStiffnessMatrixOnRefFace(cons
             for (std::size_t iD = 0; iD < DIM_; iD++) // index for the direction
             {
                 iVB = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iB, iD + 1);
-                integrand(iVB, jVB) = -0.5 * normal(iD) * valueBasisFunction * valueTestFunction;
+                if(ptrFace->isInternal())
+                {
+                    integrand(iVB, jVB) = -0.5 * normal(iD) * valueBasisFunction * valueTestFunction;
+                }
+                else
+                {
+                    integrand(iVB, jVB) = 0;
+                }
             }
         }
     }

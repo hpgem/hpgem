@@ -54,7 +54,7 @@
  
  We define a new vector function \f$w = [w_0, w_1, w_2, ..] = [v, s_0, s_1, ..]\f$. We can then rewrite the system of PDE's as follows: \f[ \partial_t w_0 = \partial_i w_{i+1} \f] summing over i = 0 .. (DIM-1) and \f[ c^{-1} \partial_t w_{i+1} = \partial_i w_0 \f] for i = 0 .. (DIM-1).
  
- We use periodic boundary conditions or free surface conditions (\f$ \hat{n}\cdot s=0 \f$, with \f$ \hat{n} \f$ the normal unit vector). 
+ We use periodic boundary conditions or free surface conditions (\f$ \hat{n}\cdot s=0 \f$, with \f$ \hat{n} \f$ the normal unit vector).
  
  This class consists of the following parts:
  \li A constructor to set the dimension, number of elements, polynomial order, butcher tableau, and boolean for storing matrices.

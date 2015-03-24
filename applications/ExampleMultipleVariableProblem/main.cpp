@@ -30,6 +30,7 @@
 
 auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
+auto& solverId = Base::register_argument<std::size_t>('s', "solverId", "integer to indicate if you want to use AcousticWave (0) or AcousticWaveLinear (1)", true);
 
 auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 1);
 auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
@@ -41,11 +42,9 @@ int main(int argc, char **argv)
     Base::parse_options(argc, argv);
     try
     {
-        const bool useLinearSolver = false;
-        
         // Set parameters for the PDE.
         const std::size_t dimension = 2;    // Either 2 or 3
-        const Base::MeshType meshType = Base::MeshType::RECTANGULAR;    // Either TRIANGULAR or RECTANGULAR.
+        const Base::MeshType meshType = Base::MeshType::TRIANGULAR;    // Either TRIANGULAR or RECTANGULAR.
         const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
         const double c = 1.0;
         
@@ -60,7 +59,7 @@ int main(int argc, char **argv)
         // Compute parameters for PDE
         const std::size_t numOfVariables = dimension + 1;
         
-        if(useLinearSolver)
+        if(solverId.getValue() == 1)
         {
             // Create problem solver 'test', that can solve the acoustic wave equations.
             AcousticWaveLinear test(dimension, numOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
