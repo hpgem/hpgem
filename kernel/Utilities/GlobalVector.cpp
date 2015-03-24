@@ -393,7 +393,7 @@ namespace Utilities
         CHKERRV(ierr);
     }
     
-    void GlobalPetscVector::constructFromTimeLevelData(int timelevel, int solutionVar)
+    void GlobalPetscVector::constructFromTimeLevelData(std::size_t timelevel, std::size_t solutionVar)
     {
         reset();
         
@@ -416,7 +416,7 @@ namespace Utilities
         CHKERRV(ierr);
     }
     
-    void GlobalPetscVector::writeTimeLevelData(int timeLevel, int variable)
+    void GlobalPetscVector::writeTimeLevelData(std::size_t timeLevel, std::size_t variable)
     {
         PetscScalar *data;
         
@@ -451,29 +451,29 @@ namespace Utilities
         CHKERRV(ierr);
         for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
         {
-            int numBasisFuns = (*it)->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = (*it)->getNrOfBasisFunctions();
             LinearAlgebra::NumericalVector localData(&data[startPositionsOfElementsInTheVector_[(*it)->getID()]], numBasisFuns);
-            int runningTotal((*it)->getLocalNrOfBasisFunctions());
+            std::size_t runningTotal((*it)->getLocalNrOfBasisFunctions());
             if (theMesh_->dimension() > 1)
-                for (int i = 0; i < (*it)->getPhysicalGeometry()->getNrOfFaces(); ++i)
+                for (std::size_t i = 0; i < (*it)->getPhysicalGeometry()->getNrOfFaces(); ++i)
                 {
-                    for (int j = 0; j < (*it)->getFace(i)->getLocalNrOfBasisFunctions(); ++j)
+                    for (std::size_t j = 0; j < (*it)->getFace(i)->getLocalNrOfBasisFunctions(); ++j)
                     {
                         localData[runningTotal] = std::real(data[startPositionsOfFacesInTheVector_[(*it)->getFace(i)->getID()] + j]);
                         ++runningTotal;
                     }
                 }
-            for (int i = 0; i < (*it)->getNrOfEdges(); ++i)
+            for (std::size_t i = 0; i < (*it)->getNrOfEdges(); ++i)
             {
-                for (int j = 0; j < (*it)->getEdge(i)->getLocalNrOfBasisFunctions(); ++j)
+                for (std::size_t j = 0; j < (*it)->getEdge(i)->getLocalNrOfBasisFunctions(); ++j)
                 {
                     localData[runningTotal] = std::real(data[startPositionsOfEdgesInTheVector_[(*it)->getEdge(i)->getID()] + j]);
                     ++runningTotal;
                 }
             }
-            for (int i = 0; i < (*it)->getNrOfNodes(); ++i)
+            for (std::size_t i = 0; i < (*it)->getNrOfNodes(); ++i)
             {
-                for (int j = 0; j < (*it)->getNode(i)->getLocalNrOfBasisFunctions(); ++j)
+                for (std::size_t j = 0; j < (*it)->getNode(i)->getLocalNrOfBasisFunctions(); ++j)
                 {
                     localData[runningTotal] = std::real(data[startPositionsOfVerticesInTheVector_[(*it)->getNode(i)->getID()] + j]);
                     ++runningTotal;

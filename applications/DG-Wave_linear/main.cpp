@@ -256,7 +256,7 @@ public:
     {
         Geometry::PointReference p(DIM);
         Geometry::PointPhysical pPhys(DIM);
-        int numBasisFuns(0);
+        std::size_t numBasisFuns(0);
         std::vector<int> facePositions;
         for (const Base::Face* face : meshes_[0]->getFacesList())
         {
@@ -268,11 +268,12 @@ public:
             }
         }
         ISCreateGeneral(PETSC_COMM_WORLD, numBasisFuns, &facePositions[0], PETSC_COPY_VALUES, surface);
-        MatGetSize(S, &numBasisFuns, PETSC_NULL);
+        int totalFuncs;
+        MatGetSize(S, &totalFuncs, PETSC_NULL);
         ISSort(*surface);
-        ISComplement(*surface, 0, numBasisFuns, rest);
+        ISComplement(*surface, 0, totalFuncs, rest);
         ISDestroy(surface);
-        ISComplement(*rest, 0, numBasisFuns, surface); //the complement of the complement does not contain duplicates
+        ISComplement(*rest, 0, totalFuncs, surface); //the complement of the complement does not contain duplicates
     }
 
     void printError()

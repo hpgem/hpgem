@@ -46,24 +46,24 @@ namespace Utilities
         logger.assert(theMesh!=nullptr,"Invalid mesh passed");
     }
     
-    void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, int& numberOfEntries, std::vector<int>& entries)
+    void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries)
     {
         logger.assert(face!=nullptr, "Invalid face passed");
-        int number = face->getLocalNrOfBasisFunctions();
+        std::size_t number = face->getLocalNrOfBasisFunctions();
         numberOfEntries += number;
-        for (int i = 0; i < number; ++i)
+        for (std::size_t i = 0; i < number; ++i)
         {
             entries.push_back(startPositionsOfFacesInTheMatrix_[face->getID()] + i);
         }
         std::vector<std::size_t> nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft());
         std::vector<std::size_t> edgeIndex(2);
-        for (int i = 0; i < face->getPtrElementLeft()->getNrOfEdges(); ++i)
+        for (std::size_t i = 0; i < face->getPtrElementLeft()->getNrOfEdges(); ++i)
         {
             edgeIndex = face->getPtrElementLeft()->getReferenceGeometry()->getCodim2EntityLocalIndices(i);
             edgeIndex[0] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[0]);
             edgeIndex[1] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[1]);
             bool firstFound(false), secondFound(false);
-            for (int j = 0; j < nodeEntries.size(); ++j)
+            for (std::size_t j = 0; j < nodeEntries.size(); ++j)
             {
                 if (nodeEntries[j] == edgeIndex[0])
                     firstFound = true;
@@ -73,7 +73,7 @@ namespace Utilities
             if (firstFound && secondFound)
             {
                 numberOfEntries += face->getPtrElementLeft()->getEdge(i)->getLocalNrOfBasisFunctions();
-                for (int j = 0; j < face->getPtrElementLeft()->getEdge(i)->getLocalNrOfBasisFunctions(); ++j)
+                for (std::size_t j = 0; j < face->getPtrElementLeft()->getEdge(i)->getLocalNrOfBasisFunctions(); ++j)
                 {
                     entries.push_back(startPositionsOfEdgesInTheMatrix_[face->getPtrElementLeft()->getEdge(i)->getID()] + j);
                 }

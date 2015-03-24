@@ -164,7 +164,7 @@ namespace Geometry
         std::string name;
 
     private:
-        ///\todo check if this can safely be removed if the basis functions are not
+        ///\todo this can safely be removed if the basis functions are not
         /// a responsibility of the geometry anymore.
         std::map<const Base::BaseBasisFunction*, std::unordered_map<Geometry::PointReference, double, PointHasher> > basisfunctionValues_;
         std::map<const Base::BaseBasisFunction*, std::unordered_map<Geometry::PointReference, LinearAlgebra::NumericalVector, PointHasher> > basisfunctionDerivatives_;

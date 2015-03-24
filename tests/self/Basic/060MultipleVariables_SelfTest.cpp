@@ -111,7 +111,7 @@ int main()
     Base::Element elementLeft(pointIndicesLeft, pBasisFunctionSetVector, pointsPhysical, nrOfUnknowns, nrOfTimeLevels, nrOfBasisFunctions, elementIdLeft);
     Base::Element elementRight(pointIndicesRight, pBasisFunctionSetVector, pointsPhysical, nrOfUnknowns, nrOfTimeLevels, nrOfBasisFunctions, elementIdRight);
     
-    std::cout << "Build notes.\n";
+    std::cout << "Build nodes.\n";
     Base::Node node0(0);
     node0.addElement(&elementLeft, 0);
     

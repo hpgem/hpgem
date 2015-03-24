@@ -44,8 +44,12 @@ namespace Geometry
     
     ///Constructor: define the left and right element, the relative position of 
     ///this face on the elements. Note that this constructor is only for interior
-    ///faces. 
-    ///\todo Find out what faceToFaceMapIndex_ does and why it takes UINT_MAX
+    ///faces. This constructor will not select the correct face to face mapping
+    ///because the information needed to do so can be readily generated in the
+    ///constructor of Face. (currently Face is the only subclass and FaceGeometry is not
+    ///directly used.) If a user want to directly use this class himself, he should be
+    ///aware that this constructor assumes he will call initialiseFaceToFaceMapIndex
+    ///before actually using the FaceGeometry.
     FaceGeometry::FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometryT* ptrElemR, const LocalFaceNrType& localFaceNumR)
             : leftElementGeom_(ptrElemL), rightElementGeom_(ptrElemR), localFaceNumberLeft_(localFaceNumL), localFaceNumberRight_(localFaceNumR), faceToFaceMapIndex_(Geometry::MAXSIZET), faceType_(FaceType::INTERNAL)
     {

@@ -220,7 +220,7 @@ public:
     
     void insertDirichletBoundary(Utilities::GlobalPetscMatrix& A, Utilities::GlobalPetscVector& b, Utilities::GlobalPetscVector& x)
     {
-        int numberOfRows(0);
+        std::size_t numberOfRows(0);
         std::vector<int> rows(0);
         Geometry::PointPhysical pPhys(DIM_);
         for (Base::Face* face : meshes_[0]->getFacesList())
