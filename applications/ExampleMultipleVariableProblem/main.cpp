@@ -19,6 +19,7 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <chrono>
 #include <fstream>
 
 #include "AcousticWave.h"
@@ -74,7 +75,17 @@ int main(int argc, char **argv)
             test.setOutputNames("output", "acousticWaveLinear", "acousticWaveLinear", variableNames);
             
             // Solve the problem over time interval [startTime,endTime].
+                // Start Measuring elapsed time
+            std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
+            startClock = std::chrono::system_clock::now();
+            
+                // Solve the problem
             test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
+            
+                // Measure elapsed time
+            endClock = std::chrono::system_clock::now();
+            std::chrono::duration<double> elapsed_seconds = endClock - startClock;
+            std::cout << "Elapsed time for solving the PDE: " << elapsed_seconds.count() << "s\n";
         }
         else
         {
@@ -91,8 +102,17 @@ int main(int argc, char **argv)
             test.setOutputNames("output","acousticWave","acousticWave",variableNames);
             
             // Solve the problem over time interval [startTime,endTime].
+                // Start Measuring elapsed time
+            std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
+            startClock = std::chrono::system_clock::now();
+            
+                // Solve the problem
             test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
             
+                // Measure elapsed time
+            endClock = std::chrono::system_clock::now();
+            std::chrono::duration<double> elapsed_seconds = endClock - startClock;
+            std::cout << "Elapsed time for solving the PDE: " << elapsed_seconds.count() << "s\n";
         }
         
         return 0;

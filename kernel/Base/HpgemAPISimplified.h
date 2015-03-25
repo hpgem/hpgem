@@ -112,8 +112,8 @@ namespace Base
         virtual LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No initial solution implemented.");
-            LinearAlgebra::NumericalVector realSolution(configData_->numberOfUnknowns_);
-            return realSolution;
+            LinearAlgebra::NumericalVector initialSolution(configData_->numberOfUnknowns_);
+            return initialSolution;
         }
         
         /// \brief Compute the mass matrix for a single element.
@@ -153,8 +153,8 @@ namespace Base
         )
         {
             logger(ERROR, "No function for computing the right-hand side at an element implemented.");
-            LinearAlgebra::NumericalVector rightHandSideElement;
-            return rightHandSideElement;
+            LinearAlgebra::NumericalVector rightHandSideAtElement;
+            return rightHandSideAtElement;
         }
         
         /// \brief Compute the right-hand side corresponding to a boundary face
