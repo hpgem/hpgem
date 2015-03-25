@@ -344,7 +344,7 @@ public:
      * \arg arg... Any arguments which needs to be replaced.
      */
     template<Log LOGLEVEL, typename ... Args>
-    typename std::enable_if<!((L < LOGLEVEL) || (HPGEM_LOGLEVEL< LOGLEVEL)), void>::type
+    typename std::enable_if<!((L < LOGLEVEL) && (HPGEM_LOGLEVEL < LOGLEVEL)), void>::type
     operator()(const LL<LOGLEVEL> log, const std::string& format, Args&&... arg)
     {   
         std::stringstream msgstream;
@@ -376,7 +376,7 @@ public:
     }
 
     template<Log LOGLEVEL, typename... Args>
-    typename std::enable_if<L < LOGLEVEL || HPGEM_LOGLEVEL < LOGLEVEL, void>::type
+    typename std::enable_if<L < LOGLEVEL && HPGEM_LOGLEVEL < LOGLEVEL, void>::type
     operator()(const LL<LOGLEVEL> log, const std::string& format, Args&&... arg)
     {   
 
@@ -398,14 +398,14 @@ public:
     
     //the conversion from "" to a std::sting is so slow, it takes 50% of the total run time for a release build...
     template<typename... Args>
-    typename std::enable_if<(ASSERTS || HPGEM_ASSERTS) && (sizeof...(Args) >= 0), void>::type
+    typename std::enable_if<(ASSERTS) && (sizeof...(Args) >= 0), void>::type
     assert(bool assertion, const char* format, Args&&... arg)
     {   
         assert_always(assertion, format, arg...);
     }
     
     template<typename... Args>
-    typename std::enable_if<!((ASSERTS || HPGEM_ASSERTS) && sizeof...(Args) >= 0), void>::type
+    typename std::enable_if<!((ASSERTS) && sizeof...(Args) >= 0), void>::type
     assert(bool assertion, const char* format, Args&&... arg)
     {   
     }
@@ -481,21 +481,22 @@ private:
     Arg1&& arg, Args&&... args)
     {   
         bool doSkipNext = false;
-        while (*fmt != '%' && !doSkipNext)
+        while (*fmt != '%' || doSkipNext)
         {   
-            doSkipNext = false;
             //Make sure we're not running past the end of our formatting string.
             if (*fmt == '\0')
             return;
 
-            if (*fmt == '\\')
+            if (*fmt == '\\'&& !doSkipNext)
             { //Escape for the %sign
                 doSkipNext = true;
+                fmt++;
             }
             else
             {   
                 msg << *fmt;
                 fmt++;
+                doSkipNext = false;
             }
         }
 
@@ -511,29 +512,25 @@ private:
     void createMessage(std::stringstream& msg, const char* fmt, Arg1&& arg)
     {   
         bool doSkipNext = false;
-        while (*fmt != '%' && !doSkipNext)
+        while (*fmt != '%' || doSkipNext)
         {   
-            doSkipNext = false;
             if (*fmt == '\0') // End of string
             return;
 
-            if (*fmt == '\\')
-            { //Escape for the %sign
+            if (*fmt == '\\' && !doSkipNext)
+            { //Escape for the %sign and the \sign
                 doSkipNext = true;
+                fmt++;
             }
             else
             { //invoke the replacement
                 msg << *fmt;
                 fmt++;
+                doSkipNext = false;
             }
         }
         fmt++; //Consume the % sign
-        msg << arg;
-        while (*fmt != '\0')
-        { //And print the end of the message!
-            msg << *fmt;
-            fmt++;
-        }
+        msg << arg << fmt;
     }
 
     /*!
