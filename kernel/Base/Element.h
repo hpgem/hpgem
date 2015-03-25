@@ -124,18 +124,33 @@ namespace Base
             return facesList_[localFaceNr];
         }
         
+        virtual const std::vector<const Face*> getFacesList() const
+        {
+            return facesList_;
+        }
+
         virtual const Edge* getEdge(std::size_t localEdgeNr) const
         {
             logger.assert(localEdgeNr<getNrOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNr, getNrOfEdges());
             return edgesList_[localEdgeNr];
         }
         
+        virtual const std::vector<const Edge*> getEdgesList() const
+        {
+            return edgesList_;
+        }
+
         virtual const Node* getNode(std::size_t localNodeNr) const
         {
             logger.assert(localNodeNr<getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());
             return nodesList_[localNodeNr];
         }
         
+        virtual const std::vector<const Node*> getNodesList() const
+        {
+            return nodesList_;
+        }
+
         virtual std::size_t getNrOfFaces() const
         {
             return facesList_.size();
