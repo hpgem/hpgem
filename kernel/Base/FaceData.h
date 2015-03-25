@@ -27,6 +27,7 @@
 #include "Base/FaceMatrix.h"
 #include "LinearAlgebra/Matrix.h"
 #include "LinearAlgebra/NumericalVector.h"
+#include "FaceCacheData.h"
 
 namespace LinearAlgebra
 {
@@ -47,10 +48,6 @@ namespace Base
 
     public:
         FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices = 0, std::size_t numberOfFaceVactors = 0);        
-        
-        ///Since the public constructor should always be called, the default constructor
-        ///of FaceData is deleted. 
-        FaceData() = delete;
         
         ///Since FaceData is only used in Face, and Face does not have a copy constructor
         ///FaceData does not need a copy constructor.

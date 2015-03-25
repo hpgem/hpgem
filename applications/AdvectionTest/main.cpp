@@ -21,6 +21,7 @@
 
 #include <cmath>
 #include <functional>
+#include <chrono>
 #include "Base/CommandLineOptions.h"
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"

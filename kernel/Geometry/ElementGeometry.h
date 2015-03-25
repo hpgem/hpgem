@@ -57,7 +57,7 @@ namespace Geometry
         ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes);
 
         /// Copy constructor
-        ElementGeometry(const ElementGeometry& other) = delete;
+        ElementGeometry(const ElementGeometry& other);
 
         virtual ~ElementGeometry();
 

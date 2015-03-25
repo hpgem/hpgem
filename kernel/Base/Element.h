@@ -62,8 +62,13 @@ namespace Base
         Element(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<const BasisFunctionSet*>* basisFunctionSet, std::vector<Geometry::PointPhysical>& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrices = 0, std::size_t numberOfElementVectors = 0, const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
 
         Element(const Element& other) = delete;
+        
+        ///Constructor that copies the data and geometry of the given ElementData and ElementGeometry.
+        Element(const ElementData& otherData, const ElementGeometry& otherGeometry);
 
         virtual ~ Element();
+        
+        Element* copyWithoutFacesEdgesNodes(const std::size_t numToAddToId);
 
         virtual std::size_t getID() const;
 
@@ -186,7 +191,6 @@ namespace Base
 
         const GaussQuadratureRuleT* quadratureRule_;
         const std::vector<const BasisFunctionSet*>* basisFunctionSet_;
-        VecCacheT vecCacheData_;
         std::size_t id_;
         double orderCoeff_;
         std::vector<int> basisFunctionSetPositions_;
@@ -196,7 +200,8 @@ namespace Base
 
         //IN the element, so don't count conforming DOF from faces/...
         std::size_t nrOfDOFinTheElement_;
-
+        
+        VecCacheT vecCacheData_;
         ///Stores that mass matrix for this element
         LinearAlgebra::Matrix massMatrix_;
     };

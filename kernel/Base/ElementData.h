@@ -145,7 +145,8 @@ namespace Base
 
         ///Stores element matrix(es) for this element
         VectorOfMatrices elementMatrix_;
-
+        
+        ///Stores element vector(s) for this element
         std::vector<LinearAlgebra::NumericalVector> elementVector_;
     };
 }

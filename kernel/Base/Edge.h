@@ -48,9 +48,7 @@ namespace Base
         {
         }     
                 
-        //private default constructor and copy constructor: these are not 
-        //intended for use and are therefore deleted.
-        Edge() = delete;
+        //copy constructor: this is not intended for use and is therefore deleted.
         Edge(const Edge& other) = delete;
         
         void addElement(Element* element, std::size_t edgeNr);

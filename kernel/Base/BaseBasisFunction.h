@@ -84,6 +84,5 @@ namespace Base
     };
 
 }
-;
 
 #endif // BaseBasisFunction_h

@@ -53,6 +53,7 @@ namespace Base
     {
     public:
         Mesh();
+        ///\todo Make this copy constructor make a new mesh.
         Mesh(const Mesh& orig);
         ~Mesh();
 

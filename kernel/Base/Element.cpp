@@ -82,19 +82,13 @@ namespace Base
         }
         nodesList_.assign(getReferenceGeometry()->getNumberOfNodes(), nullptr);
     }
-    
-    //the mass matrix is not copied for safety, in case this element gets slightly
-    //changed before the mass matrix is needed. If one wants to use the mass matrix,
-    //it gets computed in getMassMatrix anyway.
-    /*Element::Element(const Element& other)
-            : ElementGeometryT(other), ElementData(other), 
-        quadratureRule_(other.quadratureRule_), basisFunctionSet_(other.basisFunctionSet_), 
-        vecCacheData_(other.vecCacheData_), id_(other.id_), orderCoeff_(other.orderCoeff_), 
-        basisFunctionSetPositions_(other.basisFunctionSetPositions_), 
-        facesList_(other.facesList_), edgesList_(other.edgesList_), nodesList_(other.nodesList_), 
-        nrOfDOFinTheElement_(other.nrOfDOFinTheElement_)
+        
+    Element::Element(const ElementData& otherData, const ElementGeometry& otherGeometry)
+        : ElementData(otherData),
+        ElementGeometry(otherGeometry)
     {
-    }*/
+        
+    }
     
     ///Very ugly default constructor that's only here because it is needed in
     ///ShortTermStorageElementBase.
@@ -106,6 +100,25 @@ namespace Base
     Element::~Element()
     {
         
+    }
+    
+    Element* Element::copyWithoutFacesEdgesNodes(const std::size_t numToAddToId)
+    {
+        //Make a new element with the data and geometry of this element
+        Element* newElement = new Element(*this, *this);
+        newElement->id_ = id_ + numToAddToId;
+        
+        //copy the pointers to singletons
+        newElement->quadratureRule_ = quadratureRule_;
+        newElement->basisFunctionSet_ = basisFunctionSet_;
+        
+        //copy other data
+        newElement->basisFunctionSetPositions_ = basisFunctionSetPositions_;
+        newElement->nrOfDOFinTheElement_ = nrOfDOFinTheElement_;
+        newElement->orderCoeff_ = orderCoeff_;
+        newElement->vecCacheData_ = vecCacheData_;
+        
+        return newElement;
     }
     
     void Element::setDefaultBasisFunctionSet(std::size_t position)

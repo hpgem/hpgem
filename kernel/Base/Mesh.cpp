@@ -47,15 +47,19 @@ namespace Base
     {
     }
     
+    /// IFCD: this copy constructor is work in progress
     Mesh::Mesh(const Mesh& orig)
-            : hasToSplit_(orig.hasToSplit_), localProcessorID_(orig.localProcessorID_), elements_(orig.elements_), faces_(orig.faces_), edges_(orig.edges_), nodes_(orig.nodes_), elementcounter_(orig.elementcounter_), faceCounter_(orig.faceCounter_), edgeCounter_(orig.edgeCounter_), nodeCounter_(orig.nodeCounter_), points_(orig.points_)
+            : hasToSplit_(orig.hasToSplit_), localProcessorID_(orig.localProcessorID_),
+        elementcounter_(orig.elementcounter_), faceCounter_(orig.faceCounter_), edgeCounter_(orig.edgeCounter_), nodeCounter_(orig.nodeCounter_), 
+        points_(orig.points_)
     {
+        //Make Elements
+        
     }
     
     Mesh::~Mesh()
     {
-        clear();
-        
+        clear();        
     }
     
     Element* Mesh::addElement(const std::vector<std::size_t>& globalNodeIndexes)

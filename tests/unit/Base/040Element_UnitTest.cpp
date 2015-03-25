@@ -103,8 +103,8 @@ int main()
     logger.assert_always((test.getGaussQuadratureRule() != nullptr), "quadrature rule");
     
     test.setQuadratureRulesWithOrder(8);
-    
     logger.assert_always((test.getGaussQuadratureRule()->order() >= 8), "setQuadratureRule");
+    
     test.setGaussQuadratureRule(&QuadratureRules::Cn3_3_4::Instance());
     logger.assert_always((typeid(*test.getGaussQuadratureRule()) == typeid(QuadratureRules::Cn3_3_4::Instance())), "setQuadratureRule");
     

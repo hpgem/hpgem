@@ -47,9 +47,7 @@ namespace Base
 
         explicit BasisFunctionSet(std::size_t order);        
         
-        //private default constructor and copy constructor: these are not 
-        //intended for use and are therefore deleted.
-        BasisFunctionSet() = delete;
+        //copy constructor: this is not intended for use and is therefore deleted.
         BasisFunctionSet(const BasisFunctionSet& other) = delete;
 
         virtual ~BasisFunctionSet();
@@ -75,8 +73,6 @@ namespace Base
             logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
             return vecOfBasisFcn_[i];
         }
-        
-    private:
 
     private:
         std::size_t order_;
