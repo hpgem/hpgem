@@ -41,7 +41,7 @@
 #include "Integration/ElementIntegral.h"
 #include "Base/CommandLineOptions.h"
 
-///\brief Make the encapsulation for the DG problem. 
+///\brief Tutorial for solving the Poisson equation using hpGEM. 
 ///
 ///In here, all methods that you use 
 ///for the computations and output are defined.
@@ -60,11 +60,11 @@ public:
     ///of basisfunctions. Furthermore, assign a value to the penalty parameter.
     ///n stands for number of elements, p stands for polynomial order.
     ///Lastly, construct the mesh with this number of elements and polynomial order.
-    TutorialPoisson(const std::size_t n, const std::size_t p) :
-    HpgemAPILinearSteadyState(2, 1, p, true, true),
+    TutorialPoisson(const std::size_t dimension, const std::size_t n, const std::size_t p) :
+    HpgemAPILinearSteadyState(dimension, 1, p, true, true),
     n_(n),
     p_(p),
-    DIM_(2)
+    DIM_(dimension)
     {
         penalty_ = 3 * n_ * p_ * (p_ + DIM_ - 1) + 1;
     }
@@ -249,56 +249,6 @@ public:
         value = element->getSolution(0, point);
         out << value[0];
     }
-        
-    /*
-    /// \brief Solve the system
-    ///
-    /// This function contains a lot of PETSc code and should be automated in the future.
-    /// First compute all integrals and assemble the matrix and right-hand side vector.
-    /// Then solve this system with a krylov subspace method from the PETSc package.
-    /// Finally, write the solution and mesh to the Tecplot file output.dat.
-    bool solve()
-    {
-        //Compute all element integrals.
-        doAllElementIntegration();
-        //Compute all face integrals.
-        doAllFaceIntegration();
-        //Assemble the matrix A of the system Ax = b.
-        Utilities::GlobalPetscMatrix A(HpgemAPIBase::meshes_[0], 0, 0);
-        //Declare the vectors x and b of the system Ax = b.
-        Utilities::GlobalPetscVector b(HpgemAPIBase::meshes_[0], 0, 0), x(HpgemAPIBase::meshes_[0]);
-        
-        //Assemble the vector b. This is needed because Petsc assumes you don't know
-        //yet whether a vector is a variable or right-hand side the moment it is 
-        //declared.
-        b.assemble();
-        
-        //Make the Krylov supspace method
-        KSP ksp;
-        KSPCreate(PETSC_COMM_WORLD, &ksp);
-        //Tell ksp that it will solve the system Ax = b.
-        KSPSetOperators(ksp, A, A);
-        KSPSetFromOptions(ksp);
-        KSPSolve(ksp, b, x);
-        //Do PETSc magic, including solving.
-        KSPConvergedReason conferge;
-        KSPGetConvergedReason(ksp, &conferge);
-        int iterations;
-        KSPGetIterationNumber(ksp, &iterations);
-        std::cout << "KSP solver ended because of " << KSPConvergedReasons[conferge] << " in " << iterations << " iterations." << std::endl;
-        
-        //once PETSc is done, feed the data back into the elements
-        x.writeTimeLevelData(0);
-        
-        //so it can be used for post-processing
-        std::ofstream outFile("output.dat");
-        //write tecplot data
-        Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
-        writeFunc.write(meshes_[0], "discontinuous solution", false, this);
-     
-        return true;
-    }
-    */
     
 private:
     
@@ -331,15 +281,18 @@ int main(int argc, char **argv)
     Base::parse_options(argc, argv);
     try
     {
+        // Choose the dimension (2 or 3)
+        const std::size_t dimension = 3;
+        
         // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
-        const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
+        const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
         
         // Choose variable name(s). Since we have a scalar function, we only need to chooes one name.
         std::vector<std::string> variableNames;
         variableNames.push_back("u");
         
         //Make the object test with n elements in each direction and polynomial order p.
-        TutorialPoisson test(numBasisFuns.getValue(), p.getValue());
+        TutorialPoisson test(dimension, numBasisFuns.getValue(), p.getValue());
         
         //Create the mesh
         test.createMesh(numBasisFuns.getValue(), meshType);
