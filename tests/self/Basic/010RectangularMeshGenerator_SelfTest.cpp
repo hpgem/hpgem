@@ -146,6 +146,17 @@ void testMesh(Base::MeshManipulator* test)
                          test->getNumberOfVertices(), test->getNumberOfNodes());
 }
 
+void testPointPhysicalsOfElementsOfCopiedMesh(Base::MeshManipulator* mesh, Base::MeshManipulator* meshCopy)
+{
+    std::vector<Base::Element*> eltsMesh = mesh->getElementsList();
+    std::vector<Base::Element*> eltsMeshCopy = meshCopy->getElementsList();
+    logger.assert_always(eltsMesh.size() == eltsMeshCopy.size(), "The copy does not have the same number of elements as the original MeshManipulator.");
+    for (std::size_t i = 0; i < eltsMesh.size(); ++i)
+    {
+        logger.assert_always(eltsMesh[i]->getPhysicalGeometry()->getNodes() == eltsMeshCopy[i]->getPhysicalGeometry()->getNodes(), "The points of Element % are different.", i);        
+    }
+}
+
 int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
@@ -247,8 +258,8 @@ int main(int argc, char** argv)
     
     //test copy constructor of MeshManipulator, only most difficult case
     Base::MeshManipulator* test2 = new Base::MeshManipulator(*test);
-    testMesh(test2);
-    logger.assert_always((test2->getNumberOfElements() == 12), "number of elements");
+    testMesh(test2);    
+    testPointPhysicalsOfElementsOfCopiedMesh(test, test2);
     
     return 0;
 }

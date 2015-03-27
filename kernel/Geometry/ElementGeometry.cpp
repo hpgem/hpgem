@@ -115,14 +115,14 @@ namespace Geometry
     }
     
     PhysicalGeometry * const
-    ElementGeometry::createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometryT * const geo)
+    ElementGeometry::createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const geo)
     {
         logger.assert(geo!=nullptr, "Invalid reference geometry passed");
         return new PhysicalGeometry(globalNodeIndexes, nodes, geo);
     }
     
     MappingReferenceToPhysical * const
-    ElementGeometry::createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometryT * const pGeo)
+    ElementGeometry::createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometry * const pGeo)
     {
         logger.assert(pGeo!=nullptr, "Invalid physical geometry passed");
         switch (size)
@@ -255,7 +255,7 @@ namespace Geometry
     /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
     /// given the mapping.
     
-    PointPhysical ElementGeometry::referenceToPhysical(const PointReferenceT& pointReference) const
+    PointPhysical ElementGeometry::referenceToPhysical(const PointReference& pointReference) const
     {
         return referenceToPhysicalMapping_->transform(pointReference);
     }
@@ -263,7 +263,7 @@ namespace Geometry
     /// This method gets a PointReference and returns the corresponding jacobian of the
     /// referenceToPhysicalMapping.
     
-    Jacobian ElementGeometry::calcJacobian(const PointReferenceT& pointReference) const
+    Jacobian ElementGeometry::calcJacobian(const PointReference& pointReference) const
     {
         return referenceToPhysicalMapping_->calcJacobian(pointReference);
     }

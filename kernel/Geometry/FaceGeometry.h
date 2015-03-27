@@ -152,7 +152,6 @@ namespace Geometry
     class FaceGeometry
     {
     public:
-        using PointPhysicalT = PointPhysical;
         using MatrixT = LinearAlgebra::Matrix;
         using SetOfGlobalNodes = std::set<std::size_t>;
         using VectorOfLocalNodes = std::vector<std::size_t>;
@@ -161,32 +160,30 @@ namespace Geometry
         using RefFaceToRefElementMappingPtr = std::shared_ptr<const MappingReferenceToReference >;
         
         using ReferenceFaceGeometryT = ReferenceGeometry;
-        using ElementGeometryT = ElementGeometry;
-        using FaceGeometryT = FaceGeometry;
 
     public:
         //!Constructor for interior faces.
         //constructor will not initialize faceToFaceMapIndex, because it doesnt know how the elements are connected
-        FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometryT* ptrElemRight, const LocalFaceNrType& localFaceNumR);
+        FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometry* ptrElemRight, const LocalFaceNrType& localFaceNumR);
 
         //! Constructor for boundary faces.
-        FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType&localFaceNumL, const FaceType& boundaryLabel);
+        FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNrType&localFaceNumL, const FaceType& boundaryLabel);
         
         //! Copy constructor with new elements, for both internal and boundary faces.
-        FaceGeometry(const FaceGeometry& other, ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometryT* ptrElemRight, const LocalFaceNrType& localFaceNumR);
+        FaceGeometry(const FaceGeometry& other, ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometry* ptrElemRight, const LocalFaceNrType& localFaceNumR);
 
         virtual ~FaceGeometry()
         {
         }
         
         /// Return the pointer to the left element.
-        virtual const ElementGeometryT* getElementGLeft() const
+        virtual const ElementGeometry* getElementGLeft() const
         {
             return leftElementGeom_;
         }
         
         /// Return the pointer to the right element, nullptr if inexistent for boundaries.
-        virtual const ElementGeometryT* getPtrElementGRight() const
+        virtual const ElementGeometry* getPtrElementGRight() const
         {
             return rightElementGeom_;
         }
@@ -254,7 +251,7 @@ namespace Geometry
         ///\brief set up the faceToFaceMapIndex based on vertex connectivity information instead of node location
         void initialiseFaceToFaceMapIndex(const std::vector<std::size_t>& leftVertices, const std::vector<std::size_t>& rightVertices);
 
-        void copyFromParent(const FaceGeometryT& fa);
+        void copyFromParent(const FaceGeometry& fa);
 
         void invertFaceToFaceMapMatrix();
 
@@ -272,8 +269,8 @@ namespace Geometry
         {
         }
         
-        const ElementGeometryT* leftElementGeom_;
-        const ElementGeometryT* rightElementGeom_;
+        const ElementGeometry* leftElementGeom_;
+        const ElementGeometry* rightElementGeom_;
 
         LocalFaceNrType localFaceNumberLeft_;
         LocalFaceNrType localFaceNumberRight_;

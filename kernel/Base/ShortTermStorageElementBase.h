@@ -54,6 +54,9 @@ namespace Base
     class ShortTermStorageElementBase : public Element
     {
     public:
+        
+        using PhysicalGeometry = Geometry::PhysicalGeometry;
+        using RefinementGeometry = Geometry::RefinementGeometry;
         //The user should be able to use this as if it were an Element, and it is
         //quicker in integration routines than Element, since it stores the values
         //of the transformed basisfunctions and derivatives of basisfunctions.
@@ -289,12 +292,12 @@ namespace Base
             return element_->getReferenceToPhysicalMap();
         }
         
-        const PhysicalGeometryT * const getPhysicalGeometry() const override final
+        const PhysicalGeometry * const getPhysicalGeometry() const override final
         {
             return element_->getPhysicalGeometry();
         }
         
-        PhysicalGeometryT * const getPhysicalGeometry() override final
+        PhysicalGeometry * const getPhysicalGeometry() override final
         {
             return element_->getPhysicalGeometry();
         }
@@ -304,7 +307,7 @@ namespace Base
             return element_->getReferenceGeometry();
         }
         
-        const RefinementGeometryT* getRefinementGeometry() const override final
+        const RefinementGeometry* getRefinementGeometry() const override final
         {
             return element_->getRefinementGeometry();
         }

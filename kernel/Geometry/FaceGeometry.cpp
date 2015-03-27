@@ -50,7 +50,7 @@ namespace Geometry
     ///directly used.) If a user want to directly use this class himself, he should be
     ///aware that this constructor assumes he will call initialiseFaceToFaceMapIndex
     ///before actually using the FaceGeometry.
-    FaceGeometry::FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometryT* ptrElemR, const LocalFaceNrType& localFaceNumR)
+    FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometry* ptrElemR, const LocalFaceNrType& localFaceNumR)
             : leftElementGeom_(ptrElemL), rightElementGeom_(ptrElemR), localFaceNumberLeft_(localFaceNumL), localFaceNumberRight_(localFaceNumR), faceToFaceMapIndex_(Geometry::MAXSIZET), faceType_(FaceType::INTERNAL)
     {
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
@@ -58,15 +58,15 @@ namespace Geometry
     }
     
     //! Constructor for boundary faces.
-    FaceGeometry::FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, const FaceType& boundaryLabel)
+    FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, const FaceType& boundaryLabel)
             : leftElementGeom_(ptrElemL), rightElementGeom_(nullptr), localFaceNumberLeft_(localFaceNumL), localFaceNumberRight_(Geometry::MAXSIZET), faceToFaceMapIndex_(0), faceType_(boundaryLabel)
     {
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
     }
     
     FaceGeometry::FaceGeometry(const FaceGeometry& other, 
-                               ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, 
-                               ElementGeometryT* ptrElemRight, const LocalFaceNrType& localFaceNumR) 
+                               ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, 
+                               ElementGeometry* ptrElemRight, const LocalFaceNrType& localFaceNumR) 
     {
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
         leftElementGeom_ = ptrElemL;
