@@ -711,7 +711,7 @@ namespace Base
         variableNames_ = variableNames;
     }
     
-    void HpgemAPISimplified::writeToTecplotFile(const ElementT *ptrElement, const PointReferenceT &pRef, std::ostream &out)
+    void HpgemAPISimplified::writeToTecplotFile(const Element *ptrElement, const PointReferenceT &pRef, std::ostream &out)
     {
         std::size_t numOfVariables = configData_->numberOfUnknowns_;
         

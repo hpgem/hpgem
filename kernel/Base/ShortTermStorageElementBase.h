@@ -57,6 +57,7 @@ namespace Base
         
         using PhysicalGeometry = Geometry::PhysicalGeometry;
         using RefinementGeometry = Geometry::RefinementGeometry;
+        
         //The user should be able to use this as if it were an Element, and it is
         //quicker in integration routines than Element, since it stores the values
         //of the transformed basisfunctions and derivatives of basisfunctions.
@@ -80,6 +81,9 @@ namespace Base
 
         Element& operator=(Element& element);
         
+        ///Copy constructor.
+        ///Note that this makes a shallow copy of the element (i.e. it only copies 
+        ///the pointer to the element), which is correct since this is a wrapper class.
         ShortTermStorageElementBase(const ShortTermStorageElementBase& copy)
                 : element_(copy.element_), currentPoint_(copy.currentPoint_), jac_(copy.jac_), useCache_(copy.useCache_), recomputeCache_(copy.recomputeCache_), currentPointIndex_(copy.currentPointIndex_)
         {

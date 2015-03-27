@@ -31,6 +31,5 @@ namespace Base
         LEFT, RIGHT
     };
 }
-;
 #endif
 

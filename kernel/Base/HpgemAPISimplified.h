@@ -219,7 +219,7 @@ namespace Base
         void setOutputNames(std::string outputFileName, std::string internalFileTitle, std::string solutionTitle, std::vector<std::string> variableNames);
         
         /// \brief Write output to a tecplot file.
-        virtual void writeToTecplotFile(const ElementT *ptrElement, const PointReferenceT &pRef, std::ostream &out) override;
+        virtual void writeToTecplotFile(const Element *ptrElement, const PointReferenceT &pRef, std::ostream &out) override;
         
         void VTKWrite(Output::VTKTimeDependentWriter& out, double t, std::size_t timeLevel)
         {
