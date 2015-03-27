@@ -66,6 +66,8 @@ namespace Base
         std::size_t getNrOfElements();
 
         Element* getElement(std::size_t i);
+        
+        std::vector<Element*> getElements();
 
         std::size_t getEdgeNr(std::size_t i)
         {

@@ -45,7 +45,7 @@ namespace Base
         using BaseBasisFunctions = std::vector<BaseBasisFunction*>; //check again
         using PointReferenceT = Geometry::PointReference;
 
-        explicit BasisFunctionSet(std::size_t order);        
+        explicit BasisFunctionSet(std::size_t order);      
         
         //copy constructor: this is not intended for use and is therefore deleted.
         BasisFunctionSet(const BasisFunctionSet& other) = delete;

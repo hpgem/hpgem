@@ -64,6 +64,20 @@ namespace Geometry
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
     }
     
+    FaceGeometry::FaceGeometry(const FaceGeometry& other, 
+                               ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, 
+                               ElementGeometryT* ptrElemRight, const LocalFaceNrType& localFaceNumR) 
+    {
+        logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
+        leftElementGeom_ = ptrElemL;
+        rightElementGeom_ = ptrElemRight;
+        localFaceNumberLeft_ = localFaceNumL;
+        localFaceNumberRight_ = localFaceNumR;
+        faceToFaceMapIndex_ = other.faceToFaceMapIndex_;
+        faceType_ = other.faceType_;        
+    }
+
+    
     /// The referenceGeometry is returned. It is taken from left element, to always ensure its existence
     // should use the same interface as in the Element!
     const ReferenceGeometry* FaceGeometry::getReferenceGeometry() const

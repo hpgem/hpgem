@@ -39,7 +39,9 @@ namespace Base
     
     class Face;
     Face::Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, Element* ptrElemR, const LocalFaceNrTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
-            : FaceGeometryT((ElementGeometryT*) ptrElemL, localFaceNumL, (ElementGeometryT*) ptrElemR, localFaceNumR), FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknows() + ptrElemR->getNrOfBasisFunctions() * ptrElemR->getNrOfUnknows(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(ptrElemR), nrOfConformingDOFOnTheFace_(0), faceID_(faceID)
+            : FaceGeometryT((ElementGeometryT*) ptrElemL, localFaceNumL, (ElementGeometryT*) ptrElemR, localFaceNumR),
+            FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknows() + ptrElemR->getNrOfBasisFunctions() * ptrElemR->getNrOfUnknows(), numberOfFaceMatrixes, numberOfFaceVectors), 
+            elementLeft_(ptrElemL), elementRight_(ptrElemR), nrOfConformingDOFOnTheFace_(0), faceID_(faceID)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
         logger.assert(ptrElemR != nullptr, "Error: passing a boundary face to the constructor for internal faces!");
@@ -57,12 +59,31 @@ namespace Base
         }
         initialiseFaceToFaceMapIndex(leftVertices, rightVertices);
     }
+    
     Face::Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
             : FaceGeometryT((ElementGeometryT*) ptrElemL, localFaceNumL, faceType), FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknows(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(nullptr), nrOfConformingDOFOnTheFace_(0), faceID_(faceID)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
         createQuadratureRules();
         ptrElemL->setFace(localFaceNumL, this);
+    }
+    
+    Face::Face(const Face& other, Element* elementL, const std::size_t localFaceL, Element* elementR, const std::size_t localFaceR)
+        : FaceGeometry(other, elementL, localFaceL, elementR, localFaceR), 
+        FaceData(other),
+        elementLeft_(elementL), elementRight_(elementR),
+        quadratureRule_(other.quadratureRule_), faceID_(other.faceID_),
+        nrOfConformingDOFOnTheFace_(other.nrOfConformingDOFOnTheFace_)
+    {        
+        logger.assert(elementL != nullptr, "Invalid element passed");
+        logger(DEBUG, "Coupling (left) face % to element %", faceID_, elementL->getID());
+        elementL->setFace(localFaceL, this);
+        logger.assert(elementL->getNrOfFaces() > 0, "Element does not contain any face!");
+        if (elementR != nullptr)
+        {
+            elementR->setFace(localFaceR, this);
+            logger(DEBUG, "Coupling (right) face % to element %", faceID_, elementR->getID());
+        }
     }
     
     void Face::createQuadratureRules()

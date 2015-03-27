@@ -29,6 +29,7 @@
 
 #include <vector>
 #include <iostream>
+#include <memory>
 
 namespace QuadratureRules
 {
@@ -63,12 +64,10 @@ namespace Base
 
         Element(const Element& other) = delete;
         
-        ///Constructor that copies the data and geometry of the given ElementData and ElementGeometry.
-        Element(const ElementData& otherData, const ElementGeometry& otherGeometry);
-
+        
         virtual ~ Element();
         
-        Element* copyWithoutFacesEdgesNodes(const std::size_t numToAddToId);
+        Element* copyWithoutFacesEdgesNodes();
 
         virtual std::size_t getID() const;
 
@@ -200,6 +199,8 @@ namespace Base
         }
         
     private:
+        ///Constructor that copies the data and geometry of the given ElementData and ElementGeometry.
+        Element(const ElementData& otherData, const ElementGeometry& otherGeometry);
         
         ///Compute the mass matrix of this element.
         void computeMassMatrix();

@@ -171,6 +171,9 @@ namespace Geometry
 
         //! Constructor for boundary faces.
         FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType&localFaceNumL, const FaceType& boundaryLabel);
+        
+        //! Copy constructor with new elements, for both internal and boundary faces.
+        FaceGeometry(const FaceGeometry& other, ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometryT* ptrElemRight, const LocalFaceNrType& localFaceNumR);
 
         virtual ~FaceGeometry()
         {
@@ -236,6 +239,7 @@ namespace Geometry
         /*! Map from reference face coordinates on the left side to those on the
          *  right side. */
         virtual PointReference mapRefFaceToRefFace(const ReferencePointT& pIn) const;
+        
         /// Get a normal at a given RefPoint
         virtual LinearAlgebra::NumericalVector getNormalVector(const ReferencePointT& pRefFace) const;
 
@@ -279,5 +283,4 @@ namespace Geometry
         
     };
 }
-;
 #endif /* defined(____FaceGeometry__) */

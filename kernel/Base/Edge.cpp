@@ -55,5 +55,10 @@ namespace Base
         logger.assert(i < getNrOfElements(), "Asked for element %, but there are only % elements", i, getNrOfElements());
         return elements_[i];
     }
+    
+    std::vector<Element*> Edge::getElements()
+    {
+        return elements_;
+    }
 
 }

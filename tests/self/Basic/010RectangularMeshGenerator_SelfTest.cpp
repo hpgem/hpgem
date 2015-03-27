@@ -63,7 +63,7 @@ void testMesh(Base::MeshManipulator* test)
         logger.assert_always((element->getNrOfNodes() == element->getReferenceGeometry()->getNumberOfNodes()), "confusion about the number of vertices");
         for (std::size_t i = 0; i < element->getNrOfFaces(); ++i)
         {
-            logger.assert_always((element->getFace(i) != nullptr), "missing Face");
+            logger.assert_always((element->getFace(i) != nullptr), "missing Face no. % in element %", i, element->getID());
         }
         for (std::size_t i = 0; i < element->getNrOfEdges(); ++i)
         {
@@ -104,7 +104,7 @@ void testMesh(Base::MeshManipulator* test)
         logger.assert_always((edge->getElement(0)->getEdge(edge->getEdgeNr(0)) == edge), "element<->edge matching");
         std::vector<std::size_t> firstNodes(edge->getElement(0)->getReferenceGeometry()->getCodim2ReferenceGeometry(edge->getEdgeNr(0))->getNumberOfNodes()), otherNodes(firstNodes);
         firstNodes = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
-        for (int i = 0; i < firstNodes.size(); ++i)
+        for (std::size_t i = 0; i < firstNodes.size(); ++i)
         {
             firstNodes[i] = edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(firstNodes[i]);
         }
@@ -142,7 +142,8 @@ void testMesh(Base::MeshManipulator* test)
             logger.assert_always((pFirst == pOther), "vertex positioning");
         }
     }
-    logger.assert_always((test->getNumberOfNodes() == test->getNumberOfVertices()), "total amount of vertices");
+    logger.assert_always((test->getNumberOfNodes() == test->getNumberOfVertices()), "total amount of vertices (%) is not equal to the number of nodes (%)",
+                         test->getNumberOfVertices(), test->getNumberOfNodes());
 }
 
 int main(int argc, char** argv)
@@ -177,11 +178,12 @@ int main(int argc, char** argv)
     testMesh(test);
     logger.assert_always((test->getNumberOfElements() == 2), "number of elements");
     
+    
     delete test;
     description1D.numElementsInDIM_[0] = 3;
     
     test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
+    test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);    
     
     testMesh(test);
     logger.assert_always((test->getNumberOfElements() == 3), "number of elements");
@@ -241,6 +243,12 @@ int main(int argc, char** argv)
     test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     
     testMesh(test);
-    logger.assert_always((test->getNumberOfElements() == 12), "number of elements");
+    logger.assert_always((test->getNumberOfElements() == 12), "number of elements");    
+    
+    //test copy constructor of MeshManipulator, only most difficult case
+    Base::MeshManipulator* test2 = new Base::MeshManipulator(*test);
+    testMesh(test2);
+    logger.assert_always((test2->getNumberOfElements() == 12), "number of elements");
+    
     return 0;
 }

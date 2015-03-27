@@ -232,7 +232,7 @@ namespace Base
         //! List of all nodes. (connectivity-based location of vertices)
         std::vector<Node*> nodes_;
 
-        std::size_t elementcounter_;
+        std::size_t elementCounter_;
         std::size_t faceCounter_;
         std::size_t edgeCounter_;
         std::size_t nodeCounter_;
