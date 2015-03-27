@@ -170,7 +170,7 @@ namespace Base
         }
         
         /// Specify a time level index, return a vector containing the data for that time level.
-        virtual LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel);
+        virtual LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
 
         LinearAlgebra::NumericalVector getCurrentData();
 

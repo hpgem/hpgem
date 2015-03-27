@@ -78,7 +78,7 @@ public:
     Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        RectangularMeshDescriptorT description(DIM_);
+        Base::RectangularMeshDescriptor description(DIM_);
         
         //this demo will use the square [0,1]^2
         for (std::size_t i = 0; i < DIM_; ++i)
@@ -106,7 +106,7 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, which we return.
     ///Please note that you pass a reference point to the basisfunctions and the 
     ///transformations are done internally.
-    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const ElementT *element, const PointReferenceT &point) override final
+    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
         const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
@@ -139,7 +139,7 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, which is returned.
     ///Please note that you pass a reference point to the basisfunctions and the 
     ///transformations are done internally.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
@@ -220,7 +220,7 @@ public:
     ///integral on the right-hand side. However, in our application we do not have
     ///contributions for the boundary conditions, so the vector has only zeroes.
     ///The input/output structure is the same as the other faceIntegrand function.
-    LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
+    LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
         const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
@@ -243,7 +243,7 @@ public:
     ///This function is used by other functions to write the tecplot file, so it is
     ///not a function to write the whole file.
     ///The only thing this has to write in the file is the value of the solution.
-    void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out) override final
+    void writeToTecplotFile(const Base::Element* element, const PointReferenceT& point, std::ostream& out) override final
     {
         LinearAlgebra::NumericalVector value(1);
         value = element->getSolution(0, point);

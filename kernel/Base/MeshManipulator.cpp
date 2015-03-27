@@ -2822,8 +2822,8 @@ namespace Base
                     {
                         //the point is outside of the domain, move it back inside
                         double currentValue = domainDescription(point);
-                        LinearAlgebra::NumericalVector gradient {DIM};
-                        LinearAlgebra::NumericalVector offset {DIM};
+                        LinearAlgebra::NumericalVector gradient (DIM);
+                        LinearAlgebra::NumericalVector offset (DIM);
                         //one-sided numerical derivative
                         for (std::size_t j = 0; j < DIM; ++j)
                         {
@@ -2868,8 +2868,8 @@ namespace Base
                                 double currentValue = domainDescription(point);
                                 if (currentValue > 0)
                                 {
-                                    LinearAlgebra::NumericalVector gradient {DIM};
-                                    LinearAlgebra::NumericalVector offset {DIM};
+                                    LinearAlgebra::NumericalVector gradient (DIM);
+                                    LinearAlgebra::NumericalVector offset (DIM);
                                     for (std::size_t l = 0; l < DIM; ++l)
                                     {
                                         offset[l] = 1e-7;

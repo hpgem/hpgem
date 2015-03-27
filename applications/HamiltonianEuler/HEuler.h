@@ -186,13 +186,13 @@ public:
     bool initialiseMesh();
 
     ///calculates mass matrix
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix);
+    void elementIntegrand(const Base::Element* element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix);
 
-    void calculateLocalEnergy(const ElementT& element, const PointReferenceT& p, double& returnValue);
+    void calculateLocalEnergy(const Base::Element& element, const PointReferenceT& p, double& returnValue);
 
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, ElementIntegralData& returnObject);
+    void elementIntegrand(const Base::Element* element, const PointReferenceT& p, ElementIntegralData& returnObject);
 
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& p, FluxData& ret);
+    void faceIntegrand(const Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& p, FluxData& ret);
 
     void createCompressibleSystem();
     void createIncompressibleSystem();

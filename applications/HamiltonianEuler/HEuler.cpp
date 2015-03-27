@@ -159,7 +159,7 @@ bool HEuler::initialiseMesh()
 }
 
 void //computes the mass matrix
-HEuler::elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix)
+HEuler::elementIntegrand(const Base::Element* element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix)
 {
     unsigned int numOfDegreesOfFreedom = element->getNrOfBasisFunctions();
     
@@ -178,10 +178,10 @@ HEuler::elementIntegrand(const ElementT* element, const PointReferenceT& p, Line
     }
 }
 
-void HEuler::calculateLocalEnergy(const ElementT& element, const PointReferenceT& p, double& returnValue)
+void HEuler::calculateLocalEnergy(const Base::Element& element, const PointReferenceT& p, double& returnValue)
 {
     double extra = 0;
-    ElementT::SolutionVector solution = element.getSolution(0, p);
+    Base::Element::SolutionVector solution = element.getSolution(0, p);
     
     HEulerConfigurationData::SolutionType sType = static_cast<const HEulerConfigurationData*>(configData_)->solutionType_;
     
@@ -192,7 +192,7 @@ void HEuler::calculateLocalEnergy(const ElementT& element, const PointReferenceT
     returnValue = 0.5 * (solution[1] * solution[1] + solution[2] * solution[2] + solution[3] * solution[3]) + extra;
 }
 
-void HEuler::elementIntegrand(const ElementT* element, const PointReferenceT& p, ElementIntegralData& returnObject)
+void HEuler::elementIntegrand(const Base::Element* element, const PointReferenceT& p, ElementIntegralData& returnObject)
 {
     
     unsigned int numberOfDegreesOfFreedom = element->getNrOfBasisFunctions();
@@ -222,7 +222,7 @@ void HEuler::elementIntegrand(const ElementT* element, const PointReferenceT& p,
     }
 }
 
-void HEuler::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& p, FluxData& ret)
+void HEuler::faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& p, FluxData& ret)
 {
     ret.resize(face->getNrOfBasisFunctions());
     if (face->isInternal())
@@ -239,8 +239,8 @@ void HEuler::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVect
         double ny = normal[1] / magn;
         double nz = normal[2] / magn;
         
-        const ElementT* const left = face->getPtrElementLeft();
-        const ElementT* const right = face->getPtrElementRight();
+        const Base::Element* const left = face->getPtrElementLeft();
+        const Base::Element* const right = face->getPtrElementRight();
         
         pL = face->mapRefFaceToRefElemL(p);
         pR = face->mapRefFaceToRefElemR(p);
@@ -657,7 +657,7 @@ void HEuler::createIncompressibleSystem()
     ElementIntegralData gradMass;
     bool useCache = false;
     ElementIntegralT elIntegral(useCache);
-    using Integrand = void (HEuler::*)(const ElementT* , const PointReferenceT&, ElementIntegralData&);
+    using Integrand = void (HEuler::*)(const Base::Element* , const PointReferenceT&, ElementIntegralData&);
     Integrand gradMassInteg = &HEuler::elementIntegrand;
     
     std::cout << " - : Element Integration started\n";
@@ -670,7 +670,7 @@ void HEuler::createIncompressibleSystem()
         
         HEulerElementData* elementData = static_cast<HEulerElementData*>((*cit)->getUserData());
         
-        ElementT* element = (*cit);
+        Base::Element* element = (*cit);
         
         gradMass = elIntegral.integrate<ElementIntegralData>(element, this);
         
@@ -1150,7 +1150,7 @@ void HEuler::createCompressibleSystem()
     ElementIntegralData gradMass;
     bool useCache = false;
     ElementIntegralT elIntegral(useCache);
-    using Integrand = void (HEuler::*)(const ElementT* , const PointReferenceT&, ElementIntegralData&);
+    using Integrand = void (HEuler::*)(const Base::Element* , const PointReferenceT&, ElementIntegralData&);
     Integrand gradMassInteg = &HEuler::elementIntegrand;
     
     std::cout << " - : Element Integration started\n";
@@ -1163,7 +1163,7 @@ void HEuler::createCompressibleSystem()
         
         HEulerElementData* elementData = static_cast<HEulerElementData*>((*cit)->getUserData());
         
-        ElementT* elem = (*cit);
+        Base::Element* elem = (*cit);
         gradMass = elIntegral.integrate<ElementIntegralData>(elem, this);
         
         for (unsigned int j = 0; j < nb; ++j)
@@ -1434,12 +1434,12 @@ void HEuler::initialConditions()
     
     ElementIntegralT elIntegral(useCache);
     
-    using Integrand = void (HEuler::*)(const ElementT* , const PointReferenceT&, LinearAlgebra::Matrix&);
+    using Integrand = void (HEuler::*)(const Base::Element* , const PointReferenceT&, LinearAlgebra::Matrix&);
     //Integrand massMatrixIntegrand = &HEuler::calculateMassMatrix;
     
     LinearAlgebra::NumericalVector rightHand(ldof);
     
-    ElementT::SolutionVector numerical(ldof);
+    Base::Element::SolutionVector numerical(ldof);
     
     LinearAlgebra::Matrix invMassM(ldof, ldof);
     
@@ -1454,7 +1454,7 @@ void HEuler::initialConditions()
     unsigned int count = 0;
     for (ConstElementIterator cit = elementColBegin(); cit != elementColEnd(); ++cit)
     {
-        ElementT* elem = (*cit);
+        Base::Element* elem = (*cit);
         
         elemData = new HEulerElementData(ldof);
         

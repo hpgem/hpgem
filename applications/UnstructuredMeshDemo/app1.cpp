@@ -137,7 +137,7 @@ public:
         }
         
         //there is no automated addMash functionality yet, manually construct a mesh
-        Base::MeshManipulator *theMesh = new MeshManipulatorT(configData_);
+        Base::MeshManipulator *theMesh = new Base::MeshManipulator(configData_);
         
         auto start = std::chrono::high_resolution_clock::now();
         

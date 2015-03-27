@@ -81,7 +81,7 @@ public:
     
     bool initialise()
     {
-        RectangularMeshDescriptorT description(DIM_);
+        Base::RectangularMeshDescriptor description(DIM_);
         for (std::size_t i = 0; i < DIM_; ++i)
         {
             description.bottomLeft_[i] = 0;

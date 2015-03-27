@@ -281,15 +281,15 @@ namespace Base
     
     ///Get the time level data from both elements and concatenate them. 
     ///Note that we assume that the data is stored as column "vectors".
-    LinearAlgebra::NumericalVector Face::getTimeLevelData(std::size_t timeLevel)
+    LinearAlgebra::NumericalVector Face::getTimeLevelData(std::size_t timeLevel, std::size_t unknown) const
     {
-        LinearAlgebra::NumericalVector resLeft = getPtrElementLeft()->getTimeLevelData(timeLevel);
+        LinearAlgebra::NumericalVector resLeft = getPtrElementLeft()->getTimeLevelData(timeLevel, unknown);
         if (isInternal())
         {
             std::size_t numBasisFuncs = getNrOfBasisFunctions();
             std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
             resLeft.resize(numBasisFuncs);
-            LinearAlgebra::NumericalVector resRight = getPtrElementRight()->getTimeLevelData(timeLevel);
+            LinearAlgebra::NumericalVector resRight = getPtrElementRight()->getTimeLevelData(timeLevel, unknown);
             for (std::size_t i = numBasisFuncsLeft; i < numBasisFuncs; ++i)
             {
                 resLeft[i] = resRight[i - numBasisFuncsLeft];

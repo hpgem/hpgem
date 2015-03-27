@@ -43,7 +43,7 @@ public:
     ///set up the mesh
     bool initialise()
     {
-        RectangularMeshDescriptorT description(DIM);
+        Base::RectangularMeshDescriptor description(DIM);
         for (int i = 0; i < DIM; ++i)
         {
             description.bottomLeft_[i] = 0;
@@ -123,7 +123,7 @@ public:
     class : public Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>
     {
     public:
-        void faceIntegrand(const FaceT* element, const LinearAlgebra::NumericalVector&, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
+        void faceIntegrand(const Base::Face* element, const LinearAlgebra::NumericalVector&, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
         {
             PointPhysicalT pPhys = element->referenceToPhysical(p);
             ret.resize(2 * element->getNrOfBasisFunctions());
@@ -140,7 +140,7 @@ public:
     class : public Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>
     {
     public:
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
+        void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
         {
             PointPhysicalT pPhys = face->referenceToPhysical(p);
             PointReferenceT pElement = face->mapRefFaceToRefElemL(p);
@@ -161,7 +161,7 @@ public:
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
+        void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
         {
             PointPhysicalT pPhys = face->referenceToPhysical(p);
             PointReferenceT pElement = face->mapRefFaceToRefElemL(p);
@@ -201,7 +201,7 @@ public:
         }
     } elementEnergy;
 
-    void writeToTecplotFile(const ElementT* element, const PointReferenceT& p, std::ostream& out) override final
+    void writeToTecplotFile(const Base::Element* element, const PointReferenceT& p, std::ostream& out) override final
     {
         LinearAlgebra::NumericalVector value = element->getSolution(0, p);
         out << value[0] << " " << value[1];

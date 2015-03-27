@@ -307,6 +307,11 @@ namespace Base
             return face_->refFaceToRefElemMapR();
         }
         
+        LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const override final
+        {
+            return face_->getTimeLevelData(timeLevel, unknown);
+        }
+
         LinearAlgebra::Matrix getFaceMatrixMatrix(std::size_t matrixID = 0) const override final
         {
             return face_->getFaceMatrixMatrix(matrixID);
