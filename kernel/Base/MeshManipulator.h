@@ -101,7 +101,23 @@ namespace Base
 
         ~MeshManipulator();
 
+        /// creates some cheap, easy to construct basis function set (monomials) to use as a placeholder
+        /// \bug this function needs to exist because elements must have a set of basis functions at all time
+        /// so the result of this function is passed to the constructor of Element
         void createDefaultBasisFunctions(std::size_t order);
+
+        /// \brief automatically creates the DG basis function set most appropriate for the shape of the element and sets that set as the basis function set to use
+        /// \details This function takes the default conforming basis functions and cuts them off at element boundaries. The resulting basis functions have much better
+        /// conditioning properties than monomials. Due to the nature of DG, this creates 'interior' basis functions only (All basis functions are associated with the element)
+        void useDefaultDGBasisFunctions();
+
+        /// \brief automatically creates conforming basis functions, even for mixed meshes
+        /// \details For p=1, this creates a nodal basis function set associated with the mesh nodes. For higher polynomial orders it will add hierarchic basis functions associated
+        /// with edges, faces and the interior of elements. For the basis functions to be truly conforming you will need some sort of global assembly structure that respects these
+        /// associations (GlobalPETScMatrix does this). If you are building such an assembly structure yourself you may assume that the basisFunctions are indexed such that
+        /// interior basis functions of the element are first. They are followed by the face basis functions(ordered by local face number primary and the different basis functions secondary)
+        /// They are followed by the edge basis functions (using the same ordering) and finally the nodal basis functions (also using the same ordering)
+        void useDefaultConformingBasisFunctions();
 
         ElementT* addElement(const VectorOfPointIndicesT& globalNodeIndexes);
 
@@ -332,16 +348,20 @@ namespace Base
         }
         
         //! Changes the default set of basisFunctions for this mesh and all of its elements. Ignores any conforming basisFunctionset that nay be linked to faces/edges/...
+        /// Using this to set the hpGEM provided conforming or DG basis functions is deprecated: The routines useDefaultDGBasisFunctionSet and useDefaultConformingBasisFunctionSet can do this more flexibly and also support mixed meshes
         void setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet);
 
         //! Adds vertex based degrees of freedom to the set of basisfunctions for this mesh and all of its vertices. This routine will assume that the first basisfunctionset connects to the first vertex (local numbering) and so on
-        void addVertexBasisFunctionSet(const std::vector<const BasisFunctionSet*>& bFsets); ///\TODO support for mixed meshes
+        /// Using this to set the hpGEM provided conforming basis functions is deprecated: The routine useDefaultConformingBasis is more flexible and can also deal with mixed meshes
+        void addVertexBasisFunctionSet(const std::vector<const BasisFunctionSet*>& bFsets);
                 
         //! Adds face based degrees of freedom to the set of basisfunctions for this mesh and all of its faces. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
-        void addFaceBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets); ///\TODO support for mixed meshes
+        /// Using this to set the hpGEM provided conforming basis functions is deprecated: The routine useDefaultConformingBasis is more flexible and can also deal with mixed meshes
+        void addFaceBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets);
                 
         //! Adds edge based degrees of freedom to the set of basisfunctions for this mesh and all of its edges. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
-        void addEdgeBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets); ///\TODO support for mixed meshes
+        /// Using this to set the hpGEM provided conforming basis functions is deprecated: The routine useDefaultConformingBasis is more flexible and can also deal with mixed meshes
+        void addEdgeBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets);
                 
         std::size_t dimension() const;
 

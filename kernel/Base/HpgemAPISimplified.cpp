@@ -94,32 +94,8 @@ namespace Base
         std::size_t numOfFaceVectors = 0;
         
         // Create mesh and set basis functions.
-        if (configData_->dimension_ == 2)
-        {
-            if (meshType == Base::MeshType::TRIANGULAR)
-            {
-                addMesh(description, Base::MeshType::TRIANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(configData_->polynomialOrder_));
-            }
-            else if (meshType == Base::MeshType::RECTANGULAR)
-            {
-                addMesh(description, Base::MeshType::RECTANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(configData_->polynomialOrder_));
-            }
-        }
-        else if (configData_->dimension_ == 3)
-        {
-            if (meshType == Base::MeshType::TRIANGULAR)
-            {
-                addMesh(description, Base::MeshType::TRIANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(configData_->polynomialOrder_));
-            }
-            else if (meshType == Base::MeshType::RECTANGULAR)
-            {
-                addMesh(description, Base::MeshType::RECTANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(configData_->polynomialOrder_));
-            }
-        }
+        addMesh(description, meshType, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
+        meshes_[0]->useDefaultDGBasisFunctions();
         
         std::size_t nElements = meshes_[0]->getNumberOfElements();
         logger(VERBOSE, "Total number of elements: %", nElements);

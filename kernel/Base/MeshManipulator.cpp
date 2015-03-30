@@ -58,6 +58,13 @@
 #include "FaceFactory.h"
 #include "L2Norm.h"
 #include "Geometry/Jacobian.h"
+#include "Geometry/ReferenceGeometry.h"
+#include "Utilities/BasisFunctions1DH1ConformingLine.h"
+#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
+#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
+#include "Utilities/BasisFunctions3DH1ConformingCube.h"
+#include "Utilities/BasisFunctions3DH1ConformingPrism.h"
+#include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "Logger.h"
 
 #include <algorithm>
@@ -65,6 +72,20 @@
 #include <unordered_set>
 #include <array>
 #include <numeric>
+#include <type_traits>
+#include <typeinfo>
+
+//(crude) fix for pre-c++14 limitations of std::hash: just use the std::hash of the underlying type
+template<typename T>
+class EnumHash
+{
+    //cause a compile error if someone uses this for non-enum types
+    using onlyForEnums = typename std::enable_if<std::is_enum<T>::value, T>::type;
+public:
+    std::size_t operator()(const T& t) const {
+        return std::hash<typename std::underlying_type<T>::type>()(static_cast<typename std::underlying_type<T>::type>(t));
+    }
+};
 
 namespace Base
 {
@@ -171,6 +192,271 @@ namespace Base
         collBasisFSet_[0] = std::shared_ptr<const BasisFunctionSet>(bFset1);
     }
     
+    void MeshManipulator::useDefaultDGBasisFunctions()
+    {
+        collBasisFSet_.clear();
+        std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToIndex;
+        for(Element* element : getElementsList(IteratorType::GLOBAL))
+        {
+            try
+            {
+                element->setDefaultBasisFunctionSet(shapeToIndex.at(element->getReferenceGeometry()->getGeometryType()));
+            }
+            catch(std::out_of_range&)
+            {
+                switch(element->getReferenceGeometry()->getGeometryType())
+                {
+                    case Geometry::ReferenceGeometryType::LINE:
+                        shapeToIndex[Geometry::ReferenceGeometryType::LINE] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createDGBasisFunctionSet1DH1Line(configData_->polynomialOrder_));
+                        break;
+                    case Geometry::ReferenceGeometryType::SQUARE:
+                        shapeToIndex[Geometry::ReferenceGeometryType::SQUARE] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createDGBasisFunctionSet2DH1Square(configData_->polynomialOrder_));
+                        break;
+                    case Geometry::ReferenceGeometryType::TRIANGLE:
+                        shapeToIndex[Geometry::ReferenceGeometryType::TRIANGLE] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createDGBasisFunctionSet2DH1Triangle(configData_->polynomialOrder_));
+                        break;
+                    case Geometry::ReferenceGeometryType::CUBE:
+                        shapeToIndex[Geometry::ReferenceGeometryType::CUBE] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createDGBasisFunctionSet3DH1Cube(configData_->polynomialOrder_));
+                        break;
+                    case Geometry::ReferenceGeometryType::TETRAHEDRON:
+                        shapeToIndex[Geometry::ReferenceGeometryType::TETRAHEDRON] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(configData_->polynomialOrder_));
+                        break;
+                    case Geometry::ReferenceGeometryType::TRIANGULARPRISM:
+                        shapeToIndex[Geometry::ReferenceGeometryType::TRIANGULARPRISM] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createDGBasisFunctionSet3DH1ConformingPrism(configData_->polynomialOrder_));
+                        break;
+                    case Geometry::ReferenceGeometryType::PYRAMID:
+                    case Geometry::ReferenceGeometryType::HYPERCUBE:
+                        logger(ERROR, "No well-conditioned basis functions have been implemented for %s", element->getReferenceGeometry()->getName());
+                        break;
+                    case Geometry::ReferenceGeometryType::POINT:
+                        logger(ERROR, "A point is not a valid geometry for an Element!");
+                        break;
+                    default:
+                        logger(ERROR, "A new geometry has been implemented, please add it to the cases in MeshManipulator::useDefaultDGBasisFunctions and MeshManipulator::useDefaultConformingBasisFunctions");
+
+                }
+                element->setDefaultBasisFunctionSet(shapeToIndex.at(element->getReferenceGeometry()->getGeometryType()));
+            }
+        }
+    }
+
+    void MeshManipulator::useDefaultConformingBasisFunctions()
+    {
+        logger.assert(configData_->polynomialOrder_ > 0, "Basis function may not have an empty union of supporting elements. Use a DG basis function on a single element non-periodic mesh instead");
+        collBasisFSet_.clear();
+        std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToElementIndex;
+        std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > nrOfFaceSets;
+        std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > nrOfEdgeSets;
+        std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > nrOfNodeSets;
+        for(Element* element : getElementsList(IteratorType::GLOBAL))
+        {
+            try
+            {
+                element->setDefaultBasisFunctionSet(shapeToElementIndex.at(element->getReferenceGeometry()->getGeometryType()));
+            }
+            //there is more relevant code after the huge catch block
+            catch(std::out_of_range&)
+            {
+                auto type = element->getReferenceGeometry()->getGeometryType();
+                std::vector<const Base::BasisFunctionSet*> nodeSet;
+                std::vector<const Base::OrientedBasisFunctionSet*> faceSet;
+                std::vector<const Base::OrientedBasisFunctionSet*> edgeSet;
+                switch(type)
+                {
+                    case Geometry::ReferenceGeometryType::LINE:
+                        shapeToElementIndex[type] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createInteriorBasisFunctionSet1DH1Line(configData_->polynomialOrder_));
+                        nrOfFaceSets[type] = 0;
+                        nrOfEdgeSets[type] = 0;
+                        nodeSet = Utilities::createVertexBasisFunctionSet1DH1Line(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : nodeSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - nrOfEdgeSets[type] - 1;
+                        break;
+                    case Geometry::ReferenceGeometryType::SQUARE:
+                        shapeToElementIndex[type] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createInteriorBasisFunctionSet2DH1Square(configData_->polynomialOrder_));
+                        faceSet = Utilities::createFaceBasisFunctionSet2DH1Square(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : faceSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                        nrOfEdgeSets[type] = 0;
+                        nodeSet = Utilities::createVertexBasisFunctionSet2DH1Square(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : nodeSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - nrOfEdgeSets[type] - 1;
+                        break;
+                    case Geometry::ReferenceGeometryType::TRIANGLE:
+                        shapeToElementIndex[type] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createInteriorBasisFunctionSet2DH1Triangle(configData_->polynomialOrder_));
+                        faceSet = Utilities::createFaceBasisFunctionSet2DH1Triangle(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : faceSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                        nrOfEdgeSets[type] = 0;
+                        nodeSet = Utilities::createVertexBasisFunctionSet2DH1Triangle(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : nodeSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - nrOfEdgeSets[type] - 1;
+                        break;
+                    case Geometry::ReferenceGeometryType::CUBE:
+                        shapeToElementIndex[type] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createInteriorBasisFunctionSet3DH1Cube(configData_->polynomialOrder_));
+                        faceSet = Utilities::createFaceBasisFunctionSet3DH1Cube(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : faceSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                        edgeSet = Utilities::createEdgeBasisFunctionSet3DH1Cube(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : edgeSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfEdgeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - 1;
+                        nodeSet = Utilities::createVertexBasisFunctionSet3DH1Cube(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : nodeSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - nrOfEdgeSets[type] - 1;
+                        break;
+                    case Geometry::ReferenceGeometryType::TETRAHEDRON:
+                        shapeToElementIndex[type] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createInteriorBasisFunctionSet3DH1Tetrahedron(configData_->polynomialOrder_));
+                        faceSet = Utilities::createFaceBasisFunctionSet3DH1Tetrahedron(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : faceSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                        edgeSet = Utilities::createEdgeBasisFunctionSet3DH1Tetrahedron(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : edgeSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfEdgeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - 1;
+                        nodeSet = Utilities::createVertexBasisFunctionSet3DH1Tetrahedron(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : nodeSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - nrOfEdgeSets[type] - 1;
+                        break;
+                    case Geometry::ReferenceGeometryType::TRIANGULARPRISM:
+                        shapeToElementIndex[type] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createInteriorBasisFunctionSet3DH1ConformingPrism(configData_->polynomialOrder_));
+                        faceSet = Utilities::createFaceBasisFunctionSet3DH1ConformingPrism(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : faceSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                        edgeSet = Utilities::createEdgeBasisFunctionSet3DH1ConformingPrism(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : edgeSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfEdgeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - 1;
+                        nodeSet = Utilities::createVertexBasisFunctionSet3DH1ConformingPrism(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : nodeSet)
+                        {
+                            collBasisFSet_.emplace_back(set);
+                        }
+                        nrOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - nrOfEdgeSets[type] - 1;
+                        break;
+                    case Geometry::ReferenceGeometryType::PYRAMID:
+                    case Geometry::ReferenceGeometryType::HYPERCUBE:
+                        logger(ERROR, "No well-conditioned basis functions have been implemented for %s", element->getReferenceGeometry()->getName());
+                        break;
+                    case Geometry::ReferenceGeometryType::POINT:
+                        logger(ERROR, "A point is not a valid geometry for an Element!");
+                        break;
+                    default:
+                        logger(ERROR, "A new geometry has been implemented, please add it to the cases in MeshManipulator::useDefaultDGBasisFunctions and MeshManipulator::useDefaultConformingBasisFunctions");
+
+                }
+                element->setDefaultBasisFunctionSet(shapeToElementIndex.at(type));
+            }
+        }
+        for(Face* face : getFacesList(IteratorType::GLOBAL))
+        {
+            std::size_t faceNr = face->localFaceNumberLeft();
+            auto type = face->getPtrElementLeft()->getReferenceGeometry()->getGeometryType();
+            for (std::size_t i = shapeToElementIndex[type] + 1; i < shapeToElementIndex[type] + nrOfFaceSets[type] + 1; ++i)
+            {
+                logger.assert(typeid(*collBasisFSet_[i]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
+                if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[i].get())->checkOrientation(0, faceNr))
+                {
+                    face->getPtrElementLeft()->setFaceBasisFunctionSet(i, faceNr);
+                    //the number of basis functions depends on the shape of the face, not on the shape of the element
+                    face->setLocalNrOfBasisFunctions(collBasisFSet_[i]->size());
+                }
+            }
+            if (face->isInternal())
+            {
+                faceNr = face->localFaceNumberRight();
+                auto type = face->getPtrElementRight()->getReferenceGeometry()->getGeometryType();
+                int orientation = face->getFaceToFaceMapIndex();
+                for (std::size_t i = shapeToElementIndex[type] + 1; i < shapeToElementIndex[type] + nrOfFaceSets[type] + 1; ++i)
+                {
+                    logger.assert(typeid(*collBasisFSet_[i]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
+                    if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[i].get())->checkOrientation(orientation, faceNr))
+                    {
+                        face->getPtrElementRight()->setFaceBasisFunctionSet(i, faceNr);
+                    }
+                }
+            }
+        }
+        for(Edge* edge : getEdgesList(IteratorType::GLOBAL))
+        {
+            for(std::size_t i = 0; i < edge->getNrOfElements(); ++i)
+            {
+                Element* element = edge->getElement(i);
+                std::size_t edgeNr = edge->getEdgeNr(i);
+                std::size_t orientation = edge->getOrientation(i);
+                auto type = element->getReferenceGeometry()->getGeometryType();
+                for(std::size_t j = shapeToElementIndex[type] + nrOfFaceSets[type] + 1; j < shapeToElementIndex[type] + nrOfEdgeSets[type] + 1; ++j)
+                {
+                    logger.assert(typeid(*collBasisFSet_[i]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
+                    if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[i].get())->checkOrientation(orientation, edgeNr))
+                    {
+                        element->setFaceBasisFunctionSet(i, edgeNr);
+                        edge->setLocalNrOfBasisFunctions(collBasisFSet_[i]->size());
+                    }
+
+                }
+            }
+        }
+        for(Node* node : getVerticesList(IteratorType::GLOBAL))
+        {
+            for(std::size_t i = 0; i < node->getNrOfElements(); ++i)
+            {
+                Element* element = node->getElement(i);
+                std::size_t nodeNr = node->getVertexNr(i);
+                auto type = element->getReferenceGeometry()->getGeometryType();
+                element->setVertexBasisFunctionSet(shapeToElementIndex[type] + nrOfFaceSets[type] + nrOfEdgeSets[type] + 1 + nodeNr, nodeNr);
+                node->setLocalNrOfBasisFunctions(collBasisFSet_[shapeToElementIndex[type] + nrOfFaceSets[type] + nrOfEdgeSets[type] + 1 + nodeNr]->size());
+            }
+        }
+    }
+
     MeshManipulator::MeshManipulator(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrtixes, std::size_t nrOfFaceVectors)
             : configData_(config),
             meshMover_(nullptr), numberOfElementMatrixes_(nrOfElementMatrixes), numberOfFaceMatrixes_(nrOfFaceMatrtixes), numberOfElementVectors_(nrOfElementVectors), numberOfFaceVectors_(nrOfFaceVectors)
