@@ -57,10 +57,11 @@ namespace Base
         using GaussQuadratureRuleT = QuadratureRules::GaussQuadratureRule;
         using VecCacheT = std::vector<CacheT>;
         using SolutionVector = LinearAlgebra::NumericalVector;
+        using CollectionOfBasisFunctionSets = std::vector<std::shared_ptr<const BasisFunctionSet>>;
 
     public:
         
-        Element(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<const BasisFunctionSet*>* basisFunctionSet, std::vector<Geometry::PointPhysical>& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrices = 0, std::size_t numberOfElementVectors = 0, const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
+        Element(const std::vector<std::size_t>& globalNodeIndexes, const CollectionOfBasisFunctionSets *basisFunctionSet, std::vector<Geometry::PointPhysical>& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrices = 0, std::size_t numberOfElementVectors = 0, const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
 
         Element(const Element& other) = delete;
         
@@ -205,8 +206,8 @@ namespace Base
         ///Compute the mass matrix of this element.
         void computeMassMatrix();
 
-        const GaussQuadratureRuleT* quadratureRule_;
-        const std::vector<const BasisFunctionSet*>* basisFunctionSet_;
+        const GaussQuadratureRuleT *quadratureRule_;
+        const CollectionOfBasisFunctionSets *basisFunctionSet_;
         std::size_t id_;
         double orderCoeff_;
         std::vector<int> basisFunctionSetPositions_;

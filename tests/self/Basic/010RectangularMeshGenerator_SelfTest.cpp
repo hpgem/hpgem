@@ -261,5 +261,8 @@ int main(int argc, char** argv)
     testMesh(test2);    
     testPointPhysicalsOfElementsOfCopiedMesh(test, test2);
     
+    delete test2;
+    delete test;
+    
     return 0;
 }

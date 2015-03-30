@@ -82,7 +82,7 @@ namespace Base
         using VectorOfElementPtrT = std::vector<ElementT* >;
         using VectorOfPhysicalPointsT = std::vector<PointPhysicalT >;
         using VectorOfPointIndicesT = std::vector<PointIndexT>;
-        using CollectionOfBasisFunctionSets = std::vector<const BasisFunctionSetT*>;
+        using CollectionOfBasisFunctionSets = std::vector<std::shared_ptr<const BasisFunctionSetT>>;
         using VecOfElementLevelTreePtrT = std::vector<ElementLevelTreeT*>;
         using VecOfFaceLevelTreePtrT = std::vector<FaceLevelTreeT*>;
         
@@ -335,7 +335,7 @@ namespace Base
         void setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet);
 
         //! Adds vertex based degrees of freedom to the set of basisfunctions for this mesh and all of its vertices. This routine will assume that the first basisfunctionset connects to the first vertex (local numbering) and so on
-        void addVertexBasisFunctionSet(const CollectionOfBasisFunctionSets& bFsets); ///\TODO support for mixed meshes
+        void addVertexBasisFunctionSet(const std::vector<const BasisFunctionSet*>& bFsets); ///\TODO support for mixed meshes
                 
         //! Adds face based degrees of freedom to the set of basisfunctions for this mesh and all of its faces. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
         void addFaceBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets); ///\TODO support for mixed meshes

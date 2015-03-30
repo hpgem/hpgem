@@ -168,7 +168,7 @@ namespace Base
         {
             collBasisFSet_.resize(1);
         }
-        collBasisFSet_[0] = bFset1;
+        collBasisFSet_[0] = std::shared_ptr<const BasisFunctionSet>(bFset1);
     }
     
     MeshManipulator::MeshManipulator(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrtixes, std::size_t nrOfFaceVectors)
@@ -208,15 +208,7 @@ namespace Base
     }
     
     MeshManipulator::~MeshManipulator()
-    {
-        
-        for (typename CollectionOfBasisFunctionSets::iterator bit = collBasisFSet_.begin(); bit != collBasisFSet_.end(); ++bit)
-        {
-            const BasisFunctionSetT* bf = *bit;
-            ///\bug segfaults when using two meshes with the same sets of basisfunctions
-            delete bf; 
-        }
-        
+    {        
         delete meshMover_;
         
     }
@@ -224,8 +216,8 @@ namespace Base
     void MeshManipulator::setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet)
     {
         logger.assert(bFSet!=nullptr, "Invalid basis function set passed");
-        delete collBasisFSet_[0];
-        collBasisFSet_[0] = bFSet;
+        //delete collBasisFSet_[0];
+        collBasisFSet_[0] = std::shared_ptr<const BasisFunctionSet>(bFSet);
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ = bFSet->size();
         for (Base::Face* face : getFacesList(IteratorType::GLOBAL))
         {
@@ -245,13 +237,13 @@ namespace Base
         }
     }
     
-    void MeshManipulator::addVertexBasisFunctionSet(const CollectionOfBasisFunctionSets& bFsets)
+    void MeshManipulator::addVertexBasisFunctionSet(const std::vector<const BasisFunctionSet*>& bFsets)
     {
         std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet* set : bFsets)
         {
             logger.assert(set!=nullptr, "Invalid basis function set detected");
-            collBasisFSet_.push_back(set);
+            collBasisFSet_.emplace_back(set);
         }
         for (Node* node : getVerticesList())
         {
@@ -270,7 +262,7 @@ namespace Base
         for (const BasisFunctionSet* set : bFsets)
         {
             logger.assert(set!=nullptr, "Invalid basis function set detected");
-            collBasisFSet_.push_back(set);
+            collBasisFSet_.emplace_back(set);
         }
         for (Face* face : getFacesList())
         {
@@ -305,7 +297,7 @@ namespace Base
         for (const BasisFunctionSet* set : bFsets)
         {
             logger.assert(set!=nullptr, "Invalid basis function set detected");
-            collBasisFSet_.push_back(set);
+            collBasisFSet_.emplace_back(set);
         }
         logger(DEBUG, "In MeshManipulator::addEdgeBasisFunctionSet: ");
         for (Edge* edge : getEdgesList())

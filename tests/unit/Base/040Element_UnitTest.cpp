@@ -92,13 +92,13 @@ int main()
     point[2] = 7.7;
     nodes.push_back(point);
     
-    Base::BasisFunctionSet basisFunctions(3);
+    Base::BasisFunctionSet* basisFunctions = new Base::BasisFunctionSet(3);
     
-    Base::AssembleBasisFunctionSet_3D_Ord3_A1(basisFunctions);
+    Base::AssembleBasisFunctionSet_3D_Ord3_A1(*basisFunctions);
     
-    std::vector<const Base::BasisFunctionSet*> vectorOfFunctions(1, &basisFunctions);
+    std::vector<std::shared_ptr<const Base::BasisFunctionSet>> vectorOfFunctions(1, std::shared_ptr<const Base::BasisFunctionSet>(basisFunctions));
     
-    Base::Element test(pointIndexes, &vectorOfFunctions, nodes, 3, 14, basisFunctions.size(), 18);
+    Base::Element test(pointIndexes, &vectorOfFunctions, nodes, 3, 14, basisFunctions->size(), 18);
     
     logger.assert_always((test.getGaussQuadratureRule() != nullptr), "quadrature rule");
     
@@ -111,7 +111,7 @@ int main()
     //check set*BasisFunctionSet without breaking preconditions...
     
     Geometry::PointReference point3D(3);
-    for (std::size_t i = 0; i < basisFunctions.size(); ++i)
+    for (std::size_t i = 0; i < basisFunctions->size(); ++i)
     {
         for (point[0] = -1.5; point[0] < 1.51; point[0] += 0.1)
         {
@@ -119,10 +119,10 @@ int main()
             {
                 for (point[2] = -1.5; point[2] < 1.51; point[2] += 0.1)
                 {
-                    logger.assert_always((test.basisFunction(i, point3D) == basisFunctions[i]->eval(point3D)), "basisFunctions");
-                    logger.assert_always((test.basisFunctionDeriv(i, 0, point3D) == basisFunctions[i]->evalDeriv0(point3D)), "basisFunctions");
-                    logger.assert_always((test.basisFunctionDeriv(i, 1, point3D) == basisFunctions[i]->evalDeriv1(point3D)), "basisFunctions");
-                    logger.assert_always((test.basisFunctionDeriv(i, 2, point3D) == basisFunctions[i]->evalDeriv2(point3D)), "basisFunctions");
+                    logger.assert_always((test.basisFunction(i, point3D) == (*basisFunctions)[i]->eval(point3D)), "basisFunctions");
+                    logger.assert_always((test.basisFunctionDeriv(i, 0, point3D) == (*basisFunctions)[i]->evalDeriv0(point3D)), "basisFunctions");
+                    logger.assert_always((test.basisFunctionDeriv(i, 1, point3D) == (*basisFunctions)[i]->evalDeriv1(point3D)), "basisFunctions");
+                    logger.assert_always((test.basisFunctionDeriv(i, 2, point3D) == (*basisFunctions)[i]->evalDeriv2(point3D)), "basisFunctions");
                 }
             }
         }

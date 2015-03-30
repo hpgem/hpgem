@@ -45,7 +45,7 @@ namespace Base
 {
     
     Element::Element(const VectorOfPointIndexesT& globalNodeIndexes, 
-                     const std::vector<const BasisFunctionSet*>* basisFunctionSet, 
+                     const CollectionOfBasisFunctionSets *basisFunctionSet, 
                      VectorOfPhysicalPointsT& allNodes, 
                      std::size_t nrOfUnkowns, 
                      std::size_t nrOfTimeLevels, 
