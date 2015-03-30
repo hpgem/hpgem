@@ -271,11 +271,11 @@ LinearAlgebra::NumericalVector AcousticWave::integrandRightHandSideOnRefFace
  const LinearAlgebra::NumericalVector &solutionCoefficientsRight
  )
 {
-    std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
-    std::size_t numOfSolutionBasisFunctionsLeft = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions();
-    std::size_t numOfSolutionBasisFunctionsRight = ptrFace->getPtrElementRight()->getNrOfBasisFunctions();
+    std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
+    std::size_t numOfSolutionBasisFunctionsLeft = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
+    std::size_t numOfSolutionBasisFunctionsRight = ptrFace->getPtrElementRight()->getNrOfBasisFunctions(); //Get the number of basis functions on the right side
     
-    LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfTestBasisFunctions);
+    LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfTestBasisFunctions); // Integrand value based on n number of testbasisfunctions from element corresponding to side iSide
     
     LinearAlgebra::NumericalVector numericalSolutionLeft(numOfVariables_);
     LinearAlgebra::NumericalVector numericalSolutionRight(numOfVariables_);

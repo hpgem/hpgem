@@ -43,6 +43,9 @@ int main(int argc, char **argv)
     Base::parse_options(argc, argv);
     try
     {
+
+        const bool useLinearSolver = false;
+
         // Set parameters for the PDE.
         const std::size_t dimension = 2;    // Either 2 or 3
         const Base::MeshType meshType = Base::MeshType::TRIANGULAR;    // Either TRIANGULAR or RECTANGULAR.
