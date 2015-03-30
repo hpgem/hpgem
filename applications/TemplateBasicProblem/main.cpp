@@ -54,10 +54,10 @@ public:
     }
     
     /// \brief Create a rectangular mesh description
-    RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        RectangularMeshDescriptor description(configData_->dimension_);
+        Base::RectangularMeshDescriptor description(configData_->dimension_);
         
         for (std::size_t i = 0; i < configData_->dimension_; ++i)
         {

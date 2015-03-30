@@ -53,12 +53,6 @@ namespace Base
         using VectorOfUIntegers = std::vector<std::size_t>;
         using String = std::string;
         
-        //For use in applications that inherit (possibly indirectly) from this class
-        using Element = Base::Element;
-        using Face = Base::Face;
-        using MeshManipulator = Base::MeshManipulator;
-        using MeshMoverBase = Base::MeshMoverBase;
-        using RectangularMeshDescriptor = Base::RectangularMeshDescriptor;
 
 
     public:

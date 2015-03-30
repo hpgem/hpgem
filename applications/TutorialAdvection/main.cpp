@@ -58,7 +58,7 @@ public:
     Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        RectangularMeshDescriptor description(DIM_);
+        Base::RectangularMeshDescriptor description(DIM_);
         
         //this demo will use the square [0,1]^2
         for (std::size_t i = 0; i < DIM_; ++i)
@@ -80,7 +80,7 @@ public:
     ///basisfunctions phi_i and phi_j.
     ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
     ///so you wont have to do any transformations yourself
-    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Element *element, const PointReferenceT &point) override final
+    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
     {
         std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
         LinearAlgebra::Matrix  result(numBasisFuncs, numBasisFuncs, 0);
@@ -105,7 +105,7 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, to which we passed a reference when calling it.
     ///Please note that you pass a reference point to the basisfunctions and the 
     ///transformations are done internally. The class FaceMatrix consists of four element matrices for internal faces and one element matrix for faces on the boundary. Each element matrix corresponds to a pair of two adjacent elements of the face.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Face *face, const LinearAlgebra::NumericalVector &normal, const PointReferenceT &point) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face *face, const LinearAlgebra::NumericalVector &normal, const PointReferenceT &point) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
