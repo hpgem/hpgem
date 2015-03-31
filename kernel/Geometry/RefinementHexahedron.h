@@ -50,7 +50,9 @@ namespace Geometry
         }
         
         RefinementHexahedron(const RefinementHexahedron& other)
-                : physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_) 
+                : RefinementGeometry(other), 
+                physicalGeometry_(other.physicalGeometry_), 
+                referenceGeometry_(other.referenceGeometry_) 
         {
             std::cout << "RefinementHexahedron(other)\n";
         }

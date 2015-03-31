@@ -50,7 +50,7 @@ namespace Geometry
         }
         
         RefinementTriangle(const RefinementTriangle& other)
-                : physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
+                : RefinementGeometry(other), physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
         {
             std::cout << "RefinementTriangle(other)\n";
         }

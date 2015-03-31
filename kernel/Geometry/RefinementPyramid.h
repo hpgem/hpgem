@@ -40,7 +40,7 @@ namespace Geometry
         }
         
         RefinementPyramid(const RefinementPyramid& other)
-                : physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
+                : RefinementGeometry(other), physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
         {
             std::cout << "RefinementPyramid(other)\n";
         }

@@ -46,7 +46,9 @@ namespace Geometry
         }
         
         RefinementHypercube(const RefinementHypercube& other)
-                : physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
+                : RefinementGeometry(other), 
+                physicalGeometry_(other.physicalGeometry_), 
+                referenceGeometry_(other.referenceGeometry_)
         {
             std::cout << "RefinementHypercube(other)\n";
         }
