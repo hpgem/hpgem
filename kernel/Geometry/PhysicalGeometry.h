@@ -65,6 +65,8 @@ namespace Geometry
         {
             logger.assert(refG!=nullptr, "Invalid reference geometry passed");
         }
+                
+        PhysicalGeometry(const PhysicalGeometry& other) = delete;
         
         /// \brief Returns a constant pointer to the container of the global node indexes.
         const std::vector<std::size_t>& getNodeIndexes() const
@@ -180,5 +182,4 @@ namespace Geometry
     };
 
 }
-;
 #endif /* PHYSICALGEOMETRY_H_ */

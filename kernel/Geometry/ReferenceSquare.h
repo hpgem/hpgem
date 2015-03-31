@@ -44,22 +44,14 @@ namespace Geometry
         using ReferenceGeometry::String;
         using ReferenceGeometry::ListOfIndexesT;
 
-    public:
-        
         static ReferenceSquare& Instance()
         {
             static ReferenceSquare theInstance;
             return theInstance;
         }
         
-    private:
-        
-        ReferenceSquare();
-
         ReferenceSquare(const ReferenceSquare& copy) = delete;
 
-    public:
-        
         //! (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference& point) const override final;
 
@@ -133,6 +125,9 @@ namespace Geometry
         void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const override final;
 
     private:
+        
+        ReferenceSquare();
+        
         //! Local node indexes contains the numbering of the vertex of the shape, ordered by faces.
         //! See top comment for the corresponding numbering.
         static std::size_t localNodeIndexes_[4][2];

@@ -46,22 +46,14 @@ namespace Geometry
         using typename ReferenceGeometry::VectorOfReferencePointsT;
 
         using ReferenceGeometry::String;
-
-    public:
         
         static ReferenceCube& Instance()
         {
             static ReferenceCube theInstance;
             return theInstance;
         }
-        
-    private:
-        
-        ReferenceCube();
 
         ReferenceCube(const ReferenceCube& other) = delete;
-
-    public:
         
         //! (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference& p) const override final;
@@ -148,6 +140,9 @@ namespace Geometry
         void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const;
 
     private:
+        
+        ReferenceCube();
+        
         //! Local node indexes contains the numbering of the vertex of the shape, ordered by faces.
         //! See top comment for the corresponding numbering.
         static std::size_t localNodeIndexes_[6][4];

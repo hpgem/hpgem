@@ -33,17 +33,12 @@ namespace Geometry
         using typename ReferenceGeometry::VectorOfReferencePointsT;
         using ReferenceGeometry::String;
 
-    public:
         static ReferencePyramid& Instance()
         {
             static ReferencePyramid theInstance;
             return theInstance;
         }
         
-    private:
-        
-        ReferencePyramid();
-
         ReferencePyramid(const ReferencePyramid& copy) = delete;
 
     public:
@@ -142,6 +137,9 @@ namespace Geometry
         }
         
     private:
+        
+        ReferencePyramid();
+        
         //! Local node indexes contains the numbering of the vertex of the shape, ordered by faces.
         //! See top comment for the corresponding numbering.
         static std::size_t localNodeIndexes_[5][4];

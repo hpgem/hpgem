@@ -34,20 +34,13 @@ namespace Geometry
         using ReferenceGeometry::VectorOfReferencePointsT;
         using ReferenceGeometry::String;
 
-    public:
         static ReferenceHypercube& Instance()
         {
             static ReferenceHypercube theInstance;
             return theInstance;
         }
-        
-    private:
-        
-        ReferenceHypercube();
 
         ReferenceHypercube(const ReferenceHypercube& copy) = delete;
-
-    public:
         
         //! (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference& point) const override final;
@@ -143,6 +136,9 @@ namespace Geometry
         }
         
     private:
+        
+        ReferenceHypercube();
+        
         //! Local node indexes contains the numbering of the vertex of the shape, ordered by faces.
         static std::size_t localNodeIndexes_[8][8]; // 8 'faces' (cubes) with 8 vertex.
         

@@ -22,6 +22,7 @@
 #include <cmath>
 #include <functional>
 #include <chrono>
+
 #include "Base/CommandLineOptions.h"
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
@@ -33,9 +34,6 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
-
-#include <chrono>
-
 #include "Logger.h"
 
 /// Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.

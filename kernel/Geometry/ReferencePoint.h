@@ -40,22 +40,15 @@ namespace Geometry
         using ReferenceGeometryT = ReferenceGeometry;
         using ReferenceGeometryT::VectorOfReferencePointsT;
         using ListOfIndexesT = std::vector<std::size_t>;
-
-    public:
+        
         static ReferencePoint& Instance()
         {
             static ReferencePoint theInstance;
             return theInstance;
         }
-        
-    private:
-        
-        ReferencePoint();
 
         ReferencePoint(const ReferencePoint&) = delete;
 
-    public:
-        
         /// \brief Return true.
         bool isInternalPoint(const PointReference& p) const override final;
 
@@ -101,12 +94,14 @@ namespace Geometry
         {
         }
         
+    private:
         /// \brief List of valid quadrature rules for this reference geometry
         std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
 
         //! Codimension 1 mappings, from a line to a line. TODO: Where is this used? clarify here.
         const MappingReferenceToReference* mappingsPointToPoint_; //!< codim0
+        
+        ReferencePoint();
     };
 }
-;
 #endif

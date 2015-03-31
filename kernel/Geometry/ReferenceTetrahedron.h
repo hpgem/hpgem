@@ -52,13 +52,7 @@ namespace Geometry
             return theInstance;
         }
         
-    private:
-        
-        ReferenceTetrahedron();
-
         ReferenceTetrahedron(const ReferenceTetrahedron& copy) = delete;
-
-    public:
         
         //! (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference& point) const override final;
@@ -156,6 +150,8 @@ namespace Geometry
         }
         
     private:
+        
+        ReferenceTetrahedron();
         
         //! Local node indexes contains the numbering of the vertex of the shape, ordered by faces.
         //! See top comment for the corresponding numbering.

@@ -155,7 +155,6 @@ namespace Geometry
         ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT);
         ReferenceGeometry(const ReferenceGeometry& other) = delete;
 
-    protected:
         /// Container of the actual points (no reference).
         VectorOfReferencePointsT points_;
         /// An identifier of the type of referenceGeometry, that some say shouldn't be used.

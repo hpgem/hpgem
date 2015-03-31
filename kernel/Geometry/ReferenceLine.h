@@ -45,17 +45,12 @@ namespace Geometry
         using Ref1ToRef1MappingT = MappingReferenceToReference; // Numbers indicate dim.
         using Ref0ToRef1MappingT = MappingReferenceToReference;
 
-    public:
         static ReferenceLine& Instance()
         {
             static ReferenceLine theInstance;
             return theInstance;
         }
         
-    private:
-        
-        ReferenceLine();
-
         ReferenceLine(const ReferenceLine&) = delete;
 
     public:
@@ -126,6 +121,9 @@ namespace Geometry
         }
         
     private:
+        
+        ReferenceLine();
+
         //! Local node indexes contains the numbering of the vertex of the shape, ordered by faces.
         //! See top comment for the corresponding numbering. (In a line, the 'faces' are nodes,
         //! and nodes are just a coordinate).

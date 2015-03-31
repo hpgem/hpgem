@@ -125,14 +125,14 @@ namespace Geometry
         RefinementGeometry()
                 : appliedRefineType_(-1), refineType_(-1), beingRefined_(false)
         {
-            std::cout << "RefinementGeometry()  ";
+            logger(VERBOSE, "RefinementGeometry()  has been called.");
         }
         
         //! \brief Copy constructor.
         RefinementGeometry(const RefinementGeometry& other)
                 : appliedRefineType_(other.appliedRefineType_), refineType_(other.refineType_), beingRefined_(other.beingRefined_)
         {
-            std::cout << "RefinementGeometry()  ";
+            logger(VERBOSE, "RefinementGeometry(const RefinementGeometry& other) has been called.");
         }
         
     private:

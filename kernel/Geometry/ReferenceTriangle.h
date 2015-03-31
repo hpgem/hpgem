@@ -44,23 +44,15 @@ namespace Geometry
     public:
         using ReferenceGeometry::String;
         using ReferenceGeometry::ListOfIndexesT;
-
-    public:
         
         static ReferenceTriangle& Instance()
         {
             static ReferenceTriangle theInstance;
             return theInstance;
         }
-        
-    private:
-        
-        ReferenceTriangle();
 
         ReferenceTriangle(const ReferenceTriangle& copy) = delete;
 
-    public:
-        
         /// /see (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference& point) const override final;
 
@@ -143,6 +135,8 @@ namespace Geometry
         }
         
     private:
+        
+        ReferenceTriangle();
         
         //! Local node indexes contains the numbering of the vertex of the shape, ordered by faces.
         //! See top comment for the corresponding numbering.
