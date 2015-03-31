@@ -37,7 +37,11 @@
 namespace Base
 {
     /// \brief Simplified Interface for solving linear PDE's.
-    /** At the moment this class is well-suited for problems of the form \f[ l(\partial_t^k \vec{u}) = f(t) + g(\vec{u}) \f], where \f$ \vec{u} \f$ is some vector function, \f$ l(\partial_t^k \vec{u})\f$ is some linear function, applied on the k-th order time-derivative of \f$ u \f$, and \f$ f(t) + g(\vec{u}) \f$ is the right-hand side, which is some linear function of \f$ \vec{u} \f$ (that can depend on arbitrary order spatial derivatives of \f$\vec{u}\f$) plus some source term \f$ f(t) \f$. The resulting set of ODE's will have the form \f[ M\partial_t^ku = Su + f(t)\f], where \f$S\f$ is the stiffness matrix and \f$f(t)\f$ is the source term. If you do not want to store all element- and face matrices for the mass matrix and stiffness matrix, it is advised to use the superclass HpgemAPISimplified instead.
+    /** At the moment this class is well-suited for problems of the form \f[ l(\partial_t^k u) = f(t) + s(u) \f], where \f$ u\in R^{n_V} \f$ is a vector function, \f$ l:R^{n_V}\rightarrow R^{n_V} \f$ is a linear function, applied on the k-th order time-derivative of \f$ u \f$, and \f$ f(t) + s(u) \f$ is the right-hand side, where \f$ s(u) \f$ is some linear function of \f$ u \f$ (that can depend on arbitrary order spatial derivatives of \f$ u \f$) and \f$ f(t) \f$ is a source term. The resulting set of ODE's will have the form \f[ M\partial_t^ku = Su + f(t)\f], where \f$S\f$ is the stiffness matrix and \f$f(t)\f$ is the source term. If you do not want to store all element- and face matrices for the mass matrix and stiffness matrix, it is advised to use the superclass HpgemAPISimplified instead.
+     */
+    /** \details Let \f$ \{\phi_{i_B}^e\} \f$ be the set of DG basis functions, where \f$ e \f$ is an element and \f$ i_B \f$ is the index for a basis function corresponding to this element. The basis functions are such that \f$ \phi_{i_B}^e\f$ is non-zero only at element \f$ e \f$. The solution \f$ u \f$ is approximated as follows \f[ u_{i_V}(x,t)|_{x\in e} = \sum_{i_B} \bar{u}^e_{i_V,i_B}(t)\phi_{i_B}(x), \f] for \f$ i_V = 0 .. n_V-1 \f$, where \f$ \bar{u}^e\f$ are the solution coefficients corresponding to element \f$ e \f$.
+     
+     Let \f$ f \f$ be a face and \f$ i_S \f$ the index of a side of the face (either left or right. Let \f$ (f,i_S) \f$ denote the element at side \f$ i_S \f$ of face \f$ f \f$ (at the boundary we only have a left side). We can write the DG scheme as follows \f[ \sum_{j_V,j_B} M^e_{i_V,i_B;j_V,j_B} \partial_t \bar{u}^e_{j_V,j_B} = f^e_{i_V,i_B}(t) + f^f_{i_V,i_B}(t) + \sum_{j_V,j_B}S^e_{i_V,i_B;j_V.j_B}\bar{u}^e_{j_V.j_B} + \sum_{(f,i_S)=e, j_S,j_V,j_B} S^{f,i_S,j_S}_{i_V,i_B;j_V,j_B}\bar{u}^{(f,j_S)}_{j_V,j_B} \f] where \f$ M^e \f$ is the mass matrix at an element, \f$ S^e \f$ is the stiffness element matrix, \f$ S^f \f$ is the stiffness face matrix, \f$ f^e(t) \f$ is the source term corresponding to an element and \f$ f^f(t) \f$ is the source term corresponding to a boundary face.
      */
     /** \details To solve some linear time depent PDE with this class you should at least do the following:
      * \li Create your own class that inherits this class.
@@ -54,7 +58,7 @@ namespace Base
      * \li Call the function 'setOutputNames' to set the names for the output files.
      * \li Call the function 'solve'.
      */
-    /** \details Some other thinsgs you can do:
+    /** \details Some other things you can do:
      * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
      * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (by default this function computes the standard L2 inner product).
      * \li Implement the function 'computeMassMatrixAtElement' if you want to compute the mass matrix (by default a mass matrix is computed based on the L2 inner product).

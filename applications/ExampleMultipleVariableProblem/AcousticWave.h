@@ -52,13 +52,13 @@
  
  For a first order scheme we define the scalar function \f$ v := \partial_t u \f$ and the vector function \f$ s := c \nabla u \f$. We can then obtain the equations \f[ \partial_t v = \nabla \cdot s \f] and \f[ c^{-1} \partial_t s = \nabla v \f]
  
- We define a new vector function \f$w = [w_0, w_1, w_2, ..] = [v, s_0, s_1, ..]\f$. We can then rewrite the system of PDE's as follows: \f[ \partial_t w_0 = \partial_i w_{i+1} \f] summing over i = 0 .. (DIM-1) and \f[ c^{-1} \partial_t w_{i+1} = \partial_i w_0 \f] for i = 0 .. (DIM-1).
+ We define a new vector function \f$w = [w_0, w_1, w_2, ..] = [v, s_0, s_1, ..]\f$. We can then rewrite the system of PDE's as follows: \f[ \partial_t w_0 = \partial_i w_{i_V+1} \f] summing over \f$ i_V = 0 .. (DIM-1)\f$ and \f[ c^{-1} \partial_t w_{i_V+1} = \partial_i w_0 \f] for \f$ i_V = 0 .. (DIM-1) \f$.
  
  We use periodic boundary conditions or free surface conditions (\f$ \hat{n}\cdot s=0 \f$, with \f$ \hat{n} \f$ the normal unit vector).
  
  This class consists of the following parts:
  \li A constructor to set the dimension, number of elements, polynomial order, butcher tableau, and boolean for storing matrices.
- \li The functions 'createMesh' and 'setMaterialParameter' are used to create the mesh and set the material parameters.
+ \li The functions 'createMesh' and 'setMaterialParameter' are used to create the mesh and set the material parameter.
  \li The functions 'getCInv', 'getSourceTerm' and 'getExactSolution' return the material parameters, source term and analytic solution.
  \li The functions 'integrand...OnRefElement' and 'integrand...OnRefElement' compute the integrand for ... for the reference element/face. These functions are necessary to compute the mass matrix, right-hand side, initial solution and numerical error.
  \li The function 'solve' solves the PDE over the time interval [startTime, endTime].

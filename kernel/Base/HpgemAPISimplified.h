@@ -49,7 +49,11 @@ namespace Base
     extern CommandLineOption<std::size_t>& numberOfSnapshots;
     
     /// \brief Simplified Interface for solving PDE's.
-    /** This class is well-suited for problems of the form \f[ l(\partial_t^k \vec{u}) = f(\vec{u},t) \f], where \f$ \vec{u} \f$ is some vector function, \f$ l(\partial_t^k \vec{u})\f$ is some linear function, applied on the k-th order time-derivative of \f$ u \f$, and \f$ f(\vec{u},t) \f$ is some function of \f$ \vec{u} \f$ that can depend on arbitrary order spatial derivatives of \f$\vec{u}\f$. This last term will be referred to as the right-hand side. The resulting set of ODE's will have the form \f[ M\partial_t^ku = f(u,t)\f], where \f$ M\f$ is the mass matrix, \f$u\f$ is the numerical solution vector and \f$f(u)\f$ is the right-hand side.
+    /** This class is well-suited for problems of the form \f[ l(\partial_t^k u) = f(u,t) \f], where \f$ u\in R^{n_V} \f$ is a vector function, \f$ l:R^{n_V}\rightarrow R^{n_V}\f$ is a linear function, applied on the k-th order time-derivative of \f$ u \f$, and \f$ f(u,t) \f$ is a function of \f$ u \f$ that can depend on arbitrary order spatial derivatives of \f$u\f$. This last term will be referred to as the right-hand side. The resulting set of ODE's will have the form \f[ M\partial_t^ku = f(u,t)\f], where \f$ M\f$ is the mass matrix, \f$u\f$ is the numerical solution vector and \f$f(u)\f$ is the right-hand side.
+     */
+    /** \details Let \f$ \{\phi_{i_B}^e\} \f$ be the set of DG basis functions, where \f$ e \f$ is an element and \f$ i_B \f$ is the index for a basis function corresponding to this element. The basis functions are such that \f$ \phi_{i_B}^e\f$ is non-zero only at element \f$ e \f$. The solution \f$ u \f$ is approximated as follows \f[ u_{i_V}(x,t)|_{x\in e} = \sum_{i_B} \bar{u}^e_{i_V,i_B}(t)\phi_{i_B}(x), \f] for \f$ i_V = 0 .. n_V-1 \f$, where \f$ \bar{u}^e\f$ are the solution coefficients corresponding to element \f$ e \f$.
+     
+     Let \f$ f \f$ be a face and \f$ i_S \f$ the index of a side of the face (either left or right. Let \f$ (f,i_S) \f$ denote the element at side \f$ i_S \f$ of face \f$ f \f$ (at the boundary we only have a left side). We can write the DG scheme as follows \f[ \sum_{j_V,j_B} M^e_{i_V,i_B;j_V,j_B} \partial_t \bar{u}^e_{j_V,j_B} = r^e_{i_V,i_B}(\bar{u}^e,t) + \sum_{(f,i_S)=e} r^{f,i_S}_{i_V,i_B}(\bar{u}^{(f,j_S)},t), \f] where \f$ M^e \f$ is the mass matrix at an element, \f$ r^e \f$ is the right hand side corresponding to an eleement and \f$ r^{f,i_S} \f$ the right-hand-side corresponding to a face.
      */
     /** \details To solve some linear time depent PDE with this class you should at least do the following:
      * \li Create your own class that inherits this class.
@@ -63,17 +67,17 @@ namespace Base
      * \li Call the function 'setOutputNames' to set the names for the output files.
      * \li Call the function 'solve'.
      */
-    /** \details Some other thinsgs you can do:
+    /** \details Some other things you can do:
      * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
      * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (by default this function computes the standard L2 inner product).
-     * \li Implement the function 'computeMassMatrixAtElement' if you want to compute the mass matrix (by default a mass matrix is computed based on the L2 norm).
+     * \li Implement the function 'computeMassMatrixAtElement' if you want to compute the mass matrix (by default a mass matrix is computed based on the L2 inner product).
      * \li Override the function 'solveMassMatrixEquationsAtElement' if you want to solve the mass matrix equtions without computing the mass matrix first.
      * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element (by default the L2-norm is computed).
      * \li Override the function 'writeToTecplotFile' to determine what data to write to the output file.
      * \li Override the function 'showProgress' to determine how you want to show the progress of the time integration routine.
      * \li Override the function 'solve' when using another time integration routine than a Runge-Kutta integration method.
      */
-    /** \details For an example of using this interface see the application 'ExampleMultipleVariableProblem'.
+    /** \details For an example of using this interface see the application class 'AcousticWave'.
      */
     
     class HpgemAPISimplified : public HpgemAPIBase, public Output::TecplotSingleElementWriter
