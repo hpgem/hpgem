@@ -280,35 +280,28 @@ auto& p = Base::register_argument<int>('p', "order", "polynomial order of the so
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    try
-    {
-        // Choose the dimension (2 or 3)
-        const std::size_t dimension = 3;
-        
-        // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
-        const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
-        
-        // Choose variable name(s). Since we have a scalar function, we only need to chooes one name.
-        std::vector<std::string> variableNames;
-        variableNames.push_back("u");
-        
-        //Make the object test with n elements in each direction and polynomial order p.
-        PoissonTest test(dimension, numBasisFuns.getValue(), p.getValue());
-        
-        //Create the mesh
-        test.createMesh(numBasisFuns.getValue(), meshType);
-        
-        // Set the names for the output file
-        test.setOutputNames("output", "PoissonTest", "PoissonTest", variableNames);
-        
-        //Solve the system.
-        test.solveSteadyStateWithPetsc();
-        
-        return 0;
-    }
-    catch (const char* e)
-    {
-        std::cout << e;
-    }
+    // Choose the dimension (2 or 3)
+    const std::size_t dimension = 3;
+
+    // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
+    const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
+
+    // Choose variable name(s). Since we have a scalar function, we only need to chooes one name.
+    std::vector<std::string> variableNames;
+    variableNames.push_back("u");
+
+    //Make the object test with n elements in each direction and polynomial order p.
+    PoissonTest test(dimension, numBasisFuns.getValue(), p.getValue());
+
+    //Create the mesh
+    test.createMesh(numBasisFuns.getValue(), meshType);
+
+    // Set the names for the output file
+    test.setOutputNames("output", "PoissonTest", "PoissonTest", variableNames);
+
+    //Solve the system.
+    test.solveSteadyStateWithPetsc();
+
+    return 0;
 }
         

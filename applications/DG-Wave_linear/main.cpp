@@ -432,16 +432,9 @@ auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", 
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    try
-    {
-        DGWave test(n.getValue(), p.getValue());
-        test.initialise();
-        test.solve();
-        return 0;
-    }
-    catch (const char* e)
-    {
-        std::cout << e;
-    }
+    DGWave test(n.getValue(), p.getValue());
+    test.initialise();
+    test.solve();
+    return 0;
 }
 

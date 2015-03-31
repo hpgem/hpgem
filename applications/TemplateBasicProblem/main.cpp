@@ -176,50 +176,43 @@ auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "poly
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    try
+    // Set parameters for the PDE.
+    const std::size_t dimension = 2;    // Either 2 or 3
+    const std::size_t numberOfVariables = 1;
+    const Base::MeshType meshType = Base::MeshType::TRIANGULAR;    // Either TRIANGULAR or RECTANGULAR.
+    const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
+    const bool doComputeError = false;  // Set to true if you want to compute the error.
+
+    std::vector<std::string> variableNames(numberOfVariables);
+    for(std::size_t i = 0; i < numberOfVariables; i++)
     {
-        // Set parameters for the PDE.
-        const std::size_t dimension = 2;    // Either 2 or 3
-        const std::size_t numberOfVariables = 1;
-        const Base::MeshType meshType = Base::MeshType::TRIANGULAR;    // Either TRIANGULAR or RECTANGULAR.
-        const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
-        const bool doComputeError = false;  // Set to true if you want to compute the error.
-        
-        std::vector<std::string> variableNames(numberOfVariables);
-        for(std::size_t i = 0; i < numberOfVariables; i++)
-        {
-            // Choose names for the variables
-            logger(ERROR, "Remove this line. Make sure you have chosen names for the different variables.");
-            variableNames[i] = "variable" + std::to_string(i);
-        }
-        
-        // Create a problem solver, that can solve the implemented problem. Chooes your own name for the object.
-        ExampleProblem problemSolver(dimension, numberOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
-        
-        // Create the mesh
-        problemSolver.createMesh(numOfElements.getValue(), meshType);
-        
-        // Set the names for the output file. Choose your own names.
-        problemSolver.setOutputNames("output", "internalFileTitle", "solutionTitle", variableNames);
-        
-        // Solve the problem over time interval [startTime,endTime].
-            // Start Measuring elapsed time
-        std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
-        startClock = std::chrono::system_clock::now();
-        
-            // Solve the problem
-        problemSolver.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), doComputeError);
-        
-            // Measure elapsed time
-        endClock = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed_seconds = endClock - startClock;
-        std::cout << "Elapsed time for solving the PDE: " << elapsed_seconds.count() << "s\n";
-        
-        return 0;
+        // Choose names for the variables
+        logger(ERROR, "Remove this line. Make sure you have chosen names for the different variables.");
+        variableNames[i] = "variable" + std::to_string(i);
     }
-    catch (const char* e)
-    {
-        std::cout << e;
-    }
+
+    // Create a problem solver, that can solve the implemented problem. Chooes your own name for the object.
+    ExampleProblem problemSolver(dimension, numberOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
+
+    // Create the mesh
+    problemSolver.createMesh(numOfElements.getValue(), meshType);
+
+    // Set the names for the output file. Choose your own names.
+    problemSolver.setOutputNames("output", "internalFileTitle", "solutionTitle", variableNames);
+
+    // Solve the problem over time interval [startTime,endTime].
+        // Start Measuring elapsed time
+    std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
+    startClock = std::chrono::system_clock::now();
+
+        // Solve the problem
+    problemSolver.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), doComputeError);
+
+        // Measure elapsed time
+    endClock = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = endClock - startClock;
+    std::cout << "Elapsed time for solving the PDE: " << elapsed_seconds.count() << "s\n";
+
+    return 0;
 }
 

@@ -205,40 +205,31 @@ auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", 
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    try
-    {
-        // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
-        const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
-        
-        // Choose variable name(s). Since we have a scalar function, we only need to choose one name.
-        std::vector<std::string> variableNames;
-        variableNames.push_back("u");
-        
-        //Construct our problem with n elements in every direction and polynomial order p
-        AdvectionTest test(p.getValue());
-        
-        //Create the mesh
-        test.createMesh(n.getValue(), meshType);
-        
-        // Set the names for the output file
-        test.setOutputNames("output", "AdvectionTest", "AdvectionTest", variableNames);
-        
-        //Run the simulation and write the solution
-        
-        auto startTime = std::chrono::steady_clock::now();
-        
-        test.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), true);
-        
-        auto endTime = std::chrono::steady_clock::now();
-        
-        logger(INFO, "Simulation took %ms.", std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
-        
-        return 0;
-    }
-    //If something went wrong, print the error message and return -1.
-    catch (const char* e)
-    {
-        std::cerr << e;
-    }
-    return -1;
+    // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
+    const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
+
+    // Choose variable name(s). Since we have a scalar function, we only need to choose one name.
+    std::vector<std::string> variableNames;
+    variableNames.push_back("u");
+
+    //Construct our problem with n elements in every direction and polynomial order p
+    AdvectionTest test(p.getValue());
+
+    //Create the mesh
+    test.createMesh(n.getValue(), meshType);
+
+    // Set the names for the output file
+    test.setOutputNames("output", "AdvectionTest", "AdvectionTest", variableNames);
+
+    //Run the simulation and write the solution
+
+    auto startTime = std::chrono::steady_clock::now();
+
+    test.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), true);
+
+    auto endTime = std::chrono::steady_clock::now();
+
+    logger(INFO, "Simulation took %ms.", std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
+
+    return 0;
 }
