@@ -59,10 +59,10 @@ namespace Geometry
         {
             return 2;
         }
+        MappingToRefTriangleToTriangle0(const MappingToRefTriangleToTriangle0&) = delete;
+        MappingToRefTriangleToTriangle0& operator=(const MappingToRefTriangleToTriangle0&) = delete;
     private:
         MappingToRefTriangleToTriangle0();
-        MappingToRefTriangleToTriangle0(const MappingToRefTriangleToTriangle0&);
-        MappingToRefTriangleToTriangle0& operator=(const MappingToRefTriangleToTriangle0&);
     };
     // ~~~ index 1 ~~~==============================================================================
     class MappingToRefTriangleToTriangle1 : public MappingReferenceToReference
@@ -75,10 +75,10 @@ namespace Geometry
         {
             return 2;
         }
+        MappingToRefTriangleToTriangle1(const MappingToRefTriangleToTriangle1&) = delete;
+        MappingToRefTriangleToTriangle1& operator=(const MappingToRefTriangleToTriangle1&) = delete;
     private:
         MappingToRefTriangleToTriangle1();
-        MappingToRefTriangleToTriangle1(const MappingToRefTriangleToTriangle1&);
-        MappingToRefTriangleToTriangle1& operator=(const MappingToRefTriangleToTriangle1&);
     };
     // ~~~ index 2 ~~~==============================================================================
     class MappingToRefTriangleToTriangle2 : public MappingReferenceToReference
@@ -91,10 +91,10 @@ namespace Geometry
         {
             return 2;
         }
+        MappingToRefTriangleToTriangle2(const MappingToRefTriangleToTriangle2&) = delete;
+        MappingToRefTriangleToTriangle2& operator=(const MappingToRefTriangleToTriangle2&) = delete;
     private:
         MappingToRefTriangleToTriangle2();
-        MappingToRefTriangleToTriangle2(const MappingToRefTriangleToTriangle2&);
-        MappingToRefTriangleToTriangle2& operator=(const MappingToRefTriangleToTriangle2&);
     };
     // ~~~ index 3 ~~~==============================================================================
     class MappingToRefTriangleToTriangle3 : public MappingReferenceToReference
@@ -107,10 +107,10 @@ namespace Geometry
         {
             return 2;
         }
+        MappingToRefTriangleToTriangle3(const MappingToRefTriangleToTriangle3&) = delete;
+        MappingToRefTriangleToTriangle3& operator=(const MappingToRefTriangleToTriangle3&) = delete;
     private:
         MappingToRefTriangleToTriangle3();
-        MappingToRefTriangleToTriangle3(const MappingToRefTriangleToTriangle3&);
-        MappingToRefTriangleToTriangle3& operator=(const MappingToRefTriangleToTriangle3&);
     };
     // ~~~ index 4 ~~~==============================================================================
     class MappingToRefTriangleToTriangle4 : public MappingReferenceToReference
@@ -123,10 +123,10 @@ namespace Geometry
         {
             return 2;
         }
+        MappingToRefTriangleToTriangle4(const MappingToRefTriangleToTriangle4&) = delete;
+        MappingToRefTriangleToTriangle4& operator=(const MappingToRefTriangleToTriangle4&) = delete;
     private:
         MappingToRefTriangleToTriangle4();
-        MappingToRefTriangleToTriangle4(const MappingToRefTriangleToTriangle4&);
-        MappingToRefTriangleToTriangle4& operator=(const MappingToRefTriangleToTriangle4&);
     };
     // ~~~ index 5 ~~~==============================================================================
     class MappingToRefTriangleToTriangle5 : public MappingReferenceToReference
@@ -139,10 +139,10 @@ namespace Geometry
         {
             return 2;
         }
+        MappingToRefTriangleToTriangle5(const MappingToRefTriangleToTriangle5&) = delete;
+        MappingToRefTriangleToTriangle5& operator=(const MappingToRefTriangleToTriangle5&) = delete;
     private:
         MappingToRefTriangleToTriangle5();
-        MappingToRefTriangleToTriangle5(const MappingToRefTriangleToTriangle5&);
-        MappingToRefTriangleToTriangle5& operator=(const MappingToRefTriangleToTriangle5&);
     };
 }
 #endif

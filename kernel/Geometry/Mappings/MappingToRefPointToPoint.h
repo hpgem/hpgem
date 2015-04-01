@@ -48,9 +48,10 @@ namespace Geometry
         {
             return 0;
         }
+        MappingToRefPointToPoint(const MappingToRefPointToPoint&) = delete;
+        MappingToRefPointToPoint& operator=(const MappingToRefPointToPoint&) = delete;
     private:
         MappingToRefPointToPoint();
-        MappingToRefPointToPoint(const MappingToRefPointToPoint&) = delete;
     };
 
 } /* namespace Geometry */

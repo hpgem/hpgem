@@ -69,6 +69,5 @@ namespace Geometry
         std::vector<PointPhysical> a;
     };
 }
-;
 #include "MappingToPhysSimplexLinear_Impl.h"
 #endif

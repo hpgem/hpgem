@@ -49,5 +49,4 @@ namespace Geometry
         virtual PointReference transform(const Geometry::PointReference&) const = 0;
     };
 }
-;
 #endif /* REFERENCETOPHYSICALM_H_ */

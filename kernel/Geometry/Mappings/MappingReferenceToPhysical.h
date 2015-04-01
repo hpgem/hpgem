@@ -70,9 +70,11 @@ namespace Geometry
         // Methods.
         //! ~OC~ Transform a point from reference space to physical space.
         virtual PointPhysical transform(const PointReference&) const = 0;
+        
         //! ~OC~ Recompute mapping after physical nodes have moved.
         ///\BUG will horribly break everything unless you happen to pass the same  physicalGeometry that you used to construct this mapping
         virtual void reinit(const PhysicalGeometry* const) = 0;
+        
         const PointPhysical& getNodeCoordinates(const std::size_t index) const;
 
     private:
@@ -81,6 +83,4 @@ namespace Geometry
     };
 
 }
-;
-
 #endif /* REFERENCETOPHYSICALM_H_ */

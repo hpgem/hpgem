@@ -38,10 +38,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefFaceToTriangularPrism0(const MappingToRefFaceToTriangularPrism0&) = delete;
+        MappingToRefFaceToTriangularPrism0& operator=(const MappingToRefFaceToTriangularPrism0&) = delete;
     private:
         MappingToRefFaceToTriangularPrism0();
-        MappingToRefFaceToTriangularPrism0(const MappingToRefFaceToTriangularPrism0&);
-        MappingToRefFaceToTriangularPrism0& operator=(const MappingToRefFaceToTriangularPrism0&);
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -56,10 +56,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefFaceToTriangularPrism1(const MappingToRefFaceToTriangularPrism1&) = delete;
+        MappingToRefFaceToTriangularPrism1& operator=(const MappingToRefFaceToTriangularPrism1&) = delete;
     private:
         MappingToRefFaceToTriangularPrism1();
-        MappingToRefFaceToTriangularPrism1(const MappingToRefFaceToTriangularPrism1&);
-        MappingToRefFaceToTriangularPrism1& operator=(const MappingToRefFaceToTriangularPrism1&);
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -74,10 +74,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefFaceToTriangularPrism2(const MappingToRefFaceToTriangularPrism2&) = delete;
+        MappingToRefFaceToTriangularPrism1& operator=(const MappingToRefFaceToTriangularPrism2&) = delete;
     private:
         MappingToRefFaceToTriangularPrism2();
-        MappingToRefFaceToTriangularPrism2(const MappingToRefFaceToTriangularPrism2&);
-        MappingToRefFaceToTriangularPrism1& operator=(const MappingToRefFaceToTriangularPrism2&);
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -92,10 +92,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefFaceToTriangularPrism3(const MappingToRefFaceToTriangularPrism3&) = delete;
+        MappingToRefFaceToTriangularPrism3& operator=(const MappingToRefFaceToTriangularPrism3&) = delete;
     private:
         MappingToRefFaceToTriangularPrism3();
-        MappingToRefFaceToTriangularPrism3(const MappingToRefFaceToTriangularPrism3&);
-        MappingToRefFaceToTriangularPrism3& operator=(const MappingToRefFaceToTriangularPrism3&);
     };
     
     // ~~~ index 4 ~~~==============================================================================
@@ -110,10 +110,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefFaceToTriangularPrism4(const MappingToRefFaceToTriangularPrism4&) = delete;
+        MappingToRefFaceToTriangularPrism4& operator=(const MappingToRefFaceToTriangularPrism4&) = delete;
     private:
         MappingToRefFaceToTriangularPrism4();
-        MappingToRefFaceToTriangularPrism4(const MappingToRefFaceToTriangularPrism4&);
-        MappingToRefFaceToTriangularPrism4& operator=(const MappingToRefFaceToTriangularPrism4&);
     };
 
 }

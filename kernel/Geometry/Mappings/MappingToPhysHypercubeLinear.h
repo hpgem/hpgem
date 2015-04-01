@@ -119,5 +119,4 @@ namespace Geometry
         PointPhysical abar, a0, a1, a2, a3, a01, a02, a03, a12, a13, a23, a012, a013, a123, a230, a0123;
     };
 }
-;
 #endif
