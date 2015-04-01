@@ -56,20 +56,24 @@ namespace Base
         {
         }
         
-        ///Set/update the element matrix.
-        void setElementMatrix(const LinearAlgebra::Matrix&, std::size_t matrixID = 0);
+        /// \brief Set/update the element matrix.
+        void setElementMatrix(const LinearAlgebra::Matrix &, std::size_t matrixID = 0);
 
-        /// Get the element matrix corresponding to the given matrixiD.
-        virtual const LinearAlgebra::Matrix& getElementMatrix(std::size_t matrixID = 0) const;
+        /// \brief Get the element matrix corresponding to the given matrixiD.
+        virtual const LinearAlgebra::Matrix &getElementMatrix(std::size_t matrixID = 0) const;
         
         /// \brief Returns (and creates if unavailable) the expansion coefficients corresponding to a given timelevel in the form of a matrix. 
         ///\deprecated This function is much slower than getTimeLevelDataVector,
         /// since it needs to reshape a vector to a matrix and returns a copy. 
         /// Therefore it is advised to use getTimeLevelDataVector.
+        /*
         LinearAlgebra::Matrix getTimeLevelDataMatrix(std::size_t timeLevel);
+         */
 
+        /// \brief Set the element vector corresponding to the given vectorID.
         virtual void setElementVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0);
 
+        /// \brief Get the element vector corresponding to the given vectorID.
         virtual LinearAlgebra::NumericalVector getElementVector(std::size_t vectorID = 0) const;
 
         /// \brief Sets (and creates if unavailable) the expansion coefficients corresponding to the given time level.
@@ -121,8 +125,13 @@ namespace Base
         void setNumberOfBasisFunctions(std::size_t number);
 
     private:
+        /// The number of time levels
         std::size_t timeLevels_;
+        
+        /// The number of variables (unknowns).
         std::size_t nrOfUnknowns_;
+        
+        /// The number of basis functions
         std::size_t nrOfBasisFunctions_;
 
         /// \brief Stores the expansion coefficients.

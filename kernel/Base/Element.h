@@ -84,25 +84,28 @@ namespace Base
         void setEdgeBasisFunctionSet(std::size_t position, std::size_t localIndex);
         void setFaceBasisFunctionSet(std::size_t position, std::size_t localIndex);
 
+        /// \brief Get a pointer to the quadrature rule used to do integration on this element.
         virtual const GaussQuadratureRuleT* getGaussQuadratureRule() const;
 
         virtual VecCacheT& getVecCacheData();
 
+        /// \brief Get the value of the basis function (corresponding to index i) at the physical point corresponding to reference point p.
         virtual double basisFunction(std::size_t i, const PointReferenceT& p) const;
 
-        ///\brief returns the value of the i-th basisfunction at point p in ret
+        /// \brief returns the value of the i-th basisfunction at point p in ret.
         virtual void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
 
-        /// \param[in] jDir Direction of the derivative, jDir=0 means x, and etc.
+        /// \brief Get the value of the derivative of the physical basisfunction (corresponding to index i) in the direction jDir at the physical point corresponding to reference point p.
         virtual double basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const;
         
-        ///\brief the all directions in one go edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
-        ///\details if some of the data needed for this mapping is already stored on a wrapper class, you can pass the class to this function for more efficient computation
+        /// \brief Get the gradient of the physical basis function (corresponding to index i) at the physical point corresponding to reference point p.
+        /// \details If some of the data needed for the reference to physical gradient mapping is already stored on a wrapper class, you can pass the class to this function for more efficient computation
         virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* wrapper = nullptr) const;
 
-        ///\brief returns the curl of the i-th basisfunction at point p in ret
+        /// \brief Returns the curl of the i-th basisfunction at point p in ret.
         virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const PointReferenceT& p) const;
 
+        /// \brief Get the solution at the given timeLevel at the physical point corresponding to reference point p.
         virtual SolutionVector getSolution(std::size_t timeLevel, const PointReferenceT& p) const;
 
         void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution); ///\TODO not implemented  
@@ -113,6 +116,7 @@ namespace Base
 
         void setNode(std::size_t localNodeNr, const Node* node);
 
+        
         virtual std::size_t getLocalNrOfBasisFunctions() const
         {
             return nrOfDOFinTheElement_;
@@ -219,7 +223,8 @@ namespace Base
         std::size_t nrOfDOFinTheElement_;
         
         VecCacheT vecCacheData_;
-        ///Stores that mass matrix for this element
+        
+        ///Stores the mass matrix for this element
         LinearAlgebra::Matrix massMatrix_;
     };
 }

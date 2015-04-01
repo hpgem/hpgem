@@ -276,9 +276,6 @@ namespace Base
         return vecCacheData_;
     }
     
-    /// \param[in] timeLevel The index for the time level for which to get the solution.
-    /// \param[in] p The reference point for which to get the solution.
-    /// \param[in] solution The solution vector where the value at index iV corresponds to the solution for variable iV corresponding to the given time level and reference point.
     Element::SolutionVector Element::getSolution(std::size_t timeLevel, const PointReferenceT& p) const
     {
         std::size_t numberOfUnknows = ElementData::getNrOfUnknows();

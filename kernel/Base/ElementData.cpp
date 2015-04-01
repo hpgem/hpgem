@@ -59,7 +59,7 @@ namespace Base
     }
 
     
-    void ElementData::setElementMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID)
+    void ElementData::setElementMatrix(const LinearAlgebra::Matrix &matrix, std::size_t matrixID)
     {
         logger(VERBOSE, "In ElementData::setElementMatrix:");
         logger(VERBOSE, "matrix ID = %", matrixID);
@@ -186,6 +186,8 @@ namespace Base
      \return A matrix M such that M(iV,iB) is the expansion coefficient corresponding 
      * to variable iV and basisfunction iB at the given time level.
      */
+    
+    /*
     LinearAlgebra::Matrix ElementData::getTimeLevelDataMatrix(std::size_t timeLevel)
     {
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
@@ -205,6 +207,7 @@ namespace Base
         }
         return M;
     }
+     */
     
     /// \param[in] timeLevel Index corresponding to the time level.
     /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.
