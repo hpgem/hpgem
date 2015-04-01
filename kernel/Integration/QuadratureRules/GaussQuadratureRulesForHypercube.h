@@ -43,18 +43,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         Cn4_1_1();
         Cn4_1_1(const Cn4_1_1&);
-        virtual ~Cn4_1_1();
     private:
         const std::string name_;
         double weight_[1];
@@ -74,18 +73,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         Cn4_3_16();
         Cn4_3_16(const Cn4_3_16&);
-        virtual ~Cn4_3_16();
     private:
         const std::string name_;
         double weight_[16];

@@ -48,12 +48,14 @@ namespace Base
         LOCAL, GLOBAL
     };
     
-    class Mesh
+    //class is made final so we don't have to create a v-table specifically for the destructor
+    class Mesh final
     {
     public:
         Mesh();
+        ///\todo Make this copy constructor make a new mesh.
         Mesh(const Mesh& orig);
-        virtual ~Mesh();
+        ~Mesh();
 
         Element* addElement(const std::vector<std::size_t>& globalNodeIndexes);
 
@@ -230,7 +232,7 @@ namespace Base
         //! List of all nodes. (connectivity-based location of vertices)
         std::vector<Node*> nodes_;
 
-        std::size_t elementcounter_;
+        std::size_t elementCounter_;
         std::size_t faceCounter_;
         std::size_t edgeCounter_;
         std::size_t nodeCounter_;

@@ -45,13 +45,13 @@ void move(Base::MeshManipulator* mesh)
             p *= 2;
         }
     } mover;
-    for (const Geometry::PointPhysical& node : mesh->getNodes())
+    for (Geometry::PointPhysical& node : mesh->getNodes())
     {
-        mover.movePoint(const_cast<Geometry::PointPhysical&>(node));
+        mover.movePoint(node);
     }
     for (Base::Element* element : mesh->getElementsList())
     {
-        const_cast<Geometry::MappingReferenceToPhysical*>(element->getReferenceToPhysicalMap())->reinit(element->getPhysicalGeometry());
+        element->getReferenceToPhysicalMap()->reinit(element->getPhysicalGeometry());
     }
 }
 

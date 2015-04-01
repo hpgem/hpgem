@@ -26,6 +26,9 @@
 #include "Geometry/ReferenceTriangle.h"
 #include "Geometry/PointReference.h"
 
+//only uses the constant basis functions
+#include "BasisFunctionsCollection_A.h"
+
 namespace Utilities
 {
     
@@ -83,32 +86,40 @@ namespace Utilities
     Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Triangle(std::size_t order)
     {
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
-        for (std::size_t i = 0; i < 3; ++i)
-        {
-            result->addBasisFunction(new BasisFunction2DVertexTriangle(i));
-        }
-        for (std::size_t k = 0; k + 2 <= order; ++k)
+        if(order > 0)
         {
             for (std::size_t i = 0; i < 3; ++i)
             {
-                for (std::size_t j = 0; j < i; ++j)
-                {
-                    result->addBasisFunction(new BasisFunction2DFaceTriangle(i, j, k));
-                }
+                result->addBasisFunction(new BasisFunction2DVertexTriangle(i));
             }
-            if (k + 3 <= order)
+            for (std::size_t k = 0; k + 2 <= order; ++k)
             {
-                for (std::size_t j = 0; j <= k; ++j)
+                for (std::size_t i = 0; i < 3; ++i)
                 {
-                    result->addBasisFunction(new BasisFunction2DInteriorTriangle(k - j, j));
+                    for (std::size_t j = 0; j < i; ++j)
+                    {
+                        result->addBasisFunction(new BasisFunction2DFaceTriangle(i, j, k));
+                    }
+                }
+                if (k + 3 <= order)
+                {
+                    for (std::size_t j = 0; j <= k; ++j)
+                    {
+                        result->addBasisFunction(new BasisFunction2DInteriorTriangle(k - j, j));
+                    }
                 }
             }
+        }
+        else
+        {
+            result->addBasisFunction(new Base::Basis_A0_2D);
         }
         return result;
     }
     
     Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Triangle(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
         for (std::size_t i = 0; i + 3 <= order; ++i)
         {
@@ -122,6 +133,7 @@ namespace Utilities
     
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Triangle(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set;
         for (int i = 0; i < 3; ++i)
@@ -135,6 +147,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Triangle(std::size_t order)
     {
+        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceTriangle& triangle = Geometry::ReferenceTriangle::Instance();

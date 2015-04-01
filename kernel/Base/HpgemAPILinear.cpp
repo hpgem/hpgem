@@ -49,6 +49,7 @@ namespace Base
     /// \param[in] butcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
     /// \param[in] numOfTimeLevels Number of time levels. If a butcherTableau is set and the number of time levels is too low, this will be corrected automatically.
     /// \param[in] useSourceTerm Boolean to indicate if there is a source term.
+    /// \param[in] useSourceTerm Boolean to indicate if there is a source term at the domain boundary.
     HpgemAPILinear::HpgemAPILinear
     (
      const std::size_t dimension,
@@ -56,10 +57,12 @@ namespace Base
      const std::size_t polynomialOrder,
      const Base::ButcherTableau * const ptrButcherTableau,
      const std::size_t numOfTimeLevels,
-     const bool useSourceTerm
+     const bool useSourceTerm,
+     const bool useSourceTermAtBoundary
      ) :
     HpgemAPISimplified(dimension, numOfVariables, polynomialOrder, ptrButcherTableau, numOfTimeLevels),
     useSourceTerm_(useSourceTerm),
+    useSourceTermAtBoundary_(useSourceTermAtBoundary),
     massMatrixID_(1),
     stiffnessElementMatrixID_(0),
     stiffnessFaceMatrixID_(0)
@@ -75,34 +78,10 @@ namespace Base
         std::size_t numOfElementVectors = 0;
         std::size_t numOfFaceMatrices = 1;      // Stiffness matrix
         std::size_t numOfFaceVectors = 0;
-        
+
         // Create mesh and set basis functions.
-        if (configData_->dimension_ == 2)
-        {
-            if (meshType == Base::MeshType::TRIANGULAR)
-            {
-                addMesh(description, Base::MeshType::TRIANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(configData_->polynomialOrder_));
-            }
-            else if (meshType == Base::MeshType::RECTANGULAR)
-            {
-                addMesh(description, Base::MeshType::RECTANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(configData_->polynomialOrder_));
-            }
-        }
-        else if (configData_->dimension_ == 3)
-        {
-            if (meshType == Base::MeshType::TRIANGULAR)
-            {
-                addMesh(description, Base::MeshType::TRIANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(configData_->polynomialOrder_));
-            }
-            else if (meshType == Base::MeshType::RECTANGULAR)
-            {
-                addMesh(description, Base::MeshType::RECTANGULAR, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-                meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(configData_->polynomialOrder_));
-            }
-        }
+        addMesh(description, meshType, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
+        meshes_[0]->useDefaultDGBasisFunctions();
         
         std::size_t nElements = meshes_[0]->getNumberOfElements();
         logger(VERBOSE, "Total number of elements: %", nElements);
@@ -127,6 +106,8 @@ namespace Base
             const LinearAlgebra::Matrix &massMatrix(ptrElement->getElementMatrix(massMatrixID_));
             massMatrix.solve(solutionCoefficients);
         }
+        
+        synchronize(timeLevel);
     }
     
     LinearAlgebra::Matrix HpgemAPILinear::computeStiffnessMatrixAtElement(Base::Element *ptrElement)
@@ -147,6 +128,59 @@ namespace Base
         return faceIntegrator_.integrate(ptrFace, integrandFunction);
     }
     
+    LinearAlgebra::NumericalVector HpgemAPILinear::integrateSourceTermAtFace(Base::Face *ptrFace, const double time, const std::size_t orderTimeDerivative)
+    {
+        // Define a function for the integrand of the stiffness matrix at a element.
+        std::function<LinearAlgebra::NumericalVector(const Base::Face *, const LinearAlgebra::NumericalVector &, const Geometry::PointReference &)> integrandFunction = [=](const Base::Face *ptrFace, const LinearAlgebra::NumericalVector &normal, const Geometry::PointReference &pRef) -> LinearAlgebra::NumericalVector
+        {return this->computeIntegrandSourceTermAtFace(ptrFace, normal, pRef, time, orderTimeDerivative);};
+        
+        return faceIntegrator_.integrate(ptrFace, integrandFunction);
+    }
+    
+    /// \details By default, the standard L2 inner product with the source term is computed.
+    LinearAlgebra::NumericalVector HpgemAPILinear::integrateSourceTermAtElement(Base::Element * ptrElement, const double time, const std::size_t orderTimeDerivative)
+    {
+        // Get number of basis functions
+        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        
+        // Declare integral source term
+        LinearAlgebra::NumericalVector integralSourceTerm(numOfBasisFunctions * configData_->numberOfUnknowns_);
+        
+        // Declare integrand
+        LinearAlgebra::NumericalVector integrandSourceTerm(numOfBasisFunctions * configData_->numberOfUnknowns_);
+        
+        // Get quadrature rule and number of points.
+        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
+        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        
+        // For each quadrature point, compute the value of the product of the
+        // test function and the source term, then add it with the correct weight to the integral solution.
+        for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
+        {
+            Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
+            Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+            
+            Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+            
+            LinearAlgebra::NumericalVector sourceTerm = getSourceTerm(pPhys, time, orderTimeDerivative);
+            
+            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            {
+                double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
+                
+                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                {
+                    std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
+                    
+                    integrandSourceTerm(iVB) = sourceTerm(iV) * valueBasisFunction;
+                }
+            }
+            integralSourceTerm.axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandSourceTerm);
+        }
+        
+        return integralSourceTerm;
+    }
+    
     void HpgemAPILinear::createStiffnessMatrices()
     {
         logger(INFO, "- Creating stiffness matrices for the elements.");
@@ -160,69 +194,149 @@ namespace Base
         for (Base::Face *ptrFace : meshes_[0]->getFacesList())
         {
             Base::FaceMatrix stiffnessFaceMatrix(computeStiffnessMatrixAtFace(ptrFace));
+            if(!ptrFace->isInternal())
+            {
+                logger.assert(stiffnessFaceMatrix.getNrOfDegreesOfFreedom(Base::Side::RIGHT) == 0,"The number of degrees of freedom corresonding to the right side of a boundary face should be 0, but is here %.", stiffnessFaceMatrix.getNrOfDegreesOfFreedom(Base::Side::RIGHT));
+            }
             ptrFace->setFaceMatrix(stiffnessFaceMatrix, stiffnessFaceMatrixID_);
         }
     }
     
-    /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
-    void HpgemAPILinear::computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
+    /// \details Make sure timeLevelIn is different from timeLevelResult.
+    void HpgemAPILinear::multiplyStiffnessMatrices(const std::size_t timeLevelIn, const std::size_t timeLevelResult)
     {
-        // Apply the right hand side corresponding to integration on the elements.
+        // Multiply the stiffness matrices corresponding to the elements.
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
             LinearAlgebra::NumericalVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevelIn));
             LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
             
             solutionCoefficientsNew = ptrElement->getElementMatrix(stiffnessElementMatrixID_) * solutionCoefficients;
-            if(useSourceTerm_)
+        }
+        
+        // Multiply the stiffness matrices corresponding to the faces.
+        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
+        {
+            if(ptrFace->isInternal())
             {
-                solutionCoefficientsNew += integrateSourceTermAtElement(ptrElement, time, orderTimeDerivative);
+                LinearAlgebra::NumericalVector &solutionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelIn));
+                LinearAlgebra::NumericalVector &solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelIn));
+                LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
+                
+                const Base::FaceMatrix &stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
+                
+                solutionCoefficientsLeftNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * solutionCoefficientsRight;
+                solutionCoefficientsRightNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * solutionCoefficientsRight;
+            }
+            else
+            {
+                LinearAlgebra::NumericalVector &solutionCoefficients(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelIn));
+                LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                
+                const LinearAlgebra::Matrix &stiffnessMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_).getElementMatrix(Base::Side::LEFT, Base::Side::LEFT);
+                
+                solutionCoefficientsNew += stiffnessMatrix * solutionCoefficients;
             }
         }
         
-        // Apply the right hand side corresponding to integration on the faces.
-        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
-        {
-            LinearAlgebra::NumericalVector &solutionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelIn));
-            LinearAlgebra::NumericalVector &solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelIn));
-            LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
-            LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
-            
-            const Base::FaceMatrix &stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
-            
-            solutionCoefficientsLeftNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * solutionCoefficientsRight;
-            solutionCoefficientsRightNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * solutionCoefficientsRight;
-        }
+        synchronize(timeLevelResult);
     }
     
-    /// \details Make sure timeLevelResult is different from the timeLevelsIn.
-    void HpgemAPILinear::computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
+    /// \details Make sure timeLevelsIn are different from timeLevelResult.
+    void HpgemAPILinear::multiplyStiffnessMatrices(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult)
     {
-        // Apply the right hand side corresponding to integration on the elements.
+        // Multiply the stiffness matrices corresponding to the elements.
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
             LinearAlgebra::NumericalVector solutionCoefficients(getSolutionCoefficients(ptrElement, timeLevelsIn, coefficientsTimeLevels));
             LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
             
             solutionCoefficientsNew = ptrElement->getElementMatrix(stiffnessElementMatrixID_) * solutionCoefficients;
-            if(useSourceTerm_)
+        }
+        
+        // Multiply the stiffness matrices corresponding to the faces.
+        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
+        {
+            if(ptrFace->isInternal())
             {
-                solutionCoefficientsNew += integrateSourceTermAtElement(ptrElement, time, orderTimeDerivative);
+                LinearAlgebra::NumericalVector solutionCoefficientsLeft(getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
+                LinearAlgebra::NumericalVector solutionCoefficientsRight(getSolutionCoefficients(ptrFace->getPtrElementRight(), timeLevelsIn, coefficientsTimeLevels));
+                LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
+                
+                const Base::FaceMatrix &stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
+                
+                solutionCoefficientsLeftNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * solutionCoefficientsRight;
+                solutionCoefficientsRightNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * solutionCoefficientsRight;
+            }
+            else
+            {
+                LinearAlgebra::NumericalVector solutionCoefficients(getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
+                LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                
+                const LinearAlgebra::Matrix &stiffnessMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_).getElementMatrix(Base::Side::LEFT, Base::Side::LEFT);
+                
+                solutionCoefficientsNew += stiffnessMatrix * solutionCoefficients;
             }
         }
         
-        // Apply the right hand side corresponding to integration on the faces.
+        synchronize(timeLevelResult);
+    }
+    
+    void HpgemAPILinear::addSourceTerm(const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
+    {
+        
+        // Add the source terms corresponding to the elements.
+        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
+        {
+            LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
+            
+            solutionCoefficientsNew += integrateSourceTermAtElement(ptrElement, time, orderTimeDerivative);
+        }
+        synchronize(timeLevelResult);
+    }
+    
+    void HpgemAPILinear::addSourceTermAtBoundary(const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
+    {
+        // Add the source terms corresponding to the faces at the boundary
         for (Base::Face *ptrFace : meshes_[0]->getFacesList())
         {
-            LinearAlgebra::NumericalVector solutionCoefficientsLeft(getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
-            LinearAlgebra::NumericalVector solutionCoefficientsRight(getSolutionCoefficients(ptrFace->getPtrElementRight(), timeLevelsIn, coefficientsTimeLevels));
-            LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
-            LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
-            
-            const Base::FaceMatrix &stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
-            
-            solutionCoefficientsLeftNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * solutionCoefficientsRight;
-            solutionCoefficientsRightNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * solutionCoefficientsRight;
+            if(!ptrFace->isInternal())
+            {
+                LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                
+                solutionCoefficientsNew += integrateSourceTermAtFace(ptrFace, time, orderTimeDerivative);
+            }
+        }
+        synchronize(timeLevelResult);
+    }
+    
+    /// \details Make sure timeLevelIn is different from timeLevelResult.
+    void HpgemAPILinear::computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
+    {
+        multiplyStiffnessMatrices(timeLevelIn, timeLevelResult);
+        if(useSourceTerm_)
+        {
+            addSourceTerm(timeLevelResult, time, 0);
+        }
+        if(useSourceTermAtBoundary_)
+        {
+            addSourceTermAtBoundary(timeLevelResult, time, 0);
+        }
+    }
+    
+    /// \details Make sure timeLevelResult is different from the timeLevelsIn.
+    void HpgemAPILinear::computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
+    {
+        multiplyStiffnessMatrices(timeLevelsIn, coefficientsTimeLevels, timeLevelResult);
+        if(useSourceTerm_)
+        {
+            addSourceTerm(timeLevelResult, time, 0);
+        }
+        if(useSourceTermAtBoundary_)
+        {
+            addSourceTermAtBoundary(timeLevelResult, time, 0);
         }
     }
     

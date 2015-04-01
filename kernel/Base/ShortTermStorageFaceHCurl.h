@@ -40,16 +40,16 @@ namespace Base
         {
         }
         
-        virtual void computeData();
+        void computeData() override final;
 
-        virtual void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret);
-        virtual void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) override final;
+        void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override final;
 
-        virtual LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p);
-        virtual LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const;
+        LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) override final;
+        LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const override final;
 
-        virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p);
-        virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const;
+        LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) override final;
+        LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const override final;
         
     };
 }

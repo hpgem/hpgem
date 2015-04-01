@@ -33,10 +33,6 @@ namespace Base
     {
     }
     
-    ElementFactory::~ElementFactory()
-    {
-    }
-    
     //!provide the non-constant information and get an Element!
     Element* ElementFactory::makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical>& points, std::size_t elementcounter)
     {
@@ -44,7 +40,7 @@ namespace Base
     }
     
     //!mesh creation routines can use this to set their desired defaults
-    void ElementFactory::setCollectionOfBasisFunctionSets(std::vector<const BasisFunctionSet*>const * functions)
+    void ElementFactory::setCollectionOfBasisFunctionSets(const CollectionOfBasisFunctionSets * functions)
     {
         logger.assert(functions!=nullptr, "Invalid basis function set passed");
         logger.assert(functions->size()>0, "Not enough basis functions passed");

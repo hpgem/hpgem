@@ -38,6 +38,7 @@ namespace Geometry
     ReferenceCube::ReferenceCube()
             : ReferenceGeometry(8, 3, ReferenceGeometryType::CUBE), referenceGeometryCodim1Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
+        name = "ReferenceCube";
         PointReference p1(3), p2(3), p3(3), p4(3), p5(3), p6(3), p7(3), p8(3);
         
         p1[0] = -1.0;
@@ -94,12 +95,6 @@ namespace Geometry
     PointReference ReferenceCube::getCenter() const
     {
         return PointReference(3);
-    }
-    
-    const PointReference& ReferenceCube::getNode(const std::size_t& i) const
-    {
-        logger.assert((i < 8), "ERROR: Index is greater than the number of points.\n");
-        return points_[i];
     }
     
     bool ReferenceCube::isInternalPoint(const PointReference& p) const

@@ -37,6 +37,7 @@ namespace Output
     TecplotDiscontinuousSolutionWriter::TecplotDiscontinuousSolutionWriter(std::ostream& output, const std::string& fileTitle, const std::string& dimensionsToWrite, const std::string& variableString)
             : output_(output), previousNrOfElements_(0), previousNrOfNodes_(0), nDimensionsToWrite_(dimensionsToWrite.length())
     {
+        logger.assert_always(output.good(), "Something is not so good about the given output stream");
         // element type for a given dimension as index
         elementType_[0] = "UNKNOWN";
         elementType_[1] = "FELINESEG";
@@ -111,6 +112,8 @@ namespace Output
     void TecplotDiscontinuousSolutionWriter::write(const Base::MeshManipulator* mesh, const std::string& zoneTitle, const bool sameGeometry, std::function<void(const Base::Element*, const Geometry::PointReference&, std::ostream&)>writeDataFun, const double time)
     {
         logger.assert(mesh!=nullptr, "Invalid mesh passed to this writer");
+        //assertion is technically checking internal state, but the writability of the filesystem may change outside the influence of this class
+        logger.assert_always(output_.good(), "Something is not so good about the output stream");
         
         std::size_t posNumberOfNodes(0);
         std::size_t posNumberOfElements(0);

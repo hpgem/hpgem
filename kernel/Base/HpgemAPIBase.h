@@ -28,6 +28,7 @@
 #include "GlobalNamespaceBase.h"
 #include "CommandLineOptions.h"
 #include "GlobalData.h"
+#include "RectangularMeshDescriptor.h"
 
 namespace Base
 {
@@ -44,19 +45,15 @@ namespace Base
         using ElementIterator = MeshManipulator::ElementIterator;
         using ConstFaceIterator = MeshManipulator::ConstFaceIterator;
         using FaceIterator = MeshManipulator::FaceIterator;
-        using ElementT = Base::Element;
-        using FaceT = Base::Face;
-        using RectangularMeshDescriptorT = RectangularMeshDescriptor;
-        using MeshManipulatorT = MeshManipulator;
-        using MeshMoverBaseT = MeshMoverBase;
+        using VectorOfMeshManipulatorT = std::vector<MeshManipulator*>;
         using PointPhysicalT = Geometry::PointPhysical;
         using PointReferenceT = Geometry::PointReference;
 
         using MeshId = std::size_t;
         using VectorOfUIntegers = std::vector<std::size_t>;
-
-        using VectorOfMeshManipulatorT = std::vector<MeshManipulatorT* >;
         using String = std::string;
+        
+
 
     public:
         
@@ -66,10 +63,10 @@ namespace Base
         virtual ~HpgemAPIBase();
 
         /// \brief Gives the pointer of meshMoverBase class to mesh.
-        virtual bool initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, std::size_t meshID);
+        virtual bool initialiseMeshMover(const MeshMoverBase* meshMoverBase, std::size_t meshID);
 
         /// Creating a mesh with in-house remesher.
-        MeshId addMesh(const RectangularMeshDescriptorT& meshDescriptor, const MeshType& meshType = MeshType::RECTANGULAR, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
+        MeshId addMesh(const RectangularMeshDescriptor& meshDescriptor, const MeshType& meshType = MeshType::RECTANGULAR, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
         
         /// Reading a mesh from a file, currently only Centaur is supported.
         MeshId addMesh(const String& fileName, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);

@@ -65,9 +65,6 @@ namespace Geometry
     MappingToRefCubeToCube0::MappingToRefCubeToCube0()
     {
     }
-    MappingToRefCubeToCube0::~MappingToRefCubeToCube0()
-    {
-    }
     
     // ~~~ index 1 ~~~==============================================================================
     
@@ -104,9 +101,6 @@ namespace Geometry
     }
     
     MappingToRefCubeToCube1::MappingToRefCubeToCube1()
-    {
-    }
-    MappingToRefCubeToCube1::~MappingToRefCubeToCube1()
     {
     }
     
@@ -147,9 +141,6 @@ namespace Geometry
     MappingToRefCubeToCube2::MappingToRefCubeToCube2()
     {
     }
-    MappingToRefCubeToCube2::~MappingToRefCubeToCube2()
-    {
-    }
     
     // ~~~ index 3 ~~~==============================================================================
     
@@ -186,9 +177,6 @@ namespace Geometry
     }
     
     MappingToRefCubeToCube3::MappingToRefCubeToCube3()
-    {
-    }
-    MappingToRefCubeToCube3::~MappingToRefCubeToCube3()
     {
     }
     
@@ -229,9 +217,6 @@ namespace Geometry
     MappingToRefCubeToCube4::MappingToRefCubeToCube4()
     {
     }
-    MappingToRefCubeToCube4::~MappingToRefCubeToCube4()
-    {
-    }
     
     // ~~~ index 5 ~~~==============================================================================
     
@@ -268,9 +253,6 @@ namespace Geometry
     }
     
     MappingToRefCubeToCube5::MappingToRefCubeToCube5()
-    {
-    }
-    MappingToRefCubeToCube5::~MappingToRefCubeToCube5()
     {
     }
     
@@ -311,9 +293,6 @@ namespace Geometry
     MappingToRefCubeToCube6::MappingToRefCubeToCube6()
     {
     }
-    MappingToRefCubeToCube6::~MappingToRefCubeToCube6()
-    {
-    }
     
     // ~~~ index 7 ~~~==============================================================================
     
@@ -350,9 +329,6 @@ namespace Geometry
     }
     
     MappingToRefCubeToCube7::MappingToRefCubeToCube7()
-    {
-    }
-    MappingToRefCubeToCube7::~MappingToRefCubeToCube7()
     {
     }
 }

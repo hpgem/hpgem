@@ -25,6 +25,7 @@
 
 #include "LinearAlgebra/Matrix.h"
 #include "LinearAlgebra/NumericalVector.h"
+#include "UserData.h"
 #include <iostream>
 #include <functional>
 
@@ -39,6 +40,24 @@ namespace Base
         logger(VERBOSE, "nrOfElementVectors %", nrOfElementVectors);
         logger(VERBOSE, "elementVector_ size = %", elementVector_.size());
     }
+    
+    ElementData::ElementData(const ElementData& other) 
+    {
+        timeLevels_ = other.timeLevels_;
+        nrOfUnknowns_ = other.nrOfUnknowns_;
+        nrOfBasisFunctions_ = other.nrOfBasisFunctions_;
+        
+        expansionCoefficients_ = other.expansionCoefficients_;
+        residue_ = other.residue_;
+        currentData_ = other.currentData_;
+        
+        //note: shallow copy
+        userData_ = other.userData_;
+
+        elementMatrix_ = other.elementMatrix_;
+        elementVector_ = other.elementVector_;
+    }
+
     
     void ElementData::setElementMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID)
     {

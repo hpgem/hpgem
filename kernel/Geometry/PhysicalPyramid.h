@@ -28,30 +28,13 @@ namespace Geometry
 {
     class ReferencePyramid;
     
+    /// \deprecated just pass a referencePyramid to the constructor of a PhysicalGeometry
+    /// if you want to create a pyramid
     class PhysicalPyramid : public PhysicalGeometry
     {
     public:
         
-        PhysicalPyramid(const std::vector<std::size_t>&, const std::vector<PointPhysical>&);
-
-        ~PhysicalPyramid()
-        {
-        }
-        
-        /// Returns the name of this geometry.
-        virtual std::string getName() const
-        {
-            return "PhysicalPyramid";
-        }
-        
-        virtual std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t) const;
-
-        virtual std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t) const;
-
-        std::size_t getNrOfFaces() const
-        {
-            return 5;
-        }
+        PhysicalPyramid(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
     };
 }
 #endif

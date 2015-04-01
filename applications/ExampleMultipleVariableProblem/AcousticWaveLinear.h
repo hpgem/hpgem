@@ -47,13 +47,14 @@
 
 /// \brief Class to demonstrate how a system of multiple PDE's can be solved, using the interface HpgemAPI.
 /** \details
- Currently only periodic boundary conditions are used in this example and we do not use a source term.
  
  This class can solve the scalar wave equation in 2D or 3D written as a first order system of PDE's. The original scalar wave equation is given by \f[ \partial_t^2 u = \nabla \cdot c \nabla u \f], where \f$u \f$ is the scalar variable and \f$c \f$ a material parameter corresponding to the velocity with which waves can propagate.
  
  For a first order scheme we define the scalar function \f$ v := \partial_t u \f$ and the vector function \f$ s := c \nabla u \f$. We can then obtain the equations \f[ \partial_t v = \nabla \cdot s \f] and \f[ c^{-1} \partial_t s = \nabla v \f]
  
  We define a new vector function \f$w = [w_0, w_1, w_2, ..] = [v, s_0, s_1, ..]\f$. We can then rewrite the system of PDE's as follows: \f[ \partial_t w_0 = \partial_i w_{i+1} \f] summing over i = 0 .. (DIM-1) and \f[ c^{-1} \partial_t w_{i+1} = \partial_i w_0 \f] for i = 0 .. (DIM-1).
+ 
+ We use periodic boundary conditions or free surface conditions (\f$ \hat{n}\cdot s=0 \f$, with \f$ \hat{n} \f$ the normal unit vector).
  
  This class consists of the following parts:
  \li A constructor to set the dimension, number of elements, polynomial order, butcher tableau.
@@ -83,7 +84,7 @@ public:
      );
     
     /// \brief Create a domain
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override;
+    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final;
     
     /// \brief Set the material parameter.
     /// \param[in] c Material parameter corresponding to the speed with which waves can propagate.
@@ -99,10 +100,10 @@ public:
     }
     
     /// \brief Compute the real solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override;
+    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
     
     /// \brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override;
+    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
     
     /// \brief Compute the integrand for the mass matrix for the reference element.
     LinearAlgebra::Matrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
@@ -126,20 +127,20 @@ public:
      );
     
     /// \brief Compute the mass matrix for a single element.
-    LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement) override;
+    LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement) override final;
     
     /// \brief Integrate the initial solution for a single element.
-    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override;
+    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override final;
     
     /// \brief Compute the stiffness matrix corresponding to an element.
-    LinearAlgebra::Matrix computeStiffnessMatrixAtElement(Base::Element *ptrElement) override;
+    LinearAlgebra::Matrix computeStiffnessMatrixAtElement(Base::Element *ptrElement) override final;
 
     /// \brief Compute the stiffness matrix corresponding to a face.
-    Base::FaceMatrix computeStiffnessMatrixAtFace(Base::Face *ptrFace) override;
+    Base::FaceMatrix computeStiffnessMatrixAtFace(Base::Face *ptrFace) override final;
     
     
     /// \brief Show the progress of the time integration.
-    virtual void showProgress(const double time, const std::size_t timeStepID) override
+    void showProgress(const double time, const std::size_t timeStepID) override final
     {
         if (timeStepID % 10 == 0)
         {
@@ -148,7 +149,7 @@ public:
     }
     
     /// \brief Integrate the energy of the error on a single element.
-    LinearAlgebra::NumericalVector integrateErrorAtElement(const Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time) override;
+    LinearAlgebra::NumericalVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time) override final;
 
 private:
 /// Dimension of the domain

@@ -44,9 +44,13 @@ namespace Geometry
     
     ///Constructor: define the left and right element, the relative position of 
     ///this face on the elements. Note that this constructor is only for interior
-    ///faces. 
-    ///\todo Find out what faceToFaceMapIndex_ does and why it takes UINT_MAX
-    FaceGeometry::FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometryT* ptrElemR, const LocalFaceNrType& localFaceNumR)
+    ///faces. This constructor will not select the correct face to face mapping
+    ///because the information needed to do so can be readily generated in the
+    ///constructor of Face. (currently Face is the only subclass and FaceGeometry is not
+    ///directly used.) If a user want to directly use this class himself, he should be
+    ///aware that this constructor assumes he will call initialiseFaceToFaceMapIndex
+    ///before actually using the FaceGeometry.
+    FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometry* ptrElemR, const LocalFaceNrType& localFaceNumR)
             : leftElementGeom_(ptrElemL), rightElementGeom_(ptrElemR), localFaceNumberLeft_(localFaceNumL), localFaceNumberRight_(localFaceNumR), faceToFaceMapIndex_(Geometry::MAXSIZET), faceType_(FaceType::INTERNAL)
     {
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
@@ -54,11 +58,25 @@ namespace Geometry
     }
     
     //! Constructor for boundary faces.
-    FaceGeometry::FaceGeometry(ElementGeometryT* ptrElemL, const LocalFaceNrType& localFaceNumL, const FaceType& boundaryLabel)
+    FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, const FaceType& boundaryLabel)
             : leftElementGeom_(ptrElemL), rightElementGeom_(nullptr), localFaceNumberLeft_(localFaceNumL), localFaceNumberRight_(Geometry::MAXSIZET), faceToFaceMapIndex_(0), faceType_(boundaryLabel)
     {
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
     }
+    
+    FaceGeometry::FaceGeometry(const FaceGeometry& other, 
+                               ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, 
+                               ElementGeometry* ptrElemRight, const LocalFaceNrType& localFaceNumR) 
+    {
+        logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
+        leftElementGeom_ = ptrElemL;
+        rightElementGeom_ = ptrElemRight;
+        localFaceNumberLeft_ = localFaceNumL;
+        localFaceNumberRight_ = localFaceNumR;
+        faceToFaceMapIndex_ = other.faceToFaceMapIndex_;
+        faceType_ = other.faceType_;        
+    }
+
     
     /// The referenceGeometry is returned. It is taken from left element, to always ensure its existence
     // should use the same interface as in the Element!

@@ -27,30 +27,9 @@
 
 namespace Geometry
 {
-    PhysicalLine::PhysicalLine(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<PointPhysical>& nodes)
+    PhysicalLine::PhysicalLine(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical>& nodes)
             : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceLine::Instance())
     {
-    }
-    
-    std::vector<std::size_t> PhysicalLine::getGlobalFaceNodeIndices(const std::size_t face) const
-    {
-        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
-        std::vector<std::size_t> indexes(1);
-        indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0)];
-        return indexes;
-    }
-    
-    std::vector<std::size_t> PhysicalLine::getLocalFaceNodeIndices(const std::size_t face) const
-    {
-        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
-        std::vector<std::size_t> indexes(1);
-        indexes[0] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0);
-        return indexes;
-    }
-    
-    std::size_t PhysicalLine::getNrOfFaces() const
-    {
-        return refGeometry_->getNrOfCodim1Entities();
     }
 
 }

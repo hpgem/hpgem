@@ -52,7 +52,7 @@ namespace Geometry
 
         virtual const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t) const = 0;
 
-        virtual const MappingReferenceToReference* getCodim0MappingPtr(const std::vector<std::size_t>& n1, const std::vector<std::size_t>& n2) const
+        const MappingReferenceToReference* getCodim0MappingPtr(const std::vector<std::size_t>& n1, const std::vector<std::size_t>& n2) const
         {
             return getCodim0MappingPtr(getCodim0MappingIndex(n1, n2));
         }

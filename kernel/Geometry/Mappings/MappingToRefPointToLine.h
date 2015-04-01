@@ -45,9 +45,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefPointToLine0& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 1;
         }
@@ -55,7 +55,6 @@ namespace Geometry
         MappingToRefPointToLine0();
         MappingToRefPointToLine0(const MappingToRefPointToLine0&);
         MappingToRefPointToLine0& operator=(const MappingToRefPointToLine0&);
-        virtual ~MappingToRefPointToLine0();
     };
     
     // ~~~ index 1 ~~~=========================================================================== //
@@ -63,9 +62,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefPointToLine1& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 1;
         }
@@ -73,7 +72,6 @@ namespace Geometry
         MappingToRefPointToLine1();
         MappingToRefPointToLine1(const MappingToRefPointToLine1&);
         MappingToRefPointToLine1& operator=(const MappingToRefPointToLine1&);
-        virtual ~MappingToRefPointToLine1();
     };
 }
 ;

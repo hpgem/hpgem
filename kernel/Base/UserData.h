@@ -25,16 +25,10 @@
 ///Just a place holder, for polymorphism
 struct UserElementData
 {
-    virtual ~UserElementData()
-    {
-    }
 };
 
 struct UserFaceData
 {
-    virtual ~UserFaceData()
-    {
-    }
 };
 
 #endif

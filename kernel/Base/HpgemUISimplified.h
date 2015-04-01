@@ -54,6 +54,8 @@ namespace Base
      * \li Call the function 'solve'.
      */
     /** \details For an example of using this interface see the application 'TutorialAdvection'.
+     * \deprecated (use HpgemAPISimplified instead)
+     * \todo clean up dependencies in the applications folder, then remove this class
      */
     class HpgemUISimplified : public HpgemAPIBase, Integration::ElementIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::Matrix>, Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>, Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>, public Output::TecplotSingleElementWriter
     {

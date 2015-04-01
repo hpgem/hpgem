@@ -103,7 +103,6 @@ namespace Geometry
         virtual ~MappingInterface()
         {
         }
-        ;
 
         ///concatenated mapping needs to know what kind of intermediate point to create
         virtual std::size_t getTargetDimension() const =0;

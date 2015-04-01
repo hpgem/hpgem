@@ -46,10 +46,10 @@ namespace Geometry
         
     public:
         MappingToPhysHypercubeLinear(const PhysicalGeometry* const &);
-        virtual PointPhysical transform(const PointReference&) const;
-        virtual Jacobian calcJacobian(const PointReference&) const;
-        virtual void reinit(const PhysicalGeometry* const);
-        virtual std::size_t getTargetDimension() const
+        PointPhysical transform(const PointReference&) const override final;
+        Jacobian calcJacobian(const PointReference&) const override final;
+        void reinit(const PhysicalGeometry* const) override final;
+        std::size_t getTargetDimension() const override final
         {
             return 1;
         }
@@ -66,10 +66,10 @@ namespace Geometry
     public:
         // Constructor.
         MappingToPhysHypercubeLinear(const PhysicalGeometry* const &);
-        virtual PointPhysical transform(const PointReference&) const;
-        virtual Jacobian calcJacobian(const PointReference&) const;
-        virtual void reinit(const PhysicalGeometry* const);
-        virtual std::size_t getTargetDimension() const
+        PointPhysical transform(const PointReference&) const override final;
+        Jacobian calcJacobian(const PointReference&) const override final;
+        void reinit(const PhysicalGeometry* const) override final;
+        std::size_t getTargetDimension() const override final
         {
             return 2;
         }
@@ -86,10 +86,10 @@ namespace Geometry
     public:
         // Constructor.
         MappingToPhysHypercubeLinear(const PhysicalGeometry* const &);
-        virtual PointPhysical transform(const PointReference&) const;
-        virtual Jacobian calcJacobian(const PointReference&) const;
-        virtual void reinit(const PhysicalGeometry* const);
-        virtual std::size_t getTargetDimension() const
+        PointPhysical transform(const PointReference&) const override final;
+        Jacobian calcJacobian(const PointReference&) const override final;
+        void reinit(const PhysicalGeometry* const) override final;
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }
@@ -106,10 +106,10 @@ namespace Geometry
     public:
         // Constructor.
         MappingToPhysHypercubeLinear(const PhysicalGeometry* const &);
-        virtual PointPhysical transform(const PointReference&) const;
-        virtual Jacobian calcJacobian(const PointReference&) const;
-        virtual void reinit(const PhysicalGeometry* const);
-        virtual std::size_t getTargetDimension() const
+        PointPhysical transform(const PointReference&) const override final;
+        Jacobian calcJacobian(const PointReference&) const override final;
+        void reinit(const PhysicalGeometry* const) override final;
+        std::size_t getTargetDimension() const override final
         {
             return 4;
         }

@@ -114,59 +114,15 @@ namespace Geometry
         return 0;
     }
     
-    const PhysicalGeometry * const
-    ElementGeometry::createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes, const ReferenceGeometryT * const geo)
+    PhysicalGeometry * const
+    ElementGeometry::createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const geo)
     {
         logger.assert(geo!=nullptr, "Invalid reference geometry passed");
-        switch (globalNodeIndexes.size())
-        {
-            case 2:
-                logger.assert(nodes[0].size()==1, "This Dimension does not contain entities with 2 nodes");
-                logger(VERBOSE, "ElementGeometry created a physical line.");
-                return new Geometry::PhysicalLine(globalNodeIndexes, nodes);
-            case 3:
-                logger.assert(nodes[0].size()==2, "This Dimension does not contain entities with 3 nodes");
-                logger(VERBOSE, "ElementGeometry created a physical triangle.");
-                return new Geometry::PhysicalTriangle(globalNodeIndexes, nodes);
-            case 4:
-                if (nodes[0].size() == 2)
-                {
-                    logger(VERBOSE, "ElementGeometry created a physical square.");
-                    return new Geometry::PhysicalQuadrilateral(globalNodeIndexes, nodes);
-                }
-                else if (nodes[0].size() == 3)
-                {
-                    logger(VERBOSE, "ElementGeometry created a physical tetrahedron.");
-                    return new Geometry::PhysicalTetrahedron(globalNodeIndexes, nodes);
-                }
-                else
-                {
-                    logger(ERROR, "This dimension does not contain entities with 4 nodes. \n");
-                }
-            case 5:
-                logger.assert(nodes[0].size()==3, "This Dimension does not contain entities with 5 nodes");
-                logger(VERBOSE, "ElementGeometry created a physical pyramid.");
-                return new Geometry::PhysicalPyramid(globalNodeIndexes, nodes);
-            case 6:
-                logger.assert(nodes[0].size()==3, "This Dimension does not contain entities with 6 nodes");
-                logger(VERBOSE, "ElementGeometry created a physical triangular prism.");
-                return new Geometry::PhysicalTriangularPrism(globalNodeIndexes, nodes);
-            case 8:
-                logger.assert(nodes[0].size()==3, "This Dimension does not contain entities with 8 nodes");
-                logger(VERBOSE, "ElementGeometry created a physical cube.");
-                return new Geometry::PhysicalHexahedron(globalNodeIndexes, nodes);
-            case 16:
-                logger.assert(nodes[0].size()==4, "This Dimension does not contain entities with 16 nodes");
-                logger(VERBOSE, "ElementGeometry created a physical hypercube.");
-                return new Geometry::PhysicalOctachoron(globalNodeIndexes, nodes);
-            default:
-                logger(FATAL, "No know entities contain this many nodes. \n");
-        }
-        return 0;
+        return new PhysicalGeometry(globalNodeIndexes, nodes, geo);
     }
     
-    const MappingReferenceToPhysical * const
-    ElementGeometry::createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometryT * const pGeo)
+    MappingReferenceToPhysical * const
+    ElementGeometry::createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometry * const pGeo)
     {
         logger.assert(pGeo!=nullptr, "Invalid physical geometry passed");
         switch (size)
@@ -194,6 +150,7 @@ namespace Geometry
                 {
                     logger(ERROR, "This dimension does not contain entities with 4 nodes. \n");
                 }
+                break;
             case 5:
                 logger.assert(DIM==3, "This Dimension does not contain entities with 5 nodes");
                 logger(VERBOSE, "ElementGeometry created a mapping for a pyramid.");
@@ -227,15 +184,20 @@ namespace Geometry
         return os;
     }
     
-    ElementGeometry::ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes)
-            : referenceGeometry_(ElementGeometry::createReferenceGeometry(globalNodeIndexes.size(), nodes[0].size())), physicalGeometry_(ElementGeometry::createPhysicalGeometry(globalNodeIndexes, nodes, referenceGeometry_)), referenceToPhysicalMapping_(ElementGeometry::createMappings(globalNodeIndexes.size(), nodes[0].size(), physicalGeometry_)), refinementGeometry_(nullptr) //refinement is turned off by default, to  enable it one needs to call enableRefinement
+    ElementGeometry::ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes)
+            : referenceGeometry_(ElementGeometry::createReferenceGeometry(globalNodeIndexes.size(), nodes[0].size())),
+        physicalGeometry_(ElementGeometry::createPhysicalGeometry(globalNodeIndexes, nodes, referenceGeometry_)), 
+        referenceToPhysicalMapping_(ElementGeometry::createMappings(globalNodeIndexes.size(), nodes[0].size(), physicalGeometry_)), 
+        refinementGeometry_(nullptr) //refinement is turned off by default, to  enable it one needs to call enableRefinement
     {
     }
     
-    /// Copy constructor
-    
+    /// Copy constructor that actually makes a deep copy
     ElementGeometry::ElementGeometry(const ElementGeometry& other)
-            : referenceGeometry_(other.referenceGeometry_), physicalGeometry_(ElementGeometry::createPhysicalGeometry(other.physicalGeometry_->getNodeIndexes(), other.physicalGeometry_->getNodes(), referenceGeometry_)), referenceToPhysicalMapping_(ElementGeometry::createMappings(other.physicalGeometry_->getNodeIndexes().size(), other.physicalGeometry_->getNodePtr(0)->size(), physicalGeometry_)), refinementGeometry_(other.refinementGeometry_) //refinement is turned off by default, to  enable it one needs to call enableRefinement
+            : referenceGeometry_(other.referenceGeometry_), 
+        physicalGeometry_(ElementGeometry::createPhysicalGeometry(other.physicalGeometry_->getNodeIndexes(), other.physicalGeometry_->getNodes(), referenceGeometry_)), 
+        referenceToPhysicalMapping_(ElementGeometry::createMappings(other.physicalGeometry_->getNodeIndexes().size(), other.physicalGeometry_->getNodePtr(0)->size(), physicalGeometry_)),
+        refinementGeometry_(other.refinementGeometry_) //refinement is turned off by default, to  enable it one needs to call enableRefinement
     {
     }
     
@@ -253,10 +215,22 @@ namespace Geometry
         return referenceToPhysicalMapping_;
     }
     
+    MappingReferenceToPhysical * const
+    ElementGeometry::getReferenceToPhysicalMap()
+    {
+        return referenceToPhysicalMapping_;
+    }
+    
     /// Returns a pointer to the physicalGeometry object.
     
     const PhysicalGeometry * const
     ElementGeometry::getPhysicalGeometry() const
+    {
+        return physicalGeometry_;
+    }
+    
+    PhysicalGeometry * const
+    ElementGeometry::getPhysicalGeometry()
     {
         return physicalGeometry_;
     }
@@ -281,7 +255,7 @@ namespace Geometry
     /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
     /// given the mapping.
     
-    PointPhysical ElementGeometry::referenceToPhysical(const PointReferenceT& pointReference) const
+    PointPhysical ElementGeometry::referenceToPhysical(const PointReference& pointReference) const
     {
         return referenceToPhysicalMapping_->transform(pointReference);
     }
@@ -289,7 +263,7 @@ namespace Geometry
     /// This method gets a PointReference and returns the corresponding jacobian of the
     /// referenceToPhysicalMapping.
     
-    Jacobian ElementGeometry::calcJacobian(const PointReferenceT& pointReference) const
+    Jacobian ElementGeometry::calcJacobian(const PointReference& pointReference) const
     {
         return referenceToPhysicalMapping_->calcJacobian(pointReference);
     }

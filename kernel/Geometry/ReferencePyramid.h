@@ -33,44 +33,21 @@ namespace Geometry
         using typename ReferenceGeometry::VectorOfReferencePointsT;
         using ReferenceGeometry::String;
 
-    public:
         static ReferencePyramid& Instance()
         {
             static ReferencePyramid theInstance;
             return theInstance;
         }
         
-    private:
-        
-        ReferencePyramid();
-
-        ReferencePyramid(const ReferencePyramid& copy);
+        ReferencePyramid(const ReferencePyramid& copy) = delete;
 
     public:
         
         //! (see ReferenceGeometry.h)
-        bool isInternalPoint(const PointReference& point) const;
+        bool isInternalPoint(const PointReference& point) const override final;
 
         //! (see ReferenceGeometry.h)
-        PointReference getCenter() const;
-
-        //! (see ReferenceGeometry.h)
-        const PointReference& getNode(const std::size_t& i) const;
-
-        //! (see ReferenceGeometry.h)
-        String getName() const
-        {
-            return "ReferencePyramid";
-        }
-        
-        //! Given a face index, and an index of the node position relative to the face,
-        //! return the local index of the node.
-        std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const
-        {
-            logger.assert(face < getNrOfCodim1Entities(), "Asked for face %, but a % only has % faces", face, getName(), getNrOfCodim1Entities());
-            logger.assert(node < getCodim1ReferenceGeometry(face)->getNumberOfNodes(), "Asked for node % of face %, but this face only has % nodes", node, face, getCodim1ReferenceGeometry(face)->getNumberOfNodes());
-            return localNodeIndexes_[face][node];
-        }
+        PointReference getCenter() const override final;
         
         /// Output routine.
         friend std::ostream& operator<<(std::ostream& os, const ReferencePyramid& point);
@@ -78,88 +55,91 @@ namespace Geometry
         // ================================== Codimension 0 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const;
+        std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const override final;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t) const;
+        const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t) const override final;
 
         using MappingCodimensions::getCodim0MappingPtr;
 
         // ================================== Codimension 1 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getNrOfCodim1Entities() const
+        std::size_t getNrOfCodim1Entities() const override final
         {
             return 5;
         }
         
         //! (see MappingCodimensions.h)
-        std::vector<std::size_t> getCodim1EntityLocalIndices(const std::size_t) const;
+        std::vector<std::size_t> getCodim1EntityLocalIndices(const std::size_t) const override final;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim1MappingPtr(const std::size_t) const;
+        const MappingReferenceToReference* getCodim1MappingPtr(const std::size_t) const override final;
 
         //! (see MappingCodimensions.h)
-        const ReferenceGeometry* getCodim1ReferenceGeometry(const std::size_t) const;
+        const ReferenceGeometry* getCodim1ReferenceGeometry(const std::size_t) const override final;
 
         // ================================== Codimension 2 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getNrOfCodim2Entities() const
+        std::size_t getNrOfCodim2Entities() const override final
         {
             return 8;
         }
         
         //! (see MappingCodimensions.h)
-        std::vector<std::size_t> getCodim2EntityLocalIndices(const std::size_t) const;
+        std::vector<std::size_t> getCodim2EntityLocalIndices(const std::size_t) const override final;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim2MappingPtr(const std::size_t) const;
+        const MappingReferenceToReference* getCodim2MappingPtr(const std::size_t) const override final;
 
         //! (see MappingCodimensions.h)
-        const ReferenceGeometry* getCodim2ReferenceGeometry(const std::size_t) const;
+        const ReferenceGeometry* getCodim2ReferenceGeometry(const std::size_t) const override final;
 
         // ================================== Codimension 3 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getNrOfCodim3Entities() const
+        std::size_t getNrOfCodim3Entities() const override final
         {
             return 5;
         }
         
         //! (see MappingCodimensions.h)
-        std::vector<std::size_t> getCodim3EntityLocalIndices(const std::size_t) const;
+        std::vector<std::size_t> getCodim3EntityLocalIndices(const std::size_t) const override final;
 
         // =============================== Refinement mappings =====================================
         
         //! Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const
+        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const override final
         {
         }
         
         //! Transformation matrix of this refinement when located on the LEFT side
-        void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
+        void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const override final
         {
         }
         
         //! Transformation matrix of this refinement when located on the RIGHT side
-        void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
+        void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const override final
         {
         }
         
         //! Refinement mapping on codim1 for a given refinement on codim0
         //! Note: this should also applied on other dimensions
-        void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+        void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const override final
         {
         }
         
         //! Refinement mapping on codim1 for a given refinement on codim0
         //! Note: this should also applied on other dimensions
-        void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+        void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const override final
         {
         }
         
     private:
+        
+        ReferencePyramid();
+        
         //! Local node indexes contains the numbering of the vertex of the shape, ordered by faces.
         //! See top comment for the corresponding numbering.
         static std::size_t localNodeIndexes_[5][4];

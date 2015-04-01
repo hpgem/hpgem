@@ -32,17 +32,17 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
+
 #include "Logger.h"
 
 ///Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
 ///The first self-contained (no PETSc) program to make it into the SVN
-///\todo Write self-test
 class TutorialAdvection : public Base::HpgemAPILinear
 {
 public:
     ///Constructor. Assign all private variables.
-    TutorialAdvection(int p)
-            : HpgemAPILinear(DIM_, 1, p)
+    TutorialAdvection(std::size_t p) :
+        HpgemAPILinear(DIM_, 1, p)
     {
         //Choose the "direction" of the advection.
         //This cannot be implemented with iterators, and since the dimension is
@@ -55,10 +55,10 @@ public:
     }
     
     /// Create a mesh description
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override
+    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        RectangularMeshDescriptorT description(DIM_);
+        Base::RectangularMeshDescriptor description(DIM_);
         
         //this demo will use the square [0,1]^2
         for (std::size_t i = 0; i < DIM_; ++i)
@@ -80,7 +80,7 @@ public:
     ///basisfunctions phi_i and phi_j.
     ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
     ///so you wont have to do any transformations yourself
-    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const ElementT *element, const PointReferenceT &point) override
+    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
     {
         std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
         LinearAlgebra::Matrix  result(numBasisFuncs, numBasisFuncs, 0);
@@ -105,7 +105,7 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, to which we passed a reference when calling it.
     ///Please note that you pass a reference point to the basisfunctions and the 
     ///transformations are done internally. The class FaceMatrix consists of four element matrices for internal faces and one element matrix for faces on the boundary. Each element matrix corresponds to a pair of two adjacent elements of the face.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const FaceT *face, const LinearAlgebra::NumericalVector &normal, const PointReferenceT &point) override
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face *face, const LinearAlgebra::NumericalVector &normal, const PointReferenceT &point) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
@@ -117,7 +117,7 @@ public:
             nRight = face->getPtrElementLeft()->getNrOfBasisFunctions();
         }
         
-        //Resize the result to the correct size and set all elements to 0.
+        //Create the result with the correct size and set all elements to 0.
         Base::FaceMatrix integrandVal(nLeft, nRight);
         integrandVal *= 0;
         
@@ -128,16 +128,17 @@ public:
         //Compute all entries of the integrand at this point:
         for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
+            Base::Side sideBasisFunction = face->getSide(i);
             for (std::size_t j = 0; j < numBasisFuncs; ++j)
             {
                 //Give the terms of the upwind flux.
                 //Advection in the same direction as outward normal of the left element:
-                if ((A > 1e-12) && (i < nLeft))
+                if ((A > 1e-12) && (sideBasisFunction == Base::Side::LEFT))
                 {
                     integrandVal(j, i) = -(a * face->basisFunctionNormal(j, normal, point)) * face->basisFunction(i, point);
                 }
                 //Advection in the same direction as outward normal of right element:
-                else if ((A < -1e-12) && (i >= nLeft))
+                else if ((A < -1e-12) && (sideBasisFunction == Base::Side::RIGHT))
                 {
                     integrandVal(j, i) = -(a * face->basisFunctionNormal(j, normal, point)) * face->basisFunction(i, point);
                 }
@@ -152,12 +153,26 @@ public:
         return integrandVal;
     }
     
-    ///Define the initial conditions, in this case sin(2pi x)* sin(2pi y).
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT& point, const double &startTime, const std::size_t orderTimeDerivative) override
+    /// Define a solution at time zero.
+    double getSolutionAtTimeZero(const PointPhysicalT& point)
     {
-        LinearAlgebra::NumericalVector initialSolution(1);
-        initialSolution(0) = (std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]));
-        return initialSolution;
+        return (std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]));
+    }
+    
+    /// Define the exact solution. In this case that is \f$ u_0(\vec{x}-\vec{a}t) \f$, where \f$ u_0 \f$ is the solution at time zero.
+    /// Note that this function can be used to compute time derivatives of the initial conditions, but for the advection equations this does not make sense
+    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT& point, const double &time, const std::size_t orderTimeDerivative) override final
+    {
+        logger.assert(orderTimeDerivative == 0, "No exact solution for order time derivative % implemented");
+        LinearAlgebra::NumericalVector result(1);
+        result[0] = getSolutionAtTimeZero(point - a * time );
+        return result;
+    }
+    
+    /// Define the initial conditions. In this case it is just the exact solution at the start time.
+    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT& point, const double &startTime, const std::size_t orderTimeDerivative) override final
+    {
+        return getExactSolution(point, startTime, orderTimeDerivative);
     }
     
 private:
@@ -178,34 +193,25 @@ auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", 
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    try
-    {
-        // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
-        const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
-        
-        // Choose variable name(s). Since we have a scalar function, we only need to chooes one name.
-        std::vector<std::string> variableNames;
-        variableNames.push_back("variable");
-        
-        //Construct our problem with n elements in every direction and polynomial order p
-        TutorialAdvection test(p.getValue());
-        
-        //Create the mesh
-        test.createMesh(n.getValue(), meshType);
-        
-        // Set the names for the output file
-        test.setOutputNames("output", "TutorialAdvection", "TutorialAdvection", variableNames);
-        
-        //Run the simulation and write the solution
-        test.solve(0, Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), false);
-        
-        return 0;
-    }
-    //If something went wrong, print the error message and return -1.
-    catch (const char* e)
-    {
-        std::cerr << e;
-    }
-    return -1;
+    // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
+    const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
+
+    // Choose variable name(s). Since we have a scalar function, we only need to chooes one name.
+    std::vector<std::string> variableNames;
+    variableNames.push_back("u");
+
+    //Construct our problem with n elements in every direction and polynomial order p
+    TutorialAdvection test(p.getValue());
+
+    //Create the mesh
+    test.createMesh(n.getValue(), meshType);
+
+    // Set the names for the output file
+    test.setOutputNames("output", "TutorialAdvection", "TutorialAdvection", variableNames);
+
+    //Run the simulation and write the solution
+    test.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), true);
+
+    return 0;
 }
 

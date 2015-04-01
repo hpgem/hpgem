@@ -45,8 +45,18 @@ namespace LinearAlgebra
     {
     }
     
+    NumericalVector::NumericalVector(std::initializer_list<double> l)
+            : data_(l)
+    {
+    }
+
     NumericalVector::NumericalVector(const NumericalVector& other)
             : data_(other.data_)
+    {
+    }
+    
+    NumericalVector::NumericalVector(NumericalVector&& other)
+            : data_(std::move(other.data_))
     {
     }
     

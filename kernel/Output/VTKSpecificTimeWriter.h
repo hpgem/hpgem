@@ -35,7 +35,8 @@ namespace Output
     ///this produces multiple files, you do not have to append anything, just load the .pvtu into paraview
     ///VTK makes the assumption that all data is 3D data, this class will provide conversions where necessary,
     ///but not from 4D to 3D
-    class VTKSpecificTimeWriter
+    //class is final because the destructor would be the only virtual function
+    class VTKSpecificTimeWriter final
     {
     public:
         ///\brief write front matter and open file stream
@@ -45,7 +46,7 @@ namespace Output
         VTKSpecificTimeWriter(const std::string& baseName, const Base::MeshManipulator* mesh, std::size_t timelevel = 0);
 
         ///\brief write end matter and close the file stream
-        virtual ~VTKSpecificTimeWriter();
+        ~VTKSpecificTimeWriter();
 
         ///\brief write a scalar field
         void write(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name);

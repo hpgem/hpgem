@@ -26,30 +26,14 @@
 namespace Geometry
 {
     class ReferenceTriangularPrism;
-    
+
+    /// \deprecated just pass a referenceTriangularPrism to the constructor of a PhysicalGeometry
+    /// if you want to create a triangular prism
     class PhysicalTriangularPrism : public PhysicalGeometry
     {
     public:
         
-        PhysicalTriangularPrism(const std::vector<std::size_t>&, const std::vector<PointPhysical>&);
-
-        ~PhysicalTriangularPrism()
-        {
-        }
-        
-        virtual std::string getName() const
-        {
-            return "PhysicalTriangularPrism";
-        }
-        
-        std::size_t getNrOfFaces() const
-        {
-            return 5;
-        }
-        
-        std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t) const;
-
-        std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t) const;
+        PhysicalTriangularPrism(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
     };
 }
 #endif

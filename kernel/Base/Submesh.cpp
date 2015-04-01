@@ -39,11 +39,6 @@ namespace Base
     {
     }
     
-    Submesh::~Submesh()
-    {
-        //do NOT delete the data: it belongs to Mesh
-    }
-    
     void Submesh::add(Element* element)
     {
         logger.assert(element!=nullptr, "Invalid element passed");

@@ -26,30 +26,12 @@ namespace Geometry
 {
     class ReferenceHypercube;
     
+    /// \deprecated just pass a referenceHypercube to the constructor of a PhysicalGeometry
+    /// if you want to create an octachoron
     class PhysicalOctachoron : public PhysicalGeometry
     {
     public:
-        
-        PhysicalOctachoron(const std::vector<std::size_t>&, const std::vector<PointPhysical> &);
-
-        ~PhysicalOctachoron()
-        {
-        }
-        
-        /// Returns the name of this geometry.
-        virtual std::string getName() const
-        {
-            return "PhysicalOctachron";
-        }
-        
-        virtual std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t) const;
-
-        virtual std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t) const;
-
-        virtual std::size_t getNrOfFaces() const;
-
-    private:
-        
+        PhysicalOctachoron(const std::vector<std::size_t>&, std::vector<PointPhysical> &);
     };
 
 }

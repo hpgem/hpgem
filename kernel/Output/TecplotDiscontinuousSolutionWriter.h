@@ -29,6 +29,8 @@
 #include <string>
 #include <functional>
 
+#include "Logger.h"
+
 namespace Base
 {
     class MeshManipulator;
@@ -62,6 +64,8 @@ namespace Output
 
         ~TecplotDiscontinuousSolutionWriter()
         {
+            //assertion is technically checking internal state, but the writability of the filesystem may change outside the influence of this class
+            logger.assert_always(output_.good(), "Something is not so good about the output stream");
             output_.flush();
             delete[] dimNrs;
         }

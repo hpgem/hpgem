@@ -163,7 +163,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1ConformingPrism(std::size_t order);
     
-    std::vector<const Base::OrientedBasisFunctionSet*> CreateFaceBasisFunctionSet3DH1ConformingPrism(std::size_t order);
+    std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1ConformingPrism(std::size_t order);
 
 }
 

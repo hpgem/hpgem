@@ -101,17 +101,17 @@ int main()
     pointsPhysical.push_back(point4);
     pointsPhysical.push_back(point5);
     
-    Base::BasisFunctionSet basisFunctionSet(basisFunctionOrder);
-    AssembleBasisFunctionSet_2D_Ord1_A0(basisFunctionSet);
-    std::vector<const Base::BasisFunctionSet *> basisFunctionSetVector(1);
-    basisFunctionSetVector[0] = &basisFunctionSet;
-    std::vector<const Base::BasisFunctionSet *> *pBasisFunctionSetVector = &basisFunctionSetVector;
+    Base::BasisFunctionSet* basisFunctionSet = new Base::BasisFunctionSet(basisFunctionOrder);
+    AssembleBasisFunctionSet_2D_Ord1_A0(*basisFunctionSet);
+    std::vector<std::shared_ptr<const Base::BasisFunctionSet>> basisFunctionSetVector(1);
+    basisFunctionSetVector[0] = std::shared_ptr<const Base::BasisFunctionSet>(basisFunctionSet);
+    std::vector<std::shared_ptr<const Base::BasisFunctionSet>> *pBasisFunctionSetVector = &basisFunctionSetVector;
     
     std::cout << "Build elements.\n";
     Base::Element elementLeft(pointIndicesLeft, pBasisFunctionSetVector, pointsPhysical, nrOfUnknowns, nrOfTimeLevels, nrOfBasisFunctions, elementIdLeft);
     Base::Element elementRight(pointIndicesRight, pBasisFunctionSetVector, pointsPhysical, nrOfUnknowns, nrOfTimeLevels, nrOfBasisFunctions, elementIdRight);
     
-    std::cout << "Build notes.\n";
+    std::cout << "Build nodes.\n";
     Base::Node node0(0);
     node0.addElement(&elementLeft, 0);
     

@@ -44,13 +44,26 @@
 namespace Base
 {
     
-    Element::Element(const VectorOfPointIndexesT& globalNodeIndexes, const std::vector<const BasisFunctionSetT*>* basisFunctionSet, const VectorOfPhysicalPointsT& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, const std::vector<int>& basisFunctionSetPositions)
-            : ElementGeometryT(globalNodeIndexes, allNodes), ElementDataT(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc, numberOfElementMatrixes, numberOfElementVectors), quadratureRule_(nullptr), basisFunctionSet_(basisFunctionSet), vecCacheData_(), id_(id), basisFunctionSetPositions_(basisFunctionSetPositions)
+    Element::Element(const VectorOfPointIndexesT& globalNodeIndexes, 
+                     const CollectionOfBasisFunctionSets *basisFunctionSet, 
+                     VectorOfPhysicalPointsT& allNodes, 
+                     std::size_t nrOfUnkowns, 
+                     std::size_t nrOfTimeLevels, 
+                     std::size_t nrOfBasisFunc, 
+                     std::size_t id, 
+                     std::size_t numberOfElementMatrixes, 
+                     std::size_t numberOfElementVectors, 
+                     const std::vector<int>& basisFunctionSetPositions)
+            : ElementGeometryT(globalNodeIndexes, allNodes), 
+        ElementData(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc, numberOfElementMatrixes, numberOfElementVectors), 
+        quadratureRule_(nullptr), basisFunctionSet_(basisFunctionSet), 
+        vecCacheData_(), id_(id), basisFunctionSetPositions_(basisFunctionSetPositions)
     {
         logger.assert(basisFunctionSet!=nullptr, "Invalid basis function set passed");
         logger.assert(basisFunctionSet->size()>0, "Not enough basis function sets passed");
         logger(VERBOSE, "numberOfElementMatrixes: %", numberOfElementMatrixes);
         logger(VERBOSE, "numberOfElementVectors: %", numberOfElementVectors);
+        
         orderCoeff_ = 2; // for safety
         std::size_t numberOfBasisFunctions = 0;
         for (std::size_t i = 0; i < basisFunctionSetPositions_.size(); ++i)
@@ -70,23 +83,47 @@ namespace Base
         }
         nodesList_.assign(getReferenceGeometry()->getNumberOfNodes(), nullptr);
     }
-    
-    Element::Element(const Element& other)
-            : ElementGeometryT(other), ElementDataT(other), quadratureRule_(other.quadratureRule_), basisFunctionSet_(other.basisFunctionSet_), vecCacheData_(other.vecCacheData_), id_(other.id_), orderCoeff_(other.orderCoeff_), basisFunctionSetPositions_(other.basisFunctionSetPositions_), facesList_(other.facesList_), edgesList_(other.edgesList_), nodesList_(other.nodesList_), nrOfDOFinTheElement_(other.nrOfDOFinTheElement_)
-
-    {
+        
+    Element::Element(const ElementData& otherData, const ElementGeometry& otherGeometry)
+        : ElementData(otherData),
+        ElementGeometry(otherGeometry)
+    {        
     }
     
     ///Very ugly default constructor that's only here because it is needed in
     ///ShortTermStorageElementBase.
     Element::Element()
-            : ElementDataT(0, 0, 0, 0, 0)
+            : ElementData(0, 0, 0, 0, 0)
     {
     }
     
     Element::~Element()
     {
         
+    }
+    
+    Element* Element::copyWithoutFacesEdgesNodes()
+    {
+        //Make a new element with the data and geometry of this element
+        Element* newElement = new Element(*this, *this);
+        
+        //copy the pointers to singletons
+        newElement->quadratureRule_ = quadratureRule_;
+        newElement->basisFunctionSet_ = basisFunctionSet_;
+        
+        //copy other data
+        newElement->basisFunctionSetPositions_ = basisFunctionSetPositions_;
+        newElement->id_ = id_;
+        newElement->nrOfDOFinTheElement_ = nrOfDOFinTheElement_;
+        newElement->orderCoeff_ = orderCoeff_;
+        newElement->vecCacheData_ = vecCacheData_;
+        
+        //allocate memory for nodesList, facesList and edgesList
+        newElement->nodesList_.resize(getNrOfNodes());
+        newElement->edgesList_.resize(getNrOfEdges());
+        newElement->facesList_.resize(getNrOfFaces());
+        
+        return newElement;
     }
     
     void Element::setDefaultBasisFunctionSet(std::size_t position)
@@ -315,7 +352,6 @@ namespace Base
         {
             wrapper = this; 
         }
-        const Base::BaseBasisFunction* function;
         int basePosition(0);
         for (int j : basisFunctionSetPositions_)
         {
@@ -324,8 +360,8 @@ namespace Base
                 std::size_t n = basisFunctionSet_->at(j)->size();
                 if (i - basePosition < n)
                 {
-                    function = basisFunctionSet_->at(j)->operator[](i - basePosition);
-                    basePosition += n;
+                    Utilities::PhysGradientOfBasisFunction functionGradient(wrapper, basisFunctionSet_->at(j)->operator[](i - basePosition));
+                    return functionGradient(p);
                 }
                 else
                 {
@@ -333,8 +369,8 @@ namespace Base
                 }
             }
         }
-        Utilities::PhysGradientOfBasisFunction functionGradient(wrapper, function);
-        return functionGradient(p);
+        logger(ERROR, "It should not be possible to reach this line");
+        return LinearAlgebra::NumericalVector(0);
     }
     
 #ifndef NDEBUG
@@ -388,6 +424,7 @@ namespace Base
         edgesList_[localEdgeNr] = edge;
     }
     
+    ///\bug IFCD: because of the assert, the if-block will never be entered.
     void Element::setNode(std::size_t localNodeNr, const Node* node)
     {
         logger.assert(localNodeNr < getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());

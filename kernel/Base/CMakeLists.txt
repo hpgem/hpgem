@@ -33,6 +33,7 @@ add_library(hpGEM_Base STATIC
  		Node.cpp
 		HpgemAPIBase.cpp
 		HpgemAPILinear.cpp
+		HpgemAPILinearSteadyState.cpp
 		HpgemAPISimplified.cpp
                 HpgemUISimplified.cpp
 		#miscellaneous required stuff

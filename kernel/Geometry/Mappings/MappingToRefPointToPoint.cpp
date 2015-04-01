@@ -28,15 +28,6 @@ namespace Geometry
     {
     }
     
-    MappingToRefPointToPoint::MappingToRefPointToPoint(const MappingToRefPointToPoint&)
-    {
-        
-    }
-    
-    MappingToRefPointToPoint::~MappingToRefPointToPoint()
-    {
-    }
-    
     const MappingToRefPointToPoint& MappingToRefPointToPoint::Instance()
     {
         static const MappingToRefPointToPoint theInstance;

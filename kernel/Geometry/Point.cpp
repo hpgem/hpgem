@@ -191,4 +191,3 @@ namespace Geometry
         return Point(right.coordinates_ * left);
     }
 }
-;

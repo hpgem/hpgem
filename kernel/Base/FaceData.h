@@ -27,6 +27,7 @@
 #include "Base/FaceMatrix.h"
 #include "LinearAlgebra/Matrix.h"
 #include "LinearAlgebra/NumericalVector.h"
+#include "FaceCacheData.h"
 
 namespace LinearAlgebra
 {
@@ -46,7 +47,9 @@ namespace Base
         using VecCacheT = std::vector<CacheT>;
 
     public:
-        FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices = 0, std::size_t numberOfFaceVactors = 0);
+        FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices = 0, std::size_t numberOfFaceVactors = 0);        
+        
+        FaceData(const FaceData& other);
 
         /// \brief Sets face matrix number 'matrixID' using a standard matrix.
         /// \deprecated For safety and also efficiency it is advised to use the other version
@@ -91,10 +94,14 @@ namespace Base
 
         void setResidue(LinearAlgebra::NumericalVector& residue);
         
+        std::size_t getNumberFaceMatrices() const;
+        std::size_t getNumberFaceVectors() const;
+        
     protected:
         VecCacheT vecCacheData_;
 
     private:
+        
         UserFaceData* userData_;
         std::vector<FaceMatrix> faceMatrix_;
         std::vector<LinearAlgebra::NumericalVector> faceVector_;

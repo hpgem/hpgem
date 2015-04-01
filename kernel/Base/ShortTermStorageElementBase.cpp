@@ -26,7 +26,7 @@
 
 #include <limits>
 
-Base::Element& Base::ShortTermStorageElementBase::operator=(const Base::Element& element)
+Base::Element& Base::ShortTermStorageElementBase::operator=(Base::Element& element)
 {
     logger.assert(this != &element, "Trying to assign an Element of the type ShortTermStorageElementBase to itself.");
 
@@ -66,7 +66,7 @@ void Base::ShortTermStorageElementBase::computeData()
 {
     if (useCache_)
     {
-        std::vector<ElementCacheData>& cache = const_cast<Element*>(element_)->getVecCacheData();
+        std::vector<ElementCacheData>& cache = element_->getVecCacheData();
         if (recomputeCache_ || (cache.size() != getGaussQuadratureRule()->nrOfPoints()))
         {
             recomputeCacheOff();

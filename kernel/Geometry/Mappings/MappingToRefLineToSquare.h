@@ -55,9 +55,9 @@ namespace Geometry
     {
     public:
         static const MappingToRefLineToSquare0& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 2;
         }
@@ -65,16 +65,15 @@ namespace Geometry
         MappingToRefLineToSquare0();
         MappingToRefLineToSquare0(const MappingToRefLineToSquare0&);
         MappingToRefLineToSquare0& operator=(const MappingToRefLineToSquare0&);
-        virtual ~MappingToRefLineToSquare0();
     };
     // ~~~ index 1 ~~~==============================================================================
     class MappingToRefLineToSquare1 : public MappingReferenceToReference
     {
     public:
         static const MappingToRefLineToSquare1& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 2;
         }
@@ -82,16 +81,15 @@ namespace Geometry
         MappingToRefLineToSquare1();
         MappingToRefLineToSquare1(const MappingToRefLineToSquare1&);
         MappingToRefLineToSquare1& operator=(const MappingToRefLineToSquare1&);
-        virtual ~MappingToRefLineToSquare1();
     };
     // ~~~ index 2 ~~~==============================================================================
     class MappingToRefLineToSquare2 : public MappingReferenceToReference
     {
     public:
         static const MappingToRefLineToSquare2& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 2;
         }
@@ -99,16 +97,15 @@ namespace Geometry
         MappingToRefLineToSquare2();
         MappingToRefLineToSquare2(const MappingToRefLineToSquare2&);
         MappingToRefLineToSquare1& operator=(const MappingToRefLineToSquare2&);
-        virtual ~MappingToRefLineToSquare2();
     };
     // ~~~ index 3 ~~~==============================================================================
     class MappingToRefLineToSquare3 : public MappingReferenceToReference
     {
     public:
         static const MappingToRefLineToSquare3& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 2;
         }
@@ -116,7 +113,6 @@ namespace Geometry
         MappingToRefLineToSquare3();
         MappingToRefLineToSquare3(const MappingToRefLineToSquare3&);
         MappingToRefLineToSquare3& operator=(const MappingToRefLineToSquare3&);
-        virtual ~MappingToRefLineToSquare3();
     };
 }
 ;

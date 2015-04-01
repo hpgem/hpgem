@@ -63,9 +63,6 @@ namespace Geometry
     MappingToRefPointToLine0::MappingToRefPointToLine0()
     {
     }
-    MappingToRefPointToLine0::~MappingToRefPointToLine0()
-    {
-    }
     
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 1 ~~~==============================================================================
@@ -90,9 +87,6 @@ namespace Geometry
     }
     
     MappingToRefPointToLine1::MappingToRefPointToLine1()
-    {
-    }
-    MappingToRefPointToLine1::~MappingToRefPointToLine1()
     {
     }
 

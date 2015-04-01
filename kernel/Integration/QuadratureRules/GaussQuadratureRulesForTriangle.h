@@ -44,18 +44,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         Tn2_1_1();
         Tn2_1_1(const Tn2_1_1&);
-        virtual ~Tn2_1_1();
     private:
         const std::string name_;
         double weight_[1];
@@ -76,18 +75,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         Tn2_2_3();
         Tn2_2_3(const Tn2_2_3&);
-        virtual ~Tn2_2_3();
     private:
         const std::string name_;
         double weight_[3];
@@ -108,18 +106,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         Tn2_3_4();
         Tn2_3_4(const Tn2_3_4&);
-        virtual ~Tn2_3_4();
     private:
         const std::string name_;
         double weight_[4];
@@ -140,18 +137,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         Tn2_4_6();
         Tn2_4_6(const Tn2_4_6&);
-        virtual ~Tn2_4_6();
     private:
         const std::string name_;
         double weight_[6];
@@ -172,18 +168,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         T2_5_7();
         T2_5_7(const T2_5_7&);
-        virtual ~T2_5_7();
 
         const std::string name_;
         double weight_[7];
@@ -204,18 +199,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         T2_6_12();
         T2_6_12(const T2_6_12&);
-        virtual ~T2_6_12();
     private:
         const std::string name_;
         double weight_[12];
@@ -236,18 +230,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         T2_7_13();
         T2_7_13(const T2_7_13&);
-        virtual ~T2_7_13();
     private:
         const std::string name_;
         double weight_[13];
@@ -268,18 +261,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         T2_8_16();
         T2_8_16(const T2_8_16&);
-        virtual ~T2_8_16();
     private:
         const std::string name_;
         double weight_[16];
@@ -300,18 +292,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         T2_9_19();
         T2_9_19(const T2_9_19&);
-        virtual ~T2_9_19();
     private:
         const std::string name_;
         double weight_[19];
@@ -332,18 +323,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         T2_10_25();
         T2_10_25(const T2_10_25&);
-        virtual ~T2_10_25();
     private:
         const std::string name_;
         double weight_[25];
@@ -364,18 +354,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         T2_11_28();
         T2_11_28(const T2_11_28&);
-        virtual ~T2_11_28();
     private:
         const std::string name_;
         double weight_[28];

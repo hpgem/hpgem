@@ -52,11 +52,11 @@ namespace Geometry
             MappingReferenceToPhysical::setNodesPtr(&pG->getNodes());
             reinit(pG);
         }
-        ;
-        virtual PointPhysical transform(const PointReference&) const;
-        virtual Jacobian calcJacobian(const PointReference&) const;
-        virtual void reinit(const PhysicalGeometry* const);
-        virtual std::size_t getTargetDimension() const
+
+        PointPhysical transform(const PointReference&) const override final;
+        Jacobian calcJacobian(const PointReference&) const override final;
+        void reinit(const PhysicalGeometry* const) override final;
+        std::size_t getTargetDimension() const override final
         {
             return DIM;
         }

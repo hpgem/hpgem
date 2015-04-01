@@ -37,15 +37,20 @@
 namespace Base
 {
     /// \brief Simplified Interface for solving linear PDE's.
-    /** At the moment this class is well-suited for problems of the form \f[ l(\partial_t^k \vec{u},t) = f(\vec{u},t) \f], where \f$ \vec{u} \f$ is some vector function, \f$ l(\partial_t^k \vec{u},t)\f$ is some linear function, applied on the k-th order time-derivative of \f$ u \f$, and \f$ f(\vec{u},t) \f$ is the right-hand side, which is some linear function of \f$ \vec{u} \f$ (that can depend on arbitrary order spatial derivatives of \f$\vec{u}\f$) plus some source term. The resulting set of ODE's will have the form \f[ M\partial_t^ku = Au + f(t)\f], where \f$A\f$ is the stiffness matrix and \f$f(t)\f$ is the source term. If you do not want to store all element- and face matrices for the mass matrix and stiffness matrix, it is advised to use the superclass HpgemAPISimplified instead.
+    /** At the moment this class is well-suited for problems of the form \f[ l(\partial_t^k u) = f(t) + s(u) \f], where \f$ u\in R^{n_V} \f$ is a vector function, \f$ l:R^{n_V}\rightarrow R^{n_V} \f$ is a linear function, applied on the k-th order time-derivative of \f$ u \f$, and \f$ f(t) + s(u) \f$ is the right-hand side, where \f$ s(u) \f$ is some linear function of \f$ u \f$ (that can depend on arbitrary order spatial derivatives of \f$ u \f$) and \f$ f(t) \f$ is a source term. The resulting set of ODE's will have the form \f[ M\partial_t^ku = Su + f(t)\f], where \f$S\f$ is the stiffness matrix and \f$f(t)\f$ is the source term. If you do not want to store all element- and face matrices for the mass matrix and stiffness matrix, it is advised to use the superclass HpgemAPISimplified instead.
+     */
+    /** \details Let \f$ \{\phi_{i_B}^e\} \f$ be the set of DG basis functions, where \f$ e \f$ is an element and \f$ i_B \f$ is the index for a basis function corresponding to this element. The basis functions are such that \f$ \phi_{i_B}^e\f$ is non-zero only at element \f$ e \f$. The solution \f$ u \f$ is approximated as follows \f[ u_{i_V}(x,t)|_{x\in e} = \sum_{i_B} \bar{u}^e_{i_V,i_B}(t)\phi_{i_B}(x), \f] for \f$ i_V = 0 .. n_V-1 \f$, where \f$ \bar{u}^e\f$ are the solution coefficients corresponding to element \f$ e \f$.
+     
+     Let \f$ f \f$ be a face and \f$ i_S \f$ the index of a side of the face (either left or right. Let \f$ (f,i_S) \f$ denote the element at side \f$ i_S \f$ of face \f$ f \f$ (at the boundary we only have a left side). We can write the DG scheme as follows \f[ \sum_{j_V,j_B} M^e_{i_V,i_B;j_V,j_B} \partial_t \bar{u}^e_{j_V,j_B} = f^e_{i_V,i_B}(t) + f^f_{i_V,i_B}(t) + \sum_{j_V,j_B}S^e_{i_V,i_B;j_V.j_B}\bar{u}^e_{j_V.j_B} + \sum_{(f,i_S)=e, j_S,j_V,j_B} S^{f,i_S,j_S}_{i_V,i_B;j_V,j_B}\bar{u}^{(f,j_S)}_{j_V,j_B} \f] where \f$ M^e \f$ is the mass matrix at an element, \f$ S^e \f$ is the stiffness element matrix, \f$ S^f \f$ is the stiffness face matrix, \f$ f^e(t) \f$ is the source term corresponding to an element and \f$ f^f(t) \f$ is the source term corresponding to a boundary face.
      */
     /** \details To solve some linear time depent PDE with this class you should at least do the following:
      * \li Create your own class that inherits this class.
      * \li Implement the function 'createMeshDescription' to create a mesh description (e.g. domain, number of elements, etc.).
-     * \li Implement the function 'initialConditions' to define the initial condition(s) of your problem.
+     * \li Implement the function 'getInitialConditions' to define the initial condition(s) of your problem.
      * \li Implement the function 'getSourceTerm' to define the source term (e.g. external force) if there is one.
-     * \li Implement the functions 'computeStiffnessMatrixAtElement' and 'computeStiffnessMatrixAtFace' for computing the stiffness matrix at an element or face.
-     * \li Implement the function 'integrateSourceTermAtElement' to compute the source term at an element (if there is a source term).
+     * \li Implement the function 'getSourceTermAtBoundary' to get the source term (e.g. because of a boundary force / boundary condition) if there is one.
+     * \li Implement the function 'integrateSourceTermAtFace' for integrating the source term at a boundary face. One can also choose to implemen the function 'computeIntegrandSourceTermAtFace' for computing the integrand. The integration will be done by an automatic routine.
+     * \li Implement the functions 'computeStiffnessMatrixAtElement' and 'computeStiffnessMatrixAtFace' for computing the stiffness matrix at an element or face. One can also choose to implement the functions 'computeIntegrandStiffnessMatrixAtElement' and 'computeIntegrandStiffnessMatrixAtFace' for computing the integrands at the face and element. The integration will be done by an automatic routine.
      */
     /** \details To solve the PDE do the following in the main routine:
      * \li Create an object of your own class, that inherits from this class and has the necessary functions implemented (see list above).
@@ -53,12 +58,12 @@ namespace Base
      * \li Call the function 'setOutputNames' to set the names for the output files.
      * \li Call the function 'solve'.
      */
-    /** \details Some other thinsgs you can do:
+    /** \details Some other things you can do:
      * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
-     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (if this is not the standard L2 inner product).
-     * \li Implement the function 'computeMassMatrixAtElement' if the mass matrix is not constructed by the standard L2 inner product.
-     * \li Override the function 'solveMassMatrixEquationsAtElement' if you want to solve the mass matrix equtions without computing the mass matrix first.
-     * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element.
+     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (by default this function computes the standard L2 inner product).
+     * \li Implement the function 'computeMassMatrixAtElement' if you want to compute the mass matrix (by default a mass matrix is computed based on the L2 inner product).
+     * \li Implement the function 'integrateSourceTermAtElement' to compute the source term at an element (if there is a source term, by default the L2 inner product is computed).
+     * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element (by default the L2-norm is computed).
      * \li Override the function 'writeToTecplotFile' to determine what data to write to the output file.
      * \li Override the function 'showProgress' to determine how you want to show the progress of the time integration routine.
      * \li Override the function 'solve' when using another time integration routine than a Runge-Kutta integration method.
@@ -77,24 +82,36 @@ namespace Base
          const std::size_t polynomialOrder,
          const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
          const std::size_t numOfTimeLevels = 1,
-         const bool useSourceTerm = false
+         const bool useSourceTerm = false,
+         const bool useSourceTermAtBoundary = false
          );
         
         /// \brief Create the mesh.
-        virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType);
+        virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType) override;
         
         /// \brief Compute the source term at a given physical point.
-        virtual double getSourceTerm(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
+        virtual LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No source term implemented.");
-            return 0.0;
+            LinearAlgebra::NumericalVector sourceTerm;
+            return sourceTerm;
+        }
+        
+        /// \brief Get the source term at the boundary at a given physical point.
+        /// \details The source term at the boundary can be a result of certain boundary conditions (e.g. Neumann boundary conditions).
+        virtual LinearAlgebra::NumericalVector getSourceTermAtBoundary(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
+        {
+            
+            logger(ERROR, "No source term at the boundary implemented.");
+            LinearAlgebra::NumericalVector sourceTerm;
+            return sourceTerm;
         }
         
         /// \brief Compute and store the mass matrices.
         virtual void createMassMatrices();
         
         /// \brief Solve the mass matrix equations.
-        virtual void solveMassMatrixEquations(const std::size_t timeLevel) override;
+        void solveMassMatrixEquations(const std::size_t timeLevel) override;
         
         /// \brief Compute the integrand for the stiffness matrix.
         virtual LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef)
@@ -122,25 +139,46 @@ namespace Base
         virtual void createStiffnessMatrices();
         
         /// \brief Integrate the source term at a single element.
-        virtual LinearAlgebra::NumericalVector integrateSourceTermAtElement(const Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
+        virtual LinearAlgebra::NumericalVector integrateSourceTermAtElement(Base::Element *ptrElement, const double time, const std::size_t orderTimeDerivative);
+        
+        /// \brief Compute the integrand for the source term at a face at the boundary.
+        virtual LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::NumericalVector &normal, const Geometry::PointReference &pRef, const double time, const std::size_t orderTimeDerivative)
         {
-            logger(ERROR, "No function for computing the integral for the source term at an element implemented.");
-            LinearAlgebra::NumericalVector integralInitialSolution;
-            return integralInitialSolution;
+            logger(ERROR, "No function for computing the integrand for the source term at a face at the domain boundary implemented.");
+            LinearAlgebra::NumericalVector integrandSourceTerm;
+            return integrandSourceTerm;
         }
         
-        /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
-        virtual void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative) override;
+        /// \brief Integrate the source term at a boundary face.
+        virtual LinearAlgebra::NumericalVector integrateSourceTermAtFace(Base::Face *ptrFace, const double time, const std::size_t orderTimeDerivative);
+        
+        /// \brief Multiply the stiffness matrices with the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'.
+        virtual void multiplyStiffnessMatrices(const std::size_t timeLevelIn, const std::size_t timeLevelResult);
+        
+        /// \brief Multiply the stiffness matrices with the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
+        virtual void multiplyStiffnessMatrices(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult);
+        
+        /// \brief Add the source term to the solution at time level 'timeLevelResult'.
+        virtual void addSourceTerm(const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
+        
+        /// \brief Add the source term at the boundary of the domain to the solution at time level 'timeLevelResult'.
+        virtual void addSourceTermAtBoundary(const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
+        
+        /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'.
+        void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time) override;
         
         /// \brief Compute the right hand side for the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
-        virtual void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative) override;
+        void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time) override;
         
         /// \brief Create and Store things before solving the problem.
-        virtual void tasksBeforeSolving() override;
+        void tasksBeforeSolving() override;
         
     protected:
         /// Boolean to indicate if there is a source term.
         const bool useSourceTerm_;
+        
+        /// Boolean to indicate if there is a source term on the domain boundary (e.g. because of a boundary force or boundary condition).
+        const bool useSourceTermAtBoundary_;
         
         /// Index to indicate where the mass matrix is stored
         const std::size_t massMatrixID_;

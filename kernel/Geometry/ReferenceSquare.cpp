@@ -44,6 +44,7 @@ namespace Geometry
     ReferenceSquare::ReferenceSquare()
             : ReferenceGeometry(4, 2, ReferenceGeometryType::SQUARE), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
+        name = "ReferenceSquare";
         // See MappingLineToSquare.h for further info.                 Ref.Line     Ref.Sqr.Side
         mappingsLineToSquare_[0] = &MappingToRefLineToSquare0::Instance(); // x         -> 0:( x,-1)
         mappingsLineToSquare_[1] = &MappingToRefLineToSquare1::Instance(); // x         -> 1:(-1, x)
@@ -78,11 +79,6 @@ namespace Geometry
         points_[3] = p4;
     }
     
-    ReferenceSquare::ReferenceSquare(const ReferenceSquare& copy)
-            : ReferenceGeometry(copy), referenceGeometryCodim1Ptr_(copy.referenceGeometryCodim1Ptr_)
-    {
-    }
-    
     bool ReferenceSquare::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==2, "The passed reference point has the wrong dimension");
@@ -92,12 +88,6 @@ namespace Geometry
     PointReference ReferenceSquare::getCenter() const
     {
         return PointReference(2);
-    }
-    
-    const PointReference& ReferenceSquare::getNode(const std::size_t& i) const
-    {
-        logger.assert(i<getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
-        return points_[i];
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceSquare& square)

@@ -35,6 +35,7 @@ namespace Geometry
     ReferenceTriangularPrism::ReferenceTriangularPrism()
             : ReferenceGeometry(6, 3, ReferenceGeometryType::TRIANGULARPRISM), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
+        name = "ReferenceTriangularPrism";
         PointReference p1(3), p2(3), p3(3), p4(3), p5(3), p6(3);
         
         p1[0] = +0.0;
@@ -73,11 +74,6 @@ namespace Geometry
         mappingsFaceToTriangularPrism_[4] = &MappingToRefFaceToTriangularPrism4::Instance();
     }
     
-    ReferenceTriangularPrism::ReferenceTriangularPrism(const ReferenceTriangularPrism& copy)
-            : ReferenceGeometry(copy), referenceGeometryCodim1TrianglePtr_(copy.referenceGeometryCodim1TrianglePtr_), referenceGeometryCodim1SquarePtr_(copy.referenceGeometryCodim1SquarePtr_), referenceGeometryCodim2Ptr_(copy.referenceGeometryCodim2Ptr_)
-    {
-    }
-    
     bool ReferenceTriangularPrism::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==3, "The dimension of the reference point is incorrect");
@@ -91,12 +87,6 @@ namespace Geometry
         p[1] = 1. / 3.;
         p[2] = 0.;
         return p;
-    }
-    
-    const PointReference& ReferenceTriangularPrism::getNode(const std::size_t& i) const
-    {
-        logger.assert(i<getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
-        return points_[i];
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceTriangularPrism& prism)

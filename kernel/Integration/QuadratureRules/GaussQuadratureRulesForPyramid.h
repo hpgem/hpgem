@@ -44,18 +44,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         Pyramid_1_4();
         Pyramid_1_4(const Pyramid_1_4&);
-        virtual ~Pyramid_1_4();
     private:
         
         const std::string name_;
@@ -77,18 +76,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         Pyramid_3_16();
         Pyramid_3_16(const Pyramid_3_16&);
-        virtual ~Pyramid_3_16();
     private:
         const std::string name_;
         double weight_[16];
@@ -109,18 +107,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         Pyramid_5_36();
         Pyramid_5_36(const Pyramid_5_36&);
-        virtual ~Pyramid_5_36();
     private:
         const std::string name_;
         double weight_[36];
@@ -141,18 +138,17 @@ namespace QuadratureRules
             return theInstance;
         }
         
-        virtual std::string getName() const;
-        virtual std::size_t order() const;
-        virtual std::size_t dimension() const;
-        virtual std::size_t nrOfPoints() const;
-        virtual double weight(std::size_t i) const;
-        virtual const PointReferenceT& getPoint(std::size_t i) const;
-        virtual ReferenceGeometryT* forReferenceGeometry() const;
+        std::string getName() const override final;
+        std::size_t order() const override final;
+        std::size_t dimension() const override final;
+        std::size_t nrOfPoints() const override final;
+        double weight(std::size_t i) const override final;
+        const PointReferenceT& getPoint(std::size_t i) const override final;
+        ReferenceGeometryT* forReferenceGeometry() const override final;
 
     private:
         Pyramid_7_48();
         Pyramid_7_48(const Pyramid_7_48&);
-        virtual ~Pyramid_7_48();
     private:
         const std::string name_;
         double weight_[48];

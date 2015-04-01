@@ -90,6 +90,27 @@ namespace LinearAlgebra
     {
     }
     
+    Matrix::Matrix(const NumericalVector& list)
+            : data_(list.data(), list.data() + list.size()), nRows_(list.size()), nCols_(1)
+    {
+    }
+
+    Matrix::Matrix(std::initializer_list<Matrix> list)
+            : data_(0), nRows_(list.begin()->getNRows()), nCols_(0)
+    {
+        for(Matrix mat : list)
+        {
+            logger.assert(nRows_ == mat.getNRows(), "Can only construct a matrix from vectors of the same size");
+            nCols_ += mat.getNCols();
+        }
+        data_.resize(nRows_ * nCols_);
+        auto inserter = data_.begin();
+        for(Matrix mat : list)
+        {
+            inserter = std::copy(mat.data(), mat.data() + mat.size(), inserter);
+        }
+    }
+
     /// \param[in] n The number of the row you want the element from
     /// \return double i.e. the value of the element you requested
     ///
@@ -122,6 +143,69 @@ namespace LinearAlgebra
         return (*this);
     }
     
+    Matrix& Matrix::operator-=(const Matrix& other)
+    {
+        //Make sure the matrices are the same size
+        logger.assert(size() == other.size() && nCols_ == other.nCols_, "Dimensions of matrices are not the same.");
+
+        //add the matrices element-wise
+        for (std::size_t i = 0; i < size(); ++i)
+        {
+            data_[i] -= other[i];
+        }
+        return (*this);
+    }
+
+    Matrix& Matrix::operator *=(const Matrix& other)
+    {
+        ///\todo BLAS has no in-place matrix-matrix multiplication
+        return (*this) = (*this) * other;
+    }
+
+    /// \param[in] scalar : A double that each element of the matrix is multiplied by
+    /// \return Matrix
+    Matrix& Matrix::operator*=(const double &scalar)
+    {
+#ifdef LA_STL_VECTOR
+        for (double& d : data_)
+            d *= scalar;
+#else
+        data_ *= scalar;
+#endif
+        return *this;
+    }
+
+    /// \param[in] scalar : A double that each element of the matrix is divided by
+    /// \return Matrix
+    Matrix& Matrix::operator/=(const double& scalar)
+    {
+#ifdef LA_STL_VECTOR
+        for (double& d : data_)
+            d /= scalar;
+#else
+        data_/=scalar;
+#endif
+        return *this;
+    }
+
+    Matrix Matrix::operator +(const Matrix& other) const
+    {
+        Matrix result(*this);
+        return result += other;
+    }
+
+    Matrix Matrix::operator -(const Matrix& other) const
+    {
+        Matrix result(*this);
+        return result -= other;
+    }
+
+    Matrix Matrix::operator -() const
+    {
+        return (*this) * -1.;
+    }
+
+
     /*! \details Computes Matrix * vector and return the vector
      This is done by calling the BLAS (level 2) routine dgemv.
      */
@@ -146,6 +230,34 @@ namespace LinearAlgebra
         logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
         
         dgemv_("N", &nr, &nc, &d_one, ((*(const_cast<Matrix *>(this))).data()), &nr, right.data(), &i_one, &d_zero, result.data(), &i_one);
+        return result;
+    }
+
+
+    /*! \details Computes Matrix * vector and return the vector
+     This is done by calling the BLAS (level 2) routine dgemv.
+     */
+    NumericalVector Matrix::operator*(NumericalVector& right)
+    {
+        logger.assert(nCols_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
+
+        if (nRows_ == 0)
+        {
+            logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
+            return NumericalVector(0);
+        }
+        int nr = nRows_;
+        int nc = nCols_;
+
+        int i_one = 1;
+        double d_one = 1.0;
+        double d_zero = 0.0;
+
+        NumericalVector result(nr);
+
+        logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
+
+        dgemv_("N", &nr, &nc, &d_one, this->data(), &nr, right.data(), &i_one, &d_zero, result.data(), &i_one);
         return result;
     }
     
@@ -198,33 +310,15 @@ namespace LinearAlgebra
     
     /// \param[in] scalar : A double that each element of the matrix is multiplied by
     /// \return Matrix
-    Matrix& Matrix::operator*=(const double &scalar)
+    Matrix Matrix::operator*(const double &scalar) const
     {
-#ifdef LA_STL_VECTOR
-        for (double& d : data_)
-            d *= scalar;
-#else
-        data_ *= scalar;
-#endif
-        return *this;
+        Matrix result(*this);
+        return (result *= scalar);
     }
-    
+
     /// \param[in] scalar : A double that each element of the matrix is divided by
     /// \return Matrix
-    Matrix& Matrix::operator/=(const double& scalar)
-    {
-#ifdef LA_STL_VECTOR
-        for (double& d : data_)
-            d /= scalar;
-#else
-        data_/=scalar;
-#endif
-        return *this;
-    }
-    
-    /// \param[in] scalar : A double that each element of the matrix is multiplied by
-    /// \return Matrix
-    Matrix Matrix::operator/(const double &scalar)
+    Matrix Matrix::operator/(const double &scalar) const
     {
         Matrix result(*this);
         return (result /= scalar);
@@ -307,9 +401,7 @@ namespace LinearAlgebra
         return (result);
         
     }
-}
-namespace LinearAlgebra
-{
+
     /// \param[in] a : double scalar that is multiple by the matrix x
     /// \param[in] x : matrix that is multiple 
     ///
@@ -349,7 +441,7 @@ namespace LinearAlgebra
     {
         logger.assert(nCols_ == other.nCols_, "Number of columns is not the same.");
         
-#if LA_STL_VECTOR
+#ifdef LA_STL_VECTOR
         std::vector<double> data_new(nCols_ * (nRows_ + other.nRows_));
 #else
         std::valarray<double> data_new(nCols_ * (nRows_ + other.nRows_));
@@ -404,7 +496,7 @@ namespace LinearAlgebra
     
     LinearAlgebra::NumericalVector Matrix::getRow(std::size_t i) const
     {
-        logger.assert(i < nCols_, "Requested row %, but there are only % rows", i, nRows_);
+        logger.assert(i < nRows_, "Requested row %, but there are only % rows", i, nRows_);
         LinearAlgebra::NumericalVector ret(nCols_);
         for (std::size_t j = 0; j < nCols_; ++j)
         {
@@ -449,19 +541,42 @@ namespace LinearAlgebra
         
         int lwork = nRows_ * nCols_;
         
-        double work[lwork];
-        
-        dgetri_(&nc, result.data(), &nc, iPivot, &work[0], &lwork, &info);
+        //use the heap for large amounts of data
+        //'magic' boundary of 16 comes from the fact that Jacobeans are not expected to be larger than 4x4
+        //but element matrices can easily reach 20x20 or larger
+        if(lwork <= 16)
+        {
+            double work[lwork];
+
+            dgetri_(&nc, result.data(), &nc, iPivot, work, &lwork, &info);
+        }
+        else
+        {
+            Matrix work(nRows_, nCols_);
+            dgetri_(&nc, result.data(), &nc, iPivot, work.data(), &lwork, &info);
+        }
         
         return result;
     }
     
+    Matrix Matrix::transpose() const
+    {
+        Matrix result(nCols_, nRows_);
+        for(std::size_t i = 0; i < nRows_; ++i)
+        {
+            for(std::size_t j = 0; j < nCols_; ++j)
+            {
+                result(j, i) = (*this)(i, j);
+            }
+        }
+        return result;
+    }
+
     /// \param[in,out] B. On enter is B in Ax=B and on exit is x.
     void Matrix::solve(Matrix& B) const
     {
         logger.assert(nRows_ == nCols_, "can only solve for square matrixes");
         logger.assert(nRows_ == B.nRows_, "size of the RHS does not match the size of the matrix");
-        Matrix matThis = *this;
         
         int n = nRows_;
         int nrhs = B.getNCols();
@@ -469,14 +584,27 @@ namespace LinearAlgebra
         
         int IPIV[n];
         
-        dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
+        //use the stack for small amounts of data
+        //'magic' boundary of 16 comes from the fact that Jacobeans are not expected to be larger than 4x4
+        //but element matrices can easily reach 20x20 or larger
+        if(nRows_ * nCols_ <= 16)
+        {
+            //gdesv destroys the copy
+            double copy[nRows_ * nCols_];
+            std::copy(this->data(), this->data() + nRows_ * nCols_, copy);
+            dgesv_(&n, &nrhs, copy, &n, IPIV, B.data(), &n, &info);
+        }
+        else
+        {
+            Matrix matThis = *this;
+            dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
+        }
     }
     
     void Matrix::solve(NumericalVector& b) const
     {
         logger.assert(nRows_ == nCols_, "can only solve for square matrixes");
         logger.assert(nRows_ == b.size(), "size of the RHS does not match the size of the matrix");
-        Matrix matThis = (*this);
         
         int n = nRows_;
         int nrhs = 1;
@@ -484,7 +612,21 @@ namespace LinearAlgebra
         
         int IPIV[n];
         
-        dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
+        //use the stack for small amounts of data
+        //'magic' boundary of 16 comes from the fact that Jacobeans are not expected to be larger than 4x4
+        //but element matrices can easily reach 20x20 or larger
+        if(nRows_ * nCols_ <= 16)
+        {
+            //gdesv destroys the copy
+            double copy[nRows_ * nCols_];
+            std::copy(this->data(), this->data() + nRows_ * nCols_, copy);
+            dgesv_(&n, &nrhs, copy, &n, IPIV, b.data(), &n, &info);
+        }
+        else
+        {
+            Matrix matThis = *this;
+            dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
+        }
     }
     
 #ifdef HPGEM_USE_COMPLEX_PETSC
@@ -553,17 +695,35 @@ namespace LinearAlgebra
         return os;
     }
     
-    Matrix operator+(const Matrix& mat1, const Matrix& mat2)
-    {
-        Matrix mat3 = mat1;
-        mat3 += mat2;
-        return mat3;
-    }
-    
     Matrix operator*(const double d, const Matrix& mat)
     {
         Matrix matNew = mat;
         matNew *= d;
         return matNew;
+    }
+
+
+    NumericalVector operator*(NumericalVector& left, Matrix& right)
+    {
+        logger.assert(right.getNRows() == left.size(), "Matrix-vector multiplication with mismatching sizes");
+
+        if (right.getNCols() == 0)
+        {
+            logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
+            return NumericalVector(0);
+        }
+        int nr = right.getNRows();
+        int nc = right.getNCols();
+
+        int i_one = 1;
+        double d_one = 1.0;
+        double d_zero = 0.0;
+
+        NumericalVector result(nc);
+
+        logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, left.size());
+
+        dgemv_("T", &nr, &nc, &d_one, right.data(), &nr, left.data(), &i_one, &d_zero, result.data(), &i_one);
+        return result;
     }
 }

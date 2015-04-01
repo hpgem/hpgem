@@ -22,6 +22,8 @@
 #include <mpi.h>
 #endif
 
+#include <limits>
+
 #include "MpiContainer.h"
 #include "Mesh.h"
 #include "Element.h"
@@ -43,25 +45,87 @@ namespace Base
 {
     
     Mesh::Mesh()
-            : hasToSplit_(false), localProcessorID_(0), elementcounter_(0), faceCounter_(0), edgeCounter_(0), nodeCounter_(0)
+            : hasToSplit_(false), localProcessorID_(0), elementCounter_(0), faceCounter_(0), edgeCounter_(0), nodeCounter_(0)
     {
     }
     
     Mesh::Mesh(const Mesh& orig)
-            : hasToSplit_(orig.hasToSplit_), localProcessorID_(orig.localProcessorID_), elements_(orig.elements_), faces_(orig.faces_), edges_(orig.edges_), nodes_(orig.nodes_), elementcounter_(orig.elementcounter_), faceCounter_(orig.faceCounter_), edgeCounter_(orig.edgeCounter_), nodeCounter_(orig.nodeCounter_), points_(orig.points_)
+            : hasToSplit_(orig.hasToSplit_), localProcessorID_(orig.localProcessorID_),
+        elementCounter_(0), faceCounter_(0), edgeCounter_(0), nodeCounter_(0), 
+        points_(orig.points_)
     {
+        //Make elements. Note: each element gets a new unique ID
+        for(Element* element : orig.elements_)
+        {
+            elements_.push_back(element->copyWithoutFacesEdgesNodes());
+            ++elementCounter_;
+        }
+        logger.assert(orig.elementCounter_ == elementCounter_, "In the copy constructor of Mesh,"
+            "there is a different number of elements in the new Mesh than in the old one.");
+        
+        //Make nodes and couple them with elements
+        for(Node* node : orig.nodes_)
+        {
+            nodes_.push_back(new Node(node->getID()));
+            std::vector<Element*> nodeElements = node->getElements();
+            logger.assert(nodeElements.size() > 0, "There are no elements at this node.");
+            for(std::size_t i = 0; i < nodeElements.size(); ++i)
+            {
+                std::size_t id = nodeElements[i]->getID();
+                nodes_.back()->addElement(elements_[id], node->getVertexNr(i));
+            }
+            ++nodeCounter_;
+        }
+        logger.assert(orig.nodeCounter_ == nodeCounter_, "In the copy constructor of Mesh,"
+            "there is a different number of nodes in the new Mesh than in the old one.");
+        
+        //Make faces and couple them with elements
+        for(Face* face : orig.faces_)
+        {
+            Element* elLeft = elements_[face->getPtrElementLeft()->getID()];
+            std::size_t idOnLeft = face->localFaceNumberLeft();
+            Element* elRight = nullptr;
+            std::size_t idOnRight = 0;
+            if (face->isInternal())
+            {
+                elRight = elements_[face->getPtrElementRight()->getID()];
+                idOnRight = face->localFaceNumberRight();
+            }
+            faces_.push_back(new Face(*face, elLeft, idOnLeft, elRight, idOnRight));
+            ++faceCounter_;
+        }
+        logger.assert(orig.faceCounter_ == faceCounter_, "In the copy constructor of Mesh,"
+            "there is a different number of faces in the new Mesh than in the old one.");
+        
+        //Make nodes and couple them with elements
+        for(Edge* edge : orig.edges_)
+        {
+            edges_.push_back(new Edge(edge->getID()));
+            std::vector<Element*> edgeElements = edge->getElements();
+            logger.assert(edgeElements.size() > 0, "There are no elements at this node.");
+            for(std::size_t i = 0; i < edgeElements.size(); ++i)
+            {
+                std::size_t id = edgeElements[i]->getID();
+                edges_.back()->addElement(elements_[id], edge->getEdgeNr(i));
+            }
+            ++edgeCounter_;
+        }
+        logger.assert(orig.edgeCounter_ == edgeCounter_, "In the copy constructor of Mesh,"
+            "there is a different number of nodes in the new Mesh than in the old one.");
+        
+        //call split() to make get...List() to work with local iterators
+        split();
     }
     
     Mesh::~Mesh()
     {
-        clear();
-        
+        clear();        
     }
     
     Element* Mesh::addElement(const std::vector<std::size_t>& globalNodeIndexes)
     {
-        elements_.push_back(ElementFactory::instance().makeElement(globalNodeIndexes, points_, elementcounter_));
-        ++elementcounter_;
+        elements_.push_back(ElementFactory::instance().makeElement(globalNodeIndexes, points_, elementCounter_));
+        ++elementCounter_;
         hasToSplit_ = true;
         return elements_.back();
     }
@@ -245,7 +309,7 @@ namespace Base
         edges_.clear();
         nodes_.clear();
         submeshes_.clear();
-        elementcounter_ = 0;
+        elementCounter_ = 0;
         faceCounter_ = 0;
         edgeCounter_ = 0;
         nodeCounter_ = 0;

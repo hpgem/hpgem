@@ -56,9 +56,6 @@ namespace Geometry
     MappingToRefLineToSquare0::MappingToRefLineToSquare0()
     {
     }
-    MappingToRefLineToSquare0::~MappingToRefLineToSquare0()
-    {
-    }
     
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 1 ~~~==============================================================================
@@ -89,9 +86,6 @@ namespace Geometry
     }
     
     MappingToRefLineToSquare1::MappingToRefLineToSquare1()
-    {
-    }
-    MappingToRefLineToSquare1::~MappingToRefLineToSquare1()
     {
     }
     
@@ -126,9 +120,6 @@ namespace Geometry
     MappingToRefLineToSquare2::MappingToRefLineToSquare2()
     {
     }
-    MappingToRefLineToSquare2::~MappingToRefLineToSquare2()
-    {
-    }
     
     // ~~~~~~~~~~~~~~~==============================================================================
     // ~~~ index 3 ~~~==============================================================================
@@ -159,9 +150,6 @@ namespace Geometry
     }
     
     MappingToRefLineToSquare3::MappingToRefLineToSquare3()
-    {
-    }
-    MappingToRefLineToSquare3::~MappingToRefLineToSquare3()
     {
     }
 }

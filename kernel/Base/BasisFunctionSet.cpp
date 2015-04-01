@@ -52,7 +52,7 @@ namespace Base
         return order_;
     }
     
-    void BasisFunctionSet::addBasisFunction(BaseBasisFunctionT* bf)
+    void BasisFunctionSet::addBasisFunction(BaseBasisFunction* bf)
     {
         logger.assert(bf!=nullptr, "Invalid basis function passed");
         vecOfBasisFcn_.push_back(bf);

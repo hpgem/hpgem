@@ -44,6 +44,7 @@ public:
     }
 };
 
+//Also test the copy constructor of Mesh/MeshManipulator here after this test has been fixed.
 int main()
 {
     /*    Base::ConfigurationData config(3,1,1);

@@ -81,7 +81,7 @@ public:
     
     bool initialise()
     {
-        RectangularMeshDescriptorT description(DIM_);
+        Base::RectangularMeshDescriptor description(DIM_);
         for (std::size_t i = 0; i < DIM_; ++i)
         {
             description.bottomLeft_[i] = 0;
@@ -90,28 +90,7 @@ public:
             description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
         }
         addMesh(description, type_, 1, 1, 1, 1);
-        if (DIM_ == 1)
-        {
-            meshes_[0]->setDefaultBasisFunctionSet(Utilities::createInteriorBasisFunctionSet1DH1Line(p_));
-            std::vector<const Base::BasisFunctionSet*> bFsets;
-            bFsets = Utilities::createVertexBasisFunctionSet1DH1Line(p_);
-            meshes_[0]->addVertexBasisFunctionSet(bFsets);
-            std::vector<const Base::OrientedBasisFunctionSet*> oBFsets;
-        }
-        else if (DIM_ == 2)
-        {
-            meshes_[0]->setDefaultBasisFunctionSet(Utilities::createInteriorBasisFunctionSet2DH1Triangle(p_));
-            std::vector<const Base::BasisFunctionSet*> bFsets;
-            bFsets = Utilities::createVertexBasisFunctionSet2DH1Triangle(p_);
-            meshes_[0]->addVertexBasisFunctionSet(bFsets);
-            std::vector<const Base::OrientedBasisFunctionSet*> oBFsets;
-            oBFsets = Utilities::createFaceBasisFunctionSet2DH1Triangle(p_);
-            meshes_[0]->addFaceBasisFunctionSet(oBFsets);
-        }
-        else
-        {
-            throw "This test is not designed for testing DIM=3 yet";
-        }
+        meshes_[0]->useDefaultConformingBasisFunctions();
         return true;
     }
     
@@ -220,7 +199,7 @@ public:
     
     void insertDirichletBoundary(Utilities::GlobalPetscMatrix& A, Utilities::GlobalPetscVector& b, Utilities::GlobalPetscVector& x)
     {
-        int numberOfRows(0);
+        std::size_t numberOfRows(0);
         std::vector<int> rows(0);
         Geometry::PointPhysical pPhys(DIM_);
         for (Base::Face* face : meshes_[0]->getFacesList())

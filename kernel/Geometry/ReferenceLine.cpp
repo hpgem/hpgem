@@ -39,6 +39,7 @@ namespace Geometry
             : ReferenceGeometry(2, 1, ReferenceGeometryType::LINE), /// Line has two points 1+1
             referenceGeometryCodim1Ptr_(&ReferencePoint::Instance())
     {
+        name = "ReferenceLine";
         PointReference p1(1), p2(1);
         p1[0] = -1.0;
         p2[0] = 1.0;
@@ -53,11 +54,6 @@ namespace Geometry
         
     }
     
-    ReferenceLine::ReferenceLine(const ReferenceLine& copy)
-            : ReferenceGeometry(copy), referenceGeometryCodim1Ptr_(&ReferencePoint::Instance())
-    {
-    }
-    
     bool ReferenceLine::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==1, "The dimension of the point is wrong");
@@ -67,12 +63,6 @@ namespace Geometry
     PointReference ReferenceLine::getCenter() const
     {
         return PointReference(1);
-    }
-    
-    const PointReference& ReferenceLine::getNode(const std::size_t& i) const
-    {
-        logger.assert(i < getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
-        return points_[i];
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceLine& line)

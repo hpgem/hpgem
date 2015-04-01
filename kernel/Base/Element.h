@@ -29,6 +29,7 @@
 
 #include <vector>
 #include <iostream>
+#include <memory>
 
 namespace QuadratureRules
 {
@@ -53,19 +54,21 @@ namespace Base
         using MappingReferenceToPhysicalT = Geometry::MappingReferenceToPhysical;
         using ElementGeometryT = Geometry::ElementGeometry;
         using CacheT = Base::ElementCacheData;
-        using BasisFunctionSetT = Base::BasisFunctionSet;
         using GaussQuadratureRuleT = QuadratureRules::GaussQuadratureRule;
-        using ElementDataT = Base::ElementData;
         using VecCacheT = std::vector<CacheT>;
         using SolutionVector = LinearAlgebra::NumericalVector;
+        using CollectionOfBasisFunctionSets = std::vector<std::shared_ptr<const BasisFunctionSet>>;
 
     public:
         
-        Element(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<const BasisFunctionSetT*>* basisFunctionSet, const std::vector<Geometry::PointPhysical>& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrices = 0, std::size_t numberOfElementVectors = 0, const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
+        Element(const std::vector<std::size_t>& globalNodeIndexes, const CollectionOfBasisFunctionSets *basisFunctionSet, std::vector<Geometry::PointPhysical>& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrices = 0, std::size_t numberOfElementVectors = 0, const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
 
-        Element(const Element& other);
-
-        ~ Element();
+        Element(const Element& other) = delete;
+        
+        
+        virtual ~ Element();
+        
+        Element* copyWithoutFacesEdgesNodes();
 
         virtual std::size_t getID() const;
 
@@ -121,18 +124,33 @@ namespace Base
             return facesList_[localFaceNr];
         }
         
+        virtual const std::vector<const Face*> getFacesList() const
+        {
+            return facesList_;
+        }
+
         virtual const Edge* getEdge(std::size_t localEdgeNr) const
         {
             logger.assert(localEdgeNr<getNrOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNr, getNrOfEdges());
             return edgesList_[localEdgeNr];
         }
         
+        virtual const std::vector<const Edge*> getEdgesList() const
+        {
+            return edgesList_;
+        }
+
         virtual const Node* getNode(std::size_t localNodeNr) const
         {
             logger.assert(localNodeNr<getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());
             return nodesList_[localNodeNr];
         }
         
+        virtual const std::vector<const Node*> getNodesList() const
+        {
+            return nodesList_;
+        }
+
         virtual std::size_t getNrOfFaces() const
         {
             return facesList_.size();
@@ -182,13 +200,14 @@ namespace Base
         }
         
     private:
+        ///Constructor that copies the data and geometry of the given ElementData and ElementGeometry.
+        Element(const ElementData& otherData, const ElementGeometry& otherGeometry);
         
         ///Compute the mass matrix of this element.
         void computeMassMatrix();
 
-        const GaussQuadratureRuleT* quadratureRule_;
-        const std::vector<const BasisFunctionSetT*>* basisFunctionSet_;
-        VecCacheT vecCacheData_;
+        const GaussQuadratureRuleT *quadratureRule_;
+        const CollectionOfBasisFunctionSets *basisFunctionSet_;
         std::size_t id_;
         double orderCoeff_;
         std::vector<int> basisFunctionSetPositions_;
@@ -198,7 +217,8 @@ namespace Base
 
         //IN the element, so don't count conforming DOF from faces/...
         std::size_t nrOfDOFinTheElement_;
-
+        
+        VecCacheT vecCacheData_;
         ///Stores that mass matrix for this element
         LinearAlgebra::Matrix massMatrix_;
     };

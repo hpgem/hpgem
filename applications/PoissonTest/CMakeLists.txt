@@ -7,12 +7,12 @@ if(hpGEM_USE_PETSC)
 
     include_directories(${PETSC_INCLUDES})
     
-add_executable(Laplace.out 
+add_executable(PoissonTest.out 
 		main.cpp
       		)
-target_link_libraries(Laplace.out hpGEM_Base Output ${PETSC_LIBRARIES})
+target_link_libraries(PoissonTest.out hpGEM_Base Output ${PETSC_LIBRARIES})
 
 else() 
-	add_custom_target(Laplace.out 
-		COMMENT "\t ERROR:: You need PETSC to compile Laplace.out. \n\t ERROR:: Please rerun cmake and enable PETSC support")
+	add_custom_target(PoissonTest.out 
+		COMMENT "\t ERROR:: You need PETSC to compile PoissonTest.out. \n\t ERROR:: Please rerun cmake and enable PETSC support")
 endif()

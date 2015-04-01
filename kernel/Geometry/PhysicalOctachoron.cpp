@@ -26,44 +26,9 @@
 
 namespace Geometry
 {
-    PhysicalOctachoron::PhysicalOctachoron(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<PointPhysical>& nodes)
+    PhysicalOctachoron::PhysicalOctachoron(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical>& nodes)
             : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceHypercube::Instance())
     {
-    }
-    
-    std::vector<std::size_t> PhysicalOctachoron::getGlobalFaceNodeIndices(const std::size_t face) const
-    {
-        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
-        std::vector<std::size_t> indexes(8);
-        indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0)];
-        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 1)];
-        indexes[2] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 2)];
-        indexes[3] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 3)];
-        indexes[4] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 4)];
-        indexes[5] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 5)];
-        indexes[6] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 6)];
-        indexes[7] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 7)];
-        return indexes;
-    }
-    
-    std::vector<std::size_t> PhysicalOctachoron::getLocalFaceNodeIndices(const std::size_t face) const
-    {
-        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
-        std::vector<std::size_t> indexes(8);
-        indexes[0] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0);
-        indexes[1] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 1);
-        indexes[2] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 2);
-        indexes[3] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 3);
-        indexes[4] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 4);
-        indexes[5] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 5);
-        indexes[6] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 6);
-        indexes[7] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 7);
-        return indexes;
-    }
-    
-    std::size_t PhysicalOctachoron::getNrOfFaces() const
-    {
-        return getRefGeometry()->getNrOfCodim1Entities();
     }
 
 }

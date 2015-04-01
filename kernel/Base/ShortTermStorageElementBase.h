@@ -50,11 +50,14 @@ namespace Base
      * You cannot use this class to modify elements
      *
      * Be VERY careful to not put this type of element in a mesh, the extra storage needed for this type of elements will likely crash your program
-     * Once proper error checking/handling is implemented safeguards will be added to make this a bit more difficult
      */
     class ShortTermStorageElementBase : public Element
     {
     public:
+        
+        using PhysicalGeometry = Geometry::PhysicalGeometry;
+        using RefinementGeometry = Geometry::RefinementGeometry;
+        
         //The user should be able to use this as if it were an Element, and it is
         //quicker in integration routines than Element, since it stores the values
         //of the transformed basisfunctions and derivatives of basisfunctions.
@@ -76,8 +79,11 @@ namespace Base
         ///recomputes the jacobian, the physical point, functionvalues and derivatives of functions based on the current point
         virtual void computeData();
 
-        Element& operator=(const Element& element);
+        Element& operator=(Element& element);
         
+        ///Copy constructor.
+        ///Note that this makes a shallow copy of the element (i.e. it only copies 
+        ///the pointer to the element), which is correct since this is a wrapper class.
         ShortTermStorageElementBase(const ShortTermStorageElementBase& copy)
                 : element_(copy.element_), currentPoint_(copy.currentPoint_), jac_(copy.jac_), useCache_(copy.useCache_), recomputeCache_(copy.recomputeCache_), currentPointIndex_(copy.currentPointIndex_)
         {
@@ -162,136 +168,162 @@ namespace Base
 
         //make sure all the other function map to the current element
         
-        std::size_t getID() const override
+        std::size_t getID() const override final
         {
             return element_->getID();
         }
         
-        std::size_t getID() override
+        std::size_t getID() override final
         {
             return element_->getID();
         }
         
-        const GaussQuadratureRuleT* getGaussQuadratureRule() const override
+        const GaussQuadratureRuleT* getGaussQuadratureRule() const override final
         {
             return element_->getGaussQuadratureRule();
         }
         
-        Element::SolutionVector getSolution(std::size_t timeLevel, const PointReferenceT& p) const override
+        Element::SolutionVector getSolution(std::size_t timeLevel, const PointReferenceT& p) const override final
         {
             return element_->getSolution(timeLevel, p);
         }
         
-        std::size_t getLocalNrOfBasisFunctions() const override
+        std::size_t getLocalNrOfBasisFunctions() const override final
         {
             return element_->getLocalNrOfBasisFunctions();
         }
         
-        const Face* getFace(std::size_t localFaceNr) const override
+        const Face* getFace(std::size_t localFaceNr) const override final
         {
             return element_->getFace(localFaceNr);
         }
         
-        const Edge* getEdge(std::size_t localEdgeNr) const override
+        const std::vector<const Face*> getFacesList() const
+        {
+            return element_->getFacesList();
+        }
+
+        const Edge* getEdge(std::size_t localEdgeNr) const override final
         {
             return element_->getEdge(localEdgeNr);
         }
         
-        const Node* getNode(std::size_t localNodeNr) const override
+        virtual const std::vector<const Edge*> getEdgesList() const
+        {
+            return element_->getEdgesList();
+        }
+
+        const Node* getNode(std::size_t localNodeNr) const override final
         {
             return element_->getNode(localNodeNr);
         }
         
-        std::size_t getNrOfFaces() const override
+        virtual const std::vector<const Node*> getNodesList() const
+        {
+            return element_->getNodesList();
+        }
+
+        std::size_t getNrOfFaces() const override final
         {
             return element_->getNrOfFaces();
         }
         
-        std::size_t getNrOfEdges() const override
+        std::size_t getNrOfEdges() const override final
         {
             return element_->getNrOfEdges();
         }
         
-        std::size_t getNrOfNodes() const override
+        std::size_t getNrOfNodes() const override final
         {
             return element_->getNrOfNodes();
         }
         
 #ifndef NDEBUG
         
-        const Base::BaseBasisFunction* getBasisFunction(std::size_t i) const override
+        const Base::BaseBasisFunction* getBasisFunction(std::size_t i) const override final
         {
             return element_->getBasisFunction(i);
         }
 #endif
         
-        const LinearAlgebra::Matrix & getElementMatrix(std::size_t matrixID = 0) const override
+        const LinearAlgebra::Matrix & getElementMatrix(std::size_t matrixID = 0) const override final
         {
             return element_->getElementMatrix(matrixID);
         }
         
-        LinearAlgebra::NumericalVector getElementVector(std::size_t vectorID = 0) const override
+        LinearAlgebra::NumericalVector getElementVector(std::size_t vectorID = 0) const override final
         {
             return element_->getElementVector(vectorID);
         }
         
-        const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const override
+        const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const override final
         {
             return element_->getTimeLevelData(timeLevel, unknown);
         }
         
-        double getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const override
+        double getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const override final
         {
             return element_->getData(timeLevel, unknown, basisFunction);
         }
         
-        std::size_t getNrOfUnknows() const override
+        std::size_t getNrOfUnknows() const override final
         {
             return element_->getNrOfUnknows();
         }
         
-        std::size_t getNrOfBasisFunctions() const override
+        std::size_t getNrOfBasisFunctions() const override final
         {
             return element_->getNrOfBasisFunctions();
         }
         
-        const LinearAlgebra::NumericalVector& getResidue() const override
+        const LinearAlgebra::NumericalVector& getResidue() const override final
         {
             return element_->getResidue();
         }
         
-        UserElementData* getUserData() const override
+        UserElementData* getUserData() const override final
         {
             return element_->getUserData();
         }
         
-        const MappingReferenceToPhysicalT * const getReferenceToPhysicalMap() const override
+        const MappingReferenceToPhysicalT * const getReferenceToPhysicalMap() const override final
         {
             return element_->getReferenceToPhysicalMap();
         }
         
-        const PhysicalGeometryT * const getPhysicalGeometry() const override
+        MappingReferenceToPhysicalT * const getReferenceToPhysicalMap() override final
+        {
+            return element_->getReferenceToPhysicalMap();
+        }
+        
+        const PhysicalGeometry * const getPhysicalGeometry() const override final
         {
             return element_->getPhysicalGeometry();
         }
         
-        const ReferenceGeometryT * const getReferenceGeometry() const override
+        PhysicalGeometry * const getPhysicalGeometry() override final
+        {
+            return element_->getPhysicalGeometry();
+        }
+        
+        const ReferenceGeometryT * const getReferenceGeometry() const override final
         {
             return element_->getReferenceGeometry();
         }
         
-        const RefinementGeometryT* getRefinementGeometry() const override
+        const RefinementGeometry* getRefinementGeometry() const override final
         {
             return element_->getRefinementGeometry();
         }
         
-        const std::size_t convertToSingleIndex(std::size_t basisFunctionId, std::size_t unknownId) const override
+        const std::size_t convertToSingleIndex(std::size_t basisFunctionId, std::size_t unknownId) const override final
         {
             return element_->convertToSingleIndex(basisFunctionId, unknownId);
         }
         
     private:
         
+        ///\todo is '= delete' powerful enough to shield this case against overload resolution into operator=(Element)?
         ShortTermStorageElementBase& operator=(const ShortTermStorageElementBase&)
         {
             logger(ERROR, "you are already storing the data, no need to store it twice!");
@@ -299,7 +331,7 @@ namespace Base
         }
         
     protected:
-        const Element* element_;
+        Element* element_;
         Geometry::PointReference currentPoint_;
 
         Geometry::Jacobian jac_;

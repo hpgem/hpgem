@@ -39,14 +39,14 @@ namespace Geometry
     public:
         MappingToPhysPyramid(const PhysicalGeometry* const physicalGeometry);
 
-        virtual PointPhysical transform(const PointReference&) const;
+        PointPhysical transform(const PointReference&) const override final;
 
-        virtual Jacobian calcJacobian(const PointReference&) const;
+        Jacobian calcJacobian(const PointReference&) const override final;
 
-        virtual void reinit(const PhysicalGeometry* const);
+        void reinit(const PhysicalGeometry* const) override final;
 
         bool isValidPoint(const PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        std::size_t getTargetDimension() const override final
         {
             return 3;
         }

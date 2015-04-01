@@ -50,7 +50,7 @@ namespace Geometry
         }
         
         RefinementQuadrilateral(const RefinementQuadrilateral& other)
-                : physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
+                : RefinementGeometry(other), physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
         {
             std::cout << "RefinementQuadrilateral(other)\n";
         }

@@ -73,6 +73,5 @@ namespace Geometry
     PointReference operator*(double left, const PointReference& right);
     
 }
-;
 
 #endif /* POINTREFERENCE_HPP_ */

@@ -45,12 +45,6 @@ namespace Geometry
         return QuadratureRules::AllGaussQuadratureRules::instance().getRule(this, order);
     }
     
-    ReferenceGeometry::ReferenceGeometry(const ReferenceGeometry& other)
-            : points_(other.points_), geometryType_(other.geometryType_)
-    {
-        
-    }
-    
     double ReferenceGeometry::getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p)
     {
         logger.assert(function!=nullptr, "Invalid basis function passed");
@@ -89,9 +83,9 @@ namespace Geometry
 
 }
 
+std::hash<double> hasher;
 std::size_t Geometry::PointHasher::operator()(const Geometry::PointReference& point) const
 {
-    std::hash<double> hasher;
     std::size_t ret = 0;
     for (std::size_t i = 0; i < point.size(); ++i)
     {

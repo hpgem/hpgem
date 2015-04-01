@@ -41,20 +41,13 @@ namespace Geometry
     class ElementGeometry
     {
     public:
-        using PointPhysicalT = PointPhysical;
-        using PointReferenceT = PointReference;
-        using PhysicalGeometryT = PhysicalGeometry;
-        using ReferenceGeometryT = ReferenceGeometry;
-        using RefinementGeometryT = RefinementGeometry;
-        using MappingReferenceToPhysicalT = MappingReferenceToPhysical;
-        using JacobianT = Jacobian;
         using PointIndexT = std::size_t;
-        using VectorOfPhysicalPointsT = std::vector<PointPhysicalT>;
+        using VectorOfPhysicalPointsT = std::vector<PointPhysical>;
         using VectorOfPointIndexesT = std::vector<PointIndexT>;
     public:
         
         /// New style constructor with one less pass
-        ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes);
+        ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes);
 
         /// Copy constructor
         ElementGeometry(const ElementGeometry& other);
@@ -62,24 +55,27 @@ namespace Geometry
         virtual ~ElementGeometry();
 
         /// Returns a pointer to the referenceToPhysicalMapping
-        virtual const MappingReferenceToPhysicalT* const getReferenceToPhysicalMap() const;
+        virtual const MappingReferenceToPhysical* const getReferenceToPhysicalMap() const;
+        virtual MappingReferenceToPhysical* const getReferenceToPhysicalMap();
 
         /// Returns a pointer to the physicalGeometry object.
-        virtual const PhysicalGeometryT* const getPhysicalGeometry() const;
+        virtual const PhysicalGeometry* const getPhysicalGeometry() const;
+        /// Returns a pointer to the physicalGeometry object.
+        virtual PhysicalGeometry* const getPhysicalGeometry();
         /// Returns a pointer to the physicalGeometry object.
         virtual std::size_t getNrOfNodes() const;
         /// Returns a pointer to the referenceGeometry object.
-        virtual const ReferenceGeometryT* const getReferenceGeometry() const;
+        virtual const ReferenceGeometry* const getReferenceGeometry() const;
         /// Returns a pointer to the refinementGeometry object.
-        virtual const RefinementGeometryT* getRefinementGeometry() const;
+        virtual const RefinementGeometry* getRefinementGeometry() const;
         /// This method gets a PointReference, which specifies a coordinate in the ReferenceGeometry,
         /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
         /// given the mapping.
-        virtual PointPhysical referenceToPhysical(const PointReferenceT& pointReference) const;
+        virtual PointPhysical referenceToPhysical(const PointReference& pointReference) const;
 
         /// This method gets a PointReference and returns the corresponding jacobian of the
         /// referenceToPhysicalMapping.
-        virtual Jacobian calcJacobian(const PointReferenceT& pointReference) const;
+        virtual Jacobian calcJacobian(const PointReference& pointReference) const;
 
         void enableRefinement();
 
@@ -97,26 +93,26 @@ namespace Geometry
         
     private:
         
-        static const ReferenceGeometryT* const createReferenceGeometry(std::size_t size, std::size_t DIM);
+        static const ReferenceGeometry* const createReferenceGeometry(std::size_t size, std::size_t DIM);
 
-        static const PhysicalGeometryT* const createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes, const ReferenceGeometryT* const geo);
+        static PhysicalGeometry* const createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometry* const geo);
 
-        static const MappingReferenceToPhysicalT* const createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometryT* const pGeo);
+        static MappingReferenceToPhysical* const createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometry* const pGeo);
 
     protected:
         /// The corresponding referenceGeometry object, for integration.
-        const ReferenceGeometryT* const referenceGeometry_;
+        const ReferenceGeometry* const referenceGeometry_;
 
         /// The physicalGeometry object contains pointers to the actual physical points, and
         /// a container of global node indexes.
-        const PhysicalGeometryT* const physicalGeometry_;
+        PhysicalGeometry* const physicalGeometry_;
 
         /// The referenceToPhysicalMapping relates the coordinates of the reference object to the
         /// physical object; basically a matrix transformation.
-        const MappingReferenceToPhysicalT* const referenceToPhysicalMapping_;
+        MappingReferenceToPhysical* const referenceToPhysicalMapping_;
 
         /// The corresponding refinementGeometry object
-        RefinementGeometryT* refinementGeometry_;
+        RefinementGeometry* refinementGeometry_;
     };
 
 }

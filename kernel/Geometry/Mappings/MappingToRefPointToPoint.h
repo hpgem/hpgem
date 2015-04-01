@@ -42,16 +42,15 @@ namespace Geometry
     {
     public:
         static const MappingToRefPointToPoint& Instance();
-        virtual PointReference transform(const Geometry::PointReference& p1) const;
-        virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
-        virtual std::size_t getTargetDimension() const
+        PointReference transform(const Geometry::PointReference& p1) const override final;
+        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        std::size_t getTargetDimension() const override final
         {
             return 0;
         }
     private:
         MappingToRefPointToPoint();
-        MappingToRefPointToPoint(const MappingToRefPointToPoint&);
-        virtual ~MappingToRefPointToPoint();
+        MappingToRefPointToPoint(const MappingToRefPointToPoint&) = delete;
     };
 
 } /* namespace Geometry */

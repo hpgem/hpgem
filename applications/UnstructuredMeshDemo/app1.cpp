@@ -77,7 +77,7 @@ public:
     Dummy()
     {
     }
-    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, std::ostream& os)
+    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, std::ostream& os) override final
     {
         //write something so tecplot doesnt get confused
         os << 1;
@@ -94,7 +94,7 @@ public:
     {
     }
     
-    bool initialise()
+    bool initialise() override final
     {
         RectangularMeshDescriptor rectangularMesh(2);
         
@@ -137,7 +137,7 @@ public:
         }
         
         //there is no automated addMash functionality yet, manually construct a mesh
-        Base::MeshManipulator *theMesh = new MeshManipulatorT(configData_);
+        Base::MeshManipulator *theMesh = new Base::MeshManipulator(configData_);
         
         auto start = std::chrono::high_resolution_clock::now();
         
@@ -155,27 +155,27 @@ public:
         return true;
     }
     
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
+    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& ret) override final
     {
         //not implemented
     }
     
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::Matrix& ret) override final
     {
         //not implemented
     }
     
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
     {
         //not implemented
     }
     
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
     {
         //not implemented
     }
     
-    double initialConditions(const PointPhysicalT& p)
+    double initialConditions(const PointPhysicalT& p) override final
     {
         //not implemented
         return 0.;

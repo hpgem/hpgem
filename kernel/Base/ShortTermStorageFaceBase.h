@@ -72,7 +72,7 @@ namespace Base
         {
         }
         
-        virtual Face& operator=(const Face& face);
+        virtual Face& operator=(Face& face);
         
         virtual void computeData();
 
@@ -202,127 +202,142 @@ namespace Base
 
         //make sure all the other functions map to the other face
         
-        const Element* getPtrElementLeft() const override
+        const Element* getPtrElementLeft() const override final
         {
             return face_->getPtrElementLeft();
         }
         
-        const Element* getPtrElementRight() const override
+        Element* getPtrElementLeft() override final
+        {
+            return face_->getPtrElementLeft();
+        }
+        
+        const Element* getPtrElementRight() const override final
         {
             return face_->getPtrElementRight();
         }
         
-        const FaceQuadratureRule* getGaussQuadratureRule() const override
+        Element* getPtrElementRight() override final
+        {
+            return face_->getPtrElementRight();
+        }
+        
+        const FaceQuadratureRule* getGaussQuadratureRule() const override final
         {
             return face_->getGaussQuadratureRule();
         }
         
-        bool isInternal() const override
+        bool isInternal() const override final
         {
             return face_->isInternal();
         }
 
-        std::size_t getNrOfBasisFunctions() const override
+        std::size_t getNrOfBasisFunctions() const override final
         {
             return face_->getNrOfBasisFunctions();
         }
         
-        std::size_t getLocalNrOfBasisFunctions() const override
+        std::size_t getLocalNrOfBasisFunctions() const override final
         {
             return face_->getLocalNrOfBasisFunctions();
         }
         
-        std::size_t getID() const override
+        std::size_t getID() const override final
         {
             return face_->getID();
         }
         
-        const ElementGeometryT* getElementGLeft() const override
+        const ElementGeometryT* getElementGLeft() const override final
         {
             return face_->getElementGLeft();
         }
         
-        const ElementGeometryT* getPtrElementGRight() const override
+        const ElementGeometryT* getPtrElementGRight() const override final
         {
             return face_->getPtrElementGRight();
         }
         
-        std::size_t localFaceNumberLeft() const override
+        std::size_t localFaceNumberLeft() const override final
         {
             return face_->localFaceNumberLeft();
         }
         
-        std::size_t localFaceNumberRight() const override
+        std::size_t localFaceNumberRight() const override final
         {
             return face_->localFaceNumberRight();
         }
         
-        Geometry::FaceType getFaceType() const override
+        Geometry::FaceType getFaceType() const override final
         {
             return face_->getFaceType();
         }
         
-        std::size_t getFaceToFaceMapIndex() const override
+        std::size_t getFaceToFaceMapIndex() const override final
         {
             return face_->getFaceToFaceMapIndex();
         }
         
-        const ReferenceFaceGeometryT* getReferenceGeometry() const override
+        const ReferenceFaceGeometryT* getReferenceGeometry() const override final
         {
             return face_->getReferenceGeometry();
         }
         
-        Geometry::PointReference mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const override
+        Geometry::PointReference mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const override final
         {
             return face_->mapRefFaceToRefElemL(pRefFace);
         }
         
-        Geometry::PointReference mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const override
+        Geometry::PointReference mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const override final
         {
             return face_->mapRefFaceToRefElemR(pRefFace);
         }
         
-        Geometry::PointReference mapRefFaceToRefFace(const ReferencePointT& pIn) const override
+        Geometry::PointReference mapRefFaceToRefFace(const ReferencePointT& pIn) const override final
         {
             return face_->mapRefFaceToRefFace(pIn);
         }
         
-        RefFaceToRefElementMappingPtr refFaceToRefElemMapL() const override
+        RefFaceToRefElementMappingPtr refFaceToRefElemMapL() const override final
         {
             return face_->refFaceToRefElemMapL();
         }
         
-        RefFaceToRefElementMappingPtr refFaceToRefElemMapR() const override
+        RefFaceToRefElementMappingPtr refFaceToRefElemMapR() const override final
         {
             return face_->refFaceToRefElemMapR();
         }
         
-        LinearAlgebra::Matrix getFaceMatrixMatrix(std::size_t matrixID = 0) const override
+        LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const override final
+        {
+            return face_->getTimeLevelData(timeLevel, unknown);
+        }
+
+        LinearAlgebra::Matrix getFaceMatrixMatrix(std::size_t matrixID = 0) const override final
         {
             return face_->getFaceMatrixMatrix(matrixID);
         }
         
-        LinearAlgebra::NumericalVector getFaceVector(std::size_t vectorID = 0) const override
+        LinearAlgebra::NumericalVector getFaceVector(std::size_t vectorID = 0) const override final
         {
             return face_->getFaceVector(vectorID);
         }
         
-        UserFaceData* getUserData() const override
+        UserFaceData* getUserData() const override final
         {
             return face_->getUserData();
         }
         
-        const std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId) const override
+        const std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId) const override final
         {
             return face_->convertToSingleIndex(side, scalarBasisFunctionId, varId);
         }
         
-        const Side getSide(std::size_t faceBasisFunctionId) const override
+        const Side getSide(std::size_t faceBasisFunctionId) const override final
         {
             return face_->getSide(faceBasisFunctionId);
         }
         
-        const std::size_t getElementBasisFunctionId(std::size_t faceBasisFunctionId) const override
+        const std::size_t getElementBasisFunctionId(std::size_t faceBasisFunctionId) const override final
         {
             return face_->getElementBasisFunctionId(faceBasisFunctionId);
         }
@@ -341,7 +356,7 @@ namespace Base
         }
         
     protected:
-        const Face* face_;
+        Face* face_;
 
         Geometry::PointReference currentPoint_;
         LinearAlgebra::NumericalVector normal_;

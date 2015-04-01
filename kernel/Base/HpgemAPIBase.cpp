@@ -52,13 +52,13 @@ namespace Base
         delete globalData_;
     }
     
-    bool HpgemAPIBase::initialiseMeshMover(const MeshMoverBaseT* meshMoverBase, std::size_t meshID)
+    bool HpgemAPIBase::initialiseMeshMover(const MeshMoverBase* meshMoverBase, std::size_t meshID)
     {
         meshes_[meshID]->setMeshMover(meshMoverBase);
         return true;
     }
     
-    HpgemAPIBase::MeshId HpgemAPIBase::addMesh(const RectangularMeshDescriptorT& meshDscr, const MeshType& meshType, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
+    HpgemAPIBase::MeshId HpgemAPIBase::addMesh(const RectangularMeshDescriptor& meshDscr, const MeshType& meshType, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
     {
         std::size_t numOfMeshes = meshes_.size();
         MeshManipulator* mesh = new MeshManipulator(configData_, meshDscr.boundaryConditions_[0],

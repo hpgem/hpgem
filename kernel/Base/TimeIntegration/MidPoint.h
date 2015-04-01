@@ -38,18 +38,14 @@ namespace Base
             return theInstance;
         }
         
-        std::size_t getOrder() const;
-        std::size_t getNumStages() const;
-        double getA(std::size_t i, std::size_t j) const;
-        double getB(std::size_t i) const;
-        double getC(std::size_t i) const;
+        std::size_t getOrder() const override final;
+        std::size_t getNumStages() const override final;
+        double getA(std::size_t i, std::size_t j) const override final;
+        double getB(std::size_t i) const override final;
+        double getC(std::size_t i) const override final;
 
     private:
         MidPoint();
-
-        virtual ~ MidPoint()
-        {
-        }
         
         std::size_t order_;
         std::size_t numStages_;

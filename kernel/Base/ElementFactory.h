@@ -24,6 +24,8 @@
 
 #include <vector>
 
+#include "MeshManipulator.h"
+
 namespace Geometry
 {
     class PointPhysical;
@@ -38,6 +40,7 @@ namespace Base
     class ElementFactory
     {
     public:
+        using CollectionOfBasisFunctionSets = std::vector<std::shared_ptr<const BasisFunctionSet>>;
         static ElementFactory& instance()
         {
             static ElementFactory theInstance;
@@ -48,7 +51,7 @@ namespace Base
         Element* makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical>& points, std::size_t elementcounter);
 
         //!mesh creation routines can use this to set their desired defaults
-        void setCollectionOfBasisFunctionSets(std::vector<const BasisFunctionSet*>const * functions);
+        void setCollectionOfBasisFunctionSets(const CollectionOfBasisFunctionSets *functions);
 
         //!mesh creation routines can use this to set their desired defaults
         void setNumberOfUnknowns(std::size_t unknowns);
@@ -65,10 +68,9 @@ namespace Base
     private:
         ElementFactory();
         ElementFactory(const ElementFactory& orig) = delete;
-        virtual ~ElementFactory();
 
         std::size_t unknowns_;
-        std::vector<const BasisFunctionSet*>const * basisFunctionSets_;
+        const CollectionOfBasisFunctionSets *basisFunctionSets_;
         std::size_t timeLevels_;
         std::size_t numberOfElementMatrices_;
         std::size_t numberOfElementVectors_;

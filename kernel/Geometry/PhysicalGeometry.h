@@ -27,6 +27,7 @@
 
 #include "PointPhysical.h"
 #include "PointReference.h"
+#include "ReferenceGeometry.h"
 
 namespace Geometry
 {
@@ -38,8 +39,9 @@ namespace Geometry
         /*!\class PhysicalGeometry
          * \brief PhysicalGeometry describes an actual physical shape in real space.
          * \details
-         * You shouldn't create a PhysicalGeometry (although it is possible), but a particular
-         * Physical<Shape>.
+         * You shouldn't create a particular Physical<Shape> (although it is possible), but a
+         * PhysicalGeometry. The reference geometry passed to the constructor selects what shape
+         * this PhysicalGeometry has
          *
          * It contains only the global indexes of its points in globalNodeIndexes_. These global
          * indexes refer to the global node container, of which every PhysicalGeometry has a
@@ -58,15 +60,13 @@ namespace Geometry
         
         /// \brief Constructor gets indexes of the nodes, a reference to the node container, and a pointer to the corresponding reference geometry.
         
-        PhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, const VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const refG)
+        PhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const refG)
                 : nodes_(nodes), globalNodeIndexes_(globalNodeIndexes), refGeometry_(refG)
         {
             logger.assert(refG!=nullptr, "Invalid reference geometry passed");
         }
-        
-        virtual ~ PhysicalGeometry()
-        {
-        }
+                
+        PhysicalGeometry(const PhysicalGeometry& other) = delete;
         
         /// \brief Returns a constant pointer to the container of the global node indexes.
         const std::vector<std::size_t>& getNodeIndexes() const
@@ -75,7 +75,7 @@ namespace Geometry
         }
         
         /// \brief Returns a pointer to the global container of nodes.
-        const VectorOfPhysicalPointsT& getNodes()
+        VectorOfPhysicalPointsT& getNodes()
         {
             return nodes_;
         }
@@ -87,7 +87,11 @@ namespace Geometry
         }
         
         /// \brief Returns the name of the particular geometry.
-        virtual std::string getName() const = 0;
+        std::string getName()
+        {
+            //skip "Reference" and put "Physical" instead
+            return std::string("Physical").append(refGeometry_->getName().substr(9));
+        }
 
         /// \brief Given a local index relative to globalNodeIndexes_, return the global node index.
         std::size_t getNodeIndex(std::size_t localIndex) const
@@ -98,6 +102,13 @@ namespace Geometry
         
         /// \brief Given a global index, returns a pointer to the corresponding point.
         const PointPhysical* getNodePtr(const std::size_t globalIndex) const
+        {
+            logger.assert(globalIndex < nodes_.size(),"This mesh does not contain a node with index %",globalIndex);
+            return &(nodes_[globalIndex]);
+        }
+        
+        /// \brief Given a global index, returns a pointer to the corresponding point.
+        PointPhysical* getNodePtr(const std::size_t globalIndex)
         {
             logger.assert(globalIndex < nodes_.size(),"This mesh does not contain a node with index %",globalIndex);
             return &(nodes_[globalIndex]);
@@ -116,13 +127,29 @@ namespace Geometry
         PointPhysical getGlobalNodeCoordinates(const std::size_t globalIndex) const;
 
         /// \brief Given a local face index, return the global indices of the entities contained on that face.
-        virtual std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t) const = 0;
+        std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t i) const
+        {
+            logger.assert(i < getNrOfFaces(), "Asked for face %, but there are only % faces", i, getNrOfFaces());
+            std::vector<std::size_t> result = getLocalFaceNodeIndices(i);
+            for(std::size_t i=0; i < result.size(); ++i)
+            {
+                result[i] = getNodeIndex(result[i]);
+            }
+            return result;
+        }
 
         /// \brief Given a local face index, return the local indices of the entities contained on that face.
-        virtual std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t) const = 0;
+        std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t i) const
+        {
+            logger.assert(i < getNrOfFaces(), "Asked for face %, but there are only % faces", i, getNrOfFaces());
+            return refGeometry_->getCodim1EntityLocalIndices(i);
+        }
 
         /// \brief Returns the number of faces via a call to ReferenceGeometry->getNrOfCodim1Entities();
-        virtual std::size_t getNrOfFaces() const = 0;
+        std::size_t getNrOfFaces() const
+        {
+            return refGeometry_->getNrOfCodim1Entities();
+        }
 
         /// \brief Returns a reference to the corresponding reference geometry.
         const ReferenceGeometry * const getRefGeometry() const
@@ -146,7 +173,7 @@ namespace Geometry
         
     protected:
         /// Reference to the global node container.
-        const VectorOfPhysicalPointsT& nodes_;
+        VectorOfPhysicalPointsT& nodes_;
 
         /// Reference to the container of global indexes of the nodes, relative to nodes_.
         std::vector<std::size_t> globalNodeIndexes_;
@@ -155,5 +182,4 @@ namespace Geometry
     };
 
 }
-;
 #endif /* PHYSICALGEOMETRY_H_ */

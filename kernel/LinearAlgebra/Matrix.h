@@ -55,10 +55,8 @@ namespace LinearAlgebra
     ///     1   3
     /// Examples for the implementation are given in the unit test (../tests/unit/LinearAlgebra/MatrixUnitTest).
     /// \bug valarray does not compile, since data() is not defined on it
-    /// \todo number of rows/columns is saved as a std::size_t, but to BLAS interface we use 
-    /// int. Check the BLAS documentation if std::size_t can be used there or limit
-    /// the size of each matrix.
-    /// \todo Complete the set of operators. Missing: operator-(), operator-(const Matrix&)
+    /// \todo number of rows/columns is saved as a std::size_t, but to BLAS is limited to 32 bits (not sure if signed or unsigned)
+    /// implement fall-back routines for matrices that are too large. Note that in this situation dense data storage may not be the best option
     class Matrix
     {
     public:
@@ -74,6 +72,12 @@ namespace LinearAlgebra
 
         /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B and A are both matrices
         Matrix(const Matrix& other);
+        
+        /// \brief construct a matrix by placing some vectors next to each other. Note that vectors in hpGEM are column vectors
+        Matrix(const NumericalVector& other);
+
+        /// \brief Glues one or more matrices with the same number of rows together
+        Matrix(std::initializer_list<Matrix>);
 
         /// \brief Move Matrix from another Matrix
         Matrix(Matrix&& other);
@@ -100,22 +104,34 @@ namespace LinearAlgebra
         const double& operator[](const std::size_t n) const;
 
         /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j
+        NumericalVector operator*(NumericalVector& right);
         NumericalVector operator*(NumericalVector& right) const;
+
+        /// \brief Does matrix A_ij=scalar*B_ij
+        Matrix operator*(const double& right) const;
 
         /// \brief Does matrix A_ij = B_ik * C_kj
         Matrix operator*(const Matrix &other);
         Matrix operator*(const Matrix &other) const;
 
         Matrix& operator+=(const Matrix& other);
+        Matrix& operator-=(const Matrix& other);
+
+        Matrix operator+(const Matrix &other) const;
+        Matrix operator-(const Matrix &other) const;
+        Matrix operator-() const;
 
         /// \brief Does matrix A_ij=scalar*A_ij
         Matrix& operator*=(const double &scalar);
 
-        /// \brief this does element by divided by a scalar 
-        Matrix& operator/=(const double& scalar);
+        /// \brief Does matrix A_ij = A_ik * B_kj
+        Matrix& operator*=(const Matrix &other);
+
+        /// \brief Does matrix A_ij=scalar*A_ij
+        Matrix& operator/=(const double &scalar);
 
         /// \brief this does element by divided by a scalar
-        Matrix operator/(const double& scalar);
+        Matrix operator/(const double& scalar) const;
 
         /// \brief Assigns the Matrix by a scalar
         Matrix& operator=(const double& c);
@@ -163,6 +179,8 @@ namespace LinearAlgebra
         /// \brief return the inverse in the vector result. The size of result matches the matrix.
         Matrix inverse() const;
 
+        Matrix transpose() const;
+
         /// \brief solves Ax=B where A is the current matrix and B is passed in. The result is returned in B.
         void solve(Matrix& B) const;
 
@@ -198,12 +216,12 @@ namespace LinearAlgebra
     
     /// Writes nicely formatted entries of the Matrix A to the stream os.
     std::ostream& operator<<(std::ostream& os, const Matrix& A);
-    
-    ///Adds two matrices
-    Matrix operator+(const Matrix& mat1, const Matrix& mat2);
-    
+
     ///Multiplies a matrix with a double
     Matrix operator*(const double d, const Matrix& mat);
+    
+    ///Multiplies a matrix with a double
+    NumericalVector operator*(NumericalVector& vec, Matrix& mat);
 
 }
 #endif

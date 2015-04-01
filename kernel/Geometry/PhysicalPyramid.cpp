@@ -26,50 +26,8 @@
 
 namespace Geometry
 {
-    PhysicalPyramid::PhysicalPyramid(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<PointPhysical>& nodes)
+    PhysicalPyramid::PhysicalPyramid(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical>& nodes)
             : PhysicalGeometry(globalNodeIndexes, nodes, &ReferencePyramid::Instance())
     {
-    }
-    
-    std::vector<std::size_t> PhysicalPyramid::getGlobalFaceNodeIndices(const std::size_t face) const
-    {
-        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
-        std::vector<std::size_t> indexes(4);
-        if (face == 0)
-        {
-            for (std::size_t i = 0; i < 4; ++i)
-            {
-                indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, i)];
-            }
-        }
-        else
-        {
-            for (std::size_t i = 0; i < 3; ++i)
-            {
-                indexes[i] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, i)];
-            }
-        }
-        return indexes;
-    }
-    
-    std::vector<std::size_t> PhysicalPyramid::getLocalFaceNodeIndices(const std::size_t face) const
-    {
-        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
-        std::vector<std::size_t> indexes(4);
-        if (face == 0)
-        {
-            for (std::size_t i = 0; i < 4; ++i)
-            {
-                indexes[i] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, i);
-            }
-        }
-        else
-        {
-            for (std::size_t i = 0; i < 3; ++i)
-            {
-                indexes[i] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, i);
-            }
-        }
-        return indexes;
     }
 }

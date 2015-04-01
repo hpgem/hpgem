@@ -60,9 +60,6 @@ namespace Geometry
     MappingToRefTriangleToTetrahedron0::MappingToRefTriangleToTetrahedron0()
     {
     }
-    MappingToRefTriangleToTetrahedron0::~MappingToRefTriangleToTetrahedron0()
-    {
-    }
     
     // ~~~ index 1 ~~~==============================================================================
     
@@ -97,9 +94,6 @@ namespace Geometry
     }
     
     MappingToRefTriangleToTetrahedron1::MappingToRefTriangleToTetrahedron1()
-    {
-    }
-    MappingToRefTriangleToTetrahedron1::~MappingToRefTriangleToTetrahedron1()
     {
     }
     
@@ -138,9 +132,6 @@ namespace Geometry
     MappingToRefTriangleToTetrahedron2::MappingToRefTriangleToTetrahedron2()
     {
     }
-    MappingToRefTriangleToTetrahedron2::~MappingToRefTriangleToTetrahedron2()
-    {
-    }
     
     // ~~~ index 3 ~~~==============================================================================
     
@@ -175,9 +166,6 @@ namespace Geometry
     }
     
     MappingToRefTriangleToTetrahedron3::MappingToRefTriangleToTetrahedron3()
-    {
-    }
-    MappingToRefTriangleToTetrahedron3::~MappingToRefTriangleToTetrahedron3()
     {
     }
 }

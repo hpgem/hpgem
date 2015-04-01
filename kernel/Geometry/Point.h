@@ -101,6 +101,5 @@ namespace Geometry
     };
 
 }
-;
 
 #endif /* defined(_POINT_HPP) */

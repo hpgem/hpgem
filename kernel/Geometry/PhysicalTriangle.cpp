@@ -27,32 +27,8 @@
 
 namespace Geometry
 {
-    PhysicalTriangle::PhysicalTriangle(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<PointPhysical>& nodes)
+    PhysicalTriangle::PhysicalTriangle(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical>& nodes)
             : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceTriangle::Instance())
     {
     }
-    
-    std::vector<std::size_t> PhysicalTriangle::getGlobalFaceNodeIndices(const std::size_t face) const
-    {
-        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
-        std::vector<std::size_t> indexes(2);
-        indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0)];
-        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 1)];
-        return indexes;
-    }
-    
-    std::vector<std::size_t> PhysicalTriangle::getLocalFaceNodeIndices(const std::size_t face) const
-    {
-        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
-        std::vector<std::size_t> indexes(2);
-        indexes[0] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0);
-        indexes[1] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 1);
-        return indexes;
-    }
-    
-    std::size_t PhysicalTriangle::getNrOfFaces() const
-    {
-        return refGeometry_->getNrOfCodim1Entities();
-    }
-
 }

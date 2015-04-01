@@ -26,58 +26,8 @@
 
 namespace Geometry
 {
-    PhysicalTriangularPrism::PhysicalTriangularPrism(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<PointPhysical>& nodes)
+    PhysicalTriangularPrism::PhysicalTriangularPrism(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical>& nodes)
             : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceTriangularPrism::Instance())
     {
-    }
-    
-    std::vector<std::size_t> PhysicalTriangularPrism::getGlobalFaceNodeIndices(const std::size_t face) const
-    {
-        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
-        std::vector<std::size_t> indexes;
-        if (face <= 4)
-        {
-            if (face <= 1)
-            {
-                indexes.resize(3);
-                indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0)];
-                indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 1)];
-                indexes[2] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 2)];
-            }
-            else
-            {
-                indexes.resize(4);
-                indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0)];
-                indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 1)];
-                indexes[2] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 2)];
-                indexes[3] = globalNodeIndexes_[refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 3)];
-            }
-        }
-        return indexes;
-    }
-    
-    std::vector<std::size_t> PhysicalTriangularPrism::getLocalFaceNodeIndices(const std::size_t face) const
-    {
-        logger.assert(face < getNrOfFaces(), "Asked for face %, but there are only % faces in a %", face, getNrOfFaces(), getRefGeometry()->getName());
-        std::vector<std::size_t> indexes;
-        if (face <= 4)
-        {
-            if (face <= 1)
-            {
-                indexes.resize(3);
-                indexes[0] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0);
-                indexes[1] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 1);
-                indexes[2] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 2);
-            }
-            else
-            {
-                indexes.resize(4);
-                indexes[0] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 0);
-                indexes[1] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 1);
-                indexes[2] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 2);
-                indexes[3] = refGeometry_->getLocalNodeIndexFromFaceAndIndexOnFace(face, 3);
-            }
-        }
-        return indexes;
     }
 }

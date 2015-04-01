@@ -51,7 +51,6 @@ namespace Geometry
     class MappingReferenceToPhysical : public MappingInterface
     {
     public:
-        /// \bug This is a work around for g++ bug 14258 which is fixed in modern compliers so at some point change back
         
         using VectorOfPointsT = const std::vector<PointPhysical>*;
 

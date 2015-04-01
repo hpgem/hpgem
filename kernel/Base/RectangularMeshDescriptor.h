@@ -46,6 +46,5 @@ namespace Base
     };
 
 }
-;
 
 #endif /* defined(____RectangularMeshDescriptor__) */

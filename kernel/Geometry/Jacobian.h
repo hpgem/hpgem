@@ -40,10 +40,6 @@ namespace Geometry
         }
         
         double determinant() const;
-
-        virtual ~Jacobian()
-        {
-        }
         
         /*! ConcatenatedMapping has to be able to do a matrix product on the
          Jacobians of two (successively applied) mappings. Therefore we provide

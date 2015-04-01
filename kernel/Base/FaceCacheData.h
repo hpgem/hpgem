@@ -35,7 +35,7 @@ namespace Base
     
     struct FaceCacheData
     {
-        FaceCacheData(std::size_t DIM)
+        explicit FaceCacheData(std::size_t DIM)
                 : Normal(DIM)
         {
         }
