@@ -110,5 +110,4 @@ namespace Geometry
         virtual std::size_t getTargetDimension() const =0;
     };
 }
-;
 #endif /* MAP_H_ */

@@ -51,6 +51,4 @@ namespace Integration
     };
 
 }
-;
-
 #endif

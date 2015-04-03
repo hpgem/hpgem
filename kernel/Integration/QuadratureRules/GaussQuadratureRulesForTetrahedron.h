@@ -42,6 +42,7 @@ namespace QuadratureRules
             static Tn3_1_1 theInstance;
             return theInstance;
         }
+        Tn3_1_1(const Tn3_1_1&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -53,8 +54,7 @@ namespace QuadratureRules
 
     private:
         Tn3_1_1();
-        Tn3_1_1(const Tn3_1_1&);
-    private:
+
         const std::string name_;
         double weight_[1];
         ReferenceGeometryT* const refGeoPtr_;
@@ -73,6 +73,7 @@ namespace QuadratureRules
             static Tn3_2_4 theInstance;
             return theInstance;
         }
+        Tn3_2_4(const Tn3_2_4&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -84,8 +85,7 @@ namespace QuadratureRules
 
     private:
         Tn3_2_4();
-        Tn3_2_4(const Tn3_2_4&);
-    private:
+
         const std::string name_;
         double weight_[4];
         ReferenceGeometryT* const refGeoPtr_;
@@ -104,6 +104,7 @@ namespace QuadratureRules
             static Tn3_3_5 theInstance;
             return theInstance;
         }
+        Tn3_3_5(const Tn3_3_5&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -115,8 +116,7 @@ namespace QuadratureRules
 
     private:
         Tn3_3_5();
-        Tn3_3_5(const Tn3_3_5&);
-    private:
+
         const std::string name_;
         double weight_[5];
         ReferenceGeometryT* const refGeoPtr_;
@@ -135,6 +135,7 @@ namespace QuadratureRules
             static Tn3_4_11 theInstance;
             return theInstance;
         }
+        Tn3_4_11(const Tn3_4_11&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -146,8 +147,7 @@ namespace QuadratureRules
 
     private:
         Tn3_4_11();
-        Tn3_4_11(const Tn3_4_11&);
-    private:
+
         const std::string name_;
         double weight_[11];
         ReferenceGeometryT* const refGeoPtr_;
@@ -166,6 +166,7 @@ namespace QuadratureRules
             static T3_5_14 theInstance;
             return theInstance;
         }
+        T3_5_14(const T3_5_14&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -177,8 +178,7 @@ namespace QuadratureRules
 
     private:
         T3_5_14();
-        T3_5_14(const T3_5_14&);
-    private:
+
         const std::string name_;
         double weight_[14];
         ReferenceGeometryT* const refGeoPtr_;
@@ -197,6 +197,7 @@ namespace QuadratureRules
             static T3_6_24 theInstance;
             return theInstance;
         }
+        T3_6_24(const T3_6_24&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -208,8 +209,7 @@ namespace QuadratureRules
 
     private:
         T3_6_24();
-        T3_6_24(const T3_6_24&);
-    private:
+
         const std::string name_;
         double weight_[24];
         ReferenceGeometryT* const refGeoPtr_;
@@ -228,6 +228,7 @@ namespace QuadratureRules
             static T3_7_31 theInstance;
             return theInstance;
         }
+        T3_7_31(const T3_7_31&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -239,8 +240,7 @@ namespace QuadratureRules
 
     private:
         T3_7_31();
-        T3_7_31(const T3_7_31&);
-    private:
+
         const std::string name_;
         double weight_[31];
         ReferenceGeometryT* const refGeoPtr_;
@@ -259,6 +259,7 @@ namespace QuadratureRules
             static T3_8_43 theInstance;
             return theInstance;
         }
+        T3_8_43(const T3_8_43&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -270,8 +271,7 @@ namespace QuadratureRules
 
     private:
         T3_8_43();
-        T3_8_43(const T3_8_43&);
-    private:
+
         const std::string name_;
         double weight_[43];
         ReferenceGeometryT* const refGeoPtr_;
@@ -290,6 +290,7 @@ namespace QuadratureRules
             static T3_9_53 theInstance;
             return theInstance;
         }
+        T3_9_53(const T3_9_53&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -301,8 +302,7 @@ namespace QuadratureRules
 
     private:
         T3_9_53();
-        T3_9_53(const T3_9_53&);
-    private:
+
         const std::string name_;
         double weight_[53];
         ReferenceGeometryT* const refGeoPtr_;
@@ -321,6 +321,7 @@ namespace QuadratureRules
             static T3_10_126 theInstance;
             return theInstance;
         }
+        T3_10_126(const T3_10_126&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -332,8 +333,7 @@ namespace QuadratureRules
 
     private:
         T3_10_126();
-        T3_10_126(const T3_10_126&);
-    private:
+
         const std::string name_;
         double weight_[126];
         ReferenceGeometryT* const refGeoPtr_;
