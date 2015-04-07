@@ -671,7 +671,7 @@ namespace Base
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
-        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
         FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
@@ -822,7 +822,7 @@ namespace Base
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
-        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
         FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
@@ -1059,7 +1059,7 @@ namespace Base
         //set to correct value in case some other meshManipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
-        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
         FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
@@ -2345,7 +2345,7 @@ namespace Base
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
-        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
         FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);

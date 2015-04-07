@@ -65,7 +65,7 @@ namespace LinearAlgebra
             : data_(array, array + size)
     {
     }
-#else
+
 #ifdef HPGEM_USE_COMPLEX_PETSC
     NumericalVector::NumericalVector(const std::complex<double> array[], int size)
     {   
@@ -82,7 +82,7 @@ namespace LinearAlgebra
 
     }
 #endif
-    
+#else
     NumericalVector::NumericalVector(const double array[], std::size_t size)
     : data_(array, size)
     {}
@@ -182,7 +182,7 @@ namespace LinearAlgebra
         
         unsigned int i_one = 1;
         
-        daxpy_(&size, &a, const_cast<NumericalVector *>(&x)->data(), &i_one, ((*this).data()), &i_one);
+        daxpy_(&size, &a, const_cast<NumericalVector *>(&x)->data_.data(), &i_one, ((*this).data_.data()), &i_one);
         
     }
     

@@ -415,7 +415,7 @@ namespace LinearAlgebra
         unsigned int i_one = 1;
         
 #ifdef LA_STL_VECTOR
-        daxpy_(&size, &a, const_cast<double *>(x.data_.data()), &i_one, data_.data(), &i_one);
+        daxpy_(&size, &a, const_cast<double *>(x.data()), &i_one, data(), &i_one);
 #else
         daxpy_(&size, &a, &((*(const_cast<Matrix *> (&x)))[0]), &i_one, &((*this)[0]) , &i_one);
 
