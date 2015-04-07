@@ -39,7 +39,7 @@ numOfVariables_(numOfVariables)
 {
     rhsComputer_.numOfVariables_ = numOfVariables;
     rhsComputer_.DIM_ = dimension;
-    rhsComputer_.epsilon_ = 0.0;
+    rhsComputer_.epsilon_ = 1.0;
 }
 
 Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::size_t numOfElementPerDirection)
@@ -59,8 +59,8 @@ Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::s
 LinearAlgebra::NumericalVector SavageHutter::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
 {
     LinearAlgebra::NumericalVector realSolution(numOfVariables_);  
-    realSolution(0) = 1;
-    realSolution(1) = 1;
+    realSolution(0) = 0;
+    realSolution(1) = 0;
     return realSolution;
 }
 

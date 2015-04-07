@@ -35,6 +35,7 @@ auto& startTime = Base::register_argument<double>('S', "startTime", "start time 
 auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 0.01);
 auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.01);
 
+//This code does not work correctly yet!
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);

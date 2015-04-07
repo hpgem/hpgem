@@ -78,7 +78,7 @@ public:
     /// \brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID)
     {
-        if (timeStepID % 10 == 0)
+        if (timeStepID % 100 == 0)
         {
             logger(INFO, "% time steps computed.", timeStepID);
         }
@@ -115,7 +115,6 @@ public:
      LinearAlgebra::NumericalVector &solutionCoefficientsRight,
      const double time
      );
-    
 
 private: 
     /// Dimension of the domain

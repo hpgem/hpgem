@@ -47,7 +47,7 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefEl
 
     // Scale with the reference-to-physical element ratio.
     Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
-    //integrand *= jac.determinant();
+    logger(DEBUG, "Integrand on element: %", integrand);
     return integrand;
 }
 
@@ -106,7 +106,7 @@ NumericalVector SavageHutterRightHandSideComputer::computeRightHandSideOnRefFace
             
         }
     }
-    //logger(INFO, "Values of rhs on face % : %, %, %, %", ptrFace->getID(), integrand(0), integrand(1), integrand(2), integrand(3));
+    logger(DEBUG, "Values of rhs on face % : %, %", ptrFace->getID(), integrand(0), integrand(1));
     return integrand;
 }
 
@@ -118,10 +118,11 @@ NumericalVector SavageHutterRightHandSideComputer::computePhysicalFlux(const Num
     if (h > 1e-10)
     {
         u = hu/h;
-    }    
+    }
     NumericalVector flux(2);
     flux(0) = hu;
     flux(1) = hu * u + epsilon_/2 * h * h;
+    logger(DEBUG, "flux values: %, %", flux(0), flux(1));
     return flux;
 }
 
@@ -143,11 +144,23 @@ NumericalVector SavageHutterRightHandSideComputer::computeNumericalSolution(cons
 
 NumericalVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const NumericalVector& numericalSolutionLeft, const NumericalVector& numericalSolutionRight)
 {
-    double alpha = std::max(std::abs(numericalSolutionLeft(1)/numericalSolutionLeft(0)) + std::sqrt(epsilon_ * numericalSolutionLeft(0)), 
-                      std::abs(numericalSolutionRight(1)/numericalSolutionRight(0)) + std::sqrt(epsilon_ * numericalSolutionRight(0)));
+    double uLeft = 0;
+    if (numericalSolutionLeft(0) > 1e-10)
+    {
+        uLeft = numericalSolutionLeft(1) / numericalSolutionLeft(0);
+    }
+    double uRight = 0;
+    if (numericalSolutionRight(0) > 1e-10)
+    {
+        uRight = numericalSolutionRight(1) / numericalSolutionRight(0);
+    }
+    
+    double alpha = std::max(std::abs(uLeft) + std::sqrt(epsilon_ * numericalSolutionLeft(0)), 
+                      std::abs(uRight) + std::sqrt(epsilon_ * numericalSolutionRight(0)));
+    
     NumericalVector numericalFlux = 0.5 * 
         (computePhysicalFlux(numericalSolutionLeft) + computePhysicalFlux(numericalSolutionRight)
             - alpha * (numericalSolutionRight - numericalSolutionLeft));
-    numericalFlux = numericalSolutionLeft;
+    logger(DEBUG, "%, %, %, %, %", computePhysicalFlux(numericalSolutionLeft), computePhysicalFlux(numericalSolutionRight), alpha, numericalSolutionRight, numericalSolutionLeft);
     return numericalFlux;
 }
