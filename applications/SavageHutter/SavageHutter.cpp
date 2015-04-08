@@ -31,11 +31,12 @@ SavageHutter::SavageHutter
  const std::size_t dimension,
  const std::size_t numOfVariables,
  const std::size_t polynomialOrder,
- const Base::ButcherTableau * const ptrButcherTableau
+ const Base::ButcherTableau * const ptrButcherTableau,
+ const std::size_t numTimeSteps
  ) :
 HpgemAPISimplified(dimension, numOfVariables, polynomialOrder, ptrButcherTableau),
-DIM_(dimension),
-numOfVariables_(numOfVariables)
+DIM_(dimension), numTimeSteps_(numTimeSteps),
+numOfVariables_(numOfVariables), timeStepCounter(0)
 {
     rhsComputer_.numOfVariables_ = numOfVariables;
     rhsComputer_.DIM_ = dimension;
@@ -56,18 +57,14 @@ Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::s
     return description;
 }
 
-LinearAlgebra::NumericalVector SavageHutter::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
-{
-    LinearAlgebra::NumericalVector realSolution(numOfVariables_);  
-    realSolution(0) = 0;
-    realSolution(1) = 0;
-    return realSolution;
-}
-
 /// \brief Compute the initial solution at a given point in space and time.
 LinearAlgebra::NumericalVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
-    return getExactSolution(pPhys, startTime, orderTimeDerivative);
+    LinearAlgebra::NumericalVector initialSolution(numOfVariables_);   
+    //initialSolution(0) = -pPhys[0] * (pPhys[0] - 1) + 2;
+    initialSolution(0) = std::sin(pPhys[0] * 2 * 3.1415926535) + 2;
+    initialSolution(1) = 0;
+    return initialSolution;
 }
 
 /// \details The integrand for the initial solution is the exact solution at time 0 multiplied by a test function. The integrand is then scaled by the reference-to-physical element scale, since we compute the integral on a reference element.
@@ -104,7 +101,12 @@ LinearAlgebra::NumericalVector SavageHutter::integrateInitialSolutionAtElement(B
     // Define the integrand function for the the initial solution integral.
     std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector { return this -> integrandInitialSolutionOnRefElement(ptrElement, startTime, pRef);};
     
-    return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    LinearAlgebra::NumericalVector solution = elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    if (ptrElement->getID() == 0)
+    {
+        std::cout << solution << std::endl;
+    }
+    return solution;
 }
 
 LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
@@ -116,23 +118,6 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtElement(Base:
     };
     
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
-}
-
-LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
-(
- Base::Face *ptrFace,
- LinearAlgebra::NumericalVector &solutionCoefficients,
- const double time
- )
-{
-    logger(ERROR, "At the moment only using periodic boundary conditions");
-    // Define the integrand function for the right hand side for the reference face.
-    std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference &pRef) -> LinearAlgebra::NumericalVector
-    {   
-        return rhsComputer_.integrandRightHandSideOnRefFace(ptrFace, time, pRef, solutionCoefficients);
-    };
-    
-    return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
 }
 
 LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace

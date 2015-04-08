@@ -436,14 +436,14 @@ namespace Base
         }
     }
     
-    const std::vector<Geometry::PointPhysical>& Mesh::getNodes() const
+    const std::vector<Geometry::PointPhysical>& Mesh::getNodeCoordinates() const
     {
         //for historic reasons points_ is referenced directly during element 
         //creation and therefore cannot be distributed
         return points_;
     }
     
-    std::vector<Geometry::PointPhysical>& Mesh::getNodes()
+    std::vector<Geometry::PointPhysical>& Mesh::getNodeCoordinates()
     {
         //for historic reasons points_ is referenced directly during element 
         //creation and therefore cannot be distributed

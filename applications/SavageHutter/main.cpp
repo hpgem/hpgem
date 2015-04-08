@@ -33,7 +33,7 @@ auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "poly
 auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 1);
 auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
 auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 0.01);
-auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.01);
+auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.001);
 
 //This code does not work correctly yet!
 int main(int argc, char **argv)
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     std::vector<std::string> variableNames = {"h", "hu"};
 
     //Construct the problem, mesh and output generator
-    SavageHutter test(dimension, numOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
+    SavageHutter test(dimension, numOfVariables, polynomialOrder.getValue(), ptrButcherTableau, (endTime.getValue() - startTime.getValue())/dt.getValue());
     test.createMesh(numOfElements.getValue(), meshType);
     test.setOutputNames("output", "SavageHutter", "SavageHutter", variableNames);
 

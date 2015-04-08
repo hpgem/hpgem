@@ -365,14 +365,14 @@ namespace Base
                 
         std::size_t dimension() const;
 
-        const std::vector<PointPhysicalT>& getNodes() const
+        const std::vector<PointPhysicalT>& getNodeCoordinates() const
         {
-            return theMesh_.getNodes();
+            return theMesh_.getNodeCoordinates();
         }
         
-        std::vector<PointPhysicalT>& getNodes()
+        std::vector<PointPhysicalT>& getNodeCoordinates()
         {
-            return theMesh_.getNodes();
+            return theMesh_.getNodeCoordinates();
         }
         /**
          * Retrieves the Mesh as stored in this MeshManipulator

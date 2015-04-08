@@ -57,14 +57,12 @@ public:
      const std::size_t dimension,
      const std::size_t numOfVariables,
      const std::size_t polynomialOrder,
-     const Base::ButcherTableau * const ptrButcherTableau
+     const Base::ButcherTableau * const ptrButcherTableau,
+            const std::size_t numTimeSteps
      );
         
     /// \brief Create a domain
     Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection);
-
-    /// \brief Compute the real solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0);
 
     /// \brief Compute the initial solution at a given point in space and time.
     LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
@@ -82,29 +80,40 @@ public:
         {
             logger(INFO, "% time steps computed.", timeStepID);
         }
-        std::string fileName = "data" + std::to_string(timeStepID);
-        std::ofstream myFile(fileName);
-        for (Base::Element* element : meshes_[0]->getElementsList())
+        
+        if (timeStepID == 1)
         {
-            Geometry::PointReference pRef(1);
-            pRef.setCoordinate(0, -1);
-            double pPhys  = (double) element->getID() / meshes_[0]->getElementsList().size();
-            myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) << element->getSolution(0, pRef)(0) << std::endl;  
-            pRef.setCoordinate(0, 1);
-            pPhys  = (double) (element->getID() + 1) / meshes_[0]->getElementsList().size();
-            myFile << std::setw(5) << pPhys << '\t'<< std::setprecision(12) << element->getSolution(0, pRef)(0) << std::endl;  
+            std::string fileName0 = "data0.dat";
+            std::ofstream myFile0(fileName0);
+            for (Base::Element* element : meshes_[0]->getElementsList())
+            {
+                Geometry::PointPhysical pPhys(1);
+                pPhys[0] = (double) element->getID() / meshes_[0]->getElementsList().size();
+                myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) << getInitialSolution(pPhys, 0)(0) << std::endl;
+                pPhys[0]  = (double) (element->getID() + 1) / meshes_[0]->getElementsList().size();
+                myFile0 << std::setw(5) << pPhys[0] << '\t'<< std::setprecision(12) << getInitialSolution(pPhys, 0)(0) << std::endl;  
+            }
+        }
+        
+        std::size_t spacing = numTimeSteps_ / 200;
+        if (((numTimeSteps_ <= 200) || timeStepID % spacing == 0))
+        {
+            std::string fileName = "data" + std::to_string(++timeStepCounter) + ".dat";
+            std::ofstream myFile(fileName);
+            for (Base::Element* element : meshes_[0]->getElementsList())
+            {
+                Geometry::PointReference pRef(1);
+                pRef.setCoordinate(0, -1);
+                double pPhys  = (double) element->getID() / meshes_[0]->getElementsList().size();
+                myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) << element->getSolution(0, pRef)(0) << std::endl;  
+                pRef.setCoordinate(0, 1);
+                pPhys  = (double) (element->getID() + 1) / meshes_[0]->getElementsList().size();
+                myFile << std::setw(5) << pPhys << '\t'<< std::setprecision(12) << element->getSolution(0, pRef)(0) << std::endl;  
+            }
         }
     }
     
     LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
-    
-    /// \brief Compute the right-hand side corresponding to a boundary face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace
-    (
-     Base::Face *ptrFace,
-     LinearAlgebra::NumericalVector &solutionCoefficients,
-     const double time
-     );
     
     /// \brief Compute the right-hand side corresponding to an internal face
     LinearAlgebra::NumericalVector computeRightHandSideAtFace
@@ -124,6 +133,10 @@ private:
     const std::size_t numOfVariables_;
     
     SavageHutterRightHandSideComputer rhsComputer_;
+    
+    std::size_t timeStepCounter;
+    
+    std::size_t numTimeSteps_;
         
 };
 

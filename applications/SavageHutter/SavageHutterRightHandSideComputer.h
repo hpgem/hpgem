@@ -60,7 +60,7 @@ public:
     
     NumericalVector computePhysicalFlux(const NumericalVector &numericalSolution);
     NumericalVector computeNumericalSolution(const Base::Element *ptrElement, const Geometry::PointReference &pRef, const NumericalVector& solutionCoefficients);
-    NumericalVector localLaxFriedrichsFlux(const NumericalVector &numericalSolutionLeft, const NumericalVector &NumericalSolutionRight);
+    NumericalVector localLaxFriedrichsFlux(const NumericalVector &numericalSolutionLeft, const NumericalVector &NumericalSolutionRight, double normal);
     
     std::size_t numOfVariables_;
     std::size_t DIM_;

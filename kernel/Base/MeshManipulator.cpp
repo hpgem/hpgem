@@ -613,7 +613,7 @@ namespace Base
     
     void MeshManipulator::move()
     {
-        for (Geometry::PointPhysical& p : theMesh_.getNodes())
+        for (Geometry::PointPhysical& p : theMesh_.getNodeCoordinates())
         {
             if (meshMover_ != nullptr)
             {
@@ -648,7 +648,7 @@ namespace Base
 
 std::ostream& operator<<(std::ostream& os, const Base::MeshManipulator& mesh)
 {
-    for (Geometry::PointPhysical p : mesh.getNodes())
+    for (Geometry::PointPhysical p : mesh.getNodeCoordinates())
     {
         os << "Node " << " " << p << std::endl;
     }
@@ -2698,7 +2698,7 @@ namespace Base
         //compute the lengths of the edges and how far the nodes have moved, to see if the nodes have moved so far that a retriangulation is in order
         double maxShift = 0;
         //except dont bother if a retriangulation is in order anyway
-        if (oldNodeLocations_.size() == theMesh_.getNodes().size())
+        if (oldNodeLocations_.size() == theMesh_.getNodeCoordinates().size())
         {
             std::vector<double> unscaledShift {};
             unscaledShift.reserve(theMesh_.getNumberOfNodes());
@@ -2816,7 +2816,7 @@ namespace Base
         std::size_t counter = 0;
         double maxMovement = std::numeric_limits<double>::infinity();
         std::vector<double> currentLength {};
-        std::vector<PointPhysicalT> movement(theMesh_.getNodes().size(), DIM);
+        std::vector<PointPhysicalT> movement(theMesh_.getNodeCoordinates().size(), DIM);
         //stop after n iterations, or (when the nodes have stopped moving and the mesh is not becoming worse), or when the mesh is great, or when the mesh is decent, but worsening
         while ((counter < 10000 && (maxMovement > 1e-3 || oldQuality - worstQuality > 1e-3) && worstQuality < 0.8 && (worstQuality < 2. / 3. || oldQuality - worstQuality < 0)) || counter < 5)
         {
@@ -2830,7 +2830,7 @@ namespace Base
                 qHullCoordinates.reserveCoordinates(DIM * theMesh_.getNumberOfNodes());
                 oldNodeLocations_.clear();
                 oldNodeLocations_.reserve(theMesh_.getNumberOfNodes());
-                for (PointPhysicalT point : theMesh_.getNodes())
+                for (PointPhysicalT point : theMesh_.getNodeCoordinates())
                 {
                     qHullCoordinates.append(DIM, point.data());
                     oldNodeLocations_.push_back(point);
@@ -2914,7 +2914,7 @@ namespace Base
                         {
                             if (vertexIndex[i] == node->getID())
                             {
-                                logger(DEBUG, "% % %", i, theMesh_.getNodes()[i], domainDescription(theMesh_.getNodes()[i]));
+                                logger(DEBUG, "% % %", i, theMesh_.getNodeCoordinates()[i], domainDescription(theMesh_.getNodeCoordinates()[i]));
                             }
                         }
                     }
@@ -3080,7 +3080,7 @@ namespace Base
                 else
                 {
                     Node* node = theMesh_.getVerticesList(IteratorType::GLOBAL)[i];
-                    PointPhysicalT& point = theMesh_.getNodes()[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0))];
+                    PointPhysicalT& point = theMesh_.getNodeCoordinates()[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0))];
                     point += 0.1 * (*moveIterator);
                     logger.assert(!(std::isnan(point[0])), "%", i);
                     bool isPeriodic = false;
@@ -3090,7 +3090,7 @@ namespace Base
                     {
                         if (!hasMoved[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))])
                         {
-                            PointPhysicalT& other = theMesh_.getNodes()[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))];
+                            PointPhysicalT& other = theMesh_.getNodeCoordinates()[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))];
                             other += 0.1 * (*moveIterator);
                             hasMoved[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))] = true;
                             isPeriodic = true;
@@ -3159,7 +3159,7 @@ namespace Base
                                     {
                                         if (!hasMoved[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))])
                                         {
-                                            PointPhysicalT& other = theMesh_.getNodes()[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))];
+                                            PointPhysicalT& other = theMesh_.getNodeCoordinates()[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))];
                                             other += currentValue * gradient / L2Norm(gradient);
                                             hasMoved[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))] = true;
                                         }
@@ -3333,10 +3333,10 @@ namespace Base
                     {
                         if (domainDescription(longEdge->second.first) < 0)
                         {
-                            maxMovement = std::max(maxMovement, L2Norm(longEdge->second.first - theMesh_.getNodes()[shortEdge->second.second]));
+                            maxMovement = std::max(maxMovement, L2Norm(longEdge->second.first - theMesh_.getNodeCoordinates()[shortEdge->second.second]));
                             //it is quite unlikely that the current triangulation suffices after randomly teleporting nodes about
                             maxShift = std::numeric_limits<double>::infinity();
-                            theMesh_.getNodes()[shortEdge->second.second] = longEdge->second.first;
+                            theMesh_.getNodeCoordinates()[shortEdge->second.second] = longEdge->second.first;
                             hasTeleported[shortEdge->second.second] = true;
                             shortEdge++;
                         }
