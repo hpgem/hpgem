@@ -52,15 +52,11 @@
 class SavageHutter : public Base::HpgemAPISimplified
 {
 public:
-    SavageHutter
-    (
-     const std::size_t dimension,
-     const std::size_t numOfVariables,
-     const std::size_t polynomialOrder,
-     const Base::ButcherTableau * const ptrButcherTableau,
-            const std::size_t numTimeSteps
-     );
-        
+    SavageHutter(const std::size_t dimension, const std::size_t numOfVariables,
+            const std::size_t polynomialOrder,
+            const Base::ButcherTableau * const ptrButcherTableau,
+            const std::size_t numTimeSteps);
+
     /// \brief Create a domain
     Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection);
 
@@ -72,7 +68,7 @@ public:
 
     /// \brief Integrate the initial solution for a single element.
     LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
-    
+
     /// \brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID)
     {
@@ -80,7 +76,7 @@ public:
         {
             logger(INFO, "% time steps computed.", timeStepID);
         }
-        
+
         if (timeStepID == 1)
         {
             std::string fileName0 = "data0.dat";
@@ -90,11 +86,11 @@ public:
                 Geometry::PointPhysical pPhys(1);
                 pPhys[0] = (double) element->getID() / meshes_[0]->getElementsList().size();
                 myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) << getInitialSolution(pPhys, 0)(0) << std::endl;
-                pPhys[0]  = (double) (element->getID() + 1) / meshes_[0]->getElementsList().size();
-                myFile0 << std::setw(5) << pPhys[0] << '\t'<< std::setprecision(12) << getInitialSolution(pPhys, 0)(0) << std::endl;  
+                pPhys[0] = (double) (element->getID() + 1) / meshes_[0]->getElementsList().size();
+                myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) << getInitialSolution(pPhys, 0)(0) << std::endl;
             }
         }
-        
+
         std::size_t spacing = numTimeSteps_ / 200;
         if (((numTimeSteps_ <= 200) || timeStepID % spacing == 0))
         {
@@ -104,40 +100,37 @@ public:
             {
                 Geometry::PointReference pRef(1);
                 pRef.setCoordinate(0, -1);
-                double pPhys  = (double) element->getID() / meshes_[0]->getElementsList().size();
-                myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) << element->getSolution(0, pRef)(0) << std::endl;  
+                double pPhys = (double) element->getID() / meshes_[0]->getElementsList().size();
+                myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) << element->getSolution(0, pRef)(0) << std::endl;
                 pRef.setCoordinate(0, 1);
-                pPhys  = (double) (element->getID() + 1) / meshes_[0]->getElementsList().size();
-                myFile << std::setw(5) << pPhys << '\t'<< std::setprecision(12) << element->getSolution(0, pRef)(0) << std::endl;  
+                pPhys = (double) (element->getID() + 1) / meshes_[0]->getElementsList().size();
+                myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) << element->getSolution(0, pRef)(0) << std::endl;
             }
         }
     }
-    
-    LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
-    
-    /// \brief Compute the right-hand side corresponding to an internal face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace
-    (
-     Base::Face *ptrFace,
-     const Base::Side side,
-     LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
-     LinearAlgebra::NumericalVector &solutionCoefficientsRight,
-     const double time
-     );
 
-private: 
+    LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
+
+    /// \brief Compute the right-hand side corresponding to an internal face
+    LinearAlgebra::NumericalVector computeRightHandSideAtFace(Base::Face *ptrFace,
+            const Base::Side side,
+            LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
+            LinearAlgebra::NumericalVector &solutionCoefficientsRight,
+            const double time);
+
+private:
     /// Dimension of the domain
     const std::size_t DIM_;
 
     /// Number of variables
     const std::size_t numOfVariables_;
-    
+
     SavageHutterRightHandSideComputer rhsComputer_;
-    
+
     std::size_t timeStepCounter;
-    
+
     std::size_t numTimeSteps_;
-        
+
 };
 
 #endif

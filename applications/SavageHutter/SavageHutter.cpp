@@ -61,9 +61,9 @@ Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::s
 LinearAlgebra::NumericalVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     LinearAlgebra::NumericalVector initialSolution(numOfVariables_);   
-    //initialSolution(0) = -pPhys[0] * (pPhys[0] - 1) + 2;
-    initialSolution(0) = std::sin(pPhys[0] * 2 * 3.1415926535) + 2;
-    initialSolution(1) = 0;
+    //initialSolution(0) = 1;//-pPhys[0] * (pPhys[0] - 1) + 2;
+    initialSolution(0) = 0.1*std::sin(pPhys[0] * 2 * 3.1415926535) + 2;
+    initialSolution(1) = 1;
     return initialSolution;
 }
 
@@ -85,13 +85,13 @@ LinearAlgebra::NumericalVector SavageHutter::integrandInitialSolutionOnRefElemen
         for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
         {
             iVB = ptrElement->convertToSingleIndex(iB, iV);
-            integrand(iVB) = ptrElement->basisFunction(iB, pRef) * initialSolution(iV);            
+            integrand(iVB) = ptrElement->basisFunction(iB, pRef) * initialSolution(iV);
         }
     }
     
     // Scale with the reference-to-physical element ratio.
     Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
-    integrand *= jac.determinant();
+    integrand *= jac.determinant(); //This leads to correct values of h and hu!
     
     return integrand;
 }
@@ -102,10 +102,6 @@ LinearAlgebra::NumericalVector SavageHutter::integrateInitialSolutionAtElement(B
     std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector { return this -> integrandInitialSolutionOnRefElement(ptrElement, startTime, pRef);};
     
     LinearAlgebra::NumericalVector solution = elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
-    if (ptrElement->getID() == 0)
-    {
-        std::cout << solution << std::endl;
-    }
     return solution;
 }
 

@@ -44,8 +44,6 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefEl
         iVB = ptrElement->convertToSingleIndex(iB, 1);
         integrand(iVB) = physicalFlux(1) * ptrElement->basisFunctionDeriv(iB, 0, pRef);
     }
-    Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
-    integrand *= jac.determinant();
     
     logger(DEBUG, "Integrand on element: %", integrand);
     return integrand;
@@ -60,19 +58,30 @@ NumericalVector SavageHutterRightHandSideComputer::computeRightHandSideOnRefFace
  const NumericalVector &solutionCoefficientsRight
  )
 {
-    Geometry::PointReference pRef(1);
+    Geometry::PointReference pRef(0);
     double normal = ptrFace->getNormalVector(Geometry::PointReference(0))(0);
-    if(iSide == Base::Side::LEFT) //right face of element
-    {
-        pRef.setCoordinate(0, 1);
-    }
-    else
-    {
-        pRef.setCoordinate(0, -1);
-    }
     const std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
-    NumericalVector solutionLeft = computeNumericalSolution(ptrFace->getPtrElementLeft(), pRef, solutionCoefficientsLeft);
-    NumericalVector solutionRight = computeNumericalSolution(ptrFace->getPtrElementRight(), pRef, solutionCoefficientsRight);
+    const std::size_t numOfBasisFuncsLeft = ptrFace->getPtrElement(Base::Side::LEFT)->getNrOfBasisFunctions();
+    const std::size_t numOfBasisFuncsRight = ptrFace->getPtrElement(Base::Side::RIGHT)->getNrOfBasisFunctions();
+    
+    NumericalVector solutionLeft(2);
+    NumericalVector solutionRight(2);
+    for (std::size_t i = 0; i < numOfBasisFuncsLeft; ++i)    
+    {
+        std::size_t iH = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, 0);
+        solutionLeft(0) += solutionCoefficientsLeft(iH) * ptrFace->basisFunction(Base::Side::LEFT, i, pRef);
+        std::size_t iHu = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, 1);
+        solutionLeft(1) += solutionCoefficientsLeft(iHu) * ptrFace->basisFunction(Base::Side::LEFT, i, pRef);
+    }
+    
+    for (std::size_t i = 0; i < numOfBasisFuncsRight; ++i)    
+    {
+        std::size_t iH = ptrFace->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(i, 0);
+        solutionRight(0) += solutionCoefficientsRight(iH) * ptrFace->basisFunction(Base::Side::RIGHT, i, pRef);
+        std::size_t iHu = ptrFace->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(i, 1);
+        solutionRight(1) += solutionCoefficientsRight(iHu) * ptrFace->basisFunction(Base::Side::RIGHT, i, pRef);
+    }
+    
     NumericalVector flux = localLaxFriedrichsFlux(solutionLeft, solutionRight, normal);
     
     if (iSide == Base::Side::LEFT)
@@ -89,7 +98,8 @@ NumericalVector SavageHutterRightHandSideComputer::computeRightHandSideOnRefFace
             integrand(iVarFun) = flux(iVar) * ptrFace->basisFunction(iSide, iFun, Geometry::PointReference(0)) * normal;            
         }
     }
-    logger(DEBUG, "Values of rhs on face % : %, %", ptrFace->getID(), integrand(0), integrand(1));
+    //logger(INFO, "Values of rhs on face % : %, %, %, %", ptrFace->getID(), integrand(0), integrand(1), integrand(2), integrand(3));
+    
     return integrand;
 }
 
@@ -122,6 +132,7 @@ NumericalVector SavageHutterRightHandSideComputer::computeNumericalSolution(cons
         std::size_t iHu = ptrElement->convertToSingleIndex(i, 1);
         hu += solutionCoefficients(iHu) * ptrElement->basisFunction(i, pRef);
     }
+    //std::cout << "h: " << h << "hu: " << hu << std::endl;
     return NumericalVector({h,hu});
 }
 
