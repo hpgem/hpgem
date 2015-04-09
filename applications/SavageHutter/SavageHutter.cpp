@@ -41,6 +41,7 @@ numOfVariables_(numOfVariables), timeStepCounter(0)
     rhsComputer_.numOfVariables_ = numOfVariables;
     rhsComputer_.DIM_ = dimension;
     rhsComputer_.epsilon_ = 1.0;
+    rhsComputer_.theta_ = 30; //degrees
 }
 
 Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::size_t numOfElementPerDirection)
@@ -61,23 +62,25 @@ Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::s
 LinearAlgebra::NumericalVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     LinearAlgebra::NumericalVector initialSolution(numOfVariables_);   
-    //initialSolution(0) = 1;//-pPhys[0] * (pPhys[0] - 1) + 2;
-    initialSolution(0) = 0.1*std::sin(pPhys[0] * 2 * 3.1415926535) + 2;
+    initialSolution(0) = 1;//-pPhys[0] * (pPhys[0] - 1) + 2;
+    //initialSolution(0) = 0.1*std::sin(pPhys[0] * 2 * 3.1415926535) + 2;
     initialSolution(1) = 1;
     return initialSolution;
 }
 
-/// \details The integrand for the initial solution is the exact solution at time 0 multiplied by a test function. The integrand is then scaled by the reference-to-physical element scale, since we compute the integral on a reference element.
+/// \details The integrand for the initial solution is the exact solution at time 0 multiplied by a test function. 
+/// The integrand is then scaled by the reference-to-physical element scale, 
+/// since we compute the integral on a reference element.
 LinearAlgebra::NumericalVector SavageHutter::integrandInitialSolutionOnRefElement
 (const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef)
 {
-    std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+    const std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
     
     LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfBasisFunctions);
     
-    Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+    const Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
     
-    LinearAlgebra::NumericalVector initialSolution(getInitialSolution(pPhys, startTime));
+    const LinearAlgebra::NumericalVector initialSolution(getInitialSolution(pPhys, startTime));
     
     std::size_t iVB; // Index for both variable and basis function.
     for (std::size_t iV = 0; iV < numOfVariables_; iV++)
@@ -90,25 +93,30 @@ LinearAlgebra::NumericalVector SavageHutter::integrandInitialSolutionOnRefElemen
     }
     
     // Scale with the reference-to-physical element ratio.
-    Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
-    integrand *= jac.determinant(); //This leads to correct values of h and hu!
+    const Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+    integrand *= jac.determinant();
     
     return integrand;
 }
+/*********************Integrate over elements and faces************************/
 
 LinearAlgebra::NumericalVector SavageHutter::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
 {
     // Define the integrand function for the the initial solution integral.
-    std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector { return this -> integrandInitialSolutionOnRefElement(ptrElement, startTime, pRef);};
+    const std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction 
+    = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector 
+    { 
+        return this -> integrandInitialSolutionOnRefElement(ptrElement, startTime, pRef);
+    };
     
-    LinearAlgebra::NumericalVector solution = elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    const LinearAlgebra::NumericalVector solution = elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
     return solution;
 }
 
 LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
 {
     // Define the integrand function for the right hand side for the reference element.
-    std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+    const std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
     {   
         return rhsComputer_.integrandRightHandSideOnRefElement(ptrElement, time, pRef, solutionCoefficients);
     };
@@ -125,5 +133,10 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
  const double time
  )
 {
-    return rhsComputer_.computeRightHandSideOnRefFace(ptrFace, side, solutionCoefficientsLeft, solutionCoefficientsRight);
+    const std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+    {   
+        return rhsComputer_.computeRightHandSideOnRefFace(ptrFace, side, pRef, solutionCoefficientsLeft, solutionCoefficientsRight);
+    };
+    
+    return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
 }

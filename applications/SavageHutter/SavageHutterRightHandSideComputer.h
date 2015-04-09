@@ -54,17 +54,23 @@ public:
     (
      const Base::Face *ptrFace,
      const Base::Side &iSide,
+     const Geometry::PointReference &pRef,
      const NumericalVector &solutionCoefficientsLeft,
      const NumericalVector &solutionCoefficientsRight
      );
     
     NumericalVector computePhysicalFlux(const NumericalVector &numericalSolution);
+    NumericalVector computeSourceTerm(const NumericalVector &numericalSolution);
     NumericalVector computeNumericalSolution(const Base::Element *ptrElement, const Geometry::PointReference &pRef, const NumericalVector& solutionCoefficients);
     NumericalVector localLaxFriedrichsFlux(const NumericalVector &numericalSolutionLeft, const NumericalVector &NumericalSolutionRight, double normal);
+    double computeFriction(const NumericalVector &numericalSolution);
     
+private:
     std::size_t numOfVariables_;
     std::size_t DIM_;
     double epsilon_;
+    double theta_; //in degrees
+    friend class SavageHutter;
 };
 
 #endif	/* SAVAGEHUTTERRIGHTHANDSIDECOMPUTER_H */
