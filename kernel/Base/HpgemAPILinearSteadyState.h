@@ -84,6 +84,20 @@ namespace Base
         /// \brief Create the mesh.
         void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType) override;
         
+        /// \brief Compute the exact solution at a given physical point.
+        virtual LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys)
+        {
+            logger(ERROR, "No exact solution implemented.");
+            LinearAlgebra::NumericalVector realSolution(configData_->numberOfUnknowns_);
+            return realSolution;
+        }
+        
+        /// \brief Compute the exact solution at a given physical point.
+        LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override
+        {
+            return getExactSolution(pPhys);
+        }
+        
         /// \brief Compute the source term at a given physical point.
         virtual LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &pPhys)
         {
@@ -136,7 +150,7 @@ namespace Base
         virtual void tasksBeforeSolving() override;
         
         /// \brief Solve the steady-state problem using Petsc.
-        virtual void solveSteadyStateWithPetsc();
+        virtual void solveSteadyStateWithPetsc(bool doComputeError);
         
     protected:
         /// Index to indicate where the vectors for the source terms for the elements are stored.

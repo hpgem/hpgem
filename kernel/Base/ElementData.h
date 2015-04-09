@@ -61,14 +61,6 @@ namespace Base
 
         /// \brief Get the element matrix corresponding to the given matrixiD.
         virtual const LinearAlgebra::Matrix &getElementMatrix(std::size_t matrixID = 0) const;
-        
-        /// \brief Returns (and creates if unavailable) the expansion coefficients corresponding to a given timelevel in the form of a matrix. 
-        ///\deprecated This function is much slower than getTimeLevelDataVector,
-        /// since it needs to reshape a vector to a matrix and returns a copy. 
-        /// Therefore it is advised to use getTimeLevelDataVector.
-        /*
-        LinearAlgebra::Matrix getTimeLevelDataMatrix(std::size_t timeLevel);
-         */
 
         /// \brief Set the element vector corresponding to the given vectorID.
         virtual void setElementVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0);

@@ -104,10 +104,10 @@ namespace Base
         /// \brief Create the mesh.
         virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType);
         
-        /// \brief Compute the real solution at a given point in space and time.
+        /// \brief Compute the exact solution at a given point in space and time.
         virtual LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
         {
-            logger(ERROR, "No real solution implemented.");
+            logger(ERROR, "No exact solution implemented.");
             LinearAlgebra::NumericalVector realSolution(configData_->numberOfUnknowns_);
             return realSolution;
         }

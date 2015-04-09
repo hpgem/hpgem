@@ -186,7 +186,7 @@ public:
                 //Boundary face with Dirichlet boundary conditions:
                 else if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1.) < 1e-9)
                 {
-                    integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) + penalty_ * phiNormalI * phiNormalJ;
+                    integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) + penalty_ * phiNormalI * phiNormalJ * 2;
                 }
                 //Boundary face with homogeneous Neumann boundary conditions:
                 else
@@ -199,6 +199,15 @@ public:
         return integrandVal;
     }
     
+    /// \brief Define the exact solution
+    /// \details In this case the exact solution is u(x,y) = sin(2pi x) * cos(2pi y).
+    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &p) override final
+    {
+        LinearAlgebra::NumericalVector exactSolution(1);
+        exactSolution[0] = std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]) / 2;
+        return exactSolution;
+    }
+    
     ///\brief Define the source term.
     ///
     ///Define the source, which is the right hand side of laplacian(u) = f(x,y).
@@ -206,7 +215,7 @@ public:
     LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &p) override final
     {
         LinearAlgebra::NumericalVector sourceTerm(1);
-        sourceTerm[0] = (-8 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
+        sourceTerm[0] = (-8 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]) / 2;
         return sourceTerm;
     }
     
@@ -270,7 +279,7 @@ private:
     double penalty_;
 };
     
-auto& numBasisFuns = Base::register_argument<int>('n', "numElems", "number of elements per dimension", true);
+auto& numElements = Base::register_argument<int>('n', "numElems", "number of elements per dimension", true);
 auto& p = Base::register_argument<int>('p', "order", "polynomial order of the solution", true);
 ///Example of using the Laplace class.
 ///This implementation asks for commandline input arguments for the number of elements
@@ -281,26 +290,26 @@ int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
     // Choose the dimension (2 or 3)
-    const std::size_t dimension = 3;
+    const std::size_t dimension = 2;
 
     // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
-    const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
+    const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
 
     // Choose variable name(s). Since we have a scalar function, we only need to chooes one name.
     std::vector<std::string> variableNames;
     variableNames.push_back("u");
 
     //Make the object test with n elements in each direction and polynomial order p.
-    PoissonTest test(dimension, numBasisFuns.getValue(), p.getValue());
+    PoissonTest test(dimension, numElements.getValue(), p.getValue());
 
     //Create the mesh
-    test.createMesh(numBasisFuns.getValue(), meshType);
+    test.createMesh(numElements.getValue(), meshType);
 
     // Set the names for the output file
     test.setOutputNames("output", "PoissonTest", "PoissonTest", variableNames);
 
     //Solve the system.
-    test.solveSteadyStateWithPetsc();
+    test.solveSteadyStateWithPetsc(true);
 
     return 0;
 }

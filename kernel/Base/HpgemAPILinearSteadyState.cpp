@@ -112,7 +112,7 @@ namespace Base
     }
     
     /// \details Solve the linear problem \f$Ax=b\f$, where \f$A=-S\f$ with \f$S\f$ being the stiffness matrix. At the moment it is not possible to solve the steady-state problem using an intial solution.
-    void HpgemAPILinearSteadyState::solveSteadyStateWithPetsc()
+    void HpgemAPILinearSteadyState::solveSteadyStateWithPetsc(bool doComputeError)
     {
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
         // Create output files for Paraview.
@@ -161,6 +161,7 @@ namespace Base
         //Make the Krylov supspace method
         KSP ksp;
         KSPCreate(PETSC_COMM_WORLD, &ksp);
+        KSPSetTolerances(ksp, 1e-12, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
         //Tell ksp that it will solve the system Ax = b.
         KSPSetOperators(ksp, A, A);
         KSPSetFromOptions(ksp);
@@ -176,6 +177,20 @@ namespace Base
         
         tecplotWriter.write(meshes_[0], solutionTitle_, false, this, 0);
         VTKWrite(VTKWriter, 0, solutionTimeLevel_);
+        
+        // Compute the energy norm of the error
+        if(doComputeError)
+        {
+            double totalError = computeTotalError(solutionTimeLevel_, 0);
+            logger(INFO, "Total error: %.", totalError);
+            LinearAlgebra::NumericalVector maxError = computeMaxError(solutionTimeLevel_, 0);
+            logger.assert(maxError.size() == configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), configData_->numberOfUnknowns_);
+            for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV ++)
+            {
+                logger(INFO, "Maximum error %: %", variableNames_[iV], maxError(iV));
+            }
+        }
+        
         return;
 #endif
         logger(ERROR, "Petsc is needed to solve the steady state problem using this function (solveSteadyStateWithPetsc).");

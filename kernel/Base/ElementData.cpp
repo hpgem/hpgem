@@ -175,39 +175,6 @@ namespace Base
         }
         return timeLevelData;
     }
-
-    /**
-     * \details This method returns the TimeLevelData present in this Element for 
-     * the given timeLevel in the form of a matrix. If the data does not exist yet 
-     * (or better said, is of dimension 0), it will be initialised with the proper
-     * dimension.
-     
-     \param[in] timeLevel Index corresponding to the time level.
-     \return A matrix M such that M(iV,iB) is the expansion coefficient corresponding 
-     * to variable iV and basisfunction iB at the given time level.
-     */
-    
-    /*
-    LinearAlgebra::Matrix ElementData::getTimeLevelDataMatrix(std::size_t timeLevel)
-    {
-        logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
-        // The vector can be of dimension 0 if it hasn't been used before, 
-        // therefore it must be resized first.
-        if(expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
-        {
-            expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
-        }
-        LinearAlgebra::Matrix M(nrOfUnknowns_, nrOfBasisFunctions_);
-        for(std::size_t iV = 0; iV < nrOfUnknowns_; iV++) // iV = iVariable
-        {
-            for(std::size_t iB = 0; iB < nrOfBasisFunctions_; iB++) // iB = iBasisFunction
-            {
-                M(iV, iB) = expansionCoefficients_[timeLevel](convertToSingleIndex(iB, iV));
-            }
-        }
-        return M;
-    }
-     */
     
     /// \param[in] timeLevel Index corresponding to the time level.
     /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.

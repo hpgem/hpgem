@@ -272,7 +272,7 @@ namespace Base
     
     /// \param[in] solutionTimeLevel Time level where the solution is stored.
     /// \param[in] time Time corresponding to the current solution.
-    /// \details The square of the total error is defined as \f[ \int \|e\|^2 \,dV \f], where \f$\|e\|\f$ is some user-defined norm (based on the (weighted) inner product) of the error. By default this is the standard L2 norm.
+    /// \details The square of the total error is defined as \f[ e_{total}^2 := \int \|e\|^2 \,dV \f], where \f$\|e\|\f$ is some user-defined norm (based on the (weighted) inner product) of the error. By default this is the standard L2 norm.
     double HpgemAPISimplified::computeTotalError(const std::size_t solutionTimeLevel, const double time)
     {
         LinearAlgebra::NumericalVector totalError(1);

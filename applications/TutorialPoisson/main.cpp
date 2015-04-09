@@ -199,6 +199,15 @@ public:
         return integrandVal;
     }
     
+    /// \brief Define the exact solution
+    /// \details In this case the exact solution is u(x,y) = sin(2pi x) * cos(2pi y).
+    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &p) override final
+    {
+        LinearAlgebra::NumericalVector exactSolution(1);
+        exactSolution[0] = std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
+        return exactSolution;
+    }
+    
     ///\brief Define the source term.
     ///
     ///Define the source, which is the right hand side of laplacian(u) = f(x,y).
@@ -280,7 +289,7 @@ int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
     // Choose the dimension (2 or 3)
-    const std::size_t dimension = 3;
+    const std::size_t dimension = 2;
 
     // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
@@ -299,7 +308,7 @@ int main(int argc, char **argv)
     test.setOutputNames("output", "TutorialPoisson", "TutorialPoisson", variableNames);
 
     //Solve the system.
-    test.solveSteadyStateWithPetsc();
+    test.solveSteadyStateWithPetsc(true);
 
     return 0;
 }

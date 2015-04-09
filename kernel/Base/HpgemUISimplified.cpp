@@ -201,6 +201,7 @@ namespace Base
         for (MeshManipulator::FaceIterator citFe = Base::HpgemAPIBase::faceColBegin(); citFe != Base::HpgemAPIBase::faceColEnd(); ++citFe)
         {
             fMatrixData = faceIntegral.integrate<LinearAlgebra::Matrix>((*citFe), this);
+            // std::cout << "-- matrix face: \n" << fMatrixData << "\n";
             (*citFe)->setFaceMatrix(fMatrixData);
             fVectorData = faceIntegral.integrate<LinearAlgebra::NumericalVector>((*citFe), this);
             (*citFe)->setFaceVector(fVectorData);
@@ -226,6 +227,7 @@ namespace Base
         for (ElementIterator it = HpgemAPIBase::meshes_[meshID]->elementColBegin(); it != HpgemAPIBase::meshes_[meshID]->elementColEnd(); ++it)
         {
             eMatrixData = elIntegral.integrate<LinearAlgebra::Matrix>((*it), this);
+            // std::cout << "-- matrix element:\n" << eMatrixData << "\n";
             (*it)->setElementMatrix(eMatrixData);
             eVectorData = elIntegral.integrate<LinearAlgebra::NumericalVector>((*it), this);
             (*it)->setElementVector(eVectorData);
