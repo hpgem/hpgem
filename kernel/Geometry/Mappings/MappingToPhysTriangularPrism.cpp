@@ -19,9 +19,6 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGTRIANGULARPRISM_CPP_
-#define MAPPINGTRIANGULARPRISM_CPP_
-
 #include "MappingToPhysTriangularPrism.h"
 
 #include "Geometry/PointPhysical.h"
@@ -42,7 +39,7 @@ namespace Geometry
     PointPhysical MappingToPhysTriangularPrism::transform(const PointReference& pR) const
     {
         logger.assert(pR.size()==3, "Reference point has the wrong dimension");
-#if SAVECOEFFS
+#ifdef SAVECOEFFS
         return a0
         + a1 * xi[0]
         + a2 * xi[1]
@@ -147,7 +144,7 @@ namespace Geometry
     void MappingToPhysTriangularPrism::reinit(const PhysicalGeometry* const physicalGeometry)
     {
         logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
-#if SAVECOEFFS
+#ifdef SAVECOEFFS
         FixedVector<Geometry::PointPhysical<3>, 6> p;
 
         for (std::size_t i = 0; i < 6; ++i)
@@ -179,5 +176,3 @@ namespace Geometry
             return false;
     }
 }
-;
-#endif

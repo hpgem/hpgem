@@ -23,6 +23,9 @@
 
 #include "Logger.h"
 
+/**
+ * \bug part of the fortran interface is passes integers as unsigned int and part of the fortran interface passes integers as int
+ */
 namespace LinearAlgebra
 {
     

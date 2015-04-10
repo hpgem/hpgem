@@ -452,7 +452,8 @@ namespace Utilities
         for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
         {
             std::size_t numBasisFuns = (*it)->getNrOfBasisFunctions();
-            LinearAlgebra::NumericalVector localData(&data[startPositionsOfElementsInTheVector_[(*it)->getID()]], numBasisFuns);
+            LinearAlgebra::NumericalVector localData(&data[startPositionsOfElementsInTheVector_[(*it)->getID()]], (*it)->getLocalNrOfBasisFunctions());
+            localData.resize(numBasisFuns);
             std::size_t runningTotal((*it)->getLocalNrOfBasisFunctions());
             if (theMesh_->dimension() > 1)
                 for (std::size_t i = 0; i < (*it)->getPhysicalGeometry()->getNrOfFaces(); ++i)

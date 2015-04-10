@@ -31,7 +31,7 @@ using Geometry::PointPhysical;
 int main()
 {
     
-    double coord0[] = {};
+    double *coord0 = nullptr;
     double coord1[] = {1.1};
     double coord2[] = {1.2, 2.2};
     double coord3[] = {1.3, 2.3, 3.3};

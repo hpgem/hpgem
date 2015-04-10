@@ -303,4 +303,3 @@ namespace Base
         M_RightRight_.axpy(a, x.M_RightRight_);
     }
 }
-;

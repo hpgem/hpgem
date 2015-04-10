@@ -183,5 +183,4 @@ namespace Geometry
         MappingToRefSquareToSquare7();
     };
 }
-;
 #endif

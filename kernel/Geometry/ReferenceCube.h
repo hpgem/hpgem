@@ -166,5 +166,4 @@ namespace Geometry
         std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
     };
 }
-;
 #endif

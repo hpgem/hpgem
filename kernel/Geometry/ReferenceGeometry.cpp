@@ -40,7 +40,7 @@ namespace Geometry
         
     }
     
-    const QuadratureRules::GaussQuadratureRule* const ReferenceGeometry::getGaussQuadratureRule(std::size_t order) const
+    const QuadratureRules::GaussQuadratureRule* ReferenceGeometry::getGaussQuadratureRule(std::size_t order) const
     {
         return QuadratureRules::AllGaussQuadratureRules::instance().getRule(this, order);
     }
@@ -57,7 +57,6 @@ namespace Geometry
             basisfunctionValues_[function][p] = function->eval(p);
             return basisfunctionValues_[function].at(p);
         }
-        return function->eval(p);
     }
     
     LinearAlgebra::NumericalVector&

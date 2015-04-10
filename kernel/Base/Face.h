@@ -175,13 +175,13 @@ namespace Base
         LinearAlgebra::NumericalVector getCurrentData();
 
         /// \brief Convert the side of the face, the index corresponding to the scalar basis function (scalarBasisFunctionId) and the index corresponding to the variable (varId) to a single index (faceBasisFunctionId).
-        virtual const std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId = 0) const;
+        virtual std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId = 0) const;
         
         /// \brief Convert the index of the basis (vector)function of the face (faceBasisFunctionId) to the corresponding side of the face.
-        virtual const Side getSide(std::size_t faceBasisFunctionId) const;
+        virtual Side getSide(std::size_t faceBasisFunctionId) const;
         
         /// \brief Convert the index of the basis (vector)function of the face (faceBasisFunctionId) to the index of the corresponding element basis (vector)function (elementBasisFunctionId).
-        virtual const std::size_t getElementBasisFunctionId(std::size_t faceBasisFunctionId) const;
+        virtual std::size_t getElementBasisFunctionId(std::size_t faceBasisFunctionId) const;
 
     protected:
         

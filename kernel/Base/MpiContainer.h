@@ -57,8 +57,8 @@ public:
         return theInstance;
     }
     
-    int getProcessorID();
-    int getNumProcessors();
+    std::size_t getProcessorID();
+    std::size_t getNumProcessors();
 #ifdef HPGEM_USE_MPI
     MPI::Intracomm& getComm();
 
@@ -95,8 +95,8 @@ private:
     MPIContainer();
     MPIContainer(const MPIContainer& orig) = delete;
 
-    int processorID_;
-    int numProcessors_;
+    std::size_t processorID_;
+    std::size_t numProcessors_;
 #ifdef HPGEM_USE_MPI
     std::vector<MPI::Request> pending_;
     MPI::Intracomm communicator_;

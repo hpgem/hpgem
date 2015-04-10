@@ -89,7 +89,7 @@ namespace Geometry
         }
         
         /// \brief Refinement mapping on codim1 for a given refinement on codim0
-        /// \brief Note: this should also applied on other dimensions
+        /// Note: this should also applied on other dimensions
         void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const override final
         {
         }

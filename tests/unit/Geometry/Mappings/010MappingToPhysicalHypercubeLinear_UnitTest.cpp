@@ -100,7 +100,7 @@ int main()
         logger.assert_always((std::abs(jac1D[0] - 5.e7 * (point1D[0] - compare1D[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
     }
     
-    for (int i = 0; i < rGeom.getNumberOfNodes(); ++i)
+    for (std::size_t i = 0; i < rGeom.getNumberOfNodes(); ++i)
     {
         refPoint1D = rGeom.getNode(i);
         compare1D = pGeom.getLocalNodeCoordinates(i);
@@ -110,7 +110,7 @@ int main()
     
     logger.assert_always((mapping1D.getTargetDimension() == 1), "getTargetDimension");
     
-    for (int i = 0; i < 10; ++i)
+    for (std::size_t i = 0; i < 10; ++i)
     {
         compare1D = mapping1D.getNodeCoordinates(i);
         point1D = pGeom.getGlobalNodeCoordinates(i);
@@ -182,7 +182,7 @@ int main()
         }
     }
     
-    for (int i = 0; i < rGeom2D.getNumberOfNodes(); ++i)
+    for (std::size_t i = 0; i < rGeom2D.getNumberOfNodes(); ++i)
     {
         refPoint2D = rGeom2D.getNode(i);
         compare2D = pGeom2D.getLocalNodeCoordinates(i);
@@ -298,7 +298,7 @@ int main()
         }
     }
     
-    for (int i = 0; i < rGeom3D.getNumberOfNodes(); ++i)
+    for (std::size_t i = 0; i < rGeom3D.getNumberOfNodes(); ++i)
     {
         refPoint3D = rGeom3D.getNode(i);
         compare3D = pGeom3D.getLocalNodeCoordinates(i);
@@ -308,7 +308,7 @@ int main()
     
     logger.assert_always((mapping3D.getTargetDimension() == 3), "getTargetDimension");
     
-    for (int i = 0; i < 40; ++i)
+    for (std::size_t i = 0; i < 40; ++i)
     {
         compare3D = mapping3D.getNodeCoordinates(i);
         point3D = pGeom3D.getGlobalNodeCoordinates(i);

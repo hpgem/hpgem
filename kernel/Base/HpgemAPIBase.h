@@ -95,6 +95,5 @@ namespace Base
         const ConfigurationData * const configData_;
     };
 }
-;
 #endif
 

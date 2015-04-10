@@ -33,7 +33,7 @@ namespace Base
     class Element;
     
     /// \brief an identification token for vertices that is more likely to be the same when it should be then a PointPhysical
-    /// \detail Node is oblivious of its physical location, but gets its relevance from the fact that it can tell what elements
+    /// \details Node is oblivious of its physical location, but gets its relevance from the fact that it can tell what elements
     /// are connecting in this node. This information cannot be inferred from the physical coordinates of the node. In particular
     /// this implementation can deal with arbitrary periodic connectivities along the physical 'boundary' of the domain. In that
     /// situation the location of a node is not uniquely defined and its only identifying feature is the set of elements connected

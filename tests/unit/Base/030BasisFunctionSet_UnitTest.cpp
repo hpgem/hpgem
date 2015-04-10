@@ -49,7 +49,7 @@ int main()
     Base::BasisFunctionSet all2DbasisFunctions(5);
     Base::AssembleBasisFunctionSet_2D_Ord5_A0(all2DbasisFunctions);
     Geometry::PointReference point2D(2);
-    for (int i = 0; i < all2DbasisFunctions.size(); ++i)
+    for (std::size_t i = 0; i < all2DbasisFunctions.size(); ++i)
     {
         const Base::BaseBasisFunction* test = all2DbasisFunctions[i];
         for (point2D[0] = -1.5; point2D[0] < 1.51; point2D[0] += 0.1)

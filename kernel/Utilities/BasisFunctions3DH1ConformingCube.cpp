@@ -283,7 +283,7 @@ namespace Utilities
             }
             for (std::size_t j = 0; j + 2 <= order; ++j)
             {
-                for (int i = 0; i < 4; ++i)
+                for (std::size_t i = 0; i < 4; ++i)
                 {
                     vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
                     result->addBasisFunction(new BasisFunction3DEdgeCube_0(vectorOfPointIndices[0], vectorOfPointIndices[1], j));

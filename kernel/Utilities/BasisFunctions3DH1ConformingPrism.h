@@ -95,8 +95,8 @@ namespace Utilities
         double evalDeriv2(const Geometry::PointReference& p) const;
 
     private:
-        int mirroring_, node_;
-        std::size_t polynomialOrder_;
+        int mirroring_;
+        std::size_t node_, polynomialOrder_;
     };
     
     class BasisFunction3DFacePrism_0 : public Base::BaseBasisFunction

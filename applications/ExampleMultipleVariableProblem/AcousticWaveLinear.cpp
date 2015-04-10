@@ -45,7 +45,7 @@ Base::RectangularMeshDescriptor AcousticWaveLinear::createMeshDescription(const 
 {
     // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
     Base::RectangularMeshDescriptor description(DIM_);
-    for (int i = 0; i < DIM_; ++i)
+    for (std::size_t i = 0; i < DIM_; ++i)
     {
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;

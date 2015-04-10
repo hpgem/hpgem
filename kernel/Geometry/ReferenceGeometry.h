@@ -59,20 +59,20 @@ namespace Geometry
     {
         POINT, LINE, TRIANGLE, SQUARE, TETRAHEDRON, PYRAMID, CUBE, TRIANGULARPRISM, HYPERCUBE
     };
-    
+
+    /*! \class ReferenceGeometry
+     * \brief ReferenceGeometry stores a the information of a unitary geometry where the integration is made.
+     * \details
+     * ReferenceGeometry stores the information of the corresponding reference object, which
+     * are used for integration routines. It is a pure virtual class; an interface for every
+     * particular reference geometry. The information is a container of the actual reference
+     * points.
+     *
+     * Constructors are protected, to avoid the creation of two identical physical geometries.
+     * Only one of every needed type is necessary.
+     */
     class ReferenceGeometry : public RefinementMapping, public MappingCodimensions
     {
-        /*! \class ReferenceGeometry
-         * \brief ReferenceGeometry stores a the information of a unitary geometry where the integration is made.
-         * \details
-         * ReferenceGeometry stores the information of the corresponding reference object, which
-         * are used for integration routines. It is a pure virtual class; an interface for every
-         * particular reference geometry. The information is a container of the actual reference
-         * points.
-         *
-         * Constructors are protected, to avoid the creation of two identical physical geometries.
-         * Only one of every needed type is necessary.
-         */
     public:
         using String = std::string;
         using VectorOfReferencePointsT = std::vector<PointReference>;
@@ -121,7 +121,7 @@ namespace Geometry
         // ================================== Quadrature rules =====================================
         
         /// \brief Get a valid quadrature for this geometry.
-        const QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(std::size_t order) const;
+        const QuadratureRules::GaussQuadratureRule* getGaussQuadratureRule(std::size_t order) const;
 
         ///\bug getBasisFunctionValue and getBasisFunctionDerivative have functionality that is completely independent from the rest of ReferenceGeometry
         ///\bug getBasisFunctionValue does some lazy initialization, so it can't be const, unless you consider the state to

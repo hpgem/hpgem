@@ -110,5 +110,4 @@ namespace Base
         LinearAlgebra::NumericalVector residual_;
     };
 }
-;
 #endif

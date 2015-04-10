@@ -108,7 +108,7 @@ namespace Base
         /// and the index corresponding to the variable (iVar) to a single index.
         /// \param[in] iVar The index corresponding to the variable.
         /// \param[in] iBasisFunction The index corresponding to the basisfunction.
-        virtual const std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const
+        virtual std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const
         {
             return iVar * nrOfBasisFunctions_ + iBasisFunction;
         }

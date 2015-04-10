@@ -88,6 +88,9 @@ void Base::parse_options(int argc, char** argv)
     hasParsed = true;
     int count = parser.go();
     
+    //move the name of the program to the new 'beginning' of the arguments
+    argv[count] = argv[0];
+
     argc -= count;
     argv += count;
     

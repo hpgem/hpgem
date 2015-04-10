@@ -171,5 +171,4 @@ namespace Geometry
     }
 
 }
-;
 

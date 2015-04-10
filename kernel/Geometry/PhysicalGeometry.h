@@ -33,25 +33,25 @@ namespace Geometry
 {
     class ReferenceGeometry;
     class PointPhysical;
-    
+
+    /*!\class PhysicalGeometry
+     * \brief PhysicalGeometry describes an actual physical shape in real space.
+     * \details
+     * You shouldn't create a particular Physical<Shape> (although it is possible), but a
+     * PhysicalGeometry. The reference geometry passed to the constructor selects what shape
+     * this PhysicalGeometry has
+     *
+     * It contains only the global indexes of its points in globalNodeIndexes_. These global
+     * indexes refer to the global node container, of which every PhysicalGeometry has a
+     * reference: nodes_.
+     *
+     * It also contains a reference to the corresponding referenceGeometry.
+     *
+     * ~ Point is the name of a class.               ~
+     * ~ Node is a point that belongs to a geometry. ~
+     */
     class PhysicalGeometry
     {
-        /*!\class PhysicalGeometry
-         * \brief PhysicalGeometry describes an actual physical shape in real space.
-         * \details
-         * You shouldn't create a particular Physical<Shape> (although it is possible), but a
-         * PhysicalGeometry. The reference geometry passed to the constructor selects what shape
-         * this PhysicalGeometry has
-         *
-         * It contains only the global indexes of its points in globalNodeIndexes_. These global
-         * indexes refer to the global node container, of which every PhysicalGeometry has a
-         * reference: nodes_.
-         *
-         * It also contains a reference to the corresponding referenceGeometry.
-         *
-         * ~ Point is the name of a class.               ~
-         * ~ Node is a point that belongs to a geometry. ~
-         */
     public:
         
         using VectorOfPhysicalPointsT = std::vector<PointPhysical>;
@@ -131,9 +131,9 @@ namespace Geometry
         {
             logger.assert(i < getNrOfFaces(), "Asked for face %, but there are only % faces", i, getNrOfFaces());
             std::vector<std::size_t> result = getLocalFaceNodeIndices(i);
-            for(std::size_t i=0; i < result.size(); ++i)
+            for(std::size_t j = 0; j < result.size(); ++j)
             {
-                result[i] = getNodeIndex(result[i]);
+                result[j] = getNodeIndex(result[j]);
             }
             return result;
         }
@@ -152,7 +152,7 @@ namespace Geometry
         }
 
         /// \brief Returns a reference to the corresponding reference geometry.
-        const ReferenceGeometry * const getRefGeometry() const
+        const ReferenceGeometry * getRefGeometry() const
         {
             return refGeometry_;
         }

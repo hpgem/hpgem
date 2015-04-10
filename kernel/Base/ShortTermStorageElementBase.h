@@ -286,27 +286,27 @@ namespace Base
             return element_->getUserData();
         }
         
-        const MappingReferenceToPhysicalT * const getReferenceToPhysicalMap() const override final
+        const MappingReferenceToPhysicalT * getReferenceToPhysicalMap() const override final
         {
             return element_->getReferenceToPhysicalMap();
         }
         
-        MappingReferenceToPhysicalT * const getReferenceToPhysicalMap() override final
+        MappingReferenceToPhysicalT * getReferenceToPhysicalMap() override final
         {
             return element_->getReferenceToPhysicalMap();
         }
         
-        const PhysicalGeometry * const getPhysicalGeometry() const override final
+        const PhysicalGeometry * getPhysicalGeometry() const override final
         {
             return element_->getPhysicalGeometry();
         }
         
-        PhysicalGeometry * const getPhysicalGeometry() override final
+        PhysicalGeometry * getPhysicalGeometry() override final
         {
             return element_->getPhysicalGeometry();
         }
         
-        const ReferenceGeometryT * const getReferenceGeometry() const override final
+        const ReferenceGeometryT * getReferenceGeometry() const override final
         {
             return element_->getReferenceGeometry();
         }
@@ -316,7 +316,7 @@ namespace Base
             return element_->getRefinementGeometry();
         }
         
-        const std::size_t convertToSingleIndex(std::size_t basisFunctionId, std::size_t unknownId) const override final
+        std::size_t convertToSingleIndex(std::size_t basisFunctionId, std::size_t unknownId) const override final
         {
             return element_->convertToSingleIndex(basisFunctionId, unknownId);
         }

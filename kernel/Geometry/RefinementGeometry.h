@@ -47,13 +47,13 @@ namespace Geometry
         //---------------------- Refinement status -----------------------------------------
         
         //! \brief Get refinement type.
-        std::size_t getRefineType() const
+        int getRefineType() const
         {
             return refineType_;
         }
         
         //! \brief Set refinement type.
-        void setRefineType(std::size_t refineType)
+        void setRefineType(int refineType)
         {
             refineType_ = refineType;
         }
@@ -65,13 +65,13 @@ namespace Geometry
         }
         
         //! \brief Get refinement type applied to the parent resulting this object.
-        std::size_t getAppliedRefineType() const
+        int getAppliedRefineType() const
         {
             return appliedRefineType_;
         }
         
         //! \brief Set refinement type applied to the parent resulting this object.
-        void setAppliedRefineType(std::size_t appliedRefineType)
+        void setAppliedRefineType(int appliedRefineType)
         {
             appliedRefineType_ = appliedRefineType;
         }
@@ -137,10 +137,10 @@ namespace Geometry
         
     private:
         //! this element is a result of previous refinement of this type 
-        std::size_t appliedRefineType_;
+        int appliedRefineType_;
 
         //! type of refinement to be applied
-        std::size_t refineType_;
+        int refineType_;
 
         //! a flag for marking unfinished refinement process
         bool beingRefined_;

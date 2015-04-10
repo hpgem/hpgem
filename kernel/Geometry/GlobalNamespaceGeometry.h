@@ -28,6 +28,5 @@ namespace Geometry
 {
     const std::size_t MAXSIZET = std::numeric_limits<std::size_t>::max();
 }
-;
 
 #endif///_GlobalNamespaceGeometry_h

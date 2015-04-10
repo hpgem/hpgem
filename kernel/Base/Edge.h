@@ -37,7 +37,7 @@ namespace Base
      * At the moment no integration takes place on edges, so they dont care about their own shape or
      * position. They do know what elements are nearby so they can connent edge-based conforming
      * degrees of freedom to the proper elements.
-     * \TODO 4D support
+     * \todo 4D support
      */
     class Edge
     {

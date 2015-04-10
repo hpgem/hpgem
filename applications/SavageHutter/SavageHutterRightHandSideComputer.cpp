@@ -228,3 +228,4 @@ double SavageHutterRightHandSideComputer::computeFriction(const NumericalVector&
 {
     return std::tan(theta_);
 }
+

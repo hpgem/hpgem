@@ -33,7 +33,7 @@ namespace Geometry
      * is inward or outward. It returns -1 if the normal vector is inward, and 1
      * if it is outward.
      *
-     * \TODO: Switch old mappings to be outward.
+     * \todo: Switch old mappings to be outward.
      */
     double OutwardNormalVectorSign(const MappingReferenceToReference* const map);
 }

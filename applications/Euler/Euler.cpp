@@ -26,7 +26,7 @@ Base::RectangularMeshDescriptor Euler::createMeshDescription(const std::size_t n
 {
     // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
     Base::RectangularMeshDescriptor description(DIM_);
-    for (int i = 0; i < DIM_; ++i)
+    for (std::size_t i = 0; i < DIM_; ++i)
     {
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
@@ -61,16 +61,13 @@ LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement(const B
 	switch (DIM_)
 	{
 	case 1:
-		logger(ERROR, "ERROR: 3D not implemented yet.");
+		logger(ERROR, "ERROR: 1D not implemented yet.");
 		return integrandRightHandSideOnRefElement2D(ptrElement, time, pRef, solutionCoefficients);
-		break;
 	case 2:
 		return integrandRightHandSideOnRefElement2D(ptrElement, time, pRef, solutionCoefficients);
-		break;
 	case 3:
 		logger(ERROR, "ERROR: 3D not implemented yet.");
 		return integrandRightHandSideOnRefElement2D(ptrElement, time, pRef, solutionCoefficients);
-		break;
 	default:
 		logger(ERROR, "ERROR: dimension of the problem is not correctly chosen. Dimension is reset to 2D.");
 		return integrandRightHandSideOnRefElement2D(ptrElement, time, pRef, solutionCoefficients);
@@ -199,6 +196,7 @@ LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement2D(const
     Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
     integrand *= jac.determinant();
 
+    ///\todo it is better to use assert for debug checks like this
    	if (integrand(0) != integrand(0))
    	{
    		logger(ERROR,"ERROR: NaN found in element integrand.");

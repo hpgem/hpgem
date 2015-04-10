@@ -84,9 +84,12 @@ public:
             for (Base::Element* element : meshes_[0]->getElementsList())
             {
                 Geometry::PointPhysical pPhys(1);
+                ///\todo it is unclear it you try to typecast before or after the division, please use more brackets and/or static_cast (applies in more places)
+                ///\todo did you mean element->getPhysicalGeometry()->getNode(0)?
                 pPhys[0] = (double) element->getID() / meshes_[0]->getElementsList().size();
                 myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) 
                         << getInitialSolution(pPhys, 0)(0) << '\t' << getInitialSolution(pPhys, 1)(0) << std::endl;
+                ///\todo did you mean element->getPhysicalGeometry()->getNode(1)?
                 pPhys[0] = (double) (element->getID() + 1) / meshes_[0]->getElementsList().size();
                 myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) 
                         << getInitialSolution(pPhys, 0)(0) << '\t' << getInitialSolution(pPhys, 1)(0) << std::endl;

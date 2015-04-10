@@ -36,12 +36,10 @@ namespace Geometry
     
     Jacobian ConcatenatedMapping::calcJacobian(const PointReference& p) const
     {
-        Jacobian jac(p.size(), map2_.getTargetDimension());
         PointReference pIntermediate = map1_.transform(p);
         Jacobian j1 = map1_.calcJacobian(p);
         Jacobian j2 = map2_.calcJacobian(pIntermediate);
-        jac = j2.multiplyJacobiansInto(j1);
-        return jac;
+        return j2.multiplyJacobiansInto(j1);
     }
     
     std::size_t ConcatenatedMapping::getTargetDimension() const

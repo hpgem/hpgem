@@ -15,13 +15,15 @@ Preparing data for the assertions is also expensive. If you want to assert somet
 
 Optimising code only makes sense if you are building in Release mode, before doing anything else, set CMAKE_BUILD_TYPE to Release and make sure hpGEM_ENFORCE_ASSERTIONS is OFF. All effort spend in other configurations is almost certainly wasted and probably even counterproductive. Make sure you have some timing information to compare before and after, to see if you made any improvements.
 
-Before changing anything, you want to know where the bottlenecks are. To do this, us a profiler, such as gprof(linux) or Instruments(mac), on a representative application. With this information in hand either make sure the most expensive methods get called less often or try to improve the efficiency of this method. Note that saving information will most likely speed up your application, but comes at the cost of a larger memory footprint. This may mean large applications no longer run. This is NOT an ideal situation.
+Before changing anything, you want to know where the bottlenecks are. To do this, use a profiler, such as gprof(linux) or Instruments(mac), on a representative application. With this information in hand either make sure the most expensive methods get called less often or try to improve the efficiency of this method. Note that saving information will most likely speed up your application, but comes at the cost of a larger memory footprint. This may mean large applications no longer run. This is NOT an ideal situation.
 
 Between steps and after you are done, make sure to compare with your old timings. If things went worse, discard your changes and try again.
 
 == About debugging ==
 
 Debugging conde only makes sense if you are building in Debug mode, before doing anything else, set CMAKE_BUILD_TYPE to Debug. If this changes the behaviour of your code, first toggle hpGEM_DISABLE_ASSERTIONS to see if someone made a mistake in an assertion. If this did not alter the behaviour you have to hope a combination of CMAKE_BUILD_TYPE=RelWithDebInfo and hpGEM_ENFORCE_ASSERTIONS provides enough useful information
+
+If you feel it is necessary to see additional debug output, you can set the advanced CMake option hpGEM_LOGLEVEL to DEBUG. There is quite a lot of additional debug info, so you probably want to pipe your output into grep or a similar text search tool.
 
 If something unexpected happens in the kernel of hpGEM this likely has one of the four following causes:
 

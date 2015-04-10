@@ -36,7 +36,7 @@ namespace Base
     class MeshManipulator;
 }
 
-std::ostream& operator<<(std::ostream&, Base::MeshManipulator);
+std::ostream& operator<<(std::ostream&, const Base::MeshManipulator&);
 namespace Geometry
 {
     class PointPhysical;
@@ -289,11 +289,14 @@ namespace Base
          * @param fixedPointIdxs pointIndexes of point that MUST remain in the same location, no matter what
          * @param relativeEdgeLength Allow r-refinement
          * @param growFactor specify how much larger than its neighbours an element may be in areas where relativeEdgeLengths returns NaN
+         * @param isOnPeriodicBoundary A function that returns true if the point passed is on a periodic boundary. This should only return true on the 'master' half of the periodic boundary. Note that support for periodic boundaries is not yet thoroughly tested and might be fragile. (Make sure to allow a small tolerance/snapping distance.)
+         * @param mapPeriodicNode A function that returns a point on the other periodic boundary. You may assume isOnPeriodicBoundary returns true for the argument of this function. To prevent infinite duplication you should specify only half the periodic boundary as being periodic. The other half will implicitly also become periodic because it receives periodic nodes from this function
+         * @param dontConnect specify a group of nodes that should not be connected by elements, for example because they are part of a concave boundary. Note that this can have unexpected effect if the nodes you specify are not fixed
          */
         void updateMesh(std::function<double(PointPhysicalT)> domainDescription, std::vector<std::size_t> fixedPointIdxs = {}, std::function<double(PointPhysicalT)> relativeEdgeLength = [](PointPhysicalT)
         {   
             return 1.;
-        }, double growFactor = 1.1);
+        }, double growFactor = 1.1, std::function<bool(PointPhysicalT)> isOnPeriodicBoundary = [](PointPhysicalT){return false;}, std::function<PointPhysicalT(PointPhysicalT)> mapPeriodicNode = nullptr, std::vector<std::size_t> dontConnect = {});
 #endif
         
         friend std::ostream& operator<<(std::ostream& os, const MeshManipulator&);

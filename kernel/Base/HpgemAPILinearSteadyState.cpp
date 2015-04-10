@@ -53,7 +53,7 @@ namespace Base
     /// \param[in] numOfVariables Number of variables in the PDE
     /// \param[in] polynomialOrder Polynomial order of the basis functions
     /// \param[in] useSourceTerm Boolean to indicate if there is a source term.
-    /// \param[in] useSourceTerm Boolean to indicate if there is a source term at the domain boundary.
+    /// \param[in] useSourceTermAtBoundary Boolean to indicate if there is a source term at the domain boundary.
     HpgemAPILinearSteadyState::HpgemAPILinearSteadyState
     (
      const std::size_t dimension,
@@ -193,7 +193,7 @@ namespace Base
         
         return;
 #endif
-        logger(ERROR, "Petsc is needed to solve the steady state problem using this function (solveSteadyStateWithPetsc).");
+        logger(ERROR, "Petsc is needed to solve the steady state problem using this function (solveSteadyStateWithPetsc). Please put if(hpGEM_USE_PETSC) in the CMakeLists.txt of your application to make this clearer to other users");
     }
 }
 

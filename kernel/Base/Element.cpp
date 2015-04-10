@@ -18,8 +18,6 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _Element_Impl_h
-#define _Element_Impl_h
 
 #include "Element.h"
 #include "PhysGradientOfBasisFunction.h"
@@ -68,9 +66,13 @@ namespace Base
         std::size_t numberOfBasisFunctions = 0;
         for (std::size_t i = 0; i < basisFunctionSetPositions_.size(); ++i)
         {
-            logger.assert(basisFunctionSetPositions_[i]<basisFunctionSet->size(), "Not enough basis function sets passed");
-            logger.assert(basisFunctionSet->at(basisFunctionSetPositions_[i])!=nullptr, "Invalid basis function set passed");
-            numberOfBasisFunctions += basisFunctionSet_->at(basisFunctionSetPositions_[i])->size();
+            //basisFunctionSetPositions_ may be set to the special value -1 for the empty set, so this must be an integer comparison
+            logger.assert(basisFunctionSetPositions_[i]<static_cast<int>(basisFunctionSet->size()), "Not enough basis function sets passed");
+            logger.assert(basisFunctionSetPositions_[i] == -1 || basisFunctionSet->at(basisFunctionSetPositions_[i])!=nullptr, "Invalid basis function set passed");
+            if(basisFunctionSetPositions_[i] != -1)
+            {
+                numberOfBasisFunctions += basisFunctionSet_->at(basisFunctionSetPositions_[i])->size();
+            }
         }
         logger.assert(nrOfBasisFunc==numberOfBasisFunctions, "Redundant argument set to the wrong value");
         setNumberOfBasisFunctions(numberOfBasisFunctions);
@@ -131,7 +133,7 @@ namespace Base
         logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
         basisFunctionSetPositions_.resize(1, -1);
         basisFunctionSetPositions_[0] = position;
-        int numberOfBasisFunctions(0);
+        std::size_t numberOfBasisFunctions(0);
         for (int i : basisFunctionSetPositions_)
         {
             if (i != -1)
@@ -151,7 +153,7 @@ namespace Base
             basisFunctionSetPositions_.resize(1 + getNrOfFaces(), -1);
         }
         basisFunctionSetPositions_[1 + localFaceIndex] = position;
-        int numberOfBasisFunctions(0);
+        std::size_t numberOfBasisFunctions(0);
         for (int i : basisFunctionSetPositions_)
         {
             if (i != -1)
@@ -169,7 +171,7 @@ namespace Base
             basisFunctionSetPositions_.resize(1 + getNrOfFaces() + getNrOfEdges(), -1);
         }
         basisFunctionSetPositions_[1 + getNrOfFaces() + localEdgeIndex] = position;
-        int numberOfBasisFunctions(0);
+        std::size_t numberOfBasisFunctions(0);
         for (int i : basisFunctionSetPositions_)
         {
             if (i != -1)
@@ -187,7 +189,7 @@ namespace Base
             basisFunctionSetPositions_.resize(1 + getNrOfFaces() + getNrOfEdges() + getNrOfNodes(), -1);
         }
         basisFunctionSetPositions_[1 + getNrOfFaces() + getNrOfEdges() + localVertexIndex] = position;
-        int numberOfBasisFunctions(0);
+        std::size_t numberOfBasisFunctions(0);
         for (int i : basisFunctionSetPositions_)
         {
             if (i != -1)
@@ -224,7 +226,7 @@ namespace Base
     double Element::basisFunction(std::size_t i, const PointReferenceT& p) const
     {
         logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
-        const Base::BaseBasisFunction* function;
+        const Base::BaseBasisFunction* function = nullptr;
         int basePosition(0);
         for (int j : basisFunctionSetPositions_)
         {
@@ -297,6 +299,27 @@ namespace Base
         return solution;
     }
     
+    std::vector<LinearAlgebra::NumericalVector> Element::getSolutionGradient(std::size_t timeLevel, const PointReferenceT& p) const
+    {
+        std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
+        std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
+        std::vector<LinearAlgebra::NumericalVector> solution(numberOfUnknows, LinearAlgebra::NumericalVector(p.size()));
+
+        LinearAlgebra::NumericalVector data(numberOfBasisFunctions * numberOfUnknows);
+        data = ElementData::getTimeLevelDataVector(timeLevel);
+
+        std::size_t iVB = 0;
+        for (std::size_t iV = 0; iV < numberOfUnknows; ++iV)
+        {
+            for (std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
+            {
+                iVB = convertToSingleIndex(iB, iV);
+                solution[iV] += data(iVB) * basisFunctionDeriv(iB, p);
+            }
+        }
+        return solution;
+    }
+
     void Element::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
         logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
@@ -421,16 +444,11 @@ namespace Base
         edgesList_[localEdgeNr] = edge;
     }
     
-    ///\bug IFCD: because of the assert, the if-block will never be entered.
     void Element::setNode(std::size_t localNodeNr, const Node* node)
     {
-        logger.assert(localNodeNr < getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());
         logger.assert(node!=nullptr, "Invalid node passed");
-        if (nodesList_.size() < localNodeNr + 1)
-        {
-            logger(WARN, "Resizing the nodesList, since it's smaller(%) than to localNodeNr + 1(%)", nodesList_.size(), localNodeNr + 1);
-            nodesList_.resize(localNodeNr + 1);
-        }
+        logger.assert(std::find(nodesList_.begin(), nodesList_.end(), node) == nodesList_.end(), "Trying to add node %, but it was already added", node->getID());
+        logger.assert(localNodeNr < getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());
         nodesList_[localNodeNr] = node;
     }
     
@@ -471,5 +489,13 @@ namespace Base
         }
     }
 
+    std::ostream& operator<<(std::ostream& os, const Element& element)
+    {
+        os << '(';
+        const Geometry::ElementGeometry& elemG = static_cast<const Geometry::ElementGeometry&>(element);
+        operator<<(os, elemG);
+        os << std::endl;
+        return os;
+    }
+
 }
-#endif

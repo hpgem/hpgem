@@ -108,7 +108,11 @@ namespace Base
         /// \brief Get the solution at the given timeLevel at the physical point corresponding to reference point p.
         virtual SolutionVector getSolution(std::size_t timeLevel, const PointReferenceT& p) const;
 
-        void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution); ///\TODO not implemented  
+        /// \brief Get the gradient of the solution at the given timeLevel at the physical point corresponding to reference point p.
+        /// \details returns a vector of gradients
+        virtual std::vector<LinearAlgebra::NumericalVector> getSolutionGradient(std::size_t timeLevel, const PointReferenceT& p) const;
+
+        void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution); ///\todo not implemented
                 
         void setFace(std::size_t localFaceNr, const Face* face);
 
@@ -194,14 +198,7 @@ namespace Base
 
     public:
         /// Output operator.        
-        friend std::ostream& operator<<(std::ostream& os, const Element& element)
-        {
-            os << '(';
-            const Geometry::ElementGeometry& elemG = static_cast<const Geometry::ElementGeometry&>(element);
-            operator<<(os, elemG);
-            os << std::endl;
-            return os;
-        }
+        friend std::ostream& operator<<(std::ostream& os, const Element& element);
         
     private:
         ///Constructor that copies the data and geometry of the given ElementData and ElementGeometry.
@@ -213,7 +210,7 @@ namespace Base
         const GaussQuadratureRuleT *quadratureRule_;
         const CollectionOfBasisFunctionSets *basisFunctionSet_;
         std::size_t id_;
-        double orderCoeff_;
+        std::size_t orderCoeff_;
         std::vector<int> basisFunctionSetPositions_;
         std::vector<const Face*> facesList_;
         std::vector<const Edge*> edgesList_;

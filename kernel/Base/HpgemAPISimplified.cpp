@@ -55,7 +55,7 @@ namespace Base
     /// \param[in] dimension Dimension of the domain
     /// \param[in] numOfVariables Number of variables in the PDE
     /// \param[in] polynomialOrder Polynomial order of the basis functions
-    /// \param[in] butcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
+    /// \param[in] ptrButcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
     /// \param[in] numOfTimeLevels Number of time levels. If a butcherTableau is set and the number of time levels is too low, this will be corrected automatically.
     HpgemAPISimplified::HpgemAPISimplified
     (
@@ -770,6 +770,7 @@ namespace Base
             dt = T / numOfTimeSteps;
             
             // Compute the number of timesteps after which to create an output frame.
+            ///\todo current syntax makes it unclear if you try to cast before or after division, please add brackets and/or static_cast to clarify
             numOfTimeStepsForOutput = (std::size_t) numOfTimeSteps / numOfOutputFrames;
         }
         

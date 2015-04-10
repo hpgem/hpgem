@@ -52,6 +52,5 @@ namespace Integration
         virtual void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, T& ret) = 0;
     };
 }
-;
 
 #endif

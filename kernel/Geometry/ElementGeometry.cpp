@@ -19,9 +19,6 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _ElementGeometry_Impl_h
-#define _ElementGeometry_Impl_h
-
 #include <ElementGeometry.h>
 
 #include "ReferenceTetrahedron.h"
@@ -63,7 +60,7 @@ namespace Geometry
 {
     class ElementGeometry;
     
-    const ReferenceGeometry * const
+    const ReferenceGeometry *
     ElementGeometry::createReferenceGeometry(std::size_t size, std::size_t DIM)
     {
         switch (size)
@@ -92,6 +89,7 @@ namespace Geometry
                 {
                     logger(ERROR, "This dimension does not contain entities with 4 nodes. \n");
                 }
+                break;
             case 5:
                 logger.assert(DIM==3, "This Dimension does not contain entities with 5 nodes");
                 logger(VERBOSE, "ElementGeometry created a reference pyramid.");
@@ -114,14 +112,14 @@ namespace Geometry
         return 0;
     }
     
-    PhysicalGeometry * const
+    PhysicalGeometry *
     ElementGeometry::createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const geo)
     {
         logger.assert(geo!=nullptr, "Invalid reference geometry passed");
         return new PhysicalGeometry(globalNodeIndexes, nodes, geo);
     }
     
-    MappingReferenceToPhysical * const
+    MappingReferenceToPhysical *
     ElementGeometry::createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometry * const pGeo)
     {
         logger.assert(pGeo!=nullptr, "Invalid physical geometry passed");
@@ -209,13 +207,13 @@ namespace Geometry
     
     /// Returns a pointer to the referenceToPhysicalMapping
     
-    const MappingReferenceToPhysical * const
+    const MappingReferenceToPhysical *
     ElementGeometry::getReferenceToPhysicalMap() const
     {
         return referenceToPhysicalMapping_;
     }
     
-    MappingReferenceToPhysical * const
+    MappingReferenceToPhysical *
     ElementGeometry::getReferenceToPhysicalMap()
     {
         return referenceToPhysicalMapping_;
@@ -223,13 +221,13 @@ namespace Geometry
     
     /// Returns a pointer to the physicalGeometry object.
     
-    const PhysicalGeometry * const
+    const PhysicalGeometry *
     ElementGeometry::getPhysicalGeometry() const
     {
         return physicalGeometry_;
     }
     
-    PhysicalGeometry * const
+    PhysicalGeometry *
     ElementGeometry::getPhysicalGeometry()
     {
         return physicalGeometry_;
@@ -237,7 +235,7 @@ namespace Geometry
     
     /// Returns a pointer to the referenceGeometry object.
     
-    const ReferenceGeometry * const
+    const ReferenceGeometry *
     ElementGeometry::getReferenceGeometry() const
     {
         return referenceGeometry_;
@@ -275,4 +273,3 @@ namespace Geometry
 
 }
 
-#endif

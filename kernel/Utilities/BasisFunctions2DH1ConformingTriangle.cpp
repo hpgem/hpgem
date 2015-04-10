@@ -136,7 +136,7 @@ namespace Utilities
         logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set;
-        for (int i = 0; i < 3; ++i)
+        for (std::size_t i = 0; i < 3; ++i)
         {
             set = new Base::BasisFunctionSet(order);
             set->addBasisFunction(new BasisFunction2DVertexTriangle(i));

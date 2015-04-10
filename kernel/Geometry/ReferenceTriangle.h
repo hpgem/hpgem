@@ -96,7 +96,6 @@ namespace Geometry
         {
             return 3;
         }
-        ;
 
         std::vector<std::size_t> getCodim2EntityLocalIndices(const std::size_t node) const override final
         {
@@ -156,5 +155,4 @@ namespace Geometry
     };
 
 }
-;
 #endif /* defined(____ReferenceTriangle__) */

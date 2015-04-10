@@ -72,13 +72,13 @@ namespace Geometry
         virtual PointPhysical transform(const PointReference&) const = 0;
         
         //! ~OC~ Recompute mapping after physical nodes have moved.
-        ///\BUG will horribly break everything unless you happen to pass the same  physicalGeometry that you used to construct this mapping
+        ///\bug will horribly break everything unless you happen to pass the same  physicalGeometry that you used to construct this mapping
         virtual void reinit(const PhysicalGeometry* const) = 0;
         
         const PointPhysical& getNodeCoordinates(const std::size_t index) const;
 
     private:
-        ///\TODO fix this properly (for now just made it working)
+        ///\todo fix this properly (for now just made it working)
         const std::vector<PointPhysical>* nodes_; /// Pointer to the global node container.
     };
 

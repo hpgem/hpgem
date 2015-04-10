@@ -327,17 +327,17 @@ namespace Base
             return face_->getUserData();
         }
         
-        const std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId) const override final
+        std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId) const override final
         {
             return face_->convertToSingleIndex(side, scalarBasisFunctionId, varId);
         }
         
-        const Side getSide(std::size_t faceBasisFunctionId) const override final
+        Side getSide(std::size_t faceBasisFunctionId) const override final
         {
             return face_->getSide(faceBasisFunctionId);
         }
         
-        const std::size_t getElementBasisFunctionId(std::size_t faceBasisFunctionId) const override final
+        std::size_t getElementBasisFunctionId(std::size_t faceBasisFunctionId) const override final
         {
             return face_->getElementBasisFunctionId(faceBasisFunctionId);
         }

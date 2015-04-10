@@ -256,7 +256,7 @@ public:
                             newPoint[0] = temp;
                             //a corner of the rotor that is outside of the domain will make two corners instead of one
                             //claim some extra nodes to fix them both
-                            meshes_[0]->getNodes()[extraIndex] = newPoint;
+                            meshes_[0]->getNodeCoordinates()[extraIndex] = newPoint;
                             cornerIndexes.push_back(extraIndex);
                             extraIndex++;
                             newPoint[0] = first;
@@ -280,7 +280,7 @@ public:
                             newPoint[1] = std::sin(t) * (newPoint[0] - 0.5) + std::cos(t) * (newPoint[1] - 0.5) + 0.5;
                             newPoint[0] = temp;
                         }
-                        meshes_[0]->getNodes()[nodeIndex] = newPoint;
+                        meshes_[0]->getNodeCoordinates()[nodeIndex] = newPoint;
                     }
                     ++nodeIndex;
                 }

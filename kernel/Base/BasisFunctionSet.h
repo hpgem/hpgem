@@ -68,7 +68,7 @@ namespace Base
         ///\brief returns the curl of the i-th basisfunction at point p in ret
         LinearAlgebra::NumericalVector evalCurl(std::size_t i, const PointReferenceT& p) const;
 
-        const BaseBasisFunction* operator[](int i) const
+        const BaseBasisFunction* operator[](std::size_t i) const
         {
             logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
             return vecOfBasisFcn_[i];

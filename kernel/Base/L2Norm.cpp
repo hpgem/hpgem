@@ -51,5 +51,4 @@ namespace Base
         return std::sqrt(retSquared);
     }
 }
-;
 
