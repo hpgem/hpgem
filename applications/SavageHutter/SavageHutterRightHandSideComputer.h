@@ -29,7 +29,7 @@ using LinearAlgebra::NumericalVector;
 
 class SavageHutterRightHandSideComputer
 {
-public:
+private:
     /// \brief Compute the integrand for the right hand side for the reference element.
     NumericalVector integrandRightHandSideOnRefElement
     (
@@ -43,14 +43,13 @@ public:
     NumericalVector integrandRightHandSideOnRefFace
     (
      const Base::Face *ptrFace,
-     const double &time,
      const Geometry::PointReference &pRef,
      const NumericalVector &solutionCoefficients
      );
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-    ///Note that a face in 1D is a point.
-    NumericalVector computeRightHandSideOnRefFace
+    /// Note that a face in 1D is a point.
+    NumericalVector integrandRightHandSideOnRefFace
     (
      const Base::Face *ptrFace,
      const Base::Side &iSide,
@@ -62,14 +61,13 @@ public:
     NumericalVector computePhysicalFlux(const NumericalVector &numericalSolution);
     NumericalVector computeSourceTerm(const NumericalVector &numericalSolution);
     NumericalVector computeNumericalSolution(const Base::Element *ptrElement, const Geometry::PointReference &pRef, const NumericalVector& solutionCoefficients);
-    NumericalVector localLaxFriedrichsFlux(const NumericalVector &numericalSolutionLeft, const NumericalVector &NumericalSolutionRight, double normal);
+    NumericalVector localLaxFriedrichsFlux(const NumericalVector &numericalSolutionLeft, const NumericalVector &NumericalSolutionRight);
     double computeFriction(const NumericalVector &numericalSolution);
     
-private:
     std::size_t numOfVariables_;
     std::size_t DIM_;
     double epsilon_;
-    double theta_; //in degrees
+    double theta_; //in radians
     friend class SavageHutter;
 };
 

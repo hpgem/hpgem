@@ -118,14 +118,14 @@ namespace Base
     double Face::basisFunction(std::size_t i, const Geometry::PointReference& p) const
     {
         logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
-        std::size_t n(getPtrElementLeft()->getNrOfBasisFunctions());
-        if (i < n)
+        std::size_t numBasisFuncs = getPtrElementLeft()->getNrOfBasisFunctions();
+        if (i < numBasisFuncs)
         {
             return getPtrElementLeft()->basisFunction(i, mapRefFaceToRefElemL(p));
         }
         else
         {
-            return getPtrElementRight()->basisFunction(i - n, mapRefFaceToRefElemR(p));
+            return getPtrElementRight()->basisFunction(i - numBasisFuncs, mapRefFaceToRefElemR(p));
         }
     }
     

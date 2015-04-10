@@ -85,9 +85,11 @@ public:
             {
                 Geometry::PointPhysical pPhys(1);
                 pPhys[0] = (double) element->getID() / meshes_[0]->getElementsList().size();
-                myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) << getInitialSolution(pPhys, 0)(0) << std::endl;
+                myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) 
+                        << getInitialSolution(pPhys, 0)(0) << '\t' << getInitialSolution(pPhys, 1)(0) << std::endl;
                 pPhys[0] = (double) (element->getID() + 1) / meshes_[0]->getElementsList().size();
-                myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) << getInitialSolution(pPhys, 0)(0) << std::endl;
+                myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) 
+                        << getInitialSolution(pPhys, 0)(0) << '\t' << getInitialSolution(pPhys, 1)(0) << std::endl;
             }
         }
 
@@ -101,10 +103,12 @@ public:
                 Geometry::PointReference pRef(1);
                 pRef.setCoordinate(0, -1);
                 double pPhys = (double) element->getID() / meshes_[0]->getElementsList().size();
-                myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) << element->getSolution(0, pRef)(0) << std::endl;
+                myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) 
+                        << element->getSolution(0, pRef)(0) << '\t' << element->getSolution(0, pRef)(1) << std::endl;
                 pRef.setCoordinate(0, 1);
                 pPhys = (double) (element->getID() + 1) / meshes_[0]->getElementsList().size();
-                myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) << element->getSolution(0, pRef)(0) << std::endl;
+                myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) 
+                        << element->getSolution(0, pRef)(0) << '\t' << element->getSolution(0, pRef)(1) << std::endl;
             }
         }
     }
@@ -117,6 +121,13 @@ public:
             LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
             LinearAlgebra::NumericalVector &solutionCoefficientsRight,
             const double time);
+    
+    LinearAlgebra::NumericalVector computeRightHandSideAtFace
+        (
+         Base::Face *ptrFace,
+         LinearAlgebra::NumericalVector &solutionCoefficients,
+         const double time
+         );
 
 private:
     /// Dimension of the domain

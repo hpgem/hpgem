@@ -54,7 +54,7 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefEl
 }
 
 /// \details The integrand for the reference face is the same as the physical face, but scaled with the reference-to-physical face scale. This face scale is absorbed in the normal vector, since it is relatively cheap to compute the normal vector with a length (L2-norm) equal to the reference-to-physical face scale.
-NumericalVector SavageHutterRightHandSideComputer::computeRightHandSideOnRefFace
+NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
 ( const Base::Face *ptrFace, const Base::Side &iSide, const Geometry::PointReference &pRef, const NumericalVector &solutionCoefficientsLeft, const NumericalVector &solutionCoefficientsRight)
 {
     double normal = ptrFace->getNormalVector(Geometry::PointReference(0))(0);
@@ -79,8 +79,15 @@ NumericalVector SavageHutterRightHandSideComputer::computeRightHandSideOnRefFace
         std::size_t iHu = ptrFace->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(i, 1);
         solutionRight(1) += solutionCoefficientsRight(iHu) * ptrFace->basisFunction(Base::Side::RIGHT, i, pRef);
     }
-    
-    const NumericalVector flux = localLaxFriedrichsFlux(solutionLeft, solutionRight, normal);
+    NumericalVector flux(2);
+    if (normal == 1)
+    {
+        flux = localLaxFriedrichsFlux(solutionLeft, solutionRight);
+    }
+    else
+    {
+        flux = localLaxFriedrichsFlux(solutionRight, solutionLeft);
+    }
     
     if (iSide == Base::Side::RIGHT) //the normal is defined for the left element
     {
@@ -94,6 +101,47 @@ NumericalVector SavageHutterRightHandSideComputer::computeRightHandSideOnRefFace
         {
             std::size_t iVarFun = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iFun, iVar);
             integrand(iVarFun) = -flux(iVar) * ptrFace->basisFunction(iSide, iFun, Geometry::PointReference(0)) * normal;            
+        }
+    }
+    
+    return integrand;
+}
+
+NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
+    (
+     const Base::Face *ptrFace,
+     const Geometry::PointReference &pRef,
+     const NumericalVector &solutionCoefficients
+     )
+{
+    double normal = ptrFace->getNormalVector(Geometry::PointReference(0))(0);
+    const std::size_t numBasisFuncs = ptrFace->getNrOfBasisFunctions();
+    NumericalVector solution(2);
+    for (std::size_t i = 0; i < numBasisFuncs; ++i)    
+    {
+        std::size_t iH = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, 0);
+        solution(0) += solutionCoefficients(iH) * ptrFace->basisFunction(i, pRef);
+        std::size_t iHu = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, 1);
+        solution(1) += solutionCoefficients(iHu) * ptrFace->basisFunction(i, pRef);
+    }
+    NumericalVector flux(2);
+    if (normal == 1) //outflow
+    {
+        flux = localLaxFriedrichsFlux(solution, solution);
+    }
+    else //inflow
+    {
+        flux = localLaxFriedrichsFlux(NumericalVector({1, 1}), solution);
+    }
+    
+    NumericalVector integrand(numOfVariables_ * numBasisFuncs);
+
+    for (std::size_t iFun = 0; iFun < numBasisFuncs; ++iFun)
+    {
+        for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
+        {
+            std::size_t iVarFun = ptrFace->getPtrElementLeft()->convertToSingleIndex(iFun, iVar);
+            integrand(iVarFun) = -flux(iVar) * ptrFace->basisFunction(iFun, Geometry::PointReference(0)) * normal;            
         }
     }
     
@@ -118,6 +166,7 @@ NumericalVector SavageHutterRightHandSideComputer::computePhysicalFlux(const Num
 
 NumericalVector SavageHutterRightHandSideComputer::computeSourceTerm(const NumericalVector& numericalSolution)
 {
+    logger.assert(theta_ < 3.1415 / 2, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
     const double hu = numericalSolution(1);
     double u = 0;
@@ -149,7 +198,7 @@ NumericalVector SavageHutterRightHandSideComputer::computeNumericalSolution(cons
     return NumericalVector({h,hu});
 }
 
-NumericalVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const NumericalVector& numericalSolutionLeft, const NumericalVector& numericalSolutionRight, double normal)
+NumericalVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const NumericalVector& numericalSolutionLeft, const NumericalVector& numericalSolutionRight)
 {
     double uLeft = 0;
     if (numericalSolutionLeft(0) > 1e-10)
@@ -166,15 +215,7 @@ NumericalVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const 
     const double alpha = std::max(std::abs(uLeft) + std::sqrt(epsilon_ * numericalSolutionLeft(0)), 
                       std::abs(uRight) + std::sqrt(epsilon_ * numericalSolutionRight(0)));
         
-    NumericalVector diffSolutions(2);
-    if (normal == 1) //if the element on the physical right has a higher number than the one on the physical left
-    {
-        diffSolutions = numericalSolutionRight - numericalSolutionLeft;
-    }
-    else //at the periodic boundary
-    {
-        diffSolutions = numericalSolutionLeft - numericalSolutionRight;
-    }
+    NumericalVector diffSolutions = numericalSolutionRight - numericalSolutionLeft;
     
     const NumericalVector numericalFlux = 0.5 * 
         (computePhysicalFlux(numericalSolutionLeft) + computePhysicalFlux(numericalSolutionRight)

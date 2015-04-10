@@ -41,7 +41,7 @@ numOfVariables_(numOfVariables), timeStepCounter(0)
     rhsComputer_.numOfVariables_ = numOfVariables;
     rhsComputer_.DIM_ = dimension;
     rhsComputer_.epsilon_ = 1.0;
-    rhsComputer_.theta_ = 30; //degrees
+    rhsComputer_.theta_ = 3.1415926535 / 6; //radians
 }
 
 Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::size_t numOfElementPerDirection)
@@ -53,7 +53,7 @@ Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::s
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
         description.numElementsInDIM_[i] = numOfElementPerDirection;
-        description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
+        description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
     }    
     return description;
 }
@@ -62,7 +62,7 @@ Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::s
 LinearAlgebra::NumericalVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     LinearAlgebra::NumericalVector initialSolution(numOfVariables_);   
-    initialSolution(0) = 1;//-pPhys[0] * (pPhys[0] - 1) + 2;
+    initialSolution(0) = 1;
     //initialSolution(0) = 0.1*std::sin(pPhys[0] * 2 * 3.1415926535) + 2;
     initialSolution(1) = 1;
     return initialSolution;
@@ -98,6 +98,7 @@ LinearAlgebra::NumericalVector SavageHutter::integrandInitialSolutionOnRefElemen
     
     return integrand;
 }
+
 /*********************Integrate over elements and faces************************/
 
 LinearAlgebra::NumericalVector SavageHutter::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
@@ -135,7 +136,22 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
 {
     const std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
     {   
-        return rhsComputer_.computeRightHandSideOnRefFace(ptrFace, side, pRef, solutionCoefficientsLeft, solutionCoefficientsRight);
+        return rhsComputer_.integrandRightHandSideOnRefFace(ptrFace, side, pRef, solutionCoefficientsLeft, solutionCoefficientsRight);
+    };
+    
+    return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+}
+
+LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
+        (
+         Base::Face *ptrFace,
+         LinearAlgebra::NumericalVector &solutionCoefficients,
+         const double time
+         )
+{
+    const std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+    {   
+        return rhsComputer_.integrandRightHandSideOnRefFace(ptrFace, pRef, solutionCoefficients);
     };
     
     return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
