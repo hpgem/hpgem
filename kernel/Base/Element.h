@@ -30,7 +30,6 @@
 #include <vector>
 #include <iostream>
 #include <memory>
-#include <algorithm>
 
 namespace QuadratureRules
 {
@@ -64,8 +63,8 @@ namespace Base
         
         Element(const std::vector<std::size_t>& globalNodeIndexes, const CollectionOfBasisFunctionSets *basisFunctionSet, std::vector<Geometry::PointPhysical>& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrices = 0, std::size_t numberOfElementVectors = 0, const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
 
-        Element(const Element& other) = delete;
-        
+        Element(const Element &other) = delete;
+        Element& operator=(const Element &other) = delete;        
         
         virtual ~ Element();
         

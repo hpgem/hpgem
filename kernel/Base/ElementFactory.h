@@ -47,6 +47,9 @@ namespace Base
             return theInstance;
         }
         
+        ElementFactory(const ElementFactory& orig) = delete;
+        ElementFactory& operator=(const ElementFactory &other) = delete;
+        
         //!provide the non-constant information and get an Element!
         Element* makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical>& points, std::size_t elementcounter);
 
@@ -67,7 +70,6 @@ namespace Base
 
     private:
         ElementFactory();
-        ElementFactory(const ElementFactory& orig) = delete;
 
         std::size_t unknowns_;
         const CollectionOfBasisFunctionSets *basisFunctionSets_;

@@ -86,6 +86,11 @@ namespace Base
          const bool useSourceTermAtBoundary = false
          );
         
+        //If you want to implement the copy constructor and copy assignment operator,
+        //make sure the copy constructor of HpgemAPIBase is implemented correctly first.
+        HpgemAPILinear(const HpgemAPILinear &other) = delete;
+        HpgemAPILinear& operator=(const HpgemAPILinear &other) = delete;
+        
         /// \brief Create the mesh.
         virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType) override;
         

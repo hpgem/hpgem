@@ -35,13 +35,13 @@ SavageHutter::SavageHutter
  const std::size_t numTimeSteps
  ) :
 HpgemAPISimplified(dimension, numOfVariables, polynomialOrder, ptrButcherTableau),
-DIM_(dimension), numTimeSteps_(numTimeSteps),
-numOfVariables_(numOfVariables), timeStepCounter(0)
+DIM_(dimension), numOfVariables_(numOfVariables), numTimeSteps_(numTimeSteps), timeStepCounter(0)
 {
     rhsComputer_.numOfVariables_ = numOfVariables;
     rhsComputer_.DIM_ = dimension;
     rhsComputer_.epsilon_ = 1.0;
     rhsComputer_.theta_ = 3.1415926535 / 6; //radians
+    std::cout << numTimeSteps_ << std::endl;
 }
 
 Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::size_t numOfElementPerDirection)
@@ -64,7 +64,7 @@ LinearAlgebra::NumericalVector SavageHutter::getInitialSolution(const PointPhysi
     LinearAlgebra::NumericalVector initialSolution(numOfVariables_);   
     initialSolution(0) = 1;
     //initialSolution(0) = 0.1*std::sin(pPhys[0] * 2 * 3.1415926535) + 2;
-    initialSolution(1) = 1;
+    initialSolution(1) = 5;
     return initialSolution;
 }
 

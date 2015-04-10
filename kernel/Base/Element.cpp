@@ -38,6 +38,7 @@
 #include "Geometry/Jacobian.h"
 
 #include <limits>
+#include <algorithm>
 
 namespace Base
 {
@@ -100,8 +101,7 @@ namespace Base
     }
     
     Element::~Element()
-    {
-        
+    {        
     }
     
     Element* Element::copyWithoutFacesEdgesNodes()

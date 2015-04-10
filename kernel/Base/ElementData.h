@@ -52,7 +52,7 @@ namespace Base
         
         ElementData(const ElementData& other);
 
-        virtual ~ ElementData()
+        virtual ~ElementData()
         {
         }
         

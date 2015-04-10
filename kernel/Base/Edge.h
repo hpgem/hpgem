@@ -49,7 +49,8 @@ namespace Base
         }     
                 
         //copy constructor: this is not intended for use and is therefore deleted.
-        Edge(const Edge& other) = delete;
+        Edge(const Edge &other) = delete;
+        Edge& operator=(const Edge &other) = delete;
         
         void addElement(Element* element, std::size_t edgeNr);
 

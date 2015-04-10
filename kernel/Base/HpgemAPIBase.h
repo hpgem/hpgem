@@ -61,6 +61,11 @@ namespace Base
 
         /// \brief Destructor, destructs the meshes, configData_ and globalData_
         virtual ~HpgemAPIBase();
+        
+        //If you want a copy-constructor, please make sure to make deep copies of
+        //meshes_, configData_ and globalData_.
+        HpgemAPIBase(const HpgemAPIBase &other) = delete;
+        HpgemAPIBase& operator=(const HpgemAPIBase &other) = delete;
 
         /// \brief Gives the pointer of meshMoverBase class to mesh.
         virtual bool initialiseMeshMover(const MeshMoverBase* meshMoverBase, std::size_t meshID);

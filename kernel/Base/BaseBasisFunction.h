@@ -37,9 +37,9 @@ namespace Base
     public:
         using PointReferenceT = Geometry::PointReference;
         
-        BaseBasisFunction();
-
-        BaseBasisFunction(const BaseBasisFunction& other);
+        BaseBasisFunction() = default;
+        BaseBasisFunction(const BaseBasisFunction &other) = default;
+        BaseBasisFunction& operator=(const BaseBasisFunction &other) = default;
 
         virtual ~ BaseBasisFunction()
         {

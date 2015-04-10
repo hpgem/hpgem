@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     std::vector<std::string> variableNames = {"h", "hu"};
 
     //Construct the problem, mesh and output generator
-    SavageHutter test(dimension, numOfVariables, polynomialOrder.getValue(), ptrButcherTableau, (endTime.getValue() - startTime.getValue())/dt.getValue());
+    SavageHutter test(dimension, numOfVariables, polynomialOrder.getValue(), ptrButcherTableau, static_cast<std::size_t>(std::ceil((endTime.getValue() - startTime.getValue())/dt.getValue())));
     test.createMesh(numOfElements.getValue(), meshType);
     test.setOutputNames("output", "SavageHutter", "SavageHutter", variableNames);
 

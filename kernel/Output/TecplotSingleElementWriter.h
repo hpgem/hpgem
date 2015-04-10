@@ -46,6 +46,8 @@ namespace Output
     public:
         ///prints the desired information for the given point to the ostream
         virtual void writeToTecplotFile(const Base::Element*, const Geometry::PointReference&, std::ostream&)=0;
+        
+        virtual ~TecplotSingleElementWriter() = default;
     };
 }
 

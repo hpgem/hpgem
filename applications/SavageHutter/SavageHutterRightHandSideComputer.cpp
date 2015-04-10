@@ -80,7 +80,7 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
         solutionRight(1) += solutionCoefficientsRight(iHu) * ptrFace->basisFunction(Base::Side::RIGHT, i, pRef);
     }
     NumericalVector flux(2);
-    if (normal == 1)
+    if (normal > 0)
     {
         flux = localLaxFriedrichsFlux(solutionLeft, solutionRight);
     }
@@ -125,13 +125,13 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
         solution(1) += solutionCoefficients(iHu) * ptrFace->basisFunction(i, pRef);
     }
     NumericalVector flux(2);
-    if (normal == 1) //outflow
+    if (normal > 0) //outflow
     {
         flux = localLaxFriedrichsFlux(solution, solution);
     }
     else //inflow
     {
-        flux = localLaxFriedrichsFlux(NumericalVector({1, 1}), solution);
+        flux = localLaxFriedrichsFlux(NumericalVector({1.0001, 5}), solution);
     }
     
     NumericalVector integrand(numOfVariables_ * numBasisFuncs);

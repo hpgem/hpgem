@@ -64,7 +64,8 @@ namespace Base
         ///copy constructor should not be used: if adjacent elements are the same,
         ///then the Face already exists and there is no need for another, if 
         ///adjacent elements are different, the copy is not really a copy
-        Face(const Face& other) = delete;
+        Face(const Face &other) = delete;
+        Face& operator=(const Face &other) = delete;
         
         ///Copy constructor with new elements. It makes a copy of the face, but 
         ///with new elements assigned to it.

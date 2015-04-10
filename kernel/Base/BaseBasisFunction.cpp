@@ -26,12 +26,6 @@
 
 namespace Base
 {
-    BaseBasisFunction::BaseBasisFunction()
-    {
-    }
-    BaseBasisFunction::BaseBasisFunction(const BaseBasisFunction& other)
-    {
-    }
     
     void BaseBasisFunction::eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {

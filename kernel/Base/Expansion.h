@@ -43,7 +43,6 @@ namespace Base
         ~Expansion()
         {
         }
-        ;
 
         void setBasisFunction(const BasisFunctionSet* BFSetPtr)
         {
