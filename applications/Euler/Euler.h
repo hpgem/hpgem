@@ -31,15 +31,6 @@ public:
     /// ***   Element integration functions   ***
     /// *****************************************
 
-    /// Compute integrand of righthandside on an element for 2d
-    LinearAlgebra::NumericalVector integrandRightHandSideOnRefElement1D(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
-
-    /// Compute integrand of righthandside on an element for 2d
-    LinearAlgebra::NumericalVector integrandRightHandSideOnRefElement2D(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
-
-    /// Compute integrand of righthandside on an element for 2d
-    LinearAlgebra::NumericalVector integrandRightHandSideOnRefElement3D(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
-
     /// Compute integrand of righthandside on an element
     LinearAlgebra::NumericalVector integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
 
@@ -66,6 +57,11 @@ public:
     LinearAlgebra::NumericalVector computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::NumericalVector &solutionCoefficientsLeft, LinearAlgebra::NumericalVector &solutionCoefficientsRight, const double time) override final;
 
 
+    /// *****************************************
+    /// ***    		Various Functions         ***
+    /// *****************************************
+
+    void showProgress(const double time, const std::size_t timeStepID);
 
 private:
     /// Dimension of the domain

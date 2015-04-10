@@ -12,7 +12,7 @@ int main (int argc, char **argv){
     logger(WARN,"WARNING: Pressure might be incorrectly calculated");
 	logger(INFO,"INFO: test.");
     // Set parameters for the PDE.
-    const std::size_t dimension = 2;
+    const std::size_t dimension = 1;
     const std::size_t numOfElements = 20;
     const std::size_t polynomialOrder = 0;
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
@@ -38,9 +38,9 @@ int main (int argc, char **argv){
     test.createMesh(numOfElements, meshType);
 
     const double startTime = 0.0;
-    const double endTime = 5.0;
+    const double endTime = 0.0005;
     double dt = 0.0001;
-    const std::size_t numOfOutputFrames = 100;
+    const std::size_t numOfOutputFrames = 5;
 
     // Solve the problem over time interval [startTime,endTime].
     test.solve(startTime, endTime, dt, numOfOutputFrames, false);
