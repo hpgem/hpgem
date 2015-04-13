@@ -142,6 +142,7 @@ namespace Base
 
     void ElementData::setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::NumericalVector& val)
     {
+        logger.assert(val.size() == nrOfBasisFunctions_, "data vector has the wrong size");
         logger.assert((timeLevel < timeLevels_ && unknown < nrOfUnknowns_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
         if(expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
         {
@@ -156,6 +157,7 @@ namespace Base
 
     void ElementData::setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::NumericalVector& val)
     {
+        logger.assert(val.size() == nrOfBasisFunctions_, "data vector has the wrong size");
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
         setTimeLevelData(timeLevel, 0, val);
     }
@@ -180,6 +182,7 @@ namespace Base
     /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.
     void ElementData::setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::NumericalVector &val)
     {
+        logger.assert(val.size() == nrOfBasisFunctions_ * nrOfUnknowns_, "data vector has the wrong size");
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there"
                       " are only % time levels", timeLevel, timeLevels_);
         // The vector can be of dimension 0 if it hasn't been used before, 

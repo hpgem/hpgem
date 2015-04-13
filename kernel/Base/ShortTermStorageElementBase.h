@@ -198,7 +198,7 @@ namespace Base
             return element_->getFace(localFaceNr);
         }
         
-        const std::vector<const Face*> getFacesList() const
+        const std::vector<const Face*> getFacesList() const override final
         {
             return element_->getFacesList();
         }
@@ -208,7 +208,7 @@ namespace Base
             return element_->getEdge(localEdgeNr);
         }
         
-        virtual const std::vector<const Edge*> getEdgesList() const
+        virtual const std::vector<const Edge*> getEdgesList() const override final
         {
             return element_->getEdgesList();
         }
@@ -218,7 +218,7 @@ namespace Base
             return element_->getNode(localNodeNr);
         }
         
-        virtual const std::vector<const Node*> getNodesList() const
+        virtual const std::vector<const Node*> getNodesList() const override final
         {
             return element_->getNodesList();
         }

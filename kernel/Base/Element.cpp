@@ -230,7 +230,7 @@ namespace Base
         int basePosition(0);
         for (int j : basisFunctionSetPositions_)
         {
-            if (j != -1)
+            if (j != -1 && i >= basePosition)
             {
                 std::size_t n = basisFunctionSet_->at(j)->size();
                 if (i - basePosition < n)

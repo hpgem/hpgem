@@ -2619,7 +2619,7 @@ namespace Base
         
         for (PointPhysicalT point : hpGEMCoordinates)
         {
-            qHullCoordinates.append(2, point.data());
+            qHullCoordinates.append(DIM, point.data());
         }
         
         //create the triangulation, pass "d" for delaunay
@@ -2838,12 +2838,10 @@ namespace Base
                 
                 orgQhull::RboxPoints qHullCoordinates {};
                 qHullCoordinates.setDimension(DIM);
-                qHullCoordinates.reserveCoordinates(DIM * theMesh_.getNumberOfNodes());
                 oldNodeLocations_.clear();
                 oldNodeLocations_.reserve(theMesh_.getNumberOfNodes());
-                for (PointPhysicalT point : theMesh_.getNodeCoordinates())
+                for (PointPhysicalT& point : theMesh_.getNodeCoordinates())
                 {
-                    qHullCoordinates.append(DIM, point.data());
                     oldNodeLocations_.push_back(point);
                 }
                 theMesh_.clear();
@@ -2882,9 +2880,10 @@ namespace Base
                         if(getNodeCoordinates().end() != closeNodeCoordinate)
                         {
                             logger(DEBUG, "moving % away from periodic pair", *closeNodeCoordinate);
-                            (*closeNodeCoordinate)[0]-=0.5;
+                            (*closeNodeCoordinate) = (theMesh_.getNodeCoordinates()[i] + newNodeCoordinate) / 2.;
                         }
                         theMesh_.addNode(newNodeCoordinate);
+                        oldNodeLocations_.push_back(newNodeCoordinate);
                         vertexIndex.resize(theMesh_.getNumberOfNodes(), std::numeric_limits<std::size_t>::max());
                     }
                     //assign boundary nodes
@@ -2896,7 +2895,7 @@ namespace Base
                     }
                     currentVertexNumber++;
                     //skip over already set boundary nodes
-                    while (vertexIndex[i] < std::numeric_limits<std::size_t>::max() && i < theMesh_.getNumberOfNodes())
+                    while (i < theMesh_.getNumberOfNodes() && vertexIndex[i] < std::numeric_limits<std::size_t>::max())
                     {
                         ++i;
                     }
@@ -2907,7 +2906,13 @@ namespace Base
                 logger.assert(pairingIterator == periodicPairing.end(), "Somehow missed some periodic pair");
                 //the actual amount of vertices and the assigned amount of vertices match
                 logger.assert(currentVertexNumber == theMesh_.getNumberOfVertices(IteratorType::GLOBAL), "Missed some node indexes");
-                
+
+                qHullCoordinates.reserveCoordinates(DIM * theMesh_.getNumberOfNodes());
+                for(Geometry::PointPhysical& point : theMesh_.getNodeCoordinates())
+                {
+                    qHullCoordinates.append(DIM, point.data());
+                }
+
                 orgQhull::Qhull triangulation(qHullCoordinates, "d PF1e-10 QbB Qx Qc Qt");
                 
                 for (orgQhull::QhullFacet triangle : triangulation.facetList())

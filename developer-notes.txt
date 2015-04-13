@@ -25,6 +25,8 @@ Debugging conde only makes sense if you are building in Debug mode, before doing
 
 If you feel it is necessary to see additional debug output, you can set the advanced CMake option hpGEM_LOGLEVEL to DEBUG. There is quite a lot of additional debug info, so you probably want to pipe your output into grep or a similar text search tool.
 
+If you are working on a mac, entering 'env DYLD_INSERT_LIBRARIES=/usr/lib/libgmalloc.dylib' in lldb before typing 'process launch' will enable lldb to trace memory corruption (for linux, valgrind can do this)
+
 If something unexpected happens in the kernel of hpGEM this likely has one of the four following causes:
 
 === Case 1: Nonsense arguments were passed to a function and therefore it returned nonsense ===

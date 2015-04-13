@@ -35,9 +35,9 @@ namespace Utilities
     BasisFunction3DVertexCube::BasisFunction3DVertexCube(std::size_t node)
     {
         logger.assert(node < 8, "A cube only has 8 nodes");
-        nodePosition0_ = (node % 2) * 2 - 1;
-        nodePosition1_ = ((node / 2) % 2) * 2 - 1;
-        nodePosition2_ = (node / 4) * 2 - 1;
+        nodePosition0_ = (static_cast<int>(node) % 2) * 2 - 1;
+        nodePosition1_ = ((static_cast<int>(node) / 2) % 2) * 2 - 1;
+        nodePosition2_ = (static_cast<int>(node) / 4) * 2 - 1;
     }
     
     double BasisFunction3DVertexCube::eval(const Geometry::PointReference& p) const
@@ -67,8 +67,8 @@ namespace Utilities
         logger.assert(node1 < 8, "A cube only has 8 nodes");
         logger.assert(node0 / 4 == node1 / 4, "This class is intended for edges aligned in the x-direction");
         logger.assert((node0 / 2) % 2 == (node1 / 2) % 2, "This class is intended for edges aligned in the x-direction");
-        edgePosition1_ = ((node0 / 2) % 2) * 2 - 1;
-        edgePosition2_ = (node0 / 4) * 2 - 1;
+        edgePosition1_ = ((static_cast<int>(node0) / 2) % 2) * 2 - 1;
+        edgePosition2_ = (static_cast<int>(node0) / 4) * 2 - 1;
         mirroring_ = node0 < node1 ? 1 : -1;
     }
     
@@ -99,8 +99,8 @@ namespace Utilities
         logger.assert(node1 < 8, "A cube only has 8 nodes");
         logger.assert(node0 / 4 == node1 / 4, "This class is intended for edges aligned in the y-direction");
         logger.assert(node0 % 2 == node1 % 2, "This class is intended for edges aligned in the y-direction");
-        edgePosition0_ = (node0 % 2) * 2 - 1;
-        edgePosition2_ = (node0 / 4) * 2 - 1;
+        edgePosition0_ = (static_cast<int>(node0) % 2) * 2 - 1;
+        edgePosition2_ = (static_cast<int>(node0) / 4) * 2 - 1;
         mirroring_ = node0 < node1 ? 1 : -1;
     }
     
@@ -131,8 +131,8 @@ namespace Utilities
         logger.assert(node1 < 8, "A cube only has 8 nodes");
         logger.assert(node0 % 2 == node1 % 2, "This class is intended for edges aligned in the z-direction");
         logger.assert((node0 / 2) % 2 == (node1 / 2) % 2, "This class is intended for edges aligned in the z-direction");
-        edgePosition0_ = (node0 % 2) * 2 - 1;
-        edgePosition1_ = ((node0 / 2) % 2) * 2 - 1;
+        edgePosition0_ = (static_cast<int>(node0) % 2) * 2 - 1;
+        edgePosition1_ = ((static_cast<int>(node0) / 2) % 2) * 2 - 1;
         mirroring_ = node0 < node1 ? 1 : -1;
     }
     
@@ -166,7 +166,7 @@ namespace Utilities
         logger.assert(node0 % 2 == node2 % 2, "This class is intended for faces aligned in the x-direction");
         mirroring1_ = node0 < node1 ? 1 : -1; //choices about mirroring need only be consistent for one face
         mirroring2_ = node0 < node2 ? 1 : -1;
-        facePosition_ = (node0 % 2) * 2 - 1;
+        facePosition_ = (static_cast<int>(node0) % 2) * 2 - 1;
     }
     
     double BasisFunction3DFaceCube_0::eval(const Geometry::PointReference& p) const
@@ -194,7 +194,7 @@ namespace Utilities
         logger.assert((node0 / 2) % 2 == (node2 / 2) % 2, "This class is intended for faces aligned in the y-direction");
         mirroring0_ = node0 < node1 ? 1 : -1;
         mirroring2_ = node0 < node2 ? 1 : -1;
-        facePosition_ = ((node0 / 2) % 2) * 2 - 1;
+        facePosition_ = ((static_cast<int>(node0) / 2) % 2) * 2 - 1;
     }
     
     double BasisFunction3DFaceCube_1::eval(const Geometry::PointReference& p) const
@@ -227,7 +227,7 @@ namespace Utilities
         logger.assert(node0 / 4 == node2 / 4, "This class is intended for faces aligned in the x-direction");
         mirroring0_ = node0 < node1 ? 1 : -1;
         mirroring1_ = node0 < node2 ? 1 : -1;
-        facePosition_ = (node0 / 4) * 2 - 1;
+        facePosition_ = (static_cast<int>(node0) / 4) * 2 - 1;
     }
     
     double BasisFunction3DFaceCube_2::eval(const Geometry::PointReference& p) const

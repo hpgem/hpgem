@@ -42,7 +42,7 @@ namespace Utilities
     {
     public:
         BasisFunction1DVertexLine(std::size_t node)
-                : nodePosition_(2 * node - 1)
+                : nodePosition_(2 * static_cast<int>(node) - 1)
         {
             logger.assert(node < 2, "A line only has 2 nodes");
         }

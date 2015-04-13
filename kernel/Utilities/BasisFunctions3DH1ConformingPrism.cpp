@@ -35,7 +35,7 @@ namespace Utilities
     BasisFunction3DVertexPrism::BasisFunction3DVertexPrism(std::size_t node)
     {
         logger.assert(node < 6, "A triangular prism only has 6 nodes");
-        nodePosition_ = (node / 3) * 2 - 1;
+        nodePosition_ = (static_cast<int>(node) / 3) * 2 - 1;
         node_ = node % 3;
     }
     
@@ -116,7 +116,7 @@ namespace Utilities
         logger.assert(node2 < 6, "A triangular prism only has 6 nodes");
         logger.assert(node0 / 3 == node1 / 3, "This is not a triangular face");
         logger.assert(node0 / 3 == node2 / 3, "This is not a triangular face");
-        facePosition_ = (node0 / 3) * 2 - 1;
+        facePosition_ = (static_cast<int>(node0) / 3) * 2 - 1;
     }
     
     double BasisFunction3DFacePrism_0::eval(const Geometry::PointReference& p) const
