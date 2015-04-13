@@ -8,13 +8,11 @@ int main (int argc, char **argv){
 
 	Base::parse_options(argc, argv);
 
-	logger(WARN,"WARNING: Timestep is determined a priori. CLF condition might not be satisfied!");
-    logger(WARN,"WARNING: Pressure might be incorrectly calculated");
-	logger(INFO,"INFO: test.");
+	logger(WARN,"WARNING: Timestep is determined a priori. Stability Criteria might not be satisfied!");
     // Set parameters for the PDE.
     const std::size_t dimension = 1;
     const std::size_t numOfElements = 20;
-    const std::size_t polynomialOrder = 0;
+    const std::size_t polynomialOrder = 1;
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
     const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(1,1);
 
@@ -38,9 +36,9 @@ int main (int argc, char **argv){
     test.createMesh(numOfElements, meshType);
 
     const double startTime = 0.0;
-    const double endTime = 0.0005;
+    const double endTime = 1.0;
     double dt = 0.0001;
-    const std::size_t numOfOutputFrames = 5;
+    const std::size_t numOfOutputFrames = 1;
 
     // Solve the problem over time interval [startTime,endTime].
     test.solve(startTime, endTime, dt, numOfOutputFrames, false);

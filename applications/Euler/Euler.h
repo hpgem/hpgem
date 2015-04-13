@@ -31,6 +31,9 @@ public:
     /// ***   Element integration functions   ***
     /// *****************************************
 
+    /// Compute solution at an element
+    LinearAlgebra::NumericalVector computeSolutionAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
+
     /// Compute integrand of righthandside on an element
     LinearAlgebra::NumericalVector integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
 
