@@ -41,11 +41,11 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefEl
     for (std::size_t iB = 0; iB < numBasisFuncs; iB++) // Index for basis function
     {
         iVB = ptrElement->convertToSingleIndex(iB, 0);
-        integrand(iVB) = physicalFlux(0) * ptrElement->basisFunctionDeriv(iB, 0, pRef);
+        integrand(iVB) = physicalFlux(0) * ptrElement->basisFunctionDeriv(iB, pRef)(0);
         integrand(iVB) += source(0) * ptrElement->basisFunction(iB, pRef);
 
         iVB = ptrElement->convertToSingleIndex(iB, 1);
-        integrand(iVB) = physicalFlux(1) * ptrElement->basisFunctionDeriv(iB, 0, pRef);
+        integrand(iVB) = physicalFlux(1) * ptrElement->basisFunctionDeriv(iB, pRef)(0);
         integrand(iVB) += source(1) * ptrElement->basisFunction(iB, pRef);
     }
     
@@ -55,9 +55,11 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefEl
 
 /// \details The integrand for the reference face is the same as the physical face, but scaled with the reference-to-physical face scale. This face scale is absorbed in the normal vector, since it is relatively cheap to compute the normal vector with a length (L2-norm) equal to the reference-to-physical face scale.
 NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
-( const Base::Face *ptrFace, const Base::Side &iSide, const Geometry::PointReference &pRef, const NumericalVector &solutionCoefficientsLeft, const NumericalVector &solutionCoefficientsRight)
+( const Base::Face *ptrFace, const Base::Side &iSide, const NumericalVector &normalVec, const Geometry::PointReference &pRef, const NumericalVector &solutionCoefficientsLeft, const NumericalVector &solutionCoefficientsRight)
 {
-    double normal = ptrFace->getNormalVector(Geometry::PointReference(0))(0);
+    logger.assert(ptrFace != nullptr, "gave an empty face");
+    logger.assert(ptrFace->getPtrElement(iSide) != nullptr, "acquired an empty element");
+    double normal = normalVec(0);
     const std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
     const std::size_t numOfBasisFuncsLeft = ptrFace->getPtrElement(Base::Side::LEFT)->getNrOfBasisFunctions();
     const std::size_t numOfBasisFuncsRight = ptrFace->getPtrElement(Base::Side::RIGHT)->getNrOfBasisFunctions();
@@ -131,7 +133,7 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
     }
     else //inflow
     {
-        flux = localLaxFriedrichsFlux(NumericalVector({1.0001, 5}), solution);
+        flux = localLaxFriedrichsFlux(NumericalVector({2, 5}), solution);
     }
     
     NumericalVector integrand(numOfVariables_ * numBasisFuncs);

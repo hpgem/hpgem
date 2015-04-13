@@ -61,8 +61,15 @@ Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::s
 /// \brief Compute the initial solution at a given point in space and time.
 LinearAlgebra::NumericalVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
-    LinearAlgebra::NumericalVector initialSolution(numOfVariables_);   
-    initialSolution(0) = 1;
+    LinearAlgebra::NumericalVector initialSolution(numOfVariables_);
+    if (pPhys[0] < 3.1415926535/4)
+    {
+        initialSolution(0) = 1.5 + 0.5*std::cos(4*pPhys[0]);
+    }
+    else
+    {
+        initialSolution(0) = 1;
+    }
     //initialSolution(0) = 0.1*std::sin(pPhys[0] * 2 * 3.1415926535) + 2;
     initialSolution(1) = 5;
     return initialSolution;
@@ -117,12 +124,12 @@ LinearAlgebra::NumericalVector SavageHutter::integrateInitialSolutionAtElement(B
 LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
 {
     // Define the integrand function for the right hand side for the reference element.
-    const std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+    const std::function<LinearAlgebra::NumericalVector(const Base::Element*, const Geometry::PointReference &)> integrandFunction = [=](const Base::Element* elt, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
     {   
-        return rhsComputer_.integrandRightHandSideOnRefElement(ptrElement, time, pRef, solutionCoefficients);
+        return rhsComputer_.integrandRightHandSideOnRefElement(elt, time, pRef, solutionCoefficients);
     };
     
-    return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    return elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
 }
 
 LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
@@ -136,7 +143,7 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
 {
     const std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
     {   
-        return rhsComputer_.integrandRightHandSideOnRefFace(ptrFace, side, pRef, solutionCoefficientsLeft, solutionCoefficientsRight);
+        return rhsComputer_.integrandRightHandSideOnRefFace(ptrFace, side, ptrFace->getNormalVector(pRef), pRef, solutionCoefficientsLeft, solutionCoefficientsRight);
     };
     
     return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);

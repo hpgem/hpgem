@@ -53,6 +53,7 @@ private:
     (
      const Base::Face *ptrFace,
      const Base::Side &iSide,
+     const NumericalVector &normalVec,
      const Geometry::PointReference &pRef,
      const NumericalVector &solutionCoefficientsLeft,
      const NumericalVector &solutionCoefficientsRight
