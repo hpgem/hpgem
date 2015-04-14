@@ -137,6 +137,14 @@ namespace Geometry
             return const_cast<ReferenceGeometry*>(this)->getBasisFunctionValue(function, p);
         }
         
+        ///\brief clean out the cache for this basis function because you are going to delete it
+        ///\todo the way basis function values are stored will be reworked in the near future
+        void removeBasisFunctionData(const Base::BaseBasisFunction* function)
+        {
+            basisfunctionValues_.erase(function);
+            basisfunctionDerivatives_.erase(function);
+        }
+
         ///\bug getBasisFunctionDerivative does some lazy initialization, so it can't be const, unless you consider the state to
         /// contain the values of all basisFunctions at all reference points
         ///\todo The basisfunctions are not a responsibility of the reference geometry,

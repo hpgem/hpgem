@@ -67,6 +67,10 @@ namespace Utilities
     
     GlobalPetscVector::operator Vec()
     {
+        if(HPGEM_LOGLEVEL==Log::DEBUG)
+        {
+            VecView(b_, PETSC_VIEWER_STDOUT_WORLD);
+        }
         return b_;
     }
     

@@ -60,7 +60,7 @@ namespace Geometry
 {
     class ElementGeometry;
     
-    const ReferenceGeometry *
+    ReferenceGeometry *
     ElementGeometry::createReferenceGeometry(std::size_t size, std::size_t DIM)
     {
         switch (size)
@@ -241,6 +241,12 @@ namespace Geometry
         return referenceGeometry_;
     }
     
+    ReferenceGeometry *
+    ElementGeometry::getReferenceGeometry()
+    {
+        return referenceGeometry_;
+    }
+
     /// Returns a pointer to the refinementGeometry object.
     
     const RefinementGeometry*

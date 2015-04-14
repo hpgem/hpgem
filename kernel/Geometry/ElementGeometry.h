@@ -66,6 +66,7 @@ namespace Geometry
         virtual std::size_t getNrOfNodes() const;
         /// Returns a pointer to the referenceGeometry object.
         virtual const ReferenceGeometry* getReferenceGeometry() const;
+        ReferenceGeometry* getReferenceGeometry();
         /// Returns a pointer to the refinementGeometry object.
         virtual const RefinementGeometry* getRefinementGeometry() const;
         /// This method gets a PointReference, which specifies a coordinate in the ReferenceGeometry,
@@ -93,7 +94,7 @@ namespace Geometry
         
     private:
         
-        static const ReferenceGeometry* createReferenceGeometry(std::size_t size, std::size_t DIM);
+        static ReferenceGeometry* createReferenceGeometry(std::size_t size, std::size_t DIM);
 
         static PhysicalGeometry* createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometry* const geo);
 
@@ -101,7 +102,7 @@ namespace Geometry
 
     protected:
         /// The corresponding referenceGeometry object, for integration.
-        const ReferenceGeometry* const referenceGeometry_;
+        ReferenceGeometry* const referenceGeometry_;
 
         /// The physicalGeometry object contains pointers to the actual physical points, and
         /// a container of global node indexes.

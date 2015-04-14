@@ -194,6 +194,16 @@ namespace Base
     
     void MeshManipulator::useDefaultDGBasisFunctions()
     {
+        for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
+        {
+            for(const Base::BaseBasisFunction* function : *set)
+            {
+                for(Base::Element* element : getElementsList(IteratorType::GLOBAL))
+                {
+                    element->getReferenceGeometry()->removeBasisFunctionData(function);
+                }
+            }
+        }
         collBasisFSet_.clear();
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToIndex;
         for(Element* element : getElementsList(IteratorType::GLOBAL))
@@ -249,6 +259,16 @@ namespace Base
     void MeshManipulator::useDefaultConformingBasisFunctions()
     {
         logger.assert(configData_->polynomialOrder_ > 0, "Basis function may not have an empty union of supporting elements. Use a DG basis function on a single element non-periodic mesh instead");
+        for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
+        {
+            for(const Base::BaseBasisFunction* function : *set)
+            {
+                for(Base::Element* element : getElementsList(IteratorType::GLOBAL))
+                {
+                    element->getReferenceGeometry()->removeBasisFunctionData(function);
+                }
+            }
+        }
         collBasisFSet_.clear();
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToElementIndex;
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > nrOfFaceSets;

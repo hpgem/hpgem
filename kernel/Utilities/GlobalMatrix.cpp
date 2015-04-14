@@ -111,6 +111,10 @@ namespace Utilities
     
     GlobalPetscMatrix::operator Mat()
     {
+        if(HPGEM_LOGLEVEL==Log::DEBUG)
+        {
+            MatView(A_, PETSC_VIEWER_STDOUT_WORLD);
+        }
         return A_;
     }
     

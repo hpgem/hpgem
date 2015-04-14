@@ -74,6 +74,27 @@ namespace Base
             return vecOfBasisFcn_[i];
         }
 
+        ///iterators (for range-based for loop)
+        BaseBasisFunctions::const_iterator begin() const
+        {
+            return vecOfBasisFcn_.begin();
+        }
+
+        BaseBasisFunctions::iterator begin()
+        {
+            return vecOfBasisFcn_.begin();
+        }
+
+        BaseBasisFunctions::const_iterator end() const
+        {
+            return vecOfBasisFcn_.end();
+        }
+
+        BaseBasisFunctions::iterator end()
+        {
+            return vecOfBasisFcn_.end();
+        }
+
     private:
         std::size_t order_;
         BaseBasisFunctions vecOfBasisFcn_;
