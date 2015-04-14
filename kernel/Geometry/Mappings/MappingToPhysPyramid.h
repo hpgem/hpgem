@@ -38,6 +38,8 @@ namespace Geometry
     {
     public:
         MappingToPhysPyramid(const PhysicalGeometry* const physicalGeometry);
+        
+        MappingToPhysPyramid(const MappingToPhysPyramid &other) = default;
 
         PointPhysical transform(const PointReference&) const override final;
 

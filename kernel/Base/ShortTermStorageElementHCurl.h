@@ -37,9 +37,12 @@ namespace Base
         
     public:
         ShortTermStorageElementHcurl(std::size_t dimension)
-                : ShortTermStorageElementBase(dimension)
+            : ShortTermStorageElementBase(dimension)
         {
         }
+                
+        ///Since this is a wrapper class, the copy constructor is deleted.
+        ShortTermStorageElementHcurl(const ShortTermStorageElementHcurl &other) = delete;
         
         void computeData() override final;
 

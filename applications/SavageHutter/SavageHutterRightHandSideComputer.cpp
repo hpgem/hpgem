@@ -26,7 +26,7 @@
 using LinearAlgebra::NumericalVector;
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
-NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefElement
+NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElement
 (const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const NumericalVector &solutionCoefficients)
 {
     const std::size_t numBasisFuncs = ptrElement->getNrOfBasisFunctions();
@@ -35,6 +35,7 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefEl
     const NumericalVector numericalSolution = computeNumericalSolution(ptrElement, pRef, solutionCoefficients);
     const NumericalVector physicalFlux = computePhysicalFlux(numericalSolution);
     const NumericalVector source = computeSourceTerm(numericalSolution);
+    logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
     
     // Compute integrand on the physical element.
     std::size_t iVB; // Index for both basis function and variable
@@ -60,12 +61,12 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
     logger.assert(ptrFace != nullptr, "gave an empty face");
     logger.assert(ptrFace->getPtrElement(iSide) != nullptr, "acquired an empty element");
     double normal = normalVec(0);
-    const std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
-    const std::size_t numOfBasisFuncsLeft = ptrFace->getPtrElement(Base::Side::LEFT)->getNrOfBasisFunctions();
-    const std::size_t numOfBasisFuncsRight = ptrFace->getPtrElement(Base::Side::RIGHT)->getNrOfBasisFunctions();
+    const std::size_t numTestBasisFuncs = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
+    const std::size_t numBasisFuncsLeft = ptrFace->getPtrElement(Base::Side::LEFT)->getNrOfBasisFunctions();
+    const std::size_t numBasisFuncsRight = ptrFace->getPtrElement(Base::Side::RIGHT)->getNrOfBasisFunctions();
     
     NumericalVector solutionLeft(2);
-    for (std::size_t i = 0; i < numOfBasisFuncsLeft; ++i)    
+    for (std::size_t i = 0; i < numBasisFuncsLeft; ++i)    
     {
         std::size_t iH = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, 0);
         solutionLeft(0) += solutionCoefficientsLeft(iH) * ptrFace->basisFunction(Base::Side::LEFT, i, pRef);
@@ -74,7 +75,7 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
     }
     
     NumericalVector solutionRight(2);
-    for (std::size_t i = 0; i < numOfBasisFuncsRight; ++i)    
+    for (std::size_t i = 0; i < numBasisFuncsRight; ++i)    
     {
         std::size_t iH = ptrFace->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(i, 0);
         solutionRight(0) += solutionCoefficientsRight(iH) * ptrFace->basisFunction(Base::Side::RIGHT, i, pRef);
@@ -95,9 +96,9 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
     {
         normal *= -1;
     }
-    NumericalVector integrand(numOfVariables_ * numOfTestBasisFunctions); // Integrand value based on n number of testbasisfunctions from element corresponding to side iSide
+    NumericalVector integrand(numOfVariables_ * numTestBasisFuncs); // Integrand value based on n number of testbasisfunctions from element corresponding to side iSide
 
-    for (std::size_t iFun = 0; iFun < numOfTestBasisFunctions; ++iFun)
+    for (std::size_t iFun = 0; iFun < numTestBasisFuncs; ++iFun)
     {
         for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
         {
@@ -133,7 +134,7 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
     }
     else //inflow
     {
-        flux = localLaxFriedrichsFlux(NumericalVector({2, 5}), solution);
+        flux = localLaxFriedrichsFlux(NumericalVector({1.1, 2.5*1.1}), solution);
     }
     
     NumericalVector integrand(numOfVariables_ * numBasisFuncs);
@@ -168,7 +169,7 @@ NumericalVector SavageHutterRightHandSideComputer::computePhysicalFlux(const Num
 
 NumericalVector SavageHutterRightHandSideComputer::computeSourceTerm(const NumericalVector& numericalSolution)
 {
-    logger.assert(theta_ < 3.1415 / 2, "Angle must be in radians, not degrees!");
+    logger.assert(theta_ < M_PI / 2, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
     const double hu = numericalSolution(1);
     double u = 0;

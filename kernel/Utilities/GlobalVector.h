@@ -49,6 +49,8 @@ namespace Utilities
         {
         }
         
+        GlobalVector(const GlobalVector &other) = delete;
+        
         ///construct the global vector does not do assembly by default
         ///because some vectors (like the solution of the linear problem) are filled by external means
         GlobalVector(Base::MeshManipulator* theMesh, int elementVectorID = 0, int faceVectorID = 0);

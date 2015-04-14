@@ -31,7 +31,7 @@ class SavageHutterRightHandSideComputer
 {
 private:
     /// \brief Compute the integrand for the right hand side for the reference element.
-    NumericalVector integrandRightHandSideOnRefElement
+    NumericalVector integrandRightHandSideOnElement
     (
      const Base::Element *ptrElement,
      const double &time,

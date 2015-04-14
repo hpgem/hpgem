@@ -21,6 +21,8 @@
 
 #include "SavageHutter.h"
 
+using LinearAlgebra::NumericalVector;
+
 /// \param[in] dimension Dimension of the domain
 /// \param[in] numberOfVariables Number of variables in the PDE
 /// \param[in] polynomialOrder Polynomial order of the basis functions
@@ -40,8 +42,7 @@ DIM_(dimension), numOfVariables_(numOfVariables), numTimeSteps_(numTimeSteps), t
     rhsComputer_.numOfVariables_ = numOfVariables;
     rhsComputer_.DIM_ = dimension;
     rhsComputer_.epsilon_ = 1.0;
-    rhsComputer_.theta_ = 3.1415926535 / 6; //radians
-    std::cout << numTimeSteps_ << std::endl;
+    rhsComputer_.theta_ = M_PI / 6; //radians
 }
 
 Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::size_t numOfElementPerDirection)
@@ -62,16 +63,15 @@ Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::s
 LinearAlgebra::NumericalVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     LinearAlgebra::NumericalVector initialSolution(numOfVariables_);
-    if (pPhys[0] < 3.1415926535/4)
+    if (pPhys[0] < M_PI/8)
     {
-        initialSolution(0) = 1.5 + 0.5*std::cos(4*pPhys[0]);
+        initialSolution(0) = 0.6 + 0.5*std::cos(8*pPhys[0]);
     }
     else
     {
-        initialSolution(0) = 1;
+        initialSolution(0) = 0.1;
     }
-    //initialSolution(0) = 0.1*std::sin(pPhys[0] * 2 * 3.1415926535) + 2;
-    initialSolution(1) = 5;
+    initialSolution(1) = 2.5 * initialSolution(0);
     return initialSolution;
 }
 
@@ -126,7 +126,7 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtElement(Base:
     // Define the integrand function for the right hand side for the reference element.
     const std::function<LinearAlgebra::NumericalVector(const Base::Element*, const Geometry::PointReference &)> integrandFunction = [=](const Base::Element* elt, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
     {   
-        return rhsComputer_.integrandRightHandSideOnRefElement(elt, time, pRef, solutionCoefficients);
+        return rhsComputer_.integrandRightHandSideOnElement(elt, time, pRef, solutionCoefficients);
     };
     
     return elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
@@ -162,4 +162,75 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
     };
     
     return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+}
+
+/******************************Limiting****************************************/
+void SavageHutter::computeOneTimeStep(double &time, const double dt)
+    {
+        std::size_t numOfStages = ptrButcherTableau_->getNumStages();
+        
+        // Compute intermediate Runge-Kutta stages
+        for (std::size_t iStage = 0; iStage < numOfStages; iStage++)
+        {
+            double stageTime = time + ptrButcherTableau_->getC(iStage) * dt;
+            
+            std::vector<std::size_t> timeLevelsIn;
+            std::vector<double> coefficientsTimeLevels;
+            
+            timeLevelsIn.push_back(solutionTimeLevel_);
+            coefficientsTimeLevels.push_back(1);
+            for (std::size_t jStage = 0; jStage < iStage; jStage++)
+            {
+                timeLevelsIn.push_back(intermediateTimeLevels_[jStage]);
+                coefficientsTimeLevels.push_back(dt * ptrButcherTableau_->getA(iStage, jStage));
+            }
+            
+            computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime);
+        }
+        
+        // Update the solution
+        for (std::size_t jStage = 0; jStage < numOfStages; jStage++)
+        {
+            scaleAndAddTimeLevel(solutionTimeLevel_, intermediateTimeLevels_[jStage], dt * ptrButcherTableau_->getB(jStage));
+        }
+        
+        //limitSolution();
+        
+        // Update the time.
+        time += dt;
+    }
+
+void SavageHutter::limitSolution()
+{
+    NumericalVector solutionLeft(2);
+    NumericalVector solutionRight(2);
+    Geometry::PointReference pRef(0);
+
+    for (Base::Face *face : meshes_[0]->getFacesList())
+    {
+        if (!face->isInternal())
+        {
+            continue;
+        }
+        
+        const std::size_t numBasisFuncsLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
+        NumericalVector solutionCoefficientsLeft = face->getPtrElementLeft()->getTimeLevelDataVector(0);
+        for (std::size_t i = 0; i < numBasisFuncsLeft; ++i)
+        {
+            std::size_t iH = face->getPtrElementLeft()->convertToSingleIndex(i, 0);
+            solutionLeft(0) += solutionCoefficientsLeft(iH) * face->basisFunction(Base::Side::LEFT, i, pRef);
+            std::size_t iHu = face->getPtrElementLeft()->convertToSingleIndex(i, 1);
+            solutionLeft(1) += solutionCoefficientsLeft(iHu) * face->basisFunction(Base::Side::LEFT, i, pRef);
+        }
+
+        const std::size_t numBasisFuncsRight = face->getPtrElementRight()->getNrOfBasisFunctions();
+        NumericalVector solutionCoefficientsRight = face->getPtrElementRight()->getTimeLevelDataVector(0);
+        for (std::size_t i = 0; i < numBasisFuncsRight; ++i)
+        {
+            std::size_t iH = face->getPtrElementRight()->convertToSingleIndex(i, 0);
+            solutionRight(0) += solutionCoefficientsRight(iH) * face->basisFunction(Base::Side::RIGHT, i, pRef);
+            std::size_t iHu = face->getPtrElementRight()->convertToSingleIndex(i, 1);
+            solutionRight(1) += solutionCoefficientsRight(iHu) * face->basisFunction(Base::Side::RIGHT, i, pRef);
+        }
+    }
 }

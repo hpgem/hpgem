@@ -50,7 +50,7 @@ namespace Base
     }
     
     Mesh::Mesh(const Mesh& orig)
-            : hasToSplit_(orig.hasToSplit_), localProcessorID_(orig.localProcessorID_),
+            : hasToSplit_(true), localProcessorID_(orig.localProcessorID_),
         elementCounter_(0), faceCounter_(0), edgeCounter_(0), nodeCounter_(0), 
         points_(orig.points_)
     {

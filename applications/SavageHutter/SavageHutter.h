@@ -86,10 +86,15 @@ public:
                 Geometry::PointPhysical pPhys(1);
                 pPhys[0] = static_cast<double>(element->getID()) / meshes_[0]->getElementsList().size();
                 myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) 
-                        << getInitialSolution(pPhys, 0)(0) << '\t' << getInitialSolution(pPhys, 1)(0) << std::endl;
+                        << getInitialSolution(pPhys, 0)(0) << '\t' 
+                        << getInitialSolution(pPhys, 0)(1) << '\t' 
+                        << getInitialSolution(pPhys, 0)(1) / getInitialSolution(pPhys, 0)(0) << std::endl;
                 pPhys[0] = static_cast<double>((element->getID() + 1)) / meshes_[0]->getElementsList().size();
                 myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) 
-                        << getInitialSolution(pPhys, 0)(0) << '\t' << getInitialSolution(pPhys, 1)(0) << std::endl;
+                        << getInitialSolution(pPhys, 0)(0) << '\t' 
+                        << getInitialSolution(pPhys, 0)(1)  << '\t' 
+                        << getInitialSolution(pPhys, 0)(1) / getInitialSolution(pPhys, 0)(0) 
+                        << std::endl;
             }
         }
 
@@ -105,11 +110,13 @@ public:
                 pRef.setCoordinate(0, -1);
                 pPhys = static_cast<double>(element->getID()) / meshes_[0]->getElementsList().size();
                 myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) 
-                        << element->getSolution(0, pRef)(0) << '\t' << element->getSolution(0, pRef)(1) << std::endl;
+                        << element->getSolution(0, pRef)(0) << '\t' << element->getSolution(0, pRef)(1) << '\t'
+                        << element->getSolution(0, pRef)(1) / element->getSolution(0, pRef)(0) << std::endl;
                 pRef.setCoordinate(0, 1);
                 pPhys = static_cast<double>((element->getID() + 1)) / meshes_[0]->getElementsList().size();
                 myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) 
-                        << element->getSolution(0, pRef)(0) << '\t' << element->getSolution(0, pRef)(1) << std::endl;
+                        << element->getSolution(0, pRef)(0) << '\t' << element->getSolution(0, pRef)(1) << '\t'
+                        << element->getSolution(0, pRef)(1) / element->getSolution(0, pRef)(0) << std::endl;
             }
         }
     }
@@ -130,6 +137,8 @@ public:
          const double time
          );
 
+    void computeOneTimeStep(double &time, const double dt);
+    void limitSolution();
 private:
     /// Dimension of the domain
     const std::size_t DIM_;

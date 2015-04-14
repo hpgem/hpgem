@@ -71,6 +71,8 @@ namespace Base
                 useCache_(useCache), recomputeCache_(true), currentPointIndex_(-1)
         {
         }
+                
+        ShortTermStorageFaceBase(const ShortTermStorageFaceBase &other) = delete;
         
         virtual Face& operator=(Face& face);
         
@@ -343,11 +345,6 @@ namespace Base
         }
         
     private:
-        
-        ShortTermStorageFaceBase(const ShortTermStorageFaceBase&): currentPoint_(0)
-        {
-            logger(ERROR, "you are already storing the data, no need to store it twice!");
-        }
         
         ShortTermStorageFaceBase& operator=(const ShortTermStorageFaceBase&)
         {

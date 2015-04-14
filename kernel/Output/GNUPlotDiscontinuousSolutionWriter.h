@@ -48,6 +48,9 @@ namespace Output
         
         ///Constructor: Initialise the output stream and write the header.
         GNUPlotDiscontinuousSolutionWriter(std::ostream& output, const std::string& fileTitle, const std::string& dimensionsToWrite, const std::string& resultVariableName);
+        
+        ///No copy constructor, since we don't want to assign the same ostream to different writers at the same time.
+        GNUPlotDiscontinuousSolutionWriter(const GNUPlotDiscontinuousSolutionWriter &other) = delete;
 
         /// Write the data to the stream ouput_.
         void write(const Base::MeshManipulator* mesh, SingleElementWriter* writeDataClass);

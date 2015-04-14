@@ -54,6 +54,9 @@ namespace Output
         using StringT = std::string;
 
         TecplotDiscontinuousSolutionWriter(std::ostream& output, const std::string& fileTitle, const std::string& dimensionsToWrite, const std::string& variableString);
+        
+        ///No copy constructor, since we don't want to assign the same ostream to different writers at the same time.
+        TecplotDiscontinuousSolutionWriter(const TecplotDiscontinuousSolutionWriter &other) = delete;
 
         /// Write a zone with data from the current mesh to the stream held by the object.
         ///\deprecated please use the other write instead

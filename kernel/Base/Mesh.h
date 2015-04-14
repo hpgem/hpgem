@@ -53,8 +53,9 @@ namespace Base
     {
     public:
         Mesh();
-        ///\todo Make this copy constructor make a new mesh.
+        
         Mesh(const Mesh& orig);
+        
         ~Mesh();
 
         Element* addElement(const std::vector<std::size_t>& globalNodeIndexes);

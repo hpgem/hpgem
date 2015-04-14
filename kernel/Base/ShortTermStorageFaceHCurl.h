@@ -40,6 +40,8 @@ namespace Base
         {
         }
         
+        ShortTermStorageFaceHcurl(const ShortTermStorageFaceHcurl &other) = delete;
+        
         void computeData() override final;
 
         void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) override final;

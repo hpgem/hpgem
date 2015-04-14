@@ -50,6 +50,9 @@ namespace Integration
     public:
         ///compute the contribution to the returntype of this reference point
         virtual void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, T& ret) = 0;
+        
+        ElementIntegrandBase() = default;
+        ElementIntegrandBase(const ElementIntegrandBase<T> &other) = delete;
     };
 }
 

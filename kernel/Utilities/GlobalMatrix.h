@@ -52,6 +52,8 @@ namespace Utilities
         {
         }
         
+        GlobalMatrix(const GlobalMatrix &other) = delete;
+        
         ///constructs the global matrix and performs element assembly
         GlobalMatrix(Base::MeshManipulator* theMesh, int elementMatrixID, int faceMatrixID);
 

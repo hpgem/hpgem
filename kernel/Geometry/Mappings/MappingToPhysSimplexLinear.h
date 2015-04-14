@@ -52,6 +52,9 @@ namespace Geometry
             MappingReferenceToPhysical::setNodesPtr(&pG->getNodes());
             reinit(pG);
         }
+                
+        MappingToPhysSimplexLinear(const MappingToPhysSimplexLinear<DIM> &other) 
+            : MappingReferenceToPhysical(other), a(other.a) { }
 
         PointPhysical transform(const PointReference&) const override final;
         Jacobian calcJacobian(const PointReference&) const override final;

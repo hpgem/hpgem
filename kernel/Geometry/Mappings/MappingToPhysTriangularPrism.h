@@ -38,6 +38,8 @@ namespace Geometry
     {
     public:
         MappingToPhysTriangularPrism(const PhysicalGeometry* const);
+        
+        MappingToPhysTriangularPrism(const MappingToPhysTriangularPrism &other) = default;
 
         PointPhysical transform(const PointReference&) const override final;
 

@@ -51,8 +51,8 @@ namespace Base
         friend Mesh;
         friend std::vector<Submesh>::allocator_type;
 
-        Submesh();
-        Submesh(const Submesh& orig);
+        Submesh() = default;
+        Submesh(const Submesh& orig) = delete;
 
         //! adds an element to this submesh
         void add(Element* element);

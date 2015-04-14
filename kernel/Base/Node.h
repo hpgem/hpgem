@@ -43,10 +43,13 @@ namespace Base
     public:
         
         explicit Node(std::size_t ID)
-                : elements_(), localNodeNrs_(), nrOfConformingDOFOnTheNode_(0), ID_(ID)
-        {
-        }
-        
+            : elements_(), localNodeNrs_(), nrOfConformingDOFOnTheNode_(0), ID_(ID) { }
+
+        //Since individual parts of the mesh should not be copied and there is no
+        //need for a copy constructor of Node while copying a whole mesh, the copy
+        //constructor of Node is deleted.
+        Node(const Node &other) = delete;
+
         void addElement(Element* element, std::size_t localNodeNr);
 
         std::size_t getLocalNrOfBasisFunctions() const
@@ -85,7 +88,7 @@ namespace Base
         std::vector<Element*> elements_;
         std::vector<std::size_t> localNodeNrs_;
 
-        //number of basis-functions that are accosiated to this node (most likely 1(conforming) or 0(DG))
+        //number of basis-functions that are associated to this node (most likely 1(conforming) or 0(DG))
         std::size_t nrOfConformingDOFOnTheNode_;
         std::size_t ID_;
     };

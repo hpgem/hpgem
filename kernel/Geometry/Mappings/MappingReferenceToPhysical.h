@@ -59,6 +59,12 @@ namespace Geometry
                 : MappingInterface()
         {
         }
+                
+        //Note that the memory of nodes is managed by Mesh, so do not make a deep copy.
+        MappingReferenceToPhysical(const MappingReferenceToPhysical &other) 
+            : MappingInterface(other), nodes_(other.nodes_) 
+        {
+        }
         
         // Sets.
         void setNodesPtr(VectorOfPointsT nodes)

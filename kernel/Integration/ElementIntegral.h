@@ -65,6 +65,8 @@ namespace Integration
 
         //! \brief Class destructor
         ~ ElementIntegral();
+        
+        ElementIntegral(const ElementIntegral &other) = delete;
 
         //! \brief Start caching (geometry) information now.
         void cacheOn();

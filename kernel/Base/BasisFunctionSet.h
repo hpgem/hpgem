@@ -47,7 +47,7 @@ namespace Base
 
         explicit BasisFunctionSet(std::size_t order);      
         
-        //copy constructor: this is not intended for use and is therefore deleted.
+        //BasisFunctionSets should not be copied, therefore the copy constructor is deleted.
         BasisFunctionSet(const BasisFunctionSet& other) = delete;
 
         virtual ~BasisFunctionSet();

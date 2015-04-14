@@ -98,9 +98,8 @@ namespace Geometry
          \frac{\partial x_i}{\partial \xi_j}. */
         virtual Jacobian calcJacobian(const PointReference&) const = 0;
         
-        MappingInterface()
-        {
-        }
+        MappingInterface() = default;
+        MappingInterface(const MappingInterface &other) = default; //does nothing
         
         virtual ~MappingInterface()
         {

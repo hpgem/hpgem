@@ -44,7 +44,8 @@ namespace Geometry
         {
             std::cout << "RefinementHypercube(referenceGeometry, physicalGeometry)\n";
         }
-        
+        //Note: shallow copy, since the RefinementHyperCube is not the owner of 
+        //its PhysicalGeometry and ReferenceGeometry.
         RefinementHypercube(const RefinementHypercube& other)
                 : RefinementGeometry(other), 
                 physicalGeometry_(other.physicalGeometry_), 

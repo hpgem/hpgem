@@ -39,6 +39,9 @@ namespace Base
                 : ShortTermStorageElementBase(dimension)
         {
         }
+                
+        ///Since this is a wrapper class, the copy constructor is deleted.        
+        ShortTermStorageElementH1(const ShortTermStorageElementH1 &other) = delete;
         
         void computeData() override;
 

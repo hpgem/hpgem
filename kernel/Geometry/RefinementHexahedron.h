@@ -49,6 +49,8 @@ namespace Geometry
             std::cout << "RefinementHexahedron(referenceGeometry, physicalGeometry)\n";
         }
         
+        //Note: shallow copy, since the RefinementHexahedron is not the owner of 
+        //its PhysicalGeometry and ReferenceGeometry.
         RefinementHexahedron(const RefinementHexahedron& other)
                 : RefinementGeometry(other), 
                 physicalGeometry_(other.physicalGeometry_), 

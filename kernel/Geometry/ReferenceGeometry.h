@@ -85,6 +85,8 @@ namespace Geometry
         virtual ~ReferenceGeometry()
         {
         }
+        
+        ReferenceGeometry(const ReferenceGeometry& other) = delete;
 
         /// \brief Check whether a given point is within the ReferenceGeometry.
         virtual bool isInternalPoint(const PointReference& point) const = 0;
@@ -161,7 +163,6 @@ namespace Geometry
     protected:
         ReferenceGeometry(const ReferenceGeometryType& geoT);
         ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT);
-        ReferenceGeometry(const ReferenceGeometry& other) = delete;
 
         /// Container of the actual points (no reference).
         VectorOfReferencePointsT points_;

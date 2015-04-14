@@ -92,6 +92,8 @@ namespace Base
          const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
          const std::size_t numOfTimeLevels = 1
          );
+        
+        HpgemAPISimplified(const HpgemAPISimplified &other) = delete;
 
         /// \brief Create a mesh description
         virtual Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection)

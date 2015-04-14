@@ -81,6 +81,10 @@ namespace Base
          const bool useSourceTermAtBoundary = false
          );
         
+        //If you want a copy constructor, please make sure the copy-constructor of 
+        //HpgemAPILinear is implemented correctly as well.
+        HpgemAPILinearSteadyState(const HpgemAPILinearSteadyState &other) = delete;
+        
         /// \brief Create the mesh.
         void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType) override;
         

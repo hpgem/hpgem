@@ -73,6 +73,8 @@ namespace Base
         /// You need the basis functions before creating the mesh, because the mesh manipulator
         /// needs to create the elements, and they need some basis functions variables.
         HpgemUISimplified(std::size_t DIMension, std::size_t polynomialOrder = 2, std::size_t nrOfUnknowns = 1);
+        
+        HpgemUISimplified(const HpgemUISimplified &other) = delete;
 
         /// \brief Where the user creates a mesh
         bool virtual initialise() = 0;

@@ -81,13 +81,8 @@ namespace Base
 
         Element& operator=(Element& element);
         
-        ///Copy constructor.
-        ///Note that this makes a shallow copy of the element (i.e. it only copies 
-        ///the pointer to the element), which is correct since this is a wrapper class.
-        ShortTermStorageElementBase(const ShortTermStorageElementBase& copy)
-                : element_(copy.element_), currentPoint_(copy.currentPoint_), jac_(copy.jac_), useCache_(copy.useCache_), recomputeCache_(copy.recomputeCache_), currentPointIndex_(copy.currentPointIndex_)
-        {
-        }
+        ///Since this is a wrapper class, the copy constructor is deleted.
+        ShortTermStorageElementBase(const ShortTermStorageElementBase& copy) = delete;
         
         ~ShortTermStorageElementBase()
         {
