@@ -30,6 +30,7 @@
 #include "Base/MeshManipulator.h"
 #include "Base/Element.h"
 #include "Base/ConfigurationData.h"
+#include "Base/CommandLineOptions.h"
 
 void testData(Base::MeshManipulator mesh)
 {
@@ -44,6 +45,8 @@ void testData(Base::MeshManipulator mesh)
 
 int main(int argc, char** argv)
 {
+    Base::parse_options(argc, argv);
+    //this test should also be effective in 1D , but 2D has 3x as much 'wrong' basis functions for only a little extra effort
     Base::ConfigurationData* config = new Base::ConfigurationData(2, 1, 1);
     Base::MeshManipulator mesh(config);
     mesh.createRectangularMesh({{0., 0.}}, {{1., 1.}}, {{1, 1}});
