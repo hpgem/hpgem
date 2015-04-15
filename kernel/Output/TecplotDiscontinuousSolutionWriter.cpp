@@ -115,8 +115,8 @@ namespace Output
         //assertion is technically checking internal state, but the writability of the filesystem may change outside the influence of this class
         logger.assert_always(output_.good(), "Something is not so good about the output stream");
         
-        std::size_t posNumberOfNodes(0);
-        std::size_t posNumberOfElements(0);
+        std::streamoff posNumberOfNodes(0);
+        std::streamoff posNumberOfElements(0);
         
         // Zone header.
         output_ << "ZONE T = \"" << zoneTitle << "\"" << ", STRANDID = 1" << ", SOLUTIONTIME = " << time << ", ZONETYPE = " << elementType_[nDimensionsToWrite_] << ", DATAPACKING = POINT";
@@ -219,7 +219,7 @@ namespace Output
             // (Basically we just write an ascending series of numbers).
             for (std::size_t elementCounter = 0; elementCounter < totalNrOfElements; elementCounter++)
             {
-                for (std::size_t j = 0; j < ((std::size_t) 1 << nDimensionsToWrite_); ++j) // number of vertices
+                for (std::size_t j = 0; j < ( 1UL << nDimensionsToWrite_); ++j) // number of vertices
                 {
                     output_ << countNumberOfVertices++ << " ";
                 }
@@ -230,7 +230,7 @@ namespace Output
             previousNrOfNodes_ = totalNrOfVertices;
             
             // Write the number of elements and nodes to the blank space at the beginning of the zone
-            const std::size_t currentFilePos = output_.tellp();
+            const std::streamoff currentFilePos = output_.tellp();
             output_.seekp(posNumberOfNodes);
             output_ << previousNrOfNodes_;
             output_.seekp(posNumberOfElements);

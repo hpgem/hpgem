@@ -36,6 +36,11 @@ namespace Geometry
         {
         }
         
+        PointPhysical(const PointPhysical& p)
+                : Point(p)
+        {
+        }
+
         explicit PointPhysical(const Point& p)
                 : Point(p)
         {

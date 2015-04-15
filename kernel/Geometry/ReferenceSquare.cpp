@@ -415,4 +415,3 @@ namespace Geometry
     }
 
 }
-;

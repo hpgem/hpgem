@@ -35,7 +35,7 @@ namespace Utilities
     BasisFunction3DVertexPrism::BasisFunction3DVertexPrism(std::size_t node)
     {
         logger.assert(node < 6, "A triangular prism only has 6 nodes");
-        nodePosition_ = (node / 3) * 2 - 1;
+        nodePosition_ = (static_cast<int>(node) / 3) * 2 - 1;
         node_ = node % 3;
     }
     
@@ -116,7 +116,7 @@ namespace Utilities
         logger.assert(node2 < 6, "A triangular prism only has 6 nodes");
         logger.assert(node0 / 3 == node1 / 3, "This is not a triangular face");
         logger.assert(node0 / 3 == node2 / 3, "This is not a triangular face");
-        facePosition_ = (node0 / 3) * 2 - 1;
+        facePosition_ = (static_cast<int>(node0) / 3) * 2 - 1;
     }
     
     double BasisFunction3DFacePrism_0::eval(const Geometry::PointReference& p) const
@@ -277,9 +277,9 @@ namespace Utilities
         Base::BasisFunctionSet* result = new Base::BasisFunctionSet(order);
         for (std::size_t i = 0; i + 3 <= order; ++i)
         {
-            for (int j = 0; i + j + 3 <= order; ++j)
+            for (std::size_t j = 0; i + j + 3 <= order; ++j)
             {
-                for (int k = 0; k + 2 <= order; ++k)
+                for (std::size_t k = 0; k + 2 <= order; ++k)
                 {
                     result->addBasisFunction(new BasisFunction3DInteriorPrism(i, j, k));
                 }
@@ -325,7 +325,7 @@ namespace Utilities
             }
             result.push_back(set);
         }
-        for (int i = 6; i < 9; ++i)
+        for (std::size_t i = 6; i < 9; ++i)
         {
             vectorOfPointIndexes = prism.getCodim2EntityLocalIndices(i);
             set = new Base::OrientedBasisFunctionSet(order, 0, i);
@@ -357,7 +357,7 @@ namespace Utilities
             set = new Base::OrientedBasisFunctionSet(order, 0, i);
             for (std::size_t j = 0; j + 3 <= order; ++j)
             {
-                for (int k = 0; j + k + 3 <= order; ++k)
+                for (std::size_t k = 0; j + k + 3 <= order; ++k)
                 {
                     set->addBasisFunction(new BasisFunction3DFacePrism_0(vectorOfPointIndexes[0], vectorOfPointIndexes[1], vectorOfPointIndexes[2], j, k));
                 }
@@ -366,7 +366,7 @@ namespace Utilities
             set = new Base::OrientedBasisFunctionSet(order, 1, i);
             for (std::size_t j = 0; j + 3 <= order; ++j)
             {
-                for (int k = 0; j + k + 3 <= order; ++k)
+                for (std::size_t k = 0; j + k + 3 <= order; ++k)
                 {
                     set->addBasisFunction(new BasisFunction3DFacePrism_0(vectorOfPointIndexes[0], vectorOfPointIndexes[2], vectorOfPointIndexes[1], j, k));
                 }
@@ -375,7 +375,7 @@ namespace Utilities
             set = new Base::OrientedBasisFunctionSet(order, 2, i);
             for (std::size_t j = 0; j + 3 <= order; ++j)
             {
-                for (int k = 0; j + k + 3 <= order; ++k)
+                for (std::size_t k = 0; j + k + 3 <= order; ++k)
                 {
                     set->addBasisFunction(new BasisFunction3DFacePrism_0(vectorOfPointIndexes[1], vectorOfPointIndexes[2], vectorOfPointIndexes[0], j, k));
                 }
@@ -384,7 +384,7 @@ namespace Utilities
             set = new Base::OrientedBasisFunctionSet(order, 3, i);
             for (std::size_t j = 0; j + 3 <= order; ++j)
             {
-                for (int k = 0; j + k + 3 <= order; ++k)
+                for (std::size_t k = 0; j + k + 3 <= order; ++k)
                 {
                     set->addBasisFunction(new BasisFunction3DFacePrism_0(vectorOfPointIndexes[1], vectorOfPointIndexes[0], vectorOfPointIndexes[2], j, k));
                 }
@@ -393,7 +393,7 @@ namespace Utilities
             set = new Base::OrientedBasisFunctionSet(order, 4, i);
             for (std::size_t j = 0; j + 3 <= order; ++j)
             {
-                for (int k = 0; j + k + 3 <= order; ++k)
+                for (std::size_t k = 0; j + k + 3 <= order; ++k)
                 {
                     set->addBasisFunction(new BasisFunction3DFacePrism_0(vectorOfPointIndexes[2], vectorOfPointIndexes[1], vectorOfPointIndexes[0], j, k));
                 }
@@ -402,7 +402,7 @@ namespace Utilities
             set = new Base::OrientedBasisFunctionSet(order, 5, i);
             for (std::size_t j = 0; j + 3 <= order; ++j)
             {
-                for (int k = 0; j + k + 3 <= order; ++k)
+                for (std::size_t k = 0; j + k + 3 <= order; ++k)
                 {
                     set->addBasisFunction(new BasisFunction3DFacePrism_0(vectorOfPointIndexes[2], vectorOfPointIndexes[0], vectorOfPointIndexes[1], j, k));
                 }

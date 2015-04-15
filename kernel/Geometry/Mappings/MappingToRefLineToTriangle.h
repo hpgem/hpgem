@@ -55,10 +55,10 @@ namespace Geometry
         {
             return 2;
         }
+        MappingToRefLineToTriangle0(const MappingToRefLineToTriangle0&) = delete;
+        MappingToRefLineToTriangle0& operator=(const MappingToRefLineToTriangle0&) = delete;
     private:
         MappingToRefLineToTriangle0();
-        MappingToRefLineToTriangle0(const MappingToRefLineToTriangle0&);
-        MappingToRefLineToTriangle0& operator=(const MappingToRefLineToTriangle0&);
     };
     // ~~~ index 1 ~~~==============================================================================
     class MappingToRefLineToTriangle1 : public MappingReferenceToReference
@@ -71,10 +71,10 @@ namespace Geometry
         {
             return 2;
         }
+        MappingToRefLineToTriangle1(const MappingToRefLineToTriangle1&) = delete;
+        MappingToRefLineToTriangle1& operator=(const MappingToRefLineToTriangle1&) = delete;
     private:
         MappingToRefLineToTriangle1();
-        MappingToRefLineToTriangle1(const MappingToRefLineToTriangle1&);
-        MappingToRefLineToTriangle1& operator=(const MappingToRefLineToTriangle1&);
     };
     // ~~~ index 2 ~~~==============================================================================
     class MappingToRefLineToTriangle2 : public MappingReferenceToReference
@@ -87,11 +87,10 @@ namespace Geometry
         {
             return 2;
         }
+        MappingToRefLineToTriangle2(const MappingToRefLineToTriangle2&) = delete;
+        MappingToRefLineToTriangle1& operator=(const MappingToRefLineToTriangle2&) = delete;
     private:
         MappingToRefLineToTriangle2();
-        MappingToRefLineToTriangle2(const MappingToRefLineToTriangle2&);
-        MappingToRefLineToTriangle1& operator=(const MappingToRefLineToTriangle2&);
     };
 }
-;
 #endif /* MAPPINGSIMPLECUBENLINEAR_H_ */

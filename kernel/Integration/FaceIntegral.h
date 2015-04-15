@@ -59,6 +59,9 @@ namespace Integration
     public:
         //! \brief Construct an FaceIntegral with cache on.
         FaceIntegral(bool useCache = false);
+        
+        ///! \brief Copy constructor should not be used and is therefore deleted.
+        FaceIntegral(const FaceIntegral &other) = delete;
 
         //! \brief Free the memory used for the data storage.
         ~FaceIntegral();

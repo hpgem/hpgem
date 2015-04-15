@@ -30,12 +30,12 @@
 void Base::ShortTermStorageFaceH1::computeData()
 {
     ShortTermStorageFaceBase::computeData();
-    int n = face_->getNrOfBasisFunctions();
+    std::size_t n = face_->getNrOfBasisFunctions();
     basisFunctionValues_.resize(n);
     basisFunctionDerivatives_.resize(n);
     basisFunctionsTimesNormal_.resize(n);
     ShortTermStorageElementBase* elementwrapper = new ShortTermStorageElementH1(currentPoint_.size() + 1);
-    int leftFunctions = getPtrElementLeft()->getNrOfBasisFunctions();
+    std::size_t leftFunctions = getPtrElementLeft()->getNrOfBasisFunctions();
     *elementwrapper = *getPtrElementLeft();
     Geometry::PointReference pElement = mapRefFaceToRefElemL(currentPoint_);
     double norm = Base::L2Norm(normal_);

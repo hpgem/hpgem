@@ -35,9 +35,9 @@ class ExampleProblem : public Base::HpgemAPISimplified
 public:
     // constructor.
     /// \param[in] dimension Dimension of the domain
-    /// \param[in] numOfVariables Number of variables in the PDE
+    /// \param[in] numOfUnknowns Number of variables in the PDE
     /// \param[in] polynomialOrder Polynomial order of the basis functions
-    /// \param[in] butcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
+    /// \param[in] ptrButcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
     /// \param[in] numOfTimeLevels Number of time levels. If a butcherTableau is set and the number of time levels is too low, this will be corrected automatically.
     ExampleProblem
     (

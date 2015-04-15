@@ -51,8 +51,8 @@ namespace Base
         friend Mesh;
         friend std::vector<Submesh>::allocator_type;
 
-        Submesh();
-        Submesh(const Submesh& orig);
+        Submesh() = default;
+        Submesh(const Submesh& orig) = delete;
 
         //! adds an element to this submesh
         void add(Element* element);
@@ -133,11 +133,11 @@ namespace Base
         
     private:
         //! List of all elements. 
-        ///\TODO: this should be replaced by the mesh-tree structure
+        ///\todo: this should be replaced by the mesh-tree structure
         std::vector<Element*> elements_;
 
         //! List of all faces. 
-        ///\TODO: this should be replaced by the mesh-tree structure
+        ///\todo: this should be replaced by the mesh-tree structure
         //! This contains the list of all faces connected to at least one element in this sub-domain
         std::vector<Face*> faces_;
 

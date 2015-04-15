@@ -49,6 +49,8 @@ namespace Geometry
             std::cout << "RefinementTriangle(referenceGeometry, physicalGeometry)\n";
         }
         
+        //Note: shallow copy, since the RefinementTriangle is not the owner of 
+        //its PhysicalGeometry and ReferenceGeometry.
         RefinementTriangle(const RefinementTriangle& other)
                 : RefinementGeometry(other), physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
         {

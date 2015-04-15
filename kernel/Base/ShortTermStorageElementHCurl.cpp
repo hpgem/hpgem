@@ -68,14 +68,14 @@ void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t i, const Poin
     ret = basisFunctionValues_[i];
 }
 
-void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t index, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
 {
     logger(DEBUG, "Basis Function called in Hcurl const");
-    ret = basisFunctionValues_[i];
+    ret = basisFunctionValues_[index];
     if (!(p == currentPoint_))
     {
         logger(WARN, "WARNING: you are using a slow operator");
-        element_->basisFunction(i, p, ret);
+        element_->basisFunction(index, p, ret);
         //apply the coordinate transformation
         Geometry::Jacobian jac = element_->calcJacobian(p);
         jac = jac.inverse();

@@ -45,7 +45,7 @@ void move(Base::MeshManipulator* mesh)
             p *= 2;
         }
     } mover;
-    for (Geometry::PointPhysical& node : mesh->getNodes())
+    for (Geometry::PointPhysical& node : mesh->getNodeCoordinates())
     {
         mover.movePoint(node);
     }

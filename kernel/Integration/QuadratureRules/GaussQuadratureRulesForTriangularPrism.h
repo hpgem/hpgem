@@ -43,6 +43,7 @@ namespace QuadratureRules
             static TriPrism_1_1 theInstance;
             return theInstance;
         }
+        TriPrism_1_1(const TriPrism_1_1&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -54,8 +55,7 @@ namespace QuadratureRules
 
     private:
         TriPrism_1_1();
-        TriPrism_1_1(const TriPrism_1_1&);
-    private:
+
         const std::string name_;
         double weight_[1];
         ReferenceGeometryT* const refGeoPtr_;
@@ -74,6 +74,7 @@ namespace QuadratureRules
             static TriPrism_3_8 theInstance;
             return theInstance;
         }
+        TriPrism_3_8(const TriPrism_3_8&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -85,8 +86,7 @@ namespace QuadratureRules
 
     private:
         TriPrism_3_8();
-        TriPrism_3_8(const TriPrism_3_8&);
-    private:
+
         const std::string name_;
         double weight_[8];
         ReferenceGeometryT* const refGeoPtr_;
@@ -105,6 +105,7 @@ namespace QuadratureRules
             static TriPrism_5_21 theInstance;
             return theInstance;
         }
+        TriPrism_5_21(const TriPrism_5_21&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -116,8 +117,7 @@ namespace QuadratureRules
 
     private:
         TriPrism_5_21();
-        TriPrism_5_21(const TriPrism_5_21&);
-    private:
+
         const std::string name_;
         double weight_[21];
         ReferenceGeometryT* const refGeoPtr_;
@@ -136,6 +136,7 @@ namespace QuadratureRules
             static TriPrism_7_64 theInstance;
             return theInstance;
         }
+        TriPrism_7_64(const TriPrism_7_64&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -147,8 +148,7 @@ namespace QuadratureRules
 
     private:
         TriPrism_7_64();
-        TriPrism_7_64(const TriPrism_7_64&);
-    private:
+
         const std::string name_;
         double weight_[64];
         ReferenceGeometryT* const refGeoPtr_;

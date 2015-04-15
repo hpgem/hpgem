@@ -1241,4 +1241,3 @@ namespace Geometry
     } // end of getCodim1RefinementMappingMatrixR
     
 }
-;

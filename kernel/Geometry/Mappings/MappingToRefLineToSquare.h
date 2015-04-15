@@ -61,10 +61,10 @@ namespace Geometry
         {
             return 2;
         }
-    private:
-        MappingToRefLineToSquare0();
         MappingToRefLineToSquare0(const MappingToRefLineToSquare0&);
         MappingToRefLineToSquare0& operator=(const MappingToRefLineToSquare0&);
+    private:
+        MappingToRefLineToSquare0();
     };
     // ~~~ index 1 ~~~==============================================================================
     class MappingToRefLineToSquare1 : public MappingReferenceToReference
@@ -77,10 +77,10 @@ namespace Geometry
         {
             return 2;
         }
+        MappingToRefLineToSquare1(const MappingToRefLineToSquare1&) = delete;
+        MappingToRefLineToSquare1& operator=(const MappingToRefLineToSquare1&) = delete;
     private:
         MappingToRefLineToSquare1();
-        MappingToRefLineToSquare1(const MappingToRefLineToSquare1&);
-        MappingToRefLineToSquare1& operator=(const MappingToRefLineToSquare1&);
     };
     // ~~~ index 2 ~~~==============================================================================
     class MappingToRefLineToSquare2 : public MappingReferenceToReference
@@ -93,10 +93,10 @@ namespace Geometry
         {
             return 2;
         }
+        MappingToRefLineToSquare2(const MappingToRefLineToSquare2&) = delete;
+        MappingToRefLineToSquare1& operator=(const MappingToRefLineToSquare2&) = delete;
     private:
         MappingToRefLineToSquare2();
-        MappingToRefLineToSquare2(const MappingToRefLineToSquare2&);
-        MappingToRefLineToSquare1& operator=(const MappingToRefLineToSquare2&);
     };
     // ~~~ index 3 ~~~==============================================================================
     class MappingToRefLineToSquare3 : public MappingReferenceToReference
@@ -109,11 +109,10 @@ namespace Geometry
         {
             return 2;
         }
+        MappingToRefLineToSquare3(const MappingToRefLineToSquare3&) = delete;
+        MappingToRefLineToSquare3& operator=(const MappingToRefLineToSquare3&) = delete;
     private:
         MappingToRefLineToSquare3();
-        MappingToRefLineToSquare3(const MappingToRefLineToSquare3&);
-        MappingToRefLineToSquare3& operator=(const MappingToRefLineToSquare3&);
     };
 }
-;
 #endif /* MAPPINGSIMPLECUBENLINEAR_H_ */

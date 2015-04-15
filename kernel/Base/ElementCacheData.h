@@ -36,7 +36,11 @@ namespace Base
     public:
         
         // calculate the cache data
-        void operator()(const Base::Element* el, const Geometry::PointReference& p);
+        void operator()(const Base::Element *el, const Geometry::PointReference &p);
+        
+        ElementCacheData() = default;
+        ElementCacheData(const ElementCacheData &other) = default;
+        ElementCacheData& operator=(const ElementCacheData &other) = default;
 
         // cache data
         double absDetJac_;

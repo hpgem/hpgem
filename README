@@ -60,3 +60,6 @@ A: CMake cannot automatically detect new applications. Please use generate in cm
 
 Q: hpGEM is slow!
 A: hpGEM is used by users of highly varying background and with highly varying programming skills. For this reason the (default) Debug configuration is extra paranoid about making sure all functions are used as intended. This safeguard drastically slows down computation. Setting CMAKE_BUILD_TYPE to Release disables these safeguards and enables compiler optimisations. It is recommended that you validate that your application is working as intended before doing this.
+
+Q: I tried to compile my code using -Wall or -Weverything because I am paranoid, but now it doesn't compile at all
+A: -Wall and -Weverything override the -std=c++11 flag. Manually set it again after -Wall or -Weverything to re-enable c++11 features

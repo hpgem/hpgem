@@ -83,9 +83,9 @@ void Base::ShortTermStorageFaceHcurl::computeData()
         
         //Now jacobian contains the inverse of previous self
         jacobian = jacobian.inverse();
-        for (int j = 0; j < DIM; ++j)
+        for (std::size_t j = 0; j < DIM; ++j)
         {
-            for (int k = 0; k < j; ++k)
+            for (std::size_t k = 0; k < j; ++k)
             {
                 std::swap(jacobian(j, k), jacobian(k, j));
             }
@@ -118,15 +118,15 @@ void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t i, const Geometr
     ret = basisFunctionValues_[i];
 }
 
-void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t index, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
 {
-    ret = basisFunctionValues_[i];
+    ret = basisFunctionValues_[index];
     if (!(currentPoint_ == p))
     {
         logger(WARN, "Warning: you are using slow data access");
-        face_->basisFunction(i, p, ret);
+        face_->basisFunction(index, p, ret);
         //apply the coordinate transformation
-        if(i < getPtrElementLeft()->getNrOfBasisFunctions())
+        if(index < getPtrElementLeft()->getNrOfBasisFunctions())
         {
             Geometry::Jacobian jac = getPtrElementLeft()->calcJacobian(mapRefFaceToRefElemL(p));
             jac = jac.inverse();
@@ -166,22 +166,22 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNor
     return basisFunctionsTimesNormal_[i];
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const
+LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t index, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const
 {
     if (!(currentPoint_ == p))
     {
         logger(WARN, "Warning: you are using slow data access");
         LinearAlgebra::NumericalVector ret(p.size());
         LinearAlgebra::NumericalVector dummy(ret);
-        face_->basisFunction(i, p, dummy);
+        face_->basisFunction(index, p, dummy);
         //apply the coordinate transformation
-        if(i < getPtrElementLeft()->getNrOfBasisFunctions())
+        if(index < getPtrElementLeft()->getNrOfBasisFunctions())
         {
             Geometry::Jacobian jac = getPtrElementLeft()->calcJacobian(mapRefFaceToRefElemL(p));
             jac = jac.inverse();
             for(std::size_t i = 0; i < p.size() + 1; ++i)
             {
-                for(std::size_t j=0; j < i; ++j)
+                for(std::size_t j = 0; j < i; ++j)
                 {
                     std::swap(jac(i, j), jac(j, i));
                 }
@@ -213,7 +213,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNor
         }
         return ret;
     }
-    return basisFunctionsTimesNormal_[i]; // check how to get vector product of normal and basis function
+    return basisFunctionsTimesNormal_[index]; // check how to get vector product of normal and basis function
 }
 
 LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p)

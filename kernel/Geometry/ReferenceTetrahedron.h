@@ -97,7 +97,6 @@ namespace Geometry
         {
             return 6;
         }
-        ;
 
         //! (see MappingCodimensions.h)
         std::vector<std::size_t> getCodim2EntityLocalIndices(const std::size_t) const override final;
@@ -115,7 +114,6 @@ namespace Geometry
         {
             return 4;
         }
-        ;
 
         //! (see MappingCodimensions.h)
         std::vector<std::size_t> getCodim3EntityLocalIndices(const std::size_t) const override final;

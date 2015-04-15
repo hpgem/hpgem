@@ -50,6 +50,8 @@ namespace Geometry
             std::cout << "RefinementLine(referenceGeometry, physicalGeometry)\n";
         }
         
+        //Note: shallow copy, since the RefinementLine is not the owner of 
+        //its PhysicalGeometry and ReferenceGeometry.
         RefinementLine(const RefinementLine& other)
                 : RefinementGeometry(other), physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
         {

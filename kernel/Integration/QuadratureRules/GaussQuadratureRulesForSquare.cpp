@@ -375,12 +375,12 @@ namespace QuadratureRules
     C2_9_5::C2_9_5()
             : name_("C2_9_5"), refGeoPtr_(&ReferenceSquare::Instance()), gp_(25, 2)
     {
-        int position(0);
+        std::size_t position(0);
         C1_9_5& ruleForLine = C1_9_5::Instance();
         Geometry::PointReference point1D(1);
-        for (int i = 0; i < ruleForLine.nrOfPoints(); ++i)
+        for (std::size_t i = 0; i < ruleForLine.nrOfPoints(); ++i)
         {
-            for (int j = 0; j < ruleForLine.nrOfPoints(); ++j)
+            for (std::size_t j = 0; j < ruleForLine.nrOfPoints(); ++j)
             {
                 weight_[position] = ruleForLine.weight(i) * ruleForLine.weight(j);
                 point1D = ruleForLine.getPoint(i);

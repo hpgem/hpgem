@@ -50,6 +50,7 @@ namespace Utilities
                 return std::sqrt(19. / 2.) * ((((2431 * x * x - 4004) * x * x + 2002) * x * x - 308) * x * x + 7) / -64.;
             case 9:
                 logger(ERROR, "cannot find this degree.\n");\
+                break;
             default:
                 logger(FATAL, "Lobatto polynomials of this order have not been implemented.\n");
         }

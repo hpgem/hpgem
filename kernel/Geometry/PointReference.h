@@ -36,6 +36,11 @@ namespace Geometry
         {
         }
         
+        PointReference(const PointReference& p)
+                : Point(p)
+        {
+        }
+
         explicit PointReference(const Point& p)
                 : Point(p)
         {

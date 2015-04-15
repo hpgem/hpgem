@@ -34,6 +34,10 @@ namespace Base
         {
         }
         
+        ConfigurationData() = default;
+        ConfigurationData(const ConfigurationData &other) = default;
+        ConfigurationData& operator=(const ConfigurationData &other) = default;
+        
         std::size_t dimension_;
         std::size_t numberOfUnknowns_;
         std::size_t numberOfBasisFunctions_;

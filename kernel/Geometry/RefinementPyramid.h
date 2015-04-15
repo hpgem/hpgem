@@ -39,6 +39,8 @@ namespace Geometry
             std::cout << "RefinementPyramid(referenceGeometry, physicalGeometry)\n";
         }
         
+        //Note: shallow copy, since the RefinementPyramid is not the owner of 
+        //its PhysicalGeometry and ReferenceGeometry.
         RefinementPyramid(const RefinementPyramid& other)
                 : RefinementGeometry(other), physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
         {

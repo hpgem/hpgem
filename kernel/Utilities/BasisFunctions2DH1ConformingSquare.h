@@ -43,7 +43,7 @@ namespace Utilities
     {
     public:
         BasisFunction2DVertexSquare(std::size_t node)
-                : nodePosition0_((node % 2) * 2 - 1), nodePosition1_((node / 2) * 2 - 1)
+                : nodePosition0_((static_cast<int>(node) % 2) * 2 - 1), nodePosition1_((static_cast<int>(node) / 2) * 2 - 1)
         {
             logger.assert(node < 4, "A square only has 4 nodes");
         }

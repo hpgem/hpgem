@@ -92,6 +92,8 @@ namespace Base
          const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
          const std::size_t numOfTimeLevels = 1
          );
+        
+        HpgemAPISimplified(const HpgemAPISimplified &other) = delete;
 
         /// \brief Create a mesh description
         virtual Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection)
@@ -104,10 +106,10 @@ namespace Base
         /// \brief Create the mesh.
         virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType);
         
-        /// \brief Compute the real solution at a given point in space and time.
+        /// \brief Compute the exact solution at a given point in space and time.
         virtual LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
         {
-            logger(ERROR, "No real solution implemented.");
+            logger(ERROR, "No exact solution implemented.");
             LinearAlgebra::NumericalVector realSolution(configData_->numberOfUnknowns_);
             return realSolution;
         }

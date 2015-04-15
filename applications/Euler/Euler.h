@@ -31,14 +31,11 @@ public:
     /// ***   Element integration functions   ***
     /// *****************************************
 
-    /// Compute integrand of righthandside on an element for 2d
-    LinearAlgebra::NumericalVector integrandRightHandSideOnRefElement1D(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
+    /// Compute source function at an element
+    LinearAlgebra::NumericalVector integrandSourceAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector qSolution, const double pressureTerm, const double &time, const Geometry::PointReference &pRef);
 
-    /// Compute integrand of righthandside on an element for 2d
-    LinearAlgebra::NumericalVector integrandRightHandSideOnRefElement2D(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
-
-    /// Compute integrand of righthandside on an element for 2d
-    LinearAlgebra::NumericalVector integrandRightHandSideOnRefElement3D(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
+    /// Compute solution at an element
+    LinearAlgebra::NumericalVector computeSolutionAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
 
     /// Compute integrand of righthandside on an element
     LinearAlgebra::NumericalVector integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
@@ -51,7 +48,7 @@ public:
     /// *****************************************
 
     /// \brief Compute the Roe Riemann Flux.
-    LinearAlgebra::NumericalVector RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qReconstructionLeft, const LinearAlgebra::NumericalVector &qReconstructionRight, LinearAlgebra::NumericalVector &normal, const Base::Side &iSide);
+    LinearAlgebra::NumericalVector RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qReconstructionLeft, const LinearAlgebra::NumericalVector &qReconstructionRight, LinearAlgebra::NumericalVector &normal);
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
     LinearAlgebra::NumericalVector integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
@@ -66,6 +63,11 @@ public:
     LinearAlgebra::NumericalVector computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::NumericalVector &solutionCoefficientsLeft, LinearAlgebra::NumericalVector &solutionCoefficientsRight, const double time) override final;
 
 
+    /// *****************************************
+    /// ***    		Various Functions         ***
+    /// *****************************************
+
+    void showProgress(const double time, const std::size_t timeStepID);
 
 private:
     /// Dimension of the domain

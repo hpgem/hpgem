@@ -97,9 +97,10 @@ namespace Geometry
          space (DIM2) and as many columns as original space (DIM1),
          \frac{\partial x_i}{\partial \xi_j}. */
         virtual Jacobian calcJacobian(const PointReference&) const = 0;
-        MappingInterface()
-        {
-        }
+        
+        MappingInterface() = default;
+        MappingInterface(const MappingInterface &other) = default; //does nothing
+        
         virtual ~MappingInterface()
         {
         }
@@ -108,5 +109,4 @@ namespace Geometry
         virtual std::size_t getTargetDimension() const =0;
     };
 }
-;
 #endif /* MAP_H_ */

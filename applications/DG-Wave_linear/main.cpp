@@ -5,8 +5,6 @@
  *      Author: brinkf
  */
 
-#define hpGEM_INCLUDE_PETSC_SUPPORT
-
 #include "Base/HpgemAPIBase.h"
 #include "Base/L2Norm.h"
 #include "Output/TecplotSingleElementWriter.h"
@@ -30,12 +28,12 @@
 #include "Utilities/GlobalVector.h"
 #include "petscksp.h"
 
-const unsigned int DIM = 2;
+const std::size_t DIM = 2;
 
 class DGWave : public Base::HpgemAPIBase, public Output::TecplotSingleElementWriter
 {
 public:
-    DGWave(int n, int p)
+    DGWave(std::size_t n, std::size_t p)
             : HpgemAPIBase(new Base::GlobalData(), new Base::ConfigurationData(DIM, 2, p)), n_(n), p_(p)
     {
     }
@@ -44,7 +42,7 @@ public:
     bool initialise()
     {
         Base::RectangularMeshDescriptor description(DIM);
-        for (int i = 0; i < DIM; ++i)
+        for (std::size_t i = 0; i < DIM; ++i)
         {
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
@@ -70,11 +68,11 @@ public:
     public:
         void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret) override final
         {
-            int numBasisFuns = element->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = element->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
-            for (int i = 0; i < numBasisFuns; ++i)
+            for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
-                for (int j = 0; j <= i; ++j)
+                for (std::size_t j = 0; j <= i; ++j)
                 {
                     ret(i, j) = ret(j, i) = element->basisFunctionDeriv(i, p) * element->basisFunctionDeriv(j, p);
                 }
@@ -87,11 +85,11 @@ public:
     public:
         void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret) override final
         {
-            int numBasisFuns = face->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = face->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
-            for (int i = 0; i < numBasisFuns; ++i)
+            for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
-                for (int j = 0; j < numBasisFuns; ++j)
+                for (std::size_t j = 0; j < numBasisFuns; ++j)
                 { //the basis functions belonging to internal parameters are 0 on the free surface anyway.
                     ret(i, j) = face->basisFunction(i, p) * face->basisFunction(j, p);
                 }
@@ -129,7 +127,7 @@ public:
             ret.resize(2 * element->getNrOfBasisFunctions());
             LinearAlgebra::NumericalVector data;
             initialConditions(pPhys, data);
-            for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
+            for (std::size_t i = 0; i < element->getNrOfBasisFunctions(); ++i)
             {
                 ret(i) = element->basisFunction(i, p) * data[0];
                 ret(i + element->getNrOfBasisFunctions()) = element->basisFunction(i, p) * data[1];
@@ -171,7 +169,7 @@ public:
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
             {
                 dummySolution[0] = 0;
-                for (int i = 0; i < face->getNrOfBasisFunctions(); ++i)
+                for (std::size_t i = 0; i < face->getNrOfBasisFunctions(); ++i)
                 {
                     dummySolution[0] += face->basisFunction(i, p) * expansioncoefficients(i);
                 }
@@ -191,7 +189,7 @@ public:
             ret.resize(1);
             LinearAlgebra::NumericalVector gradPhi(DIM), temp(DIM);
             const LinearAlgebra::NumericalVector& expansioncoefficients = element->getTimeLevelData(0, 1);
-            for (int i = 0; i < numBasisFuns; ++i)
+            for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
                 temp = element->basisFunctionDeriv(i, p);
                 temp *= expansioncoefficients(i);
@@ -231,7 +229,7 @@ public:
             else
             {
                 result.resize(face->getNrOfBasisFunctions(), face->getNrOfBasisFunctions());
-                for (int i = 0; i < result.size(); ++i)
+                for (std::size_t i = 0; i < result.size(); ++i)
                 {
                     result[i] = 0;
                 }
@@ -332,8 +330,8 @@ public:
         eta.constructFromTimeLevelData(0, 0);
         phi.constructFromTimeLevelData(0, 1);
         
-        int numberOfSnapshots(65); //placeholder parameters
-        int numberOfTimeSteps(n_ / 8);
+        std::size_t numberOfSnapshots(65); //placeholder parameters
+        std::size_t numberOfTimeSteps(n_ / 8);
         
         MatGetSubMatrix(M, isSurface, isSurface, MAT_INITIAL_MATRIX, &surfaceMass);
         MatGetSubMatrix(S, isRest, isRest, MAT_INITIAL_MATRIX, &interiorStifness);
@@ -375,12 +373,12 @@ public:
         phi.writeTimeLevelData(0, 1);
         
         writeFunc.write(meshes_[0], "solution at time 0", false, this);
-        for (int i = 1; i < numberOfSnapshots; ++i)
+        for (std::size_t i = 1; i < numberOfSnapshots; ++i)
         {
             VecGetSubVector(phi, isSurface, &phiS);
             VecGetSubVector(phi, isRest, &phiOther);
             VecGetSubVector(eta, isSurface, &etaActually);
-            for (int j = 0; j < numberOfTimeSteps; ++j)
+            for (std::size_t j = 0; j < numberOfTimeSteps; ++j)
             {
                 t += dt;
                 VecAXPY(phiS, -g * dt / 2, etaActually); //(can in principle be combined with final step, but this makes output easier)
@@ -417,10 +415,10 @@ public:
 private:
     
     //number of elements per cardinal direction
-    int n_;
+    std::size_t n_;
 
     //polynomial order of the approximation
-    int p_;
+    std::size_t p_;
     static double t;
 };
 

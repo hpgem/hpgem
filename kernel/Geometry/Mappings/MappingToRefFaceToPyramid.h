@@ -37,10 +37,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefFaceToPyramid0(const MappingToRefFaceToPyramid0&) = delete;
+        MappingToRefFaceToPyramid0& operator=(const MappingToRefFaceToPyramid0&) = delete;
     private:
         MappingToRefFaceToPyramid0();
-        MappingToRefFaceToPyramid0(const MappingToRefFaceToPyramid0&);
-        MappingToRefFaceToPyramid0& operator=(const MappingToRefFaceToPyramid0&);
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -55,10 +55,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefFaceToPyramid1(const MappingToRefFaceToPyramid1&) = delete;
+        MappingToRefFaceToPyramid1& operator=(const MappingToRefFaceToPyramid1&) = delete;
     private:
         MappingToRefFaceToPyramid1();
-        MappingToRefFaceToPyramid1(const MappingToRefFaceToPyramid1&);
-        MappingToRefFaceToPyramid1& operator=(const MappingToRefFaceToPyramid1&);
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -73,10 +73,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefFaceToPyramid2(const MappingToRefFaceToPyramid2&) = delete;
+        MappingToRefFaceToPyramid1& operator=(const MappingToRefFaceToPyramid2&) = delete;
     private:
         MappingToRefFaceToPyramid2();
-        MappingToRefFaceToPyramid2(const MappingToRefFaceToPyramid2&);
-        MappingToRefFaceToPyramid1& operator=(const MappingToRefFaceToPyramid2&);
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -91,10 +91,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefFaceToPyramid3(const MappingToRefFaceToPyramid3&) = delete;
+        MappingToRefFaceToPyramid3& operator=(const MappingToRefFaceToPyramid3&) = delete;
     private:
         MappingToRefFaceToPyramid3();
-        MappingToRefFaceToPyramid3(const MappingToRefFaceToPyramid3&);
-        MappingToRefFaceToPyramid3& operator=(const MappingToRefFaceToPyramid3&);
     };
     
     // ~~~ index 4 ~~~==============================================================================
@@ -109,10 +109,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefFaceToPyramid4(const MappingToRefFaceToPyramid4&) = delete;
+        MappingToRefFaceToPyramid4& operator=(const MappingToRefFaceToPyramid4&) = delete;
     private:
         MappingToRefFaceToPyramid4();
-        MappingToRefFaceToPyramid4(const MappingToRefFaceToPyramid4&);
-        MappingToRefFaceToPyramid4& operator=(const MappingToRefFaceToPyramid4&);
     };
 
 }

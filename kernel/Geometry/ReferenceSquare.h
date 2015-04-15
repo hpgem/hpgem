@@ -96,7 +96,6 @@ namespace Geometry
         {
             return 4;
         }
-        ;
 
         std::vector<std::size_t> getCodim2EntityLocalIndices(const std::size_t vertex) const override final
         {

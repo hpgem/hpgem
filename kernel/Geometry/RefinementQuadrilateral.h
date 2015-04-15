@@ -49,6 +49,8 @@ namespace Geometry
             std::cout << "RefinementQuadrilateral(referenceGeometry, physicalGeometry)\n";
         }
         
+        //Note: shallow copy, since the RefinementQuadrilateral is not the owner of 
+        //its PhysicalGeometry and ReferenceGeometry.
         RefinementQuadrilateral(const RefinementQuadrilateral& other)
                 : RefinementGeometry(other), physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
         {

@@ -55,7 +55,7 @@ int main()
     
     Geometry::Jacobian jac(0, 0);
     
-    std::vector<int> nodesAfterTransformation(1);
+    std::vector<std::size_t> nodesAfterTransformation(1);
     
     Geometry::ConcatenatedMapping* test = new Geometry::ConcatenatedMapping(Geometry::MappingToRefPointToPoint::Instance(), Geometry::MappingToRefPointToPoint::Instance());
     nodesAfterTransformation[0] = 0;

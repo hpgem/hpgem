@@ -48,8 +48,6 @@ namespace Base
         nrOfBasisFunctions_ = other.nrOfBasisFunctions_;
         
         expansionCoefficients_ = other.expansionCoefficients_;
-        residue_ = other.residue_;
-        currentData_ = other.currentData_;
         
         //note: shallow copy
         userData_ = other.userData_;
@@ -59,7 +57,7 @@ namespace Base
     }
 
     
-    void ElementData::setElementMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID)
+    void ElementData::setElementMatrix(const LinearAlgebra::Matrix &matrix, std::size_t matrixID)
     {
         logger(VERBOSE, "In ElementData::setElementMatrix:");
         logger(VERBOSE, "matrix ID = %", matrixID);
@@ -142,6 +140,7 @@ namespace Base
 
     void ElementData::setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::NumericalVector& val)
     {
+        logger.assert(val.size() == nrOfBasisFunctions_, "data vector has the wrong size");
         logger.assert((timeLevel < timeLevels_ && unknown < nrOfUnknowns_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
         if(expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
         {
@@ -156,13 +155,13 @@ namespace Base
 
     void ElementData::setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::NumericalVector& val)
     {
+        logger.assert(val.size() == nrOfBasisFunctions_, "data vector has the wrong size");
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
         setTimeLevelData(timeLevel, 0, val);
     }
 
     /// \param[in] timeLevel Index corresponding to the time level.
     /// \param[in] unknown Index corresponding to the variable.
-
     const LinearAlgebra::NumericalVector
     ElementData::getTimeLevelData(std::size_t timeLevel, std::size_t unknown) const
     {
@@ -175,41 +174,12 @@ namespace Base
         }
         return timeLevelData;
     }
-
-    /**
-     * \details This method returns the TimeLevelData present in this Element for 
-     * the given timeLevel in the form of a matrix. If the data does not exist yet 
-     * (or better said, is of dimension 0), it will be initialised with the proper
-     * dimension.
-     
-     \param[in] timeLevel Index corresponding to the time level.
-     \return A matrix M such that M(iV,iB) is the expansion coefficient corresponding 
-     * to variable iV and basisfunction iB at the given time level.
-     */
-    LinearAlgebra::Matrix ElementData::getTimeLevelDataMatrix(std::size_t timeLevel)
-    {
-        logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
-        // The vector can be of dimension 0 if it hasn't been used before, 
-        // therefore it must be resized first.
-        if(expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
-        {
-            expansionCoefficients_[timeLevel].resize(nrOfUnknowns_ * nrOfBasisFunctions_);
-        }
-        LinearAlgebra::Matrix M(nrOfUnknowns_, nrOfBasisFunctions_);
-        for(std::size_t iV = 0; iV < nrOfUnknowns_; iV++) // iV = iVariable
-        {
-            for(std::size_t iB = 0; iB < nrOfBasisFunctions_; iB++) // iB = iBasisFunction
-            {
-                M(iV, iB) = expansionCoefficients_[timeLevel](convertToSingleIndex(iB, iV));
-            }
-        }
-        return M;
-    }
     
     /// \param[in] timeLevel Index corresponding to the time level.
     /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.
     void ElementData::setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::NumericalVector &val)
     {
+        logger.assert(val.size() == nrOfBasisFunctions_ * nrOfUnknowns_, "data vector has the wrong size");
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there"
                       " are only % time levels", timeLevel, timeLevels_);
         // The vector can be of dimension 0 if it hasn't been used before, 
@@ -242,35 +212,9 @@ namespace Base
         return expansionCoefficients_[timeLevel];
     }
     
-    void ElementData::setCurrentData(const LinearAlgebra::NumericalVector& data)
-    {
-        currentData_ = data;
-    }
-    
-    LinearAlgebra::NumericalVector& ElementData::getCurrentData()
-    {
-        // The vector can be of dimension 0 if it hasn't been used before, 
-        // therefore it must be resized first.
-        if (currentData_.size() != nrOfBasisFunctions_)
-        {
-            currentData_.resize(nrOfBasisFunctions_);
-        }
-        return currentData_;
-    }
-    
     std::size_t ElementData::getNrOfUnknows() const
     {
         return nrOfUnknowns_;
-    }
-    
-    void ElementData::setResidue(LinearAlgebra::NumericalVector& residue)
-    {
-        residue_ = residue;
-    }
-    
-    const typename LinearAlgebra::NumericalVector& ElementData::getResidue() const
-    {
-        return residue_;
     }
     
     void ElementData::setUserData(UserElementData* data)

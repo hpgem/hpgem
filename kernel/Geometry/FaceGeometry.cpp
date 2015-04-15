@@ -186,7 +186,7 @@ namespace Geometry
             //the vector should have length one
             
             Jacobian j = leftElementGeom_->calcJacobian(pRefElement);
-            std::size_t sgn = (j[0] > 0) ? 1 : -1;
+            int sgn = (j[0] > 0) ? 1 : -1;
             result.resize(DIM);
             result[0] = pRefElement[0] * sgn;
         }

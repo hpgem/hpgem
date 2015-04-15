@@ -38,9 +38,8 @@ namespace Base
 
     public:
         
-        MeshMoverBase()
-        {
-        }
+        MeshMoverBase() = default;
+        MeshMoverBase(const MeshMoverBase &other) = default;
         
         virtual ~MeshMoverBase()
         {

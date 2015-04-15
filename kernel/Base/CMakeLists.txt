@@ -35,11 +35,9 @@ add_library(hpGEM_Base STATIC
 		HpgemAPILinear.cpp
 		HpgemAPILinearSteadyState.cpp
 		HpgemAPISimplified.cpp
-                HpgemUISimplified.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp
                 Mesh.cpp
-                ProblemDescriptorTimeDependent.cpp
                 Submesh.cpp
         	${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp

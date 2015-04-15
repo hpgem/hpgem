@@ -38,10 +38,10 @@ namespace Geometry
         {
             return 4;
         }
+        MappingToRefCubeToHypercube0(const MappingToRefCubeToHypercube0&) = delete;
+        MappingToRefCubeToHypercube0& operator=(const MappingToRefCubeToHypercube0&) = delete;
     private:
         MappingToRefCubeToHypercube0();
-        MappingToRefCubeToHypercube0(const MappingToRefCubeToHypercube0&);
-        MappingToRefCubeToHypercube0& operator=(const MappingToRefCubeToHypercube0&);
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -56,10 +56,10 @@ namespace Geometry
         {
             return 4;
         }
+        MappingToRefCubeToHypercube1(const MappingToRefCubeToHypercube1&) = delete;
+        MappingToRefCubeToHypercube1& operator=(const MappingToRefCubeToHypercube1&) = delete;
     private:
         MappingToRefCubeToHypercube1();
-        MappingToRefCubeToHypercube1(const MappingToRefCubeToHypercube1&);
-        MappingToRefCubeToHypercube1& operator=(const MappingToRefCubeToHypercube1&);
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -74,10 +74,10 @@ namespace Geometry
         {
             return 4;
         }
+        MappingToRefCubeToHypercube2(const MappingToRefCubeToHypercube2&) = delete;
+        MappingToRefCubeToHypercube1& operator=(const MappingToRefCubeToHypercube2&) = delete;
     private:
         MappingToRefCubeToHypercube2();
-        MappingToRefCubeToHypercube2(const MappingToRefCubeToHypercube2&);
-        MappingToRefCubeToHypercube1& operator=(const MappingToRefCubeToHypercube2&);
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -92,10 +92,10 @@ namespace Geometry
         {
             return 4;
         }
+        MappingToRefCubeToHypercube3(const MappingToRefCubeToHypercube3&) = delete;
+        MappingToRefCubeToHypercube3& operator=(const MappingToRefCubeToHypercube3&) = delete;
     private:
         MappingToRefCubeToHypercube3();
-        MappingToRefCubeToHypercube3(const MappingToRefCubeToHypercube3&);
-        MappingToRefCubeToHypercube3& operator=(const MappingToRefCubeToHypercube3&);
     };
     
     // ~~~ index 4 ~~~==============================================================================
@@ -110,10 +110,10 @@ namespace Geometry
         {
             return 4;
         }
+        MappingToRefCubeToHypercube4(const MappingToRefCubeToHypercube4&) = delete;
+        MappingToRefCubeToHypercube4& operator=(const MappingToRefCubeToHypercube4&) = delete;
     private:
         MappingToRefCubeToHypercube4();
-        MappingToRefCubeToHypercube4(const MappingToRefCubeToHypercube4&);
-        MappingToRefCubeToHypercube4& operator=(const MappingToRefCubeToHypercube4&);
     };
     
     // ~~~ index 5 ~~~==============================================================================
@@ -128,10 +128,10 @@ namespace Geometry
         {
             return 4;
         }
+        MappingToRefCubeToHypercube5(const MappingToRefCubeToHypercube5&) = delete;
+        MappingToRefCubeToHypercube5& operator=(const MappingToRefCubeToHypercube5&) = delete;
     private:
         MappingToRefCubeToHypercube5();
-        MappingToRefCubeToHypercube5(const MappingToRefCubeToHypercube5&);
-        MappingToRefCubeToHypercube5& operator=(const MappingToRefCubeToHypercube5&);
     };
     
     // ~~~ index 6 ~~~==============================================================================
@@ -146,10 +146,10 @@ namespace Geometry
         {
             return 4;
         }
+        MappingToRefCubeToHypercube6(const MappingToRefCubeToHypercube6&) = delete;
+        MappingToRefCubeToHypercube6& operator=(const MappingToRefCubeToHypercube6&) = delete;
     private:
         MappingToRefCubeToHypercube6();
-        MappingToRefCubeToHypercube6(const MappingToRefCubeToHypercube6&);
-        MappingToRefCubeToHypercube6& operator=(const MappingToRefCubeToHypercube6&);
     };
     
     // ~~~ index 7 ~~~==============================================================================
@@ -164,10 +164,10 @@ namespace Geometry
         {
             return 4;
         }
+        MappingToRefCubeToHypercube7(const MappingToRefCubeToHypercube7&) = delete;
+        MappingToRefCubeToHypercube7& operator=(const MappingToRefCubeToHypercube7&) = delete;
     private:
         MappingToRefCubeToHypercube7();
-        MappingToRefCubeToHypercube7(const MappingToRefCubeToHypercube7&);
-        MappingToRefCubeToHypercube7& operator=(const MappingToRefCubeToHypercube7&);
     };
 }
 #endif

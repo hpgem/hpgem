@@ -1,4 +1,4 @@
-include_directories(. ${hpGEM_SOURCE_DIR}/kernel/ ${PETSC_INCLUDES} ${SLEPC_INCLUDE_DIRS} ${hpGEM_SOURCE_DIR})
+#include_directories(. ${hpGEM_SOURCE_DIR}/kernel/ ${PETSC_INCLUDES} ${SLEPC_INCLUDE_DIRS} #${hpGEM_SOURCE_DIR})
 
 
 #First declare the rules that will form the executable tests#

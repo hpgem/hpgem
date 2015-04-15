@@ -148,7 +148,7 @@
 enum class Log
     : signed char
     {   
-        FATAL = -20, ERROR = -15, WARN = -10, INFO = -5, DEFAULT = 0, VERBOSE = 5, DEBUG = 10,
+        FATAL = -20, ERROR = -15, WARN = -10, INFO = -5, DEFAULT = 0, VERBOSE = 5, DEBUG = 10
 };
 
 /*!
@@ -345,10 +345,10 @@ public:
      */
     template<Log LOGLEVEL, typename ... Args>
     typename std::enable_if<!((L < LOGLEVEL) && (HPGEM_LOGLEVEL < LOGLEVEL)), void>::type
-    operator()(const LL<LOGLEVEL> log, const std::string& format, Args&&... arg)
+    operator()(const LL<LOGLEVEL> log, const char* format, Args&&... arg)
     {   
         std::stringstream msgstream;
-        createMessage(msgstream, format.c_str(), arg...);
+        createMessage(msgstream, format, arg...);
         if (LOGLEVEL <= Log::FATAL)
         {   
             loggerOutput->onFatal(module, msgstream.str());
@@ -377,10 +377,18 @@ public:
 
     template<Log LOGLEVEL, typename... Args>
     typename std::enable_if<L < LOGLEVEL && HPGEM_LOGLEVEL < LOGLEVEL, void>::type
-    operator()(const LL<LOGLEVEL> log, const std::string& format, Args&&... arg)
+    operator()(const LL<LOGLEVEL> log, const char* format, Args&&... arg)
     {   
 
     }
+
+    //std::string is sometimes convenient, but always slow, so where possible, don't convert the const char* to a string before converting it back
+    template<Log LOGLEVEL, typename... Args>
+    void operator()(const LL<LOGLEVEL> log, std::string& format, Args&&... arg)
+    {
+        (*this)(log, format.c_str(), arg...);
+    }
+
 
     /*
      *

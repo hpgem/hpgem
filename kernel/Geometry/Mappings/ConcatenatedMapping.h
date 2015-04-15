@@ -51,6 +51,8 @@ namespace Geometry
         {
         }
         
+        ConcatenatedMapping(const ConcatenatedMapping &other) = default;
+                
         //! Transformation is simply via the intermediate space.
         PointReference transform(const PointReference& pIn) const override final;
 

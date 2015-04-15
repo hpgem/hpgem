@@ -53,7 +53,7 @@ namespace Base
         /// \brief Defines the operator (i,j) such that a reference to data (i,j) from the face matrix will be returned.
         double& operator()(std::size_t i, std::size_t j);
 
-        /// \Sets the face matrix equal to another face matrix.
+        /// \brief Sets the face matrix equal to another face matrix.
         FaceMatrix& operator=(const FaceMatrix &other);
 
         /// \brief Adds another face matrix to this face matrix.
@@ -64,7 +64,7 @@ namespace Base
 
         // Other member functions
         /// \brief Gets the number of degrees of freedom (usually the amount of (vector)-basis functions) corresponding to the element at side iSide.
-        const std::size_t getNrOfDegreesOfFreedom(Side iSide) const
+        std::size_t getNrOfDegreesOfFreedom(Side iSide) const
         {
             if (iSide == Side::LEFT)
                 return M_LeftLeft_.getNRows();
@@ -98,6 +98,5 @@ namespace Base
         LinearAlgebra::Matrix M_RightRight_;
     };
 }
-;
 #endif
 

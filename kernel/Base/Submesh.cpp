@@ -30,15 +30,6 @@
 
 namespace Base
 {
-    Submesh::Submesh()
-    {
-    }
-    
-    Submesh::Submesh(const Submesh& orig)
-            : elements_(orig.elements_), faces_(orig.faces_), edges_(orig.edges_), nodes_(orig.nodes_), pullElements_(orig.pullElements_), pushElements_(orig.pushElements_)
-    {
-    }
-    
     void Submesh::add(Element* element)
     {
         logger.assert(element!=nullptr, "Invalid element passed");

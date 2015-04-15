@@ -39,6 +39,9 @@ namespace Base
                 : Normal(DIM)
         {
         }
+        
+        FaceCacheData(const FaceCacheData &other) = default;
+        
         // cache data
         LinearAlgebra::NumericalVector Normal;
         double L2Normal;

@@ -40,6 +40,9 @@ namespace Base
                 : BasisFunctionSet(order), orientation_(orientation), face_(face)
         {
         }
+        
+        //BasisFunctionSets should not be copied, therefore the copy constructor is deleted.
+        OrientedBasisFunctionSet(const OrientedBasisFunctionSet& other) = delete;
 
         bool checkOrientation(std::size_t codim0mapIndex, std::size_t faceIndex) const
         {

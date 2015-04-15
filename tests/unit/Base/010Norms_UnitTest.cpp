@@ -32,7 +32,7 @@
 int main()
 {
     
-    double test0[0], test1[1], test2[2], test3[3];
+    double *test0(nullptr), test1[1], test2[2], test3[3];
     
     LinearAlgebra::NumericalVector vec0D(test0, 0);
     Geometry::PointPhysical point0D(vec0D);

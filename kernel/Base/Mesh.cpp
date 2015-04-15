@@ -50,7 +50,7 @@ namespace Base
     }
     
     Mesh::Mesh(const Mesh& orig)
-            : hasToSplit_(orig.hasToSplit_), localProcessorID_(orig.localProcessorID_),
+            : hasToSplit_(true), localProcessorID_(orig.localProcessorID_),
         elementCounter_(0), faceCounter_(0), edgeCounter_(0), nodeCounter_(0), 
         points_(orig.points_)
     {
@@ -436,14 +436,14 @@ namespace Base
         }
     }
     
-    const std::vector<Geometry::PointPhysical>& Mesh::getNodes() const
+    const std::vector<Geometry::PointPhysical>& Mesh::getNodeCoordinates() const
     {
         //for historic reasons points_ is referenced directly during element 
         //creation and therefore cannot be distributed
         return points_;
     }
     
-    std::vector<Geometry::PointPhysical>& Mesh::getNodes()
+    std::vector<Geometry::PointPhysical>& Mesh::getNodeCoordinates()
     {
         //for historic reasons points_ is referenced directly during element 
         //creation and therefore cannot be distributed

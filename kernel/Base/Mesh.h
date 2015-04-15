@@ -53,8 +53,9 @@ namespace Base
     {
     public:
         Mesh();
-        ///\todo Make this copy constructor make a new mesh.
+        
         Mesh(const Mesh& orig);
+        
         ~Mesh();
 
         Element* addElement(const std::vector<std::size_t>& globalNodeIndexes);
@@ -91,7 +92,7 @@ namespace Base
         
         std::size_t getNumberOfNodes() const
         {
-            return getNodes().size();
+            return getNodeCoordinates().size();
         }
         
         //! Get const list of elements
@@ -110,8 +111,8 @@ namespace Base
         const std::vector<Node*>& getVerticesList(IteratorType part = IteratorType::LOCAL) const;
         std::vector<Node*>& getVerticesList(IteratorType part = IteratorType::LOCAL);
 
-        const std::vector<Geometry::PointPhysical>& getNodes() const;
-        std::vector<Geometry::PointPhysical>& getNodes();
+        const std::vector<Geometry::PointPhysical>& getNodeCoordinates() const;
+        std::vector<Geometry::PointPhysical>& getNodeCoordinates();
 
         //********************************************************************************
         

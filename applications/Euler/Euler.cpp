@@ -6,6 +6,7 @@
  */
 
 #include "Euler.h"
+#include <iomanip>
 #include <cmath>
 
 Euler::Euler
@@ -21,12 +22,12 @@ numOfVariables_(numOfVariables)
 {
 }
 
-
+/// \brief General mesh description
 Base::RectangularMeshDescriptor Euler::createMeshDescription(const std::size_t numOfElementPerDirection)
 {
     // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
     Base::RectangularMeshDescriptor description(DIM_);
-    for (int i = 0; i < DIM_; ++i)
+    for (std::size_t i = 0; i < DIM_; ++i)
     {
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
@@ -42,11 +43,23 @@ LinearAlgebra::NumericalVector Euler::getInitialSolution(const PointPhysicalT &p
 {
 	LinearAlgebra::NumericalVector initialSolution(numOfVariables_);
 
-	//density and energy density:
-	initialSolution(0) = 2.0 + 0.1*std::sin(M_PI*pPhys[0])*std::sin(M_PI*pPhys[1]);
-	initialSolution(1) = 0.0;
-	initialSolution(2) = 0.0;
-	initialSolution(DIM_+1) = 20.0;
+	double amplitude = 0.2;
+	double frequency = 2.0*M_PI;
+	double function = amplitude*std::cos(frequency*startTime);
+
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		function *= std::cos(frequency*pPhys[iD]);
+	}
+
+	initialSolution(0) = 1.5 + function;
+
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		initialSolution(iD+1) = function;
+	}
+
+	initialSolution(DIM_ + 1) = 30.0 + function;
 
     return initialSolution;
 }
@@ -55,110 +68,197 @@ LinearAlgebra::NumericalVector Euler::getInitialSolution(const PointPhysicalT &p
 /// ***   Element integration functions   ***
 /// *****************************************
 
-LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients)
+///  \brief computes the initial solution at an element
+LinearAlgebra::NumericalVector Euler::computeSolutionAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef)
 {
-//Select the correct integrand with respect to the dimension
-	switch (DIM_)
-	{
-	case 1:
-		logger(ERROR, "ERROR: 3D not implemented yet.");
-		return integrandRightHandSideOnRefElement2D(ptrElement, time, pRef, solutionCoefficients);
-		break;
-	case 2:
-		return integrandRightHandSideOnRefElement2D(ptrElement, time, pRef, solutionCoefficients);
-		break;
-	case 3:
-		logger(ERROR, "ERROR: 3D not implemented yet.");
-		return integrandRightHandSideOnRefElement2D(ptrElement, time, pRef, solutionCoefficients);
-		break;
-	default:
-		logger(ERROR, "ERROR: dimension of the problem is not correctly chosen. Dimension is reset to 2D.");
-		return integrandRightHandSideOnRefElement2D(ptrElement, time, pRef, solutionCoefficients);
-	}
-}
+		std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
+		LinearAlgebra::NumericalVector elementSolution(numOfVariables_);
+		std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
-LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement1D(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients)
-{
-	// Get the number of basis functions in an element.
-	std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
-
-	//Create data structures for calculating the integrand
-	LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfBasisFunctions); //The final integrand value will be stored in this vector
-
-	//todo: Create this function
-    return integrand;
-
-	//Questions: is integrand defined as a zero function on initialisation?
-
-}
-
-LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement2D(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients)
-{
-	//This function should work for all dimensions.
-	// Get the number of basis functions in an element.
-	std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
-
-	//Create data structures for calculating the integrand
-	LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfBasisFunctions); //The final integrand value will be stored in this vector
-	LinearAlgebra::NumericalVector qReconstructed(numOfVariables_); //The reconstructed solution values are stored here for every variable (u = sum_i u_i*phi_i)
-	LinearAlgebra::NumericalVector gradientBasisFunction(DIM_); //Gradient function based on the number of dimensions
-	double pressureTerm;
-	double enthalpyTerm;
-
-	//Create temporary result values
-	double reconstruction; // Used to iteratively construct the Solution reconstruction
-	double integrandTerm;
-
-	//Create iteration values
-	std::size_t iVB; // Index in solutioncoefficients for variable i and basisfunction j
-
-	//Compute the reconstruction of the solution
-	// 0 --> q1
-	// 1 --> q2
-	// 2 --> q3
-	// 3 --> q4
-	for(std::size_t iV = 0; iV < numOfVariables_; iV++)
-	{
-		reconstruction = 0;
-		for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+		for(std::size_t iV = 0; iV < numOfVariables_; iV++)
 		{
-			iVB = ptrElement->convertToSingleIndex(iB,iV);
-			reconstruction += solutionCoefficients(iVB)*ptrElement->basisFunction(iB, pRef);
+			elementSolution(iV) = 0.0;
+			for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+			{
+				iVB = ptrElement->convertToSingleIndex(iB,iV);
+				elementSolution(iV) += solutionCoefficients(iVB)*ptrElement->basisFunction(iB, pRef); //basisFunction returns physical value
+			}
 		}
 
-		qReconstructed(iV) = reconstruction; // q are the reconstructed variables.
+		return elementSolution;
+}
+
+/// \brief computes the source at an element
+LinearAlgebra::NumericalVector Euler::integrandSourceAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector qSolution, const double pressureTerm, const double &time, const Geometry::PointReference &pRef)
+{
+	std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+	std::size_t iVB;
+
+	LinearAlgebra::NumericalVector integrandSource(numOfVariables_ * numOfBasisFunctions);
+
+	//Convert pRef to pPhys
+	Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+
+
+	//*********************************************************
+	//***	Calculate derivative terms for source function	***
+	//*********************************************************
+
+	//Calculate base source functions: S_t, S_x, S_y, S_z, see manual
+	double amplitude = 0.2;
+	double frequency = 2.0*M_PI;
+	LinearAlgebra::NumericalVector sourceValue(DIM_ + 1);
+
+	//Add the time-dependent part of the function
+	sourceValue(0) = -amplitude*frequency*std::sin(frequency*time);
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		sourceValue(iD + 1) = -amplitude*frequency*std::cos(frequency*time);
 	}
+
+	//Add the space-dependent part of the function
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		sourceValue(0) *= std::cos(frequency*pPhys[iD]);
+		sourceValue(iD+1) *= std::sin(frequency*pPhys[iD]);
+	}
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		for (std::size_t iD2 = 0; iD2 < DIM_; iD2++)
+		{
+			if (iD != iD2)
+			{
+				sourceValue(iD+1) *= cos(frequency*pPhys[iD2]);
+			}
+		}
+	}
+
+	//*****************************************************
+	//***	Calculate values for various source terms	***
+	//*****************************************************
+
+	double q1Inverse = 1.0/qSolution(0);
+
+	//Calculate Source term values: momentum convection
+	LinearAlgebra::Matrix sourceConvection(DIM_,DIM_); // d(rho*u^2)/dx or d(rho*v^2)/dy or d(rho*w^2)/dz on the diagonal and terms like d(rho*u*v)/dx and d(rho*w*u)/dz	on the off-diagonal
+
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		sourceConvection(iD,iD) = (2.0*qSolution(iD+1) - qSolution(iD+1)*qSolution(iD+1)*q1Inverse)*sourceValue(iD+1)*q1Inverse; // d(rho*u^2)/dx or d(rho*v^2)/dy or d(rho*w^2)/dz
+	}
+	//off diagonal convection
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		for (std::size_t iD2 = 0; iD2 < DIM_; iD2++)
+		{
+			if (iD!=iD2)
+			{
+				sourceConvection(iD,iD2) = (qSolution(iD+1) + qSolution(iD2+1) - qSolution(iD+1)*qSolution(iD2+1)*q1Inverse)*sourceValue(iD2)*q1Inverse; // terms like d(rho*u*v)/dx and d(rho*w*u)/dz
+			}
+		}
+	}
+
+	//Calculate Source term values: pressure
+	LinearAlgebra::NumericalVector sourcePressure(DIM_); // dp/dx or dp/dy or dp/dz;
+	double kineticPressure = 0.0; // This is the kinetic part of the pressure term;
+
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		kineticPressure += (-qSolution(iD+1) + 0.5*qSolution(iD+1)*qSolution(iD+1)*q1Inverse)*q1Inverse;// part 1 of calculation
+	}
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		sourcePressure(iD) = (gamma_ -1)*(1 + kineticPressure)*sourceValue(iD+1); // dp/dx or dp/dy or dp/dz
+	}
+
+	//Calculate Source term values: Enthalpy convection
+	LinearAlgebra::NumericalVector sourceEnthalpy(DIM_);
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		sourceEnthalpy(iD) = (qSolution(iD+1) + qSolution(DIM_+1) - qSolution(iD+1)*qSolution(DIM_+1)*q1Inverse + pressureTerm - qSolution(iD+1)*pressureTerm*q1Inverse)*sourceValue(iD+1)*q1Inverse + qSolution(iD+1)*q1Inverse*sourcePressure(iD); // d(rho*u*h)/dx or d(rho*v*h)/dy or d(rho*w*h)/dz
+	}
+
+	//*************************************************************************
+	//***	Calculate the complete source functions used for integration	***
+	//*************************************************************************
+	double sDensity;
+	LinearAlgebra::NumericalVector sMomentum(DIM_);
+	double sEnergy;
+
+	// Add time derivative term
+	sDensity = sourceValue(0);
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		sMomentum(iD) = sourceValue(0);
+	}
+	sEnergy = sourceValue(0);
+
+	// Add space terms
+	for (std::size_t iD = 0; iD < DIM_ ; iD++)
+	{
+		sDensity += sourceValue(iD+1);
+		for (std::size_t iD2 = 0; iD2 < DIM_; iD2++)
+		{
+			sMomentum(iD) += sourceConvection(iD,iD2);
+		}
+		sMomentum(iD) += sourcePressure(iD);
+		sEnergy += sourceEnthalpy(iD);
+	}
+
+	//*********************************************************
+	//*** Calculate the integrand of the Source integral	***
+	//*********************************************************
+
+	for(std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+	{
+		// Density
+		iVB = ptrElement->convertToSingleIndex(iB,0);
+		integrandSource(iVB) = sDensity*ptrElement->basisFunction(iB, pRef);
+
+		// Momentum
+		for (std::size_t iD = 0; iD < DIM_; iD++)
+		{
+			iVB = ptrElement->convertToSingleIndex(iB,iD+1);
+			integrandSource(iVB) = sMomentum(iD)*ptrElement->basisFunction(iB, pRef);
+		}
+
+		// Energy
+		iVB = ptrElement->convertToSingleIndex(iB,2);
+		integrandSource(iVB) = sEnergy*ptrElement->basisFunction(iB, pRef);
+	}
+
+	return integrandSource;
+}
+
+// /todo: remove ref from function
+LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients)
+{
+	// Get the number of basis functions in an element.
+	std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
+
+	//Create data structures for calculating the integrand
+	LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfBasisFunctions); //The final integrand value will be stored in this vector
+	LinearAlgebra::NumericalVector qSolution = computeSolutionAtElement(ptrElement, solutionCoefficients, pRef);
+	LinearAlgebra::NumericalVector gradientBasisFunction(DIM_); //Gradient function based on the number of dimensions
+
+	//Create temporary result values
+	double integrandTerm = 0.0;
+	double pressureTerm = 0.0;
+
+	//Create iteration values
+	std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
 	//Compute pressure term
-	double q1Inverse = 1.0/qReconstructed(0);
-	// ******** IMPORTANT ************* pressure is only defined for 2d here.
-	pressureTerm = (gamma_ -1)*(qReconstructed(3) - 0.5*q1Inverse*(qReconstructed(1)*qReconstructed(1) + qReconstructed(2)*qReconstructed(2))); // (gamma-1)*rho*(e- (u^2 + v^2)/2)
-
-	if(pressureTerm < 0.0)
+	double q1Inverse = 1.0/qSolution(0);
+	for(std::size_t iD = 0; iD < DIM_; iD++)
 	{
-		std::cout << "Element number: " << ptrElement->getID() << std::endl;
-		std::cout << "Time: " << time << std::endl;
-		std::cout << "density: " << qReconstructed(0) << std::endl;
-		std::cout << "momentum x-direction: " << qReconstructed(1) << std::endl;
-		std::cout << "momentum y-direction: " << qReconstructed(2) << std::endl;
-		std::cout << "density times energy: " << qReconstructed(3) << std::endl;
-		std::cout << "Pressure: " << pressureTerm << std::endl;
-		logger(ERROR,"ERROR: Negative pressure");
+		pressureTerm += qSolution(iD+1)*qSolution(iD+1); // (u^2 + v^2 + w^2)*rho^2
 	}
+	pressureTerm = (gamma_ -1)*(qSolution(DIM_+1) - 0.5*q1Inverse*(pressureTerm)); // (gamma-1)*rho*(e- (u^2 + v^2 + w^2)/2)
 
-	if (qReconstructed(0) < 0.0)
-	{
-		std::cout << "Element number: " << ptrElement->getID() << std::endl;
-		std::cout << "Time: " << time << std::endl;
-		std::cout << "density: " << qReconstructed(0) << std::endl;
-		std::cout << "momentum x-direction: " << qReconstructed(1) << std::endl;
-		std::cout << "momentum y-direction: " << qReconstructed(2) << std::endl;
-		std::cout << "density times energy: " << qReconstructed(3) << std::endl;
-		logger(ERROR,"ERROR: Negative density");
-	}
+	logger.assert(pressureTerm > 0, "Negative pressure.");
 
 	// Compute the integrand for all equations
-	//************ THIS FUNCTION IS ONLY DEFINED FOR 2D *****************
 	for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++) // For every basis function
 	{
 		gradientBasisFunction = ptrElement->basisFunctionDeriv(iB, pRef); // Compute the gradient of the ith test function
@@ -167,68 +267,44 @@ LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement2D(const
 		{
 
 			//Calculate convection terms
+			integrandTerm = qSolution(iD+1)*gradientBasisFunction(iD)*q1Inverse; // (u)*d(phi_iB)/dx or (v)*d(phi_iB)/dy
 
-			integrandTerm = qReconstructed(iD+1)*gradientBasisFunction(iD)*q1Inverse; // (rho*u)*d(phi_iB)/dx or (rho*v)*d(phi_iB)/dy
-
-			//q1 integrand
+			//Density integrand
 			iVB = ptrElement->convertToSingleIndex(iB,0);
-			integrand(iVB) += qReconstructed(iD+1)*gradientBasisFunction(iD); // rho*u*d(phi)/dx + rho*v*d(phi)/dy
+			integrand(iVB) += qSolution(iD+1)*gradientBasisFunction(iD);//(iD); // rho*u*d(phi)/dx + rho*v*d(phi)/dy
 
-			//q2 integrand
-			iVB = ptrElement->convertToSingleIndex(iB,1);
-			integrand(iVB) += qReconstructed(1)*integrandTerm; //rho*u*u*d(phi)/dx + rho*u*v*d(phi)/dy
 
-			//Momentum y-direction integrand
-			iVB = ptrElement->convertToSingleIndex(iB,2);
-			integrand(iVB) += qReconstructed(2)*integrandTerm; //rho*v*u*d(phi)/dx + rho*v*v*d(phi)/dy
+			for (std::size_t jD = 0; jD < DIM_; jD++)
+			{
+				//Momentum integrand
+				iVB = ptrElement->convertToSingleIndex(iB,jD+1);
+				integrand(iVB) += qSolution(jD+1)*integrandTerm; //rho*u*u*d(phi)/dx + rho*u*v*d(phi)/dy
+			}
 
 			//Energy integrand
-			iVB = ptrElement->convertToSingleIndex(iB,3);
-			integrand(iVB) += (qReconstructed(3) + pressureTerm)*integrandTerm;
+			iVB = ptrElement->convertToSingleIndex(iB,DIM_+1);
+			integrand(iVB) += (qSolution(DIM_+1) + pressureTerm)*integrandTerm;
 
 			//Calculate pressure terms in momentum equations
 			iVB = ptrElement->convertToSingleIndex(iB,iD+1);
 			integrand(iVB) += pressureTerm*gradientBasisFunction(iD);
-
 		}
+
 	}
 
+	//Compute source terms
+	LinearAlgebra::NumericalVector integrandSource = integrandSourceAtElement(ptrElement, qSolution, pressureTerm, time, pRef);
 
-
-    // Scale with the reference-to-physical element ratio.
-    Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
-    integrand *= jac.determinant();
-
-   	if (integrand(0) != integrand(0))
-   	{
-   		logger(ERROR,"ERROR: NaN found in element integrand.");
-   	}
-    return integrand;
-
-}
-
-LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement3D(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients)
-{
-	// Get the number of basis functions in an element.
-	std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
-
-	//Create data structures for calculating the integrand
-	LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfBasisFunctions); //The final integrand value will be stored in this vector
-
-	//todo: Create this function
-    return integrand;
-
-	//Questions: is integrand defined as a zero function on initialisation?
+    return integrand + integrandSource;
 
 }
 
 LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
 {
-    //Define the integrand function for the right hand side for the reference element.
-    std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
-    {   return this->integrandRightHandSideOnRefElement(ptrElement, time, pRef, solutionCoefficients);};
+	std::function<LinearAlgebra::NumericalVector(const Base::Element*, const Geometry::PointReference &)> integrandFunction = [&](const Base::Element *El, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+	    {   return this->integrandRightHandSideOnRefElement(El, time, pRef, solutionCoefficients);};
 
-    return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    return elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
 
 }
 
@@ -236,52 +312,41 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 /// ***    face integration functions     ***
 /// *****************************************
 
+	// todo: Write function that computes the qSolution at the interface
+
    //Compute the Roe Riemann Flux function
-   LinearAlgebra::NumericalVector Euler::RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qReconstructionLeft, const LinearAlgebra::NumericalVector &qReconstructionRight, LinearAlgebra::NumericalVector &normal, const Base::Side &iSide)
+   LinearAlgebra::NumericalVector Euler::RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qSolutionLeft, const LinearAlgebra::NumericalVector &qSolutionRight, LinearAlgebra::NumericalVector &normal)
    {
 
+	   // /todo: remove the iSide dependancy.
 	   //Compute correct normal direction and difference vector
-	   LinearAlgebra::NumericalVector qDifference = qReconstructionLeft - qReconstructionRight;
-
-	   //Compute normal unit vector
-	   LinearAlgebra::NumericalVector normalUnit;
-	   normalUnit = normal;//*areaInverse;
+	   LinearAlgebra::NumericalVector normalUnit = normal/Base::L2Norm(normal);
+	   LinearAlgebra::NumericalVector qDifference = qSolutionRight - qSolutionLeft;
 
 	   //Compute the Roe average state
 	   LinearAlgebra::NumericalVector qAverage(DIM_+1);
-	   double zL = std::sqrt(qReconstructionLeft(0));
-	   double zR = std::sqrt(qReconstructionRight(0));
-	   double tmp1 = 1.0/(qReconstructionLeft(0) + zL*zR);
-	   double tmp2 = 1.0/(qReconstructionRight(0) + zL*zR);
+	   double zL = std::sqrt(qSolutionLeft(0));
+	   double zR = std::sqrt(qSolutionRight(0));
+	   double tmp1 = 1.0/(qSolutionLeft(0) + zL*zR);
+	   double tmp2 = 1.0/(qSolutionRight(0) + zL*zR);
 	   double ruSquaredLeft = 0.0;
 	   double ruSquaredRight = 0.0;
-	   double rhoInverseLeft = 1.0/qReconstructionLeft(0);
-	   double rhoInverseRight = 1.0/qReconstructionRight(0);
+	   double rhoInverseLeft = 1.0/qSolutionLeft(0);
+	   double rhoInverseRight = 1.0/qSolutionRight(0);
 	   double pressureLeft;
 	   double pressureRight;
 
 	   for (std::size_t iD = 0; iD < DIM_; iD++)
 	   {
-		   qAverage(iD) = qReconstructionLeft(iD+1)*tmp1 + qReconstructionRight(iD+1)*tmp2; // u_average
-		   ruSquaredLeft += qReconstructionLeft(iD+1)*qReconstructionLeft(iD+1); 	// Kinetic part of pressure term
-		   ruSquaredRight += qReconstructionRight(iD+1)*qReconstructionRight(iD+1);
+		   qAverage(iD) = qSolutionLeft(iD+1)*tmp1 + qSolutionRight(iD+1)*tmp2; // u_average
+		   ruSquaredLeft += qSolutionLeft(iD+1)*qSolutionLeft(iD+1); 	// Kinetic part of pressure term
+		   ruSquaredRight += qSolutionRight(iD+1)*qSolutionRight(iD+1);
 	   }
 
-	   pressureLeft = (gamma_ - 1)*(qReconstructionLeft(DIM_ + 1) - 0.5*ruSquaredLeft*rhoInverseLeft);
-	   pressureRight = (gamma_ - 1)*(qReconstructionRight(DIM_ + 1) - 0.5*ruSquaredRight*rhoInverseRight);
+	   pressureLeft = (gamma_ - 1)*(qSolutionLeft(DIM_ + 1) - 0.5*ruSquaredLeft*rhoInverseLeft);
+	   pressureRight = (gamma_ - 1)*(qSolutionRight(DIM_ + 1) - 0.5*ruSquaredRight*rhoInverseRight);
 
-	    if (pressureLeft < 0.0)
-	    {
-	    	logger(ERROR,"Error: Pressure left is zero");
-	    }
-	    if (pressureRight < 0.0)
-	    {
-	    	std::cout << "Density energy: " << qReconstructionRight(DIM_ + 1) << std::endl;
-	    	std::cout << "kinetic energy: " << ruSquaredRight << std::endl;
-	    	logger(ERROR,"Error: Pressure right is zero");
-	    }
-
-	   qAverage(DIM_) = (qReconstructionLeft(DIM_+1) + pressureLeft)*tmp1 + (qReconstructionRight(DIM_+1) + pressureRight)*tmp2; //H_average
+	   qAverage(DIM_) = (qSolutionLeft(DIM_+1) + pressureLeft)*tmp1 + (qSolutionRight(DIM_+1) + pressureRight)*tmp2; //H_average
 
 	   //Compute useful variables for constructing the flux function
 	   double alphaAvg = 0.0;
@@ -293,18 +358,6 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   }
 	   alphaAvg *= 0.5;
 
-	   if (unAvg != unAvg)
-	   {
-		   std::cout << "unAvg: " << unAvg << std::endl;
-		   std::cout << "qAverage: " << qAverage << std::endl;
-		   std::cout << "Pressure left: " << pressureLeft << std::endl;
-		   std::cout << "Pressure right: " << pressureRight << std::endl;
-		   std::cout << "qReconstructionLeft: " << qReconstructionLeft << std::endl;
-		   std::cout << "qReconstructionRight: " << qReconstructionRight << std::endl;
-		   logger(ERROR,"Error: NaN speed.");
-	   }
-
-
 	   const double a2Avg = std::abs((gamma_ -1)*(qAverage(DIM_) - alphaAvg));
 	   const double aAvg = std::sqrt(a2Avg);
 	   const double ovaAvg = 1.0/aAvg;
@@ -314,9 +367,6 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   double lam1 = std::abs(unAvg + aAvg);
 	   double lam2 = std::abs(unAvg - aAvg);
 	   double lam3 = std::abs(unAvg);
-
-	   //std::cout << "unAvg: " << unAvg << std::endl;
-	   //std::cout << "aAvg: " << aAvg << std::endl;
 
 	   //Add entropy correction
 	   double epsilon = 0.01;
@@ -356,15 +406,14 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   //Compute the Roe Riemann Flux function
 	   LinearAlgebra::NumericalVector flux(DIM_ + 2);
 
-
 	    double pLR = pressureLeft + pressureRight;
 
 	    double runR = 0.0;
 	    double runL = 0.0;
 	    for (std::size_t iD = 0; iD < DIM_; iD++)
 	    {
-	    	runL += qReconstructionLeft(iD+1)*normal(iD);
-	    	runR += qReconstructionRight(iD+1)*normal(iD);
+	    	runL += qSolutionLeft(iD+1)*normal(iD);
+	    	runR += qSolutionRight(iD+1)*normal(iD);
 	    }
 
 	    double unL = runL*rhoInverseLeft;
@@ -376,13 +425,14 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	    //momentum equations
 	    for (std::size_t iD = 0; iD < DIM_; iD++)
 	    {
-	    	flux(iD+1) = runL*qReconstructionLeft(iD+1)*rhoInverseLeft + runR*qReconstructionRight(iD+1)*rhoInverseRight + pLR*normal(iD) - (lam3*qDifference(iD+1) + qAverage(iD)*abv6 + normalUnit(iD)*abv7);
+	    	flux(iD+1) = runL*qSolutionLeft(iD+1)*rhoInverseLeft + runR*qSolutionRight(iD+1)*rhoInverseRight + pLR*normal(iD) - (lam3*qDifference(iD+1) + qAverage(iD)*abv6 + normalUnit(iD)*abv7);
 	    }
-	    //energy equations
-	    flux(DIM_+1) = (unL*(qReconstructionLeft(DIM_+1)+pressureLeft) + unR*(qReconstructionRight(DIM_+1)+pressureRight) - (lam3*qDifference(DIM_+1) + qAverage(DIM_)*abv6 + unAvg*abv7));
+
+	    //energy equation
+	    flux(DIM_+1) = (unL*(qSolutionLeft(DIM_+1)+pressureLeft) + unR*(qSolutionRight(DIM_+1)+pressureRight) - (lam3*qDifference(DIM_+1) + qAverage(DIM_)*abv6 + unAvg*abv7));
 
 	    //Note: Twice the flux is computed above, hence the factor 0.5 in front of the equation
-	   return 0.5*flux;
+        return 0.5*flux;
    }
 
    /// \brief Compute the integrand for the right hand side for the reference face corresponding to an external face.
@@ -407,28 +457,6 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	        }
 	    }
 
-		if (qReconstructionLeft(0) < 0.0)
-		{
-			std::cout << "Element number: " << ptrFace->getID() << std::endl;
-			std::cout << "Time: " << time << std::endl;
-			std::cout << "density: " << qReconstructionLeft(0) << std::endl;
-			std::cout << "momentum x-direction: " << qReconstructionLeft(1) << std::endl;
-			std::cout << "momentum y-direction: " << qReconstructionLeft(2) << std::endl;
-			std::cout << "density times energy: " << qReconstructionLeft(3) << std::endl;
-			logger(ERROR,"ERROR: Negative energy left of the face");
-		}
-
-		if (qReconstructionRight(0) < 0.0)
-		{
-			std::cout << "Element number: " << ptrFace->getID() << std::endl;
-			std::cout << "Time: " << time << std::endl;
-			std::cout << "density: " << qReconstructionRight(0) << std::endl;
-			std::cout << "momentum x-direction: " << qReconstructionRight(1) << std::endl;
-			std::cout << "momentum y-direction: " << qReconstructionRight(2) << std::endl;
-			std::cout << "density times energy: " << qReconstructionRight(3) << std::endl;
-			logger(ERROR,"ERROR: Negative energy right of the face");
-		}
-
 	   // Boundary face is assumed to be a solid wall: set reflective solution on the other side
 	   qReconstructionRight(0) = qReconstructionLeft(0);
 	   for (std::size_t iD = 0; iD < DIM_; iD++)
@@ -442,7 +470,7 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 
 
 	   //Compute flux
-	   LinearAlgebra::NumericalVector flux = RoeRiemannFluxFunction(qReconstructionLeft, qReconstructionRight, normal, Base::Side::LEFT);
+	   LinearAlgebra::NumericalVector flux = RoeRiemannFluxFunction(qReconstructionRight, qReconstructionLeft, normal);
 
 	   // Compute integrand on the reference element.
 	   std::size_t iVB; // Index for both variable and basis function.
@@ -455,13 +483,6 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	       }
 	   }
 
-	   	if (integrand(0) != integrand(0))
-	   	{
-	   		std::cout << "The flux: " << -flux << std::endl;
-	   		std::cout << "qReconstructionRight: " << qReconstructionRight << std::endl;
-	   		std::cout << "qReconstructionLeft: " << qReconstructionLeft << std::endl;
-	   		logger(ERROR,"ERROR: NaN found in face integrand.");
-	   	}
 	   return  integrand;
    }
 
@@ -478,6 +499,7 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   LinearAlgebra::NumericalVector qReconstructionLeft(numOfVariables_);
 	   LinearAlgebra::NumericalVector qReconstructionRight(numOfVariables_);
 
+	   // /todo: Remove this to a seperate function to reduce code duplication
 	   //Compute left and right states
 	    std::size_t jVB; // Index for both variable and basis function.
 	    for (std::size_t jV = 0; jV < numOfVariables_; jV++)
@@ -496,29 +518,6 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	        }
 	    }
 
-
-		if (qReconstructionLeft(0) < 0.0)
-		{
-			std::cout << "Element number: " << ptrFace->getID() << std::endl;
-			std::cout << "Time: " << time << std::endl;
-			std::cout << "density: " << qReconstructionLeft(0) << std::endl;
-			std::cout << "momentum x-direction: " << qReconstructionLeft(1) << std::endl;
-			std::cout << "momentum y-direction: " << qReconstructionLeft(2) << std::endl;
-			std::cout << "density times energy: " << qReconstructionLeft(3) << std::endl;
-			logger(ERROR,"ERROR: Negative energy left of the face");
-		}
-
-		if (qReconstructionRight(0) < 0.0)
-		{
-			std::cout << "Element number: " << ptrFace->getID() << std::endl;
-			std::cout << "Time: " << time << std::endl;
-			std::cout << "density: " << qReconstructionRight(0) << std::endl;
-			std::cout << "momentum x-direction: " << qReconstructionRight(1) << std::endl;
-			std::cout << "momentum y-direction: " << qReconstructionRight(2) << std::endl;
-			std::cout << "density times energy: " << qReconstructionRight(3) << std::endl;
-			logger(ERROR,"ERROR: Negative energy right of the face");
-		}
-
 	   // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
 	   LinearAlgebra::NumericalVector normal = ptrFace->getNormalVector(pRef);
 
@@ -526,12 +525,11 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   LinearAlgebra::NumericalVector flux;
 	   if (iSide == Base::Side::RIGHT)
 	   {
-		   normal *= -1;
-		   flux = RoeRiemannFluxFunction(qReconstructionLeft, qReconstructionRight, normal, iSide);
+		   flux = -RoeRiemannFluxFunction(qReconstructionLeft, qReconstructionRight, normal);
 	   }
 	   else
 	   {
-		   flux = RoeRiemannFluxFunction(qReconstructionRight, qReconstructionLeft, normal, iSide);
+		   flux = RoeRiemannFluxFunction(qReconstructionLeft, qReconstructionRight, normal);
 	   }
 
 	   // Compute integrand on the reference element.
@@ -545,13 +543,10 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	       }
 	   }
 
-	   	if (integrand(0) != integrand(0))
-	   	{
-	   		std::cout << "The flux: " << -flux << std::endl;
-	   		std::cout << "qReconstructionRight: " << qReconstructionRight << std::endl;
-	   		std::cout << "qReconstructionLeft: " << qReconstructionLeft << std::endl;
-	   		logger(ERROR,"ERROR: NaN found in internal face integrand.");
-	   	}
+	    if (integrand[0] != integrand[0])
+	    {
+	    	logger(ERROR,"integrand on ref face is nan");
+	    }
 	   return  integrand;
    }
 
@@ -571,12 +566,94 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	    // Define the integrand function for the right hand side for the reference face.
 	    std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [&](const Geometry::PointReference &pRef) -> LinearAlgebra::NumericalVector
 	    {   return this->integrandRightHandSideOnRefFace(ptrFace, time, pRef, side, solutionCoefficientsLeft, solutionCoefficientsRight);};
-	    std::cout << time << std::endl;
 	    return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
    }
 
+/// \brief shows the progress every timestep
+void Euler::showProgress(const double time, const std::size_t timeStepID) {
 
+	if (timeStepID % 25 == 0 || timeStepID == 1)
+	{
+		logger(INFO, "% time steps computed.", timeStepID);
 
+		if (DIM_ == 1)
+		{
+
+			int N = 10;
+			double dx = 1.0 / meshes_[0]->getElementsList().size();
+			int M = N * meshes_[0]->getElementsList().size();
+			double pPhysLocal;
+			std::size_t iTime;
+			LinearAlgebra::NumericalVector initialSolutionCoefficients;
+			LinearAlgebra::NumericalVector initialSolution;
+			double rotation;
+
+			Geometry::PointReference pRef(1);
+			Geometry::PointPhysical pPhys(1);
+			Geometry::PointPhysical dx_plot(1);
+			dx_plot.setCoordinate(0, dx / N);
+
+			if (timeStepID == 1)
+			{
+				pPhys = -dx_plot;
+				std::string fileName0 = "../Results/data0.dat";
+				std::ofstream myFile0(fileName0);
+
+				for (Base::Element* ptrElement : meshes_[0]->getElementsList())
+				{
+					Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+					if (jac.determinant() < 0)
+					{
+						rotation = -1;
+					} else {
+						rotation = 1;
+					}
+					initialSolutionCoefficients = integrateInitialSolutionAtElement(ptrElement, time, 1); //1 is whatever.
+					for (std::size_t iN = 0; iN < N; iN++) //Number of evaluations per element
+					{
+						pPhysLocal = rotation * (-1 + 2.0 / N * (iN));
+						pRef.setCoordinate(0, pPhysLocal);
+						pPhys += dx_plot;
+						//Compute solution
+						initialSolution = computeSolutionAtElement(ptrElement,initialSolutionCoefficients, pRef);
+						myFile0 << pPhys[0] << '\t'
+								<< std::setprecision(12) << initialSolution(0) << '\t'
+								<< std::setprecision(12) << initialSolution(1) << '\t'
+								<< std::setprecision(12) << initialSolution(2) << std::endl;
+					}
+				}
+			}
+
+			iTime = timeStepID / 25;
+			std::cout << "TimeStepID: " << timeStepID << " iTime: " << iTime << std::endl;
+			std::string fileName = "../Results/data" + std::to_string(iTime) + ".dat";
+			std::ofstream myFile(fileName);
+			pPhys = -dx_plot;
+			for (Base::Element* element : meshes_[0]->getElementsList())
+			{
+				Geometry::Jacobian jac = element->calcJacobian(pRef);
+				if (jac.determinant() < 0)
+				{
+					rotation = -1;
+				} else
+				{
+					rotation = 1;
+				}
+				for (std::size_t iN = 0; iN < N; iN++) //Number of evaluations per element
+				{
+					pPhysLocal = rotation * (-1 + 2.0 / N * (iN));
+					pRef.setCoordinate(0, pPhysLocal);
+					pPhys += dx_plot;
+					myFile << pPhys[0] << '\t'
+						   << std::setprecision(12) << element->getSolution(0, pRef)(0) << '\t'
+						   << std::setprecision(12) << element->getSolution(0, pRef)(1) << '\t'
+						   << std::setprecision(12) << element->getSolution(0, pRef)(2) << std::endl;
+				}
+			}
+
+		}
+	}
+}
 
 
 

@@ -180,4 +180,3 @@ namespace Geometry
         return std::vector<std::size_t>(1, nodeIndex);
     }
 }
-;

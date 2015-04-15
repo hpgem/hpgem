@@ -35,7 +35,7 @@ bool Output::Detail::isBigEndian()
 std::string Output::Detail::toBase64(void* rawData, std::size_t len)
 {
     logger.assert(rawData!=nullptr,"no raw data passed");
-    const char* cRawData = (const char*) rawData;
+    const unsigned char* cRawData = (const unsigned char*) rawData;
     std::string result;
     result.reserve((len + 2) / 3 * 4);
     while (len > 2) //3 or larger

@@ -73,17 +73,12 @@ namespace Base
         {
             case 0:
                 return vecOfBasisFcn_[i]->evalDeriv0(p);
-                break;
             case 1:
                 return vecOfBasisFcn_[i]->evalDeriv1(p);
-                break;
             case 2:
                 return vecOfBasisFcn_[i]->evalDeriv2(p);
-                break;
             case 3:
                 return vecOfBasisFcn_[i]->evalDeriv3(p);
-                ;
-                break;
             default:
                 return -1.e50;
         }

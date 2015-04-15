@@ -69,10 +69,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefSquareToCube0(const MappingToRefSquareToCube0&) = delete;
+        MappingToRefSquareToCube0& operator=(const MappingToRefSquareToCube0&) = delete;
     private:
         MappingToRefSquareToCube0();
-        MappingToRefSquareToCube0(const MappingToRefSquareToCube0&);
-        MappingToRefSquareToCube0& operator=(const MappingToRefSquareToCube0&);
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -87,10 +87,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefSquareToCube1(const MappingToRefSquareToCube1&) = delete;
+        MappingToRefSquareToCube1& operator=(const MappingToRefSquareToCube1&) = delete;
     private:
         MappingToRefSquareToCube1();
-        MappingToRefSquareToCube1(const MappingToRefSquareToCube1&);
-        MappingToRefSquareToCube1& operator=(const MappingToRefSquareToCube1&);
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -105,10 +105,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefSquareToCube2(const MappingToRefSquareToCube2&) = delete;
+        MappingToRefSquareToCube1& operator=(const MappingToRefSquareToCube2&) = delete;
     private:
         MappingToRefSquareToCube2();
-        MappingToRefSquareToCube2(const MappingToRefSquareToCube2&);
-        MappingToRefSquareToCube1& operator=(const MappingToRefSquareToCube2&);
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -123,10 +123,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefSquareToCube3(const MappingToRefSquareToCube3&) = delete;
+        MappingToRefSquareToCube3& operator=(const MappingToRefSquareToCube3&) = delete;
     private:
         MappingToRefSquareToCube3();
-        MappingToRefSquareToCube3(const MappingToRefSquareToCube3&);
-        MappingToRefSquareToCube3& operator=(const MappingToRefSquareToCube3&);
     };
     
     // ~~~ index 4 ~~~==============================================================================
@@ -141,10 +141,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefSquareToCube4(const MappingToRefSquareToCube4&) = delete;
+        MappingToRefSquareToCube4& operator=(const MappingToRefSquareToCube4&) = delete;
     private:
         MappingToRefSquareToCube4();
-        MappingToRefSquareToCube4(const MappingToRefSquareToCube4&);
-        MappingToRefSquareToCube4& operator=(const MappingToRefSquareToCube4&);
     };
     
     // ~~~ index 5 ~~~==============================================================================
@@ -159,10 +159,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefSquareToCube5(const MappingToRefSquareToCube5&) = delete;
+        MappingToRefSquareToCube5& operator=(const MappingToRefSquareToCube5&) = delete;
     private:
         MappingToRefSquareToCube5();
-        MappingToRefSquareToCube5(const MappingToRefSquareToCube5&);
-        MappingToRefSquareToCube5& operator=(const MappingToRefSquareToCube5&);
     };
 
 }

@@ -171,6 +171,9 @@ namespace Geometry
         
         //! Copy constructor with new elements, for both internal and boundary faces.
         FaceGeometry(const FaceGeometry& other, ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometry* ptrElemRight, const LocalFaceNrType& localFaceNumR);
+        
+        //! Don't use this copy constructor, but use the one with new elements instead
+        FaceGeometry(const FaceGeometry &other) = delete;
 
         virtual ~FaceGeometry()
         {

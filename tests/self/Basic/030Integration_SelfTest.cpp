@@ -35,7 +35,7 @@
 
 void testMesh(Base::MeshManipulator* test)
 {
-    class :public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
     {
         void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
         {
@@ -43,7 +43,8 @@ void testMesh(Base::MeshManipulator* test)
             ret[0] = 1;
         }
     } one;
-    class :public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
     {
         void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
         {
@@ -56,7 +57,8 @@ void testMesh(Base::MeshManipulator* test)
             }
         }
     } linear;
-    class :public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
     {
         void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
         {
@@ -69,6 +71,7 @@ void testMesh(Base::MeshManipulator* test)
             }
         }
     } trilinear;
+    
     Integration::ElementIntegral elIntegral(false);
     elIntegral.setStorageWrapper(new Base::ShortTermStorageElementH1(test->dimension()));
     double total = 0;

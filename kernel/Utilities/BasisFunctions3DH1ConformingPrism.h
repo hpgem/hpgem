@@ -61,7 +61,7 @@ namespace Utilities
     {
     public:
         BasisFunction3DEdgePrism_0(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
-                : edgePosition_((node0 / 3) * 2 - 1), node0_(node0 % 3), node1_(node1 % 3), polynomialOrder_(polynomialOrder)
+                : edgePosition_((static_cast<int>(node0) / 3) * 2 - 1), node0_(node0 % 3), node1_(node1 % 3), polynomialOrder_(polynomialOrder)
         {
             logger.assert(node0 < 6, "A triangular prism only has 6 nodes");
             logger.assert(node1 < 6, "A triangular prism only has 6 nodes");
@@ -95,8 +95,8 @@ namespace Utilities
         double evalDeriv2(const Geometry::PointReference& p) const;
 
     private:
-        int mirroring_, node_;
-        std::size_t polynomialOrder_;
+        int mirroring_;
+        std::size_t node_, polynomialOrder_;
     };
     
     class BasisFunction3DFacePrism_0 : public Base::BaseBasisFunction

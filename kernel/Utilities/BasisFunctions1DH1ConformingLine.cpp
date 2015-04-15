@@ -73,7 +73,7 @@ namespace Utilities
     {
         logger.assert(polynomialOrder > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(polynomialOrder));
-        for (int i = 0; i + 2 <= polynomialOrder; ++i)
+        for (std::size_t i = 0; i + 2 <= polynomialOrder; ++i)
         {
             result->addBasisFunction(new BasisFunction1DInteriorLine(i));
         }

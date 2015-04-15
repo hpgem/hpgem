@@ -111,6 +111,10 @@ namespace Utilities
     
     GlobalPetscMatrix::operator Mat()
     {
+        if(HPGEM_LOGLEVEL==Log::DEBUG)
+        {
+            MatView(A_, PETSC_VIEWER_STDOUT_WORLD);
+        }
         return A_;
     }
     
@@ -181,7 +185,7 @@ namespace Utilities
                 std::vector<PetscInt> positions = makePositionsInMatrix(element);
                 elementMatrix = element->getElementMatrix(elementMatrixID_);
                 ierr = MatSetValues(A_, positions.size(), positions.data(), positions.size(), positions.data(), elementMatrix.data(), ADD_VALUES);
-                CHKERRABORT(PETSC_COMM_WORLD, ierr);
+                CHKERRV(ierr);
             }
         }
         
@@ -203,7 +207,7 @@ namespace Utilities
                 }
                 faceMatrix = face->getFaceMatrixMatrix(faceMatrixID_);
                 ierr = MatSetValues(A_, positions.size(), positions.data(), positions.size(), positions.data(), faceMatrix.data(), ADD_VALUES);
-                CHKERRABORT(PETSC_COMM_WORLD, ierr);
+                CHKERRV(ierr);
             }
         }
         
@@ -522,10 +526,10 @@ namespace Utilities
         }
         
         int ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNrOfDOF, totalNrOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr);
+        CHKERRV(ierr);
         MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE); //the estimate is known to be wrong for conforming cases
         ierr = MatSetUp(A_);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr);
+        CHKERRV(ierr);
         reset();
     }
 #endif

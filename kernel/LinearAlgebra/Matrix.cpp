@@ -415,7 +415,7 @@ namespace LinearAlgebra
         unsigned int i_one = 1;
         
 #ifdef LA_STL_VECTOR
-        daxpy_(&size, &a, const_cast<double *>(x.data_.data()), &i_one, data_.data(), &i_one);
+        daxpy_(&size, &a, const_cast<double *>(x.data()), &i_one, data(), &i_one);
 #else
         daxpy_(&size, &a, &((*(const_cast<Matrix *> (&x)))[0]), &i_one, &((*this)[0]) , &i_one);
 
@@ -465,20 +465,20 @@ namespace LinearAlgebra
     }
     
     /// \return the total number of entries
-    const std::size_t Matrix::size() const
+    std::size_t Matrix::size() const
     {
         return nRows_ * nCols_;
     }
     
     /// \return the number of rows
-    const std::size_t Matrix::getNRows() const
+    std::size_t Matrix::getNRows() const
     {
         return nRows_;
     }
     
     /// \brief Get the number of columns
     /// \return int : the number of columns
-    const std::size_t Matrix::getNCols() const
+    std::size_t Matrix::getNCols() const
     {
         return nCols_;
     }
@@ -506,6 +506,7 @@ namespace LinearAlgebra
     }
     
     /// return Matrix which is the LUfactorisation of the current matrix
+    ///\bug allocates a potentially large array (iPivot) on the stack
     Matrix Matrix::LUfactorisation() const
     {
         
@@ -524,6 +525,7 @@ namespace LinearAlgebra
     }
     
     /// \param[out] result this is the inverse of the current matrix
+    ///\bug allocates a potentially large array (iPivot) on the stack
     Matrix Matrix::inverse() const
     {
         logger.assert(nRows_ == nCols_, "Cannot invert a non-square matrix");
@@ -546,7 +548,7 @@ namespace LinearAlgebra
         //but element matrices can easily reach 20x20 or larger
         if(lwork <= 16)
         {
-            double work[lwork];
+            double work[16];
 
             dgetri_(&nc, result.data(), &nc, iPivot, work, &lwork, &info);
         }
@@ -573,6 +575,7 @@ namespace LinearAlgebra
     }
 
     /// \param[in,out] B. On enter is B in Ax=B and on exit is x.
+    ///\bug allocates a potentially large array (IPIV) on the stack
     void Matrix::solve(Matrix& B) const
     {
         logger.assert(nRows_ == nCols_, "can only solve for square matrixes");
@@ -590,7 +593,7 @@ namespace LinearAlgebra
         if(nRows_ * nCols_ <= 16)
         {
             //gdesv destroys the copy
-            double copy[nRows_ * nCols_];
+            double copy[16];
             std::copy(this->data(), this->data() + nRows_ * nCols_, copy);
             dgesv_(&n, &nrhs, copy, &n, IPIV, B.data(), &n, &info);
         }
@@ -600,7 +603,8 @@ namespace LinearAlgebra
             dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
         }
     }
-    
+
+    ///\bug allocates a potentially large array (IPIV) on the stack
     void Matrix::solve(NumericalVector& b) const
     {
         logger.assert(nRows_ == nCols_, "can only solve for square matrixes");

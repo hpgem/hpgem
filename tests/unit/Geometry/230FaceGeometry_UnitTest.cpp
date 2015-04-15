@@ -129,7 +129,7 @@ int main()
     delete right;
     left = new Geometry::ElementGeometry(pointIndexes, nodes2D);
     pointIndexes[2] = 10;
-    pointIndexes[3] = 11;
+    pointIndexes.push_back(11);
     right = new Geometry::ElementGeometry(pointIndexes, nodes2D);
     
     test = new Geometry::FaceGeometry(left, 0, right, 0);

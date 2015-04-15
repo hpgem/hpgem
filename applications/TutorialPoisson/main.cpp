@@ -161,14 +161,14 @@ public:
         //This is necessary to check at which boundary we are if we are at a boundary face.
         PointPhysicalT pPhys = face->referenceToPhysical(p);
         
-        for (int i = 0; i < numBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
             phiNormalI = face->basisFunctionNormal(i, normal, p);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
             phiDerivI = face->basisFunctionDeriv(i, p);
             
-            for (int j = 0; j < numBasisFunctions; ++j)
+            for (std::size_t j = 0; j < numBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
                 phiNormalJ = face->basisFunctionNormal(j, normal, p);
@@ -197,6 +197,15 @@ public:
         }
         
         return integrandVal;
+    }
+    
+    /// \brief Define the exact solution
+    /// \details In this case the exact solution is u(x,y) = sin(2pi x) * cos(2pi y).
+    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &p) override final
+    {
+        LinearAlgebra::NumericalVector exactSolution(1);
+        exactSolution[0] = std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
+        return exactSolution;
     }
     
     ///\brief Define the source term.
@@ -253,13 +262,13 @@ public:
 private:
     
     ///number of elements per cardinal direction
-    int n_;
+    std::size_t n_;
 
     ///polynomial order of the approximation
-    int p_;
+    std::size_t p_;
 
     ///Dimension of the domain, in this case 2
-    int DIM_;
+    std::size_t DIM_;
 
     ///\brief Penalty parameter
     ///
@@ -269,8 +278,8 @@ private:
     double penalty_;
 };
 
-auto& numBasisFuns = Base::register_argument<int>('n', "numElems", "number of elements per dimension", true);
-auto& p = Base::register_argument<int>('p', "order", "polynomial order of the solution", true);
+auto& numBasisFuns = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
+auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 ///Example of using the Laplace class. 
 ///This implementation asks for commandline input arguments for the number of elements
 ///in each direction and the polynomial order. Then make the object test, initialise
@@ -280,7 +289,7 @@ int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
     // Choose the dimension (2 or 3)
-    const std::size_t dimension = 3;
+    const std::size_t dimension = 2;
 
     // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
@@ -299,7 +308,7 @@ int main(int argc, char **argv)
     test.setOutputNames("output", "TutorialPoisson", "TutorialPoisson", variableNames);
 
     //Solve the system.
-    test.solveSteadyStateWithPetsc();
+    test.solveSteadyStateWithPetsc(true);
 
     return 0;
 }

@@ -19,25 +19,25 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Base/HpgemUISimplified.h"
-#include "Base/RectangularMeshDescriptor.h"
-#include "Output/TecplotDiscontinuousSolutionWriter.h"
-#include "Output/TecplotPhysicalGeometryIterator.h"
-#include "LinearAlgebra/NumericalVector.h"
-#include "Base/PhysGradientOfBasisFunction.h"
-#include "Output/TecplotSingleElementWriter.h"
+//#include "Base/HpgemUISimplified.h"
+#include "Base/ConfigurationData.h"
+#include "Base/Element.h"
 #include "Base/ElementCacheData.h"
 #include "Base/FaceCacheData.h"
-#include "Base/Element.h"
-#include "Base/ConfigurationData.h"
+#include "Base/HpgemAPIBase.h"
+#include "Base/PhysGradientOfBasisFunction.h"
+#include "Base/RectangularMeshDescriptor.h"
 #include "Geometry/PhysicalGeometry.h"
+#include "LinearAlgebra/NumericalVector.h"
+#include "Output/TecplotDiscontinuousSolutionWriter.h"
+#include "Output/TecplotPhysicalGeometryIterator.h"
+#include "Output/TecplotSingleElementWriter.h"
 
 #include <chrono>
 #include <functional>
 #include <array>
 
 using Base::RectangularMeshDescriptor;
-using Base::HpgemUISimplified;
 
 const unsigned int DIM = 2;
 
@@ -84,17 +84,18 @@ public:
     }
 };
 
-class SimpleDemoProblem : public HpgemUISimplified
+class SimpleDemoProblem : public Base::HpgemAPIBase
 {
     
 public:
     
-    SimpleDemoProblem()
-            : HpgemUISimplified(2, 1, 1), t(0)
+    SimpleDemoProblem() :
+        HpgemAPIBase(new Base::GlobalData, new Base::ConfigurationData(2, 1, 1, 1)),
+        t(0)
     {
     }
     
-    bool initialise() override final
+    bool initialise()
     {
         RectangularMeshDescriptor rectangularMesh(2);
         
@@ -153,32 +154,6 @@ public:
         meshes_.push_back(theMesh);
         
         return true;
-    }
-    
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::Matrix& ret) override final
-    {
-        //not implemented
-    }
-    
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::Matrix& ret) override final
-    {
-        //not implemented
-    }
-    
-    void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
-    {
-        //not implemented
-    }
-    
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
-    {
-        //not implemented
-    }
-    
-    double initialConditions(const PointPhysicalT& p) override final
-    {
-        //not implemented
-        return 0.;
     }
     
     //create an output file for a single time step
@@ -256,7 +231,7 @@ public:
                             newPoint[0] = temp;
                             //a corner of the rotor that is outside of the domain will make two corners instead of one
                             //claim some extra nodes to fix them both
-                            meshes_[0]->getNodes()[extraIndex] = newPoint;
+                            meshes_[0]->getNodeCoordinates()[extraIndex] = newPoint;
                             cornerIndexes.push_back(extraIndex);
                             extraIndex++;
                             newPoint[0] = first;
@@ -280,7 +255,7 @@ public:
                             newPoint[1] = std::sin(t) * (newPoint[0] - 0.5) + std::cos(t) * (newPoint[1] - 0.5) + 0.5;
                             newPoint[0] = temp;
                         }
-                        meshes_[0]->getNodes()[nodeIndex] = newPoint;
+                        meshes_[0]->getNodeCoordinates()[nodeIndex] = newPoint;
                     }
                     ++nodeIndex;
                 }

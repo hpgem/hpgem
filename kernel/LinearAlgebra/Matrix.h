@@ -155,13 +155,13 @@ namespace LinearAlgebra
         void concatenate(const Matrix& other);
 
         /// \brief Get total number of Matrix entries
-        const std::size_t size() const;
+        std::size_t size() const;
 
         /// \brief Get the number of rows
-        const std::size_t getNRows() const;
+        std::size_t getNRows() const;
 
         /// \brief Get the number of columns
-        const std::size_t getNCols() const;
+        std::size_t getNCols() const;
 
         /// \brief get the j^th column
         /// If someone knows how to do this such that it returns a reference, please

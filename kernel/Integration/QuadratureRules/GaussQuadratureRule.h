@@ -35,7 +35,14 @@ namespace QuadratureRules
 {
     class GaussQuadratureRule
     {
-    public:
+    public:        
+        GaussQuadratureRule() = default;
+        GaussQuadratureRule(const GaussQuadratureRule &other) = delete;        
+        
+        virtual ~GaussQuadratureRule()
+        {
+        }
+        
         //! Return the name of the quadrature.
         virtual std::string getName() const = 0;
 
@@ -57,9 +64,7 @@ namespace QuadratureRules
         //! Each rule also knows which ReferenceGeometry it is meant for.
         virtual Geometry::ReferenceGeometry* forReferenceGeometry() const = 0;
 
-        virtual ~GaussQuadratureRule()
-        {
-        }
+        
     };
 } // close namespace Integration
 #endif

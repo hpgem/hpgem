@@ -31,7 +31,7 @@ namespace Geometry
 namespace Output
 {
     
-    /// \TODO: Implement other geometries.
+    /// \todo: Implement other geometries.
     class PhysicalGeometryAcceptor
     {
         
@@ -47,7 +47,6 @@ namespace Output
         virtual ~PhysicalGeometryAcceptor()
         {
         }
-        ;
     };
 }
 #endif

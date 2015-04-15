@@ -158,7 +158,7 @@ namespace Geometry
             logger(ERROR, "Number of node indexes was different than 8, so this is not a cube.\n");
         }
         logger(ERROR, "in ReferenceCube, we should not get to the end without returning!. \n");
-        return -1;
+        return -1UL;
     }
     
     const MappingReferenceToReference*

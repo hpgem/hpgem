@@ -81,13 +81,8 @@ namespace Base
 
         Element& operator=(Element& element);
         
-        ///Copy constructor.
-        ///Note that this makes a shallow copy of the element (i.e. it only copies 
-        ///the pointer to the element), which is correct since this is a wrapper class.
-        ShortTermStorageElementBase(const ShortTermStorageElementBase& copy)
-                : element_(copy.element_), currentPoint_(copy.currentPoint_), jac_(copy.jac_), useCache_(copy.useCache_), recomputeCache_(copy.recomputeCache_), currentPointIndex_(copy.currentPointIndex_)
-        {
-        }
+        ///Since this is a wrapper class, the copy constructor is deleted.
+        ShortTermStorageElementBase(const ShortTermStorageElementBase& copy) = delete;
         
         ~ShortTermStorageElementBase()
         {
@@ -198,7 +193,7 @@ namespace Base
             return element_->getFace(localFaceNr);
         }
         
-        const std::vector<const Face*> getFacesList() const
+        const std::vector<const Face*> getFacesList() const override final
         {
             return element_->getFacesList();
         }
@@ -208,7 +203,7 @@ namespace Base
             return element_->getEdge(localEdgeNr);
         }
         
-        virtual const std::vector<const Edge*> getEdgesList() const
+        virtual const std::vector<const Edge*> getEdgesList() const override final
         {
             return element_->getEdgesList();
         }
@@ -218,7 +213,7 @@ namespace Base
             return element_->getNode(localNodeNr);
         }
         
-        virtual const std::vector<const Node*> getNodesList() const
+        virtual const std::vector<const Node*> getNodesList() const override final
         {
             return element_->getNodesList();
         }
@@ -276,37 +271,32 @@ namespace Base
             return element_->getNrOfBasisFunctions();
         }
         
-        const LinearAlgebra::NumericalVector& getResidue() const override final
-        {
-            return element_->getResidue();
-        }
-        
         UserElementData* getUserData() const override final
         {
             return element_->getUserData();
         }
         
-        const MappingReferenceToPhysicalT * const getReferenceToPhysicalMap() const override final
+        const MappingReferenceToPhysicalT * getReferenceToPhysicalMap() const override final
         {
             return element_->getReferenceToPhysicalMap();
         }
         
-        MappingReferenceToPhysicalT * const getReferenceToPhysicalMap() override final
+        MappingReferenceToPhysicalT * getReferenceToPhysicalMap() override final
         {
             return element_->getReferenceToPhysicalMap();
         }
         
-        const PhysicalGeometry * const getPhysicalGeometry() const override final
+        const PhysicalGeometry * getPhysicalGeometry() const override final
         {
             return element_->getPhysicalGeometry();
         }
         
-        PhysicalGeometry * const getPhysicalGeometry() override final
+        PhysicalGeometry * getPhysicalGeometry() override final
         {
             return element_->getPhysicalGeometry();
         }
         
-        const ReferenceGeometryT * const getReferenceGeometry() const override final
+        const ReferenceGeometryT * getReferenceGeometry() const override final
         {
             return element_->getReferenceGeometry();
         }
@@ -316,7 +306,7 @@ namespace Base
             return element_->getRefinementGeometry();
         }
         
-        const std::size_t convertToSingleIndex(std::size_t basisFunctionId, std::size_t unknownId) const override final
+        std::size_t convertToSingleIndex(std::size_t basisFunctionId, std::size_t unknownId) const override final
         {
             return element_->convertToSingleIndex(basisFunctionId, unknownId);
         }

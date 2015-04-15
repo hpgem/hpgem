@@ -200,12 +200,12 @@ namespace Base
      * set and get properties. Make sure it is initialized before actually calling
      * the function parse_options(int, char**).
      *
-     * @argument tag is the short version of the argument, or '\0'/0 if no such tag
+     * @param tag is the short version of the argument, or '\0'/0 if no such tag
      * is available. It has to be prefixed by '-'.
-     * @argument long_tag is the long version of the argument, which when entered needs to
+     * @param long_tag is the long version of the argument, which when entered needs to
      * be prefixed with '--'.
-     * @argument Description description of the argument, will show up in the --help command
-     * @argument required Crash if it isn't supplied.
+     * @param description description of the argument, will show up in the --help command
+     * @param required Crash if it isn't supplied.
      */
     template<typename T>
     CommandLineOption<T>& register_argument(char tag, std::string long_tag, std::string description, bool required = false, T defaultValue = T());

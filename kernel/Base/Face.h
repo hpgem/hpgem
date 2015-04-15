@@ -64,7 +64,8 @@ namespace Base
         ///copy constructor should not be used: if adjacent elements are the same,
         ///then the Face already exists and there is no need for another, if 
         ///adjacent elements are different, the copy is not really a copy
-        Face(const Face& other) = delete;
+        Face(const Face &other) = delete;
+        Face& operator=(const Face &other) = delete;
         
         ///Copy constructor with new elements. It makes a copy of the face, but 
         ///with new elements assigned to it.
@@ -172,16 +173,14 @@ namespace Base
         /// Specify a time level index, return a vector containing the data for that time level.
         virtual LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
 
-        LinearAlgebra::NumericalVector getCurrentData();
-
         /// \brief Convert the side of the face, the index corresponding to the scalar basis function (scalarBasisFunctionId) and the index corresponding to the variable (varId) to a single index (faceBasisFunctionId).
-        virtual const std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId = 0) const;
+        virtual std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId = 0) const;
         
         /// \brief Convert the index of the basis (vector)function of the face (faceBasisFunctionId) to the corresponding side of the face.
-        virtual const Side getSide(std::size_t faceBasisFunctionId) const;
+        virtual Side getSide(std::size_t faceBasisFunctionId) const;
         
         /// \brief Convert the index of the basis (vector)function of the face (faceBasisFunctionId) to the index of the corresponding element basis (vector)function (elementBasisFunctionId).
-        virtual const std::size_t getElementBasisFunctionId(std::size_t faceBasisFunctionId) const;
+        virtual std::size_t getElementBasisFunctionId(std::size_t faceBasisFunctionId) const;
 
     protected:
         

@@ -53,10 +53,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefTriangleToTetrahedron0(const MappingToRefTriangleToTetrahedron0&) = delete;
+        MappingToRefTriangleToTetrahedron0& operator=(const MappingToRefTriangleToTetrahedron0&) = delete;
     private:
         MappingToRefTriangleToTetrahedron0();
-        MappingToRefTriangleToTetrahedron0(const MappingToRefTriangleToTetrahedron0&);
-        MappingToRefTriangleToTetrahedron0& operator=(const MappingToRefTriangleToTetrahedron0&);
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -71,10 +71,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefTriangleToTetrahedron1(const MappingToRefTriangleToTetrahedron1&) = delete;
+        MappingToRefTriangleToTetrahedron1& operator=(const MappingToRefTriangleToTetrahedron1&) = delete;
     private:
         MappingToRefTriangleToTetrahedron1();
-        MappingToRefTriangleToTetrahedron1(const MappingToRefTriangleToTetrahedron1&);
-        MappingToRefTriangleToTetrahedron1& operator=(const MappingToRefTriangleToTetrahedron1&);
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -89,10 +89,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefTriangleToTetrahedron2(const MappingToRefTriangleToTetrahedron2&) = delete;
+        MappingToRefTriangleToTetrahedron1& operator=(const MappingToRefTriangleToTetrahedron2&) = delete;
     private:
         MappingToRefTriangleToTetrahedron2();
-        MappingToRefTriangleToTetrahedron2(const MappingToRefTriangleToTetrahedron2&);
-        MappingToRefTriangleToTetrahedron1& operator=(const MappingToRefTriangleToTetrahedron2&);
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -107,10 +107,10 @@ namespace Geometry
         {
             return 3;
         }
+        MappingToRefTriangleToTetrahedron3(const MappingToRefTriangleToTetrahedron3&) = delete;
+        MappingToRefTriangleToTetrahedron3& operator=(const MappingToRefTriangleToTetrahedron3&) = delete;
     private:
         MappingToRefTriangleToTetrahedron3();
-        MappingToRefTriangleToTetrahedron3(const MappingToRefTriangleToTetrahedron3&);
-        MappingToRefTriangleToTetrahedron3& operator=(const MappingToRefTriangleToTetrahedron3&);
     };
 }
 #endif

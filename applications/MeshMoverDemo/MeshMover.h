@@ -40,7 +40,6 @@ public:
     virtual ~MeshMover()
     {
     }
-    ;
 
     void movePoint(PointPhysicalT& point) const override final
     {

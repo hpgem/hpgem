@@ -43,6 +43,7 @@ namespace QuadratureRules
             static Pyramid_1_4 theInstance;
             return theInstance;
         }
+        Pyramid_1_4(const Pyramid_1_4&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -54,8 +55,6 @@ namespace QuadratureRules
 
     private:
         Pyramid_1_4();
-        Pyramid_1_4(const Pyramid_1_4&);
-    private:
         
         const std::string name_;
         double weight_[4];
@@ -75,6 +74,7 @@ namespace QuadratureRules
             static Pyramid_3_16 theInstance;
             return theInstance;
         }
+        Pyramid_3_16(const Pyramid_3_16&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -86,8 +86,7 @@ namespace QuadratureRules
 
     private:
         Pyramid_3_16();
-        Pyramid_3_16(const Pyramid_3_16&);
-    private:
+
         const std::string name_;
         double weight_[16];
         ReferenceGeometryT* const refGeoPtr_;
@@ -106,6 +105,7 @@ namespace QuadratureRules
             static Pyramid_5_36 theInstance;
             return theInstance;
         }
+        Pyramid_5_36(const Pyramid_5_36&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -117,8 +117,7 @@ namespace QuadratureRules
 
     private:
         Pyramid_5_36();
-        Pyramid_5_36(const Pyramid_5_36&);
-    private:
+
         const std::string name_;
         double weight_[36];
         ReferenceGeometryT* const refGeoPtr_;
@@ -137,6 +136,7 @@ namespace QuadratureRules
             static Pyramid_7_48 theInstance;
             return theInstance;
         }
+        Pyramid_7_48(const Pyramid_7_48&) = delete;
         
         std::string getName() const override final;
         std::size_t order() const override final;
@@ -148,8 +148,7 @@ namespace QuadratureRules
 
     private:
         Pyramid_7_48();
-        Pyramid_7_48(const Pyramid_7_48&);
-    private:
+
         const std::string name_;
         double weight_[48];
         ReferenceGeometryT* const refGeoPtr_;

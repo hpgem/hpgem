@@ -46,6 +46,7 @@ namespace Geometry
         
     public:
         MappingToPhysHypercubeLinear(const PhysicalGeometry* const &);
+        MappingToPhysHypercubeLinear(const MappingToPhysHypercubeLinear<1> &other) = default;
         PointPhysical transform(const PointReference&) const override final;
         Jacobian calcJacobian(const PointReference&) const override final;
         void reinit(const PhysicalGeometry* const) override final;
@@ -66,6 +67,7 @@ namespace Geometry
     public:
         // Constructor.
         MappingToPhysHypercubeLinear(const PhysicalGeometry* const &);
+        MappingToPhysHypercubeLinear(const MappingToPhysHypercubeLinear<2> &other) = default;
         PointPhysical transform(const PointReference&) const override final;
         Jacobian calcJacobian(const PointReference&) const override final;
         void reinit(const PhysicalGeometry* const) override final;
@@ -86,6 +88,7 @@ namespace Geometry
     public:
         // Constructor.
         MappingToPhysHypercubeLinear(const PhysicalGeometry* const &);
+        MappingToPhysHypercubeLinear(const MappingToPhysHypercubeLinear<3> &other) = default;
         PointPhysical transform(const PointReference&) const override final;
         Jacobian calcJacobian(const PointReference&) const override final;
         void reinit(const PhysicalGeometry* const) override final;
@@ -106,6 +109,7 @@ namespace Geometry
     public:
         // Constructor.
         MappingToPhysHypercubeLinear(const PhysicalGeometry* const &);
+        MappingToPhysHypercubeLinear(const MappingToPhysHypercubeLinear<4> &other) = default;
         PointPhysical transform(const PointReference&) const override final;
         Jacobian calcJacobian(const PointReference&) const override final;
         void reinit(const PhysicalGeometry* const) override final;
@@ -119,5 +123,4 @@ namespace Geometry
         PointPhysical abar, a0, a1, a2, a3, a01, a02, a03, a12, a13, a23, a012, a013, a123, a230, a0123;
     };
 }
-;
 #endif

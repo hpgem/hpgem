@@ -48,11 +48,11 @@ namespace QuadratureRules
 
         const GaussQuadratureRule* getRule(const Geometry::ReferenceGeometry* referenceGeometry, std::size_t order);
 
+        AllGaussQuadratureRules(AllGaussQuadratureRules&) = delete;
+        void operator=(AllGaussQuadratureRules&) = delete;
+
     private:
         AllGaussQuadratureRules();
-
-        AllGaussQuadratureRules(AllGaussQuadratureRules&); //this will generate a linker error if you try to copy
-        void operator=(AllGaussQuadratureRules&);
 
         std::map<const Geometry::ReferenceGeometry*, std::vector<const GaussQuadratureRule*>> listOfRules_;
     };

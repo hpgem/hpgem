@@ -30,12 +30,12 @@ namespace Base
 #endif
     }
     
-    int MPIContainer::getNumProcessors()
+    std::size_t MPIContainer::getNumProcessors()
     {
         return numProcessors_;
     }
     
-    int MPIContainer::getProcessorID()
+    std::size_t MPIContainer::getProcessorID()
     {
         return processorID_;
     }

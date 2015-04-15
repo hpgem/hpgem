@@ -197,6 +197,16 @@ namespace Base
     
     void MeshManipulator::useDefaultDGBasisFunctions()
     {
+        for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
+        {
+            for(const Base::BaseBasisFunction* function : *set)
+            {
+                for(Base::Element* element : getElementsList(IteratorType::GLOBAL))
+                {
+                    element->getReferenceGeometry()->removeBasisFunctionData(function);
+                }
+            }
+        }
         collBasisFSet_.clear();
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToIndex;
         for(Element* element : getElementsList(IteratorType::GLOBAL))
@@ -252,6 +262,16 @@ namespace Base
     void MeshManipulator::useDefaultConformingBasisFunctions()
     {
         logger.assert(configData_->polynomialOrder_ > 0, "Basis function may not have an empty union of supporting elements. Use a DG basis function on a single element non-periodic mesh instead");
+        for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
+        {
+            for(const Base::BaseBasisFunction* function : *set)
+            {
+                for(Base::Element* element : getElementsList(IteratorType::GLOBAL))
+                {
+                    element->getReferenceGeometry()->removeBasisFunctionData(function);
+                }
+            }
+        }
         collBasisFSet_.clear();
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToElementIndex;
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > nrOfFaceSets;
@@ -415,8 +435,8 @@ namespace Base
             if (face->isInternal())
             {
                 faceNr = face->localFaceNumberRight();
-                auto type = face->getPtrElementRight()->getReferenceGeometry()->getGeometryType();
-                int orientation = face->getFaceToFaceMapIndex();
+                type = face->getPtrElementRight()->getReferenceGeometry()->getGeometryType();
+                std::size_t orientation = face->getFaceToFaceMapIndex();
                 for (std::size_t i = shapeToElementIndex[type] + 1; i < shapeToElementIndex[type] + nrOfFaceSets[type] + 1; ++i)
                 {
                     logger.assert(typeid(*collBasisFSet_[i]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
@@ -578,7 +598,7 @@ namespace Base
             if (face->isInternal())
             {
                 faceNr = face->localFaceNumberRight();
-                int orientation = face->getFaceToFaceMapIndex();
+                std::size_t orientation = face->getFaceToFaceMapIndex();
                 for (std::size_t i = 0; i < bFsets.size(); ++i)
                 {
                     if (bFsets[i]->checkOrientation(orientation, faceNr))
@@ -628,7 +648,7 @@ namespace Base
     
     void MeshManipulator::move()
     {
-        for (Geometry::PointPhysical& p : theMesh_.getNodes())
+        for (Geometry::PointPhysical& p : theMesh_.getNodeCoordinates())
         {
             if (meshMover_ != nullptr)
             {
@@ -663,7 +683,7 @@ namespace Base
 
 std::ostream& operator<<(std::ostream& os, const Base::MeshManipulator& mesh)
 {
-    for (Geometry::PointPhysical p : mesh.getNodes())
+    for (Geometry::PointPhysical p : mesh.getNodeCoordinates())
     {
         os << "Node " << " " << p << std::endl;
     }
@@ -686,7 +706,7 @@ namespace Base
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
-        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
         FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
@@ -837,7 +857,7 @@ namespace Base
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
-        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
         FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
@@ -1008,42 +1028,42 @@ namespace Base
                         globalNodeID[3].insert( ++(globalNodeID[3].begin()), nodeIndex);
                         break;
                     case 1:
-                        for (std::size_t i = 0; i < trianglesPerRectangle; ++i)
+                        for (std::size_t j = 0; j < trianglesPerRectangle; ++j)
                         {
-                            if (i != 3)
+                            if (j != 3)
                             {
-                                globalVertexID[i].push_back(vertexIndex);
-                                globalNodeID[i].push_back(nodeIndex);
+                                globalVertexID[j].push_back(vertexIndex);
+                                globalNodeID[j].push_back(nodeIndex);
                             }
                         }
                         break;
                     case 2:
-                        for (std::size_t i = 0; i < trianglesPerRectangle; ++i)
+                        for (std::size_t j = 0; j < trianglesPerRectangle; ++j)
                         {
-                            if (i != 2)
+                            if (j != 2)
                             {
-                                globalVertexID[i].push_back(vertexIndex);
-                                globalNodeID[i].push_back(nodeIndex);
+                                globalVertexID[j].push_back(vertexIndex);
+                                globalNodeID[j].push_back(nodeIndex);
                             }
                         }
                         break;
                     case 4:
-                        for (std::size_t i = 0; i < trianglesPerRectangle; ++i)
+                        for (std::size_t j = 0; j < trianglesPerRectangle; ++j)
                         {
-                            if (i != 1)
+                            if (j != 1)
                             {
-                                globalVertexID[i].push_back(vertexIndex);
-                                globalNodeID[i].push_back(nodeIndex);
+                                globalVertexID[j].push_back(vertexIndex);
+                                globalNodeID[j].push_back(nodeIndex);
                             }
                         }
                         break;
                     case 7:
-                        for (std::size_t i = 0; i < trianglesPerRectangle; ++i)
+                        for (std::size_t j = 0; j < trianglesPerRectangle; ++j)
                         {
-                            if (i != 0)
+                            if (j != 0)
                             {
-                                globalVertexID[i].push_back(vertexIndex);
-                                globalNodeID[i].push_back(nodeIndex);
+                                globalVertexID[j].push_back(vertexIndex);
+                                globalNodeID[j].push_back(nodeIndex);
                             }
                         }
                         break;
@@ -1074,7 +1094,7 @@ namespace Base
         //set to correct value in case some other meshManipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
-        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
         FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
@@ -2360,7 +2380,7 @@ namespace Base
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
-        ElementFactory::instance().setNumberOfVectors(numberOfFaceVectors_);
+        ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
         FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
@@ -2436,6 +2456,7 @@ namespace Base
                     std::vector<std::size_t> pointIndices;
                     for (auto vertex : triangle.vertices())
                     {
+                        logger.assert(vertex.point().id() >= 0, "QHull breaks our assumptions on indexes");
                         center += hpGEMCoordinates[vertex.point().id()];
                         pointIndices.push_back(vertex.point().id());
                     }
@@ -2633,7 +2654,7 @@ namespace Base
         
         for (PointPhysicalT point : hpGEMCoordinates)
         {
-            qHullCoordinates.append(2, point.data());
+            qHullCoordinates.append(DIM, point.data());
         }
         
         //create the triangulation, pass "d" for delaunay
@@ -2676,7 +2697,8 @@ namespace Base
         updateMesh(domainDescription, fixedPointIdxs, relativeEdgeLength, growFactor);
     }
     
-    void MeshManipulator::updateMesh(std::function<double(PointPhysicalT)> domainDescription, std::vector<std::size_t> fixedPointIdxs, std::function<double(PointPhysicalT)> relativeEdgeLength, double growFactor)
+    ///\bug Assumes a DG basis function set is used. (Workaround: set the basis function set again after calling this routine if you are using something conforming)
+    void MeshManipulator::updateMesh(std::function<double(PointPhysicalT)> domainDescription, std::vector<std::size_t> fixedPointIdxs, std::function<double(PointPhysicalT)> relativeEdgeLength, double growFactor, std::function<bool(PointPhysicalT)> isOnPeriodic, std::function<PointPhysicalT(PointPhysicalT)> duplicatePeriodic, std::vector<std::size_t> dontConnect)
     {
         std::sort(fixedPointIdxs.begin(), fixedPointIdxs.end());
         std::size_t DIM = dimension();
@@ -2686,6 +2708,15 @@ namespace Base
         double worstQuality = 0.5;
         
         std::set<std::pair<std::size_t, std::size_t> > periodicPairing {};
+
+        //set to correct value in case some other meshmanipulator changed things
+        ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
+        ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
+        ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
         for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
         {
@@ -2713,7 +2744,7 @@ namespace Base
         //compute the lengths of the edges and how far the nodes have moved, to see if the nodes have moved so far that a retriangulation is in order
         double maxShift = 0;
         //except dont bother if a retriangulation is in order anyway
-        if (oldNodeLocations_.size() == theMesh_.getNodes().size())
+        if (oldNodeLocations_.size() == theMesh_.getNodeCoordinates().size())
         {
             std::vector<double> unscaledShift {};
             unscaledShift.reserve(theMesh_.getNumberOfNodes());
@@ -2831,7 +2862,7 @@ namespace Base
         std::size_t counter = 0;
         double maxMovement = std::numeric_limits<double>::infinity();
         std::vector<double> currentLength {};
-        std::vector<PointPhysicalT> movement(theMesh_.getNodes().size(), DIM);
+        std::vector<PointPhysicalT> movement(theMesh_.getNodeCoordinates().size(), DIM);
         //stop after n iterations, or (when the nodes have stopped moving and the mesh is not becoming worse), or when the mesh is great, or when the mesh is decent, but worsening
         while ((counter < 10000 && (maxMovement > 1e-3 || oldQuality - worstQuality > 1e-3) && worstQuality < 0.8 && (worstQuality < 2. / 3. || oldQuality - worstQuality < 0)) || counter < 5)
         {
@@ -2842,12 +2873,10 @@ namespace Base
                 
                 orgQhull::RboxPoints qHullCoordinates {};
                 qHullCoordinates.setDimension(DIM);
-                qHullCoordinates.reserveCoordinates(DIM * theMesh_.getNumberOfNodes());
                 oldNodeLocations_.clear();
                 oldNodeLocations_.reserve(theMesh_.getNumberOfNodes());
-                for (PointPhysicalT point : theMesh_.getNodes())
+                for (PointPhysicalT& point : theMesh_.getNodeCoordinates())
                 {
-                    qHullCoordinates.append(DIM, point.data());
                     oldNodeLocations_.push_back(point);
                 }
                 theMesh_.clear();
@@ -2873,40 +2902,72 @@ namespace Base
                 for (std::size_t i = 0; i < theMesh_.getNumberOfNodes();)
                 {
                     vertexIndex[i] = currentVertexNumber;
+                    //see if there are any new boundary nodes
+                    if(isOnPeriodic(theMesh_.getNodeCoordinates()[i]) && !(pairingIterator != periodicPairing.end() && pairingIterator->first == i))
+                    {
+                        std::size_t j = pairingIterator->first;
+                        periodicPairing.insert({i, theMesh_.getNumberOfNodes()});
+                        logger(DEBUG, "periodic pair: % % ", i, theMesh_.getNumberOfNodes());
+                        pairingIterator = std::find_if(periodicPairing.begin(), periodicPairing.end(), [=](const std::pair<std::size_t, std::size_t>& p)->bool{return p.first == std::min(i, j);});
+                        Geometry::PointPhysical newNodeCoordinate = duplicatePeriodic(theMesh_.getNodeCoordinates()[i]);
+                        logger(DEBUG, "new periodic pair coordinates: % %", theMesh_.getNodeCoordinates()[i], newNodeCoordinate);
+                        auto closeNodeCoordinate = std::find_if(getNodeCoordinates().begin(), getNodeCoordinates().end(), [&](const Geometry::PointPhysical& p)->bool{return Base::L2Norm(p - newNodeCoordinate) < 1e-4;});
+                        if(getNodeCoordinates().end() != closeNodeCoordinate)
+                        {
+                            logger(DEBUG, "moving % away from periodic pair", *closeNodeCoordinate);
+                            (*closeNodeCoordinate) = (theMesh_.getNodeCoordinates()[i] + newNodeCoordinate) / 2.;
+                        }
+                        theMesh_.addNode(newNodeCoordinate);
+                        oldNodeLocations_.push_back(newNodeCoordinate);
+                        vertexIndex.resize(theMesh_.getNumberOfNodes(), std::numeric_limits<std::size_t>::max());
+                    }
                     //assign boundary nodes
                     while (pairingIterator != periodicPairing.end() && pairingIterator->first == i)
                     {
+                        logger(DEBUG, "periodic pair: % % ", pairingIterator->first, pairingIterator->second);
                         vertexIndex[pairingIterator->second] = currentVertexNumber;
                         ++pairingIterator;
                     }
                     currentVertexNumber++;
                     //skip over already set boundary nodes
-                    while (vertexIndex[i] < std::numeric_limits<std::size_t>::max() && i < theMesh_.getNumberOfNodes())
+                    while (i < theMesh_.getNumberOfNodes() && vertexIndex[i] < std::numeric_limits<std::size_t>::max())
                     {
                         ++i;
                     }
                 }
+                logger(DEBUG, "periodic pairs end");
                 
                 //all periodic boundary pairs are used
-                logger.assert(pairingIterator == periodicPairing.end(), "Somehow missed some periodic");
+                logger.assert(pairingIterator == periodicPairing.end(), "Somehow missed some periodic pair");
                 //the actual amount of vertices and the assigned amount of vertices match
                 logger.assert(currentVertexNumber == theMesh_.getNumberOfVertices(IteratorType::GLOBAL), "Missed some node indexes");
-                
+
+                qHullCoordinates.reserveCoordinates(DIM * theMesh_.getNumberOfNodes());
+                for(Geometry::PointPhysical& point : theMesh_.getNodeCoordinates())
+                {
+                    qHullCoordinates.append(DIM, point.data());
+                }
+
                 orgQhull::Qhull triangulation(qHullCoordinates, "d PF1e-10 QbB Qx Qc Qt");
                 
                 for (orgQhull::QhullFacet triangle : triangulation.facetList())
                 {
                     if (triangle.isGood() && !triangle.isUpperDelaunay())
                     {
+                        logger(DEBUG, "adding %", triangle);
                         PointPhysicalT center {DIM};
                         std::vector<std::size_t> pointIndices {};
+                        bool shouldConnect = false;
                         for (auto vertexIt1 = triangle.vertices().begin(); vertexIt1 != triangle.vertices().end(); ++vertexIt1)
                         {
+                            logger.assert((*vertexIt1).point().id() >= 0, "QHull breaks our assumptions on indexes");
+                            logger(DEBUG, "% % %", shouldConnect, vertexIndex[(*vertexIt1).point().id()], *vertexIt1);
                             center += oldNodeLocations_[(*vertexIt1).point().id()];
                             pointIndices.push_back((*vertexIt1).point().id());
+                            shouldConnect |= (std::find(dontConnect.begin(), dontConnect.end(), vertexIndex[(*vertexIt1).point().id()]) == dontConnect.end());
                         }
                         center = center / pointIndices.size();
-                        if (domainDescription(center) < -1e-10)
+                        if (domainDescription(center) < -1e-10 && shouldConnect)
                         {
                             auto newElement = addElement(pointIndices);
                             for (std::size_t i = 0; i < pointIndices.size(); ++i)
@@ -2914,10 +2975,14 @@ namespace Base
                                 theMesh_.getVerticesList(IteratorType::GLOBAL)[vertexIndex[pointIndices[i]]]->addElement(newElement, i);
                             }
                         }
+                        else
+                        {
+                            logger(VERBOSE, "external element % ignored", triangle);
+                        }
                     }
                     if (!triangle.isGood() && !triangle.isUpperDelaunay())
                     {
-                        logger(INFO, "small element % ignored", triangle);
+                        logger(VERBOSE, "small element % ignored", triangle);
                     }
                 }
                 for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
@@ -2929,7 +2994,7 @@ namespace Base
                         {
                             if (vertexIndex[i] == node->getID())
                             {
-                                logger(DEBUG, "% % %", i, theMesh_.getNodes()[i], domainDescription(theMesh_.getNodes()[i]));
+                                logger(DEBUG, "% % %", i, theMesh_.getNodeCoordinates()[i], domainDescription(theMesh_.getNodeCoordinates()[i]));
                             }
                         }
                     }
@@ -3095,7 +3160,7 @@ namespace Base
                 else
                 {
                     Node* node = theMesh_.getVerticesList(IteratorType::GLOBAL)[i];
-                    PointPhysicalT& point = theMesh_.getNodes()[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0))];
+                    PointPhysicalT& point = theMesh_.getNodeCoordinates()[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0))];
                     point += 0.1 * (*moveIterator);
                     logger.assert(!(std::isnan(point[0])), "%", i);
                     bool isPeriodic = false;
@@ -3105,7 +3170,7 @@ namespace Base
                     {
                         if (!hasMoved[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))])
                         {
-                            PointPhysicalT& other = theMesh_.getNodes()[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))];
+                            PointPhysicalT& other = theMesh_.getNodeCoordinates()[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))];
                             other += 0.1 * (*moveIterator);
                             hasMoved[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))] = true;
                             isPeriodic = true;
@@ -3150,15 +3215,15 @@ namespace Base
                     }
                     if (isPeriodic)
                     {
-                        //do a total of tree newton iteration before giving up
-                        PointPhysicalT point {DIM};
+                        //do a total of four newton iteration before giving up
+                        PointPhysicalT testPoint {DIM};
                         for (std::size_t j = 0; j < 4; ++j)
                         {
                             //make sure the node stays on the periodic boundary, to prevent faces with 3 or more elements connected to them
                             for (std::size_t k = 0; k < node->getNrOfElements(); ++k)
                             {
-                                point = node->getElement(k)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(k));
-                                double currentValue = domainDescription(point);
+                                testPoint = node->getElement(k)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(k));
+                                double currentValue = domainDescription(testPoint);
                                 if (currentValue > 0)
                                 {
                                     LinearAlgebra::NumericalVector gradient (DIM);
@@ -3166,15 +3231,15 @@ namespace Base
                                     for (std::size_t l = 0; l < DIM; ++l)
                                     {
                                         offset[l] = 1e-7;
-                                        gradient[l] = (currentValue - domainDescription(point + offset)) * 1e7;
+                                        gradient[l] = (currentValue - domainDescription(testPoint + offset)) * 1e7;
                                         offset[l] = 0;
                                     }
-                                    std::map<std::size_t, bool> hasMoved;
+                                    hasMoved.clear();
                                     for (std::size_t l = 0; l < node->getNrOfElements(); ++l)
                                     {
                                         if (!hasMoved[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))])
                                         {
-                                            PointPhysicalT& other = theMesh_.getNodes()[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))];
+                                            PointPhysicalT& other = theMesh_.getNodeCoordinates()[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))];
                                             other += currentValue * gradient / L2Norm(gradient);
                                             hasMoved[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))] = true;
                                         }
@@ -3185,12 +3250,12 @@ namespace Base
                         }
                         for (std::size_t j = 0; j < node->getNrOfElements(); ++j)
                         {
-                            point = node->getElement(j)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(j));
-                            if (domainDescription(point) > 1e-10)
+                            testPoint = node->getElement(j)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(j));
+                            if (domainDescription(testPoint) > 1e-10)
                             {
-                                logger(WARN, "NOTE: Failed to move periodic point % (%) back to the periodic boundary.\n "
+                                logger(WARN, "NOTE: Failed to move periodic testPoint % (%) back to the periodic boundary.\n "
                                         "Distance from boundary is %. Algorithm may crash.\n "
-                                        "Consider fixing points at corners to remedy this issue.", i, point, domainDescription(point));
+                                        "Consider fixing points at corners to remedy this issue.", i, testPoint, domainDescription(testPoint));
                             }
                         };
                     }
@@ -3267,6 +3332,7 @@ namespace Base
             }
             
             //no teleporting nodes in the final iteration
+            ///\todo temporarily toggled off for debug reasons
             if (counter % 50 == 1 && false)
             {
                 //the actual sorting is more expensive than computing the lengths and this does not happen very often
@@ -3348,10 +3414,10 @@ namespace Base
                     {
                         if (domainDescription(longEdge->second.first) < 0)
                         {
-                            maxMovement = std::max(maxMovement, L2Norm(longEdge->second.first - theMesh_.getNodes()[shortEdge->second.second]));
+                            maxMovement = std::max(maxMovement, L2Norm(longEdge->second.first - theMesh_.getNodeCoordinates()[shortEdge->second.second]));
                             //it is quite unlikely that the current triangulation suffices after randomly teleporting nodes about
                             maxShift = std::numeric_limits<double>::infinity();
-                            theMesh_.getNodes()[shortEdge->second.second] = longEdge->second.first;
+                            theMesh_.getNodeCoordinates()[shortEdge->second.second] = longEdge->second.first;
                             hasTeleported[shortEdge->second.second] = true;
                             shortEdge++;
                         }
@@ -3394,6 +3460,12 @@ namespace Base
                     localNodes.push_back(element->getNode(nodeIndices[0]));
                     std::sort(candidates.begin(), candidates.end(), [](Element* left, Element* right)
                     {   return left->getID()<right->getID();});
+
+                    logger(DEBUG, "Candidates: ");
+                    for(Element* coutElement : candidates)
+                    {
+                        logger(DEBUG, "Element %: %", coutElement->getID(), *coutElement);
+                    }
                     for (std::size_t j = 1; j < nodeIndices.size(); ++j)
                     {
                         localNodes.push_back(element->getNode(nodeIndices[j]));
@@ -3404,11 +3476,16 @@ namespace Base
                         std::set_intersection(candidates.begin(), candidates.end(), nextIndices.begin(), nextIndices.end(), std::back_inserter(temp), [](Element* left, Element* right)
                         {   return left->getID()<right->getID();});
                         candidates = std::move(temp);
+                        logger(DEBUG, "Candidates: ");
+                        for(Element* coutElement : candidates)
+                        {
+                            logger(DEBUG, "Element %: %", coutElement->getID(), *coutElement);
+                        }
                     }
                     
                     //the current element does not bound the face or more than two elements bound the face
                     logger.assert_always(candidates.size() == 1 || candidates.size() == 2, 
-                                         "Invalid number of bounding elements detected for face %", 
+                                         "Detected % bounding elements for face %, which is impossible", candidates.size(),
                                          theMesh_.getFacesList(IteratorType::GLOBAL).size() + 1);
                     //boundary face
                     if (candidates.size() == 1)

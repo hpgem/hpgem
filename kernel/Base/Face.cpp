@@ -39,7 +39,7 @@ namespace Base
     
     class Face;
     Face::Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, Element* ptrElemR, const LocalFaceNrTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
-            : FaceGeometryT((ElementGeometryT*) ptrElemL, localFaceNumL, (ElementGeometryT*) ptrElemR, localFaceNumR),
+            : FaceGeometryT(ptrElemL, localFaceNumL, ptrElemR, localFaceNumR),
             FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknows() + ptrElemR->getNrOfBasisFunctions() * ptrElemR->getNrOfUnknows(), numberOfFaceMatrixes, numberOfFaceVectors), 
             elementLeft_(ptrElemL), elementRight_(ptrElemR), nrOfConformingDOFOnTheFace_(0), faceID_(faceID)
     {
@@ -61,7 +61,7 @@ namespace Base
     }
     
     Face::Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
-            : FaceGeometryT((ElementGeometryT*) ptrElemL, localFaceNumL, faceType), FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknows(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(nullptr), nrOfConformingDOFOnTheFace_(0), faceID_(faceID)
+            : FaceGeometryT(ptrElemL, localFaceNumL, faceType), FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknows(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(nullptr), nrOfConformingDOFOnTheFace_(0), faceID_(faceID)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
         createQuadratureRules();
@@ -118,14 +118,14 @@ namespace Base
     double Face::basisFunction(std::size_t i, const Geometry::PointReference& p) const
     {
         logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
-        std::size_t n(getPtrElementLeft()->getNrOfBasisFunctions());
-        if (i < n)
+        std::size_t numBasisFuncs = getPtrElementLeft()->getNrOfBasisFunctions();
+        if (i < numBasisFuncs)
         {
             return getPtrElementLeft()->basisFunction(i, mapRefFaceToRefElemL(p));
         }
         else
         {
-            return getPtrElementRight()->basisFunction(i - n, mapRefFaceToRefElemR(p));
+            return getPtrElementRight()->basisFunction(i - numBasisFuncs, mapRefFaceToRefElemR(p));
         }
     }
     
@@ -298,27 +298,10 @@ namespace Base
         return resLeft;
     }
     
-    LinearAlgebra::NumericalVector Face::getCurrentData()
-    {
-        LinearAlgebra::NumericalVector dataLeft = getPtrElementLeft()->getCurrentData();
-        if (isInternal())
-        {
-            std::size_t numBasisFuncs = getNrOfBasisFunctions();
-            std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
-            dataLeft.resize(numBasisFuncs);
-            LinearAlgebra::NumericalVector dataRight = getPtrElementRight()->getCurrentData();
-            for (std::size_t i = numBasisFuncsLeft; i < numBasisFuncs; ++i)
-            {
-                dataLeft[i] = dataRight[i - numBasisFuncsLeft];
-            }
-        }
-        return dataLeft;
-    }
-    
     /// \param[in] side The side of the face.
     /// \param[in] varId The index corresponding to the variable.
     /// \param[in] scalarBasisFunctionId The index corresponding to the basisfunction.
-    const std::size_t Face::convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId) const
+    std::size_t Face::convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId) const
     {
         logger.assert(varId < getPtrElementLeft()->getNrOfUnknows(), "Asked for unknown %, but there are only % unknowns", varId, getPtrElementLeft()->getNrOfUnknows());
         if (side == Side::LEFT)
@@ -335,7 +318,7 @@ namespace Base
         }
     }
     
-    const Side Face::getSide(std::size_t faceBasisFunctionId) const
+    Side Face::getSide(std::size_t faceBasisFunctionId) const
     {
         std::size_t nDOFLeft = getPtrElementLeft()->getNrOfUnknows() * getPtrElementLeft()->getNrOfBasisFunctions();
         if(faceBasisFunctionId < nDOFLeft)
@@ -349,7 +332,7 @@ namespace Base
         }
     }
     
-    const std::size_t Face::getElementBasisFunctionId(std::size_t faceBasisFunctionId) const
+    std::size_t Face::getElementBasisFunctionId(std::size_t faceBasisFunctionId) const
     {
         std::size_t nDOFLeft = getPtrElementLeft()->getNrOfUnknows() * getPtrElementLeft()->getNrOfBasisFunctions();
         if(faceBasisFunctionId < nDOFLeft)
@@ -363,4 +346,3 @@ namespace Base
         }
     }
 }
-;

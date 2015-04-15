@@ -40,6 +40,8 @@ namespace Geometry
             std::cout << "RefinementTetrahedron(referenceGeometry, physicalGeometry)\n";
         }
         
+        //Note: shallow copy, since the RefinementTetrahedron is not the owner of 
+        //its PhysicalGeometry and ReferenceGeometry.
         RefinementTetrahedron(const RefinementTetrahedron& other)
                 : RefinementGeometry(other), physicalGeometry_(other.physicalGeometry_), referenceGeometry_(other.referenceGeometry_)
         {

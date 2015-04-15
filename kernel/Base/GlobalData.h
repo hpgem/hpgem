@@ -29,6 +29,5 @@ namespace Base
         std::size_t numberOfTimeLevels_;
     };
 }
-;
 
 #endif /* GLOBALDATA_H_ */

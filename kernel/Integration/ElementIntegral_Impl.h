@@ -62,8 +62,8 @@ namespace Integration
     
     /*!
     \param[in]  el        the Element to be integrated on
-    \param[in]  rule      the GaussQuadratureRule to use
-    \param[in]  integrand a function with parameters Element, PointReference, ResultType&
+    \param[in]  qdrRule      the GaussQuadratureRule to use
+    \param[in]  integrandFun a function with parameters Element, PointReference, ResultType&
     \return    a reference to the variable with result storage
 
     This function integrates the function in integrand over the element el with

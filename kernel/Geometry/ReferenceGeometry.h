@@ -59,20 +59,20 @@ namespace Geometry
     {
         POINT, LINE, TRIANGLE, SQUARE, TETRAHEDRON, PYRAMID, CUBE, TRIANGULARPRISM, HYPERCUBE
     };
-    
+
+    /*! \class ReferenceGeometry
+     * \brief ReferenceGeometry stores a the information of a unitary geometry where the integration is made.
+     * \details
+     * ReferenceGeometry stores the information of the corresponding reference object, which
+     * are used for integration routines. It is a pure virtual class; an interface for every
+     * particular reference geometry. The information is a container of the actual reference
+     * points.
+     *
+     * Constructors are protected, to avoid the creation of two identical physical geometries.
+     * Only one of every needed type is necessary.
+     */
     class ReferenceGeometry : public RefinementMapping, public MappingCodimensions
     {
-        /*! \class ReferenceGeometry
-         * \brief ReferenceGeometry stores a the information of a unitary geometry where the integration is made.
-         * \details
-         * ReferenceGeometry stores the information of the corresponding reference object, which
-         * are used for integration routines. It is a pure virtual class; an interface for every
-         * particular reference geometry. The information is a container of the actual reference
-         * points.
-         *
-         * Constructors are protected, to avoid the creation of two identical physical geometries.
-         * Only one of every needed type is necessary.
-         */
     public:
         using String = std::string;
         using VectorOfReferencePointsT = std::vector<PointReference>;
@@ -85,6 +85,8 @@ namespace Geometry
         virtual ~ReferenceGeometry()
         {
         }
+        
+        ReferenceGeometry(const ReferenceGeometry& other) = delete;
 
         /// \brief Check whether a given point is within the ReferenceGeometry.
         virtual bool isInternalPoint(const PointReference& point) const = 0;
@@ -121,7 +123,7 @@ namespace Geometry
         // ================================== Quadrature rules =====================================
         
         /// \brief Get a valid quadrature for this geometry.
-        const QuadratureRules::GaussQuadratureRule* const getGaussQuadratureRule(std::size_t order) const;
+        const QuadratureRules::GaussQuadratureRule* getGaussQuadratureRule(std::size_t order) const;
 
         ///\bug getBasisFunctionValue and getBasisFunctionDerivative have functionality that is completely independent from the rest of ReferenceGeometry
         ///\bug getBasisFunctionValue does some lazy initialization, so it can't be const, unless you consider the state to
@@ -137,6 +139,14 @@ namespace Geometry
             return const_cast<ReferenceGeometry*>(this)->getBasisFunctionValue(function, p);
         }
         
+        ///\brief clean out the cache for this basis function because you are going to delete it
+        ///\todo the way basis function values are stored will be reworked in the near future
+        void removeBasisFunctionData(const Base::BaseBasisFunction* function)
+        {
+            basisfunctionValues_.erase(function);
+            basisfunctionDerivatives_.erase(function);
+        }
+
         ///\bug getBasisFunctionDerivative does some lazy initialization, so it can't be const, unless you consider the state to
         /// contain the values of all basisFunctions at all reference points
         ///\todo The basisfunctions are not a responsibility of the reference geometry,
@@ -153,7 +163,6 @@ namespace Geometry
     protected:
         ReferenceGeometry(const ReferenceGeometryType& geoT);
         ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT);
-        ReferenceGeometry(const ReferenceGeometry& other) = delete;
 
         /// Container of the actual points (no reference).
         VectorOfReferencePointsT points_;

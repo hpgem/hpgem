@@ -30,8 +30,8 @@ using Geometry::Point;
 
 int main()
 {
-    
-    double coord0[] = {};
+    //when using zero-dimensional points, take care that the 0-size double* array is a language extension
+    double *coord0 = nullptr;
     double coord1[] = {1.1};
     double coord2[] = {1.2, 2.2};
     double coord3[] = {1.3, 2.3, 3.3};

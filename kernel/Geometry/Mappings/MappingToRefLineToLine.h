@@ -49,10 +49,10 @@ namespace Geometry
         {
             return 1;
         }
+        MappingToRefLineToLine0(const MappingToRefLineToLine0&) = delete;
+        MappingToRefLineToLine0& operator=(const MappingToRefLineToLine0&) = delete;
     private:
         MappingToRefLineToLine0();
-        MappingToRefLineToLine0(const MappingToRefLineToLine0&);
-        MappingToRefLineToLine0& operator=(const MappingToRefLineToLine0&);
     };
     
     // ~~~ index 1 ~~~=========================================================================== //
@@ -66,11 +66,10 @@ namespace Geometry
         {
             return 1;
         }
+        MappingToRefLineToLine1(const MappingToRefLineToLine1&) = delete;
+        MappingToRefLineToLine1& operator=(const MappingToRefLineToLine1&) = delete;
     private:
         MappingToRefLineToLine1();
-        MappingToRefLineToLine1(const MappingToRefLineToLine1&);
-        MappingToRefLineToLine1& operator=(const MappingToRefLineToLine1&);
     };
 }
-;
 #endif

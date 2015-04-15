@@ -43,7 +43,7 @@ namespace Output
     {
     public:
         ///\brief write front matter and open file stream
-        ///\param baseName name of the file WITHOUT extentions
+        ///\param baseFileName name of the file WITHOUT extentions
         ///\param mesh the mesh containing the data you want to output
         ///if you want to write from multiple meshes, simply have paraview load both output files
         VTKTimeDependentWriter(std::string baseFileName, Base::MeshManipulator* mesh);

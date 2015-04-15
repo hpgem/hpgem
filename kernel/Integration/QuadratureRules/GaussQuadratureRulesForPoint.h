@@ -43,6 +43,7 @@ namespace QuadratureRules
             static Cn0_inf_1 theInstance;
             return theInstance;
         }
+        Cn0_inf_1(const Cn0_inf_1&) = delete;
         
         std::string getName() const override final
         {
@@ -76,8 +77,6 @@ namespace QuadratureRules
     private:
         Cn0_inf_1();
 
-        Cn0_inf_1(const Cn0_inf_1&) = delete;
-    private:
         const std::string name_;
         double weight_[1];
         Geometry::ReferenceGeometry * const refGeoPtr_;

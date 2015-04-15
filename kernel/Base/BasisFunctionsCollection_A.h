@@ -1949,5 +1949,4 @@ namespace Base
     };
 
 }
-;
 #endif  // BasisFunctionsCollection_A_h

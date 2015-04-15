@@ -50,6 +50,10 @@ namespace Base
         FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices = 0, std::size_t numberOfFaceVactors = 0);        
         
         FaceData(const FaceData& other);
+        
+        virtual ~FaceData()
+        {
+        }
 
         /// \brief Sets face matrix number 'matrixID' using a standard matrix.
         /// \deprecated For safety and also efficiency it is advised to use the other version
@@ -73,11 +77,7 @@ namespace Base
         virtual VecCacheT& getVecCacheData()
         {
             return vecCacheData_;
-        }
-        
-        virtual ~FaceData()
-        {
-        }
+        }        
         
         virtual UserFaceData* getUserData() const
         {
@@ -110,5 +110,4 @@ namespace Base
         LinearAlgebra::NumericalVector residual_;
     };
 }
-;
 #endif

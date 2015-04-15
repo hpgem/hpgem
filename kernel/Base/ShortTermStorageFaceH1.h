@@ -40,6 +40,8 @@ namespace Base
         {
         }
         
+        ShortTermStorageFaceH1(const ShortTermStorageFaceH1 &other) = delete;
+                
         void computeData() override;
 
         double basisFunction(std::size_t i, const Geometry::PointReference& p) override final;
