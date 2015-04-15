@@ -64,7 +64,7 @@ public:
     LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
 
     /// \brief Compute the integrand for the reference element for obtaining the initial solution.
-    LinearAlgebra::NumericalVector integrandInitialSolutionOnRefElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
+    LinearAlgebra::NumericalVector integrandInitialSolutionOnElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
 
     /// \brief Integrate the initial solution for a single element.
     LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
@@ -139,6 +139,10 @@ public:
 
     void computeOneTimeStep(double &time, const double dt);
     void limitSolution();
+    bool useLimitierForElement(const Base::Element *element);
+    LinearAlgebra::NumericalVector computeVelocity(LinearAlgebra::NumericalVector numericalSolution);
+    LinearAlgebra::NumericalVector computeNormOfAverageOfSolutionInElement(const Base::Element *element);
+    
 private:
     /// Dimension of the domain
     const std::size_t DIM_;
@@ -151,6 +155,8 @@ private:
     std::size_t numTimeSteps_;
     
     std::size_t timeStepCounter;
+    
+    friend class SavageHutterRightHandSideComputer;
 
 };
 

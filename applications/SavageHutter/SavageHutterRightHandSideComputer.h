@@ -64,6 +64,7 @@ private:
     NumericalVector computeNumericalSolution(const Base::Element *ptrElement, const Geometry::PointReference &pRef, const NumericalVector& solutionCoefficients);
     NumericalVector localLaxFriedrichsFlux(const NumericalVector &numericalSolutionLeft, const NumericalVector &NumericalSolutionRight);
     double computeFriction(const NumericalVector &numericalSolution);
+    LinearAlgebra::NumericalVector getInflowBC();
     
     std::size_t numOfVariables_;
     std::size_t DIM_;

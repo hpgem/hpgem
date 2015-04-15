@@ -59,7 +59,9 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
 ( const Base::Face *ptrFace, const Base::Side &iSide, const NumericalVector &normalVec, const Geometry::PointReference &pRef, const NumericalVector &solutionCoefficientsLeft, const NumericalVector &solutionCoefficientsRight)
 {
     logger.assert(ptrFace != nullptr, "gave an empty face");
-    logger.assert(ptrFace->getPtrElement(iSide) != nullptr, "acquired an empty element");
+    logger.assert(ptrFace->getPtrElementLeft() != nullptr, "left element is nullptr");
+    logger.assert(ptrFace->getPtrElementRight() != nullptr, "right element is nullptr");
+    logger.assert(ptrFace->getPtrElement(iSide) != nullptr, "acquired an empty element for face %", ptrFace->getID());
     double normal = normalVec(0);
     const std::size_t numTestBasisFuncs = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
     const std::size_t numBasisFuncsLeft = ptrFace->getPtrElement(Base::Side::LEFT)->getNrOfBasisFunctions();
@@ -134,7 +136,7 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
     }
     else //inflow
     {
-        flux = localLaxFriedrichsFlux(NumericalVector({1.1, 2.5*1.1}), solution);
+        flux = localLaxFriedrichsFlux(getInflowBC(), solution);
     }
     
     NumericalVector integrand(numOfVariables_ * numBasisFuncs);
@@ -232,3 +234,7 @@ double SavageHutterRightHandSideComputer::computeFriction(const NumericalVector&
     return std::tan(theta_);
 }
 
+LinearAlgebra::NumericalVector SavageHutterRightHandSideComputer::getInflowBC()
+{
+    return LinearAlgebra::NumericalVector({1.1, 2.5 * 1.1});
+}
