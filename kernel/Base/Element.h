@@ -174,19 +174,6 @@ namespace Base
             return nodesList_.size();
         }
         
-        ///\brief Return the mass int(phi_i phi_j) matrix of this element.
-        ///\details If the mass matrix is computed earlier, we just return it. 
-        ///Otherwise, the mass matrix is computed, stored and returned. 
-        ///\bug does not work for moving meshes
-        const LinearAlgebra::Matrix& getMassMatrix()
-        {
-            if (massMatrix_.size() == 0)
-            {
-                computeMassMatrix();
-            }
-            return massMatrix_;
-        }
-        
 #ifndef NDEBUG
         virtual const Base::BaseBasisFunction* getBasisFunction(std::size_t i) const;
 #endif
@@ -203,26 +190,32 @@ namespace Base
     private:
         ///Constructor that copies the data and geometry of the given ElementData and ElementGeometry.
         Element(const ElementData& otherData, const ElementGeometry& otherGeometry);
-        
-        ///Compute the mass matrix of this element.
-        void computeMassMatrix();
 
+        /// Quadrature rule used to do the integration on this element.
         const GaussQuadratureRuleT *quadratureRule_;
+        
+        /// Vector of basis function sets. Usually you only need one basis function set.
         const CollectionOfBasisFunctionSets *basisFunctionSet_;
+        
+        /// Identifier (index) of the element.
         std::size_t id_;
+        
+        /// Constant that describes a relation between the polynomial order of the basis function set and the accuracy of the quadrature rule.
         std::size_t orderCoeff_;
+        
+        /// Indices of the basis function sets that are used.
         std::vector<int> basisFunctionSetPositions_;
+        
         std::vector<const Face*> facesList_;
         std::vector<const Edge*> edgesList_;
         std::vector<const Node*> nodesList_;
 
-        //IN the element, so don't count conforming DOF from faces/...
+        /// Degrees of freedom corresponding to this element. When using conforming basis functions only the basis functions with support on only this element are counted.
         std::size_t nrOfDOFinTheElement_;
         
+        /// Vector of data which the user might want to store. For example determinants of the Jacobian for each quadrature point.
         VecCacheT vecCacheData_;
         
-        ///Stores the mass matrix for this element
-        LinearAlgebra::Matrix massMatrix_;
     };
 }
 

@@ -42,7 +42,7 @@
 
 namespace Base
 {
-    
+    /// \details The user does not need to worry about the contruction of elements. This is done by mesh-generators. For example the interface HpgemAPIBase can be used to create meshes.
     Element::Element(const VectorOfPointIndexesT& globalNodeIndexes, 
                      const CollectionOfBasisFunctionSets *basisFunctionSet, 
                      VectorOfPhysicalPointsT& allNodes, 
@@ -450,43 +450,6 @@ namespace Base
         logger.assert(std::find(nodesList_.begin(), nodesList_.end(), node) == nodesList_.end(), "Trying to add node %, but it was already added", node->getID());
         logger.assert(localNodeNr < getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());
         nodesList_[localNodeNr] = node;
-    }
-    
-    ///Function that computes the mass matrix. First resize the mass matrix to 
-    ///the correct size, then for all quadrature points, compute the values of 
-    ///all the products of basisfunctions and add this with the appropriate weight
-    ///to the mass matrix.
-    void Element::computeMassMatrix()
-    {
-        //get the number of basisfunctions, dimension and number of quadrature 
-        //points on this element.
-        std::size_t numBasisFuncs = getNrOfBasisFunctions();
-        std::size_t dim = quadratureRule_->dimension();
-        std::size_t numQuadPoints = quadratureRule_->nrOfPoints();
-        
-        //make the mass matrix of the correct size and set all entries to zero.
-        massMatrix_.resize(numBasisFuncs, numBasisFuncs);
-        massMatrix_ *= 0;
-        
-        //declare the relevant auxiliary variables
-        LinearAlgebra::Matrix tempMatrix(numBasisFuncs, numBasisFuncs);
-        Geometry::Jacobian jac(dim, dim);
-        
-        //for each quadrature point, compute the value of the product of the 
-        //basisfunctions, then add it with the correct weight to massMatrix_
-        for (std::size_t pIndex = 0; pIndex < numQuadPoints; ++pIndex)
-        {
-            Geometry::PointReference p = quadratureRule_->getPoint(pIndex);
-            jac = calcJacobian(p);
-            for (std::size_t i = 0; i < numBasisFuncs; ++i)
-            {
-                for (std::size_t j = 0; j < numBasisFuncs; ++j)
-                {
-                    tempMatrix(i, j) = basisFunction(i, p) * basisFunction(j, p);
-                }
-            }
-            massMatrix_.axpy((quadratureRule_->weight(pIndex)) * std::abs(jac.determinant()), tempMatrix);
-        }
     }
 
     std::ostream& operator<<(std::ostream& os, const Element& element)
