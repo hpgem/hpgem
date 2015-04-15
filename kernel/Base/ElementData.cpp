@@ -48,8 +48,6 @@ namespace Base
         nrOfBasisFunctions_ = other.nrOfBasisFunctions_;
         
         expansionCoefficients_ = other.expansionCoefficients_;
-        residue_ = other.residue_;
-        currentData_ = other.currentData_;
         
         //note: shallow copy
         userData_ = other.userData_;
@@ -164,7 +162,6 @@ namespace Base
 
     /// \param[in] timeLevel Index corresponding to the time level.
     /// \param[in] unknown Index corresponding to the variable.
-
     const LinearAlgebra::NumericalVector
     ElementData::getTimeLevelData(std::size_t timeLevel, std::size_t unknown) const
     {
@@ -215,35 +212,9 @@ namespace Base
         return expansionCoefficients_[timeLevel];
     }
     
-    void ElementData::setCurrentData(const LinearAlgebra::NumericalVector& data)
-    {
-        currentData_ = data;
-    }
-    
-    LinearAlgebra::NumericalVector& ElementData::getCurrentData()
-    {
-        // The vector can be of dimension 0 if it hasn't been used before, 
-        // therefore it must be resized first.
-        if (currentData_.size() != nrOfBasisFunctions_)
-        {
-            currentData_.resize(nrOfBasisFunctions_);
-        }
-        return currentData_;
-    }
-    
     std::size_t ElementData::getNrOfUnknows() const
     {
         return nrOfUnknowns_;
-    }
-    
-    void ElementData::setResidue(LinearAlgebra::NumericalVector& residue)
-    {
-        residue_ = residue;
-    }
-    
-    const typename LinearAlgebra::NumericalVector& ElementData::getResidue() const
-    {
-        return residue_;
     }
     
     void ElementData::setUserData(UserElementData* data)

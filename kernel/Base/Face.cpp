@@ -298,23 +298,6 @@ namespace Base
         return resLeft;
     }
     
-    LinearAlgebra::NumericalVector Face::getCurrentData()
-    {
-        LinearAlgebra::NumericalVector dataLeft = getPtrElementLeft()->getCurrentData();
-        if (isInternal())
-        {
-            std::size_t numBasisFuncs = getNrOfBasisFunctions();
-            std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
-            dataLeft.resize(numBasisFuncs);
-            LinearAlgebra::NumericalVector dataRight = getPtrElementRight()->getCurrentData();
-            for (std::size_t i = numBasisFuncsLeft; i < numBasisFuncs; ++i)
-            {
-                dataLeft[i] = dataRight[i - numBasisFuncsLeft];
-            }
-        }
-        return dataLeft;
-    }
-    
     /// \param[in] side The side of the face.
     /// \param[in] varId The index corresponding to the variable.
     /// \param[in] scalarBasisFunctionId The index corresponding to the basisfunction.

@@ -271,11 +271,6 @@ namespace Base
             return element_->getNrOfBasisFunctions();
         }
         
-        const LinearAlgebra::NumericalVector& getResidue() const override final
-        {
-            return element_->getResidue();
-        }
-        
         UserElementData* getUserData() const override final
         {
             return element_->getUserData();

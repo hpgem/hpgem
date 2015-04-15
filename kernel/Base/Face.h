@@ -173,8 +173,6 @@ namespace Base
         /// Specify a time level index, return a vector containing the data for that time level.
         virtual LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
 
-        LinearAlgebra::NumericalVector getCurrentData();
-
         /// \brief Convert the side of the face, the index corresponding to the scalar basis function (scalarBasisFunctionId) and the index corresponding to the variable (varId) to a single index (faceBasisFunctionId).
         virtual std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId = 0) const;
         

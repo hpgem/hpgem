@@ -39,11 +39,7 @@ namespace Base
     
     class ElementData
     {
-        /*!
-         * ElementData contains the data for every element in the vector elementData_.
-         * This is a two dimensional vector where the first dimensions is the time level,
-         * and the second the number of unknowns times the number of basis functions.
-         */
+        
     public:
         using MatrixT = LinearAlgebra::Matrix;
         using VectorOfMatrices = std::vector<LinearAlgebra::Matrix>;
@@ -63,7 +59,7 @@ namespace Base
         virtual const LinearAlgebra::Matrix &getElementMatrix(std::size_t matrixID = 0) const;
 
         /// \brief Set the element vector corresponding to the given vectorID.
-        virtual void setElementVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0);
+        virtual void setElementVector(const LinearAlgebra::NumericalVector &vector, std::size_t vectorID = 0);
 
         /// \brief Get the element vector corresponding to the given vectorID.
         virtual LinearAlgebra::NumericalVector getElementVector(std::size_t vectorID = 0) const;
@@ -82,10 +78,6 @@ namespace Base
         void setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::NumericalVector &val);
         void setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::NumericalVector &val);
 
-        void setCurrentData(const LinearAlgebra::NumericalVector& data);
-
-        LinearAlgebra::NumericalVector& getCurrentData();
-
         /// \brief Specify a time level index, a variabale index and a basis function index, return the corresponding expansionCoefficient (double).
         virtual double getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const;
 
@@ -95,10 +87,6 @@ namespace Base
         virtual std::size_t getNrOfUnknows() const;
 
         virtual std::size_t getNrOfBasisFunctions() const;
-
-        virtual const LinearAlgebra::NumericalVector& getResidue() const;
-
-        void setResidue(LinearAlgebra::NumericalVector& residue);
 
         void setUserData(UserElementData* data);
 
@@ -117,7 +105,7 @@ namespace Base
         void setNumberOfBasisFunctions(std::size_t number);
 
     private:
-        /// The number of time levels
+        /// The number of time levels. Multiple time levels can be used to store intermediate results, help variables and residues.
         std::size_t timeLevels_;
         
         /// The number of variables (unknowns).
@@ -130,15 +118,9 @@ namespace Base
         /// \details The value expansionCoefficients_(iT)(iVB) is the expansion 
         /// coefficient corresponding to the solution at time level iT and vector 
         /// basisfunction iVB. Index iVB satisfies iVB = convertToSingleIndex(iB,iV), 
-        /// where iB is the index corresponding to the basis function and iVB the 
+        /// where iB is the index corresponding to the basis function and iV the
         /// index corresponding to the variable.
         std::vector<LinearAlgebra::NumericalVector> expansionCoefficients_;
-
-        ///Stores the result of an element integration
-        LinearAlgebra::NumericalVector residue_;
-
-        ///Store temporary data
-        LinearAlgebra::NumericalVector currentData_;
 
         ///Stores polymorphic pointer to UserDefined Data, internally not used. 
         ///Used only outside of the Kernel.
