@@ -36,9 +36,9 @@ int main (int argc, char **argv){
     test.createMesh(numOfElements, meshType);
 
     const double startTime = 0.0;
-    const double endTime = 1.0;
-    double dt = 0.0001;
-    const std::size_t numOfOutputFrames = 1;
+    const double endTime = 5.0;
+    double dt = 0.001;
+    const std::size_t numOfOutputFrames = 200;
 
     // Solve the problem over time interval [startTime,endTime].
     test.solve(startTime, endTime, dt, numOfOutputFrames, false);

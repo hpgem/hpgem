@@ -31,6 +31,9 @@ public:
     /// ***   Element integration functions   ***
     /// *****************************************
 
+    /// Compute source function at an element
+    LinearAlgebra::NumericalVector integrandSourceAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector qSolution, const double pressureTerm, const double &time, const Geometry::PointReference &pRef);
+
     /// Compute solution at an element
     LinearAlgebra::NumericalVector computeSolutionAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
 
@@ -45,7 +48,7 @@ public:
     /// *****************************************
 
     /// \brief Compute the Roe Riemann Flux.
-    LinearAlgebra::NumericalVector RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qReconstructionLeft, const LinearAlgebra::NumericalVector &qReconstructionRight, LinearAlgebra::NumericalVector &normal, const Base::Side &iSide);
+    LinearAlgebra::NumericalVector RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qReconstructionLeft, const LinearAlgebra::NumericalVector &qReconstructionRight, LinearAlgebra::NumericalVector &normal);
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
     LinearAlgebra::NumericalVector integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);

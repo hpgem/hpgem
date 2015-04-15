@@ -43,31 +43,23 @@ LinearAlgebra::NumericalVector Euler::getInitialSolution(const PointPhysicalT &p
 {
 	LinearAlgebra::NumericalVector initialSolution(numOfVariables_);
 
-	if (DIM_ == 1)
+	double amplitude = 0.2;
+	double frequency = 2.0*M_PI;
+	double function = amplitude*std::cos(frequency*startTime);
+
+	for (std::size_t iD = 0; iD < DIM_; iD++)
 	{
-		initialSolution(0) = 1.5 + 0.1*std::sin(2.0*M_PI*pPhys[0]);
-		initialSolution(1) = 3.0;
-		initialSolution(DIM_ + 1) = 30.0;
+		function *= std::cos(frequency*pPhys[iD]);
 	}
 
-	if (DIM_ == 2)
+	initialSolution(0) = 1.5 + function;
+
+	for (std::size_t iD = 0; iD < DIM_; iD++)
 	{
-		//density and energy density:
-		initialSolution(0) = 2.0 + 0.1*std::sin(M_PI*pPhys[0])*std::sin(M_PI*pPhys[1]);
-		initialSolution(1) = 0.0;
-		initialSolution(2) = 0.0;
-		initialSolution(DIM_+1) = 10.0;
+		initialSolution(iD+1) = function;
 	}
 
-	if (DIM_ == 3)
-	{
-		//density and energy density:
-		initialSolution(0) = 2.0 + 0.1*std::sin(M_PI*pPhys[0])*std::sin(M_PI*pPhys[1]);
-		initialSolution(1) = 0.0;
-		initialSolution(2) = 0.0;
-		initialSolution(3) = 0.0;
-		initialSolution(DIM_+1) = 10.0;
-	}
+	initialSolution(DIM_ + 1) = 30.0 + function;
 
     return initialSolution;
 }
@@ -96,6 +88,148 @@ LinearAlgebra::NumericalVector Euler::computeSolutionAtElement(const Base::Eleme
 		return elementSolution;
 }
 
+/// \brief computes the source at an element
+LinearAlgebra::NumericalVector Euler::integrandSourceAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector qSolution, const double pressureTerm, const double &time, const Geometry::PointReference &pRef)
+{
+	std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+	std::size_t iVB;
+
+	LinearAlgebra::NumericalVector integrandSource(numOfVariables_ * numOfBasisFunctions);
+
+	//Convert pRef to pPhys
+	Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+
+
+	//*********************************************************
+	//***	Calculate derivative terms for source function	***
+	//*********************************************************
+
+	//Calculate base source functions: S_t, S_x, S_y, S_z, see manual
+	double amplitude = 0.2;
+	double frequency = 2.0*M_PI;
+	LinearAlgebra::NumericalVector sourceValue(DIM_ + 1);
+
+	//Add the time-dependent part of the function
+	sourceValue(0) = -amplitude*frequency*std::sin(frequency*time);
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		sourceValue(iD + 1) = -amplitude*frequency*std::cos(frequency*time);
+	}
+
+	//Add the space-dependent part of the function
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		sourceValue(0) *= std::cos(frequency*pPhys[iD]);
+		sourceValue(iD+1) *= std::sin(frequency*pPhys[iD]);
+	}
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		for (std::size_t iD2 = 0; iD2 < DIM_; iD2++)
+		{
+			if (iD != iD2)
+			{
+				sourceValue(iD+1) *= cos(frequency*pPhys[iD2]);
+			}
+		}
+	}
+
+	//*****************************************************
+	//***	Calculate values for various source terms	***
+	//*****************************************************
+
+	double q1Inverse = 1.0/qSolution(0);
+
+	//Calculate Source term values: momentum convection
+	LinearAlgebra::Matrix sourceConvection(DIM_,DIM_); // d(rho*u^2)/dx or d(rho*v^2)/dy or d(rho*w^2)/dz on the diagonal and terms like d(rho*u*v)/dx and d(rho*w*u)/dz	on the off-diagonal
+
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		sourceConvection(iD,iD) = (2.0*qSolution(iD+1) - qSolution(iD+1)*qSolution(iD+1)*q1Inverse)*sourceValue(iD+1)*q1Inverse; // d(rho*u^2)/dx or d(rho*v^2)/dy or d(rho*w^2)/dz
+	}
+	//off diagonal convection
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		for (std::size_t iD2 = 0; iD2 < DIM_; iD2++)
+		{
+			if (iD!=iD2)
+			{
+				sourceConvection(iD,iD2) = (qSolution(iD+1) + qSolution(iD2+1) - qSolution(iD+1)*qSolution(iD2+1)*q1Inverse)*sourceValue(iD2)*q1Inverse; // terms like d(rho*u*v)/dx and d(rho*w*u)/dz
+			}
+		}
+	}
+
+	//Calculate Source term values: pressure
+	LinearAlgebra::NumericalVector sourcePressure(DIM_); // dp/dx or dp/dy or dp/dz;
+	double kineticPressure = 0.0; // This is the kinetic part of the pressure term;
+
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		kineticPressure += (-qSolution(iD+1) + 0.5*qSolution(iD+1)*qSolution(iD+1)*q1Inverse)*q1Inverse;// part 1 of calculation
+	}
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		sourcePressure(iD) = (gamma_ -1)*(1 + kineticPressure)*sourceValue(iD+1); // dp/dx or dp/dy or dp/dz
+	}
+
+	//Calculate Source term values: Enthalpy convection
+	LinearAlgebra::NumericalVector sourceEnthalpy(DIM_);
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		sourceEnthalpy(iD) = (qSolution(iD+1) + qSolution(DIM_+1) - qSolution(iD+1)*qSolution(DIM_+1)*q1Inverse + pressureTerm - qSolution(iD+1)*pressureTerm*q1Inverse)*sourceValue(iD+1)*q1Inverse + qSolution(iD+1)*q1Inverse*sourcePressure(iD); // d(rho*u*h)/dx or d(rho*v*h)/dy or d(rho*w*h)/dz
+	}
+
+	//*************************************************************************
+	//***	Calculate the complete source functions used for integration	***
+	//*************************************************************************
+	double sDensity;
+	LinearAlgebra::NumericalVector sMomentum(DIM_);
+	double sEnergy;
+
+	// Add time derivative term
+	sDensity = sourceValue(0);
+	for (std::size_t iD = 0; iD < DIM_; iD++)
+	{
+		sMomentum(iD) = sourceValue(0);
+	}
+	sEnergy = sourceValue(0);
+
+	// Add space terms
+	for (std::size_t iD = 0; iD < DIM_ ; iD++)
+	{
+		sDensity += sourceValue(iD+1);
+		for (std::size_t iD2 = 0; iD2 < DIM_; iD2++)
+		{
+			sMomentum(iD) += sourceConvection(iD,iD2);
+		}
+		sMomentum(iD) += sourcePressure(iD);
+		sEnergy += sourceEnthalpy(iD);
+	}
+
+	//*********************************************************
+	//*** Calculate the integrand of the Source integral	***
+	//*********************************************************
+
+	for(std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+	{
+		// Density
+		iVB = ptrElement->convertToSingleIndex(iB,0);
+		integrandSource(iVB) = sDensity*ptrElement->basisFunction(iB, pRef);
+
+		// Momentum
+		for (std::size_t iD = 0; iD < DIM_; iD++)
+		{
+			iVB = ptrElement->convertToSingleIndex(iB,iD+1);
+			integrandSource(iVB) = sMomentum(iD)*ptrElement->basisFunction(iB, pRef);
+		}
+
+		// Energy
+		iVB = ptrElement->convertToSingleIndex(iB,2);
+		integrandSource(iVB) = sEnergy*ptrElement->basisFunction(iB, pRef);
+	}
+
+	return integrandSource;
+}
+
 // /todo: remove ref from function
 LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients)
 {
@@ -104,7 +238,7 @@ LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement(const B
 
 	//Create data structures for calculating the integrand
 	LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfBasisFunctions); //The final integrand value will be stored in this vector
-	LinearAlgebra::NumericalVector qSolution(numOfVariables_); //The reconstructed solution values are stored here for every variable (u = sum_i u_i*phi_i)
+	LinearAlgebra::NumericalVector qSolution = computeSolutionAtElement(ptrElement, solutionCoefficients, pRef);
 	LinearAlgebra::NumericalVector gradientBasisFunction(DIM_); //Gradient function based on the number of dimensions
 
 	//Create temporary result values
@@ -113,15 +247,6 @@ LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement(const B
 
 	//Create iteration values
 	std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
-
-	//Compute the reconstruction of the solution
-	qSolution = computeSolutionAtElement(ptrElement, solutionCoefficients, pRef);
-	// For 3D:
-	// 0 --> q1 = rho
-	// 1 --> q2 = rho*u
-	// 2 --> q3 = rho*v
-	// 3 --> q4 = rho*w
-	// 4 --> q5 = rho*e
 
 	//Compute pressure term
 	double q1Inverse = 1.0/qSolution(0);
@@ -136,7 +261,6 @@ LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement(const B
 	// Compute the integrand for all equations
 	for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++) // For every basis function
 	{
-		// IMPORTANT: gradientBasisFunction is the physical basis function
 		gradientBasisFunction = ptrElement->basisFunctionDeriv(iB, pRef); // Compute the gradient of the ith test function
 
 		for (std::size_t iD = 0; iD < DIM_; iD++) // For every dimension
@@ -165,9 +289,13 @@ LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement(const B
 			iVB = ptrElement->convertToSingleIndex(iB,iD+1);
 			integrand(iVB) += pressureTerm*gradientBasisFunction(iD);
 		}
+
 	}
 
-    return integrand;
+	//Compute source terms
+	LinearAlgebra::NumericalVector integrandSource = integrandSourceAtElement(ptrElement, qSolution, pressureTerm, time, pRef);
+
+    return integrand + integrandSource;
 
 }
 
@@ -187,37 +315,38 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	// todo: Write function that computes the qSolution at the interface
 
    //Compute the Roe Riemann Flux function
-   LinearAlgebra::NumericalVector Euler::RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qReconstructionLeft, const LinearAlgebra::NumericalVector &qReconstructionRight, LinearAlgebra::NumericalVector &normal, const Base::Side &iSide)
+   LinearAlgebra::NumericalVector Euler::RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qSolutionLeft, const LinearAlgebra::NumericalVector &qSolutionRight, LinearAlgebra::NumericalVector &normal)
    {
 
 	   // /todo: remove the iSide dependancy.
 	   //Compute correct normal direction and difference vector
-	   LinearAlgebra::NumericalVector qDifference = qReconstructionLeft - qReconstructionRight;
+	   LinearAlgebra::NumericalVector normalUnit = normal/Base::L2Norm(normal);
+	   LinearAlgebra::NumericalVector qDifference = qSolutionRight - qSolutionLeft;
 
 	   //Compute the Roe average state
 	   LinearAlgebra::NumericalVector qAverage(DIM_+1);
-	   double zL = std::sqrt(qReconstructionLeft(0));
-	   double zR = std::sqrt(qReconstructionRight(0));
-	   double tmp1 = 1.0/(qReconstructionLeft(0) + zL*zR);
-	   double tmp2 = 1.0/(qReconstructionRight(0) + zL*zR);
+	   double zL = std::sqrt(qSolutionLeft(0));
+	   double zR = std::sqrt(qSolutionRight(0));
+	   double tmp1 = 1.0/(qSolutionLeft(0) + zL*zR);
+	   double tmp2 = 1.0/(qSolutionRight(0) + zL*zR);
 	   double ruSquaredLeft = 0.0;
 	   double ruSquaredRight = 0.0;
-	   double rhoInverseLeft = 1.0/qReconstructionLeft(0);
-	   double rhoInverseRight = 1.0/qReconstructionRight(0);
+	   double rhoInverseLeft = 1.0/qSolutionLeft(0);
+	   double rhoInverseRight = 1.0/qSolutionRight(0);
 	   double pressureLeft;
 	   double pressureRight;
 
 	   for (std::size_t iD = 0; iD < DIM_; iD++)
 	   {
-		   qAverage(iD) = qReconstructionLeft(iD+1)*tmp1 + qReconstructionRight(iD+1)*tmp2; // u_average
-		   ruSquaredLeft += qReconstructionLeft(iD+1)*qReconstructionLeft(iD+1); 	// Kinetic part of pressure term
-		   ruSquaredRight += qReconstructionRight(iD+1)*qReconstructionRight(iD+1);
+		   qAverage(iD) = qSolutionLeft(iD+1)*tmp1 + qSolutionRight(iD+1)*tmp2; // u_average
+		   ruSquaredLeft += qSolutionLeft(iD+1)*qSolutionLeft(iD+1); 	// Kinetic part of pressure term
+		   ruSquaredRight += qSolutionRight(iD+1)*qSolutionRight(iD+1);
 	   }
 
-	   pressureLeft = (gamma_ - 1)*(qReconstructionLeft(DIM_ + 1) - 0.5*ruSquaredLeft*rhoInverseLeft);
-	   pressureRight = (gamma_ - 1)*(qReconstructionRight(DIM_ + 1) - 0.5*ruSquaredRight*rhoInverseRight);
+	   pressureLeft = (gamma_ - 1)*(qSolutionLeft(DIM_ + 1) - 0.5*ruSquaredLeft*rhoInverseLeft);
+	   pressureRight = (gamma_ - 1)*(qSolutionRight(DIM_ + 1) - 0.5*ruSquaredRight*rhoInverseRight);
 
-	   qAverage(DIM_) = (qReconstructionLeft(DIM_+1) + pressureLeft)*tmp1 + (qReconstructionRight(DIM_+1) + pressureRight)*tmp2; //H_average
+	   qAverage(DIM_) = (qSolutionLeft(DIM_+1) + pressureLeft)*tmp1 + (qSolutionRight(DIM_+1) + pressureRight)*tmp2; //H_average
 
 	   //Compute useful variables for constructing the flux function
 	   double alphaAvg = 0.0;
@@ -225,7 +354,7 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   for (std::size_t iD = 0; iD < DIM_; iD++)
 	   {
 		   alphaAvg += (qAverage(iD)*qAverage(iD));
-		   unAvg += qAverage(iD)*normal(iD);
+		   unAvg += qAverage(iD)*normalUnit(iD);
 	   }
 	   alphaAvg *= 0.5;
 
@@ -266,7 +395,7 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   for (std::size_t iD = 0; iD < DIM_; iD++)
 	   {
 		   abv4 += -qAverage(iD)*qDifference(iD+1);
-		   abv5 += normal(iD)*qDifference(iD+1);
+		   abv5 += normalUnit(iD)*qDifference(iD+1);
 	   }
 	   abv4 += qDifference(DIM_+1);
 	   abv4 *= (gamma_ -1);
@@ -283,8 +412,8 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	    double runL = 0.0;
 	    for (std::size_t iD = 0; iD < DIM_; iD++)
 	    {
-	    	runL += qReconstructionLeft(iD+1)*normal(iD);
-	    	runR += qReconstructionRight(iD+1)*normal(iD);
+	    	runL += qSolutionLeft(iD+1)*normal(iD);
+	    	runR += qSolutionRight(iD+1)*normal(iD);
 	    }
 
 	    double unL = runL*rhoInverseLeft;
@@ -296,11 +425,11 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	    //momentum equations
 	    for (std::size_t iD = 0; iD < DIM_; iD++)
 	    {
-	    	flux(iD+1) = runL*qReconstructionLeft(iD+1)*rhoInverseLeft + runR*qReconstructionRight(iD+1)*rhoInverseRight + pLR*normal(iD) - (lam3*qDifference(iD+1) + qAverage(iD)*abv6 + normal(iD)*abv7);
+	    	flux(iD+1) = runL*qSolutionLeft(iD+1)*rhoInverseLeft + runR*qSolutionRight(iD+1)*rhoInverseRight + pLR*normal(iD) - (lam3*qDifference(iD+1) + qAverage(iD)*abv6 + normalUnit(iD)*abv7);
 	    }
 
 	    //energy equation
-	    flux(DIM_+1) = (unL*(qReconstructionLeft(DIM_+1)+pressureLeft) + unR*(qReconstructionRight(DIM_+1)+pressureRight) - (lam3*qDifference(DIM_+1) + qAverage(DIM_)*abv6 + unAvg*abv7));
+	    flux(DIM_+1) = (unL*(qSolutionLeft(DIM_+1)+pressureLeft) + unR*(qSolutionRight(DIM_+1)+pressureRight) - (lam3*qDifference(DIM_+1) + qAverage(DIM_)*abv6 + unAvg*abv7));
 
 	    //Note: Twice the flux is computed above, hence the factor 0.5 in front of the equation
         return 0.5*flux;
@@ -341,7 +470,7 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 
 
 	   //Compute flux
-	   LinearAlgebra::NumericalVector flux = RoeRiemannFluxFunction(qReconstructionRight, qReconstructionLeft, normal, Base::Side::LEFT);
+	   LinearAlgebra::NumericalVector flux = RoeRiemannFluxFunction(qReconstructionRight, qReconstructionLeft, normal);
 
 	   // Compute integrand on the reference element.
 	   std::size_t iVB; // Index for both variable and basis function.
@@ -396,11 +525,11 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   LinearAlgebra::NumericalVector flux;
 	   if (iSide == Base::Side::RIGHT)
 	   {
-		   flux = -RoeRiemannFluxFunction(qReconstructionRight, qReconstructionLeft, normal, iSide);
+		   flux = -RoeRiemannFluxFunction(qReconstructionLeft, qReconstructionRight, normal);
 	   }
 	   else
 	   {
-		   flux = RoeRiemannFluxFunction(qReconstructionRight, qReconstructionLeft, normal, iSide);
+		   flux = RoeRiemannFluxFunction(qReconstructionLeft, qReconstructionRight, normal);
 	   }
 
 	   // Compute integrand on the reference element.
@@ -443,7 +572,7 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 /// \brief shows the progress every timestep
 void Euler::showProgress(const double time, const std::size_t timeStepID) {
 
-	if (timeStepID % 50 == 0 || timeStepID == 1)
+	if (timeStepID % 25 == 0 || timeStepID == 1)
 	{
 		logger(INFO, "% time steps computed.", timeStepID);
 
@@ -495,7 +624,7 @@ void Euler::showProgress(const double time, const std::size_t timeStepID) {
 				}
 			}
 
-			iTime = timeStepID / 50;
+			iTime = timeStepID / 25;
 			std::cout << "TimeStepID: " << timeStepID << " iTime: " << iTime << std::endl;
 			std::string fileName = "../Results/data" + std::to_string(iTime) + ".dat";
 			std::ofstream myFile(fileName);
