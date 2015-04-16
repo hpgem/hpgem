@@ -115,11 +115,12 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
 NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
     (
      const Base::Face *ptrFace,
+     const NumericalVector &normalVec,
      const Geometry::PointReference &pRef,
      const NumericalVector &solutionCoefficients
      )
 {
-    double normal = ptrFace->getNormalVector(Geometry::PointReference(0))(0);
+    double normal = normalVec(0);
     const std::size_t numBasisFuncs = ptrFace->getNrOfBasisFunctions();
     NumericalVector solution(2);
     for (std::size_t i = 0; i < numBasisFuncs; ++i)    
