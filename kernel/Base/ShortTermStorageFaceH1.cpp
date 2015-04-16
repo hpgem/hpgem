@@ -85,6 +85,24 @@ double Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry
     return basisFunctionValues_[i][0];
 }
 
+double Base::ShortTermStorageFaceH1::basisFunction(Side iSide, std::size_t i, const Geometry::PointReference& p)
+{
+    if(iSide == Side::RIGHT)
+    {
+        i += face_->getPtrElementLeft()->getNrOfBasisFunctions();
+    }
+    return basisFunction(i, p);
+}
+
+double Base::ShortTermStorageFaceH1::basisFunction(Side iSide, std::size_t i, const Geometry::PointReference& p) const
+{
+    if(iSide == Side::RIGHT)
+    {
+        i += face_->getPtrElementLeft()->getNrOfBasisFunctions();
+    }
+    return basisFunction(i, p);
+}
+
 void Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
 {
     if (!(currentPoint_ == p))
