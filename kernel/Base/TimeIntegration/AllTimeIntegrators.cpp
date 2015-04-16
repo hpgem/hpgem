@@ -23,7 +23,10 @@
 #include "ButcherTableau.h"
 #include "RK4Methods.h"
 #include "ForwardEuler.h"
+#include "ForwardEulerTVD.h"
 #include "MidPoint.h"
+#include "RK2TVD.h"
+#include "RK3TVD.h"
 #include "Logger.h"
 
 namespace Base
@@ -31,8 +34,12 @@ namespace Base
     AllTimeIntegrators::AllTimeIntegrators()
     {
         vecOfIntegrators_.push_back(&ForwardEuler::instance());
+        vecOfIntegrators_.push_back(&ForwardEulerTVD::instance());
         vecOfIntegrators_.push_back(&MidPoint::instance());
+        vecOfIntegrators_.push_back(&RK2TVD::instance());
+        vecOfIntegrators_.push_back(&RK3TVD::instance());
         vecOfIntegrators_.push_back(&RK4_4::instance());
+
     }
     
     AllTimeIntegrators& AllTimeIntegrators::Instance()
@@ -41,11 +48,11 @@ namespace Base
         return theInstance;
     }
     
-    ButcherTableau* AllTimeIntegrators::getRule(std::size_t order, std::size_t numStages)
+    ButcherTableau* AllTimeIntegrators::getRule(std::size_t order, std::size_t numStages, bool totalVarationDiminishing)
     {
         for (ButcherTableau* rule : vecOfIntegrators_)
         {
-            if (rule->getOrder() == order && rule->getNumStages() == numStages)
+            if (rule->getOrder() == order && rule->getNumStages() == numStages && rule->getTotalVariationDiminishing() == totalVarationDiminishing)
             {
                 return rule;
             }

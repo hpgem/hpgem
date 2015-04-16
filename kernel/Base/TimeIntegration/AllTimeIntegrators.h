@@ -39,7 +39,7 @@ namespace Base
     public:
         static AllTimeIntegrators& Instance();
 
-        ButcherTableau* getRule(std::size_t order, std::size_t numStages);
+        ButcherTableau* getRule(std::size_t order, std::size_t numStages, bool TVD = false);
         
     private:
         AllTimeIntegrators();

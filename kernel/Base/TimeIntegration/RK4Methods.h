@@ -38,6 +38,7 @@ namespace Base
         
         std::size_t getOrder() const override final;
         std::size_t getNumStages() const override final;
+        bool getTotalVariationDiminishing() const override final;
         double getA(std::size_t i, std::size_t j) const override final;
         double getB(std::size_t i) const override final;
         double getC(std::size_t i) const override final;
@@ -47,7 +48,8 @@ namespace Base
         
         std::size_t order_;
         std::size_t numStages_;
-        std::vector<std::vector<double> > a_;
+		bool totalVariationDiminishing_;
+        std::vector<std::vector<double>> a_;
         std::vector<double> b_;
         std::vector<double> c_;
     };

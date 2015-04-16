@@ -24,8 +24,6 @@ public:
     /// \brief Create a domain
     Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override;
 
-    /// \brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override;
 
     /// *****************************************
     /// ***   Element integration functions   ***
@@ -66,6 +64,11 @@ public:
     /// *****************************************
     /// ***    		Various Functions         ***
     /// *****************************************
+
+    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override final;
+
+    /// \brief Compute the initial solution at a given point in space and time.
+      LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
 
     void showProgress(const double time, const std::size_t timeStepID);
 

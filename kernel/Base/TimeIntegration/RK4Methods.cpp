@@ -28,6 +28,7 @@ namespace Base
     {
         order_ = 4;
         numStages_ = 4;
+        totalVariationDiminishing_ = false;
         
         //make a_
         std::vector<double> aRow;
@@ -60,6 +61,11 @@ namespace Base
         return numStages_;
     }
     
+    bool RK4_4::getTotalVariationDiminishing() const
+    {
+    	return totalVariationDiminishing_;
+    }
+
     double RK4_4::getA(std::size_t i, std::size_t j) const
     {
         logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());

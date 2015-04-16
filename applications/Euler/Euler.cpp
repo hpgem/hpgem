@@ -38,32 +38,6 @@ Base::RectangularMeshDescriptor Euler::createMeshDescription(const std::size_t n
     return description;
 }
 
-/// \brief Compute the initial solution at a given point in space and time.
-LinearAlgebra::NumericalVector Euler::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
-{
-	LinearAlgebra::NumericalVector initialSolution(numOfVariables_);
-
-	double amplitude = 0.2;
-	double frequency = 2.0*M_PI;
-	double function = amplitude*std::cos(frequency*startTime);
-
-	for (std::size_t iD = 0; iD < DIM_; iD++)
-	{
-		function *= std::cos(frequency*pPhys[iD]);
-	}
-
-	initialSolution(0) = 1.5 + function;
-
-	for (std::size_t iD = 0; iD < DIM_; iD++)
-	{
-		initialSolution(iD+1) = function;
-	}
-
-	initialSolution(DIM_ + 1) = 30.0 + function;
-
-    return initialSolution;
-}
-
 /// *****************************************
 /// ***   Element integration functions   ***
 /// *****************************************
@@ -223,7 +197,7 @@ LinearAlgebra::NumericalVector Euler::integrandSourceAtElement(const Base::Eleme
 		}
 
 		// Energy
-		iVB = ptrElement->convertToSingleIndex(iB,2);
+		iVB = ptrElement->convertToSingleIndex(iB,DIM_+1);
 		integrandSource(iVB) = sEnergy*ptrElement->basisFunction(iB, pRef);
 	}
 
@@ -320,7 +294,9 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 
 	   // /todo: remove the iSide dependancy.
 	   //Compute correct normal direction and difference vector
-	   LinearAlgebra::NumericalVector normalUnit = normal/Base::L2Norm(normal);
+	   double area = Base::L2Norm(normal);
+	   normal = normal/area;
+
 	   LinearAlgebra::NumericalVector qDifference = qSolutionRight - qSolutionLeft;
 
 	   //Compute the Roe average state
@@ -354,7 +330,7 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   for (std::size_t iD = 0; iD < DIM_; iD++)
 	   {
 		   alphaAvg += (qAverage(iD)*qAverage(iD));
-		   unAvg += qAverage(iD)*normalUnit(iD);
+		   unAvg += qAverage(iD)*normal(iD);
 	   }
 	   alphaAvg *= 0.5;
 
@@ -395,7 +371,7 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   for (std::size_t iD = 0; iD < DIM_; iD++)
 	   {
 		   abv4 += -qAverage(iD)*qDifference(iD+1);
-		   abv5 += normalUnit(iD)*qDifference(iD+1);
+		   abv5 += normal(iD)*qDifference(iD+1);
 	   }
 	   abv4 += qDifference(DIM_+1);
 	   abv4 *= (gamma_ -1);
@@ -425,14 +401,16 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	    //momentum equations
 	    for (std::size_t iD = 0; iD < DIM_; iD++)
 	    {
-	    	flux(iD+1) = runL*qSolutionLeft(iD+1)*rhoInverseLeft + runR*qSolutionRight(iD+1)*rhoInverseRight + pLR*normal(iD) - (lam3*qDifference(iD+1) + qAverage(iD)*abv6 + normalUnit(iD)*abv7);
+	    	flux(iD+1) = runL*qSolutionLeft(iD+1)*rhoInverseLeft + runR*qSolutionRight(iD+1)*rhoInverseRight + pLR*normal(iD) - (lam3*qDifference(iD+1) + qAverage(iD)*abv6 + normal(iD)*abv7);
 	    }
 
 	    //energy equation
 	    flux(DIM_+1) = (unL*(qSolutionLeft(DIM_+1)+pressureLeft) + unR*(qSolutionRight(DIM_+1)+pressureRight) - (lam3*qDifference(DIM_+1) + qAverage(DIM_)*abv6 + unAvg*abv7));
 
 	    //Note: Twice the flux is computed above, hence the factor 0.5 in front of the equation
-        return 0.5*flux;
+	    //Note: Correction is made to the flux since F*n was computed above, where n is the normal unit vector
+	    //However the face integral function does not use a normalised vector.
+        return 0.5*flux*area;
    }
 
    /// \brief Compute the integrand for the right hand side for the reference face corresponding to an external face.
@@ -567,6 +545,42 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	    std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [&](const Geometry::PointReference &pRef) -> LinearAlgebra::NumericalVector
 	    {   return this->integrandRightHandSideOnRefFace(ptrFace, time, pRef, side, solutionCoefficientsLeft, solutionCoefficientsRight);};
 	    return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+   }
+
+
+   /// *****************************************
+   /// ***    		Various Functions        ***
+   /// *****************************************
+
+   LinearAlgebra::NumericalVector Euler::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
+   {
+		LinearAlgebra::NumericalVector exactSolution(numOfVariables_);
+
+		double amplitude = 0.2;
+		double frequency = 2.0*M_PI;
+		double function = amplitude*std::cos(frequency*time);
+
+		for (std::size_t iD = 0; iD < DIM_; iD++)
+		{
+			function *= std::cos(frequency*pPhys[iD]);
+		}
+
+		exactSolution(0) = 1.5 + function;
+
+		for (std::size_t iD = 0; iD < DIM_; iD++)
+		{
+			exactSolution(iD+1) = function;
+		}
+
+		exactSolution(DIM_ + 1) = 30.0 + function;
+
+	    return exactSolution;
+   }
+
+   /// \brief Compute the initial solution at a given point in space and time.
+   LinearAlgebra::NumericalVector Euler::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
+   {
+       return getExactSolution(pPhys, startTime, orderTimeDerivative);
    }
 
 /// \brief shows the progress every timestep
