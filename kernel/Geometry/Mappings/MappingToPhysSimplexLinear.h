@@ -46,7 +46,7 @@ namespace Geometry
     {
     public:
         MappingToPhysSimplexLinear(const PhysicalGeometry* const & pG)
-                : a(DIM + 1, DIM)
+                : nodeCoordinates_(DIM + 1, DIM)
         {
             logger.assert(pG!=nullptr, "Invalid physical geometry passed");
             MappingReferenceToPhysical::setNodesPtr(&pG->getNodes());
@@ -54,7 +54,7 @@ namespace Geometry
         }
                 
         MappingToPhysSimplexLinear(const MappingToPhysSimplexLinear<DIM> &other) 
-            : MappingReferenceToPhysical(other), a(other.a) { }
+            : MappingReferenceToPhysical(other), nodeCoordinates_(other.nodeCoordinates_) { }
 
         PointPhysical transform(const PointReference&) const override final;
         Jacobian calcJacobian(const PointReference&) const override final;
@@ -69,7 +69,7 @@ namespace Geometry
         //! ~OC~
         //! In this case it is worth using an array for the mapping factors,
         //! since they are just difference vectors (see loop in reinit)
-        std::vector<PointPhysical> a;
+        std::vector<PointPhysical> nodeCoordinates_;
     };
 }
 #include "MappingToPhysSimplexLinear_Impl.h"

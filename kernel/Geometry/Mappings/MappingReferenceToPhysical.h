@@ -62,7 +62,7 @@ namespace Geometry
                 
         //Note that the memory of nodes is managed by Mesh, so do not make a deep copy.
         MappingReferenceToPhysical(const MappingReferenceToPhysical &other) 
-            : MappingInterface(other), nodes_(other.nodes_) 
+            : MappingInterface(other), nodeCoordinates_(other.nodeCoordinates_) 
         {
         }
         
@@ -70,7 +70,7 @@ namespace Geometry
         void setNodesPtr(VectorOfPointsT nodes)
         {
             logger.assert(nodes!=nullptr, "Invalid cooridantes passed");
-            nodes_ = nodes;
+            nodeCoordinates_ = nodes;
         }
         
         // Methods.
@@ -85,7 +85,7 @@ namespace Geometry
 
     private:
         ///\todo fix this properly (for now just made it working)
-        const std::vector<PointPhysical>* nodes_; /// Pointer to the global node container.
+        const std::vector<PointPhysical>* nodeCoordinates_; /// Pointer to the global node container.
     };
 
 }
