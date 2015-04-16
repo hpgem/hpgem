@@ -2683,7 +2683,7 @@ namespace Base
     }
     
     ///\bug Assumes a DG basis function set is used. (Workaround: set the basis function set again after calling this routine if you are using something conforming)
-    void MeshManipulator::updateMesh(std::function<double(PointPhysicalT)> domainDescription, std::vector<std::size_t> fixedPointIdxs, std::function<double(PointPhysicalT)> relativeEdgeLength, double growFactor, std::function<bool(PointPhysicalT)> isOnPeriodic, std::function<PointPhysicalT(PointPhysicalT)> duplicatePeriodic, std::vector<std::size_t> dontConnect)
+    void MeshManipulator::updateMesh(std::function<double(PointPhysicalT)> domainDescription, std::vector<std::size_t> fixedPointIdxs, std::function<double(PointPhysicalT)> relativeEdgeLength, double growFactor, std::function<bool(PointPhysicalT)> isOnPeriodic, std::function<PointPhysicalT(PointPhysicalT)> duplicatePeriodic, std::function<bool(PointPhysicalT)> isOnOtherPeriodic, std::function<PointPhysicalT(PointPhysicalT)> safeSpot, std::vector<std::size_t> dontConnect)
     {
         std::sort(fixedPointIdxs.begin(), fixedPointIdxs.end());
         std::size_t DIM = dimension();
@@ -2896,15 +2896,14 @@ namespace Base
                         pairingIterator = std::find_if(periodicPairing.begin(), periodicPairing.end(), [=](const std::pair<std::size_t, std::size_t>& p)->bool{return p.first == std::min(i, j);});
                         Geometry::PointPhysical newNodeCoordinate = duplicatePeriodic(theMesh_.getNodeCoordinates()[i]);
                         logger(DEBUG, "new periodic pair coordinates: % %", theMesh_.getNodeCoordinates()[i], newNodeCoordinate);
-                        auto closeNodeCoordinate = std::find_if(getNodeCoordinates().begin(), getNodeCoordinates().end(), [&](const Geometry::PointPhysical& p)->bool{return Base::L2Norm(p - newNodeCoordinate) < 1e-4;});
-                        if(getNodeCoordinates().end() != closeNodeCoordinate)
-                        {
-                            logger(DEBUG, "moving % away from periodic pair", *closeNodeCoordinate);
-                            (*closeNodeCoordinate) = (theMesh_.getNodeCoordinates()[i] + newNodeCoordinate) / 2.;
-                        }
                         theMesh_.addNode(newNodeCoordinate);
                         oldNodeLocations_.push_back(newNodeCoordinate);
                         vertexIndex.resize(theMesh_.getNumberOfNodes(), std::numeric_limits<std::size_t>::max());
+                    }
+                    //see if there are any non-boundary nodes that slipped into the boundary
+                    if(isOnOtherPeriodic(theMesh_.getNodeCoordinates()[i]) && !(pairingIterator != periodicPairing.end() && pairingIterator->first == i))
+                    {
+                        theMesh_.getNodeCoordinates()[i] = safeSpot(theMesh_.getNodeCoordinates()[i]);
                     }
                     //assign boundary nodes
                     while (pairingIterator != periodicPairing.end() && pairingIterator->first == i)
@@ -3518,7 +3517,7 @@ namespace Base
             }
         }
         
-        logger(INFO, "Total number of Faces: %", getFacesList(IteratorType::GLOBAL).size());
+        logger(VERBOSE, "Total number of Faces: %", getFacesList(IteratorType::GLOBAL).size());
     }
     
     //the algorithm for the edge factory is based on that of the face factory

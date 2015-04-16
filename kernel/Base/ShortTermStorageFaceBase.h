@@ -51,6 +51,7 @@ namespace Base
      *
      * Be VERY careful to not put this type of face in a mesh, the extra storage needed for this type of faces will likely crash your program
      * Once proper error checking/handling is implemented safeguards will be added to make this a bit more difficult
+     * \todo add the safeguards
      */
     class ShortTermStorageFaceBase : public Face
     {
@@ -224,6 +225,11 @@ namespace Base
             return face_->getPtrElementRight();
         }
         
+        const Element* getPtrElement(Side side) const override final
+        {
+            return face_->getPtrElement(side);
+        }
+
         const FaceQuadratureRule* getGaussQuadratureRule() const override final
         {
             return face_->getGaussQuadratureRule();

@@ -38,7 +38,8 @@ namespace Base
     struct FaceCacheData;
     
     /// Face consists of FaceGeometry and probably FaceData, if needed. 
-    ///FaceGeometry holds all FaceReference related data and appropriate mappings    
+    ///FaceGeometry holds all FaceReference related data and appropriate mappings
+    //Programmer note: functions that are needed during integration should be overridden in ShortTermStorageFaceBase
     class Face : public Geometry::FaceGeometry, public FaceData
     {
     public:

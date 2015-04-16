@@ -45,6 +45,7 @@ namespace Base
     class ElementCacheData;
     class BaseBasisFunction;
 
+    //Programmer note: functions that are needed during integration should be overridden in ShortTermStorageFaceBase
     class Element : public Geometry::ElementGeometry, public ElementData
     {
     public:

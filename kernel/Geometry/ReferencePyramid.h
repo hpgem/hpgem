@@ -26,7 +26,18 @@
 // created for the shape globally
 namespace Geometry
 {
-    ///\todo make ASCII-pyramid with node order.
+    /* The ordering of the vertex and faces in a pyramid (top view; 0 is above the other nodes):
+     *
+     * 3 o--------o 4
+     *   |\     / |
+     *   |  \ /   |
+     *   | 0 o    |
+     *   |  / \   |
+     *   |/     \ |
+     * 1 o--------o 2
+     *
+     * Note that the axes are oriented differently than for the other reference geometries
+     */
     class ReferencePyramid : public ReferenceGeometry
     {
     public:
