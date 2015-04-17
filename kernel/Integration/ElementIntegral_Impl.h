@@ -129,6 +129,19 @@ namespace Integration
         return result;
     }
     
+    /// \param[in] ptrQdrRule A pointer to a quadrature rule used for the integration.
+    /// \param[in] integrandFunction A function that is integrated on the reference element. It takes as input argument a reference point and returns an object of the class <IntegrandType>.
+    /*!
+     \details This function computes the integral of a function \f$ f_{ref}\f$ on a reference element \f$ E_{ref} \f$, so it returns the following value
+     \f[ \int_{E_{ref}} f_{ref}(\xi) \,d\xi, \f]
+     where \f$ f_{ref}:E_{ref}\rightarrow R\f$, with \f$ R \f$ a linear function space (e.g. space of vectors/matrices). In many cases the weak formulation is based on integrals on a physical element \f$ E_{phys} \f$ of the form given below
+     \f[ \int_{E_{phys}} f_{phys}(x) \,dx.\f]
+     Let \f$ \phi:E_{ref}\rightarrow E_{phys} \f$ be the mapping from the reference element to the physical element, let \f$ J\f$ be the Jacobian of \f$ \phi\f$ and \f$ |J| \f$ the reference-to-physical element scale (usually the absolute value of the determinant of J). Then we can write
+     \f[ \int_{E_{phys}} f_{phys}(x) \,dx = \int_{E_{ref}} f_{phys}(\phi(\xi)) |J| \,d\xi, \f]
+     so \f$ f_{ref}(\xi) = f_{phys}(\phi(\xi)) |J| \f$. In some cases it is more advantageous to compute \f$ f_{ref}(\xi) \f$ instead of \f$ f_{phys}(x)\f$.
+     
+     NOTE: do not mix up gradients of pyhsical and reference basis functions with integrals on physical and reference elements. If \f$ f_{phys}(x) \f$ contains a (physical) gradient of a physical basis function then so does \f$ f_{ref}(\xi) = f_{phys}(\phi(\xi)) |J| \f$. The difference is the input argument (reference point \f$ \xi \f$ instead of physical point \f$ x \f$ ) and the scaling \f$ |J| \f$. (Ofcourse it is possible to rewrite the gradient of a physical basis function in terms of the gradient of the corresponding reference basis function).
+     */
     template<typename IntegrandType>
     IntegrandType ElementIntegral::referenceElementIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference &)> integrandFunction)
     {
