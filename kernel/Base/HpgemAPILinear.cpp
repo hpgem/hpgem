@@ -92,6 +92,7 @@ namespace Base
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
             LinearAlgebra::Matrix massMatrix(computeMassMatrixAtElement(ptrElement));
+            //std::cout << "--Mass matrix element:\n" << massMatrix << "\n";
             ptrElement->setElementMatrix(massMatrix, massMatrixID_);
         }
     }
@@ -187,7 +188,7 @@ namespace Base
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
             LinearAlgebra::Matrix stiffnessMatrix(computeStiffnessMatrixAtElement(ptrElement));
-            // std::cout << "-- Stiffness matrix element:\n" << stiffnessMatrix << "\n";
+            //std::cout << "-- Stiffness matrix element:\n" << stiffnessMatrix << "\n";
             ptrElement->setElementMatrix(stiffnessMatrix, stiffnessElementMatrixID_);
         }
         
@@ -199,11 +200,11 @@ namespace Base
             {
                 logger.assert(stiffnessFaceMatrix.getNrOfDegreesOfFreedom(Base::Side::RIGHT) == 0,"The number of degrees of freedom corresonding to the right side of a boundary face should be 0, but is here %.", stiffnessFaceMatrix.getNrOfDegreesOfFreedom(Base::Side::RIGHT));
             }
-            // std::cout << "-- Stiffness matrix face: \n";
-            // std::cout << "--- Stiffness submatrix face:\n" << stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) << "\n";
-            // std::cout << "--- Stiffness submatrix face:\n" << stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) << "\n";
-            // std::cout << "--- Stiffness submatrix face:\n" << stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) << "\n";
-            // std::cout << "--- Stiffness submatrix face:\n" << stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) << "\n";
+            //std::cout << "-- Stiffness matrix face: \n";
+            //std::cout << "--- Stiffness submatrix face:\n" << stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) << "\n";
+            //std::cout << "--- Stiffness submatrix face:\n" << stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) << "\n";
+            //std::cout << "--- Stiffness submatrix face:\n" << stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) << "\n";
+            //std::cout << "--- Stiffness submatrix face:\n" << stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) << "\n";
             
             ptrFace->setFaceMatrix(stiffnessFaceMatrix, stiffnessFaceMatrixID_);
         }

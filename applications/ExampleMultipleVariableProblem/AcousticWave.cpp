@@ -117,7 +117,7 @@ LinearAlgebra::Matrix AcousticWave::integrandMassMatrixOnRefElement(const Base::
     
     // Scale with the reference-to-physical element ratio.
     Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
-    integrand *= jac.determinant();
+    integrand *= std::abs(jac.determinant());
     
     return integrand;
 }
@@ -150,7 +150,7 @@ LinearAlgebra::NumericalVector AcousticWave::integrandInitialSolutionOnRefElemen
     
     // Scale with the reference-to-physical element ratio.
     Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
-    integrand *= jac.determinant();
+    integrand *= std::abs(jac.determinant());
     
     return integrand;
 }
@@ -202,7 +202,7 @@ LinearAlgebra::NumericalVector AcousticWave::integrandRightHandSideOnRefElement(
     
     // Scale with the reference-to-physical element ratio.
     Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
-    integrand *= jac.determinant();
+    integrand *= std::abs(jac.determinant());
     
     return integrand;
 }
@@ -367,7 +367,7 @@ LinearAlgebra::NumericalVector AcousticWave::integrandErrorOnRefElement
     
     // Scale with the reference-to-physical element ratio.
     Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
-    integrand *= jac.determinant();
+    integrand *= std::abs(jac.determinant());
     
     return integrand;
 }
