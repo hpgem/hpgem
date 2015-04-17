@@ -1,8 +1,22 @@
 /*
- * Euler.cpp
- *
- *  Created on: Mar 20, 2015
- *      Author: marnix
+ This file forms part of hpGEM. This package has been developed over a number of years by various people at the University of Twente and a full list of contributors can be found at
+ http://hpgem.org/about-the-code/team
+
+ This code is distributed using BSD 3-Clause License. A copy of which can found below.
+
+
+ Copyright (c) 2014, University of Twente
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include "Euler.h"
@@ -13,12 +27,14 @@ Euler::Euler
 (
  const std::size_t dimension,
  const std::size_t numOfVariables,
+ const double endTime,
  const std::size_t polynomialOrder,
  const Base::ButcherTableau * const ptrButcherTableau
 ) :
 HpgemAPISimplified(dimension, numOfVariables, polynomialOrder, ptrButcherTableau),
 DIM_(dimension),
-numOfVariables_(numOfVariables)
+numOfVariables_(numOfVariables),
+endTime_(endTime)
 {
 }
 
@@ -127,7 +143,7 @@ LinearAlgebra::NumericalVector Euler::integrandSourceAtElement(const Base::Eleme
 		{
 			if (iD!=iD2)
 			{
-				sourceConvection(iD,iD2) = (qSolution(iD+1) + qSolution(iD2+1) - qSolution(iD+1)*qSolution(iD2+1)*q1Inverse)*sourceValue(iD2)*q1Inverse; // terms like d(rho*u*v)/dx and d(rho*w*u)/dz
+				sourceConvection(iD,iD2) = (qSolution(iD+1) + qSolution(iD2+1) - qSolution(iD+1)*qSolution(iD2+1)*q1Inverse)*sourceValue(iD2+1)*q1Inverse; // terms like d(rho*u*v)/dx and d(rho*w*u)/dz
 			}
 		}
 	}
@@ -179,6 +195,8 @@ LinearAlgebra::NumericalVector Euler::integrandSourceAtElement(const Base::Eleme
 		sEnergy += sourceEnthalpy(iD);
 	}
 
+
+
 	//*********************************************************
 	//*** Calculate the integrand of the Source integral	***
 	//*********************************************************
@@ -204,7 +222,7 @@ LinearAlgebra::NumericalVector Euler::integrandSourceAtElement(const Base::Eleme
 	return integrandSource;
 }
 
-// /todo: remove ref from function
+//NOTE: this function says RefElement, but it is on a physical element
 LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients)
 {
 	// Get the number of basis functions in an element.
@@ -257,7 +275,7 @@ LinearAlgebra::NumericalVector Euler::integrandRightHandSideOnRefElement(const B
 
 			//Energy integrand
 			iVB = ptrElement->convertToSingleIndex(iB,DIM_+1);
-			integrand(iVB) += (qSolution(DIM_+1) + pressureTerm)*integrandTerm;
+			integrand(iVB) += (qSolution(DIM_+1) + pressureTerm)*integrandTerm; // rho*u*h*d(phi_iB)/dx or rho*v*h*d(phi_iB)/dy
 
 			//Calculate pressure terms in momentum equations
 			iVB = ptrElement->convertToSingleIndex(iB,iD+1);
@@ -292,7 +310,6 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
    LinearAlgebra::NumericalVector Euler::RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qSolutionLeft, const LinearAlgebra::NumericalVector &qSolutionRight, LinearAlgebra::NumericalVector &normal)
    {
 
-	   // /todo: remove the iSide dependancy.
 	   //Compute correct normal direction and difference vector
 	   double area = Base::L2Norm(normal);
 	   normal = normal/area;
@@ -315,8 +332,8 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   for (std::size_t iD = 0; iD < DIM_; iD++)
 	   {
 		   qAverage(iD) = qSolutionLeft(iD+1)*tmp1 + qSolutionRight(iD+1)*tmp2; // u_average
-		   ruSquaredLeft += qSolutionLeft(iD+1)*qSolutionLeft(iD+1); 	// Kinetic part of pressure term
-		   ruSquaredRight += qSolutionRight(iD+1)*qSolutionRight(iD+1);
+		   ruSquaredLeft += qSolutionLeft(iD+1)*qSolutionLeft(iD+1); 			// Kinetic part of the left pressure term
+		   ruSquaredRight += qSolutionRight(iD+1)*qSolutionRight(iD+1);			// Kinetic part of the right pressure term
 	   }
 
 	   pressureLeft = (gamma_ - 1)*(qSolutionLeft(DIM_ + 1) - 0.5*ruSquaredLeft*rhoInverseLeft);
@@ -379,7 +396,7 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   const double abv6 = abv3*abv4*ova2Avg + abv2*abv5*ovaAvg;
 	   const double abv7 = abv2*abv4*ovaAvg + abv3*abv5;
 
-	   //Compute the Roe Riemann Flux function
+	   //Compute the Roe Riemann Flux function: h(u_L,u_R) = 0.5*(F(u)_L + F(u)_R - |A|(u_R - u_L))
 	   LinearAlgebra::NumericalVector flux(DIM_ + 2);
 
 	    double pLR = pressureLeft + pressureRight;
@@ -586,11 +603,29 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 /// \brief shows the progress every timestep
 void Euler::showProgress(const double time, const std::size_t timeStepID) {
 
+
+	// For convergence analysis:
+	if (std::abs(time - endTime_) < 1e-6)
+	{
+        std::string fileName = "../Results/ConvergenceResults.dat";
+        std::ofstream myFile(fileName, std::ios::app);
+
+        LinearAlgebra::NumericalVector maxError = computeMaxError(solutionTimeLevel_, endTime_);
+
+        for (std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV++)
+        {
+        	myFile << maxError(iV) << std::endl;
+        }
+        myFile << std::endl;
+        myFile.close();
+	}
+
 	if (timeStepID % 25 == 0 || timeStepID == 1)
 	{
+
 		logger(INFO, "% time steps computed.", timeStepID);
 
-		if (DIM_ == 1)
+/*		if (DIM_ == 1)
 		{
 
 			int N = 10;
@@ -665,7 +700,8 @@ void Euler::showProgress(const double time, const std::size_t timeStepID) {
 				}
 			}
 
-		}
+		}*/
+
 	}
 }
 
