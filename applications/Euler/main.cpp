@@ -20,7 +20,6 @@
  */
 
 #include "Euler.h"
-
 #include "Logger.h"
 
 auto& dimension = Base::register_argument<std::size_t>('D', "dim", "number of dimensions in the problem");
@@ -38,8 +37,8 @@ int main (int argc, char **argv){
 
 	logger(WARN,"WARNING: Timestep is determined a priori. Stability Criteria might not be satisfied!");
     // Set parameters for the PDE.
-    const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
-    const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4,4,false);
+    const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
+    const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(3,3,true);
 
     //Set variable names and number of parameters
     std::vector<std::string> variableNames;
@@ -64,7 +63,8 @@ int main (int argc, char **argv){
     test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
 
     //Compute errors at the end of the simulation
-    LinearAlgebra::NumericalVector maxError = computeMaxError(solutionTimeLevel_, endTime.getValue());
+    LinearAlgebra::NumericalVector maxError = test.Error(endTime.getValue());
+    std::cout << maxError << std::endl;
 
     return 0;
 }

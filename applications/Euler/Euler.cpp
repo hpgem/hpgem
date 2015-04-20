@@ -33,8 +33,7 @@ Euler::Euler
 ) :
 HpgemAPISimplified(dimension, numOfVariables, polynomialOrder, ptrButcherTableau),
 DIM_(dimension),
-numOfVariables_(numOfVariables),
-endTime_(endTime)
+numOfVariables_(numOfVariables)
 {
 }
 
@@ -600,110 +599,12 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
        return getExactSolution(pPhys, startTime, orderTimeDerivative);
    }
 
-/// \brief shows the progress every timestep
-void Euler::showProgress(const double time, const std::size_t timeStepID) {
+   /// \brief Computes the error for output purposes
+   LinearAlgebra::NumericalVector Euler::Error(const double time)
+   {
+	   return computeMaxError(solutionTimeLevel_, time);
+   }
 
-
-	// For convergence analysis:
-	if (std::abs(time - endTime_) < 1e-6)
-	{
-        std::string fileName = "../Results/ConvergenceResults.dat";
-        std::ofstream myFile(fileName, std::ios::app);
-
-        LinearAlgebra::NumericalVector maxError = computeMaxError(solutionTimeLevel_, endTime_);
-
-        for (std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV++)
-        {
-        	myFile << maxError(iV) << std::endl;
-        }
-        myFile << std::endl;
-        myFile.close();
-	}
-
-	if (timeStepID % 25 == 0 || timeStepID == 1)
-	{
-
-		logger(INFO, "% time steps computed.", timeStepID);
-
-/*		if (DIM_ == 1)
-		{
-
-			int N = 10;
-			double dx = 1.0 / meshes_[0]->getElementsList().size();
-			int M = N * meshes_[0]->getElementsList().size();
-			double pPhysLocal;
-			std::size_t iTime;
-			LinearAlgebra::NumericalVector initialSolutionCoefficients;
-			LinearAlgebra::NumericalVector initialSolution;
-			double rotation;
-
-			Geometry::PointReference pRef(1);
-			Geometry::PointPhysical pPhys(1);
-			Geometry::PointPhysical dx_plot(1);
-			dx_plot.setCoordinate(0, dx / N);
-
-			if (timeStepID == 1)
-			{
-				pPhys = -dx_plot;
-				std::string fileName0 = "../Results/data0.dat";
-				std::ofstream myFile0(fileName0);
-
-				for (Base::Element* ptrElement : meshes_[0]->getElementsList())
-				{
-					Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
-					if (jac.determinant() < 0)
-					{
-						rotation = -1;
-					} else {
-						rotation = 1;
-					}
-					initialSolutionCoefficients = integrateInitialSolutionAtElement(ptrElement, time, 1); //1 is whatever.
-					for (std::size_t iN = 0; iN < N; iN++) //Number of evaluations per element
-					{
-						pPhysLocal = rotation * (-1 + 2.0 / N * (iN));
-						pRef.setCoordinate(0, pPhysLocal);
-						pPhys += dx_plot;
-						//Compute solution
-						initialSolution = computeSolutionAtElement(ptrElement,initialSolutionCoefficients, pRef);
-						myFile0 << pPhys[0] << '\t'
-								<< std::setprecision(12) << initialSolution(0) << '\t'
-								<< std::setprecision(12) << initialSolution(1) << '\t'
-								<< std::setprecision(12) << initialSolution(2) << std::endl;
-					}
-				}
-			}
-
-			iTime = timeStepID / 25;
-			std::cout << "TimeStepID: " << timeStepID << " iTime: " << iTime << std::endl;
-			std::string fileName = "../Results/data" + std::to_string(iTime) + ".dat";
-			std::ofstream myFile(fileName);
-			pPhys = -dx_plot;
-			for (Base::Element* element : meshes_[0]->getElementsList())
-			{
-				Geometry::Jacobian jac = element->calcJacobian(pRef);
-				if (jac.determinant() < 0)
-				{
-					rotation = -1;
-				} else
-				{
-					rotation = 1;
-				}
-				for (std::size_t iN = 0; iN < N; iN++) //Number of evaluations per element
-				{
-					pPhysLocal = rotation * (-1 + 2.0 / N * (iN));
-					pRef.setCoordinate(0, pPhysLocal);
-					pPhys += dx_plot;
-					myFile << pPhys[0] << '\t'
-						   << std::setprecision(12) << element->getSolution(0, pRef)(0) << '\t'
-						   << std::setprecision(12) << element->getSolution(0, pRef)(1) << '\t'
-						   << std::setprecision(12) << element->getSolution(0, pRef)(2) << std::endl;
-				}
-			}
-
-		}*/
-
-	}
-}
 
 
 

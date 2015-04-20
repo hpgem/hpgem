@@ -83,9 +83,10 @@ public:
     LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override final;
 
     /// \brief Compute the initial solution at a given point in space and time.
-      LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
+	LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
 
-    void showProgress(const double time, const std::size_t timeStepID);
+	LinearAlgebra::NumericalVector Error(const double time);
+
 
 private:
     /// Dimension of the domain
@@ -96,9 +97,6 @@ private:
 
 	/// Number of variables
 	const std::size_t numOfVariables_;
-
-	/// End time of the simulation
-	const double endTime_;
 };
 
 #endif /* EULER_H_ */
