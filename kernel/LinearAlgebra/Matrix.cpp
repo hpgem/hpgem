@@ -469,7 +469,7 @@ namespace LinearAlgebra
     
     
     /// \return int : the total number of entries
-    const int Matrix::size() {return nRows_*nCols_;}
+    const int Matrix::size() const {return nRows_*nCols_;}
     
     
     /// \return int : the number of rows

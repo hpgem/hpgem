@@ -26,6 +26,9 @@ namespace Base
 {
 	class BasisFunctionSet;
 
+    //! Assemble set of BasisFunctions on 1D: { 1 }
+    void AssembleBasisFunctionSet_1D_Ord0_A0(Base::BasisFunctionSet& myBFSet);
+
     //! Assemble set of BasisFunctions on 1D: { 1, x }
     void AssembleBasisFunctionSet_1D_Ord1_A0(Base::BasisFunctionSet& myBFSet);
 
@@ -40,6 +43,11 @@ namespace Base
 
     //! Assemble set of BasisFunctions on 1D: { 1, x, x^2, x^3,x^4,x^5 }
     void AssembleBasisFunctionSet_1D_Ord5_A0(Base::BasisFunctionSet& myBFSet);
+    
+    
+
+    //! Assemble set of BasisFunctions on 2D: { 1 }
+    void AssembleBasisFunctionSet_2D_Ord0_A0(Base::BasisFunctionSet& myBFSet);
 
     //! Assemble set of BasisFunctions on 2D: { 1, x, y }
     void AssembleBasisFunctionSet_2D_Ord1_A0(Base::BasisFunctionSet& myBFSet);
@@ -70,6 +78,11 @@ namespace Base
 
     //! Assemble set of BasisFunctions on 2D: { 1, x, y, x*y, x^2, y^2 and some others}
     void AssembleBasisFunctionSet_2D_Ord5_A1(Base::BasisFunctionSet& myBFSet);
+
+    
+    
+    //! Assemble set of BasisFunctions on 3D: { 1 }
+    void AssembleBasisFunctionSet_3D_Ord0_A0(Base::BasisFunctionSet& myBFSet);
 
     //! Assemble set of BasisFunctions on 3D: { 1, x, y, z }
     void AssembleBasisFunctionSet_3D_Ord1_A0(Base::BasisFunctionSet& myBFSet);

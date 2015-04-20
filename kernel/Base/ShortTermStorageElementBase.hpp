@@ -69,9 +69,10 @@ namespace Base{
 
 		Element& operator=(const Element& element){//todo check that &element and this are different things (errorChecker)
 			element_=&element;
+
             /// \bug This should go back to NAN at some point. Again to fix problems with math and STL::vector
-                        ///\bug placing 0/0 here breaks one of the PETSc based self tests
-			currentPoint_[0]=1./0.;
+			currentPoint_[0]=0/0;
+            
 			currentPointIndex_=-1;
 			return *this;
 		}

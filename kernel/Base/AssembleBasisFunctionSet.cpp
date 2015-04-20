@@ -28,6 +28,14 @@
 
 namespace Base
 {
+
+    //! Assemble set of BasisFunctions on 1D: { 1 }
+    void AssembleBasisFunctionSet_1D_Ord0_A0(Base::BasisFunctionSet& myBFSet)
+    {
+      myBFSet.addBasisFunction(new Base::Basis_A0_1D);
+    }
+    
+    
     //! Assemble set of BasisFunctions on 1D: { 1, x }
     void AssembleBasisFunctionSet_1D_Ord1_A0(Base::BasisFunctionSet& myBFSet)
     {
@@ -73,6 +81,14 @@ namespace Base
       myBFSet.addBasisFunction(new Base::Basis_A5_1D);
     }
 
+    
+    
+    //! Assemble set of BasisFunctions on 2D: { 1 }
+    void AssembleBasisFunctionSet_2D_Ord0_A0(Base::BasisFunctionSet& myBFSet)
+    {
+      myBFSet.addBasisFunction(new Base::Basis_A0_2D);
+    }
+    
     //! Assemble set of BasisFunctions on 2D: { 1, x, y }
     void AssembleBasisFunctionSet_2D_Ord1_A0(Base::BasisFunctionSet& myBFSet)
     {
@@ -214,8 +230,18 @@ namespace Base
       myBFSet.addBasisFunction(new Base::Basis_A20_2D);
     }
 
-    //! Assemble set of BasisFunctions on 3D: { 1, x, y, z}
+    
+    
+    
+    
+    //! Assemble set of BasisFunctions on 3D: { 1 }
     void AssembleBasisFunctionSet_3D_Ord0_A0(Base::BasisFunctionSet& myBFSet)
+    {
+      myBFSet.addBasisFunction(new Base::Basis_A0_3D);
+    }
+    
+    //! Assemble set of BasisFunctions on 3D: { 1, x, y, z}
+    void AssembleBasisFunctionSet_3D_Ord1_A0(Base::BasisFunctionSet& myBFSet)
     {
       myBFSet.addBasisFunction(new Base::Basis_A0_3D);
       myBFSet.addBasisFunction(new Base::Basis_A1_3D);
