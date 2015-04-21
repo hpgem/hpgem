@@ -28,7 +28,7 @@ namespace Base
     {
         order_ = 1;
         numStages_ = 1;
-        totalVariationDiminishing_ = false;
+        totalVariationDiminishing_ = true;
         
         //make a_
         std::vector<double> aRow;

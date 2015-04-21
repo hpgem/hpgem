@@ -38,14 +38,15 @@ namespace QuadratureRules
     {
         logger.assert(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
         //actually keep the point around while it is being used
-        return gp_[0];
+        return *gp_[0];
     }
     
     Cn0_inf_1::Cn0_inf_1()
             : name_("Cn0_inf_1"), refGeoPtr_(&Geometry::ReferencePoint::Instance())
     {
         weight_[0] = 1;
-        gp_.resize(1, {0});
+        gp_.clear();
+        gp_.emplace_back(new Geometry::PointReference(0));
     }
 
 }

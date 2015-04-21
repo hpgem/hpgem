@@ -65,7 +65,7 @@ namespace QuadratureRules
     Cn4_1_1::getPoint(std::size_t i) const
     {
         logger.assert(i < 1, "%::getPoint - wrong index!", name_);
-        return gp_[i];
+        return *gp_[i];
     }
 
     Cn4_1_1::ReferenceGeometryT*
@@ -75,13 +75,10 @@ namespace QuadratureRules
     }
 
     Cn4_1_1::Cn4_1_1()
-    : name_("Cn4_1_1"), refGeoPtr_(&ReferenceHypercube::Instance()), gp_(1, 4)
+    : name_("Cn4_1_1"), refGeoPtr_(&ReferenceHypercube::Instance()), gp_(0)
     {
         weight_[0] = 16.0;
-        gp_[0][0] = 0.0;
-        gp_[0][1] = 0.0;
-        gp_[0][2] = 0.0;
-        gp_[0][3] = 0.0;
+        gp_.push_back(new Geometry::PointReference{0.0, 0.0, 0.0, 0.0});
 
     }
 
@@ -122,7 +119,7 @@ namespace QuadratureRules
     Cn4_3_16::getPoint(std::size_t i) const
     {
         logger.assert(i < 16, "%::getPoint - wrong index!", name_);
-        return gp_[i];
+        return *gp_[i];
     }
 
     Cn4_3_16::ReferenceGeometryT*
@@ -132,103 +129,119 @@ namespace QuadratureRules
     }
 
     Cn4_3_16::Cn4_3_16()
-    : name_("Cn4_3_4"), refGeoPtr_(&ReferenceHypercube::Instance()), gp_(16, 4)
+    : name_("Cn4_3_4"), refGeoPtr_(&ReferenceHypercube::Instance()), gp_(0)
     {
         weight_[0] = 1.0;
-        gp_[0][0] = -std::sqrt(3.0) / 3.0;
-        gp_[0][1] = -std::sqrt(3.0) / 3.0;
-        gp_[0][2] = -std::sqrt(3.0) / 3.0;
-        gp_[0][3] = -std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[0])[0] = -std::sqrt(3.0) / 3.0;
+        (*gp_[0])[1] = -std::sqrt(3.0) / 3.0;
+        (*gp_[0])[2] = -std::sqrt(3.0) / 3.0;
+        (*gp_[0])[3] = -std::sqrt(3.0) / 3.0;
 
         weight_[1] = 1.0;
-        gp_[1][0] = +std::sqrt(3.0) / 3.0;
-        gp_[1][1] = -std::sqrt(3.0) / 3.0;
-        gp_[1][2] = -std::sqrt(3.0) / 3.0;
-        gp_[1][3] = -std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[1])[0] = +std::sqrt(3.0) / 3.0;
+        (*gp_[1])[1] = -std::sqrt(3.0) / 3.0;
+        (*gp_[1])[2] = -std::sqrt(3.0) / 3.0;
+        (*gp_[1])[3] = -std::sqrt(3.0) / 3.0;
 
         weight_[2] = 1.0;
-        gp_[2][0] = -std::sqrt(3.0) / 3.0;
-        gp_[2][1] = +std::sqrt(3.0) / 3.0;
-        gp_[2][2] = -std::sqrt(3.0) / 3.0;
-        gp_[2][3] = -std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[2])[0] = -std::sqrt(3.0) / 3.0;
+        (*gp_[2])[1] = +std::sqrt(3.0) / 3.0;
+        (*gp_[2])[2] = -std::sqrt(3.0) / 3.0;
+        (*gp_[2])[3] = -std::sqrt(3.0) / 3.0;
 
         weight_[3] = 1.0;
-        gp_[3][0] = +std::sqrt(3.0) / 3.0;
-        gp_[3][1] = +std::sqrt(3.0) / 3.0;
-        gp_[3][2] = -std::sqrt(3.0) / 3.0;
-        gp_[3][3] = -std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[3])[0] = +std::sqrt(3.0) / 3.0;
+        (*gp_[3])[1] = +std::sqrt(3.0) / 3.0;
+        (*gp_[3])[2] = -std::sqrt(3.0) / 3.0;
+        (*gp_[3])[3] = -std::sqrt(3.0) / 3.0;
 
         weight_[4] = 1.0;
-        gp_[4][0] = -std::sqrt(3.0) / 3.0;
-        gp_[4][1] = -std::sqrt(3.0) / 3.0;
-        gp_[4][2] = +std::sqrt(3.0) / 3.0;
-        gp_[4][3] = -std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[4])[0] = -std::sqrt(3.0) / 3.0;
+        (*gp_[4])[1] = -std::sqrt(3.0) / 3.0;
+        (*gp_[4])[2] = +std::sqrt(3.0) / 3.0;
+        (*gp_[4])[3] = -std::sqrt(3.0) / 3.0;
 
         weight_[5] = 1.0;
-        gp_[5][0] = +std::sqrt(3.0) / 3.0;
-        gp_[5][1] = -std::sqrt(3.0) / 3.0;
-        gp_[5][2] = +std::sqrt(3.0) / 3.0;
-        gp_[5][3] = -std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[5])[0] = +std::sqrt(3.0) / 3.0;
+        (*gp_[5])[1] = -std::sqrt(3.0) / 3.0;
+        (*gp_[5])[2] = +std::sqrt(3.0) / 3.0;
+        (*gp_[5])[3] = -std::sqrt(3.0) / 3.0;
 
         weight_[6] = 1.0;
-        gp_[6][0] = -std::sqrt(3.0) / 3.0;
-        gp_[6][1] = +std::sqrt(3.0) / 3.0;
-        gp_[6][2] = +std::sqrt(3.0) / 3.0;
-        gp_[6][3] = -std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[6])[0] = -std::sqrt(3.0) / 3.0;
+        (*gp_[6])[1] = +std::sqrt(3.0) / 3.0;
+        (*gp_[6])[2] = +std::sqrt(3.0) / 3.0;
+        (*gp_[6])[3] = -std::sqrt(3.0) / 3.0;
 
         weight_[7] = 1.0;
-        gp_[7][0] = +std::sqrt(3.0) / 3.0;
-        gp_[7][1] = +std::sqrt(3.0) / 3.0;
-        gp_[7][2] = +std::sqrt(3.0) / 3.0;
-        gp_[7][3] = -std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[7])[0] = +std::sqrt(3.0) / 3.0;
+        (*gp_[7])[1] = +std::sqrt(3.0) / 3.0;
+        (*gp_[7])[2] = +std::sqrt(3.0) / 3.0;
+        (*gp_[7])[3] = -std::sqrt(3.0) / 3.0;
 
         weight_[8] = 1.0;
-        gp_[8][0] = -std::sqrt(3.0) / 3.0;
-        gp_[8][1] = -std::sqrt(3.0) / 3.0;
-        gp_[8][2] = -std::sqrt(3.0) / 3.0;
-        gp_[8][3] = +std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[8])[0] = -std::sqrt(3.0) / 3.0;
+        (*gp_[8])[1] = -std::sqrt(3.0) / 3.0;
+        (*gp_[8])[2] = -std::sqrt(3.0) / 3.0;
+        (*gp_[8])[3] = +std::sqrt(3.0) / 3.0;
 
         weight_[9] = 1.0;
-        gp_[9][0] = +std::sqrt(3.0) / 3.0;
-        gp_[9][1] = -std::sqrt(3.0) / 3.0;
-        gp_[9][2] = -std::sqrt(3.0) / 3.0;
-        gp_[9][3] = +std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[9])[0] = +std::sqrt(3.0) / 3.0;
+        (*gp_[9])[1] = -std::sqrt(3.0) / 3.0;
+        (*gp_[9])[2] = -std::sqrt(3.0) / 3.0;
+        (*gp_[9])[3] = +std::sqrt(3.0) / 3.0;
 
         weight_[10] = 1.0;
-        gp_[10][0] = -std::sqrt(3.0) / 3.0;
-        gp_[10][1] = +std::sqrt(3.0) / 3.0;
-        gp_[10][2] = -std::sqrt(3.0) / 3.0;
-        gp_[10][3] = +std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[10])[0] = -std::sqrt(3.0) / 3.0;
+        (*gp_[10])[1] = +std::sqrt(3.0) / 3.0;
+        (*gp_[10])[2] = -std::sqrt(3.0) / 3.0;
+        (*gp_[10])[3] = +std::sqrt(3.0) / 3.0;
 
         weight_[11] = 1.0;
-        gp_[11][0] = +std::sqrt(3.0) / 3.0;
-        gp_[11][1] = +std::sqrt(3.0) / 3.0;
-        gp_[11][2] = -std::sqrt(3.0) / 3.0;
-        gp_[11][3] = +std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[11])[0] = +std::sqrt(3.0) / 3.0;
+        (*gp_[11])[1] = +std::sqrt(3.0) / 3.0;
+        (*gp_[11])[2] = -std::sqrt(3.0) / 3.0;
+        (*gp_[11])[3] = +std::sqrt(3.0) / 3.0;
 
         weight_[12] = 1.0;
-        gp_[12][0] = -std::sqrt(3.0) / 3.0;
-        gp_[12][1] = -std::sqrt(3.0) / 3.0;
-        gp_[12][2] = +std::sqrt(3.0) / 3.0;
-        gp_[12][3] = +std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[12])[0] = -std::sqrt(3.0) / 3.0;
+        (*gp_[12])[1] = -std::sqrt(3.0) / 3.0;
+        (*gp_[12])[2] = +std::sqrt(3.0) / 3.0;
+        (*gp_[12])[3] = +std::sqrt(3.0) / 3.0;
 
         weight_[13] = 1.0;
-        gp_[13][0] = +std::sqrt(3.0) / 3.0;
-        gp_[13][1] = -std::sqrt(3.0) / 3.0;
-        gp_[13][2] = +std::sqrt(3.0) / 3.0;
-        gp_[13][3] = +std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[13])[0] = +std::sqrt(3.0) / 3.0;
+        (*gp_[13])[1] = -std::sqrt(3.0) / 3.0;
+        (*gp_[13])[2] = +std::sqrt(3.0) / 3.0;
+        (*gp_[13])[3] = +std::sqrt(3.0) / 3.0;
 
         weight_[14] = 1.0;
-        gp_[14][0] = -std::sqrt(3.0) / 3.0;
-        gp_[14][1] = +std::sqrt(3.0) / 3.0;
-        gp_[14][2] = +std::sqrt(3.0) / 3.0;
-        gp_[14][3] = +std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[14])[0] = -std::sqrt(3.0) / 3.0;
+        (*gp_[14])[1] = +std::sqrt(3.0) / 3.0;
+        (*gp_[14])[2] = +std::sqrt(3.0) / 3.0;
+        (*gp_[14])[3] = +std::sqrt(3.0) / 3.0;
 
         weight_[15] = 1.0;
-        gp_[15][0] = +std::sqrt(3.0) / 3.0;
-        gp_[15][1] = +std::sqrt(3.0) / 3.0;
-        gp_[15][2] = +std::sqrt(3.0) / 3.0;
-        gp_[15][3] = +std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference(4));
+        (*gp_[15])[0] = +std::sqrt(3.0) / 3.0;
+        (*gp_[15])[1] = +std::sqrt(3.0) / 3.0;
+        (*gp_[15])[2] = +std::sqrt(3.0) / 3.0;
+        (*gp_[15])[3] = +std::sqrt(3.0) / 3.0;
 
     }
     //---------------------------------------------------------------------------

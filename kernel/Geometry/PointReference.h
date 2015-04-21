@@ -36,22 +36,26 @@ namespace Geometry
         {
         }
         
-        PointReference(const PointReference& p)
-                : Point(p)
-        {
-        }
+        //do not copy a pointReference, its memory address is used to quickly collect precomputed values of basis functions
+        PointReference(const PointReference& p) = delete;
+        PointReference(PointReference&& p) = delete;
 
         explicit PointReference(const Point& p)
                 : Point(p)
         {
         }
         
+        PointReference(std::initializer_list<double> data)
+                : Point(data)
+        {
+        }
+
         PointReference(double coords[], std::size_t DIM)
                 : Point(coords, DIM)
         {
         }
         
-        PointReference(const VectorOfCoordsT& coord)
+        explicit PointReference(const VectorOfCoordsT& coord)
                 : Point(coord)
         {
         }
@@ -62,6 +66,7 @@ namespace Geometry
 
         //please note that for type-safety this function cannot be removed in favour
         //of the Point::operator+
+        //please also note that modifying PointReferences is quite rare
         PointReference operator +(const PointReference& right);
 
         PointReference operator +(const PointReference& right) const;
@@ -70,7 +75,8 @@ namespace Geometry
 
         PointReference operator -(const PointReference& right) const;
 
-        PointReference& operator =(const PointReference& rhs);
+        PointReference& operator =(const PointReference& rhs) = delete;
+        PointReference& operator =(PointReference&& rhs) = delete;
         
         
     };

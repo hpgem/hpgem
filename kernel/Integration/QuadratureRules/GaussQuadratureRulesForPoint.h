@@ -77,10 +77,18 @@ namespace QuadratureRules
     private:
         Cn0_inf_1();
 
+        virtual ~Cn0_inf_1()
+        {
+            for(auto* point : gp_)
+            {
+                delete point;
+            }
+        }
+
         const std::string name_;
         double weight_[1];
         Geometry::ReferenceGeometry * const refGeoPtr_;
-        std::vector<Geometry::PointReference> gp_;
+        std::vector<Geometry::PointReference*> gp_;
     };
 
 } /* namespace QuadratureRules */

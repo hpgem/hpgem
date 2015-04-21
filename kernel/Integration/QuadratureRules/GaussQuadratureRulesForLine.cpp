@@ -69,7 +69,7 @@ namespace QuadratureRules
     Cn1_1_1::getPoint(std::size_t i) const
     {
         logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
-        return gp_[i];
+        return *gp_[i];
     }
 
     Cn1_1_1::ReferenceGeometryT*
@@ -79,10 +79,10 @@ namespace QuadratureRules
     }
 
     Cn1_1_1::Cn1_1_1()
-    : name_("Cn1_1_1"), refGeoPtr_(&ReferenceLine::Instance()), gp_(1, 1)
+    : name_("Cn1_1_1"), refGeoPtr_(&ReferenceLine::Instance()), gp_(0)
     {
         weight_[0] = 2.0;
-        gp_[0][0] = 0.0;
+        gp_.push_back(new Geometry::PointReference{0.0});
 
     }
 
@@ -123,7 +123,7 @@ namespace QuadratureRules
     Cn1_3_2::getPoint(std::size_t i) const
     {
         logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
-        return gp_[i];
+        return *gp_[i];
     }
 
     Cn1_3_2::ReferenceGeometryT*
@@ -133,13 +133,13 @@ namespace QuadratureRules
     }
 
     Cn1_3_2::Cn1_3_2()
-    : name_("Cn1_3_4"), refGeoPtr_(&ReferenceLine::Instance()), gp_(2, 1)
+    : name_("Cn1_3_4"), refGeoPtr_(&ReferenceLine::Instance()), gp_(0)
     {
         weight_[0] = 1.0;
-        gp_[0][0] = -std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference{-std::sqrt(3.0) / 3.0});
 
         weight_[1] = 1.0;
-        gp_[1][0] = +std::sqrt(3.0) / 3.0;
+        gp_.push_back(new Geometry::PointReference{+std::sqrt(3.0) / 3.0});
 
     }
 
@@ -180,7 +180,7 @@ namespace QuadratureRules
     Cn1_5_3::getPoint(std::size_t i) const
     {
         logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
-        return gp_[i];
+        return *gp_[i];
     }
 
     Cn1_5_3::ReferenceGeometryT*
@@ -190,16 +190,16 @@ namespace QuadratureRules
     }
 
     Cn1_5_3::Cn1_5_3()
-    : name_("Cn1_5_9"), refGeoPtr_(&ReferenceLine::Instance()), gp_(3, 1)
+    : name_("Cn1_5_9"), refGeoPtr_(&ReferenceLine::Instance()), gp_(0)
     {
         weight_[0] = 5. / 9.;
-        gp_[0][0] = -std::sqrt(3.0 / 5.0);
+        gp_.push_back(new Geometry::PointReference{-std::sqrt(3.0 / 5.0)});
 
         weight_[1] = 8. / 9.;
-        gp_[1][0] = 0.0;
+        gp_.push_back(new Geometry::PointReference{0.0});
 
         weight_[2] = 5. / 9.;
-        gp_[2][0] = +std::sqrt(3.0 / 5.0);
+        gp_.push_back(new Geometry::PointReference{+std::sqrt(3.0 / 5.0)});
 
     }
 
@@ -240,7 +240,7 @@ namespace QuadratureRules
     C1_7_4::getPoint(std::size_t i) const
     {
         logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
-        return gp_[i];
+        return *gp_[i];
     }
 
     C1_7_4::ReferenceGeometryT*
@@ -250,19 +250,19 @@ namespace QuadratureRules
     }
 
     C1_7_4::C1_7_4()
-    : name_("C1_7_x"), refGeoPtr_(&ReferenceLine::Instance()), gp_(4, 1)
+    : name_("C1_7_x"), refGeoPtr_(&ReferenceLine::Instance()), gp_(0)
     {
         weight_[0] = (0.347854845137453);
-        gp_[0][0] = (-0.861136311594053);
+        gp_.push_back(new Geometry::PointReference{-0.861136311594053});
 
         weight_[1] = (0.652145154862546);
-        gp_[1][0] = (-0.339981043584856);
+        gp_.push_back(new Geometry::PointReference{-0.339981043584856});
 
         weight_[2] = (0.652145154862546);
-        gp_[2][0] = (+0.339981043584856);
+        gp_.push_back(new Geometry::PointReference{+0.339981043584856});
 
         weight_[3] = (0.347854845137453);
-        gp_[3][0] = (+0.861136311594053);
+        gp_.push_back(new Geometry::PointReference{+0.861136311594053});
 
     }
 
@@ -303,7 +303,7 @@ namespace QuadratureRules
     C1_9_5::getPoint(std::size_t i) const
     {
         logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
-        return gp_[i];
+        return *gp_[i];
     }
 
     C1_9_5::ReferenceGeometryT*
@@ -313,22 +313,22 @@ namespace QuadratureRules
     }
 
     C1_9_5::C1_9_5()
-    : name_("C1_9_25"), refGeoPtr_(&ReferenceLine::Instance()), gp_(5, 1)
+    : name_("C1_9_25"), refGeoPtr_(&ReferenceLine::Instance()), gp_(0)
     {
         weight_[0] = (0.236926885056189);
-        gp_[0][0] = (-0.906179845938663);
+        gp_.push_back(new Geometry::PointReference{-0.906179845938663});
 
         weight_[1] = (0.478628670499366);
-        gp_[1][0] = (-0.538469310105683);
+        gp_.push_back(new Geometry::PointReference{-0.538469310105683});
 
         weight_[2] = (0.56888888888888888888888888);
-        gp_[2][0] = 0.0;
+        gp_.push_back(new Geometry::PointReference{0.0});
 
         weight_[3] = (0.478628670499366);
-        gp_[3][0] = (0.538469310105683);
+        gp_.push_back(new Geometry::PointReference{0.538469310105683});
 
         weight_[4] = (0.236926885056189);
-        gp_[4][0] = (0.906179845938663);
+        gp_.push_back(new Geometry::PointReference{0.906179845938663});
 
     }
 
@@ -369,7 +369,7 @@ namespace QuadratureRules
     C1_11_6::getPoint(std::size_t i) const
     {
         logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
-        return gp_[i];
+        return *gp_[i];
     }
 
     C1_11_6::ReferenceGeometryT*
@@ -379,25 +379,25 @@ namespace QuadratureRules
     }
 
     C1_11_6::C1_11_6()
-    : name_("C1_11_36"), refGeoPtr_(&ReferenceLine::Instance()), gp_(6, 1)
+    : name_("C1_11_36"), refGeoPtr_(&ReferenceLine::Instance()), gp_(0)
     {
         weight_[0] = (0.171324492379170);
-        gp_[0][0] = (-0.932469514203152);
+        gp_.push_back(new Geometry::PointReference{-0.932469514203152});
 
         weight_[1] = (0.360761573048138);
-        gp_[1][0] = (-0.661209386466264);
+        gp_.push_back(new Geometry::PointReference{-0.661209386466264});
 
         weight_[2] = (0.467913934572691);
-        gp_[2][0] = (-0.238619186083196);
+        gp_.push_back(new Geometry::PointReference{-0.238619186083196});
 
         weight_[3] = (0.467913934572691);
-        gp_[3][0] = (0.238619186083196);
+        gp_.push_back(new Geometry::PointReference{0.238619186083196});
 
         weight_[4] = (0.360761573048138);
-        gp_[4][0] = (0.661209386466264);
+        gp_.push_back(new Geometry::PointReference{0.661209386466264});
 
         weight_[5] = (0.171324492379170);
-        gp_[5][0] = (0.932469514203152);
+        gp_.push_back(new Geometry::PointReference{0.932469514203152});
 
     }
 

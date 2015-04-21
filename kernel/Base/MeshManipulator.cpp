@@ -2909,6 +2909,7 @@ namespace Base
                     while (pairingIterator != periodicPairing.end() && pairingIterator->first == i)
                     {
                         logger(DEBUG, "periodic pair: % % ", pairingIterator->first, pairingIterator->second);
+                        logger.assert(Base::L2Norm(duplicatePeriodic(theMesh_.getNodeCoordinates()[pairingIterator->first]) - theMesh_.getNodeCoordinates()[pairingIterator->second]) < 1e-9, "periodic pair is not moving simulateously");
                         vertexIndex[pairingIterator->second] = currentVertexNumber;
                         ++pairingIterator;
                     }

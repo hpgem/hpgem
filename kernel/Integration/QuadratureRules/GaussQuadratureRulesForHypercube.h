@@ -57,7 +57,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT> gp_;
+        std::vector<PointReferenceT*> gp_;
     };
 //---------------------------------------------------------------------------
     class Cn4_3_16 : public GaussQuadratureRule
@@ -86,7 +86,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[16];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT> gp_;
+        std::vector<PointReferenceT*> gp_;
     };
 
 //---------------------------------------------------------------------------
