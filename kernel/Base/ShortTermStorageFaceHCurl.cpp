@@ -36,7 +36,7 @@ void Base::ShortTermStorageFaceHcurl::computeData()
     ShortTermStorageFaceBase::computeData();
     logger(DEBUG, "Called ShortTermStorageFaceBase computeData");
     
-    std::size_t DIM = currentPoint_.size() + 1;
+    std::size_t DIM = currentPoint_->size() + 1;
     logger(DEBUG, "Dimension of the system: %", DIM);
     Geometry::Jacobian jacobian(DIM, DIM);
     
@@ -52,7 +52,6 @@ void Base::ShortTermStorageFaceHcurl::computeData()
     
     LinearAlgebra::NumericalVector normedNormal = normal_ / Base::L2Norm(normal_);
     
-    Geometry::PointReference pElement(DIM);
     logger(DEBUG, "Loop to be started");
     for (std::size_t i = 0; i < nTotal; ++i)
     {
@@ -62,20 +61,18 @@ void Base::ShortTermStorageFaceHcurl::computeData()
         basisFunctionCurlValues_[i].resize(DIM);
         basisFunctionsTimesNormal_[i].resize(DIM);
         
-        face_->basisFunction(i, currentPoint_, basisFunctionValues_[i]);
-        basisFunctionCurlValues_[i] = face_->basisFunctionCurl(i, currentPoint_);
+        face_->basisFunction(i, *currentPoint_, basisFunctionValues_[i]);
+        basisFunctionCurlValues_[i] = face_->basisFunctionCurl(i, *currentPoint_);
         
         if (i < nLeft)
         {
             logger(DEBUG, "True");
-            pElement = mapRefFaceToRefElemL(currentPoint_);
-            jacobian = getPtrElementLeft()->calcJacobian(pElement);
+            jacobian = getPtrElementLeft()->calcJacobian(mapRefFaceToRefElemL(*currentPoint_));
         }
         else
         {
             logger(DEBUG, "False");
-            pElement = mapRefFaceToRefElemR(currentPoint_);
-            jacobian = getPtrElementRight()->calcJacobian(pElement);
+            jacobian = getPtrElementRight()->calcJacobian(mapRefFaceToRefElemR(*currentPoint_));
         }
         
         //Curl of Phi
@@ -110,9 +107,9 @@ void Base::ShortTermStorageFaceHcurl::computeData()
 
 void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
 {
-    if (!(currentPoint_ == p))
+    if (!(currentPoint_ == &p))
     {
-        currentPoint_ = p;
+        currentPoint_ = &p;
         computeData();
     }
     ret = basisFunctionValues_[i];
@@ -121,7 +118,7 @@ void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t i, const Geometr
 void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t index, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
 {
     ret = basisFunctionValues_[index];
-    if (!(currentPoint_ == p))
+    if (!(currentPoint_ == &p))
     {
         logger(WARN, "Warning: you are using slow data access");
         face_->basisFunction(index, p, ret);
@@ -157,9 +154,9 @@ void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t index, const Geo
 
 LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p)
 {
-    if (!(currentPoint_ == p))
+    if (!(currentPoint_ == &p))
     {
-        currentPoint_ = p;
+        currentPoint_ = &p;
         computeData();
     }
     
@@ -168,7 +165,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNor
 
 LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t index, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const
 {
-    if (!(currentPoint_ == p))
+    if (!(currentPoint_ == &p))
     {
         logger(WARN, "Warning: you are using slow data access");
         LinearAlgebra::NumericalVector ret(p.size());
@@ -218,9 +215,9 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNor
 
 LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p)
 {
-    if (!(currentPoint_ == p))
+    if (!(currentPoint_ == &p))
     {
-        currentPoint_ = p;
+        currentPoint_ = &p;
         computeData();
     }
     return basisFunctionCurlValues_[i];
@@ -228,7 +225,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionCur
 
 LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const
 {
-    if (!(currentPoint_ == p))
+    if (!(currentPoint_ == &p))
     {
         logger(WARN, "Warning: you are using slow data access");
         LinearAlgebra::NumericalVector ret = face_->basisFunctionCurl(i, p);

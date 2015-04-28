@@ -56,9 +56,6 @@ namespace Geometry
         
         //! (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference& point) const override final;
-
-        //! (see ReferenceGeometry.h)
-        PointReference getCenter() const override final;
         
         /// Output routine.
         friend std::ostream& operator<<(std::ostream& os, const ReferenceTetrahedron& point);

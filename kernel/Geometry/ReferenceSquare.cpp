@@ -42,7 +42,7 @@ namespace Geometry
     std::size_t ReferenceSquare::localNodeIndexes_[4][2] = { {0, 1}, {0, 2}, {1, 3}, {2, 3}, };
     
     ReferenceSquare::ReferenceSquare()
-            : ReferenceGeometry(4, 2, ReferenceGeometryType::SQUARE), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(4, 2, ReferenceGeometryType::SQUARE, {0., 0.}), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
         name = "ReferenceSquare";
         // See MappingLineToSquare.h for further info.                 Ref.Line     Ref.Sqr.Side
@@ -62,32 +62,17 @@ namespace Geometry
         mappingsSquareToSquare_[7] = &MappingToRefSquareToSquare7::Instance(); // (x,y)    -> (y,x)
                 
         // We set the actual coordinates (see top comment for drawing).
-        PointReference p1(2), p2(2), p3(2), p4(2);
         
-        p1[0] = -1.0;
-        p1[1] = -1.0;
-        p2[0] = +1.0;
-        p2[1] = -1.0;
-        p3[0] = -1.0;
-        p3[1] = +1.0;
-        p4[0] = +1.0;
-        p4[1] = +1.0;
-        
-        points_[0] = p1;
-        points_[1] = p2;
-        points_[2] = p3;
-        points_[3] = p4;
+        points_[0] = PointReferenceFactory::instance()->makePoint({-1., -1.});
+        points_[1] = PointReferenceFactory::instance()->makePoint({ 1., -1.});
+        points_[2] = PointReferenceFactory::instance()->makePoint({-1.,  1.});
+        points_[3] = PointReferenceFactory::instance()->makePoint({ 1.,  1.});
     }
     
     bool ReferenceSquare::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==2, "The passed reference point has the wrong dimension");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.));
-    }
-    
-    PointReference ReferenceSquare::getCenter() const
-    {
-        return PointReference(2);
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceSquare& square)
@@ -242,7 +227,8 @@ namespace Geometry
                 break;
                 
             default:
-                pMap = p;
+                pMap[0] = p[0];
+                pMap[1] = p[1];
                 break;
         }
     }

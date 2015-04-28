@@ -226,11 +226,11 @@ void SavageHutter::limitSolution()
 bool SavageHutter::useLimitierForElement(const Base::Element *element)
 {
     LinearAlgebra::NumericalVector totalIntegral(numOfVariables_);
-    Geometry::PointReference pRefForInflowTest(DIM_ - 1);
     LinearAlgebra::NumericalVector numericalSolution(numOfVariables_);
     
     for (const Base::Face *face : element->getFacesList())
     {
+        const Geometry::PointReference& pRefForInflowTest = face->getReferenceGeometry()->getCenter();
         Base::Side sideOfElement = (face->getPtrElementLeft() == element) ? Base::Side::LEFT : Base::Side::RIGHT;
         LinearAlgebra::NumericalVector normal = face->getNormalVector(pRefForInflowTest);
         if (sideOfElement == Base::Side::LEFT)
@@ -277,7 +277,7 @@ bool SavageHutter::useLimitierForElement(const Base::Element *element)
     //divide the integral by h^{(p+1)/2}, the norm of {u,uh} and the size of the face
     std::size_t p = configData_->polynomialOrder_;
     ///\todo check if this definition of h is reasonable for other geometries than lines
-    double dx = std::pow(2. * std::abs(element->calcJacobian(Geometry::PointReference(1)).determinant()) , 1./DIM_);
+    double dx = std::pow(2. * std::abs(element->calcJacobian(element->getReferenceGeometry()->getCenter()).determinant()) , 1./DIM_);
     logger(DEBUG, "grid size: %", dx);
     totalIntegral /= std::pow(dx, (p+1.)/2);
     LinearAlgebra::NumericalVector average = computeNormOfAverageOfSolutionInElement(element);

@@ -23,13 +23,17 @@
 #define PointReference_h
 
 #include "Point.h"
+#include "PointReferenceFactory.h"
 
 namespace Geometry
 {
+    class PointReferenceFactory;
+
     class PointReference : public Point
     {
-        
-    public:
+        //do not trust any other class to not create duplicates
+        friend PointReferenceFactory;
+    private:
         
         PointReference(std::size_t DIM)
                 : Point(DIM)
@@ -60,7 +64,7 @@ namespace Geometry
         {
         }
         
-        PointReference operator *(double right);
+        /*PointReference operator *(double right);
 
         PointReference operator *(double right) const;
 
@@ -73,7 +77,7 @@ namespace Geometry
 
         PointReference operator -(const PointReference& right);
 
-        PointReference operator -(const PointReference& right) const;
+        PointReference operator -(const PointReference& right) const;*/
 
         PointReference& operator =(const PointReference& rhs) = delete;
         PointReference& operator =(PointReference&& rhs) = delete;
@@ -81,7 +85,7 @@ namespace Geometry
         
     };
 
-    PointReference operator*(double left, const PointReference& right);
+    //PointReference operator*(double left, const PointReference& right);
     
 }
 

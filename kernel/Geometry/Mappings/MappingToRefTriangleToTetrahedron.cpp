@@ -33,14 +33,18 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefTriangleToTetrahedron0::transform(const Geometry::PointReference& p1) const
+    const PointReference& MappingToRefTriangleToTetrahedron0::transform(const Geometry::PointReference& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        PointReference p2(3);
-        p2[0] = 0.0;
-        p2[1] = p1[1];
-        p2[2] = p1[0];
-        return p2;
+        try
+        {
+            return *transformedCoordinates.at(&p1);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({0., p1[1], p1[0]});
+            return *transformedCoordinates.at(&p1);
+        }
     }
     
     Jacobian MappingToRefTriangleToTetrahedron0::calcJacobian(const Geometry::PointReference& p1) const
@@ -69,14 +73,18 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefTriangleToTetrahedron1::transform(const Geometry::PointReference& p1) const
+    const PointReference& MappingToRefTriangleToTetrahedron1::transform(const Geometry::PointReference& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        PointReference p2(3);
-        p2[0] = p1[0];
-        p2[1] = 0.0;
-        p2[2] = p1[1];
-        return p2;
+        try
+        {
+            return *transformedCoordinates.at(&p1);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({p1[0], 0., p1[1]});
+            return *transformedCoordinates.at(&p1);
+        }
     }
     
     Jacobian MappingToRefTriangleToTetrahedron1::calcJacobian(const Geometry::PointReference& p1) const
@@ -105,14 +113,18 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefTriangleToTetrahedron2::transform(const Geometry::PointReference& p1) const
+    const PointReference& MappingToRefTriangleToTetrahedron2::transform(const Geometry::PointReference& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        PointReference p2(3);
-        p2[0] = p1[1];
-        p2[1] = p1[0];
-        p2[2] = 0.0;
-        return p2;
+        try
+        {
+            return *transformedCoordinates.at(&p1);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({p1[1], p1[0], 0.});
+            return *transformedCoordinates.at(&p1);
+        }
     }
     
     Jacobian MappingToRefTriangleToTetrahedron2::calcJacobian(const Geometry::PointReference& p1) const
@@ -141,14 +153,18 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefTriangleToTetrahedron3::transform(const Geometry::PointReference& p1) const
+    const PointReference& MappingToRefTriangleToTetrahedron3::transform(const Geometry::PointReference& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        PointReference p2(3);
-        p2[0] = 1.0 - p1[0] - p1[1];
-        p2[1] = p1[0];
-        p2[2] = p1[1];
-        return p2;
+        try
+        {
+            return *transformedCoordinates.at(&p1);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({1. - p1[0] - p1[1], p1[0], p1[1]});
+            return *transformedCoordinates.at(&p1);
+        }
     }
     
     Jacobian MappingToRefTriangleToTetrahedron3::calcJacobian(const Geometry::PointReference& p1) const

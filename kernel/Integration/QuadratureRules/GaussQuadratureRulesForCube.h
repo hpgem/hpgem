@@ -71,7 +71,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -103,7 +103,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[8];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -135,7 +135,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[27];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -167,7 +167,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[64];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -199,7 +199,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[125]; //FIXME
         ReferenceGeometry* const refGeoPtr_;
-        std::vector<PointReference*> gp_;
+        std::vector<const PointReference*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -231,7 +231,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[216]; //FIXME
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
 
 //---------------------------------------------------------------------------

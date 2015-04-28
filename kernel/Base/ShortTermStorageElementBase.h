@@ -70,7 +70,7 @@ namespace Base
         ShortTermStorageElementBase(std::size_t dimension, bool useCache = false)
                 : Element(),
                 element_(nullptr), 
-                currentPoint_(dimension),
+                currentPoint_(Geometry::PointReferenceFactory::instance()->makePoint(dimension)),
                 jac_(dimension, dimension),
                 useCache_(useCache), recomputeCache_(true), currentPointIndex_(-1)
         {
@@ -322,7 +322,7 @@ namespace Base
         
     protected:
         Element* element_;
-        Geometry::PointReference currentPoint_;
+        const Geometry::PointReference* currentPoint_;
 
         Geometry::Jacobian jac_;
 

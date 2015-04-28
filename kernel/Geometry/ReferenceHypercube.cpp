@@ -30,103 +30,29 @@ namespace Geometry
     std::size_t ReferenceHypercube::localNodeIndexes_[8][8] = { {0, 1, 2, 3, 4, 5, 6, 7}, {0, 1, 2, 3, 8, 9, 10, 11}, {0, 1, 4, 5, 8, 9, 12, 13}, {0, 2, 4, 6, 8, 10, 12, 14}, {1, 3, 5, 7, 9, 11, 13, 15}, {2, 3, 6, 7, 10, 11, 14, 15}, {4, 5, 6, 7, 12, 13, 14, 15}, {8, 9, 10, 11, 12, 13, 14, 15}, };
     
     ReferenceHypercube::ReferenceHypercube()
-            : ReferenceGeometry(16, 4, ReferenceGeometryType::HYPERCUBE), referenceGeometryCodim1Ptr_(&ReferenceCube::Instance()), referenceGeometryCodim2Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim3Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(16, 4, ReferenceGeometryType::HYPERCUBE, {0., 0., 0., 0.}), referenceGeometryCodim1Ptr_(&ReferenceCube::Instance()), referenceGeometryCodim2Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim3Ptr_(&ReferenceLine::Instance())
 
     {
         name = "ReferenceHypercube";
-        PointReference p0(4), p1(4), p2(4), p3(4), p4(4), p5(4), p6(4), p7(4), p8(4);
-        PointReference p9(4), p10(4), p11(4), p12(4), p13(4), p14(4), p15(4);
-        
-        p0[0] = -1.0;
-        p0[1] = -1.0;
-        p0[2] = -1.0;
-        p0[3] = -1.0;
-        p1[0] = +1.0;
-        p1[1] = -1.0;
-        p1[2] = -1.0;
-        p1[3] = -1.0;
-        
-        p2[0] = -1.0;
-        p2[1] = +1.0;
-        p2[2] = -1.0;
-        p2[3] = -1.0;
-        p3[0] = +1.0;
-        p3[1] = +1.0;
-        p3[2] = -1.0;
-        p3[3] = -1.0;
-        
-        p4[0] = -1.0;
-        p4[1] = -1.0;
-        p4[2] = +1.0;
-        p4[3] = -1.0;
-        p5[0] = +1.0;
-        p5[1] = -1.0;
-        p5[2] = +1.0;
-        p5[3] = -1.0;
-        
-        p6[0] = -1.0;
-        p6[1] = +1.0;
-        p6[2] = +1.0;
-        p6[3] = -1.0;
-        p7[0] = +1.0;
-        p7[1] = +1.0;
-        p7[2] = +1.0;
-        p7[3] = -1.0;
-        
-        p8[0] = -1.0;
-        p8[1] = -1.0;
-        p8[2] = -1.0;
-        p8[3] = +1.0;
-        p9[0] = +1.0;
-        p9[1] = -1.0;
-        p9[2] = -1.0;
-        p9[3] = +1.0;
-        
-        p10[0] = -1.0;
-        p10[1] = +1.0;
-        p10[2] = -1.0;
-        p10[3] = +1.0;
-        p11[0] = +1.0;
-        p11[1] = +1.0;
-        p11[2] = -1.0;
-        p11[3] = +1.0;
-        
-        p12[0] = -1.0;
-        p12[1] = -1.0;
-        p12[2] = +1.0;
-        p12[3] = +1.0;
-        p13[0] = +1.0;
-        p13[1] = -1.0;
-        p13[2] = +1.0;
-        p13[3] = +1.0;
-        
-        p14[0] = -1.0;
-        p14[1] = +1.0;
-        p14[2] = +1.0;
-        p14[3] = +1.0;
-        p15[0] = +1.0;
-        p15[1] = +1.0;
-        p15[2] = +1.0;
-        p15[3] = +1.0;
         
         ///reference element
         
-        points_[0] = p0;
-        points_[1] = p1;
-        points_[2] = p2;
-        points_[3] = p3;
-        points_[4] = p4;
-        points_[5] = p5;
-        points_[6] = p6;
-        points_[7] = p7;
-        points_[8] = p8;
-        points_[9] = p9;
-        points_[10] = p10;
-        points_[11] = p11;
-        points_[12] = p12;
-        points_[13] = p13;
-        points_[14] = p14;
-        points_[15] = p15;
+        points_[ 0] = PointReferenceFactory::instance()->makePoint({-1., -1., -1., -1.});
+        points_[ 1] = PointReferenceFactory::instance()->makePoint({ 1., -1., -1., -1.});
+        points_[ 2] = PointReferenceFactory::instance()->makePoint({-1.,  1., -1., -1.});
+        points_[ 3] = PointReferenceFactory::instance()->makePoint({ 1.,  1., -1., -1.});
+        points_[ 4] = PointReferenceFactory::instance()->makePoint({-1., -1.,  1., -1.});
+        points_[ 5] = PointReferenceFactory::instance()->makePoint({ 1., -1.,  1., -1.});
+        points_[ 6] = PointReferenceFactory::instance()->makePoint({-1.,  1.,  1., -1.});
+        points_[ 7] = PointReferenceFactory::instance()->makePoint({ 1.,  1.,  1., -1.});
+        points_[ 8] = PointReferenceFactory::instance()->makePoint({-1., -1., -1.,  1.});
+        points_[ 9] = PointReferenceFactory::instance()->makePoint({ 1., -1., -1.,  1.});
+        points_[10] = PointReferenceFactory::instance()->makePoint({-1.,  1., -1.,  1.});
+        points_[11] = PointReferenceFactory::instance()->makePoint({ 1.,  1., -1.,  1.});
+        points_[12] = PointReferenceFactory::instance()->makePoint({-1., -1.,  1.,  1.});
+        points_[13] = PointReferenceFactory::instance()->makePoint({ 1., -1.,  1.,  1.});
+        points_[14] = PointReferenceFactory::instance()->makePoint({-1.,  1.,  1.,  1.});
+        points_[15] = PointReferenceFactory::instance()->makePoint({ 1.,  1.,  1.,  1.});
         
         mappingsCubeToHypercube_[0] = &MappingToRefCubeToHypercube0::Instance();
         mappingsCubeToHypercube_[1] = &MappingToRefCubeToHypercube1::Instance();
@@ -142,11 +68,6 @@ namespace Geometry
     {
         logger.assert(p.size()==4, "The dimension of the point is wrong");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.) && (p[2] >= -1.) && (p[2] <= 1.) && (p[3] >= -1.) && (p[3] <= 1.));
-    }
-    
-    PointReference ReferenceHypercube::getCenter() const
-    {
-        return PointReference(4);
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceHypercube& hypercube)

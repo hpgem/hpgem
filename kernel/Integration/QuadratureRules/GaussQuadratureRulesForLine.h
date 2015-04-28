@@ -56,18 +56,10 @@ namespace QuadratureRules
     private:
         Cn1_1_1();
 
-        virtual ~Cn1_1_1()
-        {
-            for(auto* point : gp_)
-            {
-                delete point;
-            }
-        }
-
         const std::string name_;
         double weight_[1];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -95,18 +87,10 @@ namespace QuadratureRules
     private:
         Cn1_3_2();
 
-        virtual ~Cn1_3_2()
-        {
-            for(auto* point : gp_)
-            {
-                delete point;
-            }
-        }
-
         const std::string name_;
         double weight_[2];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -134,18 +118,10 @@ namespace QuadratureRules
     private:
         Cn1_5_3();
 
-        virtual ~Cn1_5_3()
-        {
-            for(auto* point : gp_)
-            {
-                delete point;
-            }
-        }
-
         const std::string name_;
         double weight_[3];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -173,18 +149,10 @@ namespace QuadratureRules
     private:
         C1_7_4();
 
-        virtual ~C1_7_4()
-        {
-            for(auto* point : gp_)
-            {
-                delete point;
-            }
-        }
-
         const std::string name_;
         double weight_[4];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -212,18 +180,10 @@ namespace QuadratureRules
     private:
         C1_9_5();
 
-        virtual ~C1_9_5()
-        {
-            for(auto* point : gp_)
-            {
-                delete point;
-            }
-        }
-
         const std::string name_;
         double weight_[5];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -251,18 +211,10 @@ namespace QuadratureRules
     private:
         C1_11_6();
 
-        virtual ~C1_11_6()
-        {
-            for(auto* point : gp_)
-            {
-                delete point;
-            }
-        }
-
         const std::string name_;
         double weight_[6];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
 
 //---------------------------------------------------------------------------

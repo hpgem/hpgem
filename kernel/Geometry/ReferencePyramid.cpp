@@ -37,32 +37,15 @@ namespace Geometry
     
     ReferencePyramid::ReferencePyramid()
             : /// pyramid has three nodes 3D + 2
-            ReferenceGeometry(5, 3, ReferenceGeometryType::PYRAMID), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+            ReferenceGeometry(5, 3, ReferenceGeometryType::PYRAMID, {0., 0., 1./4.}), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
         name = "ReferencePyramid";
-        PointReference p1(3), p2(3), p3(3), p4(3), p5(3);
         
-        p1[0] = +0.0;
-        p1[1] = +0.0;
-        p1[2] = +1.0;
-        p2[0] = -1.0;
-        p2[1] = -1.0;
-        p2[2] = +0.0;
-        p3[0] = +1.0;
-        p3[1] = -1.0;
-        p3[2] = +0.0;
-        p4[0] = -1.0;
-        p4[1] = +1.0;
-        p4[2] = +0.0;
-        p5[0] = +1.0;
-        p5[1] = +1.0;
-        p5[2] = +0.0;
-        
-        points_[0] = p1;
-        points_[1] = p2;
-        points_[2] = p3;
-        points_[3] = p4;
-        points_[4] = p5;
+        points_[0] = PointReferenceFactory::instance()->makePoint({ 0.,  0.,  1.});
+        points_[1] = PointReferenceFactory::instance()->makePoint({-1., -1.,  0.});
+        points_[2] = PointReferenceFactory::instance()->makePoint({ 1., -1.,  0.});
+        points_[3] = PointReferenceFactory::instance()->makePoint({-1.,  1.,  0.});
+        points_[4] = PointReferenceFactory::instance()->makePoint({ 1.,  1.,  0.});
         
         mappingsFaceToPyramid_[0] = &MappingToRefFaceToPyramid0::Instance();
         mappingsFaceToPyramid_[1] = &MappingToRefFaceToPyramid1::Instance();
@@ -78,15 +61,6 @@ namespace Geometry
     {
         logger.assert(p.size()==3, "The reference point has the wrong dimension");
         return ((0. <= p[2]) && (1. >= p[2]) && (std::abs(p[0]) <= (1. - p[2])) && (std::abs(p[1]) <= (1. - p[2])));
-    }
-    
-    PointReference ReferencePyramid::getCenter() const
-    {
-        PointReference p(3);
-        p[0] = 0.;
-        p[1] = 0.;
-        p[2] = 1. / 4.;
-        return p;
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferencePyramid& pyramid)

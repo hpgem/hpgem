@@ -23,6 +23,7 @@
 #define REFERENCETOREFERENCEM_H_
 
 #include "MappingInterface.h"
+#include <unordered_map>
 
 namespace Geometry
 {
@@ -46,7 +47,9 @@ namespace Geometry
     class MappingReferenceToReference : public MappingInterface
     {
     public:
-        virtual PointReference transform(const Geometry::PointReference&) const = 0;
+        virtual const PointReference& transform(const Geometry::PointReference&) const = 0;
+    protected:
+        std::unordered_map<const PointReference*, const PointReference*> transformedCoordinates;
     };
 }
 #endif /* REFERENCETOPHYSICALM_H_ */

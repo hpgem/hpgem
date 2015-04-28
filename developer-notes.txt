@@ -21,6 +21,10 @@ Preparing data for the assertions is also expensive. If you want to assert somet
 
 == About optimisation ==
 
+Always assume compiler developers are better at optimising code than you are. They are hired specifically to optimise code. Moreover they don't have to worry about the readability of the code they produce and they can use tricks that are not available in non-compiled c++. Compiler developers have to make assumptions about the code they are going to process. These tend towards processing code that is easy to read and write. Because of this, if you break these assumptions, they will instead assume you know what you are doing and are after a specific effect. THIS MAY MEAN THAT WRITING CLEVER CODE BECAUSE YOU THINK IT IS FASTER PRODUCES WORST PERFORMANCE THAN A NAIVE IMPLEMENTATION!
+
+That being said, there are things that can be done to make an application faster, you just have to be careful that they actually make the application faster.
+
 Optimising code only makes sense if you are building in Release mode, before doing anything else, set CMAKE_BUILD_TYPE to Release and make sure hpGEM_ENFORCE_ASSERTIONS is OFF. All effort spend in other configurations is almost certainly wasted and probably even counterproductive. Make sure you have some timing information to compare before and after, to see if you made any improvements.
 
 Before changing anything, you want to know where the bottlenecks are. To do this, use a profiler, such as gprof(linux) or Instruments(mac), on a representative application. With this information in hand either make sure the most expensive methods get called less often or try to improve the efficiency of this method. Note that saving information will most likely speed up your application, but comes at the cost of a larger memory footprint. This may mean large applications no longer run. This is NOT an ideal situation.
@@ -52,3 +56,10 @@ This happens because of a programming error. Add a unit-test that detects the cu
 === Case 4: Everything is fine, but there is an assertion or a unit test that fails ===
 
 Unit-tests and assertions are great for detecting something is wrong, but unfortunately it may also be the unit-test or the assertion itself that is wrong. Please be extra careful to make sure it is actually the unit-test or the assertion that is wrong and when in doubt ask. When you commit the fix, clearly state in you commit message that you changed assertions or unit-tests because they were broken.
+
+== FAQ ==
+Q: Your 'performance optimisations' made the test suite much slower
+A: The test suite tries to test parts of hpGEM in isolation. This means it sometimes has to take some non-standard actions to create or manipulate data. It often also takes an action once for many different shapes/basisfunctions/etc. while a typical application takes this action many times for the same shapes/basisfunctions/etc.. This means performance considerations for the test suite are different from performance considerations for performance critical applications and improving speed for the latter may have adverse effect on the former.
+
+Q: This bit of code seems like it is wasteful to me
+A: Did you have a look at a profiler already? Did you read the section about performance optimisations already?

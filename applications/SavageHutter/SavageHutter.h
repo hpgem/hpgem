@@ -99,7 +99,6 @@ public:
         }
 
         std::size_t spacing = numTimeSteps_ / 200;
-        Geometry::PointReference pRef(1);
         double pPhys(1);
         if (((numTimeSteps_ <= 200) || timeStepID % spacing == 0))
         {
@@ -107,16 +106,16 @@ public:
             std::ofstream myFile(fileName);
             for (Base::Element* element : meshes_[0]->getElementsList())
             {
-                pRef.setCoordinate(0, -1);
+                const Geometry::PointReference& pRef0 = element->getReferenceGeometry()->getNode(0);
                 pPhys = static_cast<double>(element->getID()) / meshes_[0]->getElementsList().size();
                 myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) 
-                        << element->getSolution(0, pRef)(0) << '\t' << element->getSolution(0, pRef)(1) << '\t'
-                        << element->getSolution(0, pRef)(1) / element->getSolution(0, pRef)(0) << std::endl;
-                pRef.setCoordinate(0, 1);
+                        << element->getSolution(0, pRef0)(0) << '\t' << element->getSolution(0, pRef0)(1) << '\t'
+                        << element->getSolution(0, pRef0)(1) / element->getSolution(0, pRef0)(0) << std::endl;
+                const Geometry::PointReference& pRef1 = element->getReferenceGeometry()->getNode(1);
                 pPhys = static_cast<double>((element->getID() + 1)) / meshes_[0]->getElementsList().size();
                 myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) 
-                        << element->getSolution(0, pRef)(0) << '\t' << element->getSolution(0, pRef)(1) << '\t'
-                        << element->getSolution(0, pRef)(1) / element->getSolution(0, pRef)(0) << std::endl;
+                        << element->getSolution(0, pRef1)(0) << '\t' << element->getSolution(0, pRef1)(1) << '\t'
+                        << element->getSolution(0, pRef1)(1) / element->getSolution(0, pRef1)(0) << std::endl;
             }
         }
     }

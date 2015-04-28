@@ -75,16 +75,14 @@ namespace Geometry
     {
     public:
         using String = std::string;
-        using VectorOfReferencePointsT = std::vector<PointReference>;
+        using VectorOfReferencePointsT = std::vector<const PointReference*>;
         using iterator = VectorOfReferencePointsT::iterator;
         using const_iterator = VectorOfReferencePointsT::const_iterator;
         using ListOfIndexesT = std::vector<std::size_t>;
 
     public:
         
-        virtual ~ReferenceGeometry()
-        {
-        }
+        virtual ~ReferenceGeometry() = default;
         
         ReferenceGeometry(const ReferenceGeometry& other) = delete;
 
@@ -92,7 +90,10 @@ namespace Geometry
         virtual bool isInternalPoint(const PointReference& point) const = 0;
 
         /// \brief Each reference geometry knows its center of mass.
-        virtual PointReference getCenter() const = 0;
+        const PointReference& getCenter() const
+        {
+            return *center_;
+        }
 
         /// \brief Return number of nodes of the reference shape.
         virtual std::size_t getNumberOfNodes() const
@@ -161,11 +162,14 @@ namespace Geometry
         }
         
     protected:
-        ReferenceGeometry(const ReferenceGeometryType& geoT);
-        ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT);
+        ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT, std::initializer_list<double> center);
 
         /// Container of the actual points (no reference).
         VectorOfReferencePointsT points_;
+
+        /// Center of mass of the geometry
+        const PointReference* center_;
+
         /// An identifier of the type of referenceGeometry, that some say shouldn't be used.
         const ReferenceGeometryType geometryType_;
 
@@ -174,8 +178,8 @@ namespace Geometry
     private:
         ///\todo this can safely be removed if the basis functions are not
         /// a responsibility of the geometry anymore.
-        std::map<const Base::BaseBasisFunction*, std::unordered_map<Geometry::PointReference, double, PointHasher> > basisfunctionValues_;
-        std::map<const Base::BaseBasisFunction*, std::unordered_map<Geometry::PointReference, LinearAlgebra::NumericalVector, PointHasher> > basisfunctionDerivatives_;
+        std::map<const Base::BaseBasisFunction*, std::unordered_map<const Geometry::PointReference*, double> > basisfunctionValues_;
+        std::map<const Base::BaseBasisFunction*, std::unordered_map<const Geometry::PointReference*, LinearAlgebra::NumericalVector> > basisfunctionDerivatives_;
         
     };
 

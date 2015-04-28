@@ -23,6 +23,7 @@
 #include "Geometry/ReferencePoint.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/NumericalVector.h"
+#include "Geometry/PointReferenceFactory.h"
 #include "Logger.h"
 
 namespace QuadratureRules
@@ -46,7 +47,7 @@ namespace QuadratureRules
     {
         weight_[0] = 1;
         gp_.clear();
-        gp_.emplace_back(new Geometry::PointReference(0));
+        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint(0));
     }
 
 }

@@ -69,6 +69,11 @@ namespace Geometry
 
         Point operator*(double right);
 
+        double operator*(const Point& right) const
+        {
+            return coordinates_ * right.coordinates_;
+        }
+
         Point operator*(double right) const;
 
         Point operator+(const Point& right);

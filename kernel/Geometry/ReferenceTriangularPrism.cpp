@@ -33,36 +33,16 @@ namespace Geometry
     std::size_t ReferenceTriangularPrism::localNodesOnEdge_[9][2] = { {0, 1}, {0, 2}, {1, 2}, {3, 4}, {3, 5}, {4, 5}, {0, 3}, {1, 4}, {2, 5}};
     
     ReferenceTriangularPrism::ReferenceTriangularPrism()
-            : ReferenceGeometry(6, 3, ReferenceGeometryType::TRIANGULARPRISM), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(6, 3, ReferenceGeometryType::TRIANGULARPRISM, {1./3., 1./3., 0.}), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
         name = "ReferenceTriangularPrism";
-        PointReference p1(3), p2(3), p3(3), p4(3), p5(3), p6(3);
         
-        p1[0] = +0.0;
-        p1[1] = +0.0;
-        p1[2] = -1.0;
-        p2[0] = +1.0;
-        p2[1] = +0.0;
-        p2[2] = -1.0;
-        p3[0] = +0.0;
-        p3[1] = +1.0;
-        p3[2] = -1.0;
-        p4[0] = +0.0;
-        p4[1] = +0.0;
-        p4[2] = +1.0;
-        p5[0] = +1.0;
-        p5[1] = +0.0;
-        p5[2] = +1.0;
-        p6[0] = +0.0;
-        p6[1] = +1.0;
-        p6[2] = +1.0;
-        
-        points_[0] = p1;
-        points_[1] = p2;
-        points_[2] = p3;
-        points_[3] = p4;
-        points_[4] = p5;
-        points_[5] = p6;
+        points_[0] = PointReferenceFactory::instance()->makePoint({0., 0., -1.});
+        points_[1] = PointReferenceFactory::instance()->makePoint({1., 0., -1.});
+        points_[2] = PointReferenceFactory::instance()->makePoint({0., 1., -1.});
+        points_[3] = PointReferenceFactory::instance()->makePoint({0., 0.,  1.});
+        points_[4] = PointReferenceFactory::instance()->makePoint({1., 0.,  1.});
+        points_[5] = PointReferenceFactory::instance()->makePoint({0., 1.,  1.});
         
         /// Mappings between triangular prisms are not implemented
         mappingsTriangularPrismToTriangularPrism_[0] = 0;
@@ -78,15 +58,6 @@ namespace Geometry
     {
         logger.assert(p.size()==3, "The dimension of the reference point is incorrect");
         return ((-1. <= p[2]) && (1. >= p[2]) && (p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
-    }
-    
-    PointReference ReferenceTriangularPrism::getCenter() const
-    {
-        PointReference p(3);
-        p[0] = 1. / 3.;
-        p[1] = 1. / 3.;
-        p[2] = 0.;
-        return p;
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceTriangularPrism& prism)
@@ -413,7 +384,9 @@ namespace Geometry
                 break;
                 
             default:
-                pMap = p;
+                pMap[0] = p[0];
+                pMap[1] = p[1];
+                pMap[2] = p[2];
                 break;
         }
     } // end of refinementTransform

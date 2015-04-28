@@ -58,7 +58,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -89,7 +89,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[4];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -120,7 +120,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[5];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -151,7 +151,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[11];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -182,7 +182,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[14];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -213,7 +213,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[24];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -244,7 +244,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[31];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -275,7 +275,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[43];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -306,7 +306,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[53];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -337,7 +337,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[126];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT*> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
 
 //---------------------------------------------------------------------------

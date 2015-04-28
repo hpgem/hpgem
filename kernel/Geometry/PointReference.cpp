@@ -24,7 +24,7 @@
 namespace Geometry
 {
     
-    PointReference PointReference::operator *(double right) const
+    /*PointReference PointReference::operator *(double right) const
     {
         return PointReference(Point::coordinates_ * right);
     }
@@ -57,17 +57,10 @@ namespace Geometry
         logger.assert(size()==right.size(), "The sizes of the points do not match");
         return PointReference(Point::coordinates_ - right.coordinates_);
     }
-    
-    PointReference& PointReference::operator =(const PointReference& rhs)
-    {
-        this->coordinates_ = rhs.coordinates_;
-        return *this;
-    }
 
-    
     PointReference operator*(double left, const PointReference& right)
     {
         return right * left;
-    }
+    }*/
 }
 

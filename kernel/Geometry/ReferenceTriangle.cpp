@@ -41,7 +41,7 @@ namespace Geometry
     std::size_t ReferenceTriangle::localNodeIndexes_[3][2] = { {0, 1}, {0, 2}, {1, 2}};
     
     ReferenceTriangle::ReferenceTriangle()
-            : ReferenceGeometry(3, 2, ReferenceGeometryType::TRIANGLE), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(3, 2, ReferenceGeometryType::TRIANGLE, {1./3., 1./3.}), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
         name = "ReferenceTriangle";
         
@@ -57,31 +57,16 @@ namespace Geometry
         mappingsTriangleToTriangle_[3] = &MappingToRefTriangleToTriangle3::Instance(); // (x,y) -> (y,x)
         mappingsTriangleToTriangle_[4] = &MappingToRefTriangleToTriangle4::Instance(); // (x,y) -> (x,-y)
         mappingsTriangleToTriangle_[5] = &MappingToRefTriangleToTriangle5::Instance(); // (x,y) -> (-x,y)
-                
-        PointReference p1(2), p2(2), p3(2);
-        p1[0] = 0.0;
-        p1[1] = 0.0;
-        p2[0] = 1.0;
-        p2[1] = 0.0;
-        p3[0] = 0.0;
-        p3[1] = 1.0;
         
-        points_[0] = p1;
-        points_[1] = p2;
-        points_[2] = p3;
+        points_[0] = PointReferenceFactory::instance()->makePoint({0., 0.});
+        points_[1] = PointReferenceFactory::instance()->makePoint({1., 0.});
+        points_[2] = PointReferenceFactory::instance()->makePoint({0., 1.});
     }
     
     bool ReferenceTriangle::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==2, "The dimension of the reference point is incorrect");
         return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
-    }
-    
-    PointReference ReferenceTriangle::getCenter() const
-    {
-        PointReference p(2);
-        p[0] = p[1] = 1. / 3.;
-        return p;
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceTriangle& triangle)

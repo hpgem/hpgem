@@ -161,7 +161,6 @@ namespace Output
         const ListOfElementsT& elements = mesh->getElementsList();
         
         Geometry::PointPhysical pPhys((*elements.begin())->getPhysicalGeometry()->getNodePtr(0)->size());
-        Geometry::PointReference pRef((*elements.begin())->getPhysicalGeometry()->getNodePtr(0)->size());
         
         // 1. Element cycle, print physical coordinates.
         
@@ -181,7 +180,7 @@ namespace Output
                 
                 // For the solution data, write function of the user, however we pass a local
                 // coordinate of the current reference element
-                pRef = (*iterator)->getReferenceGeometry()->getNode(localNode);
+                const Geometry::PointReference& pRef = (*iterator)->getReferenceGeometry()->getNode(localNode);
                 
                 if (!sameGeometry)
                 {

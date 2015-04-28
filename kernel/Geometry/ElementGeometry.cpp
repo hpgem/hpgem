@@ -179,6 +179,11 @@ namespace Geometry
             os << (elementGeometry.physicalGeometry_)->getNodeIndex(i) << " ";
         }
         os << '}' << std::endl;
+        os << "Corners: " << std::endl;
+        for(std::size_t index : elementGeometry.physicalGeometry_->getNodeIndexes())
+        {
+            os << elementGeometry.physicalGeometry_->getGlobalNodeCoordinates(index) << std::endl;
+        }
         return os;
     }
     

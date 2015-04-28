@@ -40,94 +40,94 @@ int main()
 {
     ReferenceHypercube& test = ReferenceHypercube::Instance();
     
-    Geometry::PointReference pTest(4);
+    Geometry::Point pTest(4);
     
     //testing basic functionality
     
-    for (pTest[0] = -3.141; pTest[0] < -1.; pTest[0] += 0.1)
+    for (pTest[0] = -1.51; pTest[0] < -1.; pTest[0] += 0.4)
     {
-        for (pTest[1] = -3.1416; pTest[1] < 3.1416; pTest[1] += 0.1)
+        for (pTest[1] = -1.51; pTest[1] < 1.51; pTest[1] += 0.4)
         {
-            for (pTest[2] = -3.1416; pTest[2] < 3.1416; pTest[2] += 0.1)
+            for (pTest[2] = -1.51; pTest[2] < 1.51; pTest[2] += 0.4)
             {
-                for (pTest[3] = -3.1416; pTest[3] < 3.1416; pTest[3] += 0.1)
+                for (pTest[3] = -1.51; pTest[3] < 1.51; pTest[3] += 0.4)
                 {
-                    logger.assert_always((!test.isInternalPoint(pTest)), "isInternalPoint");
+                    logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory::instance()->makePoint(pTest))), "isInternalPoint");
                 }
             }
         }
     }
-    for (; pTest[0] < 1; pTest[0] += 0.1)
+    for (; pTest[0] < 1; pTest[0] += 0.4)
     {
-        for (pTest[1] = -3.1417; pTest[1] < -1.; pTest[1] += 0.1)
+        for (pTest[1] = -1.51; pTest[1] < -1.; pTest[1] += 0.4)
         {
-            for (pTest[2] = -3.1416; pTest[2] < 3.1416; pTest[2] += 0.1)
+            for (pTest[2] = -1.51; pTest[2] < 1.51; pTest[2] += 0.4)
             {
-                for (pTest[3] = -3.1416; pTest[3] < 3.1416; pTest[3] += 0.1)
+                for (pTest[3] = -1.51; pTest[3] < 1.51; pTest[3] += 0.4)
                 {
-                    logger.assert_always((!test.isInternalPoint(pTest)), "isInternalPoint");
+                    logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory::instance()->makePoint(pTest))), "isInternalPoint");
                 }
             }
         }
-        for (; pTest[1] < 1.; pTest[1] += 0.1)
+        for (; pTest[1] < 1.; pTest[1] += 0.4)
         {
-            for (pTest[2] = -3.1416; pTest[2] < -1.; pTest[2] += 0.1)
+            for (pTest[2] = -1.51; pTest[2] < -1.; pTest[2] += 0.4)
             {
-                for (pTest[3] = -3.1416; pTest[3] < 3.1416; pTest[3] += 0.1)
+                for (pTest[3] = -1.51; pTest[3] < 1.51; pTest[3] += 0.4)
                 {
-                    logger.assert_always((!test.isInternalPoint(pTest)), "isInternalPoint");
+                    logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory::instance()->makePoint(pTest))), "isInternalPoint");
                 }
             }
-            for (; pTest[2] < 1.; pTest[2] += 0.1)
+            for (; pTest[2] < 1.; pTest[2] += 0.4)
             {
-                for (pTest[3] = -3.1416; pTest[3] < -1.; pTest[3] += 0.1)
+                for (pTest[3] = -1.51; pTest[3] < -1.; pTest[3] += 0.4)
                 {
-                    logger.assert_always((!test.isInternalPoint(pTest)), "isInternalPoint");
+                    logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory::instance()->makePoint(pTest))), "isInternalPoint");
                 }
-                for (; pTest[3] < 1.; pTest[3] += 0.1)
+                for (; pTest[3] < 1.; pTest[3] += 0.4)
                 {
-                    logger.assert_always((test.isInternalPoint(pTest)), "isInternalPoint");
+                    logger.assert_always((test.isInternalPoint(*Geometry::PointReferenceFactory::instance()->makePoint(pTest))), "isInternalPoint");
                 }
-                for (; pTest[3] < 3.1416; pTest[3] += 0.1)
+                for (; pTest[3] < 1.51; pTest[3] += 0.4)
                 {
-                    logger.assert_always((!test.isInternalPoint(pTest)), "isInternalPoint");
+                    logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory::instance()->makePoint(pTest))), "isInternalPoint");
                 }
             }
-            for (; pTest[2] < 3.141; pTest[2] += 0.1)
+            for (; pTest[2] < 1.51; pTest[2] += 0.4)
             {
-                for (pTest[3] = -3.1416; pTest[3] < 3.1416; pTest[3] += 0.1)
+                for (pTest[3] = -1.51; pTest[3] < 1.51; pTest[3] += 0.4)
                 {
-                    logger.assert_always((!test.isInternalPoint(pTest)), "isInternalPoint");
+                    logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory::instance()->makePoint(pTest))), "isInternalPoint");
                 }
             }
         }
-        for (; pTest[1] < 3.141; pTest[1] += 0.1)
+        for (; pTest[1] < 1.51; pTest[1] += 0.4)
         {
-            for (pTest[2] = -3.1416; pTest[2] < 3.1416; pTest[2] += 0.1)
+            for (pTest[2] = -1.51; pTest[2] < 1.51; pTest[2] += 0.4)
             {
-                for (pTest[3] = -3.1416; pTest[3] < 3.1416; pTest[3] += 0.1)
+                for (pTest[3] = -1.51; pTest[3] < 1.51; pTest[3] += 0.4)
                 {
-                    logger.assert_always((!test.isInternalPoint(pTest)), "isInternalPoint");
+                    logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory::instance()->makePoint(pTest))), "isInternalPoint");
                 }
             }
         }
     }
-    for (; pTest[0] < 3.141; pTest[0] += 0.1)
+    for (; pTest[0] < 1.51; pTest[0] += 0.4)
     {
-        for (pTest[1] = -3.1416; pTest[1] < 3.1416; pTest[1] += 0.1)
+        for (pTest[1] = -1.51; pTest[1] < 1.51; pTest[1] += 0.4)
         {
-            for (pTest[2] = -3.1416; pTest[2] < 3.1416; pTest[2] += 0.1)
+            for (pTest[2] = -1.51; pTest[2] < 1.51; pTest[2] += 0.4)
             {
-                for (pTest[3] = -3.1416; pTest[3] < 3.1416; pTest[3] += 0.1)
+                for (pTest[3] = -1.51; pTest[3] < 1.51; pTest[3] += 0.4)
                 {
-                    logger.assert_always((!test.isInternalPoint(pTest)), "isInternalPoint");
+                    logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory::instance()->makePoint(pTest))), "isInternalPoint");
                 }
             }
         }
     }
     
     pTest = test.getCenter();
-    logger.assert_always((test.isInternalPoint(pTest) && std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1]) < 1e-12) && std::abs(pTest[2]) < 1e-12 && std::abs(pTest[3]) < 1e-12, "getCenter");
+    logger.assert_always((test.isInternalPoint(*Geometry::PointReferenceFactory::instance()->makePoint(pTest)) && std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1]) < 1e-12) && std::abs(pTest[2]) < 1e-12 && std::abs(pTest[3]) < 1e-12, "getCenter");
     pTest = test.getNode(0);
     logger.assert_always((std::abs(pTest[0] + 1) < 1e-12 && std::abs(pTest[1] + 1) < 1e-12 && std::abs(pTest[2] + 1) < 1e-12 && std::abs(pTest[3] + 1) < 1e-12), "getNode 0");
     pTest = test.getNode(1);
