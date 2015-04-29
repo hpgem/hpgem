@@ -1,6 +1,0 @@
-add_subdirectory(LinearAlgebra)
-add_subdirectory(Geometry)
-add_subdirectory(Base)
-add_subdirectory(Integration)
-add_subdirectory(Output)
-add_subdirectory(Utilities)
