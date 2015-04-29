@@ -230,7 +230,6 @@ void HEuler::faceIntegrand(const Base::Face* face, const LinearAlgebra::Numerica
         const double magn = Base::L2Norm(normal);
         unsigned int numberOfDegreesOfFreedom = face->getPtrElementLeft()->getNrOfBasisFunctions();
         
-        PointReferenceT pL(3), pR(3);
         double bFL, bFR, BFevalL, BFevalR;
         
         double theta = 0.5; //static_cast<const HEulerConfigurationData*>(configData_)->theta_;
@@ -242,8 +241,8 @@ void HEuler::faceIntegrand(const Base::Face* face, const LinearAlgebra::Numerica
         const Base::Element* const left = face->getPtrElementLeft();
         const Base::Element* const right = face->getPtrElementRight();
         
-        pL = face->mapRefFaceToRefElemL(p);
-        pR = face->mapRefFaceToRefElemR(p);
+        const Geometry::PointReference& pL = face->mapRefFaceToRefElemL(p);
+        const Geometry::PointReference& pR = face->mapRefFaceToRefElemR(p);
         
         for (int j = 0; j < numberOfDegreesOfFreedom; ++j)
         {

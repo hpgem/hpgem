@@ -230,15 +230,15 @@ namespace Geometry
 
         /*! Map a point in coordinates of the reference geometry of the face to
          *  the reference geometry of the left (L) element. */
-        virtual PointReference mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const;
+        virtual const PointReference& mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const;
 
         /*! Map a point in coordinates of the reference geometry of the face to
          *  the reference geometry of the right (R) element. */
-        virtual PointReference mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const;
+        virtual const PointReference& mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const;
 
         /*! Map from reference face coordinates on the left side to those on the
          *  right side. */
-        virtual PointReference mapRefFaceToRefFace(const ReferencePointT& pIn) const;
+        virtual const PointReference& mapRefFaceToRefFace(const ReferencePointT& pIn) const;
         
         /// Get a normal at a given RefPoint
         virtual LinearAlgebra::NumericalVector getNormalVector(const ReferencePointT& pRefFace) const;

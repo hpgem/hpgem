@@ -28,16 +28,12 @@
 namespace Geometry
 {
     
-    ReferenceGeometry::ReferenceGeometry(const ReferenceGeometryType& geoT)
-            : geometryType_(geoT)
-    {
-        
-    }
     
-    ReferenceGeometry::ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT)
-            : points_(numberOfNodes, DIM), geometryType_(geoT)
+
+    ReferenceGeometry::ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT, std::initializer_list<double> center)
+            : points_(numberOfNodes, nullptr), geometryType_(geoT), center_(PointReferenceFactory::instance()->makePoint(center))
     {
-        
+
     }
     
     const QuadratureRules::GaussQuadratureRule* ReferenceGeometry::getGaussQuadratureRule(std::size_t order) const
@@ -45,39 +41,10 @@ namespace Geometry
         return QuadratureRules::AllGaussQuadratureRules::instance().getRule(this, order);
     }
     
-    double ReferenceGeometry::getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p)
-    {
-        logger.assert(function!=nullptr, "Invalid basis function passed");
-        try
-        {
-            return basisfunctionValues_[function].at(p);
-        }
-        catch (std::out_of_range&)
-        {
-            basisfunctionValues_[function][p] = function->eval(p);
-            return basisfunctionValues_[function].at(p);
-        }
-    }
-    
-    LinearAlgebra::NumericalVector&
-    ReferenceGeometry::getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p)
-    {
-        logger.assert(function!=nullptr, "Invalid basis function passed");
-        try
-        {
-            return basisfunctionDerivatives_[function].at(p);
-        }
-        catch (std::out_of_range&)
-        {
-            basisfunctionDerivatives_[function][p] = function->evalDeriv(p);
-            return basisfunctionDerivatives_[function].at(p);
-        }
-    }
-    
     const PointReference& ReferenceGeometry::getNode(const std::size_t& localIndex) const
     {
         logger.assert(localIndex<getNumberOfNodes(), "Asked for node %, but there are only % nodes", localIndex, getNumberOfNodes());
-        return points_[localIndex];
+        return *points_[localIndex];
     }
 
 }

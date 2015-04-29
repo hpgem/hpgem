@@ -31,7 +31,7 @@ using Geometry::PointReference;
 int main()
 {
     
-    double *coord0 = nullptr;
+    /*double *coord0 = nullptr;
     double coord1[] = {1.1};
     double coord2[] = {1.2, 2.2};
     double coord3[] = {1.3, 2.3, 3.3};
@@ -187,7 +187,7 @@ int main()
     for (std::size_t i = 0; i < 4; ++i)
     {
         logger.assert_always((std::abs((pr4 - pv4)[i]) < 1e-12), "4D subtraction");
-    }
+    }*/
     
     //and point already works so done
     

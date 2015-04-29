@@ -198,10 +198,7 @@ namespace Base
         {
             for(const Base::BaseBasisFunction* function : *set)
             {
-                for(Base::Element* element : getElementsList(IteratorType::GLOBAL))
-                {
-                    element->getReferenceGeometry()->removeBasisFunctionData(function);
-                }
+                Geometry::PointReferenceFactory::instance()->removeBasisFunctionData(function);
             }
         }
         collBasisFSet_.clear();
@@ -263,10 +260,7 @@ namespace Base
         {
             for(const Base::BaseBasisFunction* function : *set)
             {
-                for(Base::Element* element : getElementsList(IteratorType::GLOBAL))
-                {
-                    element->getReferenceGeometry()->removeBasisFunctionData(function);
-                }
+                Geometry::PointReferenceFactory::instance()->removeBasisFunctionData(function);
             }
         }
         collBasisFSet_.clear();
@@ -628,6 +622,13 @@ namespace Base
     Base::Element*
     MeshManipulator::addElement(const VectorOfPointIndicesT& globalNodeIndexes)
     {
+        logger.assert([&]()->bool{
+            for(std::size_t i = 0; i < globalNodeIndexes.size(); ++i)
+                for(std::size_t j = 0; j < i; ++j)
+                    if(globalNodeIndexes[i] == globalNodeIndexes[j])
+                        return false;
+            return true;
+        }(), "Trying to pass the same node twice");
         return theMesh_.addElement(globalNodeIndexes);
     }
     
@@ -2643,7 +2644,7 @@ namespace Base
         }
         
         //create the triangulation, pass "d" for delaunay
-        //"QJ" because there are likely to be groups of more that (d+1) cocircular nodes in a regular grid, so joggle them up a bit
+        //no "QJ" because periodic boundary nodes must keep the current exact distaince (including direction)
         orgQhull::Qhull triangulation(qHullCoordinates, "d QbB Qx Qc Qt");
         
         for (orgQhull::QhullFacet triangle : triangulation.facetList())
@@ -2909,6 +2910,7 @@ namespace Base
                     while (pairingIterator != periodicPairing.end() && pairingIterator->first == i)
                     {
                         logger(DEBUG, "periodic pair: % % ", pairingIterator->first, pairingIterator->second);
+                        logger.assert(Base::L2Norm(duplicatePeriodic(theMesh_.getNodeCoordinates()[pairingIterator->first]) - theMesh_.getNodeCoordinates()[pairingIterator->second]) < 1e-9, "periodic pair is not moving simulateously");
                         vertexIndex[pairingIterator->second] = currentVertexNumber;
                         ++pairingIterator;
                     }
@@ -3298,7 +3300,7 @@ namespace Base
                         edgeLengths[i] = currentLength[element->getEdge(i)->getID()];
                     }
                     double average = std::accumulate(edgeLengths.begin(), edgeLengths.end(), 0) / 6;
-                    Geometry::PointReference center = element->getReferenceGeometry()->getCenter();
+                    const Geometry::PointReference& center = element->getReferenceGeometry()->getCenter();
                     Geometry::Jacobian jac = element->calcJacobian(center);
                     worstQuality = std::min(worstQuality, jac.determinant() / average * std::sqrt(2));
                 }

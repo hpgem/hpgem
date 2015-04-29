@@ -36,15 +36,12 @@ namespace Geometry
     std::size_t ReferenceLine::localNodeIndexes_[2][1] = { {0}, {1}};
     
     ReferenceLine::ReferenceLine()
-            : ReferenceGeometry(2, 1, ReferenceGeometryType::LINE), /// Line has two points 1+1
+            : ReferenceGeometry(2, 1, ReferenceGeometryType::LINE, {0.}),
             referenceGeometryCodim1Ptr_(&ReferencePoint::Instance())
     {
         name = "ReferenceLine";
-        PointReference p1(1), p2(1);
-        p1[0] = -1.0;
-        p2[0] = 1.0;
-        points_[0] = p1;
-        points_[1] = p2;
+        points_[0] = PointReferenceFactory::instance()->makePoint({-1.});
+        points_[1] = PointReferenceFactory::instance()->makePoint({ 1.});
         
         mappingsLineToLine_[0] = &MappingToRefLineToLine0::Instance();
         mappingsLineToLine_[1] = &MappingToRefLineToLine1::Instance();
@@ -58,11 +55,6 @@ namespace Geometry
     {
         logger.assert(p.size()==1, "The dimension of the point is wrong");
         return ((p[0] >= -1.) && (p[0] <= 1.));
-    }
-    
-    PointReference ReferenceLine::getCenter() const
-    {
-        return PointReference(1);
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceLine& line)

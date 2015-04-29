@@ -27,18 +27,15 @@
 namespace Geometry
 {
     
-    PointReference ConcatenatedMapping::transform(const PointReference& pIn) const
+    const PointReference& ConcatenatedMapping::transform(const PointReference& pIn) const
     {
-        PointReference pLoc = map1_.transform(pIn);
-        PointReference pOut = map2_.transform(pLoc);
-        return pOut;
+        return map2_.transform(map1_.transform(pIn));
     }
     
     Jacobian ConcatenatedMapping::calcJacobian(const PointReference& p) const
     {
-        PointReference pIntermediate = map1_.transform(p);
         Jacobian j1 = map1_.calcJacobian(p);
-        Jacobian j2 = map2_.calcJacobian(pIntermediate);
+        Jacobian j2 = map2_.calcJacobian(map1_.transform(p));
         return j2.multiplyJacobiansInto(j1);
     }
     

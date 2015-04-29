@@ -177,11 +177,11 @@ int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
     // Set parameters for the PDE.
-    const std::size_t dimension = 2;    // Either 2 or 3
+    const std::size_t dimension = 2;    // 1 or 2 or 3
     const std::size_t numberOfVariables = 1;
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;    // Either TRIANGULAR or RECTANGULAR.
     const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
-    const bool doComputeError = false;  // Set to true if you want to compute the error.
+    const bool doComputeError = false;  // Set to true if you want to compute the error. (Requires exact solution)
 
     std::vector<std::string> variableNames(numberOfVariables);
     for(std::size_t i = 0; i < numberOfVariables; i++)

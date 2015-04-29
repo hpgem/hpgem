@@ -33,14 +33,18 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefFaceToTriangularPrism0::transform(const Geometry::PointReference& p1) const
+    const PointReference& MappingToRefFaceToTriangularPrism0::transform(const Geometry::PointReference& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        PointReference p2(3);
-        p2[0] = p1[1];
-        p2[1] = p1[0];
-        p2[2] = -1.0;
-        return p2;
+        try
+        {
+            return *transformedCoordinates.at(&p1);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({p1[1], p1[0], -1.});
+            return *transformedCoordinates.at(&p1);
+        }
     }
     
     Jacobian MappingToRefFaceToTriangularPrism0::calcJacobian(const Geometry::PointReference& p1) const
@@ -69,14 +73,18 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefFaceToTriangularPrism1::transform(const Geometry::PointReference& p1) const
+    const PointReference& MappingToRefFaceToTriangularPrism1::transform(const Geometry::PointReference& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        PointReference p2(3);
-        p2[0] = p1[0];
-        p2[1] = p1[1];
-        p2[2] = 1.0;
-        return p2;
+        try
+        {
+            return *transformedCoordinates.at(&p1);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({p1[0], p1[1], 1.});
+            return *transformedCoordinates.at(&p1);
+        }
     }
     
     Jacobian MappingToRefFaceToTriangularPrism1::calcJacobian(const Geometry::PointReference& p1) const
@@ -105,14 +113,18 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefFaceToTriangularPrism2::transform(const Geometry::PointReference& p1) const
+    const PointReference& MappingToRefFaceToTriangularPrism2::transform(const Geometry::PointReference& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        PointReference p2(3);
-        p2[0] = 0.0;
-        p2[1] = 0.5 * (1.0 - p1[0]);
-        p2[2] = p1[1];
-        return p2;
+        try
+        {
+            return *transformedCoordinates.at(&p1);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({0., 0.5 * (1. - p1[0]), p1[1]});
+            return *transformedCoordinates.at(&p1);
+        }
     }
     
     Jacobian MappingToRefFaceToTriangularPrism2::calcJacobian(const Geometry::PointReference& p1) const
@@ -141,14 +153,18 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefFaceToTriangularPrism3::transform(const Geometry::PointReference& p1) const
+    const PointReference& MappingToRefFaceToTriangularPrism3::transform(const Geometry::PointReference& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        PointReference p2(3);
-        p2[0] = 0.5 * (1.0 + p1[0]);
-        p2[1] = 0.0;
-        p2[2] = p1[1];
-        return p2;
+        try
+        {
+            return *transformedCoordinates.at(&p1);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({0.5 * (1. + p1[0]), 0., p1[1]});
+            return *transformedCoordinates.at(&p1);
+        }
     }
     
     Jacobian MappingToRefFaceToTriangularPrism3::calcJacobian(const Geometry::PointReference& p1) const
@@ -177,14 +193,18 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefFaceToTriangularPrism4::transform(const Geometry::PointReference& p1) const
+    const PointReference& MappingToRefFaceToTriangularPrism4::transform(const Geometry::PointReference& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        PointReference p2(3);
-        p2[0] = 0.5 * (1.0 - p1[0]);
-        p2[1] = 0.5 * (1.0 + p1[0]);
-        p2[2] = p1[1];
-        return p2;
+        try
+        {
+            return *transformedCoordinates.at(&p1);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({0.5 * (1. - p1[0]), 0.5 * (1. + p1[0]), p1[1]});
+            return *transformedCoordinates.at(&p1);
+        }
     }
     
     Jacobian MappingToRefFaceToTriangularPrism4::calcJacobian(const Geometry::PointReference& p1) const

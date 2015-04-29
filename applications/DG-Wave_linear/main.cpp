@@ -141,7 +141,7 @@ public:
         void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
         {
             PointPhysicalT pPhys = face->referenceToPhysical(p);
-            PointReferenceT pElement = face->mapRefFaceToRefElemL(p);
+            const PointReferenceT& pElement = face->mapRefFaceToRefElemL(p);
             ret.resize(2);
             static LinearAlgebra::NumericalVector exact(2);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
@@ -162,7 +162,7 @@ public:
         void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final
         {
             PointPhysicalT pPhys = face->referenceToPhysical(p);
-            PointReferenceT pElement = face->mapRefFaceToRefElemL(p);
+            const PointReferenceT& pElement = face->mapRefFaceToRefElemL(p);
             ret.resize(1);
             static LinearAlgebra::NumericalVector dummySolution(2), gradPhi(DIM), temp(DIM);
             const LinearAlgebra::NumericalVector& expansioncoefficients = face->getPtrElementLeft()->getTimeLevelData(0, 0);
@@ -212,13 +212,12 @@ public:
     void doAllFaceIntegration()
     {
         Integration::FaceIntegral integral(false);
-        Geometry::PointReference p(DIM - 1);
         Geometry::PointPhysical pPhys(DIM);
         LinearAlgebra::Matrix result;
         LinearAlgebra::NumericalVector initialconditions;
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
-            p = face->getReferenceGeometry()->getCenter();
+            const PointReferenceT& p = face->getReferenceGeometry()->getCenter();
             pPhys = face->referenceToPhysical(p);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
             {
@@ -252,13 +251,12 @@ public:
     //messy routine that collects the row numbers of basisfunctions active on the free surface for use with PETSc
     void getSurfaceIS(Utilities::GlobalPetscMatrix& S, IS* surface, IS* rest)
     {
-        Geometry::PointReference p(DIM);
         Geometry::PointPhysical pPhys(DIM);
         std::size_t numBasisFuns(0);
         std::vector<int> facePositions;
         for (const Base::Face* face : meshes_[0]->getFacesList())
         {
-            p = face->getReferenceGeometry()->getCenter();
+            const PointReferenceT& p = face->getReferenceGeometry()->getCenter();
             pPhys = face->referenceToPhysical(p);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
             {

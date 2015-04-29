@@ -35,50 +35,50 @@ int main()
     
     Base::BasisFunctionSet all1DbasisFunctions(5);
     Base::AssembleBasisFunctionSet_1D_Ord5_A0(all1DbasisFunctions);
-    Geometry::PointReference point1D(1);
+    Geometry::Point point1D(1);
     for (std::size_t i = 0; i < all1DbasisFunctions.size(); ++i)
     {
         const Base::BaseBasisFunction* test = all1DbasisFunctions[i];
         for (point1D[0] = -1.5; point1D[0] < 1.51; point1D[0] += 0.1)
         {
-            logger.assert_always((test->eval(point1D) == all1DbasisFunctions.eval(i, point1D)), "eval");
-            logger.assert_always((test->evalDeriv0(point1D) == all1DbasisFunctions.evalDeriv(i, 0, point1D)), "derivative");
+            logger.assert_always((test->eval(*Geometry::PointReferenceFactory::instance()->makePoint(point1D)) == all1DbasisFunctions.eval(i, *Geometry::PointReferenceFactory::instance()->makePoint(point1D))), "eval");
+            logger.assert_always((test->evalDeriv0(*Geometry::PointReferenceFactory::instance()->makePoint(point1D)) == all1DbasisFunctions.evalDeriv(i, 0, *Geometry::PointReferenceFactory::instance()->makePoint(point1D))), "derivative");
         }
     }
     
     Base::BasisFunctionSet all2DbasisFunctions(5);
     Base::AssembleBasisFunctionSet_2D_Ord5_A0(all2DbasisFunctions);
-    Geometry::PointReference point2D(2);
+    Geometry::Point point2D(2);
     for (std::size_t i = 0; i < all2DbasisFunctions.size(); ++i)
     {
         const Base::BaseBasisFunction* test = all2DbasisFunctions[i];
-        for (point2D[0] = -1.5; point2D[0] < 1.51; point2D[0] += 0.1)
+        for (point2D[0] = -1.5; point2D[0] < 1.51; point2D[0] += 0.2)
         {
-            for (point2D[1] = -1.5; point2D[1] < 1.51; point2D[1] += 0.1)
+            for (point2D[1] = -1.5; point2D[1] < 1.51; point2D[1] += 0.2)
             {
-                logger.assert_always((test->eval(point2D) == all2DbasisFunctions.eval(i, point2D)), "eval");
-                logger.assert_always((test->evalDeriv0(point2D) == all2DbasisFunctions.evalDeriv(i, 0, point2D)), "derivative");
-                logger.assert_always((test->evalDeriv1(point2D) == all2DbasisFunctions.evalDeriv(i, 1, point2D)), "derivative");
+                logger.assert_always((test->eval(*Geometry::PointReferenceFactory::instance()->makePoint(point2D)) == all2DbasisFunctions.eval(i, *Geometry::PointReferenceFactory::instance()->makePoint(point2D))), "eval");
+                logger.assert_always((test->evalDeriv0(*Geometry::PointReferenceFactory::instance()->makePoint(point2D)) == all2DbasisFunctions.evalDeriv(i, 0, *Geometry::PointReferenceFactory::instance()->makePoint(point2D))), "derivative");
+                logger.assert_always((test->evalDeriv1(*Geometry::PointReferenceFactory::instance()->makePoint(point2D)) == all2DbasisFunctions.evalDeriv(i, 1, *Geometry::PointReferenceFactory::instance()->makePoint(point2D))), "derivative");
             }
         }
     }
     
     Base::BasisFunctionSet all3DbasisFunctions(5);
     Base::AssembleBasisFunctionSet_3D_Ord5_A0(all3DbasisFunctions);
-    Geometry::PointReference point3D(3);
+    Geometry::Point point3D(3);
     for (std::size_t i = 0; i < all3DbasisFunctions.size(); ++i)
     {
         const Base::BaseBasisFunction* test = all3DbasisFunctions[i];
-        for (point3D[0] = -1.5; point3D[0] < 1.51; point3D[0] += 0.1)
+        for (point3D[0] = -1.5; point3D[0] < 1.51; point3D[0] += 0.6)
         {
-            for (point3D[1] = -1.5; point3D[1] < 1.51; point3D[1] += 0.1)
+            for (point3D[1] = -1.5; point3D[1] < 1.51; point3D[1] += 0.7)
             {
-                for (point3D[2] = -1.5; point3D[2] < 1.51; point3D[2] += 0.1)
+                for (point3D[2] = -1.5; point3D[2] < 1.51; point3D[2] += 0.8)
                 {
-                    logger.assert_always((test->eval(point3D) == all3DbasisFunctions.eval(i, point3D)), "eval");
-                    logger.assert_always((test->evalDeriv0(point3D) == all3DbasisFunctions.evalDeriv(i, 0, point3D)), "derivative");
-                    logger.assert_always((test->evalDeriv1(point3D) == all3DbasisFunctions.evalDeriv(i, 1, point3D)), "derivative");
-                    logger.assert_always((test->evalDeriv2(point3D) == all3DbasisFunctions.evalDeriv(i, 2, point3D)), "derivative");
+                    logger.assert_always((test->eval(*Geometry::PointReferenceFactory::instance()->makePoint(point3D)) == all3DbasisFunctions.eval(i, *Geometry::PointReferenceFactory::instance()->makePoint(point3D))), "eval");
+                    logger.assert_always((test->evalDeriv0(*Geometry::PointReferenceFactory::instance()->makePoint(point3D)) == all3DbasisFunctions.evalDeriv(i, 0, *Geometry::PointReferenceFactory::instance()->makePoint(point3D))), "derivative");
+                    logger.assert_always((test->evalDeriv1(*Geometry::PointReferenceFactory::instance()->makePoint(point3D)) == all3DbasisFunctions.evalDeriv(i, 1, *Geometry::PointReferenceFactory::instance()->makePoint(point3D))), "derivative");
+                    logger.assert_always((test->evalDeriv2(*Geometry::PointReferenceFactory::instance()->makePoint(point3D)) == all3DbasisFunctions.evalDeriv(i, 2, *Geometry::PointReferenceFactory::instance()->makePoint(point3D))), "derivative");
                 }
             }
         }

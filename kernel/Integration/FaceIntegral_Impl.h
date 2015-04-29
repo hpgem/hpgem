@@ -69,23 +69,23 @@ namespace Integration
         std::size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
         
         // Gauss quadrature point
-        Geometry::PointReference p = qdrRuleLoc->getPoint(0);
+        const Geometry::PointReference& p0 = qdrRuleLoc->getPoint(0);
         
-        LinearAlgebra::NumericalVector Normal = localFace_->getNormalVector(p);
+        LinearAlgebra::NumericalVector normal = localFace_->getNormalVector(p0);
         
         // first Gauss point;
-        result = integrandFunc(localFace_, Normal, p);
-        result *= (qdrRuleLoc->weight(0) * Base::L2Norm(Normal));
+        result = integrandFunc(localFace_, normal, p0);
+        result *= (qdrRuleLoc->weight(0) * Base::L2Norm(normal));
         
         // next Gauss points
         for (std::size_t i = 1; i < nrOfPoints; ++i)
         {
-            p = qdrRuleLoc->getPoint(i);
-            Normal = localFace_->getNormalVector(p);
-            value = integrandFunc(localFace_, Normal, p);
+            const Geometry::PointReference& p = qdrRuleLoc->getPoint(i);
+            normal = localFace_->getNormalVector(p);
+            value = integrandFunc(localFace_, normal, p);
             
             //Y = alpha * X + Y
-            LinearAlgebra::axpy(qdrRuleLoc->weight(i) * Base::L2Norm(Normal), value, result);
+            LinearAlgebra::axpy(qdrRuleLoc->weight(i) * Base::L2Norm(normal), value, result);
             
         }
         return result;
@@ -110,11 +110,11 @@ namespace Integration
         std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
         std::size_t iPoint = 0; // Index for the quadrature points.
         
-        Geometry::PointReference pRef = ptrQdrRule->getPoint(iPoint);
-        IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(pRef));
+        const Geometry::PointReference& pRef0 = ptrQdrRule->getPoint(iPoint);
+        IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(pRef0));
         for (iPoint = 1; iPoint < numOfPoints; iPoint++)
         {
-            pRef = ptrQdrRule->getPoint(iPoint);
+            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(iPoint);
             LinearAlgebra::axpy(ptrQdrRule->weight(iPoint), integrandFunction(pRef), integral);
         }
         return integral;

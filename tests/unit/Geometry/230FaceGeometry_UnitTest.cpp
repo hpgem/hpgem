@@ -43,9 +43,9 @@ int main()
     std::vector<std::size_t> pointIndexes, leftIndices, rightIndices;
     std::vector<Geometry::PointPhysical> nodes1D;
     
-    Geometry::PointReference point1D(1), compare1D(1);
+    Geometry::Point point1D(1), compare1D(1);
     Geometry::PointPhysical point1Dphys(1), compare1Dphys(1);
-    Geometry::PointReference orig1D(1);
+    Geometry::Point orig1D(0);
     
     Geometry::Jacobian jac(1, 1), jaccompare(1, 1);
     
@@ -79,14 +79,14 @@ int main()
     {
         orig1D = test->getReferenceGeometry()->getNode(i);
         compare1D = test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i]);
-        compare1Dphys = test->getElementGLeft()->referenceToPhysical(compare1D);
-        point1D = test->mapRefFaceToRefElemL(orig1D);
-        point1Dphys = test->referenceToPhysical(orig1D);
+        compare1Dphys = test->getElementGLeft()->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(compare1D));
+        point1D = test->mapRefFaceToRefElemL(*Geometry::PointReferenceFactory::instance()->makePoint(orig1D));
+        point1Dphys = test->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(orig1D));
         logger.assert_always((std::abs(compare1D[0] - point1D[0]) < 1e-12), "getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
         logger.assert_always((std::abs(compare1Dphys[0] - point1Dphys[0]) < 1e-12), "referenceToPhysical");
         compare1D = test->getPtrElementGRight()->getReferenceGeometry()->getNode(rightIndices[i]);
-        compare1Dphys = test->getPtrElementGRight()->referenceToPhysical(compare1D);
-        point1D = test->mapRefFaceToRefElemR(orig1D);
+        compare1Dphys = test->getPtrElementGRight()->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(compare1D));
+        point1D = test->mapRefFaceToRefElemR(*Geometry::PointReferenceFactory::instance()->makePoint(orig1D));
         logger.assert_always((std::abs(compare1D[0] - point1D[0]) < 1e-12), "getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
         logger.assert_always((std::abs(compare1Dphys[0] - point1Dphys[0]) < 1e-12), "referenceToPhysical"); //probably indirectly verified already, but this is the most important feature of a face
     }
@@ -98,9 +98,9 @@ int main()
     
     std::vector<Geometry::PointPhysical> nodes2D;
     
-    Geometry::PointReference point2D(2), compare2D(2);
+    Geometry::Point point2D(2), compare2D(2);
     Geometry::PointPhysical point2Dphys(2), compare2Dphys(2);
-    Geometry::PointReference orig2D(2);
+    Geometry::Point orig2D(1);
     
     jac.resize(2, 2);
     jaccompare.resize(2, 2);
@@ -149,16 +149,16 @@ int main()
     {
         orig2D = test->getReferenceGeometry()->getNode(i);
         compare2D = test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i]);
-        compare2Dphys = test->getElementGLeft()->referenceToPhysical(compare2D);
-        point2D = test->mapRefFaceToRefElemL(orig2D);
-        point2Dphys = test->referenceToPhysical(orig2D);
+        compare2Dphys = test->getElementGLeft()->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(compare2D));
+        point2D = test->mapRefFaceToRefElemL(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
+        point2Dphys = test->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
         logger.assert_always((std::abs(compare2D[0] - point2D[0]) < 1e-12), "getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
         logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12), "getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
         logger.assert_always((std::abs(compare2Dphys[0] - point2Dphys[0]) < 1e-12), "referenceToPhysical");
         logger.assert_always((std::abs(compare2Dphys[1] - point2Dphys[1]) < 1e-12), "referenceToPhysical");
         compare2D = test->getPtrElementGRight()->getReferenceGeometry()->getNode(rightIndices[i]);
-        compare2Dphys = test->getPtrElementGRight()->referenceToPhysical(compare2D);
-        point2D = test->mapRefFaceToRefElemR(orig2D);
+        compare2Dphys = test->getPtrElementGRight()->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(compare2D));
+        point2D = test->mapRefFaceToRefElemR(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
         logger.assert_always((std::abs(compare2D[0] - point2D[0]) < 1e-12), "getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
         logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12), "getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
         logger.assert_always((std::abs(compare2Dphys[0] - point2Dphys[0]) < 1e-12), "referenceToPhysical"); //probably indirectly verified already, but this is the most important feature of a face
@@ -190,9 +190,9 @@ int main()
     {
         orig2D = test->getReferenceGeometry()->getNode(i);
         compare2D = test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i]);
-        compare2Dphys = test->getElementGLeft()->referenceToPhysical(compare2D);
-        point2D = test->mapRefFaceToRefElemL(orig2D);
-        point2Dphys = test->referenceToPhysical(orig2D);
+        compare2Dphys = test->getElementGLeft()->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(compare2D));
+        point2D = test->mapRefFaceToRefElemL(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
+        point2Dphys = test->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
         logger.assert_always((std::abs(compare2D[0] - point2D[0]) < 1e-12), "getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
         logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12), "getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
         logger.assert_always((std::abs(compare2Dphys[0] - point2Dphys[0]) < 1e-12), "referenceToPhysical");

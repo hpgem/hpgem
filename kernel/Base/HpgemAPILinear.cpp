@@ -139,6 +139,7 @@ namespace Base
     }
     
     /// \details By default, the standard L2 inner product with the source term is computed.
+    /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     LinearAlgebra::NumericalVector HpgemAPILinear::integrateSourceTermAtElement(Base::Element * ptrElement, const double time, const std::size_t orderTimeDerivative)
     {
         // Get number of basis functions
@@ -158,7 +159,7 @@ namespace Base
         // test function and the source term, then add it with the correct weight to the integral solution.
         for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
         {
-            Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
+            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(pQuad);
             Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
             
             Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);

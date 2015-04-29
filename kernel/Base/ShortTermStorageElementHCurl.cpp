@@ -30,7 +30,7 @@ void Base::ShortTermStorageElementHcurl::computeData()
 {
     
     ShortTermStorageElementBase::computeData(); // calculates the Jacobian in jac_
-    std::size_t DIM = currentPoint_.size();
+    std::size_t DIM = currentPoint_->size();
     basisFunctionValues_.resize(element_->getNrOfBasisFunctions());
     basisFunctionCurlValues_.resize(element_->getNrOfBasisFunctions());
     Geometry::Jacobian jacInvTrans = jac_.inverse();
@@ -46,12 +46,12 @@ void Base::ShortTermStorageElementHcurl::computeData()
     {
         basisFunctionValues_[i].resize(3);
         //Compute the values of basis function i on the current point. Note that we return in the last parameter.
-        element_->Element::basisFunction(i, currentPoint_, basisFunctionValues_[i]);
+        element_->Element::basisFunction(i, *currentPoint_, basisFunctionValues_[i]);
         //Multiplies the values of basis function i with the transposed inverse Jacobian.
         basisFunctionValues_[i] = jacInvTrans * basisFunctionValues_[i];
                 
         basisFunctionCurlValues_[i].resize(3);
-        basisFunctionCurlValues_[i] = element_->Element::basisFunctionCurl(i, currentPoint_);
+        basisFunctionCurlValues_[i] = element_->Element::basisFunctionCurl(i, *currentPoint_);
         basisFunctionCurlValues_[i] = (jac_ / (std::abs(jac_.determinant()))) * basisFunctionCurlValues_[i];
     }
     
@@ -60,9 +60,9 @@ void Base::ShortTermStorageElementHcurl::computeData()
 void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
 {
     logger(DEBUG, "basisFunction called in Hcurl");
-    if (!(p == currentPoint_))
+    if (!(&p == currentPoint_))
     {
-        currentPoint_ = p;
+        currentPoint_ = &p;
         computeData();
     }
     ret = basisFunctionValues_[i];
@@ -72,7 +72,7 @@ void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t index, const 
 {
     logger(DEBUG, "Basis Function called in Hcurl const");
     ret = basisFunctionValues_[index];
-    if (!(p == currentPoint_))
+    if (!(&p == currentPoint_))
     {
         logger(WARN, "WARNING: you are using a slow operator");
         element_->basisFunction(index, p, ret);
@@ -92,9 +92,9 @@ void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t index, const 
 
 LinearAlgebra::NumericalVector Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const PointReferenceT& p)
 {
-    if (!(p == currentPoint_))
+    if (!(&p == currentPoint_))
     {
-        currentPoint_ = p;
+        currentPoint_ = &p;
         computeData();
     }
     //define basisFunctionCurlValues_ as basisFunctionDerivatives_ from H1 function
@@ -104,7 +104,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageElementHcurl::basisFunction
 
 LinearAlgebra::NumericalVector Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const PointReferenceT& p) const
 {
-    if (!(p == currentPoint_))
+    if (!(&p == currentPoint_))
     {
         logger(WARN, "WARNING: you are using a slow operator");
         LinearAlgebra::NumericalVector ret = element_->basisFunctionCurl(i, p);

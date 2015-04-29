@@ -175,7 +175,7 @@ int main()
     LinearAlgebra::NumericalVector testVector = elementRight.getTimeLevelDataVector(iTimeLevel);
     logger.assert_always(testVector == expansionCoefficients, "Expansion coefficients incorrect: % != %", testVector, expansionCoefficients);
     
-    Geometry::PointReference pointReference(coords0);
+    const Geometry::PointReference& pointReference = *Geometry::PointReferenceFactory::instance()->makePoint(coords0);
     LinearAlgebra::NumericalVector solutionVector = elementRight.getSolution(iTimeLevel, pointReference);
     for (iV = 0; iV < nrOfUnknowns; iV++)
     {

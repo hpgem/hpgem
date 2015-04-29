@@ -32,7 +32,7 @@ Base::Element& Base::ShortTermStorageElementBase::operator=(Base::Element& eleme
 
     element_ = &element;
 
-    currentPoint_[0] = std::numeric_limits<double>::quiet_NaN();
+    currentPoint_ = Geometry::PointReferenceFactory::instance()->makePoint({std::numeric_limits<double>::quiet_NaN()});
     currentPointIndex_ = -1;
     return *this;
 }
@@ -44,7 +44,7 @@ Geometry::PointPhysical Base::ShortTermStorageElementBase::referenceToPhysical(c
 
 Geometry::Jacobian Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference) const
 {
-    if (!(currentPoint_ == pointReference))
+    if (!(currentPoint_ == &pointReference))
     {
         logger(WARN, "WARNING: you are using slow data access by using ShortTermStorageElementBase::calcJacobian const, use the non-const version instead.");
         return element_->calcJacobian(pointReference);
@@ -54,9 +54,9 @@ Geometry::Jacobian Base::ShortTermStorageElementBase::calcJacobian(const PointRe
 
 Geometry::Jacobian Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference)
 {
-    if (!(currentPoint_ == pointReference))
+    if (!(currentPoint_ == &pointReference))
     {
-        currentPoint_ = pointReference;
+        currentPoint_ = &pointReference;
         computeData();
     }
     return jac_;
@@ -77,11 +77,11 @@ void Base::ShortTermStorageElementBase::computeData()
             }
         }
         currentPointIndex_++;
-        jac_ = element_->calcJacobian(currentPoint_);
+        jac_ = element_->calcJacobian(*currentPoint_);
     }
     else
     {
-        jac_ = element_->calcJacobian(currentPoint_);
+        jac_ = element_->calcJacobian(*currentPoint_);
     }
 }
 
