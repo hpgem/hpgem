@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     Base::parse_options(argc, argv);
 
     // Set parameters for the PDE.
-    const std::size_t dimension = 1;    // Either 2 or 3
+    const std::size_t dimension = 2;    // Either 2 or 3
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;    // Either TRIANGULAR or RECTANGULAR.
     const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
     const double c = 1.0;

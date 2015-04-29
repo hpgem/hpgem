@@ -41,35 +41,6 @@ namespace Geometry
         return QuadratureRules::AllGaussQuadratureRules::instance().getRule(this, order);
     }
     
-    double ReferenceGeometry::getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p)
-    {
-        logger.assert(function!=nullptr, "Invalid basis function passed");
-        try
-        {
-            return basisfunctionValues_[function].at(&p);
-        }
-        catch (std::out_of_range&)
-        {
-            basisfunctionValues_[function][&p] = function->eval(p);
-            return basisfunctionValues_[function].at(&p);
-        }
-    }
-    
-    LinearAlgebra::NumericalVector&
-    ReferenceGeometry::getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p)
-    {
-        logger.assert(function!=nullptr, "Invalid basis function passed");
-        try
-        {
-            return basisfunctionDerivatives_[function].at(&p);
-        }
-        catch (std::out_of_range&)
-        {
-            basisfunctionDerivatives_[function][&p] = function->evalDeriv(p);
-            return basisfunctionDerivatives_[function].at(&p);
-        }
-    }
-    
     const PointReference& ReferenceGeometry::getNode(const std::size_t& localIndex) const
     {
         logger.assert(localIndex<getNumberOfNodes(), "Asked for node %, but there are only % nodes", localIndex, getNumberOfNodes());

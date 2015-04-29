@@ -125,41 +125,6 @@ namespace Geometry
         
         /// \brief Get a valid quadrature for this geometry.
         const QuadratureRules::GaussQuadratureRule* getGaussQuadratureRule(std::size_t order) const;
-
-        ///\bug getBasisFunctionValue and getBasisFunctionDerivative have functionality that is completely independent from the rest of ReferenceGeometry
-        ///\bug getBasisFunctionValue does some lazy initialization, so it can't be const, unless you consider the state to
-        /// contain the values of all basisFunctions at all reference points
-        ///\todo The basisfunctions are not a responsibility of the reference geometry,
-        /// but of the basisfunction set. Switch this function to BasisFunction or BasisFunctionSet
-        /// or implement it directly in a separate class.
-        double getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p);
-
-        double getBasisFunctionValue(const Base::BaseBasisFunction* function, const PointReference& p) const
-        {
-            logger.assert(function!=nullptr, "Invalid basis function passed");
-            return const_cast<ReferenceGeometry*>(this)->getBasisFunctionValue(function, p);
-        }
-        
-        ///\brief clean out the cache for this basis function because you are going to delete it
-        ///\todo the way basis function values are stored will be reworked in the near future
-        void removeBasisFunctionData(const Base::BaseBasisFunction* function)
-        {
-            basisfunctionValues_.erase(function);
-            basisfunctionDerivatives_.erase(function);
-        }
-
-        ///\bug getBasisFunctionDerivative does some lazy initialization, so it can't be const, unless you consider the state to
-        /// contain the values of all basisFunctions at all reference points
-        ///\todo The basisfunctions are not a responsibility of the reference geometry,
-        /// but of the basisfunction set. Switch this function to BasisFunction or BasisFunctionSet
-        /// or implement it directly in a separate class.
-        LinearAlgebra::NumericalVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p);
-
-        LinearAlgebra::NumericalVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function, const PointReference& p) const
-        {
-            logger.assert(function!=nullptr, "Invalid basis function passed");
-            return const_cast<ReferenceGeometry*>(this)->getBasisFunctionDerivative(function, p);
-        }
         
     protected:
         ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT, std::initializer_list<double> center);
@@ -174,12 +139,6 @@ namespace Geometry
         const ReferenceGeometryType geometryType_;
 
         std::string name;
-
-    private:
-        ///\todo this can safely be removed if the basis functions are not
-        /// a responsibility of the geometry anymore.
-        std::map<const Base::BaseBasisFunction*, std::unordered_map<const Geometry::PointReference*, double> > basisfunctionValues_;
-        std::map<const Base::BaseBasisFunction*, std::unordered_map<const Geometry::PointReference*, LinearAlgebra::NumericalVector> > basisfunctionDerivatives_;
         
     };
 

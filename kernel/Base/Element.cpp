@@ -227,24 +227,23 @@ namespace Base
     {
         logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         const Base::BaseBasisFunction* function = nullptr;
-        int basePosition(0);
         for (int j : basisFunctionSetPositions_)
         {
-            if (j != -1 && i >= basePosition)
+            if (j != -1)
             {
                 std::size_t n = basisFunctionSet_->at(j)->size();
-                if (i - basePosition < n)
+                if (i < n)
                 {
-                    function = basisFunctionSet_->at(j)->operator[](i - basePosition);
-                    basePosition += n;
+                    function = basisFunctionSet_->at(j)->operator[](i);
+                    return p.getBasisFunctionValue(function);
                 }
                 else
                 {
-                    basePosition += n;
+                    i -= n;
                 }
             }
         }
-        return getReferenceGeometry()->getBasisFunctionValue(function, p);
+        return p.getBasisFunctionValue(function);
     }
     
     std::size_t Element::getID() const

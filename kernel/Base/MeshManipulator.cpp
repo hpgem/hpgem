@@ -198,10 +198,7 @@ namespace Base
         {
             for(const Base::BaseBasisFunction* function : *set)
             {
-                for(Base::Element* element : getElementsList(IteratorType::GLOBAL))
-                {
-                    element->getReferenceGeometry()->removeBasisFunctionData(function);
-                }
+                Geometry::PointReferenceFactory::instance()->removeBasisFunctionData(function);
             }
         }
         collBasisFSet_.clear();
@@ -263,10 +260,7 @@ namespace Base
         {
             for(const Base::BaseBasisFunction* function : *set)
             {
-                for(Base::Element* element : getElementsList(IteratorType::GLOBAL))
-                {
-                    element->getReferenceGeometry()->removeBasisFunctionData(function);
-                }
+                Geometry::PointReferenceFactory::instance()->removeBasisFunctionData(function);
             }
         }
         collBasisFSet_.clear();

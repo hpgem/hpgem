@@ -24,6 +24,9 @@
 
 #include "Point.h"
 #include "PointReferenceFactory.h"
+#include "Base/BaseBasisFunction.h"
+
+#include <unordered_map>
 
 namespace Geometry
 {
@@ -31,6 +34,15 @@ namespace Geometry
 
     class PointReference : public Point
     {
+    public:
+        void removeBasisFunctionData(const Base::BaseBasisFunction* function)
+        {
+            basisfunctionValues_.erase(function);
+            basisfunctionDerivatives_.erase(function);
+        }
+
+        double getBasisFunctionValue(const Base::BaseBasisFunction* function) const;
+        const LinearAlgebra::NumericalVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function) const;
         //do not trust any other class to not create duplicates
         friend PointReferenceFactory;
     private:
@@ -63,25 +75,12 @@ namespace Geometry
                 : Point(coord)
         {
         }
-        
-        /*PointReference operator *(double right);
-
-        PointReference operator *(double right) const;
-
-        //please note that for type-safety this function cannot be removed in favour
-        //of the Point::operator+
-        //please also note that modifying PointReferences is quite rare
-        PointReference operator +(const PointReference& right);
-
-        PointReference operator +(const PointReference& right) const;
-
-        PointReference operator -(const PointReference& right);
-
-        PointReference operator -(const PointReference& right) const;*/
 
         PointReference& operator =(const PointReference& rhs) = delete;
         PointReference& operator =(PointReference&& rhs) = delete;
-        
+
+        std::unordered_map<const Base::BaseBasisFunction*, double > basisfunctionValues_;
+        std::unordered_map<const Base::BaseBasisFunction*, LinearAlgebra::NumericalVector > basisfunctionDerivatives_;
         
     };
 
