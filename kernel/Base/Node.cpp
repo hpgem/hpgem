@@ -23,6 +23,7 @@
 #include "Element.h"
 #include "LinearAlgebra/NumericalVector.h"
 #include "ElementCacheData.h"
+#include <algorithm>
 
 void Base::Node::addElement(Element* element, std::size_t localNodeNr)
 {

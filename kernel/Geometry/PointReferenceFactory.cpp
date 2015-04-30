@@ -20,6 +20,8 @@
  */
 
 #include <PointReferenceFactory.h>
+#include <limits>
+#include <algorithm>
 
 namespace Geometry
 {
