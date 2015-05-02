@@ -106,7 +106,18 @@ namespace Base
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_)
         {
+            /// \todo these seems to be a hack, not the case the users sets inconsist function. We should actually stop the user from being able to do thos [What going on here should be checked carefully]
+            //if(expansionCoefficients_[timeLevel].size()!=nrOfUnkowns_*nrOfBasisFunctions_){
+            //    expansionCoefficients_[timeLevel].resize(nrOfUnkowns_*nrOfBasisFunctions_);
+            //}
+
+            if (expansionCoefficients_[timeLevel].size() != nrOfUnknowns_ * nrOfBasisFunctions_)
+            {
+                const_cast<LinearAlgebra::Matrix *> (&expansionCoefficients_[timeLevel])->resize(nrOfUnknowns_, nrOfBasisFunctions_);
+            }
+
             return expansionCoefficients_[timeLevel](unknown, basisFunction);
+
         }
         else
         {
