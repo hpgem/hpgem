@@ -72,6 +72,7 @@ namespace Base
     ///recomputes the jacobian, the physical point, functionvalues and derivatives of functions based on the current point
     virtual void computeData();
 
+
     Element& operator=(const Element& element)
     {//todo check that &element and this are different things (errorChecker)
       element_ = &element;
@@ -81,6 +82,7 @@ namespace Base
       currentPointIndex_ = -1;
       return *this;
     }
+
 
     ShortTermStorageElementBase(const ShortTermStorageElementBase& copy) : element_(copy.element_), currentPoint_(copy.currentPoint_), jac_(copy.jac_), useCache_(copy.useCache_), currentPointIndex_(copy.currentPointIndex_), recomputeCache_(copy.recomputeCache_)
     {
