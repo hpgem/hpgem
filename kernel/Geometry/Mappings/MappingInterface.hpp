@@ -103,7 +103,7 @@ namespace Geometry
             /*! (OC): Jacobian has a gradient in each line, hence as many lines as target
                 space (DIM2) and as many columns as original space (DIM1),
                 \frac{\partial x_i}{\partial \xi_j}. */
-            virtual Jacobian calcJacobian(const PointReferenceT&) const = 0;
+            virtual void calcJacobian(const PointReferenceT&, JacobianT&) const = 0;
             MappingInterface() { }
             virtual ~MappingInterface() { };
 

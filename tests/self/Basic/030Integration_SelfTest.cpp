@@ -45,8 +45,9 @@ void testMesh(Base::MeshManipulator* test) {
 	class:public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>{
 		void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
 			ret.resize(1);
+			Geometry::PointPhysical pPhys(p.size());
 			ret[0]=0;
-			Geometry::PointPhysical pPhys = el->referenceToPhysical(p);
+			el->referenceToPhysical(p,pPhys);
 			for(std::size_t i=0;i<p.size();++i){
 				ret[0]+=pPhys[i];
 			}
@@ -55,8 +56,9 @@ void testMesh(Base::MeshManipulator* test) {
 	class:public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>{
 		void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
 			ret.resize(1);
+			Geometry::PointPhysical pPhys(p.size());
 			ret[0]=1;
-			Geometry::PointPhysical pPhys = el->referenceToPhysical(p);
+			el->referenceToPhysical(p,pPhys);
 			for(std::size_t i=0;i<p.size();++i){
 				ret[0]*=pPhys[i];
 			}

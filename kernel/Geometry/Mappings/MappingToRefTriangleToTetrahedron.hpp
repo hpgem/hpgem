@@ -48,8 +48,10 @@ namespace Geometry
     {
         public:
             static const MappingToRefTriangleToTetrahedron0& Instance();
-            virtual PointReference transform(const Geometry::PointReference& p1) const;
-            virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
             virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefTriangleToTetrahedron0();
@@ -64,8 +66,10 @@ namespace Geometry
     {
         public:
             static const MappingToRefTriangleToTetrahedron1& Instance();
-            virtual PointReference transform(const Geometry::PointReference& p1) const;
-            virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
+            virtual void transform(const Geometry::PointReference&,
+                                         Geometry::PointReference&) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
             virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefTriangleToTetrahedron1();
@@ -80,8 +84,10 @@ namespace Geometry
     {
         public:
             static const MappingToRefTriangleToTetrahedron2& Instance();
-            virtual PointReference transform(const Geometry::PointReference& p1) const;
-            virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
             virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefTriangleToTetrahedron2();
@@ -96,8 +102,10 @@ namespace Geometry
     {
         public:
             static const MappingToRefTriangleToTetrahedron3& Instance();
-            virtual PointReference transform(const Geometry::PointReference& p1) const;
-            virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
             virtual std::size_t getTargetDimension() const {return 3;}
         private:
             MappingToRefTriangleToTetrahedron3();

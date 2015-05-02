@@ -49,7 +49,8 @@ namespace Base {
         elements_.push_back(element);
         localEdgeNrs_.push_back(edgeNr);
         element->setEdge(edgeNr,this);
-        std::vector<std::size_t> indices = element->getReferenceGeometry()->getCodim2EntityLocalIndices(edgeNr);
+        std::vector<std::size_t> indices(2);
+        element->getReferenceGeometry()->getCodim2EntityLocalIndices(edgeNr, indices);
         indices[0] = element->getPhysicalGeometry()->getNodeIndex(indices[0]);
         indices[1] = element->getPhysicalGeometry()->getNodeIndex(indices[1]);
         orientation_.push_back((indices[0] < indices [1] ? 0 : 1));

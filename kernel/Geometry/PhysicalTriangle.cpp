@@ -34,20 +34,18 @@ namespace Geometry
     {
     }
 
-    std::vector<std::size_t> PhysicalTriangle::getGlobalFaceNodeIndices(const std::size_t face) const
+    void PhysicalTriangle::getGlobalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
-        std::vector<std::size_t> indexes(2);
+        indexes.resize(2);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
         indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,1)];
-        return indexes;
     }
 
-    std::vector<std::size_t> PhysicalTriangle::getLocalFaceNodeIndices(const std::size_t face) const
+    void PhysicalTriangle::getLocalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
-        std::vector<std::size_t> indexes(2);
+        indexes.resize(2);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
         indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
-        return indexes;
     }
 
 	std::size_t PhysicalTriangle::getNrOfFaces() const {

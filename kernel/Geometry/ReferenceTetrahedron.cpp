@@ -92,16 +92,14 @@ namespace Geometry
                 (p[2] >= 0.) && (p[2] <= 1. - p[0] - p[1]));
     }
     
-    PointReference ReferenceTetrahedron::getCenter() const
+    void ReferenceTetrahedron::getCenter(PointReferenceT& p) const
     {
-        PointReference p(3);
         p[0] = p[1] = p[2] = 1. / 4.;
-        return p;
     }
     
-    const PointReference& ReferenceTetrahedron::getNode(const IndexT& i) const
+    void ReferenceTetrahedron::getNode(const IndexT& i, PointReferenceT& point) const
     {
-        return points_[i];
+        point = points_[i];
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceTetrahedron& tetra)
@@ -137,12 +135,15 @@ namespace Geometry
 
     // ================================== Codimension 1 ============================================
 
-    std::vector<std::size_t> ReferenceTetrahedron::
-    getCodim1EntityLocalIndices(const IndexT faceIndex) const
+    void ReferenceTetrahedron::
+    getCodim1EntityLocalIndices(const IndexT faceIndex, ListOfIndexesT& faceNodesLocal) const
     {
         if (faceIndex < 4)
         {
-            return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+3);
+            faceNodesLocal.resize(3); // 3 nodes per face
+            faceNodesLocal[0] = (IndexT) localNodeIndexes_[faceIndex][0];
+            faceNodesLocal[1] = (IndexT) localNodeIndexes_[faceIndex][1];
+            faceNodesLocal[2] = (IndexT) localNodeIndexes_[faceIndex][2];
         }
         else
         {
@@ -178,12 +179,14 @@ namespace Geometry
 
     // ================================== Codimension 2 ============================================
 
-    std::vector<std::size_t> ReferenceTetrahedron::
-    getCodim2EntityLocalIndices(const IndexT edgeIndex) const
+    void ReferenceTetrahedron::
+    getCodim2EntityLocalIndices(const IndexT edgeIndex, ListOfIndexesT& edgeNodesLocal) const
     {
         if (edgeIndex < 6)
         {
-            return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex],localNodesOnEdge_[edgeIndex]+2);
+            edgeNodesLocal.resize(2); // 2 nodes per edge
+            edgeNodesLocal[0] = (IndexT) localNodesOnEdge_[edgeIndex][0];
+            edgeNodesLocal[1] = (IndexT) localNodesOnEdge_[edgeIndex][1];
         }
         else
         {
@@ -213,12 +216,13 @@ namespace Geometry
 
     // ================================== Codimension 3 ============================================
 
-    std::vector<std::size_t> ReferenceTetrahedron::
-    getCodim3EntityLocalIndices(const IndexT nodeIndex) const
+    void ReferenceTetrahedron::
+    getCodim3EntityLocalIndices(const IndexT nodeIndex, ListOfIndexesT& nodeNodesLocal) const
     {
         if (nodeIndex < 4)
         {
-            return std::vector<std::size_t>(1,nodeIndex);
+            nodeNodesLocal.resize(1); // 2 nodes per edge
+            nodeNodesLocal[0] = nodeIndex;
         }
         else
         {

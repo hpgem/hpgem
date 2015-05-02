@@ -68,8 +68,11 @@ namespace Base
         currentPointIndex_(-1),
         useCache_(useCache) { }
 
+
         ///recomputes the jacobian, the physical point, functionvalues and derivatives of functions based on the current point
         virtual void computeData();
+
+
 
         Element& operator=(const Element& element)
         {//todo check that &element and this are different things (errorChecker)
@@ -132,12 +135,12 @@ namespace Base
             throw "No storage functionality was implemented! Did you mean basisFunctionDeriv?";
         }
 
-        virtual Geometry::Jacobian calcJacobian(const PointReferenceT& pointReference);
+        virtual void calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian);
 
-        Geometry::Jacobian calcJacobian(const PointReferenceT& pointReference) const override;
+        void calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const override;
 
         //if this is needed a lot, also store this
-        Geometry::PointPhysical referenceToPhysical(const PointReferenceT& pointReference)const override;
+        void referenceToPhysical(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical)const override;
 
         //caching functionality
 

@@ -252,17 +252,17 @@ namespace Utilities
         {
             for (int i = 0; i < 4; ++i)
             {
-                vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
+                cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
                 result->addBasisFunction(new BasisFunction3DEdgeCube_0(vectorOfPointIndices[0], vectorOfPointIndices[1], j));
             }
             for (std::size_t i = 4; i < 8; ++i)
             {
-                vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
+                cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
                 result->addBasisFunction(new BasisFunction3DEdgeCube_1(vectorOfPointIndices[0], vectorOfPointIndices[1], j));
             }
             for (std::size_t i = 8; i < 12; ++i)
             {
-                vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
+                cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
                 result->addBasisFunction(new BasisFunction3DEdgeCube_2(vectorOfPointIndices[0], vectorOfPointIndices[1], j));
             }
             result->addBasisFunction(new BasisFunction3DFaceCube_2(0, 1, 2, j, j));
@@ -344,7 +344,7 @@ namespace Utilities
         std::vector<std::size_t> vectorOfPointIndices(2);
         for (std::size_t i = 0; i < 4; ++i)
         {
-            vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
+            cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
             set = new Base::OrientedBasisFunctionSet(order, 0, i);
             for (std::size_t j = 0; j + 2 <= order; ++j)
             {
@@ -360,7 +360,7 @@ namespace Utilities
         }
         for (std::size_t i = 4; i < 8; ++i)
         {
-            vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
+            cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
             set = new Base::OrientedBasisFunctionSet(order, 0, i);
             for (std::size_t j = 0; j + 2 <= order; ++j)
             {
@@ -376,7 +376,7 @@ namespace Utilities
         }
         for (std::size_t i = 8; i < 12; ++i)
         {
-            vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
+            cube.getCodim2EntityLocalIndices(i, vectorOfPointIndices);
             set = new Base::OrientedBasisFunctionSet(order, 0, i);
             for (std::size_t j = 0; j + 2 <= order; ++j)
             {
@@ -399,7 +399,7 @@ namespace Utilities
         Base::OrientedBasisFunctionSet* set; //todo write clever code
         Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
         std::vector<std::size_t> vectorOfPointIndices(4);
-        vectorOfPointIndices = cube.getCodim1EntityLocalIndices(0);
+        cube.getCodim1EntityLocalIndices(0, vectorOfPointIndices);
         set = new Base::OrientedBasisFunctionSet(order, 0, 0);
         for (std::size_t i = 0; i + 2 <= order; ++i)
         {
@@ -472,7 +472,7 @@ namespace Utilities
             }
         }
         result.push_back(set);
-        vectorOfPointIndices = cube.getCodim1EntityLocalIndices(1);
+        cube.getCodim1EntityLocalIndices(1, vectorOfPointIndices);
         set = new Base::OrientedBasisFunctionSet(order, 0, 1);
         for (std::size_t i = 0; i + 2 <= order; ++i)
         {
@@ -545,7 +545,7 @@ namespace Utilities
             }
         }
         result.push_back(set);
-        vectorOfPointIndices = cube.getCodim1EntityLocalIndices(2);
+        cube.getCodim1EntityLocalIndices(2, vectorOfPointIndices);
         set = new Base::OrientedBasisFunctionSet(order, 0, 2);
         for (std::size_t i = 0; i + 2 <= order; ++i)
         {
@@ -618,7 +618,7 @@ namespace Utilities
             }
         }
         result.push_back(set);
-        vectorOfPointIndices = cube.getCodim1EntityLocalIndices(3);
+        cube.getCodim1EntityLocalIndices(3, vectorOfPointIndices);
         set = new Base::OrientedBasisFunctionSet(order, 0, 3);
         for (std::size_t i = 0; i + 2 <= order; ++i)
         {
@@ -691,7 +691,7 @@ namespace Utilities
             }
         }
         result.push_back(set);
-        vectorOfPointIndices = cube.getCodim1EntityLocalIndices(4);
+        cube.getCodim1EntityLocalIndices(4, vectorOfPointIndices);
         set = new Base::OrientedBasisFunctionSet(order, 0, 4);
         for (std::size_t i = 0; i + 2 <= order; ++i)
         {
@@ -764,7 +764,7 @@ namespace Utilities
             }
         }
         result.push_back(set);
-        vectorOfPointIndices = cube.getCodim1EntityLocalIndices(5);
+        cube.getCodim1EntityLocalIndices(5, vectorOfPointIndices);
         set = new Base::OrientedBasisFunctionSet(order, 0, 5);
         for (std::size_t i = 0; i + 2 <= order; ++i)
         {

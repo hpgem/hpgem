@@ -225,7 +225,7 @@ namespace Geometry
 
         virtual std::size_t getNrOfCodim1Entities() const {return 0;}
 
-        virtual std::vector<std::size_t> getCodim1EntityLocalIndices(const std::size_t) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
+        virtual void getCodim1EntityLocalIndices(const std::size_t, std::vector<std::size_t>&) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
 
         virtual const MappingReferenceToReference* getCodim1MappingPtr(const std::size_t) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
 
@@ -233,7 +233,7 @@ namespace Geometry
 
         virtual std::size_t getNrOfCodim2Entities() const {return 0;}
 
-        virtual std::vector<std::size_t> getCodim2EntityLocalIndices(const std::size_t) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
+        virtual void getCodim2EntityLocalIndices(const std::size_t, std::vector<std::size_t>&) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
 
         virtual const MappingReferenceToReference* getCodim2MappingPtr(const std::size_t) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
 
@@ -241,7 +241,7 @@ namespace Geometry
 
         virtual std::size_t getNrOfCodim3Entities() const {return 0;}
 
-        virtual std::vector<std::size_t> getCodim3EntityLocalIndices(const std::size_t) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
+        virtual void getCodim3EntityLocalIndices(const std::size_t, std::vector<std::size_t>&) const {throw "The DIMension of this entity is too low to warrant maps of this codimension";}
 
     	virtual ~MappingCodimensions() {}
     };

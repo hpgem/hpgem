@@ -39,20 +39,19 @@ namespace Geometry
         reinit(physicalGeometry);
     }
 
-    PointPhysical MappingToPhysTriangularPrism::
-    transform(const PointReferenceT& pR) const
+    void MappingToPhysTriangularPrism::
+    transform(const PointReferenceT& pR, PointPhysicalT& pP) const
     {
         //if (isValidPoint(pR))
         //{
 #if SAVECOEFFS
-            return a0
+            pointPhysical = a0
                           + a1 * xi[0]
                           + a2 * xi[1]
                           + a3 * xi[2]
                           + a4 * xi[0] * xi[2]
                           + a5 * xi[1] * xi[2];
 #else
-            PointPhysical pP(3);
             const double t1 = pR[0] * pR[2];
             const double t2 = pR[1] * pR[2];
             LinearAlgebra::NumericalVector f2(6);
@@ -66,13 +65,13 @@ namespace Geometry
 
             PointPhysicalT p(3);
 
+            pP[0] = pP[1] = pP[2] = 0.;
 
             for (std::size_t i = 0; i < 6; ++i)
             {
-                    p = getNodeCoordinates(globalNodeIndices_[i]);
+                    getNodeCoordinates(globalNodeIndices_[i],p);
                     pP += f2[i] * p;
             }
-            return pP;
 #endif
         //}
         //else
@@ -81,10 +80,9 @@ namespace Geometry
         //}
     }
 
-    Jacobian MappingToPhysTriangularPrism::
-    calcJacobian(const PointReferenceT& pR) const
+    void MappingToPhysTriangularPrism::
+    calcJacobian(const PointReferenceT& pR, JacobianT& jacobian) const
     {
-        Jacobian jacobian(3,3);
         //if (isValidPoint(pR))
         //{
 #ifdef SAVECOEFFS
@@ -137,7 +135,7 @@ namespace Geometry
 
             for (std::size_t i = 0; i < 6; ++i)
             {
-                    p = getNodeCoordinates(globalNodeIndices_[i]);
+                    getNodeCoordinates(globalNodeIndices_[i],p);
 
                 d_dxi0 += df_dxi0[i] * p;
                 d_dxi1 += df_dxi1[i] * p;
@@ -156,7 +154,6 @@ namespace Geometry
         //    // ERROR
         //}
 #endif
-            return jacobian;
     }
 
     void

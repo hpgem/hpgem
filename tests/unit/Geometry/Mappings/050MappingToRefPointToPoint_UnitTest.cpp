@@ -43,15 +43,15 @@ int main() {//The 0D case is mostly testing if there are any crashing functions
 
 	Geometry::Jacobian jac(0,0);
 
-	point = test->transform(refPoint);
+	test->transform(refPoint,point);
 	assert(("transform",geom.isInternalPoint(refPoint)==geom.isInternalPoint(point)));
 
-	jac = test->calcJacobian(refPoint);
+	test->calcJacobian(refPoint,jac);
 
 	for(int i=0;i<geom.getNumberOfNodes();++i){
-		refPoint = geom.getNode(i);
-		compare = geom.getNode(i);
-		point = test->transform(refPoint);
+		geom.getNode(i,refPoint);
+		geom.getNode(i,compare);
+		test->transform(refPoint,point);
 	}
 
 	assert(("getTargetDimension",test->getTargetDimension()==0));

@@ -91,14 +91,14 @@ namespace Geometry
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.));
     }
     
-    PointReference ReferenceSquare::getCenter() const
+    void ReferenceSquare::getCenter(PointReferenceT& p) const
     {
-        return PointReference(2);
+        p[0] = p[1] = 0.;
     }
     
-    const PointReference& ReferenceSquare::getNode(const IndexT& i) const
+    void ReferenceSquare::getNode(const IndexT& i, PointReferenceT& point) const
     {
-        return points_[i];
+        point = points_[i];
     }
 
     std::ostream& operator<<(std::ostream& os, const ReferenceSquare& square)
@@ -178,12 +178,14 @@ namespace Geometry
         }
     }
     // ================================== Codimension 1 ============================================
-    std::vector<std::size_t> ReferenceSquare::
-    getCodim1EntityLocalIndices(const IndexT faceIndex) const
+    void ReferenceSquare::
+    getCodim1EntityLocalIndices(const IndexT faceIndex, ListOfIndexesT& faceNodesLocal) const
     {
         if (faceIndex < 4)
         {
-            return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+2);
+            faceNodesLocal.resize(2); // 2 nodes per face
+            faceNodesLocal[0] = (IndexT) localNodeIndexes_[faceIndex][0];
+            faceNodesLocal[1] = (IndexT) localNodeIndexes_[faceIndex][1];
         }
     }
     const ReferenceGeometry* ReferenceSquare::getCodim1ReferenceGeometry(const IndexT faceIndex) const

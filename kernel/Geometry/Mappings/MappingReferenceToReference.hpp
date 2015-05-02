@@ -49,7 +49,8 @@ namespace Geometry
     class MappingReferenceToReference: public MappingInterface
     {
         public:
-            virtual PointReference transform(const Geometry::PointReference&) const = 0;
+            virtual void transform(const Geometry::PointReference&,
+                                         Geometry::PointReference&) const = 0;
     };
 };
 #endif /* REFERENCETOPHYSICALM_H_ */

@@ -135,7 +135,7 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
         elementTypes.push_back(hpGEMToVTK.at(std::type_index(typeid(*element->getReferenceGeometry()))));
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            actualNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(tohpGEMOrdering(i,element->getReferenceGeometry()));
+            element->getPhysicalGeometry()->getLocalNodeCoordinates(tohpGEMOrdering(i,element->getReferenceGeometry()),actualNode);
             for (std::size_t j = 0; j < DIM; ++j)
             {
                 usefullNode[j]=actualNode[j];
@@ -208,7 +208,7 @@ void Output::VTKSpecificTimeWriter::write(std::function<double(Base::Element*, c
     {
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            node = element->getReferenceGeometry()->getNode(tohpGEMOrdering(i,element->getReferenceGeometry()));
+            element->getReferenceGeometry()->getNode(tohpGEMOrdering(i,element->getReferenceGeometry()),node);
             data.push_back(dataCompute(element, node, timelevel_));
         }
     }
@@ -233,7 +233,7 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::Numerical
     {
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            node = element->getReferenceGeometry()->getNode(i);
+            element->getReferenceGeometry()->getNode(i,node);
             newData = dataCompute(element,node, timelevel_);
             for (std::size_t j = 0; j < newData.size(); ++j)
             {
@@ -266,7 +266,7 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::Matrix(Ba
     {
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            node = element->getReferenceGeometry()->getNode(i);
+            element->getReferenceGeometry()->getNode(i,node);
             newData = dataCompute(element,node, timelevel_);
             std::size_t j = 0;
             for(;j<newData.getNRows();++j)

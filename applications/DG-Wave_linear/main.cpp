@@ -123,7 +123,8 @@ public:
     public:
         void faceIntegrand(const FaceT* element, const LinearAlgebra::NumericalVector&, const PointReferenceT& p, LinearAlgebra::Matrix& ret)
         {
-            PointPhysicalT pPhys = element->referenceToPhysical(p);
+            PointPhysicalT pPhys(DIM);
+            element->referenceToPhysical(p, pPhys);
             ret.resize(2, element->getNrOfBasisFunctions());
             LinearAlgebra::NumericalVector data;
             initialConditions(pPhys, data);
@@ -140,8 +141,10 @@ public:
     public:
         virtual void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
         {
-            PointPhysicalT pPhys = face->referenceToPhysical(p);
-            PointReferenceT pElement = face->mapRefFaceToRefElemL(p);
+            PointPhysicalT pPhys(DIM);
+            PointReferenceT pElement(DIM);
+            face->referenceToPhysical(p, pPhys);
+            face->mapRefFaceToRefElemL(p, pElement);
             ret.resize(2);
             static LinearAlgebra::NumericalVector exact(2);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
@@ -205,7 +208,8 @@ public:
         LinearAlgebra::NumericalVector value(2);
         element->getSolution(0, p, value);
         out << value[0] << " " << value[1];
-        Geometry::PointPhysical pPhys = element->referenceToPhysical(p);
+        Geometry::PointPhysical pPhys(DIM);
+        element->referenceToPhysical(p, pPhys);
         exactSolution(t, pPhys, value);
         out << " " << value[0] << " " << value[1];
     }
@@ -219,8 +223,8 @@ public:
         LinearAlgebra::Matrix result, initialconditions;
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
-            p = face->getReferenceGeometry()->getCenter();
-            pPhys = face->referenceToPhysical(p);
+            face->getReferenceGeometry()->getCenter(p);
+            face->referenceToPhysical(p, pPhys);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
             {
                 result = integral.integrate(face, &massIntegrand);
@@ -258,8 +262,8 @@ public:
         std::vector<int> facePositions;
         for (const Base::Face* face : meshes_[0]->getFacesList())
         {
-            p = face->getReferenceGeometry()->getCenter();
-            pPhys = face->referenceToPhysical(p);
+            face->getReferenceGeometry()->getCenter(p);
+            face->referenceToPhysical(p, pPhys);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
             {
                 S.getMatrixBCEntries(face, numBasisFuns, facePositions);

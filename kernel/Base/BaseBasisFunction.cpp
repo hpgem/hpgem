@@ -22,7 +22,6 @@
 #include "BaseBasisFunction.hpp"
 
 #include "LinearAlgebra/NumericalVector.hpp"
-#include "Geometry/PointReference.hpp"
 
 namespace Base
 {
@@ -35,9 +34,8 @@ namespace Base
         ret[0] = eval(p);
     }
     
-    LinearAlgebra::NumericalVector BaseBasisFunction::evalDeriv(const PointReferenceT& p) const
+    void BaseBasisFunction::evalDeriv(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
     {
-        LinearAlgebra::NumericalVector ret(p.size());
         for (std::size_t i = 0; i < ret.size(); ++i)
         {
             switch (i)
@@ -58,6 +56,5 @@ namespace Base
                 throw "The DIMension of your problem is too low to warrant taking a derivative in this direction";
             }
         }
-        return ret;
     }
 }

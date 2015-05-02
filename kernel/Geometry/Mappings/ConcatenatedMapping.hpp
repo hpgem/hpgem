@@ -55,10 +55,10 @@ namespace Geometry
         }
         
             //! Transformation is simply via the intermediate space.
-		virtual PointReference transform(const PointReference& pIn) const;
+		virtual void transform(const PointReference& pIn, PointReference& pOut) const;
         
             //! To compute the Jacobian, the two component ones have to multiplied.
-		virtual Jacobian calcJacobian(const PointReference& p) const;
+		virtual void calcJacobian(const PointReference& p, Jacobian& jac) const;
         
 
         virtual std::size_t getTargetDimension() const;

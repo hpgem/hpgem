@@ -42,10 +42,9 @@ namespace Geometry
         reinit(physicalGeometry);
     }
 
-    PointPhysical MappingToPhysHypercubeLinear<1>::
-    transform(const PointReferenceT& pointReference) const
+    void MappingToPhysHypercubeLinear<1>::
+    transform(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical) const
     {
-        PointPhysical pointPhysical(1);
         if (isValidPoint(pointReference))
         {
             pointPhysical[0] = mid + pointReference[0] * slope;
@@ -55,13 +54,14 @@ namespace Geometry
             // ERROR ///\TODO emit a warning at a non-deadly priority level
             pointPhysical[0] = mid + pointReference[0] * slope;
         }
-        return pointPhysical;
     }
 
     void MappingToPhysHypercubeLinear<1>::reinit(const PhysicalGeometryT*const physicalGeometry)
     {
-        PointPhysical p0 = physicalGeometry->getNodeCoordinates(0);
-        PointPhysical p1 = physicalGeometry->getNodeCoordinates(1);
+        PointPhysicalT p0(1);
+        PointPhysicalT p1(1);
+        physicalGeometry->getNodeCoordinates(0, p0);
+        physicalGeometry->getNodeCoordinates(1, p1);
         mid   = 0.5 * (p1[0] + p0[0]);
         slope = 0.5 * (p1[0] - p0[0]);
     }
@@ -74,11 +74,9 @@ namespace Geometry
             return true;
     }
 
-    Jacobian MappingToPhysHypercubeLinear<1>::calcJacobian(const PointReferenceT&) const
+    void MappingToPhysHypercubeLinear<1>::calcJacobian(const PointReferenceT&, JacobianT& jac) const
     {
-        Jacobian jac(1,1);
         jac[0] = slope;
-        return jac;
     }
 
     // =============================================================================================
@@ -92,10 +90,9 @@ namespace Geometry
         MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
         reinit(physicalGeometry);
     }
-    PointPhysical MappingToPhysHypercubeLinear<2>::
-    transform(const PointReferenceT& pointReference) const
+    void MappingToPhysHypercubeLinear<2>::
+    transform(const PointReferenceT& pointReference, PointPhysicalT& pointPhysical) const
     {
-        PointPhysical pointPhysical(2);
     	//assert(L2norm(a1)>1e-14&&L2norm(a2 + pointReference[0] * a12)>1e-14);
         if (isValidPoint(pointReference))
         {
@@ -118,13 +115,11 @@ namespace Geometry
             pointPhysical+=a0;
             pointPhysical.axpy(pointReference[0],a1);
         }
-        return pointPhysical;
     }
 
-    Jacobian MappingToPhysHypercubeLinear<2>::
-    calcJacobian(const PointReferenceT& pointReference) const
+    void MappingToPhysHypercubeLinear<2>::
+    calcJacobian(const PointReferenceT& pointReference, JacobianT& jacobian) const
     {
-        Jacobian jacobian(2,2);
         //if (isValidPoint(pointReference))
         //{
             jacobian(0,0) = a1[0] + pointReference[1] * a12[0];
@@ -136,7 +131,6 @@ namespace Geometry
         //{
         //    // ERROR///\TODO emit a warning at a non-deadly priority level
         //}
-            return jacobian;
     }
 
     void MappingToPhysHypercubeLinear<2>::reinit(const PhysicalGeometryT*const physicalGeometry)
@@ -154,10 +148,11 @@ namespace Geometry
         a12 = 0.25 * (p3 - p1 + p0 - p2);
         */
         
-        a0 = physicalGeometry->getNodeCoordinates(0);
-        a1 = physicalGeometry->getNodeCoordinates(1);
-        a2 = physicalGeometry->getNodeCoordinates(2);
-        PointPhysical temp = physicalGeometry->getNodeCoordinates(3);
+        PointPhysical temp(2);
+        physicalGeometry->getNodeCoordinates(0,a0);
+        physicalGeometry->getNodeCoordinates(1,a1);
+        physicalGeometry->getNodeCoordinates(2,a2);
+        physicalGeometry->getNodeCoordinates(3,temp);
         a0+=temp;
         a12=a1;
         a12+=a2;
@@ -196,29 +191,28 @@ namespace Geometry
         reinit(physicalGeometry);
     }
 
-    PointPhysical MappingToPhysHypercubeLinear<3>::
-    transform(const PointReferenceT& pR) const
+    void MappingToPhysHypercubeLinear<3>::
+    transform(const PointReferenceT& pR, PointPhysicalT& pointPhysical) const
     {
     	//assert(L2norm(a3)>1e-14&&L2norm(a2 + pR[2] * a23)>1e-14&&L2norm(a1 + pR[1]*(a12+pR[2]*a123) pR[2] * a23)>1e-14);
         if (isValidPoint(pR))
         {
-            return a0 + pR[0] * (a1 + pR[1] * (a12 +  pR[2] * a123) + pR[2] * a13)
+            pointPhysical = a0 + pR[0] * (a1 + pR[1] * (a12 +  pR[2] * a123) + pR[2] * a13)
                                + pR[1] * (a2 + pR[2] * a23)
                                + pR[2] * a3;
         }
         else
         {
             // ERROR
-            return a0 + pR[0] * (a1 + pR[1] * (a12 +  pR[2] * a123) + pR[2] * a13)
+            pointPhysical = a0 + pR[0] * (a1 + pR[1] * (a12 +  pR[2] * a123) + pR[2] * a13)
                                + pR[1] * (a2 + pR[2] * a23)
                                + pR[2] * a3;
         }
     }
 
-    Jacobian MappingToPhysHypercubeLinear<3>::
-    calcJacobian(const PointReferenceT& pR) const
+    void MappingToPhysHypercubeLinear<3>::
+    calcJacobian(const PointReferenceT& pR, JacobianT& jacobian) const
     {
-        Jacobian jacobian(3,3);
         //if (isValidPoint(pR))
         //{
             for(std::size_t i = 0; i < 3; ++i)
@@ -244,21 +238,21 @@ namespace Geometry
         //{
         //    // ERROR
         //}
-        return jacobian;
     }
 
     void MappingToPhysHypercubeLinear<3>::
     reinit(const PhysicalGeometryT*const physicalGeometry)
     {
+        PointPhysicalT p0(3),p1(3),p2(3),p3(3),p4(3),p5(3),p6(3),p7(3);
 
-        PointPhysical p0 = physicalGeometry->getNodeCoordinates(0);
-        PointPhysical p1 = physicalGeometry->getNodeCoordinates(1);
-        PointPhysical p2 = physicalGeometry->getNodeCoordinates(2);
-        PointPhysical p3 = physicalGeometry->getNodeCoordinates(3);
-        PointPhysical p4 = physicalGeometry->getNodeCoordinates(4);
-        PointPhysical p5 = physicalGeometry->getNodeCoordinates(5);
-        PointPhysical p6 = physicalGeometry->getNodeCoordinates(6);
-        PointPhysical p7 = physicalGeometry->getNodeCoordinates(7);
+        physicalGeometry->getNodeCoordinates(0, p0);
+        physicalGeometry->getNodeCoordinates(1, p1);
+        physicalGeometry->getNodeCoordinates(2, p2);
+        physicalGeometry->getNodeCoordinates(3, p3);
+        physicalGeometry->getNodeCoordinates(4, p4);
+        physicalGeometry->getNodeCoordinates(5, p5);
+        physicalGeometry->getNodeCoordinates(6, p6);
+        physicalGeometry->getNodeCoordinates(7, p7);
 
         a0   = 0.125 * (p0 + p1 + p2 + p3 + p4 + p5 + p6 + p7);
         a1   = 0.125 * (p1 - p0 + p3 - p2 + p5 - p4 + p7 - p6);
@@ -293,12 +287,12 @@ namespace Geometry
         reinit(physicalGeometry);
     }
 
-    PointPhysical MappingToPhysHypercubeLinear<4>::
-    transform(const PointReferenceT& pR) const
+    void MappingToPhysHypercubeLinear<4>::
+    transform(const PointReferenceT& pR, PointPhysicalT& pointPhysical) const
     {
         //if (isValidPoint(pR))
         //{
-            return abar + pR[0] * a0 + pR[1] * a1 + pR[2] * a2 + pR[3] * a3;
+            pointPhysical = abar + pR[0] * a0 + pR[1] * a1 + pR[2] * a2 + pR[3] * a3;
         //}
         //else
         //{
@@ -306,10 +300,9 @@ namespace Geometry
         //}
     }
 
-    Jacobian MappingToPhysHypercubeLinear<4>::
-    calcJacobian(const PointReferenceT& pR) const
+    void MappingToPhysHypercubeLinear<4>::
+    calcJacobian(const PointReferenceT& pR, JacobianT& jacobian) const
     {
-        Jacobian jacobian(4,4);
     	//assert(...)
         //if (isValidPoint(pR))
         //{
@@ -336,17 +329,12 @@ namespace Geometry
         //{
         //    // ERROR
         //}
-        return jacobian;
     }
 
     void MappingToPhysHypercubeLinear<4>::reinit(const PhysicalGeometryT* const physicalGeometry)
     {
-        std::vector<PointPhysicalT> P;
-        P.reserve(16);
-        for (std::size_t i = 0; i < 16; ++i) 
-        {
-            P.push_back(physicalGeometry->getNodeCoordinates(i));
-        }
+        std::vector<PointPhysicalT> P(16,4);
+        for (std::size_t i = 0; i < 16; ++i) physicalGeometry->getNodeCoordinates(i, P[i]);
 
         abar = 0.0625 *
             ( P[0] + P[1] + P[2]  + P[3]  + P[4]  + P[5]  + P[6]  + P[7]

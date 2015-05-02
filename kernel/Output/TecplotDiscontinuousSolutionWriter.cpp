@@ -181,14 +181,14 @@ namespace Output
 
                     // For the solution data, write function of the user, however we pass a local
                     // coordinate of the current reference element
-                    pRef = (*iterator)->getReferenceGeometry()->getNode(localNode);
+                    (*iterator)->getReferenceGeometry()->getNode(localNode, pRef);
 
                     if (!sameGeometry)
                     {
                         // First write the (possibly reduced) coordinates of the point;
                         // note: PHYSICAL coordinates here!
 
-                    	pPhys = (*iterator)->referenceToPhysical(pRef);
+                    	(*iterator)->referenceToPhysical(pRef,pPhys);
                         //(*iterator)->getPhysicalGeometry()->getNodeCoordinates(localNode, pPhys);
 
                         for (std::size_t i = 0; i < nDimensionsToWrite_; ++i)

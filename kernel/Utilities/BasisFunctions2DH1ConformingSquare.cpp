@@ -140,7 +140,7 @@ std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH
 	std::vector<std::size_t> vertexindices(2);
 	for (std::size_t i = 0; i < 4; ++i) {
 		set = new Base::OrientedBasisFunctionSet(order, 0, i);
-		vertexindices = square.getCodim1EntityLocalIndices(i);
+		square.getCodim1EntityLocalIndices(i, vertexindices);
 		for (std::size_t j = 0; j  + 2 <= order; ++j) {
 			if ((vertexindices[0] + vertexindices[1]) % 2 == 1)
 				set->addBasisFunction(new BasisFunction2DFaceSquare_0(vertexindices[0], vertexindices[1], j));

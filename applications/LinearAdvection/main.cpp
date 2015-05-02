@@ -169,7 +169,8 @@ public:
     ///interpolates the initial conditions
 
     void elementIntegrand(const ElementT* element, const PointReferenceT& point, LinearAlgebra::NumericalVector& result) {
-        PointPhysicalT pPhys = element->referenceToPhysical(point);
+        PointPhysicalT pPhys(DIM_);
+        element->referenceToPhysical(point, pPhys);
         result.resize(element->getNrOfBasisFunctions());
         for (int i = 0; i < element->getNrOfBasisFunctions(); ++i) {
             result[i] = element->basisFunction(i, point) * initialConditions(pPhys);

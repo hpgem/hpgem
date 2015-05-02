@@ -342,7 +342,8 @@ public:
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
         LinearAlgebra::Matrix integrand(numOfVariables_ * numOfBasisFunctions,
                                      numOfVariables_ * numOfBasisFunctions );
-        Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+        Geometry::PointPhysical pPhys(DIM_);
+        ptrElement->referenceToPhysical(pRef, pPhys);
         
         std::size_t iVB, jVB;   // indices for both variable and basis function.
         for(std::size_t iV = 0; iV < numOfVariables_; iV++)
@@ -363,7 +364,8 @@ public:
         }
         
         // Scale with the reference-to-physical element ratio.
-        Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+        Geometry::Jacobian jac(DIM_, DIM_);
+        ptrElement->calcJacobian(pRef,jac);
         integrand *= jac.determinant();
         
         return integrand;
@@ -382,7 +384,8 @@ public:
         
         LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfBasisFunctions);
         
-        Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+        Geometry::PointPhysical pPhys(DIM_);
+        ptrElement->referenceToPhysical(pRef, pPhys);
         
         LinearAlgebra::NumericalVector initialSolution(getRealSolution(time0, pPhys));
         
@@ -401,7 +404,8 @@ public:
         }
         
         // Scale with the reference-to-physical element ratio.
-        Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+        Geometry::Jacobian jac(DIM_, DIM_);
+        ptrElement->calcJacobian(pRef,jac);
         integrand *= jac.determinant();
         
         return integrand;
@@ -447,7 +451,8 @@ public:
         }
         
         // Scale with the reference-to-physical element ratio.
-        Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+        Geometry::Jacobian jac(DIM_, DIM_);
+        ptrElement->calcJacobian(pRef,jac);
         integrand *= jac.determinant();
         
         return integrand;
@@ -558,7 +563,8 @@ public:
         }
         
         // Scale with the reference-to-physical element ratio.
-        Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+        Geometry::Jacobian jac(DIM_, DIM_);
+        ptrElement->calcJacobian(pRef,jac);
         integrand *= jac.determinant();
         
         return integrand;
@@ -646,7 +652,8 @@ public:
         LinearAlgebra::NumericalVector integrand(1);
         integrand(0) = 0;
         
-        Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+        Geometry::PointPhysical pPhys(DIM_);
+        ptrElement->referenceToPhysical(pRef, pPhys);
         
         LinearAlgebra::NumericalVector realSolution(getRealSolution(time, pPhys));
         LinearAlgebra::NumericalVector numericalSolution(numOfVariables_);
@@ -671,7 +678,8 @@ public:
         }
         
         // Scale with the reference-to-physical element ratio.
-        Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+        Geometry::Jacobian jac(DIM_, DIM_);
+        ptrElement->calcJacobian(pRef,jac);
         integrand *= jac.determinant();
         
         return integrand;

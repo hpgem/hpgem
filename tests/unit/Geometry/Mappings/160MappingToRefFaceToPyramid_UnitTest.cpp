@@ -53,27 +53,27 @@ int main() {
 
 	for(refPoint[0]=-2.8189;refPoint[0]<3.141;refPoint[0]+=0.1) {
 		for(refPoint[1]=-2.8189;refPoint[1]<3.141;refPoint[1]+=0.1) {
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 			assert(("transform",fGeom->isInternalPoint(refPoint)==eGeom.isInternalPoint(point)));
 
 			refPoint[0]+=-1.e-8;
-			compare = test->transform(refPoint);
+			test->transform(refPoint,compare);
 			refPoint[0]+=2.e-8;
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 
 			refPoint[0]+=-1e-8;
-			jac = test->calcJacobian(refPoint);
+			test->calcJacobian(refPoint,jac);
 			assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 			assert(("jacobian",std::abs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 			assert(("jacobian",std::abs(jac[2]-5.e7*(point[2]-compare[2]))<1e-5));
 
 			refPoint[1]+=-1.e-8;
-			compare = test->transform(refPoint);
+			test->transform(refPoint,compare);
 			refPoint[1]+=2.e-8;
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 
 			refPoint[1]+=-1e-8;
-			jac = test->calcJacobian(refPoint);
+			test->calcJacobian(refPoint,jac);
 			assert(("jacobian",std::abs(jac[3]-5.e7*(point[0]-compare[0]))<1e-5));
 			assert(("jacobian",std::abs(jac[4]-5.e7*(point[1]-compare[1]))<1e-5));
 			assert(("jacobian",std::abs(jac[5]-5.e7*(point[2]-compare[2]))<1e-5));
@@ -81,9 +81,9 @@ int main() {
 	}
 
 	for(int i=0;i<fGeom->getNumberOfNodes();++i){
-		refPoint = fGeom->getNode(i);
-		compare = eGeom.getNode(nodesAfterTransformation[i]);
-		point = test->transform(refPoint);
+		fGeom->getNode(i,refPoint);
+		eGeom.getNode(nodesAfterTransformation[i],compare);
+		test->transform(refPoint,point);
 		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
 		assert(("transform",std::abs(point[1]-compare[1])<1e-12));
 		assert(("transform",std::abs(point[2]-compare[2])<1e-12));
@@ -103,27 +103,27 @@ int main() {
 
 	for(refPoint[0]=-2.8189;refPoint[0]<3.141;refPoint[0]+=0.1) {
 		for(refPoint[1]=-2.8189;refPoint[1]<3.141;refPoint[1]+=0.1) {
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 			assert(("transform",fGeom->isInternalPoint(refPoint)==eGeom.isInternalPoint(point)));
 
 			refPoint[0]+=-1.e-8;
-			compare = test->transform(refPoint);
+			test->transform(refPoint,compare);
 			refPoint[0]+=2.e-8;
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 
 			refPoint[0]+=-1e-8;
-			jac = test->calcJacobian(refPoint);
+			test->calcJacobian(refPoint,jac);
 			assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 			assert(("jacobian",std::abs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 			assert(("jacobian",std::abs(jac[2]-5.e7*(point[2]-compare[2]))<1e-5));
 
 			refPoint[1]+=-1.e-8;
-			compare = test->transform(refPoint);
+			test->transform(refPoint,compare);
 			refPoint[1]+=2.e-8;
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 
 			refPoint[1]+=-1e-8;
-			jac = test->calcJacobian(refPoint);
+			test->calcJacobian(refPoint,jac);
 			assert(("jacobian",std::abs(jac[3]-5.e7*(point[0]-compare[0]))<1e-5));
 			assert(("jacobian",std::abs(jac[4]-5.e7*(point[1]-compare[1]))<1e-5));
 			assert(("jacobian",std::abs(jac[5]-5.e7*(point[2]-compare[2]))<1e-5));
@@ -131,9 +131,9 @@ int main() {
 	}
 
 	for(int i=0;i<fGeom->getNumberOfNodes();++i){
-		refPoint = fGeom->getNode(i);
-		compare = eGeom.getNode(nodesAfterTransformation[i]);
-		point = test->transform(refPoint);
+		fGeom->getNode(i,refPoint);
+		eGeom.getNode(nodesAfterTransformation[i],compare);
+		test->transform(refPoint,point);
 		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
 		assert(("transform",std::abs(point[1]-compare[1])<1e-12));
 		assert(("transform",std::abs(point[2]-compare[2])<1e-12));
@@ -149,27 +149,27 @@ int main() {
 
 	for(refPoint[0]=-2.8189;refPoint[0]<3.141;refPoint[0]+=0.1) {
 		for(refPoint[1]=-2.8189;refPoint[1]<3.141;refPoint[1]+=0.1) {
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 			assert(("transform",fGeom->isInternalPoint(refPoint)==eGeom.isInternalPoint(point)));
 
 			refPoint[0]+=-1.e-8;
-			compare = test->transform(refPoint);
+			test->transform(refPoint,compare);
 			refPoint[0]+=2.e-8;
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 
 			refPoint[0]+=-1e-8;
-			jac = test->calcJacobian(refPoint);
+			test->calcJacobian(refPoint,jac);
 			assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 			assert(("jacobian",std::abs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 			assert(("jacobian",std::abs(jac[2]-5.e7*(point[2]-compare[2]))<1e-5));
 
 			refPoint[1]+=-1.e-8;
-			compare = test->transform(refPoint);
+			test->transform(refPoint,compare);
 			refPoint[1]+=2.e-8;
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 
 			refPoint[1]+=-1e-8;
-			jac = test->calcJacobian(refPoint);
+			test->calcJacobian(refPoint,jac);
 			assert(("jacobian",std::abs(jac[3]-5.e7*(point[0]-compare[0]))<1e-5));
 			assert(("jacobian",std::abs(jac[4]-5.e7*(point[1]-compare[1]))<1e-5));
 			assert(("jacobian",std::abs(jac[5]-5.e7*(point[2]-compare[2]))<1e-5));
@@ -177,9 +177,9 @@ int main() {
 	}
 
 	for(int i=0;i<fGeom->getNumberOfNodes();++i){
-		refPoint = fGeom->getNode(i);
-		compare = eGeom.getNode(nodesAfterTransformation[i]);
-		point = test->transform(refPoint);
+		fGeom->getNode(i,refPoint);
+		eGeom.getNode(nodesAfterTransformation[i],compare);
+		test->transform(refPoint,point);
 		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
 		assert(("transform",std::abs(point[1]-compare[1])<1e-12));
 		assert(("transform",std::abs(point[2]-compare[2])<1e-12));
@@ -195,27 +195,27 @@ int main() {
 
 	for(refPoint[0]=-2.8189;refPoint[0]<3.141;refPoint[0]+=0.1) {
 		for(refPoint[1]=-2.8189;refPoint[1]<3.141;refPoint[1]+=0.1) {
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 			assert(("transform",fGeom->isInternalPoint(refPoint)==eGeom.isInternalPoint(point)));
 
 			refPoint[0]+=-1.e-8;
-			compare = test->transform(refPoint);
+			test->transform(refPoint,compare);
 			refPoint[0]+=2.e-8;
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 
 			refPoint[0]+=-1e-8;
-			jac = test->calcJacobian(refPoint);
+			test->calcJacobian(refPoint,jac);
 			assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 			assert(("jacobian",std::abs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 			assert(("jacobian",std::abs(jac[2]-5.e7*(point[2]-compare[2]))<1e-5));
 
 			refPoint[1]+=-1.e-8;
-			compare = test->transform(refPoint);
+			test->transform(refPoint,compare);
 			refPoint[1]+=2.e-8;
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 
 			refPoint[1]+=-1e-8;
-			jac = test->calcJacobian(refPoint);
+			test->calcJacobian(refPoint,jac);
 			assert(("jacobian",std::abs(jac[3]-5.e7*(point[0]-compare[0]))<1e-5));
 			assert(("jacobian",std::abs(jac[4]-5.e7*(point[1]-compare[1]))<1e-5));
 			assert(("jacobian",std::abs(jac[5]-5.e7*(point[2]-compare[2]))<1e-5));
@@ -223,9 +223,9 @@ int main() {
 	}
 
 	for(int i=0;i<fGeom->getNumberOfNodes();++i){
-		refPoint = fGeom->getNode(i);
-		compare = eGeom.getNode(nodesAfterTransformation[i]);
-		point = test->transform(refPoint);
+		fGeom->getNode(i,refPoint);
+		eGeom.getNode(nodesAfterTransformation[i],compare);
+		test->transform(refPoint,point);
 		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
 		assert(("transform",std::abs(point[1]-compare[1])<1e-12));
 		assert(("transform",std::abs(point[2]-compare[2])<1e-12));
@@ -241,27 +241,27 @@ int main() {
 
 	for(refPoint[0]=-2.8189;refPoint[0]<3.141;refPoint[0]+=0.1) {
 		for(refPoint[1]=-2.8189;refPoint[1]<3.141;refPoint[1]+=0.1) {
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 			assert(("transform",fGeom->isInternalPoint(refPoint)==eGeom.isInternalPoint(point)));
 
 			refPoint[0]+=-1.e-8;
-			compare = test->transform(refPoint);
+			test->transform(refPoint,compare);
 			refPoint[0]+=2.e-8;
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 
 			refPoint[0]+=-1e-8;
-			jac = test->calcJacobian(refPoint);
+			test->calcJacobian(refPoint,jac);
 			assert(("jacobian",std::abs(jac[0]-5.e7*(point[0]-compare[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 			assert(("jacobian",std::abs(jac[1]-5.e7*(point[1]-compare[1]))<1e-5));//implementations are very strongly recommended to be more accurate
 			assert(("jacobian",std::abs(jac[2]-5.e7*(point[2]-compare[2]))<1e-5));
 
 			refPoint[1]+=-1.e-8;
-			compare = test->transform(refPoint);
+			test->transform(refPoint,compare);
 			refPoint[1]+=2.e-8;
-			point = test->transform(refPoint);
+			test->transform(refPoint,point);
 
 			refPoint[1]+=-1e-8;
-			jac = test->calcJacobian(refPoint);
+			test->calcJacobian(refPoint,jac);
 			assert(("jacobian",std::abs(jac[3]-5.e7*(point[0]-compare[0]))<1e-5));
 			assert(("jacobian",std::abs(jac[4]-5.e7*(point[1]-compare[1]))<1e-5));
 			assert(("jacobian",std::abs(jac[5]-5.e7*(point[2]-compare[2]))<1e-5));
@@ -269,9 +269,9 @@ int main() {
 	}
 
 	for(int i=0;i<fGeom->getNumberOfNodes();++i){
-		refPoint = fGeom->getNode(i);
-		compare = eGeom.getNode(nodesAfterTransformation[i]);
-		point = test->transform(refPoint);
+		fGeom->getNode(i,refPoint);
+		eGeom.getNode(nodesAfterTransformation[i],compare);
+		test->transform(refPoint,point);
 		assert(("transform",std::abs(point[0]-compare[0])<1e-12));
 		assert(("transform",std::abs(point[1]-compare[1])<1e-12));
 		assert(("transform",std::abs(point[2]-compare[2])<1e-12));

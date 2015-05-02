@@ -131,7 +131,7 @@ namespace Utilities {
 		std::vector<std::size_t> vertexindices(2);
 		for (std::size_t i = 0; i < 3; ++i) {
 			set = new Base::OrientedBasisFunctionSet(order, 0, i);
-			vertexindices = triangle.getCodim1EntityLocalIndices(i);
+			triangle.getCodim1EntityLocalIndices(i, vertexindices);
 			for (std::size_t j = 0; j + 2 <= order; ++j) {
 				set->addBasisFunction(new BasisFunction2DFaceTriangle(vertexindices[0], vertexindices[1], j));
 			}

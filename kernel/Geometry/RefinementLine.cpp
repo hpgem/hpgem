@@ -47,7 +47,7 @@ namespace Geometry
         PointPhysicalT p(1);
         for (std::size_t i=0; i<referenceGeometry_->getNumberOfNodes(); ++i)
         {
-            p = physicalGeometry_->getLocalNodeCoordinates(i);
+            physicalGeometry_->getLocalNodeCoordinates(i, p);
             nodes.push_back(p);
         }
 

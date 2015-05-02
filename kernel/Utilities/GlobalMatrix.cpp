@@ -50,7 +50,8 @@ namespace Utilities {
         for (int i = 0; i < number; ++i) {
             entries.push_back(startPositionsOfFacesInTheMatrix_[face->getID()] + i);
         }
-        std::vector<std::size_t> nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft());
+        std::vector<std::size_t> nodeEntries(face->getReferenceGeometry()->getNumberOfNodes());
+        face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft(), nodeEntries);
         //for (int i = 0; i < face->getReferenceGeometry()->getNumberOfVertices(); ++i) {
         //    for (int j = 0; j < face->getPtrElementLeft()->getLocalNrOfBasisFunctionsVertex(); ++j) {
         //        entries.push_back(startPositionsOfVerticesInTheMatrix_[nodeEntries[i]] + j);
@@ -58,7 +59,7 @@ namespace Utilities {
         //}
         std::vector<std::size_t> edgeIndex(2);
         for (int i = 0; i < face->getPtrElementLeft()->getNrOfEdges(); ++i) {
-            edgeIndex = face->getPtrElementLeft()->getReferenceGeometry()->getCodim2EntityLocalIndices(i);
+            face->getPtrElementLeft()->getReferenceGeometry()->getCodim2EntityLocalIndices(i, edgeIndex);
             edgeIndex[0] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[0]);
             edgeIndex[1] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[1]);
             bool firstFound(false), secondFound(false);
@@ -75,7 +76,7 @@ namespace Utilities {
                 }
             }
         }
-        nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(face->localFaceNumberLeft());
+        face->getPtrElementLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(face->localFaceNumberLeft(),nodeEntries);
         for(std::size_t i:nodeEntries) {
             numberOfEntries += face->getPtrElementLeft()->getNode(i)->getLocalNrOfBasisFunctions();
             for (std::size_t j = 0; j < face->getPtrElementLeft()->getNode(i)->getLocalNrOfBasisFunctions(); ++j)

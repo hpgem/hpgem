@@ -130,14 +130,14 @@ namespace Utilities
         {
             for (std::size_t i = 0; i < 6; ++i)
             {
-                vectorOfPointIndexes = tetrahedron.getCodim2EntityLocalIndices(i);
+                tetrahedron.getCodim2EntityLocalIndices(i, vectorOfPointIndexes);
                 result->addBasisFunction(new BasisFunction3DEdgeTetrahedron(vectorOfPointIndexes[0], vectorOfPointIndexes[1], j));
             }
             if (j > 0)
             {
                 for (std::size_t i = 0; i < 4; ++i)
                 {
-                    vectorOfPointIndexes = tetrahedron.getCodim1EntityLocalIndices(i);
+                    tetrahedron.getCodim1EntityLocalIndices(i, vectorOfPointIndexes);
                     for (std::size_t k = 0; k + 1 <= j; ++k)
                     {
                         result->addBasisFunction(new BasisFunction3DFaceTetrahedron(vectorOfPointIndexes[0], vectorOfPointIndexes[1], vectorOfPointIndexes[2], j - k - 1, k));
@@ -196,7 +196,7 @@ namespace Utilities
         for (std::size_t i = 0; i < 6; ++i)
         {
             set = new Base::OrientedBasisFunctionSet(order, 0, i);
-            vectorOfPointIndexes = tetrahedron.getCodim2EntityLocalIndices(i);
+            tetrahedron.getCodim2EntityLocalIndices(i, vectorOfPointIndexes);
             for (std::size_t j = 0; j + 2 <= order; ++j)
             {
                 set->addBasisFunction(new BasisFunction3DEdgeTetrahedron(vectorOfPointIndexes[0], vectorOfPointIndexes[1], j));
@@ -220,7 +220,7 @@ namespace Utilities
         std::vector<std::size_t> vectorOfPointIndexes(3);
         for (std::size_t i = 0; i < 4; ++i)
         {
-            vectorOfPointIndexes = tetrahedron.getCodim1EntityLocalIndices(i);
+            tetrahedron.getCodim1EntityLocalIndices(i, vectorOfPointIndexes);
             set = new Base::OrientedBasisFunctionSet(order, 0, i);
             for (std::size_t j = 0; j + 3 <= order; ++j)
             {

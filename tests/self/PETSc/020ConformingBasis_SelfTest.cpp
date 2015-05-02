@@ -58,7 +58,8 @@ class Laplace : public Base::HpgemUISimplified{
 
 		void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
 			ret.resize(1);
-			Geometry::PointPhysical pPhys = el->referenceToPhysical(p);
+			Geometry::PointPhysical pPhys(p.size());
+			el->referenceToPhysical(p,pPhys);
 			el->getSolution(0,p,ret);
 			ret[0]-=sourceTerm(pPhys);
 			ret[0]*=ret[0];
@@ -129,7 +130,8 @@ public:
 
 	//RHS
 	void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
-    	PointPhysicalT pPhys = el->referenceToPhysical(p);
+    	PointPhysicalT pPhys(DIM_);
+    	el->referenceToPhysical(p,pPhys);
     	ret.resize(el->getNrOfBasisFunctions());
     	for(std::size_t i=0;i<el->getNrOfBasisFunctions();++i){
     		ret[i]=el->basisFunction(i,p)*sourceTerm(pPhys);
@@ -141,7 +143,8 @@ public:
 	    std::size_t numBasisFuns=fa->getNrOfBasisFunctions();
     	ret.resize(numBasisFuns,numBasisFuns);
     	LinearAlgebra::NumericalVector phiNormalI(DIM_),phiNormalJ(DIM_),phiDerivI(DIM_),phiDerivJ(DIM_);
-		PointPhysicalT pPhys = fa->referenceToPhysical(p);
+		PointPhysicalT pPhys(DIM_);
+		fa->referenceToPhysical(p,pPhys);
     	for(std::size_t i=0;i<numBasisFuns;++i){
 			fa->basisFunctionNormal(i,normal,p,phiNormalI);
 			fa->basisFunctionDeriv(i,p,phiDerivI);
@@ -165,7 +168,8 @@ public:
 	void faceIntegrand(const Base::Face* fa, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
 	    std::size_t numBasisFuns=fa->getNrOfBasisFunctions();
 		ret.resize(numBasisFuns);
-		PointPhysicalT pPhys = fa->referenceToPhysical(p);
+		PointPhysicalT pPhys(DIM_);
+		fa->referenceToPhysical(p,pPhys);
 		if(std::abs(pPhys[0])<1e-9||std::abs(pPhys[0]-1)<1e-9){//Dirichlet
 			LinearAlgebra::NumericalVector phiDeriv(DIM_);
 			for(std::size_t i=0;i<numBasisFuns;++i){
@@ -187,8 +191,10 @@ public:
         int numberOfRows(0);
     	std::vector<int> rows(0);
     	Geometry::PointPhysical pPhys(DIM_);
+    	Geometry::PointReference centre(DIM_-1);
     	for(Base::Face* face:meshes_[0]->getFacesList()){
-    		pPhys = face->referenceToPhysical(face->getReferenceGeometry()->getCenter());
+    		face->getReferenceGeometry()->getCenter(centre);
+    		face->referenceToPhysical(centre,pPhys);
     		//if(face->faceType_=(...))
     		if(std::abs(pPhys[0])<1e-9||std::abs(pPhys[0]-1)<1e-9){
     			A.getMatrixBCEntries(face,numberOfRows,rows);

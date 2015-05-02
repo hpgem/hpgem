@@ -24,9 +24,6 @@
 
 #include <vector>
 #include <iostream>
-
-#include "PointPhysical.hpp"
-#include "PointReference.hpp"
 //#include "Output/PhysicalGeometryAcceptor.hpp"
 
 namespace Geometry
@@ -114,18 +111,19 @@ namespace Geometry
         /// \brief Given a local index, assigns the physical coordinates of the corresponding point.
         // MTJ: TODO: this should be renamed to getLocalNodeCoordinates.............
         ///\TODO remove duplicate code
-        PointPhysical getNodeCoordinates(const std::size_t localIndex) const;
+        void getNodeCoordinates(const std::size_t localIndex, PointPhysical& coords) const;
 
-        PointPhysical getLocalNodeCoordinates(const std::size_t localIndex) const;
+        /// \brief Given a local index, assigns the physical coordinates of the corresponding point.
+        void getLocalNodeCoordinates(const std::size_t localIndex, PointPhysical& coords) const;
 
         /// \brief Given a global index, assigns the physical coordinates of the corresponding point.
-        PointPhysical getGlobalNodeCoordinates(const std::size_t globalIndex) const;
+        void getGlobalNodeCoordinates(const std::size_t globalIndex, PointPhysical& coords) const;
 
         /// \brief Given a local face index, return the global indices of the entities contained on that face.
-        virtual std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t) const = 0;
+        virtual void getGlobalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const = 0;
 
         /// \brief Given a local face index, return the local indices of the entities contained on that face.
-        virtual std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t) const = 0;
+        virtual void getLocalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const = 0;
 
         /// \brief Returns the number of faces via a call to ReferenceGeometry->getNrOfCodim1Entities();
         virtual std::size_t getNrOfFaces() const = 0;

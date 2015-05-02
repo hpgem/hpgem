@@ -25,16 +25,16 @@
 
 namespace Geometry {
 
-	PointPhysical PhysicalGeometry::getNodeCoordinates(const std::size_t localIndex) const {
-		return (nodes_)[globalNodeIndexes_[localIndex]];//.getCoordinates();
+	void PhysicalGeometry::getNodeCoordinates(const std::size_t localIndex, PointPhysical& coords) const {
+		coords = (nodes_)[globalNodeIndexes_[localIndex]];//.getCoordinates();
 	}
 
-	PointPhysical PhysicalGeometry::getLocalNodeCoordinates(const std::size_t localIndex) const {
-		return (nodes_)[globalNodeIndexes_[localIndex]];//.getCoordinates();
+	void PhysicalGeometry::getLocalNodeCoordinates(const std::size_t localIndex, PointPhysical& coords) const {
+		coords = (nodes_)[globalNodeIndexes_[localIndex]];//.getCoordinates();
 	}
 
-	PointPhysical PhysicalGeometry::getGlobalNodeCoordinates(const std::size_t globalIndex) const {
-		return (nodes_)[globalIndex];//.getCoordinates();
+	void PhysicalGeometry::getGlobalNodeCoordinates(const std::size_t globalIndex, PointPhysical& coords) const {
+		coords = (nodes_)[globalIndex];//.getCoordinates();
 	}
 
 }

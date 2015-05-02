@@ -33,9 +33,9 @@ namespace Geometry
     {
     }
 
-    std::vector<std::size_t> PhysicalOctachoron::getGlobalFaceNodeIndices(const std::size_t face) const
+    void PhysicalOctachoron::getGlobalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
-        std::vector<std::size_t> indexes(8);
+        indexes.resize(8);
         indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
         indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,1)];
         indexes[2] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,2)];
@@ -44,12 +44,11 @@ namespace Geometry
         indexes[5] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,5)];
         indexes[6] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,6)];
         indexes[7] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,7)];
-        return indexes;
     }
 
-    std::vector<std::size_t> PhysicalOctachoron::getLocalFaceNodeIndices(const std::size_t face) const
+    void PhysicalOctachoron::getLocalFaceNodeIndices(const std::size_t face, std::vector<std::size_t>& indexes) const
     {
-        std::vector<std::size_t> indexes(8);
+        indexes.resize(8);
         indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
         indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
         indexes[2] = refGeometry_->getLocalNodeIndex(face,2);
@@ -58,7 +57,6 @@ namespace Geometry
         indexes[5] = refGeometry_->getLocalNodeIndex(face,5);
         indexes[6] = refGeometry_->getLocalNodeIndex(face,6);
         indexes[7] = refGeometry_->getLocalNodeIndex(face,7);
-        return indexes;
     }
 
 	std::size_t PhysicalOctachoron::getNrOfFaces() const {

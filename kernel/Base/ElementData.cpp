@@ -120,8 +120,10 @@ namespace Base
     {
         if (timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_)
         {
+
             assert(expansionCoefficients_[timeLevel].size() == nrOfUnknowns_ * nrOfBasisFunctions_);
-            return expansionCoefficients_[timeLevel](convertToSingleIndex(basisFunction,unknown));
+            return expansionCoefficients_[timeLevel](convertToSingleIndex(basisFunction, unknown));
+
         }
         else
         {

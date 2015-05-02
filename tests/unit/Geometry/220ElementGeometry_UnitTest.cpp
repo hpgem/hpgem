@@ -79,12 +79,12 @@ int main(){
 	logger.assert_always((test->getNrOfNodes()==2),"getNrOfNodes");
 
 	for(orig1D[0]=-2.8189;orig1D[0]<3.141;orig1D[0]+=0.1){
-		compare1D = test->getReferenceToPhysicalMap()->transform(orig1D);
-		point1D = test->referenceToPhysical(orig1D);
+		test->getReferenceToPhysicalMap()->transform(orig1D,compare1D);
+		test->referenceToPhysical(orig1D,point1D);
 		logger.assert_always((std::abs(point1D[0]-compare1D[0])<1e-12),"referenceToPhysical");
 
-		jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(orig1D);
-		jac = test->calcJacobian(orig1D);
+		test->getReferenceToPhysicalMap()->calcJacobian(orig1D,jaccompare);
+		test->calcJacobian(orig1D,jac);
 		logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
 	}
 	std::cout<<*test<<std::endl;
@@ -122,13 +122,13 @@ int main(){
 
 	for(orig2D[0]=-2.8189;orig2D[0]<3.141;orig2D[0]+=0.1){
 		for(orig2D[1]=-2.8189;orig2D[1]<3.141;orig2D[1]+=0.1){
-			compare2D = test->getReferenceToPhysicalMap()->transform(orig2D);
-			point2D = test->referenceToPhysical(orig2D);
+			test->getReferenceToPhysicalMap()->transform(orig2D,compare2D);
+			test->referenceToPhysical(orig2D,point2D);
 			logger.assert_always((std::abs(point2D[0]-compare2D[0])<1e-12),"referenceToPhysical");
 			logger.assert_always((std::abs(point2D[1]-compare2D[1])<1e-12),"referenceToPhysical");
 
-			jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(orig2D);
-			jac = test->calcJacobian(orig2D);
+			test->getReferenceToPhysicalMap()->calcJacobian(orig2D,jaccompare);
+			test->calcJacobian(orig2D,jac);
 			logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
 			logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
 			logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
@@ -149,13 +149,13 @@ int main(){
 
 	for(orig2D[0]=-2.8189;orig2D[0]<3.141;orig2D[0]+=0.1){
 		for(orig2D[1]=-2.8189;orig2D[1]<3.141;orig2D[1]+=0.1){
-			compare2D = test->getReferenceToPhysicalMap()->transform(orig2D);
-			point2D = test->referenceToPhysical(orig2D);
+			test->getReferenceToPhysicalMap()->transform(orig2D,compare2D);
+			test->referenceToPhysical(orig2D,point2D);
 			logger.assert_always((std::abs(point2D[0]-compare2D[0])<1e-12),"referenceToPhysical");
 			logger.assert_always((std::abs(point2D[1]-compare2D[1])<1e-12),"referenceToPhysical");
 
-			jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(orig2D);
-			jac = test->calcJacobian(orig2D);
+			test->getReferenceToPhysicalMap()->calcJacobian(orig2D,jaccompare);
+			test->calcJacobian(orig2D,jac);
 			logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
 			logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
 			logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
@@ -216,14 +216,14 @@ int main(){
 	for(orig3D[0]=-2.8189;orig3D[0]<3.141;orig3D[0]+=0.2){
 		for(orig3D[1]=-2.8189;orig3D[1]<3.141;orig3D[1]+=0.25){
 			for(orig3D[2]=-2.8189;orig3D[2]<3.141;orig3D[2]+=0.3){
-				compare3D = test->getReferenceToPhysicalMap()->transform(orig3D);
-				point3D = test->referenceToPhysical(orig3D);
+				test->getReferenceToPhysicalMap()->transform(orig3D,compare3D);
+				test->referenceToPhysical(orig3D,point3D);
 				logger.assert_always((std::abs(point3D[0]-compare3D[0])<1e-12),"referenceToPhysical");
 				logger.assert_always((std::abs(point3D[1]-compare3D[1])<1e-12),"referenceToPhysical");
 				logger.assert_always((std::abs(point3D[2]-compare3D[2])<1e-12),"referenceToPhysical");
 
-				jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(orig3D);
-				jac = test->calcJacobian(orig3D);
+				test->getReferenceToPhysicalMap()->calcJacobian(orig3D,jaccompare);
+				test->calcJacobian(orig3D,jac);
 				logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
 				logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
 				logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
@@ -251,14 +251,14 @@ int main(){
 	for(orig3D[0]=-2.8189;orig3D[0]<3.141;orig3D[0]+=0.2){
 		for(orig3D[1]=-2.8189;orig3D[1]<3.141;orig3D[1]+=0.25){
 			for(orig3D[2]=-2.8189;orig3D[2]<3.141;orig3D[2]+=0.3){
-				compare3D = test->getReferenceToPhysicalMap()->transform(orig3D);
-				point3D = test->referenceToPhysical(orig3D);
+				test->getReferenceToPhysicalMap()->transform(orig3D,compare3D);
+				test->referenceToPhysical(orig3D,point3D);
 				logger.assert_always((std::abs(point3D[0]-compare3D[0])<1e-12),"referenceToPhysical");
 				logger.assert_always((std::abs(point3D[1]-compare3D[1])<1e-12),"referenceToPhysical");
 				logger.assert_always((std::abs(point3D[2]-compare3D[2])<1e-12),"referenceToPhysical");
 
-				jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(orig3D);
-				jac = test->calcJacobian(orig3D);
+				test->getReferenceToPhysicalMap()->calcJacobian(orig3D,jaccompare);
+				test->calcJacobian(orig3D,jac);
 				logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
 				logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
 				logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
@@ -286,14 +286,14 @@ int main(){
 	for(orig3D[0]=-2.8189;orig3D[0]<3.141;orig3D[0]+=0.2){
 		for(orig3D[1]=-2.8189;orig3D[1]<3.141;orig3D[1]+=0.25){
 			for(orig3D[2]=-2.8189;orig3D[2]<3.141;orig3D[2]+=0.3){
-				compare3D = test->getReferenceToPhysicalMap()->transform(orig3D);
-				point3D = test->referenceToPhysical(orig3D);
+				test->getReferenceToPhysicalMap()->transform(orig3D,compare3D);
+				test->referenceToPhysical(orig3D,point3D);
 				logger.assert_always((std::abs(point3D[0]-compare3D[0])<1e-12),"referenceToPhysical");
 				logger.assert_always((std::abs(point3D[1]-compare3D[1])<1e-12),"referenceToPhysical");
 				logger.assert_always((std::abs(point3D[2]-compare3D[2])<1e-12),"referenceToPhysical");
 
-				jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(orig3D);
-				jac = test->calcJacobian(orig3D);
+				test->getReferenceToPhysicalMap()->calcJacobian(orig3D,jaccompare);
+				test->calcJacobian(orig3D,jac);
 				logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
 				logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
 				logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
@@ -322,14 +322,14 @@ int main(){
 	for(orig3D[0]=-2.8189;orig3D[0]<3.141;orig3D[0]+=0.2){
 		for(orig3D[1]=-2.8189;orig3D[1]<3.141;orig3D[1]+=0.25){
 			for(orig3D[2]=-2.8189;orig3D[2]<3.141;orig3D[2]+=0.3){
-				compare3D = test->getReferenceToPhysicalMap()->transform(orig3D);
-				point3D = test->referenceToPhysical(orig3D);
+				test->getReferenceToPhysicalMap()->transform(orig3D,compare3D);
+				test->referenceToPhysical(orig3D,point3D);
 				logger.assert_always((std::abs(point3D[0]-compare3D[0])<1e-12),"referenceToPhysical");
 				logger.assert_always((std::abs(point3D[1]-compare3D[1])<1e-12),"referenceToPhysical");
 				logger.assert_always((std::abs(point3D[2]-compare3D[2])<1e-12),"referenceToPhysical");
 
-				jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(orig3D);
-				jac = test->calcJacobian(orig3D);
+				test->getReferenceToPhysicalMap()->calcJacobian(orig3D,jaccompare);
+				test->calcJacobian(orig3D,jac);
 				logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
 				logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
 				logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");
@@ -450,15 +450,15 @@ int main(){
 		for(orig4D[1]=-1.5189;orig4D[1]<1.541;orig4D[1]+=0.25){
 			for(orig4D[2]=-1.5189;orig4D[2]<1.541;orig4D[2]+=0.25){
 				for(orig4D[3]=-1.5189;orig4D[3]<1.541;orig4D[3]+=0.3){
-					compare4D = test->getReferenceToPhysicalMap()->transform(orig4D);
-					point4D = test->referenceToPhysical(orig4D);
+					test->getReferenceToPhysicalMap()->transform(orig4D,compare4D);
+					test->referenceToPhysical(orig4D,point4D);
 					logger.assert_always((std::abs(point4D[0]-compare4D[0])<1e-12),"referenceToPhysical");
 					logger.assert_always((std::abs(point4D[1]-compare4D[1])<1e-12),"referenceToPhysical");
 					logger.assert_always((std::abs(point4D[2]-compare4D[2])<1e-12),"referenceToPhysical");
 					logger.assert_always((std::abs(point4D[3]-compare4D[3])<1e-12),"referenceToPhysical");
 
-					jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(orig4D);
-					jac = test->calcJacobian(orig4D);
+					test->getReferenceToPhysicalMap()->calcJacobian(orig4D,jaccompare);
+					test->calcJacobian(orig4D,jac);
 					logger.assert_always((std::abs(jac[0]-jaccompare[0])<1e-12),"calcJacobian");
 					logger.assert_always((std::abs(jac[1]-jaccompare[1])<1e-12),"calcJacobian");
 					logger.assert_always((std::abs(jac[2]-jaccompare[2])<1e-12),"calcJacobian");

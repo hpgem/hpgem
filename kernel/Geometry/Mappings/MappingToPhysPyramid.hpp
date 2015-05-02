@@ -46,9 +46,9 @@ namespace Geometry
         public:
             MappingToPhysPyramid(const PhysicalGeometryT*const physicalGeometry);
 
-            virtual PointPhysical transform(const PointReferenceT&) const;
+            virtual void transform(const PointReferenceT&, PointPhysicalT&) const;
 
-            virtual Jacobian calcJacobian(const PointReferenceT&) const;
+            virtual void calcJacobian(const PointReferenceT&, JacobianT&) const;
 
             virtual void reinit(const PhysicalGeometryT*const);
 

@@ -24,7 +24,6 @@
 #define MAPPINGPOINTTOLINE_H_
 
 #include "MappingReferenceToReference.hpp"
-#include "Geometry/Jacobian.hpp"
 
 namespace Geometry
 {
@@ -47,8 +46,10 @@ namespace Geometry
     {
         public:
             static const MappingToRefPointToLine0& Instance();
-            virtual PointReference transform(const Geometry::PointReference& p1) const;
-            virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
+            virtual void transform(const Geometry::PointReference&,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
             virtual std::size_t getTargetDimension() const {return 1;}
         private:
             MappingToRefPointToLine0();
@@ -62,8 +63,10 @@ namespace Geometry
     {
         public:
             static const MappingToRefPointToLine1& Instance();
-            virtual PointReference transform(const Geometry::PointReference& p1) const;
-            virtual Jacobian calcJacobian(const Geometry::PointReference&) const;
+            virtual void transform(const Geometry::PointReference& p1,
+                                         Geometry::PointReference& p2) const;
+            virtual void calcJacobian(const Geometry::PointReference&,
+                                            Geometry::Jacobian&) const;
             virtual std::size_t getTargetDimension() const {return 1;}
         private:
             MappingToRefPointToLine1();

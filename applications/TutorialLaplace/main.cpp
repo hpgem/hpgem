@@ -163,7 +163,8 @@ public:
 
         //Transform the point from the reference value to its physical value.
         //This is necessary to check at which boundary we are if we are at a boundary face.
-        PointPhysicalT pPhys = face->referenceToPhysical(p);
+        PointPhysicalT pPhys(DIM_);
+        face->referenceToPhysical(p, pPhys);
 
         for (int i = 0; i < numBasisFunctions; ++i)
         {
@@ -257,7 +258,8 @@ public:
         //Obtain the number of basisfunctions that are possibly non-zero
         const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
         //Transform reference point p to physical point pPhys to evaluate the source term
-        PointPhysicalT pPhys = element->referenceToPhysical(p);
+        PointPhysicalT pPhys(DIM_);
+        element->referenceToPhysical(p, pPhys);
 
         //Resize the right-hand side vector to get the same amount of rows as the 
         //number of basisFunctions.

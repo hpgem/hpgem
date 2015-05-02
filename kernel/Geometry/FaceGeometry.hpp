@@ -28,9 +28,6 @@
 
 #include <Logger.h>
 #include "LinearAlgebra/Matrix.hpp"
-#include "ReferencePoint.hpp"
-#include "PointReference.hpp"
-#include "PointPhysical.hpp"
 
 //--------------------------------------------------------------------------------------------------
 //
@@ -228,15 +225,15 @@ namespace Geometry
 
     /*! Map a point in coordinates of the reference geometry of the face to
      *  the reference geometry of the left (L) element. */
-    virtual PointReference    mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const;
+    virtual void    mapRefFaceToRefElemL(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const;
 
     /*! Map a point in coordinates of the reference geometry of the face to
      *  the reference geometry of the right (R) element. */
-    virtual PointReference    mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const;
+    virtual void    mapRefFaceToRefElemR(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const;
 
     /*! Map from reference face coordinates on the left side to those on the
      *  right side. */
-    virtual PointReference    mapRefFaceToRefFace(const ReferencePointT& pIn) const;
+    virtual void    mapRefFaceToRefFace(const ReferencePointT& pIn, ReferencePointT& pOut) const;
     /// Get a normal at a given RefPoint
     virtual LinearAlgebra::NumericalVector    getNormalVector(const ReferencePointT& pRefFace) const;
 
@@ -247,7 +244,7 @@ namespace Geometry
     virtual         RefFaceToRefElementMapping refFaceToRefElemMapR() const;
 
 
-    virtual PointPhysical            referenceToPhysical(const Geometry::PointReference& pointReference)const;
+    virtual void            referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical)const;
 
     ///\brief set up the faceToFaceMapIndex based on vertex connectivity information instead of node location
     void initialiseFaceToFaceMapIndex(const std::vector<std::size_t>& leftVertices, const std::vector<std::size_t>& rightVertices);

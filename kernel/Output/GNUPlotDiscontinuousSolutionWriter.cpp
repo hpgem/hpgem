@@ -112,11 +112,11 @@ namespace Output
 
                 // For the solution data, write function of the user, however we pass a local
                 // coordinate of the current reference element
-                pRef = (*eltIterator)->getReferenceGeometry()->getNode(localNode);
+                (*eltIterator)->getReferenceGeometry()->getNode(localNode, pRef);
 
                 // First write the (possibly reduced) coordinates of the point;
                 // note: PHYSICAL coordinates here!
-                pPhys = (*eltIterator)->referenceToPhysical(pRef);
+                (*eltIterator)->referenceToPhysical(pRef, pPhys);
 
                 //write the physical coordinates of the point
                 for (std::size_t i = 0; i < nDimensionsToWrite_; ++i)

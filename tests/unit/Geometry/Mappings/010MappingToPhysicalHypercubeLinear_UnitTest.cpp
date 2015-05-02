@@ -81,33 +81,33 @@ int main() {
 	Geometry::Jacobian jac1D(1,1);
 
 	for(refPoint1D[0]=-2.8189;refPoint1D[0]<3.141;refPoint1D[0]+=0.1) {
-		point1D = mapping1D.transform(refPoint1D);
+		mapping1D.transform(refPoint1D,point1D);
 		assert(("transform",rGeom.isInternalPoint(refPoint1D)==isInternal1D(point1D)));
-		point1D = reinit1D.transform(refPoint1D);
+		reinit1D.transform(refPoint1D,point1D);
 		assert(("reinit",rGeom.isInternalPoint(refPoint1D)==isInternal1D(point1D)));
 
 		refPoint1D[0]+=-1.e-8;
-		compare1D = mapping1D.transform(refPoint1D);
+		mapping1D.transform(refPoint1D,compare1D);
 		refPoint1D[0]+=2.e-8;
-		point1D = mapping1D.transform(refPoint1D);
+		mapping1D.transform(refPoint1D,point1D);
 
 		refPoint1D[0]+=-1e-8;
-		jac1D = mapping1D.calcJacobian(refPoint1D);
+		mapping1D.calcJacobian(refPoint1D,jac1D);
 		assert(("jacobian",std::abs(jac1D[0]-5.e7*(point1D[0]-compare1D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 	}
 
 	for(int i=0;i<rGeom.getNumberOfNodes();++i){
-		refPoint1D = rGeom.getNode(i);
-		compare1D = pGeom.getNodeCoordinates(i);
-		point1D = mapping1D.transform(refPoint1D);
+		rGeom.getNode(i,refPoint1D);
+		pGeom.getNodeCoordinates(i,compare1D);
+		mapping1D.transform(refPoint1D,point1D);
 		assert(("transform",std::abs(point1D[0]-compare1D[0])<1e-12));
 	}
 
 	assert(("getTargetDimension",mapping1D.getTargetDimension()==1));
 
 	for(int i=0;i<10;++i){
-		compare1D = mapping1D.getNodeCoordinates(i);
-		point1D = pGeom.getGlobalNodeCoordinates(i);
+		mapping1D.getNodeCoordinates(i,compare1D);
+		pGeom.getGlobalNodeCoordinates(i,point1D);
 		assert(("getNodeCoordinates",compare1D==point1D));
 	}
 
@@ -145,45 +145,45 @@ int main() {
 
 	for(refPoint2D[0]=-1.5189;refPoint2D[0]<1.541;refPoint2D[0]+=0.1) {
 		for(refPoint2D[1]=-1.5188;refPoint2D[1]<1.541;refPoint2D[1]+=0.1){
-			point2D = mapping2D.transform(refPoint2D);
+			mapping2D.transform(refPoint2D,point2D);
 			assert(("transform"&&(rGeom2D.isInternalPoint(refPoint2D)&&isInternal2D(point2D))||(!rGeom2D.isInternalPoint(refPoint2D)&&!isInternal2D(point2D))));
-			point2D = reinit2D.transform(refPoint2D);
+			reinit2D.transform(refPoint2D,point2D);
 			assert(("reinit",rGeom2D.isInternalPoint(refPoint2D)==isInternal2D(point2D)));
 
 			refPoint2D[0]+=-1.e-8;
-			compare2D = mapping2D.transform(refPoint2D);
+			mapping2D.transform(refPoint2D,compare2D);
 			refPoint2D[0]+=2.e-8;
-			point2D = mapping2D.transform(refPoint2D);
+			mapping2D.transform(refPoint2D,point2D);
 
 			refPoint2D[0]+=-1e-8;
-			jac2D = mapping2D.calcJacobian(refPoint2D);
+			mapping2D.calcJacobian(refPoint2D,jac2D);
 			assert(("jacobian",std::abs(jac2D[0]-5.e7*(point2D[0]-compare2D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 			assert(("jacobian",std::abs(jac2D[1]-5.e7*(point2D[1]-compare2D[1]))<1e-5));//implementations are strongly recommended to be more accurate
 
 			refPoint2D[1]+=-1.e-8;
-			compare2D = mapping2D.transform(refPoint2D);
+			mapping2D.transform(refPoint2D,compare2D);
 			refPoint2D[1]+=2.e-8;
-			point2D = mapping2D.transform(refPoint2D);
+			mapping2D.transform(refPoint2D,point2D);
 
 			refPoint2D[1]+=-1e-8;
-			jac2D = mapping2D.calcJacobian(refPoint2D);
+			mapping2D.calcJacobian(refPoint2D,jac2D);
 			assert(("jacobian",std::abs(jac2D[2]-5.e7*(point2D[0]-compare2D[0]))<1e-5));
 			assert(("jacobian",std::abs(jac2D[3]-5.e7*(point2D[1]-compare2D[1]))<1e-5));
 		}
 	}
 
 	for(int i=0;i<rGeom2D.getNumberOfNodes();++i){
-		refPoint2D = rGeom2D.getNode(i);
-		compare2D = pGeom2D.getNodeCoordinates(i);
-		point2D = mapping2D.transform(refPoint2D);
+		rGeom2D.getNode(i,refPoint2D);
+		pGeom2D.getNodeCoordinates(i,compare2D);
+		mapping2D.transform(refPoint2D,point2D);
 		assert(("transform",std::abs(point2D[0]-compare2D[0])<1e-12)&&std::abs(point2D[1]-compare2D[1])<1e-12);
 	}
 
 	assert(("getTargetDimension",mapping2D.getTargetDimension()==2));
 
 	for(int i=0;i<20;++i){
-		compare2D = mapping2D.getNodeCoordinates(i);
-		point2D = pGeom2D.getGlobalNodeCoordinates(i);
+		mapping2D.getNodeCoordinates(i,compare2D);
+		pGeom2D.getGlobalNodeCoordinates(i,point2D);
 		assert(("getNodeCoordinates",compare2D==point2D));
 	}
 
@@ -238,40 +238,40 @@ int main() {
 	for(refPoint3D[0]=-1.5189;refPoint3D[0]<1.541;refPoint3D[0]+=0.2) {
 		for(refPoint3D[1]=-1.5188;refPoint3D[1]<1.541;refPoint3D[1]+=0.2){
 			for(refPoint3D[2]=-1.5188;refPoint3D[2]<1.541;refPoint3D[2]+=0.2){
-				point3D = mapping3D.transform(refPoint3D);
+				mapping3D.transform(refPoint3D,point3D);
 				assert(("transform",rGeom3D.isInternalPoint(refPoint3D)==isInternal3D(point3D)));
-				point3D = reinit3D.transform(refPoint3D);
+				reinit3D.transform(refPoint3D,point3D);
 				assert(("reinit",rGeom3D.isInternalPoint(refPoint3D)==isInternal3D(point3D)));
 
 				refPoint3D[0]+=-1.e-8;
-				compare3D = mapping3D.transform(refPoint3D);
+				mapping3D.transform(refPoint3D,compare3D);
 				refPoint3D[0]+=2.e-8;
-				point3D = mapping3D.transform(refPoint3D);
+				mapping3D.transform(refPoint3D,point3D);
 
 				refPoint3D[0]+=-1e-8;
-				jac3D = mapping3D.calcJacobian(refPoint3D);
+				mapping3D.calcJacobian(refPoint3D,jac3D);
 				assert(("jacobian",std::abs(jac3D[0]-5.e7*(point3D[0]-compare3D[0]))<1e-5));//estimate is a bit rough, but should work for most mappings
 				assert(("jacobian",std::abs(jac3D[1]-5.e7*(point3D[1]-compare3D[1]))<1e-5));//implementations are strongly recommended to be more accurate
 				assert(("jacobian",std::abs(jac3D[2]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 
 				refPoint3D[1]+=-1.e-8;
-				compare3D = mapping3D.transform(refPoint3D);
+				mapping3D.transform(refPoint3D,compare3D);
 				refPoint3D[1]+=2.e-8;
-				point3D = mapping3D.transform(refPoint3D);
+				mapping3D.transform(refPoint3D,point3D);
 
 				refPoint3D[1]+=-1e-8;
-				jac3D = mapping3D.calcJacobian(refPoint3D);
+				mapping3D.calcJacobian(refPoint3D,jac3D);
 				assert(("jacobian",std::abs(jac3D[3]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
 				assert(("jacobian",std::abs(jac3D[4]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
 				assert(("jacobian",std::abs(jac3D[5]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
 
 				refPoint3D[2]+=-1.e-8;
-				compare3D = mapping3D.transform(refPoint3D);
+				mapping3D.transform(refPoint3D,compare3D);
 				refPoint3D[2]+=2.e-8;
-				point3D = mapping3D.transform(refPoint3D);
+				mapping3D.transform(refPoint3D,point3D);
 
 				refPoint3D[2]+=-1e-8;
-				jac3D = mapping3D.calcJacobian(refPoint3D);
+				mapping3D.calcJacobian(refPoint3D,jac3D);
 				assert(("jacobian",std::abs(jac3D[6]-5.e7*(point3D[0]-compare3D[0]))<1e-5));
 				assert(("jacobian",std::abs(jac3D[7]-5.e7*(point3D[1]-compare3D[1]))<1e-5));
 				assert(("jacobian",std::abs(jac3D[8]-5.e7*(point3D[2]-compare3D[2]))<1e-5));
@@ -280,17 +280,17 @@ int main() {
 	}
 
 	for(int i=0;i<rGeom3D.getNumberOfNodes();++i){
-		refPoint3D = rGeom3D.getNode(i);
-		compare3D = pGeom3D.getNodeCoordinates(i);
-		point3D = mapping3D.transform(refPoint3D);
+		rGeom3D.getNode(i,refPoint3D);
+		pGeom3D.getNodeCoordinates(i,compare3D);
+		mapping3D.transform(refPoint3D,point3D);
 		assert(("transform",std::abs(point3D[0]-compare3D[0])<1e-12)&&std::abs(point3D[1]-compare3D[1])<1e-12&&std::abs(point3D[2]-compare3D[2])<1e-12);
 	}
 
 	assert(("getTargetDimension",mapping3D.getTargetDimension()==3));
 
 	for(int i=0;i<40;++i){
-		compare3D = mapping3D.getNodeCoordinates(i);
-		point3D = pGeom3D.getGlobalNodeCoordinates(i);
+		mapping3D.getNodeCoordinates(i,compare3D);
+		pGeom3D.getGlobalNodeCoordinates(i,point3D);
 		assert(("getNodeCoordinates",compare3D==point3D));
 	}
 

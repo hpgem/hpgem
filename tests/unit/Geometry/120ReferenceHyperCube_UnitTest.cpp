@@ -102,39 +102,39 @@ int main(){
 		}
 	}
 
-	pTest = test.getCenter();
+	test.getCenter(pTest);
 	logger.assert_always((test.isInternalPoint(pTest)&&std::abs(pTest[0])<1e-12&&std::abs(pTest[1])<1e-12)&&std::abs(pTest[2])<1e-12&&std::abs(pTest[3])<1e-12,"getCenter");
-	pTest = test.getNode(0);
+	test.getNode(0,pTest);
 	logger.assert_always((std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2]+1)<1e-12&&std::abs(pTest[3]+1)<1e-12),"getNode 0");
-	pTest = test.getNode(1);
+	test.getNode(1,pTest);
 	logger.assert_always((std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2]+1)<1e-12&&std::abs(pTest[3]+1)<1e-12),"getNode 1");
-	pTest = test.getNode(2);
+	test.getNode(2,pTest);
 	logger.assert_always((std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2]+1)<1e-12&&std::abs(pTest[3]+1)<1e-12),"getNode 2");
-	pTest = test.getNode(3);
+	test.getNode(3,pTest);
 	logger.assert_always((std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2]+1)<1e-12&&std::abs(pTest[3]+1)<1e-12),"getNode 3");
-	pTest = test.getNode(4);
+	test.getNode(4,pTest);
 	logger.assert_always((std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2]-1)<1e-12&&std::abs(pTest[3]+1)<1e-12),"getNode 4");
-	pTest = test.getNode(5);
+	test.getNode(5,pTest);
 	logger.assert_always((std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2]-1)<1e-12&&std::abs(pTest[3]+1)<1e-12),"getNode 5");
-	pTest = test.getNode(6);
+	test.getNode(6,pTest);
 	logger.assert_always((std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2]-1)<1e-12&&std::abs(pTest[3]+1)<1e-12),"getNode 6");
-	pTest = test.getNode(7);
+	test.getNode(7,pTest);
 	logger.assert_always((std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2]-1)<1e-12&&std::abs(pTest[3]+1)<1e-12),"getNode 7");
-	pTest = test.getNode(8);
+	test.getNode(8,pTest);
 	logger.assert_always((std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2]+1)<1e-12&&std::abs(pTest[3]-1)<1e-12),"getNode 8");
-	pTest = test.getNode(9);
+	test.getNode(9,pTest);
 	logger.assert_always((std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2]+1)<1e-12&&std::abs(pTest[3]-1)<1e-12),"getNode 9");
-	pTest = test.getNode(10);
+	test.getNode(10,pTest);
 	logger.assert_always((std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2]+1)<1e-12&&std::abs(pTest[3]-1)<1e-12),"getNode 10");
-	pTest = test.getNode(11);
+	test.getNode(11,pTest);
 	logger.assert_always((std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2]+1)<1e-12&&std::abs(pTest[3]-1)<1e-12),"getNode 11");
-	pTest = test.getNode(12);
+	test.getNode(12,pTest);
 	logger.assert_always((std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2]-1)<1e-12&&std::abs(pTest[3]-1)<1e-12),"getNode 12");
-	pTest = test.getNode(13);
+	test.getNode(13,pTest);
 	logger.assert_always((std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]+1)<1e-12&&std::abs(pTest[2]-1)<1e-12&&std::abs(pTest[3]-1)<1e-12),"getNode 13");
-	pTest = test.getNode(14);
+	test.getNode(14,pTest);
 	logger.assert_always((std::abs(pTest[0]+1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2]-1)<1e-12&&std::abs(pTest[3]-1)<1e-12),"getNode 14");
-	pTest = test.getNode(15);
+	test.getNode(15,pTest);
 	logger.assert_always((std::abs(pTest[0]-1)<1e-12&&std::abs(pTest[1]-1)<1e-12&&std::abs(pTest[2]-1)<1e-12&&std::abs(pTest[3]-1)<1e-12),"getNode 15");
 	std::cout<<test.getName();
 
@@ -252,7 +252,7 @@ int main(){
 	logger.assert_always((test.getCodim1MappingPtr(5)==&Geometry::MappingToRefCubeToHypercube5::Instance()),"getCodim1MappingPtr");
 	logger.assert_always((test.getCodim1MappingPtr(6)==&Geometry::MappingToRefCubeToHypercube6::Instance()),"getCodim1MappingPtr");
 	logger.assert_always((test.getCodim1MappingPtr(7)==&Geometry::MappingToRefCubeToHypercube7::Instance()),"getCodim1MappingPtr");
-	faceIndices = test.getCodim1EntityLocalIndices(0);
+	test.getCodim1EntityLocalIndices(0,faceIndices);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(0,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(0,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(0,2)),"getCodim1EntityLocalIndices");
@@ -261,7 +261,7 @@ int main(){
 	logger.assert_always((faceIndices[5]==test.getLocalNodeIndex(0,5)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[6]==test.getLocalNodeIndex(0,6)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[7]==test.getLocalNodeIndex(0,7)),"getCodim1EntityLocalIndices");
-	faceIndices = test.getCodim1EntityLocalIndices(1);
+	test.getCodim1EntityLocalIndices(1,faceIndices);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(1,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(1,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(1,2)),"getCodim1EntityLocalIndices");
@@ -270,7 +270,7 @@ int main(){
 	logger.assert_always((faceIndices[5]==test.getLocalNodeIndex(1,5)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[6]==test.getLocalNodeIndex(1,6)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[7]==test.getLocalNodeIndex(1,7)),"getCodim1EntityLocalIndices");
-	faceIndices = test.getCodim1EntityLocalIndices(2);
+	test.getCodim1EntityLocalIndices(2,faceIndices);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(2,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(2,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(2,2)),"getCodim1EntityLocalIndices");
@@ -279,7 +279,7 @@ int main(){
 	logger.assert_always((faceIndices[5]==test.getLocalNodeIndex(2,5)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[6]==test.getLocalNodeIndex(2,6)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[7]==test.getLocalNodeIndex(2,7)),"getCodim1EntityLocalIndices");
-	faceIndices = test.getCodim1EntityLocalIndices(3);
+	test.getCodim1EntityLocalIndices(3,faceIndices);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(3,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(3,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(3,2)),"getCodim1EntityLocalIndices");
@@ -288,7 +288,7 @@ int main(){
 	logger.assert_always((faceIndices[5]==test.getLocalNodeIndex(3,5)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[6]==test.getLocalNodeIndex(3,6)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[7]==test.getLocalNodeIndex(3,7)),"getCodim1EntityLocalIndices");
-	faceIndices = test.getCodim1EntityLocalIndices(4);
+	test.getCodim1EntityLocalIndices(4,faceIndices);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(4,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(4,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(4,2)),"getCodim1EntityLocalIndices");
@@ -297,7 +297,7 @@ int main(){
 	logger.assert_always((faceIndices[5]==test.getLocalNodeIndex(4,5)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[6]==test.getLocalNodeIndex(4,6)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[7]==test.getLocalNodeIndex(4,7)),"getCodim1EntityLocalIndices");
-	faceIndices = test.getCodim1EntityLocalIndices(5);
+	test.getCodim1EntityLocalIndices(5,faceIndices);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(5,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(5,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(5,2)),"getCodim1EntityLocalIndices");
@@ -306,7 +306,7 @@ int main(){
 	logger.assert_always((faceIndices[5]==test.getLocalNodeIndex(5,5)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[6]==test.getLocalNodeIndex(5,6)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[7]==test.getLocalNodeIndex(5,7)),"getCodim1EntityLocalIndices");
-	faceIndices = test.getCodim1EntityLocalIndices(6);
+	test.getCodim1EntityLocalIndices(6,faceIndices);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(6,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(6,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(6,2)),"getCodim1EntityLocalIndices");
@@ -315,7 +315,7 @@ int main(){
 	logger.assert_always((faceIndices[5]==test.getLocalNodeIndex(6,5)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[6]==test.getLocalNodeIndex(6,6)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[7]==test.getLocalNodeIndex(6,7)),"getCodim1EntityLocalIndices");
-	faceIndices = test.getCodim1EntityLocalIndices(7);
+	test.getCodim1EntityLocalIndices(7,faceIndices);
 	logger.assert_always((faceIndices[0]==test.getLocalNodeIndex(7,0)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[1]==test.getLocalNodeIndex(7,1)),"getCodim1EntityLocalIndices");
 	logger.assert_always((faceIndices[2]==test.getLocalNodeIndex(7,2)),"getCodim1EntityLocalIndices");

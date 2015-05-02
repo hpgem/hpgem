@@ -65,6 +65,7 @@ namespace Base
         useCache_(useCache),
         currentPointIndex_(-1) { }
 
+
         virtual Face& operator=(const Face& face)
         {//todo check that &face and this are different things (logger)
             face_ = &face;
@@ -146,7 +147,7 @@ namespace Base
         }
 
         //if this is needed a lot, also store this
-        Geometry::PointPhysical referenceToPhysical(const Geometry::PointReference& pointReference) const override;
+        void referenceToPhysical(const Geometry::PointReference& pointReference, PointPhysicalT& pointPhysical) const override;
 
         //caching functionality
 
@@ -236,19 +237,19 @@ namespace Base
             return face_->getReferenceGeometry();
         }
 
-        Geometry::PointReference mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const override
+        void mapRefFaceToRefElemL(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const override
         {
-            return face_->mapRefFaceToRefElemL(pRefFace);
+            face_->mapRefFaceToRefElemL(pRefFace, pRefEl);
         }
 
-        Geometry::PointReference mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const override
+        void mapRefFaceToRefElemR(const ReferencePointT& pRefFace, ReferencePointT& pRefEl) const override
         {
-            return face_->mapRefFaceToRefElemR(pRefFace);
+            face_->mapRefFaceToRefElemR(pRefFace, pRefEl);
         }
 
-        Geometry::PointReference mapRefFaceToRefFace(const ReferencePointT& pIn) const override
+        void mapRefFaceToRefFace(const ReferencePointT& pIn, ReferencePointT& pOut) const override
         {
-            return face_->mapRefFaceToRefFace(pIn);
+            face_->mapRefFaceToRefFace(pIn, pOut);
         }
 
         RefFaceToRefElementMapping refFaceToRefElemMapL() const override

@@ -69,10 +69,10 @@ namespace Geometry
         bool isInternalPoint(const PointReferenceT& point) const;
 
         //! (see ReferenceGeometry.hpp)
-        PointReference getCenter() const;
+        void getCenter(PointReferenceT& point) const;
 
         //! (see ReferenceGeometry.hpp)
-        const PointReference& getNode(const IndexT& i) const;
+        void getNode(const IndexT& i, PointReferenceT& point) const;
 
         //! (see ReferenceGeometry.hpp)
 
@@ -115,7 +115,7 @@ namespace Geometry
         }
 
         //! (see MappingCodimensions.hpp)
-        std::vector<std::size_t> getCodim1EntityLocalIndices(const IndexT) const;
+        void getCodim1EntityLocalIndices(const IndexT, ListOfIndexesT& faceNodesLocal) const;
 
         //! (see MappingCodimensions.hpp)
         const MappingReferenceToReference* getCodim1MappingPtr(const IndexT) const;
@@ -132,9 +132,10 @@ namespace Geometry
             return 4;
         };
 
-        std::vector<std::size_t> getCodim2EntityLocalIndices(const std::size_t vertex) const
+        void getCodim2EntityLocalIndices(const std::size_t vertex, std::vector<std::size_t>& vertexNodesLocal) const
         {
-            return std::vector<std::size_t>(1,vertex);
+            vertexNodesLocal[0] = vertex;
+            return;
         }
 
         const ReferenceGeometry* getCodim2ReferenceGeometry(const std::size_t) const;

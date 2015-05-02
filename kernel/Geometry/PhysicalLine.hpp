@@ -40,9 +40,9 @@ namespace Geometry
 
         virtual std::string             getName() const { return "PhysicalLine";}
 
-        std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t) const;
+        void getGlobalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const;
 
-        std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t) const;
+        void getLocalFaceNodeIndices(const std::size_t, std::vector<std::size_t>&) const;
     
         std::size_t getNrOfFaces() const;
     };

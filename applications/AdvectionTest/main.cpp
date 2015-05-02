@@ -227,7 +227,8 @@ public:
     {
         std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
         //Compute the physical coordinates of the reference point
-        PointPhysicalT pPhys = element->referenceToPhysical(point);
+        PointPhysicalT pPhys(DIM_);
+        element->referenceToPhysical(point, pPhys);
 
         //Resize the vector and compute the value of the basis function times the
         //value of the initial conditions in this point.
@@ -324,7 +325,8 @@ public:
             {
                 LinearAlgebra::NumericalVector temp;
                 element->getSolution(0, pRef, temp);
-                Geometry::PointPhysical pPhys = element->referenceToPhysical(pRef);
+                Geometry::PointPhysical pPhys(DIM_);
+                element->referenceToPhysical(pRef, pPhys);
                 //the error is the difference between the numerical solution and the analytical solution
                 return analyticalSolution(pPhys, endTime_) - temp[0];
             } });

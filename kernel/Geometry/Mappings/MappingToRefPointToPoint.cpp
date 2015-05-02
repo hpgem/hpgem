@@ -39,14 +39,14 @@ const MappingToRefPointToPoint& MappingToRefPointToPoint::Instance(){
 	return theInstance;
 }
 
-PointReference MappingToRefPointToPoint::transform(const Geometry::PointReference& p1) const
+void MappingToRefPointToPoint::transform(const Geometry::PointReference& p1, Geometry::PointReference& p2) const
 {
-    return PointReference(0);
+
 }
 
-Jacobian MappingToRefPointToPoint::calcJacobian(const Geometry::PointReference& p) const
+void MappingToRefPointToPoint::calcJacobian(const Geometry::PointReference& p, Geometry::Jacobian& jacobean) const
 {
-    return Jacobian(0,0);
+
 }
 
 

@@ -104,16 +104,16 @@ namespace Geometry
                 (p[3] >= -1.) && (p[3] <= 1.));
     }
     
-    PointReference
-    ReferenceHypercube::getCenter() const
+    void
+    ReferenceHypercube::getCenter(PointReferenceT& p) const
     {
-        return PointReference(4);
+        p[3] = p[2] = p[1] = p[0] = 0.;
     }
     
-    const PointReference&
-    ReferenceHypercube::getNode(const IndexT& i) const
+    void
+    ReferenceHypercube::getNode(const IndexT& i, PointReferenceT& point) const
     {
-        return points_[i];
+        point = points_[i];
     }
 
     std::ostream& operator<<(std::ostream& os, const ReferenceHypercube& hypercube)
@@ -172,11 +172,19 @@ namespace Geometry
         }
     }
 
-    std::vector<std::size_t> ReferenceHypercube::getCodim1EntityLocalIndices(const IndexT i) const
+    void ReferenceHypercube::getCodim1EntityLocalIndices(const IndexT i, ListOfIndexesT& faceNodesLocal) const
     {
         if (i < 8)
         {
-            return std::vector<std::size_t>(localNodeIndexes_[i],localNodeIndexes_[i]+8);
+            faceNodesLocal.resize(8); // 2 nodes per edge
+            faceNodesLocal[0] = localNodeIndexes_[i][0];
+            faceNodesLocal[1] = localNodeIndexes_[i][1];
+            faceNodesLocal[2] = localNodeIndexes_[i][2];
+            faceNodesLocal[3] = localNodeIndexes_[i][3];
+            faceNodesLocal[4] = localNodeIndexes_[i][4];
+            faceNodesLocal[5] = localNodeIndexes_[i][5];
+            faceNodesLocal[6] = localNodeIndexes_[i][6];
+            faceNodesLocal[7] = localNodeIndexes_[i][7];
         }
         else
         {
@@ -207,7 +215,7 @@ namespace Geometry
         }
     }
 
-    std::vector<std::size_t> ReferenceHypercube::getCodim2EntityLocalIndices(const IndexT i) const
+    void ReferenceHypercube::getCodim2EntityLocalIndices(const IndexT i, ListOfIndexesT& edgeNodesLocal) const
     {
         if (i < 24)
         {
@@ -221,7 +229,7 @@ namespace Geometry
 
     // ================================== Codimension 3 ============================================
 
-    std::vector<std::size_t> ReferenceHypercube::getCodim3EntityLocalIndices(const IndexT i) const
+    void ReferenceHypercube::getCodim3EntityLocalIndices(const IndexT i, ListOfIndexesT& edgeNodesLocal) const
     {
         if (i < 32)
         {

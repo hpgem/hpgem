@@ -39,20 +39,18 @@ namespace Geometry
         return theInstance;
     }
 
-    PointReference MappingToRefTriangleToTriangle0::transform(const Geometry::PointReference& p1) const
+    void MappingToRefTriangleToTriangle0::transform(const Geometry::PointReference& p1,
+                                                 Geometry::PointReference& p2) const
     {
-        PointReference p2(2);
         p2[0] = p1[0];
         p2[1] = p1[1];
-        return p2;
     }
 
-    Jacobian MappingToRefTriangleToTriangle0::calcJacobian(const Geometry::PointReference&) const
+    void MappingToRefTriangleToTriangle0::calcJacobian(const Geometry::PointReference&,
+                                                    Geometry::Jacobian& jacobian) const
     {
-        Jacobian jacobian(2,2);
         jacobian(0,0) = 1.0; jacobian(0,1) = 0.0;
         jacobian(1,0) = 0.0; jacobian(1,1) = 1.0;
-        return jacobian;
     }
 
     MappingToRefTriangleToTriangle0::MappingToRefTriangleToTriangle0() { }
@@ -68,20 +66,18 @@ namespace Geometry
         return theInstance;
     }
 
-    PointReference MappingToRefTriangleToTriangle1::transform(const Geometry::PointReference& p1) const
+    void MappingToRefTriangleToTriangle1::transform(const Geometry::PointReference& p1,
+                                                 Geometry::PointReference& p2) const
     {
-        PointReference p2(2);
         p2[0] = p1[1];
         p2[1] = p1[0];
-        return p2;
     }
 
-    Jacobian MappingToRefTriangleToTriangle1::calcJacobian(const Geometry::PointReference&) const
+    void MappingToRefTriangleToTriangle1::calcJacobian(const Geometry::PointReference&,
+                                                    Geometry::Jacobian& jacobian) const
     {
-        Jacobian jacobian(2,2);
         jacobian(0,0) =  0.0; jacobian(0,1) = 1.0;
         jacobian(1,0) =  1.0; jacobian(1,1) = 0.0;
-        return jacobian;
     }
 
     MappingToRefTriangleToTriangle1::MappingToRefTriangleToTriangle1() { }
@@ -97,20 +93,18 @@ namespace Geometry
         return theInstance;
     }
 
-    PointReference MappingToRefTriangleToTriangle2::transform(const Geometry::PointReference& p1) const
+    void MappingToRefTriangleToTriangle2::transform(const Geometry::PointReference& p1,
+                                                 Geometry::PointReference& p2) const
     {
-        PointReference p2(2);
         p2[0] = 1.0 - p1[0] - p1[1];
         p2[1] = p1[0];
-        return p2;
     }
 
-    Jacobian MappingToRefTriangleToTriangle2::calcJacobian(const Geometry::PointReference&) const
+    void MappingToRefTriangleToTriangle2::calcJacobian(const Geometry::PointReference&,
+                                                    Geometry::Jacobian& jacobian) const
     {
-        Jacobian jacobian(2,2);
         jacobian(0,0) = -1.0; jacobian(0,1) = -1.0;
         jacobian(1,0) =  1.0; jacobian(1,1) =  0.0;
-        return jacobian;
     }
 
     MappingToRefTriangleToTriangle2::MappingToRefTriangleToTriangle2() { }
@@ -126,20 +120,18 @@ namespace Geometry
         return theInstance;
     }
 
-    PointReference MappingToRefTriangleToTriangle3::transform(const Geometry::PointReference& p1) const
+    void MappingToRefTriangleToTriangle3::transform(const Geometry::PointReference& p1,
+                                                 Geometry::PointReference& p2) const
     {
-        PointReference p2(2);
         p2[0] = 1.0 - p1[0] - p1[1];
         p2[1] = p1[1];
-        return p2;
     }
 
-    Jacobian MappingToRefTriangleToTriangle3::calcJacobian(const Geometry::PointReference&) const
+    void MappingToRefTriangleToTriangle3::calcJacobian(const Geometry::PointReference&,
+                                                    Geometry::Jacobian& jacobian) const
     {
-        Jacobian jacobian(2,2);
         jacobian(0,0) = -1.0; jacobian(0,1) = -1.0;
         jacobian(1,0) =  0.0; jacobian(1,1) =  1.0;
-        return jacobian;
     }
 
     MappingToRefTriangleToTriangle3::MappingToRefTriangleToTriangle3() { }
@@ -155,20 +147,18 @@ namespace Geometry
         return theInstance;
     }
 
-    PointReference MappingToRefTriangleToTriangle4::transform(const Geometry::PointReference& p1) const
+    void MappingToRefTriangleToTriangle4::transform(const Geometry::PointReference& p1,
+                                                 Geometry::PointReference& p2) const
     {
-        PointReference p2(2);
         p2[0] = p1[0];
         p2[1] = 1.0 - p1[0] - p1[1];
-        return p2;
     }
 
-    Jacobian MappingToRefTriangleToTriangle4::calcJacobian(const Geometry::PointReference&) const
+    void MappingToRefTriangleToTriangle4::calcJacobian(const Geometry::PointReference&,
+                                                    Geometry::Jacobian& jacobian) const
     {
-        Jacobian jacobian(2,2);
         jacobian(0,0) =  1.0; jacobian(0,1) =  0.0;
         jacobian(1,0) = -1.0; jacobian(1,1) = -1.0;
-        return jacobian;
     }
 
     MappingToRefTriangleToTriangle4::MappingToRefTriangleToTriangle4() { }
@@ -184,20 +174,18 @@ namespace Geometry
         return theInstance;
     }
 
-    PointReference MappingToRefTriangleToTriangle5::transform(const Geometry::PointReference& p1) const
+    void MappingToRefTriangleToTriangle5::transform(const Geometry::PointReference& p1,
+                                                 Geometry::PointReference& p2) const
     {
-        PointReference p2(2);
         p2[0] = p1[1];
         p2[1] = 1.0 - p1[0] - p1[1];
-        return p2;
     }
 
-    Jacobian MappingToRefTriangleToTriangle5::calcJacobian(const Geometry::PointReference&) const
+    void MappingToRefTriangleToTriangle5::calcJacobian(const Geometry::PointReference&,
+                                                    Geometry::Jacobian& jacobian) const
     {
-        Jacobian jacobian(2,2);
         jacobian(0,0) =  0.0; jacobian(0,1) =  1.0;
         jacobian(1,0) = -1.0; jacobian(1,1) = -1.0;
-        return jacobian;
     }
 
     MappingToRefTriangleToTriangle5::MappingToRefTriangleToTriangle5() { }
