@@ -18,9 +18,9 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "ReferencePoint.hpp"
-#include "Mappings/MappingToRefPointToPoint.hpp"
-#include "PointReference.hpp"
+#include "ReferencePoint.h"
+#include "Mappings/MappingToRefPointToPoint.h"
+#include "PointReference.h"
 
 namespace Geometry
 {
@@ -29,40 +29,42 @@ namespace Geometry
      *                  0.
      *
      */
-    ReferencePoint::ReferencePoint():
-         ReferenceGeometry(1,0,POINT)
-    { 
+    ReferencePoint::ReferencePoint()
+            : ReferenceGeometry(1, 0, POINT)
+    {
         mappingsPointToPoint_ = &MappingToRefPointToPoint::Instance();
-    	points_[0] = Geometry::PointReference(0);
+        points_[0] = Geometry::PointReference(0);
     }
-
-    ReferencePoint::ReferencePoint(const ReferencePoint& copy):
-        ReferenceGeometry(copy),mappingsPointToPoint_(copy.mappingsPointToPoint_)
-    { }
-
+    
+    ReferencePoint::ReferencePoint(const ReferencePoint& copy)
+            : ReferenceGeometry(copy), mappingsPointToPoint_(copy.mappingsPointToPoint_)
+    {
+    }
+    
     bool ReferencePoint::isInternalPoint(const PointReference& p) const
     {
         return true;
     }
-
-    PointReference ReferencePoint::getCenter() const 
+    
+    PointReference ReferencePoint::getCenter() const
     {
         return PointReference(0);
     }
-
-    const PointReference& ReferencePoint::getNode(const IndexT& i) const 
+    
+    const PointReference& ReferencePoint::getNode(const IndexT& i) const
     {
         return points_[0];
     }
-
+    
     std::size_t ReferencePoint::getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const
     {
         return 0;
     }
-
+    
     const MappingReferenceToReference* ReferencePoint::getCodim0MappingPtr(const IndexT a) const
     {
         return mappingsPointToPoint_;
     }
 
-};
+}
+;

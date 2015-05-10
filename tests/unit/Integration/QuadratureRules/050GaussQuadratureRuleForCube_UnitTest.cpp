@@ -22,60 +22,71 @@
 //naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number that will make sure
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
-
-#include "Integration/QuadratureRules/GaussQuadratureRulesForCube.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRulesForCube.h"
 #include "Logger.h"
 #include <typeinfo>
 
-#include "Utilities/BasisFunctions3DH1ConformingCube.hpp"
-#include "Geometry/ReferenceCube.hpp"
-#include "Base/BasisFunctionSet.hpp"
-#include "Geometry/PointReference.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
+#include "Utilities/BasisFunctions3DH1ConformingCube.h"
+#include "Geometry/ReferenceCube.h"
+#include "Base/BasisFunctionSet.h"
+#include "Geometry/PointReference.h"
+#include "LinearAlgebra/NumericalVector.h"
 #include <cmath>
 
-void testRule(QuadratureRules::GaussQuadratureRule& test,std::size_t expectedOrder){
-	std::cout<<test.getName()<<std::endl;
-	logger.assert_always((test.dimension()==3),"dimension");
-	logger.assert_always((test.order()>=expectedOrder),"order");
-	logger.assert_always((typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferenceCube)),"forReferenceGeometry");
-	Geometry::PointReference point(3);
-
-	Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet3DH1Cube(expectedOrder);
-	std::cout.precision(14);
-	for(std::size_t i=0;i<functions->size();++i){
-		double integrated=0;
-		for(std::size_t j=0;j<test.nrOfPoints();++j){
-			point = test.getPoint(j);
-			integrated+=test.weight(j)*functions->eval(i,point);
-		}
-		if(i<8){
-			logger.assert_always((std::abs(integrated-1)<1e-12),"integration");
-		}else if(i<20){
-			logger.assert_always((std::abs(integrated+std::sqrt(2./3.))<1e-12),"integration");
-		}else if(i<26){
-			logger.assert_always((std::abs(integrated-2./3.)<1e-12),"integration");
-		}else if(i==26){
-			logger.assert_always((std::abs(integrated+std::sqrt(2./3.)*2./3.)<1e-12),"integration");
-		}else{
-			logger.assert_always((std::abs(integrated)<1e-12),"integration");
-		}
-
-	}
-
-	delete functions;
+void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOrder)
+{
+    std::cout << test.getName() << std::endl;
+    logger.assert_always((test.dimension() == 3), "dimension");
+    logger.assert_always((test.order() >= expectedOrder), "order");
+    logger.assert_always((typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferenceCube)), "forReferenceGeometry");
+    Geometry::PointReference point(3);
+    
+    Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet3DH1Cube(expectedOrder);
+    std::cout.precision(14);
+    for (std::size_t i = 0; i < functions->size(); ++i)
+    {
+        double integrated = 0;
+        for (std::size_t j = 0; j < test.nrOfPoints(); ++j)
+        {
+            point = test.getPoint(j);
+            integrated += test.weight(j) * functions->eval(i, point);
+        }
+        if (i < 8)
+        {
+            logger.assert_always((std::abs(integrated - 1) < 1e-12), "integration");
+        }
+        else if (i < 20)
+        {
+            logger.assert_always((std::abs(integrated + std::sqrt(2. / 3.)) < 1e-12), "integration");
+        }
+        else if (i < 26)
+        {
+            logger.assert_always((std::abs(integrated - 2. / 3.) < 1e-12), "integration");
+        }
+        else if (i == 26)
+        {
+            logger.assert_always((std::abs(integrated + std::sqrt(2. / 3.) * 2. / 3.) < 1e-12), "integration");
+        }
+        else
+        {
+            logger.assert_always((std::abs(integrated) < 1e-12), "integration");
+        }
+        
+    }
+    
+    delete functions;
 }
 
-int main(){
-
-	testRule(QuadratureRules::Cn3_1_1::Instance(),1);
-	testRule(QuadratureRules::Cn3_3_4::Instance(),3);
-	testRule(QuadratureRules::Cn3_5_9::Instance(),5);
-	testRule(QuadratureRules::C3_7_2::Instance(),7);
-	testRule(QuadratureRules::C3_9_2::Instance(),9);
-	testRule(QuadratureRules::C3_11_2::Instance(),10);///\BUG there are no 11th order polynomials yet...
-
-	return 0;
+int main()
+{
+    
+    testRule(QuadratureRules::Cn3_1_1::Instance(), 1);
+    testRule(QuadratureRules::Cn3_3_4::Instance(), 3);
+    testRule(QuadratureRules::Cn3_5_9::Instance(), 5);
+    testRule(QuadratureRules::C3_7_2::Instance(), 7);
+    testRule(QuadratureRules::C3_9_2::Instance(), 9);
+    testRule(QuadratureRules::C3_11_2::Instance(), 10); ///\BUG there are no 11th order polynomials yet...
+            
+    return 0;
 }
-
 

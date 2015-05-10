@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
-#include "Base/TimeIntegration/AllTimeIntegrators.hpp"
+#include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Logger.h"
 
 double executeOneTimeStep(const Base::ButcherTableau *integrator, double u, double dt)
@@ -20,7 +20,7 @@ double executeOneTimeStep(const Base::ButcherTableau *integrator, double u, doub
         }
         k.push_back(kNew);
     }
-
+    
     //Combine all temporary solutions to the solution for the next time step        
     double newVal = u;
     for (std::size_t i = 0; i < integrator->numStages(); ++i)
@@ -35,7 +35,6 @@ int main()
     const Base::ButcherTableau *integrator1 = Base::AllTimeIntegrators::Instance().getRule(1, 1);
     const Base::ButcherTableau *integrator2 = Base::AllTimeIntegrators::Instance().getRule(2, 2);
     const Base::ButcherTableau *integrator4 = Base::AllTimeIntegrators::Instance().getRule(4, 4);
-    
     
     double dt = 0.04;
     double u1 = 1;
@@ -83,15 +82,15 @@ int main()
     double error43 = std::abs(std::exp(1) - u4);
     
     //the first order method should return error1/error2 = 2
-    logger.assert_always(error11/error12 > 1.5 && error11/error12 < 2.5, "First order");
-    logger.assert_always(error12/error13 > 1.5 && error12/error13 < 2.5, "First order");
+    logger.assert_always(error11 / error12 > 1.5 && error11 / error12 < 2.5, "First order");
+    logger.assert_always(error12 / error13 > 1.5 && error12 / error13 < 2.5, "First order");
     
     //the second order method should return error1/error2 = 4
-    logger.assert_always(error21/error22 > 3.5 && error21/error22 < 4.5, "Second order");    
-    logger.assert_always(error22/error23 > 3.5 && error22/error23 < 4.5, "Second order");
+    logger.assert_always(error21 / error22 > 3.5 && error21 / error22 < 4.5, "Second order");
+    logger.assert_always(error22 / error23 > 3.5 && error22 / error23 < 4.5, "Second order");
     
     //the fourth order method should return error1/error2 = 16
-    logger.assert_always(error41/error42 > 15.5 && error41/error42 < 16.5, "Fourth order");    
-    logger.assert_always(error42/error43 > 15.5 && error42/error43 < 16.5, "Fourth order");
+    logger.assert_always(error41 / error42 > 15.5 && error41 / error42 < 16.5, "Fourth order");
+    logger.assert_always(error42 / error43 > 15.5 && error42 / error43 < 16.5, "Fourth order");
     return 0;
 }

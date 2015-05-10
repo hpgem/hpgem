@@ -21,22 +21,22 @@
 
 /* Test the functions that are added to deal with multiple variables for a system of PDE's.
  
-Functions to test:
--ElementData::convertToSingleIndex
--Element::getSolution
--Face::convertToSingleIndex
+ Functions to test:
+ -ElementData::convertToSingleIndex
+ -Element::getSolution
+ -Face::convertToSingleIndex
  */
 
 #include <iostream>
 
-#include "Base/AssembleBasisFunctionSet.hpp"
-#include "Base/BasisFunctionSet.hpp"
-#include "Base/Element.hpp"
-#include "Base/Face.hpp"
-#include "Base/FaceCacheData.hpp"
-#include "Base/Node.hpp"
-#include "Geometry/PointPhysical.hpp"
-#include "Geometry/PointReference.hpp"
+#include "Base/AssembleBasisFunctionSet.h"
+#include "Base/BasisFunctionSet.h"
+#include "Base/Element.h"
+#include "Base/Face.h"
+#include "Base/FaceCacheData.h"
+#include "Base/Node.h"
+#include "Geometry/PointPhysical.h"
+#include "Geometry/PointReference.h"
 
 int main()
 {
@@ -120,21 +120,20 @@ int main()
     
     Base::Node node2(2);
     node2.addElement(&elementLeft, 2);
-    node2.addElement(&elementRight,0);
+    node2.addElement(&elementRight, 0);
     
     Base::Node node3(3);
     node3.addElement(&elementLeft, 3);
-    node3.addElement(&elementRight,1);
+    node3.addElement(&elementRight, 1);
     
     Base::Node node4(4);
-    node4.addElement(&elementRight,2);
+    node4.addElement(&elementRight, 2);
     
     Base::Node node5(5);
-    node5.addElement(&elementRight,3);
+    node5.addElement(&elementRight, 3);
     
     std::cout << "Build face.\n";
     Base::Face face(&elementLeft, elementLeftFaceId, &elementRight, elementRightFaceId, faceId, nrOfFaceMatrices);
-    
     
     // Declare indices.
     std::size_t i;
@@ -144,35 +143,33 @@ int main()
     std::size_t iB;
     std::size_t iTimeLevel = 0;
     
-    
     std::cout << "Do tests for the elements.\n";
     // Test ElementData::convertToSingleIndex.
     /* Every pair (iV,iB) should be mapped to a unique index iVB. Here iV = 0 .. nrOfUnknowns - 1 is the index corresponding to the variable and iB = 0 .. nrOfBasisFunctions - 1 is the index corresponding to the basis function.
      */
     std::vector<bool> checkMappingElementIndex(nrOfBasisFunctions * nrOfUnknowns, false);
-    for(iV = 0; iV < nrOfUnknowns; iV++)
+    for (iV = 0; iV < nrOfUnknowns; iV++)
     {
-        for(iB = 0; iB < nrOfBasisFunctions; iB++)
+        for (iB = 0; iB < nrOfBasisFunctions; iB++)
         {
-            iVB = elementLeft.convertToSingleIndex(iB,iV);
+            iVB = elementLeft.convertToSingleIndex(iB, iV);
             std::cout << "iV: " << iV << " ,iB: " << iB << " ,iVB: " << iVB << "\n";
             checkMappingElementIndex[iVB] = true;
         }
     }
-    for(iVB = 0; iVB < nrOfBasisFunctions * nrOfUnknowns; iVB++)
+    for (iVB = 0; iVB < nrOfBasisFunctions * nrOfUnknowns; iVB++)
     {
         logger.assert_always(checkMappingElementIndex[iVB], "Element mapping index check failed: %", iVB);
     }
     
-    
     // Test Element::getSolution.
     LinearAlgebra::NumericalVector expansionCoefficients(nrOfBasisFunctions * nrOfUnknowns);
-    for(iV = 0; iV < nrOfUnknowns; iV++)
+    for (iV = 0; iV < nrOfUnknowns; iV++)
     {
-        for(iB = 0; iB < nrOfBasisFunctions; iB++)
+        for (iB = 0; iB < nrOfBasisFunctions; iB++)
         {
-            iVB = elementLeft.convertToSingleIndex(iB,iV);
-            expansionCoefficients(iVB) = iV + 1;   // Some arbitrary value
+            iVB = elementLeft.convertToSingleIndex(iB, iV);
+            expansionCoefficients(iVB) = iV + 1; // Some arbitrary value
         }
     }
     elementRight.setTimeLevelDataVector(iTimeLevel, expansionCoefficients);
@@ -181,12 +178,10 @@ int main()
     
     Geometry::PointReference pointReference(coords0);
     LinearAlgebra::NumericalVector solutionVector = elementRight.getSolution(iTimeLevel, pointReference);
-    for(iV = 0; iV < nrOfUnknowns; iV++)
+    for (iV = 0; iV < nrOfUnknowns; iV++)
     {
-        logger.assert_always(solutionVector(iV) == (iV + 1) * solutionVector(0), "Solution vector test failed (%): % != (% + 1) * %",
-                                     iV, solutionVector(iV), iV, solutionVector(0));
+        logger.assert_always(solutionVector(iV) == (iV + 1) * solutionVector(0), "Solution vector test failed (%): % != (% + 1) * %", iV, solutionVector(iV), iV, solutionVector(0));
     }
-    
     
     std::cout << "Do tests for the face.\n";
     // Test Face::convertToSingleIndex.
@@ -196,23 +191,23 @@ int main()
     std::vector<Base::Side> allSides;
     allSides.push_back(Base::Side::LEFT);
     allSides.push_back(Base::Side::RIGHT);
-    for(Base::Side iS : allSides)
+    for (Base::Side iS : allSides)
     {
-        for(iV = 0; iV < nrOfUnknowns; iV++)
+        for (iV = 0; iV < nrOfUnknowns; iV++)
         {
-            for(iB = 0; iB < nrOfBasisFunctions; iB++)
+            for (iB = 0; iB < nrOfBasisFunctions; iB++)
             {
-                i = face.convertToSingleIndex(iS,iB,iV);
-                if(iS == Base::Side::LEFT)
-                    std::cout << "iS: LEFT" ;
+                i = face.convertToSingleIndex(iS, iB, iV);
+                if (iS == Base::Side::LEFT)
+                    std::cout << "iS: LEFT";
                 else
-                    std::cout << "iS: RIGHT" ;
+                    std::cout << "iS: RIGHT";
                 std::cout << " ,iV: " << iV << " ,iB: " << iB << " ,i: " << i << "\n";
                 checkMappingFaceIndex[i] = true;
             }
         }
     }
-    for(i = 0; i < nrOfBasisFunctions * nrOfUnknowns * 2; i++)
+    for (i = 0; i < nrOfBasisFunctions * nrOfUnknowns * 2; i++)
     {
         logger.assert_always(checkMappingFaceIndex[i], "Face mapping index failed: %", i);
     }

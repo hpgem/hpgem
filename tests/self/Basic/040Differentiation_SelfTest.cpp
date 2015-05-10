@@ -19,83 +19,79 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-
-
-#include "Base/MeshManipulator.hpp"
-#include "Base/RectangularMeshDescriptor.hpp"
-#include "Integration/ElementIntegral.hpp"
-#include "Base/ShortTermStorageElementH1.hpp"
-#include "Integration/ElementIntegrandBase.hpp"
+#include "Base/MeshManipulator.h"
+#include "Base/RectangularMeshDescriptor.h"
+#include "Integration/ElementIntegral.h"
+#include "Base/ShortTermStorageElementH1.h"
+#include "Integration/ElementIntegrandBase.h"
 
 #include "unordered_set"
 #include "Logger.h"
 
-#include "Utilities/BasisFunctions1DH1ConformingLine.hpp"
-#include "Utilities/BasisFunctions2DH1ConformingSquare.hpp"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
-#include "Utilities/BasisFunctions3DH1ConformingCube.hpp"
-#include "Utilities/BasisFunctions3DH1ConformingTetrahedron.hpp"
-#include "Base/ConfigurationData.hpp"
-#include "Base/L2Norm.hpp"
-#include "Base/ElementCacheData.hpp"
-#include "Base/CommandLineOptions.hpp"
+#include "Utilities/BasisFunctions1DH1ConformingLine.h"
+#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
+#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
+#include "Utilities/BasisFunctions3DH1ConformingCube.h"
+#include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
+#include "Base/ConfigurationData.h"
+#include "Base/L2Norm.h"
+#include "Base/ElementCacheData.h"
+#include "Base/CommandLineOptions.h"
 #include <cmath>
-
 
 //computes \int_\Omega (\nabla f)^2 dx by interpolating f and then integrating using basisFunctionDerivatives
 void testMesh(Base::MeshManipulator* test)
 {
-
+    
     class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
     {
-
+        
         void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
         {
             std::size_t numBasisFuns = el->getNrOfBasisFunctions();
             ret.resize(numBasisFuns);
             Geometry::PointPhysical pPhys = el->referenceToPhysical(p);
-            for(std::size_t i = 0; i < numBasisFuns; ++i)
+            for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
                 ret[i] = el->basisFunction(i, p);
-                for(std::size_t j = 0; j < p.size(); ++j)
+                for (std::size_t j = 0; j < p.size(); ++j)
                 {
                     ret[i] *= pPhys[j];
                 }
             }
         }
     } interpolation;
-
+    
     class : public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
     {
-
+        
         void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret)
         {
             std::size_t numBasisFuns = el->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
-            for(std::size_t i = 0; i < numBasisFuns; ++i)
+            for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
-                for(std::size_t j = 0; j < numBasisFuns; ++j)
+                for (std::size_t j = 0; j < numBasisFuns; ++j)
                 {
                     ret(i, j) = el->basisFunction(i, p) * el->basisFunction(j, p);
                 }
             }
         }
     } massMatrix;
-
+    
     class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
     {
-
+        
         void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
         {
             ret.resize(1);
             std::size_t n = el->getNrOfBasisFunctions();
             LinearAlgebra::NumericalVector temp1(p.size()), temp2(p.size());
-            for(std::size_t i = 0; i < p.size(); ++i)
+            for (std::size_t i = 0; i < p.size(); ++i)
             {
                 temp1[i] = 0;
             }
-            for(std::size_t i = 0; i < n; ++i)
+            for (std::size_t i = 0; i < n; ++i)
             {
                 temp2 = el->basisFunctionDeriv(i, p);
                 temp1 += temp2 * el->getData(0, 0, i);
@@ -106,35 +102,34 @@ void testMesh(Base::MeshManipulator* test)
             //std::cout<<ret[0]<<std::endl;
         }
     } integrating;
-
+    
     std::cout.precision(14);
     Integration::ElementIntegral elIntegral(false);
     elIntegral.setStorageWrapper(new Base::ShortTermStorageElementH1(test->dimension()));
     double total = 0;
     LinearAlgebra::NumericalVector result(1), expansion;
     LinearAlgebra::Matrix M;
-    for(Base::Element* element : test->getElementsList())
+    for (Base::Element* element : test->getElementsList())
     {
         expansion = elIntegral.integrate(element, &interpolation);
         M = elIntegral.integrate(element, &massMatrix);
-
+        
         //M.inverse(M);
         //expansion = expansion * M;
         M.solve(expansion);
         element->setTimeLevelData(0, expansion);
-
+        
         result = elIntegral.integrate(element, &integrating);
-
+        
         //std::cout<<result[0]<<std::endl;
         total += result[0];
     }
-
+    
     std::cout << total << " " << std::endl;
     //logger.assert_always((std::abs(total - 4. / 3. + 1. / 3. * test->dimension()) < 1e-12), "derivatives");
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
     // dim 1
@@ -157,7 +152,7 @@ main(int argc, char** argv)
     description3D.boundaryConditions_[0] = Base::RectangularMeshDescriptor::SOLID_WALL;
     description3D.boundaryConditions_[1] = Base::RectangularMeshDescriptor::SOLID_WALL;
     description3D.boundaryConditions_[2] = Base::RectangularMeshDescriptor::SOLID_WALL;
-
+    
     description1D.numElementsInDIM_[0] = 2;
     //1D triangular meshes dont exist
     Base::MeshManipulator *test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 1), false, false, false, 2, 0);
@@ -165,7 +160,7 @@ main(int argc, char** argv)
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet1DH1Line(2));
     testMesh(test);
-
+    
     delete test;
     description1D.numElementsInDIM_[0] = 3;
     test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 1), false, false, false, 2, 0);
@@ -173,38 +168,38 @@ main(int argc, char** argv)
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet1DH1Line(2));
     testMesh(test);
-
+    
     // dim 2
-
+    
     delete test;
     description2D.numElementsInDIM_[0] = 2;
     description2D.numElementsInDIM_[1] = 3;
-
+    
     test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), false, false, false, 2, 0);
     test->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
-
+    
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
     testMesh(test);
-
+    
     delete test;
     test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), false, false, false, 2, 0);
     test->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
     testMesh(test);
-
+    
     delete test;
     description2D.numElementsInDIM_[0] = 3;
     description2D.numElementsInDIM_[1] = 2;
-
+    
     test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), false, false, false, 2, 0);
     test->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
-
+    
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
     testMesh(test);
-
+    
     delete test;
     test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), false, false, false, 2, 0);
     test->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
@@ -212,20 +207,20 @@ main(int argc, char** argv)
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
     testMesh(test);
     // dim 3
-
+    
     delete test;
     description3D.numElementsInDIM_[0] = 2;
     description3D.numElementsInDIM_[1] = 2;
     description3D.numElementsInDIM_[2] = 3;
-
+    
     Base::ConfigurationData* configData = new Base::ConfigurationData(3, 1, 3, 1);
     test = new Base::MeshManipulator(configData, false, false, false, 3, 0);
     test->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
-
+    
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
     testMesh(test);
-
+    
     delete test;
     delete configData;
     
@@ -235,22 +230,22 @@ main(int argc, char** argv)
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
     testMesh(test);
-
+    
     delete test;
     delete configData;
     
     description3D.numElementsInDIM_[0] = 2;
     description3D.numElementsInDIM_[1] = 3;
     description3D.numElementsInDIM_[2] = 2;
-
+    
     configData = new Base::ConfigurationData(3, 1, 3, 1);
     test = new Base::MeshManipulator(configData, false, false, false, 3, 0);
     test->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
-
+    
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
     testMesh(test);
-
+    
     delete test;
     delete configData;
     
@@ -260,7 +255,7 @@ main(int argc, char** argv)
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
     testMesh(test);
-
+    
     delete test;
     delete configData;
     
@@ -271,11 +266,11 @@ main(int argc, char** argv)
     configData = new Base::ConfigurationData(3, 1, 3, 1);
     test = new Base::MeshManipulator(configData, false, false, false, 3, 0);
     test->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
-
+    
     testMesh(test);
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
     testMesh(test);
-
+    
     delete test;
     delete configData;
     
@@ -288,7 +283,7 @@ main(int argc, char** argv)
     
     delete test;
     delete configData;
-
+    
     return 0;
 }
 

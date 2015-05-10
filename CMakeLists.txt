@@ -33,7 +33,7 @@ endif(NOT CMAKE_CXX_FLAGS)
 #############################################
 
 configure_file(conf/cmake/CMakeDefinitions.conf
-		${PROJECT_BINARY_DIR}/kernel/CMakeDefinitions.hpp)
+		${PROJECT_BINARY_DIR}/kernel/CMakeDefinitions.h)
 
 
 #Make the default build release is this in what a normal user wants

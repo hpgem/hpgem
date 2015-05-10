@@ -22,157 +22,165 @@
 //naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number that will make sure
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
-
-#include "Geometry/PhysicalPyramid.hpp"
+#include "Geometry/PhysicalPyramid.h"
 #include "Logger.h"
-#include "Geometry/PointPhysical.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/ReferencePyramid.hpp"
+#include "Geometry/PointPhysical.h"
+#include "Geometry/PointReference.h"
+#include "Geometry/ReferencePyramid.h"
 
 #include <cmath>
 using Geometry::PhysicalPyramid;
 
-int main(){
-
-	std::vector<std::size_t> pointIndexes;
-	std::vector<Geometry::PointPhysical> nodes;
-
-	Geometry::PointPhysical point(3);
-
-	pointIndexes.push_back(4);
-	pointIndexes.push_back(7);
-	pointIndexes.push_back(10);
-	pointIndexes.push_back(11);
-	pointIndexes.push_back(12);
-
-	for(double i=0.;i<1-1e-10;i += 0.1){
-		point[0]=1.+i;
-		point[1]=2.+i;
-		point[2]=3.+i;
-		nodes.push_back(point);
-	}
-
-	point[0]=3.5;
-	point[1]=4.6;
-	point[2]=5.4;
-	nodes.push_back(point);
-	point[0]=6.7;
-	point[1]=2.8;
-	point[2]=5.7;
-	nodes.push_back(point);
-	point[0]=1.4;
-	point[1]=2.4;
-	point[2]=5.4;
-	nodes.push_back(point);
-
-	PhysicalPyramid test(pointIndexes,nodes);
-
-	std::cout<<test;
-
-	pointIndexes = test.getNodeIndexes();
-
-	logger.assert_always((pointIndexes[0]==4&&pointIndexes[1]==7&&pointIndexes[2]==10&&pointIndexes[3]==11&&pointIndexes[4]==12),"getNodeIndexes");
-	logger.assert_always((nodes==test.getNodes()),"getNodes");
-	logger.assert_always((test.getNodeIndex(0)==4&&test.getNodeIndex(1)==7&&test.getNodeIndex(2)==10&&test.getNodeIndex(3)==11&&test.getNodeIndex(4)==12),"getNodeIndex");
-
-	std::cout<<test.getName();
-
-	point = *test.getNodePtr(test.getNodeIndex(0));
-	logger.assert_always((std::abs(point[0]-1.4)<1e-12),"getNodePtr");
-	logger.assert_always((std::abs(point[1]-2.4)<1e-12),"getNodePtr");
-	logger.assert_always((std::abs(point[2]-3.4)<1e-12),"getNodePtr");
-	point = *test.getNodePtr(test.getNodeIndex(1));
-	logger.assert_always((std::abs(point[0]-1.7)<1e-12),"getNodePtr");
-	logger.assert_always((std::abs(point[1]-2.7)<1e-12),"getNodePtr");
-	logger.assert_always((std::abs(point[2]-3.7)<1e-12),"getNodePtr");
-
-	logger.assert_always((test.getNumberOfNodes()==5),"getNumberOfNodes");
-
-	point = test.getNodeCoordinates(0);
-	logger.assert_always((std::abs(point[0]-1.4)<1e-12),"getNodeCoordinates");
-	logger.assert_always((std::abs(point[1]-2.4)<1e-12),"getNodeCoordinates");
-	logger.assert_always((std::abs(point[2]-3.4)<1e-12),"getNodeCoordinates");
-	point = test.getNodeCoordinates(1);
-	logger.assert_always((std::abs(point[0]-1.7)<1e-12),"getNodeCoordinates");
-	logger.assert_always((std::abs(point[1]-2.7)<1e-12),"getNodeCoordinates");
-	logger.assert_always((std::abs(point[2]-3.7)<1e-12),"getNodeCoordinates");
-	point = test.getNodeCoordinates(2);
-	logger.assert_always((std::abs(point[0]-3.5)<1e-12),"getNodeCoordinates");
-	logger.assert_always((std::abs(point[1]-4.6)<1e-12),"getNodeCoordinates");
-	logger.assert_always((std::abs(point[2]-5.4)<1e-12),"getNodeCoordinates");
-	point = test.getNodeCoordinates(3);
-	logger.assert_always((std::abs(point[0]-6.7)<1e-12),"getNodeCoordinates");
-	logger.assert_always((std::abs(point[1]-2.8)<1e-12),"getNodeCoordinates");
-	logger.assert_always((std::abs(point[2]-5.7)<1e-12),"getNodeCoordinates");
-	point = test.getNodeCoordinates(4);
-	logger.assert_always((std::abs(point[0]-1.4)<1e-12),"getNodeCoordinates");
-	logger.assert_always((std::abs(point[1]-2.4)<1e-12),"getNodeCoordinates");
-	logger.assert_always((std::abs(point[2]-5.4)<1e-12),"getNodeCoordinates");
-
-	point = test.getLocalNodeCoordinates(0);
-	logger.assert_always((std::abs(point[0]-1.4)<1e-12),"getLocalNodeCoordinates");
-	logger.assert_always((std::abs(point[1]-2.4)<1e-12),"getLocalNodeCoordinates");
-	logger.assert_always((std::abs(point[2]-3.4)<1e-12),"getLocalNodeCoordinates");
-	point = test.getLocalNodeCoordinates(1);
-	logger.assert_always((std::abs(point[0]-1.7)<1e-12),"getLocalNodeCoordinates");
-	logger.assert_always((std::abs(point[1]-2.7)<1e-12),"getLocalNodeCoordinates");
-	logger.assert_always((std::abs(point[2]-3.7)<1e-12),"getLocalNodeCoordinates");
-	point = test.getLocalNodeCoordinates(2);
-	logger.assert_always((std::abs(point[0]-3.5)<1e-12),"getLocalNodeCoordinates");
-	logger.assert_always((std::abs(point[1]-4.6)<1e-12),"getLocalNodeCoordinates");
-	logger.assert_always((std::abs(point[2]-5.4)<1e-12),"getLocalNodeCoordinates");
-	point = test.getLocalNodeCoordinates(3);
-	logger.assert_always((std::abs(point[0]-6.7)<1e-12),"getLocalNodeCoordinates");
-	logger.assert_always((std::abs(point[1]-2.8)<1e-12),"getLocalNodeCoordinates");
-	logger.assert_always((std::abs(point[2]-5.7)<1e-12),"getLocalNodeCoordinates");
-	point = test.getLocalNodeCoordinates(4);
-	logger.assert_always((std::abs(point[0]-1.4)<1e-12),"getLocalNodeCoordinates");
-	logger.assert_always((std::abs(point[1]-2.4)<1e-12),"getLocalNodeCoordinates");
-	logger.assert_always((std::abs(point[2]-5.4)<1e-12),"getLocalNodeCoordinates");
-
-	for(std::size_t i=0;i<10;++i){
-		point = test.getGlobalNodeCoordinates(i);
-		logger.assert_always((std::abs(point[0]-1.-i/10.)<1e-12),"getGlobalNodeCoordinates");
-		logger.assert_always((std::abs(point[1]-2.-i/10.)<1e-12),"getGlobalNodeCoordinates");
-		logger.assert_always((std::abs(point[2]-3.-i/10.)<1e-12),"getGlobalNodeCoordinates");
-	}
-
-	pointIndexes.resize(4);
-	for(std::size_t i=0;i<1;++i){
-		pointIndexes = test.getGlobalFaceNodeIndices(i);
-		for(std::size_t j=0;j<4;++j){
-			logger.assert_always((pointIndexes[j]==test.getNodeIndex(test.getRefGeometry()->getLocalNodeIndex(i,j))),"getGlobalFaceNodeIndices");
-		}
-	}
-	pointIndexes.resize(3);
-	for(std::size_t i=1;i<5;++i){
-		pointIndexes = test.getGlobalFaceNodeIndices(i);
-		for(std::size_t j=0;j<3;++j){
-			logger.assert_always((pointIndexes[j]==test.getNodeIndex(test.getRefGeometry()->getLocalNodeIndex(i,j))),"getGlobalFaceNodeIndices");
-		}
-	}
-
-	pointIndexes.resize(4);
-	for(std::size_t i=0;i<1;++i){
-		pointIndexes = test.getLocalFaceNodeIndices(i);
-		for(std::size_t j=0;j<4;++j){
-			logger.assert_always((pointIndexes[j]==test.getRefGeometry()->getLocalNodeIndex(i,j)),"getLocalFaceNodeIndices");
-		}
-	}
-	pointIndexes.resize(3);
-	for(std::size_t i=1;i<5;++i){
-		pointIndexes = test.getLocalFaceNodeIndices(i);
-		for(std::size_t j=0;j<3;++j){
-			logger.assert_always((pointIndexes[j]==test.getRefGeometry()->getLocalNodeIndex(i,j)),"getLocalFaceNodeIndices");
-		}
-	}
-
-	logger.assert_always((test.getNrOfFaces()==5),"getNrOfFaces");
-
-	logger.assert_always((test.getRefGeometry()==&Geometry::ReferencePyramid::Instance()),"getRefGeometry");
-
-
-	return 0;
+int main()
+{
+    
+    std::vector<std::size_t> pointIndexes;
+    std::vector<Geometry::PointPhysical> nodes;
+    
+    Geometry::PointPhysical point(3);
+    
+    pointIndexes.push_back(4);
+    pointIndexes.push_back(7);
+    pointIndexes.push_back(10);
+    pointIndexes.push_back(11);
+    pointIndexes.push_back(12);
+    
+    for (double i = 0.; i < 1 - 1e-10; i += 0.1)
+    {
+        point[0] = 1. + i;
+        point[1] = 2. + i;
+        point[2] = 3. + i;
+        nodes.push_back(point);
+    }
+    
+    point[0] = 3.5;
+    point[1] = 4.6;
+    point[2] = 5.4;
+    nodes.push_back(point);
+    point[0] = 6.7;
+    point[1] = 2.8;
+    point[2] = 5.7;
+    nodes.push_back(point);
+    point[0] = 1.4;
+    point[1] = 2.4;
+    point[2] = 5.4;
+    nodes.push_back(point);
+    
+    PhysicalPyramid test(pointIndexes, nodes);
+    
+    std::cout << test;
+    
+    pointIndexes = test.getNodeIndexes();
+    
+    logger.assert_always((pointIndexes[0] == 4 && pointIndexes[1] == 7 && pointIndexes[2] == 10 && pointIndexes[3] == 11 && pointIndexes[4] == 12), "getNodeIndexes");
+    logger.assert_always((nodes == test.getNodes()), "getNodes");
+    logger.assert_always((test.getNodeIndex(0) == 4 && test.getNodeIndex(1) == 7 && test.getNodeIndex(2) == 10 && test.getNodeIndex(3) == 11 && test.getNodeIndex(4) == 12), "getNodeIndex");
+    
+    std::cout << test.getName();
+    
+    point = *test.getNodePtr(test.getNodeIndex(0));
+    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getNodePtr");
+    logger.assert_always((std::abs(point[1] - 2.4) < 1e-12), "getNodePtr");
+    logger.assert_always((std::abs(point[2] - 3.4) < 1e-12), "getNodePtr");
+    point = *test.getNodePtr(test.getNodeIndex(1));
+    logger.assert_always((std::abs(point[0] - 1.7) < 1e-12), "getNodePtr");
+    logger.assert_always((std::abs(point[1] - 2.7) < 1e-12), "getNodePtr");
+    logger.assert_always((std::abs(point[2] - 3.7) < 1e-12), "getNodePtr");
+    
+    logger.assert_always((test.getNumberOfNodes() == 5), "getNumberOfNodes");
+    
+    point = test.getNodeCoordinates(0);
+    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getNodeCoordinates");
+    logger.assert_always((std::abs(point[1] - 2.4) < 1e-12), "getNodeCoordinates");
+    logger.assert_always((std::abs(point[2] - 3.4) < 1e-12), "getNodeCoordinates");
+    point = test.getNodeCoordinates(1);
+    logger.assert_always((std::abs(point[0] - 1.7) < 1e-12), "getNodeCoordinates");
+    logger.assert_always((std::abs(point[1] - 2.7) < 1e-12), "getNodeCoordinates");
+    logger.assert_always((std::abs(point[2] - 3.7) < 1e-12), "getNodeCoordinates");
+    point = test.getNodeCoordinates(2);
+    logger.assert_always((std::abs(point[0] - 3.5) < 1e-12), "getNodeCoordinates");
+    logger.assert_always((std::abs(point[1] - 4.6) < 1e-12), "getNodeCoordinates");
+    logger.assert_always((std::abs(point[2] - 5.4) < 1e-12), "getNodeCoordinates");
+    point = test.getNodeCoordinates(3);
+    logger.assert_always((std::abs(point[0] - 6.7) < 1e-12), "getNodeCoordinates");
+    logger.assert_always((std::abs(point[1] - 2.8) < 1e-12), "getNodeCoordinates");
+    logger.assert_always((std::abs(point[2] - 5.7) < 1e-12), "getNodeCoordinates");
+    point = test.getNodeCoordinates(4);
+    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getNodeCoordinates");
+    logger.assert_always((std::abs(point[1] - 2.4) < 1e-12), "getNodeCoordinates");
+    logger.assert_always((std::abs(point[2] - 5.4) < 1e-12), "getNodeCoordinates");
+    
+    point = test.getLocalNodeCoordinates(0);
+    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getLocalNodeCoordinates");
+    logger.assert_always((std::abs(point[1] - 2.4) < 1e-12), "getLocalNodeCoordinates");
+    logger.assert_always((std::abs(point[2] - 3.4) < 1e-12), "getLocalNodeCoordinates");
+    point = test.getLocalNodeCoordinates(1);
+    logger.assert_always((std::abs(point[0] - 1.7) < 1e-12), "getLocalNodeCoordinates");
+    logger.assert_always((std::abs(point[1] - 2.7) < 1e-12), "getLocalNodeCoordinates");
+    logger.assert_always((std::abs(point[2] - 3.7) < 1e-12), "getLocalNodeCoordinates");
+    point = test.getLocalNodeCoordinates(2);
+    logger.assert_always((std::abs(point[0] - 3.5) < 1e-12), "getLocalNodeCoordinates");
+    logger.assert_always((std::abs(point[1] - 4.6) < 1e-12), "getLocalNodeCoordinates");
+    logger.assert_always((std::abs(point[2] - 5.4) < 1e-12), "getLocalNodeCoordinates");
+    point = test.getLocalNodeCoordinates(3);
+    logger.assert_always((std::abs(point[0] - 6.7) < 1e-12), "getLocalNodeCoordinates");
+    logger.assert_always((std::abs(point[1] - 2.8) < 1e-12), "getLocalNodeCoordinates");
+    logger.assert_always((std::abs(point[2] - 5.7) < 1e-12), "getLocalNodeCoordinates");
+    point = test.getLocalNodeCoordinates(4);
+    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getLocalNodeCoordinates");
+    logger.assert_always((std::abs(point[1] - 2.4) < 1e-12), "getLocalNodeCoordinates");
+    logger.assert_always((std::abs(point[2] - 5.4) < 1e-12), "getLocalNodeCoordinates");
+    
+    for (std::size_t i = 0; i < 10; ++i)
+    {
+        point = test.getGlobalNodeCoordinates(i);
+        logger.assert_always((std::abs(point[0] - 1. - i / 10.) < 1e-12), "getGlobalNodeCoordinates");
+        logger.assert_always((std::abs(point[1] - 2. - i / 10.) < 1e-12), "getGlobalNodeCoordinates");
+        logger.assert_always((std::abs(point[2] - 3. - i / 10.) < 1e-12), "getGlobalNodeCoordinates");
+    }
+    
+    pointIndexes.resize(4);
+    for (std::size_t i = 0; i < 1; ++i)
+    {
+        pointIndexes = test.getGlobalFaceNodeIndices(i);
+        for (std::size_t j = 0; j < 4; ++j)
+        {
+            logger.assert_always((pointIndexes[j] == test.getNodeIndex(test.getRefGeometry()->getLocalNodeIndex(i, j))), "getGlobalFaceNodeIndices");
+        }
+    }
+    pointIndexes.resize(3);
+    for (std::size_t i = 1; i < 5; ++i)
+    {
+        pointIndexes = test.getGlobalFaceNodeIndices(i);
+        for (std::size_t j = 0; j < 3; ++j)
+        {
+            logger.assert_always((pointIndexes[j] == test.getNodeIndex(test.getRefGeometry()->getLocalNodeIndex(i, j))), "getGlobalFaceNodeIndices");
+        }
+    }
+    
+    pointIndexes.resize(4);
+    for (std::size_t i = 0; i < 1; ++i)
+    {
+        pointIndexes = test.getLocalFaceNodeIndices(i);
+        for (std::size_t j = 0; j < 4; ++j)
+        {
+            logger.assert_always((pointIndexes[j] == test.getRefGeometry()->getLocalNodeIndex(i, j)), "getLocalFaceNodeIndices");
+        }
+    }
+    pointIndexes.resize(3);
+    for (std::size_t i = 1; i < 5; ++i)
+    {
+        pointIndexes = test.getLocalFaceNodeIndices(i);
+        for (std::size_t j = 0; j < 3; ++j)
+        {
+            logger.assert_always((pointIndexes[j] == test.getRefGeometry()->getLocalNodeIndex(i, j)), "getLocalFaceNodeIndices");
+        }
+    }
+    
+    logger.assert_always((test.getNrOfFaces() == 5), "getNrOfFaces");
+    
+    logger.assert_always((test.getRefGeometry() == &Geometry::ReferencePyramid::Instance()), "getRefGeometry");
+    
+    return 0;
 }
-
 

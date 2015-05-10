@@ -23,50 +23,45 @@
 #include <cmath>
 //---------------------------------------------------------------------------
 // Package includes:
-#include "Integration/GlobalNamespaceIntegration.hpp"
-#include "Integration/QuadratureRules/GaussQuadratureRulesForLine.hpp"
+#include "Integration/GlobalNamespaceIntegration.h"
+#include "Integration/QuadratureRules/GaussQuadratureRulesForLine.h"
 
-#include "Geometry/ReferenceLine.hpp"
-#include "Geometry/PointReference.hpp"
+#include "Geometry/ReferenceLine.h"
+#include "Geometry/PointReference.h"
 using Geometry::ReferenceLine;
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules
 {
 //---------------------------------------------------------------------------
-    std::string
-    Cn1_1_1::getName() const
+    std::string Cn1_1_1::getName() const
     {
         return name_;
     }
-
-    std::size_t
-    Cn1_1_1::order() const
+    
+    std::size_t Cn1_1_1::order() const
     {
         return 1;
     }
-
-    std::size_t
-    Cn1_1_1::dimension() const
+    
+    std::size_t Cn1_1_1::dimension() const
     {
         return 1;
     }
-
-    std::size_t
-    Cn1_1_1::nrOfPoints() const
+    
+    std::size_t Cn1_1_1::nrOfPoints() const
     {
         return 1;
     }
-
-    double
-    Cn1_1_1::weight(std::size_t i) const
+    
+    double Cn1_1_1::weight(std::size_t i) const
     {
         if (i < 1)
             return weight_[i];
         else
             throw name_ + "::weight - wrong index!";
     }
-
+    
     const Geometry::PointReference&
     Cn1_1_1::getPoint(std::size_t i) const
     {
@@ -75,58 +70,53 @@ namespace QuadratureRules
         else
             throw name_ + "::getPoint -  wrong index!";
     }
-
+    
     Cn1_1_1::ReferenceGeometryT* Cn1_1_1::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
-
-    Cn1_1_1::Cn1_1_1():
-        name_("Cn1_1_1"),
-        refGeoPtr_(&ReferenceLine::Instance()),gp_(1,1)
+    
+    Cn1_1_1::Cn1_1_1()
+            : name_("Cn1_1_1"), refGeoPtr_(&ReferenceLine::Instance()), gp_(1, 1)
     {
         weight_[0] = 2.0;
         gp_[0][0] = 0.0;
-
+        
     }
-
+    
     Cn1_1_1::~Cn1_1_1()
     {
     }
-
+    
 //---------------------------------------------------------------------------
     std::string Cn1_3_4::getName() const
     {
         return name_;
     }
-
-    std::size_t
-    Cn1_3_4::order() const
+    
+    std::size_t Cn1_3_4::order() const
     {
         return 3;
     }
-
-    std::size_t
-    Cn1_3_4::dimension() const
+    
+    std::size_t Cn1_3_4::dimension() const
     {
         return 1;
     }
-
-    std::size_t
-    Cn1_3_4::nrOfPoints() const
+    
+    std::size_t Cn1_3_4::nrOfPoints() const
     {
         return 2;
     }
-
-    double
-    Cn1_3_4::weight(std::size_t i) const
+    
+    double Cn1_3_4::weight(std::size_t i) const
     {
         if (i < 2)
             return weight_[i];
         else
             throw name_ + "::weight - wrong index!";
     }
-
+    
     const Geometry::PointReference&
     Cn1_3_4::getPoint(std::size_t i) const
     {
@@ -135,63 +125,57 @@ namespace QuadratureRules
         else
             throw name_ + "::getPoint -  wrong index!";
     }
-
+    
     Cn1_3_4::ReferenceGeometryT*
     Cn1_3_4::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
-
-    Cn1_3_4::Cn1_3_4():
-        name_("Cn1_3_4"),
-        refGeoPtr_(&ReferenceLine::Instance()),gp_(2,1)
+    
+    Cn1_3_4::Cn1_3_4()
+            : name_("Cn1_3_4"), refGeoPtr_(&ReferenceLine::Instance()), gp_(2, 1)
     {
         weight_[0] = 1.0;
         gp_[0][0] = -std::sqrt(3.0) / 3.0;
-
+        
         weight_[1] = 1.0;
         gp_[1][0] = +std::sqrt(3.0) / 3.0;
-
+        
     }
-
+    
     Cn1_3_4::~Cn1_3_4()
     {
     }
-
+    
 //---------------------------------------------------------------------------
-    std::string
-    Cn1_5_9::getName() const
+    std::string Cn1_5_9::getName() const
     {
         return name_;
     }
-
-    std::size_t
-    Cn1_5_9::order() const
+    
+    std::size_t Cn1_5_9::order() const
     {
         return 5;
     }
-
-    std::size_t
-    Cn1_5_9::dimension() const
+    
+    std::size_t Cn1_5_9::dimension() const
     {
         return 1;
     }
-
-    std::size_t
-    Cn1_5_9::nrOfPoints() const
+    
+    std::size_t Cn1_5_9::nrOfPoints() const
     {
         return 3;
     }
-
-    double
-    Cn1_5_9::weight(std::size_t i) const
+    
+    double Cn1_5_9::weight(std::size_t i) const
     {
         if (i < 3)
             return weight_[i];
         else
             throw name_ + "::weight - wrong index!";
     }
-
+    
     const Geometry::PointReference&
     Cn1_5_9::getPoint(std::size_t i) const
     {
@@ -200,67 +184,60 @@ namespace QuadratureRules
         else
             throw name_ + "::getPoint -  wrong index!";
     }
-
+    
     Cn1_5_9::ReferenceGeometryT*
     Cn1_5_9::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
-
-    Cn1_5_9::Cn1_5_9():
-        name_("Cn1_5_9"),
-        refGeoPtr_(&ReferenceLine::Instance()),gp_(3,1)
+    
+    Cn1_5_9::Cn1_5_9()
+            : name_("Cn1_5_9"), refGeoPtr_(&ReferenceLine::Instance()), gp_(3, 1)
     {
         weight_[0] = 5. / 9.;
         gp_[0][0] = -std::sqrt(3.0 / 5.0);
-
+        
         weight_[1] = 8. / 9.;
         gp_[1][0] = 0.0;
-
+        
         weight_[2] = 5. / 9.;
         gp_[2][0] = +std::sqrt(3.0 / 5.0);
-
+        
     }
-
+    
     Cn1_5_9::~Cn1_5_9()
     {
     }
-
-
+    
 //---------------------------------------------------------------------------
-    std::string
-    C1_7_x::getName() const
+    std::string C1_7_x::getName() const
     {
         return name_;
     }
-
-    std::size_t
-    C1_7_x::order() const
+    
+    std::size_t C1_7_x::order() const
     {
         return 7;
     }
-
-    std::size_t
-    C1_7_x::dimension() const
+    
+    std::size_t C1_7_x::dimension() const
     {
         return 1;
     }
-
-    std::size_t
-    C1_7_x::nrOfPoints() const
+    
+    std::size_t C1_7_x::nrOfPoints() const
     {
         return 4;
     }
-
-    double
-    C1_7_x::weight(std::size_t i) const
+    
+    double C1_7_x::weight(std::size_t i) const
     {
         if (i < 4)
             return weight_[i];
         else
             throw name_ + "::weight - wrong index!";
     }
-
+    
     const Geometry::PointReference&
     C1_7_x::getPoint(std::size_t i) const
     {
@@ -269,70 +246,63 @@ namespace QuadratureRules
         else
             throw name_ + "::getPoint -  wrong index!";
     }
-
+    
     C1_7_x::ReferenceGeometryT*
     C1_7_x::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
-
-    C1_7_x::C1_7_x():
-        name_("C1_7_x"),
-        refGeoPtr_(&ReferenceLine::Instance()),gp_(4,1)
+    
+    C1_7_x::C1_7_x()
+            : name_("C1_7_x"), refGeoPtr_(&ReferenceLine::Instance()), gp_(4, 1)
     {
         weight_[0] = (0.347854845137453);
         gp_[0][0] = (-0.861136311594053);
-
+        
         weight_[1] = (0.652145154862546);
         gp_[1][0] = (-0.339981043584856);
-
+        
         weight_[2] = (0.652145154862546);
         gp_[2][0] = (+0.339981043584856);
-
+        
         weight_[3] = (0.347854845137453);
         gp_[3][0] = (+0.861136311594053);
-
+        
     }
-
+    
     C1_7_x::~C1_7_x()
     {
     }
-
-
+    
 //---------------------------------------------------------------------------
-    std::string
-    C1_9_25::getName() const
+    std::string C1_9_25::getName() const
     {
         return name_;
     }
-
-    std::size_t
-    C1_9_25::order() const
+    
+    std::size_t C1_9_25::order() const
     {
         return 9;
     }
-
-    std::size_t
-    C1_9_25::dimension() const
+    
+    std::size_t C1_9_25::dimension() const
     {
         return 1;
     }
-
-    std::size_t
-    C1_9_25::nrOfPoints() const
+    
+    std::size_t C1_9_25::nrOfPoints() const
     {
         return 5;
     }
-
-    double
-    C1_9_25::weight(std::size_t i) const
+    
+    double C1_9_25::weight(std::size_t i) const
     {
         if (i < 5)
             return weight_[i];
         else
             throw name_ + "::weight - wrong index!";
     }
-
+    
     const Geometry::PointReference&
     C1_9_25::getPoint(std::size_t i) const
     {
@@ -341,73 +311,66 @@ namespace QuadratureRules
         else
             throw name_ + "::getPoint -  wrong index!";
     }
-
+    
     C1_9_25::ReferenceGeometryT*
     C1_9_25::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
-
-    C1_9_25::C1_9_25():
-        name_("C1_9_25"),
-        refGeoPtr_(&ReferenceLine::Instance()),gp_(5,1)
+    
+    C1_9_25::C1_9_25()
+            : name_("C1_9_25"), refGeoPtr_(&ReferenceLine::Instance()), gp_(5, 1)
     {
-        weight_[0] = ( 0.236926885056189);
+        weight_[0] = (0.236926885056189);
         gp_[0][0] = (-0.906179845938663);
-
-        weight_[1] = ( 0.478628670499366);
+        
+        weight_[1] = (0.478628670499366);
         gp_[1][0] = (-0.538469310105683);
-
-        weight_[2]=(0.56888888888888888888888888);
-        gp_[2][0]=0.0;
-
-        weight_[3] = ( 0.478628670499366);
+        
+        weight_[2] = (0.56888888888888888888888888);
+        gp_[2][0] = 0.0;
+        
+        weight_[3] = (0.478628670499366);
         gp_[3][0] = (0.538469310105683);
-
-        weight_[4] = ( 0.236926885056189);
+        
+        weight_[4] = (0.236926885056189);
         gp_[4][0] = (0.906179845938663);
-
+        
     }
-
+    
     C1_9_25::~C1_9_25()
     {
     }
-
-
+    
 //---------------------------------------------------------------------------
-    std::string
-    C1_11_36::getName() const
+    std::string C1_11_36::getName() const
     {
         return name_;
     }
-
-    std::size_t
-    C1_11_36::order() const
+    
+    std::size_t C1_11_36::order() const
     {
         return 11;
     }
-
-    std::size_t
-    C1_11_36::dimension() const
+    
+    std::size_t C1_11_36::dimension() const
     {
         return 1;
     }
-
-    std::size_t
-    C1_11_36::nrOfPoints() const
+    
+    std::size_t C1_11_36::nrOfPoints() const
     {
         return 6;
     }
-
-    double
-    C1_11_36::weight(std::size_t i) const
+    
+    double C1_11_36::weight(std::size_t i) const
     {
         if (i < 6)
             return weight_[i];
         else
             throw name_ + "::weight - wrong index!";
     }
-
+    
     const Geometry::PointReference&
     C1_11_36::getPoint(std::size_t i) const
     {
@@ -416,41 +379,39 @@ namespace QuadratureRules
         else
             throw name_ + "::getPoint -  wrong index!";
     }
-
+    
     C1_11_36::ReferenceGeometryT*
     C1_11_36::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
-
-    C1_11_36::C1_11_36():
-        name_("C1_11_36"),
-        refGeoPtr_(&ReferenceLine::Instance()),gp_(6,1)
+    
+    C1_11_36::C1_11_36()
+            : name_("C1_11_36"), refGeoPtr_(&ReferenceLine::Instance()), gp_(6, 1)
     {
-        weight_[0] = ( 0.171324492379170);
+        weight_[0] = (0.171324492379170);
         gp_[0][0] = (-0.932469514203152);
-
-        weight_[1] = ( 0.360761573048138);
+        
+        weight_[1] = (0.360761573048138);
         gp_[1][0] = (-0.661209386466264);
-
-        weight_[2]=( 0.467913934572691);
-        gp_[2][0]=(-0.238619186083196);
-
-        weight_[3]=( 0.467913934572691);
-        gp_[3][0]=(0.238619186083196);
-
-        weight_[4] = ( 0.360761573048138);
+        
+        weight_[2] = (0.467913934572691);
+        gp_[2][0] = (-0.238619186083196);
+        
+        weight_[3] = (0.467913934572691);
+        gp_[3][0] = (0.238619186083196);
+        
+        weight_[4] = (0.360761573048138);
         gp_[4][0] = (0.661209386466264);
-
-        weight_[5] = ( 0.171324492379170);
+        
+        weight_[5] = (0.171324492379170);
         gp_[5][0] = (0.932469514203152);
-
+        
     }
-
+    
     C1_11_36::~C1_11_36()
     {
     }
 
-
 //---------------------------------------------------------------------------
-} // close namespace IntegrationRules
+}// close namespace IntegrationRules

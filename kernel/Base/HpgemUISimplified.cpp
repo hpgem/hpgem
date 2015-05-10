@@ -19,28 +19,28 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "HpgemUISimplified.hpp"
-#include "Integration/ReturnTrait1.hpp"
-#include "Base/Element.hpp"
-#include "Base/ShortTermStorageElementH1.hpp"
-#include "Base/ShortTermStorageFaceH1.hpp"
-#include "GlobalData.hpp"
-#include "Integration/FaceIntegral.hpp"
-#include "Integration/ElementIntegral.hpp"
-#include "ConfigurationData.hpp"
-#include "RectangularMeshDescriptor.hpp"
-#include "ElementCacheData.hpp"
-#include "FaceCacheData.hpp"
+#include "HpgemUISimplified.h"
+#include "Integration/ReturnTrait1.h"
+#include "Base/Element.h"
+#include "Base/ShortTermStorageElementH1.h"
+#include "Base/ShortTermStorageFaceH1.h"
+#include "GlobalData.h"
+#include "Integration/FaceIntegral.h"
+#include "Integration/ElementIntegral.h"
+#include "ConfigurationData.h"
+#include "RectangularMeshDescriptor.h"
+#include "ElementCacheData.h"
+#include "FaceCacheData.h"
 #include "Logger.h"
-#include "CommandLineOptions.hpp"
-#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
-#include "MpiContainer.hpp"
-#include "Output/VTKTimeDependentWriter.hpp"
+#include "CommandLineOptions.h"
+#include "Output/TecplotDiscontinuousSolutionWriter.h"
+#include "MpiContainer.h"
+#include "Output/VTKTimeDependentWriter.h"
 
 namespace Base
 {
     class HpgemUISimplified;
-
+    
     extern CommandLineOption<std::size_t> &numberOfSnapshots;
     extern CommandLineOption<double> &endTime;
     extern CommandLineOption<double> &startTime;
@@ -53,8 +53,7 @@ namespace Base
     ///
     /// Constructor, GlobalData and ConfigurationData is deleted in HpgemUI
     HpgemUISimplified::HpgemUISimplified(std::size_t DIM, std::size_t polynomialOrder, std::size_t nrOfUnknowns)
-    : HpgemUI(new GlobalData,
-              new ConfigurationData(DIM, nrOfUnknowns, polynomialOrder, numberOfSnapshots.getValue()))
+            : HpgemUI(new GlobalData, new ConfigurationData(DIM, nrOfUnknowns, polynomialOrder, numberOfSnapshots.getValue()))
     {
         endTime_ = endTime.getValue();
         startTime_ = startTime.getValue();
@@ -68,7 +67,7 @@ namespace Base
             dt_ = dt.getValue();
         }
     }
-
+    
     /// \details The PDE is solved over the time interval [startTime_, endTime_] using time step size dt_. By default a forward Euler method is applied. The user can overwrite this function to use another time integration method.
     bool HpgemUISimplified::solve()
     {
@@ -77,7 +76,7 @@ namespace Base
         doAllElementIntegration(); //compute all element integrals (except stiffness)
         doAllFaceIntegration(); //compute all face integrals (upwind flux)
         interpolate(); //compute the coefficients for the initial conditions
-
+        
         //initialise the output files
         std::string outFileName = outputName.getValue();
 #ifdef HPGEM_USE_MPI
@@ -98,7 +97,7 @@ namespace Base
         
         //initialise and set the time-related variables
         double t = startTime_;
-        double origDt = dt_;                
+        double origDt = dt_;
         
         double dtPlot;
         if (numberOfSnapshots.getValue() > 1L)
@@ -115,7 +114,7 @@ namespace Base
         
         //initialise the matrices for the right-hand side
         LinearAlgebra::NumericalVector leftResidual, rightResidual, residual;
-
+        
         beforeTimeIntegration();
         //start time stepping
         while (t < endTime_)
@@ -127,12 +126,12 @@ namespace Base
                 dt_ = tPlot - t;
                 t = tPlot;
             }
-
+            
             computeRhsLocal();
-
+            
             //Now we need to perform the synchronisation between nodes.
             synchronize();
-
+            
             computeRhsFaces();
             for (Base::Face* face : meshes_[0]->getFacesList())
             {
@@ -148,7 +147,7 @@ namespace Base
                     //can we get nicer matrix?
                     leftResidual.resize(numBasisFuncsLeft);
                     rightResidual.resize(face->getNrOfBasisFunctions() - numBasisFuncsLeft);
-
+                    
                     for (std::size_t j = 0; j < numBasisFuncsLeft; ++j)
                     {
                         leftResidual(j) += residual(j);
@@ -164,19 +163,19 @@ namespace Base
                 else
                 {
                     leftResidual = face->getPtrElementLeft()->getResidue();
-                    residual = face->getResidue();                    
+                    residual = face->getResidue();
                     residual += leftResidual;
                     face->getPtrElementLeft()->setResidue(residual);
                 }
-
+                
             }
             
             interpolate();
-
+            
             if (t == tPlot)
-            {//yes, == for doubles, but see the start of the time loop
+            { //yes, == for doubles, but see the start of the time loop
                 tPlot += dtPlot;
-                out.write(meshes_[0], "solution", false, this,t);
+                out.write(meshes_[0], "solution", false, this, t);
                 VTKWrite(VTKout, t);
                 dt_ = origDt;
                 if (tPlot > endTime_)
@@ -192,12 +191,12 @@ namespace Base
     void HpgemUISimplified::doAllFaceIntegration(std::size_t meshID)
     {
         bool useCache = false;
-
+        
         LinearAlgebra::Matrix fMatrixData;
         LinearAlgebra::NumericalVector fVectorData;
         FaceIntegralT faceIntegral(useCache);
         faceIntegral.setStorageWrapper(new Base::ShortTermStorageFaceH1(meshes_[meshID]->dimension()));
-
+        
         for (MeshManipulator::FaceIterator citFe = Base::HpgemUI::faceColBegin(); citFe != Base::HpgemUI::faceColEnd(); ++citFe)
         {
             std::size_t numBasisFuncs = (*citFe)->getNrOfBasisFunctions();
@@ -215,15 +214,15 @@ namespace Base
         //solution for, this is automatically set to 1 in the contructor of hpgemUISimplified
         //ndof is now the size of your element matrix
         std::size_t ndof = HpgemUI::configData_->numberOfBasisFunctions_;
-
+        
         //initialise the element matrix and element vector.
         LinearAlgebra::Matrix eMatrixData(ndof, ndof);
         LinearAlgebra::NumericalVector eVectorData(ndof);
-
+        
         bool isUseCache = false;
         Integration::ElementIntegral elIntegral(isUseCache);
         elIntegral.setStorageWrapper(new ShortTermStorageElementH1(meshes_[meshID]->dimension()));
-
+        
         for (ElementIterator it = HpgemUI::meshes_[meshID]->elementColBegin(); it != HpgemUI::meshes_[meshID]->elementColEnd(); ++it)
         {
             eMatrixData = elIntegral.integrate<LinearAlgebra::Matrix>((*it), this);
@@ -233,7 +232,7 @@ namespace Base
             (*it)->setResidue(eVectorData);
         }
     }
-
+    
     /// \details By default this function solves the mass matrix equations. Let \f$ r \f$ be the residual (the computed right hand side), \f$ M \f$ the mass matrix and \f$ u\f$ the new solution vector. Then this function solves \f$ Mu=r\f$ for \f$ u\f$.
     void HpgemUISimplified::interpolate()
     {
@@ -259,14 +258,14 @@ namespace Base
 
         //recieve first for lower overhead
         for (const auto& it : pulls)
-        {
+        {   
             for (Element* el : it.second)
-            {
+            {   
                 if (configData_->numberOfTimeLevels_ > 0)
-                {
-                    logger.assert(el->getTimeLevelDataVector(0).size() == 
-                    configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_,
-                                  "TimeLevelDataVector has the wrong size.");
+                {   
+                    logger.assert(el->getTimeLevelDataVector(0).size() ==
+                            configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_,
+                            "TimeLevelDataVector has the wrong size.");
 
                     //assert(el->getTimeLevelData(0).size()==configData_->numberOfBasisFunctions_);
 //                    LinearAlgebra::NumericalVector timeLevelData(configData_->numberOfBasisFunctions_);
@@ -278,14 +277,14 @@ namespace Base
             }
         }
         for (const auto& it : pushes)
-        {
+        {   
             for (Element* el : it.second)
-            {
+            {   
                 if (configData_->numberOfTimeLevels_ > 0)
-                {
-                    logger.assert(el->getTimeLevelDataVector(0).size() == 
-                    configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_,
-                                  "TimeLevelDataVector has the wrong size.");
+                {   
+                    logger.assert(el->getTimeLevelDataVector(0).size() ==
+                            configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_,
+                            "TimeLevelDataVector has the wrong size.");
                     MPIContainer::Instance().send(el->getTimeLevelDataVector(0), it.first, el->getID() * 2 + 1);
                     //std::cout<<"Sending element "<<el->getID()<<" to process "<<it.first<<std::endl;
 //                    MPIContainer::Instance().send(el->getTimeLevelData(0), it.first, el->getID() * 2 + 1);

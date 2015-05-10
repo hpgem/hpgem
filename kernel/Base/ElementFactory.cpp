@@ -19,51 +19,62 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ElementFactory.hpp"
-#include "Element.hpp"
-#include "Geometry/PointPhysical.hpp"
-#include "BasisFunctionSet.hpp"
-#include "ElementCacheData.hpp"
+#include "ElementFactory.h"
+#include "Element.h"
+#include "Geometry/PointPhysical.h"
+#include "BasisFunctionSet.h"
+#include "ElementCacheData.h"
 
-namespace Base{
-
-ElementFactory::ElementFactory():numberOfElementMatrices_(0),numberOfElementVectors_(0),unknowns_(1),timeLevels_(1) {
-}
-
-ElementFactory::ElementFactory(const ElementFactory& orig) {
-}
-
-ElementFactory::~ElementFactory() {
-}
+namespace Base
+{
+    
+    ElementFactory::ElementFactory()
+            : numberOfElementMatrices_(0), numberOfElementVectors_(0), unknowns_(1), timeLevels_(1)
+    {
+    }
+    
+    ElementFactory::ElementFactory(const ElementFactory& orig)
+    {
+    }
+    
+    ElementFactory::~ElementFactory()
+    {
+    }
     
 //!provide the non-constant information and get an Element!
-Element* ElementFactory::makeElement(const std::vector<std::size_t>& globalNodeIndexes,std::vector<Geometry::PointPhysical>& points,std::size_t elementcounter){
-    return new Element(globalNodeIndexes,basisFunctionSets_,points,unknowns_,timeLevels_,(*basisFunctionSets_)[0]->size(),elementcounter,numberOfElementMatrices_,numberOfElementVectors_);
-}
-
+    Element* ElementFactory::makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical>& points, std::size_t elementcounter)
+    {
+        return new Element(globalNodeIndexes, basisFunctionSets_, points, unknowns_, timeLevels_, (*basisFunctionSets_)[0]->size(), elementcounter, numberOfElementMatrices_, numberOfElementVectors_);
+    }
+    
 //!mesh creation routines can use this to set their desired defualts
-void ElementFactory::setCollectionOfBasisFunctionSets(std::vector<const BasisFunctionSet*>const * functions){
-    basisFunctionSets_=functions;
-}
-
+    void ElementFactory::setCollectionOfBasisFunctionSets(std::vector<const BasisFunctionSet*>const * functions)
+    {
+        basisFunctionSets_ = functions;
+    }
+    
 //!mesh creation routines can use this to set their desired defualts
-void ElementFactory::setNumberOfUnknowns(std::size_t unknowns){
-    unknowns_=unknowns;
-}
-
+    void ElementFactory::setNumberOfUnknowns(std::size_t unknowns)
+    {
+        unknowns_ = unknowns;
+    }
+    
 //!mesh creation routines can use this to set their desired defualts
-void ElementFactory::setNumberOfTimeLevels(std::size_t timeLevels){
-    timeLevels_=timeLevels;
-}
-
+    void ElementFactory::setNumberOfTimeLevels(std::size_t timeLevels)
+    {
+        timeLevels_ = timeLevels;
+    }
+    
 //!mesh creation routines can use this to set their desired defualts
-void ElementFactory::setNumberOfMatrices(std::size_t matrices){
-    numberOfElementMatrices_=matrices;
-}
-
+    void ElementFactory::setNumberOfMatrices(std::size_t matrices)
+    {
+        numberOfElementMatrices_ = matrices;
+    }
+    
 //!mesh creation routines can use this to set their desired defualts
-void ElementFactory::setNumberOfVectors(std::size_t vectors){
-    numberOfElementVectors_=vectors;
-}
+    void ElementFactory::setNumberOfVectors(std::size_t vectors)
+    {
+        numberOfElementVectors_ = vectors;
+    }
 
 }

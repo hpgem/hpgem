@@ -19,80 +19,68 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ReferencePyramid.hpp"
-#include "ReferenceTriangle.hpp"
-#include "ReferenceSquare.hpp"
-#include "ReferenceLine.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Mappings/MappingToRefFaceToPyramid.hpp"
+#include "ReferencePyramid.h"
+#include "ReferenceTriangle.h"
+#include "ReferenceSquare.h"
+#include "ReferenceLine.h"
+#include "Geometry/PointReference.h"
+#include "Mappings/MappingToRefFaceToPyramid.h"
 
 #include <cmath>
 
 namespace Geometry
 {
-
-    std::size_t ReferencePyramid::localNodeIndexes_[5][4] =
-    {
-        { 3, 4, 1, 2 },
-        { 3, 1, 0 },
-        { 2, 4, 0 },
-        { 1, 2, 0 },
-        { 4, 3, 0 },
-    };
-
-    std::size_t ReferencePyramid::localNodesOnEdge_[8][2] =
-    {
-        { 0 , 1 },
-        { 0 , 2 },
-        { 0 , 3 },
-        { 0 , 4 },
-        { 1 , 2 },
-        { 2 , 4 },
-        { 4 , 3 },
-        { 3 , 1 },
-    };
-
-    ReferencePyramid::ReferencePyramid():/// pyramid has three nodes 3D + 2
-        ReferenceGeometry(5,3, PYRAMID),
-        referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()),
-        referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()),
-        referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+    
+    std::size_t ReferencePyramid::localNodeIndexes_[5][4] = { {3, 4, 1, 2}, {3, 1, 0}, {2, 4, 0}, {1, 2, 0}, {4, 3, 0}, };
+    
+    std::size_t ReferencePyramid::localNodesOnEdge_[8][2] = { {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 2}, {2, 4}, {4, 3}, {3, 1}, };
+    
+    ReferencePyramid::ReferencePyramid()
+            : /// pyramid has three nodes 3D + 2
+            ReferenceGeometry(5, 3, PYRAMID), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
         PointReferenceT p1(3), p2(3), p3(3), p4(3), p5(3);
-
-        p1[0] = +0.0; p1[1] = +0.0; p1[2] = +1.0;
-        p2[0] = -1.0; p2[1] = -1.0; p2[2] = +0.0;
-        p3[0] = +1.0; p3[1] = -1.0; p3[2] = +0.0;
-        p4[0] = -1.0; p4[1] = +1.0; p4[2] = +0.0;
-        p5[0] = +1.0; p5[1] = +1.0; p5[2] = +0.0;
-
+        
+        p1[0] = +0.0;
+        p1[1] = +0.0;
+        p1[2] = +1.0;
+        p2[0] = -1.0;
+        p2[1] = -1.0;
+        p2[2] = +0.0;
+        p3[0] = +1.0;
+        p3[1] = -1.0;
+        p3[2] = +0.0;
+        p4[0] = -1.0;
+        p4[1] = +1.0;
+        p4[2] = +0.0;
+        p5[0] = +1.0;
+        p5[1] = +1.0;
+        p5[2] = +0.0;
+        
         points_[0] = p1;
         points_[1] = p2;
         points_[2] = p3;
         points_[3] = p4;
         points_[4] = p5;
-
+        
         mappingsFaceToPyramid_[0] = &MappingToRefFaceToPyramid0::Instance();
         mappingsFaceToPyramid_[1] = &MappingToRefFaceToPyramid1::Instance();
         mappingsFaceToPyramid_[2] = &MappingToRefFaceToPyramid2::Instance();
         mappingsFaceToPyramid_[3] = &MappingToRefFaceToPyramid3::Instance();
         mappingsFaceToPyramid_[4] = &MappingToRefFaceToPyramid4::Instance();
-
+        
         /// There are no MappingPyramidToPyramid. TODO: Implement.
         mappingsPyramidToPyramid_[0] = 0;
     }
-
-    ReferencePyramid::ReferencePyramid(const ReferencePyramid& copy):
-        ReferenceGeometry(copy),
-        referenceGeometryCodim1TrianglePtr_(copy.referenceGeometryCodim1TrianglePtr_),
-        referenceGeometryCodim1SquarePtr_(copy.referenceGeometryCodim1SquarePtr_),
-        referenceGeometryCodim2Ptr_(copy.referenceGeometryCodim2Ptr_) { }
+    
+    ReferencePyramid::ReferencePyramid(const ReferencePyramid& copy)
+            : ReferenceGeometry(copy), referenceGeometryCodim1TrianglePtr_(copy.referenceGeometryCodim1TrianglePtr_), referenceGeometryCodim1SquarePtr_(copy.referenceGeometryCodim1SquarePtr_), referenceGeometryCodim2Ptr_(copy.referenceGeometryCodim2Ptr_)
+    {
+    }
     
     bool ReferencePyramid::isInternalPoint(const PointReferenceT& p) const
     {
-        return ((0. <= p[2]) && (1. >= p[2]) &&
-               (std::abs(p[0]) <= (1. - p[2])) &&
-               (std::abs(p[1]) <= (1. - p[2])));
+        return ((0. <= p[2]) && (1. >= p[2]) && (std::abs(p[0]) <= (1. - p[2])) && (std::abs(p[1]) <= (1. - p[2])));
     }
     
     PointReference ReferencePyramid::getCenter() const
@@ -115,36 +103,36 @@ namespace Geometry
             throw "ERROR: ReferencePyramid::getNode Index out of range. Only 5 faces for pyramid.";
         }
     }
-
+    
     std::ostream& operator<<(std::ostream& os, const ReferencePyramid& pyramid)
     {
-        os << pyramid.getName()<<" =( ";
+        os << pyramid.getName() << " =( ";
         ReferencePyramid::const_iterator it = pyramid.points_.begin();
         ReferencePyramid::const_iterator end = pyramid.points_.end();
-
-        for ( ; it != end; ++it)
+        
+        for (; it != end; ++it)
         {
             os << (*it) << '\t';
         }
-        os <<')'<<std::endl;
-
+        os << ')' << std::endl;
+        
         return os;
     }
-
+    
     // ================================== Codimension 0 ============================================
-
+    
     std::size_t ReferencePyramid::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
         throw "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 mappings for Pyramid.";
     }
-
+    
     const MappingReferenceToReference* ReferencePyramid::getCodim0MappingPtr(const IndexT i) const
     {
         throw "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 mappings for Pyramid.";
     }
-
+    
     // ================================== Codimension 1 ============================================
-
+    
     const MappingReferenceToReference*
     ReferencePyramid::getCodim1MappingPtr(const IndexT faceIndex) const
     {
@@ -157,7 +145,7 @@ namespace Geometry
             throw "ReferencePyramid::getCodim1MappingPtr Index out of range. Only 5 faces for pyramid.";
         }
     }
-
+    
     const ReferenceGeometry*
     ReferencePyramid::getCodim1ReferenceGeometry(const IndexT faceIndex) const
     {
@@ -173,35 +161,35 @@ namespace Geometry
             throw "ReferencePyramid::getCodim1ReferenceGeometry Index out of range. Only 5 faces for pyramid.";
         }
     }
-
+    
     std::vector<std::size_t> ReferencePyramid::getCodim1EntityLocalIndices(const IndexT faceIndex) const
     {
         if (faceIndex < 5)
         {
             if (faceIndex == 0)
             {
-                return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+4);
+                return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 4);
             }
             else
             {
-                return std::vector<std::size_t>(localNodeIndexes_[faceIndex],localNodeIndexes_[faceIndex]+3);
+                return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 3);
             }
         }
         else
         {
             throw "ReferencePyramid::getCodim1EntityLocalIndices Index out of range. Only 5 faces for pyramid.";
         }
-
+        
     }
-
+    
     // ================================== Codimension 2 ============================================
-
+    
     const MappingReferenceToReference*
     ReferencePyramid::getCodim2MappingPtr(const IndexT edgeIndex) const
     {
         throw "ERROR: There are no edge to pyramid mappings.";
     }
-
+    
     const ReferenceGeometry*
     ReferencePyramid::getCodim2ReferenceGeometry(const IndexT edgeIndex) const
     {
@@ -214,31 +202,31 @@ namespace Geometry
             throw "ReferencePyramid::getCodim2ReferenceGeometry Index out of range. Only 8 edges in pyramid.";
         }
     }
-
+    
     std::vector<std::size_t> ReferencePyramid::getCodim2EntityLocalIndices(const IndexT edgeIndex) const
     {
         if (edgeIndex < 8)
         {
-            return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex],localNodesOnEdge_[edgeIndex]+2);
+            return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex], localNodesOnEdge_[edgeIndex] + 2);
         }
         else
         {
             throw "ReferencePyramid::getCodim1EntityLocalIndices Index out of range. Only 8 edges in pyramid.";
         }
     }
-
+    
     // ================================== Codimension 3 ============================================
-
-    std::vector<std::size_t> ReferencePyramid::
-    getCodim3EntityLocalIndices(const IndexT nodeIndex) const
+    
+    std::vector<std::size_t> ReferencePyramid::getCodim3EntityLocalIndices(const IndexT nodeIndex) const
     {
         if (nodeIndex < 5)
         {
-            return std::vector<std::size_t>(1,nodeIndex);
+            return std::vector<std::size_t>(1, nodeIndex);
         }
         else
         {
             throw "ReferencePyramid::getCodim3EntityLocalIndices Index out of range. Pyramid has 5 nodes.";
         }
     }
-};
+}
+;

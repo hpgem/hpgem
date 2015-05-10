@@ -1,8 +1,8 @@
-#include "AllTimeIntegrators.hpp"
-#include "ButcherTableau.hpp"
-#include "RK4Methods.hpp"
-#include "ForwardEuler.hpp"
-#include "MidPoint.hpp"
+#include "AllTimeIntegrators.h"
+#include "ButcherTableau.h"
+#include "RK4Methods.h"
+#include "ForwardEuler.h"
+#include "MidPoint.h"
 
 namespace Base
 {

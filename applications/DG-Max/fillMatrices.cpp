@@ -19,15 +19,15 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "fillMatrices.hpp"
-#include "BaseExtended.hpp"
-#include "Geometry/PointPhysical.hpp"
-#include "Base/ConfigurationData.hpp"
-#include "Integration/ElementIntegral.hpp"
-#include "Base/FaceCacheData.hpp"
-#include "Base/ElementCacheData.hpp"
-#include "Base/ShortTermStorageElementHcurl.hpp"
-#include "Base/ShortTermStorageFaceHcurl.hpp"
+#include "fillMatrices.h"
+#include "BaseExtended.h"
+#include "Geometry/PointPhysical.h"
+#include "Base/ConfigurationData.h"
+#include "Integration/ElementIntegral.h"
+#include "Base/FaceCacheData.h"
+#include "Base/ElementCacheData.h"
+#include "Base/ShortTermStorageElementHcurl.h"
+#include "Base/ShortTermStorageFaceHcurl.h"
 /*
  //  this is where you choose the solution of your problem
  //  this will only have an effect on the accuracy of your error estimates
@@ -50,13 +50,13 @@
  // returns the contibutions at this gauss point to the entire element matrix in one go
  
  void matrixFiller::elementIntegrand(const ElementT* element, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-	//cout<<"\nIn the element integrand for the stiffness matrix for element id: "<<element->getID();
-	ret.resize(element->getNrOfBasisFunctions(),element->getNrOfBasisFunctions());
-	//ElementInfos* info = static_cast<ElementInfos*> (const_cast<ElementT*>(element)->getUserData());
-	LinearAlgebra::NumericalVector phi_i(3),phi_j(3);
-	//std::vector<LinearAlgebra::NumericalVector> functionCurls;
-	//info->makeFunctionCurlsVector(element,p,functionCurls);
-	for(int i=0;i<element->getNrOfBasisFunctions();++i){
+ //cout<<"\nIn the element integrand for the stiffness matrix for element id: "<<element->getID();
+ ret.resize(element->getNrOfBasisFunctions(),element->getNrOfBasisFunctions());
+ //ElementInfos* info = static_cast<ElementInfos*> (const_cast<ElementT*>(element)->getUserData());
+ LinearAlgebra::NumericalVector phi_i(3),phi_j(3);
+ //std::vector<LinearAlgebra::NumericalVector> functionCurls;
+ //info->makeFunctionCurlsVector(element,p,functionCurls);
+ for(int i=0;i<element->getNrOfBasisFunctions();++i){
  //phi_i=functionCurls[i];
  element->basisFunctionCurl(i, p, phi_i);
  for(int j=i;j<element->getNrOfBasisFunctions();++j){
@@ -65,27 +65,27 @@
  ret(i,j)=phi_i[0]*phi_j[0]+phi_i[1]*phi_j[1]+phi_i[2]*phi_j[2];
  ret(j,i)=ret(i,j);
  }
-	}
+ }
  }
  
  void matrixFiller::elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
-	ret.resize(element->getNrOfBasisFunctions());
-	//ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
-	PointPhysicalT pPhys(3);
-	element->referenceToPhysical(p,pPhys);
-	LinearAlgebra::NumericalVector val(3),phi(3);
-	//std::vector<LinearAlgebra::NumericalVector> functionValues;
-	//info->makeFunctionValuesVector(element,p,functionValues);
-	sourceTerm(pPhys,val);
-	for(int i=0; i<element->getNrOfBasisFunctions(); ++i) {
-	//phi=functionValues[i];
+ ret.resize(element->getNrOfBasisFunctions());
+ //ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
+ PointPhysicalT pPhys(3);
+ element->referenceToPhysical(p,pPhys);
+ LinearAlgebra::NumericalVector val(3),phi(3);
+ //std::vector<LinearAlgebra::NumericalVector> functionValues;
+ //info->makeFunctionValuesVector(element,p,functionValues);
+ sourceTerm(pPhys,val);
+ for(int i=0; i<element->getNrOfBasisFunctions(); ++i) {
+ //phi=functionValues[i];
  element->basisFunction(i, p, phi);
  ret(i)=phi[0]*val[0]+phi[1]*val[1]+phi[2]*val[2];
-	}
+ }
  }
  
  void matrixFillerIP::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-	//cout<<"\nIn the face integrand for the stiffness matrix (IP-only part) for element id: "<<face->getPtrElementLeft()->getID();
+ //cout<<"\nIn the face integrand for the stiffness matrix (IP-only part) for element id: "<<face->getPtrElementLeft()->getID();
  //int M = face->getNrOfBasisFunctions();
  
  int M = face->getPtrElementLeft()->getNrOfBasisFunctions() + face->getPtrElementRight()->getNrOfBasisFunctions();
@@ -116,32 +116,32 @@
  // returns the contibutions at this gauss point to the entire face matrix in one go
  
  void matrixFillerIP::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-	//cout<<"\nIn the face integrand for the stiffness matrix (IP-only part) for element id: "<<face->getPtrElementLeft()->getID();
-	ElementT* right;
-	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
-	//ElementInfos* leftInfo = static_cast<ElementInfos*> (left->getUserData());
-	//ElementInfos* rightInfo;
-	PointElementReferenceT pLeft(3),pRight(3);
-	face->mapRefFaceToRefElemL(p,pLeft);
-	//std::vector<LinearAlgebra::NumericalVector> leftValues,rightValues;
-	//leftInfo->makeFunctionValuesVector(left,pLeft,leftValues);
-	LinearAlgebra::NumericalVector normedNormal(3);
-	normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
-	normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
-	normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
-	int leftSize=left->getNrOfBasisFunctions();
-	int dimension=left->getNrOfBasisFunctions();
-	LinearAlgebra::NumericalVector phi_i(3),phi_j(3),dummy(3);
-	if(face->isInternal()){
+ //cout<<"\nIn the face integrand for the stiffness matrix (IP-only part) for element id: "<<face->getPtrElementLeft()->getID();
+ ElementT* right;
+ ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
+ //ElementInfos* leftInfo = static_cast<ElementInfos*> (left->getUserData());
+ //ElementInfos* rightInfo;
+ PointElementReferenceT pLeft(3),pRight(3);
+ face->mapRefFaceToRefElemL(p,pLeft);
+ //std::vector<LinearAlgebra::NumericalVector> leftValues,rightValues;
+ //leftInfo->makeFunctionValuesVector(left,pLeft,leftValues);
+ LinearAlgebra::NumericalVector normedNormal(3);
+ normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
+ normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
+ normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
+ int leftSize=left->getNrOfBasisFunctions();
+ int dimension=left->getNrOfBasisFunctions();
+ LinearAlgebra::NumericalVector phi_i(3),phi_j(3),dummy(3);
+ if(face->isInternal()){
  //cout<<" and element id: "<<face->getPtrElementRight()->getID();
  right=const_cast<ElementT*>(face->getPtrElementRight());
  face->mapRefFaceToRefElemR(p,pRight);
  //rightInfo = static_cast<ElementInfos*> (right->getUserData());
  dimension+=right->getNrOfBasisFunctions();
  //rightInfo->makeFunctionValuesVector(right,pRight,rightValues);
-	}
-	ret.resize(dimension,dimension);
-	for(int i=0;i<dimension;++i){
+ }
+ ret.resize(dimension,dimension);
+ for(int i=0;i<dimension;++i){
  if(i<leftSize){
  //dummy=leftValues[i];
  left->basisFunction(i, pLeft, dummy);
@@ -164,36 +164,36 @@
  ret(i,j)=stabCoeff_*(phi_i[0]*phi_j[0]+phi_i[1]*phi_j[1]+phi_i[2]*phi_j[2]);
  ret(j,i)=ret(i,j);
  }
-	}
+ }
  }
  
  void matrixFillerIP::faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
-	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
-	ElementInfos* info = static_cast<ElementInfos*>(left->getUserData());
-	ret.resize(left->getNrOfBasisFunctions());
-	Geometry::PointReference PLeft(3);
-	face->mapRefFaceToRefElemL(p,PLeft);
-	//std::vector<LinearAlgebra::NumericalVector> functionValues,functionCurls;
-	//info->makeFunctionValuesVector(left,PLeft,functionValues);
-	//info->makeFunctionCurlsVector(left,PLeft,functionCurls);
-	PointPhysicalT PPhys(3);
-	left->referenceToPhysical(PLeft,PPhys);
-	LinearAlgebra::NumericalVector normedNormal(3);
-	normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
-	normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
-	normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
-	LinearAlgebra::NumericalVector val(3),phi(3),phi_curl(3),dummy(3);
-	boundaryConditions(PPhys,dummy);//assumes the initial conditions and the boundary conditions match
-	OuterProduct(normedNormal,dummy,val);
-	for(int i=0; i<left->getNrOfBasisFunctions(); ++i) {
-	//dummy=functionValues[i];
-	//phi_curl=functionCurls[i];
+ ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
+ ElementInfos* info = static_cast<ElementInfos*>(left->getUserData());
+ ret.resize(left->getNrOfBasisFunctions());
+ Geometry::PointReference PLeft(3);
+ face->mapRefFaceToRefElemL(p,PLeft);
+ //std::vector<LinearAlgebra::NumericalVector> functionValues,functionCurls;
+ //info->makeFunctionValuesVector(left,PLeft,functionValues);
+ //info->makeFunctionCurlsVector(left,PLeft,functionCurls);
+ PointPhysicalT PPhys(3);
+ left->referenceToPhysical(PLeft,PPhys);
+ LinearAlgebra::NumericalVector normedNormal(3);
+ normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
+ normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
+ normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
+ LinearAlgebra::NumericalVector val(3),phi(3),phi_curl(3),dummy(3);
+ boundaryConditions(PPhys,dummy);//assumes the initial conditions and the boundary conditions match
+ OuterProduct(normedNormal,dummy,val);
+ for(int i=0; i<left->getNrOfBasisFunctions(); ++i) {
+ //dummy=functionValues[i];
+ //phi_curl=functionCurls[i];
  left->basisFunction(i, PLeft, dummy);
  left->basisFunctionCurl(i, PLeft, phi_curl);
-	OuterProduct(normedNormal,dummy,phi);
-	ret(i)=-(phi_curl[0]*val[0]+phi_curl[1]*val[1]+phi_curl[2]*val[2])+
+ OuterProduct(normedNormal,dummy,phi);
+ ret(i)=-(phi_curl[0]*val[0]+phi_curl[1]*val[1]+phi_curl[2]*val[2])+
  stabCoeff_*(phi[0]*val[0]+phi[1]*val[1]+phi[2]*val[2]);
-	}
+ }
  }
  
  
@@ -202,21 +202,21 @@
  
  ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
  Geometry::PointReference PLeft(3);
-	face->mapRefFaceToRefElemL(p,PLeft);
+ face->mapRefFaceToRefElemL(p,PLeft);
  
  
  PointPhysicalT PPhys(3);
-	left->referenceToPhysical(PLeft,PPhys);
-	LinearAlgebra::NumericalVector normedNormal(3);
+ left->referenceToPhysical(PLeft,PPhys);
+ LinearAlgebra::NumericalVector normedNormal(3);
  
-	normedNormal[0] = (normal * (1/Base::L2Norm(normal)))[0];
-	normedNormal[1] = (normal * (1/Base::L2Norm(normal)))[1];
-	normedNormal[2] = (normal * (1/Base::L2Norm(normal)))[2];
+ normedNormal[0] = (normal * (1/Base::L2Norm(normal)))[0];
+ normedNormal[1] = (normal * (1/Base::L2Norm(normal)))[1];
+ normedNormal[2] = (normal * (1/Base::L2Norm(normal)))[2];
  
  LinearAlgebra::NumericalVector val(3),phi(3),phi_curl(3),dummy(3);
  
-	boundaryConditions(PPhys,dummy);//assumes the initial conditions and the boundary conditions match
-	
+ boundaryConditions(PPhys,dummy);//assumes the initial conditions and the boundary conditions match
+ 
  OuterProduct(normedNormal,dummy,val);
  int n = face->getPtrElementLeft()->getNrOfBasisFunctions();
  ret.resize(n);
@@ -236,14 +236,14 @@
  
  void matrixFillerIP::fillMatrixes(hpGemUIExtentions* matrixContainer){
  time_t oldTime,newTime;
-	time(&oldTime);
+ time(&oldTime);
  std::cout<<"using an IP-DG method with penalty parameter "<<matrixContainer->getData()->StabCoeff_<<std::endl;
  //learn your own processor number and the total amount of processors so there is no double work done while filling the matrices
  int TotalAmountOfProcessors,localProcessorNumber,numberOfElements;
  MPI_Comm_size(PETSC_COMM_WORLD,&TotalAmountOfProcessors);
  MPI_Comm_rank(PETSC_COMM_WORLD,&localProcessorNumber);
  numberOfElements=matrixContainer->getNumberOfElements(0);
-	
+ 
  // 	if(matrixContainer->getNumberOfElements(0)%TotalAmountOfProcessors!=0){
  // 	    cout<<"WARNING: the case where the number of elements is not a multiple of the number of processors has not been toroughly tested; gliches may occur!";'
  // 	}
@@ -274,10 +274,10 @@
  localElement_ = new Base::ShortTermStorageElementHcurl(3); // creating object for H curl transformation
  Integration::ElementIntegral elIntegral(false);
  elIntegral.setStorageWrapper(localElement_);
-	
+ 
  time(&newTime);
-	std::cout<<"filling the matrices; preparation took "<<difftime(newTime,oldTime)<<" seconds"<<std::endl;
-	oldTime=newTime;
+ std::cout<<"filling the matrices; preparation took "<<difftime(newTime,oldTime)<<" seconds"<<std::endl;
+ oldTime=newTime;
  for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
  if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
  matrix.resize((*it)->getNrOfBasisFunctions(),(*it)->getNrOfBasisFunctions());
@@ -294,9 +294,9 @@
  }
  //PETSc can start assembling M if it wants to; we wont set any extra antries anymore
  matrixContainer->ierr_=MatAssemblyBegin(matrixContainer->M_,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-	time(&newTime);
-	std::cout<<"filling the mass matrix took "<<difftime(newTime,oldTime)<<" seconds"<<std::endl;
-	oldTime=newTime;
+ time(&newTime);
+ std::cout<<"filling the mass matrix took "<<difftime(newTime,oldTime)<<" seconds"<<std::endl;
+ oldTime=newTime;
  //elF=&hpGemUIExtentions::elementStiffnessIntegrand;
  for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
  if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
@@ -362,9 +362,9 @@
  }
  }
  }
-	time(&newTime);
-	std::cout<<"filling the stiffness matrix took "<<difftime(newTime,oldTime)<<" seconds"<<std::endl;
-	oldTime=newTime;
+ time(&newTime);
+ std::cout<<"filling the stiffness matrix took "<<difftime(newTime,oldTime)<<" seconds"<<std::endl;
+ oldTime=newTime;
  matrixContainer->ierr_=MatAssemblyBegin(matrixContainer->S_,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
  //elF=&hpGemUIExtentions::sourceTerm;
  for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it) {
@@ -420,9 +420,9 @@
  }
  }
  }
-	time(&newTime);
-	std::cout<<"filling the vectors took "<<difftime(newTime,oldTime)<<" seconds"<<std::endl;
-	oldTime=newTime;
+ time(&newTime);
+ std::cout<<"filling the vectors took "<<difftime(newTime,oldTime)<<" seconds"<<std::endl;
+ oldTime=newTime;
  matrixContainer->ierr_=VecAssemblyBegin(matrixContainer->RHS_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
  
  //this functions guarantees assembled matrices so lock untill assembly is finished
@@ -431,16 +431,16 @@
  matrixContainer->ierr_=MatAssemblyEnd(matrixContainer->M_,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
  matrixContainer->ierr_=MatAssemblyEnd(matrixContainer->S_,MAT_FINAL_ASSEMBLY);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
  matrixContainer->ierr_=VecAssemblyEnd(matrixContainer->RHS_);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-	time(&newTime);
-	std::cout<<"communication took "<<difftime(newTime,oldTime)<<" extra seconds"<<std::endl;
+ time(&newTime);
+ std::cout<<"communication took "<<difftime(newTime,oldTime)<<" extra seconds"<<std::endl;
  delete[] tempComplexArray;
  }
  
  void matrixFillerBR::faceIntegrand(const FaceT* face, const  LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-	//cout<<"\nIn the face integrand for the stiffness matrix (BR-only part) for element id: "<<face->getPtrElementLeft()->getID();
+ //cout<<"\nIn the face integrand for the stiffness matrix (BR-only part) for element id: "<<face->getPtrElementLeft()->getID();
  ElementT* right;
  ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
-	ElementInfos* leftInfo = static_cast<ElementInfos*> (left->getUserData());
+ ElementInfos* leftInfo = static_cast<ElementInfos*> (left->getUserData());
  ElementInfos* rightInfo;
  
  //PointElementReferenceT pLeft(3),pRight(3);
@@ -498,33 +498,33 @@
  
  
  void matrixFillerBR::faceIntegrand(const FaceT* face, const  LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret){
-	//cout<<"\nIn the face integrand for the stiffness matrix (BR-only part) for element id: "<<face->getPtrElementLeft()->getID();
-	ElementT* right;
-	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
-	ElementInfos* leftInfo = static_cast<ElementInfos*> (left->getUserData());
-	ElementInfos* rightInfo;
-	PointElementReferenceT pLeft(3),pRight(3);
-	double localepsilon;
-	face->mapRefFaceToRefElemL(p,pLeft);
-	//std::vector<LinearAlgebra::NumericalVector> leftValues,rightValues;
-	//leftInfo->makeFunctionValuesVector(left,pLeft,leftValues);
-	LinearAlgebra::NumericalVector normedNormal(3);
-	normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
-	normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
-	normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
-	int leftSize=left->getNrOfBasisFunctions();
-	int dimension=left->getNrOfBasisFunctions();
-	LinearAlgebra::NumericalVector phi_i(3),phi_j(3),dummy(3);
-	if(face->isInternal()){
+ //cout<<"\nIn the face integrand for the stiffness matrix (BR-only part) for element id: "<<face->getPtrElementLeft()->getID();
+ ElementT* right;
+ ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
+ ElementInfos* leftInfo = static_cast<ElementInfos*> (left->getUserData());
+ ElementInfos* rightInfo;
+ PointElementReferenceT pLeft(3),pRight(3);
+ double localepsilon;
+ face->mapRefFaceToRefElemL(p,pLeft);
+ //std::vector<LinearAlgebra::NumericalVector> leftValues,rightValues;
+ //leftInfo->makeFunctionValuesVector(left,pLeft,leftValues);
+ LinearAlgebra::NumericalVector normedNormal(3);
+ normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
+ normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
+ normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
+ int leftSize=left->getNrOfBasisFunctions();
+ int dimension=left->getNrOfBasisFunctions();
+ LinearAlgebra::NumericalVector phi_i(3),phi_j(3),dummy(3);
+ if(face->isInternal()){
  //cout<<" and element id: "<<face->getPtrElementRight()->getID();
  right=const_cast<ElementT*>(face->getPtrElementRight());
  face->mapRefFaceToRefElemR(p,pRight);
  rightInfo = static_cast<ElementInfos*> (right->getUserData());
  dimension+=right->getNrOfBasisFunctions();
  //rightInfo->makeFunctionValuesVector(right,pRight,rightValues);
-	}
-	ret.resize(dimension,dimension);
-	for(int i=0;i<dimension;++i){
+ }
+ ret.resize(dimension,dimension);
+ for(int i=0;i<dimension;++i){
  if(i<leftSize){
  //phi_i=leftValues[i];
  left->basisFunction(i, pLeft, phi_i);
@@ -547,31 +547,31 @@
  OuterProduct(normedNormal,dummy,phi_j);
  ret(j,i)=(face->isInternal()?1:2)*(phi_i[0]*phi_j[0]+phi_i[1]*phi_j[1]+phi_i[2]*phi_j[2])*sqrt(localepsilon);
  }
-	}
+ }
  }
  
  void matrixFillerBR::faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret){
-	ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
-	ElementInfos* info = static_cast<ElementInfos*>(left->getUserData());
-	ret.resize(left->getNrOfBasisFunctions());
-	PointElementReferenceT PLeft(3);
-	face->mapRefFaceToRefElemL(p,PLeft);
-	//std::vector<LinearAlgebra::NumericalVector> functionValues;
-	//info->makeFunctionValuesVector(left,PLeft,functionValues);
-	PointPhysicalT PPhys(3);
-	left->referenceToPhysical(PLeft,PPhys);
-	LinearAlgebra::NumericalVector normedNormal(3);
-	normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
-	normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
-	normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
-	LinearAlgebra::NumericalVector val(3),dummy(3),phi(3);
-	boundaryConditions(PPhys,dummy);
-	OuterProduct(normedNormal,dummy,val);
-	for(int i=0; i<left->getNrOfBasisFunctions(); ++i) {
-	//phi=functionValues[i];
+ ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
+ ElementInfos* info = static_cast<ElementInfos*>(left->getUserData());
+ ret.resize(left->getNrOfBasisFunctions());
+ PointElementReferenceT PLeft(3);
+ face->mapRefFaceToRefElemL(p,PLeft);
+ //std::vector<LinearAlgebra::NumericalVector> functionValues;
+ //info->makeFunctionValuesVector(left,PLeft,functionValues);
+ PointPhysicalT PPhys(3);
+ left->referenceToPhysical(PLeft,PPhys);
+ LinearAlgebra::NumericalVector normedNormal(3);
+ normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
+ normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
+ normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
+ LinearAlgebra::NumericalVector val(3),dummy(3),phi(3);
+ boundaryConditions(PPhys,dummy);
+ OuterProduct(normedNormal,dummy,val);
+ for(int i=0; i<left->getNrOfBasisFunctions(); ++i) {
+ //phi=functionValues[i];
  left->basisFunction(i, PLeft, phi);
-	ret(i)=2*(phi[0]*val[0]+phi[1]*val[1]+phi[2]*val[2]);
-	}
+ ret(i)=2*(phi[0]*val[0]+phi[1]*val[1]+phi[2]*val[2]);
+ }
  }
  
  
@@ -582,19 +582,19 @@
  
  ElementT* left=const_cast<ElementT*>(face->getPtrElementLeft());
  PointElementReferenceT PLeft(3);
-	face->mapRefFaceToRefElemL(p,PLeft);
+ face->mapRefFaceToRefElemL(p,PLeft);
  
  PointPhysicalT PPhys(3);
-	left->referenceToPhysical(PLeft,PPhys);
+ left->referenceToPhysical(PLeft,PPhys);
  LinearAlgebra::NumericalVector normedNormal(3);
-	
+ 
  normedNormal[0] = (normal*(1/Base::L2Norm(normal)))[0];
-	normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
-	normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
-	
+ normedNormal[1] = (normal*(1/Base::L2Norm(normal)))[1];
+ normedNormal[2] = (normal*(1/Base::L2Norm(normal)))[2];
+ 
  LinearAlgebra::NumericalVector val(3),dummy(3),phi(3);
-	boundaryConditions(PPhys,dummy);
-	OuterProduct(normedNormal,dummy,val);
+ boundaryConditions(PPhys,dummy);
+ OuterProduct(normedNormal,dummy,val);
  //std::cout<<val<<std::endl;
  ret.resize(n);
  for(int i = 0; i < n; ++i)
@@ -723,19 +723,19 @@
  int dimension,skip(0);
  //faF = &faceIntegrandBRPart;
  for(hpGemUIExtentions::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it) {
-	int placesBlocked[]= {(int)(*it)->getPtrElementLeft()->getID(),-1};
-	if((*it)->isInternal()) {
+ int placesBlocked[]= {(int)(*it)->getPtrElementLeft()->getID(),-1};
+ if((*it)->isInternal()) {
  localnElements=2;
  dimension=(*it)->getPtrElementLeft()->getNrOfBasisFunctions()+(*it)->getPtrElementRight()->getNrOfBasisFunctions();
  placesBlocked[1]=(*it)->getPtrElementRight()->getID();
-	} else {
+ } else {
  localnElements=1;
  dimension=(*it)->getPtrElementLeft()->getNrOfBasisFunctions();
-	}
+ }
  
-	IS ISplaces;
-	matrixContainer->ierr_=ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfBasisFunctions(),localnElements,placesBlocked,PETSC_COPY_VALUES,&ISplaces);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
-	matrixContainer->ierr_=MatGetSubMatrix(matrixContainer->M_,ISplaces,ISplaces,MAT_INITIAL_MATRIX,&MLocal);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
+ IS ISplaces;
+ matrixContainer->ierr_=ISCreateBlock(PETSC_COMM_WORLD,(*it)->getPtrElementLeft()->getNrOfBasisFunctions(),localnElements,placesBlocked,PETSC_COPY_VALUES,&ISplaces);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
+ matrixContainer->ierr_=MatGetSubMatrix(matrixContainer->M_,ISplaces,ISplaces,MAT_INITIAL_MATRIX,&MLocal);CHKERRABORT(PETSC_COMM_WORLD,matrixContainer->ierr_);
  //	if(((*it)->getPtrElementLeft()->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
  matrix.resize(dimension,dimension);
  faIntegral.integrate<LinearAlgebra::Matrix>(*it,this,matrix);

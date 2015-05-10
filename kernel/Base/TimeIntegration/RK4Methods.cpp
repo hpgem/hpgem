@@ -1,4 +1,4 @@
-#include "RK4Methods.hpp"
+#include "RK4Methods.h"
 
 namespace Base
 {
@@ -9,25 +9,30 @@ namespace Base
         
         //make a_
         std::vector<double> aRow;
-        a_.push_back (aRow);
-        aRow = {0.5};
-        a_.push_back (aRow);
-        aRow = {0.0, 0.5};
-        a_.push_back (aRow);
-        aRow ={0.0, 0.0, 1.0};
-        a_.push_back (aRow);
+        a_.push_back(aRow);
+        aRow =
+        {   0.5};
+        a_.push_back(aRow);
+        aRow =
+        {   0.0, 0.5};
+        a_.push_back(aRow);
+        aRow =
+        {   0.0, 0.0, 1.0};
+        a_.push_back(aRow);
         
         //make b_ and c_
-        b_ = {1.0/6, 1.0/3, 1.0/3, 1.0/6};
-        c_ = {0.0, 0.5, 0.5, 1.0};
+        b_ =
+        {   1.0/6, 1.0/3, 1.0/3, 1.0/6};
+        c_ =
+        {   0.0, 0.5, 0.5, 1.0};
 
     }
-    
+
     std::size_t RK4_4::order() const
     {
         return order_;
     }
-
+    
     std::size_t RK4_4::numStages() const
     {
         return numStages_;

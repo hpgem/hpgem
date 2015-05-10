@@ -18,20 +18,20 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "ElementCacheData.hpp"
-#include "Element.hpp"
+#include "ElementCacheData.h"
+#include "Element.h"
 
-#include "Geometry/PointReference.hpp"
-#include "Geometry/Jacobian.hpp"
+#include "Geometry/PointReference.h"
+#include "Geometry/Jacobian.h"
 #include <cmath>
 
-void Base::ElementCacheData::operator ()(const Element* el, const Geometry::PointReference& p){
-    Geometry::Jacobian jac(p.size(),p.size());
+void Base::ElementCacheData::operator ()(const Element* el, const Geometry::PointReference& p)
+{
+    Geometry::Jacobian jac(p.size(), p.size());
     jac = el->calcJacobian(p);
     /// \bug Took out the std::abs and replace with abs for STL vector version (see other bug report.
     /// (resolved) you forgot to #include <cmath>, but something #include <cstdlib> (where the integer type std::abs is defined) -FB
     absDetJac_ = std::abs(jac.determinant());
-
+    
 }
-
 

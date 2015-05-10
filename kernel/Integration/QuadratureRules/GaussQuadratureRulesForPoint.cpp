@@ -19,29 +19,33 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "GaussQuadratureRulesForPoint.hpp"
-#include "Geometry/ReferencePoint.hpp"
-#include "Geometry/PointReference.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
+#include "GaussQuadratureRulesForPoint.h"
+#include "Geometry/ReferencePoint.h"
+#include "Geometry/PointReference.h"
+#include "LinearAlgebra/NumericalVector.h"
 #include "Logger.h"
 
-namespace QuadratureRules {
-
-	double Cn0_inf_1::weight(std::size_t i) const {
-		logger.assert(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
-		return weight_[0];
-	}
-
-	const Geometry::PointReference& Cn0_inf_1::getPoint(std::size_t i) const {
-		logger.assert(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
+namespace QuadratureRules
+{
+    
+    double Cn0_inf_1::weight(std::size_t i) const
+    {
+        logger.assert(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
+        return weight_[0];
+    }
+    
+    const Geometry::PointReference& Cn0_inf_1::getPoint(std::size_t i) const
+    {
+        logger.assert(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
         //actually keep the point around while it is being used
         return gp_[0];
-	}
-
-	Cn0_inf_1::Cn0_inf_1() :
-			refGeoPtr_(&Geometry::ReferencePoint::Instance()), name_("Cn0_inf_1") {
-		weight_[0] = 1;
-        gp_.resize(1,{0});
-	}
+    }
+    
+    Cn0_inf_1::Cn0_inf_1()
+            : refGeoPtr_(&Geometry::ReferencePoint::Instance()), name_("Cn0_inf_1")
+    {
+        weight_[0] = 1;
+        gp_.resize(1, {0});
+    }
 
 }

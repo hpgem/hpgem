@@ -5,7 +5,7 @@
  * Created on December 23, 2014, 1:31 PM
  */
 
-#include "ForwardEuler.hpp"
+#include "ForwardEuler.h"
 
 namespace Base
 {
@@ -16,19 +16,21 @@ namespace Base
         
         //make a_
         std::vector<double> aRow;
-        a_.push_back (aRow);
+        a_.push_back(aRow);
         
         //make b_ and c_
-        b_ = {1.0};
-        c_ = {0.0};
+        b_ =
+        {   1.0};
+        c_ =
+        {   0.0};
 
     }
-    
+
     std::size_t ForwardEuler::order() const
     {
         return order_;
     }
-
+    
     std::size_t ForwardEuler::numStages() const
     {
         return numStages_;

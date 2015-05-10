@@ -19,65 +19,65 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 //naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number that will make sure
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
-
-#include "Geometry/Mappings/MappingToRefPointToLine.hpp"
+#include "Geometry/Mappings/MappingToRefPointToLine.h"
 #include "Logger.h"
 
-#include "Geometry/ReferenceLine.hpp"
-#include "Geometry/ReferencePoint.hpp"
-#include "Geometry/PointReference.hpp"
-#include "Geometry/Jacobian.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
+#include "Geometry/ReferenceLine.h"
+#include "Geometry/ReferencePoint.h"
+#include "Geometry/PointReference.h"
+#include "Geometry/Jacobian.h"
+#include "LinearAlgebra/NumericalVector.h"
 #include <cmath>
-int main() {
-
-	Geometry::PointReference refPoint(0),point(1),compare(1);
-
-	Geometry::ReferenceLine& eGeom = Geometry::ReferenceLine::Instance();
-	Geometry::ReferencePoint& fGeom = Geometry::ReferencePoint::Instance();
-
-	Geometry::Jacobian jac(1,0);
-
-	std::vector<std::size_t> nodesAfterTransformation(1);
-
-	const Geometry::MappingReferenceToReference* test = &Geometry::MappingToRefPointToLine0::Instance();
-	nodesAfterTransformation[0]=0;
-
-	point = test->transform(refPoint);
-	logger.assert_always((fGeom.isInternalPoint(refPoint)==eGeom.isInternalPoint(point)),"transform");
-
-	jac = test->calcJacobian(refPoint);
-
-	for(std::size_t i=0;i<fGeom.getNumberOfNodes();++i){
-		refPoint = fGeom.getNode(i);
-		compare = eGeom.getNode(nodesAfterTransformation[i]);
-		point = test->transform(refPoint);
-		logger.assert_always((std::abs(point[0]-compare[0])<1e-12),"transform");
-	}
-
-	logger.assert_always((test->getTargetDimension()==1),"getTargetDimension");
-
-
-	test = &Geometry::MappingToRefPointToLine1::Instance();
-	nodesAfterTransformation[0]=1;
-
-	point = test->transform(refPoint);
-	logger.assert_always((fGeom.isInternalPoint(refPoint)==eGeom.isInternalPoint(point)),"transform");
-
-	jac = test->calcJacobian(refPoint);
-
-	for(std::size_t i=0;i<fGeom.getNumberOfNodes();++i){
-		refPoint = fGeom.getNode(i);
-		compare = eGeom.getNode(nodesAfterTransformation[i]);
-		point = test->transform(refPoint);
-	}
-
-	logger.assert_always((test->getTargetDimension()==1),"getTargetDimension");
-
-	return 0;
+int main()
+{
+    
+    Geometry::PointReference refPoint(0), point(1), compare(1);
+    
+    Geometry::ReferenceLine& eGeom = Geometry::ReferenceLine::Instance();
+    Geometry::ReferencePoint& fGeom = Geometry::ReferencePoint::Instance();
+    
+    Geometry::Jacobian jac(1, 0);
+    
+    std::vector<std::size_t> nodesAfterTransformation(1);
+    
+    const Geometry::MappingReferenceToReference* test = &Geometry::MappingToRefPointToLine0::Instance();
+    nodesAfterTransformation[0] = 0;
+    
+    point = test->transform(refPoint);
+    logger.assert_always((fGeom.isInternalPoint(refPoint) == eGeom.isInternalPoint(point)), "transform");
+    
+    jac = test->calcJacobian(refPoint);
+    
+    for (std::size_t i = 0; i < fGeom.getNumberOfNodes(); ++i)
+    {
+        refPoint = fGeom.getNode(i);
+        compare = eGeom.getNode(nodesAfterTransformation[i]);
+        point = test->transform(refPoint);
+        logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12), "transform");
+    }
+    
+    logger.assert_always((test->getTargetDimension() == 1), "getTargetDimension");
+    
+    test = &Geometry::MappingToRefPointToLine1::Instance();
+    nodesAfterTransformation[0] = 1;
+    
+    point = test->transform(refPoint);
+    logger.assert_always((fGeom.isInternalPoint(refPoint) == eGeom.isInternalPoint(point)), "transform");
+    
+    jac = test->calcJacobian(refPoint);
+    
+    for (std::size_t i = 0; i < fGeom.getNumberOfNodes(); ++i)
+    {
+        refPoint = fGeom.getNode(i);
+        compare = eGeom.getNode(nodesAfterTransformation[i]);
+        point = test->transform(refPoint);
+    }
+    
+    logger.assert_always((test->getTargetDimension() == 1), "getTargetDimension");
+    
+    return 0;
 }
 

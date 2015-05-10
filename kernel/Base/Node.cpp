@@ -5,10 +5,10 @@
  * Created on November 18, 2014, 3:13 PM
  */
 
-#include "Node.hpp"
-#include "Element.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
-#include "ElementCacheData.hpp"
+#include "Node.h"
+#include "Element.h"
+#include "LinearAlgebra/NumericalVector.h"
+#include "ElementCacheData.h"
 
 void Base::Node::addElement(Element* element, std::size_t localNodeNr)
 {

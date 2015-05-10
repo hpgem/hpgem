@@ -21,50 +21,46 @@
 
 //this file should contain all relevant information about how the integrands look like and what problem is solved
 
-
-
 #define _USE_MATH_DEFINES
 #include <cstdlib>
-#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
-#include "Output/TecplotPhysicalGeometryIterator.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
-#include "BasisFunctionCollection_Curl.hpp"
+#include "Output/TecplotDiscontinuousSolutionWriter.h"
+#include "Output/TecplotPhysicalGeometryIterator.h"
+#include "LinearAlgebra/NumericalVector.h"
+#include "BasisFunctionCollection_Curl.h"
 #include <iostream>
-#include "Base/L2Norm.hpp"
-#include "BaseExtended.hpp"
+#include "Base/L2Norm.h"
+#include "BaseExtended.h"
 #include "math.h"
 #include <ctime>
-#include "ElementInfos.hpp"
-#include "Base/HpgemUI.hpp"
-#include "Base/HpgemUISimplified.hpp"
-#include "Integration/ElementIntegrandBase.hpp"
-#include "Integration/FaceIntegrandBase.hpp"
-#include "Integration/FaceIntegral.hpp"
-#include "Integration/ElementIntegral.hpp"
-#include "Output/TecplotSingleElementWriter.hpp"
-#include "Geometry/PointPhysical.hpp"
-#include "Base/FaceCacheData.hpp"
-#include "Base/ElementCacheData.hpp"
-#include "Base/ConfigurationData.hpp"
-#include "Base/ShortTermStorageElementHcurl.hpp"
-#include "Base/ShortTermStorageFaceHcurl.hpp"
-#include "Integration/ElementIntegrandBase.hpp"
-#include "Integration/FaceIntegrandBase.hpp"
-#include "Base/Face.hpp"
-#include "Base/Element.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
-#include "Utilities/GlobalMatrix.hpp"
-#include "Utilities/GlobalVector.hpp"
+#include "ElementInfos.h"
+#include "Base/HpgemUI.h"
+#include "Base/HpgemUISimplified.h"
+#include "Integration/ElementIntegrandBase.h"
+#include "Integration/FaceIntegrandBase.h"
+#include "Integration/FaceIntegral.h"
+#include "Integration/ElementIntegral.h"
+#include "Output/TecplotSingleElementWriter.h"
+#include "Geometry/PointPhysical.h"
+#include "Base/FaceCacheData.h"
+#include "Base/ElementCacheData.h"
+#include "Base/ConfigurationData.h"
+#include "Base/ShortTermStorageElementHcurl.h"
+#include "Base/ShortTermStorageFaceHcurl.h"
+#include "Integration/ElementIntegrandBase.h"
+#include "Integration/FaceIntegrandBase.h"
+#include "Base/Face.h"
+#include "Base/Element.h"
+#include "LinearAlgebra/NumericalVector.h"
+#include "Utilities/GlobalMatrix.h"
+#include "Utilities/GlobalVector.h"
 #include "petscksp.h"
-#include "matrixAssembly.hpp"
+#include "matrixAssembly.h"
 
-using BaseMeshManipulatorT = Base::MeshManipulator ;
-using basisFunctionT = Base::threeDBasisFunction ;
+using BaseMeshManipulatorT = Base::MeshManipulator;
+using basisFunctionT = Base::threeDBasisFunction;
 //typedef std::list<Base::Face<3> >::iterator FaceIteratorT;
 
 using FaceIterator = Base::MeshManipulator::FaceIterator;
-
-
 
 /**
  * This class should provide problem specific information about the maxwell equations.
@@ -72,23 +68,26 @@ using FaceIterator = Base::MeshManipulator::FaceIterator;
 class DGMax : public hpGemUIExtentions
 {
 private:
+    
+    using PointPhysicalT = Geometry::PointPhysical;
+    using ElementT = Base::Element;
+    using FaceT = Base::Face;
 
-
-        using PointPhysicalT = Geometry::PointPhysical;
-        using ElementT = Base::Element;
-        using FaceT = Base::Face;
-	
-        using FaceIterator = Base::MeshManipulator::FaceIterator;
+    using FaceIterator = Base::MeshManipulator::FaceIterator;
 
 public:
     
-    DGMax(int argc,char** argv, MaxwellData* globalConfig, Base::ConfigurationData* elementConfig,MatrixAssembly* fill):hpGemUIExtentions(argc,argv,globalConfig,elementConfig,fill){}
+    DGMax(int argc, char** argv, MaxwellData* globalConfig, Base::ConfigurationData* elementConfig, MatrixAssembly* fill)
+            : hpGemUIExtentions(argc, argv, globalConfig, elementConfig, fill)
+    {
+    }
     
     /**
      * set up the mesh and complete initialisation of the global data and the configuration data
      */
-    bool initialise(){
-        int n=getData()->NumberOfIntervals_;
+    bool initialise()
+    {
+        int n = getData()->NumberOfIntervals_;
         Geometry::PointPhysical bottomLeft(3), topRight(3);
         std::vector<std::size_t> numElementsOneD(3);
         bottomLeft[0] = 0;
@@ -101,44 +100,36 @@ public:
         numElementsOneD[1] = n;
         numElementsOneD[2] = n;
         
-        BaseMeshManipulatorT* mesh = new MyMeshManipulator(getConfigData(),false,false,false, getData()->PolynomialOrder_, 0, 2, 3, 1, 1);
-        mesh->createTriangularMesh(bottomLeft,topRight,numElementsOneD);
-    
+        BaseMeshManipulatorT* mesh = new MyMeshManipulator(getConfigData(), false, false, false, getData()->PolynomialOrder_, 0, 2, 3, 1, 1);
+        mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD);
         
-        const_cast<MaxwellData*>(getData())->numberOfUnknowns_=(*mesh->elementColBegin())->getNrOfBasisFunctions();
-        
+        const_cast<MaxwellData*>(getData())->numberOfUnknowns_ = (*mesh->elementColBegin())->getNrOfBasisFunctions();
         
         setConfigData();
         //mesh->readCentaurMesh("Cylinder3.hyb");
         //mesh->readCentaurMesh("input_basic2.hyb");
         //mesh->readCentaurMesh("Cube_final.hyb");
         
-        
         addMesh(mesh);
-        const_cast<MaxwellData*>(getData())->numberOfUnknowns_*=mesh->getElementsList().size();
-       
+        const_cast<MaxwellData*>(getData())->numberOfUnknowns_ *= mesh->getElementsList().size();
         
         //addMesh("Triangular",bottomLeft, topRight, numElementsOneD);
         
         //actually store the full number of unknowns
         
-        
-        
-
-        
-        for(Base::MeshManipulator::ElementIterator it=mesh->elementColBegin();it!=mesh->elementColEnd();++it){
+        for (Base::MeshManipulator::ElementIterator it = mesh->elementColBegin(); it != mesh->elementColEnd(); ++it)
+        {
             (*it)->setUserData(new ElementInfos(**it));
         }
         
         return true;
     }
 };
-    
-    /**
-     * Computes element contributions to the mass matrix i.e. phi_i * phi_j
-     * returns the contibutions at this gauss point to the entire element matrix in one go
-     */
-   
+
+/**
+ * Computes element contributions to the mass matrix i.e. phi_i * phi_j
+ * returns the contibutions at this gauss point to the entire element matrix in one go
+ */
 
 void MatrixAssemblyIP::CompleteElementIntegrationIP(hpGemUIExtentions* matrixContainer)
 {
@@ -152,8 +143,7 @@ void MatrixAssemblyIP::CompleteElementIntegrationIP(hpGemUIExtentions* matrixCon
     elIntegral.setStorageWrapper(localElement_);
     //std::cout<<"ElementHcurl"<<std::endl;
     
-    
-    for(hpGemUIExtentions::ElementIterator it=matrixContainer->elementColBegin(); it!=matrixContainer->elementColEnd(); ++it)
+    for (hpGemUIExtentions::ElementIterator it = matrixContainer->elementColBegin(); it != matrixContainer->elementColEnd(); ++it)
     {
         
         matrix1.resize((*it)->getNrOfBasisFunctions(), (*it)->getNrOfBasisFunctions());
@@ -163,7 +153,7 @@ void MatrixAssemblyIP::CompleteElementIntegrationIP(hpGemUIExtentions* matrixCon
         (*it)->setElementMatrix(matrix1, 0);
         
         //std::cout<<"FirstIntegrationDone"<<std::endl;
-
+        
         matrix2.resize((*it)->getNrOfBasisFunctions(), (*it)->getNrOfBasisFunctions());
         elIntegral.integrate<LinearAlgebra::Matrix>((*it), &(matrixContainer->elementStiffnessIntegrand), matrix2);
         (*it)->setElementMatrix(matrix2, 1);
@@ -195,12 +185,11 @@ void MatrixAssemblyIP::CompleteFaceIntegrationIP(hpGemUIExtentions* matrixContai
     faIntegral.setStorageWrapper(localFace_);
     
     //std::cout<<"FaceHcurl"<<std::endl;
-
     
-    for(hpGemUIExtentions::FaceIterator it=matrixContainer->faceColBegin(); it!=matrixContainer->faceColEnd(); ++it)
+    for (hpGemUIExtentions::FaceIterator it = matrixContainer->faceColBegin(); it != matrixContainer->faceColEnd(); ++it)
     {
         //std::cout<<"Iteration over face started"<<std::endl;
-        if((*it)->isInternal())
+        if ((*it)->isInternal())
         {
             //std::cout<<"Internal face"<<std::endl;
             //matrix1.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions(), (*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions());
@@ -210,22 +199,20 @@ void MatrixAssemblyIP::CompleteFaceIntegrationIP(hpGemUIExtentions* matrixContai
             
             //matrix2.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions(), (*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions());
             matrix1.resize((*it)->getNrOfBasisFunctions(), (*it)->getNrOfBasisFunctions());
-
+            
             faIntegral.integrate<LinearAlgebra::Matrix>((*it), &(matrixContainer->faceStiffnessIntegrandIP), matrix2);
             
             matrix = matrix1 + matrix2;
             
             (*it)->setFaceMatrix(matrix, 0);
             
-            
             vector0.resize((*it)->getNrOfBasisFunctions());
-            for(int i = 0; i < vector0.size(); i++)
+            for (int i = 0; i < vector0.size(); i++)
                 vector0(i) = 0;
             
             //(*it)->setFaceVector(vector0, 0);
             (*it)->setFaceVector(vector0, 0);
             
-
         }
         
         else
@@ -243,7 +230,7 @@ void MatrixAssemblyIP::CompleteFaceIntegrationIP(hpGemUIExtentions* matrixContai
             
             (*it)->setFaceMatrix(matrix, 0);
             
-           // std::cout<<"Matrix1 has be set"<<std::endl;
+            // std::cout<<"Matrix1 has be set"<<std::endl;
             vector1.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions());
             
             faIntegral.integrate<LinearAlgebra::NumericalVector>((*it), &(matrixContainer->faceSpaceIntegrandIP), vector1);
@@ -263,55 +250,63 @@ void MatrixAssemblyIP::fillMatrices(hpGemUIExtentions* matrixContainer)
     
     CompleteElementIntegrationIP(matrixContainer);
     CompleteFaceIntegrationIP(matrixContainer);
-    std::cout<<"fillMatricesIP done"<<std::endl;
+    std::cout << "fillMatricesIP done" << std::endl;
     
 }
 
 /**
  * main routine. Suggested usage: make a problem, solve it, tell the user your results.
  */
-int main(int argc,char** argv){
+int main(int argc, char** argv)
+{
     
     //set up timings
-    time_t start,end,initialised,solved;
+    time_t start, end, initialised, solved;
     time(&start);
     
     //read input data
     int elements = 1;
-    if(argc>1){
-        elements=std::atoi(argv[1]);
-        std::cout<<"using "<<elements*elements*elements*5<<" elements"<<std::endl;
+    if (argc > 1)
+    {
+        elements = std::atoi(argv[1]);
+        std::cout << "using " << elements * elements * elements * 5 << " elements" << std::endl;
     }
     int order = 1;
-    if(argc>2){
-        order=std::atoi(argv[2]);
-        std::cout<<"using polynomial order: "<<order<<std::endl;
-    }else{
-        std::cout<<"usage:./Maxwell.out <elements> <order> [<petsc-args>]";
+    if (argc > 2)
+    {
+        order = std::atoi(argv[2]);
+        std::cout << "using polynomial order: " << order << std::endl;
+    }
+    else
+    {
+        std::cout << "usage:./Maxwell.out <elements> <order> [<petsc-args>]";
         exit(1);
     }
     //set up problem and decide flux type
-    DGMax problem(argc-2,&argv[2],new MaxwellData(elements,order),new Base::ConfigurationData(3,1,order,1),new MatrixAssemblyIP);
+    DGMax problem(argc - 2, &argv[2], new MaxwellData(elements, order), new Base::ConfigurationData(3, 1, order, 1), new MatrixAssemblyIP);
     //Base::ConfigurationData(3,1,order,61) for solveEigenvalues()
-    try{
+    try
+    {
         problem.initialise();
         time(&initialised);
         
         //choose what problem to solve
         //problem.solveEigenvalues();
         problem.solveHarmonic();
-        std::cout<<"solved for Harmonic"<<std::endl;
+        std::cout << "solved for Harmonic" << std::endl;
         time(&solved);
-        char filename[]="output.dat";
+        char filename[] = "output.dat";
         problem.makeOutput(filename);
         time(&end);
         
         //display timing data
-        std::cout<<"Initialisation took "<<difftime(initialised,start)<<" seconds."<<std::endl;
-        std::cout<<"Solving the problem took "<<difftime(solved,initialised)<<" seconds."<<std::endl;
-        std::cout<<"The rest took "<<difftime(end,solved)<<" seconds."<<std::endl;
+        std::cout << "Initialisation took " << difftime(initialised, start) << " seconds." << std::endl;
+        std::cout << "Solving the problem took " << difftime(solved, initialised) << " seconds." << std::endl;
+        std::cout << "The rest took " << difftime(end, solved) << " seconds." << std::endl;
         
-    }catch(const char* message){
+    }
+    catch (const char* message)
+    {
         std::cout << message;
     }
     return 0;

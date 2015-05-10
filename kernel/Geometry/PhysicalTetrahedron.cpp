@@ -18,42 +18,41 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "PhysicalTetrahedron.hpp"
+#include "PhysicalTetrahedron.h"
 #include <vector>
 
-#include "ReferenceTetrahedron.hpp"
-#include "PointPhysical.hpp"
-#include "PointReference.hpp"
+#include "ReferenceTetrahedron.h"
+#include "PointPhysical.h"
+#include "PointReference.h"
 
 namespace Geometry
 {
-    PhysicalTetrahedron::PhysicalTetrahedron(
-        const std::vector<std::size_t>& globalNodeIndexes,
-        const std::vector<PointPhysical>& nodes) :
-    PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceTetrahedron::Instance())
+    PhysicalTetrahedron::PhysicalTetrahedron(const std::vector<std::size_t>& globalNodeIndexes, const std::vector<PointPhysical>& nodes)
+            : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceTetrahedron::Instance())
     {
     }
-
+    
     std::vector<std::size_t> PhysicalTetrahedron::getGlobalFaceNodeIndices(const std::size_t face) const
     {
         std::vector<std::size_t> indexes(3);
-        indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
-        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,1)];
-        indexes[2] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,2)];
+        indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 0)];
+        indexes[1] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 1)];
+        indexes[2] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face, 2)];
         return indexes;
     }
-
+    
     std::vector<std::size_t> PhysicalTetrahedron::getLocalFaceNodeIndices(const std::size_t face) const
     {
         std::vector<std::size_t> indexes(3);
-        indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
-        indexes[1] = refGeometry_->getLocalNodeIndex(face,1);
-        indexes[2] = refGeometry_->getLocalNodeIndex(face,2);
+        indexes[0] = refGeometry_->getLocalNodeIndex(face, 0);
+        indexes[1] = refGeometry_->getLocalNodeIndex(face, 1);
+        indexes[2] = refGeometry_->getLocalNodeIndex(face, 2);
         return indexes;
     }
-
-	std::size_t PhysicalTetrahedron::getNrOfFaces() const {
-		return refGeometry_->getNrOfCodim1Entities();
-	}
+    
+    std::size_t PhysicalTetrahedron::getNrOfFaces() const
+    {
+        return refGeometry_->getNrOfCodim1Entities();
+    }
 
 }

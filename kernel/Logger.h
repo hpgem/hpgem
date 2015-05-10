@@ -124,24 +124,21 @@
  *
  * Please, use the tags FATAL/ERROR/etc without class/enum/namespace instead.
  */
-enum class Log : signed char {
-  FATAL =   -20,
-  ERROR =   -15,
-  WARN  =   -10,
-  INFO  =   -5,
-  DEFAULT = 0,
-  VERBOSE = 5,
-  DEBUG =   10,
+enum class Log
+    : signed char
+    {   
+        FATAL = -20, ERROR = -15, WARN = -10, INFO = -5, DEFAULT = 0, VERBOSE = 5, DEBUG = 10,
 };
 
 /*!
  * \brief Internally used to filter on loglevel.
  * Do not edit, as this is required for an optimised logger.
  */
-constexpr bool operator<=(const Log rhs, const Log lhs) {
-  return ((static_cast<signed char>(rhs)) <= (static_cast<signed char>(lhs)));
+constexpr bool operator<=(const Log rhs, const Log lhs)
+{
+    return ((static_cast<signed char>(rhs)) <= (static_cast<signed char>(lhs)));
 }
- 
+
 /*!
  * \class LoggerOutput
  * \brief Default functions for output generation
@@ -154,159 +151,165 @@ constexpr bool operator<=(const Log rhs, const Log lhs) {
  * They may also throw any exception to allow code to gracefully
  * recover.
  */
-class LoggerOutput {
-  public:
-    std::function<void(std::string,std::string)> onFatal;
-    std::function<void(std::string,std::string)> onError;
-    std::function<void(std::string,std::string)> onWarn;
-    std::function<void(std::string,std::string)> onInfo;
-    std::function<void(std::string,std::string)> onVerbose;
-    std::function<void(std::string,std::string)> onDebug;
+class LoggerOutput
+{
+public:
+    std::function<void(std::string, std::string)> onFatal;
+    std::function<void(std::string, std::string)> onError;
+    std::function<void(std::string, std::string)> onWarn;
+    std::function<void(std::string, std::string)> onInfo;
+    std::function<void(std::string, std::string)> onVerbose;
+    std::function<void(std::string, std::string)> onDebug;
 };
 
 /*!
-* \brief Declaration of the output functions.
-* If the output needs to be redirected, please
-* swap the loggerOutput pointer to your preferred
-* LoggerOutput instance, and make sure this exists
-* until _AFTER_ an std::exit() invocation.
-* (e.g. clean up with std::atexit())
-*/
+ * \brief Declaration of the output functions.
+ * If the output needs to be redirected, please
+ * swap the loggerOutput pointer to your preferred
+ * LoggerOutput instance, and make sure this exists
+ * until _AFTER_ an std::exit() invocation.
+ * (e.g. clean up with std::atexit())
+ */
 extern LoggerOutput* loggerOutput;
 
 // Forward declaration..
 template<Log L = Log::DEFAULT, bool ASSERTS = HPGEM_ASSERTS> class Logger;
 
 /*!
-* \brief Tag for template metaprogramming
-*
-* This tag class serves as a way to correctly
-* resolve the implementation (if any) of the
-* operator() or .log() method of the Logger.
-* Please, don't change it at all nor give it
-* any members.
-*/
+ * \brief Tag for template metaprogramming
+ *
+ * This tag class serves as a way to correctly
+ * resolve the implementation (if any) of the
+ * operator() or .log() method of the Logger.
+ * Please, don't change it at all nor give it
+ * any members.
+ */
 template<Log Level>
 class LL
 {
-public:  
+public:
 };
 
 /*!
-* These are the loglevels which should be used to
-* control the logger. They are declared here
-* but defined in Logger.cpp
-*/
+ * These are the loglevels which should be used to
+ * control the logger. They are declared here
+ * but defined in Logger.cpp
+ */
 /*!
-* \brief Fatal log level
-* 
-* Fatal, as in, the program has suffered from the worst possible failure and there is no
-* way it can gracefully recover.
-*
-* Example: No memory allocations possible
-*
-* Default behaviour: log to std::cerr, followed by std::exit().
-*/
-extern LL<Log::FATAL>     FATAL;
+ * \brief Fatal log level
+ * 
+ * Fatal, as in, the program has suffered from the worst possible failure and there is no
+ * way it can gracefully recover.
+ *
+ * Example: No memory allocations possible
+ *
+ * Default behaviour: log to std::cerr, followed by std::exit().
+ */
+extern LL<Log::FATAL> FATAL;
 /*!
-* \brief Error log level
-*
-* Error, as in, the program has found a severe problem which it cannot resolve
-* any further. It does not know how to recover in a sane way.
-*
-* Example: Negative timestep, Infinite end time and no override of the
-* continuation function.
-*
-* Default behaviour: log to std::cerr, followed by std::exit().
-*/
-extern LL<Log::ERROR>     ERROR;
+ * \brief Error log level
+ *
+ * Error, as in, the program has found a severe problem which it cannot resolve
+ * any further. It does not know how to recover in a sane way.
+ *
+ * Example: Negative timestep, Infinite end time and no override of the
+ * continuation function.
+ *
+ * Default behaviour: log to std::cerr, followed by std::exit().
+ */
+extern LL<Log::ERROR> ERROR;
 /*!
-* \brief Warning log level
-*
-* Warning, as in, the program has detected a problem but does know a solution.
-* The simulation can continue with this fix, but the user should look at
-* fixing his / her simulation so this won't occur in the future.
-*
-* Example: Setting a smaller Xmax than Xmin.
-*
-* Default behaviour: log to std::cerr, returns afterwards.
-*/
-extern LL<Log::WARN>      WARN;
+ * \brief Warning log level
+ *
+ * Warning, as in, the program has detected a problem but does know a solution.
+ * The simulation can continue with this fix, but the user should look at
+ * fixing his / her simulation so this won't occur in the future.
+ *
+ * Example: Setting a smaller Xmax than Xmin.
+ *
+ * Default behaviour: log to std::cerr, returns afterwards.
+ */
+extern LL<Log::WARN> WARN;
 /*!
-* \brief Info log level
-*
-* Useful information, small oddities found which should be of no real effect
-* to the user. Also information about the current state and progress of the program.
-*
-* Example: Finished inserting particles.
-*
-* Default behaviour: log to std::cout, returns afterwards.
-*/
-extern LL<Log::INFO>      INFO;
+ * \brief Info log level
+ *
+ * Useful information, small oddities found which should be of no real effect
+ * to the user. Also information about the current state and progress of the program.
+ *
+ * Example: Finished inserting particles.
+ *
+ * Default behaviour: log to std::cout, returns afterwards.
+ */
+extern LL<Log::INFO> INFO;
 /*!
-* \brief Default log level
-*
-* Only useful for defining the loglevel of the logger itself. Should not actually be used.
-*/
-extern LL<Log::DEFAULT>   DEFAULT;
+ * \brief Default log level
+ *
+ * Only useful for defining the loglevel of the logger itself. Should not actually be used.
+ */
+extern LL<Log::DEFAULT> DEFAULT;
 /*!
-* \brief Verbose information
-*
-* Information which is not useful to anybody except those looking for weird behaviour
-* and statistics. These should however still be clear in meaning.
-*
-* Example: Inserted 381 particles in Insertion Boundary #1.
-*
-* Default behaviour: ignore.
-*/
-extern LL<Log::VERBOSE>   VERBOSE;
+ * \brief Verbose information
+ *
+ * Information which is not useful to anybody except those looking for weird behaviour
+ * and statistics. These should however still be clear in meaning.
+ *
+ * Example: Inserted 381 particles in Insertion Boundary #1.
+ *
+ * Default behaviour: ignore.
+ */
+extern LL<Log::VERBOSE> VERBOSE;
 /*!
-* \brief Debug information
-*
-* Only used for internal development. Can be very cryptic, as it is only meant for finding
-* bugs / oddities by the internal development team.
-* 
-* Example: Collission found between Particle #38201 and Wall #5
-*
-* Default behaviour: ignore.
-*/
-extern LL<Log::DEBUG>     DEBUG;
+ * \brief Debug information
+ *
+ * Only used for internal development. Can be very cryptic, as it is only meant for finding
+ * bugs / oddities by the internal development team.
+ * 
+ * Example: Collission found between Particle #38201 and Wall #5
+ *
+ * Default behaviour: ignore.
+ */
+extern LL<Log::DEBUG> DEBUG;
 
 /*!
-* \brief Logger
-*
-* \arg L The log level. Messages of higher level are ignored
-* 
-* Usage: logger(FATAL, "Error in (here) because % < %!\n", var1, var2);
-*
-* Define custom loggers by:
-* #ifndef HG_LOGLEVEL_CUSTOMMOD
-* #define HG_LOGLEVEL_CUSTOMMOD Log::Debug
-* #endif
-* Logger<HG_LOGLEVEL_CUSTOMMOD> customLogger; 
-*/
+ * \brief Logger
+ *
+ * \arg L The log level. Messages of higher level are ignored
+ * 
+ * Usage: logger(FATAL, "Error in (here) because % < %!\n", var1, var2);
+ *
+ * Define custom loggers by:
+ * #ifndef HG_LOGLEVEL_CUSTOMMOD
+ * #define HG_LOGLEVEL_CUSTOMMOD Log::Debug
+ * #endif
+ * Logger<HG_LOGLEVEL_CUSTOMMOD> customLogger; 
+ */
 template<Log L, bool ASSERTS>
 class Logger
 {
-  private:    
+private:
     /*!
      * \brief The module name of this actual logger
      */
     const std::string module;
-    
-  public:
 
+public:
+    
     /*!
      * \brief constructor
      * \arg name The name in this module used in output messages.
      */
-     Logger(const std::string name) : module(name) { }
+    Logger(const std::string name)
+            : module(name)
+    {
+    }
     /*!
      * \brief destructor
      */
-     ~Logger() {}
-
-     /*
+    ~Logger()
+    {
+    }
+    
+    /*
      *
      * \brief Log implementation of this function
      *
@@ -319,34 +322,46 @@ class Logger
      * \arg format Message format, where % can be used as a placeholder for arguments.
      * \arg arg... Any arguments which needs to be replaced.
      */
-     template<Log LOGLEVEL, typename... Args>
-     typename std::enable_if<!((L < LOGLEVEL) || (HPGEM_LOGLEVEL < LOGLEVEL)), void>::type
-     operator()(const LL<LOGLEVEL> log, const std::string& format, Args&&... arg)
-     {
-         std::stringstream msgstream;
-         createMessage(msgstream, format.c_str(), arg...);
-         if        (LOGLEVEL <= Log::FATAL)   {
-           loggerOutput->onFatal(module, msgstream.str());
-         } else if (LOGLEVEL <= Log::ERROR)   {
-           loggerOutput->onError(module, msgstream.str());
-         } else if (LOGLEVEL <= Log::WARN)    {
-           loggerOutput->onWarn(module, msgstream.str());
-         } else if (LOGLEVEL <= Log::INFO)    {
-           loggerOutput->onInfo(module, msgstream.str());
-         } else if (LOGLEVEL <= Log::VERBOSE) {
-           loggerOutput->onVerbose(module, msgstream.str());
-         } else {
-           loggerOutput->onDebug(module, msgstream.str());
-         }
-     }
-     
-     template<Log LOGLEVEL, typename... Args>
-     typename std::enable_if<L < LOGLEVEL || HPGEM_LOGLEVEL < LOGLEVEL, void>::type
-     operator()(const LL<LOGLEVEL> log, const std::string& format, Args&&... arg) {
-         
-     }
-     
-     /*
+    template<Log LOGLEVEL, typename ... Args>
+    typename std::enable_if<!((L < LOGLEVEL) || (HPGEM_LOGLEVEL< LOGLEVEL)), void>::type
+    operator()(const LL<LOGLEVEL> log, const std::string& format, Args&&... arg)
+    {   
+        std::stringstream msgstream;
+        createMessage(msgstream, format.c_str(), arg...);
+        if (LOGLEVEL <= Log::FATAL)
+        {   
+            loggerOutput->onFatal(module, msgstream.str());
+        }
+        else if (LOGLEVEL <= Log::ERROR)
+        {   
+            loggerOutput->onError(module, msgstream.str());
+        }
+        else if (LOGLEVEL <= Log::WARN)
+        {   
+            loggerOutput->onWarn(module, msgstream.str());
+        }
+        else if (LOGLEVEL <= Log::INFO)
+        {   
+            loggerOutput->onInfo(module, msgstream.str());
+        }
+        else if (LOGLEVEL <= Log::VERBOSE)
+        {   
+            loggerOutput->onVerbose(module, msgstream.str());
+        }
+        else
+        {   
+            loggerOutput->onDebug(module, msgstream.str());
+        }
+    }
+
+    template<Log LOGLEVEL, typename... Args>
+    typename std::enable_if<L < LOGLEVEL || HPGEM_LOGLEVEL < LOGLEVEL, void>::type
+    operator()(const LL<LOGLEVEL> log, const std::string& format, Args&&... arg)
+    {   
+
+    }
+
+    /*
      *
      * \brief Asserts on this logger
      *
@@ -358,138 +373,147 @@ class Logger
      * \arg format Message format, where % can be used as a placeholder for arguments.
      * \arg arg... Any arguments which needs to be replaced.
      */
-     template<typename... Args>
-     typename std::enable_if<(ASSERTS || HPGEM_ASSERTS) && (sizeof...(Args) >= 0), void>::type
-     assert(bool assertion, const std::string& format, Args&&... arg)
-     {
-       assert_always(assertion, format, arg...);
-     }
-     
-     template<typename... Args>
-     typename std::enable_if<!((ASSERTS || HPGEM_ASSERTS) && sizeof...(Args) >= 0), void>::type
-     assert(bool assertion, const std::string& format, Args&&... arg)
-     {
-     }
-     
-     //the conversion from "" to a std::sting is so slow, it takes 50% of the total run time for a release build...
-     template<typename... Args>
-     typename std::enable_if<!((ASSERTS || HPGEM_ASSERTS) && sizeof...(Args) >= 0), void>::type
-     assert(bool assertion, const char* format, Args&&... arg)
-     {
-     }
-     
-     template<typename... Args>
-     void assert_always(bool assertion, const std::string& format, Args&&... arg)
-     {
-       if (!assertion)
-       {
-         std::stringstream msgstream;
-         createMessage(msgstream, format.c_str(), arg...);
-         loggerOutput->onFatal(module, msgstream.str());
-       }
+    template<typename... Args>
+    typename std::enable_if<(ASSERTS || HPGEM_ASSERTS) && (sizeof...(Args) >= 0), void>::type
+    assert(bool assertion, const std::string& format, Args&&... arg)
+    {   
+        assert_always(assertion, format, arg...);
+    }
 
-     }
-     
-    
+    template<typename... Args>
+    typename std::enable_if<!((ASSERTS || HPGEM_ASSERTS) && sizeof...(Args) >= 0), void>::type
+    assert(bool assertion, const std::string& format, Args&&... arg)
+    {   
+    }
+
+    //the conversion from "" to a std::sting is so slow, it takes 50% of the total run time for a release build...
+    template<typename... Args>
+    typename std::enable_if<!((ASSERTS || HPGEM_ASSERTS) && sizeof...(Args) >= 0), void>::type
+    assert(bool assertion, const char* format, Args&&... arg)
+    {   
+    }
+
+    template<typename... Args>
+    void assert_always(bool assertion, const std::string& format, Args&&... arg)
+    {   
+        if (!assertion)
+        {   
+            std::stringstream msgstream;
+            createMessage(msgstream, format.c_str(), arg...);
+            loggerOutput->onFatal(module, msgstream.str());
+        }
+
+    }
+
     /*!
      * \brief Oldskool log method.
      * \deprecated Use operator() instead.
-     */     
-     template<typename... Args>
-     void log(const Log loglevel, const std::string& format, Args&&... arg)
-     {
-       if (loglevel <= L || loglevel <= HPGEM_LOGLEVEL)
-       {
-         std::stringstream msgstream;
-         createMessage(msgstream, format.c_str(), arg...);
-         if        (loglevel <= Log::FATAL) {
-           loggerOutput->onFatal(module, msgstream.str());
-         } else if (loglevel <= Log::ERROR) {
-           loggerOutput->onError(module, msgstream.str());
-         } else if (loglevel <= Log::WARN) {
-           loggerOutput->onWarn(module, msgstream.str());
-         } else if (loglevel <= Log::INFO) {
-           loggerOutput->onInfo(module, msgstream.str());
-         } else if (loglevel <= Log::VERBOSE) {
-           loggerOutput->onVerbose(module, msgstream.str());
-         } else {
-           loggerOutput->onDebug(module, msgstream.str());
-         }
-       }
-     }
-  private:
-     /*!
+     */
+    template<typename... Args>
+    void log(const Log loglevel, const std::string& format, Args&&... arg)
+    {   
+        if (loglevel <= L || loglevel <= HPGEM_LOGLEVEL)
+        {   
+            std::stringstream msgstream;
+            createMessage(msgstream, format.c_str(), arg...);
+            if (loglevel <= Log::FATAL)
+            {   
+                loggerOutput->onFatal(module, msgstream.str());
+            }
+            else if (loglevel <= Log::ERROR)
+            {   
+                loggerOutput->onError(module, msgstream.str());
+            }
+            else if (loglevel <= Log::WARN)
+            {   
+                loggerOutput->onWarn(module, msgstream.str());
+            }
+            else if (loglevel <= Log::INFO)
+            {   
+                loggerOutput->onInfo(module, msgstream.str());
+            }
+            else if (loglevel <= Log::VERBOSE)
+            {   
+                loggerOutput->onVerbose(module, msgstream.str());
+            }
+            else
+            {   
+                loggerOutput->onDebug(module, msgstream.str());
+            }
+        }
+    }
+private:
+    /*!
      * \brief Actual implementation to recursively replace all the '%' signs by
      * actual values.
      */
-     template<typename Arg1, typename... Args>
-     void createMessage(std::stringstream& msg, const char* fmt, 
-                                                  Arg1&& arg, Args&&... args)
-     {
-       bool doSkipNext = false;
-       while (*fmt != '%' && !doSkipNext)
-       {
-         doSkipNext = false;
-         //Make sure we're not running past the end of our formatting string.
-         if (*fmt == '\0')
-           return;
-           
-         if (*fmt == '\\')
-         { //Escape for the %sign
-           doSkipNext = true;
-         }
-         else
-         {
-           msg << *fmt;
-           fmt++;
-         }
-       }
+    template<typename Arg1, typename... Args>
+    void createMessage(std::stringstream& msg, const char* fmt,
+    Arg1&& arg, Args&&... args)
+    {   
+        bool doSkipNext = false;
+        while (*fmt != '%' && !doSkipNext)
+        {   
+            doSkipNext = false;
+            //Make sure we're not running past the end of our formatting string.
+            if (*fmt == '\0')
+            return;
 
-       fmt++; //Consume the % sign
-       msg << arg;
-       createMessage(msg, fmt, args...); //and recursively call ourselve / the method below.
-     }
-     
-     /*!
+            if (*fmt == '\\')
+            { //Escape for the %sign
+                doSkipNext = true;
+            }
+            else
+            {   
+                msg << *fmt;
+                fmt++;
+            }
+        }
+
+        fmt++; //Consume the % sign
+        msg << arg;
+        createMessage(msg, fmt, args...);//and recursively call ourselve / the method below.
+    }
+
+    /*!
      * \brief Terminating case / argument call
      */
-     template<typename Arg1>
-     void createMessage(std::stringstream& msg, const char* fmt, Arg1&& arg)
-     {
-       bool doSkipNext = false;
-       while (*fmt != '%' && !doSkipNext)
-       {
-         doSkipNext = false;
-         if (*fmt == '\0') // End of string
-           return;
-         
-         if (*fmt == '\\')
-         { //Escape for the %sign
-           doSkipNext = true;
-         }
-         else 
-         { //invoke the replacement
-           msg << *fmt;
-           fmt++;
-         }
-       }
-       fmt++; //Consume the % sign
-       msg << arg;
-       while (*fmt != '\0')
-       { //And print the end of the message!
-         msg << *fmt;
-         fmt++;
-       }
-     }
-     
+    template<typename Arg1>
+    void createMessage(std::stringstream& msg, const char* fmt, Arg1&& arg)
+    {   
+        bool doSkipNext = false;
+        while (*fmt != '%' && !doSkipNext)
+        {   
+            doSkipNext = false;
+            if (*fmt == '\0') // End of string
+            return;
+
+            if (*fmt == '\\')
+            { //Escape for the %sign
+                doSkipNext = true;
+            }
+            else
+            { //invoke the replacement
+                msg << *fmt;
+                fmt++;
+            }
+        }
+        fmt++; //Consume the % sign
+        msg << arg;
+        while (*fmt != '\0')
+        { //And print the end of the message!
+            msg << *fmt;
+            fmt++;
+        }
+    }
 
     /*!
      * \brief Terminating case / no argument call
      */
-     void createMessage(std::stringstream& msg, const char* message)
-     {
-       msg << message;
-     }
+    void createMessage(std::stringstream& msg, const char* message)
+    {   
+        msg << message;
+    }
 };
 
 /*! Default logger.
@@ -506,6 +530,5 @@ extern Logger<HPGEM_LOGLEVEL> logger;
 #if !HPGEM_ASSERTS
 #define assert(e,...) assert(true,"")
 #endif
-
-
+        
 #endif

@@ -19,75 +19,75 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ShortTermStorageElementBase.h"
 
-#include "ShortTermStorageElementBase.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRule.h"
+#include "ElementCacheData.h"
 
-#include "Integration/QuadratureRules/GaussQuadratureRule.hpp"
-#include "ElementCacheData.hpp"
-
-Geometry::PointPhysical Base::ShortTermStorageElementBase::referenceToPhysical(const PointReferenceT& pointReference) const 
+Geometry::PointPhysical Base::ShortTermStorageElementBase::referenceToPhysical(const PointReferenceT& pointReference) const
 {
-			return element_->referenceToPhysical(pointReference);
+    return element_->referenceToPhysical(pointReference);
 }
 
-Geometry::Jacobian Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference) const 
+Geometry::Jacobian Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference) const
 {
-	if(!(currentPoint_==pointReference))
+    if (!(currentPoint_ == pointReference))
     {
-		std::cout << "WARNING: you are using slow data access";//todo logger
-		return element_->calcJacobian(pointReference);
-	}
-	return jac_;
+        std::cout << "WARNING: you are using slow data access"; //todo logger
+        return element_->calcJacobian(pointReference);
+    }
+    return jac_;
 }
 
-Geometry::Jacobian Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference) 
+Geometry::Jacobian Base::ShortTermStorageElementBase::calcJacobian(const PointReferenceT& pointReference)
 {
-	if(!(currentPoint_==pointReference))
+    if (!(currentPoint_ == pointReference))
     {
-		currentPoint_=pointReference;
-		computeData();
-	}
-	return jac_;
+        currentPoint_ = pointReference;
+        computeData();
+    }
+    return jac_;
 }
 
-void Base::ShortTermStorageElementBase::computeData() 
+void Base::ShortTermStorageElementBase::computeData()
 {
-	if(useCache_)
+    if (useCache_)
     {
-            std::vector<ElementCacheData>& cache=const_cast<Element*>(element_)->getVecCacheData();
-            if(recomputeCache_||(cache.size()!=getGaussQuadratureRule()->nrOfPoints()))
+        std::vector<ElementCacheData>& cache = const_cast<Element*>(element_)->getVecCacheData();
+        if (recomputeCache_ || (cache.size() != getGaussQuadratureRule()->nrOfPoints()))
+        {
+            recomputeCacheOff();
+            int n = getGaussQuadratureRule()->nrOfPoints();
+            for (int i = 0; i < n; ++i)
             {
-                recomputeCacheOff();
-                int n=getGaussQuadratureRule()->nrOfPoints();
-                for(int i = 0; i < n; ++i){
-                    cache[i](element_,getGaussQuadratureRule()->getPoint(i));
-                }
+                cache[i](element_, getGaussQuadratureRule()->getPoint(i));
             }
-            currentPointIndex_++;
-            jac_ = element_->calcJacobian(currentPoint_);
-	}
+        }
+        currentPointIndex_++;
+        jac_ = element_->calcJacobian(currentPoint_);
+    }
     else
     {
-            jac_ = element_->calcJacobian(currentPoint_);
-	}
+        jac_ = element_->calcJacobian(currentPoint_);
+    }
 }
 
-void Base::ShortTermStorageElementBase::cacheOn() 
+void Base::ShortTermStorageElementBase::cacheOn()
 {
-	useCache_=true;
+    useCache_ = true;
 }
 
-void Base::ShortTermStorageElementBase::cacheOff() 
+void Base::ShortTermStorageElementBase::cacheOff()
 {
-	useCache_=false;
+    useCache_ = false;
 }
 
-void Base::ShortTermStorageElementBase::recomputeCacheOn() 
+void Base::ShortTermStorageElementBase::recomputeCacheOn()
 {
-	recomputeCache_=true;
+    recomputeCache_ = true;
 }
 
-void Base::ShortTermStorageElementBase::recomputeCacheOff() 
+void Base::ShortTermStorageElementBase::recomputeCacheOff()
 {
-	recomputeCache_=false;
+    recomputeCache_ = false;
 }

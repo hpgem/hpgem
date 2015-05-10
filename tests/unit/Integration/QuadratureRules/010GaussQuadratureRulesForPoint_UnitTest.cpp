@@ -22,34 +22,36 @@
 //naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number that will make sure
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
-
-#include "Integration/QuadratureRules/GaussQuadratureRulesForPoint.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRulesForPoint.h"
 #include "Logger.h"
 #include <iostream>
 #include <typeinfo>
-#include "Geometry/PointReference.hpp"
-#include "Geometry/ReferencePoint.hpp"
+#include "Geometry/PointReference.h"
+#include "Geometry/ReferencePoint.h"
 #include <cmath>
 
-void testRule(QuadratureRules::GaussQuadratureRule& test){
-	std::cout<<test.getName();
-	logger.assert_always((test.dimension()==0),"dimension");
-	logger.assert_always((test.order()>11),"order");
-	logger.assert_always((typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferencePoint)),"forReferenceGeometry");
-	Geometry::PointReference point(0);
-	//0D Quadrature rules are special
-	double integrated=0;
-	for(std::size_t i=0;i<test.nrOfPoints();++i){
-		integrated+=test.weight(i);
-		point = test.getPoint(i);
-	}
-	logger.assert_always((std::abs(integrated-1)<1e-12),"integration");
+void testRule(QuadratureRules::GaussQuadratureRule& test)
+{
+    std::cout << test.getName();
+    logger.assert_always((test.dimension() == 0), "dimension");
+    logger.assert_always((test.order() > 11), "order");
+    logger.assert_always((typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferencePoint)), "forReferenceGeometry");
+    Geometry::PointReference point(0);
+    //0D Quadrature rules are special
+    double integrated = 0;
+    for (std::size_t i = 0; i < test.nrOfPoints(); ++i)
+    {
+        integrated += test.weight(i);
+        point = test.getPoint(i);
+    }
+    logger.assert_always((std::abs(integrated - 1) < 1e-12), "integration");
 }
 
-int main(){
-
-	testRule(QuadratureRules::Cn0_inf_1::Instance());
-
-	return 0;
+int main()
+{
+    
+    testRule(QuadratureRules::Cn0_inf_1::Instance());
+    
+    return 0;
 }
 

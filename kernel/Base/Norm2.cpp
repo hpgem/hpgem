@@ -19,42 +19,43 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Norm2.hpp"
+#include "Norm2.h"
 
-#include "Geometry/PointPhysical.hpp"
+#include "Geometry/PointPhysical.h"
 
 #include <cmath>
 namespace Utilities
 {
     /*template <>
-    double norm2<1>(const Geometry::PointPhysical<1>& p)
-    {
-        return std::abs(p[0]);
-    }
-    
-    template <>
-    double norm2<2>(const Geometry::PointPhysical<2>& p)
-    {
-        return std::sqrt(p[0] * p[0] + p[1] * p[1]);
-    }
-    
-    template <>
-    double norm2<3>(const Geometry::PointPhysical<3>& p)
-    {
-        return std::sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
-    }*/
-    
+     double norm2<1>(const Geometry::PointPhysical<1>& p)
+     {
+     return std::abs(p[0]);
+     }
+     
+     template <>
+     double norm2<2>(const Geometry::PointPhysical<2>& p)
+     {
+     return std::sqrt(p[0] * p[0] + p[1] * p[1]);
+     }
+     
+     template <>
+     double norm2<3>(const Geometry::PointPhysical<3>& p)
+     {
+     return std::sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
+     }*/
+
     double norm2(const Geometry::PointPhysical& p)
     {
-    	double retSquared(0);
-    	for(std::size_t i=0;i<p.size();++i){
-    		retSquared+=p[i]*p[i];
-    	}
+        double retSquared(0);
+        for (std::size_t i = 0; i < p.size(); ++i)
+        {
+            retSquared += p[i] * p[i];
+        }
         return std::sqrt(retSquared);
     }
 }
-    //------------------------------------------------------------------------------
-    // Local variables:
-    // mode:c++
-    // comment-column: 48
-    // End:
+//------------------------------------------------------------------------------
+// Local variables:
+// mode:c++
+// comment-column: 48
+// End:

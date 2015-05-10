@@ -18,23 +18,22 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "FaceData.hpp"
+#include "FaceData.h"
 #include <iostream>
 
-#include "FaceCacheData.hpp"
-#include "LinearAlgebra/Matrix.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
+#include "FaceCacheData.h"
+#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/NumericalVector.h"
 #include "Logger.h"
 
-
-Base::FaceData::FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors) :
-faceMatrix_(numberOfFaceMatrices), faceVector_(numberOfFaceVectors)
+Base::FaceData::FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors)
+        : faceMatrix_(numberOfFaceMatrices), faceVector_(numberOfFaceVectors)
 {
     //std::cout<<"numberOfFaceMatrices "<<numberOfFaceMatrices<<std::endl;
     //std::cout<<"FaceMatrix_ size "<<faceMatrix_.size()<<std::endl;
     //std::cout<<"numberOfFaceVectors "<<numberOfFaceVectors<<std::endl;
     //std::cout<<"faceVector_ size = "<<faceVector_.size()<<std::endl;
-
+    
 }
 
 /// \param[in] matrix The standard matrix used to set the FaceMatrix.

@@ -19,40 +19,38 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ProblemDescriptorTimeDependent.hpp"
-#include "Integration/ReturnTrait1.hpp"
-#include "Base/Element.hpp"
-#include "Base/ShortTermStorageElementH1.hpp"
-#include "Base/ShortTermStorageFaceH1.hpp"
-#include "GlobalData.hpp"
-#include "Integration/FaceIntegral.hpp"
-#include "Integration/ElementIntegral.hpp"
-#include "ConfigurationData.hpp"
-#include "RectangularMeshDescriptor.hpp"
-#include "ElementCacheData.hpp"
-#include "FaceCacheData.hpp"
+#include "ProblemDescriptorTimeDependent.h"
+#include "Integration/ReturnTrait1.h"
+#include "Base/Element.h"
+#include "Base/ShortTermStorageElementH1.h"
+#include "Base/ShortTermStorageFaceH1.h"
+#include "GlobalData.h"
+#include "Integration/FaceIntegral.h"
+#include "Integration/ElementIntegral.h"
+#include "ConfigurationData.h"
+#include "RectangularMeshDescriptor.h"
+#include "ElementCacheData.h"
+#include "FaceCacheData.h"
 #include "Logger.h"
-#include "CommandLineOptions.hpp"
-#include "Output/TecplotDiscontinuousSolutionWriter.hpp"
-#include "MpiContainer.hpp"
-#include "Output/VTKTimeDependentWriter.hpp"
+#include "CommandLineOptions.h"
+#include "Output/TecplotDiscontinuousSolutionWriter.h"
+#include "MpiContainer.h"
+#include "Output/VTKTimeDependentWriter.h"
 
 namespace Base
 {
     class ProblemDescriptorTimeDependent;
-
+    
     extern CommandLineOption<std::size_t> &numberOfSnapshots;
     extern CommandLineOption<double> &endTime;
     extern CommandLineOption<double> &startTime;
     extern CommandLineOption<double> &dt;
     extern CommandLineOption<std::string> &outputName;
-
+    
     ///Constructor, GlobalData and ConfigurationData is deleted in HpgemUI
-
+    
     ProblemDescriptorTimeDependent::ProblemDescriptorTimeDependent(std::size_t DIM, std::size_t polynomialOrder, const Base::ButcherTableau* integrator)
-    : HpgemUI(new GlobalData,
-              new ConfigurationData(DIM, 1, polynomialOrder, integrator->numStages() + 1)),
-    integrator_(integrator)
+            : HpgemUI(new GlobalData, new ConfigurationData(DIM, 1, polynomialOrder, integrator->numStages() + 1)), integrator_(integrator)
     {
         endTime_ = endTime.getValue();
         startTime_ = startTime.getValue();
@@ -66,7 +64,7 @@ namespace Base
             dt_ = dt.getValue();
         }
     }
-
+    
     ///Function that executes one time step of an explicit Runge-Kutta like time
     ///integrator.
     ///\todo Find a way to nicely add the residues.
@@ -88,17 +86,17 @@ namespace Base
                     currentData += dt_ * integrator_->a(level, i) * element->getTimeLevelData(i + 1);
                 }
                 element->setCurrentData(currentData);
-            }            
-
+            }
+            
             //Compute the local (element) part of the right hand side
             computeRhsLocal();
-
+            
             //Now we need to perform the synchronisation between nodes.
             synchronize();
-
+            
             //Compute the face (flux) part of the right hand side
             computeRhsFaces();
-
+            
             //for every face, get the right hand side of both the local element and
             //the faces. Add the parts for both elements and save again.
             for (Base::Face *face : meshes_[0]->getFacesList())
@@ -106,16 +104,16 @@ namespace Base
                 if (face->isInternal())
                 {
                     leftResidual = face->getPtrElementLeft()->getResidue();
-
+                    
                     rightResidual = face->getPtrElementRight()->getResidue();
-
+                    
                     residual = face->getResidue();
-
+                    
                     std::size_t numBasisFuncsLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
                     //can we get nicer matrix?
                     leftResidual.resize(numBasisFuncsLeft);
                     rightResidual.resize(face->getNrOfBasisFunctions() - numBasisFuncsLeft);
-
+                    
                     for (std::size_t j = 0; j < numBasisFuncsLeft; ++j)
                     {
                         leftResidual(j) += residual(j);
@@ -124,7 +122,7 @@ namespace Base
                     {
                         rightResidual(j - numBasisFuncsLeft) += residual(j);
                     }
-
+                    
                     face->getPtrElementLeft()->setResidue(leftResidual);
                     face->getPtrElementRight()->setResidue(rightResidual);
                 }
@@ -136,7 +134,7 @@ namespace Base
                     face->getPtrElementLeft()->setResidue(residual);
                 }
             }
-
+            
             //From the right-hand side computed earlier, compute M^{-1} * rhs
             //and save this as a time level.
             for (Base::Element *element : meshes_[0]->getElementsList())
@@ -152,7 +150,7 @@ namespace Base
         //u_{n+1} = u_n + sum(b_{level} k_{level}) with k being the timeLevelData
         for (Base::Element *element : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::NumericalVector nextTimeStep = element ->getTimeLevelData(0);
+            LinearAlgebra::NumericalVector nextTimeStep = element->getTimeLevelData(0);
             for (std::size_t level = 0; level < integrator_->numStages(); ++level)
             {
                 nextTimeStep += dt_ * integrator_->b(level) * element->getTimeLevelData(level + 1);
@@ -160,17 +158,17 @@ namespace Base
             element->setTimeLevelData(0, nextTimeStep);
         }
     }
-
+    
     ///Function that computes the grid and all matrices, executes the time stepping
     ///and writes the output files
     bool ProblemDescriptorTimeDependent::solve()
     {
         initialise(); //make the grid
-        logger.assert(checkInitialisation(),"Something went wrong with initialisation of the problem."); //check if we made a grid
+        logger.assert(checkInitialisation(), "Something went wrong with initialisation of the problem."); //check if we made a grid
         doAllElementIntegration(); //compute all element integrals (except stiffness)
         doAllFaceIntegration(); //compute all face integrals (upwind flux)
         interpolate(); //compute the coefficients for the initial conditions
-
+        
         //initialise the output files
         std::string outFileName = outputName.getValue();
 #ifdef HPGEM_USE_MPI
@@ -188,11 +186,11 @@ namespace Base
             outFileName = "VTK/output";
         }
         Output::VTKTimeDependentWriter VTKout(outFileName, meshes_[0]);
-
+        
         //initialise and set the time-related variables
         double t = startTime_;
         double origDt = dt_;
-
+        
         double dtPlot;
         if (numberOfSnapshots.getValue() > 1L)
         {
@@ -205,8 +203,7 @@ namespace Base
             dtPlot = endTime_ - startTime_;
         }
         double tPlot = startTime_ + dtPlot;
-
-
+        
         //start time stepping
         while (t < endTime_)
         {
@@ -217,11 +214,11 @@ namespace Base
                 dt_ = tPlot - t;
                 t = tPlot;
             }
-
+            
             computeOneTimeStep();
-
+            
             if (t == tPlot)
-            {//yes, == for doubles, but see the start of the time loop
+            { //yes, == for doubles, but see the start of the time loop
                 tPlot += dtPlot;
                 out.write(meshes_[0], "solution", false, this, t);
                 VTKWrite(VTKout, t);
@@ -234,17 +231,17 @@ namespace Base
         }
         return true;
     }
-
+    
     ///Compute the integrals on all faces. 
     void ProblemDescriptorTimeDependent::doAllFaceIntegration(std::size_t meshID)
     {
         bool useCache = false;
-
+        
         LinearAlgebra::Matrix fMatrixData;
         LinearAlgebra::NumericalVector fVectorData;
         FaceIntegralT faceIntegral(useCache);
         faceIntegral.setStorageWrapper(new Base::ShortTermStorageFaceH1(meshes_[meshID]->dimension()));
-
+        
         for (MeshManipulator::FaceIterator citFe = Base::HpgemUI::faceColBegin(); citFe != Base::HpgemUI::faceColEnd(); ++citFe)
         {
             std::size_t numBasisFuncs = (*citFe)->getNrOfBasisFunctions();
@@ -254,7 +251,7 @@ namespace Base
             (*citFe)->setFaceVector(fVectorData);
         }
     }
-
+    
     ///Compute the integrals on all elements.
     void ProblemDescriptorTimeDependent::doAllElementIntegration(std::size_t meshID)
     {
@@ -262,15 +259,15 @@ namespace Base
         //solution for, this is automatically set to 1 in the contructor of hpgemUISimplified
         //ndof is now the size of your element matrix
         std::size_t ndof = HpgemUI::configData_->numberOfBasisFunctions_;
-
+        
         //initialise the element matrix and element vector.
         LinearAlgebra::Matrix eMatrixData(ndof, ndof);
         LinearAlgebra::NumericalVector eVectorData(ndof);
-
+        
         bool isUseCache = false;
         Integration::ElementIntegral elIntegral(isUseCache);
         elIntegral.setStorageWrapper(new ShortTermStorageElementH1(meshes_[meshID]->dimension()));
-
+        
         for (ElementIterator it = HpgemUI::meshes_[meshID]->elementColBegin(); it != HpgemUI::meshes_[meshID]->elementColEnd(); ++it)
         {
             eMatrixData = elIntegral.integrate<LinearAlgebra::Matrix>((*it), this);
@@ -280,7 +277,7 @@ namespace Base
             (*it)->setResidue(eVectorData);
         }
     }
-
+    
     ///Interpolates the new solution from the right hand side computed before.
     /// Default: solve Mass * x = rhs and set x as the new current data
     void ProblemDescriptorTimeDependent::interpolate()
@@ -293,7 +290,7 @@ namespace Base
             element->setTimeLevelData(0, solution);
         }
     }
-
+    
     void ProblemDescriptorTimeDependent::synchronize(std::size_t meshID)
     {
 #ifdef HPGEM_USE_MPI
@@ -306,14 +303,14 @@ namespace Base
 
         //recieve first for lower overhead
         for (const auto& it : pulls)
-        {
+        {   
             for (Element* el : it.second)
-            {
+            {   
                 if (configData_->numberOfTimeLevels_ > 0)
-                {
+                {   
                     logger.assert(el->getCurrentData().size() ==
                             configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_,
-                                  "TimeLevelDataVector has the wrong size.");
+                            "TimeLevelDataVector has the wrong size.");
 
                     //assert(el->getTimeLevelData(0).size()==configData_->numberOfBasisFunctions_);
                     //                    LinearAlgebra::NumericalVector timeLevelData(configData_->numberOfBasisFunctions_);
@@ -325,14 +322,14 @@ namespace Base
             }
         }
         for (const auto& it : pushes)
-        {
+        {   
             for (Element* el : it.second)
-            {
+            {   
                 if (configData_->numberOfTimeLevels_ > 0)
-                {
+                {   
                     logger.assert(el->getCurrentData().size() ==
                             configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_,
-                                  "TimeLevelDataVector has the wrong size.");
+                            "TimeLevelDataVector has the wrong size.");
                     MPIContainer::Instance().send(el->getCurrentData(), it.first, el->getID() * 2 + 1);
                     //std::cout<<"Sending element "<<el->getID()<<" to process "<<it.first<<std::endl;
                     //                    MPIContainer::Instance().send(el->getTimeLevelData(0), it.first, el->getID() * 2 + 1);
@@ -343,7 +340,7 @@ namespace Base
 
 #endif
     }
-
+    
     bool ProblemDescriptorTimeDependent::checkInitialisation()
     {
         if (HpgemUI::meshes_.size() == 0)

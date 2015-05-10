@@ -5,7 +5,7 @@
  * Created on December 23, 2014, 1:43 PM
  */
 
-#include "MidPoint.hpp"
+#include "MidPoint.h"
 
 namespace Base
 {
@@ -16,21 +16,24 @@ namespace Base
         
         //make a_
         std::vector<double> aRow;
-        a_.push_back (aRow);
-        aRow = {0.5};
+        a_.push_back(aRow);
+        aRow =
+        {   0.5};
         a_.push_back(aRow);
         
         //make b_ and c_
-        b_ = {0.0, 1.0};
-        c_ = {0.0, 0.5};
+        b_ =
+        {   0.0, 1.0};
+        c_ =
+        {   0.0, 0.5};
 
     }
-    
+
     std::size_t MidPoint::order() const
     {
         return order_;
     }
-
+    
     std::size_t MidPoint::numStages() const
     {
         return numStages_;

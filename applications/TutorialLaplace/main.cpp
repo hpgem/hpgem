@@ -21,27 +21,26 @@
 
 #define hpGEM_INCLUDE_PETSC_SUPPORT
 
-
 #include <fstream>
 #include <iostream>
 
-#include "Base/HpgemUISimplified.hpp"
-#include "Base/ElementCacheData.hpp"
-#include "Base/FaceCacheData.hpp"
-#include "Output/GNUPlotDiscontinuousSolutionWriter.hpp"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.hpp"
-#include "Utilities/BasisFunctions2DH1ConformingSquare.hpp"
-#include "Utilities/GlobalMatrix.hpp"
-#include "Utilities/GlobalVector.hpp"
+#include "Base/HpgemUISimplified.h"
+#include "Base/ElementCacheData.h"
+#include "Base/FaceCacheData.h"
+#include "Output/GNUPlotDiscontinuousSolutionWriter.h"
+#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
+#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
+#include "Utilities/GlobalMatrix.h"
+#include "Utilities/GlobalVector.h"
 #include "petscksp.h"
 
-#include "Base/Norm2.hpp"
-#include "Output/TecplotSingleElementWriter.hpp"
-#include "Geometry/ReferenceTetrahedron.hpp"
-#include "Base/Element.hpp"
-#include "Base/RectangularMeshDescriptor.hpp"
-#include "Integration/ElementIntegral.hpp"
-#include "Base/CommandLineOptions.hpp"
+#include "Base/Norm2.h"
+#include "Output/TecplotSingleElementWriter.h"
+#include "Geometry/ReferenceTetrahedron.h"
+#include "Base/Element.h"
+#include "Base/RectangularMeshDescriptor.h"
+#include "Integration/ElementIntegral.h"
+#include "Base/CommandLineOptions.h"
 
 ///\brief Make the encapsulation for the DG problem. 
 ///
@@ -62,13 +61,14 @@ public:
     ///of basisfunctions. Furthermore, assign a value to the penalty parameter.
     ///n stands for number of elements, p stands for polynomial order.
     ///Lastly, construct the mesh with this number of elements and polynomial order.
-    TutorialLaplace(int n, int p) : HpgemUISimplified(2, p), n_(n), p_(p)
+    TutorialLaplace(int n, int p)
+            : HpgemUISimplified(2, p), n_(n), p_(p)
     {
         DIM_ = 2;
         penalty_ = 3 * n_ * p_ * (p_ + DIM_ - 1) + 1;
         initialise();
     }
-
+    
     ///\brief set up the mesh  
     ///
     ///In this example, we are going to make a triangular mesh on the domain [0,1]^2
@@ -79,7 +79,7 @@ public:
     {
         //Make the framework for the mesh
         RectangularMeshDescriptorT description(DIM_);
-
+        
         for (int i = 0; i < DIM_; ++i)
         {
             //define the value of the bottom left corner in each dimension
@@ -99,7 +99,7 @@ public:
         meshes_[0]->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(p_));
         return true;
     }
- 
+    
     ///\brief Compute the integrals of the left-hand side associated with elements
     ///
     ///For every element, we want to compute the integral of grad(phi_i).grad(phi_j) for all combinations of i and j.
@@ -112,11 +112,11 @@ public:
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
         const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
-
+        
         //Resize the integrandVal such that it contains as many rows and columns as 
         //the number of basisfunctions.
         integrandVal.resize(numBasisFunctions, numBasisFunctions);
-
+        
         for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
             for (std::size_t j = 0; j < numBasisFunctions; ++j)
@@ -127,7 +127,7 @@ public:
             }
         }
     }
-
+    
     /// \brief Compute the integrals of the left-hand side associated with faces.
     ///
     ///For every internal face, we want to compute the integral of 
@@ -145,46 +145,44 @@ public:
     {
         //Obtain the number of basisfunctions that are possibly non-zero at this face.
         const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
-
+        
         //Resize the integrandVal such that it contains as many rows and columns as 
         //the number of basisfunctions.
         integrandVal.resize(numBasisFunctions, numBasisFunctions);
-
+        
         //Initialize the vectors that contain gradient(phi_i), gradient(phi_j), normal_i phi_i and normal_j phi_j
         LinearAlgebra::NumericalVector phiNormalI(DIM_), phiNormalJ(DIM_), phiDerivI(DIM_), phiDerivJ(DIM_);
-
+        
         //Transform the point from the reference value to its physical value.
         //This is necessary to check at which boundary we are if we are at a boundary face.
         PointPhysicalT pPhys = face->referenceToPhysical(p);
-
+        
         for (int i = 0; i < numBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
             phiNormalI = face->basisFunctionNormal(i, normal, p);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
             phiDerivI = face->basisFunctionDeriv(i, p);
-
+            
             for (int j = 0; j < numBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
                 phiNormalJ = face->basisFunctionNormal(j, normal, p);
                 //The gradient of basisfunction phi_j is computed at point p, the result is stored in phiDerivJ.
                 phiDerivJ = face->basisFunctionDeriv(j, p);
-
+                
                 //Switch to the correct type of face, and compute the integrand accordingly
                 //you could also compute the integrandVal by directly using face->basisFunctionDeriv
                 //and face->basisFunctionNormal in the following lines, but this results in very long expressions
                 //Internal face:
                 if (face->isInternal())
                 {
-                    integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2
-                        + penalty_ * phiNormalI * phiNormalJ;
+                    integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2 + penalty_ * phiNormalI * phiNormalJ;
                 }
                 //Boundary face with Dirichlet boundary conditions:
                 else if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1.) < 1e-9)
                 {
-                    integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI)
-                        + penalty_ * phiNormalI * phiNormalJ;
+                    integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) + penalty_ * phiNormalI * phiNormalJ;
                 }
                 //Boundary face with homogeneous Neumann boundary conditions:
                 else
@@ -194,7 +192,7 @@ public:
             }
         }
     }
-
+    
     ///\brief Define initial conditions.
     ///
     ///In a non-steady state problem, the initial conditions can be inserted here.
@@ -203,7 +201,7 @@ public:
     {
         return 0;
     }
-
+    
     ///\brief Define the source term.
     ///
     ///Define the source, which is the right hand side of laplacian(u) = f(x,y).
@@ -212,11 +210,11 @@ public:
     {
         return (-8 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
     }
-
+    
     //For the right hand side, we also need to integrate over elements and faces. 
     //This will be done in the two functions below.
     //After they are computed, we have a vector, each element representing one basisfunction.
-
+    
     /// \brief Compute the integrals of the right-hand side associated with faces.
     ///
     ///To implement the boundary conditions, one often needs to compute the face
@@ -230,7 +228,7 @@ public:
         //Resize the integrandVal such that it contains as many rows as 
         //the number of basisfunctions.
         integrandVal.resize(numBasisFunctions);
-
+        
         //Compute the value of the integrand
         //We have no rhs face integrals, so this is just 0.
         for (std::size_t i = 0; i < numBasisFunctions; ++i)
@@ -238,7 +236,7 @@ public:
             integrandVal[i] = 0;
         }
     }
-
+    
     ///\brief Compute the integrals of the right-hand side associated with elements, 
     /// which is in this case interpolating the source term.
     ///
@@ -252,15 +250,15 @@ public:
         const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
         //Transform reference point p to physical point pPhys to evaluate the source term
         PointPhysicalT pPhys = element->referenceToPhysical(p);
-
+        
         //Resize the right-hand side vector to get the same amount of rows as the 
         //number of basisFunctions.
         integrandVal.resize(numBasisFunctions);
-
+        
         //compute value of the integrand, namely basisfunction times source
         for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
-            integrandVal[i] = - element->basisFunction(i, p) * source(pPhys);
+            integrandVal[i] = -element->basisFunction(i, p) * source(pPhys);
         }
     }
     
@@ -290,12 +288,12 @@ public:
         Utilities::GlobalPetscMatrix A(HpgemUI::meshes_[0], 0, 0);
         //Declare the vectors x and b of the system Ax = b.
         Utilities::GlobalPetscVector b(HpgemUI::meshes_[0], 0, 0), x(HpgemUI::meshes_[0]);
-
+        
         //Assemble the vector b. This is needed because Petsc assumes you don't know
         //yet whether a vector is a variable or right-hand side the moment it is 
         //declared.
         b.assemble();
-
+        
         //Make the Krylov supspace method
         KSP ksp;
         KSPCreate(PETSC_COMM_WORLD, &ksp);
@@ -308,29 +306,28 @@ public:
         KSPGetConvergedReason(ksp, &conferge);
         int iterations;
         KSPGetIterationNumber(ksp, &iterations);
-        std::cout << "KSP solver ended because of " << KSPConvergedReasons[conferge] <<
-            " in " << iterations << " iterations." << std::endl;
-
+        std::cout << "KSP solver ended because of " << KSPConvergedReasons[conferge] << " in " << iterations << " iterations." << std::endl;
+        
         x.writeTimeLevelData(0);
-
+        
         //Write solution to file (can be opened with GNUPlot).
         std::ofstream outFile("output.dat");
         Output::GNUPlotDiscontinuousSolutionWriter writeFunc(outFile, "title", "01", "value");
         writeFunc.write(meshes_[0], this);
         return true;
     }
-
+    
 private:
-
+    
     ///number of elements per cardinal direction
     int n_;
 
     ///polynomial order of the approximation
     int p_;
-    
+
     ///Dimension of the domain, in this case 2
     int DIM_;
-    
+
     ///\brief Penalty parameter
     ///
     ///Penalty parameter that is associated with the interior penalty discontinuous

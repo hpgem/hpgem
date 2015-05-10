@@ -22,63 +22,63 @@
 //naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number that will make sure
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
-#include "Integration/QuadratureRules/GaussQuadratureRulesForLine.hpp"
+#include "Integration/QuadratureRules/GaussQuadratureRulesForLine.h"
 #include "Logger.h"
 #include <typeinfo>
 
-#include "Utilities/BasisFunctions1DH1ConformingLine.hpp"
-#include "Geometry/ReferenceLine.hpp"
-#include "Base/BasisFunctionSet.hpp"
-#include "Geometry/PointReference.hpp"
-#include "LinearAlgebra/NumericalVector.hpp"
+#include "Utilities/BasisFunctions1DH1ConformingLine.h"
+#include "Geometry/ReferenceLine.h"
+#include "Base/BasisFunctionSet.h"
+#include "Geometry/PointReference.h"
+#include "LinearAlgebra/NumericalVector.h"
 #include <cmath>
 
 void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOrder)
 {
     std::cout << test.getName();
-    logger.assert_always((test.dimension() == 1),"dimension");
-    logger.assert_always(( test.order() >= expectedOrder),"order");
-    logger.assert_always(( typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferenceLine)),"forReferenceGeometry");
+    logger.assert_always((test.dimension() == 1), "dimension");
+    logger.assert_always((test.order() >= expectedOrder), "order");
+    logger.assert_always((typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferenceLine)), "forReferenceGeometry");
     Geometry::PointReference point(1);
-
+    
     Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet1DH1Line(expectedOrder);
-
-    for(std::size_t i = 0; i < functions->size(); ++i)
+    
+    for (std::size_t i = 0; i < functions->size(); ++i)
     {
         double integrated = 0;
-        for(std::size_t j = 0; j < test.nrOfPoints(); ++j)
+        for (std::size_t j = 0; j < test.nrOfPoints(); ++j)
         {
             point = test.getPoint(j);
             integrated += test.weight(j) * functions->eval(i, point);
         }
-        if(i < 2)
+        if (i < 2)
         {
-            logger.assert_always(( std::abs(integrated - 1) < 1e-12),"integration");
+            logger.assert_always((std::abs(integrated - 1) < 1e-12), "integration");
         }
-        else if(i == 2)
+        else if (i == 2)
         {
-            logger.assert_always(( std::abs(integrated + std::sqrt(2. / 3.)) < 1e-12),"integration");
+            logger.assert_always((std::abs(integrated + std::sqrt(2. / 3.)) < 1e-12), "integration");
         }
         else
         {
-            logger.assert_always(( std::abs(integrated) < 1e-12),"integration");
+            logger.assert_always((std::abs(integrated) < 1e-12), "integration");
         }
-
+        
     }
-
+    
     delete functions;
 }
 
 int main()
 {
-
+    
     testRule(QuadratureRules::Cn1_1_1::Instance(), 1);
     testRule(QuadratureRules::Cn1_3_4::Instance(), 3);
     testRule(QuadratureRules::Cn1_5_9::Instance(), 5);
     testRule(QuadratureRules::C1_7_x::Instance(), 7);
     testRule(QuadratureRules::C1_9_25::Instance(), 9);
     testRule(QuadratureRules::C1_11_36::Instance(), 10); ///\BUG there are no 11th order polynomials yet...
-
+            
     return 0;
 }
 
