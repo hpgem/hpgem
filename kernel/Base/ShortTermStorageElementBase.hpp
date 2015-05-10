@@ -67,8 +67,11 @@ namespace Base
         currentPointIndex_(-1),
         useCache_(useCache) { }
 
+
         ///recomputes the jacobian, the physical point, functionvalues and derivatives of functions based on the current point
         virtual void computeData();
+
+
 
         Element& operator=(const Element& element)
         {//todo check that &element and this are different things (errorChecker)

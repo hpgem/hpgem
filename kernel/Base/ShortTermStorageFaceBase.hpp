@@ -65,6 +65,7 @@ namespace Base
         useCache_(useCache),
         currentPointIndex_(-1) { }
 
+
         virtual Face& operator=(const Face& face)
         {//todo check that &face and this are different things (logger)
             face_ = &face;

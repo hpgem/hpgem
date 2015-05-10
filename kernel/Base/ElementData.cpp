@@ -126,7 +126,8 @@ namespace Base
         {
             logger.assert(expansionCoefficients_[timeLevel].size() == nrOfUnknowns_
             * nrOfBasisFunctions_, "Wrong number of expansion coefficients.");
-            return expansionCoefficients_[timeLevel](convertToSingleIndex(basisFunction,unknown));
+            return expansionCoefficients_[timeLevel](convertToSingleIndex(basisFunction, unknown));
+
         }
         else
         {
