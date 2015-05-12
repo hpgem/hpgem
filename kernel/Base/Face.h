@@ -52,7 +52,6 @@ namespace Base
         using FaceQuadratureRule = QuadratureRules::GaussQuadratureRule;
 
     public:
-        
         Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, 
                 Element* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR, 
                 std::size_t faceID, std::size_t numberOfFaceMatrixes = 0, 
@@ -112,6 +111,7 @@ namespace Base
             }
         }
         
+        /// \brief Create a quadrature for this face based on the quadrature rules of adjacent elements.
         void createQuadratureRules();
 
         void setGaussQuadratureRule(const FaceQuadratureRule* quadratureRule)
@@ -120,6 +120,7 @@ namespace Base
             quadratureRule_ = quadratureRule;
         }
         
+        /// \brief Get a pointer to the quadrature rule used to do integration on this face.
         virtual const FaceQuadratureRule* getGaussQuadratureRule() const
         {
             return quadratureRule_;
@@ -130,30 +131,33 @@ namespace Base
             return vecCacheData_;
         }
         
+        /// \brief Get the value of the basis function (corresponding to index i) at the physical point corresponding to reference point p.
         virtual double basisFunction(std::size_t i, const Geometry::PointReference& p) const;
 
         ///\brief returns the value of the i-th basisfunction at point p in ret
         virtual void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
-        /// \brief Returns the value of the basisfunction corresponding to index iBasisFunction at the reference point p.
+        /// \brief Returns the value of the basisfunction (corresponding to element function index iBasisFunction) on the element at side iSide at the physical point corresponding to reference point p.
         virtual double basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const;
 
         virtual LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const;
 
-        /// \brief Returns the physical normal vector times the basis function corresponding to index iBasisFunction.
+        /// \brief Returns the physical normal vector multiplied by the basis function (corresponding to element function index iBasisFunction) on the element at side iSide. The value is computed at the physical point corresponding to reference point p.
         virtual LinearAlgebra::NumericalVector basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const;
 
-        /// \param[in] jDir Direction in which the derivative is taken, jDir=0 means x, and etc.
+        /// \brief Returns the (physical) derivative in direction jDir of the physical basis function (corresponding to index i) at the physical point corresponding to reference point p.
         virtual double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference& p) const;
 
         ///\brief The "all directions in one go"-edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
         virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const;
 
-        /// \brief Returns the gradient of the physical basis function corresponding to index iBasisFunction.
+        /// \brief Returns the (physical) gradient of the physical basis function (corresponding to element function index iBasisFunction) on the element at side iSide. The gradient is computed at the physical point corresponding to reference point p.
         virtual LinearAlgebra::NumericalVector basisFunctionDeriv(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const;
 
+        /// \brief Returns the (physical) curl of the physical basis function (corresponding to index i) at the physical point corresponding to reference point p.
         virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const;
 
+        /// \brief Returns the sum of the number of basisfunctions of the adjacent elements.
         virtual std::size_t getNrOfBasisFunctions() const;
 
         virtual std::size_t getLocalNrOfBasisFunctions() const
