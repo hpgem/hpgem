@@ -69,39 +69,52 @@ namespace Integration
         std::size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
         
         // Gauss quadrature point
-        Geometry::PointReference p = qdrRuleLoc->getPoint(0);
+        const Geometry::PointReference& p0 = qdrRuleLoc->getPoint(0);
         
-        LinearAlgebra::NumericalVector Normal = localFace_->getNormalVector(p);
+        LinearAlgebra::NumericalVector normal = localFace_->getNormalVector(p0);
         
         // first Gauss point;
-        result = integrandFunc(localFace_, Normal, p);
-        result *= (qdrRuleLoc->weight(0) * Base::L2Norm(Normal));
+        result = integrandFunc(localFace_, normal, p0);
+        result *= (qdrRuleLoc->weight(0) * Base::L2Norm(normal));
         
         // next Gauss points
         for (std::size_t i = 1; i < nrOfPoints; ++i)
         {
-            p = qdrRuleLoc->getPoint(i);
-            Normal = localFace_->getNormalVector(p);
-            value = integrandFunc(localFace_, Normal, p);
+            const Geometry::PointReference& p = qdrRuleLoc->getPoint(i);
+            normal = localFace_->getNormalVector(p);
+            value = integrandFunc(localFace_, normal, p);
             
             //Y = alpha * X + Y
-            LinearAlgebra::axpy(qdrRuleLoc->weight(i) * Base::L2Norm(Normal), value, result);
+            LinearAlgebra::axpy(qdrRuleLoc->weight(i) * Base::L2Norm(normal), value, result);
             
         }
         return result;
     } // function
     
+    /// \param[in] ptrQdrRule A pointer to a quadrature rule used for the integration.
+    /// \param[in] integrandFunction A function that is integrated on the reference face. It takes as input argument a reference point and returns an object of the class <IntegrandType>.
+    /*!
+     \details This function computes the integral of a function \f$ f_{ref}\f$ on a reference face \f$ F_{ref} \f$, so it returns the following value
+     \f[ \int_{F_{ref}} f_{ref}(\xi) \,d\xi, \f]
+     where \f$ f_{ref}:F_{ref}\rightarrow R\f$, with \f$ R \f$ a linear function space (e.g. space of vectors/matrices). In many cases the weak formulation is based on integrals on a physical face \f$ F_{phys} \f$ of the form given below
+     \f[ \int_{F_{phys}} f_{phys}(x) \,dx.\f]
+     Let \f$ \phi:F_{ref}\rightarrow F_{phys} \f$ be the mapping from the reference face to the physical face, let \f$ J\f$ be the Jacobian of \f$ \phi\f$ and \f$ |J| \f$ the reference-to-physical face scale. Then we can write
+     \f[ \int_{F_{phys}} f_{phys}(x) \,dx = \int_{F_{ref}} f_{phys}(\phi(\xi)) |J| \,d\xi, \f]
+     so \f$ f_{ref}(\xi) = f_{phys}(\phi(\xi)) |J| \f$. In some cases it is more advantageous to compute \f$ f_{ref}(\xi) \f$ instead of \f$ f_{phys}(x)\f$.
+     
+     NOTE: do not mix up gradients of pyhsical and reference basis functions with integrals on physical and reference faces. If \f$ f_{phys}(x) \f$ contains a (physical) gradient of a physical basis function then so does \f$ f_{ref}(\xi) = f_{phys}(\phi(\xi)) |J| \f$. The difference is the input argument (reference point \f$ \xi \f$ instead of physical point \f$ x \f$ ) and the scaling \f$ |J| \f$. (Ofcourse it is possible to rewrite the gradient of a physical basis function in terms of the gradient of the corresponding reference basis function).
+     */
     template<typename IntegrandType>
     IntegrandType FaceIntegral::referenceFaceIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference &)> integrandFunction)
     {
         std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
         std::size_t iPoint = 0; // Index for the quadrature points.
         
-        Geometry::PointReference pRef = ptrQdrRule->getPoint(iPoint);
-        IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(pRef));
+        const Geometry::PointReference& pRef0 = ptrQdrRule->getPoint(iPoint);
+        IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(pRef0));
         for (iPoint = 1; iPoint < numOfPoints; iPoint++)
         {
-            pRef = ptrQdrRule->getPoint(iPoint);
+            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(iPoint);
             LinearAlgebra::axpy(ptrQdrRule->weight(iPoint), integrandFunction(pRef), integral);
         }
         return integral;

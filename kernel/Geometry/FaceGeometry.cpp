@@ -87,14 +87,14 @@ namespace Geometry
     
     /*! Map a point in coordinates of the reference geometry of the face to
      *  the reference geometry of the left (L) element. */
-    PointReference FaceGeometry::mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const
+    const PointReference& FaceGeometry::mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const
     {
         return leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_)->transform(pRefFace);
     }
     
     /*! Map a point in coordinates of the reference geometry of the face to
      *  the reference geometry of the right (R) element. */
-    PointReference FaceGeometry::mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const
+    const PointReference& FaceGeometry::mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const
     {
         // In the L function we have assumed the point pRefFace to be
         // given in coordinates of the system used by the reference face
@@ -103,14 +103,13 @@ namespace Geometry
         // right element is the same as the one on the left side of the
         // face, we have to use the refFace2RefFace mapping.
         
-        PointReference pOtherSide = mapRefFaceToRefFace(pRefFace);
-        return rightElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_)->transform(pOtherSide);
+        return rightElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_)->transform(mapRefFaceToRefFace(pRefFace));
         
     }
     
     /*! Map from reference face coordinates on the left side to those on the
      *  right side. */
-    PointReference FaceGeometry::mapRefFaceToRefFace(const ReferencePointT& pIn) const
+    const PointReference& FaceGeometry::mapRefFaceToRefFace(const ReferencePointT& pIn) const
     {
         return getReferenceGeometry()->getCodim0MappingPtr(faceToFaceMapIndex_)->transform(pIn);
     }
@@ -159,9 +158,8 @@ namespace Geometry
             // second Jacobian (mapping reference element -> phys. element),
             // for this we first need the points coordinates on the
             // reference element
-            PointReference pRefElement = mapRefFaceToRefElemL(pRefFace);
             
-            Jacobian j2 = leftElementGeom_->calcJacobian(pRefElement);
+            Jacobian j2 = leftElementGeom_->calcJacobian(mapRefFaceToRefElemL(pRefFace));
             
             Jacobian j3 = j2.multiplyJacobiansInto(j1);
             
@@ -178,14 +176,14 @@ namespace Geometry
           //but we know the left point has outward pointing vector -1
           //and the right point has outward pointing vector 1
           //so this is the same as the physical point
-            PointReference pRefElement = mapRefFaceToRefElemL(pRefFace);
+            const PointReference& pRefElement = mapRefFaceToRefElemL(pRefFace);
             
             //but if someone has mirrored the physical line
             //we also have to also mirror the normal vector
             //the face cant be made larger or smaller so
             //the vector should have length one
             
-            Jacobian j = leftElementGeom_->calcJacobian(pRefElement);
+            Jacobian j = leftElementGeom_->calcJacobian(mapRefFaceToRefElemL(pRefFace));
             int sgn = (j[0] > 0) ? 1 : -1;
             result.resize(DIM);
             result[0] = pRefElement[0] * sgn;
@@ -196,8 +194,7 @@ namespace Geometry
     
     PointPhysical FaceGeometry::referenceToPhysical(const PointReference& p) const
     {
-        PointReference pElement = mapRefFaceToRefElemL(p);
-        return getElementGLeft()->referenceToPhysical(pElement);
+        return getElementGLeft()->referenceToPhysical(mapRefFaceToRefElemL(p));
     }
     
     //finding node numbers here is way to hard, leave that to someplace else

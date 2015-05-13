@@ -29,7 +29,21 @@
 
 namespace Geometry
 {
-    ///\todo Draw an ASCII-triangular prism with node ordering.
+
+    /* The ordering of the vertex and faces in a triangularPrism:
+     *
+     *     5 o
+     *      /|\
+     *    /  |  \
+     * 2 o   |    \
+     *   |\  |3     \ 4
+     *   |  \o--------o
+     *   |  / \      /
+     *   |/     \  /
+     * 0 o--------o 1
+     *
+     * Note that the axes are oriented differently than for the other reference geometries
+     */
     class ReferenceTriangularPrism : public ReferenceGeometry
     {
     public:
@@ -46,9 +60,6 @@ namespace Geometry
         
         //! (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference& point) const override final;
-
-        //! (see ReferenceGeometry.h)
-        PointReference getCenter() const override final;
         
         /// Output routine.
         friend std::ostream& operator<<(std::ostream& os, const ReferenceTriangularPrism& point);

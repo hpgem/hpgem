@@ -30,13 +30,13 @@ Base::Face& Base::ShortTermStorageFaceBase::operator=(Base::Face& face)
 {
     logger.assert(this != &face, "Trying to assign a Face of the type ShortTermStorageFaceBase to itself.");
     face_ = &face;
-    if (currentPoint_.size() == 0)
+    if (currentPoint_->size() == 0)
     {
         computeData();
     }
     else
     {
-        currentPoint_[0] = std::numeric_limits<double>::quiet_NaN();
+        currentPoint_ = Geometry::PointReferenceFactory::instance()->makePoint({std::numeric_limits<double>::quiet_NaN()});
     }
     currentPointIndex_ = -1;
     return *this;
@@ -57,17 +57,17 @@ void Base::ShortTermStorageFaceBase::computeData()
             }
         }
         currentPointIndex_++;
-        normal_ = face_->getNormalVector(currentPoint_);
+        normal_ = face_->getNormalVector(*currentPoint_);
     }
     else
     {
-        normal_ = face_->getNormalVector(currentPoint_);
+        normal_ = face_->getNormalVector(*currentPoint_);
     }
 }
 
 LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace) const
 {
-    if (!(currentPoint_ == pRefFace))
+    if (!(currentPoint_ == &pRefFace))
     {
         logger(WARN, "WARNING: you are using slow data access.");
         return face_->getNormalVector(pRefFace);
@@ -77,9 +77,9 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(c
 
 LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace)
 {
-    if (!(currentPoint_ == pRefFace))
+    if (!(currentPoint_ == &pRefFace))
     {
-        currentPoint_ = pRefFace;
+        currentPoint_ = &pRefFace;
         computeData();
     }
     return normal_;

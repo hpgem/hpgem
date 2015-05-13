@@ -46,12 +46,18 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefPointToLine0::transform(const Geometry::PointReference& p1) const
+    const PointReference& MappingToRefPointToLine0::transform(const Geometry::PointReference& p1) const
     {
         logger.assert(p1.size()==0, "Reference point has the wrong dimension");
-        PointReference p2(1);
-        p2[0] = -1.0;
-        return p2;
+        try
+        {
+            return *transformedCoordinates.at(&p1);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({-1.});
+            return *transformedCoordinates.at(&p1);
+        }
     }
     
     Jacobian MappingToRefPointToLine0::calcJacobian(const Geometry::PointReference& p1) const
@@ -74,15 +80,23 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefPointToLine1::transform(const Geometry::PointReference&) const
+    const PointReference& MappingToRefPointToLine1::transform(const Geometry::PointReference& p1) const
     {
-        PointReference p2(1);
-        p2[0] = 1.0;
-        return p2;
+        logger.assert(p1.size()==0, "Reference point has the wrong dimension");
+        try
+        {
+            return *transformedCoordinates.at(&p1);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({1.});
+            return *transformedCoordinates.at(&p1);
+        }
     }
     
-    Jacobian MappingToRefPointToLine1::calcJacobian(const Geometry::PointReference&) const
+    Jacobian MappingToRefPointToLine1::calcJacobian(const Geometry::PointReference& p1) const
     {
+        logger.assert(p1.size()==0, "Reference point has the wrong dimension");
         return Jacobian(1, 0);
     }
     

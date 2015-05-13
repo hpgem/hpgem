@@ -39,7 +39,6 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOr
     logger.assert_always((test.dimension() == 1), "dimension");
     logger.assert_always((test.order() >= expectedOrder), "order");
     logger.assert_always((typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferenceLine)), "forReferenceGeometry");
-    Geometry::PointReference point(1);
     
     Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet1DH1Line(expectedOrder);
     
@@ -48,7 +47,7 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOr
         double integrated = 0;
         for (std::size_t j = 0; j < test.nrOfPoints(); ++j)
         {
-            point = test.getPoint(j);
+            const Geometry::PointReference& point = test.getPoint(j);
             integrated += test.weight(j) * functions->eval(i, point);
         }
         if (i < 2)

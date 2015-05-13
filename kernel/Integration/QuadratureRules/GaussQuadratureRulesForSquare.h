@@ -65,7 +65,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -102,7 +102,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[4];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -139,7 +139,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[9];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -176,7 +176,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[16];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
 //---------------------------------------------------------------------------
     class C2_9_5 : public GaussQuadratureRule
@@ -212,7 +212,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[25];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
 //---------------------------------------------------------------------------
     class C2_11_6 : public GaussQuadratureRule
@@ -248,7 +248,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[36];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<PointReferenceT> gp_;
+        std::vector<const PointReferenceT*> gp_;
     };
 //---------------------------------------------------------------------------
 }// close namespace QuadratureRules

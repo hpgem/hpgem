@@ -86,7 +86,6 @@ namespace Output
         
         //get the physical and reference coordinates of the first node of the first element.
         Geometry::PointPhysical pPhys((*elements.begin())->getPhysicalGeometry()->getNodePtr(0)->size());
-        Geometry::PointReference pRef((*elements.begin())->getPhysicalGeometry()->getNodePtr(0)->size());
         
         //Element cycle, print physical coordinates:
         for (typename ListOfElementsT::const_iterator eltIterator = elements.begin(); eltIterator != elements.end(); ++eltIterator)
@@ -101,7 +100,7 @@ namespace Output
                 
                 // For the solution data, write function of the user, however we pass a local
                 // coordinate of the current reference element
-                pRef = (*eltIterator)->getReferenceGeometry()->getNode(localNode);
+                const Geometry::PointReference& pRef = (*eltIterator)->getReferenceGeometry()->getNode(localNode);
                 
                 // First write the (possibly reduced) coordinates of the point;
                 // note: PHYSICAL coordinates here!

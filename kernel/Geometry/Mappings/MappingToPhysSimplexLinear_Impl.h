@@ -31,10 +31,10 @@ template<std::size_t DIM>
 Geometry::PointPhysical Geometry::MappingToPhysSimplexLinear<DIM>::transform(const PointReference& pointReference) const
 {
     logger.assert(pointReference.size()==DIM, "Reference point has the wrong dimension");
-    Geometry::PointPhysical pointPhysical = a[0];
+    Geometry::PointPhysical pointPhysical = nodeCoordinates_[0];
     for (std::size_t i = 1; i <= DIM; ++i)
     {
-        pointPhysical += pointReference[i - 1] * a[i];
+        pointPhysical += pointReference[i - 1] * nodeCoordinates_[i];
     }
     return pointPhysical;
 }
@@ -49,7 +49,7 @@ Geometry::Jacobian Geometry::MappingToPhysSimplexLinear<DIM>::calcJacobian(const
     {
         for (std::size_t j = 0; j < DIM; j++)
         {
-            jacobian(i, j) = a[j + 1][i];
+            jacobian(i, j) = nodeCoordinates_[j + 1][i];
         }
     }
     return jacobian;
@@ -60,10 +60,10 @@ template<std::size_t DIM>
 void Geometry::MappingToPhysSimplexLinear<DIM>::reinit(const PhysicalGeometry* const physicalGeometry)
 {
     logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
-    a[0] = physicalGeometry->getLocalNodeCoordinates(0);
+    nodeCoordinates_[0] = physicalGeometry->getLocalNodeCoordinates(0);
     for (std::size_t i = 1; i <= DIM; ++i)
     {
-        a[i] = physicalGeometry->getLocalNodeCoordinates(i) - a[0];
+        nodeCoordinates_[i] = physicalGeometry->getLocalNodeCoordinates(i) - nodeCoordinates_[0];
     }
 }
 #endif /* MAPPINGSIMPLECUBENLINEAR_H_ */

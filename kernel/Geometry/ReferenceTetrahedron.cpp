@@ -41,28 +41,14 @@ namespace Geometry
     
     ReferenceTetrahedron::ReferenceTetrahedron()
             : /// Tetrahedron has four nodes 3D + 1
-            ReferenceGeometry(4, 3, ReferenceGeometryType::TETRAHEDRON), referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+            ReferenceGeometry(4, 3, ReferenceGeometryType::TETRAHEDRON, {1./4., 1./4., 1./4.}), referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
         name = "ReferenceTetrahedron";
-        PointReference p1(3), p2(3), p3(3), p4(3);
         
-        p1[0] = +0.0;
-        p1[1] = +0.0;
-        p1[2] = +0.0;
-        p2[0] = +1.0;
-        p2[1] = +0.0;
-        p2[2] = +0.0;
-        p3[0] = +0.0;
-        p3[1] = +1.0;
-        p3[2] = +0.0;
-        p4[0] = +0.0;
-        p4[1] = +0.0;
-        p4[2] = +1.0;
-        
-        points_[0] = p1;
-        points_[1] = p2;
-        points_[2] = p3;
-        points_[3] = p4;
+        points_[0] = PointReferenceFactory::instance()->makePoint({0., 0., 0.});
+        points_[1] = PointReferenceFactory::instance()->makePoint({1., 0., 0.});
+        points_[2] = PointReferenceFactory::instance()->makePoint({0., 1., 0.});
+        points_[3] = PointReferenceFactory::instance()->makePoint({0., 0., 1.});
         
         mappingsTriangleToTetrahedron_[0] = &MappingToRefTriangleToTetrahedron0::Instance();
         mappingsTriangleToTetrahedron_[1] = &MappingToRefTriangleToTetrahedron1::Instance();
@@ -77,13 +63,6 @@ namespace Geometry
     {
         logger.assert(p.size()==3, "The dimension of the reference point is incorrect");
         return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]) && (p[2] >= 0.) && (p[2] <= 1. - p[0] - p[1]));
-    }
-    
-    PointReference ReferenceTetrahedron::getCenter() const
-    {
-        PointReference p(3);
-        p[0] = p[1] = p[2] = 1. / 4.;
-        return p;
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceTetrahedron& tetra)

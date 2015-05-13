@@ -98,15 +98,21 @@ namespace Base
         std::size_t getNumberFaceVectors() const;
         
     protected:
+        /// Vector of data which the user might want to store. For example determinants of the Jacobian for each quadrature point.
         VecCacheT vecCacheData_;
 
     private:
-        
+        ///Stores polymorphic pointer to UserDefined Data, internally not used.
+        ///Used only outside of the Kernel.
         UserFaceData* userData_;
+        
+        ///Stores face matrix(es) for this face.
         std::vector<FaceMatrix> faceMatrix_;
+        
+        ///Stores face vector(s) for this face.
         std::vector<LinearAlgebra::NumericalVector> faceVector_;
 
-        //a concatenation of the flux contributions to the residuals in the left and the right elements
+        //A concatenation of the flux contributions to the residuals in the left and the right elements
         LinearAlgebra::NumericalVector residual_;
     };
 }

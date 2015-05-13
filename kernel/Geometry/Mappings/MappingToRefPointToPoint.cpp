@@ -34,10 +34,18 @@ namespace Geometry
         return theInstance;
     }
     
-    PointReference MappingToRefPointToPoint::transform(const Geometry::PointReference& p1) const
+    const PointReference& MappingToRefPointToPoint::transform(const Geometry::PointReference& p1) const
     {
         logger.assert(p1.size()==0, "Reference point has the wrong dimension");
-        return PointReference(0);
+        try
+        {
+            return *transformedCoordinates.at(&p1);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint(0);
+            return *transformedCoordinates.at(&p1);
+        }
     }
     
     Jacobian MappingToRefPointToPoint::calcJacobian(const Geometry::PointReference& p) const

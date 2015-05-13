@@ -51,9 +51,6 @@ namespace Geometry
 
         /// \brief Return true.
         bool isInternalPoint(const PointReference& p) const override final;
-
-        /// \brief (see ReferenceGeometry.h)
-        PointReference getCenter() const override final;
         
         // ================================== Codimension 0 ========================================
         

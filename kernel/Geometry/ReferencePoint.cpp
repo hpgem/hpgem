@@ -30,22 +30,17 @@ namespace Geometry
      *
      */
     ReferencePoint::ReferencePoint()
-            : ReferenceGeometry(1, 0, ReferenceGeometryType::POINT)
+            : ReferenceGeometry(1, 0, ReferenceGeometryType::POINT, {})
     {
         name = "ReferencePoint";
         mappingsPointToPoint_ = &MappingToRefPointToPoint::Instance();
-        points_[0] = Geometry::PointReference(0);
+        points_[0] = Geometry::PointReferenceFactory::instance()->makePoint(0);
     }
     
     bool ReferencePoint::isInternalPoint(const PointReference& p) const
     {
         logger.assert(p.size()==0, "The dimension of the reference point is wrong");
         return true;
-    }
-    
-    PointReference ReferencePoint::getCenter() const
-    {
-        return PointReference(0);
     }
     
     std::size_t ReferencePoint::getCodim0MappingIndex(const ListOfIndexesT& left, const ListOfIndexesT& right) const

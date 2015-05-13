@@ -24,6 +24,8 @@
 #include "RK4Methods.h"
 #include "ForwardEuler.h"
 #include "MidPoint.h"
+#include "RK2TVD.h"
+#include "RK3TVD.h"
 #include "Logger.h"
 
 namespace Base
@@ -32,7 +34,10 @@ namespace Base
     {
         vecOfIntegrators_.push_back(&ForwardEuler::instance());
         vecOfIntegrators_.push_back(&MidPoint::instance());
+        vecOfIntegrators_.push_back(&RK2TVD::instance());
+        vecOfIntegrators_.push_back(&RK3TVD::instance());
         vecOfIntegrators_.push_back(&RK4_4::instance());
+
     }
     
     AllTimeIntegrators& AllTimeIntegrators::Instance()
@@ -41,15 +46,25 @@ namespace Base
         return theInstance;
     }
     
-    ButcherTableau* AllTimeIntegrators::getRule(std::size_t order, std::size_t numStages)
+    ButcherTableau* AllTimeIntegrators::getRule(std::size_t order, std::size_t numStages, bool totalVarationDiminishing)
     {
+
         for (ButcherTableau* rule : vecOfIntegrators_)
         {
-            if (rule->getOrder() == order && rule->getNumStages() == numStages)
+        	//Check if the exact rule asked exists.
+            if (rule->getOrder() == order && rule->getNumStages() == numStages && rule->getTotalVariationDiminishing() == totalVarationDiminishing)
             {
                 return rule;
             }
+
+            // Relax the given TVD condition to find a rule that satisfies the order and stages
+            if( rule->getOrder() == order && rule->getNumStages() == numStages && rule->getTotalVariationDiminishing() != totalVarationDiminishing )
+            {
+            	logger(WARN,"Warning: The TVD specification for your rule does not exist. Using an existing rule with the same order and stage instead. ");
+            	return rule;
+            }
         }
+
         logger(ERROR, "Could not find the Runge Kutta method you're looking for.");
         return nullptr;
     }

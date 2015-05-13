@@ -28,7 +28,7 @@ namespace Geometry
     
     const PointPhysical& MappingReferenceToPhysical::getNodeCoordinates(const std::size_t index) const
     {
-        return (*nodes_)[index];
+        return (*nodeCoordinates_)[index];
     }
 
 }

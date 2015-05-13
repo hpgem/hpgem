@@ -36,13 +36,12 @@ void testRule(QuadratureRules::GaussQuadratureRule& test)
     logger.assert_always((test.dimension() == 0), "dimension");
     logger.assert_always((test.order() > 11), "order");
     logger.assert_always((typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferencePoint)), "forReferenceGeometry");
-    Geometry::PointReference point(0);
     //0D Quadrature rules are special
     double integrated = 0;
     for (std::size_t i = 0; i < test.nrOfPoints(); ++i)
     {
         integrated += test.weight(i);
-        point = test.getPoint(i);
+        const Geometry::PointReference& point = test.getPoint(i);
     }
     logger.assert_always((std::abs(integrated - 1) < 1e-12), "integration");
 }

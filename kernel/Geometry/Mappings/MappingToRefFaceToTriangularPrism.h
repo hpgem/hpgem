@@ -32,7 +32,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism0& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -50,7 +50,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism1& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -68,7 +68,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism2& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -86,7 +86,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism3& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -104,7 +104,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism4& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {

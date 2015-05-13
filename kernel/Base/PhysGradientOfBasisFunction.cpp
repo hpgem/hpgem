@@ -31,7 +31,7 @@ namespace Utilities
     PhysGradientOfBasisFunction::RetType PhysGradientOfBasisFunction::operator ()(const PointReferenceT& p) const
     {
         const std::size_t DIM = p.size();
-        RetType r = myElement_->getReferenceGeometry()->getBasisFunctionDerivative(myFunction_, p);
+        RetType r = p.getBasisFunctionDerivative(myFunction_);
         Geometry::Jacobian jac = myElement_->calcJacobian(p);
         //we need the transpose jacobian
         for(std::size_t i = 0; i < DIM; ++i)

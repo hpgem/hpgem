@@ -72,6 +72,8 @@ namespace LinearAlgebra
 
         NumericalVector& operator=(const NumericalVector& right);
 
+        NumericalVector& operator=(const std::initializer_list<double> l);
+
         NumericalVector operator+(const NumericalVector& right) const;
 
         NumericalVector operator-(const NumericalVector& right) const;

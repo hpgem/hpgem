@@ -32,7 +32,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefCubeToHypercube0& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -50,7 +50,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefCubeToHypercube1& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -68,7 +68,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefCubeToHypercube2& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -86,7 +86,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefCubeToHypercube3& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -104,7 +104,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefCubeToHypercube4& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -122,7 +122,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefCubeToHypercube5& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -140,7 +140,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefCubeToHypercube6& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -158,7 +158,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefCubeToHypercube7& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {

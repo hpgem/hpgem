@@ -51,6 +51,7 @@ namespace Base
      *
      * Be VERY careful to not put this type of face in a mesh, the extra storage needed for this type of faces will likely crash your program
      * Once proper error checking/handling is implemented safeguards will be added to make this a bit more difficult
+     * \todo add the safeguards
      */
     class ShortTermStorageFaceBase : public Face
     {
@@ -66,7 +67,7 @@ namespace Base
         //necessary to assign any face in the constructor.
         ShortTermStorageFaceBase(std::size_t dimension, bool useCache = false)
                 : Face(), face_(nullptr),
-                currentPoint_(dimension - 1),
+                currentPoint_(Geometry::PointReferenceFactory::instance()->makePoint(dimension - 1)),
                 normal_(dimension),
                 useCache_(useCache), recomputeCache_(true), currentPointIndex_(-1)
         {
@@ -224,6 +225,11 @@ namespace Base
             return face_->getPtrElementRight();
         }
         
+        const Element* getPtrElement(Side side) const override final
+        {
+            return face_->getPtrElement(side);
+        }
+
         const FaceQuadratureRule* getGaussQuadratureRule() const override final
         {
             return face_->getGaussQuadratureRule();
@@ -284,17 +290,17 @@ namespace Base
             return face_->getReferenceGeometry();
         }
         
-        Geometry::PointReference mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const override final
+        const Geometry::PointReference& mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const override final
         {
             return face_->mapRefFaceToRefElemL(pRefFace);
         }
         
-        Geometry::PointReference mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const override final
+        const Geometry::PointReference& mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const override final
         {
             return face_->mapRefFaceToRefElemR(pRefFace);
         }
         
-        Geometry::PointReference mapRefFaceToRefFace(const ReferencePointT& pIn) const override final
+        const Geometry::PointReference& mapRefFaceToRefFace(const ReferencePointT& pIn) const override final
         {
             return face_->mapRefFaceToRefFace(pIn);
         }
@@ -355,7 +361,7 @@ namespace Base
     protected:
         Face* face_;
 
-        Geometry::PointReference currentPoint_;
+        const Geometry::PointReference* currentPoint_;
         LinearAlgebra::NumericalVector normal_;
 
         std::vector<LinearAlgebra::NumericalVector> basisFunctionValues_, basisFunctionsTimesNormal_, basisFunctionDerivatives_, basisFunctionCurlValues_;

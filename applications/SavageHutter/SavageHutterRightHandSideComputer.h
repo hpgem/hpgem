@@ -43,6 +43,7 @@ private:
     NumericalVector integrandRightHandSideOnRefFace
     (
      const Base::Face *ptrFace,
+     const NumericalVector &normalVec,
      const Geometry::PointReference &pRef,
      const NumericalVector &solutionCoefficients
      );

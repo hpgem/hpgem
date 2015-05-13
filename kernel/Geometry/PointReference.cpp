@@ -23,51 +23,36 @@
 
 namespace Geometry
 {
-    
-    PointReference PointReference::operator *(double right) const
+    double PointReference::getBasisFunctionValue(const Base::BaseBasisFunction* function) const
     {
-        return PointReference(Point::coordinates_ * right);
-    }
-    
-    PointReference PointReference::operator *(double right)
-    {
-        return PointReference(Point::coordinates_ * right);
-    }
-    
-    PointReference PointReference::operator +(const PointReference& right) const
-    {
-        logger.assert(size()==right.size(), "The sizes of the points do not match");
-        return PointReference(Point::coordinates_ + right.coordinates_);
-    }
-    
-    PointReference PointReference::operator +(const PointReference& right)
-    {
-        logger.assert(size()==right.size(), "The sizes of the points do not match");
-        return PointReference(Point::coordinates_ + right.coordinates_);
-    }
-    
-    PointReference PointReference::operator -(const PointReference& right) const
-    {
-        logger.assert(size()==right.size(), "The sizes of the points do not match");
-        return PointReference(Point::coordinates_ - right.coordinates_);
-    }
-    
-    PointReference PointReference::operator -(const PointReference& right)
-    {
-        logger.assert(size()==right.size(), "The sizes of the points do not match");
-        return PointReference(Point::coordinates_ - right.coordinates_);
-    }
-    
-    PointReference& PointReference::operator =(const PointReference& rhs)
-    {
-        this->coordinates_ = rhs.coordinates_;
-        return *this;
+
+        logger.assert(function!=nullptr, "Invalid basis function passed");
+        try
+        {
+            return basisfunctionValues_.at(function);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const Base::BaseBasisFunction*, double>&>(basisfunctionValues_)[function] = function->eval(*this);
+            return basisfunctionValues_.at(function);
+        }
     }
 
-    
-    PointReference operator*(double left, const PointReference& right)
+    const LinearAlgebra::NumericalVector& PointReference::getBasisFunctionDerivative(const Base::BaseBasisFunction* function) const
     {
-        return right * left;
+
+        logger.assert(function!=nullptr, "Invalid basis function passed");
+        try
+        {
+            return basisfunctionDerivatives_.at(function);
+        }
+        catch (std::out_of_range&)
+        {
+            const_cast<std::unordered_map<const Base::BaseBasisFunction*, LinearAlgebra::NumericalVector>&>(basisfunctionDerivatives_)[function] = function->evalDeriv(*this);
+            return basisfunctionDerivatives_.at(function);
+        }
     }
+
+
 }
 

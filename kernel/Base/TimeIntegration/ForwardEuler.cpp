@@ -28,6 +28,7 @@ namespace Base
     {
         order_ = 1;
         numStages_ = 1;
+        totalVariationDiminishing_ = true;
         
         //make a_
         std::vector<double> aRow;
@@ -49,6 +50,11 @@ namespace Base
         return numStages_;
     }
     
+    bool ForwardEuler::getTotalVariationDiminishing() const
+     {
+     	return totalVariationDiminishing_;
+     }
+
     double ForwardEuler::getA(std::size_t i, std::size_t j) const
     {
         logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());

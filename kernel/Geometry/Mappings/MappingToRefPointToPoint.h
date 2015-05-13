@@ -42,7 +42,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefPointToPoint& Instance();
-        PointReference transform(const Geometry::PointReference& p1) const override final;
+        const PointReference& transform(const Geometry::PointReference& p1) const override final;
         Jacobian calcJacobian(const Geometry::PointReference&) const override final;
         std::size_t getTargetDimension() const override final
         {

@@ -36,44 +36,18 @@ namespace Geometry
     std::size_t ReferenceCube::localNodesOnEdge_[12][2] = { {0, 1}, {2, 3}, {4, 5}, {6, 7}, {0, 2}, {1, 3}, {4, 6}, {5, 7}, {0, 4}, {1, 5}, {2, 6}, {3, 7}, };
     
     ReferenceCube::ReferenceCube()
-            : ReferenceGeometry(8, 3, ReferenceGeometryType::CUBE), referenceGeometryCodim1Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(8, 3, ReferenceGeometryType::CUBE, {0., 0., 0.}), referenceGeometryCodim1Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
         name = "ReferenceCube";
-        PointReference p1(3), p2(3), p3(3), p4(3), p5(3), p6(3), p7(3), p8(3);
         
-        p1[0] = -1.0;
-        p1[1] = -1.0;
-        p1[2] = -1.0;
-        p2[0] = +1.0;
-        p2[1] = -1.0;
-        p2[2] = -1.0;
-        p3[0] = -1.0;
-        p3[1] = +1.0;
-        p3[2] = -1.0;
-        p4[0] = +1.0;
-        p4[1] = +1.0;
-        p4[2] = -1.0;
-        p5[0] = -1.0;
-        p5[1] = -1.0;
-        p5[2] = +1.0;
-        p6[0] = +1.0;
-        p6[1] = -1.0;
-        p6[2] = +1.0;
-        p7[0] = -1.0;
-        p7[1] = +1.0;
-        p7[2] = +1.0;
-        p8[0] = +1.0;
-        p8[1] = +1.0;
-        p8[2] = +1.0;
-        
-        points_[0] = p1;
-        points_[1] = p2;
-        points_[2] = p3;
-        points_[3] = p4;
-        points_[4] = p5;
-        points_[5] = p6;
-        points_[6] = p7;
-        points_[7] = p8;
+        points_[0] = PointReferenceFactory::instance()->makePoint({-1., -1., -1.});
+        points_[1] = PointReferenceFactory::instance()->makePoint({ 1., -1., -1.});
+        points_[2] = PointReferenceFactory::instance()->makePoint({-1.,  1., -1.});
+        points_[3] = PointReferenceFactory::instance()->makePoint({ 1.,  1., -1.});
+        points_[4] = PointReferenceFactory::instance()->makePoint({-1., -1.,  1.});
+        points_[5] = PointReferenceFactory::instance()->makePoint({ 1., -1.,  1.});
+        points_[6] = PointReferenceFactory::instance()->makePoint({-1.,  1.,  1.});
+        points_[7] = PointReferenceFactory::instance()->makePoint({ 1.,  1.,  1.});
         
         mappingsSquareToCube_[0] = &MappingToRefSquareToCube0::Instance();
         mappingsSquareToCube_[1] = &MappingToRefSquareToCube1::Instance();
@@ -90,11 +64,6 @@ namespace Geometry
         mappingsCubeToCube_[5] = &MappingToRefCubeToCube5::Instance();
         mappingsCubeToCube_[6] = &MappingToRefCubeToCube6::Instance();
         mappingsCubeToCube_[7] = &MappingToRefCubeToCube7::Instance();
-    }
-    
-    PointReference ReferenceCube::getCenter() const
-    {
-        return PointReference(3);
     }
     
     bool ReferenceCube::isInternalPoint(const PointReference& p) const
@@ -475,7 +444,9 @@ namespace Geometry
                 break;
                 
             default:
-                pMap = p;
+                pMap[0] = p[0];
+                pMap[1] = p[1];
+                pMap[2] = p[2];
                 break;
         }
     } // end of refinementTransform

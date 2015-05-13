@@ -17,6 +17,7 @@ add_library(Reference_geometries STATIC
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceGeometry.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Point.cpp 
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointReference.cpp 
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointReferenceFactory.cpp 
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointPhysical.cpp 
 	# Mappings
 

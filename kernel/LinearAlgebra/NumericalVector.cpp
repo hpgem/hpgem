@@ -105,6 +105,12 @@ namespace LinearAlgebra
         return *this;
     }
     
+    NumericalVector& NumericalVector::operator=(const std::initializer_list<double> l)
+    {
+    	data_ = l;
+    	return *this;
+    }
+
     NumericalVector NumericalVector::operator+(const NumericalVector& right) const
     {
         NumericalVector result(*this);

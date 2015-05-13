@@ -54,7 +54,7 @@ namespace Geometry
         ConcatenatedMapping(const ConcatenatedMapping &other) = default;
                 
         //! Transformation is simply via the intermediate space.
-        PointReference transform(const PointReference& pIn) const override final;
+        const PointReference& transform(const PointReference& pIn) const override final;
 
         //! To compute the Jacobian, the two component ones have to multiplied.
         Jacobian calcJacobian(const PointReference& p) const override final;

@@ -33,6 +33,7 @@
 namespace QuadratureRules
 {
     //add all the rules here
+    //note that adding a lot of extra rules might harm start-up time
     AllGaussQuadratureRules::AllGaussQuadratureRules()
     {
         //*************************POINT QUADRATURES****************************

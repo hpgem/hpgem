@@ -23,59 +23,68 @@
 #define PointReference_h
 
 #include "Point.h"
+#include "PointReferenceFactory.h"
+#include "Base/BaseBasisFunction.h"
+
+#include <unordered_map>
 
 namespace Geometry
 {
+    class PointReferenceFactory;
+
     class PointReference : public Point
     {
-        
     public:
+        void removeBasisFunctionData(const Base::BaseBasisFunction* function)
+        {
+            basisfunctionValues_.erase(function);
+            basisfunctionDerivatives_.erase(function);
+        }
+
+        double getBasisFunctionValue(const Base::BaseBasisFunction* function) const;
+        const LinearAlgebra::NumericalVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function) const;
+        //do not trust any other class to not create duplicates
+        friend PointReferenceFactory;
+    private:
         
         PointReference(std::size_t DIM)
                 : Point(DIM)
         {
         }
         
-        PointReference(const PointReference& p)
-                : Point(p)
-        {
-        }
+        //do not copy a pointReference, its memory address is used to quickly collect precomputed values of basis functions
+        PointReference(const PointReference& p) = delete;
+        PointReference(PointReference&& p) = delete;
 
         explicit PointReference(const Point& p)
                 : Point(p)
         {
         }
         
+        PointReference(std::initializer_list<double> data)
+                : Point(data)
+        {
+        }
+
         PointReference(double coords[], std::size_t DIM)
                 : Point(coords, DIM)
         {
         }
         
-        PointReference(const VectorOfCoordsT& coord)
+        explicit PointReference(const VectorOfCoordsT& coord)
                 : Point(coord)
         {
         }
-        
-        PointReference operator *(double right);
 
-        PointReference operator *(double right) const;
+        PointReference& operator =(const PointReference& rhs) = delete;
+        PointReference& operator =(PointReference&& rhs) = delete;
 
-        //please note that for type-safety this function cannot be removed in favour
-        //of the Point::operator+
-        PointReference operator +(const PointReference& right);
-
-        PointReference operator +(const PointReference& right) const;
-
-        PointReference operator -(const PointReference& right);
-
-        PointReference operator -(const PointReference& right) const;
-
-        PointReference& operator =(const PointReference& rhs);
-        
+        std::unordered_map<const Base::BaseBasisFunction*, double > basisfunctionValues_;
+        std::unordered_map<const Base::BaseBasisFunction*, LinearAlgebra::NumericalVector > basisfunctionDerivatives_;
         
     };
 
-    PointReference operator*(double left, const PointReference& right);
+    //PointReference operator*(double left, const PointReference& right);
     
 }
 

@@ -46,6 +46,9 @@ namespace Base
 
         double basisFunction(std::size_t i, const Geometry::PointReference& p) override final;
         double basisFunction(std::size_t i, const Geometry::PointReference& p) const override final;
+        
+        double basisFunction(Side iSide, std::size_t i, const Geometry::PointReference& p) override final;
+        double basisFunction(Side iSide, std::size_t i, const Geometry::PointReference& p) const override final;
 
         void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) override final;
         void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override final;

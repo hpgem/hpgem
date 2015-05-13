@@ -208,12 +208,11 @@ void Output::VTKSpecificTimeWriter::write(std::function<double(Base::Element*, c
     localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name << "\" format=\"binary\">" << std::endl;
     std::vector<double> data;
     data.reserve(totalPoints_);
-    Geometry::PointReference node(mesh_->dimension());
     for (Base::Element* element : mesh_->getElementsList())
     {
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            node = element->getReferenceGeometry()->getNode(tohpGEMOrdering(i, element->getReferenceGeometry()));
+            const Geometry::PointReference& node = element->getReferenceGeometry()->getNode(tohpGEMOrdering(i, element->getReferenceGeometry()));
             data.push_back(dataCompute(element, node, timelevel_));
         }
     }
@@ -233,12 +232,11 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::Numerical
     std::vector<double> data;
     LinearAlgebra::NumericalVector newData;
     data.reserve(3 * totalPoints_);
-    Geometry::PointReference node(mesh_->dimension());
     for (Base::Element* element : mesh_->getElementsList())
     {
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            node = element->getReferenceGeometry()->getNode(i);
+            const Geometry::PointReference& node = element->getReferenceGeometry()->getNode(i);
             newData = dataCompute(element, node, timelevel_);
             for (std::size_t j = 0; j < newData.size(); ++j)
             {
@@ -266,12 +264,11 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::Matrix(Ba
     std::vector<double> data;
     LinearAlgebra::Matrix newData;
     data.reserve(3 * totalPoints_);
-    Geometry::PointReference node(mesh_->dimension());
     for (Base::Element* element : mesh_->getElementsList())
     {
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            node = element->getReferenceGeometry()->getNode(i);
+            const Geometry::PointReference& node = element->getReferenceGeometry()->getNode(i);
             newData = dataCompute(element, node, timelevel_);
             std::size_t j = 0;
             for (; j < newData.getNRows(); ++j)

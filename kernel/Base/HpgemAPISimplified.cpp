@@ -102,6 +102,7 @@ namespace Base
     }
     
     /// \details By default this function computes the mass matrix that corresponds to the integral of the inner product of the test functions on the element.
+    /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     LinearAlgebra::Matrix HpgemAPISimplified::computeMassMatrixAtElement(Base::Element *ptrElement)
     {
         // Get number of basis functions
@@ -121,7 +122,7 @@ namespace Base
         // basisfunctions, then add it with the correct weight to massMatrix
         for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
         {
-            Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
+            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(pQuad);
             Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
             
             LinearAlgebra::NumericalVector valueBasisFunction(numOfBasisFunctions);
@@ -168,6 +169,7 @@ namespace Base
     }
     
     /// \brief By default this function copmutes the integral of the inner product of the initial solution (for given order time derivative) and the test function on the element.
+    /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     LinearAlgebra::NumericalVector HpgemAPISimplified::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
     {
         // Get number of basis functions
@@ -187,7 +189,7 @@ namespace Base
         // test function and the initial solution, then add it with the correct weight to the integral solution.
         for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
         {
-            Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
+            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(pQuad);
             Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
             
             Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
@@ -223,6 +225,7 @@ namespace Base
     }
     
     /// By default the square of the standard L2 norm is integrated.
+    /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     LinearAlgebra::NumericalVector HpgemAPISimplified::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
@@ -241,7 +244,7 @@ namespace Base
         // For each quadrature point, compute the square of the error, then add it with the correct weight to the integral solution.
         for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
         {
-            Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
+            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(pQuad);
             Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
             
             Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
@@ -349,6 +352,7 @@ namespace Base
     }
     
     /// \details This function returns a vector of the suprema of the error of every variable.
+    /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     LinearAlgebra::NumericalVector HpgemAPISimplified::computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
@@ -365,7 +369,7 @@ namespace Base
         // For each quadrature point update the maxima of the error.
         for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
         {
-            Geometry::PointReference pRef = ptrQdrRule->getPoint(pQuad);
+            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(pQuad);
             Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
             
             LinearAlgebra::NumericalVector exactSolution = getExactSolution(pPhys, time, 0);

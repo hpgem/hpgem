@@ -105,7 +105,7 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
         for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
         {
             std::size_t iVarFun = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iFun, iVar);
-            integrand(iVarFun) = -flux(iVar) * ptrFace->basisFunction(iSide, iFun, Geometry::PointReference(0)) * normal;            
+            integrand(iVarFun) = -flux(iVar) * ptrFace->basisFunction(iSide, iFun, ptrFace->getReferenceGeometry()->getCenter()) * normal;
         }
     }
     
@@ -115,11 +115,12 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
 NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
     (
      const Base::Face *ptrFace,
+     const NumericalVector &normalVec,
      const Geometry::PointReference &pRef,
      const NumericalVector &solutionCoefficients
      )
 {
-    double normal = ptrFace->getNormalVector(Geometry::PointReference(0))(0);
+    double normal = normalVec(0);
     const std::size_t numBasisFuncs = ptrFace->getNrOfBasisFunctions();
     NumericalVector solution(2);
     for (std::size_t i = 0; i < numBasisFuncs; ++i)    
@@ -146,7 +147,7 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
         for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
         {
             std::size_t iVarFun = ptrFace->getPtrElementLeft()->convertToSingleIndex(iFun, iVar);
-            integrand(iVarFun) = -flux(iVar) * ptrFace->basisFunction(iFun, Geometry::PointReference(0)) * normal;            
+            integrand(iVarFun) = -flux(iVar) * ptrFace->basisFunction(iFun, ptrFace->getReferenceGeometry()->getCenter()) * normal;
         }
     }
     
