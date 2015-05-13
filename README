@@ -6,7 +6,7 @@ hpGEM is a c++ partial differential equation solver. It is intended for Disconti
 
 == Installation ==
 
-For a quick, basis installation do
+For a quick, basic installation do
 
 $ mkdir ../hpGEM_build
 $ cd ../hpGEM_build
@@ -50,10 +50,10 @@ Q: How do I use hpGEM?
 A: There are a few tutorials provided in the applications folder.
 
 Q: Where is the documentation?
-A: There is documentation on the website. You can also locally build the documentation is you enable hpGEM_BUILD_DOCUMENTATION in cmake. The command for doing so is 'make doc'. It then becomes available in docs/html/index.html.
+A: There is documentation on the website. You can also locally build the documentation if you enable hpGEM_BUILD_DOCUMENTATION in cmake. The command for doing so is 'make doc'. It then becomes available in docs/html/index.html.
 
 Q: How do I create my own application?
-A: Copy one of the existing applications, or copy app1 if you want to start from an empty application. Then edit the copied CMakeLists.txt and change the two occurrences of app1.out to the desired name of your application
+A: Copy one of the existing applications, or copy TemplateBasicProblem if you want to start from an empty application. Then edit the copied CMakeLists.txt and change the two occurrences of 'ExampleProblem.out' to the desired name of your application
 
 Q: I added an application, but it isn't detected!
 A: CMake cannot automatically detect new applications. Please use generate in cmake-gui or ccmake or type cmake again.
