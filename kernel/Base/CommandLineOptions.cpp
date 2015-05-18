@@ -109,7 +109,8 @@ void Base::parse_options(int argc, char** argv)
             PETSC_COMM_WORLD = MPI::COMM_WORLD.Create(groupID);
 #endif
             PetscInitialize(&argc, &argv, PETSC_NULL, "PETSc help\n");
-            
+            //please do not catch signals PETSc, you are confusing users
+            PetscPopSignalHandler();
             std::atexit([]()
             {   
                 PetscFinalize();
