@@ -85,139 +85,6 @@ LinearAlgebra::NumericalVector Euler::integrandSourceAtElement(const Base::Eleme
 
 	LinearAlgebra::NumericalVector integrandSource(numOfVariables_ * numOfBasisFunctions);
 
-	//Convert pRef to pPhys
-	Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
-
-
-	//*********************************************************
-	//***	Calculate derivative terms for source function	***
-	//*********************************************************
-
-	//Calculate base source functions: S_t, S_x, S_y, S_z, see manual
-	double amplitude = 0.2;
-	double frequency = 2.0*M_PI;
-	LinearAlgebra::NumericalVector sourceValue(DIM_ + 1);
-
-	//Add the time-dependent part of the function
-	sourceValue(0) = -amplitude*frequency*std::sin(frequency*time);
-	for (std::size_t iD = 0; iD < DIM_; iD++)
-	{
-		sourceValue(iD + 1) = -amplitude*frequency*std::cos(frequency*time);
-	}
-
-	//Add the space-dependent part of the function
-	for (std::size_t iD = 0; iD < DIM_; iD++)
-	{
-		sourceValue(0) *= std::cos(frequency*pPhys[iD]);
-		sourceValue(iD+1) *= std::sin(frequency*pPhys[iD]);
-	}
-	for (std::size_t iD = 0; iD < DIM_; iD++)
-	{
-		for (std::size_t iD2 = 0; iD2 < DIM_; iD2++)
-		{
-			if (iD != iD2)
-			{
-				sourceValue(iD+1) *= cos(frequency*pPhys[iD2]);
-			}
-		}
-	}
-
-	//*****************************************************
-	//***	Calculate values for various source terms	***
-	//*****************************************************
-
-	double q1Inverse = 1.0/qSolution(0);
-
-	//Calculate Source term values: momentum convection
-	LinearAlgebra::Matrix sourceConvection(DIM_,DIM_); // d(rho*u^2)/dx or d(rho*v^2)/dy or d(rho*w^2)/dz on the diagonal and terms like d(rho*u*v)/dx and d(rho*w*u)/dz	on the off-diagonal
-
-	for (std::size_t iD = 0; iD < DIM_; iD++)
-	{
-		sourceConvection(iD,iD) = (2.0*qSolution(iD+1) - qSolution(iD+1)*qSolution(iD+1)*q1Inverse)*sourceValue(iD+1)*q1Inverse; // d(rho*u^2)/dx or d(rho*v^2)/dy or d(rho*w^2)/dz
-	}
-	//off diagonal convection
-	for (std::size_t iD = 0; iD < DIM_; iD++)
-	{
-		for (std::size_t iD2 = 0; iD2 < DIM_; iD2++)
-		{
-			if (iD!=iD2)
-			{
-				sourceConvection(iD,iD2) = (qSolution(iD+1) + qSolution(iD2+1) - qSolution(iD+1)*qSolution(iD2+1)*q1Inverse)*sourceValue(iD2+1)*q1Inverse; // terms like d(rho*u*v)/dx and d(rho*w*u)/dz
-			}
-		}
-	}
-
-	//Calculate Source term values: pressure
-	LinearAlgebra::NumericalVector sourcePressure(DIM_); // dp/dx or dp/dy or dp/dz;
-	double kineticPressure = 0.0; // This is the kinetic part of the pressure term;
-
-	for (std::size_t iD = 0; iD < DIM_; iD++)
-	{
-		kineticPressure += (-qSolution(iD+1) + 0.5*qSolution(iD+1)*qSolution(iD+1)*q1Inverse)*q1Inverse;// part 1 of calculation
-	}
-	for (std::size_t iD = 0; iD < DIM_; iD++)
-	{
-		sourcePressure(iD) = (gamma_ -1)*(1 + kineticPressure)*sourceValue(iD+1); // dp/dx or dp/dy or dp/dz
-	}
-
-	//Calculate Source term values: Enthalpy convection
-	LinearAlgebra::NumericalVector sourceEnthalpy(DIM_);
-	for (std::size_t iD = 0; iD < DIM_; iD++)
-	{
-		sourceEnthalpy(iD) = (qSolution(iD+1) + qSolution(DIM_+1) - qSolution(iD+1)*qSolution(DIM_+1)*q1Inverse + pressureTerm - qSolution(iD+1)*pressureTerm*q1Inverse)*sourceValue(iD+1)*q1Inverse + qSolution(iD+1)*q1Inverse*sourcePressure(iD); // d(rho*u*h)/dx or d(rho*v*h)/dy or d(rho*w*h)/dz
-	}
-
-	//*************************************************************************
-	//***	Calculate the complete source functions used for integration	***
-	//*************************************************************************
-	double sDensity;
-	LinearAlgebra::NumericalVector sMomentum(DIM_);
-	double sEnergy;
-
-	// Add time derivative term
-	sDensity = sourceValue(0);
-	for (std::size_t iD = 0; iD < DIM_; iD++)
-	{
-		sMomentum(iD) = sourceValue(0);
-	}
-	sEnergy = sourceValue(0);
-
-	// Add space terms
-	for (std::size_t iD = 0; iD < DIM_ ; iD++)
-	{
-		sDensity += sourceValue(iD+1);
-		for (std::size_t iD2 = 0; iD2 < DIM_; iD2++)
-		{
-			sMomentum(iD) += sourceConvection(iD,iD2);
-		}
-		sMomentum(iD) += sourcePressure(iD);
-		sEnergy += sourceEnthalpy(iD);
-	}
-
-
-
-	//*********************************************************
-	//*** Calculate the integrand of the Source integral	***
-	//*********************************************************
-
-	for(std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
-	{
-		// Density
-		iVB = ptrElement->convertToSingleIndex(iB,0);
-		integrandSource(iVB) = sDensity*ptrElement->basisFunction(iB, pRef);
-
-		// Momentum
-		for (std::size_t iD = 0; iD < DIM_; iD++)
-		{
-			iVB = ptrElement->convertToSingleIndex(iB,iD+1);
-			integrandSource(iVB) = sMomentum(iD)*ptrElement->basisFunction(iB, pRef);
-		}
-
-		// Energy
-		iVB = ptrElement->convertToSingleIndex(iB,DIM_+1);
-		integrandSource(iVB) = sEnergy*ptrElement->basisFunction(iB, pRef);
-	}
-
 	return integrandSource;
 }
 
@@ -395,7 +262,7 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 	   const double abv6 = abv3*abv4*ova2Avg + abv2*abv5*ovaAvg;
 	   const double abv7 = abv2*abv4*ovaAvg + abv3*abv5;
 
-	   //Compute the Roe Riemann Flux function: h(u_L,u_R) = 0.5*(F(u)_L + F(u)_R - |A|(u_R - u_L))
+	   //Compute the Roe Riemann Flux function: h(u_L,u_R) = 0.5*(F(u_L) + F(u_R) - |A|(u_R - u_L))
 	   LinearAlgebra::NumericalVector flux(DIM_ + 2);
 
 	    double pLR = pressureLeft + pressureRight;
@@ -465,6 +332,8 @@ LinearAlgebra::NumericalVector Euler::computeRightHandSideAtElement(Base::Elemen
 
 	   //Compute flux
 	   LinearAlgebra::NumericalVector flux = RoeRiemannFluxFunction(qReconstructionRight, qReconstructionLeft, normal);
+
+	   //todo: Other implementation is simply to put the flux to zero. No mass, momentum and energy should get out. This saves computational time
 
 	   // Compute integrand on the reference element.
 	   std::size_t iVB; // Index for both variable and basis function.
