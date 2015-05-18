@@ -113,7 +113,7 @@ void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::MiddleSi
 }
 
 //3x the same function, but I dont like this mess in the header, so cant template
-void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)> f, const std::string& name, double time, std::size_t timelevel)
+void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference&, std::size_t)> f, const std::string& name, double time, std::size_t timelevel)
 {
     if (time != time_ || currentFile_ == nullptr)
     {

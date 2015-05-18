@@ -19,7 +19,7 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Matrix.h"
+#include "MiddleSizeMatrix.h"
 #include "MiddleSizeVector.h"
 #include "Logger.h"
 #include <algorithm>
@@ -50,14 +50,14 @@ namespace LinearAlgebra
         void dgesv_(int* N, int* NRHS, double* A, int* lda, int* IPIV, double* B, int* LDB, int* INFO);
     }
     
-    Matrix::Matrix()
+    MiddleSizeMatrix::MiddleSizeMatrix()
             : nRows_(0), nCols_(0)
     {
     }
     
     /// \param[in]  n The number of rows the matrix will have
     /// \param[in]  m The number of columns the matrix will have
-    Matrix::Matrix(const std::size_t n, const std::size_t m)
+    MiddleSizeMatrix::MiddleSizeMatrix(const std::size_t n, const std::size_t m)
             : data_(n * m), nRows_(n), nCols_(m)
     {
     }
@@ -68,7 +68,7 @@ namespace LinearAlgebra
     ///
     /// \details Example usage : Matrix<double> A(4,3,2) with create a 4 by 3 
     /// matrix called A with entries equal to 2.
-    Matrix::Matrix(const std::size_t n, const std::size_t m, const double& c)
+    MiddleSizeMatrix::MiddleSizeMatrix(const std::size_t n, const std::size_t m, const double& c)
             :
 #ifdef LA_STL_VECTOR
                     data_(n * m, c),
@@ -80,32 +80,32 @@ namespace LinearAlgebra
     }
     
     /// \param[in] Matrix A i.e. the matrix to be copies.
-    Matrix::Matrix(const Matrix& other)
+    MiddleSizeMatrix::MiddleSizeMatrix(const MiddleSizeMatrix& other)
             : data_(other.data_), nRows_(other.nRows_), nCols_(other.nCols_)
     {
     }
     
-    Matrix::Matrix(Matrix&& other)
+    MiddleSizeMatrix::MiddleSizeMatrix(MiddleSizeMatrix&& other)
             : data_(std::move(other.data_)), nRows_(other.nRows_), nCols_(other.nCols_)
     {
     }
     
-    Matrix::Matrix(const MiddleSizeVector& list)
+    MiddleSizeMatrix::MiddleSizeMatrix(const MiddleSizeVector& list)
             : data_(list.data(), list.data() + list.size()), nRows_(list.size()), nCols_(1)
     {
     }
 
-    Matrix::Matrix(std::initializer_list<Matrix> list)
+    MiddleSizeMatrix::MiddleSizeMatrix(std::initializer_list<MiddleSizeMatrix> list)
             : data_(0), nRows_(list.begin()->getNRows()), nCols_(0)
     {
-        for(Matrix mat : list)
+        for(MiddleSizeMatrix mat : list)
         {
             logger.assert(nRows_ == mat.getNRows(), "Can only construct a matrix from vectors of the same size");
             nCols_ += mat.getNCols();
         }
         data_.resize(nRows_ * nCols_);
         auto inserter = data_.begin();
-        for(Matrix mat : list)
+        for(MiddleSizeMatrix mat : list)
         {
             inserter = std::copy(mat.data(), mat.data() + mat.size(), inserter);
         }
@@ -115,13 +115,13 @@ namespace LinearAlgebra
     /// \return double i.e. the value of the element you requested
     ///
     /// \details Recall that the matrix is stored in fortran style i.e. columns first and then rows
-    double& Matrix::operator[](const std::size_t n)
+    double& MiddleSizeMatrix::operator[](const std::size_t n)
     {
         logger.assert(n < data_.size(), "Requested entry % for a matrix with only % entries", n, data_.size());
         return data_[n];
     }
     
-    const double& Matrix::operator[](const std::size_t n) const
+    const double& MiddleSizeMatrix::operator[](const std::size_t n) const
     {
         logger.assert(n < data_.size(), "Requested entry % for a matrix with only % entries", n, data_.size());
         return data_[n];
@@ -129,7 +129,7 @@ namespace LinearAlgebra
     
     /// \param[in] other : the Matrix that is added to this matrix
     /// \return Matrix
-    Matrix& Matrix::operator+=(const Matrix& other)
+    MiddleSizeMatrix& MiddleSizeMatrix::operator+=(const MiddleSizeMatrix& other)
     {
         //Make sure the matrices are the same size
         logger.assert(size() == other.size() && nCols_ == other.nCols_, "Dimensions of matrices are not the same.");
@@ -143,7 +143,7 @@ namespace LinearAlgebra
         return (*this);
     }
     
-    Matrix& Matrix::operator-=(const Matrix& other)
+    MiddleSizeMatrix& MiddleSizeMatrix::operator-=(const MiddleSizeMatrix& other)
     {
         //Make sure the matrices are the same size
         logger.assert(size() == other.size() && nCols_ == other.nCols_, "Dimensions of matrices are not the same.");
@@ -156,7 +156,7 @@ namespace LinearAlgebra
         return (*this);
     }
 
-    Matrix& Matrix::operator *=(const Matrix& other)
+    MiddleSizeMatrix& MiddleSizeMatrix::operator *=(const MiddleSizeMatrix& other)
     {
         ///\todo BLAS has no in-place matrix-matrix multiplication
         return (*this) = (*this) * other;
@@ -164,7 +164,7 @@ namespace LinearAlgebra
 
     /// \param[in] scalar : A double that each element of the matrix is multiplied by
     /// \return Matrix
-    Matrix& Matrix::operator*=(const double &scalar)
+    MiddleSizeMatrix& MiddleSizeMatrix::operator*=(const double &scalar)
     {
 #ifdef LA_STL_VECTOR
         for (double& d : data_)
@@ -177,7 +177,7 @@ namespace LinearAlgebra
 
     /// \param[in] scalar : A double that each element of the matrix is divided by
     /// \return Matrix
-    Matrix& Matrix::operator/=(const double& scalar)
+    MiddleSizeMatrix& MiddleSizeMatrix::operator/=(const double& scalar)
     {
 #ifdef LA_STL_VECTOR
         for (double& d : data_)
@@ -188,19 +188,19 @@ namespace LinearAlgebra
         return *this;
     }
 
-    Matrix Matrix::operator +(const Matrix& other) const
+    MiddleSizeMatrix MiddleSizeMatrix::operator +(const MiddleSizeMatrix& other) const
     {
-        Matrix result(*this);
+        MiddleSizeMatrix result(*this);
         return result += other;
     }
 
-    Matrix Matrix::operator -(const Matrix& other) const
+    MiddleSizeMatrix MiddleSizeMatrix::operator -(const MiddleSizeMatrix& other) const
     {
-        Matrix result(*this);
+        MiddleSizeMatrix result(*this);
         return result -= other;
     }
 
-    Matrix Matrix::operator -() const
+    MiddleSizeMatrix MiddleSizeMatrix::operator -() const
     {
         return (*this) * -1.;
     }
@@ -209,7 +209,7 @@ namespace LinearAlgebra
     /*! \details Computes Matrix * vector and return the vector
      This is done by calling the BLAS (level 2) routine dgemv.
      */
-    MiddleSizeVector Matrix::operator*(MiddleSizeVector& right) const
+    MiddleSizeVector MiddleSizeMatrix::operator*(MiddleSizeVector& right) const
     {
         logger.assert(nCols_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
         
@@ -229,7 +229,7 @@ namespace LinearAlgebra
         
         logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
         
-        dgemv_("N", &nr, &nc, &d_one, ((*(const_cast<Matrix *>(this))).data()), &nr, right.data(), &i_one, &d_zero, result.data(), &i_one);
+        dgemv_("N", &nr, &nc, &d_one, ((*(const_cast<MiddleSizeMatrix *>(this))).data()), &nr, right.data(), &i_one, &d_zero, result.data(), &i_one);
         return result;
     }
 
@@ -237,7 +237,7 @@ namespace LinearAlgebra
     /*! \details Computes Matrix * vector and return the vector
      This is done by calling the BLAS (level 2) routine dgemv.
      */
-    MiddleSizeVector Matrix::operator*(MiddleSizeVector& right)
+    MiddleSizeVector MiddleSizeMatrix::operator*(MiddleSizeVector& right)
     {
         logger.assert(nCols_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
 
@@ -267,7 +267,7 @@ namespace LinearAlgebra
     /*! This uses the BLAS level 3 libaray dgemm to undertake the calculated
      Note it create the matrix that is return, but this is required as the return matrix may be a different size.
      */
-    Matrix Matrix::operator*(const Matrix &other)
+    MiddleSizeMatrix MiddleSizeMatrix::operator*(const MiddleSizeMatrix &other)
     {
         logger.assert(nCols_ == other.nRows_, "Inner dimensions not equal.");
         
@@ -276,7 +276,7 @@ namespace LinearAlgebra
         int k = other.getNCols();
         
         ///The result of the matrix is left.Nrows, right.NCols()
-        Matrix C(i, k);
+        MiddleSizeMatrix C(i, k);
         
         double d_one = 1.0;
         double d_zero = 0.0;
@@ -287,7 +287,7 @@ namespace LinearAlgebra
         return C;
     }
     
-    Matrix Matrix::operator*(const Matrix &other) const
+    MiddleSizeMatrix MiddleSizeMatrix::operator*(const MiddleSizeMatrix &other) const
     {
         
         logger.assert(nCols_ == other.nRows_, "Inner dimensions are not the same.");
@@ -297,37 +297,37 @@ namespace LinearAlgebra
         int k = other.getNCols();
         
         //The result of the matrix is left.Nrows, right.NCols()
-        Matrix C(i, k);
+        MiddleSizeMatrix C(i, k);
         
         double d_one = 1.0;
         double d_zero = 0.0;
         
         //Let the actual multiplication be done by Fortran
-        dgemm_("N", "N", &i, &k, &j, &d_one, ((*(const_cast<Matrix *>(this))).data()), &i, (((const_cast<Matrix&>(other))).data()), &j, &d_zero, C.data(), &i);
+        dgemm_("N", "N", &i, &k, &j, &d_one, ((*(const_cast<MiddleSizeMatrix *>(this))).data()), &i, (((const_cast<MiddleSizeMatrix&>(other))).data()), &j, &d_zero, C.data(), &i);
         
         return C;
     }
     
     /// \param[in] scalar : A double that each element of the matrix is multiplied by
     /// \return Matrix
-    Matrix Matrix::operator*(const double &scalar) const
+    MiddleSizeMatrix MiddleSizeMatrix::operator*(const double &scalar) const
     {
-        Matrix result(*this);
+        MiddleSizeMatrix result(*this);
         return (result *= scalar);
     }
 
     /// \param[in] scalar : A double that each element of the matrix is divided by
     /// \return Matrix
-    Matrix Matrix::operator/(const double &scalar) const
+    MiddleSizeMatrix MiddleSizeMatrix::operator/(const double &scalar) const
     {
-        Matrix result(*this);
+        MiddleSizeMatrix result(*this);
         return (result /= scalar);
     }
     
     /// \param [in] double c the  value all the entries of the matrix are set to
     ///
     /// \details Sets all the entries in the matrix equal to the scalar c.
-    Matrix& Matrix::operator=(const double& c)
+    MiddleSizeMatrix& MiddleSizeMatrix::operator=(const double& c)
     {
         if (size() != 1)
         {
@@ -344,7 +344,7 @@ namespace LinearAlgebra
     }
     
     /// \param[in] Matrix : this is the matrix of the right hand side of the assignment
-    Matrix& Matrix::operator=(const Matrix& right)
+    MiddleSizeMatrix& MiddleSizeMatrix::operator=(const MiddleSizeMatrix& right)
     {
         data_ = (right.data_);
         nRows_ = right.nRows_;
@@ -352,7 +352,7 @@ namespace LinearAlgebra
         return *this;
     }
     
-    Matrix& Matrix::operator=(Matrix&& right)
+    MiddleSizeMatrix& MiddleSizeMatrix::operator=(MiddleSizeMatrix&& right)
     {
         data_ = std::move(right.data_);
         nRows_ = right.nRows_;
@@ -371,7 +371,7 @@ namespace LinearAlgebra
     ///vector, and computing the determinant of this square matrix.  At least for
     ///dimension 2 and 3 I do not form the square matrices, since the
     ///evaluation of the determinant is easy and can be inserted directly.
-    MiddleSizeVector Matrix::computeWedgeStuffVector() const
+    MiddleSizeVector MiddleSizeMatrix::computeWedgeStuffVector() const
     {
         logger.assert(nCols_ == nRows_ - 1, "Matrix has wrong dimensions to construct the wedge stuff vector");
         MiddleSizeVector result(nRows_);
@@ -406,7 +406,7 @@ namespace LinearAlgebra
     /// \param[in] x : matrix that is multiple 
     ///
     /// \details Adds to the matrix a*X_ij where a is scalar and X is a matrix
-    void Matrix::axpy(double a, const Matrix& x)
+    void MiddleSizeMatrix::axpy(double a, const MiddleSizeMatrix& x)
     {
         
         unsigned int size = nRows_ * nCols_;
@@ -417,7 +417,7 @@ namespace LinearAlgebra
 #ifdef LA_STL_VECTOR
         daxpy_(&size, &a, const_cast<double *>(x.data()), &i_one, data(), &i_one);
 #else
-        daxpy_(&size, &a, &((*(const_cast<Matrix *> (&x)))[0]), &i_one, &((*this)[0]) , &i_one);
+        daxpy_(&size, &a, &((*(const_cast<MiddleSizeMatrix *> (&x)))[0]), &i_one, &((*this)[0]) , &i_one);
 
 #endif
         
@@ -425,7 +425,7 @@ namespace LinearAlgebra
     
     /// \param[in] n the number of row in the new matrix
     /// \param[in] m the number of columns in the new matrix
-    void Matrix::resize(std::size_t n, std::size_t m)
+    void MiddleSizeMatrix::resize(std::size_t n, std::size_t m)
     {
         nRows_ = n;
         nCols_ = m;
@@ -437,7 +437,7 @@ namespace LinearAlgebra
     
     /// If two matrices have the same number of columns, glue them together.
     /// \todo Find a more elegant way to do this.
-    void Matrix::concatenate(const Matrix& other)
+    void MiddleSizeMatrix::concatenate(const MiddleSizeMatrix& other)
     {
         logger.assert(nCols_ == other.nCols_, "Number of columns is not the same.");
         
@@ -465,25 +465,25 @@ namespace LinearAlgebra
     }
     
     /// \return the total number of entries
-    std::size_t Matrix::size() const
+    std::size_t MiddleSizeMatrix::size() const
     {
         return nRows_ * nCols_;
     }
     
     /// \return the number of rows
-    std::size_t Matrix::getNRows() const
+    std::size_t MiddleSizeMatrix::getNRows() const
     {
         return nRows_;
     }
     
     /// \brief Get the number of columns
     /// \return int : the number of columns
-    std::size_t Matrix::getNCols() const
+    std::size_t MiddleSizeMatrix::getNCols() const
     {
         return nCols_;
     }
     
-    LinearAlgebra::MiddleSizeVector Matrix::getColumn(std::size_t j) const
+    LinearAlgebra::MiddleSizeVector MiddleSizeMatrix::getColumn(std::size_t j) const
     {
         logger.assert(j < nCols_, "Requested column %, but there are only % columns", j, nCols_);
         LinearAlgebra::MiddleSizeVector ret(nRows_);
@@ -494,7 +494,7 @@ namespace LinearAlgebra
         return ret;
     }
     
-    LinearAlgebra::MiddleSizeVector Matrix::getRow(std::size_t i) const
+    LinearAlgebra::MiddleSizeVector MiddleSizeMatrix::getRow(std::size_t i) const
     {
         logger.assert(i < nRows_, "Requested row %, but there are only % rows", i, nRows_);
         LinearAlgebra::MiddleSizeVector ret(nCols_);
@@ -507,7 +507,7 @@ namespace LinearAlgebra
     
     /// return Matrix which is the LUfactorisation of the current matrix
     ///\bug allocates a potentially large array (iPivot) on the stack
-    Matrix Matrix::LUfactorisation() const
+    MiddleSizeMatrix MiddleSizeMatrix::LUfactorisation() const
     {
         
         int nr = nRows_;
@@ -515,7 +515,7 @@ namespace LinearAlgebra
         int nPivot = std::min(nRows_, nCols_);
         int iPivot[nPivot];
         
-        Matrix result(*this);
+        MiddleSizeMatrix result(*this);
         
         int info;
         
@@ -526,10 +526,10 @@ namespace LinearAlgebra
     
     /// \param[out] result this is the inverse of the current matrix
     ///\bug allocates a potentially large array (iPivot) on the stack
-    Matrix Matrix::inverse() const
+    MiddleSizeMatrix MiddleSizeMatrix::inverse() const
     {
         logger.assert(nRows_ == nCols_, "Cannot invert a non-square matrix");
-        Matrix result = (*this);
+        MiddleSizeMatrix result = (*this);
         
         int nr = nRows_;
         int nc = nCols_;
@@ -554,16 +554,16 @@ namespace LinearAlgebra
         }
         else
         {
-            Matrix work(nRows_, nCols_);
+            MiddleSizeMatrix work(nRows_, nCols_);
             dgetri_(&nc, result.data(), &nc, iPivot, work.data(), &lwork, &info);
         }
         
         return result;
     }
     
-    Matrix Matrix::transpose() const
+    MiddleSizeMatrix MiddleSizeMatrix::transpose() const
     {
-        Matrix result(nCols_, nRows_);
+        MiddleSizeMatrix result(nCols_, nRows_);
         for(std::size_t i = 0; i < nRows_; ++i)
         {
             for(std::size_t j = 0; j < nCols_; ++j)
@@ -576,7 +576,7 @@ namespace LinearAlgebra
 
     /// \param[in,out] B. On enter is B in Ax=B and on exit is x.
     ///\bug allocates a potentially large array (IPIV) on the stack
-    void Matrix::solve(Matrix& B) const
+    void MiddleSizeMatrix::solve(MiddleSizeMatrix& B) const
     {
         logger.assert(nRows_ == nCols_, "can only solve for square matrixes");
         logger.assert(nRows_ == B.nRows_, "size of the RHS does not match the size of the matrix");
@@ -599,13 +599,13 @@ namespace LinearAlgebra
         }
         else
         {
-            Matrix matThis = *this;
+            MiddleSizeMatrix matThis = *this;
             dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
         }
     }
 
     ///\bug allocates a potentially large array (IPIV) on the stack
-    void Matrix::solve(MiddleSizeVector& b) const
+    void MiddleSizeMatrix::solve(MiddleSizeVector& b) const
     {
         logger.assert(nRows_ == nCols_, "can only solve for square matrixes");
         logger.assert(nRows_ == b.size(), "size of the RHS does not match the size of the matrix");
@@ -628,14 +628,14 @@ namespace LinearAlgebra
         }
         else
         {
-            Matrix matThis = *this;
+            MiddleSizeMatrix matThis = *this;
             dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
         }
     }
     
 #ifdef HPGEM_USE_COMPLEX_PETSC
     
-    std::complex<double>* Matrix::data()
+    std::complex<double>* MiddleSizeMatrix::data()
     {   
         static std::vector<std::complex<double>> new_Data( data_.size());
 
@@ -652,7 +652,7 @@ namespace LinearAlgebra
         return new_Data.data();
     }
 
-    const std::complex<double>* Matrix::data() const
+    const std::complex<double>* MiddleSizeMatrix::data() const
     {   
         static std::vector<std::complex<double>> new_Data(data_.size());
 
@@ -669,19 +669,19 @@ namespace LinearAlgebra
 
 #else
     
-    double* Matrix::data()
+    double* MiddleSizeMatrix::data()
     {
         return data_.data();
     }
     
-    const double* Matrix::data() const
+    const double* MiddleSizeMatrix::data() const
     {
         return data_.data();
     }
     
 #endif
     ///Print the matrix with () around each line and [] around the matrix.
-    std::ostream& operator<<(std::ostream& os, const Matrix& A)
+    std::ostream& operator<<(std::ostream& os, const MiddleSizeMatrix& A)
     {
         std::size_t nRows = A.getNRows();
         std::size_t nCols = A.getNCols();
@@ -699,15 +699,15 @@ namespace LinearAlgebra
         return os;
     }
     
-    Matrix operator*(const double d, const Matrix& mat)
+    MiddleSizeMatrix operator*(const double d, const MiddleSizeMatrix& mat)
     {
-        Matrix matNew = mat;
+        MiddleSizeMatrix matNew = mat;
         matNew *= d;
         return matNew;
     }
 
 
-    MiddleSizeVector operator*(MiddleSizeVector& left, Matrix& right)
+    MiddleSizeVector operator*(MiddleSizeVector& left, MiddleSizeMatrix& right)
     {
         logger.assert(right.getNRows() == left.size(), "Matrix-vector multiplication with mismatching sizes");
 

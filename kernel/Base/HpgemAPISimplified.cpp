@@ -103,16 +103,16 @@ namespace Base
     
     /// \details By default this function computes the mass matrix that corresponds to the integral of the inner product of the test functions on the element.
     /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
-    LinearAlgebra::Matrix HpgemAPISimplified::computeMassMatrixAtElement(Base::Element *ptrElement)
+    LinearAlgebra::MiddleSizeMatrix HpgemAPISimplified::computeMassMatrixAtElement(Base::Element *ptrElement)
     {
         // Get number of basis functions
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
         
         // Make the mass matrix of the correct size and set all entries to zero.
-        LinearAlgebra::Matrix massMatrix(numOfBasisFunctions * configData_->numberOfUnknowns_, numOfBasisFunctions * configData_->numberOfUnknowns_, 0);
+        LinearAlgebra::MiddleSizeMatrix massMatrix(numOfBasisFunctions * configData_->numberOfUnknowns_, numOfBasisFunctions * configData_->numberOfUnknowns_, 0);
         
         // Declare integrand
-        LinearAlgebra::Matrix integrandMassMatrix(numOfBasisFunctions * configData_->numberOfUnknowns_, numOfBasisFunctions * configData_->numberOfUnknowns_, 0);
+        LinearAlgebra::MiddleSizeMatrix integrandMassMatrix(numOfBasisFunctions * configData_->numberOfUnknowns_, numOfBasisFunctions * configData_->numberOfUnknowns_, 0);
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();

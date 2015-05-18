@@ -22,18 +22,18 @@
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Logger.h"
 
-using LinearAlgebra::Matrix;
+using LinearAlgebra::MiddleSizeMatrix;
 using LinearAlgebra::MiddleSizeVector;
 
 int main(int argc, char** argv)
 {
     //constructors
     LinearAlgebra::MiddleSizeVector vec0{0., 1.}, vec1{2., 3.}, vec2{4., 5.}, vec3{6., 7.};
-    Matrix A0, A22(2, 2), A23(2, 3), A32(3, 2), destroy(3, 3, 1), count0({vec0, vec1}), count1({vec2, vec3}), copy(count0), bla({count0}), merge({count0, count1});
+    MiddleSizeMatrix A0, A22(2, 2), A23(2, 3), A32(3, 2), destroy(3, 3, 1), count0({vec0, vec1}), count1({vec2, vec3}), copy(count0), bla({count0}), merge({count0, count1});
     logger.assert_always(destroy.getNRows() == 3, "Rows in a matrix");
     logger.assert_always(destroy.getNCols() == 3, "Columns in a matrix");
     logger.assert_always(destroy.size() == 9, "Size of a matrix");
@@ -48,7 +48,7 @@ int main(int argc, char** argv)
             logger.assert_always(std::abs(destroy(i, j) - 1.) < 1e-12, "Entry of a matrix");
         }
     }
-    Matrix moved(std::move(destroy));
+    MiddleSizeMatrix moved(std::move(destroy));
     logger.assert_always(moved.getNRows() == 3, "Rows in a matrix");
     logger.assert_always(moved.getNCols() == 3, "Columns in a matrix");
     logger.assert_always(moved.size() == 9, "Size of a matrix");
@@ -197,7 +197,7 @@ int main(int argc, char** argv)
     logger.assert_always(destroy.getNCols() == 1, "Columns in a matrix");
     logger.assert_always(destroy.size() == 1, "Size of a matrix");
     logger.assert_always(std::abs(destroy[0] - 4.) < 1e-12, "Entry of a matrix");
-    Matrix extra = copy;
+    MiddleSizeMatrix extra = copy;
     logger.assert_always(extra.getNRows() == 2, "Rows in a matrix");
     logger.assert_always(extra.getNCols() == 2, "Columns in a matrix");
     logger.assert_always(extra.size() == 4, "Size of a matrix");
@@ -283,36 +283,36 @@ int main(int argc, char** argv)
     logger.assert_always(std::abs(A0[0] - 4.) < 1e-12, "Entry of a matrix");
 
     //wedge stuff
-    logger.assert_always(std::abs((Matrix(vec0).computeWedgeStuffVector())*(Matrix(vec0).computeWedgeStuffVector()) - vec0 * vec0) < 1e-12, "norm of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix(vec0).computeWedgeStuffVector()) * vec0) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix(vec1).computeWedgeStuffVector())*(Matrix(vec1).computeWedgeStuffVector()) - vec1 * vec1) < 1e-12, "norm of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix(vec1).computeWedgeStuffVector()) * vec1) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix(vec2).computeWedgeStuffVector())*(Matrix(vec2).computeWedgeStuffVector()) - vec2 * vec2) < 1e-12, "norm of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix(vec2).computeWedgeStuffVector()) * vec2) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix(vec3).computeWedgeStuffVector())*(Matrix(vec3).computeWedgeStuffVector()) - vec3 * vec3) < 1e-12, "norm of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix(vec3).computeWedgeStuffVector()) * vec3) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix(vec0).computeWedgeStuffVector())*(MiddleSizeMatrix(vec0).computeWedgeStuffVector()) - vec0 * vec0) < 1e-12, "norm of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix(vec0).computeWedgeStuffVector()) * vec0) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix(vec1).computeWedgeStuffVector())*(MiddleSizeMatrix(vec1).computeWedgeStuffVector()) - vec1 * vec1) < 1e-12, "norm of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix(vec1).computeWedgeStuffVector()) * vec1) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix(vec2).computeWedgeStuffVector())*(MiddleSizeMatrix(vec2).computeWedgeStuffVector()) - vec2 * vec2) < 1e-12, "norm of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix(vec2).computeWedgeStuffVector()) * vec2) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix(vec3).computeWedgeStuffVector())*(MiddleSizeMatrix(vec3).computeWedgeStuffVector()) - vec3 * vec3) < 1e-12, "norm of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix(vec3).computeWedgeStuffVector()) * vec3) < 1e-12, "direction of wedge stuff vector");
     MiddleSizeVector vec3D0{0., 1., 2.}, vec3D1{3., 4., 5.}, vec3D2{0., -1., 2.};
     ///\todo test that the norm of the 3D wedge stuff vector equals the area of the triangle formed by nodes {0, 0, 0}, v1 and v2
-    logger.assert_always(std::abs((Matrix({vec3D0, vec3D1}).computeWedgeStuffVector()) * vec3D0) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec3D0, vec3D1}).computeWedgeStuffVector()) * vec3D1) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec3D1, vec3D2}).computeWedgeStuffVector()) * vec3D1) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec3D1, vec3D2}).computeWedgeStuffVector()) * vec3D2) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec3D0, vec3D2}).computeWedgeStuffVector()) * vec3D0) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec3D0, vec3D2}).computeWedgeStuffVector()) * vec3D2) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec3D0, vec3D1}).computeWedgeStuffVector()) * vec3D0) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec3D0, vec3D1}).computeWedgeStuffVector()) * vec3D1) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec3D1, vec3D2}).computeWedgeStuffVector()) * vec3D1) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec3D1, vec3D2}).computeWedgeStuffVector()) * vec3D2) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec3D0, vec3D2}).computeWedgeStuffVector()) * vec3D0) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec3D0, vec3D2}).computeWedgeStuffVector()) * vec3D2) < 1e-12, "direction of wedge stuff vector");
     MiddleSizeVector vec4D0{0., 1., 2., 3.}, vec4D1{4., 5., 6., 7.}, vec4D2{0., -1., 2., -3.}, vec4D3{0., -1., -2., 3.};
     ///\todo test that the norm of the 4D wedge stuff vector equals the area of the tetrahedron formed by nodes {0, 0, 0}, v1 and v2 and v3
-    logger.assert_always(std::abs((Matrix({vec4D0, vec4D1, vec4D2}).computeWedgeStuffVector()) * vec4D0) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec4D0, vec4D1, vec4D2}).computeWedgeStuffVector()) * vec4D1) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec4D0, vec4D1, vec4D2}).computeWedgeStuffVector()) * vec4D2) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec4D0, vec4D1, vec4D3}).computeWedgeStuffVector()) * vec4D0) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec4D0, vec4D1, vec4D3}).computeWedgeStuffVector()) * vec4D1) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec4D0, vec4D1, vec4D3}).computeWedgeStuffVector()) * vec4D3) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec4D0, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D0) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec4D0, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D2) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec4D0, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D3) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec4D1, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D1) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec4D1, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D2) < 1e-12, "direction of wedge stuff vector");
-    logger.assert_always(std::abs((Matrix({vec4D1, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D3) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec4D0, vec4D1, vec4D2}).computeWedgeStuffVector()) * vec4D0) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec4D0, vec4D1, vec4D2}).computeWedgeStuffVector()) * vec4D1) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec4D0, vec4D1, vec4D2}).computeWedgeStuffVector()) * vec4D2) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec4D0, vec4D1, vec4D3}).computeWedgeStuffVector()) * vec4D0) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec4D0, vec4D1, vec4D3}).computeWedgeStuffVector()) * vec4D1) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec4D0, vec4D1, vec4D3}).computeWedgeStuffVector()) * vec4D3) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec4D0, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D0) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec4D0, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D2) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec4D0, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D3) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec4D1, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D1) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec4D1, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D2) < 1e-12, "direction of wedge stuff vector");
+    logger.assert_always(std::abs((MiddleSizeMatrix({vec4D1, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D3) < 1e-12, "direction of wedge stuff vector");
 
     copy.concatenate(extra);
     logger.assert_always(copy.getNRows() == 4, "Rows in a matrix");
@@ -327,23 +327,23 @@ int main(int argc, char** argv)
     logger.assert_always(std::abs((copy)(2, 1) + 2.) < 1e-12, "concatenate");
     logger.assert_always(std::abs((copy)(3, 1) + 21.) < 1e-12, "concatenate");
 
-    logger.assert_always(Matrix({vec3D0, vec3D1}).getColumn(0).size() == 3, "getColumn");
-    logger.assert_always(std::abs(((Matrix({vec3D0, vec3D1}).getColumn(0)) - vec3D0)[0]) < 1e-12, "getColumn");
-    logger.assert_always(std::abs(((Matrix({vec3D0, vec3D1}).getColumn(0)) - vec3D0)[1]) < 1e-12, "getColumn");
-    logger.assert_always(std::abs(((Matrix({vec3D0, vec3D1}).getColumn(0)) - vec3D0)[2]) < 1e-12, "getColumn");
-    logger.assert_always(Matrix({vec3D0, vec3D1}).getColumn(1).size() == 3, "getColumn");
-    logger.assert_always(std::abs(((Matrix({vec3D0, vec3D1}).getColumn(1)) - vec3D1)[0]) < 1e-12, "getColumn");
-    logger.assert_always(std::abs(((Matrix({vec3D0, vec3D1}).getColumn(1)) - vec3D1)[1]) < 1e-12, "getColumn");
-    logger.assert_always(std::abs(((Matrix({vec3D0, vec3D1}).getColumn(1)) - vec3D1)[2]) < 1e-12, "getColumn");
-    logger.assert_always(Matrix({vec3D0, vec3D1}).getRow(0).size() == 2, "getRow");
-    logger.assert_always(std::abs(((Matrix({vec3D0, vec3D1}).getRow(0)))[0] - 0.) < 1e-12, "getRow");
-    logger.assert_always(std::abs(((Matrix({vec3D0, vec3D1}).getRow(0)))[1] - 3.) < 1e-12, "getRow");
-    logger.assert_always(Matrix({vec3D0, vec3D1}).getRow(1).size() == 2, "getRow");
-    logger.assert_always(std::abs(((Matrix({vec3D0, vec3D1}).getRow(1)))[0] - 1.) < 1e-12, "getRow");
-    logger.assert_always(std::abs(((Matrix({vec3D0, vec3D1}).getRow(1)))[1] - 4.) < 1e-12, "getRow");
-    logger.assert_always(Matrix({vec3D0, vec3D1}).getRow(2).size() == 2, "getRow");
-    logger.assert_always(std::abs(((Matrix({vec3D0, vec3D1}).getRow(2)))[0] - 2.) < 1e-12, "getRow");
-    logger.assert_always(std::abs(((Matrix({vec3D0, vec3D1}).getRow(2)))[1] - 5.) < 1e-12, "getRow");
+    logger.assert_always(MiddleSizeMatrix({vec3D0, vec3D1}).getColumn(0).size() == 3, "getColumn");
+    logger.assert_always(std::abs(((MiddleSizeMatrix({vec3D0, vec3D1}).getColumn(0)) - vec3D0)[0]) < 1e-12, "getColumn");
+    logger.assert_always(std::abs(((MiddleSizeMatrix({vec3D0, vec3D1}).getColumn(0)) - vec3D0)[1]) < 1e-12, "getColumn");
+    logger.assert_always(std::abs(((MiddleSizeMatrix({vec3D0, vec3D1}).getColumn(0)) - vec3D0)[2]) < 1e-12, "getColumn");
+    logger.assert_always(MiddleSizeMatrix({vec3D0, vec3D1}).getColumn(1).size() == 3, "getColumn");
+    logger.assert_always(std::abs(((MiddleSizeMatrix({vec3D0, vec3D1}).getColumn(1)) - vec3D1)[0]) < 1e-12, "getColumn");
+    logger.assert_always(std::abs(((MiddleSizeMatrix({vec3D0, vec3D1}).getColumn(1)) - vec3D1)[1]) < 1e-12, "getColumn");
+    logger.assert_always(std::abs(((MiddleSizeMatrix({vec3D0, vec3D1}).getColumn(1)) - vec3D1)[2]) < 1e-12, "getColumn");
+    logger.assert_always(MiddleSizeMatrix({vec3D0, vec3D1}).getRow(0).size() == 2, "getRow");
+    logger.assert_always(std::abs(((MiddleSizeMatrix({vec3D0, vec3D1}).getRow(0)))[0] - 0.) < 1e-12, "getRow");
+    logger.assert_always(std::abs(((MiddleSizeMatrix({vec3D0, vec3D1}).getRow(0)))[1] - 3.) < 1e-12, "getRow");
+    logger.assert_always(MiddleSizeMatrix({vec3D0, vec3D1}).getRow(1).size() == 2, "getRow");
+    logger.assert_always(std::abs(((MiddleSizeMatrix({vec3D0, vec3D1}).getRow(1)))[0] - 1.) < 1e-12, "getRow");
+    logger.assert_always(std::abs(((MiddleSizeMatrix({vec3D0, vec3D1}).getRow(1)))[1] - 4.) < 1e-12, "getRow");
+    logger.assert_always(MiddleSizeMatrix({vec3D0, vec3D1}).getRow(2).size() == 2, "getRow");
+    logger.assert_always(std::abs(((MiddleSizeMatrix({vec3D0, vec3D1}).getRow(2)))[0] - 2.) < 1e-12, "getRow");
+    logger.assert_always(std::abs(((MiddleSizeMatrix({vec3D0, vec3D1}).getRow(2)))[1] - 5.) < 1e-12, "getRow");
 
     ///\todo figure out a way to test a LU factorisation
 

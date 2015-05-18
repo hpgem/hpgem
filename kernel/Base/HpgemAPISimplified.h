@@ -123,7 +123,7 @@ namespace Base
         }
         
         /// \brief Compute the mass matrix for a single element.
-        virtual LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement);
+        virtual LinearAlgebra::MiddleSizeMatrix computeMassMatrixAtElement(Base::Element *ptrElement);
         
         /// \brief Solve the mass matrix equations for a single element.
         /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$ for a single element, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix. The input is the right hand side here called 'solutionCoefficients' and the result is returned in this same vector.
@@ -307,14 +307,14 @@ namespace Base
             VTKVectorWrite_.push_back( {function, name});
         }
         
-        void registerVTKWriteFunction(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        void registerVTKWriteFunction(std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
         {
             VTKMatrixWrite_.push_back( {function, name});
         }
         
         std::vector<std::pair<std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKDoubleWrite_;
         std::vector<std::pair<std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKVectorWrite_;
-        std::vector<std::pair<std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKMatrixWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKMatrixWrite_;
         
     };
 }

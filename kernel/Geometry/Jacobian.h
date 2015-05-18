@@ -22,20 +22,20 @@
 #ifndef JACOBIAN_HPP_
 #define JACOBIAN_HPP_
 
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 
 namespace Geometry
 {
-    class Jacobian : public LinearAlgebra::Matrix
+    class Jacobian : public LinearAlgebra::MiddleSizeMatrix
     {
 
     public:
         // Constructors.
         Jacobian(std::size_t dimTo, std::size_t dimFrom);
-        Jacobian(const Jacobian& jacobian) : Matrix(jacobian) { }
+        Jacobian(const Jacobian& jacobian) : MiddleSizeMatrix(jacobian) { }
 
-        Jacobian(const LinearAlgebra::Matrix& matrix)
-                : LinearAlgebra::Matrix(matrix)
+        Jacobian(const LinearAlgebra::MiddleSizeMatrix& matrix)
+                : LinearAlgebra::MiddleSizeMatrix(matrix)
         {
         }
         

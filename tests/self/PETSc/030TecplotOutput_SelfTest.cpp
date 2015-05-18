@@ -72,14 +72,14 @@ public:
     }
     
     ///\brief Compute the integrand for the stiffness matrix at the element.
-    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
+    LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
         const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
         
         //Create the integrandVal such that it contains as many rows and columns as
         //the number of basisfunctions.
-        LinearAlgebra::Matrix integrandVal(numBasisFunctions, numBasisFunctions);
+        LinearAlgebra::MiddleSizeMatrix integrandVal(numBasisFunctions, numBasisFunctions);
         
         for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {

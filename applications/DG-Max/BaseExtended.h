@@ -154,7 +154,7 @@ public:
      */
     static void exactSolutionCurl(const PointPhysicalT& p, const double t, LinearAlgebra::MiddleSizeVector &ret);
 
-    using ElementFunction = void(hpGemUIExtentions::*)(const ElementT*, const PointElementReferenceT&, LinearAlgebra::Matrix&);
+    using ElementFunction = void(hpGemUIExtentions::*)(const ElementT*, const PointElementReferenceT&, LinearAlgebra::MiddleSizeMatrix&);
 
     /**
      * integrand for the filling of the mass matrix M
@@ -164,7 +164,7 @@ public:
      */
     //virtual void elementIntegrand(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret)=0;
     //virtual void elementStiffnessIntegrand(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret)=0;
-    using FaceFunction = void (hpGemUIExtentions::*)(const FaceT* , const PointPhysicalT&, const PointFaceReferenceT&, LinearAlgebra::Matrix&); //check again
+    using FaceFunction = void (hpGemUIExtentions::*)(const FaceT* , const PointPhysicalT&, const PointFaceReferenceT&, LinearAlgebra::MiddleSizeMatrix&); //check again
     
     /**
      * integrand for the filling of the face contibutions to the stiffness matrix S, without any penalty terms
@@ -327,18 +327,18 @@ public:
      */
     void makeFunctionValue(Vec eigenVector, LinearAlgebra::MiddleSizeVector& result);
 
-    class anonymous1 : public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
+    class anonymous1 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
     {
     public:
         
-        void elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret);
+        void elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret);
     } elementMassIntegrand;
 
-    class anonymous2 : public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
+    class anonymous2 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
     {
     public:
         
-        void elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret);
+        void elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret);
     } elementStiffnessIntegrand;
 
     class anonymous3 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
@@ -362,17 +362,17 @@ public:
         void elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
     } initialConditionsDerivIntegrand;
 
-    class anonymous6 : public Integration::FaceIntegrandBase<LinearAlgebra::Matrix>
+    class anonymous6 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
     {
     public:
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointFaceReferenceT& p, LinearAlgebra::Matrix& ret);
+        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointFaceReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret);
     } faceStiffnessIntegrand;
 
-    class anonymous7 : public Integration::FaceIntegrandBase<LinearAlgebra::Matrix>
+    class anonymous7 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret);
+        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret);
     } faceStiffnessIntegrandIP;
 
     class anonymous8 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector>
@@ -382,11 +382,11 @@ public:
         void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
     } faceSpaceIntegrandIP;
 
-    class anonymous9 : public Integration::FaceIntegrandBase<LinearAlgebra::Matrix>
+    class anonymous9 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret);
+        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret);
     } faceStiffnessIntegrandBR;
 
     class anonymous10 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector>

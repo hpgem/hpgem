@@ -1606,7 +1606,7 @@ void hpGemUIExtentions::boundaryConditions(const Geometry::PointPhysical &p, Lin
     initialExactSolution(p, ret);
 }
 
-void hpGemUIExtentions::anonymous1::elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret)
+void hpGemUIExtentions::anonymous1::elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret)
 {
     //std::cout<<"Anonymous 1 called for element integration"<<std::endl;
     ret.resize(element->getNrOfBasisFunctions(), element->getNrOfBasisFunctions());
@@ -1630,7 +1630,7 @@ void hpGemUIExtentions::anonymous1::elementIntegrand(const Base::HpgemUI::Elemen
     }
 }
 
-void hpGemUIExtentions::anonymous2::elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret)
+void hpGemUIExtentions::anonymous2::elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret)
 {
     //cout<<"\nIn the element integrand for the stiffness matrix for element id: "<<element->getID();
     ret.resize(element->getNrOfBasisFunctions(), element->getNrOfBasisFunctions());
@@ -1710,7 +1710,7 @@ void hpGemUIExtentions::anonymous5::elementIntegrand(const Base::HpgemUI::Elemen
     }
 }
 
-void hpGemUIExtentions::anonymous6::faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointFaceReferenceT& p, LinearAlgebra::Matrix& ret)
+void hpGemUIExtentions::anonymous6::faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointFaceReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret)
 {
     
     //int n = face->getPtrElementLeft()->getNrOfBasisFunctions();
@@ -1740,7 +1740,7 @@ void hpGemUIExtentions::anonymous6::faceIntegrand(const FaceT* face, const Linea
     }
 }
 
-void hpGemUIExtentions::anonymous7::faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret)
+void hpGemUIExtentions::anonymous7::faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret)
 {
     //cout<<"\nIn the face integrand for the stiffness matrix (IP-only part) for element id: "<<face->getPtrElementLeft()->getID();
     
@@ -1800,7 +1800,7 @@ void hpGemUIExtentions::anonymous8::faceIntegrand(const FaceT* face, const Linea
     
 }
 
-void hpGemUIExtentions::anonymous9::faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret)
+void hpGemUIExtentions::anonymous9::faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret)
 {
     //cout<<"\nIn the face integrand for the stiffness matrix (BR-only part) for element id: "<<face->getPtrElementLeft()->getID();
     ElementT* right;

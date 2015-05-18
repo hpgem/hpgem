@@ -151,7 +151,7 @@ namespace Base
     
     /// \param[in] iSide Side of the adjacent element to consider the test function.
     /// \param[in] jSide Side of the adjacent element to consider the solution.
-    const LinearAlgebra::Matrix & FaceMatrix::getElementMatrix(Side iSide, Side jSide) const
+    const LinearAlgebra::MiddleSizeMatrix & FaceMatrix::getElementMatrix(Side iSide, Side jSide) const
     {
         if (iSide == Side::LEFT)
         {
@@ -180,7 +180,7 @@ namespace Base
     /// \param[in] elementMatrix The matrix used to set the element matrix corresponding to sides iSide and jSide.
     /// \param[in] iSide Side of the adjacent element to consider the test function.
     /// \param[in] jSide Side of the adjacent element to consider the solution.
-    void FaceMatrix::setElementMatrix(const LinearAlgebra::Matrix & elementMatrix, Side iSide, Side jSide)
+    void FaceMatrix::setElementMatrix(const LinearAlgebra::MiddleSizeMatrix & elementMatrix, Side iSide, Side jSide)
     {
         // Check size of the elementMatrix.
         logger.assert(elementMatrix.getNRows() == getNrOfDegreesOfFreedom(iSide), "elementMatrix has the wrong size.");
@@ -212,11 +212,11 @@ namespace Base
     
     /// \details This function will be slow compared to getElementMatrix. It is 
     /// advised to use getElementMatrix instead when possible.
-    const LinearAlgebra::Matrix FaceMatrix::getEntireMatrix() const
+    const LinearAlgebra::MiddleSizeMatrix FaceMatrix::getEntireMatrix() const
     {
         std::size_t nDOFLeft = M_LeftLeft_.getNRows();
         std::size_t nDOFRight = M_RightRight_.getNRows();
-        LinearAlgebra::Matrix entireMatrix(nDOFLeft + nDOFRight, nDOFLeft + nDOFRight);
+        LinearAlgebra::MiddleSizeMatrix entireMatrix(nDOFLeft + nDOFRight, nDOFLeft + nDOFRight);
         
         // This is probably slow and inefficient.
         for (std::size_t i = 0; i < nDOFLeft; i++)
@@ -253,7 +253,7 @@ namespace Base
     
     /// \param[in] entireMatrix The standard matrix used to set the face matrix.
     /// \details This function will be slow compared to setElementMatrix. It is advised to use setElementMatrix instead when possible.
-    void FaceMatrix::setEntireMatrix(const LinearAlgebra::Matrix & entireMatrix)
+    void FaceMatrix::setEntireMatrix(const LinearAlgebra::MiddleSizeMatrix & entireMatrix)
     {
         std::size_t nDOFLeft = M_LeftLeft_.getNRows();
         std::size_t nDOFRight = M_RightRight_.getNRows();

@@ -320,7 +320,7 @@ namespace Base
             return face_->getTimeLevelData(timeLevel, unknown);
         }
 
-        LinearAlgebra::Matrix getFaceMatrixMatrix(std::size_t matrixID = 0) const override final
+        LinearAlgebra::MiddleSizeMatrix getFaceMatrixMatrix(std::size_t matrixID = 0) const override final
         {
             return face_->getFaceMatrixMatrix(matrixID);
         }

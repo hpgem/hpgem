@@ -159,7 +159,7 @@ bool HEuler::initialiseMesh()
 }
 
 void //computes the mass matrix
-HEuler::elementIntegrand(const Base::Element* element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix)
+HEuler::elementIntegrand(const Base::Element* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeMatrix& massMatrix)
 {
     unsigned int numOfDegreesOfFreedom = element->getNrOfBasisFunctions();
     
@@ -197,9 +197,9 @@ void HEuler::elementIntegrand(const Base::Element* element, const PointReference
     
     unsigned int numberOfDegreesOfFreedom = element->getNrOfBasisFunctions();
     
-    LinearAlgebra::Matrix& xDerReturnData = returnObject.xGrad_;
-    LinearAlgebra::Matrix& yDerReturnData = returnObject.yGrad_;
-    LinearAlgebra::Matrix& zDerReturnData = returnObject.zGrad_;
+    LinearAlgebra::MiddleSizeMatrix& xDerReturnData = returnObject.xGrad_;
+    LinearAlgebra::MiddleSizeMatrix& yDerReturnData = returnObject.yGrad_;
+    LinearAlgebra::MiddleSizeMatrix& zDerReturnData = returnObject.zGrad_;
     
     xDerReturnData.resize(numberOfDegreesOfFreedom, numberOfDegreesOfFreedom);
     yDerReturnData.resize(numberOfDegreesOfFreedom, numberOfDegreesOfFreedom);
@@ -249,9 +249,9 @@ void HEuler::faceIntegrand(const Base::Face* face, const LinearAlgebra::MiddleSi
             bFL = left->basisFunction(j, pL);
             bFR = right->basisFunction(j, pR);
             
-            LinearAlgebra::Matrix& leftReturnData = ret.left_[j];
+            LinearAlgebra::MiddleSizeMatrix& leftReturnData = ret.left_[j];
             
-            LinearAlgebra::Matrix& rightReturnData = ret.right_[j];
+            LinearAlgebra::MiddleSizeMatrix& rightReturnData = ret.right_[j];
             
             for (unsigned int i = 0; i < numberOfDegreesOfFreedom; ++i)
             {
@@ -1433,14 +1433,14 @@ void HEuler::initialConditions()
     
     ElementIntegralT elIntegral(useCache);
     
-    using Integrand = void (HEuler::*)(const Base::Element* , const PointReferenceT&, LinearAlgebra::Matrix&);
+    using Integrand = void (HEuler::*)(const Base::Element* , const PointReferenceT&, LinearAlgebra::MiddleSizeMatrix&);
     //Integrand massMatrixIntegrand = &HEuler::calculateMassMatrix;
     
     LinearAlgebra::MiddleSizeVector rightHand(ldof);
     
     Base::Element::SolutionVector numerical(ldof);
     
-    LinearAlgebra::Matrix invMassM(ldof, ldof);
+    LinearAlgebra::MiddleSizeMatrix invMassM(ldof, ldof);
     
     cout << "ldof=" << ldof << endl;
     
@@ -1457,10 +1457,10 @@ void HEuler::initialConditions()
         
         elemData = new HEulerElementData(ldof);
         
-        LinearAlgebra::Matrix& massMatrix = elemData->massMatrix_;
-        LinearAlgebra::Matrix& invMassM = elemData->invMassMatrix_;
+        LinearAlgebra::MiddleSizeMatrix& massMatrix = elemData->massMatrix_;
+        LinearAlgebra::MiddleSizeMatrix& invMassM = elemData->invMassMatrix_;
         
-        massMatrix = elIntegral.integrate<LinearAlgebra::Matrix>(elem, this);
+        massMatrix = elIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>(elem, this);
         
         invMassM = massMatrix.inverse();
         

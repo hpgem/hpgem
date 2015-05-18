@@ -26,7 +26,7 @@
 
 namespace LinearAlgebra
 {
-    class Matrix;
+    class MiddleSizeMatrix;
 }
 
 namespace Geometry
@@ -51,18 +51,18 @@ namespace Geometry
         virtual void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const = 0;
 
         //! Transformation matrix of this refinement when located on the LEFT side
-        virtual void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const = 0;
+        virtual void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const = 0;
 
         //! Transformation matrix of this refinement when located on the RIGHT side
-        virtual void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const = 0;
+        virtual void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const = 0;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
         //! Note: this should also applied on other dimensions
-        virtual void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const = 0;
+        virtual void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const = 0;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
         //! Note: this should also applied on other dimensions
-        virtual void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const = 0;
+        virtual void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const = 0;
     };
 }
 #endif

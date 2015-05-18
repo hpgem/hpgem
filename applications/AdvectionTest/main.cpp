@@ -84,10 +84,10 @@ public:
     ///basisfunctions phi_i and phi_j.
     ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
     ///so you wont have to do any transformations yourself
-    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
+    LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
     {
         std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
-        LinearAlgebra::Matrix  result(numBasisFuncs, numBasisFuncs, 0);
+        LinearAlgebra::MiddleSizeMatrix  result(numBasisFuncs, numBasisFuncs, 0);
         for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
             for (std::size_t j = 0; j < numBasisFuncs; ++j)

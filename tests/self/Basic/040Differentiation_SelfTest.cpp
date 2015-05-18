@@ -62,10 +62,10 @@ void testMesh(Base::MeshManipulator* test)
         }
     } interpolation;
     
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
     {
         
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret)
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeMatrix& ret)
         {
             std::size_t numBasisFuns = el->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
@@ -108,7 +108,7 @@ void testMesh(Base::MeshManipulator* test)
     elIntegral.setStorageWrapper(new Base::ShortTermStorageElementH1(test->dimension()));
     double total = 0;
     LinearAlgebra::MiddleSizeVector result(1), expansion;
-    LinearAlgebra::Matrix M;
+    LinearAlgebra::MiddleSizeMatrix M;
     for (Base::Element* element : test->getElementsList())
     {
         expansion = elIntegral.integrate(element, &interpolation);

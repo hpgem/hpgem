@@ -23,7 +23,7 @@
 
 #include "Logger.h"
 #include "Geometry/RefinementLine.h"
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 
 #include "PointPhysical.h"
 #include "ReferenceLine.h"

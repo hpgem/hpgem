@@ -58,7 +58,7 @@ namespace Output
         void write(std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name, double time, std::size_t timelevel = 0);
 
         ///\brief write an order 2 tensor field
-        void write(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name, double time, std::size_t timelevel = 0);
+        void write(std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name, double time, std::size_t timelevel = 0);
 
         ///\brief do not copy the writer to prevent havoc when destructing all the copies
         VTKTimeDependentWriter(const VTKTimeDependentWriter& orig) = delete;

@@ -24,7 +24,7 @@
 #define FaceMatrix_h
 //----------------------------------------------------------------
 #include "Base/Side.h"
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 
 namespace Base
 {
@@ -76,26 +76,26 @@ namespace Base
         void resize(const std::size_t nDOFLeft, const std::size_t nDOFRight);
 
         /// \brief Returns a reference of the submatrix corresponding to a combination of two elements connected to the face.
-        const LinearAlgebra::Matrix& getElementMatrix(Side iSide, Side jSide) const;
+        const LinearAlgebra::MiddleSizeMatrix& getElementMatrix(Side iSide, Side jSide) const;
 
         /// \brief Sets the submatrix corresponding to a combination of two elements connected to the face.
-        void setElementMatrix(const LinearAlgebra::Matrix & elementMatrix, Side iSide, Side jSide);
+        void setElementMatrix(const LinearAlgebra::MiddleSizeMatrix & elementMatrix, Side iSide, Side jSide);
 
         /// \brief Returns the complete face matrix as a standard matrix. It is advised to use getElementMatrix instead when possible.
-        const LinearAlgebra::Matrix getEntireMatrix() const;
+        const LinearAlgebra::MiddleSizeMatrix getEntireMatrix() const;
 
         /// \brief Sets the FaceMatrix using the complete face matrix as input. It is advised to use setElementMatrix instead when possible.
-        void setEntireMatrix(const LinearAlgebra::Matrix & entireMatrix);
+        void setEntireMatrix(const LinearAlgebra::MiddleSizeMatrix & entireMatrix);
 
         /// \brief Applies the operation y=ax + y, where a is a scalar and x another FaceMatrix.
         void axpy(const double &a, const FaceMatrix &x);
 
     private:
         /// \brief Four matrices, corresponding to the submatrices of the face matrix, where each submatrix is an element matrix corresponding to (iSide, jSide).
-        LinearAlgebra::Matrix M_LeftLeft_;
-        LinearAlgebra::Matrix M_LeftRight_;
-        LinearAlgebra::Matrix M_RightLeft_;
-        LinearAlgebra::Matrix M_RightRight_;
+        LinearAlgebra::MiddleSizeMatrix M_LeftLeft_;
+        LinearAlgebra::MiddleSizeMatrix M_LeftRight_;
+        LinearAlgebra::MiddleSizeMatrix M_RightLeft_;
+        LinearAlgebra::MiddleSizeMatrix M_RightRight_;
     };
 }
 #endif

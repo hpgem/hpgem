@@ -91,7 +91,7 @@ namespace Base
     {
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::Matrix massMatrix(computeMassMatrixAtElement(ptrElement));
+            LinearAlgebra::MiddleSizeMatrix massMatrix(computeMassMatrixAtElement(ptrElement));
             //std::cout << "--Mass matrix element:\n" << massMatrix << "\n";
             ptrElement->setElementMatrix(massMatrix, massMatrixID_);
         }
@@ -104,17 +104,17 @@ namespace Base
         {
             LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevel));
             
-            const LinearAlgebra::Matrix &massMatrix(ptrElement->getElementMatrix(massMatrixID_));
+            const LinearAlgebra::MiddleSizeMatrix &massMatrix(ptrElement->getElementMatrix(massMatrixID_));
             massMatrix.solve(solutionCoefficients);
         }
         
         synchronize(timeLevel);
     }
     
-    LinearAlgebra::Matrix HpgemAPILinear::computeStiffnessMatrixAtElement(Base::Element *ptrElement)
+    LinearAlgebra::MiddleSizeMatrix HpgemAPILinear::computeStiffnessMatrixAtElement(Base::Element *ptrElement)
     {
         // Define a function for the integrand of the stiffness matrix at the element.
-        std::function<LinearAlgebra::Matrix(const Base::Element *, const Geometry::PointReference &)> integrandFunction = [=](const Base::Element *ptrElement, const Geometry::PointReference &pRef) -> LinearAlgebra::Matrix
+        std::function<LinearAlgebra::MiddleSizeMatrix(const Base::Element *, const Geometry::PointReference &)> integrandFunction = [=](const Base::Element *ptrElement, const Geometry::PointReference &pRef) -> LinearAlgebra::MiddleSizeMatrix
         {return this->computeIntegrandStiffnessMatrixAtElement(ptrElement, pRef);};
         
         return elementIntegrator_.integrate(ptrElement, integrandFunction);
@@ -188,7 +188,7 @@ namespace Base
         logger(INFO, "- Creating stiffness matrices for the elements.");
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::Matrix stiffnessMatrix(computeStiffnessMatrixAtElement(ptrElement));
+            LinearAlgebra::MiddleSizeMatrix stiffnessMatrix(computeStiffnessMatrixAtElement(ptrElement));
             //std::cout << "-- Stiffness matrix element:\n" << stiffnessMatrix << "\n";
             ptrElement->setElementMatrix(stiffnessMatrix, stiffnessElementMatrixID_);
         }
@@ -243,7 +243,7 @@ namespace Base
                 LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelIn));
                 LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
                 
-                const LinearAlgebra::Matrix &stiffnessMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_).getElementMatrix(Base::Side::LEFT, Base::Side::LEFT);
+                const LinearAlgebra::MiddleSizeMatrix &stiffnessMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_).getElementMatrix(Base::Side::LEFT, Base::Side::LEFT);
                 
                 solutionCoefficientsNew += stiffnessMatrix * solutionCoefficients;
             }
@@ -286,7 +286,7 @@ namespace Base
                 LinearAlgebra::MiddleSizeVector solutionCoefficients(getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
                 LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
                 
-                const LinearAlgebra::Matrix &stiffnessMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_).getElementMatrix(Base::Side::LEFT, Base::Side::LEFT);
+                const LinearAlgebra::MiddleSizeMatrix &stiffnessMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_).getElementMatrix(Base::Side::LEFT, Base::Side::LEFT);
                 
                 solutionCoefficientsNew += stiffnessMatrix * solutionCoefficients;
             }

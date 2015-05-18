@@ -25,7 +25,7 @@
 #include "Mappings/MappingToRefSquareToSquare.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferencePoint.h"
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "Logger.h"
 
 namespace Geometry
@@ -234,7 +234,7 @@ namespace Geometry
     }
     
     //! Transformation matrix of this refinement when located on the LEFT side
-    void ReferenceSquare::getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
+    void ReferenceSquare::getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
         Q.resize(3, 3);
         Q = 0.;
@@ -312,7 +312,7 @@ namespace Geometry
     }
     
     //! Transformation matrix of this refinement when located on the RIGHT side
-    void ReferenceSquare::getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
+    void ReferenceSquare::getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
         Q.resize(3, 3);
         Q = 0.;
@@ -390,13 +390,13 @@ namespace Geometry
     
     //! Refinement mapping on codim1 for a given refinement on codim0
     //! Note: this should also applied on other dimensions
-    void ReferenceSquare::getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+    void ReferenceSquare::getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
     }
     
     //! Refinement mapping on codim1 for a given refinement on codim0
     //! Note: this should also applied on other dimensions
-    void ReferenceSquare::getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+    void ReferenceSquare::getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
     }
 

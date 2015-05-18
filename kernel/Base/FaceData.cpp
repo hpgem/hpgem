@@ -22,7 +22,7 @@
 #include <iostream>
 
 #include "FaceCacheData.h"
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Logger.h"
 
@@ -50,7 +50,7 @@ Base::FaceData::FaceData(const FaceData& other)
 /// this class has no access to these numbers, we will assume the number of basis
 /// functions are the same on both sides and the input matrix should be a square 
 /// matrix. 
-void Base::FaceData::setFaceMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID)
+void Base::FaceData::setFaceMatrix(const LinearAlgebra::MiddleSizeMatrix& matrix, std::size_t matrixID)
 {
     if (matrixID >= faceMatrix_.size())
     {
@@ -86,7 +86,7 @@ void Base::FaceData::setFaceMatrix(const Base::FaceMatrix &faceMatrix, std::size
 /// \details To convert a face matrix into a standard matrix is slow and inefficient.
 /// It is advised to use the other version of this function that returns a FaceMatrix.
 /// This is actually a dated function and should be removed.
-LinearAlgebra::Matrix Base::FaceData::getFaceMatrixMatrix(std::size_t matrixID) const
+LinearAlgebra::MiddleSizeMatrix Base::FaceData::getFaceMatrixMatrix(std::size_t matrixID) const
 {
     // Check if there are enough faces matrices stored.
     logger.assert(matrixID < faceMatrix_.size(), "Not enough face matrices stored.");

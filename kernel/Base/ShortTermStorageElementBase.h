@@ -241,7 +241,7 @@ namespace Base
         }
 #endif
         
-        const LinearAlgebra::Matrix & getElementMatrix(std::size_t matrixID = 0) const override final
+        const LinearAlgebra::MiddleSizeMatrix & getElementMatrix(std::size_t matrixID = 0) const override final
         {
             return element_->getElementMatrix(matrixID);
         }

@@ -27,7 +27,7 @@
 #include <memory>
 
 #include <Logger.h>
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "ReferencePoint.h"
 #include "PointReference.h"
 #include "PointPhysical.h"
@@ -81,7 +81,7 @@ namespace Base
 
 namespace LinearAlgebra
 {
-    class Matrix;
+    class MiddleSizeMatrix;
     class MiddleSizeVector;
 }
 
@@ -152,7 +152,7 @@ namespace Geometry
     class FaceGeometry
     {
     public:
-        using MatrixT = LinearAlgebra::Matrix;
+        using MatrixT = LinearAlgebra::MiddleSizeMatrix;
         using SetOfGlobalNodes = std::set<std::size_t>;
         using VectorOfLocalNodes = std::vector<std::size_t>;
         using ReferencePointT = PointReference;

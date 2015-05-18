@@ -25,7 +25,7 @@
 //----------------------------------------------------------------
 #include <vector>
 #include "Base/FaceMatrix.h"
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "FaceCacheData.h"
 
@@ -59,13 +59,13 @@ namespace Base
         /// \deprecated For safety and also efficiency it is advised to use the other version
         /// of this function instead, which takes a FaceMatrix as input. This is actually
         /// a dated function and should be removed.
-        void setFaceMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID = 0);
+        void setFaceMatrix(const LinearAlgebra::MiddleSizeMatrix& matrix, std::size_t matrixID = 0);
 
         /// \brief Sets face matrix number 'matrixID' using a standard matrix.
         void setFaceMatrix(const FaceMatrix &faceMatrix, std::size_t matrixID = 0);
 
         /// \brief Gets face matrix number 'matrixID' and return it as a standard matrix. It is advised to use the other version instead, which returns a FaceMatrix.
-        virtual LinearAlgebra::Matrix getFaceMatrixMatrix(std::size_t matrixID = 0) const;
+        virtual LinearAlgebra::MiddleSizeMatrix getFaceMatrixMatrix(std::size_t matrixID = 0) const;
 
         /// \brief Returns face matrix number 'matrixID'.
         const FaceMatrix & getFaceMatrix(std::size_t matrixID = 0) const;

@@ -23,7 +23,7 @@
 #include "Logger.h"
 #include "Element.h"
 
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "UserData.h"
 #include <iostream>
@@ -57,7 +57,7 @@ namespace Base
     }
 
     
-    void ElementData::setElementMatrix(const LinearAlgebra::Matrix &matrix, std::size_t matrixID)
+    void ElementData::setElementMatrix(const LinearAlgebra::MiddleSizeMatrix &matrix, std::size_t matrixID)
     {
         logger(VERBOSE, "In ElementData::setElementMatrix:");
         logger(VERBOSE, "matrix ID = %", matrixID);
@@ -70,7 +70,7 @@ namespace Base
         elementMatrix_[matrixID] = matrix;
     }
     
-    const LinearAlgebra::Matrix & ElementData::getElementMatrix(std::size_t matrixID) const
+    const LinearAlgebra::MiddleSizeMatrix & ElementData::getElementMatrix(std::size_t matrixID) const
     {
         logger.assert(matrixID < elementMatrix_.size(), "Requested matrix %, "
                 "while there are only % matrices for this element.", matrixID, elementMatrix_.size());

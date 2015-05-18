@@ -70,24 +70,24 @@ namespace Geometry
         }
         
         /// \brief Transformation matrix of this refinement when located on the LEFT side
-        void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const override final
+        void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const override final
         {
         }
         
         /// \brief Transformation matrix of this refinement when located on the RIGHT side
-        void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const override final
+        void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const override final
         {
         }
         
         /// \brief Refinement mapping on codim1 for a given refinement on codim0
         /// Note: this should also applied on other dimensions
-        void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const override final
+        void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const override final
         {
         }
         
         /// \brief Refinement mapping on codim1 for a given refinement on codim0
         /// Note: this should also applied on other dimensions
-        void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const override final
+        void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const override final
         {
         }
         

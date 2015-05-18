@@ -92,10 +92,10 @@ LinearAlgebra::MiddleSizeVector AcousticWaveLinear::getInitialSolution(const Poi
 }
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
-LinearAlgebra::Matrix AcousticWaveLinear::integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef)
+LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef)
 {
     std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
-    LinearAlgebra::Matrix integrand(numOfVariables_ * numOfBasisFunctions, numOfVariables_ * numOfBasisFunctions);
+    LinearAlgebra::MiddleSizeMatrix integrand(numOfVariables_ * numOfBasisFunctions, numOfVariables_ * numOfBasisFunctions);
     Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
     
     std::size_t iVB, jVB; // indices for both variable and basis function.
@@ -157,10 +157,10 @@ LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrandInitialSolutionOnRe
 }
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
-LinearAlgebra::Matrix AcousticWaveLinear::integrandStiffnessMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef)
+LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::integrandStiffnessMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef)
 {
     std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
-    LinearAlgebra::Matrix integrand(numOfVariables_ * numOfBasisFunctions, numOfVariables_ * numOfBasisFunctions);
+    LinearAlgebra::MiddleSizeMatrix integrand(numOfVariables_ * numOfBasisFunctions, numOfVariables_ * numOfBasisFunctions);
     LinearAlgebra::MiddleSizeVector gradientBasisFunction(DIM_);
     double valueTestFunction;
     
@@ -197,12 +197,12 @@ LinearAlgebra::Matrix AcousticWaveLinear::integrandStiffnessMatrixOnRefElement(c
 }
 
 /// \details The integrand for the reference face is the same as the physical face, but scaled with the reference-to-physical face scale. This face scale is absorbed in the normal vector, since it is relatively cheap to compute the normal vector with a length (L2-norm) equal to the reference-to-physical face scale.
-LinearAlgebra::Matrix AcousticWaveLinear::integrandStiffnessMatrixOnRefFace(const Base::Face *ptrFace, const Geometry::PointReference &pRef, const Base::Side &iSide, const Base::Side &jSide)
+LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::integrandStiffnessMatrixOnRefFace(const Base::Face *ptrFace, const Geometry::PointReference &pRef, const Base::Side &iSide, const Base::Side &jSide)
 {
     std::size_t numOfSolutionBasisFunctions = ptrFace->getPtrElement(jSide)->getNrOfBasisFunctions();
     std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
     
-    LinearAlgebra::Matrix integrand(numOfTestBasisFunctions * numOfVariables_, numOfSolutionBasisFunctions * numOfVariables_);
+    LinearAlgebra::MiddleSizeMatrix integrand(numOfTestBasisFunctions * numOfVariables_, numOfSolutionBasisFunctions * numOfVariables_);
     
     double valueTestFunction;
     double valueBasisFunction;
@@ -302,10 +302,10 @@ LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrandErrorOnRefElement
     return integrand;
 }
 
-LinearAlgebra::Matrix AcousticWaveLinear::computeMassMatrixAtElement(Base::Element *ptrElement)
+LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::computeMassMatrixAtElement(Base::Element *ptrElement)
 {
-    std::function<LinearAlgebra::Matrix(const Geometry::PointReference &)> integrandFunction = 
-        [=](const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix
+    std::function<LinearAlgebra::MiddleSizeMatrix(const Geometry::PointReference &)> integrandFunction = 
+        [=](const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeMatrix
         { return this -> integrandMassMatrixOnRefElement(ptrElement, pRef);};
     
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
@@ -331,10 +331,10 @@ LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrateErrorAtElement(Base
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }
 
-LinearAlgebra::Matrix AcousticWaveLinear::computeStiffnessMatrixAtElement(Base::Element *ptrElement)
+LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::computeStiffnessMatrixAtElement(Base::Element *ptrElement)
 {
     // Define the integrand function for the stiffness matrix for the element.
-    std::function<LinearAlgebra::Matrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix
+    std::function<LinearAlgebra::MiddleSizeMatrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeMatrix
     {return this->integrandStiffnessMatrixOnRefElement(ptrElement, pRef);};
     
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
@@ -365,10 +365,10 @@ Base::FaceMatrix AcousticWaveLinear::computeStiffnessMatrixAtFace(Base::Face *pt
         for (Base::Side jSide : allSides)
         {
             // Define the integrand function for the stiffness matrix for the face.
-            std::function<LinearAlgebra::Matrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::Matrix
+            std::function<LinearAlgebra::MiddleSizeMatrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeMatrix
             {   return this->integrandStiffnessMatrixOnRefFace(ptrFace, pRef, iSide, jSide);};
             
-            LinearAlgebra::Matrix stiffnessMatrix(faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction));
+            LinearAlgebra::MiddleSizeMatrix stiffnessMatrix(faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction));
             
             stiffnessFaceMatrix.setElementMatrix(stiffnessMatrix, iSide, jSide);
         }

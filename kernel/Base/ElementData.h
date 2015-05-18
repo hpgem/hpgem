@@ -24,7 +24,7 @@
 #define ElementData_h
 //----------------------------------------------------------------
 #include <vector>
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 
 namespace LinearAlgebra
@@ -41,8 +41,8 @@ namespace Base
     {
         
     public:
-        using MatrixT = LinearAlgebra::Matrix;
-        using VectorOfMatrices = std::vector<LinearAlgebra::Matrix>;
+        using MatrixT = LinearAlgebra::MiddleSizeMatrix;
+        using VectorOfMatrices = std::vector<LinearAlgebra::MiddleSizeMatrix>;
 
         ElementData(std::size_t timeLevels, std::size_t nrOfUnkowns, std::size_t nrOfBasisFunctions, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0);
         
@@ -53,10 +53,10 @@ namespace Base
         }
         
         /// \brief Set/update the element matrix.
-        void setElementMatrix(const LinearAlgebra::Matrix &, std::size_t matrixID = 0);
+        void setElementMatrix(const LinearAlgebra::MiddleSizeMatrix &, std::size_t matrixID = 0);
 
         /// \brief Get the element matrix corresponding to the given matrixiD.
-        virtual const LinearAlgebra::Matrix &getElementMatrix(std::size_t matrixID = 0) const;
+        virtual const LinearAlgebra::MiddleSizeMatrix &getElementMatrix(std::size_t matrixID = 0) const;
 
         /// \brief Set the element vector corresponding to the given vectorID.
         virtual void setElementVector(const LinearAlgebra::MiddleSizeVector &vector, std::size_t vectorID = 0);

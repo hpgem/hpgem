@@ -63,10 +63,10 @@ public:
         return true;
     }
     
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
     {
     public:
-        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret) override final
+        void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeMatrix& ret) override final
         {
             std::size_t numBasisFuns = element->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
@@ -80,10 +80,10 @@ public:
         }
     } stifnessIntegrand;
 
-    class : public Integration::FaceIntegrandBase<LinearAlgebra::Matrix>
+    class : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
     {
     public:
-        void faceIntegrand(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret) override final
+        void faceIntegrand(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeMatrix& ret) override final
         {
             std::size_t numBasisFuns = face->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
@@ -213,7 +213,7 @@ public:
     {
         Integration::FaceIntegral integral(false);
         Geometry::PointPhysical pPhys(DIM);
-        LinearAlgebra::Matrix result;
+        LinearAlgebra::MiddleSizeMatrix result;
         LinearAlgebra::MiddleSizeVector initialconditions;
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
@@ -240,7 +240,7 @@ public:
     void doAllElementIntegration()
     {
         Integration::ElementIntegral integral(false);
-        LinearAlgebra::Matrix result;
+        LinearAlgebra::MiddleSizeMatrix result;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
             result = integral.integrate(element, &stifnessIntegrand);

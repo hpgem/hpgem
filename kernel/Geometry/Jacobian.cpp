@@ -27,7 +27,7 @@ namespace Geometry
     class Jacobian;
     
     Jacobian::Jacobian(std::size_t dimTo, std::size_t dimFrom)
-            : LinearAlgebra::Matrix(dimTo, dimFrom)
+            : LinearAlgebra::MiddleSizeMatrix(dimTo, dimFrom)
     {
     }
 

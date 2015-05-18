@@ -19,8 +19,8 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 //------------------------------------------------------------------------------
-#ifndef MATRIX_HH
-#define MATRIX_HH
+#ifndef MIDDLESIZEMATRIX_HH
+#define MIDDLESIZEMATRIX_HH
 
 // System includes
 #include <iostream>
@@ -42,13 +42,11 @@ namespace LinearAlgebra
 #else
     using std::valarray;
 #endif
-    /// \class Matrix
-    /// \brief Data type for small dense matrix.
+    /// \class MiddleSizeMatrix
+    /// \brief Data type for dense matrix.
     /// 
-    /// \details Stores small dense matrix efficiently.
-    /// Since this class is inherited from std::valarray, it also inherits members of std::valarray
-    /// Note, valarray was speed tested and was shown to be quicker than stl vector and it very light weight
-    /// It only store doubles as this is the main type linear algebra is done on in hpGEM
+    /// \details Stores dense matrix efficiently.
+    /// It is templated to store complex numbers when PETSc needs those and stores doubles otherwise
     /// It stores the matrix in fortran style (column-major) to give quicker access to extern BLAS libraries.
     /// For example,  the order they are stored in a 2x2 matrix is 
     ///     0   2 
@@ -57,30 +55,32 @@ namespace LinearAlgebra
     /// \bug valarray does not compile, since data() is not defined on it
     /// \todo number of rows/columns is saved as a std::size_t, but to BLAS is limited to 32 bits (not sure if signed or unsigned)
     /// implement fall-back routines for matrices that are too large. Note that in this situation dense data storage may not be the best option
-    class Matrix
+    class MiddleSizeMatrix
     {
     public:
         
         /// \brief Default Matrix constructor : Simply creates a zero size matrix
-        Matrix();
+        MiddleSizeMatrix();
 
         /// \brief Constructs a matrix of size n-rows by m-columns.
-        Matrix(const std::size_t n, const std::size_t m);
+        MiddleSizeMatrix(const std::size_t n, const std::size_t m);
 
         /// \brief Constructs a matrix of size n-rows by m-columns and initialises all entry to a constant 
-        Matrix(const std::size_t n, const std::size_t m, const double& c);
+        MiddleSizeMatrix(const std::size_t n, const std::size_t m, const double& c);
 
         /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B and A are both matrices
-        Matrix(const Matrix& other);
+        MiddleSizeMatrix(const MiddleSizeMatrix& other);
         
+        //MiddleSizeMatrix(const SmallMatrix& other);
+
         /// \brief construct a matrix by placing some vectors next to each other. Note that vectors in hpGEM are column vectors
-        Matrix(const MiddleSizeVector& other);
+        MiddleSizeMatrix(const MiddleSizeVector& other);
 
         /// \brief Glues one or more matrices with the same number of rows together
-        Matrix(std::initializer_list<Matrix>);
+        MiddleSizeMatrix(std::initializer_list<MiddleSizeMatrix>);
 
         /// \brief Move Matrix from another Matrix
-        Matrix(Matrix&& other);
+        MiddleSizeMatrix(MiddleSizeMatrix&& other);
 
         /// \brief defines the operator (n,m) to access the element on row n and column m        
         double& operator()(std::size_t n, std::size_t m)
@@ -108,51 +108,51 @@ namespace LinearAlgebra
         MiddleSizeVector operator*(MiddleSizeVector& right) const;
 
         /// \brief Does matrix A_ij=scalar*B_ij
-        Matrix operator*(const double& right) const;
+        MiddleSizeMatrix operator*(const double& right) const;
 
         /// \brief Does matrix A_ij = B_ik * C_kj
-        Matrix operator*(const Matrix &other);
-        Matrix operator*(const Matrix &other) const;
+        MiddleSizeMatrix operator*(const MiddleSizeMatrix &other);
+        MiddleSizeMatrix operator*(const MiddleSizeMatrix &other) const;
 
-        Matrix& operator+=(const Matrix& other);
-        Matrix& operator-=(const Matrix& other);
+        MiddleSizeMatrix& operator+=(const MiddleSizeMatrix& other);
+        MiddleSizeMatrix& operator-=(const MiddleSizeMatrix& other);
 
-        Matrix operator+(const Matrix &other) const;
-        Matrix operator-(const Matrix &other) const;
-        Matrix operator-() const;
+        MiddleSizeMatrix operator+(const MiddleSizeMatrix &other) const;
+        MiddleSizeMatrix operator-(const MiddleSizeMatrix &other) const;
+        MiddleSizeMatrix operator-() const;
 
         /// \brief Does matrix A_ij=scalar*A_ij
-        Matrix& operator*=(const double &scalar);
+        MiddleSizeMatrix& operator*=(const double &scalar);
 
         /// \brief Does matrix A_ij = A_ik * B_kj
-        Matrix& operator*=(const Matrix &other);
+        MiddleSizeMatrix& operator*=(const MiddleSizeMatrix &other);
 
         /// \brief Does matrix A_ij=scalar*A_ij
-        Matrix& operator/=(const double &scalar);
+        MiddleSizeMatrix& operator/=(const double &scalar);
 
         /// \brief this does element by divided by a scalar
-        Matrix operator/(const double& scalar) const;
+        MiddleSizeMatrix operator/(const double& scalar) const;
 
         /// \brief Assigns the Matrix by a scalar
-        Matrix& operator=(const double& c);
+        MiddleSizeMatrix& operator=(const double& c);
 
         /// \brief Assigns one matrix to another.
-        Matrix& operator=(const Matrix& right);
+        MiddleSizeMatrix& operator=(const MiddleSizeMatrix& right);
 
         /// \brief Assigns one matrix to another.
-        Matrix& operator=(Matrix&& right);
+        MiddleSizeMatrix& operator=(MiddleSizeMatrix&& right);
 
         /// \brief computeWedgeStuffVector.
         MiddleSizeVector computeWedgeStuffVector() const;
 
         /// \brief Applies the matrix y=ax + y, where x is another matrix and a is a scalar
-        void axpy(double a, const Matrix& x);
+        void axpy(double a, const MiddleSizeMatrix& x);
 
         /// \brief Resize the Matrix to be n-Rows by m-columns
         void resize(std::size_t n, std::size_t m);
 
         /// \brief Glues two matrices with the same number of columns together
-        void concatenate(const Matrix& other);
+        void concatenate(const MiddleSizeMatrix& other);
 
         /// \brief Get total number of Matrix entries
         std::size_t size() const;
@@ -174,15 +174,15 @@ namespace LinearAlgebra
         LinearAlgebra::MiddleSizeVector getRow(std::size_t i) const;
 
         /// \brief Return the LUfactorisation of the matrix
-        Matrix LUfactorisation() const;
+        MiddleSizeMatrix LUfactorisation() const;
 
         /// \brief return the inverse in the vector result. The size of result matches the matrix.
-        Matrix inverse() const;
+        MiddleSizeMatrix inverse() const;
 
-        Matrix transpose() const;
+        MiddleSizeMatrix transpose() const;
 
         /// \brief solves Ax=B where A is the current matrix and B is passed in. The result is returned in B.
-        void solve(Matrix& B) const;
+        void solve(MiddleSizeMatrix& B) const;
 
         /// \brief solves Ax=b where A is the current matrix and NumericalVector b 
         /// is the input parameter. The result is returned in b.
@@ -215,13 +215,13 @@ namespace LinearAlgebra
     };
     
     /// Writes nicely formatted entries of the Matrix A to the stream os.
-    std::ostream& operator<<(std::ostream& os, const Matrix& A);
+    std::ostream& operator<<(std::ostream& os, const MiddleSizeMatrix& A);
 
     ///Multiplies a matrix with a double
-    Matrix operator*(const double d, const Matrix& mat);
+    MiddleSizeMatrix operator*(const double d, const MiddleSizeMatrix& mat);
     
     ///Multiplies a matrix with a double
-    MiddleSizeVector operator*(MiddleSizeVector& vec, Matrix& mat);
+    MiddleSizeVector operator*(MiddleSizeVector& vec, MiddleSizeMatrix& mat);
 
 }
 #endif

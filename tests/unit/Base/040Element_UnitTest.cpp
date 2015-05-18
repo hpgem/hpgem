@@ -38,7 +38,7 @@
 #include "Base/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 #include "Base/ElementCacheData.h"
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "Base/BaseBasisFunction.h"
 #include "Logger.h"
 

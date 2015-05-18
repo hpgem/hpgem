@@ -22,7 +22,7 @@
 #include "InitialConditions.h"
 #include "Base/ElementCacheData.h"
 #include "Base/FaceCacheData.h"
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 
 const double ExactSolutionBase::Pi = 3.14159265;
 

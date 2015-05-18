@@ -106,7 +106,7 @@ public:
     LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
 
     /// \brief Compute the integrand for the mass matrix for the reference element.
-    LinearAlgebra::Matrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeMatrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
 
     /// \brief Compute the integrand for the reference element for obtaining the initial solution.
     LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnRefElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
@@ -150,7 +150,7 @@ public:
      );
 
     /// \brief Compute the mass matrix for a single element.
-    LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement) override final;
+    LinearAlgebra::MiddleSizeMatrix computeMassMatrixAtElement(Base::Element *ptrElement) override final;
 
     /*
     /// \brief Solve the mass matrix equations for a single element.

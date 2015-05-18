@@ -176,7 +176,7 @@ namespace Utilities
         int ierr = MatZeroEntries(A_);
         CHKERRV(ierr);
         
-        LinearAlgebra::Matrix elementMatrix;
+        LinearAlgebra::MiddleSizeMatrix elementMatrix;
         
         if (elementMatrixID_ >= 0)
         {
@@ -189,7 +189,7 @@ namespace Utilities
             }
         }
         
-        LinearAlgebra::Matrix faceMatrix;
+        LinearAlgebra::MiddleSizeMatrix faceMatrix;
         
         if (faceMatrixID_ >= 0)
         {

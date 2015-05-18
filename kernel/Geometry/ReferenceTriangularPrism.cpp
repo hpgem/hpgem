@@ -24,7 +24,7 @@
 #include "ReferenceLine.h"
 #include "Geometry/PointReference.h"
 #include "Mappings/MappingToRefFaceToTriangularPrism.h"
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 
 namespace Geometry
 {
@@ -391,7 +391,7 @@ namespace Geometry
         }
     } // end of refinementTransform
     
-    void ReferenceTriangularPrism::getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
+    void ReferenceTriangularPrism::getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
         Q.resize(4, 4);
         Q = 0.;
@@ -632,7 +632,7 @@ namespace Geometry
         }
     } // end of getRefinementMappingMatrixL
     
-    void ReferenceTriangularPrism::getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
+    void ReferenceTriangularPrism::getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
         Q.resize(4, 4);
         Q = 0.;
@@ -873,7 +873,7 @@ namespace Geometry
         }
     } // end of getRefinementMappingMatrixR
     
-    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
         int faRefinementType(-1);
         std::size_t subFaceIndex(0);
@@ -1041,7 +1041,7 @@ namespace Geometry
         }
     } // end of getCodim1RefinementMappingMatrixL
     
-    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
         int faRefinementType(-1);
         std::size_t subFaceIndex(0);

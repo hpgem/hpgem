@@ -31,7 +31,7 @@ using namespace Base;
 
 const unsigned int DIM = 3;
 
-using VectorOfMatrices = std::vector<LinearAlgebra::Matrix>;
+using VectorOfMatrices = std::vector<LinearAlgebra::MiddleSizeMatrix>;
 struct ElementIntegralData
 {
     //optimize later!
@@ -49,9 +49,9 @@ struct ElementIntegralData
         zGrad_.axpy(a, x.zGrad_);
     }
     
-    LinearAlgebra::Matrix xGrad_;
-    LinearAlgebra::Matrix yGrad_;
-    LinearAlgebra::Matrix zGrad_;
+    LinearAlgebra::MiddleSizeMatrix xGrad_;
+    LinearAlgebra::MiddleSizeMatrix yGrad_;
+    LinearAlgebra::MiddleSizeMatrix zGrad_;
 };
 
 struct FluxData
@@ -63,8 +63,8 @@ struct FluxData
         
         for (unsigned int i = 0; i < nb; ++i)
         {
-            LinearAlgebra::Matrix& left = left_[i];
-            LinearAlgebra::Matrix& right = right_[i];
+            LinearAlgebra::MiddleSizeMatrix& left = left_[i];
+            LinearAlgebra::MiddleSizeMatrix& right = right_[i];
             
             left.resize(12, nb);
             right.resize(12, nb);
@@ -116,8 +116,8 @@ struct HEulerElementData : public UserElementData
     {
     }
     
-    LinearAlgebra::Matrix massMatrix_;
-    LinearAlgebra::Matrix invMassMatrix_;
+    LinearAlgebra::MiddleSizeMatrix massMatrix_;
+    LinearAlgebra::MiddleSizeMatrix invMassMatrix_;
 };
 
 struct HEulerGlobalVariables : public GlobalData
@@ -166,7 +166,7 @@ public:
     double onePeriod_;
 };
 
-class HEuler : public HpgemAPIBase, public Integration::ElementIntegrandBase<ElementIntegralData>, public Integration::FaceIntegrandBase<FluxData>, public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
+class HEuler : public HpgemAPIBase, public Integration::ElementIntegrandBase<ElementIntegralData>, public Integration::FaceIntegrandBase<FluxData>, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
 {
 public:
     using ElementIntegralT = Integration::ElementIntegral;
@@ -186,7 +186,7 @@ public:
     bool initialiseMesh();
 
     ///calculates mass matrix
-    void elementIntegrand(const Base::Element* element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix);
+    void elementIntegrand(const Base::Element* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeMatrix& massMatrix);
 
     void calculateLocalEnergy(const Base::Element& element, const PointReferenceT& p, double& returnValue);
 

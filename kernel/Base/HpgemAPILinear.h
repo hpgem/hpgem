@@ -119,15 +119,15 @@ namespace Base
         void solveMassMatrixEquations(const std::size_t timeLevel) override;
         
         /// \brief Compute the integrand for the stiffness matrix.
-        virtual LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef)
+        virtual LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef)
         {
             logger(ERROR, "No function for computing the integrand for the stiffness matrix at an element implemented.");
-            LinearAlgebra::Matrix integrandStiffnessMatrix;
+            LinearAlgebra::MiddleSizeMatrix integrandStiffnessMatrix;
             return integrandStiffnessMatrix;
         }
         
         /// \brief Compute the stiffness matrix corresponding to an element.
-        virtual LinearAlgebra::Matrix computeStiffnessMatrixAtElement(Base::Element *ptrElement);
+        virtual LinearAlgebra::MiddleSizeMatrix computeStiffnessMatrixAtElement(Base::Element *ptrElement);
         
         /// \brief Compute the integrand for the stiffness matrix.
         virtual Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face *ptrFace, const LinearAlgebra::MiddleSizeVector &normal, const Geometry::PointReference &pRef)

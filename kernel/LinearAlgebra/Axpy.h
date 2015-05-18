@@ -21,7 +21,7 @@
 
 #ifndef AXPY_H
 #define	AXPY_H
-#include "Matrix.h"
+#include "MiddleSizeMatrix.h"
 #include "MiddleSizeVector.h"
 
 #include <type_traits>

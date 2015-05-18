@@ -106,16 +106,16 @@ public:
     LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
     
     /// \brief Compute the integrand for the mass matrix for the reference element.
-    LinearAlgebra::Matrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeMatrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
     
     /// \brief Compute the integrand for the reference element for obtaining the initial solution.
     LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnRefElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
     
     /// \brief Compute the integrand for the stiffness matrix for the reference element.
-    LinearAlgebra::Matrix integrandStiffnessMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeMatrix integrandStiffnessMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
     
     /// \brief Compute the integrand for the stiffness matrix for the reference face corresponding to an internal face.
-    LinearAlgebra::Matrix integrandStiffnessMatrixOnRefFace(const Base::Face *ptrFace, const Geometry::PointReference &pRef, const Base::Side &iSide, const Base::Side &jSide);
+    LinearAlgebra::MiddleSizeMatrix integrandStiffnessMatrixOnRefFace(const Base::Face *ptrFace, const Geometry::PointReference &pRef, const Base::Side &iSide, const Base::Side &jSide);
     
     /// \brief Compute the integrand for the reference element for computing the energy-norm of the error.
     LinearAlgebra::MiddleSizeVector integrandErrorOnRefElement
@@ -127,13 +127,13 @@ public:
      );
     
     /// \brief Compute the mass matrix for a single element.
-    LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement) override final;
+    LinearAlgebra::MiddleSizeMatrix computeMassMatrixAtElement(Base::Element *ptrElement) override final;
     
     /// \brief Integrate the initial solution for a single element.
     LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override final;
     
     /// \brief Compute the stiffness matrix corresponding to an element.
-    LinearAlgebra::Matrix computeStiffnessMatrixAtElement(Base::Element *ptrElement) override final;
+    LinearAlgebra::MiddleSizeMatrix computeStiffnessMatrixAtElement(Base::Element *ptrElement) override final;
 
     /// \brief Compute the stiffness matrix corresponding to a face.
     Base::FaceMatrix computeStiffnessMatrixAtFace(Base::Face *ptrFace) override final;
