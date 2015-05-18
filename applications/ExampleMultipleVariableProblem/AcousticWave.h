@@ -100,53 +100,53 @@ public:
     }
 
     /// \brief Compute the real solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
 
     /// \brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
+    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
 
     /// \brief Compute the integrand for the mass matrix for the reference element.
     LinearAlgebra::Matrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
 
     /// \brief Compute the integrand for the reference element for obtaining the initial solution.
-    LinearAlgebra::NumericalVector integrandInitialSolutionOnRefElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnRefElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
 
     /// \brief Compute the integrand for the right hand side for the reference element.
-    LinearAlgebra::NumericalVector integrandRightHandSideOnRefElement
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefElement
     (
      const Base::Element *ptrElement,
      const double &time,
      const Geometry::PointReference &pRef,
-     const LinearAlgebra::NumericalVector &solutionCoefficients
+     const LinearAlgebra::MiddleSizeVector &solutionCoefficients
      );
     
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
-    LinearAlgebra::NumericalVector integrandRightHandSideOnRefFace
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace
     (
      const Base::Face *ptrFace,
      const double &time,
      const Geometry::PointReference &pRef,
-     const LinearAlgebra::NumericalVector &solutionCoefficients
+     const LinearAlgebra::MiddleSizeVector &solutionCoefficients
      );
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-    LinearAlgebra::NumericalVector integrandRightHandSideOnRefFace
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace
     (
      const Base::Face *ptrFace,
      const double &time,
      const Geometry::PointReference &pRef,
      const Base::Side &iSide,
-     const LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
-     const LinearAlgebra::NumericalVector &solutionCoefficientsRight
+     const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+     const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight
      );
 
     /// \brief Compute the integrand for the reference element for computing the energy-norm of the error.
-    LinearAlgebra::NumericalVector integrandErrorOnRefElement
+    LinearAlgebra::MiddleSizeVector integrandErrorOnRefElement
     (
      const Base::Element *ptrElement,
      const double &time,
      const Geometry::PointReference &pRef,
-     const LinearAlgebra::NumericalVector &solutionCoefficients
+     const LinearAlgebra::MiddleSizeVector &solutionCoefficients
      );
 
     /// \brief Compute the mass matrix for a single element.
@@ -158,29 +158,29 @@ public:
      */
 
     /// \brief Integrate the initial solution for a single element.
-    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override final;
+    LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override final;
 
     /// \brief Integrate the energy of the error on a single element.
-    LinearAlgebra::NumericalVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time) override final;
+    LinearAlgebra::MiddleSizeVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, double time) override final;
 
     /// \brief Compute the right-hand side corresponding to an element
-    LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time) override final;
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
     
     /// \brief Compute the right-hand side corresponding to a boundary face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
     (
      Base::Face *ptrFace,
-     LinearAlgebra::NumericalVector &solutionCoefficients,
+     LinearAlgebra::MiddleSizeVector &solutionCoefficients,
      const double time
      ) override final;
     
     /// \brief Compute the right-hand side corresponding to an internal face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
     (
      Base::Face *ptrFace,
      const Base::Side side,
-     LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
-     LinearAlgebra::NumericalVector &solutionCoefficientsRight,
+     LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+     LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
      const double time
      ) override final;
     

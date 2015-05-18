@@ -61,7 +61,7 @@ double Base::ShortTermStorageElementH1::basisFunction(std::size_t i, const Point
     return basisFunctionValues_[i][0];
 }
 
-void Base::ShortTermStorageElementH1::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+void Base::ShortTermStorageElementH1::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     if (!(&p == currentPoint_))
     {
@@ -71,7 +71,7 @@ void Base::ShortTermStorageElementH1::basisFunction(std::size_t i, const PointRe
     ret = basisFunctionValues_[i];
 }
 
-void Base::ShortTermStorageElementH1::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::ShortTermStorageElementH1::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
     ret = basisFunctionValues_[i];
     if (!(&p == currentPoint_))
@@ -81,7 +81,7 @@ void Base::ShortTermStorageElementH1::basisFunction(std::size_t i, const PointRe
     }
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageElementH1::basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element*)
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageElementH1::basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element*)
 {
     if (!(&p == currentPoint_))
     {
@@ -91,7 +91,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageElementH1::basisFunctionDer
     return basisFunctionDerivatives_[i];
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageElementH1::basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element*) const
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageElementH1::basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element*) const
 {
     if (!(&p == currentPoint_))
     {

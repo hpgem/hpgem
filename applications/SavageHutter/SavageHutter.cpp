@@ -22,7 +22,7 @@
 #include "SavageHutter.h"
 #include <cmath>
 
-using LinearAlgebra::NumericalVector;
+using LinearAlgebra::MiddleSizeVector;
 
 /// \param[in] dimension Dimension of the domain
 /// \param[in] numberOfVariables Number of variables in the PDE
@@ -61,9 +61,9 @@ Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::s
 }
 
 /// \brief Compute the initial solution at a given point in space and time.
-LinearAlgebra::NumericalVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
+LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
-    LinearAlgebra::NumericalVector initialSolution(numOfVariables_);
+    LinearAlgebra::MiddleSizeVector initialSolution(numOfVariables_);
     if (pPhys[0] < M_PI/8)
     {
         initialSolution(0) = rhsComputer_.getInflowBC()(0) +  0.5*(std::cos(8*pPhys[0]) - 1);
@@ -79,16 +79,16 @@ LinearAlgebra::NumericalVector SavageHutter::getInitialSolution(const PointPhysi
 /// \details The integrand for the initial solution is the exact solution at time 0 multiplied by a test function. 
 /// The integrand is then scaled by the reference-to-physical element scale, 
 /// since we compute the integral on a reference element.
-LinearAlgebra::NumericalVector SavageHutter::integrandInitialSolutionOnElement
+LinearAlgebra::MiddleSizeVector SavageHutter::integrandInitialSolutionOnElement
 (const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef)
 {
     const std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
     
-    LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfBasisFunctions);
+    LinearAlgebra::MiddleSizeVector integrand(numOfVariables_ * numOfBasisFunctions);
     
     const Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
     
-    const LinearAlgebra::NumericalVector initialSolution(getInitialSolution(pPhys, startTime));
+    const LinearAlgebra::MiddleSizeVector initialSolution(getInitialSolution(pPhys, startTime));
     
     std::size_t iVB; // Index for both variable and basis function.
     for (std::size_t iV = 0; iV < numOfVariables_; iV++)
@@ -106,23 +106,23 @@ LinearAlgebra::NumericalVector SavageHutter::integrandInitialSolutionOnElement
 
 /*********************Integrate over elements and faces************************/
 
-LinearAlgebra::NumericalVector SavageHutter::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
+LinearAlgebra::MiddleSizeVector SavageHutter::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
 {
     // Define the integrand function for the the initial solution integral.
-    const std::function<LinearAlgebra::NumericalVector(const Base::Element *, const Geometry::PointReference &)> integrandFunction 
-    = [=](const Base::Element *elt, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector 
+    const std::function<LinearAlgebra::MiddleSizeVector(const Base::Element *, const Geometry::PointReference &)> integrandFunction 
+    = [=](const Base::Element *elt, const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeVector 
     { 
         return this -> integrandInitialSolutionOnElement(elt, startTime, pRef);
     };
     
-    const LinearAlgebra::NumericalVector solution = elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
+    const LinearAlgebra::MiddleSizeVector solution = elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
     return solution;
 }
 
-LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
+LinearAlgebra::MiddleSizeVector SavageHutter::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
 {
     // Define the integrand function for the right hand side for the reference element.
-    const std::function<LinearAlgebra::NumericalVector(const Base::Element*, const Geometry::PointReference &)> integrandFunction = [=](const Base::Element* elt, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+    const std::function<LinearAlgebra::MiddleSizeVector(const Base::Element*, const Geometry::PointReference &)> integrandFunction = [=](const Base::Element* elt, const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeVector
     {   
         return rhsComputer_.integrandRightHandSideOnElement(elt, time, pRef, solutionCoefficients);
     };
@@ -130,12 +130,12 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtElement(Base:
     return elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
 }
 
-LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
+LinearAlgebra::MiddleSizeVector SavageHutter::computeRightHandSideAtFace
 (
  Base::Face *ptrFace,
  const Base::Side side,
- LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
- LinearAlgebra::NumericalVector &solutionCoefficientsRight,
+ LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+ LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
  const double time
  )
 {
@@ -148,8 +148,8 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
     return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);*/
     
     //What I want is below. However, getPtrElement(side) does not seem to work in that case.
-    const std::function<LinearAlgebra::NumericalVector(const Base::Face *, const LinearAlgebra::NumericalVector &, const Geometry::PointReference &)> integrandFunction = 
-    [=](const Base::Face * face, const LinearAlgebra::NumericalVector normal, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+    const std::function<LinearAlgebra::MiddleSizeVector(const Base::Face *, const LinearAlgebra::MiddleSizeVector &, const Geometry::PointReference &)> integrandFunction = 
+    [=](const Base::Face * face, const LinearAlgebra::MiddleSizeVector normal, const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeVector
     {   
         return rhsComputer_.integrandRightHandSideOnRefFace(face, side, normal, pRef, solutionCoefficientsLeft, solutionCoefficientsRight);
     };
@@ -157,15 +157,15 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
     return faceIntegrator_.integrate(ptrFace, integrandFunction, ptrFace->getGaussQuadratureRule());
 }
 
-LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
+LinearAlgebra::MiddleSizeVector SavageHutter::computeRightHandSideAtFace
         (
          Base::Face *ptrFace,
-         LinearAlgebra::NumericalVector &solutionCoefficients,
+         LinearAlgebra::MiddleSizeVector &solutionCoefficients,
          const double time
          )
 {
-    const std::function<LinearAlgebra::NumericalVector(const Base::Face *, const LinearAlgebra::NumericalVector &, const Geometry::PointReference &)> integrandFunction = 
-    [=](const Base::Face *face, const LinearAlgebra::NumericalVector normal, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+    const std::function<LinearAlgebra::MiddleSizeVector(const Base::Face *, const LinearAlgebra::MiddleSizeVector &, const Geometry::PointReference &)> integrandFunction = 
+    [=](const Base::Face *face, const LinearAlgebra::MiddleSizeVector normal, const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeVector
     {   
         return rhsComputer_.integrandRightHandSideOnRefFace(face, normal, pRef, solutionCoefficients);
     };
@@ -225,14 +225,14 @@ void SavageHutter::limitSolution()
 ///implemented to determine whether or not the given element needs limiting. 
 bool SavageHutter::useLimitierForElement(const Base::Element *element)
 {
-    LinearAlgebra::NumericalVector totalIntegral(numOfVariables_);
-    LinearAlgebra::NumericalVector numericalSolution(numOfVariables_);
+    LinearAlgebra::MiddleSizeVector totalIntegral(numOfVariables_);
+    LinearAlgebra::MiddleSizeVector numericalSolution(numOfVariables_);
     
     for (const Base::Face *face : element->getFacesList())
     {
         const Geometry::PointReference& pRefForInflowTest = face->getReferenceGeometry()->getCenter();
         Base::Side sideOfElement = (face->getPtrElementLeft() == element) ? Base::Side::LEFT : Base::Side::RIGHT;
-        LinearAlgebra::NumericalVector normal = face->getNormalVector(pRefForInflowTest);
+        LinearAlgebra::MiddleSizeVector normal = face->getNormalVector(pRefForInflowTest);
         if (sideOfElement == Base::Side::LEFT)
         {
             numericalSolution = face->getPtrElement(sideOfElement)->getSolution(0, face->mapRefFaceToRefElemL(pRefForInflowTest));
@@ -243,13 +243,13 @@ bool SavageHutter::useLimitierForElement(const Base::Element *element)
             normal *= -1;
         }
         //determine the direction of the flow across this face
-        LinearAlgebra::NumericalVector velocity = computeVelocity(numericalSolution);
+        LinearAlgebra::MiddleSizeVector velocity = computeVelocity(numericalSolution);
         
         //if this is an inflow face, integrate the difference in {h,hu} over the face
         if (velocity * normal < 0)
         {
             logger(DEBUG, "Face % is an inflow face for element %.", face->getID(), element->getID());
-            LinearAlgebra::NumericalVector numericalSolutionOther(numOfVariables_);
+            LinearAlgebra::MiddleSizeVector numericalSolutionOther(numOfVariables_);
             if (face->isInternal())
             {
                 if (sideOfElement == Base::Side::LEFT)
@@ -280,7 +280,7 @@ bool SavageHutter::useLimitierForElement(const Base::Element *element)
     double dx = std::pow(2. * std::abs(element->calcJacobian(element->getReferenceGeometry()->getCenter()).determinant()) , 1./DIM_);
     logger(DEBUG, "grid size: %", dx);
     totalIntegral /= std::pow(dx, (p+1.)/2);
-    LinearAlgebra::NumericalVector average = computeNormOfAverageOfSolutionInElement(element);
+    LinearAlgebra::MiddleSizeVector average = computeNormOfAverageOfSolutionInElement(element);
     for (std::size_t i = 0; i < numOfVariables_; ++i)
     {
         totalIntegral(i) /= average(i);
@@ -291,15 +291,15 @@ bool SavageHutter::useLimitierForElement(const Base::Element *element)
     return (Base::L2Norm(totalIntegral) > 1);
 }
 
-LinearAlgebra::NumericalVector SavageHutter::computeVelocity(LinearAlgebra::NumericalVector numericalSolution)
+LinearAlgebra::MiddleSizeVector SavageHutter::computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution)
 {
-    return LinearAlgebra::NumericalVector({numericalSolution(1)/numericalSolution(0)});
+    return LinearAlgebra::MiddleSizeVector({numericalSolution(1)/numericalSolution(0)});
 }
 
 ///\todo check if this is indeed what the code says
-LinearAlgebra::NumericalVector SavageHutter::computeNormOfAverageOfSolutionInElement(const Base::Element* element)
+LinearAlgebra::MiddleSizeVector SavageHutter::computeNormOfAverageOfSolutionInElement(const Base::Element* element)
 {
-    LinearAlgebra::NumericalVector average(2);
+    LinearAlgebra::MiddleSizeVector average(2);
     for(std::size_t i = 0; i < element->getGaussQuadratureRule()->nrOfPoints(); ++i)
     {
         average += element->getSolution(0, element->getGaussQuadratureRule()->getPoint(i));

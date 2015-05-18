@@ -37,7 +37,7 @@ int main()
     double coord3[] = {1.3, 2.3, 3.3};
     double coord4[] = {1.4, 2.4, 3.4, 4.4};
     
-    LinearAlgebra::NumericalVector vec0(coord0, 0), vec1(coord1, 1), vec2(coord2, 2), vec3(coord3, 3), vec4(coord4, 4);
+    LinearAlgebra::MiddleSizeVector vec0(coord0, 0), vec1(coord1, 1), vec2(coord2, 2), vec3(coord3, 3), vec4(coord4, 4);
     
     Geometry::Point pb0(0), pb1(1), pb2(2), pb3(3), pb4(4);
     

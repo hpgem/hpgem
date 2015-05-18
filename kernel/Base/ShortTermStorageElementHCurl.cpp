@@ -57,7 +57,7 @@ void Base::ShortTermStorageElementHcurl::computeData()
     
 }
 
-void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     logger(DEBUG, "basisFunction called in Hcurl");
     if (!(&p == currentPoint_))
@@ -68,7 +68,7 @@ void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t i, const Poin
     ret = basisFunctionValues_[i];
 }
 
-void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t index, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t index, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
     logger(DEBUG, "Basis Function called in Hcurl const");
     ret = basisFunctionValues_[index];
@@ -90,7 +90,7 @@ void Base::ShortTermStorageElementHcurl::basisFunction(std::size_t index, const 
     }
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const PointReferenceT& p)
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const PointReferenceT& p)
 {
     if (!(&p == currentPoint_))
     {
@@ -102,12 +102,12 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageElementHcurl::basisFunction
             
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const PointReferenceT& p) const
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageElementHcurl::basisFunctionCurl(std::size_t i, const PointReferenceT& p) const
 {
     if (!(&p == currentPoint_))
     {
         logger(WARN, "WARNING: you are using a slow operator");
-        LinearAlgebra::NumericalVector ret = element_->basisFunctionCurl(i, p);
+        LinearAlgebra::MiddleSizeVector ret = element_->basisFunctionCurl(i, p);
         //apply the coordinate transformation
         
         Geometry::Jacobian jac = element_->calcJacobian(p);

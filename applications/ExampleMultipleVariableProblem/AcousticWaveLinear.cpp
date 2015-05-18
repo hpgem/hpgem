@@ -63,9 +63,9 @@ Base::RectangularMeshDescriptor AcousticWaveLinear::createMeshDescription(const 
     return description;
 }
 
-LinearAlgebra::NumericalVector AcousticWaveLinear::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
+LinearAlgebra::MiddleSizeVector AcousticWaveLinear::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
 {
-    LinearAlgebra::NumericalVector realSolution(numOfVariables_);
+    LinearAlgebra::MiddleSizeVector realSolution(numOfVariables_);
     double c = std::sqrt(1.0 / cInv_); // Wave velocity.
     
     double x0 = pPhys[0];
@@ -86,7 +86,7 @@ LinearAlgebra::NumericalVector AcousticWaveLinear::getExactSolution(const PointP
 }
 
 /// \brief Compute the initial solution at a given point in space and time.
-LinearAlgebra::NumericalVector AcousticWaveLinear::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
+LinearAlgebra::MiddleSizeVector AcousticWaveLinear::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     return getExactSolution(pPhys, startTime, orderTimeDerivative);
 }
@@ -124,16 +124,16 @@ LinearAlgebra::Matrix AcousticWaveLinear::integrandMassMatrixOnRefElement(const 
 }
 
 /// \details The integrand for the initial solution is the exact solution at time 0 multiplied by a test function. The integrand is then scaled by the reference-to-physical element scale, since we compute the integral on a reference element.
-LinearAlgebra::NumericalVector AcousticWaveLinear::integrandInitialSolutionOnRefElement
+LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrandInitialSolutionOnRefElement
 (const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef)
 {
     std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
     
-    LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfBasisFunctions);
+    LinearAlgebra::MiddleSizeVector integrand(numOfVariables_ * numOfBasisFunctions);
     
     Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
     
-    LinearAlgebra::NumericalVector initialSolution(getInitialSolution(pPhys, startTime));
+    LinearAlgebra::MiddleSizeVector initialSolution(getInitialSolution(pPhys, startTime));
     
     std::size_t iVB; // Index for both variable and basis function.
     for (std::size_t iV = 0; iV < numOfVariables_; iV++)
@@ -161,7 +161,7 @@ LinearAlgebra::Matrix AcousticWaveLinear::integrandStiffnessMatrixOnRefElement(c
 {
     std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
     LinearAlgebra::Matrix integrand(numOfVariables_ * numOfBasisFunctions, numOfVariables_ * numOfBasisFunctions);
-    LinearAlgebra::NumericalVector gradientBasisFunction(DIM_);
+    LinearAlgebra::MiddleSizeVector gradientBasisFunction(DIM_);
     double valueTestFunction;
     
     std::size_t iVB, jVB; // Indices for both variable and basisfunction
@@ -208,7 +208,7 @@ LinearAlgebra::Matrix AcousticWaveLinear::integrandStiffnessMatrixOnRefFace(cons
     double valueBasisFunction;
     
     // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-    LinearAlgebra::NumericalVector normal = ptrFace->getNormalVector(pRef);
+    LinearAlgebra::MiddleSizeVector normal = ptrFace->getNormalVector(pRef);
     if (jSide == Base::Side::RIGHT)
     {
         normal *= -1;
@@ -258,23 +258,23 @@ LinearAlgebra::Matrix AcousticWaveLinear::integrandStiffnessMatrixOnRefFace(cons
 }
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
-LinearAlgebra::NumericalVector AcousticWaveLinear::integrandErrorOnRefElement
+LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrandErrorOnRefElement
 (
  const Base::Element *ptrElement,
  const double &time,
  const Geometry::PointReference &pRef,
- const LinearAlgebra::NumericalVector &solutionCoefficients
+ const LinearAlgebra::MiddleSizeVector &solutionCoefficients
  )
 {
     std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
     
-    LinearAlgebra::NumericalVector integrand(1);
+    LinearAlgebra::MiddleSizeVector integrand(1);
     integrand(0) = 0;
     
     Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
     
-    LinearAlgebra::NumericalVector realSolution(getExactSolution(pPhys, time));
-    LinearAlgebra::NumericalVector numericalSolution(numOfVariables_);
+    LinearAlgebra::MiddleSizeVector realSolution(getExactSolution(pPhys, time));
+    LinearAlgebra::MiddleSizeVector numericalSolution(numOfVariables_);
     
     std::size_t jVB; // Index for both variable and basis function.
     for (std::size_t jV = 0; jV < numOfVariables_; jV++)
@@ -311,19 +311,19 @@ LinearAlgebra::Matrix AcousticWaveLinear::computeMassMatrixAtElement(Base::Eleme
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }
 
-LinearAlgebra::NumericalVector AcousticWaveLinear::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
+LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
 {
     // Define the integrand function for the the initial solution integral.
-    std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector { return this -> integrandInitialSolutionOnRefElement(ptrElement, startTime, pRef);};
+    std::function<LinearAlgebra::MiddleSizeVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeVector { return this -> integrandInitialSolutionOnRefElement(ptrElement, startTime, pRef);};
     
     return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }
 
 /// \details The error is defined as error = realSolution - numericalSolution. The energy of the vector (u, s0, s1) is defined as u^2 + c^{-1} * |s|^2.
-LinearAlgebra::NumericalVector AcousticWaveLinear::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time)
+LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, double time)
 {
     // Define the integrand function for the error energy.
-    std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+    std::function<LinearAlgebra::MiddleSizeVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeVector
     {
         return this->integrandErrorOnRefElement(ptrElement, time, pRef, solutionCoefficients);
     };

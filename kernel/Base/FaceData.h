@@ -26,12 +26,12 @@
 #include <vector>
 #include "Base/FaceMatrix.h"
 #include "LinearAlgebra/Matrix.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "FaceCacheData.h"
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 namespace Base
@@ -70,9 +70,9 @@ namespace Base
         /// \brief Returns face matrix number 'matrixID'.
         const FaceMatrix & getFaceMatrix(std::size_t matrixID = 0) const;
 
-        void setFaceVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0);
+        void setFaceVector(const LinearAlgebra::MiddleSizeVector& vector, std::size_t vectorID = 0);
 
-        virtual LinearAlgebra::NumericalVector getFaceVector(std::size_t vectorID = 0) const;
+        virtual LinearAlgebra::MiddleSizeVector getFaceVector(std::size_t vectorID = 0) const;
 
         virtual VecCacheT& getVecCacheData()
         {
@@ -90,9 +90,9 @@ namespace Base
             userData_ = data;
         }
         
-        virtual const LinearAlgebra::NumericalVector& getResidue() const;
+        virtual const LinearAlgebra::MiddleSizeVector& getResidue() const;
 
-        void setResidue(LinearAlgebra::NumericalVector& residue);
+        void setResidue(LinearAlgebra::MiddleSizeVector& residue);
         
         std::size_t getNumberFaceMatrices() const;
         std::size_t getNumberFaceVectors() const;
@@ -110,10 +110,10 @@ namespace Base
         std::vector<FaceMatrix> faceMatrix_;
         
         ///Stores face vector(s) for this face.
-        std::vector<LinearAlgebra::NumericalVector> faceVector_;
+        std::vector<LinearAlgebra::MiddleSizeVector> faceVector_;
 
         //A concatenation of the flux contributions to the residuals in the left and the right elements
-        LinearAlgebra::NumericalVector residual_;
+        LinearAlgebra::MiddleSizeVector residual_;
     };
 }
 #endif

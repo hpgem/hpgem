@@ -82,7 +82,7 @@ namespace Base
 namespace LinearAlgebra
 {
     class Matrix;
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 namespace Geometry
@@ -241,7 +241,7 @@ namespace Geometry
         virtual const PointReference& mapRefFaceToRefFace(const ReferencePointT& pIn) const;
         
         /// Get a normal at a given RefPoint
-        virtual LinearAlgebra::NumericalVector getNormalVector(const ReferencePointT& pRefFace) const;
+        virtual LinearAlgebra::MiddleSizeVector getNormalVector(const ReferencePointT& pRefFace) const;
 
         //! Return a Mapping 
         virtual RefFaceToRefElementMappingPtr refFaceToRefElemMapL() const;

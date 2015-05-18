@@ -30,7 +30,7 @@
 #include "Geometry/ReferenceTriangularPrism.h"
 #include "Base/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
 
 void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOrder)

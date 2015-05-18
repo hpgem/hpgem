@@ -26,7 +26,7 @@
 
 #include "Base/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Base/BaseBasisFunction.h"
 #include "Logger.h"
 

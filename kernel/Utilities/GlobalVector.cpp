@@ -27,7 +27,7 @@
 #include "Base/Face.h"
 #include "Base/Element.h"
 #include "Base/ElementCacheData.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Base/FaceCacheData.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PhysicalGeometry.h"
@@ -356,7 +356,7 @@ namespace Utilities
     {
         reset();
         
-        LinearAlgebra::NumericalVector elementVector;
+        LinearAlgebra::MiddleSizeVector elementVector;
         
         if (elementVectorID_ >= 0)
         {
@@ -370,7 +370,7 @@ namespace Utilities
             }
         }
         
-        LinearAlgebra::NumericalVector faceVector;
+        LinearAlgebra::MiddleSizeVector faceVector;
         
         if (faceVectorID_ >= 0)
         {
@@ -401,7 +401,7 @@ namespace Utilities
     {
         reset();
         
-        LinearAlgebra::NumericalVector elementData;
+        LinearAlgebra::MiddleSizeVector elementData;
         for (Base::Element* element : theMesh_->getElementsList())
         {
             std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
@@ -456,7 +456,7 @@ namespace Utilities
         for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
         {
             std::size_t numBasisFuns = (*it)->getNrOfBasisFunctions();
-            LinearAlgebra::NumericalVector localData(&data[startPositionsOfElementsInTheVector_[(*it)->getID()]], (*it)->getLocalNrOfBasisFunctions());
+            LinearAlgebra::MiddleSizeVector localData(&data[startPositionsOfElementsInTheVector_[(*it)->getID()]], (*it)->getLocalNrOfBasisFunctions());
             localData.resize(numBasisFuns);
             std::size_t runningTotal((*it)->getLocalNrOfBasisFunctions());
             if (theMesh_->dimension() > 1)

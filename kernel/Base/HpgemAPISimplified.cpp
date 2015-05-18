@@ -125,7 +125,7 @@ namespace Base
             const Geometry::PointReference& pRef = ptrQdrRule->getPoint(pQuad);
             Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
             
-            LinearAlgebra::NumericalVector valueBasisFunction(numOfBasisFunctions);
+            LinearAlgebra::MiddleSizeVector valueBasisFunction(numOfBasisFunctions);
             for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
             {
                 valueBasisFunction(iB) = ptrElement->basisFunction(iB, pRef);
@@ -150,7 +150,7 @@ namespace Base
         return massMatrix;
     }
     
-    void HpgemAPISimplified::solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients)
+    void HpgemAPISimplified::solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients)
     {
         computeMassMatrixAtElement(ptrElement).solve(solutionCoefficients);
     }
@@ -160,7 +160,7 @@ namespace Base
     {
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::NumericalVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevel));
+            LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevel));
             
             solveMassMatrixEquationsAtElement(ptrElement, solutionCoefficients);
         }
@@ -170,16 +170,16 @@ namespace Base
     
     /// \brief By default this function copmutes the integral of the inner product of the initial solution (for given order time derivative) and the test function on the element.
     /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
-    LinearAlgebra::NumericalVector HpgemAPISimplified::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
+    LinearAlgebra::MiddleSizeVector HpgemAPISimplified::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
     {
         // Get number of basis functions
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
         
         // Declare integral initial solution
-        LinearAlgebra::NumericalVector integralInitialSolution(numOfBasisFunctions * configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector integralInitialSolution(numOfBasisFunctions * configData_->numberOfUnknowns_);
         
         // Declare integrand
-        LinearAlgebra::NumericalVector integrandInitialSolution(numOfBasisFunctions * configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector integrandInitialSolution(numOfBasisFunctions * configData_->numberOfUnknowns_);
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
@@ -194,7 +194,7 @@ namespace Base
             
             Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
             
-            LinearAlgebra::NumericalVector initialSolution = getInitialSolution(pPhys, startTime, orderTimeDerivative);
+            LinearAlgebra::MiddleSizeVector initialSolution = getInitialSolution(pPhys, startTime, orderTimeDerivative);
             
             for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
             {
@@ -217,7 +217,7 @@ namespace Base
     {
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::NumericalVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(timeLevelResult);
+            LinearAlgebra::MiddleSizeVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(timeLevelResult);
             solutionCoefficients = integrateInitialSolutionAtElement(ptrElement, initialTime, orderTimeDerivative);
         }
         
@@ -226,16 +226,16 @@ namespace Base
     
     /// By default the square of the standard L2 norm is integrated.
     /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
-    LinearAlgebra::NumericalVector HpgemAPISimplified::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
+    LinearAlgebra::MiddleSizeVector HpgemAPISimplified::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
         
         // Declare integral initial solution
-        LinearAlgebra::NumericalVector integralError(1);
+        LinearAlgebra::MiddleSizeVector integralError(1);
         
         // Declare integrand
-        LinearAlgebra::NumericalVector integrandError(1);
+        LinearAlgebra::MiddleSizeVector integrandError(1);
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
@@ -249,9 +249,9 @@ namespace Base
             
             Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
             
-            LinearAlgebra::NumericalVector exactSolution = getExactSolution(pPhys, time, 0);
+            LinearAlgebra::MiddleSizeVector exactSolution = getExactSolution(pPhys, time, 0);
             
-            LinearAlgebra::NumericalVector numericalSolution(configData_->numberOfUnknowns_);
+            LinearAlgebra::MiddleSizeVector numericalSolution(configData_->numberOfUnknowns_);
             numericalSolution *= 0;
             
             for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
@@ -278,12 +278,12 @@ namespace Base
     /// \details The square of the total error is defined as \f[ e_{total}^2 := \int \|e\|^2 \,dV \f], where \f$\|e\|\f$ is some user-defined norm (based on the (weighted) inner product) of the error. By default this is the standard L2 norm.
     double HpgemAPISimplified::computeTotalError(const std::size_t solutionTimeLevel, const double time)
     {
-        LinearAlgebra::NumericalVector totalError(1);
+        LinearAlgebra::MiddleSizeVector totalError(1);
         totalError(0) = 0;
         
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::NumericalVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(solutionTimeLevel);
+            LinearAlgebra::MiddleSizeVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(solutionTimeLevel);
             totalError += integrateErrorAtElement(ptrElement, solutionCoefficients, time);
         }
         
@@ -353,13 +353,13 @@ namespace Base
     
     /// \details This function returns a vector of the suprema of the error of every variable.
     /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
-    LinearAlgebra::NumericalVector HpgemAPISimplified::computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
+    LinearAlgebra::MiddleSizeVector HpgemAPISimplified::computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
         
         // Declare vector of maxima of the error.
-        LinearAlgebra::NumericalVector maxError(configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector maxError(configData_->numberOfUnknowns_);
         maxError *= 0;
         
         // Get quadrature rule and number of points.
@@ -372,9 +372,9 @@ namespace Base
             const Geometry::PointReference& pRef = ptrQdrRule->getPoint(pQuad);
             Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
             
-            LinearAlgebra::NumericalVector exactSolution = getExactSolution(pPhys, time, 0);
+            LinearAlgebra::MiddleSizeVector exactSolution = getExactSolution(pPhys, time, 0);
             
-            LinearAlgebra::NumericalVector numericalSolution(configData_->numberOfUnknowns_);
+            LinearAlgebra::MiddleSizeVector numericalSolution(configData_->numberOfUnknowns_);
             numericalSolution *= 0;
             
             for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
@@ -403,17 +403,17 @@ namespace Base
     
     /// \param[in] solutionTimeLevel Time level where the solution is stored.
     /// \param[in] time Time corresponding to the current solution.
-    LinearAlgebra::NumericalVector HpgemAPISimplified::computeMaxError(const std::size_t solutionTimeLevel, const double time)
+    LinearAlgebra::MiddleSizeVector HpgemAPISimplified::computeMaxError(const std::size_t solutionTimeLevel, const double time)
     {
         
-        LinearAlgebra::NumericalVector maxError(configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector maxError(configData_->numberOfUnknowns_);
         maxError *= 0;
         
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::NumericalVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(solutionTimeLevel);
+            LinearAlgebra::MiddleSizeVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(solutionTimeLevel);
             
-            LinearAlgebra::NumericalVector maxErrorAtElement(computeMaxErrorAtElement(ptrElement, solutionCoefficients, time));
+            LinearAlgebra::MiddleSizeVector maxErrorAtElement(computeMaxErrorAtElement(ptrElement, solutionCoefficients, time));
             
             for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
             {
@@ -489,8 +489,8 @@ namespace Base
         // Apply the right hand side corresponding to integration on the elements.
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::NumericalVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevelIn));
-            LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
+            LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevelIn));
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
             
             solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time);
         }
@@ -500,18 +500,18 @@ namespace Base
         {
             if(ptrFace->isInternal())
             {
-                LinearAlgebra::NumericalVector &solutionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelIn));
-                LinearAlgebra::NumericalVector &solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelIn));
-                LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
-                LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelIn));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelIn));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
                 
                 solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
                 solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
             }
             else
             {
-                LinearAlgebra::NumericalVector &solutionCoefficients(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelIn));
-                LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelIn));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
                 
                 solutionCoefficientsNew = computeRightHandSideAtFace(ptrFace, solutionCoefficients, time);
             }
@@ -520,12 +520,12 @@ namespace Base
         synchronize(timeLevelResult);
     }
     
-    LinearAlgebra::NumericalVector HpgemAPISimplified::getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels)
+    LinearAlgebra::MiddleSizeVector HpgemAPISimplified::getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels)
     {
         logger.assert(timeLevelsIn.size() == coefficientsTimeLevels.size(), "Number of time levels and number of coefficients should be the same.");
         logger.assert(timeLevelsIn.size() > 0, "Number of time levels should be bigger than zero.");
         
-        LinearAlgebra::NumericalVector solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevelsIn[0]));
+        LinearAlgebra::MiddleSizeVector solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevelsIn[0]));
         solutionCoefficients *= coefficientsTimeLevels[0];
         for (std::size_t i = 1; i < timeLevelsIn.size(); i++)
         {
@@ -540,8 +540,8 @@ namespace Base
         // Apply the right hand side corresponding to integration on the elements.
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::NumericalVector solutionCoefficients(getSolutionCoefficients(ptrElement, timeLevelsIn, coefficientsTimeLevels));
-            LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
+            LinearAlgebra::MiddleSizeVector solutionCoefficients(getSolutionCoefficients(ptrElement, timeLevelsIn, coefficientsTimeLevels));
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
             
             solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time);
         }
@@ -551,18 +551,18 @@ namespace Base
         {
             if(ptrFace->isInternal())
             {
-                LinearAlgebra::NumericalVector solutionCoefficientsLeft(getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
-                LinearAlgebra::NumericalVector solutionCoefficientsRight(getSolutionCoefficients(ptrFace->getPtrElementRight(), timeLevelsIn, coefficientsTimeLevels));
-                LinearAlgebra::NumericalVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
-                LinearAlgebra::NumericalVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft(getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
+                LinearAlgebra::MiddleSizeVector solutionCoefficientsRight(getSolutionCoefficients(ptrFace->getPtrElementRight(), timeLevelsIn, coefficientsTimeLevels));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
                 
                 solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
                 solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
             }
             else
             {
-                LinearAlgebra::NumericalVector solutionCoefficients(getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
-                LinearAlgebra::NumericalVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector solutionCoefficients(getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
                 
                 solutionCoefficientsNew += computeRightHandSideAtFace(ptrFace, solutionCoefficients, time);
             }
@@ -695,7 +695,7 @@ namespace Base
     {
         std::size_t numOfVariables = configData_->numberOfUnknowns_;
         
-        LinearAlgebra::NumericalVector solution(numOfVariables);
+        LinearAlgebra::MiddleSizeVector solution(numOfVariables);
         solution = ptrElement->getSolution(solutionTimeLevel_, pRef);
          
         std::size_t iV = 0; // Index for the variable
@@ -812,7 +812,7 @@ namespace Base
         {
             double totalError = computeTotalError(solutionTimeLevel_, finalTime);
             logger(INFO, "Total error: %.", totalError);
-            LinearAlgebra::NumericalVector maxError = computeMaxError(solutionTimeLevel_, finalTime);
+            LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionTimeLevel_, finalTime);
             logger.assert(maxError.size() == configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), configData_->numberOfUnknowns_);
             for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV ++)
             {

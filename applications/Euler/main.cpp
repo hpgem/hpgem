@@ -63,7 +63,7 @@ int main (int argc, char **argv){
     test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
 
     //Compute errors at the end of the simulation
-    LinearAlgebra::NumericalVector maxError = test.Error(endTime.getValue());
+    LinearAlgebra::MiddleSizeVector maxError = test.Error(endTime.getValue());
     std::cout << maxError << std::endl;
 
     return 0;

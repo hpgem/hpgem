@@ -48,61 +48,61 @@ namespace LinearAlgebra
     /// \details
     /// This implements a vector of doubles and all the standard operators for it.
     /// Note it is encapulating a valarray for its data storage.
-    class NumericalVector
+    class MiddleSizeVector
     {
         
     public:
         
-        NumericalVector();
+        MiddleSizeVector();
 
-        explicit NumericalVector(std::size_t m);
+        explicit MiddleSizeVector(std::size_t m);
 
-        NumericalVector(std::initializer_list<double> t);
+        MiddleSizeVector(std::initializer_list<double> t);
 
-        NumericalVector(const NumericalVector& other);
+        MiddleSizeVector(const MiddleSizeVector& other);
         
-        NumericalVector(NumericalVector&& other);
+        MiddleSizeVector(MiddleSizeVector&& other);
 
-        NumericalVector(const double array[], std::size_t size);
+        MiddleSizeVector(const double array[], std::size_t size);
 
         //Constructor to accommodate complex<double>
-        NumericalVector(const std::complex<double> array[], int size);
+        MiddleSizeVector(const std::complex<double> array[], int size);
 
         void resize(std::size_t size);
 
-        NumericalVector& operator=(const NumericalVector& right);
+        MiddleSizeVector& operator=(const MiddleSizeVector& right);
 
-        NumericalVector& operator=(const std::initializer_list<double> l);
+        MiddleSizeVector& operator=(const std::initializer_list<double> l);
 
-        NumericalVector operator+(const NumericalVector& right) const;
+        MiddleSizeVector operator+(const MiddleSizeVector& right) const;
 
-        NumericalVector operator-(const NumericalVector& right) const;
+        MiddleSizeVector operator-(const MiddleSizeVector& right) const;
 
-        NumericalVector operator*(const double& right) const;
+        MiddleSizeVector operator*(const double& right) const;
 
         ///Computes inner product between two vectors.
-        double operator*(const NumericalVector& right) const;
+        double operator*(const MiddleSizeVector& right) const;
 
-        NumericalVector& operator/=(const double& right);
+        MiddleSizeVector& operator/=(const double& right);
 
-        NumericalVector operator/(const double& right) const;
+        MiddleSizeVector operator/(const double& right) const;
 
-        void axpy(double a, const NumericalVector& x);
+        void axpy(double a, const MiddleSizeVector& x);
 
         /// This function is dangerous to use, since it compares doubles without 
         /// a tolerance interval to see if they are equal.
         /// Needs fixing if someone wants to use valarray.
-        bool operator==(const NumericalVector& right) const;
+        bool operator==(const MiddleSizeVector& right) const;
 
         /// This function is dangerous to use, since it compares doubles without
         /// a tolerance interval to see if they are equal.
-        bool operator<(const NumericalVector& right) const;
+        bool operator<(const MiddleSizeVector& right) const;
 
-        NumericalVector& operator+=(const NumericalVector& right);
+        MiddleSizeVector& operator+=(const MiddleSizeVector& right);
 
-        NumericalVector& operator-=(const NumericalVector& right);
+        MiddleSizeVector& operator-=(const MiddleSizeVector& right);
 
-        NumericalVector& operator*=(const double& right);
+        MiddleSizeVector& operator*=(const double& right);
 
         double& operator[](std::size_t n);
 
@@ -145,11 +145,11 @@ namespace LinearAlgebra
         
 #endif
         
-        friend NumericalVector operator*(const double& left, const NumericalVector& right);
+        friend MiddleSizeVector operator*(const double& left, const MiddleSizeVector& right);
 
-        friend NumericalVector operator-(const NumericalVector& right);
+        friend MiddleSizeVector operator-(const MiddleSizeVector& right);
 
-        friend std::ostream& operator<<(std::ostream& os, const NumericalVector& A);
+        friend std::ostream& operator<<(std::ostream& os, const MiddleSizeVector& A);
 
     private:
 #ifdef LA_STL_VECTOR

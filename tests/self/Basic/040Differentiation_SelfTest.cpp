@@ -43,10 +43,10 @@
 void testMesh(Base::MeshManipulator* test)
 {
     
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
     {
         
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret)
         {
             std::size_t numBasisFuns = el->getNrOfBasisFunctions();
             ret.resize(numBasisFuns);
@@ -79,14 +79,14 @@ void testMesh(Base::MeshManipulator* test)
         }
     } massMatrix;
     
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
     {
         
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret)
         {
             ret.resize(1);
             std::size_t n = el->getNrOfBasisFunctions();
-            LinearAlgebra::NumericalVector temp1(p.size()), temp2(p.size());
+            LinearAlgebra::MiddleSizeVector temp1(p.size()), temp2(p.size());
             for (std::size_t i = 0; i < p.size(); ++i)
             {
                 temp1[i] = 0;
@@ -107,7 +107,7 @@ void testMesh(Base::MeshManipulator* test)
     Integration::ElementIntegral elIntegral(false);
     elIntegral.setStorageWrapper(new Base::ShortTermStorageElementH1(test->dimension()));
     double total = 0;
-    LinearAlgebra::NumericalVector result(1), expansion;
+    LinearAlgebra::MiddleSizeVector result(1), expansion;
     LinearAlgebra::Matrix M;
     for (Base::Element* element : test->getElementsList())
     {

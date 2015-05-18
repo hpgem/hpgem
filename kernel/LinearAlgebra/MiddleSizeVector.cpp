@@ -19,7 +19,7 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "NumericalVector.h"
+#include "MiddleSizeVector.h"
 
 #include "Logger.h"
 
@@ -38,39 +38,39 @@ namespace LinearAlgebra
     
     }
     
-    NumericalVector::NumericalVector()
+    MiddleSizeVector::MiddleSizeVector()
             : data_()
     {
     }
     
-    NumericalVector::NumericalVector(std::size_t m)
+    MiddleSizeVector::MiddleSizeVector(std::size_t m)
             : data_(m)
     {
     }
     
-    NumericalVector::NumericalVector(std::initializer_list<double> l)
+    MiddleSizeVector::MiddleSizeVector(std::initializer_list<double> l)
             : data_(l)
     {
     }
 
-    NumericalVector::NumericalVector(const NumericalVector& other)
+    MiddleSizeVector::MiddleSizeVector(const MiddleSizeVector& other)
             : data_(other.data_)
     {
     }
     
-    NumericalVector::NumericalVector(NumericalVector&& other)
+    MiddleSizeVector::MiddleSizeVector(MiddleSizeVector&& other)
             : data_(std::move(other.data_))
     {
     }
     
 #ifdef LA_STL_VECTOR
-    NumericalVector::NumericalVector(const double array[], std::size_t size)
+    MiddleSizeVector::MiddleSizeVector(const double array[], std::size_t size)
             : data_(array, array + size)
     {
     }
 
 #ifdef HPGEM_USE_COMPLEX_PETSC
-    NumericalVector::NumericalVector(const std::complex<double> array[], int size)
+    MiddleSizeVector::MiddleSizeVector(const std::complex<double> array[], int size)
     {   
         data_.resize(size);
 
@@ -86,12 +86,12 @@ namespace LinearAlgebra
     }
 #endif
 #else
-    NumericalVector::NumericalVector(const double array[], std::size_t size)
+    MiddleSizeVector::MiddleSizeVector(const double array[], std::size_t size)
     : data_(array, size)
     {}
 #endif
     
-    void NumericalVector::resize(std::size_t size)
+    void MiddleSizeVector::resize(std::size_t size)
     {
         if (size != data_.size())
         {
@@ -99,21 +99,21 @@ namespace LinearAlgebra
         }
     }
     
-    NumericalVector& NumericalVector::operator=(const NumericalVector& right)
+    MiddleSizeVector& MiddleSizeVector::operator=(const MiddleSizeVector& right)
     {
         data_ = right.data_;
         return *this;
     }
     
-    NumericalVector& NumericalVector::operator=(const std::initializer_list<double> l)
+    MiddleSizeVector& MiddleSizeVector::operator=(const std::initializer_list<double> l)
     {
     	data_ = l;
     	return *this;
     }
 
-    NumericalVector NumericalVector::operator+(const NumericalVector& right) const
+    MiddleSizeVector MiddleSizeVector::operator+(const MiddleSizeVector& right) const
     {
-        NumericalVector result(*this);
+        MiddleSizeVector result(*this);
         logger.assert(data_.size() == right.data_.size(), "Vectors don't have the same size");
 #ifdef LA_STL_VECTOR
         for (std::size_t i = 0; i < data_.size(); i++)
@@ -125,9 +125,9 @@ namespace LinearAlgebra
         return result;
     }
     
-    NumericalVector NumericalVector::operator-(const NumericalVector& right) const
+    MiddleSizeVector MiddleSizeVector::operator-(const MiddleSizeVector& right) const
     {
-        NumericalVector result(*this);
+        MiddleSizeVector result(*this);
         logger.assert(data_.size() == right.data_.size(), "Vectors don't have the same size");
 #ifdef LA_STL_VECTOR
         for (std::size_t i = 0; i < data_.size(); i++)
@@ -138,9 +138,9 @@ namespace LinearAlgebra
         return result;
     }
     
-    NumericalVector NumericalVector::operator*(const double& right) const
+    MiddleSizeVector MiddleSizeVector::operator*(const double& right) const
     {
-        NumericalVector result(*this);
+        MiddleSizeVector result(*this);
 #ifdef LA_STL_VECTOR
         for (double& d : result.data_)
             d *= right;
@@ -151,7 +151,7 @@ namespace LinearAlgebra
         return result;
     }
     
-    double NumericalVector::operator*(const NumericalVector& right) const
+    double MiddleSizeVector::operator*(const MiddleSizeVector& right) const
     {
         ///\TODO replace with BLAS 
         logger.assert(data_.size() == right.data_.size(), "Vectors don't have equal length.");
@@ -165,7 +165,7 @@ namespace LinearAlgebra
 #endif
     }
     
-    NumericalVector& NumericalVector::operator/=(const double& right)
+    MiddleSizeVector& MiddleSizeVector::operator/=(const double& right)
     {
 #ifdef LA_STL_VECTOR
         for (double& d : data_)
@@ -177,30 +177,30 @@ namespace LinearAlgebra
         return *this;
     }
     
-    NumericalVector NumericalVector::operator/(const double& right) const
+    MiddleSizeVector MiddleSizeVector::operator/(const double& right) const
     {
-        NumericalVector result(*this);
+        MiddleSizeVector result(*this);
         return (result /= right);
         
     }
     
-    void NumericalVector::axpy(double a, const NumericalVector& x)
+    void MiddleSizeVector::axpy(double a, const MiddleSizeVector& x)
     {
         logger.assert(x.size() == data_.size(), "Vectors dont have the same size");
         unsigned int size = data_.size();
         
         unsigned int i_one = 1;
         
-        daxpy_(&size, &a, const_cast<NumericalVector *>(&x)->data_.data(), &i_one, ((*this).data_.data()), &i_one);
+        daxpy_(&size, &a, const_cast<MiddleSizeVector *>(&x)->data_.data(), &i_one, ((*this).data_.data()), &i_one);
         
     }
     
-    bool NumericalVector::operator==(const NumericalVector& right) const
+    bool MiddleSizeVector::operator==(const MiddleSizeVector& right) const
     {
         return (data_ == right.data_);
     }
     
-    bool NumericalVector::operator<(const NumericalVector& right) const
+    bool MiddleSizeVector::operator<(const MiddleSizeVector& right) const
     {
         for (std::size_t i = 0; i < data_.size() && i < right.data_.size(); ++i)
         {
@@ -216,7 +216,7 @@ namespace LinearAlgebra
         return false;
     }
     
-    NumericalVector& NumericalVector::operator+=(const NumericalVector& right)
+    MiddleSizeVector& MiddleSizeVector::operator+=(const MiddleSizeVector& right)
     {
         logger.assert(data_.size() == right.data_.size(), "Vectors don't have the same size");
 #ifdef LA_STL_VECTOR
@@ -228,7 +228,7 @@ namespace LinearAlgebra
         return *this;
     }
     
-    NumericalVector& NumericalVector::operator-=(const NumericalVector& right)
+    MiddleSizeVector& MiddleSizeVector::operator-=(const MiddleSizeVector& right)
     {
         logger.assert(data_.size() == right.data_.size(), "Vectors don't have the same size");
 #ifdef LA_STL_VECTOR
@@ -241,7 +241,7 @@ namespace LinearAlgebra
         return *this;
     }
     
-    NumericalVector& NumericalVector::operator*=(const double& right)
+    MiddleSizeVector& MiddleSizeVector::operator*=(const double& right)
     {
 #ifdef LA_STL_VECTOR
         for (double& d : data_)
@@ -252,15 +252,15 @@ namespace LinearAlgebra
         return *this;
     }
     
-    double& NumericalVector::operator[](std::size_t n)
+    double& MiddleSizeVector::operator[](std::size_t n)
     {
         logger.assert(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
         return data_[n];
     }
     
-    NumericalVector operator*(const double& left, const NumericalVector& right)
+    MiddleSizeVector operator*(const double& left, const MiddleSizeVector& right)
     {
-        NumericalVector result(right);
+        MiddleSizeVector result(right);
 #ifdef LA_STL_VECTOR
         for (double& d : result.data_)
             d *= left;
@@ -270,12 +270,12 @@ namespace LinearAlgebra
         return result;
     }
     
-    NumericalVector operator-(const NumericalVector& right)
+    MiddleSizeVector operator-(const MiddleSizeVector& right)
     {
-        return NumericalVector(right * -1.0);
+        return MiddleSizeVector(right * -1.0);
     }
     
-    std::ostream& operator<<(std::ostream& os, const NumericalVector& A)
+    std::ostream& operator<<(std::ostream& os, const MiddleSizeVector& A)
     {
         os << '[';
         for (std::size_t i = 0; i < A.data_.size() - 1; i++)
@@ -288,7 +288,7 @@ namespace LinearAlgebra
 
 #ifdef HPGEM_USE_COMPLEX_PETSC
 
-const std::complex<double>* NumericalVector::data() const
+const std::complex<double>* MiddleSizeVector::data() const
 {   
     static std::vector<std::complex<double>> new_Data(data_.size());
 

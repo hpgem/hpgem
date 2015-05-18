@@ -35,18 +35,18 @@
 
 void testMesh(Base::MeshManipulator* test)
 {
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
     {
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret)
         {
             ret.resize(1);
             ret[0] = 1;
         }
     } one;
     
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
     {
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret)
         {
             ret.resize(1);
             ret[0] = 0;
@@ -58,9 +58,9 @@ void testMesh(Base::MeshManipulator* test)
         }
     } linear;
     
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
     {
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret)
         {
             ret.resize(1);
             ret[0] = 1;
@@ -75,7 +75,7 @@ void testMesh(Base::MeshManipulator* test)
     Integration::ElementIntegral elIntegral(false);
     elIntegral.setStorageWrapper(new Base::ShortTermStorageElementH1(test->dimension()));
     double total = 0;
-    LinearAlgebra::NumericalVector result(1);
+    LinearAlgebra::MiddleSizeVector result(1);
     for (Base::Element* element : test->getElementsList())
     {
         result = elIntegral.integrate(element, &one);

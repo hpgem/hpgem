@@ -23,16 +23,16 @@
 #include <cstdlib>
 #include <cmath>
 #include "LinearAlgebra/Matrix.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Logger.h"
 
 using LinearAlgebra::Matrix;
-using LinearAlgebra::NumericalVector;
+using LinearAlgebra::MiddleSizeVector;
 
 int main(int argc, char** argv)
 {
     //constructors
-    LinearAlgebra::NumericalVector vec0{0., 1.}, vec1{2., 3.}, vec2{4., 5.}, vec3{6., 7.};
+    LinearAlgebra::MiddleSizeVector vec0{0., 1.}, vec1{2., 3.}, vec2{4., 5.}, vec3{6., 7.};
     Matrix A0, A22(2, 2), A23(2, 3), A32(3, 2), destroy(3, 3, 1), count0({vec0, vec1}), count1({vec2, vec3}), copy(count0), bla({count0}), merge({count0, count1});
     logger.assert_always(destroy.getNRows() == 3, "Rows in a matrix");
     logger.assert_always(destroy.getNCols() == 3, "Columns in a matrix");
@@ -163,7 +163,7 @@ int main(int argc, char** argv)
     logger.assert_always(std::abs((A23*A32)(1, 1) - .40) < 1e-12, "multiply");
     logger.assert_always(std::abs((vec1*count0)*vec1 - 45) < 1e-12, "multiply");
     logger.assert_always(std::abs(vec1*(count0*vec1) - 45) < 1e-12, "multiply");
-    NumericalVector size3 = {3., 4., 5.};
+    MiddleSizeVector size3 = {3., 4., 5.};
     logger.assert_always(std::abs(size3*(A32*vec0) - 5) < 1e-12, "multiply");
     logger.assert_always(std::abs((size3*A32)*vec0 - 5) < 1e-12, "multiply");
     logger.assert_always(std::abs((2*count0*2)(0, 0) - 0.) < 1e-12, "multiply");
@@ -291,7 +291,7 @@ int main(int argc, char** argv)
     logger.assert_always(std::abs((Matrix(vec2).computeWedgeStuffVector()) * vec2) < 1e-12, "direction of wedge stuff vector");
     logger.assert_always(std::abs((Matrix(vec3).computeWedgeStuffVector())*(Matrix(vec3).computeWedgeStuffVector()) - vec3 * vec3) < 1e-12, "norm of wedge stuff vector");
     logger.assert_always(std::abs((Matrix(vec3).computeWedgeStuffVector()) * vec3) < 1e-12, "direction of wedge stuff vector");
-    NumericalVector vec3D0{0., 1., 2.}, vec3D1{3., 4., 5.}, vec3D2{0., -1., 2.};
+    MiddleSizeVector vec3D0{0., 1., 2.}, vec3D1{3., 4., 5.}, vec3D2{0., -1., 2.};
     ///\todo test that the norm of the 3D wedge stuff vector equals the area of the triangle formed by nodes {0, 0, 0}, v1 and v2
     logger.assert_always(std::abs((Matrix({vec3D0, vec3D1}).computeWedgeStuffVector()) * vec3D0) < 1e-12, "direction of wedge stuff vector");
     logger.assert_always(std::abs((Matrix({vec3D0, vec3D1}).computeWedgeStuffVector()) * vec3D1) < 1e-12, "direction of wedge stuff vector");
@@ -299,7 +299,7 @@ int main(int argc, char** argv)
     logger.assert_always(std::abs((Matrix({vec3D1, vec3D2}).computeWedgeStuffVector()) * vec3D2) < 1e-12, "direction of wedge stuff vector");
     logger.assert_always(std::abs((Matrix({vec3D0, vec3D2}).computeWedgeStuffVector()) * vec3D0) < 1e-12, "direction of wedge stuff vector");
     logger.assert_always(std::abs((Matrix({vec3D0, vec3D2}).computeWedgeStuffVector()) * vec3D2) < 1e-12, "direction of wedge stuff vector");
-    NumericalVector vec4D0{0., 1., 2., 3.}, vec4D1{4., 5., 6., 7.}, vec4D2{0., -1., 2., -3.}, vec4D3{0., -1., -2., 3.};
+    MiddleSizeVector vec4D0{0., 1., 2., 3.}, vec4D1{4., 5., 6., 7.}, vec4D2{0., -1., 2., -3.}, vec4D3{0., -1., -2., 3.};
     ///\todo test that the norm of the 4D wedge stuff vector equals the area of the tetrahedron formed by nodes {0, 0, 0}, v1 and v2 and v3
     logger.assert_always(std::abs((Matrix({vec4D0, vec4D1, vec4D2}).computeWedgeStuffVector()) * vec4D0) < 1e-12, "direction of wedge stuff vector");
     logger.assert_always(std::abs((Matrix({vec4D0, vec4D1, vec4D2}).computeWedgeStuffVector()) * vec4D1) < 1e-12, "direction of wedge stuff vector");
@@ -347,7 +347,7 @@ int main(int argc, char** argv)
 
     ///\todo figure out a way to test a LU factorisation
 
-    NumericalVector duplicate = vec2;
+    MiddleSizeVector duplicate = vec2;
     count0.solve(vec2);
     logger.assert_always(std::abs((vec2 - count0.inverse() * duplicate)[0]) < 1e-12, "inverse and solve");
     logger.assert_always(std::abs((vec2 - count0.inverse() * duplicate)[1]) < 1e-12, "inverse and solve");

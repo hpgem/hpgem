@@ -22,10 +22,10 @@
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Logger.h"
 
-using LinearAlgebra::NumericalVector;
+using LinearAlgebra::MiddleSizeVector;
 
 int main(int argc, char* argv[])
 {
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 
     //various constructors
     double data[] = {1., 2., 3.};
-    NumericalVector x0, x1(1), y1(x1), destroy(4), fromArray(data,3), convenient({5.,6.,7.,8.,9.});
+    MiddleSizeVector x0, x1(1), y1(x1), destroy(4), fromArray(data,3), convenient({5.,6.,7.,8.,9.});
     data[0] = 4;
     logger.assert_always(x0.size() == 0, "Constructor creates a vector of the wrong size");
     logger.assert_always(x1.size() == 1, "Constructor creates a vector of the wrong size");
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
     logger.assert_always(convenient.size() == 5, "Constructor creates a vector of the wrong size");
     logger.assert_always(fromArray.size() == 3, "Constructor creates a vector of the wrong size");
     destroy[2] = 4;
-    NumericalVector moved(std::move(destroy));
+    MiddleSizeVector moved(std::move(destroy));
     logger.assert_always(moved.size() == 4, "Constructor creates a vector of the wrong size");
     logger.assert_always(std::abs(moved[2] - 4.) < 1e-12, "Constructor from array does not copy!");
     logger.assert_always(std::abs(fromArray(0) - 1.) < 1e-12, "Constructor from array does not copy!");
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
     logger.assert_always(std::abs(convenient[2] - 7.) < 1e-12, "Initializer list constructor does not copy!");
     logger.assert_always(std::abs(convenient[3] - 8.) < 1e-12, "Initializer list constructor does not copy!");
     logger.assert_always(std::abs(convenient[4] - 9.) < 1e-12, "Initializer list constructor does not copy!");
-    NumericalVector assigned = moved;
+    MiddleSizeVector assigned = moved;
     logger.assert_always(assigned.size() == 4, "Constructor creates a vector of the wrong size");
     logger.assert_always(std::abs(assigned[2] - 4.) < 1e-12, "Constructor from array does not copy!");
     destroy = convenient;
@@ -77,13 +77,13 @@ int main(int argc, char* argv[])
     logger.assert_always(assigned.size() == 4, "Constructor creates a vector of the wrong size");
     logger.assert_always(std::abs(assigned[2] - 4.) < 1e-12, "Resizing destroys values");
 
-    NumericalVector p2 = {0.8, 1.8};
-    NumericalVector pc2(7);
-    NumericalVector pv2 = {0.8, 0.8};
-    NumericalVector pw2 = {1.8, 1.8};
-    NumericalVector px2 = {1.8, 0.8};
-    NumericalVector py2 = {0.6, 0.7};
-    const NumericalVector pr2 = pc2 = p2;
+    MiddleSizeVector p2 = {0.8, 1.8};
+    MiddleSizeVector pc2(7);
+    MiddleSizeVector pv2 = {0.8, 0.8};
+    MiddleSizeVector pw2 = {1.8, 1.8};
+    MiddleSizeVector px2 = {1.8, 0.8};
+    MiddleSizeVector py2 = {0.6, 0.7};
+    const MiddleSizeVector pr2 = pc2 = p2;
     logger.assert_always(pr2.size() == 2, "Constructor creates a vector of the wrong size");
     logger.assert_always(pc2.size() == 2, "Constructor creates a vector of the wrong size");
     for (std::size_t i = 0; i < 2; ++i)
@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
 
     x0.data();
 
-    NumericalVector magicCopy(convenient.data(), convenient.size());
+    MiddleSizeVector magicCopy(convenient.data(), convenient.size());
     logger.assert_always(std::abs(magicCopy(0) - 5.) < 1e-12, "Assignment operator from array does not copy!");
     logger.assert_always(std::abs(magicCopy(1) - 6.) < 1e-12, "Assignment operator from array does not copy!");
     logger.assert_always(std::abs(magicCopy(2) - 7.) < 1e-12, "Assignment operator from array does not copy!");

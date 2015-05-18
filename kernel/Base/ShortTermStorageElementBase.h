@@ -95,7 +95,7 @@ namespace Base
             return 0;
         }
         
-        virtual void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+        virtual void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret)
         {
             logger(ERROR, "No storage functionality was implemented! Are you working in a scalar function space?");
         }
@@ -105,16 +105,16 @@ namespace Base
             return element_->basisFunctionDeriv(i, jDir, p);
         }
         
-        virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr)
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr)
         {
             logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionCurl?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
-        virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const PointReferenceT& p)
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionCurl(std::size_t i, const PointReferenceT& p)
         {
             logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionDeriv?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
         double basisFunction(std::size_t i, const PointReferenceT& p) const override
@@ -123,21 +123,21 @@ namespace Base
             return 0;
         }
         
-        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override
+        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const override
         {
             logger(ERROR, "No storage functionality was implemented! Are you working in a scalar function space?");
         }
         
-        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr) const override
+        LinearAlgebra::MiddleSizeVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr) const override
         {
             logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionCurl?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
-        LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const PointReferenceT& p) const override
+        LinearAlgebra::MiddleSizeVector basisFunctionCurl(std::size_t i, const PointReferenceT& p) const override
         {
             logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionDeriv?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
         virtual Geometry::Jacobian calcJacobian(const PointReferenceT& pointReference);
@@ -246,12 +246,12 @@ namespace Base
             return element_->getElementMatrix(matrixID);
         }
         
-        LinearAlgebra::NumericalVector getElementVector(std::size_t vectorID = 0) const override final
+        LinearAlgebra::MiddleSizeVector getElementVector(std::size_t vectorID = 0) const override final
         {
             return element_->getElementVector(vectorID);
         }
         
-        const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const override final
+        const LinearAlgebra::MiddleSizeVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const override final
         {
             return element_->getTimeLevelData(timeLevel, unknown);
         }
@@ -326,7 +326,7 @@ namespace Base
 
         Geometry::Jacobian jac_;
 
-        std::vector<LinearAlgebra::NumericalVector> basisFunctionValues_, basisFunctionDerivatives_, basisFunctionCurlValues_;
+        std::vector<LinearAlgebra::MiddleSizeVector> basisFunctionValues_, basisFunctionDerivatives_, basisFunctionCurlValues_;
     private:
         
         bool useCache_;

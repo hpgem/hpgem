@@ -25,7 +25,7 @@
 
 #include "RectangularMeshDescriptor.h"
 #include "Geometry/PointPhysical.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "ElementCacheData.h"
 #include "FaceCacheData.h"
 #include "ConfigurationData.h"

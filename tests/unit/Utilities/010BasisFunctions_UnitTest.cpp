@@ -33,7 +33,7 @@
 #include "Base/BasisFunctionSet.h"
 #include "Base/L2Norm.h"
 #include "Geometry/PointReference.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "Geometry/ReferenceLine.h"
 #include <cmath>
@@ -46,7 +46,7 @@ int main()
     
     Base::BasisFunctionSet *all1DbasisFunctions = Utilities::createDGBasisFunctionSet1DH1Line(5);
     Geometry::Point point1D(1);
-    LinearAlgebra::NumericalVector ret(1);
+    LinearAlgebra::MiddleSizeVector ret(1);
     for (std::size_t i = 0; i < all1DbasisFunctions->size(); ++i)
     {
         const Base::BaseBasisFunction* test = (*all1DbasisFunctions)[i];

@@ -34,7 +34,7 @@
 
 #include "Base/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Base/BaseBasisFunction.h"
 #include "Logger.h"
 
@@ -47,7 +47,7 @@ int main()
     Base::BasisFunctionSet all1DbasisFunctions(5); //WARNING: this breaks the ordering of the unit tests, but it is basically the only way to collect all basisfunctions in an indexable way
     Base::AssembleBasisFunctionSet_1D_Ord5_A0(all1DbasisFunctions);
     Geometry::Point point1D(1);
-    LinearAlgebra::NumericalVector ret(1);
+    LinearAlgebra::MiddleSizeVector ret(1);
     for (std::size_t i = 0; i < all1DbasisFunctions.size(); ++i)
     {
         const Base::BaseBasisFunction* test = all1DbasisFunctions[i];

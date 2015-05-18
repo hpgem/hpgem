@@ -21,21 +21,21 @@
 
 #include "BaseBasisFunction.h"
 
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/PointReference.h"
 
 namespace Base
 {
     
-    void BaseBasisFunction::eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+    void BaseBasisFunction::eval(const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
     {
         ret.resize(1);
         ret[0] = eval(p);
     }
     
-    LinearAlgebra::NumericalVector BaseBasisFunction::evalDeriv(const PointReferenceT& p) const
+    LinearAlgebra::MiddleSizeVector BaseBasisFunction::evalDeriv(const PointReferenceT& p) const
     {
-        LinearAlgebra::NumericalVector ret(p.size());
+        LinearAlgebra::MiddleSizeVector ret(p.size());
         for (std::size_t i = 0; i < ret.size(); ++i)
         {
             switch (i)

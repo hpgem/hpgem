@@ -28,7 +28,7 @@
 #include "Geometry/ReferenceCube.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
 int main()
 {

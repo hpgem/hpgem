@@ -146,13 +146,13 @@ public:
      * this will only have an effect on the accuracy of your error estimates
      * as a temporary solution remember to also update the exact solution in fillMatrices.cpp otherwise the final result will be incorrect
      */
-    static void exactSolution(const PointPhysicalT& p, const double t, LinearAlgebra::NumericalVector &ret);
+    static void exactSolution(const PointPhysicalT& p, const double t, LinearAlgebra::MiddleSizeVector &ret);
 
     /**
      * this is where you choose the curl of the solution of your problem
      * this will only have an effect on the accuracy of your error estimates
      */
-    static void exactSolutionCurl(const PointPhysicalT& p, const double t, LinearAlgebra::NumericalVector &ret);
+    static void exactSolutionCurl(const PointPhysicalT& p, const double t, LinearAlgebra::MiddleSizeVector &ret);
 
     using ElementFunction = void(hpGemUIExtentions::*)(const ElementT*, const PointElementReferenceT&, LinearAlgebra::Matrix&);
 
@@ -247,7 +247,7 @@ public:
     /**
      * Integrand for the comutation of the jump part of the DG error
      */
-    void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector &normal, const PointFaceReferenceT &p, errorData &ret);
+    void faceIntegrand(const FaceT *face, const LinearAlgebra::MiddleSizeVector &normal, const PointFaceReferenceT &p, errorData &ret);
 
     void LDOSIntegrand(const ElementT *element, const PointElementReferenceT &p, double &ret);
 
@@ -285,7 +285,7 @@ public:
     /**
      * makes a matrix with the shifts
      */
-    void makeShiftMatrix(LinearAlgebra::NumericalVector& direction, Vec& waveVecMatrix);
+    void makeShiftMatrix(LinearAlgebra::MiddleSizeVector& direction, Vec& waveVecMatrix);
 
     /**
      * Tell PETSc the places where special care must be taken because of periodic boundary conditions
@@ -325,7 +325,7 @@ public:
     /**
      * given an eigenvector, prepare an expression for f(x) in int(f(x)*delta(omega) dx)
      */
-    void makeFunctionValue(Vec eigenVector, LinearAlgebra::NumericalVector& result);
+    void makeFunctionValue(Vec eigenVector, LinearAlgebra::MiddleSizeVector& result);
 
     class anonymous1 : public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
     {
@@ -341,77 +341,77 @@ public:
         void elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret);
     } elementStiffnessIntegrand;
 
-    class anonymous3 : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class anonymous3 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
     {
     public:
         
-        void elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::NumericalVector& ret);
+        void elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
     } elementSpaceIntegrand;
 
-    class anonymous4 : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class anonymous4 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
     {
     public:
         
-        void elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::NumericalVector& ret);
+        void elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
     } initialConditionsIntegrand;
 
-    class anonymous5 : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class anonymous5 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
     {
     public:
         
-        void elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::NumericalVector& ret);
+        void elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
     } initialConditionsDerivIntegrand;
 
     class anonymous6 : public Integration::FaceIntegrandBase<LinearAlgebra::Matrix>
     {
     public:
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointFaceReferenceT& p, LinearAlgebra::Matrix& ret);
+        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointFaceReferenceT& p, LinearAlgebra::Matrix& ret);
     } faceStiffnessIntegrand;
 
     class anonymous7 : public Integration::FaceIntegrandBase<LinearAlgebra::Matrix>
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret);
+        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret);
     } faceStiffnessIntegrandIP;
 
-    class anonymous8 : public Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>
+    class anonymous8 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector>
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointElementReferenceT& p, LinearAlgebra::NumericalVector& ret);
+        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
     } faceSpaceIntegrandIP;
 
     class anonymous9 : public Integration::FaceIntegrandBase<LinearAlgebra::Matrix>
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret);
+        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret);
     } faceStiffnessIntegrandBR;
 
-    class anonymous10 : public Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>
+    class anonymous10 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector>
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointElementReferenceT& p, LinearAlgebra::NumericalVector& ret);
+        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
     } faceSpaceIntegrandBR;
 
-    class anonymous11 : public Integration::FaceIntegrandBase<LinearAlgebra::NumericalVector>
+    class anonymous11 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector>
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointElementReferenceT& p, LinearAlgebra::NumericalVector& ret);
+        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
     } faceSpaceIntegrand;
 
-    static void initialConditions(const PointPhysicalT& p, LinearAlgebra::NumericalVector& ret);
+    static void initialConditions(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector& ret);
 
-    static void initialConditionsDeriv(const PointPhysicalT& p, LinearAlgebra::NumericalVector& ret);
+    static void initialConditionsDeriv(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector& ret);
 
-    static void sourceTerm(const PointPhysicalT& p, LinearAlgebra::NumericalVector& ret);
+    static void sourceTerm(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector& ret);
 
-    static void initialExactSolution(const PointPhysicalT& p, LinearAlgebra::NumericalVector &ret);
+    static void initialExactSolution(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector &ret);
 
-    static void boundaryConditions(const Geometry::PointPhysical &p, LinearAlgebra::NumericalVector &ret);
+    static void boundaryConditions(const Geometry::PointPhysical &p, LinearAlgebra::MiddleSizeVector &ret);
     
 };
 

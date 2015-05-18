@@ -26,7 +26,7 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "Geometry/PointReference.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "L2Norm.h"
 #include "FaceCacheData.h"
 #include "ElementCacheData.h"
@@ -131,7 +131,7 @@ namespace Base
         }
     }
     
-    void Face::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+    void Face::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret) const
     {
         logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         std::size_t n(getPtrElementLeft()->getNrOfBasisFunctions());
@@ -163,10 +163,10 @@ namespace Base
         }
     }
     
-    LinearAlgebra::NumericalVector Face::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const
+    LinearAlgebra::MiddleSizeVector Face::basisFunctionNormal(std::size_t i, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p) const
     {
         logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
-        LinearAlgebra::NumericalVector ret;
+        LinearAlgebra::MiddleSizeVector ret;
         std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
         if (i < n)
         {
@@ -185,7 +185,7 @@ namespace Base
     /// \param[in] iBasisFunction The index corresponding to the basis function.
     /// \param[in] normal The normal vector (pointing outwards with respect to the element on the left side).
     /// \param[in] p The reference point on the reference element.
-    LinearAlgebra::NumericalVector Face::basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const
+    LinearAlgebra::MiddleSizeVector Face::basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p) const
     {
         if (iSide == Side::LEFT)
         {
@@ -214,7 +214,7 @@ namespace Base
         }
     }
     
-    LinearAlgebra::NumericalVector Face::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const
+    LinearAlgebra::MiddleSizeVector Face::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const
     {
         logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         std::size_t n = getPtrElementLeft()->getNrOfBasisFunctions();
@@ -231,7 +231,7 @@ namespace Base
     /// \param[in] iSide The index corresponding to the side of the face.
     /// \param[in] iBasisFunction The index corresponding to the basis function.
     /// \param[in] p The reference point on the reference element.
-    LinearAlgebra::NumericalVector Face::basisFunctionDeriv(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const
+    LinearAlgebra::MiddleSizeVector Face::basisFunctionDeriv(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const
     {
         if (iSide == Side::LEFT)
         {
@@ -246,7 +246,7 @@ namespace Base
         }
     }
     
-    LinearAlgebra::NumericalVector Face::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const
+    LinearAlgebra::MiddleSizeVector Face::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const
     {
         logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
@@ -262,15 +262,15 @@ namespace Base
     
     ///Get the time level data from both elements and concatenate them. 
     ///Note that we assume that the data is stored as column "vectors".
-    LinearAlgebra::NumericalVector Face::getTimeLevelData(std::size_t timeLevel, std::size_t unknown) const
+    LinearAlgebra::MiddleSizeVector Face::getTimeLevelData(std::size_t timeLevel, std::size_t unknown) const
     {
-        LinearAlgebra::NumericalVector resLeft = getPtrElementLeft()->getTimeLevelData(timeLevel, unknown);
+        LinearAlgebra::MiddleSizeVector resLeft = getPtrElementLeft()->getTimeLevelData(timeLevel, unknown);
         if (isInternal())
         {
             std::size_t numBasisFuncs = getNrOfBasisFunctions();
             std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNrOfBasisFunctions();
             resLeft.resize(numBasisFuncs);
-            LinearAlgebra::NumericalVector resRight = getPtrElementRight()->getTimeLevelData(timeLevel, unknown);
+            LinearAlgebra::MiddleSizeVector resRight = getPtrElementRight()->getTimeLevelData(timeLevel, unknown);
             for (std::size_t i = numBasisFuncsLeft; i < numBasisFuncs; ++i)
             {
                 resLeft[i] = resRight[i - numBasisFuncsLeft];

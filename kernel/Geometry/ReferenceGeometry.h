@@ -33,7 +33,7 @@
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 namespace QuadratureRules

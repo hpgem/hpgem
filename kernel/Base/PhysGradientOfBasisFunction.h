@@ -27,7 +27,7 @@
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 namespace Geometry
@@ -51,7 +51,7 @@ namespace Utilities
     struct PhysGradientOfBasisFunction
     {
         using PointReferenceT = Geometry::PointReference;
-        using RetType = LinearAlgebra::NumericalVector;
+        using RetType = LinearAlgebra::MiddleSizeVector;
 
         PhysGradientOfBasisFunction(const Base::Element* e, const Base::BaseBasisFunction* function)
                 : myElement_(e), myFunction_(function)

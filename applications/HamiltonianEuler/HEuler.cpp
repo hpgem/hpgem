@@ -205,7 +205,7 @@ void HEuler::elementIntegrand(const Base::Element* element, const PointReference
     yDerReturnData.resize(numberOfDegreesOfFreedom, numberOfDegreesOfFreedom);
     zDerReturnData.resize(numberOfDegreesOfFreedom, numberOfDegreesOfFreedom);
     
-    LinearAlgebra::NumericalVector grads(3);
+    LinearAlgebra::MiddleSizeVector grads(3);
     
     for (unsigned int i = 0; i < numberOfDegreesOfFreedom; ++i)
     {
@@ -222,7 +222,7 @@ void HEuler::elementIntegrand(const Base::Element* element, const PointReference
     }
 }
 
-void HEuler::faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& p, FluxData& ret)
+void HEuler::faceIntegrand(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceOnTheFaceT& p, FluxData& ret)
 {
     ret.resize(face->getNrOfBasisFunctions());
     if (face->isInternal())
@@ -1436,7 +1436,7 @@ void HEuler::initialConditions()
     using Integrand = void (HEuler::*)(const Base::Element* , const PointReferenceT&, LinearAlgebra::Matrix&);
     //Integrand massMatrixIntegrand = &HEuler::calculateMassMatrix;
     
-    LinearAlgebra::NumericalVector rightHand(ldof);
+    LinearAlgebra::MiddleSizeVector rightHand(ldof);
     
     Base::Element::SolutionVector numerical(ldof);
     

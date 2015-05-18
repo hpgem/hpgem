@@ -100,16 +100,16 @@ public:
     }
     
     /// \brief Compute the real solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
     
     /// \brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
+    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
     
     /// \brief Compute the integrand for the mass matrix for the reference element.
     LinearAlgebra::Matrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
     
     /// \brief Compute the integrand for the reference element for obtaining the initial solution.
-    LinearAlgebra::NumericalVector integrandInitialSolutionOnRefElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnRefElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
     
     /// \brief Compute the integrand for the stiffness matrix for the reference element.
     LinearAlgebra::Matrix integrandStiffnessMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
@@ -118,19 +118,19 @@ public:
     LinearAlgebra::Matrix integrandStiffnessMatrixOnRefFace(const Base::Face *ptrFace, const Geometry::PointReference &pRef, const Base::Side &iSide, const Base::Side &jSide);
     
     /// \brief Compute the integrand for the reference element for computing the energy-norm of the error.
-    LinearAlgebra::NumericalVector integrandErrorOnRefElement
+    LinearAlgebra::MiddleSizeVector integrandErrorOnRefElement
     (
      const Base::Element *ptrElement,
      const double &time,
      const Geometry::PointReference &pRef,
-     const LinearAlgebra::NumericalVector &solutionCoefficients
+     const LinearAlgebra::MiddleSizeVector &solutionCoefficients
      );
     
     /// \brief Compute the mass matrix for a single element.
     LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement) override final;
     
     /// \brief Integrate the initial solution for a single element.
-    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override final;
+    LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override final;
     
     /// \brief Compute the stiffness matrix corresponding to an element.
     LinearAlgebra::Matrix computeStiffnessMatrixAtElement(Base::Element *ptrElement) override final;
@@ -149,7 +149,7 @@ public:
     }
     
     /// \brief Integrate the energy of the error on a single element.
-    LinearAlgebra::NumericalVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time) override final;
+    LinearAlgebra::MiddleSizeVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, double time) override final;
 
 private:
 /// Dimension of the domain

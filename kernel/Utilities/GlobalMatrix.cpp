@@ -27,7 +27,7 @@
 #include "Base/Face.h"
 #include "Base/Element.h"
 #include "Base/ElementCacheData.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Base/FaceCacheData.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PhysicalGeometry.h"

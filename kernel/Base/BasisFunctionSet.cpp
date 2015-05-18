@@ -22,7 +22,7 @@
 
 #include "Base/BaseBasisFunction.h"
 #include "Logger.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 
 namespace Base
 {
@@ -85,13 +85,13 @@ namespace Base
         
     }
     
-    void BasisFunctionSet::eval(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+    void BasisFunctionSet::eval(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
     {
         logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
         vecOfBasisFcn_[i]->eval(p, ret);
     }
     
-    LinearAlgebra::NumericalVector BasisFunctionSet::evalCurl(std::size_t i, const PointReferenceT& p) const
+    LinearAlgebra::MiddleSizeVector BasisFunctionSet::evalCurl(std::size_t i, const PointReferenceT& p) const
     {
         logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
         return vecOfBasisFcn_[i]->evalCurl(p);

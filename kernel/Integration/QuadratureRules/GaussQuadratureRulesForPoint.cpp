@@ -22,7 +22,7 @@
 #include "GaussQuadratureRulesForPoint.h"
 #include "Geometry/ReferencePoint.h"
 #include "Geometry/PointReference.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/PointReferenceFactory.h"
 #include "Logger.h"
 

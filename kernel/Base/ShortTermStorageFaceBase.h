@@ -25,7 +25,7 @@
 #include "Base/Face.h"
 
 #include "Geometry/PointReference.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Side.h"
 #include "BasisFunctionSet.h"
 
@@ -84,8 +84,8 @@ namespace Base
             //keep the face alive!
         }
         
-        LinearAlgebra::NumericalVector getNormalVector(const ReferencePointT& pRefFace) const override;
-        virtual LinearAlgebra::NumericalVector getNormalVector(const ReferencePointT& pRefFace);
+        LinearAlgebra::MiddleSizeVector getNormalVector(const ReferencePointT& pRefFace) const override;
+        virtual LinearAlgebra::MiddleSizeVector getNormalVector(const ReferencePointT& pRefFace);
 
         double basisFunction(std::size_t i, const Geometry::PointReference& p) const override
         {
@@ -111,38 +111,38 @@ namespace Base
             return 0;
         }
         
-        void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const override
+        void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret) const override
         {
             logger(ERROR, "No storage functionality was implemented! Are you working in a scalar function space?");
         }
         
-        virtual void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        virtual void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret)
         {
             logger(ERROR, "No storage functionality was implemented! Are you working in a scalar function space?");
         }
         
-        LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const override
+        LinearAlgebra::MiddleSizeVector basisFunctionNormal(std::size_t i, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p) const override
         {
             logger(ERROR, "No storage functionality was implemented! Are you working in an unusual function space?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
-        LinearAlgebra::NumericalVector basisFunctionNormal(Side iSide, std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const override
+        LinearAlgebra::MiddleSizeVector basisFunctionNormal(Side iSide, std::size_t i, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p) const override
         {
             logger(ERROR, "No storage functionality was implemented! Are you working in an unusual function space?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
-        virtual LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p)
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionNormal(std::size_t i, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p)
         {
             logger(ERROR, "No storage functionality was implemented! Are you working in an unusual function space?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
-        virtual LinearAlgebra::NumericalVector basisFunctionNormal(Side iSide, std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p)
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionNormal(Side iSide, std::size_t i, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p)
         {
             logger(ERROR, "No storage functionality was implemented! Are you working in an unusual function space?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
         double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference& p) const override
@@ -150,40 +150,40 @@ namespace Base
             return face_->basisFunctionDeriv(i, jDir, p);
         }
         
-        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const override
+        LinearAlgebra::MiddleSizeVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const override
         {
             logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionCurl?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
-        LinearAlgebra::NumericalVector basisFunctionDeriv(Side iSide, std::size_t i, const Geometry::PointReference& p) const override
+        LinearAlgebra::MiddleSizeVector basisFunctionDeriv(Side iSide, std::size_t i, const Geometry::PointReference& p) const override
         {
             logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionCurl?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
-        virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p)
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p)
         {
             logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionCurl?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
-        virtual LinearAlgebra::NumericalVector basisFunctionDeriv(Side iSide, std::size_t i, const Geometry::PointReference& p)
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionDeriv(Side iSide, std::size_t i, const Geometry::PointReference& p)
         {
             logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionCurl?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
-        LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const override
+        LinearAlgebra::MiddleSizeVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const override
         {
             logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionDeriv?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
-        virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p)
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p)
         {
             logger(ERROR, "No storage functionality was implemented! Did you mean basisFunctionDeriv?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
         //if this is needed a lot, also store this
@@ -315,7 +315,7 @@ namespace Base
             return face_->refFaceToRefElemMapR();
         }
         
-        LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const override final
+        LinearAlgebra::MiddleSizeVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const override final
         {
             return face_->getTimeLevelData(timeLevel, unknown);
         }
@@ -325,7 +325,7 @@ namespace Base
             return face_->getFaceMatrixMatrix(matrixID);
         }
         
-        LinearAlgebra::NumericalVector getFaceVector(std::size_t vectorID = 0) const override final
+        LinearAlgebra::MiddleSizeVector getFaceVector(std::size_t vectorID = 0) const override final
         {
             return face_->getFaceVector(vectorID);
         }
@@ -362,9 +362,9 @@ namespace Base
         Face* face_;
 
         const Geometry::PointReference* currentPoint_;
-        LinearAlgebra::NumericalVector normal_;
+        LinearAlgebra::MiddleSizeVector normal_;
 
-        std::vector<LinearAlgebra::NumericalVector> basisFunctionValues_, basisFunctionsTimesNormal_, basisFunctionDerivatives_, basisFunctionCurlValues_;
+        std::vector<LinearAlgebra::MiddleSizeVector> basisFunctionValues_, basisFunctionsTimesNormal_, basisFunctionDerivatives_, basisFunctionCurlValues_;
     private:
         
         bool useCache_;

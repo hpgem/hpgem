@@ -139,7 +139,7 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, which is returned.
     ///Please note that you pass a reference point to the basisfunctions and the 
     ///transformations are done internally.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceT& p) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
@@ -155,7 +155,7 @@ public:
         Base::FaceMatrix integrandVal(nLeft, nRight);
         
         //Initialize the vectors that contain gradient(phi_i), gradient(phi_j), normal_i phi_i and normal_j phi_j
-        LinearAlgebra::NumericalVector phiNormalI(DIM_), phiNormalJ(DIM_), phiDerivI(DIM_), phiDerivJ(DIM_);
+        LinearAlgebra::MiddleSizeVector phiNormalI(DIM_), phiNormalJ(DIM_), phiDerivI(DIM_), phiDerivJ(DIM_);
         
         //Transform the point from the reference value to its physical value.
         //This is necessary to check at which boundary we are if we are at a boundary face.
@@ -201,9 +201,9 @@ public:
     
     /// \brief Define the exact solution
     /// \details In this case the exact solution is u(x,y) = sin(2pi x) * cos(2pi y).
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &p) override final
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &p) override final
     {
-        LinearAlgebra::NumericalVector exactSolution(1);
+        LinearAlgebra::MiddleSizeVector exactSolution(1);
         exactSolution[0] = std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
         return exactSolution;
     }
@@ -212,9 +212,9 @@ public:
     ///
     ///Define the source, which is the right hand side of laplacian(u) = f(x,y).
     ///Here: f(x,y) = -8pi^2 * sin(2pi x) * sin(2pi y).
-    LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &p) override final
+    LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &p) override final
     {
-        LinearAlgebra::NumericalVector sourceTerm(1);
+        LinearAlgebra::MiddleSizeVector sourceTerm(1);
         sourceTerm[0] = (-8 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
         return sourceTerm;
     }
@@ -229,13 +229,13 @@ public:
     ///integral on the right-hand side. However, in our application we do not have
     ///contributions for the boundary conditions, so the vector has only zeroes.
     ///The input/output structure is the same as the other faceIntegrand function.
-    LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
+    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceT& p) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
         const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
         //Resize the integrandVal such that it contains as many rows as 
         //the number of basisfunctions.
-        LinearAlgebra::NumericalVector integrandVal(numBasisFunctions);
+        LinearAlgebra::MiddleSizeVector integrandVal(numBasisFunctions);
         
         //Compute the value of the integrand
         //We have no rhs face integrals, so this is just 0.
@@ -254,7 +254,7 @@ public:
     ///The only thing this has to write in the file is the value of the solution.
     void writeToTecplotFile(const Base::Element* element, const PointReferenceT& point, std::ostream& out) override final
     {
-        LinearAlgebra::NumericalVector value(1);
+        LinearAlgebra::MiddleSizeVector value(1);
         value = element->getSolution(0, point);
         out << value[0];
     }

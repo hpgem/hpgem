@@ -89,60 +89,60 @@ namespace Base
         void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType) override;
         
         /// \brief Compute the exact solution at a given physical point.
-        virtual LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys)
+        virtual LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys)
         {
             logger(ERROR, "No exact solution implemented.");
-            LinearAlgebra::NumericalVector realSolution(configData_->numberOfUnknowns_);
+            LinearAlgebra::MiddleSizeVector realSolution(configData_->numberOfUnknowns_);
             return realSolution;
         }
         
         /// \brief Compute the exact solution at a given physical point.
-        LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override
+        LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override
         {
             return getExactSolution(pPhys);
         }
         
         /// \brief Compute the source term at a given physical point.
-        virtual LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &pPhys)
+        virtual LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &pPhys)
         {
             logger(ERROR, "No source term implemented.");
-            LinearAlgebra::NumericalVector sourceTerm;
+            LinearAlgebra::MiddleSizeVector sourceTerm;
             return sourceTerm;
         }
         
         /// \brief Compute the source term at a given physical point.
-        LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override
+        LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override
         {
             return getSourceTerm(pPhys);
         }
         
         /// \brief Get the source term at the boundary at a given physical point.
         /// \details The source term at the boundary can be a result of certain boundary conditions (e.g. Neumann boundary conditions).
-        virtual LinearAlgebra::NumericalVector getSourceTermAtBoundary(const PointPhysicalT &pPhys)
+        virtual LinearAlgebra::MiddleSizeVector getSourceTermAtBoundary(const PointPhysicalT &pPhys)
         {
             
             logger(ERROR, "No source term at the boundary implemented.");
-            LinearAlgebra::NumericalVector sourceTerm;
+            LinearAlgebra::MiddleSizeVector sourceTerm;
             return sourceTerm;
         }
         
         /// \brief Get the source term at the boundary at a given physical point.
         /// \details The source term at the boundary can be a result of certain boundary conditions (e.g. Neumann boundary conditions).
-        LinearAlgebra::NumericalVector getSourceTermAtBoundary(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override
+        LinearAlgebra::MiddleSizeVector getSourceTermAtBoundary(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override
         {
             return getSourceTermAtBoundary(pPhys);
         }
         
         /// \brief Compute the integrand for the source term at a face at the boundary.
-        virtual LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::NumericalVector &normal, const Geometry::PointReference &pRef)
+        virtual LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::MiddleSizeVector &normal, const Geometry::PointReference &pRef)
         {
             logger(ERROR, "No function for computing the integrand for the source term at a face at the domain boundary implemented.");
-            LinearAlgebra::NumericalVector integrandSourceTerm;
+            LinearAlgebra::MiddleSizeVector integrandSourceTerm;
             return integrandSourceTerm;
         }
         
         /// \brief Compute the integrand for the source term at a face at the boundary.
-        LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::NumericalVector &normal, const Geometry::PointReference &pRef, const double time, const std::size_t orderTimeDerivative) override
+        LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::MiddleSizeVector &normal, const Geometry::PointReference &pRef, const double time, const std::size_t orderTimeDerivative) override
         {
             return computeIntegrandSourceTermAtFace(ptrFace, normal, pRef);
         }

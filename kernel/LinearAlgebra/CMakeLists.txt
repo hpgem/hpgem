@@ -9,6 +9,6 @@ add_library(LinearAlgebra SHARED
 		
 		#These are the extra from LAPACK for solve Ax=B
 		dgesv.f dgetrs.f
-		NumericalVector.cpp
+		MiddleSizeVector.cpp
 		Matrix.cpp)
 target_link_libraries(LinearAlgebra Logger)

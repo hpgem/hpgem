@@ -45,7 +45,7 @@ namespace Geometry
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 namespace Integration

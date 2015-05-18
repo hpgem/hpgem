@@ -26,7 +26,7 @@
 
 #include "BasisFunctionSet.h"
 #include "Geometry/PhysicalGeometry.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/PointPhysical.h"
 #include "FaceCacheData.h"
 #include "ElementCacheData.h"
@@ -283,7 +283,7 @@ namespace Base
         std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
         SolutionVector solution(numberOfUnknows);
         
-        LinearAlgebra::NumericalVector data(numberOfBasisFunctions * numberOfUnknows);
+        LinearAlgebra::MiddleSizeVector data(numberOfBasisFunctions * numberOfUnknows);
         data = ElementData::getTimeLevelDataVector(timeLevel);
         
         std::size_t iVB = 0;
@@ -298,13 +298,13 @@ namespace Base
         return solution;
     }
     
-    std::vector<LinearAlgebra::NumericalVector> Element::getSolutionGradient(std::size_t timeLevel, const PointReferenceT& p) const
+    std::vector<LinearAlgebra::MiddleSizeVector> Element::getSolutionGradient(std::size_t timeLevel, const PointReferenceT& p) const
     {
         std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
         std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
-        std::vector<LinearAlgebra::NumericalVector> solution(numberOfUnknows, LinearAlgebra::NumericalVector(p.size()));
+        std::vector<LinearAlgebra::MiddleSizeVector> solution(numberOfUnknows, LinearAlgebra::MiddleSizeVector(p.size()));
 
-        LinearAlgebra::NumericalVector data(numberOfBasisFunctions * numberOfUnknows);
+        LinearAlgebra::MiddleSizeVector data(numberOfBasisFunctions * numberOfUnknows);
         data = ElementData::getTimeLevelDataVector(timeLevel);
 
         std::size_t iVB = 0;
@@ -319,7 +319,7 @@ namespace Base
         return solution;
     }
 
-    void Element::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+    void Element::basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
     {
         logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         int basePosition(0);
@@ -341,7 +341,7 @@ namespace Base
         }
     }
     
-    LinearAlgebra::NumericalVector Element::basisFunctionCurl(std::size_t i, const PointReferenceT& p) const
+    LinearAlgebra::MiddleSizeVector Element::basisFunctionCurl(std::size_t i, const PointReferenceT& p) const
     {
         logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         int basePosition(0);
@@ -361,10 +361,10 @@ namespace Base
             }
         }
         logger(ERROR, "This is not supposed to happen, please try again with assertions turned on");
-        return LinearAlgebra::NumericalVector(0);
+        return LinearAlgebra::MiddleSizeVector(0);
     }
     
-    LinearAlgebra::NumericalVector Element::basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* wrapper) const
+    LinearAlgebra::MiddleSizeVector Element::basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* wrapper) const
     {
         logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
         if (wrapper == nullptr)
@@ -389,7 +389,7 @@ namespace Base
             }
         }
         logger(ERROR, "It should not be possible to reach this line");
-        return LinearAlgebra::NumericalVector(0);
+        return LinearAlgebra::MiddleSizeVector(0);
     }
     
 #ifndef NDEBUG

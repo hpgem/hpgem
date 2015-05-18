@@ -103,7 +103,7 @@ double Base::ShortTermStorageFaceH1::basisFunction(Side iSide, std::size_t i, co
     return basisFunction(i, p);
 }
 
-void Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+void Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     if (!(currentPoint_ == &p))
     {
@@ -113,7 +113,7 @@ void Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::
     ret = basisFunctionValues_[i];
 }
 
-void Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+void Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
     ret = basisFunctionValues_[i];
     if (!(currentPoint_ == &p))
@@ -123,7 +123,7 @@ void Base::ShortTermStorageFaceH1::basisFunction(std::size_t i, const Geometry::
     }
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceH1::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p)
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageFaceH1::basisFunctionNormal(std::size_t i, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p)
 {
     if (!(currentPoint_ == &p))
     {
@@ -134,7 +134,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceH1::basisFunctionNormal
     return basisFunctionsTimesNormal_[i];
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceH1::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageFaceH1::basisFunctionNormal(std::size_t i, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p) const
 {
     if (!(currentPoint_ == &p))
     {
@@ -144,7 +144,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceH1::basisFunctionNormal
     return basisFunctionsTimesNormal_[i];
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceH1::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p)
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageFaceH1::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p)
 {
     if (!(currentPoint_ == &p))
     {
@@ -154,7 +154,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceH1::basisFunctionDeriv(
     return basisFunctionDerivatives_[i];
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceH1::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageFaceH1::basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const
 {
     if (!(currentPoint_ == &p))
     {

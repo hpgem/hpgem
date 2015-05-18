@@ -27,7 +27,7 @@
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 namespace Geometry
@@ -61,12 +61,12 @@ namespace Base
         double eval(std::size_t i, const PointReferenceT& p) const;
 
         ///\brief returns the value of the i-th basisfunction at point p in ret
-        void eval(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
+        void eval(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const;
 
         double evalDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const;
 
         ///\brief returns the curl of the i-th basisfunction at point p in ret
-        LinearAlgebra::NumericalVector evalCurl(std::size_t i, const PointReferenceT& p) const;
+        LinearAlgebra::MiddleSizeVector evalCurl(std::size_t i, const PointReferenceT& p) const;
 
         const BaseBasisFunction* operator[](std::size_t i) const
         {

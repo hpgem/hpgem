@@ -25,47 +25,47 @@
 #include "Base/Element.h"
 #include "Base/Face.h"
 
-using LinearAlgebra::NumericalVector;
+using LinearAlgebra::MiddleSizeVector;
 
 class SavageHutterRightHandSideComputer
 {
 private:
     /// \brief Compute the integrand for the right hand side for the reference element.
-    NumericalVector integrandRightHandSideOnElement
+    MiddleSizeVector integrandRightHandSideOnElement
     (
      const Base::Element *ptrElement,
      const double &time,
      const Geometry::PointReference &pRef,
-     const NumericalVector &solutionCoefficients
+     const MiddleSizeVector &solutionCoefficients
      );
     
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
-    NumericalVector integrandRightHandSideOnRefFace
+    MiddleSizeVector integrandRightHandSideOnRefFace
     (
      const Base::Face *ptrFace,
-     const NumericalVector &normalVec,
+     const MiddleSizeVector &normalVec,
      const Geometry::PointReference &pRef,
-     const NumericalVector &solutionCoefficients
+     const MiddleSizeVector &solutionCoefficients
      );
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
     /// Note that a face in 1D is a point.
-    NumericalVector integrandRightHandSideOnRefFace
+    MiddleSizeVector integrandRightHandSideOnRefFace
     (
      const Base::Face *ptrFace,
      const Base::Side &iSide,
-     const NumericalVector &normalVec,
+     const MiddleSizeVector &normalVec,
      const Geometry::PointReference &pRef,
-     const NumericalVector &solutionCoefficientsLeft,
-     const NumericalVector &solutionCoefficientsRight
+     const MiddleSizeVector &solutionCoefficientsLeft,
+     const MiddleSizeVector &solutionCoefficientsRight
      );
     
-    NumericalVector computePhysicalFlux(const NumericalVector &numericalSolution);
-    NumericalVector computeSourceTerm(const NumericalVector &numericalSolution);
-    NumericalVector computeNumericalSolution(const Base::Element *ptrElement, const Geometry::PointReference &pRef, const NumericalVector& solutionCoefficients);
-    NumericalVector localLaxFriedrichsFlux(const NumericalVector &numericalSolutionLeft, const NumericalVector &NumericalSolutionRight);
-    double computeFriction(const NumericalVector &numericalSolution);
-    LinearAlgebra::NumericalVector getInflowBC();
+    MiddleSizeVector computePhysicalFlux(const MiddleSizeVector &numericalSolution);
+    MiddleSizeVector computeSourceTerm(const MiddleSizeVector &numericalSolution);
+    MiddleSizeVector computeNumericalSolution(const Base::Element *ptrElement, const Geometry::PointReference &pRef, const MiddleSizeVector& solutionCoefficients);
+    MiddleSizeVector localLaxFriedrichsFlux(const MiddleSizeVector &numericalSolutionLeft, const MiddleSizeVector &NumericalSolutionRight);
+    double computeFriction(const MiddleSizeVector &numericalSolution);
+    LinearAlgebra::MiddleSizeVector getInflowBC();
     
     std::size_t numOfVariables_;
     std::size_t DIM_;

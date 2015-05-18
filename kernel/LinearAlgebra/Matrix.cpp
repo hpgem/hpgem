@@ -20,7 +20,7 @@
  */
 
 #include "Matrix.h"
-#include "NumericalVector.h"
+#include "MiddleSizeVector.h"
 #include "Logger.h"
 #include <algorithm>
 #include <complex>
@@ -90,7 +90,7 @@ namespace LinearAlgebra
     {
     }
     
-    Matrix::Matrix(const NumericalVector& list)
+    Matrix::Matrix(const MiddleSizeVector& list)
             : data_(list.data(), list.data() + list.size()), nRows_(list.size()), nCols_(1)
     {
     }
@@ -209,14 +209,14 @@ namespace LinearAlgebra
     /*! \details Computes Matrix * vector and return the vector
      This is done by calling the BLAS (level 2) routine dgemv.
      */
-    NumericalVector Matrix::operator*(NumericalVector& right) const
+    MiddleSizeVector Matrix::operator*(MiddleSizeVector& right) const
     {
         logger.assert(nCols_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
         
         if (nRows_ == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
-            return NumericalVector(0);
+            return MiddleSizeVector(0);
         }
         int nr = nRows_;
         int nc = nCols_;
@@ -225,7 +225,7 @@ namespace LinearAlgebra
         double d_one = 1.0;
         double d_zero = 0.0;
         
-        NumericalVector result(nc);
+        MiddleSizeVector result(nc);
         
         logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
         
@@ -237,14 +237,14 @@ namespace LinearAlgebra
     /*! \details Computes Matrix * vector and return the vector
      This is done by calling the BLAS (level 2) routine dgemv.
      */
-    NumericalVector Matrix::operator*(NumericalVector& right)
+    MiddleSizeVector Matrix::operator*(MiddleSizeVector& right)
     {
         logger.assert(nCols_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
 
         if (nRows_ == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
-            return NumericalVector(0);
+            return MiddleSizeVector(0);
         }
         int nr = nRows_;
         int nc = nCols_;
@@ -253,7 +253,7 @@ namespace LinearAlgebra
         double d_one = 1.0;
         double d_zero = 0.0;
 
-        NumericalVector result(nr);
+        MiddleSizeVector result(nr);
 
         logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
 
@@ -371,10 +371,10 @@ namespace LinearAlgebra
     ///vector, and computing the determinant of this square matrix.  At least for
     ///dimension 2 and 3 I do not form the square matrices, since the
     ///evaluation of the determinant is easy and can be inserted directly.
-    NumericalVector Matrix::computeWedgeStuffVector() const
+    MiddleSizeVector Matrix::computeWedgeStuffVector() const
     {
         logger.assert(nCols_ == nRows_ - 1, "Matrix has wrong dimensions to construct the wedge stuff vector");
-        NumericalVector result(nRows_);
+        MiddleSizeVector result(nRows_);
         
         switch (nRows_)
         {
@@ -483,10 +483,10 @@ namespace LinearAlgebra
         return nCols_;
     }
     
-    LinearAlgebra::NumericalVector Matrix::getColumn(std::size_t j) const
+    LinearAlgebra::MiddleSizeVector Matrix::getColumn(std::size_t j) const
     {
         logger.assert(j < nCols_, "Requested column %, but there are only % columns", j, nCols_);
-        LinearAlgebra::NumericalVector ret(nRows_);
+        LinearAlgebra::MiddleSizeVector ret(nRows_);
         for (std::size_t i = 0; i < nRows_; ++i)
         {
             ret[i] = data_[j * nRows_ + i];
@@ -494,10 +494,10 @@ namespace LinearAlgebra
         return ret;
     }
     
-    LinearAlgebra::NumericalVector Matrix::getRow(std::size_t i) const
+    LinearAlgebra::MiddleSizeVector Matrix::getRow(std::size_t i) const
     {
         logger.assert(i < nRows_, "Requested row %, but there are only % rows", i, nRows_);
-        LinearAlgebra::NumericalVector ret(nCols_);
+        LinearAlgebra::MiddleSizeVector ret(nCols_);
         for (std::size_t j = 0; j < nCols_; ++j)
         {
             ret[j] = data_[j * nRows_ + i];
@@ -605,7 +605,7 @@ namespace LinearAlgebra
     }
 
     ///\bug allocates a potentially large array (IPIV) on the stack
-    void Matrix::solve(NumericalVector& b) const
+    void Matrix::solve(MiddleSizeVector& b) const
     {
         logger.assert(nRows_ == nCols_, "can only solve for square matrixes");
         logger.assert(nRows_ == b.size(), "size of the RHS does not match the size of the matrix");
@@ -707,14 +707,14 @@ namespace LinearAlgebra
     }
 
 
-    NumericalVector operator*(NumericalVector& left, Matrix& right)
+    MiddleSizeVector operator*(MiddleSizeVector& left, Matrix& right)
     {
         logger.assert(right.getNRows() == left.size(), "Matrix-vector multiplication with mismatching sizes");
 
         if (right.getNCols() == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
-            return NumericalVector(0);
+            return MiddleSizeVector(0);
         }
         int nr = right.getNRows();
         int nc = right.getNCols();
@@ -723,7 +723,7 @@ namespace LinearAlgebra
         double d_one = 1.0;
         double d_zero = 0.0;
 
-        NumericalVector result(nc);
+        MiddleSizeVector result(nc);
 
         logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, left.size());
 

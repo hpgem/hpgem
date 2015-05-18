@@ -42,7 +42,7 @@ namespace Geometry
         }
 
         double getBasisFunctionValue(const Base::BaseBasisFunction* function) const;
-        const LinearAlgebra::NumericalVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function) const;
+        const LinearAlgebra::MiddleSizeVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function) const;
         //do not trust any other class to not create duplicates
         friend PointReferenceFactory;
     private:
@@ -80,7 +80,7 @@ namespace Geometry
         PointReference& operator =(PointReference&& rhs) = delete;
 
         std::unordered_map<const Base::BaseBasisFunction*, double > basisfunctionValues_;
-        std::unordered_map<const Base::BaseBasisFunction*, LinearAlgebra::NumericalVector > basisfunctionDerivatives_;
+        std::unordered_map<const Base::BaseBasisFunction*, LinearAlgebra::MiddleSizeVector > basisfunctionDerivatives_;
         
     };
 

@@ -64,7 +64,7 @@ namespace Geometry
             return makePoint(Point(coords, DIM));
         }
 
-        const PointReference* makePoint(const LinearAlgebra::NumericalVector& coord)
+        const PointReference* makePoint(const LinearAlgebra::MiddleSizeVector& coord)
         {
             return makePoint(Point(coord));
         }

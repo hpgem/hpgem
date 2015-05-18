@@ -352,7 +352,7 @@ InitCondU::InitCondU(const ExactSolutionBase* init)
 {
 }
 
-void InitCondU::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::NumericalVector& r) const
+void InitCondU::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::MiddleSizeVector& r) const
 {
     
     PointPhysicalT pPhys = element->referenceToPhysical(pRef); // ...transform the point.
@@ -377,7 +377,7 @@ InitCondV::InitCondV(const ExactSolutionBase* init)
 {
 }
 
-void InitCondV::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::NumericalVector& r) const
+void InitCondV::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::MiddleSizeVector& r) const
 {
     PointPhysicalT pPhys = element->referenceToPhysical(pRef); // ...transform the point.
             
@@ -397,7 +397,7 @@ InitCondW::InitCondW(const ExactSolutionBase* init)
 {
 }
 
-void InitCondW::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::NumericalVector& r) const
+void InitCondW::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::MiddleSizeVector& r) const
 {
     
     PointPhysicalT pPhys = element->referenceToPhysical(pRef); // ...transform the point.
@@ -417,7 +417,7 @@ InitCondLambda::InitCondLambda(const ExactSolutionBase* init)
 {
 }
 
-void InitCondLambda::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::NumericalVector& r) const
+void InitCondLambda::operator()(const ElementT* element, const PointReferenceT& pRef, LinearAlgebra::MiddleSizeVector& r) const
 {
     PointPhysicalT pPhys = element->referenceToPhysical(pRef); // ...transform the point.
             

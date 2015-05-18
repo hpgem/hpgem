@@ -22,7 +22,7 @@
 #ifndef BaseBasisFunction_h
 #define BaseBasisFunction_h
 
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 
 namespace Geometry
 {
@@ -47,7 +47,7 @@ namespace Base
 
         virtual double eval(const PointReferenceT& p) const = 0;
 
-        virtual void eval(const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual void eval(const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const;
 
         virtual double evalDeriv0(const PointReferenceT& p) const
         {
@@ -73,13 +73,13 @@ namespace Base
             return 0;
         }
 
-        virtual LinearAlgebra::NumericalVector evalCurl(const PointReferenceT& p) const
+        virtual LinearAlgebra::MiddleSizeVector evalCurl(const PointReferenceT& p) const
         {
             logger(ERROR, "The curl of a scalar valued basis function is not implemented. Perhaps you meant evalDeriv?");
-            return LinearAlgebra::NumericalVector();
+            return LinearAlgebra::MiddleSizeVector();
         }
         
-        virtual LinearAlgebra::NumericalVector evalDeriv(const PointReferenceT& p) const;
+        virtual LinearAlgebra::MiddleSizeVector evalDeriv(const PointReferenceT& p) const;
         
     };
 

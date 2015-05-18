@@ -25,7 +25,7 @@
 
 #include <cmath>
 #include <iostream>
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/PointPhysical.h"
 #include "Logger.h"
 
@@ -34,7 +34,7 @@ int main()
     
     double *test0(nullptr), test1[1], test2[2], test3[3];
     
-    LinearAlgebra::NumericalVector vec0D(test0, 0);
+    LinearAlgebra::MiddleSizeVector vec0D(test0, 0);
     Geometry::PointPhysical point0D(vec0D);
     
     logger.assert_always(Base::L2Norm(vec0D) == 0, "0D case");
@@ -42,7 +42,7 @@ int main()
     
     test1[0] = 1;
     
-    LinearAlgebra::NumericalVector vec1D(test1, 1);
+    LinearAlgebra::MiddleSizeVector vec1D(test1, 1);
     Geometry::PointPhysical point1D(vec1D);
     
     logger.assert_always(std::abs(Base::L2Norm(vec1D) - 1) < 1e-12, "1D case, positive");
@@ -63,7 +63,7 @@ int main()
     test2[0] = 1;
     test2[1] = 1;
     
-    LinearAlgebra::NumericalVector vec2D(test2, 2);
+    LinearAlgebra::MiddleSizeVector vec2D(test2, 2);
     Geometry::PointPhysical point2D(vec2D);
     
     logger.assert_always(std::abs(Base::L2Norm(vec2D) - std::sqrt(2.)) < 1e-12, "2D case, positive");
@@ -85,7 +85,7 @@ int main()
     test3[1] = 1;
     test3[2] = 2;
     
-    LinearAlgebra::NumericalVector vec3D(test3, 3);
+    LinearAlgebra::MiddleSizeVector vec3D(test3, 3);
     Geometry::PointPhysical point3D(vec3D);
     
     logger.assert_always(std::abs(Base::L2Norm(vec3D) - std::sqrt(6.)) < 1e-12, "3D case, positive");

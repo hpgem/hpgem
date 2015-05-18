@@ -11,7 +11,7 @@
 // To declare Physical and reference space points
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PointReference.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include "InitialConditions.h"
 
@@ -62,7 +62,7 @@ public:
     {
         double lambda, u, uExact, lambdaExact, v, w, energy, vExact, wExact;
         double energyExact, uError, vError, wError;
-        LinearAlgebra::NumericalVector sol = element->getSolution(0, pRef);
+        LinearAlgebra::MiddleSizeVector sol = element->getSolution(0, pRef);
 //        data.extractState(p, s);
 //        
         lambda = sol[3];

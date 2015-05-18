@@ -221,7 +221,7 @@ void Output::VTKSpecificTimeWriter::write(std::function<double(Base::Element*, c
     localFile_ << "      </DataArray>" << std::endl;
 }
 
-void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)> dataCompute, const std::string& name)
+void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference&, std::size_t)> dataCompute, const std::string& name)
 {
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if (id == 0)
@@ -230,7 +230,7 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::Numerical
     }
     localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name << "\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl;
     std::vector<double> data;
-    LinearAlgebra::NumericalVector newData;
+    LinearAlgebra::MiddleSizeVector newData;
     data.reserve(3 * totalPoints_);
     for (Base::Element* element : mesh_->getElementsList())
     {

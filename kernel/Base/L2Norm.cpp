@@ -26,12 +26,12 @@
 #include <cmath>
 //------------------------------------------------------------------------------
 #include "L2Norm.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/PointPhysical.h"
 //------------------------------------------------------------------------------
 namespace Base
 {
-    double L2Norm(const LinearAlgebra::NumericalVector& v)
+    double L2Norm(const LinearAlgebra::MiddleSizeVector& v)
     {
         double retSquared(0);
         for (std::size_t i = 0; i < v.size(); ++i)

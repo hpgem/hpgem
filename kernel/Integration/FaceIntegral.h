@@ -27,7 +27,7 @@
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 namespace Base
@@ -89,7 +89,7 @@ namespace Integration
 
         //! \brief Nice version accepting an appropriate std::function
         template<typename ReturnTrait1>
-        ReturnTrait1 integrate(Base::Face* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc, const QuadratureRulesT* qdrRule = nullptr);
+        ReturnTrait1 integrate(Base::Face* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::MiddleSizeVector&, const Geometry::PointReference&)> integrandFunc, const QuadratureRulesT* qdrRule = nullptr);
 
         /// \brief Compute the integral on a reference element. IntegrandType needs to have the function LinearAlgebra::axpy() implemented.
         template<typename IntegrandType>

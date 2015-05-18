@@ -135,27 +135,27 @@ namespace Base
         virtual double basisFunction(std::size_t i, const Geometry::PointReference& p) const;
 
         ///\brief returns the value of the i-th basisfunction at point p in ret
-        virtual void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret) const;
 
         /// \brief Returns the value of the basisfunction (corresponding to element function index iBasisFunction) on the element at side iSide at the physical point corresponding to reference point p.
         virtual double basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const;
 
-        virtual LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const;
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionNormal(std::size_t i, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p) const;
 
         /// \brief Returns the physical normal vector multiplied by the basis function (corresponding to element function index iBasisFunction) on the element at side iSide. The value is computed at the physical point corresponding to reference point p.
-        virtual LinearAlgebra::NumericalVector basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const;
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p) const;
 
         /// \brief Returns the (physical) derivative in direction jDir of the physical basis function (corresponding to index i) at the physical point corresponding to reference point p.
         virtual double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference& p) const;
 
         ///\brief The "all directions in one go"-edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
-        virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const;
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionDeriv(std::size_t i, const Geometry::PointReference& p) const;
 
         /// \brief Returns the (physical) gradient of the physical basis function (corresponding to element function index iBasisFunction) on the element at side iSide. The gradient is computed at the physical point corresponding to reference point p.
-        virtual LinearAlgebra::NumericalVector basisFunctionDeriv(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const;
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionDeriv(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const;
 
         /// \brief Returns the (physical) curl of the physical basis function (corresponding to index i) at the physical point corresponding to reference point p.
-        virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const;
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const;
 
         /// \brief Returns the sum of the number of basisfunctions of the adjacent elements.
         virtual std::size_t getNrOfBasisFunctions() const;
@@ -176,7 +176,7 @@ namespace Base
         }
         
         /// Specify a time level index, return a vector containing the data for that time level.
-        virtual LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
+        virtual LinearAlgebra::MiddleSizeVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
 
         /// \brief Convert the side of the face, the index corresponding to the scalar basis function (scalarBasisFunctionId) and the index corresponding to the variable (varId) to a single index (faceBasisFunctionId).
         virtual std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId = 0) const;

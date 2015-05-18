@@ -29,10 +29,10 @@
 class KspaceData
 {
     
-    std::vector<LinearAlgebra::NumericalVector> kpoints_, deltak_;
+    std::vector<LinearAlgebra::MiddleSizeVector> kpoints_, deltak_;
     std::vector<std::vector<double> > omegaAtKpoints_;
     std::vector<std::vector<int> > elements_;
-    std::vector<std::vector<LinearAlgebra::NumericalVector> > functionValuesAtKpoints_;
+    std::vector<std::vector<LinearAlgebra::MiddleSizeVector> > functionValuesAtKpoints_;
     int current_;
     int minimumsize_;
 
@@ -53,7 +53,7 @@ public:
     /**
      * iterator over the k-points. Call this when you are done for the current k-point and it gets you a update-vector
      */
-    LinearAlgebra::NumericalVector& nextPoint();
+    LinearAlgebra::MiddleSizeVector& nextPoint();
 
     /**
      * sets the found values of omega at the current k-point. Make sure you set the same number of omega each k-point and that they are sorted in the same way (accounting for band crossings)
@@ -63,10 +63,10 @@ public:
     /**
      * optional: sets the value of f from the expression int(f*delta(omega-omega_n))dk
      */
-    void setFunctionValues(std::vector<LinearAlgebra::NumericalVector>& functionValues);
+    void setFunctionValues(std::vector<LinearAlgebra::MiddleSizeVector>& functionValues);
 
     /**
      * returns the density of states for a given value omega
      */
-    void getIntegral(double omega, LinearAlgebra::NumericalVector& result);
+    void getIntegral(double omega, LinearAlgebra::MiddleSizeVector& result);
 };

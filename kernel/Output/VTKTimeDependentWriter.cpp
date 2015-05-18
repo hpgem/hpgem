@@ -93,7 +93,7 @@ void Output::VTKTimeDependentWriter::write(std::function<double(Base::Element*, 
 }
 
 //3x the same function, but I dont like this mess in the header, so cant template
-void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)> f, const std::string& name, double time, std::size_t timelevel)
+void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference&, std::size_t)> f, const std::string& name, double time, std::size_t timelevel)
 {
     if (time != time_ || currentFile_ == nullptr)
     {

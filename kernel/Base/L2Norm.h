@@ -23,7 +23,7 @@
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 namespace Geometry
@@ -34,7 +34,7 @@ namespace Geometry
 namespace Base
 {
     /*! Compute the 2 norm of a vector. */
-    double L2Norm(const LinearAlgebra::NumericalVector&);
+    double L2Norm(const LinearAlgebra::MiddleSizeVector&);
     
     double L2Norm(const Geometry::PointPhysical&);
 }

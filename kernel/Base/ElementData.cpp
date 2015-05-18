@@ -24,7 +24,7 @@
 #include "Element.h"
 
 #include "LinearAlgebra/Matrix.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "UserData.h"
 #include <iostream>
 #include <functional>
@@ -77,7 +77,7 @@ namespace Base
         return elementMatrix_[matrixID];
     }
     
-    void ElementData::setElementVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID)
+    void ElementData::setElementVector(const LinearAlgebra::MiddleSizeVector& vector, std::size_t vectorID)
     {
         logger(VERBOSE, "In ElementData::setElementVector");
         logger(VERBOSE, "VectorID = %", vectorID);
@@ -93,7 +93,7 @@ namespace Base
         elementVector_[vectorID] = vector;
     }
     
-    LinearAlgebra::NumericalVector ElementData::getElementVector(std::size_t vectorID) const
+    LinearAlgebra::MiddleSizeVector ElementData::getElementVector(std::size_t vectorID) const
     {
         logger.assert(vectorID < elementVector_.size(), "insufficient element vectors stored");
         return elementVector_[vectorID];
@@ -138,7 +138,7 @@ namespace Base
     /// \param[in] unknown Index corresponding to the variable.
     /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.
 
-    void ElementData::setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::NumericalVector& val)
+    void ElementData::setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::MiddleSizeVector& val)
     {
         logger.assert(val.size() == nrOfBasisFunctions_, "data vector has the wrong size");
         logger.assert((timeLevel < timeLevels_ && unknown < nrOfUnknowns_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
@@ -153,7 +153,7 @@ namespace Base
         }
     }
 
-    void ElementData::setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::NumericalVector& val)
+    void ElementData::setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::MiddleSizeVector& val)
     {
         logger.assert(val.size() == nrOfBasisFunctions_, "data vector has the wrong size");
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
@@ -162,12 +162,12 @@ namespace Base
 
     /// \param[in] timeLevel Index corresponding to the time level.
     /// \param[in] unknown Index corresponding to the variable.
-    const LinearAlgebra::NumericalVector
+    const LinearAlgebra::MiddleSizeVector
     ElementData::getTimeLevelData(std::size_t timeLevel, std::size_t unknown) const
     {
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
 
-        LinearAlgebra::NumericalVector timeLevelData(nrOfBasisFunctions_);
+        LinearAlgebra::MiddleSizeVector timeLevelData(nrOfBasisFunctions_);
         for(std::size_t iB = 0; iB < nrOfBasisFunctions_; iB++) // iB = iBasisFunction
         {
             timeLevelData(iB) = expansionCoefficients_[timeLevel](convertToSingleIndex(iB, unknown));
@@ -177,7 +177,7 @@ namespace Base
     
     /// \param[in] timeLevel Index corresponding to the time level.
     /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.
-    void ElementData::setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::NumericalVector &val)
+    void ElementData::setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::MiddleSizeVector &val)
     {
         logger.assert(val.size() == nrOfBasisFunctions_ * nrOfUnknowns_, "data vector has the wrong size");
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there"
@@ -193,14 +193,14 @@ namespace Base
     
     /// \param[in] timeLevel Index corresponding to the time level.
     /// \return The expansion coefficient corresponding to the given time level.
-    const LinearAlgebra::NumericalVector & ElementData::getTimeLevelDataVector(std::size_t timeLevel) const
+    const LinearAlgebra::MiddleSizeVector & ElementData::getTimeLevelDataVector(std::size_t timeLevel) const
     {
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
         logger.assert(expansionCoefficients_[timeLevel].size() == nrOfUnknowns_ * nrOfBasisFunctions_, "Wrong number of expansion coefficients.");
         return expansionCoefficients_[timeLevel];
     }
     
-    LinearAlgebra::NumericalVector & ElementData::getTimeLevelDataVector(std::size_t timeLevel)
+    LinearAlgebra::MiddleSizeVector & ElementData::getTimeLevelDataVector(std::size_t timeLevel)
     {
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
         // The vector can be of dimension 0 if it hasn't been used before, 

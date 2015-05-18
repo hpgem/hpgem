@@ -95,20 +95,20 @@ namespace Base
         virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType) override;
         
         /// \brief Compute the source term at a given physical point.
-        virtual LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
+        virtual LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No source term implemented.");
-            LinearAlgebra::NumericalVector sourceTerm;
+            LinearAlgebra::MiddleSizeVector sourceTerm;
             return sourceTerm;
         }
         
         /// \brief Get the source term at the boundary at a given physical point.
         /// \details The source term at the boundary can be a result of certain boundary conditions (e.g. Neumann boundary conditions).
-        virtual LinearAlgebra::NumericalVector getSourceTermAtBoundary(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
+        virtual LinearAlgebra::MiddleSizeVector getSourceTermAtBoundary(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
         {
             
             logger(ERROR, "No source term at the boundary implemented.");
-            LinearAlgebra::NumericalVector sourceTerm;
+            LinearAlgebra::MiddleSizeVector sourceTerm;
             return sourceTerm;
         }
         
@@ -130,7 +130,7 @@ namespace Base
         virtual LinearAlgebra::Matrix computeStiffnessMatrixAtElement(Base::Element *ptrElement);
         
         /// \brief Compute the integrand for the stiffness matrix.
-        virtual Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face *ptrFace, const LinearAlgebra::NumericalVector &normal, const Geometry::PointReference &pRef)
+        virtual Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face *ptrFace, const LinearAlgebra::MiddleSizeVector &normal, const Geometry::PointReference &pRef)
         {
             logger(ERROR, "No function for computing the integrand for the stiffness matrix at a face implemented.");
             Base::FaceMatrix integrandStiffnessMatrix;
@@ -144,18 +144,18 @@ namespace Base
         virtual void createStiffnessMatrices();
         
         /// \brief Integrate the source term at a single element.
-        virtual LinearAlgebra::NumericalVector integrateSourceTermAtElement(Base::Element *ptrElement, const double time, const std::size_t orderTimeDerivative);
+        virtual LinearAlgebra::MiddleSizeVector integrateSourceTermAtElement(Base::Element *ptrElement, const double time, const std::size_t orderTimeDerivative);
         
         /// \brief Compute the integrand for the source term at a face at the boundary.
-        virtual LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::NumericalVector &normal, const Geometry::PointReference &pRef, const double time, const std::size_t orderTimeDerivative)
+        virtual LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::MiddleSizeVector &normal, const Geometry::PointReference &pRef, const double time, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No function for computing the integrand for the source term at a face at the domain boundary implemented.");
-            LinearAlgebra::NumericalVector integrandSourceTerm;
+            LinearAlgebra::MiddleSizeVector integrandSourceTerm;
             return integrandSourceTerm;
         }
         
         /// \brief Integrate the source term at a boundary face.
-        virtual LinearAlgebra::NumericalVector integrateSourceTermAtFace(Base::Face *ptrFace, const double time, const std::size_t orderTimeDerivative);
+        virtual LinearAlgebra::MiddleSizeVector integrateSourceTermAtFace(Base::Face *ptrFace, const double time, const std::size_t orderTimeDerivative);
         
         /// \brief Multiply the stiffness matrices with the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'.
         virtual void multiplyStiffnessMatrices(const std::size_t timeLevelIn, const std::size_t timeLevelResult);

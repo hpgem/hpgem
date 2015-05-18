@@ -30,12 +30,12 @@
 #include <valarray>
 #endif
 
-#include "NumericalVector.h"
+#include "MiddleSizeVector.h"
 #include <complex>
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
     //We need the ostream for outputting and we encapsulate from valarray.
 #ifdef LA_STL_VECTOR
     using std::vector;
@@ -74,7 +74,7 @@ namespace LinearAlgebra
         Matrix(const Matrix& other);
         
         /// \brief construct a matrix by placing some vectors next to each other. Note that vectors in hpGEM are column vectors
-        Matrix(const NumericalVector& other);
+        Matrix(const MiddleSizeVector& other);
 
         /// \brief Glues one or more matrices with the same number of rows together
         Matrix(std::initializer_list<Matrix>);
@@ -104,8 +104,8 @@ namespace LinearAlgebra
         const double& operator[](const std::size_t n) const;
 
         /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j
-        NumericalVector operator*(NumericalVector& right);
-        NumericalVector operator*(NumericalVector& right) const;
+        MiddleSizeVector operator*(MiddleSizeVector& right);
+        MiddleSizeVector operator*(MiddleSizeVector& right) const;
 
         /// \brief Does matrix A_ij=scalar*B_ij
         Matrix operator*(const double& right) const;
@@ -143,7 +143,7 @@ namespace LinearAlgebra
         Matrix& operator=(Matrix&& right);
 
         /// \brief computeWedgeStuffVector.
-        NumericalVector computeWedgeStuffVector() const;
+        MiddleSizeVector computeWedgeStuffVector() const;
 
         /// \brief Applies the matrix y=ax + y, where x is another matrix and a is a scalar
         void axpy(double a, const Matrix& x);
@@ -166,12 +166,12 @@ namespace LinearAlgebra
         /// \brief get the j^th column
         /// If someone knows how to do this such that it returns a reference, please
         ///implement it.
-        LinearAlgebra::NumericalVector getColumn(std::size_t j) const;
+        LinearAlgebra::MiddleSizeVector getColumn(std::size_t j) const;
 
         /// \brief get the i^th row
         /// If someone knows how to do this such that it returns a reference, please
         ///implement it.
-        LinearAlgebra::NumericalVector getRow(std::size_t i) const;
+        LinearAlgebra::MiddleSizeVector getRow(std::size_t i) const;
 
         /// \brief Return the LUfactorisation of the matrix
         Matrix LUfactorisation() const;
@@ -186,7 +186,7 @@ namespace LinearAlgebra
 
         /// \brief solves Ax=b where A is the current matrix and NumericalVector b 
         /// is the input parameter. The result is returned in b.
-        void solve(NumericalVector& b) const;
+        void solve(MiddleSizeVector& b) const;
 
 #ifdef HPGEM_USE_COMPLEX_PETSC
         std::complex<double>* data();
@@ -221,7 +221,7 @@ namespace LinearAlgebra
     Matrix operator*(const double d, const Matrix& mat);
     
     ///Multiplies a matrix with a double
-    NumericalVector operator*(NumericalVector& vec, Matrix& mat);
+    MiddleSizeVector operator*(MiddleSizeVector& vec, Matrix& mat);
 
 }
 #endif

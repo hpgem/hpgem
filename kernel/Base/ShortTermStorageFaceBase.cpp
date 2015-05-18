@@ -65,7 +65,7 @@ void Base::ShortTermStorageFaceBase::computeData()
     }
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace) const
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace) const
 {
     if (!(currentPoint_ == &pRefFace))
     {
@@ -75,7 +75,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(c
     return normal_;
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace)
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageFaceBase::getNormalVector(const ReferencePointT& pRefFace)
 {
     if (!(currentPoint_ == &pRefFace))
     {

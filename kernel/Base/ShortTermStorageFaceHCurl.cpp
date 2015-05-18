@@ -50,7 +50,7 @@ void Base::ShortTermStorageFaceHcurl::computeData()
     basisFunctionCurlValues_.resize(nTotal);
     basisFunctionsTimesNormal_.resize(nTotal);
     
-    LinearAlgebra::NumericalVector normedNormal = normal_ / Base::L2Norm(normal_);
+    LinearAlgebra::MiddleSizeVector normedNormal = normal_ / Base::L2Norm(normal_);
     
     logger(DEBUG, "Loop to be started");
     for (std::size_t i = 0; i < nTotal; ++i)
@@ -105,7 +105,7 @@ void Base::ShortTermStorageFaceHcurl::computeData()
     logger(DEBUG, "End");
 }
 
-void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     if (!(currentPoint_ == &p))
     {
@@ -115,7 +115,7 @@ void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t i, const Geometr
     ret = basisFunctionValues_[i];
 }
 
-void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t index, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const
+void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t index, const Geometry::PointReference& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
     ret = basisFunctionValues_[index];
     if (!(currentPoint_ == &p))
@@ -152,7 +152,7 @@ void Base::ShortTermStorageFaceHcurl::basisFunction(std::size_t index, const Geo
     }
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p)
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t i, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p)
 {
     if (!(currentPoint_ == &p))
     {
@@ -163,13 +163,13 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNor
     return basisFunctionsTimesNormal_[i];
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t index, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageFaceHcurl::basisFunctionNormal(std::size_t index, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p) const
 {
     if (!(currentPoint_ == &p))
     {
         logger(WARN, "Warning: you are using slow data access");
-        LinearAlgebra::NumericalVector ret(p.size());
-        LinearAlgebra::NumericalVector dummy(ret);
+        LinearAlgebra::MiddleSizeVector ret(p.size());
+        LinearAlgebra::MiddleSizeVector dummy(ret);
         face_->basisFunction(index, p, dummy);
         //apply the coordinate transformation
         if(index < getPtrElementLeft()->getNrOfBasisFunctions())
@@ -183,7 +183,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNor
                     std::swap(jac(i, j), jac(j, i));
                 }
             }
-            LinearAlgebra::NumericalVector normedNormal = getNormalVector(p) / Base::L2Norm(getNormalVector(p));
+            LinearAlgebra::MiddleSizeVector normedNormal = getNormalVector(p) / Base::L2Norm(getNormalVector(p));
             dummy = jac * dummy;
         
             ret[0] = normedNormal[1] * dummy[2] - normedNormal[2] * dummy[1];
@@ -201,7 +201,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNor
                     std::swap(jac(i, j), jac(j, i));
                 }
             }
-            LinearAlgebra::NumericalVector normedNormal = getNormalVector(p) / Base::L2Norm(getNormalVector(p));
+            LinearAlgebra::MiddleSizeVector normedNormal = getNormalVector(p) / Base::L2Norm(getNormalVector(p));
             dummy = jac * dummy * -1.;
         
             ret[0] = normedNormal[1] * dummy[2] - normedNormal[2] * dummy[1];
@@ -213,7 +213,7 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionNor
     return basisFunctionsTimesNormal_[index]; // check how to get vector product of normal and basis function
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p)
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p)
 {
     if (!(currentPoint_ == &p))
     {
@@ -223,12 +223,12 @@ LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionCur
     return basisFunctionCurlValues_[i];
 }
 
-LinearAlgebra::NumericalVector Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const
+LinearAlgebra::MiddleSizeVector Base::ShortTermStorageFaceHcurl::basisFunctionCurl(std::size_t i, const Geometry::PointReference& p) const
 {
     if (!(currentPoint_ == &p))
     {
         logger(WARN, "Warning: you are using slow data access");
-        LinearAlgebra::NumericalVector ret = face_->basisFunctionCurl(i, p);
+        LinearAlgebra::MiddleSizeVector ret = face_->basisFunctionCurl(i, p);
         //apply the coordinate transformation
         if(i < getPtrElementLeft()->getNrOfBasisFunctions())
         {

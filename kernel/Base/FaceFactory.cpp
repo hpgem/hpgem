@@ -21,7 +21,7 @@
 #include "FaceFactory.h"
 #include "Face.h"
 #include "FaceCacheData.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 
 namespace Base
 {

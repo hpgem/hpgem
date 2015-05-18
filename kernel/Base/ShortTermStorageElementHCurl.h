@@ -49,11 +49,11 @@ namespace Base
         //Since the basisfunctions in HCurl always return a vector, the function
         //double basisFunction(std::size_t, const PointReferenceT&) is not implemented here.
         
-        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final;
-        void basisFunction(std::size_t i, const PointReferenceT& P, LinearAlgebra::NumericalVector& ret) const override final;
+        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) override final;
+        void basisFunction(std::size_t i, const PointReferenceT& P, LinearAlgebra::MiddleSizeVector& ret) const override final;
 
-        LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const PointReferenceT& p) override final;
-        LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const PointReferenceT& p) const override final;
+        LinearAlgebra::MiddleSizeVector basisFunctionCurl(std::size_t i, const PointReferenceT& p) override final;
+        LinearAlgebra::MiddleSizeVector basisFunctionCurl(std::size_t i, const PointReferenceT& p) const override final;
         
     };
 

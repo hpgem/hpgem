@@ -25,7 +25,7 @@
 //----------------------------------------------------------------
 #include "Base/ElementData.h"
 #include "Geometry/ElementGeometry.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 
 #include <vector>
 #include <iostream>
@@ -57,7 +57,7 @@ namespace Base
         using CacheT = Base::ElementCacheData;
         using GaussQuadratureRuleT = QuadratureRules::GaussQuadratureRule;
         using VecCacheT = std::vector<CacheT>;
-        using SolutionVector = LinearAlgebra::NumericalVector;
+        using SolutionVector = LinearAlgebra::MiddleSizeVector;
         using CollectionOfBasisFunctionSets = std::vector<std::shared_ptr<const BasisFunctionSet>>;
 
     public:
@@ -94,24 +94,24 @@ namespace Base
         virtual double basisFunction(std::size_t i, const PointReferenceT& p) const;
 
         /// \brief returns the value of the i-th basisfunction at point p in ret.
-        virtual void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const;
+        virtual void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const;
 
         /// \brief Get the value of the derivative of the physical basisfunction (corresponding to index i) in the direction jDir at the physical point corresponding to reference point p.
         virtual double basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const;
         
         /// \brief Get the gradient of the physical basis function (corresponding to index i) at the physical point corresponding to reference point p.
         /// \details If some of the data needed for the reference to physical gradient mapping is already stored on a wrapper class, you can pass the class to this function for more efficient computation
-        virtual LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* wrapper = nullptr) const;
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* wrapper = nullptr) const;
 
         /// \brief Returns the curl of the i-th basisfunction at point p in ret.
-        virtual LinearAlgebra::NumericalVector basisFunctionCurl(std::size_t i, const PointReferenceT& p) const;
+        virtual LinearAlgebra::MiddleSizeVector basisFunctionCurl(std::size_t i, const PointReferenceT& p) const;
 
         /// \brief Get the solution at the given timeLevel at the physical point corresponding to reference point p.
         virtual SolutionVector getSolution(std::size_t timeLevel, const PointReferenceT& p) const;
 
         /// \brief Get the gradient of the solution at the given timeLevel at the physical point corresponding to reference point p.
         /// \details returns a vector of gradients
-        virtual std::vector<LinearAlgebra::NumericalVector> getSolutionGradient(std::size_t timeLevel, const PointReferenceT& p) const;
+        virtual std::vector<LinearAlgebra::MiddleSizeVector> getSolutionGradient(std::size_t timeLevel, const PointReferenceT& p) const;
 
         void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution); ///\todo not implemented
                 

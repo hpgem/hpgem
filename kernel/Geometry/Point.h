@@ -23,7 +23,7 @@
 
 #include <iostream>
 
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 
 namespace Geometry
 {
@@ -34,7 +34,7 @@ namespace Geometry
         
     public:
         using PointT = Geometry::Point;
-        using VectorOfCoordsT = LinearAlgebra::NumericalVector;
+        using VectorOfCoordsT = LinearAlgebra::MiddleSizeVector;
         
     public:
         /// Constructors.

@@ -75,9 +75,9 @@ public:
     }
     
     /// \brief Compute the real solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override final
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override final
     {
-        LinearAlgebra::NumericalVector exactSolution(configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector exactSolution(configData_->numberOfUnknowns_);
         
         // Implement here your exact solution if you have one. Otherwise delete this entire function.
         logger(ERROR, "No exact solution implemented.");
@@ -86,9 +86,9 @@ public:
     }
     
     /// \brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative) override final
+    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative) override final
     {
-        LinearAlgebra::NumericalVector initialSolution(configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector initialSolution(configData_->numberOfUnknowns_);
         
         // Compute the initial solution here
         logger(ERROR, "No initial solution implemented.");
@@ -97,10 +97,10 @@ public:
     }
     
     /// \brief Compute the right-hand side corresponding to an element
-    LinearAlgebra::NumericalVector computeRightHandSideAtElement
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement
     (
      Base::Element *ptrElement,
-     LinearAlgebra::NumericalVector &solutionCoefficients,
+     LinearAlgebra::MiddleSizeVector &solutionCoefficients,
      const double time
      ) override final
     {
@@ -108,7 +108,7 @@ public:
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
         
         // Declare the right-hand side at the element.
-        LinearAlgebra::NumericalVector rightHandSideAtElement(configData_->numberOfUnknowns_ * numOfBasisFunctions);
+        LinearAlgebra::MiddleSizeVector rightHandSideAtElement(configData_->numberOfUnknowns_ * numOfBasisFunctions);
         
         // Compute the right hand side at the element here.
         logger(ERROR, "No function for computing the right-hand side at an element implemented.");
@@ -117,10 +117,10 @@ public:
     }
 
     /// \brief Compute the right-hand side corresponding to a boundary face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
     (
      Base::Face *ptrFace,
-     LinearAlgebra::NumericalVector &solutionCoefficients,
+     LinearAlgebra::MiddleSizeVector &solutionCoefficients,
      const double time
      ) override final
     {
@@ -128,7 +128,7 @@ public:
         std::size_t numOfBasisFunctions = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions();
         
         // Declare the right-hand side at the boundary face.
-        LinearAlgebra::NumericalVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numOfBasisFunctions);
+        LinearAlgebra::MiddleSizeVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numOfBasisFunctions);
         
         // Compute the right hand side at the boundary face here.
         logger(ERROR, "No function for computing the right-hand side at a boundary face implemented.");
@@ -137,12 +137,12 @@ public:
     }
     
     /// \brief Compute the right-hand side corresponding to an internal face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
     (
      Base::Face *ptrFace,
      const Base::Side side,
-     LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
-     LinearAlgebra::NumericalVector &solutionCoefficientsRight,
+     LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+     LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
      const double time
      ) override final
     {
@@ -150,7 +150,7 @@ public:
         std::size_t numOfBasisFunctions = ptrFace->getPtrElement(side)->getNrOfBasisFunctions();
         
         // Declare the right-hand side at the internal face.
-        LinearAlgebra::NumericalVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numOfBasisFunctions);
+        LinearAlgebra::MiddleSizeVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numOfBasisFunctions);
         
         // Compute the right hand side at the internal face here.
         logger(ERROR, "No function for computing the right-hand side at an internal face implemented.");

@@ -50,7 +50,7 @@ namespace Geometry
         PointPhysical pP(3);
         const double t1 = pR[0] * pR[2];
         const double t2 = pR[1] * pR[2];
-        LinearAlgebra::NumericalVector f2(6);
+        LinearAlgebra::MiddleSizeVector f2(6);
         
         f2[0] = 0.5 * (1.0 - pR[0] - pR[1] - pR[2] + t1 + t2);
         f2[1] = 0.5 * (pR[0] - t1);
@@ -86,7 +86,7 @@ namespace Geometry
             jacobian(i,2) = d_dxi2[i];
         }
 #else
-        LinearAlgebra::NumericalVector df_dxi0(6), df_dxi1(6), df_dxi2(6);
+        LinearAlgebra::MiddleSizeVector df_dxi0(6), df_dxi1(6), df_dxi2(6);
         
         df_dxi0[0] = +0.5 * (-1. + pR[2]);
         df_dxi0[1] = +0.5 * (+1. - pR[2]);

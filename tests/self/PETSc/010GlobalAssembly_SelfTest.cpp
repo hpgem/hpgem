@@ -96,7 +96,7 @@ public:
     }
     
     /// \brief Compute the integrand for the siffness matrix at the face.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceT& p) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
@@ -112,7 +112,7 @@ public:
         Base::FaceMatrix integrandVal(nLeft, nRight);
         
         //Initialize the vectors that contain gradient(phi_i), gradient(phi_j), normal_i phi_i and normal_j phi_j
-        LinearAlgebra::NumericalVector phiNormalI(DIM_), phiNormalJ(DIM_), phiDerivI(DIM_), phiDerivJ(DIM_);
+        LinearAlgebra::MiddleSizeVector phiNormalI(DIM_), phiNormalJ(DIM_), phiDerivI(DIM_), phiDerivJ(DIM_);
         
         //Transform the point from the reference value to its physical value.
         //This is necessary to check at which boundary we are if we are at a boundary face.
@@ -157,9 +157,9 @@ public:
     }
     
     /// \brief Define the exact solution
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &p) override final
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &p) override final
     {
-        LinearAlgebra::NumericalVector exactSolution(1);
+        LinearAlgebra::MiddleSizeVector exactSolution(1);
         
         double ret = std::sin(2 * M_PI * p[0]);
         if (p.size() > 1)
@@ -176,9 +176,9 @@ public:
     }
     
     ///\brief Define the source term.
-    LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &p) override final
+    LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &p) override final
     {
-        LinearAlgebra::NumericalVector sourceTerm(1);
+        LinearAlgebra::MiddleSizeVector sourceTerm(1);
         
         double ret = -std::sin(2 * M_PI * p[0]) * (4 * M_PI * M_PI);
         if (DIM_ > 1)
@@ -195,13 +195,13 @@ public:
     }
     
     /// \brief Compute the integrals of the right-hand side associated with faces.
-    LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
+    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceT& p) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
         const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
         //Resize the integrandVal such that it contains as many rows as
         //the number of basisfunctions.
-        LinearAlgebra::NumericalVector integrandVal(numBasisFunctions);
+        LinearAlgebra::MiddleSizeVector integrandVal(numBasisFunctions);
         
         //Compute the value of the integrand
         //We have no rhs face integrals, so this is just 0.
@@ -253,7 +253,7 @@ public:
             double totalError = computeTotalError(solutionTimeLevel_, 0);
             totalError_ = totalError;
             logger(INFO, "Total error: %.", totalError);
-            LinearAlgebra::NumericalVector maxError = computeMaxError(solutionTimeLevel_, 0);
+            LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionTimeLevel_, 0);
             logger.assert(maxError.size() == configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), configData_->numberOfUnknowns_);
             for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV ++)
             {

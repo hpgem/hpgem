@@ -144,10 +144,10 @@ namespace Geometry
      returned normal vector. I.e. the length of the vector equals the ratio of the
      physical face and reference face.
      </UL> */
-    LinearAlgebra::NumericalVector FaceGeometry::getNormalVector(const ReferencePointT& pRefFace) const
+    LinearAlgebra::MiddleSizeVector FaceGeometry::getNormalVector(const ReferencePointT& pRefFace) const
     {
         std::size_t DIM = pRefFace.size() + 1;
-        LinearAlgebra::NumericalVector result;
+        LinearAlgebra::MiddleSizeVector result;
         if (DIM > 1)
         {
             // first Jacobian (mapping reference face -> reference element)

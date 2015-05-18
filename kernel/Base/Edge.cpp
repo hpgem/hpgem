@@ -24,7 +24,7 @@
 #include "Geometry/ReferenceGeometry.h"
 #include "Geometry/PhysicalGeometry.h"
 #include "LinearAlgebra/Matrix.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "ElementCacheData.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/PointPhysical.h"

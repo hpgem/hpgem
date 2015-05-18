@@ -37,7 +37,7 @@ int main()
     double coord3[] = {1.3, 2.3, 3.3};
     double coord4[] = {1.4, 2.4, 3.4, 4.4};
     
-    LinearAlgebra::NumericalVector vec0(coord0, 0), vec1(coord1, 1), vec2(coord2, 2), vec3(coord3, 3), vec4(coord4, 4);
+    LinearAlgebra::MiddleSizeVector vec0(coord0, 0), vec1(coord1, 1), vec2(coord2, 2), vec3(coord3, 3), vec4(coord4, 4);
     
     //testing constructors up to DIM=4
     Point p0(0), p1(1), p2(2), p3(3), p4(4), pc0(coord0, 0), pc1(coord1, 1), pc2(coord2, 2), pc3(coord3, 3), pc4(coord4, 4), pp0(p0), pp1(p1), pp2(p2), pp3(p3), pp4(p4), pv0(vec0), pv1(vec1), pv2(vec2), pv3(vec3), pv4(vec4);

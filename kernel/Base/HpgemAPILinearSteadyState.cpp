@@ -91,14 +91,14 @@ namespace Base
         logger(INFO, "- Creating source term vectors for the elements.");
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::NumericalVector sourceTerm(integrateSourceTermAtElement(ptrElement, 0, 0));
+            LinearAlgebra::MiddleSizeVector sourceTerm(integrateSourceTermAtElement(ptrElement, 0, 0));
             ptrElement->setElementVector(sourceTerm, sourceElementVectorID_);
         }
         
         logger(INFO, "- Creating source term vectors for the boundary faces.");
         for (Base::Face *ptrFace : meshes_[0]->getFacesList())
         {
-            LinearAlgebra::NumericalVector sourceTerm(integrateSourceTermAtFace(ptrFace, 0, 0));
+            LinearAlgebra::MiddleSizeVector sourceTerm(integrateSourceTermAtFace(ptrFace, 0, 0));
             ptrFace->setFaceVector(sourceTerm, sourceFaceVectorID_);
         }
     }
@@ -183,7 +183,7 @@ namespace Base
         {
             double totalError = computeTotalError(solutionTimeLevel_, 0);
             logger(INFO, "Total error: %.", totalError);
-            LinearAlgebra::NumericalVector maxError = computeMaxError(solutionTimeLevel_, 0);
+            LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionTimeLevel_, 0);
             logger.assert(maxError.size() == configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), configData_->numberOfUnknowns_);
             for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV ++)
             {

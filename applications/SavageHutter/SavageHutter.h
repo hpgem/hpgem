@@ -61,13 +61,13 @@ public:
     Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection);
 
     /// \brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
+    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
 
     /// \brief Compute the integrand for the reference element for obtaining the initial solution.
-    LinearAlgebra::NumericalVector integrandInitialSolutionOnElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
 
     /// \brief Integrate the initial solution for a single element.
-    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
+    LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
 
     /// \brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID)
@@ -120,27 +120,27 @@ public:
         }
     }
 
-    LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
 
     /// \brief Compute the right-hand side corresponding to an internal face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace(Base::Face *ptrFace,
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace,
             const Base::Side side,
-            LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
-            LinearAlgebra::NumericalVector &solutionCoefficientsRight,
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
             const double time);
     
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
         (
          Base::Face *ptrFace,
-         LinearAlgebra::NumericalVector &solutionCoefficients,
+         LinearAlgebra::MiddleSizeVector &solutionCoefficients,
          const double time
          );
 
     void computeOneTimeStep(double &time, const double dt);
     void limitSolution();
     bool useLimitierForElement(const Base::Element *element);
-    LinearAlgebra::NumericalVector computeVelocity(LinearAlgebra::NumericalVector numericalSolution);
-    LinearAlgebra::NumericalVector computeNormOfAverageOfSolutionInElement(const Base::Element *element);
+    LinearAlgebra::MiddleSizeVector computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution);
+    LinearAlgebra::MiddleSizeVector computeNormOfAverageOfSolutionInElement(const Base::Element *element);
     
 private:
     /// Dimension of the domain

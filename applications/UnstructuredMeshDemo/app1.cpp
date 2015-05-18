@@ -28,7 +28,7 @@
 #include "Base/PhysGradientOfBasisFunction.h"
 #include "Base/RectangularMeshDescriptor.h"
 #include "Geometry/PhysicalGeometry.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotPhysicalGeometryIterator.h"
 #include "Output/TecplotSingleElementWriter.h"

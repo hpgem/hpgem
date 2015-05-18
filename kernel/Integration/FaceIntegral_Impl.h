@@ -37,7 +37,7 @@ namespace Integration
         logger.assert(fa!=nullptr, "Invalid face detected");
         logger.assert(integrand!=nullptr, "Invalid integrand detected");
         //quadrature rule is allowed to be equal to nullptr!
-        std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc = [=](const Base::Face* face, const LinearAlgebra::NumericalVector& n, const Geometry::PointReference& p)
+        std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::MiddleSizeVector&, const Geometry::PointReference&)> integrandFunc = [=](const Base::Face* face, const LinearAlgebra::MiddleSizeVector& n, const Geometry::PointReference& p)
         {   
             ReturnTrait1 result;
             integrand->faceIntegrand(face,n,p,result);
@@ -47,7 +47,7 @@ namespace Integration
     }
     
     template<typename ReturnTrait1>
-    ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::NumericalVector&, const Geometry::PointReference&)> integrandFunc, const QuadratureRulesT* const qdrRule)
+    ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::MiddleSizeVector&, const Geometry::PointReference&)> integrandFunc, const QuadratureRulesT* const qdrRule)
     {
         logger.assert(fa!=nullptr, "Invalid face detected");
         //quadrature rule is allowed to be equal to nullptr!
@@ -71,7 +71,7 @@ namespace Integration
         // Gauss quadrature point
         const Geometry::PointReference& p0 = qdrRuleLoc->getPoint(0);
         
-        LinearAlgebra::NumericalVector normal = localFace_->getNormalVector(p0);
+        LinearAlgebra::MiddleSizeVector normal = localFace_->getNormalVector(p0);
         
         // first Gauss point;
         result = integrandFunc(localFace_, normal, p0);

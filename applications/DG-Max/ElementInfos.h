@@ -33,7 +33,7 @@
 using PointElementReferenceT = Geometry::PointReference;
 //#if __cplusplus<=199711L
 #include "map"
-using myMap = std::map<PointElementReferenceT,std::vector<LinearAlgebra::NumericalVector> >;
+using myMap = std::map<PointElementReferenceT,std::vector<LinearAlgebra::MiddleSizeVector> >;
 //#else
 //#include "unordered_map"
 //typedef std::unordered_map<PointElementReferenceT,std::vector<LinearAlgebra::NumericalVector> > myMap;//the unordered_map trades functionality for speed

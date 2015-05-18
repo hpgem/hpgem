@@ -48,11 +48,11 @@ namespace Base
         double basisFunction(std::size_t i, const PointReferenceT& p) override final;
         double basisFunction(std::size_t i, const PointReferenceT& p) const override final;
 
-        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) override final;
-        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const override final;
+        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) override final;
+        void basisFunction(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const override final;
 
-        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr) override final;
-        LinearAlgebra::NumericalVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr) const override final;
+        LinearAlgebra::MiddleSizeVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr) override final;
+        LinearAlgebra::MiddleSizeVector basisFunctionDeriv(std::size_t i, const PointReferenceT& p, const Element* = nullptr) const override final;
 
         ///special case derivative: compute individual components, then mix and match as desired !warning! this routine assumes the user wants to construct a specialized transformation and will not premultiply by the Jacobian
         double basisFunctionDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p);
@@ -60,7 +60,7 @@ namespace Base
 
     private:
         
-        std::vector<LinearAlgebra::NumericalVector> basisFunctionIndividualDerivatives_;
+        std::vector<LinearAlgebra::MiddleSizeVector> basisFunctionIndividualDerivatives_;
     };
 }
 

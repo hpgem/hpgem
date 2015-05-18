@@ -28,7 +28,7 @@ namespace Base
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 namespace Integration
@@ -47,7 +47,7 @@ namespace Integration
     class FaceIntegrandBase
     {
     public:
-        virtual void faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p, T& ret) = 0;
+        virtual void faceIntegrand(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p, T& ret) = 0;
         
         FaceIntegrandBase() = default;
         FaceIntegrandBase(const FaceIntegrandBase &other) = delete;

@@ -67,22 +67,22 @@ int main()
     pointIndicesRight.push_back(4);
     pointIndicesRight.push_back(5);
     
-    LinearAlgebra::NumericalVector coords0(dimension);
+    LinearAlgebra::MiddleSizeVector coords0(dimension);
     coords0(0) = 0;
     coords0(1) = 0;
-    LinearAlgebra::NumericalVector coords1(dimension);
+    LinearAlgebra::MiddleSizeVector coords1(dimension);
     coords1(0) = 0;
     coords1(1) = 1;
-    LinearAlgebra::NumericalVector coords2(dimension);
+    LinearAlgebra::MiddleSizeVector coords2(dimension);
     coords2(0) = 1;
     coords2(1) = 0;
-    LinearAlgebra::NumericalVector coords3(dimension);
+    LinearAlgebra::MiddleSizeVector coords3(dimension);
     coords3(0) = 1;
     coords3(1) = 1;
-    LinearAlgebra::NumericalVector coords4(dimension);
+    LinearAlgebra::MiddleSizeVector coords4(dimension);
     coords4(0) = 2;
     coords4(1) = 0;
-    LinearAlgebra::NumericalVector coords5(dimension);
+    LinearAlgebra::MiddleSizeVector coords5(dimension);
     coords5(0) = 2;
     coords5(1) = 1;
     
@@ -162,7 +162,7 @@ int main()
     }
     
     // Test Element::getSolution.
-    LinearAlgebra::NumericalVector expansionCoefficients(nrOfBasisFunctions * nrOfUnknowns);
+    LinearAlgebra::MiddleSizeVector expansionCoefficients(nrOfBasisFunctions * nrOfUnknowns);
     for (iV = 0; iV < nrOfUnknowns; iV++)
     {
         for (iB = 0; iB < nrOfBasisFunctions; iB++)
@@ -172,11 +172,11 @@ int main()
         }
     }
     elementRight.setTimeLevelDataVector(iTimeLevel, expansionCoefficients);
-    LinearAlgebra::NumericalVector testVector = elementRight.getTimeLevelDataVector(iTimeLevel);
+    LinearAlgebra::MiddleSizeVector testVector = elementRight.getTimeLevelDataVector(iTimeLevel);
     logger.assert_always(testVector == expansionCoefficients, "Expansion coefficients incorrect: % != %", testVector, expansionCoefficients);
     
     const Geometry::PointReference& pointReference = *Geometry::PointReferenceFactory::instance()->makePoint(coords0);
-    LinearAlgebra::NumericalVector solutionVector = elementRight.getSolution(iTimeLevel, pointReference);
+    LinearAlgebra::MiddleSizeVector solutionVector = elementRight.getSolution(iTimeLevel, pointReference);
     for (iV = 0; iV < nrOfUnknowns; iV++)
     {
         logger.assert_always(solutionVector(iV) == (iV + 1) * solutionVector(0), "Solution vector test failed (%): % != (% + 1) * %", iV, solutionVector(iV), iV, solutionVector(0));

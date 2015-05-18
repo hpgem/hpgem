@@ -23,7 +23,7 @@
 
 #include "FaceCacheData.h"
 #include "LinearAlgebra/Matrix.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Logger.h"
 
 Base::FaceData::FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors)
@@ -103,7 +103,7 @@ const Base::FaceMatrix & Base::FaceData::getFaceMatrix(std::size_t matrixID) con
     return faceMatrix_[matrixID];
 }
 
-void Base::FaceData::setFaceVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID)
+void Base::FaceData::setFaceVector(const LinearAlgebra::MiddleSizeVector& vector, std::size_t vectorID)
 {
     if (vectorID >= faceVector_.size())
     {
@@ -114,18 +114,18 @@ void Base::FaceData::setFaceVector(const LinearAlgebra::NumericalVector& vector,
     faceVector_[vectorID] = vector;
 }
 
-LinearAlgebra::NumericalVector Base::FaceData::getFaceVector(std::size_t vectorID) const
+LinearAlgebra::MiddleSizeVector Base::FaceData::getFaceVector(std::size_t vectorID) const
 {
     logger.assert(vectorID < faceVector_.size(), "insufficient face vectors stored");
     return faceVector_[vectorID];
 }
 
-const LinearAlgebra::NumericalVector& Base::FaceData::getResidue() const
+const LinearAlgebra::MiddleSizeVector& Base::FaceData::getResidue() const
 {
     return residual_;
 }
 
-void Base::FaceData::setResidue(LinearAlgebra::NumericalVector& residue)
+void Base::FaceData::setResidue(LinearAlgebra::MiddleSizeVector& residue)
 {
     residual_ = residue;
 }

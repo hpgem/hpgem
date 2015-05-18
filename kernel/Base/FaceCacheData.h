@@ -21,7 +21,7 @@
 #ifndef FaceCacheData_h
 #define FaceCacheData_h
 
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 
 namespace Geometry
 {
@@ -43,7 +43,7 @@ namespace Base
         FaceCacheData(const FaceCacheData &other) = default;
         
         // cache data
-        LinearAlgebra::NumericalVector Normal;
+        LinearAlgebra::MiddleSizeVector Normal;
         double L2Normal;
 
         // calculate the cache data

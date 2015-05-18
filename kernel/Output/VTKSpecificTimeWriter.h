@@ -52,7 +52,7 @@ namespace Output
         void write(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name);
 
         ///\brief write a vector field
-        void write(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name);
+        void write(std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name);
 
         ///\brief write an order 2 tensor field
         void write(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name);

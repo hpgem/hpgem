@@ -8,7 +8,7 @@ using std::string;
 
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotPhysicalGeometryIterator.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Base/GlobalData.h"
 #include "Base/ConfigurationData.h"
 #include "Base/HpgemAPIBase.h"
@@ -192,7 +192,7 @@ public:
 
     void elementIntegrand(const Base::Element* element, const PointReferenceT& p, ElementIntegralData& returnObject);
 
-    void faceIntegrand(const Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& p, FluxData& ret);
+    void faceIntegrand(const Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceOnTheFaceT& p, FluxData& ret);
 
     void createCompressibleSystem();
     void createIncompressibleSystem();

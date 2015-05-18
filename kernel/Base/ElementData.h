@@ -25,11 +25,11 @@
 //----------------------------------------------------------------
 #include <vector>
 #include "LinearAlgebra/Matrix.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 struct UserElementData;
@@ -59,24 +59,24 @@ namespace Base
         virtual const LinearAlgebra::Matrix &getElementMatrix(std::size_t matrixID = 0) const;
 
         /// \brief Set the element vector corresponding to the given vectorID.
-        virtual void setElementVector(const LinearAlgebra::NumericalVector &vector, std::size_t vectorID = 0);
+        virtual void setElementVector(const LinearAlgebra::MiddleSizeVector &vector, std::size_t vectorID = 0);
 
         /// \brief Get the element vector corresponding to the given vectorID.
-        virtual LinearAlgebra::NumericalVector getElementVector(std::size_t vectorID = 0) const;
+        virtual LinearAlgebra::MiddleSizeVector getElementVector(std::size_t vectorID = 0) const;
 
         /// \brief Sets (and creates if unavailable) the expansion coefficients corresponding to the given time level.
-        void setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::NumericalVector &val);
+        void setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::MiddleSizeVector &val);
 
         /// \brief Returns a reference to the expansion coefficients corresponding to the given time level.
-        const LinearAlgebra::NumericalVector& getTimeLevelDataVector(std::size_t timeLevel) const;
-        LinearAlgebra::NumericalVector& getTimeLevelDataVector(std::size_t timeLevel);
+        const LinearAlgebra::MiddleSizeVector& getTimeLevelDataVector(std::size_t timeLevel) const;
+        LinearAlgebra::MiddleSizeVector& getTimeLevelDataVector(std::size_t timeLevel);
 
         /// \brief Specify a time level index and variable index, return a vector containing the corresponding expansion coefficients.
-        virtual const LinearAlgebra::NumericalVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
+        virtual const LinearAlgebra::MiddleSizeVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
 
         /// \brief Specify a time level index and a variable index (unknown), set the corresponding expansionCoefficients. Better use getTimeLevelDataVector if possible because that's faster!
-        void setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::NumericalVector &val);
-        void setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::NumericalVector &val);
+        void setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::MiddleSizeVector &val);
+        void setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::MiddleSizeVector &val);
 
         /// \brief Specify a time level index, a variabale index and a basis function index, return the corresponding expansionCoefficient (double).
         virtual double getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const;
@@ -120,7 +120,7 @@ namespace Base
         /// basisfunction iVB. Index iVB satisfies iVB = convertToSingleIndex(iB,iV), 
         /// where iB is the index corresponding to the basis function and iV the
         /// index corresponding to the variable.
-        std::vector<LinearAlgebra::NumericalVector> expansionCoefficients_;
+        std::vector<LinearAlgebra::MiddleSizeVector> expansionCoefficients_;
 
         ///Stores polymorphic pointer to UserDefined Data, internally not used. 
         ///Used only outside of the Kernel.
@@ -130,7 +130,7 @@ namespace Base
         VectorOfMatrices elementMatrix_;
         
         ///Stores element vector(s) for this element
-        std::vector<LinearAlgebra::NumericalVector> elementVector_;
+        std::vector<LinearAlgebra::MiddleSizeVector> elementVector_;
     };
 }
 #endif
