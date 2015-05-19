@@ -35,7 +35,8 @@
 
 namespace LinearAlgebra
 {
-    
+    template<std::size_t nRows>
+    class SmallVector;
 #ifdef LA_STL_VECTOR
     using std::vector;
 #else
@@ -47,7 +48,6 @@ namespace LinearAlgebra
     ///
     /// \details
     /// This implements a vector of doubles and all the standard operators for it.
-    /// Note it is encapulating a valarray for its data storage.
     class MiddleSizeVector
     {
         
@@ -63,7 +63,9 @@ namespace LinearAlgebra
         
         MiddleSizeVector(MiddleSizeVector&& other);
 
-        //MiddleSizeVector(const SmallVector& other);
+        //implemented with SmallVector for dependency reasons
+        template<std::size_t nRows>
+        MiddleSizeVector(const SmallVector<nRows>& other);
 
         MiddleSizeVector(const double array[], std::size_t size);
 

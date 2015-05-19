@@ -35,6 +35,8 @@
 
 namespace LinearAlgebra
 {
+    template<std::size_t nRows, std::size_t nCols>
+    class SmallMatrix;
     class MiddleSizeVector;
     //We need the ostream for outputting and we encapsulate from valarray.
 #ifdef LA_STL_VECTOR
@@ -71,7 +73,9 @@ namespace LinearAlgebra
         /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B and A are both matrices
         MiddleSizeMatrix(const MiddleSizeMatrix& other);
         
-        //MiddleSizeMatrix(const SmallMatrix& other);
+        //implemented with SmallMatrix for dependency reasons
+        template<std::size_t nRows, std::size_t nCols>
+        MiddleSizeMatrix(const SmallMatrix<nRows, nCols>& other);
 
         /// \brief construct a matrix by placing some vectors next to each other. Note that vectors in hpGEM are column vectors
         MiddleSizeMatrix(const MiddleSizeVector& other);
@@ -171,6 +175,7 @@ namespace LinearAlgebra
         /// \brief get the i^th row
         /// If someone knows how to do this such that it returns a reference, please
         ///implement it.
+        //Not a good idea: Returning a reference means that the data that gets returned persists internally, but the data is stored in a column major ordering, so we should not keep row vectors -FB
         LinearAlgebra::MiddleSizeVector getRow(std::size_t i) const;
 
         /// \brief Return the LUfactorisation of the matrix

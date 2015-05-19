@@ -225,7 +225,7 @@ namespace LinearAlgebra
         double d_one = 1.0;
         double d_zero = 0.0;
         
-        MiddleSizeVector result(nc);
+        MiddleSizeVector result(nr);
         
         logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
         
@@ -395,7 +395,7 @@ namespace LinearAlgebra
                 result[3] = (*this)(0, 0) * ((*this)(1, 1) * (*this)(2, 2) - (*this)(2, 1) * (*this)(1, 2)) + (*this)(1, 0) * (-(*this)(0, 1) * (*this)(2, 2) + (*this)(2, 1) * (*this)(0, 2)) + (*this)(2, 0) * ((*this)(0, 1) * (*this)(1, 2) - (*this)(1, 1) * (*this)(0, 2));
                 break;
             default:
-                logger(WARN, "Wedge product not defined for this dimension");
+                logger(ERROR, "Wedge product not implemented for this dimension");
         } //end switch
         
         return (result);
