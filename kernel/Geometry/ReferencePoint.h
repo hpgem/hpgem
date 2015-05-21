@@ -38,7 +38,6 @@ namespace Geometry
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using ReferenceGeometryT::VectorOfReferencePointsT;
         using ListOfIndexesT = std::vector<std::size_t>;
         
         static ReferencePoint& Instance()
@@ -50,7 +49,7 @@ namespace Geometry
         ReferencePoint(const ReferencePoint&) = delete;
 
         /// \brief Return true.
-        bool isInternalPoint(const PointReference& p) const override final;
+        bool isInternalPoint(const PointReference<0>& p) const override final;
         
         // ================================== Codimension 0 ========================================
         
@@ -58,14 +57,30 @@ namespace Geometry
         std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const override final;
 
         /// \brief Returns 0.
-        const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t a) const override final;
+        const MappingReferenceToReference<0>* getCodim0MappingPtr(const std::size_t a) const override final;
+
+        const PointReferenceBase& getCenter() const override final
+        {
+            return *center_;
+        }
+
+        std::size_t getNumberOfNodes() const override final
+        {
+            return 1;
+        }
+
+        const PointReferenceBase& getNode(const std::size_t& i) const override final
+        {
+            logger.assert(i < getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
+            return *points_[i];
+        }
 
         using MappingCodimensions::getCodim0MappingPtr;
 
         // =============================== Refinement mappings =====================================
         
         /// \brief Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const override final
+        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<0>& p, PointReference<0>& pMap) const override final
         {
         }
         
@@ -95,9 +110,13 @@ namespace Geometry
         /// \brief List of valid quadrature rules for this reference geometry
         std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
 
-        //! Codimension 1 mappings, from a line to a line. TODO: Where is this used? clarify here.
-        const MappingReferenceToReference* mappingsPointToPoint_; //!< codim0
+        //! Codimension 0 mappings, from a line to a line. TODO: Where is this used? clarify here.
+        const MappingReferenceToReference<0>* mappingsPointToPoint_; //!< codim0
         
+        std::vector<const PointReference<0>* > points_;
+
+        const PointReference<0>* center_;
+
         ReferencePoint();
     };
 }

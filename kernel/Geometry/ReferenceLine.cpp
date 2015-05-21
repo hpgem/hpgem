@@ -40,8 +40,8 @@ namespace Geometry
             referenceGeometryCodim1Ptr_(&ReferencePoint::Instance())
     {
         name = "ReferenceLine";
-        points_[0] = PointReferenceFactory::instance()->makePoint({-1.});
-        points_[1] = PointReferenceFactory::instance()->makePoint({ 1.});
+        points_[0] = PointReferenceFactory<1>::instance()->makePoint({-1.});
+        points_[1] = PointReferenceFactory<1>::instance()->makePoint({ 1.});
         
         mappingsLineToLine_[0] = &MappingToRefLineToLine0::Instance();
         mappingsLineToLine_[1] = &MappingToRefLineToLine1::Instance();
@@ -51,17 +51,16 @@ namespace Geometry
         
     }
     
-    bool ReferenceLine::isInternalPoint(const PointReference& p) const
+    bool ReferenceLine::isInternalPoint(const PointReference<1>& p) const
     {
-        logger.assert(p.size()==1, "The dimension of the point is wrong");
         return ((p[0] >= -1.) && (p[0] <= 1.));
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceLine& line)
     {
         os << line.getName() << " ={ ";
-        ReferenceLine::const_iterator it = line.points_.begin();
-        ReferenceLine::const_iterator end = line.points_.end();
+        auto it = line.points_.begin();
+        auto end = line.points_.end();
         
         for (; it != end; ++it)
         {
@@ -88,7 +87,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<0>*
     ReferenceLine::getCodim0MappingPtr(const std::size_t i) const
     {
         logger.assert((i < 2), "ERROR: Asked for a mappingSquareToSquare larger than 7. There are only 8!");
@@ -108,7 +107,7 @@ namespace Geometry
         logger.assert((faceIndex < 2), "ERROR: Asked for a line face index larger than 1. There are only 2 'faces' in a line!");
         return referenceGeometryCodim1Ptr_;
     }
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<1>*
     ReferenceLine::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         logger.assert((faceIndex < 2), "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square!.\n");

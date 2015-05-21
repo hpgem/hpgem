@@ -37,25 +37,24 @@ namespace Geometry
     class MappingToPhysTriangularPrism : public MappingReferenceToPhysical
     {
     public:
-        MappingToPhysTriangularPrism(const PhysicalGeometry* const);
+        MappingToPhysTriangularPrism(const PhysicalGeometry<3>* const);
         
         MappingToPhysTriangularPrism(const MappingToPhysTriangularPrism &other) = default;
 
-        PointPhysical transform(const PointReference&) const override final;
+        PointPhysical<3> transform(const PointReference<3>&) const override final;
 
-        Jacobian calcJacobian(const PointReference&) const override final;
+        Jacobian<3, 3> calcJacobian(const PointReference<3>&) const override final;
 
-        void reinit(const PhysicalGeometry* const) override final;
+        void reinit() override final;
 
-        bool isValidPoint(const PointReference&) const;
+        bool isValidPoint(const PointReference<3>&) const;
         std::size_t getTargetDimension() const override final
         {
             return 3;
         }
         
     private:
-        PointPhysical a0, a1, a2, a3, a4, a5;
-        std::size_t globalNodeIndices_[6];
+        PointPhysical<3> a0, a1, a2, a3, a4, a5;
         
     };
 }

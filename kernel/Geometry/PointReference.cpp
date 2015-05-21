@@ -23,7 +23,9 @@
 
 namespace Geometry
 {
-    double PointReference::getBasisFunctionValue(const Base::BaseBasisFunction* function) const
+
+    template<std::size_t DIM>
+    double PointReference<DIM>::getBasisFunctionValue(const Base::BaseBasisFunction* function) const
     {
 
         logger.assert(function!=nullptr, "Invalid basis function passed");
@@ -38,7 +40,8 @@ namespace Geometry
         }
     }
 
-    const LinearAlgebra::MiddleSizeVector& PointReference::getBasisFunctionDerivative(const Base::BaseBasisFunction* function) const
+    template<std::size_t DIM>
+    const LinearAlgebra::SmallVector<DIM>& PointReference<DIM>::getBasisFunctionDerivative(const Base::BaseBasisFunction* function) const
     {
 
         logger.assert(function!=nullptr, "Invalid basis function passed");
@@ -48,7 +51,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const Base::BaseBasisFunction*, LinearAlgebra::MiddleSizeVector>&>(basisfunctionDerivatives_)[function] = function->evalDeriv(*this);
+            const_cast<std::unordered_map<const Base::BaseBasisFunction*, LinearAlgebra::SmallVector<DIM> >&>(basisfunctionDerivatives_)[function] = function->evalDeriv(*this);
             return basisfunctionDerivatives_.at(function);
         }
     }

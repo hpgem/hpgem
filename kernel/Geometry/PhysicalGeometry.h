@@ -28,10 +28,12 @@
 #include "PointPhysical.h"
 #include "PointReference.h"
 #include "ReferenceGeometry.h"
+#include "PhysicalGeometryBase.h"
 
 namespace Geometry
 {
     class ReferenceGeometry;
+    template<std::size_t DIM>
     class PointPhysical;
 
     /*!\class PhysicalGeometry
@@ -50,29 +52,24 @@ namespace Geometry
      * ~ Point is the name of a class.               ~
      * ~ Node is a point that belongs to a geometry. ~
      */
-    class PhysicalGeometry
+    template<std::size_t DIM>
+    class PhysicalGeometry : public PhysicalGeometryBase
     {
     public:
-        
-        using VectorOfPhysicalPointsT = std::vector<PointPhysical>;
+
+        using VectorOfPhysicalPointsT = std::vector<PointPhysical<DIM> >;
 
     public:
         
         /// \brief Constructor gets indexes of the nodes, a reference to the node container, and a pointer to the corresponding reference geometry.
         
         PhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const refG)
-                : nodes_(nodes), globalNodeIndexes_(globalNodeIndexes), refGeometry_(refG)
+                : PhysicalGeometryBase(globalNodeIndexes, refG), nodes_(nodes)
         {
             logger.assert(refG!=nullptr, "Invalid reference geometry passed");
         }
                 
         PhysicalGeometry(const PhysicalGeometry& other) = delete;
-        
-        /// \brief Returns a constant pointer to the container of the global node indexes.
-        const std::vector<std::size_t>& getNodeIndexes() const
-        {
-            return globalNodeIndexes_;
-        }
         
         /// \brief Returns a pointer to the global container of nodes.
         VectorOfPhysicalPointsT& getNodes()
@@ -86,100 +83,40 @@ namespace Geometry
             return nodes_;
         }
         
-        /// \brief Returns the name of the particular geometry.
-        std::string getName()
-        {
-            //skip "Reference" and put "Physical" instead
-            return std::string("Physical").append(refGeometry_->getName().substr(9));
-        }
-
-        /// \brief Given a local index relative to globalNodeIndexes_, return the global node index.
-        std::size_t getNodeIndex(std::size_t localIndex) const
-        {
-            logger.assert(localIndex < getNumberOfNodes(), "Asked for local index %, but this geometry only has % nodes",localIndex,getNumberOfNodes());
-            return globalNodeIndexes_[localIndex];
-        }
-        
         /// \brief Given a global index, returns a pointer to the corresponding point.
-        const PointPhysical* getNodePtr(const std::size_t globalIndex) const
+        const PointPhysicalBase* getNodePtr(const std::size_t globalIndex) const
         {
             logger.assert(globalIndex < nodes_.size(),"This mesh does not contain a node with index %",globalIndex);
             return &(nodes_[globalIndex]);
         }
         
         /// \brief Given a global index, returns a pointer to the corresponding point.
-        PointPhysical* getNodePtr(const std::size_t globalIndex)
+        PointPhysicalBase* getNodePtr(const std::size_t globalIndex)
         {
             logger.assert(globalIndex < nodes_.size(),"This mesh does not contain a node with index %",globalIndex);
             return &(nodes_[globalIndex]);
-        }
-        
-        /// \brief Returns the number of nodes of this geometry.
-        std::size_t getNumberOfNodes() const
-        {
-            return globalNodeIndexes_.size();
         }
         
         /// \brief Given a local index, return the physical coordinates of the corresponding point.
-        PointPhysical getLocalNodeCoordinates(const std::size_t localIndex) const;
+        const PointPhysicalBase& getLocalNodeCoordinates(const std::size_t localIndex) const;
 
         /// \brief Given a global index, return the physical coordinates of the corresponding point.
-        PointPhysical getGlobalNodeCoordinates(const std::size_t globalIndex) const;
-
-        /// \brief Given a local face index, return the global indices of the entities contained on that face.
-        std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t i) const
-        {
-            logger.assert(i < getNrOfFaces(), "Asked for face %, but there are only % faces", i, getNrOfFaces());
-            std::vector<std::size_t> result = getLocalFaceNodeIndices(i);
-            for(std::size_t j = 0; j < result.size(); ++j)
-            {
-                result[j] = getNodeIndex(result[j]);
-            }
-            return result;
-        }
-
-        /// \brief Given a local face index, return the local indices of the entities contained on that face.
-        std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t i) const
-        {
-            logger.assert(i < getNrOfFaces(), "Asked for face %, but there are only % faces", i, getNrOfFaces());
-            return refGeometry_->getCodim1EntityLocalIndices(i);
-        }
-
-        /// \brief Returns the number of faces via a call to ReferenceGeometry->getNrOfCodim1Entities();
-        std::size_t getNrOfFaces() const
-        {
-            return refGeometry_->getNrOfCodim1Entities();
-        }
-
-        /// \brief Returns a reference to the corresponding reference geometry.
-        const ReferenceGeometry * getRefGeometry() const
-        {
-            return refGeometry_;
-        }
+        const PointPhysicalBase& getGlobalNodeCoordinates(const std::size_t globalIndex) const;
         
-        /// \brief Output operator
-        friend std::ostream& operator<<(std::ostream& os, const PhysicalGeometry& physicalGeometry)
-        {
-            os << "PhysicalGeometry=( ";
-            
-            for (std::size_t i = 0; i < physicalGeometry.getNumberOfNodes(); i++)
-            {
-                os << physicalGeometry.getNodeIndex(i) << " ";
-            }
-            os << ')' << std::endl;
-            
-            return os;
-        }
+        /// \brief Given a local index, return the physical coordinates of the corresponding point.
+        PointPhysicalBase& getLocalNodeCoordinates(const std::size_t localIndex);
+
+        /// \brief Given a global index, return the physical coordinates of the corresponding point.
+        PointPhysicalBase& getGlobalNodeCoordinates(const std::size_t globalIndex);
         
     protected:
         /// Reference to the global node container.
         VectorOfPhysicalPointsT& nodes_;
 
-        /// Reference to the container of global indexes of the nodes, relative to nodes_.
-        std::vector<std::size_t> globalNodeIndexes_;
-
-        const ReferenceGeometry * const refGeometry_;
     };
 
 }
+
+#include "PhysicalGeometry.cpp"
+
 #endif /* PHYSICALGEOMETRY_H_ */

@@ -52,107 +52,106 @@ namespace Geometry
         return 0;
     }
     
-    void RefinementHexahedron::getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const
+    std::vector<const PointPhysicalBase*> RefinementHexahedron::getAllNodes(std::size_t refineType) const
     {
         // get all element's nodes
-        nodes.clear();
-        PointPhysicalT p(3);
+        std::vector<const PointPhysicalBase*> nodes;
         for (std::size_t i = 0; i < referenceGeometry_->getNumberOfNodes(); ++i)
         {
-            p = physicalGeometry_->getLocalNodeCoordinates(i);
-            nodes.push_back(p);
+            nodes.push_back(&physicalGeometry_->getLocalNodeCoordinates(i));
         }
         
         // add new nodes
         switch (refineType)
         {
             case 0: // x-refinement
-                nodes.push_back(0.5 * (nodes[0] + nodes[1])); // between 0-1
-                nodes.push_back(0.5 * (nodes[2] + nodes[3])); // between 2-3
-                nodes.push_back(0.5 * (nodes[4] + nodes[5])); // between 4-5
-                nodes.push_back(0.5 * (nodes[6] + nodes[7])); // between 6-7
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[1])))); // between 0-1
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[2]) + *static_cast<const PointPhysical<3>*>(nodes[3])))); // between 2-3
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 4-5
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[6]) + *static_cast<const PointPhysical<3>*>(nodes[7])))); // between 6-7
                 break;
                 
             case 1: // y-refinement
-                nodes.push_back(0.5 * (nodes[0] + nodes[2])); // between 0-2
-                nodes.push_back(0.5 * (nodes[1] + nodes[3])); // between 1-3
-                nodes.push_back(0.5 * (nodes[4] + nodes[6])); // between 4-6
-                nodes.push_back(0.5 * (nodes[5] + nodes[7])); // between 5-7
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[2])))); // between 0-2
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[3])))); // between 1-3
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[6])))); // between 4-6
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[5]) + *static_cast<const PointPhysical<3>*>(nodes[7])))); // between 5-7
                 break;
                 
             case 2: // z-refinement
-                nodes.push_back(0.5 * (nodes[0] + nodes[4])); // between 0-4
-                nodes.push_back(0.5 * (nodes[1] + nodes[5])); // between 1-5
-                nodes.push_back(0.5 * (nodes[2] + nodes[6])); // between 2-6
-                nodes.push_back(0.5 * (nodes[3] + nodes[7])); // between 3-7
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[4])))); // between 0-4
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 1-5
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[2]) + *static_cast<const PointPhysical<3>*>(nodes[6])))); // between 2-6
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[7])))); // between 3-7
                 break;
                 
             case 3: // xy-refinement
-                nodes.push_back(0.5 * (nodes[0] + nodes[1])); // between 0-1
-                nodes.push_back(0.5 * (nodes[0] + nodes[2])); // between 0-2
-                nodes.push_back(0.5 * (nodes[1] + nodes[3])); // between 1-3
-                nodes.push_back(0.5 * (nodes[2] + nodes[3])); // between 2-3
-                nodes.push_back(0.5 * (nodes[9] + nodes[10])); // between 9-10
-                nodes.push_back(0.5 * (nodes[4] + nodes[5])); // between 4-5
-                nodes.push_back(0.5 * (nodes[4] + nodes[6])); // between 4-6
-                nodes.push_back(0.5 * (nodes[5] + nodes[7])); // between 5-7
-                nodes.push_back(0.5 * (nodes[6] + nodes[7])); // between 6-7
-                nodes.push_back(0.5 * (nodes[14] + nodes[15])); // between 14-15
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[1]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[2]) + *static_cast<const PointPhysical<3>*>(nodes[3]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[2]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[3]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[5]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[6]) + *static_cast<const PointPhysical<3>*>(nodes[7]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[6]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[5]) + *static_cast<const PointPhysical<3>*>(nodes[7]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[8]) + *static_cast<const PointPhysical<3>*>(nodes[9]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[12]) + *static_cast<const PointPhysical<3>*>(nodes[13]))));
                 break;
                 
             case 4: // xz-refinement
-            
-                nodes.push_back(0.5 * (nodes[0] + nodes[1])); // between 0-1
-                nodes.push_back(0.5 * (nodes[2] + nodes[3])); // between 2-3
-                nodes.push_back(0.5 * (nodes[0] + nodes[4])); // between 0-4
-                nodes.push_back(0.5 * (nodes[1] + nodes[5])); // between 1-5
-                nodes.push_back(0.5 * (nodes[2] + nodes[6])); // between 2-6
-                nodes.push_back(0.5 * (nodes[3] + nodes[7])); // between 3-7
-                nodes.push_back(0.5 * (nodes[10] + nodes[11])); // between 10-11
-                nodes.push_back(0.5 * (nodes[12] + nodes[13])); // between 12-13
-                nodes.push_back(0.5 * (nodes[4] + nodes[5])); // between 4-5
-                nodes.push_back(0.5 * (nodes[6] + nodes[7])); // between 6-7
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[1]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[5]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[4]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[5]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[2]) + *static_cast<const PointPhysical<3>*>(nodes[3]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[6]) + *static_cast<const PointPhysical<3>*>(nodes[7]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[2]) + *static_cast<const PointPhysical<3>*>(nodes[6]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[7]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[8]) + *static_cast<const PointPhysical<3>*>(nodes[9]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[12]) + *static_cast<const PointPhysical<3>*>(nodes[13]))));
                 break;
                 
             case 5: // yz-refinement
-            
-                nodes.push_back(0.5 * (nodes[0] + nodes[2])); // between 0-2
-                nodes.push_back(0.5 * (nodes[1] + nodes[3])); // between 1-3
-                nodes.push_back(0.5 * (nodes[0] + nodes[4])); // between 0-4
-                nodes.push_back(0.5 * (nodes[1] + nodes[5])); // between 1-5
-                nodes.push_back(0.5 * (nodes[2] + nodes[6])); // between 2-6
-                nodes.push_back(0.5 * (nodes[3] + nodes[7])); // between 3-7
-                nodes.push_back(0.5 * (nodes[10] + nodes[12])); // between 10-12
-                nodes.push_back(0.5 * (nodes[11] + nodes[13])); // between 11-13
-                nodes.push_back(0.5 * (nodes[4] + nodes[6])); // between 4-6
-                nodes.push_back(0.5 * (nodes[5] + nodes[7])); // between 5-7
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[2]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[6]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[4]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[2]) + *static_cast<const PointPhysical<3>*>(nodes[6]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[3]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[5]) + *static_cast<const PointPhysical<3>*>(nodes[7]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[5]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[7]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[8]) + *static_cast<const PointPhysical<3>*>(nodes[9]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[12]) + *static_cast<const PointPhysical<3>*>(nodes[13]))));
                 break;
                 
             case 6: // xyz-refinement
-                nodes.push_back(0.5 * (nodes[0] + nodes[1])); // between 0-1
-                nodes.push_back(0.5 * (nodes[0] + nodes[2])); // between 0-2
-                nodes.push_back(0.5 * (nodes[1] + nodes[3])); // between 1-3
-                nodes.push_back(0.5 * (nodes[2] + nodes[3])); // between 2-3
-                nodes.push_back(0.5 * (nodes[9] + nodes[10])); // between 9-10
-                nodes.push_back(0.5 * (nodes[0] + nodes[4])); // between 0-4
-                nodes.push_back(0.5 * (nodes[1] + nodes[5])); // between 1-5
-                nodes.push_back(0.5 * (nodes[2] + nodes[6])); // between 2-6
-                nodes.push_back(0.5 * (nodes[3] + nodes[7])); // between 3-7
-                nodes.push_back(0.5 * (nodes[13] + nodes[14])); // between 13-14
-                nodes.push_back(0.5 * (nodes[13] + nodes[15])); // between 13-15
-                nodes.push_back(0.5 * (nodes[14] + nodes[16])); // between 14-16
-                nodes.push_back(0.5 * (nodes[15] + nodes[16])); // between 15-16
-                nodes.push_back(0.5 * (nodes[18] + nodes[19])); // between 18-19
-                nodes.push_back(0.5 * (nodes[4] + nodes[5])); // between 4-5
-                nodes.push_back(0.5 * (nodes[4] + nodes[6])); // between 4-6
-                nodes.push_back(0.5 * (nodes[5] + nodes[7])); // between 5-7
-                nodes.push_back(0.5 * (nodes[6] + nodes[7])); // between 6-7
-                nodes.push_back(0.5 * (nodes[23] + nodes[24])); // between 23-24
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[1]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[2]) + *static_cast<const PointPhysical<3>*>(nodes[3]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[5]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[6]) + *static_cast<const PointPhysical<3>*>(nodes[7]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[2]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[6]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[3]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[5]) + *static_cast<const PointPhysical<3>*>(nodes[7]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[4]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[5]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[2]) + *static_cast<const PointPhysical<3>*>(nodes[6]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[7]))));
+
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[8]) + *static_cast<const PointPhysical<3>*>(nodes[9]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[10]) + *static_cast<const PointPhysical<3>*>(nodes[11]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[12]) + *static_cast<const PointPhysical<3>*>(nodes[13]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[14]) + *static_cast<const PointPhysical<3>*>(nodes[15]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[16]) + *static_cast<const PointPhysical<3>*>(nodes[17]))));
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[18]) + *static_cast<const PointPhysical<3>*>(nodes[19]))));
+
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[20]) + *static_cast<const PointPhysical<3>*>(nodes[21]))));
                 break;
                 
             default:
                 break;
         }
+        return nodes;
     }
     
     std::size_t RefinementHexahedron::nrOfSubElements(std::size_t refineType) const

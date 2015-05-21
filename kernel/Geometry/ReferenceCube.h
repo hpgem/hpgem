@@ -43,7 +43,6 @@ namespace Geometry
     class ReferenceCube : public ReferenceGeometry
     {
     public:
-        using typename ReferenceGeometry::VectorOfReferencePointsT;
 
         using ReferenceGeometry::String;
         
@@ -56,10 +55,26 @@ namespace Geometry
         ReferenceCube(const ReferenceCube& other) = delete;
         
         //! (see ReferenceGeometry.h)
-        bool isInternalPoint(const PointReference& p) const override final;
+        bool isInternalPoint(const PointReference<3>& p) const override final;
         
         //! Output routine
         friend std::ostream& operator<<(std::ostream& os, const ReferenceCube& cube);
+
+        const PointReferenceBase& getCenter() const override final
+        {
+            return *center_;
+        }
+
+        std::size_t getNumberOfNodes() const override final
+        {
+            return 8;
+        }
+
+        const PointReferenceBase& getNode(const std::size_t& i) const override final
+        {
+            logger.assert(i < getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
+            return *points_[i];
+        }
 
         // ================================== Codimension 0 ========================================
         
@@ -67,7 +82,7 @@ namespace Geometry
         std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const override final;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t) const override final;
+        const MappingReferenceToReference<0>* getCodim0MappingPtr(const std::size_t) const override final;
 
         using MappingCodimensions::getCodim0MappingPtr;
 
@@ -83,7 +98,7 @@ namespace Geometry
         std::vector<std::size_t> getCodim1EntityLocalIndices(const std::size_t) const override final;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim1MappingPtr(const std::size_t) const override final;
+        const MappingReferenceToReference<1>* getCodim1MappingPtr(const std::size_t) const override final;
 
         //! (see MappingCodimensions.h)
         const ReferenceGeometry* getCodim1ReferenceGeometry(const std::size_t) const override final;
@@ -100,7 +115,7 @@ namespace Geometry
         std::vector<std::size_t> getCodim2EntityLocalIndices(const std::size_t) const override final;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim2MappingPtr(const std::size_t) const override final;
+        const MappingReferenceToReference<2>* getCodim2MappingPtr(const std::size_t) const override final;
 
         //! (see MappingCodimensions.h)
         const ReferenceGeometry* getCodim2ReferenceGeometry(const std::size_t) const override final;
@@ -122,7 +137,7 @@ namespace Geometry
         // =============================== Refinement mappings =====================================
         
         //! Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const;
+        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<3>& p, PointReference<3>& pMap) const;
 
         //! Transformation matrix of this refinement when located on the LEFT side
         void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const;
@@ -148,10 +163,10 @@ namespace Geometry
         static std::size_t localNodesOnEdge_[12][2]; //!< 12 edges with 2 nodes
         
         //! Codimension 1 mappings, from a line to a square. TODO: Where is this used? clarify here.
-        const MappingReferenceToReference* mappingsSquareToCube_[6];
+        const MappingReferenceToReference<1>* mappingsSquareToCube_[6];
 
         //! Codimension 0 mappings, from a square to a square. TODO: Where is this used? clarifiy here.
-        const MappingReferenceToReference* mappingsCubeToCube_[8];
+        const MappingReferenceToReference<0>* mappingsCubeToCube_[8];
 
         //! Pointer to the Codimension 1 reference geometry, in this case, to ReferenceSquare.
         ReferenceGeometry* const referenceGeometryCodim1Ptr_;
@@ -161,6 +176,10 @@ namespace Geometry
 
         //! List of valid quadrature rules for this reference geometry
         std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
+
+        std::vector<const PointReference<3>* > points_;
+
+        const PointReference<3>* center_;
     };
 }
 #endif

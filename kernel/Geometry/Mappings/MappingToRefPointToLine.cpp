@@ -46,7 +46,7 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference& MappingToRefPointToLine0::transform(const Geometry::PointReference& p1) const
+    const PointReference<1>& MappingToRefPointToLine0::transform(const Geometry::PointReference<0>& p1) const
     {
         logger.assert(p1.size()==0, "Reference point has the wrong dimension");
         try
@@ -55,15 +55,15 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({-1.});
+            const_cast<std::unordered_map<const PointReference<0>*, const PointReference<1>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<1>::instance()->makePoint({-1.});
             return *transformedCoordinates.at(&p1);
         }
     }
     
-    Jacobian MappingToRefPointToLine0::calcJacobian(const Geometry::PointReference& p1) const
+    Jacobian<0, 1> MappingToRefPointToLine0::calcJacobian(const Geometry::PointReference<0>& p1) const
     {
         logger.assert(p1.size()==0, "Reference point has the wrong dimension");
-        return Jacobian(1, 0);
+        return Jacobian<0, 1>();
     }
     
     MappingToRefPointToLine0::MappingToRefPointToLine0()
@@ -80,7 +80,7 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference& MappingToRefPointToLine1::transform(const Geometry::PointReference& p1) const
+    const PointReference<1>& MappingToRefPointToLine1::transform(const Geometry::PointReference<0>& p1) const
     {
         logger.assert(p1.size()==0, "Reference point has the wrong dimension");
         try
@@ -89,15 +89,15 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({1.});
+            const_cast<std::unordered_map<const PointReference<0>*, const PointReference<1>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<1>::instance()->makePoint({1.});
             return *transformedCoordinates.at(&p1);
         }
     }
     
-    Jacobian MappingToRefPointToLine1::calcJacobian(const Geometry::PointReference& p1) const
+    Jacobian<0, 1> MappingToRefPointToLine1::calcJacobian(const Geometry::PointReference<0>& p1) const
     {
         logger.assert(p1.size()==0, "Reference point has the wrong dimension");
-        return Jacobian(1, 0);
+        return Jacobian<0, 1>();
     }
     
     MappingToRefPointToLine1::MappingToRefPointToLine1()

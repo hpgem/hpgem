@@ -51,12 +51,12 @@ namespace Geometry
      */
 
     // ~~~ index 0 ~~~==============================================================================
-    class MappingToRefLineToSquare0 : public MappingReferenceToReference
+    class MappingToRefLineToSquare0 : public MappingReferenceToReference<1>
     {
     public:
         static const MappingToRefLineToSquare0& Instance();
-        const PointReference& transform(const Geometry::PointReference& p1) const override final;
-        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        const PointReference<2>& transform(const Geometry::PointReference<1>& p1) const override final;
+        Jacobian<1, 2> calcJacobian(const Geometry::PointReference<1>&) const override final;
         std::size_t getTargetDimension() const override final
         {
             return 2;
@@ -65,14 +65,15 @@ namespace Geometry
         MappingToRefLineToSquare0& operator=(const MappingToRefLineToSquare0&);
     private:
         MappingToRefLineToSquare0();
+        std::unordered_map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 1 ~~~==============================================================================
-    class MappingToRefLineToSquare1 : public MappingReferenceToReference
+    class MappingToRefLineToSquare1 : public MappingReferenceToReference<1>
     {
     public:
         static const MappingToRefLineToSquare1& Instance();
-        const PointReference& transform(const Geometry::PointReference& p1) const override final;
-        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        const PointReference<2>& transform(const Geometry::PointReference<1>& p1) const override final;
+        Jacobian<1, 2> calcJacobian(const Geometry::PointReference<1>&) const override final;
         std::size_t getTargetDimension() const override final
         {
             return 2;
@@ -81,14 +82,15 @@ namespace Geometry
         MappingToRefLineToSquare1& operator=(const MappingToRefLineToSquare1&) = delete;
     private:
         MappingToRefLineToSquare1();
+        std::unordered_map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 2 ~~~==============================================================================
-    class MappingToRefLineToSquare2 : public MappingReferenceToReference
+    class MappingToRefLineToSquare2 : public MappingReferenceToReference<1>
     {
     public:
         static const MappingToRefLineToSquare2& Instance();
-        const PointReference& transform(const Geometry::PointReference& p1) const override final;
-        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        const PointReference<2>& transform(const Geometry::PointReference<1>& p1) const override final;
+        Jacobian<1, 2> calcJacobian(const Geometry::PointReference<1>&) const override final;
         std::size_t getTargetDimension() const override final
         {
             return 2;
@@ -97,14 +99,15 @@ namespace Geometry
         MappingToRefLineToSquare1& operator=(const MappingToRefLineToSquare2&) = delete;
     private:
         MappingToRefLineToSquare2();
+        std::unordered_map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 3 ~~~==============================================================================
-    class MappingToRefLineToSquare3 : public MappingReferenceToReference
+    class MappingToRefLineToSquare3 : public MappingReferenceToReference<1>
     {
     public:
         static const MappingToRefLineToSquare3& Instance();
-        const PointReference& transform(const Geometry::PointReference& p1) const override final;
-        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        const PointReference<2>& transform(const Geometry::PointReference<1>& p1) const override final;
+        Jacobian<1, 2> calcJacobian(const Geometry::PointReference<1>&) const override final;
         std::size_t getTargetDimension() const override final
         {
             return 2;
@@ -113,6 +116,7 @@ namespace Geometry
         MappingToRefLineToSquare3& operator=(const MappingToRefLineToSquare3&) = delete;
     private:
         MappingToRefLineToSquare3();
+        std::unordered_map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
     };
 }
 #endif /* MAPPINGSIMPLECUBENLINEAR_H_ */

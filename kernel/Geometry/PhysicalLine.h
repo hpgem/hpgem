@@ -29,11 +29,11 @@ namespace Geometry
     
     /// \deprecated just pass a referenceLine to the constructor of a PhysicalGeometry
     /// if you want to create a line
-    class PhysicalLine : public PhysicalGeometry
+    class PhysicalLine : public PhysicalGeometry<1>
     {
         
     public:
-        PhysicalLine(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
+        PhysicalLine(const std::vector<std::size_t>&, std::vector<PointPhysical<1> >&);
     };
 
 }

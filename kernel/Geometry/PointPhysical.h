@@ -23,56 +23,59 @@
 #define POINTPHYSICAL_HPP_
 
 #include "Point.h"
+#include "PointPhysicalBase.h"
 #include <complex>
 namespace Geometry
 {
-    class PointPhysical : public Point
+    template<std::size_t DIM>
+    class PointPhysical;
+
+    template<std::size_t DIM>
+    class PointPhysical : public Point<DIM>, public PointPhysicalBase
     {
         
     public:
         
-        PointPhysical(std::size_t DIM)
-                : Point(DIM)
+        PointPhysical()
+                : Point<DIM>()
         {
         }
         
         PointPhysical(const PointPhysical& p)
-                : Point(p)
+                : Point<DIM>(p)
         {
         }
 
-        explicit PointPhysical(const Point& p)
-                : Point(p)
+        explicit PointPhysical(const Point<DIM>& p)
+                : Point<DIM>(p)
         {
         }
         
-        PointPhysical(const VectorOfCoordsT& coord)
-                : Point(coord)
+        PointPhysical(const LinearAlgebra::SmallVector<DIM>& coord)
+                : Point<DIM>(coord)
         {
         }
         
         PointPhysical operator*(double right) const
         {
-            return PointPhysical(Point::coordinates_ * right);
+            return PointPhysical(Point<DIM>::coordinates_ * right);
         }
         
         PointPhysical operator/(double right) const
         {
-            return PointPhysical(Point::coordinates_ / right);
+            return PointPhysical(Point<DIM>::coordinates_ / right);
         }
         
         //please note that for type-safety this function cannot be removed in favor
         //of the Point::operator+
         PointPhysical operator+(const PointPhysical& right) const
         {
-            logger.assert(size()==right.size(), "The sizes of the points do not match");
-            return PointPhysical(Point::coordinates_ + right.coordinates_);
+            return PointPhysical(Point<DIM>::coordinates_ + right.coordinates_);
         }
         
         PointPhysical operator-(const PointPhysical& right) const
         {
-            logger.assert(size()==right.size(), "The sizes of the points do not match");
-            return PointPhysical(Point::coordinates_ - right.coordinates_);
+            return PointPhysical(Point<DIM>::coordinates_ - right.coordinates_);
         }
         
         PointPhysical operator-() const
@@ -82,39 +85,31 @@ namespace Geometry
         
         PointPhysical& operator=(const PointPhysical& right)
         {
-            Point::coordinates_ = right.coordinates_;
+            Point<DIM>::coordinates_ = right.coordinates_;
             return *this;
         }
         
         void axpy(const double& alpha, const PointPhysical& x)
         {
-            logger.assert(size()==x.size(), "The sizes of the points do not match");
-            coordinates_.axpy(alpha, x.coordinates_);
+            Point<DIM>::coordinates_.axpy(alpha, x.coordinates_);
         }
-        
-#ifdef HPGEM_USE_COMPLEX_PETSC
-        
-        const std::complex<double>* data() const
-        {   
-            static std::complex<double>* new_Data;
-
-            for (std::size_t i = 0; i < PointT::coordinates_.size(); i++)
-            {   
-                new_Data[i] = PointT::coordinates_.data()[i];
-            }
-            return new_Data;
-        }
-#else
         
         const double* data() const
         {
-            return coordinates_.data();
+            return Point<DIM>::coordinates_.data();
         }
         
-#endif
+        std::size_t size() const
+        {
+            return Point<DIM>::size();
+        }
+
     };
     
-    PointPhysical operator*(double left, const PointPhysical& right);
+    template<std::size_t DIM>
+    PointPhysical<DIM> operator*(double left, const PointPhysical<DIM>& right);
 }
+
+#include "PointPhysical.cpp"
 
 #endif /* POINTPHYSICAL_HPP_ */

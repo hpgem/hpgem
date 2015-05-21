@@ -58,12 +58,12 @@ namespace Geometry
         mappingsTriangleToTriangle_[4] = &MappingToRefTriangleToTriangle4::Instance(); // (x,y) -> (x,-y)
         mappingsTriangleToTriangle_[5] = &MappingToRefTriangleToTriangle5::Instance(); // (x,y) -> (-x,y)
         
-        points_[0] = PointReferenceFactory::instance()->makePoint({0., 0.});
-        points_[1] = PointReferenceFactory::instance()->makePoint({1., 0.});
-        points_[2] = PointReferenceFactory::instance()->makePoint({0., 1.});
+        points_[0] = PointReferenceFactory<2>::instance()->makePoint({0., 0.});
+        points_[1] = PointReferenceFactory<2>::instance()->makePoint({1., 0.});
+        points_[2] = PointReferenceFactory<2>::instance()->makePoint({0., 1.});
     }
     
-    bool ReferenceTriangle::isInternalPoint(const PointReference& p) const
+    bool ReferenceTriangle::isInternalPoint(const PointReference<2>& p) const
     {
         logger.assert(p.size()==2, "The dimension of the reference point is incorrect");
         return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
@@ -72,8 +72,8 @@ namespace Geometry
     std::ostream& operator<<(std::ostream& os, const ReferenceTriangle& triangle)
     {
         os << triangle.getName() << " =( ";
-        ReferenceTriangle::const_iterator it = triangle.points_.begin();
-        ReferenceTriangle::const_iterator end = triangle.points_.end();
+        auto it = triangle.points_.begin();
+        auto end = triangle.points_.end();
         
         for (; it != end; ++it)
         {
@@ -120,7 +120,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<0>*
     ReferenceTriangle::getCodim0MappingPtr(const std::size_t i) const
     {
         logger.assert((i < 6), "ERROR: Asked for a mappingTriangleToTriangle larger than 5. There are only 6.\n");
@@ -138,7 +138,7 @@ namespace Geometry
         logger.assert((faceIndex < 3), "ERROR: Asked for a triangle face index larger than 2. There are only 3 faces in a triangle.\n");
         return referenceGeometryCodim1Ptr_;
     }
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<1>*
     ReferenceTriangle::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         logger.assert((faceIndex < 3), "ERROR: Asked for a triangle point index larger than 3. There are only 3 nodes in a triangle.\n");

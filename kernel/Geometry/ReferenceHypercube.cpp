@@ -37,22 +37,22 @@ namespace Geometry
         
         ///reference element
         
-        points_[ 0] = PointReferenceFactory::instance()->makePoint({-1., -1., -1., -1.});
-        points_[ 1] = PointReferenceFactory::instance()->makePoint({ 1., -1., -1., -1.});
-        points_[ 2] = PointReferenceFactory::instance()->makePoint({-1.,  1., -1., -1.});
-        points_[ 3] = PointReferenceFactory::instance()->makePoint({ 1.,  1., -1., -1.});
-        points_[ 4] = PointReferenceFactory::instance()->makePoint({-1., -1.,  1., -1.});
-        points_[ 5] = PointReferenceFactory::instance()->makePoint({ 1., -1.,  1., -1.});
-        points_[ 6] = PointReferenceFactory::instance()->makePoint({-1.,  1.,  1., -1.});
-        points_[ 7] = PointReferenceFactory::instance()->makePoint({ 1.,  1.,  1., -1.});
-        points_[ 8] = PointReferenceFactory::instance()->makePoint({-1., -1., -1.,  1.});
-        points_[ 9] = PointReferenceFactory::instance()->makePoint({ 1., -1., -1.,  1.});
-        points_[10] = PointReferenceFactory::instance()->makePoint({-1.,  1., -1.,  1.});
-        points_[11] = PointReferenceFactory::instance()->makePoint({ 1.,  1., -1.,  1.});
-        points_[12] = PointReferenceFactory::instance()->makePoint({-1., -1.,  1.,  1.});
-        points_[13] = PointReferenceFactory::instance()->makePoint({ 1., -1.,  1.,  1.});
-        points_[14] = PointReferenceFactory::instance()->makePoint({-1.,  1.,  1.,  1.});
-        points_[15] = PointReferenceFactory::instance()->makePoint({ 1.,  1.,  1.,  1.});
+        points_[ 0] = PointReferenceFactory<4>::instance()->makePoint({-1., -1., -1., -1.});
+        points_[ 1] = PointReferenceFactory<4>::instance()->makePoint({ 1., -1., -1., -1.});
+        points_[ 2] = PointReferenceFactory<4>::instance()->makePoint({-1.,  1., -1., -1.});
+        points_[ 3] = PointReferenceFactory<4>::instance()->makePoint({ 1.,  1., -1., -1.});
+        points_[ 4] = PointReferenceFactory<4>::instance()->makePoint({-1., -1.,  1., -1.});
+        points_[ 5] = PointReferenceFactory<4>::instance()->makePoint({ 1., -1.,  1., -1.});
+        points_[ 6] = PointReferenceFactory<4>::instance()->makePoint({-1.,  1.,  1., -1.});
+        points_[ 7] = PointReferenceFactory<4>::instance()->makePoint({ 1.,  1.,  1., -1.});
+        points_[ 8] = PointReferenceFactory<4>::instance()->makePoint({-1., -1., -1.,  1.});
+        points_[ 9] = PointReferenceFactory<4>::instance()->makePoint({ 1., -1., -1.,  1.});
+        points_[10] = PointReferenceFactory<4>::instance()->makePoint({-1.,  1., -1.,  1.});
+        points_[11] = PointReferenceFactory<4>::instance()->makePoint({ 1.,  1., -1.,  1.});
+        points_[12] = PointReferenceFactory<4>::instance()->makePoint({-1., -1.,  1.,  1.});
+        points_[13] = PointReferenceFactory<4>::instance()->makePoint({ 1., -1.,  1.,  1.});
+        points_[14] = PointReferenceFactory<4>::instance()->makePoint({-1.,  1.,  1.,  1.});
+        points_[15] = PointReferenceFactory<4>::instance()->makePoint({ 1.,  1.,  1.,  1.});
         
         mappingsCubeToHypercube_[0] = &MappingToRefCubeToHypercube0::Instance();
         mappingsCubeToHypercube_[1] = &MappingToRefCubeToHypercube1::Instance();
@@ -64,7 +64,7 @@ namespace Geometry
         mappingsCubeToHypercube_[7] = &MappingToRefCubeToHypercube7::Instance();
     }
     
-    bool ReferenceHypercube::isInternalPoint(const PointReference& p) const
+    bool ReferenceHypercube::isInternalPoint(const PointReference<4>& p) const
     {
         logger.assert(p.size()==4, "The dimension of the point is wrong");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.) && (p[2] >= -1.) && (p[2] <= 1.) && (p[3] >= -1.) && (p[3] <= 1.));
@@ -73,8 +73,8 @@ namespace Geometry
     std::ostream& operator<<(std::ostream& os, const ReferenceHypercube& hypercube)
     {
         os << hypercube.getName() << "=( ";
-        ReferenceHypercube::const_iterator cit = hypercube.points_.begin();
-        ReferenceHypercube::const_iterator cend = hypercube.points_.end();
+        auto cit = hypercube.points_.begin();
+        auto cend = hypercube.points_.end();
         
         for (; cit != cend; ++cit)
         {
@@ -93,7 +93,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<0>*
     ReferenceHypercube::getCodim0MappingPtr(const std::size_t i) const
     {
         logger(FATAL, "ReferenceCube::getCodim0MappingPtr not implemented.\n");
@@ -102,7 +102,7 @@ namespace Geometry
     
     // ================================== Codimension 1 ============================================
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<1>*
     ReferenceHypercube::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         logger.assert((faceIndex < 8), "ERROR: ReferenceHypercube::getCodim1MappingPtr requested face index does not exist.\n");
@@ -125,7 +125,7 @@ namespace Geometry
     
     // ================================== Codimension 2 ============================================
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<2>*
     ReferenceHypercube::getCodim2MappingPtr(const std::size_t lineIndex) const
     {
         /// TODO: Implement face to hypercube mappings.

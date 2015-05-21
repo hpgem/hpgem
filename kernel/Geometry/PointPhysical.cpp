@@ -21,7 +21,8 @@
 
 #include "PointPhysical.h"
 
-Geometry::PointPhysical Geometry::operator*(double left, const Geometry::PointPhysical& right)
+template<std::size_t DIM>
+Geometry::PointPhysical<DIM> Geometry::operator*(double left, const Geometry::PointPhysical<DIM>& right)
 {
     return right * left;
 }

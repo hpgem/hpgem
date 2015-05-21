@@ -28,28 +28,30 @@
 /*! The mapping is linear in every reference space dimension, with the offset to
  *  the origin of the dim-simplex. */
 template<std::size_t DIM>
-Geometry::PointPhysical Geometry::MappingToPhysSimplexLinear<DIM>::transform(const PointReference& pointReference) const
+Geometry::PointPhysical<DIM> Geometry::MappingToPhysSimplexLinear<DIM>::transform(const PointReference<DIM>& pointReference) const
 {
     logger.assert(pointReference.size()==DIM, "Reference point has the wrong dimension");
-    Geometry::PointPhysical pointPhysical = nodeCoordinates_[0];
+    Geometry::PointPhysical<DIM> pointPhysical = geometry->getLocalNodeCoordinates(0);
     for (std::size_t i = 1; i <= DIM; ++i)
     {
-        pointPhysical += pointReference[i - 1] * nodeCoordinates_[i];
+        const Geometry::PointPhysical<DIM>& next = geometry->getLocalNodeCoordinates(i);
+        pointPhysical += pointReference[i - 1] * next;
     }
     return pointPhysical;
 }
 
 /*! The Jacobian results from the transform function by symbolic derivation. */
 template<std::size_t DIM>
-Geometry::Jacobian Geometry::MappingToPhysSimplexLinear<DIM>::calcJacobian(const PointReference& pointReference) const
+Geometry::Jacobian<DIM, DIM> Geometry::MappingToPhysSimplexLinear<DIM>::calcJacobian(const PointReference<DIM>& pointReference) const
 {
     logger.assert(pointReference.size()==DIM, "Reference point has the wrong dimension");
-    Jacobian jacobian(DIM, DIM);
+    Jacobian<DIM, DIM> jacobian;
     for (std::size_t i = 0; i < DIM; i++)
     {
+        const PointPhysical<DIM>& point = geometry->getLocalNodeCoordinates(i + 1);
         for (std::size_t j = 0; j < DIM; j++)
         {
-            jacobian(i, j) = nodeCoordinates_[j + 1][i];
+            jacobian(j, i) = point[j];
         }
     }
     return jacobian;
@@ -57,13 +59,8 @@ Geometry::Jacobian Geometry::MappingToPhysSimplexLinear<DIM>::calcJacobian(const
 
 /*! For the simplices it actually saves computations to save the coefficients.*/
 template<std::size_t DIM>
-void Geometry::MappingToPhysSimplexLinear<DIM>::reinit(const PhysicalGeometry* const physicalGeometry)
+void Geometry::MappingToPhysSimplexLinear<DIM>::reinit()
 {
-    logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
-    nodeCoordinates_[0] = physicalGeometry->getLocalNodeCoordinates(0);
-    for (std::size_t i = 1; i <= DIM; ++i)
-    {
-        nodeCoordinates_[i] = physicalGeometry->getLocalNodeCoordinates(i) - nodeCoordinates_[0];
-    }
+    //we get a free reinit because transform and jacobian use the nodes directly
 }
 #endif /* MAPPINGSIMPLECUBENLINEAR_H_ */

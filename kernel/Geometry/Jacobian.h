@@ -22,20 +22,25 @@
 #ifndef JACOBIAN_HPP_
 #define JACOBIAN_HPP_
 
-#include "LinearAlgebra/MiddleSizeMatrix.h"
+#include "LinearAlgebra/SmallMatrix.h"
 
 namespace Geometry
 {
-    class Jacobian : public LinearAlgebra::MiddleSizeMatrix
+    /**
+     * Jacobian of a mapping from dimFrom to dimTo. The standardized layout for Jacobians means that this has dimTo rows and dimFrom columns.
+     * This may mean the template parameters appear to be in reverse order if you like to treat a Jacobian as any other matrix
+     */
+    template<std::size_t dimFrom, std::size_t dimTo>
+    class Jacobian : public LinearAlgebra::SmallMatrix<dimTo, dimFrom>
     {
 
     public:
         // Constructors.
-        Jacobian(std::size_t dimTo, std::size_t dimFrom);
-        Jacobian(const Jacobian& jacobian) : MiddleSizeMatrix(jacobian) { }
+        Jacobian();
+        Jacobian(const Jacobian& jacobian) : LinearAlgebra::SmallMatrix<dimTo, dimFrom>(jacobian) { }
 
-        Jacobian(const LinearAlgebra::MiddleSizeMatrix& matrix)
-                : LinearAlgebra::MiddleSizeMatrix(matrix)
+        Jacobian(const LinearAlgebra::SmallMatrix<dimTo, dimFrom>& matrix)
+                : LinearAlgebra::SmallMatrix<dimTo, dimFrom>(matrix)
         {
         }
         
@@ -44,7 +49,7 @@ namespace Geometry
         /*! ConcatenatedMapping has to be able to do a matrix product on the
          Jacobians of two (successively applied) mappings. Therefore we provide
          the function multiplyJacobiansInto. */
-        Jacobian multiplyJacobiansInto(const Jacobian& jac2)
+        Jacobian multiplyJacobiansInto(const Jacobian<dimFrom, dimFrom>& jac2)
         {            
             return this->operator*(jac2);            
         }
@@ -52,4 +57,7 @@ namespace Geometry
     };
 
 }
+
+#include "Jacobian.cpp"
+
 #endif /* JACOBIAN_HPP_ */

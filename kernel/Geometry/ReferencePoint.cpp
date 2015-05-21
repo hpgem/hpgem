@@ -30,14 +30,15 @@ namespace Geometry
      *
      */
     ReferencePoint::ReferencePoint()
-            : ReferenceGeometry(1, 0, ReferenceGeometryType::POINT, {})
+            : ReferenceGeometry(1, 0, ReferenceGeometryType::POINT, {}), points_(1)
     {
         name = "ReferencePoint";
         mappingsPointToPoint_ = &MappingToRefPointToPoint::Instance();
-        points_[0] = Geometry::PointReferenceFactory::instance()->makePoint(0);
+        points_[0] = Geometry::PointReferenceFactory<0>::instance()->makePoint(0);
+        center_ = Geometry::PointReferenceFactory<0>::instance()->makePoint(0);
     }
     
-    bool ReferencePoint::isInternalPoint(const PointReference& p) const
+    bool ReferencePoint::isInternalPoint(const PointReference<0>& p) const
     {
         logger.assert(p.size()==0, "The dimension of the reference point is wrong");
         return true;
@@ -50,7 +51,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToReference* ReferencePoint::getCodim0MappingPtr(const std::size_t a) const
+    const MappingReferenceToReference<0>* ReferencePoint::getCodim0MappingPtr(const std::size_t a) const
     {
         logger.assert(a==0, "Asked for index %, but there are only 1 mappings", a);
         return mappingsPointToPoint_;

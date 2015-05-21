@@ -23,10 +23,13 @@
 #define MAPPINGINTERFACE_H_
 
 #include <cstdlib>
+#include "Logger.h"
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
+    template<std::size_t dimFrom, std::size_t dimTo>
     class Jacobian;
     
     /*!
@@ -89,14 +92,47 @@ namespace Geometry
      function of the reference geometry could hence be avoided, but I
      am not sure at the current stage (depends on whether some
      mappings can be used for different kinds of geometries).
+     <li> This is templated on the change in dimension, where a positive numbers
+     means mapping from a small-dimensional space (reference face) to a
+     larger-dimensional space (reference element)
      </ul> */
+    template<int codim>
     class MappingInterface
     {
     public:
         /*! (OC): Jacobian has a gradient in each line, hence as many lines as target
          space (DIM2) and as many columns as original space (DIM1),
          \frac{\partial x_i}{\partial \xi_j}. */
-        virtual Jacobian calcJacobian(const PointReference&) const = 0;
+        virtual Jacobian<0, 0 + codim> calcJacobian(const PointReference<0>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return Jacobian<0, 0 + codim>();
+        }
+
+        virtual Jacobian<1, 1 + codim> calcJacobian(const PointReference<1>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return Jacobian<1, 1 + codim>();
+        }
+
+        virtual Jacobian<2, 2 + codim> calcJacobian(const PointReference<2>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return Jacobian<2, 2 + codim>();
+        }
+
+        virtual Jacobian<3, 3 + codim> calcJacobian(const PointReference<3>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return Jacobian<3, 3 + codim>();
+        }
+
+        virtual Jacobian<4, 4 + codim> calcJacobian(const PointReference<4>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return Jacobian<4, 4 + codim>();
+        }
+
         
         MappingInterface() = default;
         MappingInterface(const MappingInterface &other) = default; //does nothing

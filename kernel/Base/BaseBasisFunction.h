@@ -26,6 +26,7 @@
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -35,8 +36,6 @@ namespace Base
     class BaseBasisFunction
     {
     public:
-        using PointReferenceT = Geometry::PointReference;
-        
         BaseBasisFunction() = default;
         BaseBasisFunction(const BaseBasisFunction &other) = default;
         BaseBasisFunction& operator=(const BaseBasisFunction &other) = default;
@@ -45,41 +44,116 @@ namespace Base
         {
         }
 
-        virtual double eval(const PointReferenceT& p) const = 0;
-
-        virtual void eval(const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const;
-
-        virtual double evalDeriv0(const PointReferenceT& p) const
+        //we have to manually specify reasonable choices for template parameters in virtual functions
+        virtual double eval(const Geometry::PointReference<1>& p) const
         {
-            logger(ERROR, "The DIMension of your basis function is too low to warrant taking a derivative in this direction");
+            logger(ERROR, "The reference point you passed has the wrong dimension");
             return 0;
         }
 
-        virtual double evalDeriv1(const PointReferenceT& p) const
+        virtual double eval(const Geometry::PointReference<2>& p) const
         {
-            logger(ERROR, "The DIMension of your basis function is too low to warrant taking a derivative in this direction");
+            logger(ERROR, "The reference point you passed has the wrong dimension");
             return 0;
         }
 
-        virtual double evalDeriv2(const PointReferenceT& p) const
+        virtual double eval(const Geometry::PointReference<3>& p) const
         {
-            logger(ERROR, "The DIMension of your basis function is too low to warrant taking a derivative in this direction");
+            logger(ERROR, "The reference point you passed has the wrong dimension");
             return 0;
         }
 
-        virtual double evalDeriv3(const PointReferenceT& p) const
+        virtual double eval(const Geometry::PointReference<4>& p) const
         {
-            logger(ERROR, "The DIMension of your basis function is too low to warrant taking a derivative in this direction");
+            logger(ERROR, "The reference point you passed has the wrong dimension");
             return 0;
         }
 
-        virtual LinearAlgebra::MiddleSizeVector evalCurl(const PointReferenceT& p) const
+        virtual void eval(const Geometry::PointReference<2>& p, LinearAlgebra::SmallVector<2>& ret) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+        }
+
+        virtual void eval(const Geometry::PointReference<3>& p, LinearAlgebra::SmallVector<3>& ret) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+        }
+
+        virtual void eval(const Geometry::PointReference<4>& p, LinearAlgebra::SmallVector<4>& ret) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+        }
+
+        virtual double evalDeriv0(const Geometry::PointReference<1>& p) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+            return 0;
+        }
+
+        virtual double evalDeriv0(const Geometry::PointReference<2>& p) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+            return 0;
+        }
+
+        virtual double evalDeriv0(const Geometry::PointReference<3>& p) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+            return 0;
+        }
+
+        virtual double evalDeriv0(const Geometry::PointReference<4>& p) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+            return 0;
+        }
+
+        virtual double evalDeriv1(const Geometry::PointReference<2>& p) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+            return 0;
+        }
+
+        virtual double evalDeriv1(const Geometry::PointReference<3>& p) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+            return 0;
+        }
+
+        virtual double evalDeriv1(const Geometry::PointReference<4>& p) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+            return 0;
+        }
+
+        virtual double evalDeriv2(const Geometry::PointReference<3>& p) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+            return 0;
+        }
+
+        virtual double evalDeriv2(const Geometry::PointReference<4>& p) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+            return 0;
+        }
+
+        virtual double evalDeriv3(const Geometry::PointReference<4>& p) const
+        {
+            logger(ERROR, "The reference point you passed has the wrong dimension");
+            return 0;
+        }
+
+        virtual LinearAlgebra::SmallVector<3> evalCurl(const Geometry::PointReference<3>& p) const
         {
             logger(ERROR, "The curl of a scalar valued basis function is not implemented. Perhaps you meant evalDeriv?");
-            return LinearAlgebra::MiddleSizeVector();
+            return LinearAlgebra::SmallVector<3>();
         }
-        
-        virtual LinearAlgebra::MiddleSizeVector evalDeriv(const PointReferenceT& p) const;
+
+        virtual LinearAlgebra::SmallVector<1> evalDeriv(const Geometry::PointReference<1>& p) const;
+        virtual LinearAlgebra::SmallVector<2> evalDeriv(const Geometry::PointReference<2>& p) const;
+        virtual LinearAlgebra::SmallVector<3> evalDeriv(const Geometry::PointReference<3>& p) const;
+        virtual LinearAlgebra::SmallVector<4> evalDeriv(const Geometry::PointReference<4>& p) const;
         
     };
 

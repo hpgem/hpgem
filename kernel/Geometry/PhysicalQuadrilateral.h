@@ -30,11 +30,11 @@ namespace Geometry
     
     /// \deprecated just pass a referenceSquare to the constructor of a PhysicalGeometry
     /// if you want to create a quadrilateral
-    class PhysicalQuadrilateral : public PhysicalGeometry
+    class PhysicalQuadrilateral : public PhysicalGeometry<2>
     {
     public:
         
-        PhysicalQuadrilateral(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
+        PhysicalQuadrilateral(const std::vector<std::size_t>&, std::vector<PointPhysical<2> >&);
     };
 
 }

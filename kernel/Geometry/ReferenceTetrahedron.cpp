@@ -45,10 +45,10 @@ namespace Geometry
     {
         name = "ReferenceTetrahedron";
         
-        points_[0] = PointReferenceFactory::instance()->makePoint({0., 0., 0.});
-        points_[1] = PointReferenceFactory::instance()->makePoint({1., 0., 0.});
-        points_[2] = PointReferenceFactory::instance()->makePoint({0., 1., 0.});
-        points_[3] = PointReferenceFactory::instance()->makePoint({0., 0., 1.});
+        points_[0] = PointReferenceFactory<3>::instance()->makePoint({0., 0., 0.});
+        points_[1] = PointReferenceFactory<3>::instance()->makePoint({1., 0., 0.});
+        points_[2] = PointReferenceFactory<3>::instance()->makePoint({0., 1., 0.});
+        points_[3] = PointReferenceFactory<3>::instance()->makePoint({0., 0., 1.});
         
         mappingsTriangleToTetrahedron_[0] = &MappingToRefTriangleToTetrahedron0::Instance();
         mappingsTriangleToTetrahedron_[1] = &MappingToRefTriangleToTetrahedron1::Instance();
@@ -59,7 +59,7 @@ namespace Geometry
         mappingsTetrahedronToTetrahedron_[0] = 0;
     }
     
-    bool ReferenceTetrahedron::isInternalPoint(const PointReference& p) const
+    bool ReferenceTetrahedron::isInternalPoint(const PointReference<3>& p) const
     {
         logger.assert(p.size()==3, "The dimension of the reference point is incorrect");
         return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]) && (p[2] >= 0.) && (p[2] <= 1. - p[0] - p[1]));
@@ -68,8 +68,8 @@ namespace Geometry
     std::ostream& operator<<(std::ostream& os, const ReferenceTetrahedron& tetra)
     {
         os << tetra.getName() << " =( ";
-        ReferenceTetrahedron::const_iterator it = tetra.points_.begin();
-        ReferenceTetrahedron::const_iterator end = tetra.points_.end();
+        auto it = tetra.points_.begin();
+        auto end = tetra.points_.end();
         
         for (; it != end; ++it)
         {
@@ -88,7 +88,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<0>*
     ReferenceTetrahedron::getCodim0MappingPtr(const std::size_t i) const
     {
         /// \TODO: Implement tetrahedron to tetrahedron mappings.
@@ -111,7 +111,7 @@ namespace Geometry
         return referenceGeometryCodim1Ptr_;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<1>*
     ReferenceTetrahedron::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         logger.assert((faceIndex < 4), "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square.\n");
@@ -133,7 +133,7 @@ namespace Geometry
         return referenceGeometryCodim2Ptr_;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<2>*
     ReferenceTetrahedron::getCodim2MappingPtr(const std::size_t faceIndex) const
     {
         /// \TODO: Implement line to tetrahedron mappings.

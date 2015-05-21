@@ -30,17 +30,18 @@
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointPhysical;
-    class PhysicalGeometry;
+    class PhysicalGeometryBase;
     class ReferenceGeometry;
     
     class RefinementLine : public Geometry::RefinementGeometry
     {
     public:
-        using PointPhysicalT = PointPhysical;
-        using PhysicalGeometryT = PhysicalGeometry;
+        using PointPhysicalT = PointPhysicalBase;
+        using PhysicalGeometryT = PhysicalGeometryBase;
         using ReferenceGeometryT = ReferenceGeometry;
-        using VectorOfPointPhysicalsT = std::vector<PointPhysicalT>;
+        using VectorOfPointPhysicalsT = std::vector<const PointPhysicalT*>;
         using VectorOfIndicesT = std::vector<std::size_t>;
 
         //! Constructors.
@@ -74,7 +75,7 @@ namespace Geometry
         virtual std::size_t nrOfNewNodes(std::size_t refineType) const;
 
         //! Get all physical nodes: existing nodes and new nodes to be added.
-        virtual void getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const;
+        VectorOfPointPhysicalsT getAllNodes(std::size_t refineType) const;
 
         //! Number of sub-elements due to the refinement.
         virtual std::size_t nrOfSubElements(std::size_t refineType) const;

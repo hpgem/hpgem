@@ -29,6 +29,7 @@ namespace Geometry
 {
     class ReferenceGeometry;
     
+    template<int codim>
     class MappingReferenceToReference;
     
     /*!
@@ -50,9 +51,9 @@ namespace Geometry
         virtual std::size_t
         getCodim0MappingIndex(const std::vector<std::size_t>&, const std::vector<std::size_t>&) const = 0;
 
-        virtual const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t) const = 0;
+        virtual const MappingReferenceToReference<0>* getCodim0MappingPtr(const std::size_t) const = 0;
 
-        const MappingReferenceToReference* getCodim0MappingPtr(const std::vector<std::size_t>& n1, const std::vector<std::size_t>& n2) const
+        const MappingReferenceToReference<0>* getCodim0MappingPtr(const std::vector<std::size_t>& n1, const std::vector<std::size_t>& n2) const
         {
             return getCodim0MappingPtr(getCodim0MappingIndex(n1, n2));
         }
@@ -70,7 +71,7 @@ namespace Geometry
         
         }
         
-        virtual const MappingReferenceToReference* getCodim1MappingPtr(const std::size_t) const
+        virtual const MappingReferenceToReference<1>* getCodim1MappingPtr(const std::size_t) const
         {
             logger(ERROR, "The dimension of given entity is too low to warrant maps of this codimension.\n");
             return 0;
@@ -94,7 +95,7 @@ namespace Geometry
             return dummy;
         }
         
-        virtual const MappingReferenceToReference* getCodim2MappingPtr(const std::size_t) const
+        virtual const MappingReferenceToReference<2>* getCodim2MappingPtr(const std::size_t) const
         {
             logger(ERROR, "The dimension of given entity is too low to warrant maps of this codimension.\n");
             return 0;

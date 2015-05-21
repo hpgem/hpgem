@@ -31,6 +31,7 @@ namespace LinearAlgebra
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
     
     class RefinementMapping
@@ -48,7 +49,36 @@ namespace Geometry
         //---------------------- Refinement mappings -----------------------------------------
         
         //! Transform a reference point using refinement mapping
-        virtual void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const = 0;
+        virtual void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<0>& p, PointReference<0>& pMap) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+        }
+
+        virtual void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<1>& p, PointReference<1>& pMap) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+        }
+
+        virtual void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<2>& p, PointReference<2>& pMap) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+        }
+
+        virtual void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<3>& p, PointReference<3>& pMap) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+        }
+
+        virtual void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<4>& p, PointReference<4>& pMap) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+        }
+
+        ///\todo functions below this line were not considered during the reintroduction of templated coordinate data, when element refinement is fixed, please update them as appropriate
+        ///-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
 
         //! Transformation matrix of this refinement when located on the LEFT side
         virtual void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const = 0;

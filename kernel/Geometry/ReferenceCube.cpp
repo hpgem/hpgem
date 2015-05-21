@@ -40,14 +40,14 @@ namespace Geometry
     {
         name = "ReferenceCube";
         
-        points_[0] = PointReferenceFactory::instance()->makePoint({-1., -1., -1.});
-        points_[1] = PointReferenceFactory::instance()->makePoint({ 1., -1., -1.});
-        points_[2] = PointReferenceFactory::instance()->makePoint({-1.,  1., -1.});
-        points_[3] = PointReferenceFactory::instance()->makePoint({ 1.,  1., -1.});
-        points_[4] = PointReferenceFactory::instance()->makePoint({-1., -1.,  1.});
-        points_[5] = PointReferenceFactory::instance()->makePoint({ 1., -1.,  1.});
-        points_[6] = PointReferenceFactory::instance()->makePoint({-1.,  1.,  1.});
-        points_[7] = PointReferenceFactory::instance()->makePoint({ 1.,  1.,  1.});
+        points_[0] = PointReferenceFactory<3>::instance()->makePoint({-1., -1., -1.});
+        points_[1] = PointReferenceFactory<3>::instance()->makePoint({ 1., -1., -1.});
+        points_[2] = PointReferenceFactory<3>::instance()->makePoint({-1.,  1., -1.});
+        points_[3] = PointReferenceFactory<3>::instance()->makePoint({ 1.,  1., -1.});
+        points_[4] = PointReferenceFactory<3>::instance()->makePoint({-1., -1.,  1.});
+        points_[5] = PointReferenceFactory<3>::instance()->makePoint({ 1., -1.,  1.});
+        points_[6] = PointReferenceFactory<3>::instance()->makePoint({-1.,  1.,  1.});
+        points_[7] = PointReferenceFactory<3>::instance()->makePoint({ 1.,  1.,  1.});
         
         mappingsSquareToCube_[0] = &MappingToRefSquareToCube0::Instance();
         mappingsSquareToCube_[1] = &MappingToRefSquareToCube1::Instance();
@@ -66,7 +66,7 @@ namespace Geometry
         mappingsCubeToCube_[7] = &MappingToRefCubeToCube7::Instance();
     }
     
-    bool ReferenceCube::isInternalPoint(const PointReference& p) const
+    bool ReferenceCube::isInternalPoint(const PointReference<3>& p) const
     {
         logger.assert(p.size()==3, "Passed a point with the wrong dimension");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.) && (p[2] >= -1.) && (p[2] <= 1.));
@@ -75,8 +75,8 @@ namespace Geometry
     std::ostream& operator<<(std::ostream& os, const ReferenceCube& cube)
     {
         os << cube.getName() << " =( ";
-        ReferenceCube::const_iterator it = cube.points_.begin();
-        ReferenceCube::const_iterator end = cube.points_.end();
+        auto it = cube.points_.begin();
+        auto end = cube.points_.end();
         
         for (; it != end; ++it)
         {
@@ -130,7 +130,7 @@ namespace Geometry
         return -1UL;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<0>*
     ReferenceCube::getCodim0MappingPtr(const std::size_t i) const
     {
         logger.assert((i < 8), "ERROR: Cube50.\n");
@@ -139,7 +139,7 @@ namespace Geometry
     
     // ================================== Codimension 1 ============================================
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<1>*
     ReferenceCube::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         logger.assert((faceIndex < 6), "Cube100.\n");
@@ -161,7 +161,7 @@ namespace Geometry
     
     // ================================== Codimension 2 ============================================
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<2>*
     ReferenceCube::getCodim2MappingPtr(const std::size_t lineIndex) const
     {
         logger.assert(lineIndex < getNrOfCodim2Entities(), "Asked for line %, but a cube only has % lines", lineIndex, getNrOfCodim2Entities());
@@ -183,7 +183,7 @@ namespace Geometry
     
     // =============================== Refinement mappings =====================================
     
-    void ReferenceCube::refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const
+    void ReferenceCube::refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<3>& p, PointReference<3>& pMap) const
     {
         switch (refineType)
         {

@@ -19,16 +19,19 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <PointReferenceFactory.h>
 #include <limits>
 #include <algorithm>
 
 namespace Geometry
 {
-    
-    PointReferenceFactory::PointReferenceFactory()
+    template<std::size_t DIM>
+    PointReferenceFactory<DIM>::PointReferenceFactory()
     {
-        points_.push_back(new PointReference{std::numeric_limits<double>::quiet_NaN()});
+        points_.push_back(new PointReference<DIM>());
+        for(std::size_t i = 0; i < DIM; ++i)
+        {
+            (*points_[0])[i] = std::numeric_limits<double>::quiet_NaN();
+        }
     }
 
     //developer note: during normal computation this routine is called a few times when the mappings and the quadrature rules are set up
@@ -36,14 +39,15 @@ namespace Geometry
     //should function independent of the quadrature rules and they should try to make sure everything works fine even for reference points
     //that are not listed in the quardature rules.This means the quadrature rules create many reference points and use them only once.
     //this is likely to be slow with the current set up
-    const PointReference* PointReferenceFactory::makePoint(const Point& p)
+    template<std::size_t DIM>
+    const PointReference<DIM>* PointReferenceFactory<DIM>::makePoint(const Point<DIM>& p)
     {
         //cannot find nan back using bounded difference
-        if(p.size() == 1 && std::isnan(p[0]))
+        if(std::isnan(p[0]))
         {
             return points_[0];
         }
-        auto existingPoint = std::find_if(points_.begin(), points_.end(), [&p](const PointReference* other){
+        auto existingPoint = std::find_if(points_.begin(), points_.end(), [&p](const PointReference<DIM>* other){
             //slow version: return p.size() == other->size() && std::sqrt((p - (*other)) * (p - (*other))) < 1e-12 (can be used for stack based points for less size checking and less moving up and down the stack)
             if(p.size() != other->size())
             {
@@ -62,22 +66,24 @@ namespace Geometry
         }
         else
         {
-            points_.push_back(new PointReference(p));
+            points_.push_back(new PointReference<DIM>(p));
             return points_.back();
         }
     }
     
-    PointReferenceFactory::~PointReferenceFactory()
+    template<std::size_t DIM>
+    PointReferenceFactory<DIM>::~PointReferenceFactory()
     {
-        for(const PointReference* point : points_)
+        for(const PointReference<DIM>* point : points_)
         {
             delete point;
         }
     }
 
-    void PointReferenceFactory::removeBasisFunctionData(const Base::BaseBasisFunction* function)
+    template<std::size_t DIM>
+    void PointReferenceFactory<DIM>::removeBasisFunctionData(const Base::BaseBasisFunction* function)
     {
-        for(PointReference* point : points_)
+        for(PointReference<DIM>* point : points_)
         {
             point->removeBasisFunctionData(function);
         }

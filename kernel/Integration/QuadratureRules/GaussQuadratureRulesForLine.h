@@ -35,7 +35,7 @@ namespace QuadratureRules
     class Cn1_1_1 : public GaussQuadratureRule
     {
     public:
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Cn1_1_1& Instance()
@@ -59,14 +59,14 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<1>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class Cn1_3_2 : public GaussQuadratureRule
     {
     public:
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Cn1_3_2& Instance()
@@ -90,14 +90,14 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[2];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<1>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class Cn1_5_3 : public GaussQuadratureRule
     {
     public:
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Cn1_5_3& Instance()
@@ -121,14 +121,14 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[3];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<1>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class C1_7_4 : public GaussQuadratureRule
     {
     public:
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
         static C1_7_4& Instance()
@@ -152,14 +152,14 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[4];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<1>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class C1_9_5 : public GaussQuadratureRule 
     {
     public:
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
         static C1_9_5& Instance()
@@ -183,14 +183,14 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[5];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<1>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class C1_11_6 : public GaussQuadratureRule
     {
     public:
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
         static C1_11_6& Instance()
@@ -214,7 +214,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[6];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<1>*> gp_;
     };
 
 //---------------------------------------------------------------------------

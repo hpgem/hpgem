@@ -37,12 +37,12 @@ namespace Geometry
     {
         name = "ReferenceTriangularPrism";
         
-        points_[0] = PointReferenceFactory::instance()->makePoint({0., 0., -1.});
-        points_[1] = PointReferenceFactory::instance()->makePoint({1., 0., -1.});
-        points_[2] = PointReferenceFactory::instance()->makePoint({0., 1., -1.});
-        points_[3] = PointReferenceFactory::instance()->makePoint({0., 0.,  1.});
-        points_[4] = PointReferenceFactory::instance()->makePoint({1., 0.,  1.});
-        points_[5] = PointReferenceFactory::instance()->makePoint({0., 1.,  1.});
+        points_[0] = PointReferenceFactory<3>::instance()->makePoint({0., 0., -1.});
+        points_[1] = PointReferenceFactory<3>::instance()->makePoint({1., 0., -1.});
+        points_[2] = PointReferenceFactory<3>::instance()->makePoint({0., 1., -1.});
+        points_[3] = PointReferenceFactory<3>::instance()->makePoint({0., 0.,  1.});
+        points_[4] = PointReferenceFactory<3>::instance()->makePoint({1., 0.,  1.});
+        points_[5] = PointReferenceFactory<3>::instance()->makePoint({0., 1.,  1.});
         
         /// Mappings between triangular prisms are not implemented
         mappingsTriangularPrismToTriangularPrism_[0] = 0;
@@ -54,7 +54,7 @@ namespace Geometry
         mappingsFaceToTriangularPrism_[4] = &MappingToRefFaceToTriangularPrism4::Instance();
     }
     
-    bool ReferenceTriangularPrism::isInternalPoint(const PointReference& p) const
+    bool ReferenceTriangularPrism::isInternalPoint(const PointReference<3>& p) const
     {
         logger.assert(p.size()==3, "The dimension of the reference point is incorrect");
         return ((-1. <= p[2]) && (1. >= p[2]) && (p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
@@ -63,8 +63,8 @@ namespace Geometry
     std::ostream& operator<<(std::ostream& os, const ReferenceTriangularPrism& prism)
     {
         os << prism.getName() << " = ( ";
-        ReferenceTriangularPrism::const_iterator it = prism.points_.begin();
-        ReferenceTriangularPrism::const_iterator end = prism.points_.end();
+        auto it = prism.points_.begin();
+        auto end = prism.points_.end();
         
         for (; it != end; ++it)
         {
@@ -84,7 +84,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<0>*
     ReferenceTriangularPrism::getCodim0MappingPtr(const std::size_t i) const
     {
         /// \TODO: Implement tetrahedron to tetrahedron mappings.
@@ -130,7 +130,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<1>*
     ReferenceTriangularPrism::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         logger.assert((faceIndex < 5), "Asked for a square point index larger than 3. There are only 4 nodes in a square!.\n");
@@ -152,7 +152,7 @@ namespace Geometry
         return referenceGeometryCodim2Ptr_;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<2>*
     ReferenceTriangularPrism::getCodim2MappingPtr(const std::size_t faceIndex) const
     {
         /// \TODO: Implement line to t.p. mappings.
@@ -170,7 +170,7 @@ namespace Geometry
     
     // =============================== Refinement mappings =====================================
     
-    void ReferenceTriangularPrism::refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const
+    void ReferenceTriangularPrism::refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<3>& p, PointReference<3>& pMap) const
     {
         switch (refineType)
         {

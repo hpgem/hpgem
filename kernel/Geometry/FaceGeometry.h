@@ -87,9 +87,13 @@ namespace LinearAlgebra
 
 namespace Geometry
 {
-    
+    template<std::size_t DIM>
     class PointPhysical;
+    class PointPhysicalBase;
+    template<std::size_t DIM>
     class PointReference;
+    class PointReferenceBase;
+    template<int codim>
     class MappingReferenceToReference;
     class ElementGeometry;
     class ReferenceGeometry;
@@ -155,9 +159,8 @@ namespace Geometry
         using MatrixT = LinearAlgebra::MiddleSizeMatrix;
         using SetOfGlobalNodes = std::set<std::size_t>;
         using VectorOfLocalNodes = std::vector<std::size_t>;
-        using ReferencePointT = PointReference;
         using LocalFaceNrType = std::size_t;
-        using RefFaceToRefElementMappingPtr = std::shared_ptr<const MappingReferenceToReference >;
+        using RefFaceToRefElementMappingPtr = std::shared_ptr<const MappingReferenceToReference<1> >;
         
         using ReferenceFaceGeometryT = ReferenceGeometry;
 
@@ -211,13 +214,14 @@ namespace Geometry
         {
             if (isInternal())
             {
-                logger.assert(isInternal(), "This face should be internal (%)", newFace);
+                //isInternal checks that faceType_ is appropriate for an internal face, so we should update faceType_ first to make the assertion work
                 faceType_ = newFace;
+                logger.assert(isInternal(), "This face should be internal (%)", newFace);
             }
             else
             {
-                logger.assert(!isInternal(), "This face should not be internal (%)", newFace);
                 faceType_ = newFace;
+                logger.assert(!isInternal(), "This face should not be internal (%)", newFace);
             }
         }
         
@@ -230,18 +234,22 @@ namespace Geometry
 
         /*! Map a point in coordinates of the reference geometry of the face to
          *  the reference geometry of the left (L) element. */
-        virtual const PointReference& mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const;
+        template<std::size_t DIM>
+        const PointReference<DIM + 1>& mapRefFaceToRefElemL(const PointReference<DIM>& pRefFace) const;
 
         /*! Map a point in coordinates of the reference geometry of the face to
          *  the reference geometry of the right (R) element. */
-        virtual const PointReference& mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const;
+        template<std::size_t DIM>
+        const PointReference<DIM + 1>& mapRefFaceToRefElemR(const PointReference<DIM>& pRefFace) const;
 
         /*! Map from reference face coordinates on the left side to those on the
          *  right side. */
-        virtual const PointReference& mapRefFaceToRefFace(const ReferencePointT& pIn) const;
+        template<std::size_t DIM>
+        const PointReference<DIM>& mapRefFaceToRefFace(const PointReference<DIM>& pIn) const;
         
         /// Get a normal at a given RefPoint
-        virtual LinearAlgebra::MiddleSizeVector getNormalVector(const ReferencePointT& pRefFace) const;
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM + 1> getNormalVector(const PointReference<DIM>& pRefFace) const;
 
         //! Return a Mapping 
         virtual RefFaceToRefElementMappingPtr refFaceToRefElemMapL() const;
@@ -249,7 +257,8 @@ namespace Geometry
         //! Return a mapping to the right reference element.
         virtual RefFaceToRefElementMappingPtr refFaceToRefElemMapR() const;
 
-        virtual PointPhysical referenceToPhysical(const Geometry::PointReference& pointReference) const;
+        template<std::size_t DIM>
+        PointPhysical<DIM + 1> referenceToPhysical(const Geometry::PointReference<DIM>& pointReference) const;
 
         ///\brief set up the faceToFaceMapIndex based on vertex connectivity information instead of node location
         void initialiseFaceToFaceMapIndex(const std::vector<std::size_t>& leftVertices, const std::vector<std::size_t>& rightVertices);

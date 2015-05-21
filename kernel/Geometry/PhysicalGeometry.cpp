@@ -25,15 +25,30 @@
 
 namespace Geometry
 {
-    
-    
-    PointPhysical PhysicalGeometry::getLocalNodeCoordinates(const std::size_t localIndex) const
+
+    template<std::size_t DIM>
+    const PointPhysicalBase& PhysicalGeometry<DIM>::getLocalNodeCoordinates(const std::size_t localIndex) const
     {
         logger.assert(localIndex < getNumberOfNodes(), "Asked for local index %, but this geometry only has % nodes",localIndex,getNumberOfNodes());
         return (nodes_)[globalNodeIndexes_[localIndex]];
     }
-    
-    PointPhysical PhysicalGeometry::getGlobalNodeCoordinates(const std::size_t globalIndex) const
+
+    template<std::size_t DIM>
+    const PointPhysicalBase& PhysicalGeometry<DIM>::getGlobalNodeCoordinates(const std::size_t globalIndex) const
+    {
+        logger.assert(globalIndex < nodes_.size(), "Asked for global index %, but there are only % nodes",globalIndex,getNumberOfNodes());
+        return (nodes_)[globalIndex];
+    }
+
+    template<std::size_t DIM>
+    PointPhysicalBase& PhysicalGeometry<DIM>::getLocalNodeCoordinates(const std::size_t localIndex)
+    {
+        logger.assert(localIndex < getNumberOfNodes(), "Asked for local index %, but this geometry only has % nodes",localIndex,getNumberOfNodes());
+        return (nodes_)[globalNodeIndexes_[localIndex]];
+    }
+
+    template<std::size_t DIM>
+    PointPhysicalBase& PhysicalGeometry<DIM>::getGlobalNodeCoordinates(const std::size_t globalIndex)
     {
         logger.assert(globalIndex < nodes_.size(), "Asked for global index %, but there are only % nodes",globalIndex,getNumberOfNodes());
         return (nodes_)[globalIndex];

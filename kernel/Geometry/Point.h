@@ -23,25 +23,25 @@
 
 #include <iostream>
 
-#include "LinearAlgebra/MiddleSizeVector.h"
+#include "LinearAlgebra/SmallVector.h"
 
 namespace Geometry
 {
-    
+    template<std::size_t DIM>
     class Point
     {
     public:
         
     public:
-        using PointT = Geometry::Point;
-        using VectorOfCoordsT = LinearAlgebra::MiddleSizeVector;
+        using PointT = Geometry::Point<DIM>;
+        using VectorOfCoordsT = LinearAlgebra::SmallVector<DIM>;
         
     public:
         /// Constructors.
-        Point(std::size_t DIM);
+        Point();
         
-        ///\deprecated Because this Point ctr will truncate and take sizeof(dimension) points and will not give any warning. If possible, use Point(LinearAlgebra::NumericalVector&) instead.
-        Point(double coords[], std::size_t DIM);
+        ///\deprecated Because this Point ctr will truncate and take sizeof(dimension) points and will not give any warning. If possible, use Point(LinearAlgebra::SmallVector<DIM>&) instead.
+        Point(double coords[]);
 
         Point(const Point& other);
 
@@ -93,18 +93,17 @@ namespace Geometry
 
         friend Point operator-(const Point& right)
         {
-            return Point(right * -1.0);
+            return right * -1.0;
         }
         
         friend Point operator*(const double& left, const Point& right);
-
-        /// Output routine.
-        friend std::ostream& operator<<(std::ostream& os, const Point& point);
 
     protected:
         VectorOfCoordsT coordinates_;
     };
 
+
 }
 
+#include "Point.cpp"
 #endif /* defined(_POINT_HPP) */

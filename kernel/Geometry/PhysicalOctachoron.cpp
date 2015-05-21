@@ -26,7 +26,7 @@
 
 namespace Geometry
 {
-    PhysicalOctachoron::PhysicalOctachoron(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical>& nodes)
+    PhysicalOctachoron::PhysicalOctachoron(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical<4> >& nodes)
             : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceHypercube::Instance())
     {
     }

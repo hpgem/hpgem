@@ -24,11 +24,14 @@
 
 #include "MappingInterface.h"
 #include "Logger.h"
+#include "PhysicalGeometryBase.h"
 #include <vector>
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PhysicalGeometry;
+    template<std::size_t DIM>
     class PointPhysical;
     
     /*! ~OC~
@@ -46,46 +49,59 @@ namespace Geometry
      The reinit-function is meant to alert an object of a change of the layout
      of the Element in physical space. Since the reference geometry of the
      Element does not change, but rather only (some of) the vertex positions,
-     the Mapping can be adjusted to the new layout.*/
+     the Mapping can be adjusted to the new layout.
 
-    class MappingReferenceToPhysical : public MappingInterface
+     At the moment only reference to physical maps from reference elements are supported
+     so there in no need to template this class
+    */
+
+    class MappingReferenceToPhysical : public MappingInterface<0>
     {
-    public:
-        
-        using VectorOfPointsT = const std::vector<PointPhysical>*;
 
     public:
-        MappingReferenceToPhysical()
-                : MappingInterface()
+        MappingReferenceToPhysical(const PhysicalGeometryBase* target)
+                : MappingInterface(), geometry(target)
         {
         }
                 
         //Note that the memory of nodes is managed by Mesh, so do not make a deep copy.
         MappingReferenceToPhysical(const MappingReferenceToPhysical &other) 
-            : MappingInterface(other), nodeCoordinates_(other.nodeCoordinates_) 
+            : MappingInterface(other), geometry(other.geometry)
         {
         }
         
-        // Sets.
-        void setNodesPtr(VectorOfPointsT nodes)
-        {
-            logger.assert(nodes!=nullptr, "Invalid cooridantes passed");
-            nodeCoordinates_ = nodes;
-        }
         
         // Methods.
         //! ~OC~ Transform a point from reference space to physical space.
-        virtual PointPhysical transform(const PointReference&) const = 0;
+        virtual PointPhysical<1> transform(const PointReference<1>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return PointPhysical<1>();
+        }
+
+        virtual PointPhysical<2> transform(const PointReference<2>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return PointPhysical<2>();
+        }
+
+        virtual PointPhysical<3> transform(const PointReference<3>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return PointPhysical<3>();
+        }
+
+        virtual PointPhysical<4> transform(const PointReference<4>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return PointPhysical<4>();
+        }
         
         //! ~OC~ Recompute mapping after physical nodes have moved.
-        ///\bug will horribly break everything unless you happen to pass the same  physicalGeometry that you used to construct this mapping
-        virtual void reinit(const PhysicalGeometry* const) = 0;
-        
-        const PointPhysical& getNodeCoordinates(const std::size_t index) const;
+        virtual void reinit() = 0;
 
-    private:
-        ///\todo fix this properly (for now just made it working)
-        const std::vector<PointPhysical>* nodeCoordinates_; /// Pointer to the global node container.
+    protected:
+        const PhysicalGeometryBase* geometry; /// Pointer to the physical geometry (for reinitialisation)
     };
 
 }

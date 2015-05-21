@@ -87,14 +87,16 @@ namespace Geometry
     
     /*! Map a point in coordinates of the reference geometry of the face to
      *  the reference geometry of the left (L) element. */
-    const PointReference& FaceGeometry::mapRefFaceToRefElemL(const ReferencePointT& pRefFace) const
+    template<std::size_t DIM>
+    const PointReference<DIM + 1>& FaceGeometry::mapRefFaceToRefElemL(const PointReference<DIM>& pRefFace) const
     {
         return leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_)->transform(pRefFace);
     }
     
     /*! Map a point in coordinates of the reference geometry of the face to
      *  the reference geometry of the right (R) element. */
-    const PointReference& FaceGeometry::mapRefFaceToRefElemR(const ReferencePointT& pRefFace) const
+    template<std::size_t DIM>
+    const PointReference<DIM + 1>& FaceGeometry::mapRefFaceToRefElemR(const PointReference<DIM>& pRefFace) const
     {
         // In the L function we have assumed the point pRefFace to be
         // given in coordinates of the system used by the reference face
@@ -109,7 +111,8 @@ namespace Geometry
     
     /*! Map from reference face coordinates on the left side to those on the
      *  right side. */
-    const PointReference& FaceGeometry::mapRefFaceToRefFace(const ReferencePointT& pIn) const
+    template<std::size_t DIM>
+    const PointReference<DIM>& FaceGeometry::mapRefFaceToRefFace(const PointReference<DIM>& pIn) const
     {
         return getReferenceGeometry()->getCodim0MappingPtr(faceToFaceMapIndex_)->transform(pIn);
     }
@@ -123,8 +126,8 @@ namespace Geometry
     //! Return a mapping to the right reference element.
     typename FaceGeometry::RefFaceToRefElementMappingPtr FaceGeometry::refFaceToRefElemMapR() const
     {
-        const MappingReferenceToReference * const m1Ptr = this->getReferenceGeometry()->getCodim0MappingPtr(faceToFaceMapIndex_);
-        const MappingReferenceToReference * const m2Ptr = leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_);
+        const MappingReferenceToReference<0> * const m1Ptr = this->getReferenceGeometry()->getCodim0MappingPtr(faceToFaceMapIndex_);
+        const MappingReferenceToReference<1> * const m2Ptr = leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_);
         
         return RefFaceToRefElementMappingPtr(new ConcatenatedMapping(*m1Ptr, *m2Ptr));
     }
@@ -144,24 +147,24 @@ namespace Geometry
      returned normal vector. I.e. the length of the vector equals the ratio of the
      physical face and reference face.
      </UL> */
-    LinearAlgebra::MiddleSizeVector FaceGeometry::getNormalVector(const ReferencePointT& pRefFace) const
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM + 1> FaceGeometry::getNormalVector(const PointReference<DIM>& pRefFace) const
     {
-        std::size_t DIM = pRefFace.size() + 1;
-        LinearAlgebra::MiddleSizeVector result;
-        if (DIM > 1)
+        LinearAlgebra::SmallVector<DIM + 1> result;
+        if (DIM > 0)
         {
             // first Jacobian (mapping reference face -> reference element)
             
-            Jacobian j1 = leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_) // this is the refFace2RefElemMap
+            Jacobian<DIM, DIM + 1> j1 = leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_) // this is the refFace2RefElemMap
             ->calcJacobian(pRefFace);
             
             // second Jacobian (mapping reference element -> phys. element),
             // for this we first need the points coordinates on the
             // reference element
             
-            Jacobian j2 = leftElementGeom_->calcJacobian(mapRefFaceToRefElemL(pRefFace));
+            Jacobian<DIM + 1, DIM + 1> j2 = leftElementGeom_->calcJacobian(mapRefFaceToRefElemL(pRefFace));
             
-            Jacobian j3 = j2.multiplyJacobiansInto(j1);
+            Jacobian<DIM, DIM + 1> j3 = j2.multiplyJacobiansInto(j1);
             
             result = j3.computeWedgeStuffVector();
             
@@ -176,23 +179,23 @@ namespace Geometry
           //but we know the left point has outward pointing vector -1
           //and the right point has outward pointing vector 1
           //so this is the same as the physical point
-            const PointReference& pRefElement = mapRefFaceToRefElemL(pRefFace);
+            const PointReference<1>& pRefElement = mapRefFaceToRefElemL(pRefFace);
             
             //but if someone has mirrored the physical line
             //we also have to also mirror the normal vector
             //the face cant be made larger or smaller so
             //the vector should have length one
             
-            Jacobian j = leftElementGeom_->calcJacobian(mapRefFaceToRefElemL(pRefFace));
+            Jacobian<1, 1> j = leftElementGeom_->calcJacobian(mapRefFaceToRefElemL(pRefFace));
             int sgn = (j[0] > 0) ? 1 : -1;
-            result.resize(DIM);
             result[0] = pRefElement[0] * sgn;
         }
         return result;
         
     }
-    
-    PointPhysical FaceGeometry::referenceToPhysical(const PointReference& p) const
+
+    template<std::size_t DIM>
+    PointPhysical<DIM + 1> FaceGeometry::referenceToPhysical(const PointReference<DIM>& p) const
     {
         return getElementGLeft()->referenceToPhysical(mapRefFaceToRefElemL(p));
     }

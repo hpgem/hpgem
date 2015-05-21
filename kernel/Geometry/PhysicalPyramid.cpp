@@ -26,7 +26,7 @@
 
 namespace Geometry
 {
-    PhysicalPyramid::PhysicalPyramid(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical>& nodes)
+    PhysicalPyramid::PhysicalPyramid(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical<3> >& nodes)
             : PhysicalGeometry(globalNodeIndexes, nodes, &ReferencePyramid::Instance())
     {
     }

@@ -23,6 +23,7 @@
 #define PointReference_h
 
 #include "Point.h"
+#include "PointReferenceBase.h"
 #include "PointReferenceFactory.h"
 #include "Base/BaseBasisFunction.h"
 
@@ -30,9 +31,11 @@
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReferenceFactory;
 
-    class PointReference : public Point
+    template<std::size_t DIM>
+    class PointReference : public Point<DIM>, public PointReferenceBase
     {
     public:
         void removeBasisFunctionData(const Base::BaseBasisFunction* function)
@@ -42,13 +45,13 @@ namespace Geometry
         }
 
         double getBasisFunctionValue(const Base::BaseBasisFunction* function) const;
-        const LinearAlgebra::MiddleSizeVector& getBasisFunctionDerivative(const Base::BaseBasisFunction* function) const;
+        const LinearAlgebra::SmallVector<DIM>& getBasisFunctionDerivative(const Base::BaseBasisFunction* function) const;
         //do not trust any other class to not create duplicates
-        friend PointReferenceFactory;
+        friend PointReferenceFactory<DIM>;
     private:
         
-        PointReference(std::size_t DIM)
-                : Point(DIM)
+        PointReference()
+                : Point<DIM>()
         {
         }
         
@@ -56,23 +59,23 @@ namespace Geometry
         PointReference(const PointReference& p) = delete;
         PointReference(PointReference&& p) = delete;
 
-        explicit PointReference(const Point& p)
-                : Point(p)
+        explicit PointReference(const Point<DIM>& p)
+                : Point<DIM>(p)
         {
         }
         
         PointReference(std::initializer_list<double> data)
-                : Point(data)
+                : Point<DIM>(data)
         {
         }
 
-        PointReference(double coords[], std::size_t DIM)
-                : Point(coords, DIM)
+        PointReference(double coords[])
+                : Point<DIM>(coords)
         {
         }
         
-        explicit PointReference(const VectorOfCoordsT& coord)
-                : Point(coord)
+        explicit PointReference(const LinearAlgebra::SmallVector<DIM>& coord)
+                : Point<DIM>(coord)
         {
         }
 
@@ -80,12 +83,15 @@ namespace Geometry
         PointReference& operator =(PointReference&& rhs) = delete;
 
         std::unordered_map<const Base::BaseBasisFunction*, double > basisfunctionValues_;
-        std::unordered_map<const Base::BaseBasisFunction*, LinearAlgebra::MiddleSizeVector > basisfunctionDerivatives_;
+        std::unordered_map<const Base::BaseBasisFunction*, LinearAlgebra::SmallVector<DIM> > basisfunctionDerivatives_;
         
     };
 
     //PointReference operator*(double left, const PointReference& right);
     
+
 }
+
+#include "PointReference.cpp"
 
 #endif /* POINTREFERENCE_HPP_ */

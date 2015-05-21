@@ -25,169 +25,184 @@ using std::endl;
 
 namespace Geometry
 {
-    class Point;
-    
-    Point::Point(std::size_t DIM)
-            : coordinates_(DIM)
+    template<std::size_t DIM>
+    Point<DIM>::Point()
+            : coordinates_()
     {
     }
-    
-    Point::Point(double coords[], std::size_t DIM)
-            : coordinates_(coords, DIM)
+
+    template<std::size_t DIM>
+    Point<DIM>::Point(double coords[])
+            : coordinates_(coords)
     {
     }
-    
-    Point::Point(const Point& other)
+
+    template<std::size_t DIM>
+    Point<DIM>::Point(const Point<DIM>& other)
             : coordinates_(other.coordinates_)
     {
     }
-    
-    Point::Point(const VectorOfCoordsT& coord)
+
+    template<std::size_t DIM>
+    Point<DIM>::Point(const VectorOfCoordsT& coord)
             : coordinates_(coord)
     {
     }
-    
-    bool Point::operator ==(const Point& right) const
+
+    template<std::size_t DIM>
+    bool Point<DIM>::operator ==(const Point<DIM>& right) const
     {
         return coordinates_ == right.coordinates_;
     }
-    
-    bool Point::operator!=(const Point& right) const
+
+    template<std::size_t DIM>
+    bool Point<DIM>::operator!=(const Point<DIM>& right) const
     {
         return !(*this == right);
     }
-    
-    bool Point::operator <(const Point& right) const
+
+    template<std::size_t DIM>
+    bool Point<DIM>::operator <(const Point<DIM>& right) const
     {
         return coordinates_ < right.coordinates_;
     }
-    
-    Point& Point::operator +=(const Point& right)
+
+    template<std::size_t DIM>
+    Point<DIM>& Point<DIM>::operator +=(const Point<DIM>& right)
     {
-        logger.assert(size()==right.size(), "The sizes of the points do not match");
         coordinates_ += right.coordinates_;
         return *this;
     }
-    
-    Point& Point::operator -=(const Point& right)
+
+    template<std::size_t DIM>
+    Point<DIM>& Point<DIM>::operator -=(const Point<DIM>& right)
     {
-        logger.assert(size()==right.size(), "The sizes of the points do not match");
         coordinates_ -= right.coordinates_;
         return *this;
     }
-    
-    Point& Point::operator *=(double right)
+
+    template<std::size_t DIM>
+    Point<DIM>& Point<DIM>::operator *=(double right)
     {
         coordinates_.operator *=(right);
         return *this;
     }
-    
-    Point Point::operator *(double right) const
+
+    template<std::size_t DIM>
+    Point<DIM> Point<DIM>::operator *(double right) const
     {
         return Point(coordinates_ * right);
     }
-    
-    Point Point::operator *(double right)
+
+    template<std::size_t DIM>
+    Point<DIM> Point<DIM>::operator *(double right)
     {
         return Point(coordinates_ * right);
     }
-    
-    Point Point::operator +(const Point& right) const
+
+    template<std::size_t DIM>
+    Point<DIM> Point<DIM>::operator +(const Point<DIM>& right) const
     {
-        logger.assert(size()==right.size(), "The sizes of the points do not match");
         return Point(coordinates_ + right.coordinates_);
     }
-    
-    Point Point::operator +(const Point& right)
+
+    template<std::size_t DIM>
+    Point<DIM> Point<DIM>::operator +(const Point<DIM>& right)
     {
-        logger.assert(size()==right.size(), "The sizes of the points do not match");
         return Point(coordinates_ + right.coordinates_);
     }
-    
-    Point Point::operator -(const Point& right) const
+
+    template<std::size_t DIM>
+    Point<DIM> Point<DIM>::operator -(const Point<DIM>& right) const
     {
-        logger.assert(size()==right.size(), "The sizes of the points do not match");
         return Point(coordinates_ - right.coordinates_);
     }
-    
-    Point Point::operator -(const Point& right)
+
+    template<std::size_t DIM>
+    Point<DIM> Point<DIM>::operator -(const Point<DIM>& right)
     {
-        logger.assert(size()==right.size(), "The sizes of the points do not match");
         return Point(coordinates_ - right.coordinates_);
     }
-    
-    std::size_t Point::size()
+
+    template<std::size_t DIM>
+    std::size_t Point<DIM>::size()
     {
         return coordinates_.size();
     }
-    
-    std::size_t Point::size() const
+
+    template<std::size_t DIM>
+    std::size_t Point<DIM>::size() const
     {
         return coordinates_.size();
     }
-    
-    double Point::getCoordinate(std::size_t n) const
+
+    template<std::size_t DIM>
+    double Point<DIM>::getCoordinate(std::size_t n) const
     {
         logger.assert(n < size(), "In Point::getCoordinate, entry % is requested while the dimension is %", n, size());
         return coordinates_[n];
     }
-    
-    const typename Point::VectorOfCoordsT&
-    Point::getCoordinates() const
+
+    template<std::size_t DIM>
+    const typename Point<DIM>::VectorOfCoordsT&
+    Point<DIM>::getCoordinates() const
     {
         return coordinates_;
     }
-    
-    void Point::setCoordinate(std::size_t n, const double& coord)
+
+    template<std::size_t DIM>
+    void Point<DIM>::setCoordinate(std::size_t n, const double& coord)
     {
         logger.assert(n < size(), "In Point::setCoordinate, trying to set entry % while the dimension is %", n, size());
         coordinates_[n] = coord;
     }
-    
-    void Point::setCoordinates(const VectorOfCoordsT& coord)
+
+    template<std::size_t DIM>
+    void Point<DIM>::setCoordinates(const VectorOfCoordsT& coord)
     {
-        logger.assert(size() == coord.size(), "In Point::setCoordinates, the size of the given vector does not coincide with the dimension of the point.");
         coordinates_ = coord;        
     }
-    
-    double& Point::operator [](std::size_t n)
+
+    template<std::size_t DIM>
+    double& Point<DIM>::operator [](std::size_t n)
     { 
         logger.assert(n < size(), "In Point::operator[], entry % is requested while the dimension is %", n, size());
-        logger.assert(n < size(), "Asked for component %, but the dimension is only %", n, size());
         return coordinates_[n];
     }
-    
-    const double& Point::operator [](std::size_t n) const
+
+    template<std::size_t DIM>
+    const double& Point<DIM>::operator [](std::size_t n) const
     {
         logger.assert(n < size(), "In Point::operator[] const, entry % is requested while the dimension is %", n, size());
-        logger.assert(n < size(), "Asked for component %, but the dimension is only %", n, size());
         return coordinates_[n];
     }
-    
-    Point&
-    Point::operator =(const Point& rhs)
+
+    template<std::size_t DIM>
+    Point<DIM>&
+    Point<DIM>::operator =(const Point<DIM>& rhs)
     {
-        logger.assert(size() == rhs.size(), "In Point::operator=, the dimension of the given Point does not coincide with the dimension of the point.");
         coordinates_ = rhs.coordinates_;
         return *this;
     }
-    
-    std::ostream& operator <<(std::ostream& os, const Point& point)
+
+    template<std::size_t DIM>
+    std::ostream& operator <<(std::ostream& os, const Point<DIM>& point)
     {
         os << "point={";
-        for (std::size_t i = 0; i < point.coordinates_.size(); i++)
+        for (std::size_t i = 0; i < point.size(); i++)
         {
-            if (i < point.coordinates_.size() - 1)
-                os << point.coordinates_[i] << ',';
+            if (i < point.size() - 1)
+                os << point[i] << ',';
             else
-                os << point.coordinates_[i];
+                os << point[i];
         }
         os << "} ";
         return os;
     }
-    
-    Point operator *(const double& left, const Point& right)
+
+    template<std::size_t DIM>
+    Point<DIM> operator *(const double& left, const Point<DIM>& right)
     {
-        return Point(right.coordinates_ * left);
+        return Point<DIM>(right.coordinates_ * left);
     }
 }

@@ -29,11 +29,11 @@ namespace Geometry
     
     /// \deprecated just pass a referenceCube to the constructor of a PhysicalGeometry
     /// if you want to create a hexahedron
-    class PhysicalTriangle : public PhysicalGeometry
+    class PhysicalTriangle : public PhysicalGeometry<2>
     {
     public:
         
-        PhysicalTriangle(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
+        PhysicalTriangle(const std::vector<std::size_t>&, std::vector<PointPhysical<2> >&);
     };
 
 }

@@ -31,7 +31,7 @@ namespace Geometry
     
 
     ReferenceGeometry::ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT, std::initializer_list<double> center)
-            : points_(numberOfNodes, nullptr), geometryType_(geoT), center_(PointReferenceFactory::instance()->makePoint(center))
+            : geometryType_(geoT)
     {
 
     }
@@ -40,22 +40,5 @@ namespace Geometry
     {
         return QuadratureRules::AllGaussQuadratureRules::instance().getRule(this, order);
     }
-    
-    const PointReference& ReferenceGeometry::getNode(const std::size_t& localIndex) const
-    {
-        logger.assert(localIndex<getNumberOfNodes(), "Asked for node %, but there are only % nodes", localIndex, getNumberOfNodes());
-        return *points_[localIndex];
-    }
 
-}
-
-std::hash<double> hasher;
-std::size_t Geometry::PointHasher::operator()(const Geometry::PointReference& point) const
-{
-    std::size_t ret = 0;
-    for (std::size_t i = 0; i < point.size(); ++i)
-    {
-        ret ^= hasher(point[i]) + 0x9e3779b9 + (ret << 6) + (ret >> 2);
-    }
-    return ret;
 }

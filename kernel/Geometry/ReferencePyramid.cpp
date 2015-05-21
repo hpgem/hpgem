@@ -41,11 +41,11 @@ namespace Geometry
     {
         name = "ReferencePyramid";
         
-        points_[0] = PointReferenceFactory::instance()->makePoint({ 0.,  0.,  1.});
-        points_[1] = PointReferenceFactory::instance()->makePoint({-1., -1.,  0.});
-        points_[2] = PointReferenceFactory::instance()->makePoint({ 1., -1.,  0.});
-        points_[3] = PointReferenceFactory::instance()->makePoint({-1.,  1.,  0.});
-        points_[4] = PointReferenceFactory::instance()->makePoint({ 1.,  1.,  0.});
+        points_[0] = PointReferenceFactory<3>::instance()->makePoint({ 0.,  0.,  1.});
+        points_[1] = PointReferenceFactory<3>::instance()->makePoint({-1., -1.,  0.});
+        points_[2] = PointReferenceFactory<3>::instance()->makePoint({ 1., -1.,  0.});
+        points_[3] = PointReferenceFactory<3>::instance()->makePoint({-1.,  1.,  0.});
+        points_[4] = PointReferenceFactory<3>::instance()->makePoint({ 1.,  1.,  0.});
         
         mappingsFaceToPyramid_[0] = &MappingToRefFaceToPyramid0::Instance();
         mappingsFaceToPyramid_[1] = &MappingToRefFaceToPyramid1::Instance();
@@ -57,7 +57,7 @@ namespace Geometry
         mappingsPyramidToPyramid_[0] = 0;
     }
     
-    bool ReferencePyramid::isInternalPoint(const PointReference& p) const
+    bool ReferencePyramid::isInternalPoint(const PointReference<3>& p) const
     {
         logger.assert(p.size()==3, "The reference point has the wrong dimension");
         return ((0. <= p[2]) && (1. >= p[2]) && (std::abs(p[0]) <= (1. - p[2])) && (std::abs(p[1]) <= (1. - p[2])));
@@ -66,8 +66,8 @@ namespace Geometry
     std::ostream& operator<<(std::ostream& os, const ReferencePyramid& pyramid)
     {
         os << pyramid.getName() << " =( ";
-        ReferencePyramid::const_iterator it = pyramid.points_.begin();
-        ReferencePyramid::const_iterator end = pyramid.points_.end();
+        auto it = pyramid.points_.begin();
+        auto end = pyramid.points_.end();
         
         for (; it != end; ++it)
         {
@@ -86,7 +86,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToReference* ReferencePyramid::getCodim0MappingPtr(const std::size_t i) const
+    const MappingReferenceToReference<0>* ReferencePyramid::getCodim0MappingPtr(const std::size_t i) const
     {
         logger(FATAL, "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 mappings for Pyramid.\n");
         return 0;
@@ -94,7 +94,7 @@ namespace Geometry
     
     // ================================== Codimension 1 ============================================
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<1>*
     ReferencePyramid::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         logger.assert((faceIndex < 5), "ReferencePyramid::getCodim1MappingPtr Index out of range. Only 5 faces for pyramid.\n");
@@ -126,7 +126,7 @@ namespace Geometry
     
     // ================================== Codimension 2 ============================================
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<2>*
     ReferencePyramid::getCodim2MappingPtr(const std::size_t edgeIndex) const
     {
         logger(ERROR, "There are no edge to pyramid mappings. \n");

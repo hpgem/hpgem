@@ -28,17 +28,15 @@
 
 namespace Geometry
 {
-    MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(const PhysicalGeometry* const physicalGeometry)
-            : a0(3), a1(3), a2(3), a3(3), a4(3), a5(3)
+    MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(const PhysicalGeometry<3>* const physicalGeometry)
+            : MappingReferenceToPhysical(physicalGeometry)
     {
         logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
-        MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
-        reinit(physicalGeometry);
+        reinit();
     }
     
-    PointPhysical MappingToPhysTriangularPrism::transform(const PointReference& pR) const
+    PointPhysical<3> MappingToPhysTriangularPrism::transform(const PointReference<3>& pR) const
     {
-        logger.assert(pR.size()==3, "Reference point has the wrong dimension");
 #ifdef SAVECOEFFS
         return a0
         + a1 * xi[0]
@@ -47,10 +45,10 @@ namespace Geometry
         + a4 * xi[0] * xi[2]
         + a5 * xi[1] * xi[2];
 #else
-        PointPhysical pP(3);
+        PointPhysical<3> pP;
         const double t1 = pR[0] * pR[2];
         const double t2 = pR[1] * pR[2];
-        LinearAlgebra::MiddleSizeVector f2(6);
+        LinearAlgebra::SmallVector<6> f2;
         
         f2[0] = 0.5 * (1.0 - pR[0] - pR[1] - pR[2] + t1 + t2);
         f2[1] = 0.5 * (pR[0] - t1);
@@ -59,21 +57,20 @@ namespace Geometry
         f2[4] = 0.5 * (t1 + pR[0]);
         f2[5] = 0.5 * (t2 + pR[1]);
         
-        PointPhysical p(3);
+        PointPhysical<3> p;
         
         for (std::size_t i = 0; i < 6; ++i)
         {
-            p = getNodeCoordinates(globalNodeIndices_[i]);
+            p = geometry->getLocalNodeCoordinates(i);
             pP += f2[i] * p;
         }
         return pP;
 #endif
     }
     
-    Jacobian MappingToPhysTriangularPrism::calcJacobian(const PointReference& pR) const
+    Jacobian<3, 3> MappingToPhysTriangularPrism::calcJacobian(const PointReference<3>& pR) const
     {
-        logger.assert(pR.size()==3, "Reference point has the wrong dimension");
-        Jacobian jacobian(3, 3);
+        Jacobian<3, 3> jacobian;
 #ifdef SAVECOEFFS
         Geometry::PointPhysical<3> d_dxi0(a1 + xi[2] * a4);
         Geometry::PointPhysical<3> d_dxi1(a2 + xi[2] * a5);
@@ -86,7 +83,7 @@ namespace Geometry
             jacobian(i,2) = d_dxi2[i];
         }
 #else
-        LinearAlgebra::MiddleSizeVector df_dxi0(6), df_dxi1(6), df_dxi2(6);
+        LinearAlgebra::SmallVector<6> df_dxi0, df_dxi1, df_dxi2;
         
         df_dxi0[0] = +0.5 * (-1. + pR[2]);
         df_dxi0[1] = +0.5 * (+1. - pR[2]);
@@ -109,9 +106,9 @@ namespace Geometry
         df_dxi2[4] = +0.5 * pR[0];
         df_dxi2[5] = +0.5 * pR[1];
         
-        Geometry::PointPhysical d_dxi0(3);
-        Geometry::PointPhysical d_dxi1(3);
-        Geometry::PointPhysical d_dxi2(3);
+        Geometry::PointPhysical<3> d_dxi0;
+        Geometry::PointPhysical<3> d_dxi1;
+        Geometry::PointPhysical<3> d_dxi2;
         
         for (std::size_t i = 0; i < 3; ++i)
         {
@@ -120,11 +117,11 @@ namespace Geometry
             d_dxi2[i] = 0.;
         }
         
-        Geometry::PointPhysical p(3);
+        Geometry::PointPhysical<3> p;
         
         for (std::size_t i = 0; i < 6; ++i)
         {
-            p = getNodeCoordinates(globalNodeIndices_[i]);
+            p = geometry->getLocalNodeCoordinates(i);
             
             d_dxi0 += df_dxi0[i] * p;
             d_dxi1 += df_dxi1[i] * p;
@@ -141,9 +138,8 @@ namespace Geometry
         return jacobian;
     }
     
-    void MappingToPhysTriangularPrism::reinit(const PhysicalGeometry* const physicalGeometry)
+    void MappingToPhysTriangularPrism::reinit()
     {
-        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
 #ifdef SAVECOEFFS
         FixedVector<Geometry::PointPhysical<3>, 6> p;
 
@@ -160,16 +156,10 @@ namespace Geometry
         a4 = 0.5 * (p[0] + p[4] - p[3] - p[1]);
         a5 = 0.5 * (p[0] + p[5] - p[3] - p[2]);
 #endif
-        
-        for (std::size_t i = 0; i < 6; ++i)
-        {
-            globalNodeIndices_[i] = physicalGeometry->getNodeIndex(i);
-        }
     }
     
-    bool MappingToPhysTriangularPrism::isValidPoint(const PointReference& pointReference) const
+    bool MappingToPhysTriangularPrism::isValidPoint(const PointReference<3>& pointReference) const
     {
-        logger.assert(pointReference.size()==3, "Reference point has the wrong dimension");
         if ((0. <= pointReference[0]) && (pointReference[0] <= 1.) && (0. <= pointReference[1]) && (pointReference[1] <= 1.) && (pointReference[0] + pointReference[1] - 1. <= 1.e-16) && (pointReference[2] >= -1.) && (pointReference[2] <= 1.))
             return true;
         else
