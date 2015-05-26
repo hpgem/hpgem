@@ -134,12 +134,13 @@ namespace Base
         /// \brief Get the value of the basis function (corresponding to index i) at the physical point corresponding to reference point p.
         virtual double basisFunction(std::size_t i, const Geometry::PointReference& p) const;
 
-        ///\brief returns the value of the i-th basisfunction at point p in ret
+        ///\brief returns the value of the i-th basis function at point p in ret
         virtual void basisFunction(std::size_t i, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret) const;
 
-        /// \brief Returns the value of the basisfunction (corresponding to element function index iBasisFunction) on the element at side iSide at the physical point corresponding to reference point p.
+        /// \brief Returns the value of the basis function (corresponding to element function index iBasisFunction) on the element at side iSide at the physical point corresponding to reference point p.
         virtual double basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference& p) const;
-
+        
+        /// \brief Returns the value of the i-th basis function multiplied by the outward pointing normal vector. The value is computed at the physical point corresponding to reference point p.
         virtual LinearAlgebra::NumericalVector basisFunctionNormal(std::size_t i, const LinearAlgebra::NumericalVector& normal, const Geometry::PointReference& p) const;
 
         /// \brief Returns the physical normal vector multiplied by the basis function (corresponding to element function index iBasisFunction) on the element at side iSide. The value is computed at the physical point corresponding to reference point p.
