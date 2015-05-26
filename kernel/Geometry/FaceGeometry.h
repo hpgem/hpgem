@@ -251,8 +251,8 @@ namespace Geometry
 
         virtual PointPhysical referenceToPhysical(const Geometry::PointReference& pointReference) const;
 
-        ///\brief set up the faceToFaceMapIndex based on vertex connectivity information instead of node location
-        void initialiseFaceToFaceMapIndex(const std::vector<std::size_t>& leftVertices, const std::vector<std::size_t>& rightVertices);
+        ///\brief set up the faceToFaceMapIndex based on node connectivity information instead of node location
+        void initialiseFaceToFaceMapIndex(const std::vector<std::size_t>& leftNodes, const std::vector<std::size_t>& rightNodes);
 
         void copyFromParent(const FaceGeometry& fa);
 

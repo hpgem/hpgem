@@ -128,22 +128,22 @@ void testMesh(Base::MeshManipulator* test)
             logger.assert_always((firstNodes.size() == otherNodes.size()), "edge positioning");
         }
     }
-    for (Base::Node* vertex : test->getVerticesList())
+    for (Base::Node* vertex : test->getNodesList())
     {
         logger.assert_always((vertexIDs.find(vertex->getID()) == vertexIDs.end()), "duplicate vertex ID");
         vertexIDs.insert(vertex->getID());
-        logger.assert_always((vertex->getElement(0)->getNode(vertex->getVertexNr(0)) == vertex), "element<->vertex matching");
+        logger.assert_always((vertex->getElement(0)->getNode(vertex->getNodeNr(0)) == vertex), "element<->vertex matching");
         Geometry::PointPhysical pFirst(test->dimension()), pOther(pFirst);
-        pFirst = vertex->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getVertexNr(0));
+        pFirst = vertex->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getNodeNr(0));
         for (std::size_t i = 1; i < vertex->getNrOfElements(); ++i)
         {
-            logger.assert_always((vertex->getElement(i)->getNode(vertex->getVertexNr(i)) == vertex), "element<->vertex matching");
-            pOther = vertex->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getVertexNr(i));
+            logger.assert_always((vertex->getElement(i)->getNode(vertex->getNodeNr(i)) == vertex), "element<->vertex matching");
+            pOther = vertex->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getNodeNr(i));
             logger.assert_always((pFirst == pOther), "vertex positioning");
         }
     }
-    logger.assert_always((test->getNumberOfNodes() == test->getNumberOfVertices()), "total amount of vertices (%) is not equal to the number of nodes (%)",
-                         test->getNumberOfVertices(), test->getNumberOfNodes());
+    logger.assert_always((test->getNumberOfNodes() == test->getNumberOfNodeCoordinates()), "total amount of grid points (%) is not equal to the number of nodes (%)",
+                         test->getNumberOfNodeCoordinates(), test->getNumberOfNodes());
 }
 
 void testPointPhysicalsOfElementsOfCopiedMesh(Base::MeshManipulator* mesh, Base::MeshManipulator* meshCopy)

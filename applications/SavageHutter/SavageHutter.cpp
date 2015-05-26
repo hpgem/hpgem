@@ -43,7 +43,7 @@ DIM_(dimension), numOfVariables_(numOfVariables), numTimeSteps_(numTimeSteps), t
     rhsComputer_.numOfVariables_ = numOfVariables;
     rhsComputer_.DIM_ = dimension;
     rhsComputer_.epsilon_ = 1.0;
-    rhsComputer_.theta_ = M_PI / 6; //radians
+    rhsComputer_.theta_ = 0;//M_PI / 6; //radians
 }
 
 Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::size_t numOfElementPerDirection)
@@ -64,15 +64,23 @@ Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::s
 LinearAlgebra::NumericalVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     LinearAlgebra::NumericalVector initialSolution(numOfVariables_);
-    if (pPhys[0] < M_PI/8)
+    /*if (pPhys[0] < M_PI/8)
     {
         initialSolution(0) = rhsComputer_.getInflowBC()(0) +  0.5*(std::cos(8*pPhys[0]) - 1);
     }
     else
     {
         initialSolution(0) = rhsComputer_.getInflowBC()(0) - 1.0;
+    }*/
+    if (pPhys[0] < 0.5)
+    {
+        initialSolution(0) = 1.;
     }
-    initialSolution(1) = 2.5 * initialSolution(0);
+    else
+    {
+        initialSolution(0) = 0.5;
+    }
+    initialSolution(1) = 0. * initialSolution(0);
     return initialSolution;
 }
 
@@ -147,7 +155,7 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
     
     return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);*/
     
-    //What I want is below. However, getPtrElement(side) does not seem to work in that case.
+    //Desirable syntax
     const std::function<LinearAlgebra::NumericalVector(const Base::Face *, const LinearAlgebra::NumericalVector &, const Geometry::PointReference &)> integrandFunction = 
     [=](const Base::Face * face, const LinearAlgebra::NumericalVector normal, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
     {   
@@ -216,6 +224,7 @@ void SavageHutter::limitSolution()
         if (useLimitierForElement(element))
         {
             logger(INFO, "Element % needs limiting!", element->getID());
+            limitWithMinMod(element);
         }
     }
 }
@@ -259,7 +268,7 @@ bool SavageHutter::useLimitierForElement(const Base::Element *element)
                 else
                 {
                     numericalSolutionOther = face->getPtrElement(Base::Side::LEFT)->getSolution(0, face->mapRefFaceToRefElemL(pRefForInflowTest));
-            }
+                }
             }
             else
             {
@@ -276,10 +285,11 @@ bool SavageHutter::useLimitierForElement(const Base::Element *element)
     
     //divide the integral by h^{(p+1)/2}, the norm of {u,uh} and the size of the face
     std::size_t p = configData_->polynomialOrder_;
-    ///\todo check if this definition of h is reasonable for other geometries than lines
-    double dx = std::pow(2. * std::abs(element->calcJacobian(element->getReferenceGeometry()->getCenter()).determinant()) , 1./DIM_);
+    ///\todo check if this definition of dx is reasonable for other geometries than lines
+    const double dx = std::pow(2. * std::abs(element->calcJacobian(element->getReferenceGeometry()->getCenter()).determinant()) , 1./DIM_);
     logger(DEBUG, "grid size: %", dx);
     totalIntegral /= std::pow(dx, (p+1.)/2);
+    
     LinearAlgebra::NumericalVector average = computeNormOfAverageOfSolutionInElement(element);
     for (std::size_t i = 0; i < numOfVariables_; ++i)
     {
@@ -296,7 +306,7 @@ LinearAlgebra::NumericalVector SavageHutter::computeVelocity(LinearAlgebra::Nume
     return LinearAlgebra::NumericalVector({numericalSolution(1)/numericalSolution(0)});
 }
 
-///\todo check if this is indeed what the code says
+///\todo check if this is indeed what the paper says
 LinearAlgebra::NumericalVector SavageHutter::computeNormOfAverageOfSolutionInElement(const Base::Element* element)
 {
     LinearAlgebra::NumericalVector average(2);
@@ -309,3 +319,7 @@ LinearAlgebra::NumericalVector SavageHutter::computeNormOfAverageOfSolutionInEle
     return average / element->getGaussQuadratureRule()->nrOfPoints();
 }
 
+void SavageHutter::limitWithMinMod(const Base::Element* element)
+{
+    
+}

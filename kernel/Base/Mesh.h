@@ -64,9 +64,9 @@ namespace Base
 
         void addEdge();
 
-        void addNode(Geometry::PointPhysical node);
+        void addNodeCoordinate(Geometry::PointPhysical node);
 
-        void addVertex();
+        void addNode();
 
         void clear();
 
@@ -85,12 +85,12 @@ namespace Base
             return getEdgesList(part).size();
         }
         
-        std::size_t getNumberOfVertices(IteratorType part = IteratorType::LOCAL) const
+        std::size_t getNumberOfNodes(IteratorType part = IteratorType::LOCAL) const
         {
-            return getVerticesList(part).size();
+            return getNodesList(part).size();
         }
         
-        std::size_t getNumberOfNodes() const
+        std::size_t getNumberOfNodeCoordinates() const
         {
             return getNodeCoordinates().size();
         }
@@ -108,8 +108,8 @@ namespace Base
         const std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const;
         std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL);
 
-        const std::vector<Node*>& getVerticesList(IteratorType part = IteratorType::LOCAL) const;
-        std::vector<Node*>& getVerticesList(IteratorType part = IteratorType::LOCAL);
+        const std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL) const;
+        std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL);
 
         const std::vector<Geometry::PointPhysical>& getNodeCoordinates() const;
         std::vector<Geometry::PointPhysical>& getNodeCoordinates();
@@ -176,24 +176,24 @@ namespace Base
             return getEdgesList(part).end();
         }
         
-        std::vector<Node*>::const_iterator vertexColBegin(IteratorType part = IteratorType::LOCAL) const
+        std::vector<Node*>::const_iterator nodeColBegin(IteratorType part = IteratorType::LOCAL) const
         {
-            return getVerticesList(part).begin();
+            return getNodesList(part).begin();
         }
         
-        std::vector<Node*>::const_iterator vertexColEnd(IteratorType part = IteratorType::LOCAL) const
+        std::vector<Node*>::const_iterator nodeColEnd(IteratorType part = IteratorType::LOCAL) const
         {
-            return getVerticesList(part).end();
+            return getNodesList(part).end();
         }
         
-        std::vector<Node*>::iterator vertexColBegin(IteratorType part = IteratorType::LOCAL)
+        std::vector<Node*>::iterator nodeColBegin(IteratorType part = IteratorType::LOCAL)
         {
-            return getVerticesList(part).begin();
+            return getNodesList(part).begin();
         }
         
-        std::vector<Node*>::iterator vertexColEnd(IteratorType part = IteratorType::LOCAL)
+        std::vector<Node*>::iterator nodeColEnd(IteratorType part = IteratorType::LOCAL)
         {
-            return getVerticesList(part).end();
+            return getNodesList(part).end();
         }
         //********************************************************************************
         

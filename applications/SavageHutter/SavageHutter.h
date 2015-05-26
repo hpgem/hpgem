@@ -76,48 +76,6 @@ public:
         {
             logger(INFO, "% time steps computed.", timeStepID);
         }
-
-        if (timeStepID == 1)
-        {
-            std::string fileName0 = "data0.dat";
-            std::ofstream myFile0(fileName0);
-            for (Base::Element* element : meshes_[0]->getElementsList())
-            {
-                Geometry::PointPhysical pPhys(1);
-                pPhys[0] = static_cast<double>(element->getID()) / meshes_[0]->getElementsList().size();
-                myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) 
-                        << getInitialSolution(pPhys, 0)(0) << '\t' 
-                        << getInitialSolution(pPhys, 0)(1) << '\t' 
-                        << getInitialSolution(pPhys, 0)(1) / getInitialSolution(pPhys, 0)(0) << std::endl;
-                pPhys[0] = static_cast<double>((element->getID() + 1)) / meshes_[0]->getElementsList().size();
-                myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) 
-                        << getInitialSolution(pPhys, 0)(0) << '\t' 
-                        << getInitialSolution(pPhys, 0)(1)  << '\t' 
-                        << getInitialSolution(pPhys, 0)(1) / getInitialSolution(pPhys, 0)(0) 
-                        << std::endl;
-            }
-        }
-
-        std::size_t spacing = numTimeSteps_ / 200;
-        double pPhys(1);
-        if (((numTimeSteps_ <= 200) || timeStepID % spacing == 0))
-        {
-            std::string fileName = "data" + std::to_string(++timeStepCounter) + ".dat";
-            std::ofstream myFile(fileName);
-            for (Base::Element* element : meshes_[0]->getElementsList())
-            {
-                const Geometry::PointReference& pRef0 = element->getReferenceGeometry()->getNode(0);
-                pPhys = static_cast<double>(element->getID()) / meshes_[0]->getElementsList().size();
-                myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) 
-                        << element->getSolution(0, pRef0)(0) << '\t' << element->getSolution(0, pRef0)(1) << '\t'
-                        << element->getSolution(0, pRef0)(1) / element->getSolution(0, pRef0)(0) << std::endl;
-                const Geometry::PointReference& pRef1 = element->getReferenceGeometry()->getNode(1);
-                pPhys = static_cast<double>((element->getID() + 1)) / meshes_[0]->getElementsList().size();
-                myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) 
-                        << element->getSolution(0, pRef1)(0) << '\t' << element->getSolution(0, pRef1)(1) << '\t'
-                        << element->getSolution(0, pRef1)(1) / element->getSolution(0, pRef1)(0) << std::endl;
-            }
-        }
     }
 
     LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
@@ -141,6 +99,7 @@ public:
     bool useLimitierForElement(const Base::Element *element);
     LinearAlgebra::NumericalVector computeVelocity(LinearAlgebra::NumericalVector numericalSolution);
     LinearAlgebra::NumericalVector computeNormOfAverageOfSolutionInElement(const Base::Element *element);
+    void limitWithMinMod(const Base::Element *element);
     
 private:
     /// Dimension of the domain

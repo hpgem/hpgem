@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     const std::size_t dimension = 1;
     const std::size_t numOfVariables = 2;
     const Base::MeshType meshType = Base::MeshType::RECTANGULAR; // Either TRIANGULAR or RECTANGULAR.
-    const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(2, 2);
+    const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
     std::vector<std::string> variableNames = {"h", "hu"};
 
     //Construct the problem, mesh and output generator

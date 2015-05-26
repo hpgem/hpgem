@@ -237,5 +237,5 @@ double SavageHutterRightHandSideComputer::computeFriction(const NumericalVector&
 
 LinearAlgebra::NumericalVector SavageHutterRightHandSideComputer::getInflowBC()
 {
-    return LinearAlgebra::NumericalVector({1.1, 2.5 * 1.1});
+    return LinearAlgebra::NumericalVector({1, 0});
 }
