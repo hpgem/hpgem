@@ -410,7 +410,7 @@ namespace Base
     {
         if (part == IteratorType::LOCAL)
         {
-            logger.assert_always(!hasToSplit_, "Please call getNodesListList() on a modifiable mesh at least once"
+            logger.assert_always(!hasToSplit_, "Please call getNodesList() on a modifiable mesh at least once"
                     "\nbefore calling getNodesList() const");
             return submeshes_.getNodesList();
         }

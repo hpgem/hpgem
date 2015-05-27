@@ -2733,10 +2733,10 @@ namespace Base
         if (oldNodeLocations_.size() == theMesh_.getNodeCoordinates().size())
         {
             std::vector<double> unscaledShift {};
-            unscaledShift.reserve(theMesh_.getNumberOfNodes());
+            unscaledShift.reserve(theMesh_.getNumberOfNodes(IteratorType::GLOBAL));
             //compute current and expected (relative) edge length
             std::vector<double> expectedLength {};
-            expectedLength.reserve(theMesh_.getNumberOfNodes());
+            expectedLength.reserve(theMesh_.getNumberOfNodes(IteratorType::GLOBAL));
             std::multimap<double, std::size_t> knownLengths;
             std::vector<double> currentLength {};
             //for proper scaling
@@ -2853,14 +2853,14 @@ namespace Base
         while ((counter < 10000 && (maxMovement > 1e-3 || oldQuality - worstQuality > 1e-3) && worstQuality < 0.8 && (worstQuality < 2. / 3. || oldQuality - worstQuality < 0)) || counter < 5)
         {
             counter++;
-            if ((maxShift > 0.1 && (oldQuality - worstQuality) < 5e-3 * maxShift) || (oldNodeLocations_.size() != theMesh_.getNumberOfNodes()) || worstQuality < 1e-6)
+            if ((maxShift > 0.1 && (oldQuality - worstQuality) < 5e-3 * maxShift) || (oldNodeLocations_.size() != theMesh_.getNumberOfNodeCoordinates()) || worstQuality < 1e-6)
             {
                 maxShift = 0;
                 
                 orgQhull::RboxPoints qHullCoordinates {};
                 qHullCoordinates.setDimension(DIM);
                 oldNodeLocations_.clear();
-                oldNodeLocations_.reserve(theMesh_.getNumberOfNodes());
+                oldNodeLocations_.reserve(theMesh_.getNumberOfNodeCoordinates());
                 for (PointPhysicalT& point : theMesh_.getNodeCoordinates())
                 {
                     oldNodeLocations_.push_back(point);
@@ -2882,24 +2882,24 @@ namespace Base
                 }
                 
                 std::vector<std::size_t> vertexIndex {};
-                vertexIndex.resize(theMesh_.getNumberOfNodes(), std::numeric_limits<std::size_t>::max());
+                vertexIndex.resize(theMesh_.getNumberOfNodeCoordinates(), std::numeric_limits<std::size_t>::max());
                 pairingIterator = periodicPairing.begin();
                 std::size_t currentNodeNumber = 0;
-                for (std::size_t i = 0; i < theMesh_.getNumberOfNodes();)
+                for (std::size_t i = 0; i < theMesh_.getNumberOfNodeCoordinates();)
                 {
                     vertexIndex[i] = currentNodeNumber;
                     //see if there are any new boundary nodes
                     if(isOnPeriodic(theMesh_.getNodeCoordinates()[i]) && !(pairingIterator != periodicPairing.end() && pairingIterator->first == i))
                     {
                         std::size_t j = pairingIterator->first;
-                        periodicPairing.insert({i, theMesh_.getNumberOfNodes()});
-                        logger(DEBUG, "periodic pair: % % ", i, theMesh_.getNumberOfNodes());
+                        periodicPairing.insert({i, theMesh_.getNumberOfNodeCoordinates()});
+                        logger(DEBUG, "periodic pair: % % ", i, theMesh_.getNumberOfNodeCoordinates());
                         pairingIterator = std::find_if(periodicPairing.begin(), periodicPairing.end(), [=](const std::pair<std::size_t, std::size_t>& p)->bool{return p.first == std::min(i, j);});
                         Geometry::PointPhysical newNodeCoordinate = duplicatePeriodic(theMesh_.getNodeCoordinates()[i]);
                         logger(DEBUG, "new periodic pair coordinates: % %", theMesh_.getNodeCoordinates()[i], newNodeCoordinate);
                         theMesh_.addNodeCoordinate(newNodeCoordinate);
                         oldNodeLocations_.push_back(newNodeCoordinate);
-                        vertexIndex.resize(theMesh_.getNumberOfNodes(), std::numeric_limits<std::size_t>::max());
+                        vertexIndex.resize(theMesh_.getNumberOfNodeCoordinates(), std::numeric_limits<std::size_t>::max());
                     }
                     //see if there are any non-boundary nodes that slipped into the boundary
                     if(isOnOtherPeriodic(theMesh_.getNodeCoordinates()[i]) && !(pairingIterator != periodicPairing.end() && pairingIterator->first == i))
@@ -2916,7 +2916,7 @@ namespace Base
                     }
                     currentNodeNumber++;
                     //skip over already set boundary nodes
-                    while (i < theMesh_.getNumberOfNodes() && vertexIndex[i] < std::numeric_limits<std::size_t>::max())
+                    while (i < theMesh_.getNumberOfNodeCoordinates() && vertexIndex[i] < std::numeric_limits<std::size_t>::max())
                     {
                         ++i;
                     }
@@ -2928,7 +2928,7 @@ namespace Base
                 //the actual amount of vertices and the assigned amount of vertices match
                 logger.assert(currentNodeNumber == theMesh_.getNumberOfNodes(IteratorType::GLOBAL), "Missed some node indexes");
 
-                qHullCoordinates.reserveCoordinates(DIM * theMesh_.getNumberOfNodes());
+                qHullCoordinates.reserveCoordinates(DIM * theMesh_.getNumberOfNodeCoordinates());
                 for(Geometry::PointPhysical& point : theMesh_.getNodeCoordinates())
                 {
                     qHullCoordinates.append(DIM, point.data());
@@ -2993,7 +2993,7 @@ namespace Base
             
             std::vector<double> expectedLength {};
             std::multimap<double, std::size_t> knownLengths {};
-            expectedLength.reserve(theMesh_.getNumberOfNodes());
+            expectedLength.reserve(theMesh_.getNumberOfNodes(IteratorType::GLOBAL));
             //for proper scaling
             totalCurrentLength = 0;
             double totalexpectedLength = 0.;
@@ -3004,6 +3004,9 @@ namespace Base
                 if (!isnan(expectedLength.back()) && !isinf(expectedLength.back()))
                 {
                     knownLengths.insert( {expectedLength.back(), expectedLength.size() - 1});
+                }
+                else
+                {
                     needsExpansion |= true;
                 }
             }
@@ -3368,7 +3371,7 @@ namespace Base
                         centerPoints.insert( {length, {(firstNode + secondNode) / 2, edge->getElement(0)->getNode(nodeIndices[0])->getID()}});
                     }
                 }
-                std::vector<bool> hasTeleported(theMesh_.getNumberOfNodes(), false);
+                std::vector<bool> hasTeleported(theMesh_.getNumberOfNodeCoordinates(), false);
                 auto longEdge = centerPoints.begin();
                 auto shortEdge = centerPoints.rbegin();
                 for (std::size_t index : fixedPointIdxs)
