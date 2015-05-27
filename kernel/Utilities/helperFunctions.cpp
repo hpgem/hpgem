@@ -102,8 +102,8 @@ namespace Utilities
                 return (2. * degree - 1.) / double(degree) * (x * LegendrePolynomialDerivative(degree - 1, x) + LegendrePolynomial(degree - 1, x)) - (degree - 1.) / double(degree) * LegendrePolynomialDerivative(degree - 2, x);
         }
     }
-    
-    double baricentric_3D(std::size_t node, const Geometry::PointReference& p)
+
+    double baricentric_3D(std::size_t node, const Geometry::PointReference<3>& p)
     {
         logger.assert(node < 4, "Function is intended for simplex");
         if (node == 0)
@@ -116,7 +116,7 @@ namespace Utilities
         }
     }
     
-    double baricentric_2D(std::size_t node, const Geometry::PointReference& p)
+    double baricentric_2D(std::size_t node, const Geometry::PointReference<2>& p)
     {
         logger.assert(node < 3, "Function is intended for simplex");
         if (node == 0)

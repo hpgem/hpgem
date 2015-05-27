@@ -30,22 +30,22 @@
 namespace Utilities
 {
     
-    double BasisFunction1DVertexLine::eval(const Geometry::PointReference& p) const
+    double BasisFunction1DVertexLine::eval(const Geometry::PointReference<1>& p) const
     {
         return (1. + nodePosition_ * p[0]) / 2.;
     }
     
-    double BasisFunction1DVertexLine::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction1DVertexLine::evalDeriv0(const Geometry::PointReference<1>& p) const
     {
         return nodePosition_ / 2.;
     }
     
-    double BasisFunction1DInteriorLine::eval(const Geometry::PointReference& p) const
+    double BasisFunction1DInteriorLine::eval(const Geometry::PointReference<1>& p) const
     {
         return (1 + p[0]) * (1 - p[0]) * LobattoPolynomial(polynomialOrder_, p[0]) / 4.;
     }
     
-    double BasisFunction1DInteriorLine::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction1DInteriorLine::evalDeriv0(const Geometry::PointReference<1>& p) const
     {
         return -p[0] * LobattoPolynomial(polynomialOrder_, p[0]) / 2. + (1 + p[0]) * (1 - p[0]) * LobattoPolynomialDerivative(polynomialOrder_, p[0]) / 4.;
     }

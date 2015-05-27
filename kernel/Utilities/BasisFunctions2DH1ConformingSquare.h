@@ -33,6 +33,7 @@ namespace Base
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -48,11 +49,11 @@ namespace Utilities
             logger.assert(node < 4, "A square only has 4 nodes");
         }
         
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<2>& p) const;
 
     private:
         int nodePosition0_;
@@ -64,11 +65,11 @@ namespace Utilities
     public:
         BasisFunction2DFaceSquare_0(std::size_t node0, std::size_t node1, std::size_t polynomialOrder);
 
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<2>& p) const;
 
     private:
         int edgePosition_;
@@ -81,11 +82,11 @@ namespace Utilities
     public:
         BasisFunction2DFaceSquare_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder);
 
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<2>& p) const;
 
     private:
         int edgePosition_;
@@ -101,11 +102,11 @@ namespace Utilities
         {
         }
         
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<2>& p) const;
     private:
         std::size_t polynomialOrder0_, polynomialOrder1_;
     };

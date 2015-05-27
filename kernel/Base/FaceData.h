@@ -27,7 +27,6 @@
 #include "Base/FaceMatrix.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
-#include "FaceCacheData.h"
 
 namespace LinearAlgebra
 {
@@ -74,10 +73,7 @@ namespace Base
 
         virtual LinearAlgebra::MiddleSizeVector getFaceVector(std::size_t vectorID = 0) const;
 
-        virtual VecCacheT& getVecCacheData()
-        {
-            return vecCacheData_;
-        }        
+        virtual VecCacheT& getVecCacheData();
         
         virtual UserFaceData* getUserData() const
         {

@@ -24,14 +24,17 @@
 
 #include <vector>
 #include "Logger.h"
+#include "BaseBasisFunction.h"
 
 namespace LinearAlgebra
 {
-    class MiddleSizeVector;
+    template<std::size_t DIM>
+    class SmallVector;
 }
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -43,7 +46,6 @@ namespace Base
     {
     public:
         using BaseBasisFunctions = std::vector<BaseBasisFunction*>; //check again
-        using PointReferenceT = Geometry::PointReference;
 
         explicit BasisFunctionSet(std::size_t order);      
         
@@ -58,15 +60,19 @@ namespace Base
 
         void addBasisFunction(BaseBasisFunction* bf);
 
-        double eval(std::size_t i, const PointReferenceT& p) const;
+        template<std::size_t DIM>
+        double eval(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
         ///\brief returns the value of the i-th basisfunction at point p in ret
-        void eval(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const;
+        template<std::size_t DIM>
+        void eval(std::size_t i, const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const;
 
-        double evalDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const;
+        template<std::size_t DIM>
+        double evalDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p) const;
 
         ///\brief returns the curl of the i-th basisfunction at point p in ret
-        LinearAlgebra::MiddleSizeVector evalCurl(std::size_t i, const PointReferenceT& p) const;
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM> evalCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
         const BaseBasisFunction* operator[](std::size_t i) const
         {
@@ -99,6 +105,106 @@ namespace Base
         std::size_t order_;
         BaseBasisFunctions vecOfBasisFcn_;
     };
+
+
+    template<std::size_t DIM>
+    double BasisFunctionSet::eval(std::size_t i, const Geometry::PointReference<DIM>& p) const
+    {
+        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
+        return vecOfBasisFcn_[i]->eval(p);
+    }
+
+    template<std::size_t DIM>
+    double BasisFunctionSet::evalDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p) const
+    {
+        logger(ERROR, "Only supports points of dimension up to 4");
+    }
+
+    template<>
+    inline double BasisFunctionSet::evalDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<1>& p) const
+    {
+        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
+        logger.assert((jDir < 1), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
+
+        switch (jDir)
+        {
+            case 0:
+                return vecOfBasisFcn_[i]->evalDeriv0(p);
+            default:
+                return 0.;
+        }
+    }
+
+    template<>
+    inline double BasisFunctionSet::evalDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<2>& p) const
+    {
+        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
+        logger.assert((jDir < 2), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
+
+        switch (jDir)
+        {
+            case 0:
+                return vecOfBasisFcn_[i]->evalDeriv0(p);
+            case 1:
+                return vecOfBasisFcn_[i]->evalDeriv1(p);
+            default:
+                return 0.;
+        }
+    }
+
+    template<>
+    inline double BasisFunctionSet::evalDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<3>& p) const
+    {
+        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
+        logger.assert((jDir < 3), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
+
+        switch (jDir)
+        {
+            case 0:
+                return vecOfBasisFcn_[i]->evalDeriv0(p);
+            case 1:
+                return vecOfBasisFcn_[i]->evalDeriv1(p);
+            case 2:
+                return vecOfBasisFcn_[i]->evalDeriv2(p);
+            default:
+                return 0.;
+        }
+    }
+
+    template<>
+    inline double BasisFunctionSet::evalDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<4>& p) const
+    {
+        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
+        logger.assert((jDir < 4), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
+
+        switch (jDir)
+        {
+            case 0:
+                return vecOfBasisFcn_[i]->evalDeriv0(p);
+            case 1:
+                return vecOfBasisFcn_[i]->evalDeriv1(p);
+            case 2:
+                return vecOfBasisFcn_[i]->evalDeriv2(p);
+            case 3:
+                return vecOfBasisFcn_[i]->evalDeriv3(p);
+            default:
+                return 0.;
+        }
+    }
+
+    template<std::size_t DIM>
+    void BasisFunctionSet::eval(std::size_t i, const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const
+    {
+        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
+        vecOfBasisFcn_[i]->eval(p, ret);
+    }
+
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM> BasisFunctionSet::evalCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const
+    {
+        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
+        return vecOfBasisFcn_[i]->evalCurl(p);
+    }
 }
 
 #endif

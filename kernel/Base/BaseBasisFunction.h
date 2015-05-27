@@ -22,7 +22,7 @@
 #ifndef BaseBasisFunction_h
 #define BaseBasisFunction_h
 
-#include "LinearAlgebra/MiddleSizeVector.h"
+#include "LinearAlgebra/SmallVector.h"
 
 namespace Geometry
 {

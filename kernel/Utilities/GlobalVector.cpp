@@ -22,7 +22,7 @@
 #include "Base/MpiContainer.h"
 #include "GlobalVector.h"
 #include <vector>
-#include "Base/MeshManipulator.h"
+#include "Base/MeshManipulatorBase.h"
 #include "Base/Edge.h"
 #include "Base/Face.h"
 #include "Base/Element.h"
@@ -39,7 +39,7 @@
 namespace Utilities
 {
     
-    GlobalVector::GlobalVector(Base::MeshManipulator* theMesh, int elementVectorID, int faceVectorID)
+    GlobalVector::GlobalVector(Base::MeshManipulatorBase* theMesh, int elementVectorID, int faceVectorID)
             : meshLevel_(-2), elementVectorID_(elementVectorID), faceVectorID_(faceVectorID), startPositionsOfElementsInTheVector_(), theMesh_(theMesh)
     {
         logger.assert(theMesh!=nullptr, "Invalid mesh passed");
@@ -47,7 +47,7 @@ namespace Utilities
     
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
     
-    GlobalPetscVector::GlobalPetscVector(Base::MeshManipulator* theMesh, int elementVectorID, int faceVectorID)
+    GlobalPetscVector::GlobalPetscVector(Base::MeshManipulatorBase* theMesh, int elementVectorID, int faceVectorID)
             : GlobalVector(theMesh, elementVectorID, faceVectorID)
     {
         logger.assert(theMesh!=nullptr, "Invalid mesh passed");
@@ -453,7 +453,7 @@ namespace Utilities
         
         int ierr = VecGetArray(localB, &data);
         CHKERRV(ierr);
-        for (Base::MeshManipulator::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
+        for (Base::MeshManipulatorBase::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
         {
             std::size_t numBasisFuns = (*it)->getNrOfBasisFunctions();
             LinearAlgebra::MiddleSizeVector localData(&data[startPositionsOfElementsInTheVector_[(*it)->getID()]], (*it)->getLocalNrOfBasisFunctions());

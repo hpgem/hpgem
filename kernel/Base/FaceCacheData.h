@@ -25,6 +25,7 @@
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -47,9 +48,12 @@ namespace Base
         double L2Normal;
 
         // calculate the cache data
-        void operator()(const Base::Face& fa, const Geometry::PointReference& p);
+        template<std::size_t DIM>
+        void operator()(const Base::Face& fa, const Geometry::PointReference<DIM>& p);
         
     };
 }
+
+#include "FaceCacheData.cpp"
 
 #endif

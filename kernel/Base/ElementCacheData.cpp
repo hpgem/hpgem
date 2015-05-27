@@ -25,11 +25,11 @@
 #include "Geometry/Jacobian.h"
 #include <cmath>
 
-void Base::ElementCacheData::operator ()(const Element* el, const Geometry::PointReference& p)
+template<std::size_t DIM>
+void Base::ElementCacheData::operator ()(const Element* el, const Geometry::PointReference<DIM>& p)
 {
     logger.assert(el!=nullptr, "Invalid element passed");
-    Geometry::Jacobian jac(p.size(), p.size());
-    jac = el->calcJacobian(p);
+    Geometry::Jacobian<DIM, DIM> jac = el->calcJacobian(p);
     absDetJac_ = std::abs(jac.determinant());
     
 }

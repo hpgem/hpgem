@@ -42,7 +42,8 @@
 #include "Logger.h"
 #include "Base/CommandLineOptions.h"
 
-void testMesh(Base::MeshManipulator* test)
+template<std::size_t DIM>
+void testMesh(Base::MeshManipulator<DIM>* test)
 {
     std::unordered_set<std::size_t> elementIDs, faceIDs, edgeIDs, vertexIDs;
     std::cout << test->getElementsList(Base::IteratorType::GLOBAL).size() << std::endl;
@@ -133,7 +134,7 @@ void testMesh(Base::MeshManipulator* test)
         logger.assert_always((vertexIDs.find(vertex->getID()) == vertexIDs.end()), "duplicate vertex ID");
         vertexIDs.insert(vertex->getID());
         logger.assert_always((vertex->getElement(0)->getNode(vertex->getVertexNr(0)) == vertex), "element<->vertex matching");
-        Geometry::PointPhysical pFirst(test->dimension()), pOther(pFirst);
+        Geometry::PointPhysical<DIM> pFirst, pOther;
         pFirst = vertex->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getVertexNr(0));
         for (std::size_t i = 1; i < vertex->getNrOfElements(); ++i)
         {
@@ -146,14 +147,20 @@ void testMesh(Base::MeshManipulator* test)
                          test->getNumberOfVertices(), test->getNumberOfNodes());
 }
 
-void testPointPhysicalsOfElementsOfCopiedMesh(Base::MeshManipulator* mesh, Base::MeshManipulator* meshCopy)
+template<std::size_t DIM>
+void testPointPhysicalsOfElementsOfCopiedMesh(Base::MeshManipulator<DIM>* mesh, Base::MeshManipulator<DIM>* meshCopy)
 {
     std::vector<Base::Element*> eltsMesh = mesh->getElementsList();
     std::vector<Base::Element*> eltsMeshCopy = meshCopy->getElementsList();
     logger.assert_always(eltsMesh.size() == eltsMeshCopy.size(), "The copy does not have the same number of elements as the original MeshManipulator.");
     for (std::size_t i = 0; i < eltsMesh.size(); ++i)
     {
-        logger.assert_always(eltsMesh[i]->getPhysicalGeometry()->getNodes() == eltsMeshCopy[i]->getPhysicalGeometry()->getNodes(), "The points of Element % are different.", i);        
+        logger.assert_always(eltsMesh[i]->getNrOfNodes() == eltsMeshCopy[i]->getNrOfNodes(), "The points of Element % are different.", i);
+        for(std::size_t j = 0; j < eltsMesh[i]->getNrOfNodes(); ++j)
+        {
+            const Geometry::PointPhysical<DIM>& first = eltsMesh[i]->getPhysicalGeometry()->getLocalNodeCoordinates(j);
+            logger.assert_always(first == eltsMeshCopy[i]->getPhysicalGeometry()->getLocalNodeCoordinates(j), "The point % of Element % is different.", j, i);
+        }
     }
 }
 
@@ -161,7 +168,9 @@ int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
     // dim 1
-    Base::RectangularMeshDescriptor description1D(1), description2D(2), description3D(3);
+    Base::RectangularMeshDescriptor<1> description1D;
+    Base::RectangularMeshDescriptor<2> description2D;
+    Base::RectangularMeshDescriptor<3> description3D;
     description1D.bottomLeft_[0] = 0;
     description2D.bottomLeft_[0] = 0;
     description2D.bottomLeft_[1] = 0;
@@ -183,7 +192,7 @@ int main(int argc, char** argv)
     
     description1D.numElementsInDIM_[0] = 2;
     
-    Base::MeshManipulator *test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    Base::MeshManipulator<1> *test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
     
     testMesh(test);
@@ -193,7 +202,7 @@ int main(int argc, char** argv)
     delete test;
     description1D.numElementsInDIM_[0] = 3;
     
-    test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);    
     
     testMesh(test);
@@ -205,64 +214,64 @@ int main(int argc, char** argv)
     description2D.numElementsInDIM_[0] = 2;
     description2D.numElementsInDIM_[1] = 3;
     
-    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
+    Base::MeshManipulator<2> *test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test2->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
     
-    testMesh(test);
-    logger.assert_always((test->getNumberOfElements() == 6), "number of elements");
+    testMesh(test2);
+    logger.assert_always((test2->getNumberOfElements() == 6), "number of elements");
     
-    delete test;
+    delete test2;
     description2D.numElementsInDIM_[0] = 3;
     description2D.numElementsInDIM_[1] = 2;
     
-    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
+    test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test2->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
     
-    testMesh(test);
-    logger.assert_always((test->getNumberOfElements() == 6), "number of elements");
+    testMesh(test2);
+    logger.assert_always((test2->getNumberOfElements() == 6), "number of elements");
     
     // dim 3
     
-    delete test;
+    delete test2;
     description3D.numElementsInDIM_[0] = 2;
     description3D.numElementsInDIM_[1] = 2;
     description3D.numElementsInDIM_[2] = 3;
     
-    test = new Base::MeshManipulator(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    Base::MeshManipulator<3> *test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     
-    testMesh(test);
-    logger.assert_always((test->getNumberOfElements() == 12), "number of elements");
+    testMesh(test3);
+    logger.assert_always((test3->getNumberOfElements() == 12), "number of elements");
     
-    delete test;
+    delete test3;
     description3D.numElementsInDIM_[0] = 2;
     description3D.numElementsInDIM_[1] = 3;
     description3D.numElementsInDIM_[2] = 2;
     
-    test = new Base::MeshManipulator(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     
-    testMesh(test);
-    logger.assert_always((test->getNumberOfElements() == 12), "number of elements");
+    testMesh(test3);
+    logger.assert_always((test3->getNumberOfElements() == 12), "number of elements");
     
-    delete test;
+    delete test3;
     description3D.numElementsInDIM_[0] = 3;
     description3D.numElementsInDIM_[1] = 2;
     description3D.numElementsInDIM_[2] = 2;
     
-    test = new Base::MeshManipulator(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     
-    testMesh(test);
-    logger.assert_always((test->getNumberOfElements() == 12), "number of elements");    
+    testMesh(test3);
+    logger.assert_always((test3->getNumberOfElements() == 12), "number of elements");
     
     //test copy constructor of MeshManipulator, only most difficult case
-    Base::MeshManipulator* test2 = new Base::MeshManipulator(*test);
-    testMesh(test2);    
-    testPointPhysicalsOfElementsOfCopiedMesh(test, test2);
+    Base::MeshManipulator<3>* test4 = new Base::MeshManipulator<3>(*test3);
+    testMesh(test4);
+    testPointPhysicalsOfElementsOfCopiedMesh(test3, test4);
     
-    delete test2;
-    delete test;
+    delete test4;
+    delete test3;
     
     return 0;
 }

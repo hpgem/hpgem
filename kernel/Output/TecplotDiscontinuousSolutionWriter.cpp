@@ -33,8 +33,9 @@
 
 namespace Output
 {
-    
-    TecplotDiscontinuousSolutionWriter::TecplotDiscontinuousSolutionWriter(std::ostream& output, const std::string& fileTitle, const std::string& dimensionsToWrite, const std::string& variableString)
+
+    template<std::size_t DIM>
+    TecplotDiscontinuousSolutionWriter<DIM>::TecplotDiscontinuousSolutionWriter(std::ostream& output, const std::string& fileTitle, const std::string& dimensionsToWrite, const std::string& variableString)
             : output_(output), previousNrOfElements_(0), previousNrOfNodes_(0), nDimensionsToWrite_(dimensionsToWrite.length())
     {
         logger.assert_always(output.good(), "Something is not so good about the given output stream");
@@ -79,12 +80,13 @@ namespace Output
      *
      * Setting the variable time enables you to create animations in TecPlot.
      */
-    void TecplotDiscontinuousSolutionWriter::write(const Base::MeshManipulator* mesh, const std::string& zoneTitle, const bool sameGeometry, TecplotSingleElementWriter* writeDataClass, const double time)
+    template<std::size_t DIM>
+    void TecplotDiscontinuousSolutionWriter<DIM>::write(const Base::MeshManipulator<DIM>* mesh, const std::string& zoneTitle, const bool sameGeometry, TecplotSingleElementWriter<DIM>* writeDataClass, const double time)
     {
         logger.assert(mesh!=nullptr, "Invalid mesh passed to this writer");
         logger.assert(writeDataClass!=nullptr, "Invalid write class passed");
-        std::function<void(const Base::Element*, const Geometry::PointReference&, std::ostream&)> function = 
-        [=](const Base::Element* el, const Geometry::PointReference& pR, std::ostream& os){
+        std::function<void(const Base::Element*, const Geometry::PointReference<DIM>&, std::ostream&)> function =
+        [=](const Base::Element* el, const Geometry::PointReference<DIM>& pR, std::ostream& os){
             writeDataClass->writeToTecplotFile(el,pR,os);
         };
         write(mesh,zoneTitle,sameGeometry,function,time);
@@ -109,7 +111,8 @@ namespace Output
      *
      * Setting the variable time enables you to create animations in TecPlot.
      */
-    void TecplotDiscontinuousSolutionWriter::write(const Base::MeshManipulator* mesh, const std::string& zoneTitle, const bool sameGeometry, std::function<void(const Base::Element*, const Geometry::PointReference&, std::ostream&)>writeDataFun, const double time)
+    template<std::size_t DIM>
+    void TecplotDiscontinuousSolutionWriter<DIM>::write(const Base::MeshManipulator<DIM>* mesh, const std::string& zoneTitle, const bool sameGeometry, std::function<void(const Base::Element*, const Geometry::PointReference<DIM>&, std::ostream&)>writeDataFun, const double time)
     {
         logger.assert(mesh!=nullptr, "Invalid mesh passed to this writer");
         //assertion is technically checking internal state, but the writability of the filesystem may change outside the influence of this class
@@ -151,7 +154,7 @@ namespace Output
         // We do this by getting the element list from the mesh, and then iterating over the
         // elements.
         
-        using MeshType = Base::MeshManipulator;
+        using MeshType = Base::MeshManipulator<DIM>;
         using ElementT = Base::Element;
         using ListOfElementsT = std::vector<ElementT*>;
         
@@ -160,7 +163,7 @@ namespace Output
         
         const ListOfElementsT& elements = mesh->getElementsList();
         
-        Geometry::PointPhysical pPhys((*elements.begin())->getPhysicalGeometry()->getNodePtr(0)->size());
+        Geometry::PointPhysical<DIM> pPhys((*elements.begin())->getPhysicalGeometry()->getNodePtr(0)->size());
         
         // 1. Element cycle, print physical coordinates.
         
@@ -180,7 +183,7 @@ namespace Output
                 
                 // For the solution data, write function of the user, however we pass a local
                 // coordinate of the current reference element
-                const Geometry::PointReference& pRef = (*iterator)->getReferenceGeometry()->getNode(localNode);
+                const Geometry::PointReference<DIM>& pRef = (*iterator)->getReferenceGeometry()->getNode(localNode);
                 
                 if (!sameGeometry)
                 {
@@ -238,8 +241,9 @@ namespace Output
         }
         output_.flush();
     } // Write function
-    
-    std::string TecplotDiscontinuousSolutionWriter::makeTecplotVariableString(const std::string& s) const
+
+    template<std::size_t DIM>
+    std::string TecplotDiscontinuousSolutionWriter<DIM>::makeTecplotVariableString(const std::string& s) const
     {
         std::string res(s);
         std::string::size_type pos = 0;

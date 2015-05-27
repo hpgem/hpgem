@@ -29,16 +29,17 @@
 
 namespace Base
 {
-    
+
+    template<std::size_t DIM>
     struct RectangularMeshDescriptor
     {
-        RectangularMeshDescriptor(std::size_t DIM)
-                : bottomLeft_(DIM), topRight_(DIM), numElementsInDIM_(DIM), boundaryConditions_(DIM)
+        RectangularMeshDescriptor()
+                : bottomLeft_(), topRight_(), numElementsInDIM_(DIM), boundaryConditions_(DIM)
         {
         }
 
-        Geometry::PointPhysical bottomLeft_;
-        Geometry::PointPhysical topRight_;
+        Geometry::PointPhysical<DIM> bottomLeft_;
+        Geometry::PointPhysical<DIM> topRight_;
 
         //The order of the dimensions are x = 0, y = 1, z = 2.
         std::vector<std::size_t> numElementsInDIM_;

@@ -21,6 +21,8 @@
 #ifndef ElementIntegrandBase_h
 #define ElementIntegrandBase_h
 
+#include <cstdlib>
+
 namespace Base
 {
     class Element;
@@ -28,6 +30,7 @@ namespace Base
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -44,15 +47,15 @@ namespace Integration
      * the return type, which is given in the final parameter, and inheriting multiple instances.
      * \deprecated Please use an std::function to pass the integrand to ElementIntegral::integrate.
      */
-    template<class T>
+    template<class T, std::size_t DIM>
     class ElementIntegrandBase
     {
     public:
         ///compute the contribution to the returntype of this reference point
-        virtual void elementIntegrand(const Base::Element* element, const Geometry::PointReference& p, T& ret) = 0;
+        virtual void elementIntegrand(const Base::Element* element, const Geometry::PointReference<DIM>& p, T& ret) = 0;
         
         ElementIntegrandBase() = default;
-        ElementIntegrandBase(const ElementIntegrandBase<T> &other) = delete;
+        ElementIntegrandBase(const ElementIntegrandBase<T, DIM> &other) = delete;
     };
 }
 

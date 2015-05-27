@@ -13,25 +13,28 @@
 
 namespace Base
 {
+    template<std::size_t DIM>
     class MeshManipulator;
     class Element;
 }
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
 namespace Output
 {
     ///class to write the data of a single element.
+    template<std::size_t DIM>
     class SingleElementWriter
     {
     public:
         ///function that actually writes the data for one node on one element.
         /// it is purely virtual, since there is no default for what needs to be
         /// written.
-        virtual void writeOutput(const Base::Element*, const Geometry::PointReference&, std::ostream&) = 0;
+        virtual void writeOutput(const Base::Element*, const Geometry::PointReference<DIM>&, std::ostream&) = 0;
     };
     
     /// \brief This class prints the solution in every element.
@@ -42,6 +45,7 @@ namespace Output
     /// testWriter.write(mesh);
     /// Then open gnuplot and plot with the command: splot "output.dat"
     /// Has only been tested for 2D geometries.
+    template<std::size_t DIM>
     class GNUPlotDiscontinuousSolutionWriter
     {
     public:
@@ -53,7 +57,7 @@ namespace Output
         GNUPlotDiscontinuousSolutionWriter(const GNUPlotDiscontinuousSolutionWriter &other) = delete;
 
         /// Write the data to the stream ouput_.
-        void write(const Base::MeshManipulator* mesh, SingleElementWriter* writeDataClass);
+        void write(const Base::MeshManipulator<DIM>* mesh, SingleElementWriter<DIM>* writeDataClass);
 
         ///Destructor: just flush the output stream, the rest will be destructed 
         /// automatically.
@@ -71,6 +75,8 @@ namespace Output
         const std::size_t nDimensionsToWrite_;
     };
 }
+
+#include "GNUPlotDiscontinuousSolutionWriter.cpp"
 
 #endif	/* DISCONTINUOUSSOLUTIONWRITER_HH */
 

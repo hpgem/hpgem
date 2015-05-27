@@ -29,69 +29,35 @@ namespace Integration
     ElementIntegral::ElementIntegral(bool useCache)
             : useCache_(useCache)
     {
-        localElement_ = nullptr;
     }
     
     //! \brief Class destructor
     ElementIntegral::~ElementIntegral()
     {
-        if (localElement_ != nullptr)
-            delete localElement_;
     }
     //! \brief Start caching (geometry) information now.
     void ElementIntegral::cacheOn()
     {
         useCache_ = true;
-        if (localElement_ != nullptr)
-        {
-            localElement_->cacheOn();
-        }
     }
     
     //! \brief Stop using cache.
     void ElementIntegral::cacheOff()
     {
         useCache_ = false;
-        if (localElement_ != nullptr)
-        {
-            localElement_->cacheOff();
-        }
     }
     
     //! \brief Set recompute the cache ON.
     void ElementIntegral::recomputeCacheOn()
     {
-        if (localElement_ != nullptr)
-        {
-            localElement_->recomputeCacheOn();
-        }
+
     }
     
     //! \brief Set recompute the cache OFF.
     void ElementIntegral::recomputeCacheOff()
     {
-        if (localElement_ != nullptr)
-        {
-            localElement_->recomputeCacheOff();
-        }
+
     }
 
 }
 
-void Integration::ElementIntegral::setStorageWrapper(Base::ShortTermStorageElementBase* transform)
-{
-    logger.assert(transform!=nullptr, "Invalid coordinate transformation");
-    delete localElement_;
-    localElement_ = transform;
-    
-    if (useCache_)
-    {
-        localElement_->cacheOn();
-        
-    }
-    else
-    {
-        localElement_->cacheOff();
-        logger(DEBUG, "Working storage Wrapper");
-    }
-}

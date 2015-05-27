@@ -37,13 +37,13 @@ int main()
 {
     ReferencePoint& test = ReferencePoint::Instance();
     
-    const Geometry::PointReference& pTest = *Geometry::PointReferenceFactory::instance()->makePoint(0);
+    const Geometry::PointReference<0>& pTest = *Geometry::PointReferenceFactory<0>::instance()->makePoint();
     
     //testing basic functionality
     
     logger.assert_always((test.isInternalPoint(pTest)), "isInternalPoint");
-    const Geometry::PointReference& pTest1 = test.getCenter();
-    const Geometry::PointReference& pTest2 = test.getNode(0);
+    const Geometry::PointReference<0>& pTest1 = test.getCenter();
+    const Geometry::PointReference<0>& pTest2 = test.getNode(0);
     std::cout << test.getName();
     
     //getLocalNodeIndex should always break since dimension -1 entities dont exist

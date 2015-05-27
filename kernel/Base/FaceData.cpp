@@ -38,8 +38,8 @@ Base::FaceData::FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatric
 }
 
 Base::FaceData::FaceData(const FaceData& other)
-: userData_(other.userData_), faceMatrix_(other.faceMatrix_), faceVector_(other.faceVector_),
-    residual_(other.residual_), vecCacheData_(other.vecCacheData_)
+: vecCacheData_(other.vecCacheData_), userData_(other.userData_), faceMatrix_(other.faceMatrix_),
+    faceVector_(other.faceVector_), residual_(other.residual_)
 {
 }
 
@@ -138,4 +138,9 @@ std::size_t Base::FaceData::getNumberFaceMatrices() const
 std::size_t Base::FaceData::getNumberFaceVectors() const
 {
     return faceVector_.size();
+}
+
+Base::FaceData::VecCacheT& Base::FaceData::getVecCacheData()
+{
+    return vecCacheData_;
 }

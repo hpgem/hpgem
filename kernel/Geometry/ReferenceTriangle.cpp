@@ -41,7 +41,7 @@ namespace Geometry
     std::size_t ReferenceTriangle::localNodeIndexes_[3][2] = { {0, 1}, {0, 2}, {1, 2}};
     
     ReferenceTriangle::ReferenceTriangle()
-            : ReferenceGeometry(3, 2, ReferenceGeometryType::TRIANGLE, {1./3., 1./3.}), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(3, 2, ReferenceGeometryType::TRIANGLE, {1./3., 1./3.}), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance()), points_(3)
     {
         name = "ReferenceTriangle";
         
@@ -61,6 +61,7 @@ namespace Geometry
         points_[0] = PointReferenceFactory<2>::instance()->makePoint({0., 0.});
         points_[1] = PointReferenceFactory<2>::instance()->makePoint({1., 0.});
         points_[2] = PointReferenceFactory<2>::instance()->makePoint({0., 1.});
+        center_ = PointReferenceFactory<2>::instance()->makePoint({1./3., 1./3.});
     }
     
     bool ReferenceTriangle::isInternalPoint(const PointReference<2>& p) const

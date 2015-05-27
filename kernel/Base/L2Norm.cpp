@@ -40,15 +40,5 @@ namespace Base
         }
         return std::sqrt(retSquared);
     }
-    
-    double L2Norm(const Geometry::PointPhysical& v)
-    {
-        double retSquared(0);
-        for (std::size_t i = 0; i < v.size(); ++i)
-        {
-            retSquared += v[i] * v[i];
-        }
-        return std::sqrt(retSquared);
-    }
 }
 

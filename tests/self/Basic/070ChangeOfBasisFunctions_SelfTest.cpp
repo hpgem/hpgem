@@ -32,13 +32,15 @@
 #include "Base/ConfigurationData.h"
 #include "Base/CommandLineOptions.h"
 
-void testData(Base::MeshManipulator mesh)
+template<std::size_t DIM>
+void testData(Base::MeshManipulator<DIM> mesh)
 {
     for(Base::Element* element : mesh.getElementsList())
     {
         for(std::size_t i = 0; i < 4; ++i)
         {
-            logger.assert_always(std::abs(element->getSolution(0, element->getReferenceGeometry()->getNode(i))[0] - i) < 1e-12, "Solution changed");
+            const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getNode(i);
+            logger.assert_always(std::abs(element->getSolution(0, node)[0] - i) < 1e-12, "Solution changed");
         }
     }
 }
@@ -48,8 +50,10 @@ int main(int argc, char** argv)
     Base::parse_options(argc, argv);
     //this test should also be effective in 1D , but 2D has 3x as much 'wrong' basis functions for only a little extra effort
     Base::ConfigurationData* config = new Base::ConfigurationData(2, 1, 1);
-    Base::MeshManipulator mesh(config);
-    mesh.createRectangularMesh({{0., 0.}}, {{1., 1.}}, {{1, 1}});
+    Base::MeshManipulator<2> mesh(config);
+    Geometry::PointPhysical<2> bottomLeft(LinearAlgebra::SmallVector<2>{{0., 0.}});
+    Geometry::PointPhysical<2> topRight(LinearAlgebra::SmallVector<2>{{1., 1.}});
+    mesh.createRectangularMesh(bottomLeft, topRight, {{1, 1}});
     mesh.useDefaultDGBasisFunctions();
     for(Base::Element* element : mesh.getElementsList())
     {

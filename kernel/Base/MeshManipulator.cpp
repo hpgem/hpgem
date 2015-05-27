@@ -89,8 +89,8 @@ public:
 
 namespace Base
 {
-    
-    void MeshManipulator::createDefaultBasisFunctions(std::size_t order)
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::createDefaultBasisFunctions(std::size_t order)
     {
         Base::BasisFunctionSet* bFset1 = new Base::BasisFunctionSet(order);
         switch (configData_->dimension_)
@@ -191,14 +191,15 @@ namespace Base
         }
         collBasisFSet_[0] = std::shared_ptr<const BasisFunctionSet>(bFset1);
     }
-    
-    void MeshManipulator::useDefaultDGBasisFunctions()
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::useDefaultDGBasisFunctions()
     {
         for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
         {
             for(const Base::BaseBasisFunction* function : *set)
             {
-                Geometry::PointReferenceFactory::instance()->removeBasisFunctionData(function);
+                Geometry::PointReferenceFactory<DIM>::instance()->removeBasisFunctionData(function);
             }
         }
         collBasisFSet_.clear();
@@ -253,14 +254,15 @@ namespace Base
         }
     }
 
-    void MeshManipulator::useDefaultConformingBasisFunctions()
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::useDefaultConformingBasisFunctions()
     {
         logger.assert(configData_->polynomialOrder_ > 0, "Basis function may not have an empty union of supporting elements. Use a DG basis function on a single element non-periodic mesh instead");
         for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
         {
             for(const Base::BaseBasisFunction* function : *set)
             {
-                Geometry::PointReferenceFactory::instance()->removeBasisFunctionData(function);
+                Geometry::PointReferenceFactory<DIM>::instance()->removeBasisFunctionData(function);
             }
         }
         collBasisFSet_.clear();
@@ -471,49 +473,34 @@ namespace Base
         }
     }
 
-    MeshManipulator::MeshManipulator(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrtixes, std::size_t nrOfFaceVectors)
-            : configData_(config),
-            meshMover_(nullptr), numberOfElementMatrixes_(nrOfElementMatrixes), numberOfFaceMatrixes_(nrOfFaceMatrtixes), numberOfElementVectors_(nrOfElementVectors), numberOfFaceVectors_(nrOfFaceVectors)
+    template<std::size_t DIM>
+    MeshManipulator<DIM>::MeshManipulator(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrtixes, std::size_t nrOfFaceVectors)
+            : MeshManipulatorBase(config, xPer, yPer, zPer, orderOfFEM, idRangeBegin, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrtixes, nrOfFaceVectors),
+            meshMover_(nullptr)
     {
-        logger.assert(config!=nullptr, "Invalid configuration passed");
+        logger.assert(DIM == config->dimension_, "Invalid configuration passed");
         logger.assert(orderOfFEM==config->polynomialOrder_, "Inconsistent redundant information passed");
         logger.assert(idRangeBegin==0, "c++ starts counting at 0");
-        logger(INFO, "******Mesh creation started!**************");
-        std::size_t DIM = configData_->dimension_;
-        periodicX_ = (xPer == BoundaryType::PERIODIC);
-        periodicY_ = (yPer == BoundaryType::PERIODIC);
-        periodicZ_ = (zPer == BoundaryType::PERIODIC);
-        for (std::size_t i = 0; i < DIM; ++i)
-        {
-            if (i == 0)
-                logger(INFO, "Boundries: % in X direction", (periodicX_ ? "Periodic  " : "Solid Wall"));
-            if (i == 1)
-                logger(INFO, "Boundries: % in Y direction", (periodicY_ ? "Periodic  " : "Solid Wall"));
-            if (i == 2)
-                logger(INFO, "Boundries: % in Z direction", (periodicZ_ ? "Periodic  " : "Solid Wall"));
-        }
         createDefaultBasisFunctions(orderOfFEM);
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ = collBasisFSet_[0]->size();
-        
-        logger(INFO, "******Mesh creation is finished!**********");
-        logger(VERBOSE, "nrOfElementVector = %", nrOfElementVectors);
-        logger(VERBOSE, "nrOfFaceVector = %", nrOfFaceVectors);
     }
-    
-    MeshManipulator::MeshManipulator(const MeshManipulator& other)
-            : theMesh_(other.theMesh_), configData_(other.configData_), periodicX_(other.periodicX_), periodicY_(other.periodicY_), periodicZ_(other.periodicZ_), meshMover_(other.meshMover_),
-            collBasisFSet_(other.collBasisFSet_),
-            numberOfElementMatrixes_(other.numberOfElementMatrixes_), numberOfFaceMatrixes_(other.numberOfFaceMatrixes_), numberOfElementVectors_(other.numberOfElementVectors_), numberOfFaceVectors_(other.numberOfFaceVectors_)
+
+    template<std::size_t DIM>
+    MeshManipulator<DIM>::MeshManipulator(const MeshManipulator& other)
+            : MeshManipulatorBase(other), theMesh_(other.theMesh_), meshMover_(other.meshMover_),
+            collBasisFSet_(other.collBasisFSet_)
     {        
     }
-    
-    MeshManipulator::~MeshManipulator()
+
+    template<std::size_t DIM>
+    MeshManipulator<DIM>::~MeshManipulator()
     {        
         delete meshMover_;
         
     }
-    
-    void MeshManipulator::setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet)
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet)
     {
         logger.assert(bFSet!=nullptr, "Invalid basis function set passed");
         //delete collBasisFSet_[0];
@@ -536,8 +523,9 @@ namespace Base
             (*it)->setDefaultBasisFunctionSet(0);
         }
     }
-    
-    void MeshManipulator::addVertexBasisFunctionSet(const std::vector<const BasisFunctionSet*>& bFsets)
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::addVertexBasisFunctionSet(const std::vector<const BasisFunctionSet*>& bFsets)
     {
         std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet* set : bFsets)
@@ -555,8 +543,9 @@ namespace Base
         }
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getNrOfNodes() * bFsets[0]->size();
     }
-    
-    void MeshManipulator::addFaceBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets)
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::addFaceBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets)
     {
         std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet* set : bFsets)
@@ -590,8 +579,9 @@ namespace Base
         }
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getPhysicalGeometry()->getNrOfFaces() * bFsets[0]->size();
     }
-    
-    void MeshManipulator::addEdgeBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets)
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::addEdgeBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets)
     {
         std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet* set : bFsets)
@@ -618,9 +608,10 @@ namespace Base
         }
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getPhysicalGeometry()->getNrOfFaces() * bFsets[0]->size();
     }
-    
+
+    template<std::size_t DIM>
     Base::Element*
-    MeshManipulator::addElement(const VectorOfPointIndicesT& globalNodeIndexes)
+    MeshManipulator<DIM>::addElement(const VectorOfPointIndicesT& globalNodeIndexes)
     {
         logger.assert([&]()->bool{
             for(std::size_t i = 0; i < globalNodeIndexes.size(); ++i)
@@ -631,10 +622,11 @@ namespace Base
         }(), "Trying to pass the same node twice");
         return theMesh_.addElement(globalNodeIndexes);
     }
-    
-    void MeshManipulator::move()
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::move()
     {
-        for (Geometry::PointPhysical& p : theMesh_.getNodeCoordinates())
+        for (Geometry::PointPhysical<DIM>& p : theMesh_.getNodeCoordinates())
         {
             if (meshMover_ != nullptr)
             {
@@ -642,34 +634,39 @@ namespace Base
             }
         }
     }
-    
-    void MeshManipulator::setMeshMover(const MeshMoverBase* meshMover)
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::setMeshMover(const MeshMoverBase<DIM>* meshMover)
     {
         //can be set to nullptr if you dont want to move the mesh anymore
         meshMover_ = meshMover;
     }
-    
-    bool MeshManipulator::addFace(ElementT* leftElementPtr, std::size_t leftElementLocalFaceNo, ElementT* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType)
+
+    template<std::size_t DIM>
+    bool MeshManipulator<DIM>::addFace(ElementT* leftElementPtr, std::size_t leftElementLocalFaceNo, ElementT* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType)
     {
         logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
         //rightElementPtr may be nullptr for boundary faces
         return theMesh_.addFace(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, faceType);
     }
-    
-    void MeshManipulator::addEdge()
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::addEdge()
     {
         theMesh_.addEdge();
     }
-    
-    void MeshManipulator::addVertex()
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::addVertex()
     {
         theMesh_.addVertex();
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const Base::MeshManipulator& mesh)
+template<std::size_t DIM>
+std::ostream& operator<<(std::ostream& os, const Base::MeshManipulator<DIM>& mesh)
 {
-    for (Geometry::PointPhysical p : mesh.getNodeCoordinates())
+    for (Geometry::PointPhysical<DIM> p : mesh.getNodeCoordinates())
     {
         os << "Node " << " " << p << std::endl;
     }
@@ -683,8 +680,9 @@ std::ostream& operator<<(std::ostream& os, const Base::MeshManipulator& mesh)
     
 namespace Base
 {
-    
-    void MeshManipulator::createRectangularMesh(const PointPhysicalT& bottomLeft, const PointPhysicalT& topRight, const VectorOfPointIndicesT& linearNoElements)
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::createRectangularMesh(const Geometry::PointPhysical<DIM>& bottomLeft, const Geometry::PointPhysical<DIM>& topRight, const VectorOfPointIndicesT& linearNoElements)
     {
         logger.assert(bottomLeft.size()==topRight.size(), "The corners of the mesh must have the same dimension");
         logger.assert(bottomLeft.size()==configData_->dimension_, "The corners of the mesh have the wrong dimension");
@@ -698,7 +696,6 @@ namespace Base
         FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
-        std::size_t DIM = configData_->dimension_;
         logger.assert(linearNoElements.size() == DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
         std::vector<bool> periodicDIM;
         for (std::size_t i = 0; i < DIM; ++i)
@@ -714,7 +711,7 @@ namespace Base
         ///////
         
         //This store the size length of the domain i.e. it is DIM sized vector
-        PointPhysicalT delta_x(DIM);
+        Geometry::PointPhysical<DIM> delta_x;
         
         for (std::size_t i = 0; i < DIM; i++)
         {
@@ -753,7 +750,7 @@ namespace Base
         }
         
         //temp point for storing the node locations
-        PointPhysicalT x(DIM);
+        Geometry::PointPhysical<DIM> x;
         
         //Stage 2 : Create the nodes
         //Now loop over all the nodes and calculate the coordinates for reach DIMension (this makes the algorithm independent of DIMension
@@ -834,8 +831,9 @@ namespace Base
     
     //createTrianglularMesh follows the same structure as createRectangularMesh. 
     //Where createRectangularMesh makes rectangular elements, createTrianglularMesh
-    //splits the elements into a partition of triangles.    
-    void MeshManipulator::createTriangularMesh(PointPhysicalT bottomLeft, PointPhysicalT topRight, const VectorOfPointIndicesT& linearNoElements)
+    //splits the elements into a partition of triangles.
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::createTriangularMesh(Geometry::PointPhysical<DIM> bottomLeft, Geometry::PointPhysical<DIM> topRight, const VectorOfPointIndicesT& linearNoElements)
     {
         logger.assert(bottomLeft.size()==topRight.size(), "The corners of the mesh must have the same dimension");
         logger.assert(bottomLeft.size()==configData_->dimension_, "The corners of the mesh have the wrong dimension");
@@ -850,7 +848,6 @@ namespace Base
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
         //Stage 0 : Check for required requirements
-        std::size_t DIM = configData_->dimension_;
         logger.assert(linearNoElements.size() == DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
         
         logger.assert(!(DIM == 3 && periodicX_ && linearNoElements[0] % 2 == 1), "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension X");
@@ -871,7 +868,7 @@ namespace Base
         
         //Stage 1 : Precompute some required values
         
-        PointPhysicalT delta_x(DIM);
+        Geometry::PointPhysical<DIM> delta_x;
         
         for (std::size_t i = 0; i < DIM; ++i)
         {
@@ -909,7 +906,7 @@ namespace Base
             numOfVerticesInEachSubspace[idim] = numOfVerticesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + (periodicDIM[idim - 1] ? 0 : 1));
         }
         
-        PointPhysicalT x(DIM);
+        Geometry::PointPhysical<DIM> x;
         
         //Stage 2 : Create the nodes
         
@@ -1074,8 +1071,9 @@ namespace Base
         faceFactory();
         edgeFactory();
     }
-    
-    void MeshManipulator::readCentaurMesh(const std::string& filename)
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::readCentaurMesh(const std::string& filename)
     {
         //set to correct value in case some other meshManipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
@@ -1108,8 +1106,9 @@ namespace Base
         //Finally close the file
         centaurFile.close();
     }
-    
-    void MeshManipulator::readCentaurMesh2D(std::ifstream& centaurFile)
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::readCentaurMesh2D(std::ifstream& centaurFile)
     {
         
         auto& elementslist = theMesh_.getElementsList(IteratorType::GLOBAL);
@@ -1161,7 +1160,7 @@ namespace Base
             //Now we will read in all the nodes
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             double nodeCoord[2];
-            PointPhysicalT nodeCoordPointFormat(2);
+            Geometry::PointPhysical<DIM> nodeCoordPointFormat;
             for (std::size_t i = 0; i < numberOfNodes; i++)
             {
                 // Reads the x and y coordinates of each node.
@@ -1558,8 +1557,9 @@ namespace Base
             faceFactory();
             
     }
-    
-    void MeshManipulator::readCentaurMesh3D(std::ifstream& centaurFile)
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream& centaurFile)
     {
         
         auto& elementsList = theMesh_.getElementsList(IteratorType::GLOBAL);
@@ -1615,7 +1615,7 @@ namespace Base
             //Now we will read in all the nodes
             centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
             double nodeCoord[3];
-            PointPhysicalT nodeCoordPointFormat(3);
+            Geometry::PointPhysical<DIM> nodeCoordPointFormat(3);
             for (std::size_t i = 0; i < numberOfNodes; i++)
             {
                 if (i > 0 && i % numberOfNodesPerLine == 0)
@@ -2357,7 +2357,8 @@ namespace Base
     }
     
 #ifdef HPGEM_USE_QHULL
-    void MeshManipulator::createUnstructuredMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, std::size_t TotalNoNodes, std::function<double(PointPhysicalT)> domainDescription, std::vector<PointPhysicalT> fixedPoints, std::function<double(PointPhysicalT)> relativeEdgeLength, double growFactor)
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::createUnstructuredMesh(Geometry::PointPhysical<DIM> BottomLeft, Geometry::PointPhysical<DIM> TopRight, std::size_t TotalNoNodes, std::function<double(Geometry::PointPhysical<DIM>)> domainDescription, std::vector<Geometry::PointPhysical<DIM>> fixedPoints, std::function<double(Geometry::PointPhysical<DIM>)> relativeEdgeLength, double growFactor)
     {
         //impossible to create a mesh with more fixed nodes that total nodes
         //note that when equality is met, this will only do a delaunay triangulation
@@ -2383,11 +2384,10 @@ namespace Base
             dist *= std::pow(TopRight[i] - BottomLeft[i], 1. / double(dimension()));
         }
         
-        std::vector<PointPhysicalT> hpGEMCoordinates = fixedPoints;
+        std::vector<Geometry::PointPhysical<DIM> > hpGEMCoordinates = fixedPoints;
         
         //seed approximately N points inside the bounding box (total amount will be tweaked later)
-        std::size_t DIM = dimension();
-        PointPhysicalT nextPoint = BottomLeft;
+        Geometry::PointPhysical<DIM> nextPoint = BottomLeft;
         for (std::size_t i = 0; i < fixedPoints.size(); ++i)
         {
             logger.assert(domainDescription(fixedPoints[i]) < 1e-10, "One of the fixed points is outside of the domain");
@@ -2424,7 +2424,7 @@ namespace Base
             qHullCoordinates.setDimension(DIM);
             qHullCoordinates.reserveCoordinates(DIM * hpGEMCoordinates.size());
             
-            for (PointPhysicalT point : hpGEMCoordinates)
+            for (Geometry::PointPhysical<DIM> point : hpGEMCoordinates)
             {
                 qHullCoordinates.append(DIM, point.data());
             }
@@ -2438,7 +2438,7 @@ namespace Base
             {
                 if (triangle.isGood() && !triangle.isUpperDelaunay())
                 {
-                    PointPhysicalT center(DIM);
+                    Geometry::PointPhysical<DIM> center(DIM);
                     std::vector<std::size_t> pointIndices;
                     for (auto vertex : triangle.vertices())
                     {
@@ -2523,8 +2523,8 @@ namespace Base
                 //the algorithm is mostly dimension independent, but the data type it operates on is not
                 for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                 {
-                    Geometry::PointPhysical firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
-                    Geometry::PointPhysical secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
+                    Geometry::PointPhysical<DIM> firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
+                    Geometry::PointPhysical<DIM> secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                     currentLength.push_back(L2Norm(firstNode - secondNode));
                     totalcurrentLength += currentLength.back();
                     totalexpectedLength += expectedLength[element->getNode(0)->getID()] / 2;
@@ -2535,7 +2535,7 @@ namespace Base
             {
                 for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
                     firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                     secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -2548,7 +2548,7 @@ namespace Base
             {
                 for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
                     firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                     secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -2563,13 +2563,13 @@ namespace Base
             
             //sort the centers of the edges such that the centers of the large edges are indexed first
             //note that in this case the inverse measure is computed, because that will result in a more natural force computation later on
-            std::multimap<double, PointPhysicalT> centerPoints;
+            std::multimap<double, Geometry::PointPhysical<DIM> > centerPoints;
             if (DIM == 1)
             {
                 //the algorithm is mostly dimension independent, but the data type it operates on is not
                 for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
                     secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                     //length is scaled in case somebody hasty decides to add smoothing at this point
@@ -2583,7 +2583,7 @@ namespace Base
             {
                 for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
                     firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                     secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -2598,7 +2598,7 @@ namespace Base
             {
                 for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
                     firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                     secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -2627,7 +2627,7 @@ namespace Base
             
             //cleanest solution, but not the fastest
             theMesh_.clear();
-            for (PointPhysicalT point : hpGEMCoordinates)
+            for (Geometry::PointPhysical<DIM> point : hpGEMCoordinates)
             {
                 theMesh_.addVertex();
                 theMesh_.addNode(point);
@@ -2638,7 +2638,7 @@ namespace Base
         qHullCoordinates.setDimension(DIM);
         qHullCoordinates.reserveCoordinates(DIM * hpGEMCoordinates.size());
         
-        for (PointPhysicalT point : hpGEMCoordinates)
+        for (Geometry::PointPhysical<DIM> point : hpGEMCoordinates)
         {
             qHullCoordinates.append(DIM, point.data());
         }
@@ -2651,7 +2651,7 @@ namespace Base
         {
             if (triangle.isGood() && !triangle.isUpperDelaunay())
             {
-                PointPhysicalT center {DIM};
+                Geometry::PointPhysical<DIM> center {DIM};
                 std::vector<std::size_t> pointIndices;
                 for (auto vertexIt1 = triangle.vertices().begin(); vertexIt1 != triangle.vertices().end(); ++vertexIt1)
                 {
@@ -2684,10 +2684,10 @@ namespace Base
     }
     
     ///\bug Assumes a DG basis function set is used. (Workaround: set the basis function set again after calling this routine if you are using something conforming)
-    void MeshManipulator::updateMesh(std::function<double(PointPhysicalT)> domainDescription, std::vector<std::size_t> fixedPointIdxs, std::function<double(PointPhysicalT)> relativeEdgeLength, double growFactor, std::function<bool(PointPhysicalT)> isOnPeriodic, std::function<PointPhysicalT(PointPhysicalT)> duplicatePeriodic, std::function<bool(PointPhysicalT)> isOnOtherPeriodic, std::function<PointPhysicalT(PointPhysicalT)> safeSpot, std::vector<std::size_t> dontConnect)
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::updateMesh(std::function<double(Geometry::PointPhysical<DIM>)> domainDescription, std::vector<std::size_t> fixedPointIdxs, std::function<double(Geometry::PointPhysical<DIM>)> relativeEdgeLength, double growFactor, std::function<bool(Geometry::PointPhysical<DIM>)> isOnPeriodic, std::function<Geometry::PointPhysical<DIM>(Geometry::PointPhysical<DIM>)> duplicatePeriodic, std::function<bool(Geometry::PointPhysical<DIM>)> isOnOtherPeriodic, std::function<Geometry::PointPhysical<DIM>(Geometry::PointPhysical<DIM>)> safeSpot, std::vector<std::size_t> dontConnect)
     {
         std::sort(fixedPointIdxs.begin(), fixedPointIdxs.end());
-        std::size_t DIM = dimension();
         bool needsExpansion = false;
         double totalCurrentLength = 0;
         double oldQuality = 0;
@@ -2706,8 +2706,8 @@ namespace Base
         
         for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
         {
-            PointPhysicalT point {DIM};
-            PointPhysicalT compare {DIM};
+            Geometry::PointPhysical<DIM> point;
+            Geometry::PointPhysical<DIM> compare;
             point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
             std::set<std::size_t> equivalentIndices {};
             equivalentIndices.insert(node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0)));
@@ -2743,7 +2743,7 @@ namespace Base
             double totalexpectedLength = 0;
             for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
             {
-                PointPhysicalT point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
+                Geometry::PointPhysical<DIM> point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
                 unscaledShift.push_back(L2Norm(oldNodeLocations_[expectedLength.size()] - point));
                 expectedLength.push_back(relativeEdgeLength(point));
                 if (isnan(expectedLength.back()) || isinf(expectedLength.back()))
@@ -2788,7 +2788,7 @@ namespace Base
                 //the algorithm is mostly dimension independent, but the data type it operates on is not
                 for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
                     secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                     currentLength.push_back(L2Norm(firstNode - secondNode));
@@ -2804,7 +2804,7 @@ namespace Base
                 currentLength.reserve(theMesh_.getNumberOfFaces(IteratorType::GLOBAL));
                 for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
                     firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                     secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -2830,7 +2830,7 @@ namespace Base
                 currentLength.reserve(theMesh_.getNumberOfEdges(IteratorType::GLOBAL));
                 for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
                     firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                     secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -2848,7 +2848,7 @@ namespace Base
         std::size_t counter = 0;
         double maxMovement = std::numeric_limits<double>::infinity();
         std::vector<double> currentLength {};
-        std::vector<PointPhysicalT> movement(theMesh_.getNodeCoordinates().size(), DIM);
+        std::vector<Geometry::PointPhysical<DIM>> movement(theMesh_.getNodeCoordinates().size(), DIM);
         //stop after n iterations, or (when the nodes have stopped moving and the mesh is not becoming worse), or when the mesh is great, or when the mesh is decent, but worsening
         while ((counter < 10000 && (maxMovement > 1e-3 || oldQuality - worstQuality > 1e-3) && worstQuality < 0.8 && (worstQuality < 2. / 3. || oldQuality - worstQuality < 0)) || counter < 5)
         {
@@ -2861,13 +2861,13 @@ namespace Base
                 qHullCoordinates.setDimension(DIM);
                 oldNodeLocations_.clear();
                 oldNodeLocations_.reserve(theMesh_.getNumberOfNodes());
-                for (PointPhysicalT& point : theMesh_.getNodeCoordinates())
+                for (Geometry::PointPhysical<DIM>& point : theMesh_.getNodeCoordinates())
                 {
                     oldNodeLocations_.push_back(point);
                 }
                 theMesh_.clear();
                 auto pairingIterator = periodicPairing.begin();
-                for (PointPhysicalT point : oldNodeLocations_)
+                for (Geometry::PointPhysical<DIM> point : oldNodeLocations_)
                 {
                     theMesh_.addNode(point);
                     if (pairingIterator == periodicPairing.end())
@@ -2895,7 +2895,7 @@ namespace Base
                         periodicPairing.insert({i, theMesh_.getNumberOfNodes()});
                         logger(DEBUG, "periodic pair: % % ", i, theMesh_.getNumberOfNodes());
                         pairingIterator = std::find_if(periodicPairing.begin(), periodicPairing.end(), [=](const std::pair<std::size_t, std::size_t>& p)->bool{return p.first == std::min(i, j);});
-                        Geometry::PointPhysical newNodeCoordinate = duplicatePeriodic(theMesh_.getNodeCoordinates()[i]);
+                        Geometry::PointPhysical<DIM> newNodeCoordinate = duplicatePeriodic(theMesh_.getNodeCoordinates()[i]);
                         logger(DEBUG, "new periodic pair coordinates: % %", theMesh_.getNodeCoordinates()[i], newNodeCoordinate);
                         theMesh_.addNode(newNodeCoordinate);
                         oldNodeLocations_.push_back(newNodeCoordinate);
@@ -2929,7 +2929,7 @@ namespace Base
                 logger.assert(currentVertexNumber == theMesh_.getNumberOfVertices(IteratorType::GLOBAL), "Missed some node indexes");
 
                 qHullCoordinates.reserveCoordinates(DIM * theMesh_.getNumberOfNodes());
-                for(Geometry::PointPhysical& point : theMesh_.getNodeCoordinates())
+                for(Geometry::PointPhysical<DIM>& point : theMesh_.getNodeCoordinates())
                 {
                     qHullCoordinates.append(DIM, point.data());
                 }
@@ -2941,7 +2941,7 @@ namespace Base
                     if (triangle.isGood() && !triangle.isUpperDelaunay())
                     {
                         logger(DEBUG, "adding %", triangle);
-                        PointPhysicalT center {DIM};
+                        Geometry::PointPhysical<DIM> center;
                         std::vector<std::size_t> pointIndices {};
                         bool shouldConnect = false;
                         for (auto vertexIt1 = triangle.vertices().begin(); vertexIt1 != triangle.vertices().end(); ++vertexIt1)
@@ -2999,7 +2999,7 @@ namespace Base
             double totalexpectedLength = 0.;
             for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
             {
-                PointPhysicalT point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
+                Geometry::PointPhysical<DIM> point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
                 expectedLength.push_back(relativeEdgeLength(point));
                 if (!isnan(expectedLength.back()) && !isinf(expectedLength.back()))
                 {
@@ -3043,7 +3043,7 @@ namespace Base
                 //the algorithm is mostly dimension independent, but the data type it operates on is not
                 for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
                     secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                     currentLength[element->getID()] = L2Norm(firstNode - secondNode);
@@ -3057,7 +3057,7 @@ namespace Base
                 currentLength.resize(theMesh_.getNumberOfFaces(IteratorType::GLOBAL));
                 for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
                     firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                     secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -3071,7 +3071,7 @@ namespace Base
                 currentLength.resize(theMesh_.getNumberOfEdges(IteratorType::GLOBAL));
                 for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
                     firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                     secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -3081,7 +3081,7 @@ namespace Base
                 }
             }
             
-            for (PointPhysicalT& point : movement)
+            for (Geometry::PointPhysical<DIM>& point : movement)
             {
                 point *= 0;
             }
@@ -3090,7 +3090,7 @@ namespace Base
             {
                 for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
                     secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                     //it is impossible to detect if a node inside the domain should be clipped to the edge
@@ -3108,7 +3108,7 @@ namespace Base
             {
                 for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
                     firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                     secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -3121,7 +3121,7 @@ namespace Base
             {
                 for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
                     firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                     secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -3146,7 +3146,7 @@ namespace Base
                 else
                 {
                     Node* node = theMesh_.getVerticesList(IteratorType::GLOBAL)[i];
-                    PointPhysicalT& point = theMesh_.getNodeCoordinates()[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0))];
+                    Geometry::PointPhysical<DIM>& point = theMesh_.getNodeCoordinates()[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0))];
                     point += 0.1 * (*moveIterator);
                     logger.assert(!(std::isnan(point[0])), "%", i);
                     bool isPeriodic = false;
@@ -3156,7 +3156,7 @@ namespace Base
                     {
                         if (!hasMoved[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))])
                         {
-                            PointPhysicalT& other = theMesh_.getNodeCoordinates()[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))];
+                            Geometry::PointPhysical<DIM>& other = theMesh_.getNodeCoordinates()[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))];
                             other += 0.1 * (*moveIterator);
                             hasMoved[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))] = true;
                             isPeriodic = true;
@@ -3166,8 +3166,8 @@ namespace Base
                     {
                         //the point is outside of the domain, move it back inside
                         double currentValue = domainDescription(point);
-                        LinearAlgebra::MiddleSizeVector gradient (DIM);
-                        LinearAlgebra::MiddleSizeVector offset (DIM);
+                        LinearAlgebra::SmallVector<DIM> gradient;
+                        LinearAlgebra::SmallVector<DIM> offset;
                         //one-sided numerical derivative
                         for (std::size_t j = 0; j < DIM; ++j)
                         {
@@ -3202,7 +3202,7 @@ namespace Base
                     if (isPeriodic)
                     {
                         //do a total of four newton iteration before giving up
-                        PointPhysicalT testPoint {DIM};
+                        Geometry::PointPhysical<DIM> testPoint;
                         for (std::size_t j = 0; j < 4; ++j)
                         {
                             //make sure the node stays on the periodic boundary, to prevent faces with 3 or more elements connected to them
@@ -3212,8 +3212,8 @@ namespace Base
                                 double currentValue = domainDescription(testPoint);
                                 if (currentValue > 0)
                                 {
-                                    LinearAlgebra::MiddleSizeVector gradient (DIM);
-                                    LinearAlgebra::MiddleSizeVector offset (DIM);
+                                    LinearAlgebra::SmallVector<DIM> gradient;
+                                    LinearAlgebra::SmallVector<DIM> offset;
                                     for (std::size_t l = 0; l < DIM; ++l)
                                     {
                                         offset[l] = 1e-7;
@@ -3225,7 +3225,7 @@ namespace Base
                                     {
                                         if (!hasMoved[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))])
                                         {
-                                            PointPhysicalT& other = theMesh_.getNodeCoordinates()[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))];
+                                            Geometry::PointPhysical<DIM>& other = theMesh_.getNodeCoordinates()[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))];
                                             other += currentValue * gradient / L2Norm(gradient);
                                             hasMoved[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))] = true;
                                         }
@@ -3256,7 +3256,7 @@ namespace Base
                 //the algorithm is mostly dimension independent, but the data type it operates on is not
                 for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
                     secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                     maxMovement = std::max(maxMovement, L2Norm(movement[element->getNode(0)->getID()]) / 10 / currentLength[element->getID()]);
@@ -3279,7 +3279,7 @@ namespace Base
                 }
                 for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
                     firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                     secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -3300,13 +3300,13 @@ namespace Base
                         edgeLengths[i] = currentLength[element->getEdge(i)->getID()];
                     }
                     double average = std::accumulate(edgeLengths.begin(), edgeLengths.end(), 0) / 6;
-                    const Geometry::PointReference& center = element->getReferenceGeometry()->getCenter();
-                    Geometry::Jacobian jac = element->calcJacobian(center);
+                    const Geometry::PointReference<DIM>& center = element->getReferenceGeometry()->getCenter();
+                    Geometry::Jacobian<DIM, DIM> jac = element->calcJacobian(center);
                     worstQuality = std::min(worstQuality, jac.determinant() / average * std::sqrt(2));
                 }
                 for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                 {
-                    PointPhysicalT firstNode(DIM), secondNode(DIM);
+                    Geometry::PointPhysical<DIM> firstNode, secondNode;
                     std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
                     firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                     secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -3322,13 +3322,13 @@ namespace Base
             if (counter % 50 == 1 && false)
             {
                 //the actual sorting is more expensive than computing the lengths and this does not happen very often
-                std::multimap<double, std::pair<PointPhysicalT, PointIndexT> > centerPoints {};
+                std::multimap<double, std::pair<Geometry::PointPhysical<DIM>, Geometry::PointPhysical<DIM> > > centerPoints {};
                 if (DIM == 1)
                 {
                     //the algorithm is mostly dimension independent, but the data type it operates on is not
                     for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
                     {
-                        PointPhysicalT firstNode(DIM), secondNode(DIM);
+                        Geometry::PointPhysical<DIM> firstNode, secondNode;
                         firstNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
                         secondNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
                         //length is scaled in case somebody hasty decides to add smoothing at this point
@@ -3342,7 +3342,7 @@ namespace Base
                 {
                     for (Face* face : theMesh_.getFacesList(IteratorType::GLOBAL))
                     {
-                        PointPhysicalT firstNode(DIM), secondNode(DIM);
+                        Geometry::PointPhysical<DIM> firstNode, secondNode;
                         std::vector<std::size_t> nodeIndices = face->getPtrElementLeft()->getReferenceGeometry()->getCodim1EntityLocalIndices(face->localFaceNumberLeft());
                         firstNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                         secondNode = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -3357,7 +3357,7 @@ namespace Base
                 {
                     for (Edge* edge : theMesh_.getEdgesList(IteratorType::GLOBAL))
                     {
-                        PointPhysicalT firstNode(DIM), secondNode(DIM);
+                        Geometry::PointPhysical<DIM> firstNode, secondNode;
                         std::vector<std::size_t> nodeIndices = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
                         firstNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[0]);
                         secondNode = edge->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIndices[1]);
@@ -3375,8 +3375,8 @@ namespace Base
                 {
                     hasTeleported[index] = true;
                 }
-                PointPhysicalT point {DIM};
-                PointPhysicalT other {DIM};
+                Geometry::PointPhysical<DIM> point;
+                Geometry::PointPhysical<DIM> other;
                 for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
                 {
                     point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
@@ -3419,13 +3419,14 @@ namespace Base
         //coordinate transformation may have changed, update to the current situation
         for (Element* element : theMesh_.getElementsList())
         {
-            element->getReferenceToPhysicalMap()->reinit(element->getPhysicalGeometry());
+            element->getReferenceToPhysicalMap()->reinit();
         }
     }
 #endif
     
     /// \bug does not do the bc flags yet
-    void MeshManipulator::faceFactory()
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::faceFactory()
     {   
         std::vector<std::size_t> nodeIndices;
         std::vector<Element*> candidates;
@@ -3526,9 +3527,9 @@ namespace Base
     //with some minor adaptation to account for the fact that there may be
     //more than two elements per edge
     ///\bug does not do 4D yet
-    void MeshManipulator::edgeFactory()
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::edgeFactory()
     {
-        std::size_t DIM(configData_->dimension_);
         //'edges' in DIM 2 are actually nodes
         if (DIM != 2)
         {
@@ -3571,19 +3572,16 @@ namespace Base
             }
         }
     }
-    
-    Mesh& MeshManipulator::getMesh()
+
+    template<std::size_t DIM>
+    Mesh<DIM>& MeshManipulator<DIM>::getMesh()
     {
         return theMesh_;
     }
-    
-    const Mesh& MeshManipulator::getMesh() const
+
+    template<std::size_t DIM>
+    const Mesh<DIM>& MeshManipulator<DIM>::getMesh() const
     {
         return theMesh_;
-    }
-    
-    std::size_t MeshManipulator::dimension() const
-    {
-        return configData_->dimension_;
     }
 }

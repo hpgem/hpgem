@@ -36,7 +36,7 @@ namespace Geometry
     std::size_t ReferenceCube::localNodesOnEdge_[12][2] = { {0, 1}, {2, 3}, {4, 5}, {6, 7}, {0, 2}, {1, 3}, {4, 6}, {5, 7}, {0, 4}, {1, 5}, {2, 6}, {3, 7}, };
     
     ReferenceCube::ReferenceCube()
-            : ReferenceGeometry(8, 3, ReferenceGeometryType::CUBE, {0., 0., 0.}), referenceGeometryCodim1Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(8, 3, ReferenceGeometryType::CUBE, {0., 0., 0.}), referenceGeometryCodim1Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance()), points_(8)
     {
         name = "ReferenceCube";
         
@@ -48,6 +48,7 @@ namespace Geometry
         points_[5] = PointReferenceFactory<3>::instance()->makePoint({ 1., -1.,  1.});
         points_[6] = PointReferenceFactory<3>::instance()->makePoint({-1.,  1.,  1.});
         points_[7] = PointReferenceFactory<3>::instance()->makePoint({ 1.,  1.,  1.});
+        center_ = PointReferenceFactory<3>::instance()->makePoint();
         
         mappingsSquareToCube_[0] = &MappingToRefSquareToCube0::Instance();
         mappingsSquareToCube_[1] = &MappingToRefSquareToCube1::Instance();

@@ -22,7 +22,7 @@
 #include "Base/MpiContainer.h"
 #include "GlobalMatrix.h"
 #include <vector>
-#include "Base/MeshManipulator.h"
+#include "Base/MeshManipulatorBase.h"
 #include "Base/Edge.h"
 #include "Base/Face.h"
 #include "Base/Element.h"
@@ -40,7 +40,7 @@
 namespace Utilities
 {
     
-    GlobalMatrix::GlobalMatrix(Base::MeshManipulator* theMesh, int elementMatrixID, int faceMatrixID)
+    GlobalMatrix::GlobalMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID)
             : meshLevel_(-2), elementMatrixID_(elementMatrixID), faceMatrixID_(faceMatrixID), theMesh_(theMesh)
     {
         logger.assert(theMesh!=nullptr,"Invalid mesh passed");
@@ -89,7 +89,7 @@ namespace Utilities
     }
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
     
-    GlobalPetscMatrix::GlobalPetscMatrix(Base::MeshManipulator* theMesh, int elementMatrixID, int faceMatrixID)
+    GlobalPetscMatrix::GlobalPetscMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID)
             : GlobalMatrix(theMesh, elementMatrixID, faceMatrixID)
     {
         logger.assert(theMesh!=nullptr, "Invalid mesh passed");

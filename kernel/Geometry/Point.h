@@ -95,13 +95,13 @@ namespace Geometry
         {
             return right * -1.0;
         }
-        
-        friend Point operator*(const double& left, const Point& right);
 
     protected:
         VectorOfCoordsT coordinates_;
     };
 
+    template<std::size_t DIM>
+    Point<DIM> operator*(const double& left, const Point<DIM>& right);
 
 }
 

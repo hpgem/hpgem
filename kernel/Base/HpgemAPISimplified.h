@@ -79,10 +79,16 @@ namespace Base
      */
     /** \details For an example of using this interface see the application class 'AcousticWave'.
      */
-    
-    class HpgemAPISimplified : public HpgemAPIBase, public Output::TecplotSingleElementWriter
+
+    template<std::size_t DIM>
+    class HpgemAPISimplified : public HpgemAPIBase<DIM>, public Output::TecplotSingleElementWriter<DIM>
     {
     public:
+
+        using typename HpgemAPIBase<DIM>::PointPhysicalT;
+        using typename HpgemAPIBase<DIM>::PointReferenceT;
+        using typename HpgemAPIBase<DIM>::PointReferenceOnFaceT;
+
         // Constructor
         HpgemAPISimplified
         (
@@ -96,10 +102,10 @@ namespace Base
         HpgemAPISimplified(const HpgemAPISimplified &other) = delete;
 
         /// \brief Create a mesh description
-        virtual Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection)
+        virtual Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection)
         {
             logger(ERROR, "No routine for creating the domain implemented.");
-            Base::RectangularMeshDescriptor description(configData_->dimension_);
+            Base::RectangularMeshDescriptor<DIM> description;
             return description;
         }
         
@@ -110,7 +116,7 @@ namespace Base
         virtual LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No exact solution implemented.");
-            LinearAlgebra::MiddleSizeVector realSolution(configData_->numberOfUnknowns_);
+            LinearAlgebra::MiddleSizeVector realSolution(this->configData_->numberOfUnknowns_);
             return realSolution;
         }
         
@@ -118,7 +124,7 @@ namespace Base
         virtual LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No initial solution implemented.");
-            LinearAlgebra::MiddleSizeVector initialSolution(configData_->numberOfUnknowns_);
+            LinearAlgebra::MiddleSizeVector initialSolution(this->configData_->numberOfUnknowns_);
             return initialSolution;
         }
         
@@ -139,16 +145,16 @@ namespace Base
         void integrateInitialSolution(const std::size_t timeLevelResult, const double startTime, const std::size_t orderTimeDerivative);
 
         /// \brief Integrate the square of some norm of the error on a single element.
-        virtual LinearAlgebra::MiddleSizeVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
+        virtual double integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
         /// \brief Compute the (weighted) L2-norm of the error.
         double computeTotalError(const std::size_t solutionTimeLevel, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error at an element.
-        virtual LinearAlgebra::MiddleSizeVector computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
+        virtual double computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error.
-        LinearAlgebra::MiddleSizeVector computeMaxError(const std::size_t solutionTimeLevel, const double time);
+        double computeMaxError(const std::size_t solutionTimeLevel, const double time);
         
         /// \brief Compute the right-hand side corresponding to an element
         virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement
@@ -227,7 +233,7 @@ namespace Base
         /// \brief Write output to a tecplot file.
         virtual void writeToTecplotFile(const Element *ptrElement, const PointReferenceT &pRef, std::ostream &out) override;
         
-        void VTKWrite(Output::VTKTimeDependentWriter& out, double t, std::size_t timeLevel)
+        void VTKWrite(Output::VTKTimeDependentWriter<DIM>& out, double t, std::size_t timeLevel)
         {
             //you would say this could be done more efficiently, but p.first has different types each time
             for (auto p : VTKDoubleWrite_)
@@ -297,27 +303,29 @@ namespace Base
     private:
         /// \brief Define how the solution should be written in the VTK files.
         /// \details For an example of using this function, see for example the application 'TutorialAdvection' to find out how to use this function.
-        void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
         {
             VTKDoubleWrite_.push_back( {function, name});
         }
         
-        void registerVTKWriteFunction(std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        void registerVTKWriteFunction(std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
         {
             VTKVectorWrite_.push_back( {function, name});
         }
         
-        void registerVTKWriteFunction(std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        void registerVTKWriteFunction(std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
         {
             VTKMatrixWrite_.push_back( {function, name});
         }
         
-        std::vector<std::pair<std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKDoubleWrite_;
-        std::vector<std::pair<std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKVectorWrite_;
-        std::vector<std::pair<std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKMatrixWrite_;
+        std::vector<std::pair<std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKDoubleWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKVectorWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKMatrixWrite_;
         
     };
 }
+
+#include "HpgemAPISimplified.cpp"
 
 #endif
 

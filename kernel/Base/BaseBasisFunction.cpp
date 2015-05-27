@@ -26,36 +26,38 @@
 
 namespace Base
 {
-    
-    void BaseBasisFunction::eval(const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
+
+    LinearAlgebra::SmallVector<1> BaseBasisFunction::evalDeriv(const Geometry::PointReference<1>& p) const
     {
-        ret.resize(1);
-        ret[0] = eval(p);
+        LinearAlgebra::SmallVector<1> ret;
+        ret[0] = evalDeriv0(p);
+        return ret;
     }
     
-    LinearAlgebra::MiddleSizeVector BaseBasisFunction::evalDeriv(const PointReferenceT& p) const
+    LinearAlgebra::SmallVector<2> BaseBasisFunction::evalDeriv(const Geometry::PointReference<2>& p) const
     {
-        LinearAlgebra::MiddleSizeVector ret(p.size());
-        for (std::size_t i = 0; i < ret.size(); ++i)
-        {
-            switch (i)
-            {
-                case 0:
-                    ret[i] = evalDeriv0(p);
-                    break;
-                case 1:
-                    ret[i] = evalDeriv1(p);
-                    break;
-                case 2:
-                    ret[i] = evalDeriv2(p);
-                    break;
-                case 3:
-                    ret[i] = evalDeriv3(p);
-                    break;
-                default:
-                    logger(ERROR, "The DIMension of your problem is too low to warrant taking a derivative in this direction");
-            }
-        }
+        LinearAlgebra::SmallVector<2> ret;
+        ret[0] = evalDeriv0(p);
+        ret[1] = evalDeriv1(p);
+        return ret;
+    }
+
+    LinearAlgebra::SmallVector<3> BaseBasisFunction::evalDeriv(const Geometry::PointReference<3>& p) const
+    {
+        LinearAlgebra::SmallVector<3> ret;
+        ret[0] = evalDeriv0(p);
+        ret[1] = evalDeriv1(p);
+        ret[2] = evalDeriv2(p);
+        return ret;
+    }
+
+    LinearAlgebra::SmallVector<4> BaseBasisFunction::evalDeriv(const Geometry::PointReference<4>& p) const
+    {
+        LinearAlgebra::SmallVector<4> ret;
+        ret[0] = evalDeriv0(p);
+        ret[1] = evalDeriv1(p);
+        ret[2] = evalDeriv2(p);
+        ret[3] = evalDeriv3(p);
         return ret;
     }
 }

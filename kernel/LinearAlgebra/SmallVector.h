@@ -255,8 +255,9 @@ namespace LinearAlgebra
 
     template<std::size_t nRows>
     MiddleSizeVector::MiddleSizeVector(const SmallVector<nRows>& other)
-        : data_(other.data_)
+        : data_(other.data(), other.data() + nRows)
     {
+        logger(WARN, "Constructing middle size vector from small vector, consider using small vectors everywhere for fixed length vectors of size <= 4");
     }
 
 }

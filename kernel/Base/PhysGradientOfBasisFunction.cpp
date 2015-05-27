@@ -28,12 +28,12 @@
 
 namespace Utilities
 {
-    PhysGradientOfBasisFunction::RetType PhysGradientOfBasisFunction::operator ()(const PointReferenceT& p) const
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM> PhysGradientOfBasisFunction::operator ()(const Geometry::PointReference<DIM>& p) const
     {
-        const std::size_t DIM = p.size();
-        RetType r = p.getBasisFunctionDerivative(myFunction_);
-        Geometry::Jacobian jac = myElement_->calcJacobian(p);
-        //we need the transpose jacobian
+        LinearAlgebra::SmallVector<DIM> r = p.getBasisFunctionDerivative(myFunction_);
+        Geometry::Jacobian<DIM, DIM> jac = myElement_->calcJacobian(p);
+        //we need the transpose jacobian (can be done in-place)
         for(std::size_t i = 0; i < DIM; ++i)
         {
             for(std::size_t j=0; j < i; ++j)

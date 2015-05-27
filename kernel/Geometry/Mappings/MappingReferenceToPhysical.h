@@ -24,7 +24,7 @@
 
 #include "MappingInterface.h"
 #include "Logger.h"
-#include "PhysicalGeometryBase.h"
+#include "Geometry/PhysicalGeometryBase.h"
 #include <vector>
 
 namespace Geometry

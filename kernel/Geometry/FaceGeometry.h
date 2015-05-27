@@ -31,6 +31,10 @@
 #include "ReferencePoint.h"
 #include "PointReference.h"
 #include "PointPhysical.h"
+#include "ElementGeometry.h"
+#include "Mappings/MappingReferenceToReference.h"
+#include "Jacobian.h"
+#include "Mappings/OutwardNormalVectorSign.h"
 
 //--------------------------------------------------------------------------------------------------
 //
@@ -291,5 +295,105 @@ namespace Geometry
         FaceType faceType_;
         
     };
+
+    /*! Map a point in coordinates of the reference geometry of the face to
+     *  the reference geometry of the left (L) element. */
+    template<std::size_t DIM>
+    const PointReference<DIM + 1>& FaceGeometry::mapRefFaceToRefElemL(const PointReference<DIM>& pRefFace) const
+    {
+        return leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_)->transform(pRefFace);
+    }
+
+    /*! Map a point in coordinates of the reference geometry of the face to
+     *  the reference geometry of the right (R) element. */
+    template<std::size_t DIM>
+    const PointReference<DIM + 1>& FaceGeometry::mapRefFaceToRefElemR(const PointReference<DIM>& pRefFace) const
+    {
+        // In the L function we have assumed the point pRefFace to be
+        // given in coordinates of the system used by the reference face
+        // on the L side. That means that now to make sure that the
+        // point transformed from the right side of the face onto the
+        // right element is the same as the one on the left side of the
+        // face, we have to use the refFace2RefFace mapping.
+
+        return rightElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_)->transform(mapRefFaceToRefFace(pRefFace));
+
+    }
+
+    /*! Map from reference face coordinates on the left side to those on the
+     *  right side. */
+    template<std::size_t DIM>
+    const PointReference<DIM>& FaceGeometry::mapRefFaceToRefFace(const PointReference<DIM>& pIn) const
+    {
+        return getReferenceGeometry()->getCodim0MappingPtr(faceToFaceMapIndex_)->transform(pIn);
+    }
+
+    /*!Compute the normal vector at a given point (in face coords).
+
+     Faces turn up in DG discretizations as domains for some of the
+     integrals. For these integrals, the face must be able to provide the
+     geometric information. This is completely included in the normal
+     vector, which gives
+     <UL>
+     <LI> the direction of the normal vector oriented from left (L) to
+     right (R) element; that way, for a boundary face, it is an external
+     normal vector;
+     <LI> the transformation of the integration element between reference
+     face and physical space: this scalar is given by the 2-norm of the
+     returned normal vector. I.e. the length of the vector equals the ratio of the
+     physical face and reference face.
+     </UL> */
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM + 1> FaceGeometry::getNormalVector(const PointReference<DIM>& pRefFace) const
+    {
+        LinearAlgebra::SmallVector<DIM + 1> result;
+        if (DIM > 0)
+        {
+            // first Jacobian (mapping reference face -> reference element)
+
+            Jacobian<DIM, DIM + 1> j1 = leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_) // this is the refFace2RefElemMap
+            ->calcJacobian(pRefFace);
+
+            // second Jacobian (mapping reference element -> phys. element),
+            // for this we first need the points coordinates on the
+            // reference element
+
+            Jacobian<DIM + 1, DIM + 1> j2 = leftElementGeom_->calcJacobian(mapRefFaceToRefElemL(pRefFace));
+
+            Jacobian<DIM, DIM + 1> j3 = j2.multiplyJacobiansInto(j1);
+
+            result = j3.computeWedgeStuffVector();
+
+            double det = j2.determinant();
+
+            double sign = OutwardNormalVectorSign(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_));
+            result *= ((det > 0) ? 1 : -1) * sign;
+        }
+        else
+        { //if DIM==1
+          //for one dimension the fancy wedge stuff wont work
+          //but we know the left point has outward pointing vector -1
+          //and the right point has outward pointing vector 1
+          //so this is the same as the physical point
+            const PointReference<1>& pRefElement = mapRefFaceToRefElemL(pRefFace);
+
+            //but if someone has mirrored the physical line
+            //we also have to also mirror the normal vector
+            //the face cant be made larger or smaller so
+            //the vector should have length one
+
+            Jacobian<1, 1> j = leftElementGeom_->calcJacobian(mapRefFaceToRefElemL(pRefFace));
+            int sgn = (j[0] > 0) ? 1 : -1;
+            result[0] = pRefElement[0] * sgn;
+        }
+        return result;
+
+    }
+
+    template<std::size_t DIM>
+    PointPhysical<DIM + 1> FaceGeometry::referenceToPhysical(const PointReference<DIM>& p) const
+    {
+        return getElementGLeft()->referenceToPhysical(mapRefFaceToRefElemL(p));
+    }
 }
 #endif /* defined(____FaceGeometry__) */

@@ -39,6 +39,7 @@ namespace Output
     ///also I'm not sure if VTK allows negative time steps, so be careful with those
     ///If you thing this class produces too much output files, use an existing folder as part of your filename
     //class is final because the destructor would be the only virtual function
+    template<std::size_t DIM>
     class VTKTimeDependentWriter final
     {
     public:
@@ -46,19 +47,14 @@ namespace Output
         ///\param baseFileName name of the file WITHOUT extentions
         ///\param mesh the mesh containing the data you want to output
         ///if you want to write from multiple meshes, simply have paraview load both output files
-        VTKTimeDependentWriter(std::string baseFileName, Base::MeshManipulator* mesh);
+        VTKTimeDependentWriter(std::string baseFileName, Base::MeshManipulator<DIM>* mesh);
 
         ///\brief write end matter and close the file stream
         ~VTKTimeDependentWriter();
 
-        ///\brief write a scalar field
-        void write(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name, double time, std::size_t timelevel = 0);
-
-        ///\brief write a vector field
-        void write(std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name, double time, std::size_t timelevel = 0);
-
-        ///\brief write an order 2 tensor field
-        void write(std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference&, std::size_t)>, const std::string& name, double time, std::size_t timelevel = 0);
+        ///\brief write some data
+        template<typename dataType>
+        void write(std::function<dataType(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, const std::string& name, double time, std::size_t timelevel = 0);
 
         ///\brief do not copy the writer to prevent havoc when destructing all the copies
         VTKTimeDependentWriter(const VTKTimeDependentWriter& orig) = delete;
@@ -66,13 +62,16 @@ namespace Output
     private:
         std::string baseName_;
         std::ofstream masterFile_;
-        const Base::MeshManipulator* mesh_;
-        VTKSpecificTimeWriter* currentFile_;
+        const Base::MeshManipulator<DIM>* mesh_;
+        VTKSpecificTimeWriter<DIM>* currentFile_;
         std::size_t timelevel_;
         double time_;
         std::size_t numberOfFilesWritten_;
     };
 
 }
+
+#include "VTKTimeDependentWriter.cpp"
+
 #endif	/* VTKTIMEDEPENDENTWRITER_HPP */
 

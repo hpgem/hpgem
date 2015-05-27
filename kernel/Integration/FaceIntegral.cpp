@@ -29,67 +29,35 @@ namespace Integration
     
     //! \brief Construct an FaceIntegral with cache on.
     FaceIntegral::FaceIntegral(bool useCache)
-            : useCache_(useCache), localFace_(nullptr)
+            : useCache_(useCache)
     {
     }
     
     //! \brief Free the memory used for the data storage.
     FaceIntegral::~FaceIntegral()
     {
-        delete localFace_;
     }
     
     //! \brief Start caching (geometry) information now.
     void FaceIntegral::cacheOn()
     {
         useCache_ = true;
-        if (localFace_ != nullptr)
-        {
-            localFace_->cacheOn();
-        }
     }
     
     //! \brief Stop using cache.
     void FaceIntegral::cacheOff()
     {
         useCache_ = false;
-        if (localFace_ != nullptr)
-        {
-            localFace_->cacheOff();
-        }
     }
     
     //! \brief Force a recomputation of the cache, the next time it is needed
     void FaceIntegral::recomputeCacheOn()
     {
-        if (localFace_ != nullptr)
-        {
-            localFace_->recomputeCacheOn();
-        }
     }
     
     //! \brief Stop forcing a recomputation of the cache
     void FaceIntegral::recomputeCacheOff()
     {
-        if (localFace_ != nullptr)
-        {
-            localFace_->recomputeCacheOff();
-        }
     }
 
-}
-
-void Integration::FaceIntegral::setStorageWrapper(Base::ShortTermStorageFaceBase* transform)
-{
-    logger.assert(transform!=nullptr, "Invalid coordinate transformation detected");
-    delete localFace_;
-    localFace_ = transform;
-    if (useCache_)
-    {
-        localFace_->cacheOn();
-    }
-    else
-    {
-        localFace_->cacheOff();
-    }
 }

@@ -17,37 +17,23 @@ add_library(hpGEM_Base STATIC
  		${hpGEM_SOURCE_DIR}/kernel/Base/BasisFunctionSet.cpp	
  		BaseBasisFunction.cpp	  
 		CommandLineOptions.cpp
- 		PhysGradientOfBasisFunction.cpp
  		Element.cpp
  		ElementData.cpp
- 		ElementCacheData.cpp
                 ElementFactory.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Integration/ElementIntegral.cpp
  		Face.cpp
  		FaceData.cpp
- 		FaceCacheData.cpp
                 FaceFactory.cpp
 		FaceMatrix.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Integration/FaceIntegral.cpp
  		Edge.cpp
  		Node.cpp
-		HpgemAPIBase.cpp
-		HpgemAPILinear.cpp
-		HpgemAPILinearSteadyState.cpp
-		HpgemAPISimplified.cpp
 		#miscellaneous required stuff
-		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator.cpp
-                Mesh.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulatorBase.cpp
                 Submesh.cpp
         	${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
                 MpiContainer.cpp
-		ShortTermStorageElementBase.cpp
-		ShortTermStorageElementH1.cpp
-		ShortTermStorageFaceBase.cpp
-		ShortTermStorageFaceH1.cpp
-		ShortTermStorageElementHCurl.cpp
-		ShortTermStorageFaceHCurl.cpp
 
 
         	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions1DH1ConformingLine.cpp

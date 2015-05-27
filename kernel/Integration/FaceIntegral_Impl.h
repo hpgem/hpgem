@@ -20,7 +20,6 @@
  */
 #ifndef FACEINTEGRAL_IMPL_HPP_
 #define FACEINTEGRAL_IMPL_HPP_
-#include "Base/ShortTermStorageFaceH1.h"
 
 #include "QuadratureRules/GaussQuadratureRule.h"
 #include "Logger.h"
@@ -31,13 +30,13 @@
 namespace Integration
 {
     
-    template<typename ReturnTrait1>
-    ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, FaceIntegrandBase<ReturnTrait1>* integrand, const QuadratureRules::GaussQuadratureRule* qdrRule)
+    template<typename ReturnTrait1, std::size_t DIM>
+    ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, FaceIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRules::GaussQuadratureRule* qdrRule)
     {
         logger.assert(fa!=nullptr, "Invalid face detected");
         logger.assert(integrand!=nullptr, "Invalid integrand detected");
         //quadrature rule is allowed to be equal to nullptr!
-        std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::MiddleSizeVector&, const Geometry::PointReference&)> integrandFunc = [=](const Base::Face* face, const LinearAlgebra::MiddleSizeVector& n, const Geometry::PointReference& p)
+        std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::SmallVector<DIM>&, const Geometry::PointReference<DIM>&)> integrandFunc = [=](const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& n, const Geometry::PointReference<DIM>& p)
         {   
             ReturnTrait1 result;
             integrand->faceIntegrand(face,n,p,result);
@@ -46,21 +45,16 @@ namespace Integration
         return integrate(fa, integrandFunc, qdrRule);
     }
     
-    template<typename ReturnTrait1>
-    ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::MiddleSizeVector&, const Geometry::PointReference&)> integrandFunc, const QuadratureRulesT* const qdrRule)
+    template<typename ReturnTrait1, std::size_t DIM>
+    ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::SmallVector<DIM>&, const Geometry::PointReference<DIM - 1>&)> integrandFunc, const QuadratureRulesT* const qdrRule)
     {
         logger.assert(fa!=nullptr, "Invalid face detected");
         //quadrature rule is allowed to be equal to nullptr!
-        if (localFace_ == nullptr)
-        {
-            localFace_ = new Base::ShortTermStorageFaceH1(fa->getGaussQuadratureRule()->dimension() + 1);
-        }
-        *localFace_ = *fa;
-        const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? localFace_->getGaussQuadratureRule() : qdrRule);
+        const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? fa->getGaussQuadratureRule() : qdrRule);
         
         // check whether the GaussIntegrationRule is actually for the
         // Element's ReferenceGeometry
-        logger.assert((qdrRuleLoc->forReferenceGeometry() == localFace_->getReferenceGeometry()), "FaceIntegral: " + qdrRuleLoc->getName() + " rule is not for THIS ReferenceGeometry!");
+        logger.assert((qdrRuleLoc->forReferenceGeometry() == fa->getReferenceGeometry()), "FaceIntegral: " + qdrRuleLoc->getName() + " rule is not for THIS ReferenceGeometry!");
         
         // value returned by the integrand
         ReturnTrait1 value, result;
@@ -69,20 +63,20 @@ namespace Integration
         std::size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
         
         // Gauss quadrature point
-        const Geometry::PointReference& p0 = qdrRuleLoc->getPoint(0);
+        const Geometry::PointReference<DIM - 1>& p0 = qdrRuleLoc->getPoint(0);
         
-        LinearAlgebra::MiddleSizeVector normal = localFace_->getNormalVector(p0);
+        LinearAlgebra::MiddleSizeVector normal = fa->getNormalVector(p0);
         
         // first Gauss point;
-        result = integrandFunc(localFace_, normal, p0);
+        result = integrandFunc(fa, normal, p0);
         result *= (qdrRuleLoc->weight(0) * Base::L2Norm(normal));
         
         // next Gauss points
         for (std::size_t i = 1; i < nrOfPoints; ++i)
         {
-            const Geometry::PointReference& p = qdrRuleLoc->getPoint(i);
-            normal = localFace_->getNormalVector(p);
-            value = integrandFunc(localFace_, normal, p);
+            const Geometry::PointReference<DIM - 1>& p = qdrRuleLoc->getPoint(i);
+            normal = fa->getNormalVector(p);
+            value = integrandFunc(fa, normal, p);
             
             //Y = alpha * X + Y
             LinearAlgebra::axpy(qdrRuleLoc->weight(i) * Base::L2Norm(normal), value, result);
@@ -104,17 +98,17 @@ namespace Integration
      
      NOTE: do not mix up gradients of pyhsical and reference basis functions with integrals on physical and reference faces. If \f$ f_{phys}(x) \f$ contains a (physical) gradient of a physical basis function then so does \f$ f_{ref}(\xi) = f_{phys}(\phi(\xi)) |J| \f$. The difference is the input argument (reference point \f$ \xi \f$ instead of physical point \f$ x \f$ ) and the scaling \f$ |J| \f$. (Ofcourse it is possible to rewrite the gradient of a physical basis function in terms of the gradient of the corresponding reference basis function).
      */
-    template<typename IntegrandType>
-    IntegrandType FaceIntegral::referenceFaceIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference &)> integrandFunction)
+    template<typename IntegrandType, std::size_t DIM>
+    IntegrandType FaceIntegral::referenceFaceIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference<DIM - 1> &)> integrandFunction)
     {
         std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
         std::size_t iPoint = 0; // Index for the quadrature points.
         
-        const Geometry::PointReference& pRef0 = ptrQdrRule->getPoint(iPoint);
+        const Geometry::PointReference<DIM - 1>& pRef0 = ptrQdrRule->getPoint(iPoint);
         IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(pRef0));
         for (iPoint = 1; iPoint < numOfPoints; iPoint++)
         {
-            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(iPoint);
+            const Geometry::PointReference<DIM - 1>& pRef = ptrQdrRule->getPoint(iPoint);
             LinearAlgebra::axpy(ptrQdrRule->weight(iPoint), integrandFunction(pRef), integral);
         }
         return integral;

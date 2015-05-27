@@ -38,7 +38,8 @@ namespace Output
     ///@param[in] fileTitle          The title of your file/plot
     ///@param[in] dimensionsToWrite  Names of the variables, for example "01" gives x0 and x1
     ///@param[in] resultVariableName Names of the dependent variable, for example "position" or "u"
-    GNUPlotDiscontinuousSolutionWriter::GNUPlotDiscontinuousSolutionWriter(std::ostream& output, const std::string& fileTitle, const std::string& dimensionsToWrite, const std::string& resultVariableName)
+    template<std::size_t DIM>
+    GNUPlotDiscontinuousSolutionWriter<DIM>::GNUPlotDiscontinuousSolutionWriter(std::ostream& output, const std::string& fileTitle, const std::string& dimensionsToWrite, const std::string& resultVariableName)
             : output_(output), nDimensionsToWrite_(dimensionsToWrite.length())
     {
         output_ << "TITLE = \"" << fileTitle << "\"\n";
@@ -59,7 +60,8 @@ namespace Output
      * \param[in] writeDataClass Class which is a child of the class SingleElementWriter
      *                           which has defined the function writeToFile.
      */
-    void GNUPlotDiscontinuousSolutionWriter::write(const Base::MeshManipulator* mesh, SingleElementWriter* writeDataClass)
+    template<std::size_t DIM>
+    void GNUPlotDiscontinuousSolutionWriter<DIM>::write(const Base::MeshManipulator<DIM>* mesh, SingleElementWriter<DIM>* writeDataClass)
     {
         logger.assert(mesh!=nullptr, "Invalid mesh passed to this writer");
         logger.assert(writeDataClass!=nullptr, "Invalid write class passed");
@@ -85,7 +87,7 @@ namespace Output
         const ListOfElementsT& elements = mesh->getElementsList();
         
         //get the physical and reference coordinates of the first node of the first element.
-        Geometry::PointPhysical pPhys((*elements.begin())->getPhysicalGeometry()->getNodePtr(0)->size());
+        Geometry::PointPhysical<DIM> pPhys((*elements.begin())->getPhysicalGeometry()->getNodePtr(0)->size());
         
         //Element cycle, print physical coordinates:
         for (typename ListOfElementsT::const_iterator eltIterator = elements.begin(); eltIterator != elements.end(); ++eltIterator)
@@ -100,7 +102,7 @@ namespace Output
                 
                 // For the solution data, write function of the user, however we pass a local
                 // coordinate of the current reference element
-                const Geometry::PointReference& pRef = (*eltIterator)->getReferenceGeometry()->getNode(localNode);
+                const Geometry::PointReference<DIM>& pRef = (*eltIterator)->getReferenceGeometry()->getNode(localNode);
                 
                 // First write the (possibly reduced) coordinates of the point;
                 // note: PHYSICAL coordinates here!

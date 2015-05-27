@@ -42,7 +42,7 @@ namespace Geometry
     std::size_t ReferenceSquare::localNodeIndexes_[4][2] = { {0, 1}, {0, 2}, {1, 3}, {2, 3}, };
     
     ReferenceSquare::ReferenceSquare()
-            : ReferenceGeometry(4, 2, ReferenceGeometryType::SQUARE, {0., 0.}), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(4, 2, ReferenceGeometryType::SQUARE, {0., 0.}), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance()), points_(4)
     {
         name = "ReferenceSquare";
         // See MappingLineToSquare.h for further info.                 Ref.Line     Ref.Sqr.Side
@@ -67,6 +67,7 @@ namespace Geometry
         points_[1] = PointReferenceFactory<2>::instance()->makePoint({ 1., -1.});
         points_[2] = PointReferenceFactory<2>::instance()->makePoint({-1.,  1.});
         points_[3] = PointReferenceFactory<2>::instance()->makePoint({ 1.,  1.});
+        center_ = PointReferenceFactory<2>::instance()->makePoint();
     }
     
     bool ReferenceSquare::isInternalPoint(const PointReference<2>& p) const

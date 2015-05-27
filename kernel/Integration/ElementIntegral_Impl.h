@@ -22,8 +22,8 @@
 #ifndef ELEMENTINTEGRAL_IMPL_HPP_
 #define ELEMENTINTEGRAL_IMPL_HPP_
 
-#include "Base/ShortTermStorageElementH1.h"
 #include "Logger.h"
+#include "Base/Element.h"
 #include "ElementIntegrandBase.h"
 #include "QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/ReferenceGeometry.h"
@@ -45,13 +45,13 @@ namespace Integration
     the passed element will be used.
     \deprecated Please use integrate(Element*, std::function<...>, const QuadratureRulesT) wherever possible.
      */
-    template<typename ReturnTrait1>
-    ReturnTrait1 ElementIntegral::integrate(Base::Element* el, ElementIntegrandBase<ReturnTrait1>* integrand, const QuadratureRulesT * const qdrRule)
+    template<typename ReturnTrait1, std::size_t DIM>
+    ReturnTrait1 ElementIntegral::integrate(Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRulesT * const qdrRule)
     {
         logger.assert(el!=nullptr, "Invalid element detected");
         logger.assert(integrand!=nullptr, "Invalid integrand detected");
         //quadrature rule is allowed to be equal to nullptr!
-        std::function<ReturnTrait1(const Base::Element*, const PointReferenceT&)> integrandFun = [=](const Base::Element* el, const PointReferenceT& p)-> ReturnTrait1
+        std::function<ReturnTrait1(const Base::Element*, const Geometry::PointReference<DIM>&)> integrandFun = [=](const Base::Element* el, const Geometry::PointReference<DIM>& p)-> ReturnTrait1
         {   
             ReturnTrait1 result;
             integrand -> elementIntegrand(el, p, result);
@@ -72,28 +72,15 @@ namespace Integration
     away, in which case the default for the ReferenceGeometry of
     the passed element will be used.
     */
-    template<typename ReturnType>
-    ReturnType ElementIntegral::integrate(Base::Element* el, std::function<ReturnType(const Base::Element*, const PointReferenceT&)> integrandFun, const QuadratureRulesT * const qdrRule)
+    template<typename ReturnType, std::size_t DIM>
+    ReturnType ElementIntegral::integrate(Base::Element* el, std::function<ReturnType(const Base::Element*, const Geometry::PointReference<DIM>&)> integrandFun, const QuadratureRulesT * const qdrRule)
     {
         logger.assert(el!=nullptr, "Invalid element detected");
         //quadrature rule is allowed to be equal to nullptr!
-        if (localElement_ == nullptr)
-        {
-            localElement_ = new Base::ShortTermStorageElementH1(el->getGaussQuadratureRule()->dimension());
-            if (useCache_)
-            {
-                localElement_->cacheOn();
-            }
-            else
-            {
-                localElement_->cacheOff();
-            }
-        }
-        *localElement_ = *el;
-        const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? localElement_->getGaussQuadratureRule() : qdrRule);
+        const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? el->getGaussQuadratureRule() : qdrRule);
         
         // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
-        logger.assert((qdrRuleLoc->forReferenceGeometry() == localElement_->getReferenceGeometry()), "ElementIntegral: wrong geometry.");
+        logger.assert((qdrRuleLoc->forReferenceGeometry() == el->getReferenceGeometry()), "ElementIntegral: wrong geometry.");
         
         // value returned by the integrand
         ReturnType value, result;
@@ -103,15 +90,15 @@ namespace Integration
         logger.assert(nrOfPoints > 0, "Did not get any points from qdrRuleLoc->nrOfPoints");
         
         // Initialize Gauss quadrature point
-        const Geometry::PointReference& p0 = qdrRuleLoc->getPoint(0);
+        const Geometry::PointReference<DIM>& p0 = qdrRuleLoc->getPoint(0);
         
         // first Gauss point
         // first we calculate the jacobian, then compute the function value on one of
         // the reference points and finally we multiply this value with a weight and
         // the jacobian and save it in result.
         
-        Geometry::Jacobian jac = localElement_->calcJacobian(p0);
-        result = integrandFun(localElement_, p0);
+        Geometry::Jacobian<DIM, DIM> jac = el->calcJacobian(p0);
+        result = integrandFun(el, p0);
         result *= (qdrRuleLoc->weight(0) * std::abs(jac.determinant()));
         
         // next Gauss points, again calculate the jacobian, value at gauss point and
@@ -119,9 +106,9 @@ namespace Integration
         for (std::size_t i = 1; i < nrOfPoints; ++i)
         {
             
-            const Geometry::PointReference& p = qdrRuleLoc->getPoint(i);
-            jac = localElement_->calcJacobian(p);
-            value = integrandFun(localElement_, p);
+            const Geometry::PointReference<DIM>& p = qdrRuleLoc->getPoint(i);
+            jac = el->calcJacobian(p);
+            value = integrandFun(el, p);
             
             //axpy: Y = alpha * X + Y
             LinearAlgebra::axpy(qdrRuleLoc->weight(i) * std::abs(jac.determinant()), value, result);
@@ -142,17 +129,17 @@ namespace Integration
      
      NOTE: do not mix up gradients of pyhsical and reference basis functions with integrals on physical and reference elements. If \f$ f_{phys}(x) \f$ contains a (physical) gradient of a physical basis function then so does \f$ f_{ref}(\xi) = f_{phys}(\phi(\xi)) |J| \f$. The difference is the input argument (reference point \f$ \xi \f$ instead of physical point \f$ x \f$ ) and the scaling \f$ |J| \f$. (Ofcourse it is possible to rewrite the gradient of a physical basis function in terms of the gradient of the corresponding reference basis function).
      */
-    template<typename IntegrandType>
-    IntegrandType ElementIntegral::referenceElementIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference &)> integrandFunction)
+    template<typename IntegrandType, std::size_t DIM>
+    IntegrandType ElementIntegral::referenceElementIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference<DIM> &)> integrandFunction)
     {
         std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
         std::size_t iPoint = 0; // Index for the quadrature points.
         
-        const Geometry::PointReference& pRef0 = ptrQdrRule->getPoint(iPoint);
+        const Geometry::PointReference<DIM>& pRef0 = ptrQdrRule->getPoint(iPoint);
         IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(pRef0));
         for (iPoint = 1; iPoint < numOfPoints; iPoint++)
         {
-            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(iPoint);
+            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(iPoint);
             LinearAlgebra::axpy(ptrQdrRule->weight(iPoint), integrandFunction(pRef), integral);
         }
         return integral;

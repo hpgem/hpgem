@@ -314,7 +314,7 @@ namespace Geometry
     ElementGeometry::ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, std::vector<PointPhysical<DIM> >& nodes)
             : referenceGeometry_(ElementGeometry::createReferenceGeometry<DIM>(globalNodeIndexes.size())),
         physicalGeometry_(ElementGeometry::createPhysicalGeometry(globalNodeIndexes, nodes, referenceGeometry_)),
-        referenceToPhysicalMapping_(ElementGeometry::createMappings<DIM>(globalNodeIndexes.size(), physicalGeometry_)),
+        referenceToPhysicalMapping_(ElementGeometry::createMappings<DIM>(globalNodeIndexes.size(), static_cast<PhysicalGeometry<DIM>*>(physicalGeometry_))),
         refinementGeometry_(nullptr) //refinement is turned off by default, to  enable it one needs to call enableRefinement
     {
     }

@@ -24,10 +24,11 @@
 
 #include <vector>
 
-#include "MeshManipulator.h"
+#include "Element.h"
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointPhysical;
 }
 
@@ -51,7 +52,8 @@ namespace Base
         ElementFactory& operator=(const ElementFactory &other) = delete;
         
         //!provide the non-constant information and get an Element!
-        Element* makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical>& points, std::size_t elementcounter);
+        template<std::size_t DIM>
+        Element* makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical<DIM> >& points, std::size_t elementcounter);
 
         //!mesh creation routines can use this to set their desired defaults
         void setCollectionOfBasisFunctionSets(const CollectionOfBasisFunctionSets *functions);
@@ -77,6 +79,13 @@ namespace Base
         std::size_t numberOfElementMatrices_;
         std::size_t numberOfElementVectors_;
     };
+
+    //!provide the non-constant information and get an Element!
+    template<std::size_t DIM>
+    Element* ElementFactory::makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical<DIM> >& points, std::size_t elementcounter)
+    {
+        return new Element(globalNodeIndexes, basisFunctionSets_, points, unknowns_, timeLevels_, (*basisFunctionSets_)[0]->size(), elementcounter, numberOfElementMatrices_, numberOfElementVectors_);
+    }
 
 }
 

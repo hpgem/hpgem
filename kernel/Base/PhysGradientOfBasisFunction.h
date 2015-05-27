@@ -27,11 +27,13 @@
 
 namespace LinearAlgebra
 {
-    class MiddleSizeVector;
+    template<std::size_t DIM>
+    class SmallVector;
 }
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -50,8 +52,6 @@ namespace Utilities
      *  and thus yields the physical space gradient. */
     struct PhysGradientOfBasisFunction
     {
-        using PointReferenceT = Geometry::PointReference;
-        using RetType = LinearAlgebra::MiddleSizeVector;
 
         PhysGradientOfBasisFunction(const Base::Element* e, const Base::BaseBasisFunction* function)
                 : myElement_(e), myFunction_(function)
@@ -61,7 +61,8 @@ namespace Utilities
         }
         
         //! Evaluation operator, also compatible with integration routines.
-        RetType operator ()(const PointReferenceT& p) const;
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM> operator ()(const Geometry::PointReference<DIM>& p) const;
 
     private:
         const Base::Element* myElement_;
@@ -69,5 +70,7 @@ namespace Utilities
     };
 
 } // namespace
+
+#include "PhysGradientOfBasisFunction.cpp"
 
 #endif /* defined(____PhysGradientOfBasisFunction__) */

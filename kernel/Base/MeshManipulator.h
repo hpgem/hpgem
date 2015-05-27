@@ -30,16 +30,21 @@
 #include "Mesh.h"
 #include "GlobalNamespaceBase.h"
 #include "BasisFunctionSet.h"
+#include "MeshManipulatorBase.h"
 
 namespace Base
 {
+    template<std::size_t DIM>
     class MeshManipulator;
 }
 
-std::ostream& operator<<(std::ostream&, const Base::MeshManipulator&);
+template<std::size_t DIM>
+std::ostream& operator<<(std::ostream&, const Base::MeshManipulator<DIM>&);
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointPhysical;
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -48,6 +53,7 @@ namespace Base
     class BasisFunctionSet;
     class OrientedBasisFunctionSet;
     class Face;
+    template<std::size_t DIM>
     class MeshMoverBase;
     template<class V>
     class LevelTree;
@@ -63,15 +69,15 @@ namespace Base
     };
     
     //class is made final so we don't have to create a v-table specifically for the destructor
-    class MeshManipulator final
+    template<std::size_t DIM>
+    class MeshManipulator final : public MeshManipulatorBase
     {
     public:
         
         using PointIndexT = std::size_t;
         using ElementT = Element;
         using FaceT = Face;
-        using MeshMoverBaseT = MeshMoverBase;
-        using PointPhysicalT = Geometry::PointPhysical;
+        using MeshMoverBaseT = MeshMoverBase<DIM>;
         using BasisFunctionSetT = Base::BasisFunctionSet;
 
         using ElementLevelTreeT = LevelTree<ElementT>;
@@ -80,7 +86,6 @@ namespace Base
         using ListOfFacesT = std::vector<FaceT*>;
         using ListOfElementsT = std::vector<ElementT*>;
         using VectorOfElementPtrT = std::vector<ElementT* >;
-        using VectorOfPhysicalPointsT = std::vector<PointPhysicalT >;
         using VectorOfPointIndicesT = std::vector<PointIndexT>;
         using CollectionOfBasisFunctionSets = std::vector<std::shared_ptr<const BasisFunctionSetT>>;
         using VecOfElementLevelTreePtrT = std::vector<ElementLevelTreeT*>;
@@ -235,7 +240,7 @@ namespace Base
         }
         /// *****************Iteration through the Elements*******************
         
-        void createRectangularMesh(const PointPhysicalT& BottomLeft, const PointPhysicalT& TopRight, const VectorOfPointIndicesT& LinearNoElements);
+        void createRectangularMesh(const Geometry::PointPhysical<DIM>& BottomLeft, const Geometry::PointPhysical<DIM>& TopRight, const VectorOfPointIndicesT& LinearNoElements);
 
         /**
          * Crates a mesh of simplices for the specified cube
@@ -245,7 +250,7 @@ namespace Base
          * This routine generates the same mesh structure as createRectangularMesh, but then refines each of the cubes into
          * (DIM-1)^2+1 tetrahedra
          */
-        void createTriangularMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, const VectorOfPointIndicesT& LinearNoElements);
+        void createTriangularMesh(Geometry::PointPhysical<DIM> BottomLeft, Geometry::PointPhysical<DIM> TopRight, const VectorOfPointIndicesT& LinearNoElements);
 
         void readCentaurMesh(const std::string& filename);
 
@@ -269,7 +274,7 @@ namespace Base
          * @param relativeEdgeLength Allow r-refinement
          * @param growFactor specify how much larger than its neighbours an element may be in areas where relativeEdgeLengths returns NaN
          */
-        void createUnstructuredMesh(PointPhysicalT BottomLeft, PointPhysicalT TopRight, std::size_t TotalNoNodes, std::function<double(PointPhysicalT)> domainDescription, std::vector<PointPhysicalT> fixedPoints = {}, std::function<double(PointPhysicalT)> relativeEdgeLength = [](PointPhysicalT)
+        void createUnstructuredMesh(Geometry::PointPhysical<DIM> BottomLeft, Geometry::PointPhysical<DIM> TopRight, std::size_t TotalNoNodes, std::function<double(Geometry::PointPhysical<DIM>)> domainDescription, std::vector<Geometry::PointPhysical<DIM> > fixedPoints = {}, std::function<double(Geometry::PointPhysical<DIM>)> relativeEdgeLength = [](Geometry::PointPhysical<DIM>)
         {   
             return 1.;
         }, double growFactor = 1.1);
@@ -295,10 +300,10 @@ namespace Base
          * @param safeNonPeriodicNode A function that maps the receiving end of the periodic boundary to the interior of the domain so that non-periodic nodes that stray near the periodic boundary can be safed
          * @param dontConnect specify a group of nodes that should not be connected by elements, for example because they are part of a concave boundary. Note that this can have unexpected effect if the nodes you specify are not fixed
          */
-        void updateMesh(std::function<double(PointPhysicalT)> domainDescription, std::vector<std::size_t> fixedPointIdxs = {}, std::function<double(PointPhysicalT)> relativeEdgeLength = [](PointPhysicalT)
+        void updateMesh(std::function<double(Geometry::PointPhysical<DIM>)> domainDescription, std::vector<std::size_t> fixedPointIdxs = {}, std::function<double(Geometry::PointPhysical<DIM>)> relativeEdgeLength = [](Geometry::PointPhysical<DIM>)
         {   
             return 1.;
-        }, double growFactor = 1.1, std::function<bool(PointPhysicalT)> isOnPeriodicBoundary = [](PointPhysicalT){return false;}, std::function<PointPhysicalT(PointPhysicalT)> mapPeriodicNode = nullptr, std::function<bool(PointPhysicalT)> isOnOtherPeriodicBoundary = [](PointPhysicalT){return false;}, std::function<PointPhysicalT(PointPhysicalT)> safeNonPeriodicNode = nullptr, std::vector<std::size_t> dontConnect = {});
+        }, double growFactor = 1.1, std::function<bool(Geometry::PointPhysical<DIM>)> isOnPeriodicBoundary = [](Geometry::PointPhysical<DIM>){return false;}, std::function<Geometry::PointPhysical<DIM>(Geometry::PointPhysical<DIM>)> mapPeriodicNode = nullptr, std::function<bool(Geometry::PointPhysical<DIM>)> isOnOtherPeriodicBoundary = [](Geometry::PointPhysical<DIM>){return false;}, std::function<Geometry::PointPhysical<DIM>(Geometry::PointPhysical<DIM>)> safeNonPeriodicNode = nullptr, std::vector<std::size_t> dontConnect = {});
 #endif
         
         friend std::ostream& operator<<(std::ostream& os, const MeshManipulator&);
@@ -367,23 +372,21 @@ namespace Base
         //! Adds edge based degrees of freedom to the set of basisfunctions for this mesh and all of its edges. This routine will assume that all needed orientations are available in the collection of basisfunctionsets
         /// Using this to set the hpGEM provided conforming basis functions is deprecated: The routine useDefaultConformingBasis is more flexible and can also deal with mixed meshes
         void addEdgeBasisFunctionSet(const std::vector<const OrientedBasisFunctionSet*>& bFsets);
-                
-        std::size_t dimension() const;
 
-        const std::vector<PointPhysicalT>& getNodeCoordinates() const
+        const std::vector<Geometry::PointPhysical<DIM> >& getNodeCoordinates() const
         {
             return theMesh_.getNodeCoordinates();
         }
         
-        std::vector<PointPhysicalT>& getNodeCoordinates()
+        std::vector<Geometry::PointPhysical<DIM> >& getNodeCoordinates()
         {
             return theMesh_.getNodeCoordinates();
         }
         /**
          * Retrieves the Mesh as stored in this MeshManipulator
          */
-        Mesh& getMesh();
-        const Mesh& getMesh() const;
+        Mesh<DIM>& getMesh();
+        const Mesh<DIM>& getMesh() const;
         
     private:
         
@@ -401,34 +404,21 @@ namespace Base
         
     private:
         
-        Mesh theMesh_;
-
-        const ConfigurationData* configData_;
-        //! Periodicity in x-direction.
-        bool periodicX_;
-
-        //! Periodicity in y-direction.
-        bool periodicY_;
-
-        //! Periodicity in z-direction.
-        bool periodicZ_;
+        Mesh<DIM> theMesh_;
 
         /// Pointer to MeshMoverBase, in order to move points in the mesh, when needed by user.
         const MeshMoverBaseT* meshMover_;
 
         //! Collection of additional basis function set, if p-refinement is applied
         CollectionOfBasisFunctionSets collBasisFSet_;
-        
-        std::size_t numberOfElementMatrixes_;
-        std::size_t numberOfFaceMatrixes_;
-        std::size_t numberOfElementVectors_;
-        std::size_t numberOfFaceVectors_;
 
         //when the mesh is updated, persistently store original node coordinates to see if retriangulation is in order
-        std::vector<PointPhysicalT> oldNodeLocations_;
+        std::vector<Geometry::PointPhysical<DIM> > oldNodeLocations_;
     };
     
 
 }
+
+#include "MeshManipulator.cpp"
 
 #endif /* MESHMANIPULATOR_H_ */

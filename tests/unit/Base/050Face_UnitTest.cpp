@@ -42,9 +42,9 @@ int main()
 {
     
     std::vector<std::size_t> pointIndexes;
-    std::vector<Geometry::PointPhysical> nodes;
+    std::vector<Geometry::PointPhysical<3> > nodes;
     
-    Geometry::PointPhysical point(3);
+    Geometry::PointPhysical<3> point;
     
     pointIndexes.push_back(4);
     pointIndexes.push_back(7);
@@ -108,18 +108,19 @@ int main()
     
     logger.assert_always((test.getPtrElementLeft() == &element), "getElementPtr");
     
-    Geometry::Point refPoint(2), point3D(3);
+    Geometry::Point<2> refPoint;
+    Geometry::Point<3> point3D;
     for (std::size_t i = 0; i < basisFunctions->size(); ++i)
     {
         for (refPoint[0] = -1.5; refPoint[0] < 1.51; refPoint[0] += 0.2)
         {
             for (refPoint[1] = -1.5; refPoint[1] < 1.51; refPoint[1] += 0.2)
             {
-                point3D = test.mapRefFaceToRefElemL(*Geometry::PointReferenceFactory::instance()->makePoint(refPoint));
-                logger.assert_always((test.basisFunction(i, *Geometry::PointReferenceFactory::instance()->makePoint(refPoint)) == (*basisFunctions)[i]->eval(*Geometry::PointReferenceFactory::instance()->makePoint(point3D))), "basisFunctions");
-                logger.assert_always((test.basisFunctionDeriv(i, 0, *Geometry::PointReferenceFactory::instance()->makePoint(refPoint)) == (*basisFunctions)[i]->evalDeriv0(*Geometry::PointReferenceFactory::instance()->makePoint(point3D))), "basisFunctions");
-                logger.assert_always((test.basisFunctionDeriv(i, 1, *Geometry::PointReferenceFactory::instance()->makePoint(refPoint)) == (*basisFunctions)[i]->evalDeriv1(*Geometry::PointReferenceFactory::instance()->makePoint(point3D))), "basisFunctions");
-                logger.assert_always((test.basisFunctionDeriv(i, 2, *Geometry::PointReferenceFactory::instance()->makePoint(refPoint)) == (*basisFunctions)[i]->evalDeriv2(*Geometry::PointReferenceFactory::instance()->makePoint(point3D))), "basisFunctions");
+                point3D = test.mapRefFaceToRefElemL(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+                logger.assert_always((test.basisFunction(i, *Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint)) == (*basisFunctions)[i]->eval(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "basisFunctions");
+                logger.assert_always((test.basisFunctionDeriv(i, 0, *Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint)) == (*basisFunctions)[i]->evalDeriv0(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "basisFunctions");
+                logger.assert_always((test.basisFunctionDeriv(i, 1, *Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint)) == (*basisFunctions)[i]->evalDeriv1(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "basisFunctions");
+                logger.assert_always((test.basisFunctionDeriv(i, 2, *Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint)) == (*basisFunctions)[i]->evalDeriv2(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "basisFunctions");
             }
         }
     }

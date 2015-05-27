@@ -37,12 +37,24 @@ int main()
     double coord3[] = {1.3, 2.3, 3.3};
     double coord4[] = {1.4, 2.4, 3.4, 4.4};
     
-    LinearAlgebra::MiddleSizeVector vec0(coord0, 0), vec1(coord1, 1), vec2(coord2, 2), vec3(coord3, 3), vec4(coord4, 4);
+    LinearAlgebra::SmallVector<0> vec0(coord0);
+    LinearAlgebra::SmallVector<1> vec1(coord1);
+    LinearAlgebra::SmallVector<2> vec2(coord2);
+    LinearAlgebra::SmallVector<3> vec3(coord3);
+    LinearAlgebra::SmallVector<4> vec4(coord4);
     
-    Geometry::Point pb0(0), pb1(1), pb2(2), pb3(3), pb4(4);
+    Geometry::Point<0> pb0;
+    Geometry::Point<1> pb1;
+    Geometry::Point<2> pb2;
+    Geometry::Point<3> pb3;
+    Geometry::Point<4> pb4;
     
     //testing constructors up to DIM=4
-    PointPhysical p0(0), p1(1), p2(2), p3(3), p4(4), pp0(pb0), pp1(pb1), pp2(pb2), pp3(pb3), pp4(pb4), pv0(vec0), pv1(vec1), pv2(vec2), pv3(vec3), pv4(vec4); //OMG no int[] constructor
+    Geometry::PointPhysical<0> p0, pp0(pb0), pv0(vec0);
+    Geometry::PointPhysical<1> p1, pp1(pb1), pv1(vec1);
+    Geometry::PointPhysical<2> p2, pp2(pb2), pv2(vec2);
+    Geometry::PointPhysical<3> p3, pp3(pb3), pv3(vec3);
+    Geometry::PointPhysical<4> p4, pp4(pb4), pv4(vec4);
             
     logger.assert_always((p1[0] == 0.), "1D default constructor");
     for (std::size_t i = 0; i < 2; ++i)
@@ -88,11 +100,11 @@ int main()
     
     //testing operators
     
-    const PointPhysical pr0 = pp0 = pv0;
-    const PointPhysical pr1 = pp1 = pv1;
-    const PointPhysical pr2 = pp2 = pv2;
-    const PointPhysical pr3 = pp3 = pv3;
-    const PointPhysical pr4 = pp4 = pv4;
+    const PointPhysical<0> pr0 = pp0 = pv0;
+    const PointPhysical<1> pr1 = pp1 = pv1;
+    const PointPhysical<2> pr2 = pp2 = pv2;
+    const PointPhysical<3> pr3 = pp3 = pv3;
+    const PointPhysical<4> pr4 = pp4 = pv4;
     
     pv0 * 6.;
     logger.assert_always((std::abs((pv1 * 5.)[0] - 5.5) < 1e-12), "1D multiplication");

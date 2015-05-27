@@ -43,7 +43,7 @@ namespace Geometry
     const PointReference<DIM>* PointReferenceFactory<DIM>::makePoint(const Point<DIM>& p)
     {
         //cannot find nan back using bounded difference
-        if(std::isnan(p[0]))
+        if(p.size() == 0 || std::isnan(p[0]))
         {
             return points_[0];
         }

@@ -55,12 +55,12 @@ int main()
     //dim 1
     
     std::vector<std::size_t> pointIndexes;
-    std::vector<Geometry::PointPhysical> nodes1D;
+    std::vector<Geometry::PointPhysical<1> > nodes1D;
     
-    Geometry::PointPhysical point1D(1), compare1D(1);
-    Geometry::Point orig1D(1);
+    Geometry::PointPhysical<1> point1D, compare1D;
+    Geometry::Point<1> orig1D;
     
-    Geometry::Jacobian jac(1, 1), jaccompare(1, 1);
+    Geometry::Jacobian<1, 1> jac, jaccompare;
     
     pointIndexes.push_back(4);
     pointIndexes.push_back(7);
@@ -79,23 +79,22 @@ int main()
     
     for (orig1D[0] = -1.51; orig1D[0] < 1.51; orig1D[0] += 0.1)
     {
-        compare1D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory::instance()->makePoint(orig1D));
-        point1D = test->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(orig1D));
+        compare1D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig1D));
+        point1D = test->referenceToPhysical(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig1D));
         logger.assert_always((std::abs(point1D[0] - compare1D[0]) < 1e-12), "referenceToPhysical");
         
-        jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig1D));
-        jac = test->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig1D));
+        jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig1D));
+        jac = test->calcJacobian(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig1D));
         logger.assert_always((std::abs(jac[0] - jaccompare[0]) < 1e-12), "calcJacobian");
     }
     std::cout << *test << std::endl;
     
     //dim2
-    std::vector<Geometry::PointPhysical> nodes2D;
+    std::vector<Geometry::PointPhysical<2> > nodes2D;
     
-    Geometry::PointPhysical point2D(2), compare2D(2);
-    Geometry::Point orig2D(2);
-    jac.resize(2, 2);
-    jaccompare.resize(2, 2);
+    Geometry::PointPhysical<2> point2D, compare2D;
+    Geometry::Point<2> orig2D;
+    Geometry::Jacobian<2, 2> jac2, jaccompare2;
     
     pointIndexes.push_back(10);
     
@@ -124,17 +123,17 @@ int main()
     {
         for (orig2D[1] = -1.511; orig2D[1] < 1.51; orig2D[1] += 0.2)
         {
-            compare2D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
-            point2D = test->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
+            compare2D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+            point2D = test->referenceToPhysical(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
             logger.assert_always((std::abs(point2D[0] - compare2D[0]) < 1e-12), "referenceToPhysical");
             logger.assert_always((std::abs(point2D[1] - compare2D[1]) < 1e-12), "referenceToPhysical");
             
-            jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
-            jac = test->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
-            logger.assert_always((std::abs(jac[0] - jaccompare[0]) < 1e-12), "calcJacobian");
-            logger.assert_always((std::abs(jac[1] - jaccompare[1]) < 1e-12), "calcJacobian");
-            logger.assert_always((std::abs(jac[2] - jaccompare[2]) < 1e-12), "calcJacobian");
-            logger.assert_always((std::abs(jac[3] - jaccompare[3]) < 1e-12), "calcJacobian");
+            jaccompare2 = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+            jac2 = test->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+            logger.assert_always((std::abs(jac2[0] - jaccompare2[0]) < 1e-12), "calcJacobian");
+            logger.assert_always((std::abs(jac2[1] - jaccompare2[1]) < 1e-12), "calcJacobian");
+            logger.assert_always((std::abs(jac2[2] - jaccompare2[2]) < 1e-12), "calcJacobian");
+            logger.assert_always((std::abs(jac2[3] - jaccompare2[3]) < 1e-12), "calcJacobian");
         }
     }
     std::cout << *test << std::endl;
@@ -152,29 +151,28 @@ int main()
     {
         for (orig2D[1] = -1.511; orig2D[1] < 1.51; orig2D[1] += 0.2)
         {
-            compare2D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
-            point2D = test->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
+            compare2D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+            point2D = test->referenceToPhysical(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
             logger.assert_always((std::abs(point2D[0] - compare2D[0]) < 1e-12), "referenceToPhysical");
             logger.assert_always((std::abs(point2D[1] - compare2D[1]) < 1e-12), "referenceToPhysical");
             
-            jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
-            jac = test->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig2D));
-            logger.assert_always((std::abs(jac[0] - jaccompare[0]) < 1e-12), "calcJacobian");
-            logger.assert_always((std::abs(jac[1] - jaccompare[1]) < 1e-12), "calcJacobian");
-            logger.assert_always((std::abs(jac[2] - jaccompare[2]) < 1e-12), "calcJacobian");
-            logger.assert_always((std::abs(jac[3] - jaccompare[3]) < 1e-12), "calcJacobian");
+            jaccompare2 = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+            jac2 = test->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+            logger.assert_always((std::abs(jac2[0] - jaccompare2[0]) < 1e-12), "calcJacobian");
+            logger.assert_always((std::abs(jac2[1] - jaccompare2[1]) < 1e-12), "calcJacobian");
+            logger.assert_always((std::abs(jac2[2] - jaccompare2[2]) < 1e-12), "calcJacobian");
+            logger.assert_always((std::abs(jac2[3] - jaccompare2[3]) < 1e-12), "calcJacobian");
         }
     }
     std::cout << *test << std::endl;
     
     //dim 3
     
-    std::vector<Geometry::PointPhysical> nodes3D;
+    std::vector<Geometry::PointPhysical<3> > nodes3D;
     
-    Geometry::PointPhysical point3D(3), compare3D(3);
-    Geometry::Point orig3D(3);
-    jac.resize(3, 3);
-    jaccompare.resize(3, 3);
+    Geometry::PointPhysical<3> point3D, compare3D;
+    Geometry::Point<3> orig3D;
+    Geometry::Jacobian<3, 3> jac3, jaccompare3;
     
     for (double i = 0.; i < 1; i += 0.1)
     {
@@ -222,23 +220,23 @@ int main()
         {
             for (orig3D[2] = -1.512; orig3D[2] < 1.51; orig3D[2] += 0.3)
             {
-                compare3D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
-                point3D = test->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
+                compare3D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                point3D = test->referenceToPhysical(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
                 logger.assert_always((std::abs(point3D[0] - compare3D[0]) < 1e-12), "referenceToPhysical");
                 logger.assert_always((std::abs(point3D[1] - compare3D[1]) < 1e-12), "referenceToPhysical");
                 logger.assert_always((std::abs(point3D[2] - compare3D[2]) < 1e-12), "referenceToPhysical");
                 
-                jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
-                jac = test->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
-                logger.assert_always((std::abs(jac[0] - jaccompare[0]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[1] - jaccompare[1]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[2] - jaccompare[2]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[3] - jaccompare[3]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[4] - jaccompare[4]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[5] - jaccompare[5]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[6] - jaccompare[6]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[7] - jaccompare[7]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[8] - jaccompare[8]) < 1e-12), "calcJacobian");
+                jaccompare3 = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                jac3 = test->calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                logger.assert_always((std::abs(jac3[0] - jaccompare3[0]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[1] - jaccompare3[1]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[2] - jaccompare3[2]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[3] - jaccompare3[3]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[4] - jaccompare3[4]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[5] - jaccompare3[5]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[6] - jaccompare3[6]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[7] - jaccompare3[7]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[8] - jaccompare3[8]) < 1e-12), "calcJacobian");
             }
         }
     }
@@ -259,23 +257,23 @@ int main()
         {
             for (orig3D[2] = -1.512; orig3D[2] < 1.51; orig3D[2] += 0.3)
             {
-                compare3D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
-                point3D = test->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
+                compare3D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                point3D = test->referenceToPhysical(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
                 logger.assert_always((std::abs(point3D[0] - compare3D[0]) < 1e-12), "referenceToPhysical");
                 logger.assert_always((std::abs(point3D[1] - compare3D[1]) < 1e-12), "referenceToPhysical");
                 logger.assert_always((std::abs(point3D[2] - compare3D[2]) < 1e-12), "referenceToPhysical");
                 
-                jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
-                jac = test->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
-                logger.assert_always((std::abs(jac[0] - jaccompare[0]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[1] - jaccompare[1]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[2] - jaccompare[2]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[3] - jaccompare[3]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[4] - jaccompare[4]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[5] - jaccompare[5]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[6] - jaccompare[6]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[7] - jaccompare[7]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[8] - jaccompare[8]) < 1e-12), "calcJacobian");
+                jaccompare3 = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                jac3 = test->calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                logger.assert_always((std::abs(jac3[0] - jaccompare3[0]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[1] - jaccompare3[1]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[2] - jaccompare3[2]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[3] - jaccompare3[3]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[4] - jaccompare3[4]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[5] - jaccompare3[5]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[6] - jaccompare3[6]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[7] - jaccompare3[7]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[8] - jaccompare3[8]) < 1e-12), "calcJacobian");
             }
         }
     }
@@ -296,23 +294,23 @@ int main()
         {
             for (orig3D[2] = -1.512; orig3D[2] < 1.51; orig3D[2] += 0.3)
             {
-                compare3D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
-                point3D = test->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
+                compare3D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                point3D = test->referenceToPhysical(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
                 logger.assert_always((std::abs(point3D[0] - compare3D[0]) < 1e-12), "referenceToPhysical");
                 logger.assert_always((std::abs(point3D[1] - compare3D[1]) < 1e-12), "referenceToPhysical");
                 logger.assert_always((std::abs(point3D[2] - compare3D[2]) < 1e-12), "referenceToPhysical");
                 
-                jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
-                jac = test->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
-                logger.assert_always((std::abs(jac[0] - jaccompare[0]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[1] - jaccompare[1]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[2] - jaccompare[2]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[3] - jaccompare[3]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[4] - jaccompare[4]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[5] - jaccompare[5]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[6] - jaccompare[6]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[7] - jaccompare[7]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[8] - jaccompare[8]) < 1e-12), "calcJacobian");
+                jaccompare3 = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                jac3 = test->calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                logger.assert_always((std::abs(jac3[0] - jaccompare3[0]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[1] - jaccompare3[1]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[2] - jaccompare3[2]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[3] - jaccompare3[3]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[4] - jaccompare3[4]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[5] - jaccompare3[5]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[6] - jaccompare3[6]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[7] - jaccompare3[7]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[8] - jaccompare3[8]) < 1e-12), "calcJacobian");
             }
         }
     }
@@ -334,33 +332,33 @@ int main()
         {
             for (orig3D[2] = -1.512; orig3D[2] < 1.51; orig3D[2] += 0.3)
             {
-                compare3D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
-                point3D = test->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
+                compare3D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                point3D = test->referenceToPhysical(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
                 logger.assert_always((std::abs(point3D[0] - compare3D[0]) < 1e-12), "referenceToPhysical");
                 logger.assert_always((std::abs(point3D[1] - compare3D[1]) < 1e-12), "referenceToPhysical");
                 logger.assert_always((std::abs(point3D[2] - compare3D[2]) < 1e-12), "referenceToPhysical");
                 
-                jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
-                jac = test->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig3D));
-                logger.assert_always((std::abs(jac[0] - jaccompare[0]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[1] - jaccompare[1]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[2] - jaccompare[2]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[3] - jaccompare[3]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[4] - jaccompare[4]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[5] - jaccompare[5]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[6] - jaccompare[6]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[7] - jaccompare[7]) < 1e-12), "calcJacobian");
-                logger.assert_always((std::abs(jac[8] - jaccompare[8]) < 1e-12), "calcJacobian");
+                jaccompare3 = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                jac3 = test->calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                logger.assert_always((std::abs(jac3[0] - jaccompare3[0]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[1] - jaccompare3[1]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[2] - jaccompare3[2]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[3] - jaccompare3[3]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[4] - jaccompare3[4]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[5] - jaccompare3[5]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[6] - jaccompare3[6]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[7] - jaccompare3[7]) < 1e-12), "calcJacobian");
+                logger.assert_always((std::abs(jac3[8] - jaccompare3[8]) < 1e-12), "calcJacobian");
             }
         }
     }
     std::cout << *test << std::endl;
     
-    std::vector<Geometry::PointPhysical> nodes4D;
+    std::vector<Geometry::PointPhysical<4> > nodes4D;
     
-    Geometry::PointPhysical point4D(4), compare4D(4);
-    Geometry::Point orig4D(4);
-    jac.resize(4, 4), jaccompare.resize(4, 4);
+    Geometry::PointPhysical<4> point4D, compare4D;
+    Geometry::Point<4> orig4D;
+    Geometry::Jacobian<4, 4> jac4, jaccompare4;
     
     pointIndexes.push_back(16);
     pointIndexes.push_back(17);
@@ -466,31 +464,31 @@ int main()
             {
                 for (orig4D[3] = -1.5189; orig4D[3] < 1.541; orig4D[3] += 0.5)
                 {
-                    compare4D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory::instance()->makePoint(orig4D));
-                    point4D = test->referenceToPhysical(*Geometry::PointReferenceFactory::instance()->makePoint(orig4D));
+                    compare4D = test->getReferenceToPhysicalMap()->transform(*Geometry::PointReferenceFactory<4>::instance()->makePoint(orig4D));
+                    point4D = test->referenceToPhysical(*Geometry::PointReferenceFactory<4>::instance()->makePoint(orig4D));
                     logger.assert_always((std::abs(point4D[0] - compare4D[0]) < 1e-12), "referenceToPhysical");
                     logger.assert_always((std::abs(point4D[1] - compare4D[1]) < 1e-12), "referenceToPhysical");
                     logger.assert_always((std::abs(point4D[2] - compare4D[2]) < 1e-12), "referenceToPhysical");
                     logger.assert_always((std::abs(point4D[3] - compare4D[3]) < 1e-12), "referenceToPhysical");
                     
-                    jaccompare = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig4D));
-                    jac = test->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(orig4D));
-                    logger.assert_always((std::abs(jac[0] - jaccompare[0]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[1] - jaccompare[1]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[2] - jaccompare[2]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[3] - jaccompare[3]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[4] - jaccompare[4]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[5] - jaccompare[5]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[6] - jaccompare[6]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[7] - jaccompare[7]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[8] - jaccompare[8]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[9] - jaccompare[9]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[10] - jaccompare[10]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[11] - jaccompare[11]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[12] - jaccompare[12]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[13] - jaccompare[13]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[14] - jaccompare[14]) < 1e-12), "calcJacobian");
-                    logger.assert_always((std::abs(jac[15] - jaccompare[15]) < 1e-12), "calcJacobian");
+                    jaccompare4 = test->getReferenceToPhysicalMap()->calcJacobian(*Geometry::PointReferenceFactory<4>::instance()->makePoint(orig4D));
+                    jac4 = test->calcJacobian(*Geometry::PointReferenceFactory<4>::instance()->makePoint(orig4D));
+                    logger.assert_always((std::abs(jac4[0] - jaccompare4[0]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[1] - jaccompare4[1]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[2] - jaccompare4[2]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[3] - jaccompare4[3]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[4] - jaccompare4[4]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[5] - jaccompare4[5]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[6] - jaccompare4[6]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[7] - jaccompare4[7]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[8] - jaccompare4[8]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[9] - jaccompare4[9]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[10] - jaccompare4[10]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[11] - jaccompare4[11]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[12] - jaccompare4[12]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[13] - jaccompare4[13]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[14] - jaccompare4[14]) < 1e-12), "calcJacobian");
+                    logger.assert_always((std::abs(jac4[15] - jaccompare4[15]) < 1e-12), "calcJacobian");
                 }
             }
         }

@@ -69,8 +69,9 @@ static std::unordered_map<std::type_index, VTKElementName> hpGEMToVTK =
     {std::type_index(typeid(Geometry::ReferencePyramid)), VTKElementName::PYRAMID}
 };
 
-Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName, 
-                                                     const Base::MeshManipulator* mesh, 
+template<std::size_t DIM>
+Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(const std::string& baseName,
+                                                     const Base::MeshManipulator<DIM>* mesh,
                                                      std::size_t timelevel)
         : totalPoints_(0), mesh_(mesh), timelevel_(timelevel)
 {
@@ -126,9 +127,8 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
     localFile_ << "        <DataArray type=\"Float64\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl << "          ";
     totalData = 3 * totalPoints_ * sizeof(double);
     localFile_ << Detail::toBase64((void*) &totalData, sizeof(totalData));
-    Geometry::PointPhysical usefullNode(3);
-    const std::size_t DIM = mesh->dimension();
-    Geometry::PointPhysical actualNode(DIM);
+    Geometry::PointPhysical<3> usefullNode;
+    Geometry::PointPhysical<DIM> actualNode;
     std::vector<std::uint32_t> cumulativeNodesPerElement;
     cumulativeNodesPerElement.reserve(totalElements + 1);
     cumulativeNodesPerElement.push_back(0);
@@ -175,7 +175,8 @@ Output::VTKSpecificTimeWriter::VTKSpecificTimeWriter(const std::string& baseName
     localFile_ << "      <PointData>" << std::endl;
 }
 
-Output::VTKSpecificTimeWriter::~VTKSpecificTimeWriter()
+template<std::size_t DIM>
+Output::VTKSpecificTimeWriter<DIM>::~VTKSpecificTimeWriter()
 {
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if (id == 0)
@@ -198,7 +199,8 @@ Output::VTKSpecificTimeWriter::~VTKSpecificTimeWriter()
     localFile_.close();
 }
 
-void Output::VTKSpecificTimeWriter::write(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)> dataCompute, const std::string& name)
+template<std::size_t DIM>
+void Output::VTKSpecificTimeWriter<DIM>::write(std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> dataCompute, const std::string& name)
 {
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if (id == 0)
@@ -212,7 +214,7 @@ void Output::VTKSpecificTimeWriter::write(std::function<double(Base::Element*, c
     {
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            const Geometry::PointReference& node = element->getReferenceGeometry()->getNode(tohpGEMOrdering(i, element->getReferenceGeometry()));
+            const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getNode(tohpGEMOrdering(i, element->getReferenceGeometry()));
             data.push_back(dataCompute(element, node, timelevel_));
         }
     }
@@ -221,7 +223,8 @@ void Output::VTKSpecificTimeWriter::write(std::function<double(Base::Element*, c
     localFile_ << "      </DataArray>" << std::endl;
 }
 
-void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference&, std::size_t)> dataCompute, const std::string& name)
+template<std::size_t DIM>
+void Output::VTKSpecificTimeWriter<DIM>::write(std::function<LinearAlgebra::SmallVector<DIM>(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> dataCompute, const std::string& name)
 {
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if (id == 0)
@@ -230,13 +233,13 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::MiddleSiz
     }
     localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name << "\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl;
     std::vector<double> data;
-    LinearAlgebra::MiddleSizeVector newData;
+    LinearAlgebra::SmallVector<DIM> newData;
     data.reserve(3 * totalPoints_);
     for (Base::Element* element : mesh_->getElementsList())
     {
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            const Geometry::PointReference& node = element->getReferenceGeometry()->getNode(i);
+            const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getNode(i);
             newData = dataCompute(element, node, timelevel_);
             for (std::size_t j = 0; j < newData.size(); ++j)
             {
@@ -253,7 +256,8 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::MiddleSiz
     localFile_ << "      </DataArray>" << std::endl;
 }
 
-void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference&, std::size_t)> dataCompute, const std::string& name)
+template<std::size_t DIM>
+void Output::VTKSpecificTimeWriter<DIM>::write(std::function<LinearAlgebra::SmallMatrix<DIM, DIM>(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> dataCompute, const std::string& name)
 {
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if (id == 0)
@@ -262,13 +266,13 @@ void Output::VTKSpecificTimeWriter::write(std::function<LinearAlgebra::MiddleSiz
     }
     localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name << "\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl;
     std::vector<double> data;
-    LinearAlgebra::MiddleSizeMatrix newData;
-    data.reserve(3 * totalPoints_);
+    LinearAlgebra::SmallMatrix<DIM, DIM> newData;
+    data.reserve(9 * totalPoints_);
     for (Base::Element* element : mesh_->getElementsList())
     {
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            const Geometry::PointReference& node = element->getReferenceGeometry()->getNode(i);
+            const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getNode(i);
             newData = dataCompute(element, node, timelevel_);
             std::size_t j = 0;
             for (; j < newData.getNRows(); ++j)

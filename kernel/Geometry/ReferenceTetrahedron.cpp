@@ -41,7 +41,7 @@ namespace Geometry
     
     ReferenceTetrahedron::ReferenceTetrahedron()
             : /// Tetrahedron has four nodes 3D + 1
-            ReferenceGeometry(4, 3, ReferenceGeometryType::TETRAHEDRON, {1./4., 1./4., 1./4.}), referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+            ReferenceGeometry(4, 3, ReferenceGeometryType::TETRAHEDRON, {1./4., 1./4., 1./4.}), referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance()), points_(4)
     {
         name = "ReferenceTetrahedron";
         
@@ -49,6 +49,7 @@ namespace Geometry
         points_[1] = PointReferenceFactory<3>::instance()->makePoint({1., 0., 0.});
         points_[2] = PointReferenceFactory<3>::instance()->makePoint({0., 1., 0.});
         points_[3] = PointReferenceFactory<3>::instance()->makePoint({0., 0., 1.});
+        center_ = PointReferenceFactory<3>::instance()->makePoint({1./4., 1./4., 1./4.});
         
         mappingsTriangleToTetrahedron_[0] = &MappingToRefTriangleToTetrahedron0::Instance();
         mappingsTriangleToTetrahedron_[1] = &MappingToRefTriangleToTetrahedron1::Instance();

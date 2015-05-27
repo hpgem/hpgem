@@ -57,44 +57,5 @@ namespace Base
         logger.assert(bf!=nullptr, "Invalid basis function passed");
         vecOfBasisFcn_.push_back(bf);
     }
-    
-    double BasisFunctionSet::eval(std::size_t i, const PointReferenceT& p) const
-    {
-        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
-        return vecOfBasisFcn_[i]->eval(p);
-    }
-    
-    double BasisFunctionSet::evalDeriv(std::size_t i, std::size_t jDir, const PointReferenceT& p) const
-    {
-        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
-        logger.assert((jDir < 4), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
-        
-        switch (jDir)
-        {
-            case 0:
-                return vecOfBasisFcn_[i]->evalDeriv0(p);
-            case 1:
-                return vecOfBasisFcn_[i]->evalDeriv1(p);
-            case 2:
-                return vecOfBasisFcn_[i]->evalDeriv2(p);
-            case 3:
-                return vecOfBasisFcn_[i]->evalDeriv3(p);
-            default:
-                return -1.e50;
-        }
-        
-    }
-    
-    void BasisFunctionSet::eval(std::size_t i, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
-    {
-        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
-        vecOfBasisFcn_[i]->eval(p, ret);
-    }
-    
-    LinearAlgebra::MiddleSizeVector BasisFunctionSet::evalCurl(std::size_t i, const PointReferenceT& p) const
-    {
-        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
-        return vecOfBasisFcn_[i]->evalCurl(p);
-    }
 }
 

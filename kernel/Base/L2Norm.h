@@ -21,13 +21,19 @@
 #ifndef L2Norm_h
 #define L2Norm_h
 
+#include <cstdlib>
+#include <cmath>
+
 namespace LinearAlgebra
 {
     class MiddleSizeVector;
+    template<std::size_t DIM>
+    class SmallVector;
 }
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointPhysical;
 }
 
@@ -36,6 +42,21 @@ namespace Base
     /*! Compute the 2 norm of a vector. */
     double L2Norm(const LinearAlgebra::MiddleSizeVector&);
     
-    double L2Norm(const Geometry::PointPhysical&);
+    template<std::size_t DIM>
+    double L2Norm(const LinearAlgebra::SmallVector<DIM>& v)
+    {
+        return std::sqrt(v*v);
+    }
+
+    template<std::size_t DIM>
+    double L2Norm(const Geometry::PointPhysical<DIM>& v)
+    {
+        double retSquared(0);
+        for (std::size_t i = 0; i < v.size(); ++i)
+        {
+            retSquared += v[i] * v[i];
+        }
+        return std::sqrt(retSquared);
+    }
 }
 #endif

@@ -43,13 +43,15 @@
 
 namespace Base
 {
-    
-    Mesh::Mesh()
+
+    template<std::size_t DIM>
+    Mesh<DIM>::Mesh()
             : hasToSplit_(false), localProcessorID_(0), elementCounter_(0), faceCounter_(0), edgeCounter_(0), nodeCounter_(0)
     {
     }
-    
-    Mesh::Mesh(const Mesh& orig)
+
+    template<std::size_t DIM>
+    Mesh<DIM>::Mesh(const Mesh& orig)
             : hasToSplit_(true), localProcessorID_(orig.localProcessorID_),
         elementCounter_(0), faceCounter_(0), edgeCounter_(0), nodeCounter_(0), 
         points_(orig.points_)
@@ -116,21 +118,24 @@ namespace Base
         //call split() to make get...List() to work with local iterators
         split();
     }
-    
-    Mesh::~Mesh()
+
+    template<std::size_t DIM>
+    Mesh<DIM>::~Mesh()
     {
         clear();        
     }
-    
-    Element* Mesh::addElement(const std::vector<std::size_t>& globalNodeIndexes)
+
+    template<std::size_t DIM>
+    Element* Mesh<DIM>::addElement(const std::vector<std::size_t>& globalNodeIndexes)
     {
         elements_.push_back(ElementFactory::instance().makeElement(globalNodeIndexes, points_, elementCounter_));
         ++elementCounter_;
         hasToSplit_ = true;
         return elements_.back();
     }
-    
-    bool Mesh::addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType)
+
+    template<std::size_t DIM>
+    bool Mesh<DIM>::addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType)
     {
         logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
         if (rightElementPtr == nullptr)
@@ -145,28 +150,32 @@ namespace Base
         hasToSplit_ = true;
         return true;
     }
-    
-    void Mesh::addEdge()
+
+    template<std::size_t DIM>
+    void Mesh<DIM>::addEdge()
     {
         edges_.push_back(new Edge(edgeCounter_));
         ++edgeCounter_;
         hasToSplit_ = true;
     }
-    
-    void Mesh::addNode(Geometry::PointPhysical node)
+
+    template<std::size_t DIM>
+    void Mesh<DIM>::addNode(Geometry::PointPhysical<DIM> node)
     {
         points_.push_back(node);
         //don't distribute the points here, it will confuse the elements
     }
-    
-    void Mesh::addVertex()
+
+    template<std::size_t DIM>
+    void Mesh<DIM>::addVertex()
     {
         nodes_.push_back(new Node(nodeCounter_));
         ++nodeCounter_;
         hasToSplit_ = true;
     }
-    
-    void Mesh::split()
+
+    template<std::size_t DIM>
+    void Mesh<DIM>::split()
     {
         std::vector<int> partition(elements_.size()); //output
         //split the mesh
@@ -285,8 +294,9 @@ namespace Base
         }
         hasToSplit_ = false;
     }
-    
-    void Mesh::clear()
+
+    template<std::size_t DIM>
+    void Mesh<DIM>::clear()
     {
         for (Element* element : elements_)
         {
@@ -315,8 +325,9 @@ namespace Base
         nodeCounter_ = 0;
         points_.clear();
     }
-    
-    const std::vector<Element*>& Mesh::getElementsList(IteratorType part) const
+
+    template<std::size_t DIM>
+    const std::vector<Element*>& Mesh<DIM>::getElementsList(IteratorType part) const
     {
         if (part == IteratorType::LOCAL)
         {
@@ -329,8 +340,9 @@ namespace Base
             return elements_;
         }
     }
-    
-    std::vector<Element*>& Mesh::getElementsList(IteratorType part)
+
+    template<std::size_t DIM>
+    std::vector<Element*>& Mesh<DIM>::getElementsList(IteratorType part)
     {
         if (part == IteratorType::LOCAL)
         {
@@ -345,8 +357,9 @@ namespace Base
             return elements_;
         }
     }
-    
-    const std::vector<Face*>& Mesh::getFacesList(IteratorType part) const
+
+    template<std::size_t DIM>
+    const std::vector<Face*>& Mesh<DIM>::getFacesList(IteratorType part) const
     {
         if (part == IteratorType::LOCAL)
         {
@@ -359,8 +372,9 @@ namespace Base
             return faces_;
         }
     }
-    
-    std::vector<Face*>& Mesh::getFacesList(IteratorType part)
+
+    template<std::size_t DIM>
+    std::vector<Face*>& Mesh<DIM>::getFacesList(IteratorType part)
     {
         if (part == IteratorType::LOCAL)
         {
@@ -375,8 +389,9 @@ namespace Base
             return faces_;
         }
     }
-    
-    const std::vector<Edge*>& Mesh::getEdgesList(IteratorType part) const
+
+    template<std::size_t DIM>
+    const std::vector<Edge*>& Mesh<DIM>::getEdgesList(IteratorType part) const
     {
         if (part == IteratorType::LOCAL)
         {
@@ -389,8 +404,9 @@ namespace Base
             return edges_;
         }
     }
-    
-    std::vector<Edge*>& Mesh::getEdgesList(IteratorType part)
+
+    template<std::size_t DIM>
+    std::vector<Edge*>& Mesh<DIM>::getEdgesList(IteratorType part)
     {
         if (part == IteratorType::LOCAL)
         {
@@ -405,8 +421,9 @@ namespace Base
             return edges_;
         }
     }
-    
-    const std::vector<Node*>& Mesh::getVerticesList(IteratorType part) const
+
+    template<std::size_t DIM>
+    const std::vector<Node*>& Mesh<DIM>::getVerticesList(IteratorType part) const
     {
         if (part == IteratorType::LOCAL)
         {
@@ -419,8 +436,9 @@ namespace Base
             return nodes_;
         }
     }
-    
-    std::vector<Node*>& Mesh::getVerticesList(IteratorType part)
+
+    template<std::size_t DIM>
+    std::vector<Node*>& Mesh<DIM>::getVerticesList(IteratorType part)
     {
         if (part == IteratorType::LOCAL)
         {
@@ -435,15 +453,17 @@ namespace Base
             return nodes_;
         }
     }
-    
-    const std::vector<Geometry::PointPhysical>& Mesh::getNodeCoordinates() const
+
+    template<std::size_t DIM>
+    const std::vector<Geometry::PointPhysical<DIM> >& Mesh<DIM>::getNodeCoordinates() const
     {
         //for historic reasons points_ is referenced directly during element 
         //creation and therefore cannot be distributed
         return points_;
     }
-    
-    std::vector<Geometry::PointPhysical>& Mesh::getNodeCoordinates()
+
+    template<std::size_t DIM>
+    std::vector<Geometry::PointPhysical<DIM> >& Mesh<DIM>::getNodeCoordinates()
     {
         //for historic reasons points_ is referenced directly during element 
         //creation and therefore cannot be distributed

@@ -25,7 +25,8 @@
 #include "base64.h"
 #include "Base/CommandLineOptions.h"
 
-Output::VTKTimeDependentWriter::VTKTimeDependentWriter(std::string baseFileName, Base::MeshManipulator* mesh)
+template<std::size_t DIM>
+Output::VTKTimeDependentWriter<DIM>::VTKTimeDependentWriter(std::string baseFileName, Base::MeshManipulator<DIM>* mesh)
         : baseName_(baseFileName), mesh_(mesh), currentFile_(nullptr), time_(0), numberOfFilesWritten_(0)
 {
     logger.assert(mesh!=nullptr,"Invalid mesh passed");
@@ -51,7 +52,8 @@ Output::VTKTimeDependentWriter::VTKTimeDependentWriter(std::string baseFileName,
     }
 }
 
-Output::VTKTimeDependentWriter::~VTKTimeDependentWriter()
+template<std::size_t DIM>
+Output::VTKTimeDependentWriter<DIM>::~VTKTimeDependentWriter()
 {
     masterFile_ << "  </Collection>" << std::endl;
     masterFile_ << "</VTKFile>" << std::endl;
@@ -68,7 +70,9 @@ Output::VTKTimeDependentWriter::~VTKTimeDependentWriter()
 }
 
 //3x the same function, but I dont like this mess in the header, so cant template
-void Output::VTKTimeDependentWriter::write(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)> f, const std::string& name, double time, std::size_t timelevel)
+template<std::size_t DIM>
+template<typename dataType>
+void Output::VTKTimeDependentWriter<DIM>::write(std::function<dataType(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> f, const std::string& name, double time, std::size_t timelevel)
 {
     if (time != time_ || currentFile_ == nullptr)
     {
@@ -79,52 +83,12 @@ void Output::VTKTimeDependentWriter::write(std::function<double(Base::Element*, 
         //convert the current time to some unique number as part of the base name for the file for the new timelevel
         std::string fileName = baseName_ + std::to_string(numberOfFilesWritten_);
         numberOfFilesWritten_++;
-        currentFile_ = new VTKSpecificTimeWriter {fileName, mesh_, timelevel};
+        currentFile_ = new VTKSpecificTimeWriter<DIM> {fileName, mesh_, timelevel};
         if (fileName.find('/') != std::string::npos)
         {
             fileName = fileName.substr(fileName.find_last_of('/') + 1);
         }
         masterFile_ << "    <DataSet timestep=\"" << time << "\" group=\"\" part=\"0\" file=\"" << fileName << ".pvtu\"/>" << std::endl;
-        time_ = time;
-        timelevel_ = timelevel;
-    }
-    logger.assert(timelevel == timelevel_, "Timelevel isn't as expected. % != %", timelevel, timelevel_);
-    currentFile_->write(f, name);
-}
-
-//3x the same function, but I dont like this mess in the header, so cant template
-void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference&, std::size_t)> f, const std::string& name, double time, std::size_t timelevel)
-{
-    if (time != time_ || currentFile_ == nullptr)
-    {
-        if (currentFile_ != nullptr)
-        {
-            delete currentFile_;
-        }
-        //convert the current time to some unique number as part of the base name for the file for the new timelevel
-        std::string fileName = baseName_ + Detail::toBase64(&time, sizeof(double));
-        currentFile_ = new VTKSpecificTimeWriter {fileName, mesh_, timelevel};
-        masterFile_ << "<DataSet timestep=\"" << time - time_ << "\" group=\"\" part=\"0\" file=\"" << fileName << ".pvtu\"/>" << std::endl;
-        time_ = time;
-        timelevel_ = timelevel;
-    }
-    logger.assert(timelevel == timelevel_, "Timelevel isn't as expected. % != %", timelevel, timelevel_);
-    currentFile_->write(f, name);
-}
-
-//3x the same function, but I dont like this mess in the header, so cant template
-void Output::VTKTimeDependentWriter::write(std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference&, std::size_t)> f, const std::string& name, double time, std::size_t timelevel)
-{
-    if (time != time_ || currentFile_ == nullptr)
-    {
-        if (currentFile_ != nullptr)
-        {
-            delete currentFile_;
-        }
-        //convert the current time to some unique number as part of the base name for the file for the new timelevel
-        std::string fileName = baseName_ + Detail::toBase64(&time, sizeof(double));
-        currentFile_ = new VTKSpecificTimeWriter {fileName, mesh_, timelevel};
-        masterFile_ << "<DataSet timestep=\"" << time - time_ << "\" group=\"\" part=\"0\" file=\"" << fileName << ".pvtu\"/>" << std::endl;
         time_ = time;
         timelevel_ = timelevel;
     }

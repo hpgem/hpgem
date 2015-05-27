@@ -30,7 +30,7 @@
 
 namespace Base
 {
-    class MeshManipulator;
+    class MeshManipulatorBase;
     class Face;
     class Element;
 }
@@ -55,7 +55,7 @@ namespace Utilities
         GlobalMatrix(const GlobalMatrix &other) = delete;
         
         ///constructs the global matrix and performs element assembly
-        GlobalMatrix(Base::MeshManipulator* theMesh, int elementMatrixID, int faceMatrixID);
+        GlobalMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID);
 
         ///signals the matrix that (some) element matrixes have changed and that the matrix can be assembled again
         ///also used after mesh refinement to make sure the global matrix reflects the changes in the mesh
@@ -74,7 +74,7 @@ namespace Utilities
         std::vector<int> startPositionsOfFacesInTheMatrix_;
         std::vector<int> startPositionsOfEdgesInTheMatrix_;
         std::vector<int> startPositionsOfVerticesInTheMatrix_;
-        Base::MeshManipulator *theMesh_;
+        Base::MeshManipulatorBase *theMesh_;
         
     };
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
@@ -88,7 +88,7 @@ namespace Utilities
         ///\bug need a better way to provide an interface to the supported Mat routines AND to other routines that need a Mat (like KSPSetOperators()) (but not stuff like MatDestroy())
         operator Mat();
 
-        GlobalPetscMatrix(Base::MeshManipulator* theMesh, int elementMatrixID, int faceMatrixID = -1);
+        GlobalPetscMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID = -1);
         ~GlobalPetscMatrix();
 
         void reset();

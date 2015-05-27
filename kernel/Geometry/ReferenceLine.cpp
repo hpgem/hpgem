@@ -37,11 +37,12 @@ namespace Geometry
     
     ReferenceLine::ReferenceLine()
             : ReferenceGeometry(2, 1, ReferenceGeometryType::LINE, {0.}),
-            referenceGeometryCodim1Ptr_(&ReferencePoint::Instance())
+            referenceGeometryCodim1Ptr_(&ReferencePoint::Instance()), points_(2)
     {
         name = "ReferenceLine";
         points_[0] = PointReferenceFactory<1>::instance()->makePoint({-1.});
         points_[1] = PointReferenceFactory<1>::instance()->makePoint({ 1.});
+        center_ = PointReferenceFactory<1>::instance()->makePoint();
         
         mappingsLineToLine_[0] = &MappingToRefLineToLine0::Instance();
         mappingsLineToLine_[1] = &MappingToRefLineToLine1::Instance();

@@ -43,11 +43,11 @@ namespace Integration
      * the return type, which is given in the final parameter, and inheriting multiple instances.
      * \deprecated Please use an std::function to pass the integrand to FaceIntegral::integrate.
      */
-    template<typename T>
+    template<typename T, std::size_t DIM>
     class FaceIntegrandBase
     {
     public:
-        virtual void faceIntegrand(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const Geometry::PointReference& p, T& ret) = 0;
+        virtual void faceIntegrand(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const Geometry::PointReference<DIM - 1>& p, T& ret) = 0;
         
         FaceIntegrandBase() = default;
         FaceIntegrandBase(const FaceIntegrandBase &other) = delete;

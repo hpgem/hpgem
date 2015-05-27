@@ -29,7 +29,7 @@
 #include <vector>
 namespace Base
 {
-    class MeshManipulator;
+    class MeshManipulatorBase;
     class Element;
 }
 
@@ -53,7 +53,7 @@ namespace Utilities
         
         ///construct the global vector does not do assembly by default
         ///because some vectors (like the solution of the linear problem) are filled by external means
-        GlobalVector(Base::MeshManipulator* theMesh, int elementVectorID = 0, int faceVectorID = 0);
+        GlobalVector(Base::MeshManipulatorBase* theMesh, int elementVectorID = 0, int faceVectorID = 0);
 
         ///for post-processing: puts the solution in the time-level data of the elements
         virtual void writeTimeLevelData(std::size_t timeLevel, std::size_t variable = 0)=0;
@@ -72,7 +72,7 @@ namespace Utilities
         std::vector<int> startPositionsOfFacesInTheVector_;
         std::vector<int> startPositionsOfEdgesInTheVector_;
         std::vector<int> startPositionsOfVerticesInTheVector_;
-        Base::MeshManipulator *theMesh_;
+        Base::MeshManipulatorBase *theMesh_;
         
     };
     
@@ -88,7 +88,7 @@ namespace Utilities
         ///\bug need a better way to provide an interface to the supported Mat routines AND to other routines that need a Mat (like KSPSolve())
         operator Vec();
 
-        GlobalPetscVector(Base::MeshManipulator* theMesh, int elementVectorID = 0, int faceVectorID = 0);
+        GlobalPetscVector(Base::MeshManipulatorBase* theMesh, int elementVectorID = 0, int faceVectorID = 0);
         ~GlobalPetscVector();
 
         void writeTimeLevelData(std::size_t timeLevel, std::size_t variable = 0);

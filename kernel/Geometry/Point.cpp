@@ -203,6 +203,6 @@ namespace Geometry
     template<std::size_t DIM>
     Point<DIM> operator *(const double& left, const Point<DIM>& right)
     {
-        return Point<DIM>(right.coordinates_ * left);
+        return Point<DIM>(right * left);
     }
 }

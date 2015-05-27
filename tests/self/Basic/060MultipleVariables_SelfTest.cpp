@@ -86,14 +86,14 @@ int main()
     coords5(0) = 2;
     coords5(1) = 1;
     
-    Geometry::PointPhysical point0(coords0);
-    Geometry::PointPhysical point1(coords1);
-    Geometry::PointPhysical point2(coords2);
-    Geometry::PointPhysical point3(coords3);
-    Geometry::PointPhysical point4(coords4);
-    Geometry::PointPhysical point5(coords5);
+    Geometry::PointPhysical<dimension> point0(coords0);
+    Geometry::PointPhysical<dimension> point1(coords1);
+    Geometry::PointPhysical<dimension> point2(coords2);
+    Geometry::PointPhysical<dimension> point3(coords3);
+    Geometry::PointPhysical<dimension> point4(coords4);
+    Geometry::PointPhysical<dimension> point5(coords5);
     
-    std::vector<Geometry::PointPhysical> pointsPhysical;
+    std::vector<Geometry::PointPhysical<dimension> > pointsPhysical;
     pointsPhysical.push_back(point0);
     pointsPhysical.push_back(point1);
     pointsPhysical.push_back(point2);
@@ -175,7 +175,7 @@ int main()
     LinearAlgebra::MiddleSizeVector testVector = elementRight.getTimeLevelDataVector(iTimeLevel);
     logger.assert_always(testVector == expansionCoefficients, "Expansion coefficients incorrect: % != %", testVector, expansionCoefficients);
     
-    const Geometry::PointReference& pointReference = *Geometry::PointReferenceFactory::instance()->makePoint(coords0);
+    const Geometry::PointReference<dimension>& pointReference = *Geometry::PointReferenceFactory<dimension>::instance()->makePoint(coords0);
     LinearAlgebra::MiddleSizeVector solutionVector = elementRight.getSolution(iTimeLevel, pointReference);
     for (iV = 0; iV < nrOfUnknowns; iV++)
     {

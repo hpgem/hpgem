@@ -32,7 +32,8 @@
 
 namespace Base
 {
-    HpgemAPIBase::HpgemAPIBase(GlobalData * const global, const ConfigurationData* config)
+    template<std::size_t DIM>
+    HpgemAPIBase<DIM>::HpgemAPIBase(GlobalData * const global, const ConfigurationData* config)
             : meshes_(), globalData_(global), configData_(config)
     {
         if (!parse_isDone())
@@ -44,24 +45,27 @@ namespace Base
     }
     
     //Destructor, destructs the meshes, configData_ and globalData_
-    HpgemAPIBase::~HpgemAPIBase()
+    template<std::size_t DIM>
+    HpgemAPIBase<DIM>::~HpgemAPIBase()
     {
         for (std::size_t i = 0; i < meshes_.size(); ++i)
             delete meshes_[i];
         delete configData_;
         delete globalData_;
     }
-    
-    bool HpgemAPIBase::initialiseMeshMover(const MeshMoverBase* meshMoverBase, std::size_t meshID)
+
+    template<std::size_t DIM>
+    bool HpgemAPIBase<DIM>::initialiseMeshMover(const MeshMoverBase<DIM>* meshMoverBase, std::size_t meshID)
     {
         meshes_[meshID]->setMeshMover(meshMoverBase);
         return true;
     }
-    
-    HpgemAPIBase::MeshId HpgemAPIBase::addMesh(const RectangularMeshDescriptor& meshDscr, const MeshType& meshType, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
+
+    template<std::size_t DIM>
+    typename HpgemAPIBase<DIM>::MeshId HpgemAPIBase<DIM>::addMesh(const RectangularMeshDescriptor<DIM>& meshDscr, const MeshType& meshType, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
     {
         std::size_t numOfMeshes = meshes_.size();
-        MeshManipulator* mesh = new MeshManipulator(configData_, meshDscr.boundaryConditions_[0],
+        MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_, meshDscr.boundaryConditions_[0],
                                                     (configData_->dimension_ > 1) ? meshDscr.boundaryConditions_[1] : BoundaryType::SOLID_WALL, (configData_->dimension_ > 2) ? meshDscr.boundaryConditions_[2] : BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
         
         if (meshType == MeshType::RECTANGULAR)
@@ -83,54 +87,63 @@ namespace Base
         logger(INFO, "HpgemAPIBase::addMesh created a mesh.");
         return numOfMeshes;
     }
-    
-    HpgemAPIBase::MeshId HpgemAPIBase::addMesh(const HpgemAPIBase::String& fileName, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
+
+    template<std::size_t DIM>
+    typename HpgemAPIBase<DIM>::MeshId HpgemAPIBase<DIM>::addMesh(const std::string& fileName, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
     {
         std::size_t numOfMeshes = meshes_.size();
-        MeshManipulator* mesh = new MeshManipulator(configData_, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
-        mesh->readCentaurMesh(fileName); //boundary information (^) is ignored
+        MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
+        mesh->readCentaurMesh(fileName);                             //boundary information (^) is ignored
         mesh->getElementsList();
         meshes_.push_back(mesh);
         logger(INFO, "HpgemAPIBase::addMesh read a mesh.");
         return numOfMeshes;
     }
-    
-    HpgemAPIBase::ConstElementIterator HpgemAPIBase::elementColBegin(MeshId mId) const
+
+    template<std::size_t DIM>
+    typename HpgemAPIBase<DIM>::ConstElementIterator HpgemAPIBase<DIM>::elementColBegin(MeshId mId) const
     {
         return meshes_[mId]->elementColBegin();
     }
-    
-    HpgemAPIBase::ConstElementIterator HpgemAPIBase::elementColEnd(MeshId mId) const
+
+    template<std::size_t DIM>
+    typename HpgemAPIBase<DIM>::ConstElementIterator HpgemAPIBase<DIM>::elementColEnd(MeshId mId) const
     {
         return meshes_[mId]->elementColEnd();
     }
-    
-    HpgemAPIBase::ElementIterator HpgemAPIBase::elementColBegin(MeshId mId)
+
+    template<std::size_t DIM>
+    typename HpgemAPIBase<DIM>::ElementIterator HpgemAPIBase<DIM>::elementColBegin(MeshId mId)
     {
         return meshes_[mId]->elementColBegin();
     }
-    
-    HpgemAPIBase::ElementIterator HpgemAPIBase::elementColEnd(MeshId mId)
+
+    template<std::size_t DIM>
+    typename HpgemAPIBase<DIM>::ElementIterator HpgemAPIBase<DIM>::elementColEnd(MeshId mId)
     {
         return meshes_[mId]->elementColEnd();
     }
-    
-    HpgemAPIBase::ConstFaceIterator HpgemAPIBase::faceColBegin(MeshId mId) const
+
+    template<std::size_t DIM>
+    typename HpgemAPIBase<DIM>::ConstFaceIterator HpgemAPIBase<DIM>::faceColBegin(MeshId mId) const
     {
         return meshes_[mId]->faceColBegin();
     }
-    
-    HpgemAPIBase::ConstFaceIterator HpgemAPIBase::faceColEnd(MeshId mId) const
+
+    template<std::size_t DIM>
+    typename HpgemAPIBase<DIM>::ConstFaceIterator HpgemAPIBase<DIM>::faceColEnd(MeshId mId) const
     {
         return meshes_[mId]->faceColEnd();
     }
-    
-    HpgemAPIBase::FaceIterator HpgemAPIBase::faceColBegin(MeshId mId)
+
+    template<std::size_t DIM>
+    typename HpgemAPIBase<DIM>::FaceIterator HpgemAPIBase<DIM>::faceColBegin(MeshId mId)
     {
         return meshes_[mId]->faceColBegin();
     }
-    
-    HpgemAPIBase::FaceIterator HpgemAPIBase::faceColEnd(MeshId mId)
+
+    template<std::size_t DIM>
+    typename HpgemAPIBase<DIM>::FaceIterator HpgemAPIBase<DIM>::faceColEnd(MeshId mId)
     {
         return meshes_[mId]->faceColEnd();
     }

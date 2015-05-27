@@ -29,6 +29,7 @@ namespace Base
 }
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -41,11 +42,12 @@ namespace Output
      * already implemented in some class already, so that class can simply inherit from this class
      * to signal the TecplotDiscontinuousSolutionWriter that it does so
      */
+    template<std::size_t DIM>
     class TecplotSingleElementWriter
     {
     public:
         ///prints the desired information for the given point to the ostream
-        virtual void writeToTecplotFile(const Base::Element*, const Geometry::PointReference&, std::ostream&)=0;
+        virtual void writeToTecplotFile(const Base::Element*, const Geometry::PointReference<DIM>&, std::ostream&)=0;
         
         virtual ~TecplotSingleElementWriter() = default;
     };

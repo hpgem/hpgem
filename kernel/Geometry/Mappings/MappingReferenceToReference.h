@@ -23,7 +23,7 @@
 #define REFERENCETOREFERENCEM_H_
 
 #include "MappingInterface.h"
-#include "PointReferenceFactory.h"
+#include "Geometry/PointReferenceFactory.h"
 #include <unordered_map>
 
 namespace Geometry

@@ -33,7 +33,7 @@ namespace Geometry
     std::size_t ReferenceTriangularPrism::localNodesOnEdge_[9][2] = { {0, 1}, {0, 2}, {1, 2}, {3, 4}, {3, 5}, {4, 5}, {0, 3}, {1, 4}, {2, 5}};
     
     ReferenceTriangularPrism::ReferenceTriangularPrism()
-            : ReferenceGeometry(6, 3, ReferenceGeometryType::TRIANGULARPRISM, {1./3., 1./3., 0.}), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(6, 3, ReferenceGeometryType::TRIANGULARPRISM, {1./3., 1./3., 0.}), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance()), points_(6)
     {
         name = "ReferenceTriangularPrism";
         
@@ -43,6 +43,7 @@ namespace Geometry
         points_[3] = PointReferenceFactory<3>::instance()->makePoint({0., 0.,  1.});
         points_[4] = PointReferenceFactory<3>::instance()->makePoint({1., 0.,  1.});
         points_[5] = PointReferenceFactory<3>::instance()->makePoint({0., 1.,  1.});
+        center_ = PointReferenceFactory<3>::instance()->makePoint({1./3., 1./3., 0.});
         
         /// Mappings between triangular prisms are not implemented
         mappingsTriangularPrismToTriangularPrism_[0] = 0;
