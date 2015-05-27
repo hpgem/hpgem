@@ -46,6 +46,30 @@
 #include "SavageHutterRightHandSideComputer.h"
 
 #include "Logger.h"
+#include "Base/UserData.h"
+
+struct LimiterData : public UserElementData
+{
+    LimiterData()
+    {
+        isLimited = {false, false};
+        valLeft = {0, 0}; //make quiet NAN later
+        valRight = {0, 0};
+    }
+    std::vector<bool> isLimited;
+    std::vector<double> valLeft;
+    std::vector<double> valRight;
+};
+
+struct SHConstructorStruct
+{
+    std::size_t dimension;
+    std::size_t numOfVariables;
+    std::size_t polyOrder;
+    std::size_t numElements;
+    Base::MeshType meshType;
+    Base::ButcherTableau * ptrButcherTableau;
+};
 
 //todo: make the functions override final, but at the moment my parser does not 
 //understand the override and final keywords, which makes development harder
@@ -54,8 +78,20 @@ class SavageHutter : public Base::HpgemAPISimplified
 public:
     SavageHutter(const std::size_t dimension, const std::size_t numOfVariables,
             const std::size_t polynomialOrder,
-            const Base::ButcherTableau * const ptrButcherTableau,
-            const std::size_t numTimeSteps);
+            const Base::ButcherTableau * const ptrButcherTableau);
+    
+    ///Alternative constructor with less input parameters. Furthermore, this 
+    ///constructor also constructs the mesh and couples an object LimiterData to
+    ///each element.
+    SavageHutter(const SHConstructorStruct& inputValues);
+    
+    ~SavageHutter()
+    {
+        for (Base::Element *element : meshes_[0] ->getElementsList())
+        {
+            delete element->getUserData();
+        }
+    }
 
     /// \brief Create a domain
     Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection);
@@ -94,12 +130,27 @@ public:
          const double time
          );
 
+    ///At the beginning of each time step, it will be checked if a limiter should
+    ///be used for this element. If so, it is saved in the LimiterData struct.
+    void useLimitierForElement(Base::Element *element);
+    
     void computeOneTimeStep(double &time, const double dt);
     void limitSolution();
-    bool useLimitierForElement(const Base::Element *element);
+    
+    ///Auxiliary function for checking if a limiter should be used.
     LinearAlgebra::NumericalVector computeVelocity(LinearAlgebra::NumericalVector numericalSolution);
+    
+    ///Auxiliary function for checking if a limiter should be used.
     LinearAlgebra::NumericalVector computeNormOfAverageOfSolutionInElement(const Base::Element *element);
-    void limitWithMinMod(const Base::Element *element);
+    
+    ///If a limiter should be used, use the min-mod limiter. Save the values of 
+    ///the left side and right side in the struct LimiterData.
+    void limitWithMinMod(Base::Element *element, const std::size_t iVar);
+    
+    int sign(const double x)
+    {
+        return ((x < 0)? -1 : 1) ;
+    }
     
 private:
     /// Dimension of the domain
@@ -109,10 +160,6 @@ private:
     const std::size_t numOfVariables_;
 
     SavageHutterRightHandSideComputer rhsComputer_;
-
-    std::size_t numTimeSteps_;
-    
-    std::size_t timeStepCounter;
     
     friend class SavageHutterRightHandSideComputer;
 

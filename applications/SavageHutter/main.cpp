@@ -27,9 +27,8 @@
 
 #include "Logger.h"
 
-auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
-auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
-
+auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", false, 10);
+auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", false, 2);
 auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 1);
 auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
 auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 0.001);
@@ -41,17 +40,18 @@ int main(int argc, char **argv)
     Base::parse_options(argc, argv);
     
     // Set parameters for the PDE.
-    const std::size_t dimension = 1;
-    const std::size_t numOfVariables = 2;
-    const Base::MeshType meshType = Base::MeshType::RECTANGULAR; // Either TRIANGULAR or RECTANGULAR.
-    const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
+    SHConstructorStruct inputVals;
+    inputVals.dimension = 1;
+    inputVals.numOfVariables = 2;    
+    inputVals.polyOrder = polynomialOrder.getValue();
+    inputVals.numElements = numOfElements.getValue();
+    inputVals.meshType = Base::MeshType::RECTANGULAR; // Either TRIANGULAR or RECTANGULAR.
+    inputVals.ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
+    
+    //Construct the problem and output generator
+    SavageHutter test(inputVals);    
     std::vector<std::string> variableNames = {"h", "hu"};
-
-    //Construct the problem, mesh and output generator
-    SavageHutter test(dimension, numOfVariables, polynomialOrder.getValue(), ptrButcherTableau, static_cast<std::size_t>(std::ceil((endTime.getValue() - startTime.getValue())/dt.getValue())));
-    test.createMesh(numOfElements.getValue(), meshType);
     test.setOutputNames("output", "SavageHutter", "SavageHutter", variableNames);
-
 
     // Start measuring elapsed time
     std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
