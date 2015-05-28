@@ -136,15 +136,15 @@ namespace Base
         setNumberOfBasisFunctions(numberOfBasisFunctions);
     }
     
-    void Element::setVertexBasisFunctionSet(std::size_t position, std::size_t localVertexIndex)
+    void Element::setVertexBasisFunctionSet(std::size_t position, std::size_t localNodeIndex)
     {
         logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
-        logger.assert(localVertexIndex < getNrOfNodes(), "Asked for node %, but there are only % nodes", localVertexIndex, getNrOfNodes());
+        logger.assert(localNodeIndex < getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeIndex, getNrOfNodes());
         if (basisFunctionSetPositions_.size() < 1 + getNrOfFaces() + getNrOfEdges() + getNrOfNodes())
         {
             basisFunctionSetPositions_.resize(1 + getNrOfFaces() + getNrOfEdges() + getNrOfNodes(), -1);
         }
-        basisFunctionSetPositions_[1 + getNrOfFaces() + getNrOfEdges() + localVertexIndex] = position;
+        basisFunctionSetPositions_[1 + getNrOfFaces() + getNrOfEdges() + localNodeIndex] = position;
         std::size_t numberOfBasisFunctions(0);
         for (int i : basisFunctionSetPositions_)
         {

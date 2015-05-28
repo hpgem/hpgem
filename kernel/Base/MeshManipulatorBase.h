@@ -102,7 +102,7 @@ namespace Base
         
         virtual std::size_t getNumberOfEdges(IteratorType part = IteratorType::LOCAL) const = 0;
         
-        virtual std::size_t getNumberOfVertices(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual std::size_t getNumberOfNodes(IteratorType part = IteratorType::LOCAL) const = 0;
         
         /// *****************Iteration through the Elements*******************
         
@@ -130,13 +130,13 @@ namespace Base
         
         virtual std::vector<Edge*>::iterator edgeColEnd(IteratorType part = IteratorType::LOCAL) = 0;
         
-        virtual std::vector<Node*>::const_iterator vertexColBegin(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual std::vector<Node*>::const_iterator nodeColBegin(IteratorType part = IteratorType::LOCAL) const = 0;
         
-        virtual std::vector<Node*>::const_iterator vertexColEnd(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual std::vector<Node*>::const_iterator nodeColEnd(IteratorType part = IteratorType::LOCAL) const = 0;
         
-        virtual std::vector<Node*>::iterator vertexColBegin(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual std::vector<Node*>::iterator nodeColBegin(IteratorType part = IteratorType::LOCAL) = 0;
         
-        virtual std::vector<Node*>::iterator vertexColEnd(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual std::vector<Node*>::iterator nodeColEnd(IteratorType part = IteratorType::LOCAL) = 0;
         //  *****************Iteration through the Elements*******************
         
         //! Get const list of elements
@@ -155,9 +155,9 @@ namespace Base
         
         virtual std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) = 0;
         
-        virtual const std::vector<Node*>& getVerticesList(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual const std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL) const = 0;
         
-        virtual std::vector<Node*>& getVerticesList(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL) = 0;
                 
         std::size_t dimension() const;
         

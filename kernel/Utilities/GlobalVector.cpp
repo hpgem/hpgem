@@ -119,7 +119,7 @@ namespace Utilities
             std::size_t numNodeBasisFuncs = element->getNode(i)->getLocalNrOfBasisFunctions();
             for (std::size_t j = 0; j < numNodeBasisFuncs; ++j)
             {
-                *pos = j + startPositionsOfVerticesInTheVector_[element->getNode(i)->getID()];
+                *pos = j + startPositionsOfNodesInTheVector_[element->getNode(i)->getID()];
                 pos++;
             }
         }
@@ -140,7 +140,7 @@ namespace Utilities
         MPISendElementCounts[rank+1] = theMesh_->getNumberOfElements();
         MPISendFaceCounts[rank+1] = theMesh_->getNumberOfFaces();
         MPISendEdgeCounts[rank+1] = theMesh_->getNumberOfEdges();
-        MPISendNodeCounts[rank+1] = theMesh_->getNumberOfVertices();
+        MPISendNodeCounts[rank+1] = theMesh_->getNumberOfNodes();
 
         //tell the rest of the processes how much info the others have
         MPI::Intracomm& comm = Base::MPIContainer::Instance().getComm();
@@ -181,7 +181,7 @@ namespace Utilities
         startPositionsOfElementsInTheVector_.resize(theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL));
         startPositionsOfFacesInTheVector_.resize(theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL));
         startPositionsOfEdgesInTheVector_.resize(theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL));
-        startPositionsOfVerticesInTheVector_.resize(theMesh_->getNumberOfVertices(Base::IteratorType::GLOBAL));
+        startPositionsOfNodesInTheVector_.resize(theMesh_->getNumberOfNodes(Base::IteratorType::GLOBAL));
         for (Base::Element* element : theMesh_->getElementsList())
         {
 #ifdef HPGEM_USE_MPI
@@ -243,7 +243,7 @@ namespace Utilities
 #endif
             totalNrOfDOF += edge->getLocalNrOfBasisFunctions();
         }
-        for (Base::Node* node : theMesh_->getVerticesList())
+        for (Base::Node* node : theMesh_->getNodesList())
         {
 #ifdef HPGEM_USE_MPI
             *currentNodeNumber=node->getID();
@@ -251,7 +251,7 @@ namespace Utilities
             ++currentNodeNumber;
             ++currentNodePosition;
 #else
-            startPositionsOfVerticesInTheVector_[node->getID()] = totalNrOfDOF;
+            startPositionsOfNodesInTheVector_[node->getID()] = totalNrOfDOF;
 #endif
             totalNrOfDOF += node->getLocalNrOfBasisFunctions();
         }
@@ -344,7 +344,7 @@ namespace Utilities
                 offset = cumulativeDOF[currentDomain];
             }
             logger.assert(*currentNodeNumber != std::numeric_limits<std::size_t>::max(), "currentNodeNumber = -1");
-            startPositionsOfVerticesInTheVector_[*currentNodeNumber]=*currentNodePosition+offset;
+            startPositionsOfNodesInTheVector_[*currentNodeNumber]=*currentNodePosition+offset;
         }
 #endif
         
@@ -480,7 +480,7 @@ namespace Utilities
             {
                 for (std::size_t j = 0; j < (*it)->getNode(i)->getLocalNrOfBasisFunctions(); ++j)
                 {
-                    localData[runningTotal] = std::real(data[startPositionsOfVerticesInTheVector_[(*it)->getNode(i)->getID()] + j]);
+                    localData[runningTotal] = std::real(data[startPositionsOfNodesInTheVector_[(*it)->getNode(i)->getID()] + j]);
                     ++runningTotal;
                 }
             }

@@ -101,10 +101,10 @@ namespace Geometry
     }
     
     //finding node numbers here is way to hard, leave that to someplace else
-    void FaceGeometry::initialiseFaceToFaceMapIndex(const std::vector<std::size_t>& leftVertices, const std::vector<std::size_t>& rightVertices)
+    void FaceGeometry::initialiseFaceToFaceMapIndex(const std::vector<std::size_t>& leftNodes, const std::vector<std::size_t>& rightNodes)
     {
-        logger.assert(leftVertices.size()==rightVertices.size(), "Inconsistent amount of vertices for left and right face");
-        faceToFaceMapIndex_ = getReferenceGeometry()->getCodim0MappingIndex(leftVertices, rightVertices);
+        logger.assert(leftNodes.size()==rightNodes.size(), "Inconsistent amount of nodes for left and right face");
+        faceToFaceMapIndex_ = getReferenceGeometry()->getCodim0MappingIndex(leftNodes, rightNodes);
     }
     
     bool FaceGeometry::isInternal() const

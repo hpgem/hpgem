@@ -34,7 +34,9 @@ namespace Geometry
      * "In geometry, a simplex (plural simplexes or simplices) is a generalization of the notion of
      *  a triangle or tetrahedron to arbitrary dimension." -Wikipedia.
      *
-     * This class defines the linear mappings between simplexes. See the comments in the Physical<Simplex>.cpp files to know the order of the
+     * This class defines the linear mappings between simplexes, namely from the 
+     * reference domain to the physical domain.
+     * See the comments in the Physical<Simplex>.cpp files to know the order of the
      * vertex of each simplex, an order which is kept by the mappings.
      * No specialization is needed because the mapping is general for geometries of vertex number
      * (vn) one greater than dimension (d), that is, vn = d+1;

@@ -72,7 +72,7 @@ namespace Base
             return elements_;
         }
         
-        std::size_t getVertexNr(std::size_t i) const
+        std::size_t getNodeNr(std::size_t i) const
         {
             logger.assert(i < getNrOfElements(), "Asked for element %, but there are only % elements", i, getNrOfElements());
             return localNodeNrs_[i];

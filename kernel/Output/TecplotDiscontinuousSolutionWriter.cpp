@@ -147,7 +147,7 @@ namespace Output
             output_ << "          \n";
         }
         
-        std::size_t totalNrOfVertices = 0;
+        std::size_t totalNrOfNodes = 0;
         std::size_t totalNrOfElements = 0;
         
         // Iterate over elements and write the solution at the vertices.
@@ -209,13 +209,13 @@ namespace Output
             } // 'nodes of element' loop
             
             
-            totalNrOfVertices += nrOfNodes;
+            totalNrOfNodes += nrOfNodes;
         }
         
         // 2. Print global node numbers per element.
         if (!sameGeometry)
         {
-            std::size_t countNumberOfVertices = 1;
+            std::size_t countNumberOfNodes = 1;
             
             // Node count PER ELEMENT (one global node can count several times locally).
             // (Basically we just write an ascending series of numbers).
@@ -223,13 +223,13 @@ namespace Output
             {
                 for (std::size_t j = 0; j < ( 1UL << nDimensionsToWrite_); ++j) // number of vertices
                 {
-                    output_ << countNumberOfVertices++ << " ";
+                    output_ << countNumberOfNodes++ << " ";
                 }
                 output_ << "\n";
             }
             
             previousNrOfElements_ = totalNrOfElements;
-            previousNrOfNodes_ = totalNrOfVertices;
+            previousNrOfNodes_ = totalNrOfNodes;
             
             // Write the number of elements and nodes to the blank space at the beginning of the zone
             const std::streamoff currentFilePos = output_.tellp();

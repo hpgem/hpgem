@@ -51,15 +51,15 @@ namespace Base
         ptrElemL->setFace(localFaceNumL, this);
         ptrElemR->setFace(localFaceNumR, this);
         
-        std::vector<std::size_t> leftVertices, rightVertices;
-        std::vector<std::size_t> localLeftVertices = ptrElemL->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumL);
-        std::vector<std::size_t> localRightVertices = ptrElemR->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumR);
+        std::vector<std::size_t> leftNodes, rightNodes;
+        std::vector<std::size_t> localLeftNodes = ptrElemL->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumL);
+        std::vector<std::size_t> localRightNodes = ptrElemR->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumR);
         for (std::size_t i = 0; i < getReferenceGeometry()->getNumberOfNodes(); ++i)
         {
-            leftVertices.push_back(ptrElemL->getNode(localLeftVertices[i])->getID());
-            rightVertices.push_back(ptrElemR->getNode(localRightVertices[i])->getID());
+            leftNodes.push_back(ptrElemL->getNode(localLeftNodes[i])->getID());
+            rightNodes.push_back(ptrElemR->getNode(localRightNodes[i])->getID());
         }
-        initialiseFaceToFaceMapIndex(leftVertices, rightVertices);
+        initialiseFaceToFaceMapIndex(leftNodes, rightNodes);
     }
     
     Face::Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)

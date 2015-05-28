@@ -70,19 +70,37 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     MiddleSizeVector solutionLeft(2);
     for (std::size_t i = 0; i < numBasisFuncsLeft; ++i)    
     {
-        std::size_t iH = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, 0);
-        solutionLeft(0) += solutionCoefficientsLeft(iH) * ptrFace->basisFunction(Base::Side::LEFT, i, pRef);
-        std::size_t iHu = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, 1);
-        solutionLeft(1) += solutionCoefficientsLeft(iHu) * ptrFace->basisFunction(Base::Side::LEFT, i, pRef);
+        for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
+        {
+            const LimiterData * const ld = static_cast<LimiterData*> (ptrFace->getPtrElement(Base::Side::LEFT)->getUserData());
+            if (ld->isLimited[iVar])
+            {
+                solutionLeft(iVar) = ld->valRight[iVar];
+            }
+            else
+            {
+                std::size_t iVB = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, iVar);
+                solutionLeft(iVar) += solutionCoefficientsLeft(iVB) * ptrFace->basisFunction(Base::Side::LEFT, i, pRef);
+            }
+        }
     }
     
     MiddleSizeVector solutionRight(2);
     for (std::size_t i = 0; i < numBasisFuncsRight; ++i)    
     {
-        std::size_t iH = ptrFace->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(i, 0);
-        solutionRight(0) += solutionCoefficientsRight(iH) * ptrFace->basisFunction(Base::Side::RIGHT, i, pRef);
-        std::size_t iHu = ptrFace->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(i, 1);
-        solutionRight(1) += solutionCoefficientsRight(iHu) * ptrFace->basisFunction(Base::Side::RIGHT, i, pRef);
+        for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
+        {
+            const LimiterData * const ld = static_cast<LimiterData*> (ptrFace->getPtrElement(Base::Side::RIGHT)->getUserData());
+            if (ld->isLimited[iVar])
+            {
+                solutionRight(iVar) = ld->valLeft[iVar];
+            }
+            else
+            {
+                std::size_t iVB = ptrFace->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(i, iVar);
+                solutionRight(iVar) += solutionCoefficientsRight(iVB) * ptrFace->basisFunction(Base::Side::RIGHT, i, pRef);
+            }
+        }
     }
     MiddleSizeVector flux(2);
     if (normal > 0)
@@ -132,7 +150,12 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
         solution(1) += solutionCoefficients(iHu) * ptrFace->basisFunction(i, pRef);
     }
     MiddleSizeVector flux(2);
-    if (normal > 0) //outflow
+    double u = 0;
+    if (solution(0) > 1e-14)
+    {
+        u = solution(1)/solution(0);
+    }
+    if (u*normal > 0) //outflow
     {
         flux = localLaxFriedrichsFlux(solution, solution);
     }
@@ -185,7 +208,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::computeSourceTerm(const Midd
     double mu = computeFriction(numericalSolution);
     const int signU = (numericalSolution(1) > 0) ? 1 : -1;
     double sourceX = h * std::sin(theta_) - h * mu * signU * std::cos(theta_);
-    logger(DEBUG, "Source: %", sourceX);
+    logger(DEBUG, "Source: %, h: %", sourceX, h);
     return MiddleSizeVector({0, sourceX});
 }
 
@@ -239,5 +262,5 @@ double SavageHutterRightHandSideComputer::computeFriction(const MiddleSizeVector
 
 LinearAlgebra::MiddleSizeVector SavageHutterRightHandSideComputer::getInflowBC()
 {
-    return LinearAlgebra::MiddleSizeVector({1.1, 2.5 * 1.1});
+    return LinearAlgebra::MiddleSizeVector({1, 1});
 }

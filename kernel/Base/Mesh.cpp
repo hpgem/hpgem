@@ -72,7 +72,7 @@ namespace Base
             for(std::size_t i = 0; i < nodeElements.size(); ++i)
             {
                 std::size_t id = nodeElements[i]->getID();
-                nodes_.back()->addElement(elements_[id], node->getVertexNr(i));
+                nodes_.back()->addElement(elements_[id], node->getNodeNr(i));
             }
             ++nodeCounter_;
         }
@@ -156,16 +156,16 @@ namespace Base
         ++edgeCounter_;
         hasToSplit_ = true;
     }
-
+    
     template<std::size_t DIM>
-    void Mesh<DIM>::addNode(Geometry::PointPhysical<DIM> node)
+    void Mesh<DIM>::addNodeCoordinate(Geometry::PointPhysical<DIM> node)
     {
         points_.push_back(node);
         //don't distribute the points here, it will confuse the elements
     }
-
+    
     template<std::size_t DIM>
-    void Mesh<DIM>::addVertex()
+    void Mesh<DIM>::addNode()
     {
         nodes_.push_back(new Node(nodeCounter_));
         ++nodeCounter_;
@@ -419,14 +419,14 @@ namespace Base
             return edges_;
         }
     }
-
+    
     template<std::size_t DIM>
-    const std::vector<Node*>& Mesh<DIM>::getVerticesList(IteratorType part) const
+    const std::vector<Node*>& Mesh<DIM>::getNodesList(IteratorType part) const
     {
         if (part == IteratorType::LOCAL)
         {
-            logger.assert_always(!hasToSplit_, "Please call getVerticesListList() on a modifiable mesh at least once"
-                    "\nbefore calling getVerticesList() const");
+            logger.assert_always(!hasToSplit_, "Please call getNodesList() on a modifiable mesh at least once"
+                    "\nbefore calling getNodesList() const");
             return submeshes_.getNodesList();
         }
         else
@@ -434,9 +434,9 @@ namespace Base
             return nodes_;
         }
     }
-
+    
     template<std::size_t DIM>
-    std::vector<Node*>& Mesh<DIM>::getVerticesList(IteratorType part)
+    std::vector<Node*>& Mesh<DIM>::getNodesList(IteratorType part)
     {
         if (part == IteratorType::LOCAL)
         {

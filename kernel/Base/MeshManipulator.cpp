@@ -460,12 +460,12 @@ namespace Base
                 }
             }
         }
-        for(Node* node : getVerticesList(IteratorType::GLOBAL))
+        for(Node* node : getNodesList(IteratorType::GLOBAL))
         {
             for(std::size_t i = 0; i < node->getNrOfElements(); ++i)
             {
                 Element* element = node->getElement(i);
-                std::size_t nodeNr = node->getVertexNr(i);
+                std::size_t nodeNr = node->getNodeNr(i);
                 auto type = element->getReferenceGeometry()->getGeometryType();
                 element->setVertexBasisFunctionSet(shapeToElementIndex[type] + nrOfFaceSets[type] + nrOfEdgeSets[type] + 1 + nodeNr, nodeNr);
                 node->setLocalNrOfBasisFunctions(collBasisFSet_[shapeToElementIndex[type] + nrOfFaceSets[type] + nrOfEdgeSets[type] + 1 + nodeNr]->size());
@@ -523,7 +523,7 @@ namespace Base
         {
             edge->setLocalNrOfBasisFunctions(0);
         }
-        for (Base::Node* node : getVerticesList(IteratorType::GLOBAL))
+        for (Base::Node* node : getNodesList(IteratorType::GLOBAL))
         {
             node->setLocalNrOfBasisFunctions(0);
         }
@@ -542,11 +542,11 @@ namespace Base
             logger.assert(set!=nullptr, "Invalid basis function set detected");
             collBasisFSet_.emplace_back(set);
         }
-        for (Node* node : getVerticesList())
+        for (Node* node : getNodesList())
         {
             for (std::size_t i = 0; i < node->getNrOfElements(); ++i)
             {
-                node->getElement(i)->setVertexBasisFunctionSet(firstNewEntry + node->getVertexNr(i), node->getVertexNr(i));
+                node->getElement(i)->setVertexBasisFunctionSet(firstNewEntry + node->getNodeNr(i), node->getNodeNr(i));
             }
             node->setLocalNrOfBasisFunctions(bFsets[0]->size());
         }
@@ -664,11 +664,11 @@ namespace Base
     {
         theMesh_.addEdge();
     }
-
+    
     template<std::size_t DIM>
-    void MeshManipulator<DIM>::addVertex()
+    void MeshManipulator<DIM>::addNode()
     {
-        theMesh_.addVertex();
+        theMesh_.addNode();
     }
 }
 
@@ -728,34 +728,34 @@ namespace Base
         }
         
         //This stores the number of nodes in each coDIMension i.e. if you have 2 by 2 element it is 3 nodes 
-        //nodes mark physical location, vertices mark connectivity-based location
-        std::vector<std::size_t> numOfNodesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM), numOfVerticesInEachSubspace(DIM);
+        //nodeCoordinates mark physical location, notes mark connectivity-based location
+        std::vector<std::size_t> numOfNodeCoordinatesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM), numOfNodesInEachSubspace(DIM);
         
+        numOfNodeCoordinatesInEachSubspace[0] = 1;
         numOfNodesInEachSubspace[0] = 1;
-        numOfVerticesInEachSubspace[0] = 1;
         numOfElementsInEachSubspace[0] = 1;
         
         //This will be the total number of nodes required in the problem
-        std::size_t totalNumOfNodes, totalNumOfVertices, totalNumOfElements, verticesPerElement;
+        std::size_t totalNumOfNodeCoordinates, totalNumOfNodes, totalNumOfElements, nodesPerElement;
         
-        totalNumOfNodes = (linearNoElements[0] + 1);
-        totalNumOfVertices = (linearNoElements[0] + (periodicDIM[0] ? 0 : 1));
+        totalNumOfNodeCoordinates = (linearNoElements[0] + 1);
+        totalNumOfNodes = (linearNoElements[0] + (periodicDIM[0] ? 0 : 1));
         
         totalNumOfElements = (linearNoElements[0]);
         
-        verticesPerElement = 2;
+        nodesPerElement = 2;
         std::size_t powerOf2;
         
         for (std::size_t iDIM = 1; iDIM < DIM; ++iDIM)
         {
-            totalNumOfNodes *= (linearNoElements[iDIM] + 1);
-            totalNumOfVertices *= (linearNoElements[iDIM] + (periodicDIM[iDIM] ? 0 : 1));
+            totalNumOfNodeCoordinates *= (linearNoElements[iDIM] + 1);
+            totalNumOfNodes *= (linearNoElements[iDIM] + (periodicDIM[iDIM] ? 0 : 1));
             totalNumOfElements *= (linearNoElements[iDIM]);
-            verticesPerElement *= 2;
+            nodesPerElement *= 2;
             
             numOfElementsInEachSubspace[iDIM] = numOfElementsInEachSubspace[iDIM - 1] * (linearNoElements[iDIM - 1]);
-            numOfNodesInEachSubspace[iDIM] = numOfNodesInEachSubspace[iDIM - 1] * (linearNoElements[iDIM - 1] + 1);
-            numOfVerticesInEachSubspace[iDIM] = numOfVerticesInEachSubspace[iDIM - 1] * (linearNoElements[iDIM - 1] + (periodicDIM[iDIM - 1] ? 0 : 1));
+            numOfNodeCoordinatesInEachSubspace[iDIM] = numOfNodeCoordinatesInEachSubspace[iDIM - 1] * (linearNoElements[iDIM - 1] + 1);
+            numOfNodesInEachSubspace[iDIM] = numOfNodesInEachSubspace[iDIM - 1] * (linearNoElements[iDIM - 1] + (periodicDIM[iDIM - 1] ? 0 : 1));
         }
         
         //temp point for storing the node locations
@@ -763,33 +763,33 @@ namespace Base
         
         //Stage 2 : Create the nodes
         //Now loop over all the nodes and calculate the coordinates for reach DIMension (this makes the algorithm independent of DIMension
-        for (std::size_t nodeIndex = 0; nodeIndex < totalNumOfNodes; ++nodeIndex)
+        for (std::size_t nodeIndex = 0; nodeIndex < totalNumOfNodeCoordinates; ++nodeIndex)
         {
             std::size_t nodeIndexRemain = nodeIndex;
             
             for (int iDIM = DIM - 1; iDIM > -1; --iDIM)
             {
-                x[iDIM] = bottomLeft[iDIM] + (nodeIndexRemain / numOfNodesInEachSubspace[iDIM] * delta_x[iDIM]);
-                nodeIndexRemain %= numOfNodesInEachSubspace[iDIM];
+                x[iDIM] = bottomLeft[iDIM] + (nodeIndexRemain / numOfNodeCoordinatesInEachSubspace[iDIM] * delta_x[iDIM]);
+                nodeIndexRemain %= numOfNodeCoordinatesInEachSubspace[iDIM];
             }
             
             //actually add the point
-            theMesh_.addNode(x);
+            theMesh_.addNodeCoordinate(x);
             
         }
         
         //stage 2.5 : create the vertices
         
-        for (std::size_t vertexID = 0; vertexID < totalNumOfVertices; ++vertexID)
+        for (std::size_t nodeID = 0; nodeID < totalNumOfNodes; ++nodeID)
         {
-            theMesh_.addVertex();
+            theMesh_.addNode();
         }
         
         //Stage 3 : Create the elements
         
-        std::vector<std::size_t> elementNdId(DIM), nodeNdId(DIM), vertexNdId(DIM), globalNodeID(verticesPerElement), globalVertexID(verticesPerElement);
+        std::vector<std::size_t> elementNdId(DIM), nodeCoordinateNdId(DIM), nodeNdId(DIM), globalNodeCoordinateID(nodesPerElement), globalNodeID(nodesPerElement);
         
-        auto& vertexlist = getVerticesList(IteratorType::GLOBAL);
+        auto& nodesList = getNodesList(IteratorType::GLOBAL);
         
         //elementNdId is DIM coordinate of the bottom left node i.e. in two (0,0), (1,0) ,(2,0) ... etc are the first three (if at least three elements in x)
         for (std::size_t elementIndex = 0; elementIndex < totalNumOfElements; ++elementIndex)
@@ -802,34 +802,34 @@ namespace Base
                 numElementsRemaining %= numOfElementsInEachSubspace[iDIM];
             }
             
-            // vertexNdId are the DIM coordinate of each vertex in the element with vertexNdId[0] being the bottom left
-            for (std::size_t i = 0; i < verticesPerElement; ++i)
+            // nodeNdId are the DIM coordinate of each node in the element with nodeNdId[0] being the bottom left
+            for (std::size_t i = 0; i < nodesPerElement; ++i)
             {
                 powerOf2 = 1;
                 for (std::size_t iDIM = 0; iDIM < DIM; ++iDIM)
                 {
+                    nodeCoordinateNdId[iDIM] = elementNdId[iDIM] + ((i & powerOf2) != 0);
                     nodeNdId[iDIM] = elementNdId[iDIM] + ((i & powerOf2) != 0);
-                    vertexNdId[iDIM] = elementNdId[iDIM] + ((i & powerOf2) != 0);
-                    if ((vertexNdId[iDIM] >= linearNoElements[iDIM]) && (periodicDIM[iDIM] == true))
+                    if ((nodeNdId[iDIM] >= linearNoElements[iDIM]) && (periodicDIM[iDIM] == true))
                     {
-                        vertexNdId[iDIM] = 0;
+                        nodeNdId[iDIM] = 0;
                     }
                     powerOf2 *= 2;
                 }
+                globalNodeCoordinateID[i] = nodeCoordinateNdId[0];
                 globalNodeID[i] = nodeNdId[0];
-                globalVertexID[i] = vertexNdId[0];
                 
                 //Now map to the one DIMensional global ID
                 for (std::size_t iDIM = 1; iDIM < DIM; ++iDIM)
                 {
+                    globalNodeCoordinateID[i] += nodeCoordinateNdId[iDIM] * numOfNodeCoordinatesInEachSubspace[iDIM];
                     globalNodeID[i] += nodeNdId[iDIM] * numOfNodesInEachSubspace[iDIM];
-                    globalVertexID[i] += vertexNdId[iDIM] * numOfVerticesInEachSubspace[iDIM];
                 }
             }
-            Element* newElement = addElement(globalNodeID);
-            for (std::size_t i = 0; i < globalVertexID.size(); ++i)
+            Element* newElement = addElement(globalNodeCoordinateID);
+            for (std::size_t i = 0; i < globalNodeID.size(); ++i)
             {
-                vertexlist[globalVertexID[i]]->addElement(newElement, i);
+                nodesList[globalNodeID[i]]->addElement(newElement, i);
             }
         }
         
@@ -884,64 +884,64 @@ namespace Base
             delta_x[i] = (topRight[i] - bottomLeft[i]) / (linearNoElements[i]);
         }
         
-        std::vector<std::size_t> numOfNodesInEachSubspace(DIM), numOfVerticesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM);
+        std::vector<std::size_t> numOfNodeCoordinatesInEachSubspace(DIM), numOfNodesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM);
         
+        numOfNodeCoordinatesInEachSubspace[0] = 1;
         numOfNodesInEachSubspace[0] = 1;
-        numOfVerticesInEachSubspace[0] = 1;
         numOfElementsInEachSubspace[0] = 1;
         
-        std::size_t totalNumOfNodes, totalNumOfElements, verticesPerElement, verticesPerGroup, trianglesPerRectangle, totalNumOfVertices;
+        std::size_t totalNumOfNodeCoordinates, totalNumOfElements, nodesPerElement, nodesPerGroup, trianglesPerRectangle, totalNumOfNodes;
         
-        totalNumOfNodes = (linearNoElements[0] + 1);
-        totalNumOfVertices = (linearNoElements[0] + (periodicDIM[0] ? 0 : 1));
+        totalNumOfNodeCoordinates = (linearNoElements[0] + 1);
+        totalNumOfNodes = (linearNoElements[0] + (periodicDIM[0] ? 0 : 1));
         //'elements' in this counter denote groups of trianglesPerRectangle elements
         totalNumOfElements = (linearNoElements[0]);
-        verticesPerElement = 2;
-        verticesPerGroup = 2;
+        nodesPerElement = 2;
+        nodesPerGroup = 2;
         trianglesPerRectangle = 1;
         std::size_t powerOf2;
         
         //start with 1 because you want to ask for the entry at idim - 1
         for (std::size_t idim = 1; idim < DIM; ++idim)
         {
-            totalNumOfNodes *= (linearNoElements[idim] + 1);
-            totalNumOfVertices *= (linearNoElements[idim] + (periodicDIM[idim] ? 0 : 1));
+            totalNumOfNodeCoordinates *= (linearNoElements[idim] + 1);
+            totalNumOfNodes *= (linearNoElements[idim] + (periodicDIM[idim] ? 0 : 1));
             totalNumOfElements *= (linearNoElements[idim]);
-            verticesPerElement += 1;
-            verticesPerGroup *= 2;
+            nodesPerElement += 1;
+            nodesPerGroup *= 2;
             trianglesPerRectangle += (2 * idim - 1);
             numOfElementsInEachSubspace[idim] = numOfElementsInEachSubspace[idim - 1] * (linearNoElements[idim - 1]);
-            numOfNodesInEachSubspace[idim] = numOfNodesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + 1);
-            numOfVerticesInEachSubspace[idim] = numOfVerticesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + (periodicDIM[idim - 1] ? 0 : 1));
+            numOfNodeCoordinatesInEachSubspace[idim] = numOfNodeCoordinatesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + 1);
+            numOfNodesInEachSubspace[idim] = numOfNodesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + (periodicDIM[idim - 1] ? 0 : 1));
         }
         
         Geometry::PointPhysical<DIM> x;
         
         //Stage 2 : Create the nodes
         
-        for (std::size_t nodeIndex = 0; nodeIndex < totalNumOfNodes; ++nodeIndex)
+        for (std::size_t nodeIndex = 0; nodeIndex < totalNumOfNodeCoordinates; ++nodeIndex)
         {
             std::size_t nodeIndexRemain = nodeIndex;
             for (int idim = DIM - 1; idim > -1; --idim)
             {
-                x[idim] = bottomLeft[idim] + (nodeIndexRemain / numOfNodesInEachSubspace[idim] * delta_x[idim]);
-                nodeIndexRemain %= numOfNodesInEachSubspace[idim];
+                x[idim] = bottomLeft[idim] + (nodeIndexRemain / numOfNodeCoordinatesInEachSubspace[idim] * delta_x[idim]);
+                nodeIndexRemain %= numOfNodeCoordinatesInEachSubspace[idim];
             }
-            theMesh_.addNode(x);
+            theMesh_.addNodeCoordinate(x);
         }
         
-        for (std::size_t nodeIndex = 0; nodeIndex < totalNumOfVertices; ++nodeIndex)
+        for (std::size_t nodeIndex = 0; nodeIndex < totalNumOfNodes; ++nodeIndex)
         {
-            theMesh_.addVertex();
+            theMesh_.addNode();
         }
         
-        auto& vertices = getVerticesList(IteratorType::GLOBAL);
+        auto& nodes = getNodesList(IteratorType::GLOBAL);
         
         //Stage 3 : Create the elements
         
-        std::vector<std::size_t> elementNdId(DIM), vertexNdId(DIM), nodeNdId(DIM);
-        std::vector<std::vector<std::size_t> > globalVertexID(trianglesPerRectangle);
+        std::vector<std::size_t> elementNdId(DIM), nodeNdId(DIM), nodeCoordinateNdId(DIM);
         std::vector<std::vector<std::size_t> > globalNodeID(trianglesPerRectangle);
+        std::vector<std::vector<std::size_t> > globalNodeCoordinateID(trianglesPerRectangle);
         
         for (std::size_t elementGroupIndex = 0; elementGroupIndex < totalNumOfElements; ++elementGroupIndex)
         {
@@ -951,8 +951,8 @@ namespace Base
             
             for (std::size_t i = 0; i < trianglesPerRectangle; ++i)
             {
+                globalNodeCoordinateID[i].clear();
                 globalNodeID[i].clear();
-                globalVertexID[i].clear();
             }
             int elementIndexRemainder = elementGroupIndex;
             
@@ -963,69 +963,69 @@ namespace Base
                 rotate = (elementNdId[idim] + rotate) % 2;
             }
             
-            for (std::size_t i = 0; i < verticesPerGroup; ++i)
+            for (std::size_t i = 0; i < nodesPerGroup; ++i)
             {
                 if (rotate == 0)
                 {
                     powerOf2 = 1;
                     for (std::size_t idim = 0; idim < DIM; ++idim)
                     {
+                        nodeCoordinateNdId[idim] = elementNdId[idim] + ((i & powerOf2) != 0);
                         nodeNdId[idim] = elementNdId[idim] + ((i & powerOf2) != 0);
-                        vertexNdId[idim] = elementNdId[idim] + ((i & powerOf2) != 0);
-                        if (vertexNdId[idim] >= linearNoElements[idim] && periodicDIM[idim])
-                            vertexNdId[idim] = 0;
+                        if (nodeNdId[idim] >= linearNoElements[idim] && periodicDIM[idim])
+                            nodeNdId[idim] = 0;
                         powerOf2 *= 2;
                     }
                 }
                 else
                 {
-                    powerOf2 = verticesPerGroup;
+                    powerOf2 = nodesPerGroup;
                     for (std::size_t idim = 0; idim < DIM; ++idim)
                     {
                         powerOf2 /= 2;
+                        nodeCoordinateNdId[idim] = elementNdId[idim] + (((i ^ rotate) & powerOf2) != 0);
                         nodeNdId[idim] = elementNdId[idim] + (((i ^ rotate) & powerOf2) != 0);
-                        vertexNdId[idim] = elementNdId[idim] + (((i ^ rotate) & powerOf2) != 0);
-                        if (vertexNdId[idim] >= linearNoElements[idim] && periodicDIM[idim])
-                            vertexNdId[idim] = 0;
+                        if (nodeNdId[idim] >= linearNoElements[idim] && periodicDIM[idim])
+                            nodeNdId[idim] = 0;
                     }
                 }
                 
+                std::size_t nodeCoordinateIndex = nodeCoordinateNdId[0];
                 std::size_t nodeIndex = nodeNdId[0];
-                std::size_t vertexIndex = vertexNdId[0];
                 for (std::size_t idim = 1; idim < DIM; ++idim)
                 {
+                    nodeCoordinateIndex += nodeCoordinateNdId[idim] * numOfNodeCoordinatesInEachSubspace[idim];
                     nodeIndex += nodeNdId[idim] * numOfNodesInEachSubspace[idim];
-                    vertexIndex += vertexNdId[idim] * numOfVerticesInEachSubspace[idim];
                 }
                 
                 //then cherrypick the element(s) these vertices should connect to (probably not the cleanest implementation; \bug doesn't work if DIM>3)
                 switch (i)
                 {
                     case 0:
-                        globalVertexID[0].push_back(vertexIndex);
                         globalNodeID[0].push_back(nodeIndex);
+                        globalNodeCoordinateID[0].push_back(nodeCoordinateIndex);
                         break;
                     case 3:
                         //insert in the second place because the ordering of the vertices will work out better
-                        globalVertexID[1].insert( ++(globalVertexID[1].begin()), vertexIndex);
                         globalNodeID[1].insert( ++(globalNodeID[1].begin()), nodeIndex);
+                        globalNodeCoordinateID[1].insert( ++(globalNodeCoordinateID[1].begin()), nodeCoordinateIndex);
                         break;
                     case 5:
-                        globalVertexID[2].push_back(vertexIndex);
                         globalNodeID[2].push_back(nodeIndex);
+                        globalNodeCoordinateID[2].push_back(nodeCoordinateIndex);
                         break;
                     case 6:
                         //insert in the second place because the ordering of the vertices will work out better
-                        globalVertexID[3].insert( ++(globalVertexID[3].begin()), vertexIndex);
                         globalNodeID[3].insert( ++(globalNodeID[3].begin()), nodeIndex);
+                        globalNodeCoordinateID[3].insert( ++(globalNodeCoordinateID[3].begin()), nodeCoordinateIndex);
                         break;
                     case 1:
                         for (std::size_t j = 0; j < trianglesPerRectangle; ++j)
                         {
                             if (j != 3)
                             {
-                                globalVertexID[j].push_back(vertexIndex);
                                 globalNodeID[j].push_back(nodeIndex);
+                                globalNodeCoordinateID[j].push_back(nodeCoordinateIndex);
                             }
                         }
                         break;
@@ -1034,8 +1034,8 @@ namespace Base
                         {
                             if (j != 2)
                             {
-                                globalVertexID[j].push_back(vertexIndex);
                                 globalNodeID[j].push_back(nodeIndex);
+                                globalNodeCoordinateID[j].push_back(nodeCoordinateIndex);
                             }
                         }
                         break;
@@ -1044,8 +1044,8 @@ namespace Base
                         {
                             if (j != 1)
                             {
-                                globalVertexID[j].push_back(vertexIndex);
                                 globalNodeID[j].push_back(nodeIndex);
+                                globalNodeCoordinateID[j].push_back(nodeCoordinateIndex);
                             }
                         }
                         break;
@@ -1054,8 +1054,8 @@ namespace Base
                         {
                             if (j != 0)
                             {
-                                globalVertexID[j].push_back(vertexIndex);
                                 globalNodeID[j].push_back(nodeIndex);
+                                globalNodeCoordinateID[j].push_back(nodeCoordinateIndex);
                             }
                         }
                         break;
@@ -1064,14 +1064,14 @@ namespace Base
             
             for (std::size_t i = 0; i < trianglesPerRectangle; ++i)
             {
-                Element* newElement = addElement(globalNodeID[i]);
-                for (std::size_t j = 0; j < globalVertexID[i].size(); ++j)
+                Element* newElement = addElement(globalNodeCoordinateID[i]);
+                for (std::size_t j = 0; j < globalNodeID[i].size(); ++j)
                 {
-                    logger.assert(i < globalVertexID.size(), "Requested vertex %, while there are only %", i, globalVertexID.size());
-                    logger.assert(j < globalVertexID[i].size(), "Requested element %, but this vertex only has %.", j, globalVertexID[i].size());
-                    logger.assert(globalVertexID[i][j] < totalNumOfVertices, "Requested vertex %, while there are only %", globalVertexID[i][j], totalNumOfVertices);
-                    logger.assert(vertices.size() == totalNumOfVertices, "Number of vertices is wrong.");
-                    vertices[globalVertexID[i][j]]->addElement(newElement, j);
+                    logger.assert(i < globalNodeID.size(), "Requested node %, while there are only %", i, globalNodeID.size());
+                    logger.assert(j < globalNodeID[i].size(), "Requested element %, but this node only has %.", j, globalNodeID[i].size());
+                    logger.assert(globalNodeID[i][j] < totalNumOfNodes, "Requested node %, while there are only %", globalNodeID[i][j], totalNumOfNodes);
+                    logger.assert(nodes.size() == totalNumOfNodes, "Number of vertices is wrong.");
+                    nodes[globalNodeID[i][j]]->addElement(newElement, j);
                 }
             }
         } //for all rectangles
@@ -1179,7 +1179,7 @@ namespace Base
                 //Covert from *double to hpGEM PointPhysical format
                 nodeCoordPointFormat[0] = nodeCoord[0];
                 nodeCoordPointFormat[1] = nodeCoord[1];
-                theMesh_.addNode(nodeCoordPointFormat);
+                theMesh_.addNodeCoordinate(nodeCoordPointFormat);
                 
             }
             //Now check the node line was read correctly : each line in centaur start and end with the line size as a check
@@ -1243,7 +1243,7 @@ namespace Base
                 std::vector<std::size_t> globalNodeIndexesSizeT(4);
                 for (std::size_t i = 0; i < numberOfQuads; i++)
                 {
-                    //Reading the vertex indices of each quadrilateral.
+                    //Reading the node indices of each quadrilateral.
                     centaurFile.read(reinterpret_cast<char*>(globalNodeIndexes.data()), sizeof(std::uint32_t) * globalNodeIndexes.size());
                     
                     // renumbering of the vertices to match the ordering assumed by
@@ -1336,12 +1336,12 @@ namespace Base
                 boundaryFaces[i].elementNum = candidateElements[0];
                 
                 Element* current = elementslist[candidateElements[0]];
-                std::vector<std::size_t> faceVertices(2);
+                std::vector<std::size_t> faceNodes(2);
                 
                 for (std::size_t j = 0; j < current->getNrOfFaces(); ++j)
                 {
-                    faceVertices = current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j);
-                    if ((faceVertices[0] == boundaryFaces[i].nodeList[0] || faceVertices[0] == boundaryFaces[i].nodeList[1]) && (faceVertices[1] == boundaryFaces[i].nodeList[0] || faceVertices[1] == boundaryFaces[i].nodeList[1]))
+                    faceNodes = current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j);
+                    if ((faceNodes[0] == boundaryFaces[i].nodeList[0] || faceNodes[0] == boundaryFaces[i].nodeList[1]) && (faceNodes[1] == boundaryFaces[i].nodeList[0] || faceNodes[1] == boundaryFaces[i].nodeList[1]))
                     {
                         boundaryFaces[i].localFaceIndex = j;
                     }
@@ -1536,9 +1536,9 @@ namespace Base
             //now we know periodicity information, construct the vertices
             //remember that listOfElementsForEachNode will in general contain duplicates
             
-            auto& listOfVertices = theMesh_.getVerticesList(IteratorType::GLOBAL);
+            auto& listOfNodes = theMesh_.getNodesList(IteratorType::GLOBAL);
             
-            bool addedNewVertex(false);
+            bool addedNewNode(false);
             
             for (std::size_t i = 0; i < listOfElementsForEachNode.size(); ++i)
             {
@@ -1550,16 +1550,16 @@ namespace Base
                         //if we did not jet deal with this node and it is the correct one
                         if (current->getNode(k) == nullptr && current->getPhysicalGeometry()->getNodeIndex(k) == i)
                         {
-                            if (!addedNewVertex)
+                            if (!addedNewNode)
                             {
-                                addVertex();
-                                addedNewVertex = true;
+                                addNode();
+                                addedNewNode = true;
                             }
-                            listOfVertices.back()->addElement(current, k);
+                            listOfNodes.back()->addElement(current, k);
                         }
                     }
                 }
-                addedNewVertex = false;
+                addedNewNode = false;
             }
             
             //construct the rest of the faces
@@ -1645,7 +1645,7 @@ namespace Base
                 nodeCoordPointFormat[2] = nodeCoord[2];
                 logger(DEBUG, "In MeshManipulator::readCentaurMesh3D, "
                         "nodeCoordPointFormat = %", nodeCoordPointFormat);
-                theMesh_.addNode(nodeCoordPointFormat);
+                theMesh_.addNodeCoordinate(nodeCoordPointFormat);
                 
             }
             //Now check the node line was read correctly : each line in centaur start and end with the line size as a check
@@ -1691,7 +1691,7 @@ namespace Base
                         centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                     }
                     
-                    //Reading the vertex indices of each hexahedron.
+                    //Reading the node indices of each hexahedron.
                     centaurFile.read(reinterpret_cast<char*>(globalNodeIndexes.data()), sizeof(std::uint32_t) * globalNodeIndexes.size());
                     
                     // renumbering of the vertices to match the ordering assumed by
@@ -1755,7 +1755,7 @@ namespace Base
                     centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                 }
                 
-                //Reading the vertex indices of each hexahedron.
+                //Reading the node indices of each hexahedron.
                 centaurFile.read(reinterpret_cast<char*>(globalNodeIndexes.data()), sizeof(std::uint32_t) * globalNodeIndexes.size());
                 
                 // renumber them from 1..N to 0..N-1.
@@ -1811,7 +1811,7 @@ namespace Base
                         centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                     }
                     
-                    //Reading the vertex indices of each pyramid.
+                    //Reading the node indices of each pyramid.
                     centaurFile.read(reinterpret_cast<char*>(globalNodeIndexes.data()), sizeof(std::uint32_t) * globalNodeIndexes.size());
                     
                     //and then the renumbering fun begins
@@ -1904,7 +1904,7 @@ namespace Base
                     centaurFile.read(reinterpret_cast<char*>(&sizeOfLine), sizeof(sizeOfLine));
                 }
                 
-                //Reading the vertex indices of each tetrahedron.
+                //Reading the node indices of each tetrahedron.
                 centaurFile.read(reinterpret_cast<char*>(globalNodeIndexes.data()), sizeof(std::uint32_t) * globalNodeIndexes.size());
                 
                 // renumber them from 1..N to 0..N-1.
@@ -2332,9 +2332,9 @@ namespace Base
             //now we know periodicity information, construct the vertices
             //remember that listOfElementsForEachNode will in general contain duplicates
             
-            auto& listOfVertices = theMesh_.getVerticesList(IteratorType::GLOBAL);
+            auto& listOfNodes = theMesh_.getNodesList(IteratorType::GLOBAL);
             
-            bool addedNewVertex(false);
+            bool addedNewNode(false);
             
             for (std::size_t i = 0; i < listOfElementsForEachNode.size(); ++i)
             {
@@ -2346,16 +2346,16 @@ namespace Base
                         //if we did not jet deal with this node and it is the correct one
                         if (current->getNode(k) == nullptr && current->getPhysicalGeometry()->getNodeIndex(k) == i)
                         {
-                            if (!addedNewVertex)
+                            if (!addedNewNode)
                             {
-                                addVertex();
-                                addedNewVertex = true;
+                                addNode();
+                                addedNewNode = true;
                             }
-                            listOfVertices.back()->addElement(current, k);
+                            listOfNodes.back()->addElement(current, k);
                         }
                     }
                 }
-                addedNewVertex = false;
+                addedNewNode = false;
             }
             
             faceFactory();
@@ -2400,8 +2400,8 @@ namespace Base
         for (std::size_t i = 0; i < fixedPoints.size(); ++i)
         {
             logger.assert(domainDescription(fixedPoints[i]) < 1e-10, "One of the fixed points is outside of the domain");
-            theMesh_.addVertex();
-            theMesh_.addNode(fixedPoints[i]);
+            theMesh_.addNode();
+            theMesh_.addNodeCoordinate(fixedPoints[i]);
         }
         //cant do nested for loops for generic dimension
         while (nextPoint[DIM - 1] < TopRight[DIM - 1] - 1e-10)
@@ -2416,8 +2416,8 @@ namespace Base
             if (domainDescription(nextPoint) < 0)
             {
                 hpGEMCoordinates.push_back(nextPoint);
-                theMesh_.addVertex();
-                theMesh_.addNode(nextPoint);
+                theMesh_.addNode();
+                theMesh_.addNodeCoordinate(nextPoint);
             }
         }
         std::size_t nFixedPoints = fixedPoints.size();
@@ -2461,7 +2461,7 @@ namespace Base
                         auto newElement = addElement(pointIndices);
                         for (std::size_t i = 0; i < pointIndices.size(); ++i)
                         {
-                            theMesh_.getVerticesList(IteratorType::GLOBAL)[pointIndices[i]]->addElement(newElement, i);
+                            theMesh_.getNodesList(IteratorType::GLOBAL)[pointIndices[i]]->addElement(newElement, i);
                         }
                     }
                 }
@@ -2506,7 +2506,7 @@ namespace Base
                 //iterate over all nodes, sorted by edge lengths
                 for (std::pair<double, std::size_t> entry : knownLengths)
                 {
-                    Node* current = theMesh_.getVerticesList(IteratorType::GLOBAL)[entry.second];
+                    Node* current = theMesh_.getNodesList(IteratorType::GLOBAL)[entry.second];
                     for (Element* element : current->getElements())
                     {
                         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
@@ -2638,8 +2638,8 @@ namespace Base
             theMesh_.clear();
             for (Geometry::PointPhysical<DIM> point : hpGEMCoordinates)
             {
-                theMesh_.addVertex();
-                theMesh_.addNode(point);
+                theMesh_.addNode();
+                theMesh_.addNodeCoordinate(point);
             }
         }
         //start of QHull magic to create a triangulation
@@ -2673,7 +2673,7 @@ namespace Base
                     auto newElement = addElement(pointIndices);
                     for (std::size_t i = 0; i < pointIndices.size(); ++i)
                     {
-                        theMesh_.getVerticesList(IteratorType::GLOBAL)[pointIndices[i]]->addElement(newElement, i);
+                        theMesh_.getNodesList(IteratorType::GLOBAL)[pointIndices[i]]->addElement(newElement, i);
                     }
                 }
             }
@@ -2713,19 +2713,19 @@ namespace Base
         FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
-        for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
+        for (Node* node : theMesh_.getNodesList(IteratorType::GLOBAL))
         {
             Geometry::PointPhysical<DIM> point;
             Geometry::PointPhysical<DIM> compare;
-            point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
+            point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNr(0));
             std::set<std::size_t> equivalentIndices {};
-            equivalentIndices.insert(node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0)));
+            equivalentIndices.insert(node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getNodeNr(0)));
             for (std::size_t i = 1; i < node->getNrOfElements(); ++i)
             {
-                compare = node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(i));
+                compare = node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNr(i));
                 if (compare != point)
                 {
-                    equivalentIndices.insert(node->getElement(i)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(i)));
+                    equivalentIndices.insert(node->getElement(i)->getPhysicalGeometry()->getNodeIndex(node->getNodeNr(i)));
                 }
             }
             auto equivalentIterator = equivalentIndices.begin();
@@ -2742,17 +2742,17 @@ namespace Base
         if (oldNodeLocations_.size() == theMesh_.getNodeCoordinates().size())
         {
             std::vector<double> unscaledShift {};
-            unscaledShift.reserve(theMesh_.getNumberOfNodes());
+            unscaledShift.reserve(theMesh_.getNumberOfNodes(IteratorType::GLOBAL));
             //compute current and expected (relative) edge length
             std::vector<double> expectedLength {};
-            expectedLength.reserve(theMesh_.getNumberOfNodes());
+            expectedLength.reserve(theMesh_.getNumberOfNodes(IteratorType::GLOBAL));
             std::multimap<double, std::size_t> knownLengths;
             std::vector<double> currentLength {};
             //for proper scaling
             double totalexpectedLength = 0;
-            for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
+            for (Node* node : theMesh_.getNodesList(IteratorType::GLOBAL))
             {
-                Geometry::PointPhysical<DIM> point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
+                Geometry::PointPhysical<DIM> point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNr(0));
                 unscaledShift.push_back(L2Norm(oldNodeLocations_[expectedLength.size()] - point));
                 expectedLength.push_back(relativeEdgeLength(point));
                 if (isnan(expectedLength.back()) || isinf(expectedLength.back()))
@@ -2769,7 +2769,7 @@ namespace Base
                 //iterate over all nodes, sorted by edge lengths
                 for (std::pair<double, std::size_t> entry : knownLengths)
                 {
-                    Node* current = theMesh_.getVerticesList(IteratorType::GLOBAL)[entry.second];
+                    Node* current = theMesh_.getNodesList(IteratorType::GLOBAL)[entry.second];
                     for (Element* element : current->getElements())
                     {
                         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
@@ -2862,14 +2862,14 @@ namespace Base
         while ((counter < 10000 && (maxMovement > 1e-3 || oldQuality - worstQuality > 1e-3) && worstQuality < 0.8 && (worstQuality < 2. / 3. || oldQuality - worstQuality < 0)) || counter < 5)
         {
             counter++;
-            if ((maxShift > 0.1 && (oldQuality - worstQuality) < 5e-3 * maxShift) || (oldNodeLocations_.size() != theMesh_.getNumberOfNodes()) || worstQuality < 1e-6)
+            if ((maxShift > 0.1 && (oldQuality - worstQuality) < 5e-3 * maxShift) || (oldNodeLocations_.size() != theMesh_.getNumberOfNodeCoordinates()) || worstQuality < 1e-6)
             {
                 maxShift = 0;
                 
                 orgQhull::RboxPoints qHullCoordinates {};
                 qHullCoordinates.setDimension(DIM);
                 oldNodeLocations_.clear();
-                oldNodeLocations_.reserve(theMesh_.getNumberOfNodes());
+                oldNodeLocations_.reserve(theMesh_.getNumberOfNodeCoordinates());
                 for (Geometry::PointPhysical<DIM>& point : theMesh_.getNodeCoordinates())
                 {
                     oldNodeLocations_.push_back(point);
@@ -2878,10 +2878,10 @@ namespace Base
                 auto pairingIterator = periodicPairing.begin();
                 for (Geometry::PointPhysical<DIM> point : oldNodeLocations_)
                 {
-                    theMesh_.addNode(point);
+                    theMesh_.addNodeCoordinate(point);
                     if (pairingIterator == periodicPairing.end())
                     {
-                        theMesh_.addVertex();
+                        theMesh_.addNode();
                     }
                     else
                     {
@@ -2891,24 +2891,24 @@ namespace Base
                 }
                 
                 std::vector<std::size_t> vertexIndex {};
-                vertexIndex.resize(theMesh_.getNumberOfNodes(), std::numeric_limits<std::size_t>::max());
+                vertexIndex.resize(theMesh_.getNumberOfNodeCoordinates(), std::numeric_limits<std::size_t>::max());
                 pairingIterator = periodicPairing.begin();
-                std::size_t currentVertexNumber = 0;
-                for (std::size_t i = 0; i < theMesh_.getNumberOfNodes();)
+                std::size_t currentNodeNumber = 0;
+                for (std::size_t i = 0; i < theMesh_.getNumberOfNodeCoordinates();)
                 {
-                    vertexIndex[i] = currentVertexNumber;
+                    vertexIndex[i] = currentNodeNumber;
                     //see if there are any new boundary nodes
                     if(isOnPeriodic(theMesh_.getNodeCoordinates()[i]) && !(pairingIterator != periodicPairing.end() && pairingIterator->first == i))
                     {
                         std::size_t j = pairingIterator->first;
-                        periodicPairing.insert({i, theMesh_.getNumberOfNodes()});
-                        logger(DEBUG, "periodic pair: % % ", i, theMesh_.getNumberOfNodes());
+                        periodicPairing.insert({i, theMesh_.getNumberOfNodeCoordinates()});
+                        logger(DEBUG, "periodic pair: % % ", i, theMesh_.getNumberOfNodeCoordinates());
                         pairingIterator = std::find_if(periodicPairing.begin(), periodicPairing.end(), [=](const std::pair<std::size_t, std::size_t>& p)->bool{return p.first == std::min(i, j);});
                         Geometry::PointPhysical<DIM> newNodeCoordinate = duplicatePeriodic(theMesh_.getNodeCoordinates()[i]);
                         logger(DEBUG, "new periodic pair coordinates: % %", theMesh_.getNodeCoordinates()[i], newNodeCoordinate);
-                        theMesh_.addNode(newNodeCoordinate);
+                        theMesh_.addNodeCoordinate(newNodeCoordinate);
                         oldNodeLocations_.push_back(newNodeCoordinate);
-                        vertexIndex.resize(theMesh_.getNumberOfNodes(), std::numeric_limits<std::size_t>::max());
+                        vertexIndex.resize(theMesh_.getNumberOfNodeCoordinates(), std::numeric_limits<std::size_t>::max());
                     }
                     //see if there are any non-boundary nodes that slipped into the boundary
                     if(isOnOtherPeriodic(theMesh_.getNodeCoordinates()[i]) && !(pairingIterator != periodicPairing.end() && pairingIterator->first == i))
@@ -2920,12 +2920,12 @@ namespace Base
                     {
                         logger(DEBUG, "periodic pair: % % ", pairingIterator->first, pairingIterator->second);
                         logger.assert(Base::L2Norm(duplicatePeriodic(theMesh_.getNodeCoordinates()[pairingIterator->first]) - theMesh_.getNodeCoordinates()[pairingIterator->second]) < 1e-9, "periodic pair is not moving simulateously");
-                        vertexIndex[pairingIterator->second] = currentVertexNumber;
+                        vertexIndex[pairingIterator->second] = currentNodeNumber;
                         ++pairingIterator;
                     }
-                    currentVertexNumber++;
+                    currentNodeNumber++;
                     //skip over already set boundary nodes
-                    while (i < theMesh_.getNumberOfNodes() && vertexIndex[i] < std::numeric_limits<std::size_t>::max())
+                    while (i < theMesh_.getNumberOfNodeCoordinates() && vertexIndex[i] < std::numeric_limits<std::size_t>::max())
                     {
                         ++i;
                     }
@@ -2935,9 +2935,9 @@ namespace Base
                 //all periodic boundary pairs are used
                 logger.assert(pairingIterator == periodicPairing.end(), "Somehow missed some periodic pair");
                 //the actual amount of vertices and the assigned amount of vertices match
-                logger.assert(currentVertexNumber == theMesh_.getNumberOfVertices(IteratorType::GLOBAL), "Missed some node indexes");
+                logger.assert(currentNodeNumber == theMesh_.getNumberOfNodes(IteratorType::GLOBAL), "Missed some node indexes");
 
-                qHullCoordinates.reserveCoordinates(DIM * theMesh_.getNumberOfNodes());
+                qHullCoordinates.reserveCoordinates(DIM * theMesh_.getNumberOfNodeCoordinates());
                 for(Geometry::PointPhysical<DIM>& point : theMesh_.getNodeCoordinates())
                 {
                     qHullCoordinates.append(DIM, point.data());
@@ -2967,7 +2967,7 @@ namespace Base
                             auto newElement = addElement(pointIndices);
                             for (std::size_t i = 0; i < pointIndices.size(); ++i)
                             {
-                                theMesh_.getVerticesList(IteratorType::GLOBAL)[vertexIndex[pointIndices[i]]]->addElement(newElement, i);
+                                theMesh_.getNodesList(IteratorType::GLOBAL)[vertexIndex[pointIndices[i]]]->addElement(newElement, i);
                             }
                         }
                         else
@@ -2980,7 +2980,7 @@ namespace Base
                         logger(VERBOSE, "small element % ignored", triangle);
                     }
                 }
-                for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
+                for (Node* node : theMesh_.getNodesList(IteratorType::GLOBAL))
                 {
                     //all of the nodes should be in the interior of the domain or near the boundary of the domain
                     if (node->getNrOfElements() == 0)
@@ -3002,17 +3002,20 @@ namespace Base
             
             std::vector<double> expectedLength {};
             std::multimap<double, std::size_t> knownLengths {};
-            expectedLength.reserve(theMesh_.getNumberOfNodes());
+            expectedLength.reserve(theMesh_.getNumberOfNodes(IteratorType::GLOBAL));
             //for proper scaling
             totalCurrentLength = 0;
             double totalexpectedLength = 0.;
-            for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
+            for (Node* node : theMesh_.getNodesList(IteratorType::GLOBAL))
             {
-                Geometry::PointPhysical<DIM> point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
+                Geometry::PointPhysical<DIM> point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNr(0));
                 expectedLength.push_back(relativeEdgeLength(point));
                 if (!isnan(expectedLength.back()) && !isinf(expectedLength.back()))
                 {
                     knownLengths.insert( {expectedLength.back(), expectedLength.size() - 1});
+                }
+                else
+                {
                     needsExpansion |= true;
                 }
             }
@@ -3021,7 +3024,7 @@ namespace Base
                 //iterate over all nodes, sorted by edge lengths
                 for (std::pair<double, std::size_t> entry : knownLengths)
                 {
-                    Node* current = theMesh_.getVerticesList(IteratorType::GLOBAL)[entry.second];
+                    Node* current = theMesh_.getNodesList(IteratorType::GLOBAL)[entry.second];
                     for (Element* element : current->getElements())
                     {
                         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
@@ -3145,7 +3148,7 @@ namespace Base
             maxMovement = 0;
             auto moveIterator = movement.begin();
             auto fixIterator = fixedPointIdxs.begin();
-            for (std::size_t i = 0; i < theMesh_.getNumberOfVertices(IteratorType::GLOBAL); ++moveIterator, ++i)
+            for (std::size_t i = 0; i < theMesh_.getNumberOfNodes(IteratorType::GLOBAL); ++moveIterator, ++i)
             {
                 if (fixIterator != fixedPointIdxs.end() && i == *fixIterator)
                 {
@@ -3154,20 +3157,20 @@ namespace Base
                 }
                 else
                 {
-                    Node* node = theMesh_.getVerticesList(IteratorType::GLOBAL)[i];
-                    Geometry::PointPhysical<DIM>& point = theMesh_.getNodeCoordinates()[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0))];
+                    Node* node = theMesh_.getNodesList(IteratorType::GLOBAL)[i];
+                    Geometry::PointPhysical<DIM>& point = theMesh_.getNodeCoordinates()[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getNodeNr(0))];
                     point += 0.1 * (*moveIterator);
                     logger.assert(!(std::isnan(point[0])), "%", i);
                     bool isPeriodic = false;
                     std::map<std::size_t, bool> hasMoved {};
-                    hasMoved[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(0))] = true;
+                    hasMoved[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getNodeNr(0))] = true;
                     for (std::size_t j = 1; j < node->getNrOfElements(); ++j)
                     {
-                        if (!hasMoved[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))])
+                        if (!hasMoved[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getNodeNr(j))])
                         {
-                            Geometry::PointPhysical<DIM>& other = theMesh_.getNodeCoordinates()[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))];
+                            Geometry::PointPhysical<DIM>& other = theMesh_.getNodeCoordinates()[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getNodeNr(j))];
                             other += 0.1 * (*moveIterator);
-                            hasMoved[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(j))] = true;
+                            hasMoved[node->getElement(j)->getPhysicalGeometry()->getNodeIndex(node->getNodeNr(j))] = true;
                             isPeriodic = true;
                         }
                     }
@@ -3217,7 +3220,7 @@ namespace Base
                             //make sure the node stays on the periodic boundary, to prevent faces with 3 or more elements connected to them
                             for (std::size_t k = 0; k < node->getNrOfElements(); ++k)
                             {
-                                testPoint = node->getElement(k)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(k));
+                                testPoint = node->getElement(k)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNr(k));
                                 double currentValue = domainDescription(testPoint);
                                 if (currentValue > 0)
                                 {
@@ -3232,11 +3235,11 @@ namespace Base
                                     hasMoved.clear();
                                     for (std::size_t l = 0; l < node->getNrOfElements(); ++l)
                                     {
-                                        if (!hasMoved[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))])
+                                        if (!hasMoved[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getNodeNr(l))])
                                         {
-                                            Geometry::PointPhysical<DIM>& other = theMesh_.getNodeCoordinates()[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))];
+                                            Geometry::PointPhysical<DIM>& other = theMesh_.getNodeCoordinates()[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getNodeNr(l))];
                                             other += currentValue * gradient / L2Norm(gradient);
-                                            hasMoved[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getVertexNr(l))] = true;
+                                            hasMoved[node->getElement(l)->getPhysicalGeometry()->getNodeIndex(node->getNodeNr(l))] = true;
                                         }
                                     }
                                     *moveIterator += 10 * currentValue * gradient / L2Norm(gradient);
@@ -3245,7 +3248,7 @@ namespace Base
                         }
                         for (std::size_t j = 0; j < node->getNrOfElements(); ++j)
                         {
-                            testPoint = node->getElement(j)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(j));
+                            testPoint = node->getElement(j)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNr(j));
                             if (domainDescription(testPoint) > 1e-10)
                             {
                                 logger(WARN, "NOTE: Failed to move periodic testPoint % (%) back to the periodic boundary.\n "
@@ -3377,7 +3380,7 @@ namespace Base
                         centerPoints.insert( {length, {(firstNode + secondNode) / 2, edge->getElement(0)->getNode(nodeIndices[0])->getID()}});
                     }
                 }
-                std::vector<bool> hasTeleported(theMesh_.getNumberOfNodes(), false);
+                std::vector<bool> hasTeleported(theMesh_.getNumberOfNodeCoordinates(), false);
                 auto longEdge = centerPoints.begin();
                 auto shortEdge = centerPoints.rbegin();
                 for (std::size_t index : fixedPointIdxs)
@@ -3386,12 +3389,12 @@ namespace Base
                 }
                 Geometry::PointPhysical<DIM> point;
                 Geometry::PointPhysical<DIM> other;
-                for (Node* node : theMesh_.getVerticesList(IteratorType::GLOBAL))
+                for (Node* node : theMesh_.getNodesList(IteratorType::GLOBAL))
                 {
-                    point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(0));
+                    point = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNr(0));
                     for (std::size_t i = 0; i < node->getNrOfElements(); ++i)
                     {
-                        other = node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getVertexNr(i));
+                        other = node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNr(i));
                         if (point != other)
                         {
                             hasTeleported[node->getID()] = true;

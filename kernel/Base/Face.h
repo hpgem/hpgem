@@ -137,14 +137,15 @@ namespace Base
         template<std::size_t DIM>
         double basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
-        ///\brief returns the value of the i-th basisfunction at point p in ret
+        ///\brief returns the value of the i-th basis function at point p in ret
         template<std::size_t DIM>
         void basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM + 1>& ret) const;
 
-        /// \brief Returns the value of the basisfunction (corresponding to element function index iBasisFunction) on the element at side iSide at the physical point corresponding to reference point p.
+        /// \brief Returns the value of the basis function (corresponding to element function index iBasisFunction) on the element at side iSide at the physical point corresponding to reference point p.
         template<std::size_t DIM>
         double basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference<DIM>& p) const;
-
+        
+        /// \brief Returns the value of the i-th basis function multiplied by the outward pointing normal vector. The value is computed at the physical point corresponding to reference point p.
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM + 1> basisFunctionNormal(std::size_t i, const LinearAlgebra::SmallVector<DIM + 1>& normal, const Geometry::PointReference<DIM>& p) const;
 

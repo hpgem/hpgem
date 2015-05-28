@@ -71,7 +71,7 @@ namespace Utilities
         std::vector<int> startPositionsOfElementsInTheVector_;
         std::vector<int> startPositionsOfFacesInTheVector_;
         std::vector<int> startPositionsOfEdgesInTheVector_;
-        std::vector<int> startPositionsOfVerticesInTheVector_;
+        std::vector<int> startPositionsOfNodesInTheVector_;
         Base::MeshManipulatorBase *theMesh_;
         
     };

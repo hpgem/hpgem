@@ -46,6 +46,30 @@
 #include "SavageHutterRightHandSideComputer.h"
 
 #include "Logger.h"
+#include "Base/UserData.h"
+
+struct LimiterData : public UserElementData
+{
+    LimiterData()
+    {
+        isLimited = {false, false};
+        valLeft = {0, 0}; //make quiet NAN later
+        valRight = {0, 0};
+    }
+    std::vector<bool> isLimited;
+    std::vector<double> valLeft;
+    std::vector<double> valRight;
+};
+
+struct SHConstructorStruct
+{
+    std::size_t dimension;
+    std::size_t numOfVariables;
+    std::size_t polyOrder;
+    std::size_t numElements;
+    Base::MeshType meshType;
+    Base::ButcherTableau * ptrButcherTableau;
+};
 
 //todo: make the functions override final, but at the moment my parser does not 
 //understand the override and final keywords, which makes development harder
@@ -54,8 +78,20 @@ class SavageHutter : public Base::HpgemAPISimplified<DIM>
 public:
     SavageHutter(const std::size_t dimension, const std::size_t numOfVariables,
             const std::size_t polynomialOrder,
-            const Base::ButcherTableau * const ptrButcherTableau,
-            const std::size_t numTimeSteps);
+            const Base::ButcherTableau * const ptrButcherTableau);
+    
+    ///Alternative constructor with less input parameters. Furthermore, this 
+    ///constructor also constructs the mesh and couples an object LimiterData to
+    ///each element.
+    SavageHutter(const SHConstructorStruct& inputValues);
+    
+    ~SavageHutter()
+    {
+        for (Base::Element *element : meshes_[0] ->getElementsList())
+        {
+            delete element->getUserData();
+        }
+    }
 
     /// \brief Create a domain
     Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection);
@@ -76,48 +112,6 @@ public:
         {
             logger(INFO, "% time steps computed.", timeStepID);
         }
-
-        if (timeStepID == 1)
-        {
-            std::string fileName0 = "data0.dat";
-            std::ofstream myFile0(fileName0);
-            for (Base::Element* element : meshes_[0]->getElementsList())
-            {
-                PointPhysicalT pPhys;
-                pPhys[0] = static_cast<double>(element->getID()) / meshes_[0]->getElementsList().size();
-                myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) 
-                        << getInitialSolution(pPhys, 0)(0) << '\t' 
-                        << getInitialSolution(pPhys, 0)(1) << '\t' 
-                        << getInitialSolution(pPhys, 0)(1) / getInitialSolution(pPhys, 0)(0) << std::endl;
-                pPhys[0] = static_cast<double>((element->getID() + 1)) / meshes_[0]->getElementsList().size();
-                myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) 
-                        << getInitialSolution(pPhys, 0)(0) << '\t' 
-                        << getInitialSolution(pPhys, 0)(1)  << '\t' 
-                        << getInitialSolution(pPhys, 0)(1) / getInitialSolution(pPhys, 0)(0) 
-                        << std::endl;
-            }
-        }
-
-        std::size_t spacing = numTimeSteps_ / 200;
-        double pPhys(1);
-        if (((numTimeSteps_ <= 200) || timeStepID % spacing == 0))
-        {
-            std::string fileName = "data" + std::to_string(++timeStepCounter) + ".dat";
-            std::ofstream myFile(fileName);
-            for (Base::Element* element : meshes_[0]->getElementsList())
-            {
-                const PointReferenceT& pRef0 = element->getReferenceGeometry()->getNode(0);
-                pPhys = static_cast<double>(element->getID()) / meshes_[0]->getElementsList().size();
-                myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) 
-                        << element->getSolution(0, pRef0)(0) << '\t' << element->getSolution(0, pRef0)(1) << '\t'
-                        << element->getSolution(0, pRef0)(1) / element->getSolution(0, pRef0)(0) << std::endl;
-                const PointReferenceT& pRef1 = element->getReferenceGeometry()->getNode(1);
-                pPhys = static_cast<double>((element->getID() + 1)) / meshes_[0]->getElementsList().size();
-                myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) 
-                        << element->getSolution(0, pRef1)(0) << '\t' << element->getSolution(0, pRef1)(1) << '\t'
-                        << element->getSolution(0, pRef1)(1) / element->getSolution(0, pRef1)(0) << std::endl;
-            }
-        }
     }
 
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
@@ -136,11 +130,27 @@ public:
          const double time
          );
 
+    ///At the beginning of each time step, it will be checked if a limiter should
+    ///be used for this element. If so, it is saved in the LimiterData struct.
+    void useLimitierForElement(Base::Element *element);
+    
     void computeOneTimeStep(double &time, const double dt);
     void limitSolution();
-    bool useLimitierForElement(const Base::Element *element);
+    
+    ///Auxiliary function for checking if a limiter should be used.
     LinearAlgebra::MiddleSizeVector computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution);
+    
+    ///Auxiliary function for checking if a limiter should be used.
     LinearAlgebra::MiddleSizeVector computeNormOfAverageOfSolutionInElement(const Base::Element *element);
+    
+    ///If a limiter should be used, use the min-mod limiter. Save the values of 
+    ///the left side and right side in the struct LimiterData.
+    void limitWithMinMod(Base::Element *element, const std::size_t iVar);
+    
+    int sign(const double x)
+    {
+        return ((x < 0)? -1 : 1) ;
+    }
     
 private:
     /// Dimension of the domain
@@ -150,10 +160,6 @@ private:
     const std::size_t numOfVariables_;
 
     SavageHutterRightHandSideComputer rhsComputer_;
-
-    std::size_t numTimeSteps_;
-    
-    std::size_t timeStepCounter;
     
     friend class SavageHutterRightHandSideComputer;
 

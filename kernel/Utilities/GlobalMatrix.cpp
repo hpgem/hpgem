@@ -84,7 +84,7 @@ namespace Utilities
         {
             numberOfEntries += face->getPtrElementLeft()->getNode(i)->getLocalNrOfBasisFunctions();
             for (std::size_t j = 0; j < face->getPtrElementLeft()->getNode(i)->getLocalNrOfBasisFunctions(); ++j)
-                entries.push_back(startPositionsOfVerticesInTheMatrix_[face->getPtrElementLeft()->getNode(i)->getID()] + j);
+                entries.push_back(startPositionsOfNodesInTheMatrix_[face->getPtrElementLeft()->getNode(i)->getID()] + j);
         }
     }
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
@@ -163,7 +163,7 @@ namespace Utilities
             std::size_t numNodeBasisFuncs = element->getNode(i)->getLocalNrOfBasisFunctions();
             for (std::size_t j = 0; j < numNodeBasisFuncs; ++j)
             {
-                *pos = j + startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()];
+                *pos = j + startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()];
                 pos++;
             }
         }
@@ -231,7 +231,7 @@ namespace Utilities
         MPISendElementCounts[rank+1] = theMesh_->getNumberOfElements();
         MPISendFaceCounts[rank+1] = theMesh_->getNumberOfFaces();
         MPISendEdgeCounts[rank+1] = theMesh_->getNumberOfEdges();
-        MPISendNodeCounts[rank+1] = theMesh_->getNumberOfVertices();
+        MPISendNodeCounts[rank+1] = theMesh_->getNumberOfNodes();
 
         //tell the rest of the processes how much info the others have
         MPI::Intracomm& comm = Base::MPIContainer::Instance().getComm();
@@ -253,8 +253,8 @@ namespace Utilities
                 "MPI does not see the right amount of faces");
         logger.assert(MPISendEdgeStarts.back()==theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL),
                 "MPI does not see the right amount of edges");
-        logger.assert(MPISendNodeStarts.back()==theMesh_->getNumberOfVertices(Base::IteratorType::GLOBAL),
-                "MPI does not see the right amount of vertices");
+        logger.assert(MPISendNodeStarts.back()==theMesh_->getNumberOfNodes(Base::IteratorType::GLOBAL),
+                "MPI does not see the right amount of nodes");
 
         //pack the computed data to send it using MPI
         std::vector<std::size_t> MPISendElementNumbers(MPISendElementStarts.back(), std::numeric_limits<std::size_t>::max());
@@ -281,7 +281,7 @@ namespace Utilities
         startPositionsOfElementsInTheMatrix_.resize(theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL));
         startPositionsOfFacesInTheMatrix_.resize(theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL));
         startPositionsOfEdgesInTheMatrix_.resize(theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL));
-        startPositionsOfVerticesInTheMatrix_.resize(theMesh_->getNumberOfVertices(Base::IteratorType::GLOBAL));
+        startPositionsOfNodesInTheMatrix_.resize(theMesh_->getNumberOfNodes(Base::IteratorType::GLOBAL));
         for (Base::Element* element : theMesh_->getElementsList())
         {
 #ifdef HPGEM_USE_MPI
@@ -343,7 +343,7 @@ namespace Utilities
 #endif
             totalNrOfDOF += edge->getLocalNrOfBasisFunctions();
         }
-        for (Base::Node* node : theMesh_->getVerticesList())
+        for (Base::Node* node : theMesh_->getNodesList())
         {
 #ifdef HPGEM_USE_MPI
             *currentNodeNumber=node->getID();
@@ -351,7 +351,7 @@ namespace Utilities
             ++currentNodeNumber;
             ++currentNodePosition;
 #else
-            startPositionsOfVerticesInTheMatrix_[node->getID()] = totalNrOfDOF;
+            startPositionsOfNodesInTheMatrix_[node->getID()] = totalNrOfDOF;
 #endif
             totalNrOfDOF += node->getLocalNrOfBasisFunctions();
         }
@@ -463,7 +463,7 @@ namespace Utilities
                 offset = cumulativeDOF[currentDomain];
             }
             logger.assert(*currentNodeNumber != std::numeric_limits<std::size_t>::max(), "currentNodeNumber=-1");
-            startPositionsOfVerticesInTheMatrix_[*currentNodeNumber]=*currentNodePosition+offset;
+            startPositionsOfNodesInTheMatrix_[*currentNodeNumber]=*currentNodePosition+offset;
         }
         std::size_t MPIOffset = cumulativeDOF[rank];
 #else
@@ -512,7 +512,7 @@ namespace Utilities
             {
                 for (int j = 0; j < element->getNode(i)->getLocalNrOfBasisFunctions(); ++j)
                 {
-                    numberOfPositionsPerRow[startPositionsOfVerticesInTheMatrix_[element->getNode(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
+                    numberOfPositionsPerRow[startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
                 }
             }
         }
