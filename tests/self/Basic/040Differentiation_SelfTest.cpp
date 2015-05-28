@@ -86,7 +86,7 @@ void testMesh(Base::MeshManipulator<DIM>* test)
         {
             ret.resize(1);
             std::size_t n = el->getNrOfBasisFunctions();
-            LinearAlgebra::MiddleSizeVector temp1(p.size()), temp2(p.size());
+            LinearAlgebra::SmallVector<DIM> temp1, temp2;
             for (std::size_t i = 0; i < p.size(); ++i)
             {
                 temp1[i] = 0;
@@ -163,6 +163,7 @@ int main(int argc, char** argv)
     test->useDefaultDGBasisFunctions();
     testMesh(test);
     
+    //somewhere a lookup-table does not get cleaned when a meshManipulator is deleted
     delete test;
     description1D.numElementsInDIM_[0] = 3;
     test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);

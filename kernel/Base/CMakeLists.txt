@@ -35,6 +35,7 @@ add_library(hpGEM_Base STATIC
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
                 MpiContainer.cpp
 
+        HpgemAPISimplified_source.cpp
 
         	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions1DH1ConformingLine.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingSquare.cpp

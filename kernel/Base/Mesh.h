@@ -21,7 +21,9 @@
 
 #ifndef MESH_HPP
 #define	MESH_HPP
-
+#ifdef HPGEM_USE_MPI
+#include <mpi.h>
+#endif
 #include <vector>
 
 #include "Face.h"

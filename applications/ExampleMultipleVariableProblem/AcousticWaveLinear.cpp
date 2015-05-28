@@ -26,7 +26,8 @@
 /// \param[in] polynomialOrder Polynomial order of the basis functions
 /// \param[in] ptrButcherTableau Pointer to a Butcher Tableau used to do the time integration with a Runge-Kutta scheme. By default this is a RK4 scheme.
 /// \param[in] useSourceTerm Boolean to indicate if a source term is used.
-AcousticWaveLinear::AcousticWaveLinear
+template<std::size_t DIM>
+AcousticWaveLinear<DIM>::AcousticWaveLinear
 (
  const std::size_t dimension,
  const std::size_t numOfVariables,
@@ -34,17 +35,18 @@ AcousticWaveLinear::AcousticWaveLinear
  const Base::ButcherTableau * const ptrButcherTableau,
  const bool useSourceTerm
  ) :
-HpgemAPILinear(dimension, numOfVariables, polynomialOrder, ptrButcherTableau, 1, useSourceTerm),
+Base::HpgemAPILinear<DIM>(dimension, numOfVariables, polynomialOrder, ptrButcherTableau, 1, useSourceTerm),
 DIM_(dimension),
 numOfVariables_(numOfVariables),
 cInv_(1.0)
 {
 }
 
-Base::RectangularMeshDescriptor AcousticWaveLinear::createMeshDescription(const std::size_t numOfElementPerDirection)
+template<std::size_t DIM>
+Base::RectangularMeshDescriptor<DIM> AcousticWaveLinear<DIM>::createMeshDescription(const std::size_t numOfElementPerDirection)
 {
     // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
-    Base::RectangularMeshDescriptor description(DIM_);
+    Base::RectangularMeshDescriptor<DIM> description;
     for (std::size_t i = 0; i < DIM_; ++i)
     {
         description.bottomLeft_[i] = 0;
@@ -63,7 +65,8 @@ Base::RectangularMeshDescriptor AcousticWaveLinear::createMeshDescription(const 
     return description;
 }
 
-LinearAlgebra::MiddleSizeVector AcousticWaveLinear::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeVector AcousticWaveLinear<DIM>::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
 {
     LinearAlgebra::MiddleSizeVector realSolution(numOfVariables_);
     double c = std::sqrt(1.0 / cInv_); // Wave velocity.
@@ -86,17 +89,19 @@ LinearAlgebra::MiddleSizeVector AcousticWaveLinear::getExactSolution(const Point
 }
 
 /// \brief Compute the initial solution at a given point in space and time.
-LinearAlgebra::MiddleSizeVector AcousticWaveLinear::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeVector AcousticWaveLinear<DIM>::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     return getExactSolution(pPhys, startTime, orderTimeDerivative);
 }
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
-LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const PointReferenceT &pRef)
 {
     std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
     LinearAlgebra::MiddleSizeMatrix integrand(numOfVariables_ * numOfBasisFunctions, numOfVariables_ * numOfBasisFunctions);
-    Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+    PointPhysicalT pPhys = ptrElement->referenceToPhysical(pRef);
     
     std::size_t iVB, jVB; // indices for both variable and basis function.
     for (std::size_t iV = 0; iV < numOfVariables_; iV++)
@@ -117,21 +122,22 @@ LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::integrandMassMatrixOnRefElem
     }
     
     // Scale with the reference-to-physical element ratio.
-    Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+    Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
     integrand *= std::abs(jac.determinant());
     
     return integrand;
 }
 
 /// \details The integrand for the initial solution is the exact solution at time 0 multiplied by a test function. The integrand is then scaled by the reference-to-physical element scale, since we compute the integral on a reference element.
-LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrandInitialSolutionOnRefElement
-(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeVector AcousticWaveLinear<DIM>::integrandInitialSolutionOnRefElement
+(const Base::Element *ptrElement, const double &startTime, const PointReferenceT &pRef)
 {
     std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
     
     LinearAlgebra::MiddleSizeVector integrand(numOfVariables_ * numOfBasisFunctions);
     
-    Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+    PointPhysicalT pPhys = ptrElement->referenceToPhysical(pRef);
     
     LinearAlgebra::MiddleSizeVector initialSolution(getInitialSolution(pPhys, startTime));
     
@@ -150,18 +156,19 @@ LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrandInitialSolutionOnRe
     }
     
     // Scale with the reference-to-physical element ratio.
-    Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+    Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
     integrand *= std::abs(jac.determinant());
     
     return integrand;
 }
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
-LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::integrandStiffnessMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::integrandStiffnessMatrixOnRefElement(const Base::Element *ptrElement, const PointReferenceT &pRef)
 {
     std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
     LinearAlgebra::MiddleSizeMatrix integrand(numOfVariables_ * numOfBasisFunctions, numOfVariables_ * numOfBasisFunctions);
-    LinearAlgebra::MiddleSizeVector gradientBasisFunction(DIM_);
+    LinearAlgebra::SmallVector<DIM> gradientBasisFunction;
     double valueTestFunction;
     
     std::size_t iVB, jVB; // Indices for both variable and basisfunction
@@ -190,14 +197,15 @@ LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::integrandStiffnessMatrixOnRe
     }
     
     // Scale with the reference-to-physical element ratio.
-    Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+    Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
     integrand *= std::abs(jac.determinant());
     
     return integrand;
 }
 
 /// \details The integrand for the reference face is the same as the physical face, but scaled with the reference-to-physical face scale. This face scale is absorbed in the normal vector, since it is relatively cheap to compute the normal vector with a length (L2-norm) equal to the reference-to-physical face scale.
-LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::integrandStiffnessMatrixOnRefFace(const Base::Face *ptrFace, const Geometry::PointReference &pRef, const Base::Side &iSide, const Base::Side &jSide)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::integrandStiffnessMatrixOnRefFace(const Base::Face *ptrFace, const PointReferenceOnFaceT &pRef, const Base::Side &iSide, const Base::Side &jSide)
 {
     std::size_t numOfSolutionBasisFunctions = ptrFace->getPtrElement(jSide)->getNrOfBasisFunctions();
     std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
@@ -208,7 +216,7 @@ LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::integrandStiffnessMatrixOnRe
     double valueBasisFunction;
     
     // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-    LinearAlgebra::MiddleSizeVector normal = ptrFace->getNormalVector(pRef);
+    LinearAlgebra::SmallVector<DIM> normal = ptrFace->getNormalVector(pRef);
     if (jSide == Base::Side::RIGHT)
     {
         normal *= -1;
@@ -258,20 +266,20 @@ LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::integrandStiffnessMatrixOnRe
 }
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
-LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrandErrorOnRefElement
+template<std::size_t DIM>
+double AcousticWaveLinear<DIM>::integrandErrorOnRefElement
 (
  const Base::Element *ptrElement,
  const double &time,
- const Geometry::PointReference &pRef,
+ const PointReferenceT &pRef,
  const LinearAlgebra::MiddleSizeVector &solutionCoefficients
  )
 {
     std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
     
-    LinearAlgebra::MiddleSizeVector integrand(1);
-    integrand(0) = 0;
+    double integrand = 0.;
     
-    Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+    PointPhysicalT pPhys = ptrElement->referenceToPhysical(pRef);
     
     LinearAlgebra::MiddleSizeVector realSolution(getExactSolution(pPhys, time));
     LinearAlgebra::MiddleSizeVector numericalSolution(numOfVariables_);
@@ -287,60 +295,65 @@ LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrandErrorOnRefElement
         }
         if (jV > 0)
         {
-            integrand(0) += std::pow(numericalSolution(jV) - realSolution(jV), 2);
+            integrand += std::pow(numericalSolution(jV) - realSolution(jV), 2);
         }
         else
         {
-            integrand(0) += getCInv(pPhys) * std::pow(numericalSolution(jV) - realSolution(jV), 2);
+            integrand += getCInv(pPhys) * std::pow(numericalSolution(jV) - realSolution(jV), 2);
         }
     }
     
     // Scale with the reference-to-physical element ratio.
-    Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+    Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
     integrand *= std::abs(jac.determinant());
     
     return integrand;
 }
 
-LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::computeMassMatrixAtElement(Base::Element *ptrElement)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::computeMassMatrixAtElement(Base::Element *ptrElement)
 {
-    std::function<LinearAlgebra::MiddleSizeMatrix(const Geometry::PointReference &)> integrandFunction = 
-        [=](const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeMatrix
+    std::function<LinearAlgebra::MiddleSizeMatrix(const PointReferenceT &)> integrandFunction =
+        [=](const PointReferenceT & pRef) -> LinearAlgebra::MiddleSizeMatrix
         { return this -> integrandMassMatrixOnRefElement(ptrElement, pRef);};
     
-    return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    return this->elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }
 
-LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeVector AcousticWaveLinear<DIM>::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
 {
     // Define the integrand function for the the initial solution integral.
-    std::function<LinearAlgebra::MiddleSizeVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeVector { return this -> integrandInitialSolutionOnRefElement(ptrElement, startTime, pRef);};
+    std::function<LinearAlgebra::MiddleSizeVector(const PointReferenceT &)> integrandFunction = [=](const PointReferenceT & pRef) -> LinearAlgebra::MiddleSizeVector { return this -> integrandInitialSolutionOnRefElement(ptrElement, startTime, pRef);};
     
-    return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    return this->elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }
 
 /// \details The error is defined as error = realSolution - numericalSolution. The energy of the vector (u, s0, s1) is defined as u^2 + c^{-1} * |s|^2.
-LinearAlgebra::MiddleSizeVector AcousticWaveLinear::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, double time)
+template<std::size_t DIM>
+double AcousticWaveLinear<DIM>::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, double time)
 {
     // Define the integrand function for the error energy.
-    std::function<LinearAlgebra::MiddleSizeVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeVector
+    std::function<double(const PointReferenceT &)> integrandFunction = [=](const PointReferenceT & pRef) -> double
     {
         return this->integrandErrorOnRefElement(ptrElement, time, pRef, solutionCoefficients);
     };
     
-    return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    return this->elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }
 
-LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear::computeStiffnessMatrixAtElement(Base::Element *ptrElement)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::computeStiffnessMatrixAtElement(Base::Element *ptrElement)
 {
     // Define the integrand function for the stiffness matrix for the element.
-    std::function<LinearAlgebra::MiddleSizeMatrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeMatrix
+    std::function<LinearAlgebra::MiddleSizeMatrix(const PointReferenceT &)> integrandFunction = [=](const PointReferenceT & pRef) -> LinearAlgebra::MiddleSizeMatrix
     {return this->integrandStiffnessMatrixOnRefElement(ptrElement, pRef);};
     
-    return elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    return this->elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
 }
 
-Base::FaceMatrix AcousticWaveLinear::computeStiffnessMatrixAtFace(Base::Face *ptrFace)
+template<std::size_t DIM>
+Base::FaceMatrix AcousticWaveLinear<DIM>::computeStiffnessMatrixAtFace(Base::Face *ptrFace)
 {
     std::size_t numOfBasisFunctionsLeft = 0;
     std::size_t numOfBasisFunctionsRight = 0;
@@ -365,10 +378,10 @@ Base::FaceMatrix AcousticWaveLinear::computeStiffnessMatrixAtFace(Base::Face *pt
         for (Base::Side jSide : allSides)
         {
             // Define the integrand function for the stiffness matrix for the face.
-            std::function<LinearAlgebra::MiddleSizeMatrix(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeMatrix
+            std::function<LinearAlgebra::MiddleSizeMatrix(const PointReferenceOnFaceT &)> integrandFunction = [=](const PointReferenceOnFaceT & pRef) -> LinearAlgebra::MiddleSizeMatrix
             {   return this->integrandStiffnessMatrixOnRefFace(ptrFace, pRef, iSide, jSide);};
             
-            LinearAlgebra::MiddleSizeMatrix stiffnessMatrix(faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction));
+            LinearAlgebra::MiddleSizeMatrix stiffnessMatrix(this->faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction));
             
             stiffnessFaceMatrix.setElementMatrix(stiffnessMatrix, iSide, jSide);
         }

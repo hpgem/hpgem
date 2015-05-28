@@ -49,11 +49,19 @@ namespace Geometry
         /*! ConcatenatedMapping has to be able to do a matrix product on the
          Jacobians of two (successively applied) mappings. Therefore we provide
          the function multiplyJacobiansInto. */
+        //version for concatenatedMapping(RefFace->RefFace->RefElem)
         Jacobian multiplyJacobiansInto(const Jacobian<dimFrom, dimFrom>& jac2)
-        {            
+        {
             return this->operator*(jac2);            
         }
         
+        //version for computeNormalVector (RefFace->RefElem->PhysElem)
+        Jacobian<dimFrom - 1, dimFrom> multiplyJacobiansInto(const Jacobian<dimFrom - 1, dimFrom>& jac2)
+        {
+            logger.assert(dimFrom == dimTo, "One of the matrixes must be square");
+            return this->operator*(jac2);
+        }
+
     };
 
 }

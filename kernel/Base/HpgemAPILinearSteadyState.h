@@ -67,10 +67,14 @@ namespace Base
      */
     /** \details For an example of using this interface see the application 'TutorialPoisson'.
      */
-    
-    class HpgemAPILinearSteadyState : public HpgemAPILinear
+
+    template<std::size_t DIM>
+    class HpgemAPILinearSteadyState : public HpgemAPILinear<DIM>
     {
     public:
+        using typename HpgemAPIBase<DIM>::PointPhysicalT;
+        using typename HpgemAPIBase<DIM>::PointReferenceT;
+        using typename HpgemAPIBase<DIM>::PointReferenceOnFaceT;
         // Constructor
         HpgemAPILinearSteadyState
         (
@@ -92,7 +96,7 @@ namespace Base
         virtual LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys)
         {
             logger(ERROR, "No exact solution implemented.");
-            LinearAlgebra::MiddleSizeVector realSolution(configData_->numberOfUnknowns_);
+            LinearAlgebra::MiddleSizeVector realSolution(this->configData_->numberOfUnknowns_);
             return realSolution;
         }
         
@@ -134,7 +138,7 @@ namespace Base
         }
         
         /// \brief Compute the integrand for the source term at a face at the boundary.
-        virtual LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::MiddleSizeVector &normal, const Geometry::PointReference &pRef)
+        virtual LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::SmallVector<DIM> &normal, const Geometry::PointReference<DIM - 1> &pRef)
         {
             logger(ERROR, "No function for computing the integrand for the source term at a face at the domain boundary implemented.");
             LinearAlgebra::MiddleSizeVector integrandSourceTerm;
@@ -142,7 +146,7 @@ namespace Base
         }
         
         /// \brief Compute the integrand for the source term at a face at the boundary.
-        LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::MiddleSizeVector &normal, const Geometry::PointReference &pRef, const double time, const std::size_t orderTimeDerivative) override
+        LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::SmallVector<DIM> &normal, const Geometry::PointReference<DIM - 1> &pRef, const double time, const std::size_t orderTimeDerivative) override
         {
             return computeIntegrandSourceTermAtFace(ptrFace, normal, pRef);
         }
@@ -164,6 +168,8 @@ namespace Base
         const std::size_t sourceFaceVectorID_;
     };
 }
+
+#include "HpgemAPILinearSteadyState.cpp"
 
 #endif
 

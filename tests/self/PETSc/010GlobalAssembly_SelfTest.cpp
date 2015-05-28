@@ -35,25 +35,30 @@
 //you should change the numbers in this test to reflect the updated result. Always confer with other developers if you do this.
 
 /// \brief Class for solving the Poisson problem using HpgemAPILinearSteadyState.
-class PoissonTest : public Base::HpgemAPILinearSteadyState
+template<std::size_t DIM>
+class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM>
 {
 public:
+    using typename Base::HpgemAPIBase<DIM>::PointPhysicalT;
+    using typename Base::HpgemAPIBase<DIM>::PointReferenceT;
+    using typename Base::HpgemAPIBase<DIM>::PointReferenceOnFaceT;
+
     PoissonTest(const std::size_t n, const std::size_t p, const std::size_t dimension, const Base::MeshType meshType) :
-    HpgemAPILinearSteadyState(dimension, 1, p, true, true),
+    Base::HpgemAPILinearSteadyState<DIM>(dimension, 1, p, true, true),
     n_(n),
     p_(p),
     DIM_(dimension),
     totalError_(0)
     {
         penalty_ = 3 * n_ * p_ * (p_ + DIM_ - 1) + 1;
-        createMesh(n_, meshType);
+        this->createMesh(n_, meshType);
     }
     
     ///\brief set up the mesh
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        Base::RectangularMeshDescriptor description(DIM_);
+        Base::RectangularMeshDescriptor<DIM> description;
         
         for (std::size_t i = 0; i < DIM_; ++i)
         {
@@ -96,7 +101,7 @@ public:
     }
     
     /// \brief Compute the integrand for the siffness matrix at the face.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceT& p) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const PointReferenceOnFaceT& p) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
@@ -112,7 +117,7 @@ public:
         Base::FaceMatrix integrandVal(nLeft, nRight);
         
         //Initialize the vectors that contain gradient(phi_i), gradient(phi_j), normal_i phi_i and normal_j phi_j
-        LinearAlgebra::MiddleSizeVector phiNormalI(DIM_), phiNormalJ(DIM_), phiDerivI(DIM_), phiDerivJ(DIM_);
+        LinearAlgebra::SmallVector<DIM> phiNormalI, phiNormalJ, phiDerivI, phiDerivJ;
         
         //Transform the point from the reference value to its physical value.
         //This is necessary to check at which boundary we are if we are at a boundary face.
@@ -195,7 +200,7 @@ public:
     }
     
     /// \brief Compute the integrals of the right-hand side associated with faces.
-    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceT& p) override final
+    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const PointReferenceOnFaceT& p) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
         const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
@@ -217,14 +222,14 @@ public:
     {
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
         // Create and Store things before solving the problem.
-        tasksBeforeSolving();
+        this->tasksBeforeSolving();
         
         // Solve the linear problem
         //Assemble the matrix A of the system Ax = b.
-        Utilities::GlobalPetscMatrix A(HpgemAPIBase::meshes_[0], stiffnessElementMatrixID_, stiffnessFaceMatrixID_);
+        Utilities::GlobalPetscMatrix A(this->meshes_[0], this->stiffnessElementMatrixID_, this->stiffnessFaceMatrixID_);
         MatScale(A,-1);
         //Declare the vectors x and b of the system Ax = b.
-        Utilities::GlobalPetscVector b(HpgemAPIBase::meshes_[0], sourceElementVectorID_, sourceFaceVectorID_), x(HpgemAPIBase::meshes_[0]);
+        Utilities::GlobalPetscVector b(this->meshes_[0], this->sourceElementVectorID_, this->sourceFaceVectorID_), x(this->meshes_[0]);
         
         //Assemble the vector b. This is needed because Petsc assumes you don't know
         //yet whether a vector is a variable or right-hand side the moment it is
@@ -246,18 +251,18 @@ public:
         KSPGetIterationNumber(ksp, &iterations);
         logger(INFO, "KSP solver ended because of % in % iterations.", KSPConvergedReasons[converge], iterations);
         
-        x.writeTimeLevelData(solutionTimeLevel_);
+        x.writeTimeLevelData(this->solutionTimeLevel_);
         
         if(doComputeError)
         {
-            double totalError = computeTotalError(solutionTimeLevel_, 0);
+            double totalError = this->computeTotalError(this->solutionTimeLevel_, 0);
             totalError_ = totalError;
             logger(INFO, "Total error: %.", totalError);
-            LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionTimeLevel_, 0);
-            logger.assert(maxError.size() == configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), configData_->numberOfUnknowns_);
-            for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV ++)
+            LinearAlgebra::MiddleSizeVector maxError = this->computeMaxError(this->solutionTimeLevel_, 0);
+            logger.assert(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), this->configData_->numberOfUnknowns_);
+            for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV ++)
             {
-                logger(INFO, "Maximum error %: %", variableNames_[iV], maxError(iV));
+                logger(INFO, "Maximum error %: %", this->variableNames_[iV], maxError(iV));
             }
         }
         
@@ -267,7 +272,7 @@ public:
     
     double getTotalError()
     {
-        return totalError_;
+        return this->totalError_;
     }
         
 private:
@@ -278,7 +283,7 @@ private:
     ///polynomial order of the approximation
     int p_;
     
-    ///Dimension of the domain, in this case 2
+    ///Dimension of the domain, in this case 1 or 2
     int DIM_;
     
     ///\brief Penalty parameter
@@ -298,43 +303,43 @@ int main(int argc, char** argv)
     Base::parse_options(argc, argv);
     //no 3D testing due to speed related issues
     
-    PoissonTest test0(1, 2, 1, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test0(1, 2, 1, Base::MeshType::RECTANGULAR);
     test0.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test0.getTotalError() - 0.35188045) < 1e-8), "comparison to old results");
     
-    PoissonTest test1(2, 3, 1, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test1(2, 3, 1, Base::MeshType::RECTANGULAR);
     test1.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test1.getTotalError() - 0.01607749) < 1e-8), "comparison to old results");
     
-    PoissonTest test2(4, 4, 1, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test2(4, 4, 1, Base::MeshType::RECTANGULAR);
     test2.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test2.getTotalError() - 0.00007200) < 1e-8), "comparison to old results");
     
-    PoissonTest test3(8, 5, 1, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test3(8, 5, 1, Base::MeshType::RECTANGULAR);
     test3.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test3.getTotalError() - 0.00000008) < 1e-8), "comparison to old results");
     
-    PoissonTest test4(16, 1, 1, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test4(16, 1, 1, Base::MeshType::RECTANGULAR);
     test4.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test4.getTotalError() - 0.00880380) < 1e-8), "comparison to old results");
     
-    PoissonTest test5(1, 2, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test5(1, 2, 2, Base::MeshType::TRIANGULAR);
     test5.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test5.getTotalError() - 0.17226144) < 1e-8), "comparison to old results");
     
-    PoissonTest test6(2, 3, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test6(2, 3, 2, Base::MeshType::TRIANGULAR);
     test6.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test6.getTotalError() - 0.01782337) < 1e-8), "comparison to old results");
     
-    PoissonTest test7(4, 4, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test7(4, 4, 2, Base::MeshType::TRIANGULAR);
     test7.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test7.getTotalError() - 0.00035302) < 1e-8), "comparison to old results");
     
-    PoissonTest test8(8, 5, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test8(8, 5, 2, Base::MeshType::TRIANGULAR);
     test8.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test8.getTotalError() - 0.00000061) < 1e-8), "comparison to old results");
     
-    PoissonTest test9(16, 1, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test9(16, 1, 2, Base::MeshType::TRIANGULAR);
     test9.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test9.getTotalError() - 0.00448270) < 1e-8), "comparison to old results");
     

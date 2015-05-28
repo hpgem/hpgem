@@ -496,14 +496,23 @@ namespace Base
     MeshManipulator<DIM>::~MeshManipulator()
     {        
         delete meshMover_;
-        
+        for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
+        {
+            for(const Base::BaseBasisFunction* function : *set)
+            {
+                Geometry::PointReferenceFactory<DIM>::instance()->removeBasisFunctionData(function);
+            }
+        }
     }
 
     template<std::size_t DIM>
     void MeshManipulator<DIM>::setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet)
     {
         logger.assert(bFSet!=nullptr, "Invalid basis function set passed");
-        //delete collBasisFSet_[0];
+        for(const Base::BaseBasisFunction* function : *collBasisFSet_[0])
+        {
+            Geometry::PointReferenceFactory<DIM>::instance()->removeBasisFunctionData(function);
+        }
         collBasisFSet_[0] = std::shared_ptr<const BasisFunctionSet>(bFSet);
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ = bFSet->size();
         for (Base::Face* face : getFacesList(IteratorType::GLOBAL))
@@ -2438,7 +2447,7 @@ namespace Base
             {
                 if (triangle.isGood() && !triangle.isUpperDelaunay())
                 {
-                    Geometry::PointPhysical<DIM> center(DIM);
+                    Geometry::PointPhysical<DIM> center;
                     std::vector<std::size_t> pointIndices;
                     for (auto vertex : triangle.vertices())
                     {
@@ -2651,7 +2660,7 @@ namespace Base
         {
             if (triangle.isGood() && !triangle.isUpperDelaunay())
             {
-                Geometry::PointPhysical<DIM> center {DIM};
+                Geometry::PointPhysical<DIM> center;
                 std::vector<std::size_t> pointIndices;
                 for (auto vertexIt1 = triangle.vertices().begin(); vertexIt1 != triangle.vertices().end(); ++vertexIt1)
                 {
@@ -2848,7 +2857,7 @@ namespace Base
         std::size_t counter = 0;
         double maxMovement = std::numeric_limits<double>::infinity();
         std::vector<double> currentLength {};
-        std::vector<Geometry::PointPhysical<DIM>> movement(theMesh_.getNodeCoordinates().size(), DIM);
+        std::vector<Geometry::PointPhysical<DIM>> movement(theMesh_.getNodeCoordinates().size());
         //stop after n iterations, or (when the nodes have stopped moving and the mesh is not becoming worse), or when the mesh is great, or when the mesh is decent, but worsening
         while ((counter < 10000 && (maxMovement > 1e-3 || oldQuality - worstQuality > 1e-3) && worstQuality < 0.8 && (worstQuality < 2. / 3. || oldQuality - worstQuality < 0)) || counter < 5)
         {
@@ -3322,7 +3331,7 @@ namespace Base
             if (counter % 50 == 1 && false)
             {
                 //the actual sorting is more expensive than computing the lengths and this does not happen very often
-                std::multimap<double, std::pair<Geometry::PointPhysical<DIM>, Geometry::PointPhysical<DIM> > > centerPoints {};
+                std::multimap<double, std::pair<Geometry::PointPhysical<DIM>, std::size_t > > centerPoints {};
                 if (DIM == 1)
                 {
                     //the algorithm is mostly dimension independent, but the data type it operates on is not

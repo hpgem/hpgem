@@ -151,10 +151,10 @@ namespace Base
         double computeTotalError(const std::size_t solutionTimeLevel, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error at an element.
-        virtual double computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
+        virtual LinearAlgebra::MiddleSizeVector computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error.
-        double computeMaxError(const std::size_t solutionTimeLevel, const double time);
+        LinearAlgebra::MiddleSizeVector computeMaxError(const std::size_t solutionTimeLevel, const double time);
         
         /// \brief Compute the right-hand side corresponding to an element
         virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement

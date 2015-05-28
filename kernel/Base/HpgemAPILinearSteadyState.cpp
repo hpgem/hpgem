@@ -54,7 +54,8 @@ namespace Base
     /// \param[in] polynomialOrder Polynomial order of the basis functions
     /// \param[in] useSourceTerm Boolean to indicate if there is a source term.
     /// \param[in] useSourceTermAtBoundary Boolean to indicate if there is a source term at the domain boundary.
-    HpgemAPILinearSteadyState::HpgemAPILinearSteadyState
+    template<std::size_t DIM>
+    HpgemAPILinearSteadyState<DIM>::HpgemAPILinearSteadyState
     (
      const std::size_t dimension,
      const std::size_t numOfVariables,
@@ -62,15 +63,16 @@ namespace Base
      const bool useSourceTerm,
      const bool useSourceTermAtBoundary
      ) :
-    HpgemAPILinear(dimension, numOfVariables, polynomialOrder, Base::AllTimeIntegrators::Instance().getRule(1, 1), 1, useSourceTerm, useSourceTermAtBoundary),
+    HpgemAPILinear<DIM>(dimension, numOfVariables, polynomialOrder, Base::AllTimeIntegrators::Instance().getRule(1, 1), 1, useSourceTerm, useSourceTermAtBoundary),
     sourceElementVectorID_(0),
     sourceFaceVectorID_(0)
     {
     }
-    
-    void HpgemAPILinearSteadyState::createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType)
+
+    template<std::size_t DIM>
+    void HpgemAPILinearSteadyState<DIM>::createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType)
     {
-        const Base::RectangularMeshDescriptor description = createMeshDescription(numOfElementsPerDirection);
+        const Base::RectangularMeshDescriptor<DIM> description = this->createMeshDescription(numOfElementsPerDirection);
         
         // Set the number of Element/Face Matrices/Vectors.
         std::size_t numOfElementMatrices = 2;   // Mass matrix and stiffness matrix
@@ -79,79 +81,82 @@ namespace Base
         std::size_t numOfFaceVectors = 1;       // Source term vector at boundary
 
         // Create mesh and set basis functions.
-        addMesh(description, meshType, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-        meshes_[0]->useDefaultDGBasisFunctions();
+        this->addMesh(description, meshType, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
+        this->meshes_[0]->useDefaultDGBasisFunctions();
         
-        std::size_t nElements = meshes_[0]->getNumberOfElements();
+        std::size_t nElements = this->meshes_[0]->getNumberOfElements();
         logger(VERBOSE, "Total number of elements: %", nElements);
     }
-    
-    void HpgemAPILinearSteadyState::createSourceTerms()
+
+    template<std::size_t DIM>
+    void HpgemAPILinearSteadyState<DIM>::createSourceTerms()
     {
         logger(INFO, "- Creating source term vectors for the elements.");
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
+        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector sourceTerm(integrateSourceTermAtElement(ptrElement, 0, 0));
+            LinearAlgebra::MiddleSizeVector sourceTerm(this->integrateSourceTermAtElement(ptrElement, 0, 0));
             ptrElement->setElementVector(sourceTerm, sourceElementVectorID_);
         }
         
         logger(INFO, "- Creating source term vectors for the boundary faces.");
-        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
+        for (Base::Face *ptrFace : this->meshes_[0]->getFacesList())
         {
-            LinearAlgebra::MiddleSizeVector sourceTerm(integrateSourceTermAtFace(ptrFace, 0, 0));
+            LinearAlgebra::MiddleSizeVector sourceTerm(this->integrateSourceTermAtFace(ptrFace, 0, 0));
             ptrFace->setFaceVector(sourceTerm, sourceFaceVectorID_);
         }
     }
-    
-    void HpgemAPILinearSteadyState::tasksBeforeSolving()
+
+    template<std::size_t DIM>
+    void HpgemAPILinearSteadyState<DIM>::tasksBeforeSolving()
     {
         logger(INFO, "Computing stiffness matrices.");
-        createStiffnessMatrices();
+        this->createStiffnessMatrices();
         logger(INFO, "Computing source terms.");
         createSourceTerms();
     }
     
     /// \details Solve the linear problem \f$Ax=b\f$, where \f$A=-S\f$ with \f$S\f$ being the stiffness matrix. At the moment it is not possible to solve the steady-state problem using an intial solution.
-    void HpgemAPILinearSteadyState::solveSteadyStateWithPetsc(bool doComputeError)
+    template<std::size_t DIM>
+    void HpgemAPILinearSteadyState<DIM>::solveSteadyStateWithPetsc(bool doComputeError)
     {
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
         // Create output files for Paraview.
-        std::string outputFileNameVTK = outputFileName_;
+        std::string outputFileNameVTK = this->outputFileName_;
         
-        registerVTKWriteFunctions();
-        Output::VTKTimeDependentWriter VTKWriter(outputFileNameVTK, meshes_[0]);
+        this->registerVTKWriteFunctions();
+        Output::VTKTimeDependentWriter<DIM> VTKWriter(outputFileNameVTK, this->meshes_[0]);
         
         // Create output files for Tecplot.
 #ifdef HPGEM_USE_MPI
-        std::string outputFileName = outputFileName_ + "." + std::to_string(Base::MPIContainer::Instance().getProcessorID());
+        std::string outputFileName = this->outputFileName_ + "." + std::to_string(Base::MPIContainer::Instance().getProcessorID());
 #else
-        std::string outputFileName = outputFileName_;
+        std::string outputFileName = this->outputFileName_;
 #endif
         std::string outputFileNameTecplot = outputFileName + ".dat";
         std::string dimensionsToWrite = "";
-        for(std::size_t i = 0; i < configData_->dimension_; i++)
+        for(std::size_t i = 0; i < this->configData_->dimension_; i++)
         {
             dimensionsToWrite = dimensionsToWrite + std::to_string(i);
         }
         
-        std::string variableString = variableNames_[0];
-        for(std::size_t iV = 1; iV < variableNames_.size(); iV++)
+        std::string variableString = this->variableNames_[0];
+        for(std::size_t iV = 1; iV < this->variableNames_.size(); iV++)
         {
-            variableString = variableString + "," + variableNames_[iV];
+            variableString = variableString + "," + this->variableNames_[iV];
         }
         
         std::ofstream outputFile(outputFileNameTecplot);
-        Output::TecplotDiscontinuousSolutionWriter tecplotWriter(outputFile, internalFileTitle_, dimensionsToWrite, variableString);
+        Output::TecplotDiscontinuousSolutionWriter<DIM> tecplotWriter(outputFile, this->internalFileTitle_, dimensionsToWrite, variableString);
         
         // Create and Store things before solving the problem.
         tasksBeforeSolving();
         
         // Solve the linear problem
         //Assemble the matrix A of the system Ax = b.
-        Utilities::GlobalPetscMatrix A(HpgemAPIBase::meshes_[0], stiffnessElementMatrixID_, stiffnessFaceMatrixID_);
+        Utilities::GlobalPetscMatrix A(HpgemAPIBase<DIM>::meshes_[0], this->stiffnessElementMatrixID_, this->stiffnessFaceMatrixID_);
         MatScale(A,-1);
         //Declare the vectors x and b of the system Ax = b.
-        Utilities::GlobalPetscVector b(HpgemAPIBase::meshes_[0], sourceElementVectorID_, sourceFaceVectorID_), x(HpgemAPIBase::meshes_[0]);
+        Utilities::GlobalPetscVector b(HpgemAPIBase<DIM>::meshes_[0], sourceElementVectorID_, sourceFaceVectorID_), x(HpgemAPIBase<DIM>::meshes_[0]);
         
         //Assemble the vector b. This is needed because Petsc assumes you don't know
         //yet whether a vector is a variable or right-hand side the moment it is
@@ -173,21 +178,21 @@ namespace Base
         KSPGetIterationNumber(ksp, &iterations);
         logger(INFO, "KSP solver ended because of % in % iterations.", KSPConvergedReasons[converge], iterations);
         
-        x.writeTimeLevelData(solutionTimeLevel_);
+        x.writeTimeLevelData(this->solutionTimeLevel_);
         
-        tecplotWriter.write(meshes_[0], solutionTitle_, false, this, 0);
-        VTKWrite(VTKWriter, 0, solutionTimeLevel_);
+        tecplotWriter.write(this->meshes_[0], this->solutionTitle_, false, this, 0);
+        this->VTKWrite(VTKWriter, 0, this->solutionTimeLevel_);
         
         // Compute the energy norm of the error
         if(doComputeError)
         {
-            double totalError = computeTotalError(solutionTimeLevel_, 0);
+            double totalError = this->computeTotalError(this->solutionTimeLevel_, 0);
             logger(INFO, "Total error: %.", totalError);
-            LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionTimeLevel_, 0);
-            logger.assert(maxError.size() == configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), configData_->numberOfUnknowns_);
-            for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV ++)
+            LinearAlgebra::MiddleSizeVector maxError = this->computeMaxError(this->solutionTimeLevel_, 0);
+            logger.assert(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), this->configData_->numberOfUnknowns_);
+            for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV ++)
             {
-                logger(INFO, "Maximum error %: %", variableNames_[iV], maxError(iV));
+                logger(INFO, "Maximum error %: %", this->variableNames_[iV], maxError(iV));
             }
         }
         

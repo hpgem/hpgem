@@ -72,9 +72,15 @@
  \li The function 'solve' is then used to solve the PDE.
  */
 
-class AcousticWave : public Base::HpgemAPISimplified
+template<std::size_t DIM>
+class AcousticWave : public Base::HpgemAPISimplified<DIM>
 {
 public:
+
+    using typename Base::HpgemAPIBase<DIM>::PointPhysicalT;
+    using typename Base::HpgemAPIBase<DIM>::PointReferenceT;
+    using typename Base::HpgemAPIBase<DIM>::PointReferenceOnFaceT;
+
     AcousticWave
     (
      const std::size_t dimension,
@@ -84,7 +90,7 @@ public:
      );
         
     /// \brief Create a domain
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final;
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final;
 
     /// \brief Set the material parameter.
     /// \param[in] c Material parameter corresponding to the speed with which waves can propagate.
@@ -94,7 +100,7 @@ public:
     }
 
     /// \brief Get the material parameter c^{-1} at a given physical point.
-    double getCInv(const Geometry::PointPhysical &pPhys)
+    double getCInv(const PointPhysicalT &pPhys)
     {
         return cInv_;
     }
@@ -106,17 +112,17 @@ public:
     LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
 
     /// \brief Compute the integrand for the mass matrix for the reference element.
-    LinearAlgebra::MiddleSizeMatrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeMatrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const PointReferenceT &pRef);
 
     /// \brief Compute the integrand for the reference element for obtaining the initial solution.
-    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnRefElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnRefElement(const Base::Element *ptrElement, const double &startTime, const PointReferenceT &pRef);
 
     /// \brief Compute the integrand for the right hand side for the reference element.
     LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefElement
     (
      const Base::Element *ptrElement,
      const double &time,
-     const Geometry::PointReference &pRef,
+     const PointReferenceT &pRef,
      const LinearAlgebra::MiddleSizeVector &solutionCoefficients
      );
     
@@ -125,7 +131,7 @@ public:
     (
      const Base::Face *ptrFace,
      const double &time,
-     const Geometry::PointReference &pRef,
+     const PointReferenceOnFaceT &pRef,
      const LinearAlgebra::MiddleSizeVector &solutionCoefficients
      );
 
@@ -134,18 +140,18 @@ public:
     (
      const Base::Face *ptrFace,
      const double &time,
-     const Geometry::PointReference &pRef,
+     const PointReferenceOnFaceT &pRef,
      const Base::Side &iSide,
      const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
      const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight
      );
 
     /// \brief Compute the integrand for the reference element for computing the energy-norm of the error.
-    LinearAlgebra::MiddleSizeVector integrandErrorOnRefElement
+    double integrandErrorOnRefElement
     (
      const Base::Element *ptrElement,
      const double &time,
-     const Geometry::PointReference &pRef,
+     const PointReferenceT &pRef,
      const LinearAlgebra::MiddleSizeVector &solutionCoefficients
      );
 
@@ -161,7 +167,7 @@ public:
     LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override final;
 
     /// \brief Integrate the energy of the error on a single element.
-    LinearAlgebra::MiddleSizeVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, double time) override final;
+    double integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, double time) override final;
 
     /// \brief Compute the right-hand side corresponding to an element
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
@@ -203,5 +209,7 @@ private:
     /// Material parameter c^{-1}
     double cInv_;
 };
+
+#include "AcousticWave.cpp"
 
 #endif

@@ -166,13 +166,13 @@ public:
     double onePeriod_;
 };
 
-class HEuler : public HpgemAPIBase, public Integration::ElementIntegrandBase<ElementIntegralData>, public Integration::FaceIntegrandBase<FluxData>, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
+class HEuler : public HpgemAPIBase<3>, public Integration::ElementIntegrandBase<ElementIntegralData, 3>, public Integration::FaceIntegrandBase<FluxData, 3>, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix, 3>
 {
 public:
     using ElementIntegralT = Integration::ElementIntegral;
     using FaceIntegralT = Integration::FaceIntegral;
     using ExactSolutionT = ExactSolutionBase;
-    using PointReferenceOnTheFaceT = PointReference;
+    using PointReferenceOnTheFaceT = PointReference<2>;
 
     
 public:
@@ -192,7 +192,7 @@ public:
 
     void elementIntegrand(const Base::Element* element, const PointReferenceT& p, ElementIntegralData& returnObject);
 
-    void faceIntegrand(const Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceOnTheFaceT& p, FluxData& ret);
+    void faceIntegrand(const Face* face, const LinearAlgebra::SmallVector<3>& normal, const PointReferenceOnTheFaceT& p, FluxData& ret);
 
     void createCompressibleSystem();
     void createIncompressibleSystem();

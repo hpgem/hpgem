@@ -46,10 +46,9 @@ const unsigned int DIM = 2;
 //the connectivity changes in the domain are not really a problem
 
 //describe a domain with a rotating rotor
-std::function<double(Geometry::PointPhysical, double)> meshDescription = {[](Geometry::PointPhysical point, double t) ->double
+std::function<double(Geometry::PointPhysical<DIM>, double)> meshDescription = {[](Geometry::PointPhysical<DIM> point, double t) ->double
 {   
-    Geometry::PointPhysical rotatedPoint
-    {   DIM};
+    Geometry::PointPhysical<DIM> rotatedPoint;
     rotatedPoint[0] = std::cos(t) * (point[0] - 0.5) - std::sin(t) * (point[1] - 0.5) + 0.5;
     rotatedPoint[1] = std::sin(t) * (point[0] - 0.5) + std::cos(t) * (point[1] - 0.5) + 0.5;
     return std::max(std::max(std::max(std::abs(point[0] - 0.5) - 0.5, std::abs(point[1] - 0.5) - 0.5),
@@ -58,7 +57,7 @@ std::function<double(Geometry::PointPhysical, double)> meshDescription = {[](Geo
 }};
 
 //suitable for a boundary layer problem (automatically makes the elements larger away from the boundary)
-std::function<double(Geometry::PointPhysical, std::function<double(Geometry::PointPhysical)>, double)> refinement = {[] (Geometry::PointPhysical point, std::function<double(Geometry::PointPhysical) > distance, double t)->double
+std::function<double(Geometry::PointPhysical<DIM>, std::function<double(Geometry::PointPhysical<DIM>)>, double)> refinement = {[] (Geometry::PointPhysical<DIM>point, std::function<double(Geometry::PointPhysical<DIM>) > distance, double t)->double
 {   
     //solid wall boundary
     //return (distance(point)<-0.01) ? std::numeric_limits<double>::quiet_NaN() : 1;
@@ -71,20 +70,20 @@ std::function<double(Geometry::PointPhysical, std::function<double(Geometry::Poi
     }};
 
 //Note: the intended use of the prototype classes is to merge Dummy with SimpleDemoProblem
-class Dummy : public Output::TecplotSingleElementWriter
+class Dummy : public Output::TecplotSingleElementWriter<DIM>
 {
 public:
     Dummy()
     {
     }
-    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, std::ostream& os) override final
+    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference<DIM>& p, std::ostream& os) override final
     {
         //write something so tecplot doesnt get confused
         os << 1;
     }
 };
 
-class SimpleDemoProblem : public Base::HpgemAPIBase
+class SimpleDemoProblem : public Base::HpgemAPIBase<DIM>
 {
     
 public:
@@ -97,7 +96,7 @@ public:
     
     bool initialise()
     {
-        RectangularMeshDescriptor rectangularMesh(2);
+        RectangularMeshDescriptor<DIM> rectangularMesh;
         
         //bottomLeft_ and topRight_ are used here to construct an estimated bounding box of the domain
         rectangularMesh.bottomLeft_[0] = 0;
@@ -118,9 +117,9 @@ public:
         std::vector<PointPhysicalT> corners;
         
         //use std::bind to pass additional arguments to your function before passing it to the algorithm
-        std::function<double(Geometry::PointPhysical)> domain = std::bind(meshDescription, std::placeholders::_1, 0);
+        std::function<double(Geometry::PointPhysical<DIM>)> domain = std::bind(meshDescription, std::placeholders::_1, 0);
         
-        PointPhysicalT newPoint {DIM};
+        PointPhysicalT newPoint;
         std::array<double, 4> cornerLocations = {{0., 0.45, 0.55, 1.}};
         for (double first : cornerLocations)
         {
@@ -138,7 +137,7 @@ public:
         }
         
         //there is no automated addMash functionality yet, manually construct a mesh
-        Base::MeshManipulator *theMesh = new Base::MeshManipulator(configData_);
+        Base::MeshManipulator<DIM> *theMesh = new Base::MeshManipulator<DIM>(configData_);
         
         auto start = std::chrono::high_resolution_clock::now();
         
@@ -161,7 +160,7 @@ public:
     {
         std::ofstream file2D;
         file2D.open("out.dat");
-        Output::TecplotDiscontinuousSolutionWriter out(file2D, "RectangularMesh", "01", "one");
+        Output::TecplotDiscontinuousSolutionWriter<DIM> out(file2D, "RectangularMesh", "01", "one");
         Dummy d;
         out.write(meshes_[0], "holi", false, &d, t);
     }
@@ -171,7 +170,7 @@ public:
     {
         std::ofstream file2D;
         file2D.open("out.dat");
-        Output::TecplotDiscontinuousSolutionWriter out(file2D, "RectangularMesh", "01", "one");
+        Output::TecplotDiscontinuousSolutionWriter<DIM> out(file2D, "RectangularMesh", "01", "one");
         Dummy d;
         
         auto start = std::chrono::high_resolution_clock::now();
@@ -196,7 +195,7 @@ public:
                 cornerIndexes.push_back(i);
             }
             
-            PointPhysicalT newPoint {DIM};
+            PointPhysicalT newPoint;
             std::array<double, 4> cornerLocations = {{0., 0.45, 0.55, 1.}};
             //rotate the corners of the rotor
             std::size_t nodeIndex = 0;

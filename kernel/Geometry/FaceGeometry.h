@@ -370,7 +370,7 @@ namespace Geometry
             result *= ((det > 0) ? 1 : -1) * sign;
         }
         else
-        { //if DIM==1
+        { //if DIM==0
           //for one dimension the fancy wedge stuff wont work
           //but we know the left point has outward pointing vector -1
           //and the right point has outward pointing vector 1
@@ -382,7 +382,7 @@ namespace Geometry
             //the face cant be made larger or smaller so
             //the vector should have length one
 
-            Jacobian<1, 1> j = leftElementGeom_->calcJacobian(mapRefFaceToRefElemL(pRefFace));
+            Jacobian<DIM + 1, DIM + 1> j = leftElementGeom_->calcJacobian(mapRefFaceToRefElemL(pRefFace));
             int sgn = (j[0] > 0) ? 1 : -1;
             result[0] = pRefElement[0] * sgn;
         }

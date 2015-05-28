@@ -21,7 +21,7 @@ using namespace std;
 class ExactSolutionBase
 {
 public:
-    using PointPhysicalT = Geometry::PointPhysical;
+    using PointPhysicalT = Geometry::PointPhysical<3>;
 public:
     ExactSolutionBase()
     {
@@ -486,7 +486,7 @@ public:
     
     using PointPhysicalT = ExactSolutionBase::PointPhysicalT;
     using ElementT = Base::Element;
-    using PointReferenceT = Geometry::PointReference;
+    using PointReferenceT = Geometry::PointReference<3>;
     using ReturnType = LinearAlgebra::MiddleSizeVector;
 public:
     
@@ -501,7 +501,7 @@ protected:
     const ExactSolutionBase* const velocity_;
 };
 
-class InitCondU : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
+class InitCondU : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, 3>
 {
 public:
     using ReturnType = LinearAlgebra::MiddleSizeVector;
@@ -516,7 +516,7 @@ public:
 };
 
 // initial condition for v
-class InitCondV : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
+class InitCondV : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, 3>
 {
 public:
     
@@ -531,7 +531,7 @@ public:
 // 
 
 // initial condition for w
-class InitCondW : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
+class InitCondW : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, 3>
 {
 public:
     InitCondW(const ExactSolutionBase* init);
@@ -545,7 +545,7 @@ public:
 };
 
 // initial condition for Lambda, in the compressible set-up used as densitu /rho
-class InitCondLambda : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
+class InitCondLambda : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, 3>
 {
 public:
     

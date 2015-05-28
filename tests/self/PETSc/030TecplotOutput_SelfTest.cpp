@@ -34,7 +34,7 @@
 //you should update the data file to reflect the updated result. Always confer with other developers if you do this.
 
 /// \brief Class for solving the Poisson problem using HpgemAPILinearSteadyState.
-class PoissonTest : public Base::HpgemAPILinearSteadyState
+class PoissonTest : public Base::HpgemAPILinearSteadyState<2>
 {
 public:
     PoissonTest(const std::size_t n, const std::size_t p, const std::size_t dimension, const Base::MeshType meshType) :
@@ -49,10 +49,10 @@ public:
     }
     
     ///\brief set up the mesh
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<2> createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        Base::RectangularMeshDescriptor description(DIM_);
+        Base::RectangularMeshDescriptor<2> description;
         
         for (std::size_t i = 0; i < DIM_; ++i)
         {
@@ -95,7 +95,7 @@ public:
     }
     
     /// \brief Compute the integrand for the siffness matrix at the face.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceT& p) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::SmallVector<2>& normal, const PointReferenceOnFaceT& p) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
@@ -111,7 +111,7 @@ public:
         Base::FaceMatrix integrandVal(nLeft, nRight);
         
         //Initialize the vectors that contain gradient(phi_i), gradient(phi_j), normal_i phi_i and normal_j phi_j
-        LinearAlgebra::MiddleSizeVector phiNormalI(DIM_), phiNormalJ(DIM_), phiDerivI(DIM_), phiDerivJ(DIM_);
+        LinearAlgebra::SmallVector<2> phiNormalI, phiNormalJ, phiDerivI, phiDerivJ;
         
         //Transform the point from the reference value to its physical value.
         //This is necessary to check at which boundary we are if we are at a boundary face.
@@ -194,7 +194,7 @@ public:
     }
     
     /// \brief Compute the integrals of the right-hand side associated with faces.
-    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceT& p) override final
+    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::SmallVector<2>& normal, const PointReferenceOnFaceT& p) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
         const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
@@ -248,7 +248,7 @@ public:
         x.writeTimeLevelData(solutionTimeLevel_);
         
         std::ofstream outFile("030TecplotOutput_SelfTest_output.dat");
-        Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
+        Output::TecplotDiscontinuousSolutionWriter<2> writeFunc(outFile, "test", "01", "value");
         writeFunc.write(meshes_[0], "monomial solution", false, this);
         
         if(doComputeError)

@@ -30,7 +30,10 @@
 /// \brief Template for basis PDE problems that can be solved using HpgemAPISimplified.
 /// \details This file is meant as a template for basic PDE problems that can be solved using HpgemAPISimplified. When creating a solver for a certain PDE with HpgemAPISimplified one can copy this file and fill in the blanks. Also see the documentation of HpgemAPISimplified for an overview of all the functionalities it offers.
 
-class ExampleProblem : public Base::HpgemAPISimplified
+//it is also possible to template ExampleProblem on the dimension if you want more flexibility, but if you do so you must prefix identifiers defined in the API with 'this->' due to the name look-up rules for templated classes
+const std::size_t DIM = 2;
+
+class ExampleProblem : public Base::HpgemAPISimplified<DIM>
 {
 public:
     // constructor.
@@ -47,17 +50,17 @@ public:
      const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
      const std::size_t numOfTimeLevels = 1
      ) :
-    HpgemAPISimplified(dimension, numberOfUnknowns, polynomialOrder, ptrButcherTableau, numOfTimeLevels)
+    Base::HpgemAPISimplified<DIM>(dimension, numberOfUnknowns, polynomialOrder, ptrButcherTableau, numOfTimeLevels)
     {
         // Look at the constructor of HpgemAPISimplified to see what arguments are optional.
         logger(ERROR, "Remove this message. Make sure the constructor of this class is adapted to your purposes.");
     }
     
     /// \brief Create a rectangular mesh description
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        Base::RectangularMeshDescriptor description(configData_->dimension_);
+        Base::RectangularMeshDescriptor<DIM> description;
         
         for (std::size_t i = 0; i < configData_->dimension_; ++i)
         {
@@ -176,8 +179,7 @@ auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "poly
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    // Set parameters for the PDE.
-    const std::size_t dimension = 2;    // 1 or 2 or 3
+    // Set parameters for the PDE. (dimension is set at the beginning of the file)
     const std::size_t numberOfVariables = 1;
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;    // Either TRIANGULAR or RECTANGULAR.
     const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
@@ -192,7 +194,7 @@ int main(int argc, char **argv)
     }
 
     // Create a problem solver, that can solve the implemented problem. Chooes your own name for the object.
-    ExampleProblem problemSolver(dimension, numberOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
+    ExampleProblem problemSolver(DIM, numberOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
 
     // Create the mesh
     problemSolver.createMesh(numOfElements.getValue(), meshType);

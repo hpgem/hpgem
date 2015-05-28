@@ -33,30 +33,30 @@ using Base::ConfigurationData;
 using Base::GlobalData;
 
 //Note: the intended use of the prototype classes is to merge Dummy with MeshMoverExampleProblem
-class Dummy : public Output::TecplotSingleElementWriter
+class Dummy : public Output::TecplotSingleElementWriter<2>
 {
 public:
     Dummy()
     {
     }
-    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference& p, std::ostream& os)
+    void writeToTecplotFile(const Base::Element* el, const Geometry::PointReference<2>& p, std::ostream& os)
     {
     }
 };
 
-class MeshMoverExampleProblem : public Base::HpgemAPIBase
+class MeshMoverExampleProblem : public Base::HpgemAPIBase<2>
 {
     
 public:
     MeshMoverExampleProblem(GlobalData* const global, const ConfigurationData* config)
-            : Base::HpgemAPIBase(global, config)
+            : Base::HpgemAPIBase<2>(global, config)
     {
     }
     
     bool initialise()
     {
         
-        RectangularMeshDescriptor rectangularMesh(2);
+        RectangularMeshDescriptor<2> rectangularMesh;
         
         rectangularMesh.bottomLeft_[0] = 0;
         rectangularMesh.bottomLeft_[1] = 0;
@@ -65,7 +65,7 @@ public:
         rectangularMesh.numElementsInDIM_[0] = 8;
         rectangularMesh.numElementsInDIM_[1] = 8;
         
-        Base::HpgemAPIBase::MeshId id = addMesh(rectangularMesh);
+        Base::HpgemAPIBase<2>::MeshId id = addMesh(rectangularMesh);
         
         //Set up the move of the mesh;
         const MeshMover* meshMover = new MeshMover;
@@ -78,7 +78,7 @@ public:
     {
         std::ofstream file2D;
         file2D.open("out.dat");
-        Output::TecplotDiscontinuousSolutionWriter out(file2D, "RectangularMesh", "01", "xy");
+        Output::TecplotDiscontinuousSolutionWriter<2> out(file2D, "RectangularMesh", "01", "xy");
         
         Dummy d;
         out.write(meshes_[0], "holi", false, &d);

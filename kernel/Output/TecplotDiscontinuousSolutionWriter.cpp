@@ -163,7 +163,7 @@ namespace Output
         
         const ListOfElementsT& elements = mesh->getElementsList();
         
-        Geometry::PointPhysical<DIM> pPhys((*elements.begin())->getPhysicalGeometry()->getNodePtr(0)->size());
+        Geometry::PointPhysical<DIM> pPhys;
         
         // 1. Element cycle, print physical coordinates.
         

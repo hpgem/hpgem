@@ -27,7 +27,7 @@ using LinearAlgebra::MiddleSizeVector;
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
 MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElement
-(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const MiddleSizeVector &solutionCoefficients)
+(const Base::Element *ptrElement, const double &time, const PointReferenceT &pRef, const MiddleSizeVector &solutionCoefficients)
 {
     const std::size_t numBasisFuncs = ptrElement->getNrOfBasisFunctions();
     
@@ -56,7 +56,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElem
 
 /// \details The integrand for the reference face is the same as the physical face, but scaled with the reference-to-physical face scale. This face scale is absorbed in the normal vector, since it is relatively cheap to compute the normal vector with a length (L2-norm) equal to the reference-to-physical face scale.
 MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
-( const Base::Face *ptrFace, const Base::Side &iSide, const MiddleSizeVector &normalVec, const Geometry::PointReference &pRef, const MiddleSizeVector &solutionCoefficientsLeft, const MiddleSizeVector &solutionCoefficientsRight)
+( const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::SmallVector<DIM> &normalVec, const PointReferenceOnFaceT &pRef, const MiddleSizeVector &solutionCoefficientsLeft, const MiddleSizeVector &solutionCoefficientsRight)
 {
     logger.assert(ptrFace != nullptr, "gave an empty face");
     logger.assert(ptrFace->getPtrElementLeft() != nullptr, "left element is nullptr");
@@ -105,7 +105,8 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
         for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
         {
             std::size_t iVarFun = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iFun, iVar);
-            integrand(iVarFun) = -flux(iVar) * ptrFace->basisFunction(iSide, iFun, ptrFace->getReferenceGeometry()->getCenter()) * normal;
+            const PointReferenceOnFaceT& center = ptrFace->getReferenceGeometry()->getCenter();
+            integrand(iVarFun) = -flux(iVar) * ptrFace->basisFunction(iSide, iFun, center) * normal;
         }
     }
     
@@ -115,8 +116,8 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
 MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
     (
      const Base::Face *ptrFace,
-     const MiddleSizeVector &normalVec,
-     const Geometry::PointReference &pRef,
+     const LinearAlgebra::SmallVector<DIM> &normalVec,
+     const PointReferenceOnFaceT &pRef,
      const MiddleSizeVector &solutionCoefficients
      )
 {
@@ -147,7 +148,8 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
         for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
         {
             std::size_t iVarFun = ptrFace->getPtrElementLeft()->convertToSingleIndex(iFun, iVar);
-            integrand(iVarFun) = -flux(iVar) * ptrFace->basisFunction(iFun, ptrFace->getReferenceGeometry()->getCenter()) * normal;
+            const PointReferenceOnFaceT& center = ptrFace->getReferenceGeometry()->getCenter();
+            integrand(iVarFun) = -flux(iVar) * ptrFace->basisFunction(iFun, center) * normal;
         }
     }
     
@@ -187,7 +189,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::computeSourceTerm(const Midd
     return MiddleSizeVector({0, sourceX});
 }
 
-MiddleSizeVector SavageHutterRightHandSideComputer::computeNumericalSolution(const Base::Element *ptrElement, const Geometry::PointReference &pRef, const MiddleSizeVector& solutionCoefficients)
+MiddleSizeVector SavageHutterRightHandSideComputer::computeNumericalSolution(const Base::Element *ptrElement, const PointReferenceT &pRef, const MiddleSizeVector& solutionCoefficients)
 {    
     logger.assert(1 == pRef.size(), "Empty reference point given.");
     const std::size_t numBasisFuns = ptrElement->getNrOfBasisFunctions();

@@ -41,6 +41,9 @@
 #include "Integration/ElementIntegral.h"
 #include "Base/CommandLineOptions.h"
 
+// Choose the dimension (in this case 2)
+const std::size_t DIM = 2;
+
 ///\brief Tutorial for solving the Poisson equation using hpGEM. 
 ///
 ///In here, all methods that you use 
@@ -53,7 +56,7 @@
 ///The analytical solution of this problem is u(x,y) = sin(2pi x)cos(2pi y)
 ///The problem is discretised with the Interior Penalty Discontinuous Galerkin method.
 ///
-class TutorialPoisson : public Base::HpgemAPILinearSteadyState
+class TutorialPoisson : public Base::HpgemAPILinearSteadyState<DIM>
 {
 public:
     ///Constructor: assign the dimension, number of elements and maximum order 
@@ -61,12 +64,11 @@ public:
     ///n stands for number of elements, p stands for polynomial order.
     ///Lastly, construct the mesh with this number of elements and polynomial order.
     TutorialPoisson(const std::size_t dimension, const std::size_t n, const std::size_t p) :
-    HpgemAPILinearSteadyState(dimension, 1, p, true, true),
+    Base::HpgemAPILinearSteadyState<DIM>(dimension, 1, p, true, true),
     n_(n),
-    p_(p),
-    DIM_(dimension)
+    p_(p)
     {
-        penalty_ = 3 * n_ * p_ * (p_ + DIM_ - 1) + 1;
+        penalty_ = 3 * n_ * p_ * (p_ + DIM - 1) + 1;
     }
     
     ///\brief set up the mesh  
@@ -75,13 +77,13 @@ public:
     ///We define the domain, number of elements in each direction and whether or
     ///no there are periodic boundary conditions. Then make a triangular mesh and 
     ///generate the basisfunctions on the reference domain.
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        Base::RectangularMeshDescriptor description(DIM_);
+        Base::RectangularMeshDescriptor<DIM> description;
         
         //this demo will use the square [0,1]^2
-        for (std::size_t i = 0; i < DIM_; ++i)
+        for (std::size_t i = 0; i < DIM; ++i)
         {
             //define the value of the bottom left corner in each dimension
             description.bottomLeft_[i] = 0;
@@ -139,7 +141,7 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, which is returned.
     ///Please note that you pass a reference point to the basisfunctions and the 
     ///transformations are done internally.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceT& p) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const PointReferenceOnFaceT& p) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
@@ -155,7 +157,7 @@ public:
         Base::FaceMatrix integrandVal(nLeft, nRight);
         
         //Initialize the vectors that contain gradient(phi_i), gradient(phi_j), normal_i phi_i and normal_j phi_j
-        LinearAlgebra::MiddleSizeVector phiNormalI(DIM_), phiNormalJ(DIM_), phiDerivI(DIM_), phiDerivJ(DIM_);
+        LinearAlgebra::SmallVector<DIM> phiNormalI, phiNormalJ, phiDerivI, phiDerivJ;
         
         //Transform the point from the reference value to its physical value.
         //This is necessary to check at which boundary we are if we are at a boundary face.
@@ -229,7 +231,7 @@ public:
     ///integral on the right-hand side. However, in our application we do not have
     ///contributions for the boundary conditions, so the vector has only zeroes.
     ///The input/output structure is the same as the other faceIntegrand function.
-    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceT& p) override final
+    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const PointReferenceOnFaceT& p) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
         const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
@@ -267,9 +269,6 @@ private:
     ///polynomial order of the approximation
     std::size_t p_;
 
-    ///Dimension of the domain, in this case 2
-    std::size_t DIM_;
-
     ///\brief Penalty parameter
     ///
     ///Penalty parameter that is associated with the interior penalty discontinuous
@@ -288,8 +287,6 @@ auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order o
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    // Choose the dimension (2 or 3)
-    const std::size_t dimension = 2;
 
     // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
@@ -299,7 +296,7 @@ int main(int argc, char **argv)
     variableNames.push_back("u");
 
     //Make the object test with n elements in each direction and polynomial order p.
-    TutorialPoisson test(dimension, numBasisFuns.getValue(), p.getValue());
+    TutorialPoisson test(DIM, numBasisFuns.getValue(), p.getValue());
 
     //Create the mesh
     test.createMesh(numBasisFuns.getValue(), meshType);

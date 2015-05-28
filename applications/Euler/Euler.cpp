@@ -23,7 +23,8 @@
 #include <iomanip>
 #include <cmath>
 
-Euler::Euler
+template<std::size_t DIM>
+Euler<DIM>::Euler
 (
  const std::size_t dimension,
  const std::size_t numOfVariables,
@@ -31,17 +32,18 @@ Euler::Euler
  const std::size_t polynomialOrder,
  const Base::ButcherTableau * const ptrButcherTableau
 ) :
-HpgemAPISimplified(dimension, numOfVariables, polynomialOrder, ptrButcherTableau),
+Base::HpgemAPISimplified<DIM>(dimension, numOfVariables, polynomialOrder, ptrButcherTableau),
 DIM_(dimension),
 numOfVariables_(numOfVariables)
 {
 }
 
 /// \brief General mesh description
-Base::RectangularMeshDescriptor Euler::createMeshDescription(const std::size_t numOfElementPerDirection)
+template<std::size_t DIM>
+Base::RectangularMeshDescriptor<DIM> Euler<DIM>::createMeshDescription(const std::size_t numOfElementPerDirection)
 {
     // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
-    Base::RectangularMeshDescriptor description(DIM_);
+    Base::RectangularMeshDescriptor<DIM> description;
     for (std::size_t i = 0; i < DIM_; ++i)
     {
         description.bottomLeft_[i] = 0;
@@ -58,7 +60,8 @@ Base::RectangularMeshDescriptor Euler::createMeshDescription(const std::size_t n
 /// *****************************************
 
 ///  \brief computes the initial solution at an element
-LinearAlgebra::MiddleSizeVector Euler::computeSolutionAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference &pRef)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeVector Euler<DIM>::computeSolutionAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const PointReferenceT &pRef)
 {
 		std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
 		LinearAlgebra::MiddleSizeVector elementSolution(numOfVariables_);
@@ -78,7 +81,8 @@ LinearAlgebra::MiddleSizeVector Euler::computeSolutionAtElement(const Base::Elem
 }
 
 /// \brief computes the source at an element
-LinearAlgebra::MiddleSizeVector Euler::integrandSourceAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time, const Geometry::PointReference &pRef)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time, const PointReferenceT &pRef)
 {
 	std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
 	std::size_t iVB;
@@ -89,7 +93,8 @@ LinearAlgebra::MiddleSizeVector Euler::integrandSourceAtElement(const Base::Elem
 }
 
 //NOTE: this function says RefElement, but it is on a physical element
-LinearAlgebra::MiddleSizeVector Euler::integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const PointReferenceT &pRef, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
 	// Get the number of basis functions in an element.
 	std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
@@ -97,7 +102,7 @@ LinearAlgebra::MiddleSizeVector Euler::integrandRightHandSideOnRefElement(const 
 	//Create data structures for calculating the integrand
 	LinearAlgebra::MiddleSizeVector integrand(numOfVariables_ * numOfBasisFunctions); //The final integrand value will be stored in this vector
 	LinearAlgebra::MiddleSizeVector qSolution = computeSolutionAtElement(ptrElement, solutionCoefficients, pRef);
-	LinearAlgebra::MiddleSizeVector gradientBasisFunction(DIM_); //Gradient function based on the number of dimensions
+	LinearAlgebra::SmallVector<DIM> gradientBasisFunction; //Gradient function based on the number of dimensions
 
 	//Create temporary result values
 	double integrandTerm = 0.0;
@@ -157,12 +162,13 @@ LinearAlgebra::MiddleSizeVector Euler::integrandRightHandSideOnRefElement(const 
 
 }
 
-LinearAlgebra::MiddleSizeVector Euler::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
 {
-	std::function<LinearAlgebra::MiddleSizeVector(const Base::Element*, const Geometry::PointReference &)> integrandFunction = [&](const Base::Element *El, const Geometry::PointReference & pRef) -> LinearAlgebra::MiddleSizeVector
+	std::function<LinearAlgebra::MiddleSizeVector(const Base::Element*, const PointReferenceT &)> integrandFunction = [&](const Base::Element *El, const PointReferenceT & pRef) -> LinearAlgebra::MiddleSizeVector
 	    {   return this->integrandRightHandSideOnRefElement(El, time, pRef, solutionCoefficients);};
 
-    return elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
+    return this->elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
 
 }
 
@@ -173,7 +179,8 @@ LinearAlgebra::MiddleSizeVector Euler::computeRightHandSideAtElement(Base::Eleme
 	// todo: Write function that computes the qSolution at the interface
 
    //Compute the Roe Riemann Flux function
-   LinearAlgebra::MiddleSizeVector Euler::RoeRiemannFluxFunction(const LinearAlgebra::MiddleSizeVector &qSolutionLeft, const LinearAlgebra::MiddleSizeVector &qSolutionRight, LinearAlgebra::MiddleSizeVector &normal)
+    template<std::size_t DIM>
+   LinearAlgebra::MiddleSizeVector Euler<DIM>::RoeRiemannFluxFunction(const LinearAlgebra::MiddleSizeVector &qSolutionLeft, const LinearAlgebra::MiddleSizeVector &qSolutionRight, LinearAlgebra::SmallVector<DIM> &normal)
    {
 
 	   //Compute correct normal direction and difference vector
@@ -297,7 +304,8 @@ LinearAlgebra::MiddleSizeVector Euler::computeRightHandSideAtElement(Base::Eleme
    }
 
    /// \brief Compute the integrand for the right hand side for the reference face corresponding to an external face.
-   LinearAlgebra::MiddleSizeVector Euler::integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
+    template<std::size_t DIM>
+   LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const PointReferenceOnFaceT &pRef, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
    {
 	   //Get the number of basis functions
 	   std::size_t numOfBasisFunctionsLeft= ptrFace->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
@@ -327,7 +335,7 @@ LinearAlgebra::MiddleSizeVector Euler::computeRightHandSideAtElement(Base::Eleme
 	   qReconstructionRight(DIM_+1) = qReconstructionLeft(DIM_+1);
 
 	   // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-	   LinearAlgebra::MiddleSizeVector normal = ptrFace->getNormalVector(pRef);
+	   LinearAlgebra::SmallVector<DIM> normal = ptrFace->getNormalVector(pRef);
 
 
 	   //Compute flux
@@ -350,7 +358,8 @@ LinearAlgebra::MiddleSizeVector Euler::computeRightHandSideAtElement(Base::Eleme
    }
 
    /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-   LinearAlgebra::MiddleSizeVector Euler::integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
+    template<std::size_t DIM>
+   LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const PointReferenceOnFaceT &pRef, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
    {
 	   //Get the number of basis functions
 	   std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
@@ -382,7 +391,7 @@ LinearAlgebra::MiddleSizeVector Euler::computeRightHandSideAtElement(Base::Eleme
 	    }
 
 	   // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-	   LinearAlgebra::MiddleSizeVector normal = ptrFace->getNormalVector(pRef);
+	   LinearAlgebra::SmallVector<DIM> normal = ptrFace->getNormalVector(pRef);
 
 	   //Compute flux
 	   LinearAlgebra::MiddleSizeVector flux;
@@ -414,22 +423,24 @@ LinearAlgebra::MiddleSizeVector Euler::computeRightHandSideAtElement(Base::Eleme
    }
 
    /// \brief Compute the right-hand side corresponding to a boundary face
-   LinearAlgebra::MiddleSizeVector Euler::computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+    template<std::size_t DIM>
+   LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
    {
 	    // Define the integrand function for the right hand side for the reference face.
-	    std::function<LinearAlgebra::MiddleSizeVector(const Geometry::PointReference &)> integrandFunction = [&](const Geometry::PointReference &pRef) -> LinearAlgebra::MiddleSizeVector
+	    std::function<LinearAlgebra::MiddleSizeVector(const PointReferenceOnFaceT &)> integrandFunction = [&](const PointReferenceOnFaceT &pRef) -> LinearAlgebra::MiddleSizeVector
 	    {   return this->integrandRightHandSideOnRefFace(ptrFace, time, pRef, solutionCoefficients);};
 
-	    return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+	    return this->faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
    }
 
    /// \brief Compute the right-hand side corresponding to an internal face
-   LinearAlgebra::MiddleSizeVector Euler::computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time)
+    template<std::size_t DIM>
+   LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time)
    {
 	    // Define the integrand function for the right hand side for the reference face.
-	    std::function<LinearAlgebra::MiddleSizeVector(const Geometry::PointReference &)> integrandFunction = [&](const Geometry::PointReference &pRef) -> LinearAlgebra::MiddleSizeVector
+	    std::function<LinearAlgebra::MiddleSizeVector(const PointReferenceOnFaceT &)> integrandFunction = [&](const PointReferenceOnFaceT &pRef) -> LinearAlgebra::MiddleSizeVector
 	    {   return this->integrandRightHandSideOnRefFace(ptrFace, time, pRef, side, solutionCoefficientsLeft, solutionCoefficientsRight);};
-	    return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+	    return this->faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
    }
 
 
@@ -437,7 +448,8 @@ LinearAlgebra::MiddleSizeVector Euler::computeRightHandSideAtElement(Base::Eleme
    /// ***    		Various Functions        ***
    /// *****************************************
 
-   LinearAlgebra::MiddleSizeVector Euler::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
+    template<std::size_t DIM>
+   LinearAlgebra::MiddleSizeVector Euler<DIM>::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
    {
 		LinearAlgebra::MiddleSizeVector exactSolution(numOfVariables_);
 
@@ -463,15 +475,17 @@ LinearAlgebra::MiddleSizeVector Euler::computeRightHandSideAtElement(Base::Eleme
    }
 
    /// \brief Compute the initial solution at a given point in space and time.
-   LinearAlgebra::MiddleSizeVector Euler::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
+    template<std::size_t DIM>
+   LinearAlgebra::MiddleSizeVector Euler<DIM>::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
    {
        return getExactSolution(pPhys, startTime, orderTimeDerivative);
    }
 
    /// \brief Computes the error for output purposes
-   LinearAlgebra::MiddleSizeVector Euler::Error(const double time)
+    template<std::size_t DIM>
+   LinearAlgebra::MiddleSizeVector Euler<DIM>::Error(const double time)
    {
-	   return computeMaxError(solutionTimeLevel_, time);
+	   return this->computeMaxError(this->solutionTimeLevel_, time);
    }
 
 

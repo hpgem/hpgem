@@ -38,6 +38,7 @@
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Utilities/BasisFunctions3DH1ConformingCube.h"
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
+#include "LinearAlgebra/Axpy.h"
 
 #include "Logger.h"
 
@@ -45,18 +46,19 @@ namespace Base
 {
     
     ///\bug Workaround for Bug 60352 in (at least) gcc 4.8.2 (should read auto& numberOfSnapshots = ...)
-    CommandLineOption<std::size_t>& numberOfSnapshots = Base::register_argument<std::size_t>(0, "nOutputFrames", "Number of frames to output", false, 1);
-    CommandLineOption<double>& endTime = Base::register_argument<double>(0, "endTime", "end time of the simulation", false, 1);
-    CommandLineOption<double>& startTime = Base::register_argument<double>(0, "startTime", "start time of the simulation", false, 0);
-    CommandLineOption<double>& dt = Base::register_argument<double>(0, "dt", "time step of the simulation", false, 0.01);
-    CommandLineOption<std::string>& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file (without extentions)", false, "output");
+    extern CommandLineOption<std::size_t>& numberOfSnapshots;
+    extern CommandLineOption<double>& endTime;
+    extern CommandLineOption<double>& startTime;
+    extern CommandLineOption<double>& dt;
+    extern CommandLineOption<std::string>& outputName;
     
     /// \param[in] dimension Dimension of the domain
     /// \param[in] numOfVariables Number of variables in the PDE
     /// \param[in] polynomialOrder Polynomial order of the basis functions
     /// \param[in] ptrButcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
     /// \param[in] numOfTimeLevels Number of time levels. If a butcherTableau is set and the number of time levels is too low, this will be corrected automatically.
-    HpgemAPISimplified::HpgemAPISimplified
+    template<std::size_t DIM>
+    HpgemAPISimplified<DIM>::HpgemAPISimplified
     (
      const std::size_t dimension,
      const std::size_t numOfVariables,
@@ -64,27 +66,28 @@ namespace Base
      const Base::ButcherTableau * const ptrButcherTableau,
      const std::size_t numOfTimeLevels
      ) :
-    HpgemAPIBase(new Base::GlobalData, new Base::ConfigurationData(dimension, numOfVariables, polynomialOrder, (ptrButcherTableau->getNumStages() + 1 > numOfTimeLevels) ? ptrButcherTableau->getNumStages() + 1 : numOfTimeLevels)),
+    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(dimension, numOfVariables, polynomialOrder, (ptrButcherTableau->getNumStages() + 1 > numOfTimeLevels) ? ptrButcherTableau->getNumStages() + 1 : numOfTimeLevels)),
     ptrButcherTableau_(ptrButcherTableau),
     outputFileName_("output"),
     internalFileTitle_("output"),
     solutionTitle_("solution")
     {
         solutionTimeLevel_ = 0;
-        for (std::size_t i = 1; i < configData_->numberOfTimeLevels_; i++)
+        for (std::size_t i = 1; i < this->configData_->numberOfTimeLevels_; i++)
         {
             intermediateTimeLevels_.push_back(i);
         }
-        for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV++)
+        for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
         {
             std::string variableName = "variable" + std::to_string(iV);
             variableNames_.push_back(variableName);
         }
     }
-    
-    void HpgemAPISimplified::createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType)
+
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType)
     {
-        const Base::RectangularMeshDescriptor description = createMeshDescription(numOfElementsPerDirection);
+        const Base::RectangularMeshDescriptor<DIM> description = createMeshDescription(numOfElementsPerDirection);
         
         // Set the number of Element/Face Matrices/Vectors.
         std::size_t numOfElementMatrices = 0;
@@ -93,25 +96,26 @@ namespace Base
         std::size_t numOfFaceVectors = 0;
         
         // Create mesh and set basis functions.
-        addMesh(description, meshType, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
-        meshes_[0]->useDefaultDGBasisFunctions();
+        this->addMesh(description, meshType, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
+        this->meshes_[0]->useDefaultDGBasisFunctions();
         
-        std::size_t nElements = meshes_[0]->getNumberOfElements();
+        std::size_t nElements = this->meshes_[0]->getNumberOfElements();
         logger(VERBOSE, "Total number of elements: %", nElements);
     }
     
     /// \details By default this function computes the mass matrix that corresponds to the integral of the inner product of the test functions on the element.
     /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
-    LinearAlgebra::MiddleSizeMatrix HpgemAPISimplified::computeMassMatrixAtElement(Base::Element *ptrElement)
+    template<std::size_t DIM>
+    LinearAlgebra::MiddleSizeMatrix HpgemAPISimplified<DIM>::computeMassMatrixAtElement(Base::Element *ptrElement)
     {
         // Get number of basis functions
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
         
         // Make the mass matrix of the correct size and set all entries to zero.
-        LinearAlgebra::MiddleSizeMatrix massMatrix(numOfBasisFunctions * configData_->numberOfUnknowns_, numOfBasisFunctions * configData_->numberOfUnknowns_, 0);
+        LinearAlgebra::MiddleSizeMatrix massMatrix(numOfBasisFunctions * this->configData_->numberOfUnknowns_, numOfBasisFunctions * this->configData_->numberOfUnknowns_, 0);
         
         // Declare integrand
-        LinearAlgebra::MiddleSizeMatrix integrandMassMatrix(numOfBasisFunctions * configData_->numberOfUnknowns_, numOfBasisFunctions * configData_->numberOfUnknowns_, 0);
+        LinearAlgebra::MiddleSizeMatrix integrandMassMatrix(numOfBasisFunctions * this->configData_->numberOfUnknowns_, numOfBasisFunctions * this->configData_->numberOfUnknowns_, 0);
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
@@ -121,8 +125,8 @@ namespace Base
         // basisfunctions, then add it with the correct weight to massMatrix
         for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
         {
-            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(pQuad);
-            Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
+            Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
             
             LinearAlgebra::MiddleSizeVector valueBasisFunction(numOfBasisFunctions);
             for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
@@ -135,7 +139,7 @@ namespace Base
                 for(std::size_t jB = 0; jB < numOfBasisFunctions; ++jB)
                 {
                     double massProduct = valueBasisFunction(iB) * valueBasisFunction(jB);
-                    for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                    for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                     {
                         std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
                         std::size_t jVB = ptrElement->convertToSingleIndex(jB,iV);
@@ -148,16 +152,18 @@ namespace Base
         
         return massMatrix;
     }
-    
-    void HpgemAPISimplified::solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients)
+
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients)
     {
         computeMassMatrixAtElement(ptrElement).solve(solutionCoefficients);
     }
     
     /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix.
-    void HpgemAPISimplified::solveMassMatrixEquations(const std::size_t timeLevel)
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::solveMassMatrixEquations(const std::size_t timeLevel)
     {
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
+        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
             LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevel));
             
@@ -169,16 +175,17 @@ namespace Base
     
     /// \brief By default this function copmutes the integral of the inner product of the initial solution (for given order time derivative) and the test function on the element.
     /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
-    LinearAlgebra::MiddleSizeVector HpgemAPISimplified::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
+    template<std::size_t DIM>
+    LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
     {
         // Get number of basis functions
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
         
         // Declare integral initial solution
-        LinearAlgebra::MiddleSizeVector integralInitialSolution(numOfBasisFunctions * configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector integralInitialSolution(numOfBasisFunctions * this->configData_->numberOfUnknowns_);
         
         // Declare integrand
-        LinearAlgebra::MiddleSizeVector integrandInitialSolution(numOfBasisFunctions * configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector integrandInitialSolution(numOfBasisFunctions * this->configData_->numberOfUnknowns_);
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
@@ -188,10 +195,10 @@ namespace Base
         // test function and the initial solution, then add it with the correct weight to the integral solution.
         for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
         {
-            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(pQuad);
-            Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
+            Geometry::PointPhysical<DIM> pPhys = ptrElement->referenceToPhysical(pRef);
             
-            Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+            Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
             
             LinearAlgebra::MiddleSizeVector initialSolution = getInitialSolution(pPhys, startTime, orderTimeDerivative);
             
@@ -199,7 +206,7 @@ namespace Base
             {
                 double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
                 
-                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                 {
                     std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
                     
@@ -211,10 +218,11 @@ namespace Base
         
         return integralInitialSolution;
     }
-    
-    void HpgemAPISimplified::integrateInitialSolution(const std::size_t timeLevelResult, const double initialTime, const std::size_t orderTimeDerivative)
+
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::integrateInitialSolution(const std::size_t timeLevelResult, const double initialTime, const std::size_t orderTimeDerivative)
     {
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
+        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
             LinearAlgebra::MiddleSizeVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(timeLevelResult);
             solutionCoefficients = integrateInitialSolutionAtElement(ptrElement, initialTime, orderTimeDerivative);
@@ -225,16 +233,17 @@ namespace Base
     
     /// By default the square of the standard L2 norm is integrated.
     /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
-    LinearAlgebra::MiddleSizeVector HpgemAPISimplified::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+    template<std::size_t DIM>
+    double HpgemAPISimplified<DIM>::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
         
         // Declare integral initial solution
-        LinearAlgebra::MiddleSizeVector integralError(1);
+        double integralError = 0.;
         
         // Declare integrand
-        LinearAlgebra::MiddleSizeVector integrandError(1);
+        double integrandError = 0.;
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
@@ -243,30 +252,30 @@ namespace Base
         // For each quadrature point, compute the square of the error, then add it with the correct weight to the integral solution.
         for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
         {
-            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(pQuad);
-            Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
+            Geometry::PointPhysical<DIM> pPhys = ptrElement->referenceToPhysical(pRef);
             
-            Geometry::Jacobian jac = ptrElement->calcJacobian(pRef);
+            Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
             
             LinearAlgebra::MiddleSizeVector exactSolution = getExactSolution(pPhys, time, 0);
             
-            LinearAlgebra::MiddleSizeVector numericalSolution(configData_->numberOfUnknowns_);
+            LinearAlgebra::MiddleSizeVector numericalSolution(this->configData_->numberOfUnknowns_);
             numericalSolution *= 0;
             
             for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
             {
                 double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
                 
-                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                 {
                     std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
                     
                     numericalSolution(iV) += solutionCoefficients(iVB) * valueBasisFunction;
                 }
             }
-            integrandError(0) = (numericalSolution - exactSolution) * (numericalSolution - exactSolution);
+            integrandError = (numericalSolution - exactSolution) * (numericalSolution - exactSolution);
             
-            integralError.axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandError);
+            LinearAlgebra::axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandError, integralError);
         }
         
         return integralError;
@@ -275,12 +284,12 @@ namespace Base
     /// \param[in] solutionTimeLevel Time level where the solution is stored.
     /// \param[in] time Time corresponding to the current solution.
     /// \details The square of the total error is defined as \f[ e_{total}^2 := \int \|e\|^2 \,dV \f], where \f$\|e\|\f$ is some user-defined norm (based on the (weighted) inner product) of the error. By default this is the standard L2 norm.
-    double HpgemAPISimplified::computeTotalError(const std::size_t solutionTimeLevel, const double time)
+    template<std::size_t DIM>
+    double HpgemAPISimplified<DIM>::computeTotalError(const std::size_t solutionTimeLevel, const double time)
     {
-        LinearAlgebra::MiddleSizeVector totalError(1);
-        totalError(0) = 0;
+        double totalError = 0;
         
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
+        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
             LinearAlgebra::MiddleSizeVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(solutionTimeLevel);
             totalError += integrateErrorAtElement(ptrElement, solutionCoefficients, time);
@@ -300,25 +309,25 @@ namespace Base
             if(world_rank == 0)
             {   
                 MPI_Recv(&errorToAdd, 1, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                totalError(0) += errorToAdd;
+                totalError += errorToAdd;
             }
             else if(world_rank == iRank)
             {   
-                errorToAdd = totalError(0);
+                errorToAdd = totalError;
                 MPI_Send(&errorToAdd, 1, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD);
             }
         }
 
         if(world_rank == 0)
         {
-            if(totalError(0) >= 0)
+            if(totalError >= 0)
             {   
-                error = std::sqrt(totalError(0));
+                error = std::sqrt(totalError);
             }
             else
             {   
                 logger(WARN,"Warning: the computed total error is negative.");
-                error = std::sqrt(-totalError(0));
+                error = std::sqrt(-totalError);
             }
         }
         
@@ -337,14 +346,14 @@ namespace Base
         return error;
 #else
         
-        if (totalError(0) >= 0)
+        if (totalError >= 0)
         {
-            error = std::sqrt(totalError(0));
+            error = std::sqrt(totalError);
         }
         else
         {
             logger(WARN, "Warning: the computed total error is negative.");
-            error = std::sqrt(-totalError(0));
+            error = std::sqrt(-totalError);
         }
         return error;
 #endif
@@ -352,13 +361,14 @@ namespace Base
     
     /// \details This function returns a vector of the suprema of the error of every variable.
     /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
-    LinearAlgebra::MiddleSizeVector HpgemAPISimplified::computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+    template<std::size_t DIM>
+    LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
         
         // Declare vector of maxima of the error.
-        LinearAlgebra::MiddleSizeVector maxError(configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector maxError(this->configData_->numberOfUnknowns_);
         maxError *= 0;
         
         // Get quadrature rule and number of points.
@@ -368,19 +378,19 @@ namespace Base
         // For each quadrature point update the maxima of the error.
         for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
         {
-            const Geometry::PointReference& pRef = ptrQdrRule->getPoint(pQuad);
-            Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
+            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
+            Geometry::PointPhysical<DIM> pPhys = ptrElement->referenceToPhysical(pRef);
             
             LinearAlgebra::MiddleSizeVector exactSolution = getExactSolution(pPhys, time, 0);
             
-            LinearAlgebra::MiddleSizeVector numericalSolution(configData_->numberOfUnknowns_);
+            LinearAlgebra::MiddleSizeVector numericalSolution(this->configData_->numberOfUnknowns_);
             numericalSolution *= 0;
             
             for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
             {
                 double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
                 
-                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                 {
                     std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
                     
@@ -388,7 +398,7 @@ namespace Base
                 }
             }
             
-            for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+            for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
             {
                 if(std::abs(numericalSolution(iV) - exactSolution(iV)) > maxError(iV))
                 {
@@ -402,19 +412,20 @@ namespace Base
     
     /// \param[in] solutionTimeLevel Time level where the solution is stored.
     /// \param[in] time Time corresponding to the current solution.
-    LinearAlgebra::MiddleSizeVector HpgemAPISimplified::computeMaxError(const std::size_t solutionTimeLevel, const double time)
+    template<std::size_t DIM>
+    LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::computeMaxError(const std::size_t solutionTimeLevel, const double time)
     {
         
-        LinearAlgebra::MiddleSizeVector maxError(configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector maxError(this->configData_->numberOfUnknowns_);
         maxError *= 0;
         
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
+        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
             LinearAlgebra::MiddleSizeVector &solutionCoefficients = ptrElement->getTimeLevelDataVector(solutionTimeLevel);
             
             LinearAlgebra::MiddleSizeVector maxErrorAtElement(computeMaxErrorAtElement(ptrElement, solutionCoefficients, time));
             
-            for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+            for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
             {
                 if(maxErrorAtElement(iV) > maxError(iV))
                 {
@@ -434,9 +445,9 @@ namespace Base
         {
             if(world_rank == 0)
             {
-                double maxErrorToReceive[configData_->numberOfUnknowns_];
-                MPI_Recv(maxErrorToReceive, configData_->numberOfUnknowns_, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                double maxErrorToReceive[this->configData_->numberOfUnknowns_];
+                MPI_Recv(maxErrorToReceive, this->configData_->numberOfUnknowns_, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                 {
                     if(maxErrorToReceive[iV] > maxError(iV))
                     {
@@ -446,12 +457,12 @@ namespace Base
             }
             else if(world_rank == iRank)
             {
-                double maxErrorToSend[configData_->numberOfUnknowns_];
-                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                double maxErrorToSend[this->configData_->numberOfUnknowns_];
+                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                 {
                     maxErrorToSend[iV] = maxError(iV);
                 }
-                MPI_Send(maxErrorToSend, configData_->numberOfUnknowns_, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD);
+                MPI_Send(maxErrorToSend, this->configData_->numberOfUnknowns_, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD);
             }
         }
         
@@ -459,18 +470,18 @@ namespace Base
         {
             if(world_rank == 0)
             {
-                double maxErrorToSend[configData_->numberOfUnknowns_];
-                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                double maxErrorToSend[this->configData_->numberOfUnknowns_];
+                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                 {
                     maxErrorToSend[iV] = maxError(iV);
                 }
-                MPI_Send(maxErrorToSend, configData_->numberOfUnknowns_, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD);
+                MPI_Send(maxErrorToSend, this->configData_->numberOfUnknowns_, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD);
             }
             else if(world_rank == iRank)
             {
-                double maxErrorToReceive[configData_->numberOfUnknowns_];
-                MPI_Recv(maxErrorToReceive, configData_->numberOfUnknowns_, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; ++iV)
+                double maxErrorToReceive[this->configData_->numberOfUnknowns_];
+                MPI_Recv(maxErrorToReceive, this->configData_->numberOfUnknowns_, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                 {
                     maxError(iV) = maxErrorToReceive[iV];
                 }
@@ -483,10 +494,11 @@ namespace Base
     }
     
     /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
-    void HpgemAPISimplified::computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
     {
         // Apply the right hand side corresponding to integration on the elements.
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
+        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
             LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevelIn));
             LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
@@ -495,7 +507,7 @@ namespace Base
         }
         
         // Apply the right hand side corresponding to integration on the faces.
-        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
+        for (Base::Face *ptrFace : this->meshes_[0]->getFacesList())
         {
             if(ptrFace->isInternal())
             {
@@ -518,8 +530,9 @@ namespace Base
         
         synchronize(timeLevelResult);
     }
-    
-    LinearAlgebra::MiddleSizeVector HpgemAPISimplified::getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels)
+
+    template<std::size_t DIM>
+    LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels)
     {
         logger.assert(timeLevelsIn.size() == coefficientsTimeLevels.size(), "Number of time levels and number of coefficients should be the same.");
         logger.assert(timeLevelsIn.size() > 0, "Number of time levels should be bigger than zero.");
@@ -534,10 +547,11 @@ namespace Base
     }
     
     /// \details Make sure timeLevelResult is different from the timeLevelsIn.
-    void HpgemAPISimplified::computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
     {
         // Apply the right hand side corresponding to integration on the elements.
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
+        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
             LinearAlgebra::MiddleSizeVector solutionCoefficients(getSolutionCoefficients(ptrElement, timeLevelsIn, coefficientsTimeLevels));
             LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
@@ -546,7 +560,7 @@ namespace Base
         }
         
         // Apply the right hand side corresponding to integration on the faces.
-        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
+        for (Base::Face *ptrFace : this->meshes_[0]->getFacesList())
         {
             if(ptrFace->isInternal())
             {
@@ -569,12 +583,13 @@ namespace Base
         
         synchronize(timeLevelResult);
     }
-    
-    void HpgemAPISimplified::synchronize(const std::size_t timeLevel)
+
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::synchronize(const std::size_t timeLevel)
     {
 #ifdef HPGEM_USE_MPI
         //Now, set it up.
-        Base::MeshManipulator * meshManipulator = meshes_[0];
+        Base::MeshManipulator<DIM> * meshManipulator = this->meshes_[0];
         Base::Submesh& mesh = meshManipulator->getMesh().getSubmesh();
 
         const auto& pushes = mesh.getPushElements();
@@ -585,7 +600,7 @@ namespace Base
         {   
             for (Base::Element *ptrElement : it.second)
             {   
-                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_ , "Size of time level data vector is wrong.");
+                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_ , "Size of time level data vector is wrong.");
 
                 Base::MPIContainer::Instance().receive(ptrElement->getTimeLevelDataVector(timeLevel), it.first, ptrElement->getID());
             }
@@ -594,7 +609,7 @@ namespace Base
         {   
             for (Base::Element *ptrElement : it.second)
             {   
-                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == configData_->numberOfBasisFunctions_ * configData_->numberOfUnknowns_, "Size of time level data vector is wrong.");
+                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_, "Size of time level data vector is wrong.");
 
                 Base::MPIContainer::Instance().send(ptrElement->getTimeLevelDataVector(timeLevel), it.first, ptrElement->getID());
             }
@@ -602,49 +617,55 @@ namespace Base
         Base::MPIContainer::Instance().sync();
 #endif
     }
-    
-    void HpgemAPISimplified::scaleTimeLevel(const std::size_t timeLevel, const double scale)
+
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::scaleTimeLevel(const std::size_t timeLevel, const double scale)
     {
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
+        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
             ptrElement->getTimeLevelDataVector(timeLevel) *= scale;
         }
         
         synchronize(timeLevel);
     }
-    
-    void HpgemAPISimplified::scaleAndAddTimeLevel(const std::size_t timeLevelToChange, const std::size_t timeLevelToAdd, const double scale)
+
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::scaleAndAddTimeLevel(const std::size_t timeLevelToChange, const std::size_t timeLevelToAdd, const double scale)
     {
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
+        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
             ptrElement->getTimeLevelDataVector(timeLevelToChange).axpy(scale, ptrElement->getTimeLevelDataVector(timeLevelToAdd));
         }
         
         synchronize(timeLevelToChange);
     }
-    
-    void HpgemAPISimplified::setInitialSolution(const std::size_t solutionTimeLevel, const double initialTime, const std::size_t orderTimeDerivative)
+
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::setInitialSolution(const std::size_t solutionTimeLevel, const double initialTime, const std::size_t orderTimeDerivative)
     {
         integrateInitialSolution(solutionTimeLevel, initialTime, orderTimeDerivative);
         solveMassMatrixEquations(solutionTimeLevel);
     }
     
     /// \details Computing the time derivative in this case means applying the right hand side for the solution at time level 'timeLevelIn' and then solving the mass matrix equations. The result is stored at time level 'timeLevelResult'.
-    void HpgemAPISimplified::computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
     {
         computeRightHandSide(timeLevelIn, timeLevelResult, time);
         solveMassMatrixEquations(timeLevelResult);
     }
     
     /// \details Computing the time derivative in this case means applying the right hand side for the linear combination of solutions at time levels 'timeLevelsIn' with coefficients given by coefficientsTimeLevels, and then solving the mass matrix equations. The result is stored at time level 'timeLevelResult'.
-    void HpgemAPISimplified::computeTimeDerivative(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::computeTimeDerivative(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
     {
         computeRightHandSide(timeLevelsIn, coefficientsTimeLevels, timeLevelResult, time);
         solveMassMatrixEquations(timeLevelResult);
         synchronize(timeLevelResult);
     }
-    
-    void HpgemAPISimplified::computeOneTimeStep(double &time, const double dt)
+
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::computeOneTimeStep(double &time, const double dt)
     {
         std::size_t numOfStages = ptrButcherTableau_->getNumStages();
         
@@ -681,18 +702,20 @@ namespace Base
     /// \param[in] internalFileTitle Title of the file as used by Tecplot internally.
     /// \param[in] solutionTitle Title of the solution.
     /// \param[in] variableNames String of variable names. The string should have the form "nameVar1,nameVar2,..,nameVarN".
-    void HpgemAPISimplified::setOutputNames(std::string outputFileName, std::string internalFileTitle, std::string solutionTitle, std::vector<std::string> variableNames)
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::setOutputNames(std::string outputFileName, std::string internalFileTitle, std::string solutionTitle, std::vector<std::string> variableNames)
     {
         outputFileName_ = outputFileName;
         internalFileTitle_ = internalFileTitle;
         solutionTitle_ = solutionTitle;
-        logger.assert(variableNames_.size() == configData_->numberOfUnknowns_, "Number of variable names (%) is not equal to the number of variables (%)", variableNames_.size(), configData_->numberOfUnknowns_);
+        logger.assert(variableNames_.size() == this->configData_->numberOfUnknowns_, "Number of variable names (%) is not equal to the number of variables (%)", variableNames_.size(), this->configData_->numberOfUnknowns_);
         variableNames_ = variableNames;
     }
-    
-    void HpgemAPISimplified::writeToTecplotFile(const Element *ptrElement, const PointReferenceT &pRef, std::ostream &out)
+
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::writeToTecplotFile(const Element *ptrElement, const PointReferenceT &pRef, std::ostream &out)
     {
-        std::size_t numOfVariables = configData_->numberOfUnknowns_;
+        std::size_t numOfVariables = this->configData_->numberOfUnknowns_;
         
         LinearAlgebra::MiddleSizeVector solution(numOfVariables);
         solution = ptrElement->getSolution(solutionTimeLevel_, pRef);
@@ -704,18 +727,20 @@ namespace Base
             out << " " << solution(iV);
         }
     }
-    
-    void HpgemAPISimplified::registerVTKWriteFunctions()
+
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::registerVTKWriteFunctions()
     {
-        for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV++)
+        for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
         {
-            registerVTKWriteFunction([=](Base::Element* element, const Geometry::PointReference& pRef, std::size_t timeLevel) -> double{ return element->getSolution(timeLevel, pRef)[iV];}, variableNames_[iV]);
+            registerVTKWriteFunction([=](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double{ return element->getSolution(timeLevel, pRef)[iV];}, variableNames_[iV]);
         }
     }
-    
-    bool HpgemAPISimplified::checkBeforeSolving()
+
+    template<std::size_t DIM>
+    bool HpgemAPISimplified<DIM>::checkBeforeSolving()
     {
-        if (HpgemAPIBase::meshes_.size() == 0)
+        if (HpgemAPIBase<DIM>::meshes_.size() == 0)
         {
             logger(ERROR, "Error no mesh created : You need to create at least one mesh to solve a problem");
         }
@@ -728,7 +753,8 @@ namespace Base
     /// \param[in] dt Size of the time step
     /// \param[in] numOutputFrames Number of times the solution is written to an output file.
     /// \param[in] doComputeError Boolean to indicate if the error should be computed.
-    bool HpgemAPISimplified::solve(const double initialTime, const double finalTime, double dt, const std::size_t numOfOutputFrames, bool doComputeError)
+    template<std::size_t DIM>
+    bool HpgemAPISimplified<DIM>::solve(const double initialTime, const double finalTime, double dt, const std::size_t numOfOutputFrames, bool doComputeError)
     {
         checkBeforeSolving();
         
@@ -736,7 +762,7 @@ namespace Base
         std::string outputFileNameVTK = outputFileName_;
         
         registerVTKWriteFunctions();
-        Output::VTKTimeDependentWriter VTKWriter(outputFileNameVTK, meshes_[0]);
+        Output::VTKTimeDependentWriter<DIM> VTKWriter(outputFileNameVTK, this->meshes_[0]);
         
         // Create output files for Tecplot.
 #ifdef HPGEM_USE_MPI
@@ -746,7 +772,7 @@ namespace Base
 #endif
         std::string outputFileNameTecplot = outputFileName + ".dat";
         std::string dimensionsToWrite = "";
-        for(std::size_t i = 0; i < configData_->dimension_; i++)
+        for(std::size_t i = 0; i < this->configData_->dimension_; i++)
         {
             dimensionsToWrite = dimensionsToWrite + std::to_string(i);
         }
@@ -758,7 +784,7 @@ namespace Base
         }
         
         std::ofstream outputFile(outputFileNameTecplot);
-        Output::TecplotDiscontinuousSolutionWriter tecplotWriter(outputFile, internalFileTitle_, dimensionsToWrite, variableString);
+        Output::TecplotDiscontinuousSolutionWriter<DIM> tecplotWriter(outputFile, internalFileTitle_, dimensionsToWrite, variableString);
         
         // Compute parameters for time integration
         double T = finalTime - initialTime;     // Time interval
@@ -786,7 +812,7 @@ namespace Base
         // Set the initial numerical solution.
         logger(INFO, "Computing and interpolating the initial solution.");
         setInitialSolution(solutionTimeLevel_, time, 0);
-        tecplotWriter.write(meshes_[0], solutionTitle_, false, this, time);
+        tecplotWriter.write(this->meshes_[0], solutionTitle_, false, this, time);
         VTKWrite(VTKWriter, time, solutionTimeLevel_);
         
         // Solve the system of PDE's.
@@ -800,7 +826,7 @@ namespace Base
             
             if (iT % numOfTimeStepsForOutput == 0)
             {
-                tecplotWriter.write(meshes_[0], solutionTitle_, false, this, time);
+                tecplotWriter.write(this->meshes_[0], solutionTitle_, false, this, time);
                 VTKWrite(VTKWriter, time, solutionTimeLevel_);
             }
             showProgress(time, iT);
@@ -812,8 +838,8 @@ namespace Base
             double totalError = computeTotalError(solutionTimeLevel_, finalTime);
             logger(INFO, "Total error: %.", totalError);
             LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionTimeLevel_, finalTime);
-            logger.assert(maxError.size() == configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), configData_->numberOfUnknowns_);
-            for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV ++)
+            logger.assert(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), this->configData_->numberOfUnknowns_);
+            for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV ++)
             {
                 logger(INFO, "Maximum error %: %", variableNames_[iV], maxError(iV));
             }

@@ -36,36 +36,38 @@
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Logger.h"
 
+const static std::size_t DIM = 2;
+
 /// Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
 /// This class is meant for testing purposes.
 //  Please verify that nobody went and tested a broken feature
 //  Please keep the problem modelled here reasonably close to the linear advection problem
 ///\todo Write self-test
-class AdvectionTest : public Base::HpgemAPILinear
+class AdvectionTest : public Base::HpgemAPILinear<DIM>
 {
 public:
     ///Constructor. Assign all private variables.
     AdvectionTest(std::size_t p) :
-    HpgemAPILinear(DIM_, 1, p)
+    HpgemAPILinear<DIM>(DIM, 1, p)
     {
         //Choose the "direction" of the advection.
         //This cannot be implemented with iterators, and since the dimension is
         //not always 2, this is the most generic way to write it.
-        a.resize(DIM_);
-        for (std::size_t i = 0; i < DIM_; ++i)
+        a.resize(DIM);
+        for (std::size_t i = 0; i < DIM; ++i)
         {
             a[i] = 0.1 + 0.1 * i;
         }
     }
     
     /// Create a mesh description
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        Base::RectangularMeshDescriptor description(DIM_);
+        Base::RectangularMeshDescriptor<DIM> description;
         
         //this demo will use the square [0,1]^2
-        for (std::size_t i = 0; i < DIM_; ++i)
+        for (std::size_t i = 0; i < DIM; ++i)
         {
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
@@ -109,7 +111,7 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, to which we passed a reference when calling it.
     ///Please note that you pass a reference point to the basisfunctions and the
     ///transformations are done internally. The class FaceMatrix consists of four element matrices for internal faces and one element matrix for faces on the boundary. Each element matrix corresponds to a pair of two adjacent elements of the face.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face *face, const LinearAlgebra::MiddleSizeVector &normal, const PointReferenceT &point) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face *face, const LinearAlgebra::SmallVector<DIM> &normal, const PointReferenceOnFaceT &point) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
@@ -189,14 +191,9 @@ public:
     
 private:
     
-    //Dimension of the problem
-    static const std::size_t DIM_;
-    
     ///Advective vector
     LinearAlgebra::MiddleSizeVector a;
 };
-
-const std::size_t AdvectionTest::DIM_(2);
 
 auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
 auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);

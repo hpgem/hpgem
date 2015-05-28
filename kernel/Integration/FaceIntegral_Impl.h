@@ -29,14 +29,14 @@
 
 namespace Integration
 {
-    
+    //dim denotes the dimension of the ELEMENT here
     template<typename ReturnTrait1, std::size_t DIM>
     ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, FaceIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRules::GaussQuadratureRule* qdrRule)
     {
         logger.assert(fa!=nullptr, "Invalid face detected");
         logger.assert(integrand!=nullptr, "Invalid integrand detected");
         //quadrature rule is allowed to be equal to nullptr!
-        std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::SmallVector<DIM>&, const Geometry::PointReference<DIM>&)> integrandFunc = [=](const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& n, const Geometry::PointReference<DIM>& p)
+        std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::SmallVector<DIM>&, const Geometry::PointReference<DIM - 1>&)> integrandFunc = [=](const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& n, const Geometry::PointReference<DIM - 1>& p)
         {   
             ReturnTrait1 result;
             integrand->faceIntegrand(face,n,p,result);
@@ -45,6 +45,7 @@ namespace Integration
         return integrate(fa, integrandFunc, qdrRule);
     }
     
+    //dim denotes the dimension of the ELEMENT here
     template<typename ReturnTrait1, std::size_t DIM>
     ReturnTrait1 FaceIntegral::integrate(Base::Face* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::SmallVector<DIM>&, const Geometry::PointReference<DIM - 1>&)> integrandFunc, const QuadratureRulesT* const qdrRule)
     {
@@ -98,17 +99,18 @@ namespace Integration
      
      NOTE: do not mix up gradients of pyhsical and reference basis functions with integrals on physical and reference faces. If \f$ f_{phys}(x) \f$ contains a (physical) gradient of a physical basis function then so does \f$ f_{ref}(\xi) = f_{phys}(\phi(\xi)) |J| \f$. The difference is the input argument (reference point \f$ \xi \f$ instead of physical point \f$ x \f$ ) and the scaling \f$ |J| \f$. (Ofcourse it is possible to rewrite the gradient of a physical basis function in terms of the gradient of the corresponding reference basis function).
      */
+    //DIM denotes the dimension of the FACE here
     template<typename IntegrandType, std::size_t DIM>
-    IntegrandType FaceIntegral::referenceFaceIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference<DIM - 1> &)> integrandFunction)
+    IntegrandType FaceIntegral::referenceFaceIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference<DIM> &)> integrandFunction)
     {
         std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
         std::size_t iPoint = 0; // Index for the quadrature points.
         
-        const Geometry::PointReference<DIM - 1>& pRef0 = ptrQdrRule->getPoint(iPoint);
+        const Geometry::PointReference<DIM>& pRef0 = ptrQdrRule->getPoint(iPoint);
         IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction(pRef0));
         for (iPoint = 1; iPoint < numOfPoints; iPoint++)
         {
-            const Geometry::PointReference<DIM - 1>& pRef = ptrQdrRule->getPoint(iPoint);
+            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(iPoint);
             LinearAlgebra::axpy(ptrQdrRule->weight(iPoint), integrandFunction(pRef), integral);
         }
         return integral;

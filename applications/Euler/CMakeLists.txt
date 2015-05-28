@@ -4,7 +4,6 @@ include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 #############################################################
    
 add_executable(Euler.out 
-		Euler.cpp
 		main.cpp
       		)
 target_link_libraries(Euler.out hpGEM_Base Output)

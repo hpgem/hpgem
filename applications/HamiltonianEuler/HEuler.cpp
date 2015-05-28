@@ -18,12 +18,16 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifdef HPGEM_USE_MPI
+//something breaks if this in included later on
+#include <mpi.h>
+#endif
 
 #include "HEuler.h"
 #include "Base/RectangularMeshDescriptor.h"
 
 HEuler::HEuler(HEulerGlobalVariables* global, const HEulerConfigurationData* config)
-        : Base::HpgemAPIBase(global, config), P_(), Q_()
+        : Base::HpgemAPIBase<3>(global, config), P_(), Q_()
 {
     switch (config->solutionType_)
     {
@@ -116,7 +120,7 @@ void HEuler::printFullMatrixInfo(Mat& matrix, const string& name)
 
 bool HEuler::initialiseMesh()
 {
-    RectangularMeshDescriptor rectangularMesh(3);
+    RectangularMeshDescriptor<3> rectangularMesh;
     
     const HEulerConfigurationData* config = static_cast<const HEulerConfigurationData*>(configData_);
     
@@ -222,7 +226,7 @@ void HEuler::elementIntegrand(const Base::Element* element, const PointReference
     }
 }
 
-void HEuler::faceIntegrand(const Base::Face* face, const LinearAlgebra::MiddleSizeVector& normal, const PointReferenceOnTheFaceT& p, FluxData& ret)
+void HEuler::faceIntegrand(const Base::Face* face, const LinearAlgebra::SmallVector<3>& normal, const PointReferenceOnTheFaceT& p, FluxData& ret)
 {
     ret.resize(face->getNrOfBasisFunctions());
     if (face->isInternal())
@@ -241,8 +245,8 @@ void HEuler::faceIntegrand(const Base::Face* face, const LinearAlgebra::MiddleSi
         const Base::Element* const left = face->getPtrElementLeft();
         const Base::Element* const right = face->getPtrElementRight();
         
-        const Geometry::PointReference& pL = face->mapRefFaceToRefElemL(p);
-        const Geometry::PointReference& pR = face->mapRefFaceToRefElemR(p);
+        const Geometry::PointReference<3>& pL = face->mapRefFaceToRefElemL(p);
+        const Geometry::PointReference<3>& pR = face->mapRefFaceToRefElemR(p);
         
         for (int j = 0; j < numberOfDegreesOfFreedom; ++j)
         {
@@ -1761,7 +1765,7 @@ void HEuler::output(double time)
     std::ofstream file3D;
     file3D.open(outFile.c_str());
     
-    Output::TecplotDiscontinuousSolutionWriter out(file3D, "RectangularMesh", "012", outputFormat);
+    Output::TecplotDiscontinuousSolutionWriter<3> out(file3D, "RectangularMesh", "012", outputFormat);
     
     TecplotWriteFunction userWriteFunction(&energyFile, &divFile, &energyExfile, exactSolution_, &file1Dx0, &file1D0, &file1DEx0, &l2ErrorFile);
     userWriteFunction.time_ = time;

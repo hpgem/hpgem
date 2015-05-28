@@ -25,17 +25,25 @@
 #include "Base/Element.h"
 #include "Base/Face.h"
 
+//first make it working in 1D, then fix for 2D
+const std::size_t DIM = 1;
+
 using LinearAlgebra::MiddleSizeVector;
 
+//the split into two classes does not really make life easier
 class SavageHutterRightHandSideComputer
 {
+    friend class SavageHutter;
+    using PointPhysicalT = Geometry::PointPhysical<DIM>;
+    using PointReferenceT = Geometry::PointReference<DIM>;
+    using PointReferenceOnFaceT = Geometry::PointReference<DIM - 1>;
 private:
     /// \brief Compute the integrand for the right hand side for the reference element.
     MiddleSizeVector integrandRightHandSideOnElement
     (
      const Base::Element *ptrElement,
      const double &time,
-     const Geometry::PointReference &pRef,
+     const PointReferenceT &pRef,
      const MiddleSizeVector &solutionCoefficients
      );
     
@@ -43,8 +51,8 @@ private:
     MiddleSizeVector integrandRightHandSideOnRefFace
     (
      const Base::Face *ptrFace,
-     const MiddleSizeVector &normalVec,
-     const Geometry::PointReference &pRef,
+     const LinearAlgebra::SmallVector<DIM> &normalVec,
+     const PointReferenceOnFaceT &pRef,
      const MiddleSizeVector &solutionCoefficients
      );
 
@@ -54,15 +62,15 @@ private:
     (
      const Base::Face *ptrFace,
      const Base::Side &iSide,
-     const MiddleSizeVector &normalVec,
-     const Geometry::PointReference &pRef,
+     const LinearAlgebra::SmallVector<DIM> &normalVec,
+     const PointReferenceOnFaceT &pRef,
      const MiddleSizeVector &solutionCoefficientsLeft,
      const MiddleSizeVector &solutionCoefficientsRight
      );
     
     MiddleSizeVector computePhysicalFlux(const MiddleSizeVector &numericalSolution);
     MiddleSizeVector computeSourceTerm(const MiddleSizeVector &numericalSolution);
-    MiddleSizeVector computeNumericalSolution(const Base::Element *ptrElement, const Geometry::PointReference &pRef, const MiddleSizeVector& solutionCoefficients);
+    MiddleSizeVector computeNumericalSolution(const Base::Element *ptrElement, const PointReferenceT &pRef, const MiddleSizeVector& solutionCoefficients);
     MiddleSizeVector localLaxFriedrichsFlux(const MiddleSizeVector &numericalSolutionLeft, const MiddleSizeVector &NumericalSolutionRight);
     double computeFriction(const MiddleSizeVector &numericalSolution);
     LinearAlgebra::MiddleSizeVector getInflowBC();
@@ -71,7 +79,6 @@ private:
     std::size_t DIM_;
     double epsilon_;
     double theta_; //in radians
-    friend class SavageHutter;
 };
 
 #endif	/* SAVAGEHUTTERRIGHTHANDSIDECOMPUTER_H */

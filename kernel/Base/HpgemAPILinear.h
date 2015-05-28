@@ -70,10 +70,14 @@ namespace Base
      */
     /** \details For an example of using this interface see the application 'ExampleMultipleVariableProblem'.
      */
-    
-    class HpgemAPILinear : public HpgemAPISimplified
+
+    template<std::size_t DIM>
+    class HpgemAPILinear : public HpgemAPISimplified<DIM>
     {
     public:
+        using typename HpgemAPIBase<DIM>::PointPhysicalT;
+        using typename HpgemAPIBase<DIM>::PointReferenceT;
+        using typename HpgemAPIBase<DIM>::PointReferenceOnFaceT;
         // Constructor
         HpgemAPILinear
         (
@@ -119,7 +123,7 @@ namespace Base
         void solveMassMatrixEquations(const std::size_t timeLevel) override;
         
         /// \brief Compute the integrand for the stiffness matrix.
-        virtual LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef)
+        virtual LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *ptrElement, const Geometry::PointReference<DIM> &pRef)
         {
             logger(ERROR, "No function for computing the integrand for the stiffness matrix at an element implemented.");
             LinearAlgebra::MiddleSizeMatrix integrandStiffnessMatrix;
@@ -130,7 +134,7 @@ namespace Base
         virtual LinearAlgebra::MiddleSizeMatrix computeStiffnessMatrixAtElement(Base::Element *ptrElement);
         
         /// \brief Compute the integrand for the stiffness matrix.
-        virtual Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face *ptrFace, const LinearAlgebra::MiddleSizeVector &normal, const Geometry::PointReference &pRef)
+        virtual Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face *ptrFace, const LinearAlgebra::SmallVector<DIM> &normal, const Geometry::PointReference<DIM - 1> &pRef)
         {
             logger(ERROR, "No function for computing the integrand for the stiffness matrix at a face implemented.");
             Base::FaceMatrix integrandStiffnessMatrix;
@@ -147,7 +151,7 @@ namespace Base
         virtual LinearAlgebra::MiddleSizeVector integrateSourceTermAtElement(Base::Element *ptrElement, const double time, const std::size_t orderTimeDerivative);
         
         /// \brief Compute the integrand for the source term at a face at the boundary.
-        virtual LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::MiddleSizeVector &normal, const Geometry::PointReference &pRef, const double time, const std::size_t orderTimeDerivative)
+        virtual LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::SmallVector<DIM> &normal, const Geometry::PointReference<DIM - 1> &pRef, const double time, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No function for computing the integrand for the source term at a face at the domain boundary implemented.");
             LinearAlgebra::MiddleSizeVector integrandSourceTerm;
@@ -195,6 +199,8 @@ namespace Base
         const std::size_t stiffnessFaceMatrixID_;
     };
 }
+
+#include "HpgemAPILinear.cpp"
 
 #endif
 

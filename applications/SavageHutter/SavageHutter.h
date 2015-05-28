@@ -49,7 +49,7 @@
 
 //todo: make the functions override final, but at the moment my parser does not 
 //understand the override and final keywords, which makes development harder
-class SavageHutter : public Base::HpgemAPISimplified
+class SavageHutter : public Base::HpgemAPISimplified<DIM>
 {
 public:
     SavageHutter(const std::size_t dimension, const std::size_t numOfVariables,
@@ -58,13 +58,13 @@ public:
             const std::size_t numTimeSteps);
 
     /// \brief Create a domain
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection);
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection);
 
     /// \brief Compute the initial solution at a given point in space and time.
     LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
 
     /// \brief Compute the integrand for the reference element for obtaining the initial solution.
-    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnElement(const Base::Element *ptrElement, const double &startTime, const PointReferenceT &pRef);
 
     /// \brief Integrate the initial solution for a single element.
     LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
@@ -83,7 +83,7 @@ public:
             std::ofstream myFile0(fileName0);
             for (Base::Element* element : meshes_[0]->getElementsList())
             {
-                Geometry::PointPhysical pPhys(1);
+                PointPhysicalT pPhys;
                 pPhys[0] = static_cast<double>(element->getID()) / meshes_[0]->getElementsList().size();
                 myFile0 << std::setw(5) << pPhys[0] << '\t' << std::setprecision(12) 
                         << getInitialSolution(pPhys, 0)(0) << '\t' 
@@ -106,12 +106,12 @@ public:
             std::ofstream myFile(fileName);
             for (Base::Element* element : meshes_[0]->getElementsList())
             {
-                const Geometry::PointReference& pRef0 = element->getReferenceGeometry()->getNode(0);
+                const PointReferenceT& pRef0 = element->getReferenceGeometry()->getNode(0);
                 pPhys = static_cast<double>(element->getID()) / meshes_[0]->getElementsList().size();
                 myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) 
                         << element->getSolution(0, pRef0)(0) << '\t' << element->getSolution(0, pRef0)(1) << '\t'
                         << element->getSolution(0, pRef0)(1) / element->getSolution(0, pRef0)(0) << std::endl;
-                const Geometry::PointReference& pRef1 = element->getReferenceGeometry()->getNode(1);
+                const PointReferenceT& pRef1 = element->getReferenceGeometry()->getNode(1);
                 pPhys = static_cast<double>((element->getID() + 1)) / meshes_[0]->getElementsList().size();
                 myFile << std::setw(5) << pPhys << '\t' << std::setprecision(12) 
                         << element->getSolution(0, pRef1)(0) << '\t' << element->getSolution(0, pRef1)(1) << '\t'
