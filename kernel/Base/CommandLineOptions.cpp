@@ -32,6 +32,14 @@
 #include <petscsys.h>
 #endif
 
+#ifdef HPGEM_USE_COMPLEX_PETSC
+#include <petscsys.h>
+#endif
+
+#ifdef HPGEM_USE_SLEPC
+#include <slepcsys.h>
+#endif
+
 //special flags
 auto& isDone = Base::register_argument<bool>('\0', "", "Signals the end of the arguments passed to hpGEM, the rest will be passed to linked libraries", false, false);
 
@@ -94,7 +102,7 @@ void Base::parse_options(int argc, char** argv)
     argc -= count;
     argv += count;
     
-#ifdef HPGEM_USE_PETSC
+#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
     //block so variables can be created without affecting the rest of the function
     {
         PetscBool initialised;
@@ -108,11 +116,20 @@ void Base::parse_options(int argc, char** argv)
             MPI::Group groupID = MPI::COMM_WORLD.Get_group();
             PETSC_COMM_WORLD = MPI::COMM_WORLD.Create(groupID);
 #endif
+#ifdef HPGEM_USE_SLEPC
+            SlepcInitialize(&argc, &argv, PETSC_NULL, "PETSc help\n");
+#else
             PetscInitialize(&argc, &argv, PETSC_NULL, "PETSc help\n");
-            
+#endif
+            //please do not catch signals PETSc, you are confusing users
+            PetscPopSignalHandler();
             std::atexit([]()
             {   
+#ifdef HPGEM_USE_SLEPC
+                SlepcFinalize();
+#else
                 PetscFinalize();
+#endif
             });
         }
     }

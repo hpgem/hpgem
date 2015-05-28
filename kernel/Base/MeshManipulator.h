@@ -125,7 +125,7 @@ namespace Base
 
         void addEdge();
 
-        void addVertex();
+        void addNode();
 
         std::size_t getNumberOfElements(IteratorType part = IteratorType::LOCAL) const
         {
@@ -142,14 +142,14 @@ namespace Base
             return theMesh_.getNumberOfEdges(part);
         }
         
-        std::size_t getNumberOfVertices(IteratorType part = IteratorType::LOCAL) const
+        std::size_t getNumberOfNodes(IteratorType part = IteratorType::LOCAL) const
         {
-            return theMesh_.getNumberOfVertices(part);
+            return theMesh_.getNumberOfNodes(part);
         }
         
-        std::size_t getNumberOfNodes() const
+        std::size_t getNumberOfNodeCoordinates() const
         {
-            return theMesh_.getNumberOfNodes();
+            return theMesh_.getNumberOfNodeCoordinates();
         }
         
         /// *****************Iteration through the Elements*******************
@@ -214,24 +214,24 @@ namespace Base
             return theMesh_.edgeColEnd(part);
         }
         
-        std::vector<Node*>::const_iterator vertexColBegin(IteratorType part = IteratorType::LOCAL) const
+        std::vector<Node*>::const_iterator nodeColBegin(IteratorType part = IteratorType::LOCAL) const
         {
-            return theMesh_.vertexColBegin(part);
+            return theMesh_.nodeColBegin(part);
         }
         
-        std::vector<Node*>::const_iterator vertexColEnd(IteratorType part = IteratorType::LOCAL) const
+        std::vector<Node*>::const_iterator nodeColEnd(IteratorType part = IteratorType::LOCAL) const
         {
-            return theMesh_.vertexColEnd(part);
+            return theMesh_.nodeColEnd(part);
         }
         
-        std::vector<Node*>::iterator vertexColBegin(IteratorType part = IteratorType::LOCAL)
+        std::vector<Node*>::iterator nodeColBegin(IteratorType part = IteratorType::LOCAL)
         {
-            return theMesh_.vertexColBegin(part);
+            return theMesh_.nodeColBegin(part);
         }
         
-        std::vector<Node*>::iterator vertexColEnd(IteratorType part = IteratorType::LOCAL)
+        std::vector<Node*>::iterator nodeColEnd(IteratorType part = IteratorType::LOCAL)
         {
-            return theMesh_.vertexColEnd(part);
+            return theMesh_.nodeColEnd(part);
         }
         /// *****************Iteration through the Elements*******************
         
@@ -344,14 +344,14 @@ namespace Base
             return theMesh_.getEdgesList(part);
         }
         
-        const std::vector<Node*>& getVerticesList(IteratorType part = IteratorType::LOCAL) const
+        const std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL) const
         {
-            return theMesh_.getVerticesList(part);
+            return theMesh_.getNodesList(part);
         }
         
-        std::vector<Node*>& getVerticesList(IteratorType part = IteratorType::LOCAL)
+        std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL)
         {
-            return theMesh_.getVerticesList(part);
+            return theMesh_.getNodesList(part);
         }
         // ************************************************************************
         

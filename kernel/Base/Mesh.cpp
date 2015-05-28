@@ -72,7 +72,7 @@ namespace Base
             for(std::size_t i = 0; i < nodeElements.size(); ++i)
             {
                 std::size_t id = nodeElements[i]->getID();
-                nodes_.back()->addElement(elements_[id], node->getVertexNr(i));
+                nodes_.back()->addElement(elements_[id], node->getNodeNr(i));
             }
             ++nodeCounter_;
         }
@@ -153,13 +153,13 @@ namespace Base
         hasToSplit_ = true;
     }
     
-    void Mesh::addNode(Geometry::PointPhysical node)
+    void Mesh::addNodeCoordinate(Geometry::PointPhysical node)
     {
         points_.push_back(node);
         //don't distribute the points here, it will confuse the elements
     }
     
-    void Mesh::addVertex()
+    void Mesh::addNode()
     {
         nodes_.push_back(new Node(nodeCounter_));
         ++nodeCounter_;
@@ -406,12 +406,12 @@ namespace Base
         }
     }
     
-    const std::vector<Node*>& Mesh::getVerticesList(IteratorType part) const
+    const std::vector<Node*>& Mesh::getNodesList(IteratorType part) const
     {
         if (part == IteratorType::LOCAL)
         {
-            logger.assert_always(!hasToSplit_, "Please call getVerticesListList() on a modifiable mesh at least once"
-                    "\nbefore calling getVerticesList() const");
+            logger.assert_always(!hasToSplit_, "Please call getNodesList() on a modifiable mesh at least once"
+                    "\nbefore calling getNodesList() const");
             return submeshes_.getNodesList();
         }
         else
@@ -420,7 +420,7 @@ namespace Base
         }
     }
     
-    std::vector<Node*>& Mesh::getVerticesList(IteratorType part)
+    std::vector<Node*>& Mesh::getNodesList(IteratorType part)
     {
         if (part == IteratorType::LOCAL)
         {

@@ -34,7 +34,9 @@ namespace Geometry
      * "In geometry, a simplex (plural simplexes or simplices) is a generalization of the notion of
      *  a triangle or tetrahedron to arbitrary dimension." -Wikipedia.
      *
-     * This class defines the linear mappings between simplexes. See the comments in the Physical<Simplex>.cpp files to know the order of the
+     * This class defines the linear mappings between simplexes, namely from the 
+     * reference domain to the physical domain.
+     * See the comments in the Physical<Simplex>.cpp files to know the order of the
      * vertex of each simplex, an order which is kept by the mappings.
      * No specialization is needed because the mapping is general for geometries of vertex number
      * (vn) one greater than dimension (d), that is, vn = d+1;
@@ -46,7 +48,7 @@ namespace Geometry
     {
     public:
         MappingToPhysSimplexLinear(const PhysicalGeometry* const & pG)
-                : nodeCoordinates_(DIM + 1, DIM)
+                : a(DIM + 1, DIM)
         {
             logger.assert(pG!=nullptr, "Invalid physical geometry passed");
             MappingReferenceToPhysical::setNodesPtr(&pG->getNodes());
@@ -54,7 +56,7 @@ namespace Geometry
         }
                 
         MappingToPhysSimplexLinear(const MappingToPhysSimplexLinear<DIM> &other) 
-            : MappingReferenceToPhysical(other), nodeCoordinates_(other.nodeCoordinates_) { }
+            : MappingReferenceToPhysical(other), a(other.a) { }
 
         PointPhysical transform(const PointReference&) const override final;
         Jacobian calcJacobian(const PointReference&) const override final;
@@ -67,9 +69,10 @@ namespace Geometry
     private:
         //bool isValidPoint(const PointReferenceT&) const; ///\TODO: Implement this function.
         //! ~OC~
-        //! In this case it is worth using an array for the mapping factors,
+        //! \brief Mapping factors
+        //! \details In this case it is worth using an array for the mapping factors,
         //! since they are just difference vectors (see loop in reinit)
-        std::vector<PointPhysical> nodeCoordinates_;
+        std::vector<PointPhysical> a;
     };
 }
 #include "MappingToPhysSimplexLinear_Impl.h"
