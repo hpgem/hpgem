@@ -61,7 +61,7 @@ private:
      );
     
     NumericalVector computePhysicalFlux(const NumericalVector &numericalSolution);
-    NumericalVector computeSourceTerm(const NumericalVector &numericalSolution);
+    NumericalVector computeSourceTerm(const NumericalVector &numericalSolution, const Geometry::PointPhysical &pPhys, const double time);
     NumericalVector computeNumericalSolution(const Base::Element *ptrElement, const Geometry::PointReference &pRef, const NumericalVector& solutionCoefficients);
     NumericalVector localLaxFriedrichsFlux(const NumericalVector &numericalSolutionLeft, const NumericalVector &NumericalSolutionRight);
     double computeFriction(const NumericalVector &numericalSolution);

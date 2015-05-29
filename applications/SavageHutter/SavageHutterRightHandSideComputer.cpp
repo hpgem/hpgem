@@ -19,9 +19,11 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "SavageHutterRightHandSideComputer.h"
 #include "SavageHutter.h"
+#include "SavageHutterRightHandSideComputer.h"
 #include "Logger.h"
+#include "Base/L2Norm.h"
+#include "Geometry/Mappings/MappingReferenceToPhysical.h"
 
 using LinearAlgebra::NumericalVector;
 
@@ -34,7 +36,8 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnEleme
     NumericalVector integrand(numOfVariables_ * numBasisFuncs);
     const NumericalVector numericalSolution = computeNumericalSolution(ptrElement, pRef, solutionCoefficients);
     const NumericalVector physicalFlux = computePhysicalFlux(numericalSolution);
-    const NumericalVector source = computeSourceTerm(numericalSolution);
+    const Geometry::PointPhysical pPhys = ptrElement->getReferenceToPhysicalMap()->transform(pRef);
+    const NumericalVector source = computeSourceTerm(numericalSolution, pPhys, time);
     logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
     
     // Compute integrand on the physical element.
@@ -102,6 +105,7 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
             }
         }
     }
+    logger(DEBUG, "face: %, uL: %, uR:%", ptrFace->getID(), solutionLeft, solutionRight);
     NumericalVector flux(2);
     if (normal > 0)
     {
@@ -193,11 +197,12 @@ NumericalVector SavageHutterRightHandSideComputer::computePhysicalFlux(const Num
     return flux;
 }
 
-NumericalVector SavageHutterRightHandSideComputer::computeSourceTerm(const NumericalVector& numericalSolution)
+NumericalVector SavageHutterRightHandSideComputer::computeSourceTerm(const NumericalVector& numericalSolution, const Geometry::PointPhysical& pPhys, const double time)
 {
     logger.assert(theta_ < M_PI / 2, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
     const double hu = numericalSolution(1);
+    //logger.assert(std::abs(hu) < 1e-2, "analytical solution says hu = 0, but hu equals %", hu);
     double u = 0;
     if (h > 1e-10)
     {
@@ -260,5 +265,5 @@ double SavageHutterRightHandSideComputer::computeFriction(const NumericalVector&
 
 LinearAlgebra::NumericalVector SavageHutterRightHandSideComputer::getInflowBC()
 {
-    return LinearAlgebra::NumericalVector({1, 1});
+    return LinearAlgebra::NumericalVector({1, 0});
 }

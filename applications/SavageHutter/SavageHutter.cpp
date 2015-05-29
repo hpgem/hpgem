@@ -20,6 +20,7 @@
  */
 
 #include "SavageHutter.h"
+#include "Geometry/PhysicalGeometry.h"
 #include <cmath>
 
 using LinearAlgebra::NumericalVector;
@@ -42,17 +43,17 @@ DIM_(dimension), numOfVariables_(numOfVariables)
     rhsComputer_.numOfVariables_ = numOfVariables;
     rhsComputer_.DIM_ = dimension;
     rhsComputer_.epsilon_ = 1.0;
-    rhsComputer_.theta_ = 0;//M_PI / 6; //radians
+    rhsComputer_.theta_ = 0; //M_PI / 6; //radians
 }
 
-SavageHutter::SavageHutter(const SHConstructorStruct& inputValues) : 
+SavageHutter::SavageHutter(const SHConstructorStruct& inputValues) :
 HpgemAPISimplified(inputValues.dimension, inputValues.numOfVariables, inputValues.polyOrder, inputValues.ptrButcherTableau),
 DIM_(inputValues.dimension), numOfVariables_(inputValues.numOfVariables)
 {
     rhsComputer_.numOfVariables_ = inputValues.numOfVariables;
     rhsComputer_.DIM_ = inputValues.dimension;
     rhsComputer_.epsilon_ = 1.0;
-    rhsComputer_.theta_ = 0;//M_PI / 6; //radians
+    rhsComputer_.theta_ = 0; //M_PI / 6; //radians
     createMesh(inputValues.numElements, inputValues.meshType);
     for (Base::Element* element : meshes_[0]->getElementsList())
     {
@@ -69,8 +70,8 @@ Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::s
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
         description.numElementsInDIM_[i] = numOfElementPerDirection;
-        description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
-    }    
+        description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
+    }
     return description;
 }
 
@@ -78,23 +79,15 @@ Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::s
 LinearAlgebra::NumericalVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     LinearAlgebra::NumericalVector initialSolution(numOfVariables_);
-    /*if (pPhys[0] < M_PI/8)
+    if (pPhys[0] > 0.4 && pPhys[0] < 0.6)
     {
-        initialSolution(0) = rhsComputer_.getInflowBC()(0) +  0.5*(std::cos(8*pPhys[0]) - 1);
+        initialSolution(0) = 1;
     }
     else
     {
-        initialSolution(0) = rhsComputer_.getInflowBC()(0) - 1.0;
-    }*/
-    if (pPhys[0] < 0.5)
-    {
-        initialSolution(0) = 1.;
+        initialSolution(0) = 1;
     }
-    else
-    {
-        initialSolution(0) = 0.5;
-    }
-    initialSolution(1) = 1;//0. * initialSolution(0);
+    initialSolution(1) = 0;
     return initialSolution;
 }
 
@@ -105,13 +98,13 @@ LinearAlgebra::NumericalVector SavageHutter::integrandInitialSolutionOnElement
 (const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef)
 {
     const std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
-    
+
     LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfBasisFunctions);
-    
+
     const Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
-    
+
     const LinearAlgebra::NumericalVector initialSolution(getInitialSolution(pPhys, startTime));
-    
+
     std::size_t iVB; // Index for both variable and basis function.
     for (std::size_t iV = 0; iV < numOfVariables_; iV++)
     {
@@ -121,8 +114,8 @@ LinearAlgebra::NumericalVector SavageHutter::integrandInitialSolutionOnElement
             integrand(iVB) = ptrElement->basisFunction(iB, pRef) * initialSolution(iV);
         }
     }
-    
-    
+
+
     return integrand;
 }
 
@@ -131,12 +124,12 @@ LinearAlgebra::NumericalVector SavageHutter::integrandInitialSolutionOnElement
 LinearAlgebra::NumericalVector SavageHutter::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
 {
     // Define the integrand function for the the initial solution integral.
-    const std::function<LinearAlgebra::NumericalVector(const Base::Element *, const Geometry::PointReference &)> integrandFunction 
-    = [=](const Base::Element *elt, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector 
-    { 
-        return this -> integrandInitialSolutionOnElement(elt, startTime, pRef);
-    };
-    
+    const std::function < LinearAlgebra::NumericalVector(const Base::Element *, const Geometry::PointReference &) > integrandFunction
+        = [ = ](const Base::Element *elt, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+        {
+            return this -> integrandInitialSolutionOnElement(elt, startTime, pRef);
+        };
+
     const LinearAlgebra::NumericalVector solution = elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
     return solution;
 }
@@ -144,14 +137,13 @@ LinearAlgebra::NumericalVector SavageHutter::integrateInitialSolutionAtElement(B
 LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
 {
     // Define the integrand function for the right hand side for the reference element.
-    const std::function<LinearAlgebra::NumericalVector(const Base::Element*, const Geometry::PointReference &)> integrandFunction = [=](const Base::Element* elt, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
-    {   
+    const std::function < LinearAlgebra::NumericalVector(const Base::Element*, const Geometry::PointReference &) > integrandFunction = [ = ](const Base::Element* elt, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+    {
         return rhsComputer_.integrandRightHandSideOnElement(elt, time, pRef, solutionCoefficients);
     };
-    
+
     return elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
 }
-
 LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
 (
  Base::Face *ptrFace,
@@ -162,13 +154,13 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
  )
 {
     //Faster for 1D: 
-    const std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
-    {   
+    const std::function < LinearAlgebra::NumericalVector(const Geometry::PointReference &) > integrandFunction = [ = ](const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+    {
         return rhsComputer_.integrandRightHandSideOnRefFace(ptrFace, side, ptrFace->getNormalVector(pRef), pRef, solutionCoefficientsLeft, solutionCoefficientsRight);
     };
-    
+
     return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
-    
+
     //Desirable syntax
     /*const std::function<LinearAlgebra::NumericalVector(const Base::Face *, const LinearAlgebra::NumericalVector &, const Geometry::PointReference &)> integrandFunction = 
     [=](const Base::Face * face, const LinearAlgebra::NumericalVector normal, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
@@ -180,18 +172,18 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
 }
 
 LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
-        (
-         Base::Face *ptrFace,
-         LinearAlgebra::NumericalVector &solutionCoefficients,
-         const double time
-         )
+(
+ Base::Face *ptrFace,
+ LinearAlgebra::NumericalVector &solutionCoefficients,
+ const double time
+ )
 {
-    const std::function<LinearAlgebra::NumericalVector(const Base::Face *, const LinearAlgebra::NumericalVector &, const Geometry::PointReference &)> integrandFunction = 
-    [=](const Base::Face *face, const LinearAlgebra::NumericalVector normal, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
-    {   
-        return rhsComputer_.integrandRightHandSideOnRefFace(face, normal, pRef, solutionCoefficients);
-    };
-    
+    const std::function < LinearAlgebra::NumericalVector(const Base::Face *, const LinearAlgebra::NumericalVector &, const Geometry::PointReference &) > integrandFunction =
+        [ = ](const Base::Face *face, const LinearAlgebra::NumericalVector normal, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
+        {
+            return rhsComputer_.integrandRightHandSideOnRefFace(face, normal, pRef, solutionCoefficients);
+        };
+
     return faceIntegrator_.integrate(ptrFace, integrandFunction, ptrFace->getGaussQuadratureRule());
 }
 /******************************Limiting****************************************/
@@ -245,9 +237,11 @@ void SavageHutter::useLimitierForElement(Base::Element *element)
 {
     LinearAlgebra::NumericalVector totalIntegral(numOfVariables_);
     LinearAlgebra::NumericalVector numericalSolution(numOfVariables_);
-    
+
+    //For every face of this element, check the size of the jump
     for (const Base::Face *face : element->getFacesList())
     {
+        //Compute the numerical solution and the (outward) normal of the face
         const Geometry::PointReference& pRefForInflowTest = face->getReferenceGeometry()->getCenter();
         Base::Side sideOfElement = (face->getPtrElementLeft() == element) ? Base::Side::LEFT : Base::Side::RIGHT;
         LinearAlgebra::NumericalVector normal = face->getNormalVector(pRefForInflowTest);
@@ -260,9 +254,10 @@ void SavageHutter::useLimitierForElement(Base::Element *element)
             numericalSolution = face->getPtrElement(sideOfElement)->getSolution(0, face->mapRefFaceToRefElemR(pRefForInflowTest));
             normal *= -1;
         }
+
         //determine the direction of the flow across this face
         LinearAlgebra::NumericalVector velocity = computeVelocity(numericalSolution);
-        
+
         //if this is an inflow face, integrate the difference in {h,hu} over the face
         if (velocity * normal < -1e-14)
         {
@@ -284,43 +279,44 @@ void SavageHutter::useLimitierForElement(Base::Element *element)
                 //logger.assert(normal(0) < 0, "This should be an outflow boundary!");
                 numericalSolutionOther = rhsComputer_.getInflowBC();
             }
-                
+
             ///\todo make this multi-dimensional by integrating over the face.
-            totalIntegral += numericalSolution - numericalSolutionOther;            
-        }            
+            totalIntegral += numericalSolution - numericalSolutionOther;
+        }
     }
-    
-    logger(DEBUG, "Integral over all inflow boundaries of difference for element %: %", element->getID(), totalIntegral);    
-    
-    //divide the integral by h^{(p+1)/2}, the norm of {u,uh} and the size of the face
+
+    logger(DEBUG, "Integral over all inflow boundaries of difference for element %: %", element->getID(), totalIntegral);
+
+    //divide the integral by dx^{(p+1)/2}, the norm of {u,uh} and the size of the face
     std::size_t p = configData_->polynomialOrder_;
     ///\todo check if this definition of dx is reasonable for other geometries than lines
-    const double dx = std::pow(2. * std::abs(element->calcJacobian(element->getReferenceGeometry()->getCenter()).determinant()) , 1./DIM_);
+    const double dx = std::pow(2. * std::abs(element->calcJacobian(element->getReferenceGeometry()->getCenter()).determinant()), 1. / DIM_);
     logger(DEBUG, "grid size: %", dx);
-    totalIntegral /= std::pow(dx, (p+1.)/2);
-    
+    totalIntegral /= std::pow(dx, (p + 1.) / 2);
+
     LinearAlgebra::NumericalVector average = computeNormOfAverageOfSolutionInElement(element);
     for (std::size_t i = 0; i < numOfVariables_; ++i)
     {
-        if (average(i) > 1e-14)
+        if (average(i) > 1e-10)
             totalIntegral(i) /= average(i);
     }
     ///\todo divide by the size of the faces for DIM > 1
-    
+
     //compare this with 1: if >1, discontinuous, if <1 smooth
-    LimiterData* lData = static_cast<LimiterData*>(element->getUserData());
+    LimiterData* lData = static_cast<LimiterData*> (element->getUserData());
     for (std::size_t i = 0; i < numOfVariables_; ++i)
     {
         if (totalIntegral(i) > 1)
         {
-            lData->isLimited[i] = true;
-            if (element->getFace(0)->isInternal() && element->getFace(1)->isInternal())
-                limitWithMinMod(element, i);
-            else // for now, just take the mean of the first element if it needs limiting.
+            logger(DEBUG, "Element % with variable % will be limited.", element->getID(), i);
+            lData->isLimited[i] = false;
+            //if (element->getFace(0)->isInternal() && element->getFace(1)->isInternal())
+            limitWithMinMod(element, i);
+            /*else // for now, just take the mean of the first element if it needs limiting.
             {
                 lData->valLeft[i] = element->getSolution(0,element->getReferenceGeometry()->getCenter())(i);
                 lData->valRight[i] = element->getSolution(0,element->getReferenceGeometry()->getCenter())(i);
-            }
+            }*/
         }
         else
         {
@@ -331,50 +327,103 @@ void SavageHutter::useLimitierForElement(Base::Element *element)
 
 LinearAlgebra::NumericalVector SavageHutter::computeVelocity(LinearAlgebra::NumericalVector numericalSolution)
 {
-    return LinearAlgebra::NumericalVector({numericalSolution(1)/numericalSolution(0)});
+    return LinearAlgebra::NumericalVector({numericalSolution(1) / numericalSolution(0)});
 }
 
 ///\todo check if this is indeed what the paper says
 LinearAlgebra::NumericalVector SavageHutter::computeNormOfAverageOfSolutionInElement(const Base::Element* element)
 {
     LinearAlgebra::NumericalVector average(2);
-    for(std::size_t i = 0; i < element->getGaussQuadratureRule()->nrOfPoints(); ++i)
+    for (std::size_t i = 0; i < element->getGaussQuadratureRule()->nrOfPoints(); ++i)
     {
         average += element->getSolution(0, element->getGaussQuadratureRule()->getPoint(i));
     }
-    
+
     logger(DEBUG, "Average over element %: %", element->getID(), average / element->getGaussQuadratureRule()->nrOfPoints());
     return average / element->getGaussQuadratureRule()->nrOfPoints();
 }
 
+/*void SavageHutter::limitWithMinMod(Base::Element* element, const std::size_t iVar)
+{
+    LimiterData* ld = static_cast<LimiterData*> (element->getUserData());
+    logger.assert(ld->isLimited[iVar] == true, "Called limiter on variable that should not be limited.");
+
+    const PointReferenceT &pRef = element->getReferenceGeometry()->getCenter();
+    const PointReferenceT &pRefFace = element->getFace(0)->getReferenceGeometry()->getCenter();
+    const PointReferenceT &pRefL = element->getFace(1)->mapRefFaceToRefElemR(pRefFace); //TODO: do this with getNodeCoordinates()
+    const PointReferenceT &pRefR = element->getFace(1)->mapRefFaceToRefElemL(pRefFace);
+    logger.assert(0 == pRef[0] && -1 == pRefL[0] && 1 == pRefR[0], "Coordinates to evaluate basis functions are wrong");
+
+    const double u0 = element->getSolution(0, pRef)(iVar);
+    const double uPlus = element->getSolution(0, pRefR)(iVar) - u0;
+    const double uMinus = u0 - element->getSolution(0, pRefL)(iVar);
+    if (element->getNrOfBasisFunctions() < 2) //constants or linear polynomials
+    {
+        logger.assert(std::abs(uPlus - uMinus) < 1e-10, "Linear polynomial is not straight?");
+    }
+    //this does not work for first boundary, probably also not for triangular mesh.
+    //maybe write getNeighbour(face)?
+    const Base::Element * const elemL = element->getFace(0)->getPtrElementLeft();
+    const Base::Element * const elemR = element->getFace(1)->getPtrElementRight();
+
+    //check if left is indeed of the left side of right
+    logger.assert((elemL->getPhysicalGeometry()->getLocalNodeCoordinates(0)) < (elemR->getPhysicalGeometry()->getLocalNodeCoordinates(0)), "elements left/right in wrong order");
+
+    const double uElemR = elemR->getSolution(0, pRef)(iVar);
+    const double uElemL = elemL->getSolution(0, pRef)(iVar);
+
+    logger(DEBUG, "u0: %, uPlus: %, : %, : %", u0, uPlus, uElemR - u0, u0 - uElemL);
+    if ((sign(uPlus) == sign(uElemR - u0)) && sign(uPlus) == sign(u0 - uElemL))
+    {
+        double minAbs = std::min(std::abs(uPlus), std::abs(uElemR - u0));
+        minAbs = std::min(minAbs, std::abs(u0 - uElemL));
+        logger.assert(minAbs >= 0, "absolute value is smaller than 0");
+        ld->valRight[iVar] = u0 + sign(uPlus) * minAbs;
+    }
+    else
+    {
+        ld->valRight[iVar] = u0;
+    }
+
+    if (sign(uMinus) == sign(uElemR - u0) && sign(uMinus) == sign(u0 - uElemL))
+    {
+        double minAbs = std::min(std::abs(uMinus), std::abs(uElemR - u0));
+        minAbs = std::min(minAbs, std::abs(u0 - uElemL));
+        logger.assert(minAbs >= 0, "absolute value is smaller than 0");
+        ld->valLeft[iVar] = u0 - sign(uMinus) * minAbs;
+    }
+    else
+    {
+        ld->valLeft[iVar] = u0;
+    }
+
+    //std::cout << element->getID() << " " << iVar << " " << u0 << " " << ld->valLeft[iVar] << "  " << ld->valRight[iVar] << std::endl;
+}*/
+
 void SavageHutter::limitWithMinMod(Base::Element* element, const std::size_t iVar)
 {
-   LimiterData* ld = static_cast<LimiterData*>(element->getUserData());
-   logger.assert(ld->isLimited[iVar] == true, "Called limiter on variable that should not be limited.");
-   const PointReferenceT &pRef = element->getReferenceGeometry()->getCenter();
-   const PointReferenceT &pRefFace = element->getFace(0)->getReferenceGeometry()->getCenter();
-   const PointReferenceT &pRefL = element->getFace(1)->mapRefFaceToRefElemR(pRefFace); //TODO: do this with getNodeCoordinates()
-   const PointReferenceT &pRefR = element->getFace(1)->mapRefFaceToRefElemL(pRefFace);
-   const double u0 = element->getSolution(0,pRef)(iVar);
-   const double uPlus = element->getSolution(0,pRefR)(iVar) - u0;
-   const double uMinus = u0 - element->getSolution(0,pRefL)(iVar);
-   
-   //this does not work for first boundary, probably also not for triangular mesh.
-   //maybe write getNeighbour(face)?
-   const Base::Element * const elemL = element->getFace(0)->getPtrElementLeft();
-   const Base::Element * const elemR = element->getFace(1)->getPtrElementRight();
-   
-   //std::cout << element->getID() << " " << elemL->getID() << " " << elemR->getID() << std::endl;
-   const double uElemR = elemR->getSolution(0,pRef)(iVar);
-   const double uElemL = elemL->getSolution(0,pRef)(iVar);
-   
-   if (sign(uPlus) == sign(uElemR-u0) == sign(u0-uElemL))
-   {
-       ld->valRight[iVar] = u0 + sign(uPlus) * std::min(std::abs(uPlus), std::min(std::abs(uElemR-u0), std::abs(u0-uElemL)));
-   }
-   else
-   {
-       ld->valRight[iVar] = u0;
-   }
-   
+    LimiterData* ld = static_cast<LimiterData*> (element->getUserData());
+    logger.assert(ld->isLimited[iVar] == true, "Called limiter on variable that should not be limited.");
+    
+    const PointReferenceT &pRef = element->getReferenceGeometry()->getCenter();
+    logger.assert(0 == pRef[0], "xi != 0");
+    
+    //this does not work for first boundary, probably also not for triangular mesh.
+    //maybe write getNeighbour(face)?
+    const Base::Element * const elemL = element->getFace(0)->getPtrElementLeft();
+    const Base::Element * const elemR = element->getFace(1)->getPtrElementRight();
+
+    //check if left is indeed of the left side of right
+    logger.assert((elemL->getPhysicalGeometry()->getLocalNodeCoordinates(0)) < (elemR->getPhysicalGeometry()->getLocalNodeCoordinates(0)), "elements left/right in wrong order");
+
+    const double u0 = element->getSolution(0, pRef)(iVar);
+    const double uElemR = elemR->getSolution(0, pRef)(iVar);
+    const double uElemL = elemL->getSolution(0, pRef)(iVar);
+    
+    double slope =  0;
+    if (sign(uElemR - u0) == sign(u0 - uElemL))
+    {
+        slope = sign(uElemR - u0) * std::min(std::abs(uElemR - u0), std::abs(u0 - uElemL));
+    }
+    //replace coordinates with "u0 + slope * x" coordinates
 }
