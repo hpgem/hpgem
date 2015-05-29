@@ -56,10 +56,10 @@ public:
     LinearAlgebra::NumericalVector integrandSourceAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector qSolution, const double pressureTerm, const double &time, const Geometry::PointReference &pRef);
 
     /// Compute solution at an element
-    LinearAlgebra::NumericalVector computeSolution(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
+    LinearAlgebra::NumericalVector computeSolutionOnElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
 
     /// Compute solution derivatives at an element. Energy state is not included.
-    LinearAlgebra::Matrix computeSolutionGradientAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
+    LinearAlgebra::Matrix computeSolutionJacobianAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
 
     /// Compute the Jacobian of the velocities
     LinearAlgebra::Matrix computePartialStateJacobian(const LinearAlgebra::Matrix qSolutionGradient, const LinearAlgebra::NumericalVector qSolution);
@@ -76,6 +76,9 @@ public:
     /// *****************************************
     /// ***    face integration functions     ***
     /// *****************************************
+
+    /// Compute solution at a face
+    LinearAlgebra::NumericalVector computeSolutionOnFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
     LinearAlgebra::NumericalVector integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);

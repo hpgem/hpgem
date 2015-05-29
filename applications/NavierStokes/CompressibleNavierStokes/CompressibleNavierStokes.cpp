@@ -78,7 +78,7 @@ double CompressibleNavierStokes::computePressure(const LinearAlgebra::NumericalV
 /// *****************************************
 
 ///  \brief Constructs the solution based on the solutionCoefficients.
-LinearAlgebra::NumericalVector CompressibleNavierStokes::computeSolution(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef)
+LinearAlgebra::NumericalVector CompressibleNavierStokes::computeSolutionOnElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef)
 {
 		std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
 		LinearAlgebra::NumericalVector elementSolution(numOfVariables_);
@@ -97,7 +97,7 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::computeSolution(const B
 		return elementSolution;
 }
 
-LinearAlgebra::Matrix CompressibleNavierStokes::computeSolutionGradientAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef)
+LinearAlgebra::Matrix CompressibleNavierStokes::computeSolutionJacobianAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef)
 {
 		std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
 		std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
@@ -121,7 +121,7 @@ LinearAlgebra::Matrix CompressibleNavierStokes::computeSolutionGradientAtElement
 		return solutionGradient;
 }
 
-/// Computes partial state jacobian. with partial state it is ment that all state except the density are divided by the density, obtaining velocity components
+/*/// Computes partial state jacobian. with partial state it is ment that all state except the density are divided by the density, obtaining velocity components
 /// and total energy components
 LinearAlgebra::Matrix CompressibleNavierStokes::computePartialStateJacobian(const LinearAlgebra::Matrix qSolutionGradient, const LinearAlgebra::NumericalVector qSolution)
 {
@@ -150,7 +150,7 @@ LinearAlgebra::Matrix CompressibleNavierStokes::computePartialStateJacobian(cons
 	}
 
 	return partialStateJacobian;
-}
+}*/
 
 LinearAlgebra::NumericalVector CompressibleNavierStokes::computePartialState(const LinearAlgebra::NumericalVector qSolution)
 {
@@ -184,10 +184,8 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandRightHandSideO
 {
 	//reconstruct the solution, partial state jacobian and pressure at pRef
 	//todo: check if partialState and its Jacobian can somehow be computed efficiently together
-	//todo: change gradient in jacobian in qSolutionJacobian line
-	const LinearAlgebra::NumericalVector qSolution = computeSolution(ptrElement, solutionCoefficients, pRef);
-	const LinearAlgebra::Matrix qSolutionJacobian = computeSolutionGradientAtElement(ptrElement, solutionCoefficients, pRef);
-	//const LinearAlgebra::Matrix partialStateJacobian = computePartialStateJacobian(qSolutionGradient,qSolution);
+	const LinearAlgebra::NumericalVector qSolution = computeSolutionOnElement(ptrElement, solutionCoefficients, pRef);
+	const LinearAlgebra::Matrix qSolutionJacobian = computeSolutionJacobianAtElement(ptrElement, solutionCoefficients, pRef);
 	const LinearAlgebra::NumericalVector partialState = computePartialState(qSolution);
 	const double pressure = computePressure(qSolution);
 
@@ -200,7 +198,7 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandRightHandSideO
 	//Compute source terms
 	LinearAlgebra::NumericalVector integrandSource = integrandSourceAtElement(ptrElement, qSolution, pressure, time, pRef);
 
-    return integrandInviscid;// + integrandViscous + integrandSource;
+    return integrandInviscid + integrandViscous + integrandSource;
 
 }
 
@@ -216,6 +214,25 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::computeRightHandSideAtE
 /// *****************************************
 /// ***    face integration functions     ***
 /// *****************************************
+
+LinearAlgebra::NumericalVector CompressibleNavierStokes::computeSolutionOnFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef)
+{
+	std::size_t numOfBasisFunctions =  ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
+	LinearAlgebra::NumericalVector elementSolution(numOfVariables_);
+	std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
+
+	for(std::size_t iV = 0; iV < numOfVariables_; iV++)
+	{
+		elementSolution(iV) = 0.0;
+		for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+		{
+			iVB = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iB,iV);
+			elementSolution(iV) += solutionCoefficients(iVB)*ptrFace->basisFunction(iSide, iB, pRef); //basisFunction returns physical value
+		}
+	}
+
+	return elementSolution;
+}
 
 /// \brief Compute the integrand for the right hand side for the reference face corresponding to an external face.
 LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients)
@@ -239,25 +256,44 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandRightHandSideO
    LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficientsLeft, const LinearAlgebra::NumericalVector &solutionCoefficientsRight)
    {
 		//reconstruct the solution, partial state Jacobian and pressure at pRef, left and right of the interface
-		//const LinearAlgebra::NumericalVector qSolutionLeft = computeSolution(ptrFace->getPtrElementLeft(), solutionCoefficientsLeft, pRef);
-		//const LinearAlgebra::NumericalVector qSolutionRight = computeSolution(ptrFace->getPtrElementRight(), solutionCoefficientsRight, pRef);
-		//const LinearAlgebra::Matrix qSolutionGradient = computeSolutionGradientAtElement(ptrElement, solutionCoefficients, pRef);
-		//const LinearAlgebra::Matrix partialStateJacobian = computePartialStateJacobian(qSolutionGradient,qSolution);
-		//const LinearAlgebra::NumericalVector velocity = computeVelocity(qSolution);
-		//const double pressure = computePressure(qSolution);
+		const LinearAlgebra::NumericalVector qSolutionLeft = computeSolutionOnFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, pRef);
+		const LinearAlgebra::NumericalVector qSolutionRight = computeSolutionOnFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsRight, pRef);
+
+		//Determine internal and external solutions
+		LinearAlgebra::NumericalVector qSolutionInternal;// = qSolutionLeft;
+		LinearAlgebra::NumericalVector qSolutionExternal;// = qSolutionRight;
+		LinearAlgebra::NumericalVector normal = ptrFace->getNormalVector(pRef);
+		double area = Base::L2Norm(normal);
+		if (iSide == Base::Side::RIGHT)
+		{
+			qSolutionInternal = qSolutionRight;
+			qSolutionExternal = qSolutionLeft;
+			normal = -normal/area;
+		}
+		else
+		{
+			qSolutionInternal = qSolutionLeft;
+			qSolutionExternal = qSolutionRight;
+			normal = normal/area;
+		}
+
+		const double pressure = computePressure(qSolutionInternal);
+		const LinearAlgebra::NumericalVector partialState = computePartialState(qSolutionInternal);
 
 		//Compute inviscid terms
-		LinearAlgebra::NumericalVector integrandInviscid = inviscidTerms_.integrandAtFace(ptrFace, time, pRef, iSide, solutionCoefficientsLeft, solutionCoefficientsRight);
+		LinearAlgebra::NumericalVector integrandInviscid = inviscidTerms_.integrandAtFace(ptrFace, time, pRef, iSide, qSolutionInternal, qSolutionExternal, normal);
 
 		//Compute viscous terms
 		//todo: write viscousTerms_.integrandAtFace()
-		LinearAlgebra::NumericalVector integrandViscous = integrandInviscid; //integrandViscousAtFace();
+		LinearAlgebra::NumericalVector integrandViscous = viscousTerms_.integrandViscousAtFace(ptrFace, iSide, qSolutionInternal, qSolutionExternal, pressure, partialState, normal, pRef);
 
 		//Compute support variable terms
 		//todo: write viscousTerms_.SupportAtFace()
 		LinearAlgebra::NumericalVector integrandSupport = integrandInviscid; // integrandSupportAtFace();
 
-		return  integrandInviscid + integrandViscous + integrandSupport;
+		// Note: correct with area, because the integration uses area, this might be avoided in future
+		// todo: check if this area can be avoided
+		return  (integrandInviscid + integrandViscous + integrandSupport)*area;
 
    }
 

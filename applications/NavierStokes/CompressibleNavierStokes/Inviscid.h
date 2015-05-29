@@ -39,13 +39,13 @@ public:
     /// *****************************************
 
     /// \brief Compute the Roe Riemann Flux.
-    LinearAlgebra::NumericalVector RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qReconstructionLeft, const LinearAlgebra::NumericalVector &qReconstructionRight, LinearAlgebra::NumericalVector &normal);
+    LinearAlgebra::NumericalVector RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qReconstructionLeft, const LinearAlgebra::NumericalVector &qReconstructionRight, const LinearAlgebra::NumericalVector &normal);
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
 	LinearAlgebra::NumericalVector integrandAtFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
 
 	/// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-	LinearAlgebra::NumericalVector integrandAtFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficientsLeft, const LinearAlgebra::NumericalVector &solutionCoefficientsRight);
+	LinearAlgebra::NumericalVector integrandAtFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const Base::Side &iSide, const LinearAlgebra::NumericalVector &qSolutionInternal, const LinearAlgebra::NumericalVector &qSolutionExternal, const LinearAlgebra::NumericalVector &normal);
 
 private:
 	const CompressibleNavierStokes& instance_;

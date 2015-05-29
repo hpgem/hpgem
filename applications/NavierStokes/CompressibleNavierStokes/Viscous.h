@@ -37,18 +37,6 @@ public:
 	/// Computes the viscosity as function of temperature, based on Sutherlands law.
 	double computeViscosity(double temperature);
 
-/*
-	/// Computes the temperatureGradient
-	LinearAlgebra::NumericalVector computeTemperatureGradient(const LinearAlgebra::NumericalVector velocity, const LinearAlgebra::Matrix partialStateJacobian);
-
-	/// Computes the volumetric stress part in the stress tensor
-	double computeVolumetricStress(const LinearAlgebra::Matrix velocityJacobian, const double viscosity);
-
-
-	/// Computes the values in the viscous flux function
-	LinearAlgebra::Matrix computeFluxFunction(const LinearAlgebra::NumericalVector qSolution, const double pressure, const LinearAlgebra::Matrix partialStateJacobian, const LinearAlgebra::NumericalVector velocity);
-*/
-
 	/// Computes ATensor_ for a given partialState (containing velocities and total Energy), viscosity, kappa and c_v
 	void computeATensor(const LinearAlgebra::NumericalVector partialState, const double viscosity);
 
@@ -59,11 +47,13 @@ public:
     /// *****************************************
 
 	/// Computes the integrand used in the element integration routine.
-	LinearAlgebra::NumericalVector integrandAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector qSolution,  const LinearAlgebra::Matrix qSolutionJacobian, const double pressure, const LinearAlgebra::NumericalVector partialState, const Geometry::PointReference &pRef);
+	LinearAlgebra::NumericalVector integrandAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector qSolution, const LinearAlgebra::Matrix qSolutionJacobian, const double pressure, const LinearAlgebra::NumericalVector partialState, const Geometry::PointReference &pRef);
 
     /// *****************************************
     /// ***    face integration functions     ***
     /// *****************************************
+
+	LinearAlgebra::NumericalVector integrandViscousAtFace(const Base::Face *ptrFace, const Base::Side &iSide, LinearAlgebra::NumericalVector qSolutionInternal, LinearAlgebra::NumericalVector qSolutionExternal, double pressure, LinearAlgebra::NumericalVector partialState, const LinearAlgebra::NumericalVector normal, const Geometry::PointReference &pRef);
 
 private:
 	const CompressibleNavierStokes& instance_;

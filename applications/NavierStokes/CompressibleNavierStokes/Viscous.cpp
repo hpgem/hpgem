@@ -42,42 +42,6 @@ double Viscous::computeViscosity(double temperature)
 	return muRef*(temp)*sqrt(temp)*(temperatureRef + temperatureS)/(temperature + temperatureS);
 }
 
-/*double Viscous::computeVolumetricStress(const LinearAlgebra::Matrix partialStateJacobian, const double viscosity)
-{
-	double stress = 0.0;
-
-	// Add the volumetric part of the stress
-	for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
-	{
-		stress += partialStateJacobian(iD+1,iD);
-	}
-	stress *= -2.0/3.0*viscosity;
-
-	return stress;
-}*/
-
-/*LinearAlgebra::NumericalVector Viscous::computeTemperatureGradient(const LinearAlgebra::NumericalVector velocity, const LinearAlgebra::Matrix partialStateJacobian)
-{
-	LinearAlgebra::NumericalVector temperatureGradient(instance_.DIM_);
-
-	for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
-	{
-		///Add total energy derivative
-		temperatureGradient(iD) += partialStateJacobian(instance_.DIM_+1,iD);
-
-		///subtract kinetic part from total energy
-		for (std::size_t iV = 0; iV < instance_.DIM_; iV++)
-		{
-			temperatureGradient(iD) -= velocity(iV)*partialStateJacobian(iV+1,iD); // - u du/dx_i - v dv/dx_i etc
-		}
-	}
-
-	//Multiply by correct values resulting in (gamma -1)/R*(dE/dx_i - u du/dx_i - v dv_dx_i + w dw_dx_i)
-	temperatureGradient *= (instance_.gamma_ -1)/R_;
-
-	return temperatureGradient;
-}*/
-
 void Viscous::computeATensor(const LinearAlgebra::NumericalVector partialState, const double viscosity)
 {
 	//todo: note that the kinetic velocity must be computed for a wide range of problems. Fix this.
@@ -214,64 +178,6 @@ LinearAlgebra::Matrix Viscous::computeATensorMatrixContraction(LinearAlgebra::Ma
 	return result;
 }
 
-/*
-LinearAlgebra::Matrix Viscous::computeFluxFunction(const LinearAlgebra::NumericalVector qSolution, const double pressure, const LinearAlgebra::Matrix partialStateJacobian, const LinearAlgebra::NumericalVector velocity)
-{
-	/// Data structure initialisation
-	LinearAlgebra::Matrix fluxFunction(instance_.numOfVariables_,instance_.DIM_);
-
-	/// Compute flow values: temperature, viscosity, conductivity
-	double temperature = computeTemperature(qSolution, pressure);
-	double viscosity = computeViscosity(temperature);
-	double conductivity = 1.45*viscosity*cp_;
-
-	/// Compute flux components: volumentricStress and temperature gradients
-	double volumetricStress = computeVolumetricStress(partialStateJacobian, viscosity);
-	LinearAlgebra::NumericalVector temperatureGradient = computeTemperatureGradient(velocity, partialStateJacobian);
-
-
-	//Density flux is zero for the viscosity
-
-	//momentum flux for the viscosity part, iVel represents the velocity states rho*u rho*v and rho*w
-	for (std::size_t iD1 = 0; iD1 < instance_.DIM_; iD1++)
-	{
-		for (std::size_t iD2 = iD1; iD2 < instance_.DIM_; iD2++)
-		{
-			if (iD1 == iD2)
-			{
-				fluxFunction(iD1+1,iD2) = volumetricStress + 2*viscosity*partialStateJacobian(iD1+1,iD1);//Diagonal stress contribution
-			}
-			else
-			{
-				fluxFunction(iD1+1,iD2) = viscosity*(partialStateJacobian(iD2+1,iD1) + partialStateJacobian(iD1+1,iD2));//shear stress contribution
-				fluxFunction(iD2,iD1+1) = fluxFunction(iD1+1,iD2);
-			}
-
-		}
-	}
-
-	//energy flux for the viscosity part.
-
-	// momentum transport
-	for (std::size_t iD1 = 0; iD1 < instance_.DIM_; iD1++)
-	{
-		for (std::size_t iD2 = 0; iD2 < instance_.DIM_; iD2++)
-		{
-			fluxFunction(instance_.DIM_ + 1,iD1) += velocity(iD2)*fluxFunction(iD2+1,iD1);
-		}
-	}
-
-	// Temperature transport
-	for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
-	{
-		fluxFunction(instance_.DIM_ + 1,iD) += conductivity*temperatureGradient(iD);
-	}
-
-
-	return fluxFunction;
-}
-*/
-
 LinearAlgebra::NumericalVector Viscous::integrandAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector qSolution, const LinearAlgebra::Matrix qSolutionJacobian, const double pressure, const LinearAlgebra::NumericalVector partialState, const Geometry::PointReference &pRef)
 {
 
@@ -334,39 +240,76 @@ LinearAlgebra::NumericalVector Viscous::integrandAtElement(const Base::Element *
 	return integrand;
 }
 
-/*LinearAlgebra::NumericalVector Viscous::integrandAtFace(const Base::Face *ptrFace, const Base::Side &iSide)
+LinearAlgebra::NumericalVector Viscous::integrandViscousAtFace(const Base::Face *ptrFace, const Base::Side &iSide, LinearAlgebra::NumericalVector qSolutionInternal, LinearAlgebra::NumericalVector qSolutionExternal, double pressure, LinearAlgebra::NumericalVector partialState, const LinearAlgebra::NumericalVector normal, const Geometry::PointReference &pRef)
 {
-	   //Get the number of basis functions
-	   std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
-	   std::size_t numOfSolutionBasisFunctionsLeft = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
-	   std::size_t numOfSolutionBasisFunctionsRight = ptrFace->getPtrElementRight()->getNrOfBasisFunctions(); //Get the number of basis functions on the right side
+	//Compute velocity normal matrix
+	LinearAlgebra::Matrix velocityNormal(instance_.DIM_+2,instance_.DIM_);
+	LinearAlgebra::NumericalVector qSolutionDifference;
+	qSolutionDifference = qSolutionInternal - qSolutionExternal;
+	for (std::size_t iV = 0; iV < instance_.numOfVariables_; iV++)
+	{
+		for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
+		{
+			velocityNormal(iV,iD) = 0.5*qSolutionDifference(iV)*normal(iD);
+		}
+	}
 
-	  //compute A_
-}*/
-/*
+	//Compute A and A contraction with velocitynormal matrix
+	double temperature = computeTemperature(qSolutionInternal, pressure);
+	double viscosity = computeViscosity(temperature);
 
-LinearAlgebra::Matrix Viscous::computeStabilityValues(const Base::Face *ptrFace)
-{
+	computeATensor(partialState, viscosity);
+	LinearAlgebra::Matrix fluxFunction = computeATensorMatrixContraction(velocityNormal);
 
-	   std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
-	   std::size_t numOfSolutionBasisFunctionsLeft = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
-	   std::size_t numOfSolutionBasisFunctionsRight = ptrFace->getPtrElementRight()->getNrOfBasisFunctions(); //Get the number of basis functions on the right side
+	//Compute integrand
+	std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
+	LinearAlgebra::NumericalVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
+	LinearAlgebra::NumericalVector gradientBasisFunction;
+	std::size_t iVB; // Index for both variable and basis function.
 
-	//compute mass matrix
+	for (std::size_t iB = 0; iB < numOfTestBasisFunctions; iB++) // for all basis functions
+	{
+		gradientBasisFunction = ptrFace->basisFunctionDeriv(iSide,iB,pRef);
+		for (std::size_t iD = 0; iD < instance_.DIM_; iD++) // for all dimensions
+		{
+			for (std::size_t iE = 0; iE < instance_.DIM_ + 2; iE++) // for all equations
+			{
+				iVB = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iB,iE);
+				integrand(iVB) += fluxFunction(iE,iD)*gradientBasisFunction(iD);
+			}
+		}
+	}
 
-	//For each value ki:
-
-	//compute rhs
-
-	//solve system of equations
-
-	//reconstruct value
+	return -integrand;
 }
 
-*/
+/*LinearAlgebra::NumericalVector Viscous::integrandAuxilliaryAtFace(const Base::Face *ptrFace)
+{
 
+	LinearAlgebra::Matrix fluxFunction = computeAuxilliaryFlux();
 
+	//Compute integrand
+	std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
+	LinearAlgebra::NumericalVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
+	LinearAlgebra::NumericalVector partialIntegrand(instance_.numOfVariables_);
 
+	for (std::size_t iV = 0; iV < instance_.numOfVariables_; iV++)
+	{
+		for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
+		{
+			partialIntegrand(iV) += fluxFunction(iV,iD)*normal(iD);
+		}
+	}
+
+	for (std::size_t iB = 0; iB < numOfTestBasisFunctions; iB++)
+	{
+		for (std::size_t iE = 0; iE < instance_.DIM_; iE++)
+		{
+
+		}
+	}
+
+}*/
 
 
 

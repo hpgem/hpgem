@@ -81,12 +81,8 @@ LinearAlgebra::NumericalVector Inviscid::integrandAtElement(const Base::Element 
 }
 
 //Compute the Roe Riemann Flux function
-LinearAlgebra::NumericalVector Inviscid::RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qSolutionLeft, const LinearAlgebra::NumericalVector &qSolutionRight, LinearAlgebra::NumericalVector &normal)
+LinearAlgebra::NumericalVector Inviscid::RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qSolutionLeft, const LinearAlgebra::NumericalVector &qSolutionRight, const LinearAlgebra::NumericalVector &normal)
 {
-
-	   //Compute correct normal direction and difference vector
-	   double area = Base::L2Norm(normal);
-	   normal = normal/area;
 
 	   LinearAlgebra::NumericalVector qDifference = qSolutionRight - qSolutionLeft;
 
@@ -199,9 +195,7 @@ LinearAlgebra::NumericalVector Inviscid::RoeRiemannFluxFunction(const LinearAlge
 	    flux(instance_.DIM_+1) = (unL*(qSolutionLeft(instance_.DIM_+1)+pressureLeft) + unR*(qSolutionRight(instance_.DIM_+1)+pressureRight) - (lam3*qDifference(instance_.DIM_+1) + qAverage(instance_.DIM_)*abv6 + unAvg*abv7));
 
 	    //Note: Twice the flux is computed above, hence the factor 0.5 in front of the equation
-	    //Note: Correction is made to the flux since F*n was computed above, where n is the normal unit vector
-	    //However the face integral function does not use a normalised vector.
-     return 0.5*flux*area;
+     return 0.5*flux;
 }
 
 /// \brief Compute the integrand for the right hand side for the reference face corresponding to an external face.
@@ -258,50 +252,26 @@ LinearAlgebra::NumericalVector Inviscid::integrandAtFace(const Base::Face *ptrFa
 }
 
 /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-LinearAlgebra::NumericalVector Inviscid::integrandAtFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficientsLeft, const LinearAlgebra::NumericalVector &solutionCoefficientsRight)
+LinearAlgebra::NumericalVector Inviscid::integrandAtFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const Base::Side &iSide, const LinearAlgebra::NumericalVector &qSolutionInternal, const LinearAlgebra::NumericalVector &qSolutionExternal, const LinearAlgebra::NumericalVector &normal)
 {
 	   //Get the number of basis functions
 	   std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
-	   std::size_t numOfSolutionBasisFunctionsLeft = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
-	   std::size_t numOfSolutionBasisFunctionsRight = ptrFace->getPtrElementRight()->getNrOfBasisFunctions(); //Get the number of basis functions on the right side
-
 
 	   LinearAlgebra::NumericalVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
-	   LinearAlgebra::NumericalVector qReconstructionLeft(instance_.numOfVariables_);
-	   LinearAlgebra::NumericalVector qReconstructionRight(instance_.numOfVariables_);
-
-	   // /todo: Remove this to a seperate function to reduce code duplication
-	   //Compute left and right states
-	    std::size_t jVB; // Index for both variable and basis function.
-	    for (std::size_t jV = 0; jV < instance_.numOfVariables_; jV++)
-	    {
-	        qReconstructionLeft(jV) = 0;
-	        qReconstructionRight(jV) = 0;
-	        for (std::size_t jB = 0; jB < numOfSolutionBasisFunctionsLeft; jB++)
-	        {
-	            jVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(jB, jV);
-	            qReconstructionLeft(jV) += ptrFace->basisFunction(Base::Side::LEFT, jB, pRef) * solutionCoefficientsLeft(jVB);
-	        }
-	        for (std::size_t jB = 0; jB < numOfSolutionBasisFunctionsRight; jB++)
-	        {
-	            jVB = ptrFace->getPtrElementRight()->convertToSingleIndex(jB, jV);
-	            qReconstructionRight(jV) += ptrFace->basisFunction(Base::Side::RIGHT, jB, pRef) * solutionCoefficientsRight(jVB);
-	        }
-	    }
-
-	   // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-	   LinearAlgebra::NumericalVector normal = ptrFace->getNormalVector(pRef);
 
 	   //Compute flux
-	   LinearAlgebra::NumericalVector flux;
-	   if (iSide == Base::Side::RIGHT)
+	   LinearAlgebra::NumericalVector flux = RoeRiemannFluxFunction(qSolutionInternal, qSolutionExternal, normal);
+/*	   if (iSide == Base::Side::RIGHT)
 	   {
-		   flux = -RoeRiemannFluxFunction(qReconstructionLeft, qReconstructionRight, normal);
+		   flux =  RoeRiemannFluxFunction(qSolutionRight, qSolutionLeft, normal2);
+		   std::cout << "Different: " << flux<< std::endl;
+		   flux = -RoeRiemannFluxFunction(qSolutionLeft, qSolutionRight, normal);
+		   std::cout << "Normal: " << flux << std::endl;
 	   }
 	   else
 	   {
-		   flux = RoeRiemannFluxFunction(qReconstructionLeft, qReconstructionRight, normal);
-	   }
+		   flux = RoeRiemannFluxFunction(qSolutionLeft, qSolutionRight, normal);
+	   }*/
 
 	   // Compute integrand on the reference element.
 	   std::size_t iVB; // Index for both variable and basis function.
