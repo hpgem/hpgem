@@ -200,7 +200,7 @@ namespace Base
     };
 }
 
-#include "HpgemAPILinear.cpp"
+#include "HpgemAPILinear_Impl.h"
 
 #endif
 

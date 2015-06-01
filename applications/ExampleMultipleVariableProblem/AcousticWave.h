@@ -208,6 +208,6 @@ private:
     double cInv_;
 };
 
-#include "AcousticWave.cpp"
+#include "AcousticWave_Impl.h"
 
 #endif

@@ -71,6 +71,6 @@ namespace Utilities
 
 } // namespace
 
-#include "PhysGradientOfBasisFunction.cpp"
+#include "PhysGradientOfBasisFunction_Impl.h"
 
 #endif /* defined(____PhysGradientOfBasisFunction__) */

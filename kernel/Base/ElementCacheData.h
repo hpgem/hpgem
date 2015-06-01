@@ -51,6 +51,6 @@ namespace Base
     };
 }
 
-#include "ElementCacheData.cpp"
+#include "ElementCacheData_Impl.h"
 
 #endif

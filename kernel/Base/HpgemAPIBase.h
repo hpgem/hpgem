@@ -105,7 +105,7 @@ namespace Base
     };
 }
 
-#include "HpgemAPIBase.cpp"
+#include "HpgemAPIBase_Impl.h"
 
 #endif
 

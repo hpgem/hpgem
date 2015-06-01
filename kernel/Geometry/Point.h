@@ -105,5 +105,5 @@ namespace Geometry
 
 }
 
-#include "Point.cpp"
+#include "Point_Impl.h"
 #endif /* defined(_POINT_HPP) */

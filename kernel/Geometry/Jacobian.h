@@ -66,6 +66,6 @@ namespace Geometry
 
 }
 
-#include "Jacobian.cpp"
+#include "Jacobian_Impl.h"
 
 #endif /* JACOBIAN_HPP_ */

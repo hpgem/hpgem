@@ -117,6 +117,6 @@ namespace Geometry
 
 }
 
-#include "PhysicalGeometry.cpp"
+#include "PhysicalGeometry_Impl.h"
 
 #endif /* PHYSICALGEOMETRY_H_ */

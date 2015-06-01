@@ -95,5 +95,5 @@ namespace Output
     };
 }
 
-#include "TecplotDiscontinuousSolutionWriter.cpp"
+#include "TecplotDiscontinuousSolutionWriter_Impl.h"
 #endif

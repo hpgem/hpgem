@@ -55,6 +55,6 @@ namespace Base
     };
 }
 
-#include "FaceCacheData.cpp"
+#include "FaceCacheData_Impl.h"
 
 #endif

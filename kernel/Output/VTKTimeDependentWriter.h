@@ -71,7 +71,7 @@ namespace Output
 
 }
 
-#include "VTKTimeDependentWriter.cpp"
+#include "VTKTimeDependentWriter_Impl.h"
 
 #endif	/* VTKTIMEDEPENDENTWRITER_HPP */
 

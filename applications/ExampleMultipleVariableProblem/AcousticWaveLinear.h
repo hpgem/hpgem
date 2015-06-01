@@ -166,6 +166,6 @@ const std::size_t numOfVariables_;
 double cInv_;
 };
 
-#include "AcousticWaveLinear.cpp"
+#include "AcousticWaveLinear_Impl.h"
 
 #endif

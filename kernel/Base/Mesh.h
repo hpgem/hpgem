@@ -248,7 +248,7 @@ namespace Base
 
 }
 
-#include "Mesh.cpp"
+#include "Mesh_Impl.h"
 
 #endif	/* MESH_HPP */
 

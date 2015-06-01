@@ -325,7 +325,7 @@ namespace Base
     };
 }
 
-#include "HpgemAPISimplified.cpp"
+#include "HpgemAPISimplified_Impl.h"
 
 #endif
 

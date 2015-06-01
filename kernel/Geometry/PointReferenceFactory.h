@@ -82,6 +82,6 @@ namespace Geometry
 
 } /* namespace Geometry */
 
-#include "PointReferenceFactory.cpp"
+#include "PointReferenceFactory_Impl.h"
 
 #endif /* POINTREFERENCEFACTORY_H_ */

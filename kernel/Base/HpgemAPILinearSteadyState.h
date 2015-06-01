@@ -169,7 +169,7 @@ namespace Base
     };
 }
 
-#include "HpgemAPILinearSteadyState.cpp"
+#include "HpgemAPILinearSteadyState_Impl.h"
 
 #endif
 

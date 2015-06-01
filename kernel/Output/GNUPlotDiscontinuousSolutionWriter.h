@@ -76,7 +76,7 @@ namespace Output
     };
 }
 
-#include "GNUPlotDiscontinuousSolutionWriter.cpp"
+#include "GNUPlotDiscontinuousSolutionWriter_Impl.h"
 
 #endif	/* DISCONTINUOUSSOLUTIONWRITER_HH */
 

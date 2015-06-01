@@ -92,6 +92,6 @@ namespace Geometry
 
 }
 
-#include "PointReference.cpp"
+#include "PointReference_Impl.h"
 
 #endif /* POINTREFERENCE_HPP_ */

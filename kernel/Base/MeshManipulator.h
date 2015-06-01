@@ -419,6 +419,6 @@ namespace Base
 
 }
 
-#include "MeshManipulator.cpp"
+#include "MeshManipulator_Impl.h"
 
 #endif /* MESHMANIPULATOR_H_ */

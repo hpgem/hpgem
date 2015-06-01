@@ -110,6 +110,6 @@ namespace Geometry
     PointPhysical<DIM> operator*(double left, const PointPhysical<DIM>& right);
 }
 
-#include "PointPhysical.cpp"
+#include "PointPhysical_Impl.h"
 
 #endif /* POINTPHYSICAL_HPP_ */

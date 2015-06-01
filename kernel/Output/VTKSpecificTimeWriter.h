@@ -71,7 +71,7 @@ namespace Output
     };
 }
 
-#include "VTKSpecificTimeWriter.cpp"
+#include "VTKSpecificTimeWriter_Impl.h"
 
 #endif	/* VTKDISCONTINUOUSSOLUTIONWRITER_HPP */
 

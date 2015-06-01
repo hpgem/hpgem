@@ -105,6 +105,6 @@ private:
 	const std::size_t numOfVariables_;
 };
 
-#include "Euler.cpp"
+#include "Euler_Impl.h"
 
 #endif /* EULER_H_ */
