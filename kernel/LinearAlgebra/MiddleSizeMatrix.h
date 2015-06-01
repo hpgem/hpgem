@@ -60,6 +60,11 @@ namespace LinearAlgebra
     class MiddleSizeMatrix
     {
     public:
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        using type = std::complex<double>;
+#else
+        using type = double;
+#endif
         
         /// \brief Default Matrix constructor : Simply creates a zero size matrix
         MiddleSizeMatrix();
@@ -68,7 +73,7 @@ namespace LinearAlgebra
         MiddleSizeMatrix(const std::size_t n, const std::size_t m);
 
         /// \brief Constructs a matrix of size n-rows by m-columns and initialises all entry to a constant 
-        MiddleSizeMatrix(const std::size_t n, const std::size_t m, const double& c);
+        MiddleSizeMatrix(const std::size_t n, const std::size_t m, const type& c);
 
         /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B and A are both matrices
         MiddleSizeMatrix(const MiddleSizeMatrix& other);
@@ -87,7 +92,7 @@ namespace LinearAlgebra
         MiddleSizeMatrix(MiddleSizeMatrix&& other);
 
         /// \brief defines the operator (n,m) to access the element on row n and column m        
-        double& operator()(std::size_t n, std::size_t m)
+        type& operator()(std::size_t n, std::size_t m)
         {
             logger.assert(n < nRows_, "Requested row number % for a matrix with only % rows", n, nRows_);
             logger.assert(m < nCols_, "Requested column number % for a matrix with only % columns", m, nCols_);
@@ -95,7 +100,7 @@ namespace LinearAlgebra
         }
         
         /// \brief defines the operator (n,m) to access the element on row n and column m        
-        const double& operator()(std::size_t n, std::size_t m) const
+        const type& operator()(std::size_t n, std::size_t m) const
         {
             logger.assert(n < nRows_, "Requested row number % for a matrix with only % rows", n, nRows_);
             logger.assert(m < nCols_, "Requested column number % for a matrix with only % columns", m, nCols_);
@@ -103,16 +108,16 @@ namespace LinearAlgebra
         }
         
         /// \brief Access the n linear element in the matrix. 
-        double& operator[](const std::size_t n);
+        type& operator[](const std::size_t n);
 
-        const double& operator[](const std::size_t n) const;
+        const type& operator[](const std::size_t n) const;
 
         /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j
         MiddleSizeVector operator*(MiddleSizeVector& right);
         MiddleSizeVector operator*(MiddleSizeVector& right) const;
 
         /// \brief Does matrix A_ij=scalar*B_ij
-        MiddleSizeMatrix operator*(const double& right) const;
+        MiddleSizeMatrix operator*(const type& right) const;
 
         /// \brief Does matrix A_ij = B_ik * C_kj
         MiddleSizeMatrix operator*(const MiddleSizeMatrix &other);
@@ -126,19 +131,19 @@ namespace LinearAlgebra
         MiddleSizeMatrix operator-() const;
 
         /// \brief Does matrix A_ij=scalar*A_ij
-        MiddleSizeMatrix& operator*=(const double &scalar);
+        MiddleSizeMatrix& operator*=(const type &scalar);
 
         /// \brief Does matrix A_ij = A_ik * B_kj
         MiddleSizeMatrix& operator*=(const MiddleSizeMatrix &other);
 
         /// \brief Does matrix A_ij=scalar*A_ij
-        MiddleSizeMatrix& operator/=(const double &scalar);
+        MiddleSizeMatrix& operator/=(const type &scalar);
 
         /// \brief this does element by divided by a scalar
-        MiddleSizeMatrix operator/(const double& scalar) const;
+        MiddleSizeMatrix operator/(const type& scalar) const;
 
         /// \brief Assigns the Matrix by a scalar
-        MiddleSizeMatrix& operator=(const double& c);
+        MiddleSizeMatrix& operator=(const type& c);
 
         /// \brief Assigns one matrix to another.
         MiddleSizeMatrix& operator=(const MiddleSizeMatrix& right);
@@ -150,7 +155,7 @@ namespace LinearAlgebra
         MiddleSizeVector computeWedgeStuffVector() const;
 
         /// \brief Applies the matrix y=ax + y, where x is another matrix and a is a scalar
-        void axpy(double a, const MiddleSizeMatrix& x);
+        void axpy(type a, const MiddleSizeMatrix& x);
 
         /// \brief Resize the Matrix to be n-Rows by m-columns
         void resize(std::size_t n, std::size_t m);
@@ -192,23 +197,17 @@ namespace LinearAlgebra
         /// \brief solves Ax=b where A is the current matrix and NumericalVector b 
         /// is the input parameter. The result is returned in b.
         void solve(MiddleSizeVector& b) const;
-
-#ifdef HPGEM_USE_COMPLEX_PETSC
-        std::complex<double>* data();
-        const std::complex<double>* data() const;
-
-#else
-        double* data();
-        const double* data() const;
-#endif
         
+        type* data();
+        const type* data() const;
+
     private:
         /// The actually data of the matrix class
 #ifdef LA_STL_VECTOR
-        vector<double> data_;
+        vector<type> data_;
 #else
 #error "valarray is broken, please turn on hpGEM_USE_STL_VECTOR_FOR_LA"
-        valarray<double> data_;
+        valarray<type> data_;
 #endif
         
         /// Stores the number of rows of the matrix
@@ -223,7 +222,7 @@ namespace LinearAlgebra
     std::ostream& operator<<(std::ostream& os, const MiddleSizeMatrix& A);
 
     ///Multiplies a matrix with a double
-    MiddleSizeMatrix operator*(const double d, const MiddleSizeMatrix& mat);
+    MiddleSizeMatrix operator*(const MiddleSizeMatrix::type d, const MiddleSizeMatrix& mat);
     
     ///Multiplies a matrix with a double
     MiddleSizeVector operator*(MiddleSizeVector& vec, MiddleSizeMatrix& mat);

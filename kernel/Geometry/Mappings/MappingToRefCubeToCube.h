@@ -74,7 +74,7 @@ namespace Geometry
         MappingToRefCubeToCube0& operator=(const MappingToRefCubeToCube0&) = delete;
     private:
         MappingToRefCubeToCube0();
-        std::unordered_map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
     };
     // ~~~ index 1 ~~~==============================================================================
     class MappingToRefCubeToCube1 : public MappingReferenceToReference<0>
@@ -91,7 +91,7 @@ namespace Geometry
         MappingToRefCubeToCube1& operator=(const MappingToRefCubeToCube1&) = delete;
     private:
         MappingToRefCubeToCube1();
-        std::unordered_map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
     };
     // ~~~ index 2 ~~~==============================================================================
     class MappingToRefCubeToCube2 : public MappingReferenceToReference<0>
@@ -108,7 +108,7 @@ namespace Geometry
         MappingToRefCubeToCube2& operator=(const MappingToRefCubeToCube2&) = delete;
     private:
         MappingToRefCubeToCube2();
-        std::unordered_map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
     };
     // ~~~ index 3 ~~~==============================================================================
     class MappingToRefCubeToCube3 : public MappingReferenceToReference<0>
@@ -125,7 +125,7 @@ namespace Geometry
         MappingToRefCubeToCube3& operator=(const MappingToRefCubeToCube3&) = delete;
     private:
         MappingToRefCubeToCube3();
-        std::unordered_map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
     };
     // ~~~ index 4 ~~~==============================================================================
     class MappingToRefCubeToCube4 : public MappingReferenceToReference<0>
@@ -143,7 +143,7 @@ namespace Geometry
         MappingToRefCubeToCube4& operator=(const MappingToRefCubeToCube4&) = delete;
     private:
         MappingToRefCubeToCube4();
-        std::unordered_map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
     };
     // ~~~ index 5 ~~~==============================================================================
     class MappingToRefCubeToCube5 : public MappingReferenceToReference<0>
@@ -160,7 +160,7 @@ namespace Geometry
         MappingToRefCubeToCube5& operator=(const MappingToRefCubeToCube5&) = delete;
     private:
         MappingToRefCubeToCube5();
-        std::unordered_map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
     };
     // ~~~ index 6 ~~~==============================================================================
     class MappingToRefCubeToCube6 : public MappingReferenceToReference<0>
@@ -177,7 +177,7 @@ namespace Geometry
         MappingToRefCubeToCube6& operator=(const MappingToRefCubeToCube6&) = delete;
     private:
         MappingToRefCubeToCube6();
-        std::unordered_map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
     };
     // ~~~ index 7 ~~~==============================================================================
     class MappingToRefCubeToCube7 : public MappingReferenceToReference<0>
@@ -194,7 +194,7 @@ namespace Geometry
         MappingToRefCubeToCube7& operator=(const MappingToRefCubeToCube7&) = delete;
     private:
         MappingToRefCubeToCube7();
-        std::unordered_map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<3>*> transformedCoordinates;
     };
 }
 #endif

@@ -32,27 +32,27 @@
 int main()
 {
     
-    double *test0(nullptr), test1[1], test2[2], test3[3];
+    LinearAlgebra::MiddleSizeVector::type *test0(nullptr), test1[1], test2[2], test3[3];
     
     LinearAlgebra::MiddleSizeVector vec0D(test0, 0);
     Geometry::PointPhysical<0> point0D(vec0D);
     
-    logger.assert_always(Base::L2Norm(vec0D) == 0, "0D case");
-    logger.assert_always(Base::L2Norm(point0D) == 0, "0D case");
+    logger.assert_always(Base::L2Norm(vec0D) == 0., "0D case");
+    logger.assert_always(Base::L2Norm(point0D) == 0., "0D case");
     
     test1[0] = 1;
     
     LinearAlgebra::MiddleSizeVector vec1D(test1, 1);
     Geometry::PointPhysical<1> point1D(vec1D);
     
-    logger.assert_always(std::abs(Base::L2Norm(vec1D) - 1) < 1e-12, "1D case, positive");
-    logger.assert_always(std::abs(Base::L2Norm(point1D) - 1) < 1e-12, "1D case, positive");
+    logger.assert_always(std::abs(Base::L2Norm(vec1D) - 1.) < 1e-12, "1D case, positive");
+    logger.assert_always(std::abs(Base::L2Norm(point1D) - 1.) < 1e-12, "1D case, positive");
     
     vec1D[0] = -1;
     point1D[0] = -1;
     
-    logger.assert_always(std::abs(Base::L2Norm(vec1D) - 1) < 1e-12, "1D case, negative");
-    logger.assert_always(std::abs(Base::L2Norm(point1D) - 1) < 1e-12, "1D case, negative");
+    logger.assert_always(std::abs(Base::L2Norm(vec1D) - 1.) < 1e-12, "1D case, negative");
+    logger.assert_always(std::abs(Base::L2Norm(point1D) - 1.) < 1e-12, "1D case, negative");
     
     vec1D[0] = 4.38573895783677438;
     point1D[0] = 4.38573895783677438;
@@ -64,7 +64,7 @@ int main()
     test2[1] = 1;
     
     LinearAlgebra::MiddleSizeVector vec2D(test2, 2);
-    LinearAlgebra::SmallVector<2> smallVec2D(test2);
+    LinearAlgebra::SmallVector<2> smallVec2D(vec2D);
     Geometry::PointPhysical<2> point2D(vec2D);
 
     logger.assert_always(std::abs(Base::L2Norm(vec2D) - std::sqrt(2.)) < 1e-12, "2D case, positive");

@@ -33,9 +33,10 @@ namespace LinearAlgebra
     /// axpy itself, please implement it in this file.
     
     //!\brief axpy operation for scalar values, for example a double or an int.
-    template <typename T>
+    //for typical use cases S is most likely to be double or std::complex<double>
+    template <typename T, typename S>
     inline typename std::enable_if<std::is_arithmetic<T>::value, void>::type
-    axpy(double alpha, const T& x, T& y)
+    axpy(S alpha, const T& x, T& y)
     {
         y += alpha * x;
     }
@@ -46,11 +47,17 @@ namespace LinearAlgebra
      * for another option of this templated function.
      * The user is responsible for checking if x and y have the same size.
      */
-    template <typename T>
+    template <typename T, typename S>
     inline typename std::enable_if<std::is_class<T>::value, void>::type
-    axpy(double a, const T& x, T& y)
+    axpy(S a, const T& x, T& y)
     {
         y.axpy(a, x);
+    }
+
+    template<typename S>
+    inline void axpy(S a, const std::complex<double>& x, std::complex<double>& y)
+    {
+        y += a * x;
     }
 
 }

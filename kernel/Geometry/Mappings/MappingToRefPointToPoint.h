@@ -52,7 +52,7 @@ namespace Geometry
         MappingToRefPointToPoint& operator=(const MappingToRefPointToPoint&) = delete;
     private:
         MappingToRefPointToPoint();
-        std::unordered_map<const PointReference<0>*, const PointReference<0>*> transformedCoordinates;
+        std::map<const PointReference<0>*, const PointReference<0>*> transformedCoordinates;
     };
 
 } /* namespace Geometry */

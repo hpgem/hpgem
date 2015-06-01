@@ -44,7 +44,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference<1>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({p1[0], -1.});
+            const_cast<std::map<const PointReference<1>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({p1[0], -1.});
             return *transformedCoordinates.at(&p1);
         }
     }
@@ -81,7 +81,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference<1>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({-1., p1[0]});
+            const_cast<std::map<const PointReference<1>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({-1., p1[0]});
             return *transformedCoordinates.at(&p1);
         }
     }
@@ -118,7 +118,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference<1>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({1., p1[0]});
+            const_cast<std::map<const PointReference<1>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({1., p1[0]});
             return *transformedCoordinates.at(&p1);
         }
     }
@@ -155,7 +155,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference<1>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({p1[0], 1.});
+            const_cast<std::map<const PointReference<1>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({p1[0], 1.});
             return *transformedCoordinates.at(&p1);
         }
     }

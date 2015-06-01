@@ -179,7 +179,7 @@ int main()
     LinearAlgebra::MiddleSizeVector solutionVector = elementRight.getSolution(iTimeLevel, pointReference);
     for (iV = 0; iV < nrOfUnknowns; iV++)
     {
-        logger.assert_always(solutionVector(iV) == (iV + 1) * solutionVector(0), "Solution vector test failed (%): % != (% + 1) * %", iV, solutionVector(iV), iV, solutionVector(0));
+        logger.assert_always(solutionVector(iV) == (iV + 1.) * solutionVector(0), "Solution vector test failed (%): % != (% + 1) * %", iV, solutionVector(iV), iV, solutionVector(0));
     }
     
     std::cout << "Do tests for the face.\n";

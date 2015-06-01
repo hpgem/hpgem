@@ -186,7 +186,7 @@ namespace Base
         // Compute the energy norm of the error
         if(doComputeError)
         {
-            double totalError = this->computeTotalError(this->solutionTimeLevel_, 0);
+            LinearAlgebra::MiddleSizeVector::type totalError = this->computeTotalError(this->solutionTimeLevel_, 0);
             logger(INFO, "Total error: %.", totalError);
             LinearAlgebra::MiddleSizeVector maxError = this->computeMaxError(this->solutionTimeLevel_, 0);
             logger.assert(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), this->configData_->numberOfUnknowns_);

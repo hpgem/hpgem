@@ -80,7 +80,7 @@ int main(int argc, char** argv)
     logger.assert_always(count0.size() == 4, "Size of a matrix");
     for(std::size_t i = 0; i < count0.size(); ++i)
     {
-        logger.assert_always(std::abs(count0[i] - i) < 1e-12, "Entry of a matrix");
+        logger.assert_always(std::abs(count0[i] - double(i)) < 1e-12, "Entry of a matrix");
     }
     logger.assert_always(std::abs(count0(0, 0) - 0.) < 1e-12, "Entry of a matrix");
     logger.assert_always(std::abs(count0(1, 0) - 1.) < 1e-12, "Entry of a matrix");
@@ -91,28 +91,28 @@ int main(int argc, char** argv)
     logger.assert_always(count1.size() == 4, "Size of a matrix");
     for(std::size_t i = 0; i < count1.size(); ++i)
     {
-        logger.assert_always(std::abs(count1[i] - 4. - i) < 1e-12, "Entry of a matrix");
+        logger.assert_always(std::abs(count1[i] - 4. - double(i)) < 1e-12, "Entry of a matrix");
     }
     logger.assert_always(copy.getNRows() == 2, "Rows in a matrix");
     logger.assert_always(copy.getNCols() == 2, "Columns in a matrix");
     logger.assert_always(copy.size() == 4, "Size of a matrix");
     for(std::size_t i = 0; i < copy.size(); ++i)
     {
-        logger.assert_always(std::abs(copy[i] - i) < 1e-12, "Entry of a matrix");
+        logger.assert_always(std::abs(copy[i] - double(i)) < 1e-12, "Entry of a matrix");
     }
     logger.assert_always(bla.getNRows() == 2, "Rows in a matrix");
     logger.assert_always(bla.getNCols() == 2, "Columns in a matrix");
     logger.assert_always(bla.size() == 4, "Size of a matrix");
     for(std::size_t i = 0; i < bla.size(); ++i)
     {
-        logger.assert_always(std::abs(bla[i] - i) < 1e-12, "Entry of a matrix");
+        logger.assert_always(std::abs(bla[i] - double(i)) < 1e-12, "Entry of a matrix");
     }
     logger.assert_always(merge.getNRows() == 2, "Rows in a matrix");
     logger.assert_always(merge.getNCols() == 4, "Columns in a matrix");
     logger.assert_always(merge.size() == 8, "Size of a matrix");
     for(std::size_t i = 0; i < merge.size(); ++i)
     {
-        logger.assert_always(std::abs(merge[i] - i) < 1e-12, "Entry of a matrix");
+        logger.assert_always(std::abs(merge[i] - double(i)) < 1e-12, "Entry of a matrix");
     }
     A23(0, 0) = 0.0;
     A23(1, 0) = 0.1;
@@ -161,11 +161,11 @@ int main(int argc, char** argv)
     logger.assert_always(std::abs((A23*A32)(1, 0) - .13) < 1e-12, "multiply");
     logger.assert_always(std::abs((A23*A32)(0, 1) - .28) < 1e-12, "multiply");
     logger.assert_always(std::abs((A23*A32)(1, 1) - .40) < 1e-12, "multiply");
-    logger.assert_always(std::abs((vec1*count0)*vec1 - 45) < 1e-12, "multiply");
-    logger.assert_always(std::abs(vec1*(count0*vec1) - 45) < 1e-12, "multiply");
+    logger.assert_always(std::abs((vec1*count0)*vec1 - 45.) < 1e-12, "multiply");
+    logger.assert_always(std::abs(vec1*(count0*vec1) - 45.) < 1e-12, "multiply");
     MiddleSizeVector size3 = {3., 4., 5.};
-    logger.assert_always(std::abs(size3*(A32*vec0) - 5) < 1e-12, "multiply");
-    logger.assert_always(std::abs((size3*A32)*vec0 - 5) < 1e-12, "multiply");
+    logger.assert_always(std::abs(size3*(A32*vec0) - 5.) < 1e-12, "multiply");
+    logger.assert_always(std::abs((size3*A32)*vec0 - 5.) < 1e-12, "multiply");
     logger.assert_always(std::abs((2*count0*2)(0, 0) - 0.) < 1e-12, "multiply");
     logger.assert_always(std::abs((2*count0*2)(1, 0) - 4.) < 1e-12, "multiply");
     logger.assert_always(std::abs((2*count0*2)(0, 1) - 8.) < 1e-12, "multiply");
@@ -203,7 +203,7 @@ int main(int argc, char** argv)
     logger.assert_always(extra.size() == 4, "Size of a matrix");
     for(std::size_t i = 0; i < extra.size(); ++i)
     {
-        logger.assert_always(std::abs(extra[i] - i) < 1e-12, "Entry of a matrix");
+        logger.assert_always(std::abs(extra[i] - double(i)) < 1e-12, "Entry of a matrix");
     }
     copy = count1;
     logger.assert_always(copy.getNRows() == 2, "Rows in a matrix");
@@ -211,7 +211,7 @@ int main(int argc, char** argv)
     logger.assert_always(copy.size() == 4, "Size of a matrix");
     for(std::size_t i = 0; i < copy.size(); ++i)
     {
-        logger.assert_always(std::abs(copy[i] - i - 4.) < 1e-12, "Entry of a matrix");
+        logger.assert_always(std::abs(copy[i] - double(i) - 4.) < 1e-12, "Entry of a matrix");
     }
     A0 = std::move(destroy);
     logger.assert_always(A0.getNRows() == 1, "Rows in a matrix");

@@ -77,6 +77,13 @@ namespace Base
         return elementMatrix_[matrixID];
     }
     
+    LinearAlgebra::MiddleSizeMatrix & ElementData::getElementMatrix(std::size_t matrixID)
+    {
+        logger.assert(matrixID < elementMatrix_.size(), "Requested matrix %, "
+                "while there are only % matrices for this element.", matrixID, elementMatrix_.size());
+        return elementMatrix_[matrixID];
+    }
+
     void ElementData::setElementVector(const LinearAlgebra::MiddleSizeVector& vector, std::size_t vectorID)
     {
         logger(VERBOSE, "In ElementData::setElementVector");
@@ -126,7 +133,7 @@ namespace Base
     /// \param[in] timeLevel Index corresponding to the time level.
     /// \param[in] unknown Index corresponding to the variable.
     /// \param[in] basisFunction Index corresponding to the basisFunction.
-    double ElementData::getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const
+    LinearAlgebra::MiddleSizeVector::type ElementData::getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const
     {
         logger.assert((timeLevel < timeLevels_ && unknown < nrOfUnknowns_ && basisFunction < nrOfBasisFunctions_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
         logger.assert(expansionCoefficients_[timeLevel].size() == nrOfUnknowns_ * nrOfBasisFunctions_, "Wrong number of expansion coefficients.");

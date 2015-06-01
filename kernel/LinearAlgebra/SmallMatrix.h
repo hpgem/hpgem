@@ -74,7 +74,12 @@ namespace LinearAlgebra
         SmallMatrix(const MiddleSizeMatrix& other)
             : data_()
         {
-            std::copy(other.data(), other.data() + nRows * nCols, data_.begin());
+            logger.assert(other.getNRows() == nRows, "expected a matrix with % rows, but got a matrix with % rows", nRows, other.getNRows());
+            logger.assert(other.getNCols() == nCols, "expected a matrix with % columns, but got a matrix with % columns", nCols, other.getNCols());
+            for(std::size_t i = 0; i < nRows * nCols; ++i)
+            {
+                data_[i] = std::real(other[i]);
+            }
         }
 
         /// \brief Glues one or more vectors with the same number of rows together

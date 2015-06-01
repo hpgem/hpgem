@@ -145,10 +145,10 @@ namespace Base
         void integrateInitialSolution(const std::size_t timeLevelResult, const double startTime, const std::size_t orderTimeDerivative);
 
         /// \brief Integrate the square of some norm of the error on a single element.
-        virtual double integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
+        virtual LinearAlgebra::MiddleSizeVector::type integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
         /// \brief Compute the (weighted) L2-norm of the error.
-        double computeTotalError(const std::size_t solutionTimeLevel, const double time);
+        LinearAlgebra::MiddleSizeVector::type computeTotalError(const std::size_t solutionTimeLevel, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error at an element.
         virtual LinearAlgebra::MiddleSizeVector computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);

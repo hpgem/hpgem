@@ -58,7 +58,7 @@ namespace Geometry
 
         const PointReference<DIM>* makePoint(std::initializer_list<double> data)
         {
-            return makePoint(Point<DIM>({data}));
+            return makePoint(data.begin());
         }
 
         const PointReference<DIM>* makePoint(double coords[])

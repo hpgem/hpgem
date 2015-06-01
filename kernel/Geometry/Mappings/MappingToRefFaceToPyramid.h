@@ -41,7 +41,7 @@ namespace Geometry
         MappingToRefFaceToPyramid0& operator=(const MappingToRefFaceToPyramid0&) = delete;
     private:
         MappingToRefFaceToPyramid0();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -60,7 +60,7 @@ namespace Geometry
         MappingToRefFaceToPyramid1& operator=(const MappingToRefFaceToPyramid1&) = delete;
     private:
         MappingToRefFaceToPyramid1();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -79,7 +79,7 @@ namespace Geometry
         MappingToRefFaceToPyramid1& operator=(const MappingToRefFaceToPyramid2&) = delete;
     private:
         MappingToRefFaceToPyramid2();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -98,7 +98,7 @@ namespace Geometry
         MappingToRefFaceToPyramid3& operator=(const MappingToRefFaceToPyramid3&) = delete;
     private:
         MappingToRefFaceToPyramid3();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 4 ~~~==============================================================================
@@ -117,7 +117,7 @@ namespace Geometry
         MappingToRefFaceToPyramid4& operator=(const MappingToRefFaceToPyramid4&) = delete;
     private:
         MappingToRefFaceToPyramid4();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
 
 }

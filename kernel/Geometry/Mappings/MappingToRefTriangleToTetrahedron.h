@@ -57,7 +57,7 @@ namespace Geometry
         MappingToRefTriangleToTetrahedron0& operator=(const MappingToRefTriangleToTetrahedron0&) = delete;
     private:
         MappingToRefTriangleToTetrahedron0();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -76,7 +76,7 @@ namespace Geometry
         MappingToRefTriangleToTetrahedron1& operator=(const MappingToRefTriangleToTetrahedron1&) = delete;
     private:
         MappingToRefTriangleToTetrahedron1();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -95,7 +95,7 @@ namespace Geometry
         MappingToRefTriangleToTetrahedron1& operator=(const MappingToRefTriangleToTetrahedron2&) = delete;
     private:
         MappingToRefTriangleToTetrahedron2();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -114,7 +114,7 @@ namespace Geometry
         MappingToRefTriangleToTetrahedron3& operator=(const MappingToRefTriangleToTetrahedron3&) = delete;
     private:
         MappingToRefTriangleToTetrahedron3();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
 }
 #endif

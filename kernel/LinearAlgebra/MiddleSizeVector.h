@@ -50,14 +50,20 @@ namespace LinearAlgebra
     /// This implements a vector of doubles and all the standard operators for it.
     class MiddleSizeVector
     {
-        
+
     public:
+        //we will need an extra macro hpgem_use_complex_numbers if complex numbers get different use cases
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        using type = std::complex<double>;
+#else
+        using type = double;
+#endif
         
         MiddleSizeVector();
 
         explicit MiddleSizeVector(std::size_t m);
 
-        MiddleSizeVector(std::initializer_list<double> t);
+        MiddleSizeVector(std::initializer_list<type> t);
 
         MiddleSizeVector(const MiddleSizeVector& other);
         
@@ -67,31 +73,28 @@ namespace LinearAlgebra
         template<std::size_t nRows>
         MiddleSizeVector(const SmallVector<nRows>& other);
 
-        MiddleSizeVector(const double array[], std::size_t size);
-
-        //Constructor to accommodate complex<double>
-        MiddleSizeVector(const std::complex<double> array[], int size);
+        MiddleSizeVector(const type array[], std::size_t size);
 
         void resize(std::size_t size);
 
         MiddleSizeVector& operator=(const MiddleSizeVector& right);
 
-        MiddleSizeVector& operator=(const std::initializer_list<double> l);
+        MiddleSizeVector& operator=(const std::initializer_list<type> l);
 
         MiddleSizeVector operator+(const MiddleSizeVector& right) const;
 
         MiddleSizeVector operator-(const MiddleSizeVector& right) const;
 
-        MiddleSizeVector operator*(const double& right) const;
+        MiddleSizeVector operator*(const type& right) const;
 
         ///Computes inner product between two vectors.
-        double operator*(const MiddleSizeVector& right) const;
+        type operator*(const MiddleSizeVector& right) const;
 
-        MiddleSizeVector& operator/=(const double& right);
+        MiddleSizeVector& operator/=(const type& right);
 
-        MiddleSizeVector operator/(const double& right) const;
+        MiddleSizeVector operator/(const type& right) const;
 
-        void axpy(double a, const MiddleSizeVector& x);
+        void axpy(type a, const MiddleSizeVector& x);
 
         /// This function is dangerous to use, since it compares doubles without 
         /// a tolerance interval to see if they are equal.
@@ -106,23 +109,23 @@ namespace LinearAlgebra
 
         MiddleSizeVector& operator-=(const MiddleSizeVector& right);
 
-        MiddleSizeVector& operator*=(const double& right);
+        MiddleSizeVector& operator*=(const type& right);
 
-        double& operator[](std::size_t n);
+        type& operator[](std::size_t n);
 
-        const double& operator[](std::size_t n) const
+        const type& operator[](std::size_t n) const
         {
             logger.assert(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
             return data_[n];
         }
         
-        double& operator()(std::size_t n)
+        type& operator()(std::size_t n)
         {
             logger.assert(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
             return data_[n];
         }
         
-        const double& operator()(std::size_t n) const
+        const type& operator()(std::size_t n) const
         {
             logger.assert(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
             return data_[n];
@@ -132,24 +135,19 @@ namespace LinearAlgebra
         {
             return data_.size();
         }
-#ifdef HPGEM_USE_COMPLEX_PETSC
         
-        const std::complex<double>* data() const;
-
-#else
-        const double* data() const
+        const type* data() const
         {
             return data_.data();
         }
         
-        double* data()
+        type* data()
         {
             return data_.data();
         }
         
-#endif
         
-        friend MiddleSizeVector operator*(const double& left, const MiddleSizeVector& right);
+        friend MiddleSizeVector operator*(const type& left, const MiddleSizeVector& right);
 
         friend MiddleSizeVector operator-(const MiddleSizeVector& right);
 
@@ -157,9 +155,9 @@ namespace LinearAlgebra
 
     private:
 #ifdef LA_STL_VECTOR
-        vector<double> data_;
+        vector<type> data_;
 #else
-        valarray<double> data_;
+        valarray<type> data_;
 #endif
         
     };

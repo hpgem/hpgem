@@ -138,7 +138,7 @@ namespace Base
             {
                 for(std::size_t jB = 0; jB < numOfBasisFunctions; ++jB)
                 {
-                    double massProduct = valueBasisFunction(iB) * valueBasisFunction(jB);
+                    LinearAlgebra::MiddleSizeMatrix::type massProduct = valueBasisFunction(iB) * valueBasisFunction(jB);
                     for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                     {
                         std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
@@ -234,16 +234,16 @@ namespace Base
     /// By default the square of the standard L2 norm is integrated.
     /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     template<std::size_t DIM>
-    double HpgemAPISimplified<DIM>::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+    LinearAlgebra::MiddleSizeVector::type HpgemAPISimplified<DIM>::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
         
         // Declare integral initial solution
-        double integralError = 0.;
+        LinearAlgebra::MiddleSizeVector::type integralError = 0.;
         
         // Declare integrand
-        double integrandError = 0.;
+        LinearAlgebra::MiddleSizeVector::type integrandError = 0.;
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
@@ -285,9 +285,9 @@ namespace Base
     /// \param[in] time Time corresponding to the current solution.
     /// \details The square of the total error is defined as \f[ e_{total}^2 := \int \|e\|^2 \,dV \f], where \f$\|e\|\f$ is some user-defined norm (based on the (weighted) inner product) of the error. By default this is the standard L2 norm.
     template<std::size_t DIM>
-    double HpgemAPISimplified<DIM>::computeTotalError(const std::size_t solutionTimeLevel, const double time)
+    LinearAlgebra::MiddleSizeVector::type HpgemAPISimplified<DIM>::computeTotalError(const std::size_t solutionTimeLevel, const double time)
     {
-        double totalError = 0;
+        LinearAlgebra::MiddleSizeVector::type totalError = 0;
         
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
@@ -295,7 +295,7 @@ namespace Base
             totalError += integrateErrorAtElement(ptrElement, solutionCoefficients, time);
         }
         
-        double error;
+        LinearAlgebra::MiddleSizeVector::type error;
         
 #ifdef HPGEM_USE_MPI
         int world_rank;
@@ -346,7 +346,7 @@ namespace Base
         return error;
 #else
         
-        if (totalError >= 0)
+        if (std::real(totalError) >= 0)
         {
             error = std::sqrt(totalError);
         }
@@ -400,7 +400,7 @@ namespace Base
             
             for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
             {
-                if(std::abs(numericalSolution(iV) - exactSolution(iV)) > maxError(iV))
+                if(std::abs(numericalSolution(iV) - exactSolution(iV)) > std::real(maxError(iV)))
                 {
                     maxError(iV) = std::abs(numericalSolution(iV) - exactSolution(iV));
                 }
@@ -427,7 +427,7 @@ namespace Base
             
             for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
             {
-                if(maxErrorAtElement(iV) > maxError(iV))
+                if(std::real(maxErrorAtElement(iV)) > std::real(maxError(iV)))
                 {
                     maxError(iV) = maxErrorAtElement(iV);
                 }
@@ -721,10 +721,10 @@ namespace Base
         solution = ptrElement->getSolution(solutionTimeLevel_, pRef);
          
         std::size_t iV = 0; // Index for the variable
-        out << solution(iV);
+        out << std::real(solution(iV));
         for (iV = 1; iV < numOfVariables; iV++)
         {
-            out << " " << solution(iV);
+            out << " " << std::real(solution(iV));
         }
     }
 
@@ -733,7 +733,7 @@ namespace Base
     {
         for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
         {
-            registerVTKWriteFunction([=](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double{ return element->getSolution(timeLevel, pRef)[iV];}, variableNames_[iV]);
+            registerVTKWriteFunction([=](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double{ return std::real(element->getSolution(timeLevel, pRef)[iV]);}, variableNames_[iV]);
         }
     }
 
@@ -835,7 +835,7 @@ namespace Base
         // Compute the energy norm of the error
         if(doComputeError)
         {
-            double totalError = computeTotalError(solutionTimeLevel_, finalTime);
+            LinearAlgebra::MiddleSizeVector::type totalError = computeTotalError(solutionTimeLevel_, finalTime);
             logger(INFO, "Total error: %.", totalError);
             LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionTimeLevel_, finalTime);
             logger.assert(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), this->configData_->numberOfUnknowns_);

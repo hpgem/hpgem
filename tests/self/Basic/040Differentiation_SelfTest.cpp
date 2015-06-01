@@ -79,12 +79,11 @@ void testMesh(Base::MeshManipulator<DIM>* test)
         }
     } massMatrix;
     
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
+    class : public Integration::ElementIntegrandBase<double, DIM>
     {
         
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, LinearAlgebra::MiddleSizeVector& ret)
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, double& ret)
         {
-            ret.resize(1);
             std::size_t n = el->getNrOfBasisFunctions();
             LinearAlgebra::SmallVector<DIM> temp1, temp2;
             for (std::size_t i = 0; i < p.size(); ++i)
@@ -94,10 +93,10 @@ void testMesh(Base::MeshManipulator<DIM>* test)
             for (std::size_t i = 0; i < n; ++i)
             {
                 temp2 = el->basisFunctionDeriv(i, p);
-                temp1 += temp2 * el->getData(0, 0, i);
+                temp1 += temp2 * std::real(el->getData(0, 0, i));
                 //std::cout<<temp2<<" "<<el->getData(0,0,i)<<std::endl;
             }
-            ret[0] = Base::L2Norm(temp1) * Base::L2Norm(temp1);
+            ret = Base::L2Norm(temp1) * Base::L2Norm(temp1);
             //std::cout<<std::endl;
             //std::cout<<ret[0]<<std::endl;
         }
@@ -106,7 +105,8 @@ void testMesh(Base::MeshManipulator<DIM>* test)
     std::cout.precision(14);
     Integration::ElementIntegral elIntegral(false);
     double total = 0;
-    LinearAlgebra::MiddleSizeVector result(1), expansion;
+    double result;
+    LinearAlgebra::MiddleSizeVector  expansion;
     LinearAlgebra::MiddleSizeMatrix M;
     for (Base::Element* element : test->getElementsList())
     {
@@ -119,7 +119,7 @@ void testMesh(Base::MeshManipulator<DIM>* test)
         result = elIntegral.integrate(element, &integrating);
         
         //std::cout<<result[0]<<std::endl;
-        total += result[0];
+        total += result;
     }
     
     std::cout << total << " " << std::endl;

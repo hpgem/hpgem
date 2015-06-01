@@ -36,7 +36,6 @@ AcousticWaveLinear<DIM>::AcousticWaveLinear
  const bool useSourceTerm
  ) :
 Base::HpgemAPILinear<DIM>(dimension, numOfVariables, polynomialOrder, ptrButcherTableau, 1, useSourceTerm),
-DIM_(dimension),
 numOfVariables_(numOfVariables),
 cInv_(1.0)
 {
@@ -47,7 +46,7 @@ Base::RectangularMeshDescriptor<DIM> AcousticWaveLinear<DIM>::createMeshDescript
 {
     // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
     Base::RectangularMeshDescriptor<DIM> description;
-    for (std::size_t i = 0; i < DIM_; ++i)
+    for (std::size_t i = 0; i < DIM; ++i)
     {
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
@@ -73,16 +72,16 @@ LinearAlgebra::MiddleSizeVector AcousticWaveLinear<DIM>::getExactSolution(const 
     
     double x0 = pPhys[0];
     double x1 = 0;
-    for (std::size_t iD = 1; iD < DIM_; iD++) // Index for the dimension.
+    for (std::size_t iD = 1; iD < DIM; iD++) // Index for the dimension.
     {
         x1 += pPhys[iD];
     }
     
-    realSolution(0) = - std::sqrt(DIM_) * c * (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM_) * c * time));
-    realSolution(1) = - (2 * M_PI) * std::sin(2 * M_PI * x0) * std::sin(2 * M_PI * (x1 - std::sqrt(DIM_) * c * time)) / cInv_;
+    realSolution(0) = - std::sqrt(DIM) * c * (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM) * c * time));
+    realSolution(1) = - (2 * M_PI) * std::sin(2 * M_PI * x0) * std::sin(2 * M_PI * (x1 - std::sqrt(DIM) * c * time)) / cInv_;
     for (std::size_t iV = 2; iV < numOfVariables_; iV++) // iV is the index for the variable.
     {
-        realSolution(iV) = (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM_) * c * time)) / cInv_;
+        realSolution(iV) = (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM) * c * time)) / cInv_;
     }
     
     return realSolution;
@@ -180,7 +179,7 @@ LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::integrandStiffnessMatri
             valueTestFunction = ptrElement->basisFunction(iB, pRef);
             
             iVB = ptrElement->convertToSingleIndex(iB, 0);
-            for (std::size_t jD = 0; jD < DIM_; jD++) // Index for the derivatives
+            for (std::size_t jD = 0; jD < DIM; jD++) // Index for the derivatives
             {
                 jVB = ptrElement->convertToSingleIndex(jB, jD + 1);
                 integrand(iVB, jVB) = gradientBasisFunction(jD) * valueTestFunction;
@@ -188,7 +187,7 @@ LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::integrandStiffnessMatri
             }
             
             jVB = ptrElement->convertToSingleIndex(jB, 0);
-            for (std::size_t iD = 0; iD < DIM_; iD++) // Index for the derivatives
+            for (std::size_t iD = 0; iD < DIM; iD++) // Index for the derivatives
             {
                 iVB = ptrElement->convertToSingleIndex(iB, iD + 1);
                 integrand(iVB, jVB) = gradientBasisFunction(iD) * valueTestFunction;
@@ -232,7 +231,7 @@ LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::integrandStiffnessMatri
             valueTestFunction = ptrFace->basisFunction(iSide, iB, pRef);
             
             iVB = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iB, 0);
-            for (std::size_t jD = 0; jD < DIM_; jD++) // index for the direction
+            for (std::size_t jD = 0; jD < DIM; jD++) // index for the direction
             {
                 jVB = ptrFace->getPtrElement(jSide)->convertToSingleIndex(jB, jD + 1);
                 if(ptrFace->isInternal())
@@ -247,7 +246,7 @@ LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::integrandStiffnessMatri
             }
             
             jVB = ptrFace->getPtrElement(jSide)->convertToSingleIndex(jB, 0);
-            for (std::size_t iD = 0; iD < DIM_; iD++) // index for the direction
+            for (std::size_t iD = 0; iD < DIM; iD++) // index for the direction
             {
                 iVB = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iB, iD + 1);
                 if(ptrFace->isInternal())

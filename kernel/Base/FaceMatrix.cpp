@@ -46,7 +46,7 @@ namespace Base
     /// \param[in] jSide Side of the adjacent element to consider the solution.
     /// \param[in] iVarBasisFunction Index for both the variable and basis function corresponding to a test function at the element on side iSide.
     /// \param[in] jVarBasisFunction Index for both the variable and basis function corresponding to the solution at the element on side jSide.
-    double & FaceMatrix::operator()(Side iSide, Side jSide, std::size_t iVarBasisFunction, std::size_t jVarBasisFunction)
+    LinearAlgebra::MiddleSizeMatrix::type & FaceMatrix::operator()(Side iSide, Side jSide, std::size_t iVarBasisFunction, std::size_t jVarBasisFunction)
     {
         logger.assert(iVarBasisFunction < getNrOfDegreesOfFreedom(iSide), "Asked for degree of freedom %, but there are only % degrees of freedom", iVarBasisFunction, getNrOfDegreesOfFreedom(iSide));
         logger.assert(jVarBasisFunction < getNrOfDegreesOfFreedom(jSide), "Asked for degree of freedom %, but there are only % degrees of freedom", jVarBasisFunction, getNrOfDegreesOfFreedom(jSide));
@@ -79,7 +79,7 @@ namespace Base
     ///
     /// \details
     /// The index i indicates the side of the adjacent element as well as the variable and basis function at this element corresponding to the test function. Idem for j, but now for the solution instead of the test function.
-    double & FaceMatrix::operator()(std::size_t i, std::size_t j)
+    LinearAlgebra::MiddleSizeMatrix::type & FaceMatrix::operator()(std::size_t i, std::size_t j)
     {
         logger.assert(i < getNrOfDegreesOfFreedom(Side::LEFT) + getNrOfDegreesOfFreedom(Side::RIGHT), "Asked for degree of freedom %, but there are only % degrees of freedom", i, getNrOfDegreesOfFreedom(Side::LEFT) + getNrOfDegreesOfFreedom(Side::RIGHT));
         logger.assert(j < getNrOfDegreesOfFreedom(Side::LEFT) + getNrOfDegreesOfFreedom(Side::RIGHT), "Asked for degree of freedom %, but there are only % degrees of freedom", j, getNrOfDegreesOfFreedom(Side::LEFT) + getNrOfDegreesOfFreedom(Side::RIGHT));
@@ -129,7 +129,7 @@ namespace Base
     }
     
     /// \param[in] scalar Factor with which the FaceMatrix is multiplied.
-    FaceMatrix & FaceMatrix::operator*=(const double &scalar)
+    FaceMatrix & FaceMatrix::operator*=(const LinearAlgebra::MiddleSizeMatrix::type &scalar)
     {
         M_LeftLeft_ *= scalar;
         M_LeftRight_ *= scalar;
@@ -295,7 +295,7 @@ namespace Base
     
     /// \param[in] a Factor with which FaceMatrix x is multiplied.
     /// \param[in] x FaceMatrix which will be scaled by a factor a and then added.
-    void FaceMatrix::axpy(const double &a, const FaceMatrix &x)
+    void FaceMatrix::axpy(const LinearAlgebra::MiddleSizeMatrix::type &a, const FaceMatrix &x)
     {
         M_LeftLeft_.axpy(a, x.M_LeftLeft_);
         M_LeftRight_.axpy(a, x.M_LeftRight_);

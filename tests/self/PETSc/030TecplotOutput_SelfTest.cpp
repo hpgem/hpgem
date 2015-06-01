@@ -253,7 +253,7 @@ public:
         
         if(doComputeError)
         {
-            double totalError = computeTotalError(solutionTimeLevel_, 0);
+            LinearAlgebra::MiddleSizeVector::type totalError = computeTotalError(solutionTimeLevel_, 0);
             totalError_ = totalError;
             logger(INFO, "Total error: %.", totalError);
             LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionTimeLevel_, 0);
@@ -268,7 +268,7 @@ public:
 #endif
     }
     
-    double getTotalError()
+    LinearAlgebra::MiddleSizeVector::type getTotalError()
     {
         return totalError_;
     }
@@ -292,7 +292,7 @@ private:
     double penalty_;
     
     /// Weighted L2 norm of the error
-    double totalError_;
+    LinearAlgebra::MiddleSizeVector::type totalError_;
 };
 
 /*

@@ -35,7 +35,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const Base::BaseBasisFunction*, double>&>(basisfunctionValues_)[function] = function->eval(*this);
+            const_cast<std::map<const Base::BaseBasisFunction*, double>&>(basisfunctionValues_)[function] = function->eval(*this);
             return basisfunctionValues_.at(function);
         }
     }
@@ -51,7 +51,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const Base::BaseBasisFunction*, LinearAlgebra::SmallVector<DIM> >&>(basisfunctionDerivatives_)[function] = function->evalDeriv(*this);
+            const_cast<std::map<const Base::BaseBasisFunction*, LinearAlgebra::SmallVector<DIM> >&>(basisfunctionDerivatives_)[function] = function->evalDeriv(*this);
             return basisfunctionDerivatives_.at(function);
         }
     }

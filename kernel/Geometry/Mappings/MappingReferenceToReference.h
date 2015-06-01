@@ -24,7 +24,7 @@
 
 #include "MappingInterface.h"
 #include "Geometry/PointReferenceFactory.h"
-#include <unordered_map>
+#include <map>
 
 namespace Geometry
 {
@@ -80,7 +80,7 @@ namespace Geometry
         }
 
     //protected:
-    //    std::unordered_map<const PointReference*, const PointReference*> transformedCoordinates;
+    //    std::map<const PointReference*, const PointReference*> transformedCoordinates;
     };
 }
 #endif /* REFERENCETOPHYSICALM_H_ */

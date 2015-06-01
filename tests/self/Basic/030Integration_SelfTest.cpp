@@ -36,64 +36,61 @@ template<std::size_t DIM>
 void testMesh(Base::MeshManipulator<DIM>* test)
 {
 
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
+    class : public Integration::ElementIntegrandBase<double, DIM>
     {
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, LinearAlgebra::MiddleSizeVector& ret)
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, double& ret)
         {
-            ret.resize(1);
-            ret[0] = 1;
+            ret = 1.;
         }
     } one;
     
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
+    class : public Integration::ElementIntegrandBase<double, DIM>
     {
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, LinearAlgebra::MiddleSizeVector& ret)
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, double& ret)
         {
-            ret.resize(1);
-            ret[0] = 0;
+            ret = 0;
             Geometry::PointPhysical<DIM> pPhys = el->referenceToPhysical(p);
             for (std::size_t i = 0; i < DIM; ++i)
             {
-                ret[0] += pPhys[i];
+                ret += pPhys[i];
             }
         }
     } linear;
     
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
+    class : public Integration::ElementIntegrandBase<double, DIM>
     {
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, LinearAlgebra::MiddleSizeVector& ret)
+        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, double& ret)
         {
-            ret.resize(1);
-            ret[0] = 1;
+            ret = 1;
             Geometry::PointPhysical<DIM> pPhys = el->referenceToPhysical(p);
             for (std::size_t i = 0; i < DIM; ++i)
             {
-                ret[0] *= pPhys[i];
+                ret *= pPhys[i];
             }
         }
     } trilinear;
     
     Integration::ElementIntegral elIntegral(false);
     double total = 0;
-    LinearAlgebra::MiddleSizeVector result(1);
+    double result;
     for (Base::Element* element : test->getElementsList())
     {
         result = elIntegral.integrate(element, &one);
-        total += result[0];
+        total += result;
     }
     logger.assert_always((std::abs(total - 1.) < 1e-12), "total mesh volume");
     total = 0;
     for (Base::Element* element : test->getElementsList())
     {
         result = elIntegral.integrate(element, &linear);
-        total += result[0];
+        total += result;
     }
     logger.assert_always((std::abs(total - .5 * test->dimension()) < 1e-12), "linear function");
     total = 0;
     for (Base::Element* element : test->getElementsList())
     {
         result = elIntegral.integrate(element, &trilinear);
-        total += result[0];
+        total += result;
     }
     logger.assert_always((std::abs(total - std::pow(0.5, test->dimension())) < 1e-12), "trilinear function");
 }

@@ -65,7 +65,7 @@ namespace Geometry
         MappingToRefLineToSquare0& operator=(const MappingToRefLineToSquare0&);
     private:
         MappingToRefLineToSquare0();
-        std::unordered_map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 1 ~~~==============================================================================
     class MappingToRefLineToSquare1 : public MappingReferenceToReference<1>
@@ -82,7 +82,7 @@ namespace Geometry
         MappingToRefLineToSquare1& operator=(const MappingToRefLineToSquare1&) = delete;
     private:
         MappingToRefLineToSquare1();
-        std::unordered_map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 2 ~~~==============================================================================
     class MappingToRefLineToSquare2 : public MappingReferenceToReference<1>
@@ -99,7 +99,7 @@ namespace Geometry
         MappingToRefLineToSquare1& operator=(const MappingToRefLineToSquare2&) = delete;
     private:
         MappingToRefLineToSquare2();
-        std::unordered_map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 3 ~~~==============================================================================
     class MappingToRefLineToSquare3 : public MappingReferenceToReference<1>
@@ -116,7 +116,7 @@ namespace Geometry
         MappingToRefLineToSquare3& operator=(const MappingToRefLineToSquare3&) = delete;
     private:
         MappingToRefLineToSquare3();
-        std::unordered_map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
     };
 }
 #endif /* MAPPINGSIMPLECUBENLINEAR_H_ */

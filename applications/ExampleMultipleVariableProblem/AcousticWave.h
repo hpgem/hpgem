@@ -200,8 +200,6 @@ public:
     }
 
 private:
-    /// Dimension of the domain
-    const std::size_t DIM_;
 
     /// Number of variables
     const std::size_t numOfVariables_;

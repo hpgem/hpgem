@@ -63,7 +63,7 @@ namespace Geometry
         MappingToRefTriangleToTriangle0& operator=(const MappingToRefTriangleToTriangle0&) = delete;
     private:
         MappingToRefTriangleToTriangle0();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 1 ~~~==============================================================================
     class MappingToRefTriangleToTriangle1 : public MappingReferenceToReference<0>
@@ -80,7 +80,7 @@ namespace Geometry
         MappingToRefTriangleToTriangle1& operator=(const MappingToRefTriangleToTriangle1&) = delete;
     private:
         MappingToRefTriangleToTriangle1();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 2 ~~~==============================================================================
     class MappingToRefTriangleToTriangle2 : public MappingReferenceToReference<0>
@@ -97,7 +97,7 @@ namespace Geometry
         MappingToRefTriangleToTriangle2& operator=(const MappingToRefTriangleToTriangle2&) = delete;
     private:
         MappingToRefTriangleToTriangle2();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 3 ~~~==============================================================================
     class MappingToRefTriangleToTriangle3 : public MappingReferenceToReference<0>
@@ -114,7 +114,7 @@ namespace Geometry
         MappingToRefTriangleToTriangle3& operator=(const MappingToRefTriangleToTriangle3&) = delete;
     private:
         MappingToRefTriangleToTriangle3();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 4 ~~~==============================================================================
     class MappingToRefTriangleToTriangle4 : public MappingReferenceToReference<0>
@@ -131,7 +131,7 @@ namespace Geometry
         MappingToRefTriangleToTriangle4& operator=(const MappingToRefTriangleToTriangle4&) = delete;
     private:
         MappingToRefTriangleToTriangle4();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 5 ~~~==============================================================================
     class MappingToRefTriangleToTriangle5 : public MappingReferenceToReference<0>
@@ -148,7 +148,7 @@ namespace Geometry
         MappingToRefTriangleToTriangle5& operator=(const MappingToRefTriangleToTriangle5&) = delete;
     private:
         MappingToRefTriangleToTriangle5();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
 }
 #endif

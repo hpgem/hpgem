@@ -35,7 +35,6 @@ AcousticWave<DIM>::AcousticWave
  const Base::ButcherTableau * const ptrButcherTableau
  ) :
 Base::HpgemAPISimplified<DIM>(dimension, numOfVariables, polynomialOrder, ptrButcherTableau),
-DIM_(dimension),
 numOfVariables_(numOfVariables),
 cInv_(1.0)
 {
@@ -46,7 +45,7 @@ Base::RectangularMeshDescriptor<DIM> AcousticWave<DIM>::createMeshDescription(co
 {
     // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
     Base::RectangularMeshDescriptor<DIM> description;
-    for (std::size_t i = 0; i < DIM_; ++i)
+    for (std::size_t i = 0; i < DIM; ++i)
     {
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
@@ -72,16 +71,16 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::getExactSolution(const PointP
     
     double x0 = pPhys[0];
     double x1 = 0;
-    for (std::size_t iD = 1; iD < DIM_; iD++) // Index for the dimension.
+    for (std::size_t iD = 1; iD < DIM; iD++) // Index for the dimension.
     {
         x1 += pPhys[iD];
     }
     
-    realSolution(0) = - std::sqrt(DIM_) * c * (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM_) * c * time));
-    realSolution(1) = - (2 * M_PI) * std::sin(2 * M_PI * x0) * std::sin(2 * M_PI * (x1 - std::sqrt(DIM_) * c * time)) / cInv_;
+    realSolution(0) = - std::sqrt(DIM) * c * (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM) * c * time));
+    realSolution(1) = - (2 * M_PI) * std::sin(2 * M_PI * x0) * std::sin(2 * M_PI * (x1 - std::sqrt(DIM) * c * time)) / cInv_;
     for (std::size_t iV = 2; iV < numOfVariables_; iV++) // iV is the index for the variable.
     {
-        realSolution(iV) = (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM_) * c * time)) / cInv_;
+        realSolution(iV) = (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM) * c * time)) / cInv_;
     }
     
     return realSolution;
@@ -169,13 +168,13 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefEl
     
     LinearAlgebra::MiddleSizeVector integrand(numOfVariables_ * numOfBasisFunctions);
     
-    LinearAlgebra::MiddleSizeVector gradientBasisFunction(DIM_);
-    LinearAlgebra::MiddleSizeVector gradientScalarFunction(DIM_);
+    LinearAlgebra::SmallVector<DIM> gradientBasisFunction;
+    LinearAlgebra::SmallVector<DIM> gradientScalarFunction;
     double divergenceVectorFunction = 0;
     
     // Compute the gradient of the scalar function and the divergence of the vector function.
     std::size_t jVB; // Index for both basis function and variable
-    for (std::size_t jD = 0; jD < DIM_; jD++) // Index for derivatives
+    for (std::size_t jD = 0; jD < DIM; jD++) // Index for derivatives
     {
         gradientScalarFunction(jD) = 0;
     }
@@ -183,7 +182,7 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefEl
     {
         gradientBasisFunction = ptrElement->basisFunctionDeriv(jB, pRef);
         
-        for (std::size_t jD = 0; jD < DIM_; jD++) // Index for derivatives
+        for (std::size_t jD = 0; jD < DIM; jD++) // Index for derivatives
         {
             jVB = ptrElement->convertToSingleIndex(jB, 0);
             gradientScalarFunction(jD) += gradientBasisFunction(jD) * solutionCoefficients(jVB);
@@ -200,7 +199,7 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefEl
         iVB = ptrElement->convertToSingleIndex(iB, 0);
         integrand(iVB) = ptrElement->basisFunction(iB, pRef) * divergenceVectorFunction;
         
-        for (std::size_t iD = 0; iD < DIM_; iD++) // Index for derivative
+        for (std::size_t iD = 0; iD < DIM; iD++) // Index for derivative
         {
             iVB = ptrElement->convertToSingleIndex(iB, iD + 1);
             integrand(iVB) = ptrElement->basisFunction(iB, pRef) * gradientScalarFunction(iD);
@@ -247,7 +246,7 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFa
     
     // Compute the jump of the vector function.
     double jumpVectorFunction = 0;
-    for (std::size_t jD = 0; jD < DIM_; jD++)
+    for (std::size_t jD = 0; jD < DIM; jD++)
     {
         jumpVectorFunction += normal(jD) * (numericalSolution(jD + 1));
     }
@@ -259,7 +258,7 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFa
         iVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(iB, 0);
         integrand(iVB) = - ptrFace->basisFunction(Base::Side::LEFT, iB, pRef) * jumpVectorFunction;
         
-        for (std::size_t iD = 0; iD < DIM_; iD++) // Index for direction
+        for (std::size_t iD = 0; iD < DIM; iD++) // Index for direction
         {
             iVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(iB, iD + 1);
             integrand(iVB) = 0;
@@ -308,12 +307,12 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFa
     }
     
     // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-    LinearAlgebra::MiddleSizeVector normal = ptrFace->getNormalVector(pRef);
+    LinearAlgebra::SmallVector<DIM> normal = ptrFace->getNormalVector(pRef);
     
     // Compute the jump of the scalar function and the vector function.
-    LinearAlgebra::MiddleSizeVector jumpScalarFunction(DIM_);
+    LinearAlgebra::SmallVector<DIM> jumpScalarFunction;
     double jumpVectorFunction = 0;
-    for (std::size_t jD = 0; jD < DIM_; jD++)
+    for (std::size_t jD = 0; jD < DIM; jD++)
     {
         jumpScalarFunction(jD) = normal(jD) * (numericalSolutionLeft(0) - numericalSolutionRight(0));
         jumpVectorFunction += normal(jD) * (numericalSolutionLeft(jD + 1) - numericalSolutionRight(jD + 1));
@@ -326,7 +325,7 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFa
         iVB = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iB, 0);
         integrand(iVB) = -0.5 * ptrFace->basisFunction(iSide, iB, pRef) * jumpVectorFunction;
         
-        for (std::size_t iD = 0; iD < DIM_; iD++) // Index for direction
+        for (std::size_t iD = 0; iD < DIM; iD++) // Index for direction
         {
             iVB = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iB, iD + 1);
             integrand(iVB) = -0.5 * ptrFace->basisFunction(iSide, iB, pRef) * jumpScalarFunction(iD);

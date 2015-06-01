@@ -27,7 +27,7 @@
 #include "PointReferenceFactory.h"
 #include "Base/BaseBasisFunction.h"
 
-#include <unordered_map>
+#include <map>
 
 namespace Geometry
 {
@@ -82,8 +82,8 @@ namespace Geometry
         PointReference& operator =(const PointReference& rhs) = delete;
         PointReference& operator =(PointReference&& rhs) = delete;
 
-        std::unordered_map<const Base::BaseBasisFunction*, double > basisfunctionValues_;
-        std::unordered_map<const Base::BaseBasisFunction*, LinearAlgebra::SmallVector<DIM> > basisfunctionDerivatives_;
+        std::map<const Base::BaseBasisFunction*, double > basisfunctionValues_;
+        std::map<const Base::BaseBasisFunction*, LinearAlgebra::SmallVector<DIM> > basisfunctionDerivatives_;
         
     };
 

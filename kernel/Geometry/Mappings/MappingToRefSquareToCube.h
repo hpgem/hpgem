@@ -73,7 +73,7 @@ namespace Geometry
         MappingToRefSquareToCube0& operator=(const MappingToRefSquareToCube0&) = delete;
     private:
         MappingToRefSquareToCube0();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -92,7 +92,7 @@ namespace Geometry
         MappingToRefSquareToCube1& operator=(const MappingToRefSquareToCube1&) = delete;
     private:
         MappingToRefSquareToCube1();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -111,7 +111,7 @@ namespace Geometry
         MappingToRefSquareToCube1& operator=(const MappingToRefSquareToCube2&) = delete;
     private:
         MappingToRefSquareToCube2();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -130,7 +130,7 @@ namespace Geometry
         MappingToRefSquareToCube3& operator=(const MappingToRefSquareToCube3&) = delete;
     private:
         MappingToRefSquareToCube3();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 4 ~~~==============================================================================
@@ -149,7 +149,7 @@ namespace Geometry
         MappingToRefSquareToCube4& operator=(const MappingToRefSquareToCube4&) = delete;
     private:
         MappingToRefSquareToCube4();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 5 ~~~==============================================================================
@@ -168,7 +168,7 @@ namespace Geometry
         MappingToRefSquareToCube5& operator=(const MappingToRefSquareToCube5&) = delete;
     private:
         MappingToRefSquareToCube5();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
 
 }

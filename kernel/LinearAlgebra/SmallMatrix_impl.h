@@ -224,7 +224,7 @@ namespace LinearAlgebra
     SmallMatrix<nRows, nCols> SmallMatrix<nRows, nCols>::inverse() const
     {
         logger.assert(nRows == nCols, "Cannot invert a non-square matrix");
-        MiddleSizeMatrix result = (*this);
+        SmallMatrix<nRows, nCols> result = (*this);
 
         int nr = nRows;
         int nc = nCols;
@@ -254,7 +254,7 @@ namespace LinearAlgebra
         int info;
 
         int IPIV[n];
-        SmallMatrix matThis = *this;
+        SmallMatrix<nRows, nCols> matThis = *this;
         dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
     }
 

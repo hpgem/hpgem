@@ -59,7 +59,7 @@ namespace Geometry
         MappingToRefLineToTriangle0& operator=(const MappingToRefLineToTriangle0&) = delete;
     private:
         MappingToRefLineToTriangle0();
-        std::unordered_map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 1 ~~~==============================================================================
     class MappingToRefLineToTriangle1 : public MappingReferenceToReference<1>
@@ -76,7 +76,7 @@ namespace Geometry
         MappingToRefLineToTriangle1& operator=(const MappingToRefLineToTriangle1&) = delete;
     private:
         MappingToRefLineToTriangle1();
-        std::unordered_map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 2 ~~~==============================================================================
     class MappingToRefLineToTriangle2 : public MappingReferenceToReference<1>
@@ -93,7 +93,7 @@ namespace Geometry
         MappingToRefLineToTriangle1& operator=(const MappingToRefLineToTriangle2&) = delete;
     private:
         MappingToRefLineToTriangle2();
-        std::unordered_map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<1>*, const PointReference<2>*> transformedCoordinates;
     };
 }
 #endif /* MAPPINGSIMPLECUBENLINEAR_H_ */

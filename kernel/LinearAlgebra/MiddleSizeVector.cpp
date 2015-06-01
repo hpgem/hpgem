@@ -32,9 +32,11 @@ namespace LinearAlgebra
     extern "C"
 
     {
-        
+
         ///This is the general scalar times vector + vector from blas, hence from blas level 1. Here we also use on a matrix by treating as a vector
         int daxpy_(unsigned int* N, double* DA, double* DX, unsigned int* INCX, double* DY, unsigned int* INCY);
+        ///This is the general scalar times vector + vector from blas, hence from blas level 1. Here we also use on a matrix by treating as a vector
+        int zaxpy_(unsigned int* N, std::complex<double>* ZA, std::complex<double>* ZX, unsigned int* INCX, std::complex<double>* ZY, unsigned int* INCY);
     
     }
     
@@ -48,7 +50,7 @@ namespace LinearAlgebra
     {
     }
     
-    MiddleSizeVector::MiddleSizeVector(std::initializer_list<double> l)
+    MiddleSizeVector::MiddleSizeVector(std::initializer_list<type> l)
             : data_(l)
     {
     }
@@ -64,29 +66,12 @@ namespace LinearAlgebra
     }
     
 #ifdef LA_STL_VECTOR
-    MiddleSizeVector::MiddleSizeVector(const double array[], std::size_t size)
+    MiddleSizeVector::MiddleSizeVector(const type array[], std::size_t size)
             : data_(array, array + size)
     {
     }
-
-#ifdef HPGEM_USE_COMPLEX_PETSC
-    MiddleSizeVector::MiddleSizeVector(const std::complex<double> array[], int size)
-    {   
-        data_.resize(size);
-
-        for(std::size_t i = 0; i<size; i++)
-        {   
-            if(std::imag(array[i]) !=0)
-            {   
-                logger(INFO, "Imaginary part nonzero in the entry of vector");
-            }
-            data_[i]=std::real(array[i]);
-        }
-
-    }
-#endif
 #else
-    MiddleSizeVector::MiddleSizeVector(const double array[], std::size_t size)
+    MiddleSizeVector::MiddleSizeVector(const type array[], std::size_t size)
     : data_(array, size)
     {}
 #endif
@@ -105,7 +90,7 @@ namespace LinearAlgebra
         return *this;
     }
     
-    MiddleSizeVector& MiddleSizeVector::operator=(const std::initializer_list<double> l)
+    MiddleSizeVector& MiddleSizeVector::operator=(const std::initializer_list<type> l)
     {
     	data_ = l;
     	return *this;
@@ -138,11 +123,11 @@ namespace LinearAlgebra
         return result;
     }
     
-    MiddleSizeVector MiddleSizeVector::operator*(const double& right) const
+    MiddleSizeVector MiddleSizeVector::operator*(const type& right) const
     {
         MiddleSizeVector result(*this);
 #ifdef LA_STL_VECTOR
-        for (double& d : result.data_)
+        for (type& d : result.data_)
             d *= right;
 #else
         result.data_*=right;
@@ -151,12 +136,12 @@ namespace LinearAlgebra
         return result;
     }
     
-    double MiddleSizeVector::operator*(const MiddleSizeVector& right) const
+    MiddleSizeVector::type MiddleSizeVector::operator*(const MiddleSizeVector& right) const
     {
         ///\TODO replace with BLAS 
         logger.assert(data_.size() == right.data_.size(), "Vectors don't have equal length.");
 #ifdef LA_STL_VECTOR
-        double sum = 0;
+        type sum = 0;
         for (std::size_t i = 0; i < data_.size(); i++)
             sum += data_[i] * right.data_[i];
         return sum;
@@ -165,10 +150,10 @@ namespace LinearAlgebra
 #endif
     }
     
-    MiddleSizeVector& MiddleSizeVector::operator/=(const double& right)
+    MiddleSizeVector& MiddleSizeVector::operator/=(const type& right)
     {
 #ifdef LA_STL_VECTOR
-        for (double& d : data_)
+        for (type& d : data_)
             d /= right;
 #else
         data_/=right;
@@ -177,21 +162,24 @@ namespace LinearAlgebra
         return *this;
     }
     
-    MiddleSizeVector MiddleSizeVector::operator/(const double& right) const
+    MiddleSizeVector MiddleSizeVector::operator/(const type& right) const
     {
         MiddleSizeVector result(*this);
         return (result /= right);
         
     }
     
-    void MiddleSizeVector::axpy(double a, const MiddleSizeVector& x)
+    void MiddleSizeVector::axpy(type a, const MiddleSizeVector& x)
     {
         logger.assert(x.size() == data_.size(), "Vectors dont have the same size");
         unsigned int size = data_.size();
         
         unsigned int i_one = 1;
-        
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        zaxpy_(&size, &a, const_cast<MiddleSizeVector *>(&x)->data_.data(), &i_one, ((*this).data_.data()), &i_one);
+#else
         daxpy_(&size, &a, const_cast<MiddleSizeVector *>(&x)->data_.data(), &i_one, ((*this).data_.data()), &i_one);
+#endif
         
     }
     
@@ -202,17 +190,31 @@ namespace LinearAlgebra
     
     bool MiddleSizeVector::operator<(const MiddleSizeVector& right) const
     {
+        //assign an arbitrary, but consistent ordering
         for (std::size_t i = 0; i < data_.size() && i < right.data_.size(); ++i)
         {
-            if (data_[i] < right.data_[i])
+            if (std::real(data_[i]) < std::real(right.data_[i]))
             {
                 return true;
             }
-            if (data_[i] > right.data_[i])
+            if (std::real(data_[i]) > std::real(right.data_[i]))
             {
                 return false;
             }
         }
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        for (std::size_t i = 0; i < data_.size() && i < right.data_.size(); ++i)
+        {
+            if (std::imag(data_[i]) < std::imag(right.data_[i]))
+            {
+                return true;
+            }
+            if (std::imag(data_[i]) > std::imag(right.data_[i]))
+            {
+                return false;
+            }
+        }
+#endif
         return false;
     }
     
@@ -241,10 +243,10 @@ namespace LinearAlgebra
         return *this;
     }
     
-    MiddleSizeVector& MiddleSizeVector::operator*=(const double& right)
+    MiddleSizeVector& MiddleSizeVector::operator*=(const type& right)
     {
 #ifdef LA_STL_VECTOR
-        for (double& d : data_)
+        for (type& d : data_)
             d *= right;
 #else
         data_*=right;
@@ -252,17 +254,17 @@ namespace LinearAlgebra
         return *this;
     }
     
-    double& MiddleSizeVector::operator[](std::size_t n)
+    MiddleSizeVector::type& MiddleSizeVector::operator[](std::size_t n)
     {
         logger.assert(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
         return data_[n];
     }
     
-    MiddleSizeVector operator*(const double& left, const MiddleSizeVector& right)
+    MiddleSizeVector operator*(const MiddleSizeVector::type& left, const MiddleSizeVector& right)
     {
         MiddleSizeVector result(right);
 #ifdef LA_STL_VECTOR
-        for (double& d : result.data_)
+        for (MiddleSizeVector::type& d : result.data_)
             d *= left;
 #else
         result.data_*=left;
@@ -285,20 +287,5 @@ namespace LinearAlgebra
         os << A(A.data_.size() - 1) << ']';
         return os;
     }
-
-#ifdef HPGEM_USE_COMPLEX_PETSC
-
-const std::complex<double>* MiddleSizeVector::data() const
-{   
-    static std::vector<std::complex<double>> new_Data(data_.size());
-
-    for (std::size_t i = 0; i < data_.size(); i++)
-    {   
-        new_Data[i] = data_[i];
-    }
-
-    return new_Data.data();
-}
-#endif
 
 }

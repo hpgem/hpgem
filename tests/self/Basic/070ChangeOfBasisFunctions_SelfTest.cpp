@@ -40,7 +40,7 @@ void testData(Base::MeshManipulator<DIM> mesh)
         for(std::size_t i = 0; i < 4; ++i)
         {
             const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getNode(i);
-            logger.assert_always(std::abs(element->getSolution(0, node)[0] - i) < 1e-12, "Solution changed");
+            logger.assert_always(std::abs(element->getSolution(0, node)[0] - double(i)) < 1e-12, "Solution changed");
         }
     }
 }

@@ -37,14 +37,15 @@ namespace Base
     struct FaceCacheData
     {
         explicit FaceCacheData(std::size_t DIM)
-                : Normal(DIM)
         {
         }
         
         FaceCacheData(const FaceCacheData &other) = default;
         
         // cache data
-        LinearAlgebra::MiddleSizeVector Normal;
+        //storing the normal as a SmallVector will cause a cascade of templated classes
+        //storing the normal as a MiddleSizeVector will cause conflicts with complex PETSc
+        //LinearAlgebra::SmallVector<DIM> Normal;
         double L2Normal;
 
         // calculate the cache data

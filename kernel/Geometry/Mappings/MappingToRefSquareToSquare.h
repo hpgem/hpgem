@@ -69,7 +69,7 @@ namespace Geometry
         MappingToRefSquareToSquare0& operator=(const MappingToRefSquareToSquare0&) = delete;
     private:
         MappingToRefSquareToSquare0();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 1 ~~~==============================================================================
     class MappingToRefSquareToSquare1 : public MappingReferenceToReference<0>
@@ -86,7 +86,7 @@ namespace Geometry
         MappingToRefSquareToSquare1& operator=(const MappingToRefSquareToSquare1&) = delete;
     private:
         MappingToRefSquareToSquare1();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 2 ~~~==============================================================================
     class MappingToRefSquareToSquare2 : public MappingReferenceToReference<0>
@@ -103,7 +103,7 @@ namespace Geometry
         MappingToRefSquareToSquare2& operator=(const MappingToRefSquareToSquare2&) = delete;
     private:
         MappingToRefSquareToSquare2();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 3 ~~~==============================================================================
     class MappingToRefSquareToSquare3 : public MappingReferenceToReference<0>
@@ -120,7 +120,7 @@ namespace Geometry
         MappingToRefSquareToSquare3& operator=(const MappingToRefSquareToSquare3&) = delete;
     private:
         MappingToRefSquareToSquare3();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 4 ~~~==============================================================================
     class MappingToRefSquareToSquare4 : public MappingReferenceToReference<0>
@@ -137,7 +137,7 @@ namespace Geometry
         MappingToRefSquareToSquare4& operator=(const MappingToRefSquareToSquare4&) = delete;
     private:
         MappingToRefSquareToSquare4();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 5 ~~~==============================================================================
     class MappingToRefSquareToSquare5 : public MappingReferenceToReference<0>
@@ -154,7 +154,7 @@ namespace Geometry
         MappingToRefSquareToSquare5& operator=(const MappingToRefSquareToSquare5&) = delete;
     private:
         MappingToRefSquareToSquare5();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 6 ~~~==============================================================================
     class MappingToRefSquareToSquare6 : public MappingReferenceToReference<0>
@@ -171,7 +171,7 @@ namespace Geometry
         MappingToRefSquareToSquare6& operator=(const MappingToRefSquareToSquare6&) = delete;
     private:
         MappingToRefSquareToSquare6();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
     // ~~~ index 7 ~~~==============================================================================
     class MappingToRefSquareToSquare7 : public MappingReferenceToReference<0>
@@ -188,7 +188,7 @@ namespace Geometry
         MappingToRefSquareToSquare7& operator=(const MappingToRefSquareToSquare7&) = delete;
     private:
         MappingToRefSquareToSquare7();
-        std::unordered_map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<2>*> transformedCoordinates;
     };
 }
 #endif

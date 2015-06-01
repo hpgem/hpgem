@@ -42,7 +42,7 @@ namespace Geometry
         MappingToRefCubeToHypercube0& operator=(const MappingToRefCubeToHypercube0&) = delete;
     private:
         MappingToRefCubeToHypercube0();
-        std::unordered_map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -61,7 +61,7 @@ namespace Geometry
         MappingToRefCubeToHypercube1& operator=(const MappingToRefCubeToHypercube1&) = delete;
     private:
         MappingToRefCubeToHypercube1();
-        std::unordered_map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -80,7 +80,7 @@ namespace Geometry
         MappingToRefCubeToHypercube1& operator=(const MappingToRefCubeToHypercube2&) = delete;
     private:
         MappingToRefCubeToHypercube2();
-        std::unordered_map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -99,7 +99,7 @@ namespace Geometry
         MappingToRefCubeToHypercube3& operator=(const MappingToRefCubeToHypercube3&) = delete;
     private:
         MappingToRefCubeToHypercube3();
-        std::unordered_map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
     };
     
     // ~~~ index 4 ~~~==============================================================================
@@ -118,7 +118,7 @@ namespace Geometry
         MappingToRefCubeToHypercube4& operator=(const MappingToRefCubeToHypercube4&) = delete;
     private:
         MappingToRefCubeToHypercube4();
-        std::unordered_map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
     };
     
     // ~~~ index 5 ~~~==============================================================================
@@ -137,7 +137,7 @@ namespace Geometry
         MappingToRefCubeToHypercube5& operator=(const MappingToRefCubeToHypercube5&) = delete;
     private:
         MappingToRefCubeToHypercube5();
-        std::unordered_map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
     };
     
     // ~~~ index 6 ~~~==============================================================================
@@ -156,7 +156,7 @@ namespace Geometry
         MappingToRefCubeToHypercube6& operator=(const MappingToRefCubeToHypercube6&) = delete;
     private:
         MappingToRefCubeToHypercube6();
-        std::unordered_map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
     };
     
     // ~~~ index 7 ~~~==============================================================================
@@ -175,7 +175,7 @@ namespace Geometry
         MappingToRefCubeToHypercube7& operator=(const MappingToRefCubeToHypercube7&) = delete;
     private:
         MappingToRefCubeToHypercube7();
-        std::unordered_map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
+        std::map<const PointReference<3>*, const PointReference<4>*> transformedCoordinates;
     };
 }
 #endif

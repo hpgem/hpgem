@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     //(operator[], operator() and size() don't have a stand-alone test, but are used throughout the test in multiple assertions
 
     //various constructors
-    double data[] = {1., 2., 3.};
+    LinearAlgebra::MiddleSizeVector::type data[] = {1., 2., 3.};
     MiddleSizeVector x0, x1(1), y1(x1), destroy(4), fromArray(data,3), convenient({5.,6.,7.,8.,9.});
     data[0] = 4;
     logger.assert_always(x0.size() == 0, "Constructor creates a vector of the wrong size");
@@ -88,60 +88,60 @@ int main(int argc, char* argv[])
     logger.assert_always(pc2.size() == 2, "Constructor creates a vector of the wrong size");
     for (std::size_t i = 0; i < 2; ++i)
     {
-        logger.assert_always((std::abs(pc2[i] - 0.8 - i) < 1e-12), "assignment operator");
-        logger.assert_always((std::abs(pr2[i] - 0.8 - i) < 1e-12), "assignment operator");
+        logger.assert_always((std::abs(pc2[i] - 0.8 - double(i)) < 1e-12), "assignment operator");
+        logger.assert_always((std::abs(pr2[i] - 0.8 - double(i)) < 1e-12), "assignment operator");
     }
     logger.assert_always((pr2 == pc2 && pc2 == pr2 && pc2 == p2 && !(pr2 == pv2 || pv2 == pr2 || p2 == pv2 || p2 == convenient || convenient == p2)), "equality operator");
     logger.assert_always(!(pr2 == pw2 || pw2 == pr2 || p2 == pw2 || pr2 == px2 || px2 == pr2 || p2 == px2 || pr2 == py2 || py2 == pr2 || p2 == py2), "equality operator");
     pc2 += p2;
     for (std::size_t i = 0; i < 2; ++i)
     {
-        logger.assert_always((std::abs(pc2[i] - 1.6 - 2 * i) < 1e-12), "increment operator");
+        logger.assert_always((std::abs(pc2[i] - 1.6 - 2. * i) < 1e-12), "increment operator");
     }
     pc2 -= pv2;
     for (std::size_t i = 0; i < 2; ++i)
     {
-        logger.assert_always((std::abs(pc2[i] - 0.8 - 2 * i) < 1e-12), "decrement operator");
+        logger.assert_always((std::abs(pc2[i] - 0.8 - 2. * i) < 1e-12), "decrement operator");
     }
     pc2 *= 4.;
     for (std::size_t i = 0; i < 2; ++i)
     {
-        logger.assert_always((std::abs(pc2[i] - 3.2 - 8 * i) < 1e-12), "multiply operator");
+        logger.assert_always((std::abs(pc2[i] - 3.2 - 8. * i) < 1e-12), "multiply operator");
     }
     for (std::size_t i = 0; i < 2; ++i)
     {
-        logger.assert_always((std::abs((pc2 * -0.25)[i] + 0.8 + 2 * i) < 1e-12), "multiplication");
+        logger.assert_always((std::abs((pc2 * -0.25)[i] + 0.8 + 2. * i) < 1e-12), "multiplication");
     }
     for (std::size_t i = 0; i < 2; ++i)
     {
-        logger.assert_always((std::abs((pc2 + pv2)[i] - 4. - 8 * i) < 1e-12), "addition");
+        logger.assert_always((std::abs((pc2 + pv2)[i] - 4. - 8. * i) < 1e-12), "addition");
     }
     for (std::size_t i = 0; i < 2; ++i)
     {
-        logger.assert_always((std::abs((pv2 - pc2)[i] + 2.4 + 8 * i) < 1e-12), "subtraction");
+        logger.assert_always((std::abs((pv2 - pc2)[i] + 2.4 + 8. * i) < 1e-12), "subtraction");
     }
     for (std::size_t i = 0; i < 2; ++i)
     {
-        logger.assert_always((std::abs((-pc2)[i] + 3.2 + 8 * i) < 1e-12), "unary -");
+        logger.assert_always((std::abs((-pc2)[i] + 3.2 + 8. * i) < 1e-12), "unary -");
     }
     for (std::size_t i = 0; i < 2; ++i)
     {
-        logger.assert_always((std::abs((0.25 * pc2)[i] - 0.8 - 2 * i) < 1e-12), "left multiplication");
+        logger.assert_always((std::abs((0.25 * pc2)[i] - 0.8 - 2. * i) < 1e-12), "left multiplication");
     }
-    logger.assert_always((std::abs((pv2 * pc2) - 1.44 * 8) < 1e-12), "in-product");
+    logger.assert_always((std::abs((pv2 * pc2) - 1.44 * 8.) < 1e-12), "in-product");
     pc2 /= 4.;
     for (std::size_t i = 0; i < 2; ++i)
     {
-        logger.assert_always((std::abs(pc2[i] - 0.8 - 2 * i) < 1e-12), "divide operator");
+        logger.assert_always((std::abs(pc2[i] - 0.8 - 2. * i) < 1e-12), "divide operator");
     }
     for (std::size_t i = 0; i < 2; ++i)
     {
-        logger.assert_always((std::abs((pc2 / -0.25)[i] + 3.2 + 8 * i) < 1e-12), "division");
+        logger.assert_always((std::abs((pc2 / -0.25)[i] + 3.2 + 8. * i) < 1e-12), "division");
     }
     pc2.axpy(-3., p2);
     for (std::size_t i = 0; i < 2; ++i)
     {
-        logger.assert_always((std::abs(pc2[i] + 1.6 + i) < 1e-12), "combined multiply and addition (y = ax + y)");
+        logger.assert_always((std::abs(pc2[i] + 1.6 + double(i)) < 1e-12), "combined multiply and addition (y = ax + y)");
     }
 
     x0.data();

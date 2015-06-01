@@ -26,6 +26,6 @@
 template<std::size_t DIM>
 void Base::FaceCacheData::operator ()(const Base::Face& fa, const Geometry::PointReference<DIM>& p)
 {
-    Normal = fa.getNormalVector(p);
+    LinearAlgebra::SmallVector<DIM> Normal = fa.getNormalVector(p);
     L2Normal = Base::L2Norm(Normal);
 }

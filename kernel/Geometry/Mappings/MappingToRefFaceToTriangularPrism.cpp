@@ -42,7 +42,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({p1[1], p1[0], -1.});
+            const_cast<std::map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({p1[1], p1[0], -1.});
             return *transformedCoordinates.at(&p1);
         }
     }
@@ -82,7 +82,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({p1[0], p1[1], 1.});
+            const_cast<std::map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({p1[0], p1[1], 1.});
             return *transformedCoordinates.at(&p1);
         }
     }
@@ -122,7 +122,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({0., 0.5 * (1. - p1[0]), p1[1]});
+            const_cast<std::map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({0., 0.5 * (1. - p1[0]), p1[1]});
             return *transformedCoordinates.at(&p1);
         }
     }
@@ -162,7 +162,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({0.5 * (1. + p1[0]), 0., p1[1]});
+            const_cast<std::map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({0.5 * (1. + p1[0]), 0., p1[1]});
             return *transformedCoordinates.at(&p1);
         }
     }
@@ -202,7 +202,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({0.5 * (1. - p1[0]), 0.5 * (1. + p1[0]), p1[1]});
+            const_cast<std::map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({0.5 * (1. - p1[0]), 0.5 * (1. + p1[0]), p1[1]});
             return *transformedCoordinates.at(&p1);
         }
     }

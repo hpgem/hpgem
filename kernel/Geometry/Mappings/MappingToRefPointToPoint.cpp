@@ -43,7 +43,7 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference<0>*, const PointReference<0>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<0>::instance()->makePoint(0);
+            const_cast<std::map<const PointReference<0>*, const PointReference<0>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<0>::instance()->makePoint(0);
             return *transformedCoordinates.at(&p1);
         }
     }

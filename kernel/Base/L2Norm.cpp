@@ -31,9 +31,9 @@
 //------------------------------------------------------------------------------
 namespace Base
 {
-    double L2Norm(const LinearAlgebra::MiddleSizeVector& v)
+    LinearAlgebra::MiddleSizeVector::type L2Norm(const LinearAlgebra::MiddleSizeVector& v)
     {
-        double retSquared(0);
+        LinearAlgebra::MiddleSizeVector::type retSquared(0);
         for (std::size_t i = 0; i < v.size(); ++i)
         {
             retSquared += v[i] * v[i];

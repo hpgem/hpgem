@@ -55,7 +55,7 @@ namespace Geometry
         MappingToRefPointToLine0& operator=(const MappingToRefPointToLine0&) = delete;
     private:
         MappingToRefPointToLine0();
-        std::unordered_map<const PointReference<0>*, const PointReference<1>*> transformedCoordinates;
+        std::map<const PointReference<0>*, const PointReference<1>*> transformedCoordinates;
     };
     
     // ~~~ index 1 ~~~=========================================================================== //
@@ -73,7 +73,7 @@ namespace Geometry
         MappingToRefPointToLine1& operator=(const MappingToRefPointToLine1&) = delete;
     private:
         MappingToRefPointToLine1();
-        std::unordered_map<const PointReference<0>*, const PointReference<1>*> transformedCoordinates;
+        std::map<const PointReference<0>*, const PointReference<1>*> transformedCoordinates;
     };
 }
 #endif

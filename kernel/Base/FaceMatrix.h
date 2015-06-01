@@ -48,10 +48,10 @@ namespace Base
 
         // Operators
         /// \brief Defines the operator (iSide, iVarBasisFunc, jSide, jVarBasisFunc) such that a reference to data (iVarBasisFunc, jVarBasisFunc) from the element matrix corresponding to (iSide, jSide) will be returned.
-        double& operator()(Side iSide, Side jSide, std::size_t iVarBasisFunction, std::size_t jVarBasisFunction);
+        LinearAlgebra::MiddleSizeMatrix::type& operator()(Side iSide, Side jSide, std::size_t iVarBasisFunction, std::size_t jVarBasisFunction);
 
         /// \brief Defines the operator (i,j) such that a reference to data (i,j) from the face matrix will be returned.
-        double& operator()(std::size_t i, std::size_t j);
+        LinearAlgebra::MiddleSizeMatrix::type& operator()(std::size_t i, std::size_t j);
 
         /// \brief Sets the face matrix equal to another face matrix.
         FaceMatrix& operator=(const FaceMatrix &other);
@@ -60,7 +60,7 @@ namespace Base
         FaceMatrix& operator+=(const FaceMatrix &other);
 
         /// \brief Multiplies the face matrix by a scalar.
-        FaceMatrix & operator*=(const double &scalar);
+        FaceMatrix & operator*=(const LinearAlgebra::MiddleSizeMatrix::type &scalar);
 
         // Other member functions
         /// \brief Gets the number of degrees of freedom (usually the amount of (vector)-basis functions) corresponding to the element at side iSide.
@@ -88,7 +88,7 @@ namespace Base
         void setEntireMatrix(const LinearAlgebra::MiddleSizeMatrix & entireMatrix);
 
         /// \brief Applies the operation y=ax + y, where a is a scalar and x another FaceMatrix.
-        void axpy(const double &a, const FaceMatrix &x);
+        void axpy(const LinearAlgebra::MiddleSizeMatrix::type &a, const FaceMatrix &x);
 
     private:
         /// \brief Four matrices, corresponding to the submatrices of the face matrix, where each submatrix is an element matrix corresponding to (iSide, jSide).

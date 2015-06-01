@@ -30,24 +30,36 @@ namespace LinearAlgebra
     
     extern "C"
     {
-        
+
         /// This does matrix times vector and is from blas level 2.
         void dgemv_(const char* trans, int* m, int* n, double* alpha, double* A, int* LDA, double *x, int *incx, double *beta, double *y, int *incy);
-        
+        /// This does matrix times vector and is from blas level 2.
+        void zgemv_(const char* trans, int* m, int* n, std::complex<double>* alpha, std::complex<double>* A, int* LDA, std::complex<double> *x, int *incx, std::complex<double> *beta, std::complex<double> *y, int *incy);
+
         ///This is the gernal matrix multiplication from blas level 3
         int dgemm_(const char *transA, const char *transB, int *M, int *N, int *k, double *alpha, double *A, int *LDA, double *B, int *LDB, double *beta, double *C, int *LDC);
-        
+        ///This is the gernal matrix multiplication from blas level 3
+        int zgemm_(const char *transA, const char *transB, int *M, int *N, int *k, std::complex<double> *alpha, std::complex<double> *A, int *LDA, std::complex<double> *B, int *LDB, std::complex<double> *beta, std::complex<double> *C, int *LDC);
+
         ///This is the gerneral scalar times vector + vector from blas, hence from blas level 1. Here we also use on a matrix by treating as a vector
         int daxpy_(unsigned int* N, double* DA, double* DX, unsigned int* INCX, double* DY, unsigned int* INCY);
-        
+        ///This is the gerneral scalar times vector + vector from blas, hence from blas level 1. Here we also use on a matrix by treating as a vector
+        int zaxpy_(unsigned int* N, std::complex<double>* DA, std::complex<double>* DX, unsigned int* INCX, std::complex<double>* DY, unsigned int* INCY);
+
         /// This is LU factorisation of the matrix A. This has been taken from LAPACK 
         void dgetrf_(int* M, int *N, double* A, int* lda, int* IPIV, int* INFO);
-        
+        /// This is LU factorisation of the matrix A. This has been taken from LAPACK
+        void zgetrf_(int* M, int *N, std::complex<double>* A, int* lda, int* IPIV, int* INFO);
+
         /// This is the inverse calulation also from LAPACK. Calculates inverse if you pass it the LU factorisation.
         void dgetri_(int* N, double* A, int* lda, int* IPIV, double* WORK, int* lwork, int* INFO);
-        
+        /// This is the inverse calulation also from LAPACK. Calculates inverse if you pass it the LU factorisation.
+        void zgetri_(int* N, std::complex<double>* A, int* lda, int* IPIV, std::complex<double>* WORK, int* lwork, int* INFO);
+
         /// This is used for solve Ax=B for x. Again this is from LAPACK.
         void dgesv_(int* N, int* NRHS, double* A, int* lda, int* IPIV, double* B, int* LDB, int* INFO);
+        /// This is used for solve Ax=B for x. Again this is from LAPACK.
+        void zgesv_(int* N, int* NRHS, std::complex<double>* A, int* lda, int* IPIV, std::complex<double>* B, int* LDB, int* INFO);
     }
     
     MiddleSizeMatrix::MiddleSizeMatrix()
@@ -68,7 +80,7 @@ namespace LinearAlgebra
     ///
     /// \details Example usage : Matrix<double> A(4,3,2) with create a 4 by 3 
     /// matrix called A with entries equal to 2.
-    MiddleSizeMatrix::MiddleSizeMatrix(const std::size_t n, const std::size_t m, const double& c)
+    MiddleSizeMatrix::MiddleSizeMatrix(const std::size_t n, const std::size_t m, const type& c)
             :
 #ifdef LA_STL_VECTOR
                     data_(n * m, c),
@@ -115,13 +127,13 @@ namespace LinearAlgebra
     /// \return double i.e. the value of the element you requested
     ///
     /// \details Recall that the matrix is stored in fortran style i.e. columns first and then rows
-    double& MiddleSizeMatrix::operator[](const std::size_t n)
+    MiddleSizeMatrix::type& MiddleSizeMatrix::operator[](const std::size_t n)
     {
         logger.assert(n < data_.size(), "Requested entry % for a matrix with only % entries", n, data_.size());
         return data_[n];
     }
     
-    const double& MiddleSizeMatrix::operator[](const std::size_t n) const
+    const MiddleSizeMatrix::type& MiddleSizeMatrix::operator[](const std::size_t n) const
     {
         logger.assert(n < data_.size(), "Requested entry % for a matrix with only % entries", n, data_.size());
         return data_[n];
@@ -164,10 +176,10 @@ namespace LinearAlgebra
 
     /// \param[in] scalar : A double that each element of the matrix is multiplied by
     /// \return Matrix
-    MiddleSizeMatrix& MiddleSizeMatrix::operator*=(const double &scalar)
+    MiddleSizeMatrix& MiddleSizeMatrix::operator*=(const type &scalar)
     {
 #ifdef LA_STL_VECTOR
-        for (double& d : data_)
+        for (type& d : data_)
             d *= scalar;
 #else
         data_ *= scalar;
@@ -177,10 +189,10 @@ namespace LinearAlgebra
 
     /// \param[in] scalar : A double that each element of the matrix is divided by
     /// \return Matrix
-    MiddleSizeMatrix& MiddleSizeMatrix::operator/=(const double& scalar)
+    MiddleSizeMatrix& MiddleSizeMatrix::operator/=(const type& scalar)
     {
 #ifdef LA_STL_VECTOR
-        for (double& d : data_)
+        for (type& d : data_)
             d /= scalar;
 #else
         data_/=scalar;
@@ -222,14 +234,17 @@ namespace LinearAlgebra
         int nc = nCols_;
         
         int i_one = 1;
-        double d_one = 1.0;
-        double d_zero = 0.0;
+        type d_one = 1.0;
+        type d_zero = 0.0;
         
         MiddleSizeVector result(nr);
         
         logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
-        
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        zgemv_("N", &nr, &nc, &d_one, ((*(const_cast<MiddleSizeMatrix *>(this))).data()), &nr, right.data(), &i_one, &d_zero, result.data(), &i_one);
+#else
         dgemv_("N", &nr, &nc, &d_one, ((*(const_cast<MiddleSizeMatrix *>(this))).data()), &nr, right.data(), &i_one, &d_zero, result.data(), &i_one);
+#endif
         return result;
     }
 
@@ -250,14 +265,18 @@ namespace LinearAlgebra
         int nc = nCols_;
 
         int i_one = 1;
-        double d_one = 1.0;
-        double d_zero = 0.0;
+        type d_one = 1.0;
+        type d_zero = 0.0;
 
         MiddleSizeVector result(nr);
 
         logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
 
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        zgemv_("N", &nr, &nc, &d_one, this->data(), &nr, right.data(), &i_one, &d_zero, result.data(), &i_one);
+#else
         dgemv_("N", &nr, &nc, &d_one, this->data(), &nr, right.data(), &i_one, &d_zero, result.data(), &i_one);
+#endif
         return result;
     }
     
@@ -278,11 +297,15 @@ namespace LinearAlgebra
         ///The result of the matrix is left.Nrows, right.NCols()
         MiddleSizeMatrix C(i, k);
         
-        double d_one = 1.0;
-        double d_zero = 0.0;
+        type d_one = 1.0;
+        type d_zero = 0.0;
         
         //Let the actual multiplication be done by Fortran
-        dgemm_("N", "N", &i, &k, &j, &d_one, ((*this).data()), &i, const_cast<double*>(other.data()), &j, &d_zero, C.data(), &i);
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        zgemm_("N", "N", &i, &k, &j, &d_one, ((*this).data()), &i, const_cast<type*>(other.data()), &j, &d_zero, C.data(), &i);
+#else
+        dgemm_("N", "N", &i, &k, &j, &d_one, ((*this).data()), &i, const_cast<type*>(other.data()), &j, &d_zero, C.data(), &i);
+#endif
         
         return C;
     }
@@ -299,18 +322,22 @@ namespace LinearAlgebra
         //The result of the matrix is left.Nrows, right.NCols()
         MiddleSizeMatrix C(i, k);
         
-        double d_one = 1.0;
-        double d_zero = 0.0;
+        type d_one = 1.0;
+        type d_zero = 0.0;
         
         //Let the actual multiplication be done by Fortran
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        zgemm_("N", "N", &i, &k, &j, &d_one, ((*(const_cast<MiddleSizeMatrix *>(this))).data()), &i, (((const_cast<MiddleSizeMatrix&>(other))).data()), &j, &d_zero, C.data(), &i);
+#else
         dgemm_("N", "N", &i, &k, &j, &d_one, ((*(const_cast<MiddleSizeMatrix *>(this))).data()), &i, (((const_cast<MiddleSizeMatrix&>(other))).data()), &j, &d_zero, C.data(), &i);
+#endif
         
         return C;
     }
     
     /// \param[in] scalar : A double that each element of the matrix is multiplied by
     /// \return Matrix
-    MiddleSizeMatrix MiddleSizeMatrix::operator*(const double &scalar) const
+    MiddleSizeMatrix MiddleSizeMatrix::operator*(const type &scalar) const
     {
         MiddleSizeMatrix result(*this);
         return (result *= scalar);
@@ -318,7 +345,7 @@ namespace LinearAlgebra
 
     /// \param[in] scalar : A double that each element of the matrix is divided by
     /// \return Matrix
-    MiddleSizeMatrix MiddleSizeMatrix::operator/(const double &scalar) const
+    MiddleSizeMatrix MiddleSizeMatrix::operator/(const type &scalar) const
     {
         MiddleSizeMatrix result(*this);
         return (result /= scalar);
@@ -327,7 +354,7 @@ namespace LinearAlgebra
     /// \param [in] double c the  value all the entries of the matrix are set to
     ///
     /// \details Sets all the entries in the matrix equal to the scalar c.
-    MiddleSizeMatrix& MiddleSizeMatrix::operator=(const double& c)
+    MiddleSizeMatrix& MiddleSizeMatrix::operator=(const type& c)
     {
         if (size() != 1)
         {
@@ -406,7 +433,7 @@ namespace LinearAlgebra
     /// \param[in] x : matrix that is multiple 
     ///
     /// \details Adds to the matrix a*X_ij where a is scalar and X is a matrix
-    void MiddleSizeMatrix::axpy(double a, const MiddleSizeMatrix& x)
+    void MiddleSizeMatrix::axpy(type a, const MiddleSizeMatrix& x)
     {
         
         unsigned int size = nRows_ * nCols_;
@@ -414,11 +441,10 @@ namespace LinearAlgebra
         logger.assert(nCols_ == x.nCols_, "Dimensions are not the same.");
         unsigned int i_one = 1;
         
-#ifdef LA_STL_VECTOR
-        daxpy_(&size, &a, const_cast<double *>(x.data()), &i_one, data(), &i_one);
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        zaxpy_(&size, &a, const_cast<type *>(x.data()), &i_one, data(), &i_one);
 #else
-        daxpy_(&size, &a, &((*(const_cast<MiddleSizeMatrix *> (&x)))[0]), &i_one, &((*this)[0]) , &i_one);
-
+        daxpy_(&size, &a, const_cast<type *>(x.data()), &i_one, data(), &i_one);
 #endif
         
     }
@@ -442,9 +468,9 @@ namespace LinearAlgebra
         logger.assert(nCols_ == other.nCols_, "Number of columns is not the same.");
         
 #ifdef LA_STL_VECTOR
-        std::vector<double> data_new(nCols_ * (nRows_ + other.nRows_));
+        std::vector<type> data_new(nCols_ * (nRows_ + other.nRows_));
 #else
-        std::valarray<double> data_new(nCols_ * (nRows_ + other.nRows_));
+        std::valarray<type> data_new(nCols_ * (nRows_ + other.nRows_));
 #endif
         
         for (std::size_t col = 0; col < nCols_; ++col)
@@ -518,8 +544,12 @@ namespace LinearAlgebra
         MiddleSizeMatrix result(*this);
         
         int info;
-        
+
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        zgetrf_(&nr, &nc, result.data(), &nr, iPivot, &info);
+#else
         dgetrf_(&nr, &nc, result.data(), &nr, iPivot, &info);
+#endif
         
         return result;
     }
@@ -539,24 +569,18 @@ namespace LinearAlgebra
         
         int info = 0;
         
-        dgetrf_(&nr, &nc, result.data(), &nr, iPivot, &info);
-        
         int lwork = nRows_ * nCols_;
         
-        //use the heap for large amounts of data
-        //'magic' boundary of 16 comes from the fact that Jacobeans are not expected to be larger than 4x4
-        //but element matrices can easily reach 20x20 or larger
-        if(lwork <= 16)
-        {
-            double work[16];
+        MiddleSizeMatrix work(nRows_, nCols_);
 
-            dgetri_(&nc, result.data(), &nc, iPivot, work, &lwork, &info);
-        }
-        else
-        {
-            MiddleSizeMatrix work(nRows_, nCols_);
-            dgetri_(&nc, result.data(), &nc, iPivot, work.data(), &lwork, &info);
-        }
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        zgetrf_(&nr, &nc, result.data(), &nr, iPivot, &info);
+        zgetri_(&nc, result.data(), &nc, iPivot, work.data(), &lwork, &info);
+#else
+        dgetrf_(&nr, &nc, result.data(), &nr, iPivot, &info);
+        dgetri_(&nc, result.data(), &nc, iPivot, work.data(), &lwork, &info);
+#endif
+
         
         return result;
     }
@@ -587,21 +611,13 @@ namespace LinearAlgebra
         
         int IPIV[n];
         
-        //use the stack for small amounts of data
-        //'magic' boundary of 16 comes from the fact that Jacobeans are not expected to be larger than 4x4
-        //but element matrices can easily reach 20x20 or larger
-        if(nRows_ * nCols_ <= 16)
-        {
-            //gdesv destroys the copy
-            double copy[16];
-            std::copy(this->data(), this->data() + nRows_ * nCols_, copy);
-            dgesv_(&n, &nrhs, copy, &n, IPIV, B.data(), &n, &info);
-        }
-        else
-        {
-            MiddleSizeMatrix matThis = *this;
-            dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
-        }
+        MiddleSizeMatrix matThis = *this;
+
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        zgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
+#else
+        dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
+#endif
     }
 
     ///\bug allocates a potentially large array (IPIV) on the stack
@@ -616,70 +632,25 @@ namespace LinearAlgebra
         
         int IPIV[n];
         
-        //use the stack for small amounts of data
-        //'magic' boundary of 16 comes from the fact that Jacobeans are not expected to be larger than 4x4
-        //but element matrices can easily reach 20x20 or larger
-        if(nRows_ * nCols_ <= 16)
-        {
-            //gdesv destroys the copy
-            double copy[nRows_ * nCols_];
-            std::copy(this->data(), this->data() + nRows_ * nCols_, copy);
-            dgesv_(&n, &nrhs, copy, &n, IPIV, b.data(), &n, &info);
-        }
-        else
-        {
-            MiddleSizeMatrix matThis = *this;
-            dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
-        }
-    }
-    
+        MiddleSizeMatrix matThis = *this;
+
 #ifdef HPGEM_USE_COMPLEX_PETSC
-    
-    std::complex<double>* MiddleSizeMatrix::data()
-    {   
-        static std::vector<std::complex<double>> new_Data( data_.size());
-
-        double* temp = data_.data();
-
-        for(std::size_t col = 0; col < nCols_; ++col)
-        {   
-            for(std::size_t row = 0; row < nRows_; ++row)
-            {   
-                new_Data[row + col * nRows_] = temp[row + col * nRows_];
-            }
-        }
-
-        return new_Data.data();
-    }
-
-    const std::complex<double>* MiddleSizeMatrix::data() const
-    {   
-        static std::vector<std::complex<double>> new_Data(data_.size());
-
-        for(std::size_t col = 0; col < nCols_; ++col)
-        {   
-            for(std::size_t row = 0; row < nRows_; ++row)
-            {   
-                new_Data[row + col * nRows_] = data_[row + col * nRows_];
-            }
-        }
-
-        return new_Data.data();
-    }
-
+        zgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
 #else
-    
-    double* MiddleSizeMatrix::data()
-    {
-        return data_.data();
-    }
-    
-    const double* MiddleSizeMatrix::data() const
-    {
-        return data_.data();
-    }
-    
+        dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
 #endif
+    }
+    
+    MiddleSizeMatrix::type* MiddleSizeMatrix::data()
+    {
+        return data_.data();
+    }
+    
+    const MiddleSizeMatrix::type* MiddleSizeMatrix::data() const
+    {
+        return data_.data();
+    }
+    
     ///Print the matrix with () around each line and [] around the matrix.
     std::ostream& operator<<(std::ostream& os, const MiddleSizeMatrix& A)
     {
@@ -699,7 +670,7 @@ namespace LinearAlgebra
         return os;
     }
     
-    MiddleSizeMatrix operator*(const double d, const MiddleSizeMatrix& mat)
+    MiddleSizeMatrix operator*(const MiddleSizeMatrix::type d, const MiddleSizeMatrix& mat)
     {
         MiddleSizeMatrix matNew = mat;
         matNew *= d;
@@ -720,14 +691,18 @@ namespace LinearAlgebra
         int nc = right.getNCols();
 
         int i_one = 1;
-        double d_one = 1.0;
-        double d_zero = 0.0;
+        MiddleSizeMatrix::type d_one = 1.0;
+        MiddleSizeMatrix::type d_zero = 0.0;
 
         MiddleSizeVector result(nc);
 
         logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, left.size());
 
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        zgemv_("T", &nr, &nc, &d_one, right.data(), &nr, left.data(), &i_one, &d_zero, result.data(), &i_one);
+#else
         dgemv_("T", &nr, &nc, &d_one, right.data(), &nr, left.data(), &i_one, &d_zero, result.data(), &i_one);
+#endif
         return result;
     }
 }

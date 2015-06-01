@@ -63,7 +63,11 @@ namespace LinearAlgebra
             : data_()
         {
             logger.assert(other.size() == nRows, "Cannot construct a vector of size % from a vector of size %", nRows, other.size());
-            std::copy(other.data(), other.data() + nRows, data_.begin());
+            for(std::size_t i = 0; i < nRows; ++i)
+            {
+                logger.assert(std::abs(other[i] - std::real(other[i])) < 1e-9, "trying to construct a real vector from a vector with nonzero complex component");
+                data_[i] = std::real(other[i]);
+            }
         }
 
         SmallVector(SmallVector&& other)
@@ -252,13 +256,26 @@ namespace LinearAlgebra
         os << ")";
         return os;
     }
-
+#ifdef HPGEM_USE_COMPLEX_PETSC
+    template<std::size_t nRows>
+    MiddleSizeVector::MiddleSizeVector(const SmallVector<nRows>& other)
+        : data_(nRows)
+    {
+        logger(WARN, "Constructing middle size vector from small vector, consider using small vectors everywhere for fixed length vectors of size <= 4");
+        for(std::size_t i = 0; i < nRows; ++i)
+        {
+            logger.assert(std::abs(other[i] - std::real(other[i])) < 1e-9, "attempting to construct a real vector from a vector with a complex part");
+            data_[i] = std::real(other[i]);
+        }
+    }
+#else
     template<std::size_t nRows>
     MiddleSizeVector::MiddleSizeVector(const SmallVector<nRows>& other)
         : data_(other.data(), other.data() + nRows)
     {
         logger(WARN, "Constructing middle size vector from small vector, consider using small vectors everywhere for fixed length vectors of size <= 4");
     }
+#endif
 
 }
 #endif

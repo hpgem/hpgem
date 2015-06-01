@@ -42,7 +42,7 @@ namespace Geometry
         MappingToRefFaceToTriangularPrism0& operator=(const MappingToRefFaceToTriangularPrism0&) = delete;
     private:
         MappingToRefFaceToTriangularPrism0();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 1 ~~~==============================================================================
@@ -61,7 +61,7 @@ namespace Geometry
         MappingToRefFaceToTriangularPrism1& operator=(const MappingToRefFaceToTriangularPrism1&) = delete;
     private:
         MappingToRefFaceToTriangularPrism1();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 2 ~~~==============================================================================
@@ -80,7 +80,7 @@ namespace Geometry
         MappingToRefFaceToTriangularPrism1& operator=(const MappingToRefFaceToTriangularPrism2&) = delete;
     private:
         MappingToRefFaceToTriangularPrism2();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 3 ~~~==============================================================================
@@ -99,7 +99,7 @@ namespace Geometry
         MappingToRefFaceToTriangularPrism3& operator=(const MappingToRefFaceToTriangularPrism3&) = delete;
     private:
         MappingToRefFaceToTriangularPrism3();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 4 ~~~==============================================================================
@@ -118,7 +118,7 @@ namespace Geometry
         MappingToRefFaceToTriangularPrism4& operator=(const MappingToRefFaceToTriangularPrism4&) = delete;
     private:
         MappingToRefFaceToTriangularPrism4();
-        std::unordered_map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
 
 }
