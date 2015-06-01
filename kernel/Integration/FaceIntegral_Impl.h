@@ -101,7 +101,7 @@ namespace Integration
      */
     //DIM denotes the dimension of the FACE here
     template<typename IntegrandType, std::size_t DIM>
-    IntegrandType FaceIntegral::referenceFaceIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference<DIM> &)> integrandFunction)
+    IntegrandType FaceIntegral::referenceFaceIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference<DIM> &)> integrandFunction) const
     {
         std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
         std::size_t iPoint = 0; // Index for the quadrature points.

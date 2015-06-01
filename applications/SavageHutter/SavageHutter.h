@@ -19,8 +19,8 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AcousticWaveH
-#define AcousticWaveH
+#ifndef SavageHutterH
+#define SavageHutterH
 
 #include <fstream>
 #include <iomanip> 
@@ -46,20 +46,7 @@
 #include "SavageHutterRightHandSideComputer.h"
 
 #include "Logger.h"
-#include "Base/UserData.h"
 
-struct LimiterData : public UserElementData
-{
-    LimiterData()
-    {
-        isLimited = {false, false};
-        valLeft = {0, 0}; //make quiet NAN later
-        valRight = {0, 0};
-    }
-    std::vector<bool> isLimited;
-    std::vector<double> valLeft;
-    std::vector<double> valRight;
-};
 
 struct SHConstructorStruct
 {
@@ -84,26 +71,12 @@ public:
     ///constructor also constructs the mesh and couples an object LimiterData to
     ///each element.
     SavageHutter(const SHConstructorStruct& inputValues);
-    
-    ~SavageHutter()
-    {
-        for (Base::Element *element : meshes_[0] ->getElementsList())
-        {
-            delete element->getUserData();
-        }
-    }
 
     /// \brief Create a domain
     Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection);
 
     /// \brief Compute the initial solution at a given point in space and time.
     LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
-
-    /// \brief Compute the integrand for the reference element for obtaining the initial solution.
-    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnElement(const Base::Element *ptrElement, const double &startTime, const PointReferenceT &pRef);
-
-    /// \brief Integrate the initial solution for a single element.
-    LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
 
     /// \brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID)
@@ -149,7 +122,7 @@ public:
     
     int sign(const double x)
     {
-        return ((x < 0)? -1 : 1) ;
+        return ((x < 0)? -1 : 1);
     }
     
 private:
