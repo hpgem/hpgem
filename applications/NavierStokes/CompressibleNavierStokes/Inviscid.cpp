@@ -208,6 +208,7 @@ LinearAlgebra::NumericalVector Inviscid::integrandAtFace(const Base::Face *ptrFa
 	   LinearAlgebra::NumericalVector qReconstructionLeft(instance_.numOfVariables_);
 	   LinearAlgebra::NumericalVector qReconstructionRight(instance_.numOfVariables_);
 
+	   //todo: this has been computed already in previous step: remove it to reduce code duplication
 	   //Compute left and right states
 	    std::size_t jVB; // Index for both variable and basis function.
 	    for (std::size_t jV = 0; jV < instance_.numOfVariables_; jV++)
@@ -261,17 +262,6 @@ LinearAlgebra::NumericalVector Inviscid::integrandAtFace(const Base::Face *ptrFa
 
 	   //Compute flux
 	   LinearAlgebra::NumericalVector flux = RoeRiemannFluxFunction(qSolutionInternal, qSolutionExternal, normal);
-/*	   if (iSide == Base::Side::RIGHT)
-	   {
-		   flux =  RoeRiemannFluxFunction(qSolutionRight, qSolutionLeft, normal2);
-		   std::cout << "Different: " << flux<< std::endl;
-		   flux = -RoeRiemannFluxFunction(qSolutionLeft, qSolutionRight, normal);
-		   std::cout << "Normal: " << flux << std::endl;
-	   }
-	   else
-	   {
-		   flux = RoeRiemannFluxFunction(qSolutionLeft, qSolutionRight, normal);
-	   }*/
 
 	   // Compute integrand on the reference element.
 	   std::size_t iVB; // Index for both variable and basis function.

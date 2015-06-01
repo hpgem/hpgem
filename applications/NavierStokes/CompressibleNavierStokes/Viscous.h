@@ -25,7 +25,10 @@
 class Viscous
 {
 public:
+
 	Viscous(const CompressibleNavierStokes& instance);
+
+	void setInverseStabilityMassMatrix(LinearAlgebra::Matrix &inverseStabilityMassMatrix);
 
     /// *****************************************
     /// ***      flux function functions      ***
@@ -38,9 +41,9 @@ public:
 	double computeViscosity(double temperature);
 
 	/// Computes ATensor_ for a given partialState (containing velocities and total Energy), viscosity, kappa and c_v
-	void computeATensor(const LinearAlgebra::NumericalVector partialState, const double viscosity);
+	std::vector<LinearAlgebra::Matrix> computeATensor( const LinearAlgebra::NumericalVector partialState, const double viscosity);
 
-	LinearAlgebra::Matrix computeATensorMatrixContraction(LinearAlgebra::Matrix matrix);
+	LinearAlgebra::Matrix computeATensorMatrixContraction(const std::vector<LinearAlgebra::Matrix> ATensor, const LinearAlgebra::Matrix matrix);
 
     /// *****************************************
     /// ***   Element integration functions   ***
@@ -53,14 +56,36 @@ public:
     /// ***    face integration functions     ***
     /// *****************************************
 
+	//Computes the fluxFunction in the stability parameter calculation used for the integrand
+	void computeStabilityFluxFunction(const std::vector<LinearAlgebra::Matrix> &ATensorInternal, const std::vector<LinearAlgebra::Matrix> &ATensorExternal, const LinearAlgebra::NumericalVector &stateInternal, const LinearAlgebra::NumericalVector &stateExternal, const LinearAlgebra::NumericalVector &normalInternal);
+
+	//Computes the integrand required for the stability parameter calculations
+	LinearAlgebra::NumericalVector integrandStabilityRightHandSideOnRefFace(const Base::Face *ptrFace, const Base::Side side, const LinearAlgebra::Matrix stabilityFluxFunction, const std::size_t iD, const Geometry::PointReference &pRef);
+
+	//Computes the rhs by integrating the rhs integrand
+	LinearAlgebra::NumericalVector computeRhs(const Base::Face *ptrFace, const Base::Side side, const LinearAlgebra::Matrix stabilityFluxFunction, const std::size_t iD);
+
+	//Computes the stability parameters
+	LinearAlgebra::Matrix computeStabilityParameters(const Base::Face *ptrFace, Base::Side iSide, const std::vector<LinearAlgebra::Matrix> ATensorInternal,	const std::vector<LinearAlgebra::Matrix> ATensorExternal, const LinearAlgebra::NumericalVector stateInternal, const LinearAlgebra::NumericalVector stateExternal, const LinearAlgebra::NumericalVector normalInternal, const Geometry::PointReference &pRef);
+
+	/// computes the fluxFunction for the auxilliary values at the face
+	LinearAlgebra::Matrix computeAuxilliaryFlux(const Base::Face *ptrFace, Base::Side iSide, const LinearAlgebra::NumericalVector stateInternal, const LinearAlgebra::NumericalVector stateExternal, const double pressureInternal, const double pressureExternal, const LinearAlgebra::NumericalVector partialStateInternal, const LinearAlgebra::NumericalVector partialStateExternal, const LinearAlgebra::Matrix stateJacobianInternal, const LinearAlgebra::Matrix stateJacobianExternal,  const LinearAlgebra::NumericalVector normalInternal, const Geometry::PointReference &pRef);
+
+	/// computes the viscous integral at the face, based on the viscous fluxes
 	LinearAlgebra::NumericalVector integrandViscousAtFace(const Base::Face *ptrFace, const Base::Side &iSide, LinearAlgebra::NumericalVector qSolutionInternal, LinearAlgebra::NumericalVector qSolutionExternal, double pressure, LinearAlgebra::NumericalVector partialState, const LinearAlgebra::NumericalVector normal, const Geometry::PointReference &pRef);
 
+	/// computes the auxilliary integral at the face, based on the auxilliary values
+	LinearAlgebra::NumericalVector integrandAuxilliaryAtFace(const Base::Face *ptrFace, const Base::Side &iSide, LinearAlgebra::NumericalVector stateInternal, const LinearAlgebra::NumericalVector stateExternal, const double pressureInternal, const double pressureExternal, const LinearAlgebra::NumericalVector partialStateInternal, const LinearAlgebra::NumericalVector partialStateExternal, const LinearAlgebra::NumericalVector normalInternal, const LinearAlgebra::Matrix stateJacobianInternal, const LinearAlgebra::Matrix stateJacobianExternal, const Geometry::PointReference &pRef);
 private:
 	const CompressibleNavierStokes& instance_;
 
 	const double PrInv_; //Inverse of Pr
 	const double cp_;
-	std::vector<LinearAlgebra::Matrix> ATensor_;
+	std::vector<LinearAlgebra::Matrix> ATensorInternal_;
+	std::vector<LinearAlgebra::Matrix> ATensorExternal_;
+	LinearAlgebra::Matrix stabilityMassMatrix_; //Note: this breaks down if p is not the same in all elements.
+	LinearAlgebra::Matrix stabilityFluxFunctionInternal_;
+	LinearAlgebra::Matrix stabilityFluxFunctionExternal_;
 };
 
 #endif /* VISCOUS_H_ */

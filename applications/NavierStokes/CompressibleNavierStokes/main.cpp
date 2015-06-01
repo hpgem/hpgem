@@ -22,17 +22,22 @@
 #include "CompressibleNavierStokes.h"
 #include "Logger.h"
 #include <iostream>
+#include <chrono>
 
 auto& dimension = Base::register_argument<std::size_t>('D', "dim", "number of dimensions in the problem");
 auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 
-auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 200);
+auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 1);
 auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
-auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 5.0);
+auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 0.001);
 auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.001);
 
 int main (int argc, char **argv){
+
+    // Start measuring elapsed time
+    std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
+    startClock = std::chrono::system_clock::now();
 
 	// todo: Reduce the number of numericalvector creations
 	// todo: optimize the use of qinverse
@@ -65,6 +70,9 @@ int main (int argc, char **argv){
     // Create the mesh, a simple square domain
     test.createMesh(numOfElements.getValue(), meshType);
 
+    // Sets the mass matrix required for the stability parameters in the viscous class. Slight hack. todo: improve this
+    test.setStabilityMassMatrix();
+
     // Solve the problem over time interval [startTime,endTime].
     test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
 
@@ -72,7 +80,10 @@ int main (int argc, char **argv){
     LinearAlgebra::NumericalVector maxError = test.Error(endTime.getValue());
     std::cout << maxError << std::endl;
 
-	std::cout << "Hi, I am Navier-Stokes, but I am still on holiday, next month I will do my job!" << std::endl;
+    // Measure elapsed time
+    endClock = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = endClock - startClock;
+    logger(INFO, "Elapsed time for solving the PDE: % s", elapsed_seconds.count());
 
     return 0;
 }

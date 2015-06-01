@@ -44,6 +44,8 @@ public:
     /// \brief Create a domain
     Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override;
 
+    void setStabilityMassMatrix();
+
     // Computes pressure for a given solution q
     double computePressure(const LinearAlgebra::NumericalVector &qSolution);
 
@@ -64,7 +66,7 @@ public:
     /// Compute the Jacobian of the velocities
     LinearAlgebra::Matrix computePartialStateJacobian(const LinearAlgebra::Matrix qSolutionGradient, const LinearAlgebra::NumericalVector qSolution);
 
-    /// Computes the velocity
+    /// Computes the partial States: all states except the density are divided by the density
     LinearAlgebra::NumericalVector computePartialState(const LinearAlgebra::NumericalVector qSolution);
 
     /// Compute integrand of righthandside on an element
@@ -78,7 +80,10 @@ public:
     /// *****************************************
 
     /// Compute solution at a face
-    LinearAlgebra::NumericalVector computeSolutionOnFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
+    LinearAlgebra::NumericalVector computeSolutionOnFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef) const;
+
+    /// Compute solution Jacobian on face
+    LinearAlgebra::Matrix computeSolutionJacobianAtFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
     LinearAlgebra::NumericalVector integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
@@ -114,11 +119,11 @@ private:
 	/// Number of variables
 	const std::size_t numOfVariables_;
 
-	/// Viscous class, treating the viscosity part of the NS equations
-	Viscous viscousTerms_;
-
 	/// Inviscid class, treating the inviscid part of the NS equations
 	Inviscid inviscidTerms_;
+
+	/// Viscous class, treating the viscosity part of the NS equations
+	Viscous viscousTerms_;
 
 	friend class Inviscid;
 	friend class Viscous;
