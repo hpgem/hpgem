@@ -69,40 +69,24 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
     const std::size_t numTestBasisFuncs = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
     const std::size_t numBasisFuncsLeft = ptrFace->getPtrElement(Base::Side::LEFT)->getNrOfBasisFunctions();
     const std::size_t numBasisFuncsRight = ptrFace->getPtrElement(Base::Side::RIGHT)->getNrOfBasisFunctions();
-    
+
     NumericalVector solutionLeft(2);
-    for (std::size_t i = 0; i < numBasisFuncsLeft; ++i)    
+    for (std::size_t i = 0; i < numBasisFuncsLeft; ++i)
     {
         for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
         {
-            const LimiterData * const ld = static_cast<LimiterData*> (ptrFace->getPtrElement(Base::Side::LEFT)->getUserData());
-            if (ld->isLimited[iVar])
-            {
-                solutionLeft(iVar) = ld->valRight[iVar];
-            }
-            else
-            {
-                std::size_t iVB = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, iVar);
-                solutionLeft(iVar) += solutionCoefficientsLeft(iVB) * ptrFace->basisFunction(Base::Side::LEFT, i, pRef);
-            }
+            std::size_t iVB = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, iVar);
+            solutionLeft(iVar) += solutionCoefficientsLeft(iVB) * ptrFace->basisFunction(Base::Side::LEFT, i, pRef);
         }
     }
-    
+
     NumericalVector solutionRight(2);
-    for (std::size_t i = 0; i < numBasisFuncsRight; ++i)    
+    for (std::size_t i = 0; i < numBasisFuncsRight; ++i)
     {
         for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
         {
-            const LimiterData * const ld = static_cast<LimiterData*> (ptrFace->getPtrElement(Base::Side::RIGHT)->getUserData());
-            if (ld->isLimited[iVar])
-            {
-                solutionRight(iVar) = ld->valLeft[iVar];
-            }
-            else
-            {
-                std::size_t iVB = ptrFace->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(i, iVar);
-                solutionRight(iVar) += solutionCoefficientsRight(iVB) * ptrFace->basisFunction(Base::Side::RIGHT, i, pRef);
-            }
+            std::size_t iVB = ptrFace->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(i, iVar);
+            solutionRight(iVar) += solutionCoefficientsRight(iVB) * ptrFace->basisFunction(Base::Side::RIGHT, i, pRef);
         }
     }
     logger(DEBUG, "face: %, uL: %, uR:%", ptrFace->getID(), solutionLeft, solutionRight);

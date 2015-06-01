@@ -46,20 +46,7 @@
 #include "SavageHutterRightHandSideComputer.h"
 
 #include "Logger.h"
-#include "Base/UserData.h"
 
-struct LimiterData : public UserElementData
-{
-    LimiterData()
-    {
-        isLimited = {false, false};
-        valLeft = {0, 0}; //make quiet NAN later
-        valRight = {0, 0};
-    }
-    std::vector<bool> isLimited;
-    std::vector<double> valLeft;
-    std::vector<double> valRight;
-};
 
 struct SHConstructorStruct
 {
@@ -84,26 +71,12 @@ public:
     ///constructor also constructs the mesh and couples an object LimiterData to
     ///each element.
     SavageHutter(const SHConstructorStruct& inputValues);
-    
-    ~SavageHutter()
-    {
-        for (Base::Element *element : meshes_[0] ->getElementsList())
-        {
-            delete element->getUserData();
-        }
-    }
 
     /// \brief Create a domain
     Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection);
 
     /// \brief Compute the initial solution at a given point in space and time.
     LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
-
-    /// \brief Compute the integrand for the reference element for obtaining the initial solution.
-    LinearAlgebra::NumericalVector integrandInitialSolutionOnElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
-
-    /// \brief Integrate the initial solution for a single element.
-    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
 
     /// \brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID)

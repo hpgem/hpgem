@@ -30,7 +30,6 @@ using LinearAlgebra::NumericalVector;
 /// \param[in] polynomialOrder Polynomial order of the basis functions
 /// \param[in] useMatrixStorage Boolean to indicate if element and face matrices for the PDE should be stored
 /// \param[in] ptrButcherTableau Pointer to a Butcher Tableau used to do the time integration with a Runge-Kutta scheme. By default this is a RK4 scheme.
-/// TODO: construct grid here and assign a struct LimiterData to each element?
 SavageHutter::SavageHutter
 (
  const std::size_t dimension,
@@ -55,10 +54,6 @@ DIM_(inputValues.dimension), numOfVariables_(inputValues.numOfVariables)
     rhsComputer_.epsilon_ = 1.0;
     rhsComputer_.theta_ = 0; //M_PI / 6; //radians
     createMesh(inputValues.numElements, inputValues.meshType);
-    for (Base::Element* element : meshes_[0]->getElementsList())
-    {
-        element->setUserData(new LimiterData());
-    }
 }
 
 Base::RectangularMeshDescriptor SavageHutter::createMeshDescription(const std::size_t numOfElementPerDirection)
@@ -85,54 +80,13 @@ LinearAlgebra::NumericalVector SavageHutter::getInitialSolution(const PointPhysi
     }
     else
     {
-        initialSolution(0) = 1;
+        initialSolution(0) = 0.5;
     }
     initialSolution(1) = 0;
     return initialSolution;
 }
 
-/// \details The integrand for the initial solution is the exact solution at time 0 multiplied by a test function. 
-/// The integrand is then scaled by the reference-to-physical element scale, 
-/// since we compute the integral on a reference element.
-LinearAlgebra::NumericalVector SavageHutter::integrandInitialSolutionOnElement
-(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef)
-{
-    const std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
-
-    LinearAlgebra::NumericalVector integrand(numOfVariables_ * numOfBasisFunctions);
-
-    const Geometry::PointPhysical pPhys = ptrElement->referenceToPhysical(pRef);
-
-    const LinearAlgebra::NumericalVector initialSolution(getInitialSolution(pPhys, startTime));
-
-    std::size_t iVB; // Index for both variable and basis function.
-    for (std::size_t iV = 0; iV < numOfVariables_; iV++)
-    {
-        for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
-        {
-            iVB = ptrElement->convertToSingleIndex(iB, iV);
-            integrand(iVB) = ptrElement->basisFunction(iB, pRef) * initialSolution(iV);
-        }
-    }
-
-
-    return integrand;
-}
-
 /*********************Integrate over elements and faces************************/
-
-LinearAlgebra::NumericalVector SavageHutter::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
-{
-    // Define the integrand function for the the initial solution integral.
-    const std::function < LinearAlgebra::NumericalVector(const Base::Element *, const Geometry::PointReference &) > integrandFunction
-        = [ = ](const Base::Element *elt, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
-        {
-            return this -> integrandInitialSolutionOnElement(elt, startTime, pRef);
-        };
-
-    const LinearAlgebra::NumericalVector solution = elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
-    return solution;
-}
 
 LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
 {
@@ -186,6 +140,7 @@ LinearAlgebra::NumericalVector SavageHutter::computeRightHandSideAtFace
 
     return faceIntegrator_.integrate(ptrFace, integrandFunction, ptrFace->getGaussQuadratureRule());
 }
+
 /******************************Limiting****************************************/
 void SavageHutter::computeOneTimeStep(double &time, const double dt)
 {
@@ -226,7 +181,10 @@ void SavageHutter::limitSolution()
 {
     for (Base::Element *element : meshes_[0]->getElementsList())
     {
-        useLimitierForElement(element);
+        if (element->getNrOfBasisFunctions() > 1)
+        {
+            useLimitierForElement(element);
+        }
     }
 }
 
@@ -303,24 +261,12 @@ void SavageHutter::useLimitierForElement(Base::Element *element)
     ///\todo divide by the size of the faces for DIM > 1
 
     //compare this with 1: if >1, discontinuous, if <1 smooth
-    LimiterData* lData = static_cast<LimiterData*> (element->getUserData());
     for (std::size_t i = 0; i < numOfVariables_; ++i)
     {
         if (totalIntegral(i) > 1)
         {
             logger(DEBUG, "Element % with variable % will be limited.", element->getID(), i);
-            lData->isLimited[i] = false;
-            //if (element->getFace(0)->isInternal() && element->getFace(1)->isInternal())
-            limitWithMinMod(element, i);
-            /*else // for now, just take the mean of the first element if it needs limiting.
-            {
-                lData->valLeft[i] = element->getSolution(0,element->getReferenceGeometry()->getCenter())(i);
-                lData->valRight[i] = element->getSolution(0,element->getReferenceGeometry()->getCenter())(i);
-            }*/
-        }
-        else
-        {
-            lData->isLimited[i] = false;
+            limitWithMinMod(element, i); //needs to be adapted for boundaries!
         }
     }
 }
@@ -343,70 +289,16 @@ LinearAlgebra::NumericalVector SavageHutter::computeNormOfAverageOfSolutionInEle
     return average / element->getGaussQuadratureRule()->nrOfPoints();
 }
 
-/*void SavageHutter::limitWithMinMod(Base::Element* element, const std::size_t iVar)
-{
-    LimiterData* ld = static_cast<LimiterData*> (element->getUserData());
-    logger.assert(ld->isLimited[iVar] == true, "Called limiter on variable that should not be limited.");
-
-    const PointReferenceT &pRef = element->getReferenceGeometry()->getCenter();
-    const PointReferenceT &pRefFace = element->getFace(0)->getReferenceGeometry()->getCenter();
-    const PointReferenceT &pRefL = element->getFace(1)->mapRefFaceToRefElemR(pRefFace); //TODO: do this with getNodeCoordinates()
-    const PointReferenceT &pRefR = element->getFace(1)->mapRefFaceToRefElemL(pRefFace);
-    logger.assert(0 == pRef[0] && -1 == pRefL[0] && 1 == pRefR[0], "Coordinates to evaluate basis functions are wrong");
-
-    const double u0 = element->getSolution(0, pRef)(iVar);
-    const double uPlus = element->getSolution(0, pRefR)(iVar) - u0;
-    const double uMinus = u0 - element->getSolution(0, pRefL)(iVar);
-    if (element->getNrOfBasisFunctions() < 2) //constants or linear polynomials
-    {
-        logger.assert(std::abs(uPlus - uMinus) < 1e-10, "Linear polynomial is not straight?");
-    }
-    //this does not work for first boundary, probably also not for triangular mesh.
-    //maybe write getNeighbour(face)?
-    const Base::Element * const elemL = element->getFace(0)->getPtrElementLeft();
-    const Base::Element * const elemR = element->getFace(1)->getPtrElementRight();
-
-    //check if left is indeed of the left side of right
-    logger.assert((elemL->getPhysicalGeometry()->getLocalNodeCoordinates(0)) < (elemR->getPhysicalGeometry()->getLocalNodeCoordinates(0)), "elements left/right in wrong order");
-
-    const double uElemR = elemR->getSolution(0, pRef)(iVar);
-    const double uElemL = elemL->getSolution(0, pRef)(iVar);
-
-    logger(DEBUG, "u0: %, uPlus: %, : %, : %", u0, uPlus, uElemR - u0, u0 - uElemL);
-    if ((sign(uPlus) == sign(uElemR - u0)) && sign(uPlus) == sign(u0 - uElemL))
-    {
-        double minAbs = std::min(std::abs(uPlus), std::abs(uElemR - u0));
-        minAbs = std::min(minAbs, std::abs(u0 - uElemL));
-        logger.assert(minAbs >= 0, "absolute value is smaller than 0");
-        ld->valRight[iVar] = u0 + sign(uPlus) * minAbs;
-    }
-    else
-    {
-        ld->valRight[iVar] = u0;
-    }
-
-    if (sign(uMinus) == sign(uElemR - u0) && sign(uMinus) == sign(u0 - uElemL))
-    {
-        double minAbs = std::min(std::abs(uMinus), std::abs(uElemR - u0));
-        minAbs = std::min(minAbs, std::abs(u0 - uElemL));
-        logger.assert(minAbs >= 0, "absolute value is smaller than 0");
-        ld->valLeft[iVar] = u0 - sign(uMinus) * minAbs;
-    }
-    else
-    {
-        ld->valLeft[iVar] = u0;
-    }
-
-    //std::cout << element->getID() << " " << iVar << " " << u0 << " " << ld->valLeft[iVar] << "  " << ld->valRight[iVar] << std::endl;
-}*/
-
 void SavageHutter::limitWithMinMod(Base::Element* element, const std::size_t iVar)
 {
-    LimiterData* ld = static_cast<LimiterData*> (element->getUserData());
-    logger.assert(ld->isLimited[iVar] == true, "Called limiter on variable that should not be limited.");
     
     const PointReferenceT &pRef = element->getReferenceGeometry()->getCenter();
+    const PointReferenceT &pRefFace = element->getFace(0)->getReferenceGeometry()->getCenter();
+    const PointReferenceT &pRefL = element->getReferenceGeometry()->getNode(0); //TODO: do this with getNodeCoordinates()
+    const PointReferenceT &pRefR = element->getReferenceGeometry()->getNode(1);
     logger.assert(0 == pRef[0], "xi != 0");
+    logger.assert(std::abs(-1  - pRefL[0]) < 1e-10, "xi_L != -1");    
+    logger.assert(std::abs(1 - pRefR[0]) < 1e-10, "xi_R != 1");
     
     //this does not work for first boundary, probably also not for triangular mesh.
     //maybe write getNeighbour(face)?
@@ -419,11 +311,29 @@ void SavageHutter::limitWithMinMod(Base::Element* element, const std::size_t iVa
     const double u0 = element->getSolution(0, pRef)(iVar);
     const double uElemR = elemR->getSolution(0, pRef)(iVar);
     const double uElemL = elemL->getSolution(0, pRef)(iVar);
+    const double uPlus = element->getSolution(0, pRefR)(iVar) - u0;
+    const double uMinus = u0 - element->getSolution(0, pRefL)(iVar);
     
     double slope =  0;
-    if (sign(uElemR - u0) == sign(u0 - uElemL))
+    if (sign(uElemR - u0) == sign(u0 - uElemL) && sign(uElemR - u0) == sign(uPlus - uMinus))
     {
-        slope = sign(uElemR - u0) * std::min(std::abs(uElemR - u0), std::abs(u0 - uElemL));
+        slope = sign(uElemR - u0) * std::min(std::abs(uPlus - uMinus), std::min(std::abs(uElemR - u0), std::abs(u0 - uElemL)));
     }
-    //replace coordinates with "u0 + slope * x" coordinates
+    
+    //if ((slope - std::abs(uPlus - uMinus)) > 1e-10 )
+    if (true)
+    {
+        //replace coefficients with "u0 + slope/2 * xi" coefficients
+        // this is hard-coded for default-DG basis function set
+        double coefficient0 = u0 - slope/2;
+        double coefficient1 = u0 + slope/2;
+        LinearAlgebra::NumericalVector coefficients = element->getTimeLevelData(0, iVar);
+        logger(DEBUG, "former coeffs: %", coefficients);
+        coefficients *= 0;
+        coefficients[0] = coefficient0;
+        coefficients[1] = coefficient1;
+        element->setTimeLevelData(0, iVar, coefficients);
+        logger(DEBUG, "u's: %, %, %, coeffs: %, %", u0, uElemL, uElemR, coefficient0, coefficient1);
+        
+    }
 }
