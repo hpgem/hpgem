@@ -77,7 +77,7 @@ public:
 
     /// \brief Compute the initial solution at a given point in space and time.
     LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
-
+    
     /// \brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID)
     {

@@ -38,7 +38,7 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnEleme
     const NumericalVector physicalFlux = computePhysicalFlux(numericalSolution);
     const Geometry::PointPhysical pPhys = ptrElement->getReferenceToPhysicalMap()->transform(pRef);
     const NumericalVector source = computeSourceTerm(numericalSolution, pPhys, time);
-    logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
+    //logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
     
     // Compute integrand on the physical element.
     std::size_t iVB; // Index for both basis function and variable
@@ -142,7 +142,9 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
     {
         u = solution(1)/solution(0);
     }
-    if (u*normal > 0) //outflow
+    
+    //if (u*normal > -1e-10) //outflow
+    if (normal > 0)
     {
         flux = localLaxFriedrichsFlux(solution, solution);
     }
@@ -186,7 +188,6 @@ NumericalVector SavageHutterRightHandSideComputer::computeSourceTerm(const Numer
     logger.assert(theta_ < M_PI / 2, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
     const double hu = numericalSolution(1);
-    //logger.assert(std::abs(hu) < 1e-2, "analytical solution says hu = 0, but hu equals %", hu);
     double u = 0;
     if (h > 1e-10)
     {
@@ -249,5 +250,5 @@ double SavageHutterRightHandSideComputer::computeFriction(const NumericalVector&
 
 LinearAlgebra::NumericalVector SavageHutterRightHandSideComputer::getInflowBC()
 {
-    return LinearAlgebra::NumericalVector({1, 0});
+    return LinearAlgebra::NumericalVector({0.1, 0});
 }
