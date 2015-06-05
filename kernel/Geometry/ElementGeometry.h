@@ -27,6 +27,7 @@
 #include "Point.h"
 #include "PointPhysical.h"
 #include "Jacobian.h"
+#include "Mappings/MappingReferenceToPhysical.h"
 
 namespace Geometry
 {
