@@ -22,7 +22,7 @@
 #ifndef Expansion_h
 #define Expansion_h
 
-#include "../LinearAlgebra/NumericalVector.h"
+#include "../LinearAlgebra/MiddleSizeVector.h"
 #include "../Geometry/PointReference.h"
 #include "../Base/BasisFunctionSet.h"
 #include "../LinearAlgebra/Matrix.h"
@@ -61,7 +61,7 @@ namespace Base
             return BFSetPtr_->evalDeriv(iBF, jDir, p);
         }
         
-        void PhysGradientOfBasisFunction(const Element& el, const std::size_t iBF, const PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+        void PhysGradientOfBasisFunction(const Element& el, const std::size_t iBF, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
         {
             ret.resize(p.size());
             // get derivatives df
@@ -89,7 +89,7 @@ namespace Base
         
     private:
         BasisFunctionSet* BFSetPtr_;
-        LinearAlgebra::NumericalVector coeff_;
+        LinearAlgebra::MiddleSizeVector coeff_;
         std::size_t size_;
     };
 

@@ -23,6 +23,7 @@
 
 namespace Geometry
 {
+    template<int codim>
     class MappingReferenceToReference;
     
     /*!
@@ -35,6 +36,6 @@ namespace Geometry
      *
      * \todo: Switch old mappings to be outward.
      */
-    double OutwardNormalVectorSign(const MappingReferenceToReference* const map);
+    double OutwardNormalVectorSign(const MappingReferenceToReference<1>* const map);
 }
 #endif

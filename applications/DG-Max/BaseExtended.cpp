@@ -94,7 +94,7 @@ double hpGemUIExtentions::sourceTermTime(const double t)
     return 1.;
 }
 
-void hpGemUIExtentions::exactSolution(const PointPhysicalT& p, const double t, LinearAlgebra::NumericalVector &ret)
+void hpGemUIExtentions::exactSolution(const PointPhysicalT& p, const double t, LinearAlgebra::MiddleSizeVector &ret)
 {
     //ret[0]=sin(M_PI*2*p[1])*sin(M_PI*2*p[2]);
     //ret[1]=sin(M_PI*2*p[2])*sin(M_PI*2*p[0]);
@@ -111,7 +111,7 @@ void hpGemUIExtentions::exactSolution(const PointPhysicalT& p, const double t, L
     // 	   ret[2]=0;
 }
 
-void hpGemUIExtentions::exactSolutionCurl(const PointPhysicalT& p, const double t, LinearAlgebra::NumericalVector &ret)
+void hpGemUIExtentions::exactSolutionCurl(const PointPhysicalT& p, const double t, LinearAlgebra::MiddleSizeVector &ret)
 {
     //ret[0]=sin(M_PI*2*p[0])*(cos(M_PI*2*p[1])-cos(M_PI*2*p[2]));
     //ret[1]=sin(M_PI*2*p[1])*(cos(M_PI*2*p[2])-cos(M_PI*2*p[0]));
@@ -129,8 +129,8 @@ void hpGemUIExtentions::exactSolutionCurl(const PointPhysicalT& p, const double 
 void hpGemUIExtentions::writeToTecplotFile(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, std::ostream& output)
 {
     //ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
-    LinearAlgebra::NumericalVector data = const_cast<ElementT*>(element)->getTimeLevelData(timelevel_);
-    LinearAlgebra::NumericalVector results1(3), results(3), curls1(3), curls(3), waveDirection(3), Eorth(3), Horth(3);
+    LinearAlgebra::MiddleSizeVector data = const_cast<ElementT*>(element)->getTimeLevelData(timelevel_);
+    LinearAlgebra::MiddleSizeVector results1(3), results(3), curls1(3), curls(3), waveDirection(3), Eorth(3), Horth(3);
     //std::vector<LinearAlgebra::NumericalVector> values,curlsVec;
     //info->makeFunctionValuesVector(element,p,values);
     //info->makeFunctionCurlsVector(element,p,curlsVec);
@@ -204,11 +204,11 @@ void hpGemUIExtentions::elementIntegrand(const Base::HpgemUI::ElementT* element,
     //info->makeFunctionValuesVector(element,p,functionValues);
     //info->makeFunctionCurlsVector(element,p,functionCurls);
     
-    LinearAlgebra::NumericalVector phi(3), phiCurl(3), error(3), errorCurl(3);
+    LinearAlgebra::MiddleSizeVector phi(3), phiCurl(3), error(3), errorCurl(3);
     
     exactSolution(pPhys, measureTimes_[timelevel_], error); //maybe move exactSolution from DGMax to here
     exactSolutionCurl(pPhys, measureTimes_[timelevel_], errorCurl); //mayebe move exactSolutionCurl from DGMax to here
-    LinearAlgebra::NumericalVector data = element->getTimeLevelData(timelevel_);
+    LinearAlgebra::MiddleSizeVector data = element->getTimeLevelData(timelevel_);
     
     for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
     {
@@ -268,7 +268,7 @@ void hpGemUIExtentions::elementIntegrand(const Base::HpgemUI::ElementT* element,
  }
  */
 
-void hpGemUIExtentions::faceIntegrand(const Base::HpgemUI::FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointFaceReferenceT& p, errorData& ret)
+void hpGemUIExtentions::faceIntegrand(const Base::HpgemUI::FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointFaceReferenceT& p, errorData& ret)
 {
     ElementT* element = const_cast<ElementT*>(face->getPtrElementLeft());
     PointElementReferenceT pElement(3);
@@ -277,7 +277,7 @@ void hpGemUIExtentions::faceIntegrand(const Base::HpgemUI::FaceT* face, const Li
     face->mapRefFaceToRefElemL(p, pElement);
     element->referenceToPhysical(pElement, PPhys);
     
-    LinearAlgebra::NumericalVector error(3), phi(3), dummy(3), dummy2(3), dummy3(3), normedNormal(3);
+    LinearAlgebra::MiddleSizeVector error(3), phi(3), dummy(3), dummy2(3), dummy3(3), normedNormal(3);
     normedNormal[0] = (normal * (1 / Base::L2Norm(normal)))[0];
     normedNormal[1] = (normal * (1 / Base::L2Norm(normal)))[1];
     normedNormal[2] = (normal * (1 / Base::L2Norm(normal)))[2];
@@ -293,7 +293,7 @@ void hpGemUIExtentions::faceIntegrand(const Base::HpgemUI::FaceT* face, const Li
     int M = face->getNrOfBasisFunctions();
     //int M = face->getPtrElementLeft()->getNrOfBasisFunctions() + face->getPtrElementRight()->getNrOfBasisFunctions();
     
-    LinearAlgebra::NumericalVector data = element->getTimeLevelData(timelevel_);
+    LinearAlgebra::MiddleSizeVector data = element->getTimeLevelData(timelevel_);
     for (int i = 0; i < n; ++i)
     {
         
@@ -524,7 +524,7 @@ Base::HpgemUI::MeshId hpGemUIExtentions::addMesh(Base::HpgemUI::MeshManipulatorT
     return meshes_.size() - 1;
 }
 
-void hpGemUIExtentions::makeShiftMatrix(LinearAlgebra::NumericalVector& direction, Vec& waveVecMatrix)
+void hpGemUIExtentions::makeShiftMatrix(LinearAlgebra::MiddleSizeVector& direction, Vec& waveVecMatrix)
 {
     for (ElementIterator it = meshes_[0]->elementColBegin(); it != meshes_[0]->elementColEnd(); ++it)
     {
@@ -612,7 +612,7 @@ void hpGemUIExtentions::findBoundaryBlocks(std::vector<IS>& xRow, std::vector<IS
 void hpGemUIExtentions::LDOSIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, double& ret)
 { //currently LDOS is computed by evaluation at a point so integrand is a bit of a misnomer
     ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
-    LinearAlgebra::NumericalVector Phi(3), PhiRealI(3), PhiRealJ(3), PhiImagI(3), PhiImagJ(3);
+    LinearAlgebra::MiddleSizeVector Phi(3), PhiRealI(3), PhiRealJ(3), PhiImagI(3), PhiImagJ(3);
     //std::vector<LinearAlgebra::NumericalVector> functionValues(element->getNrOfBasisFunctions());
     //info->makeFunctionValuesVector(element,p,functionValues);
     for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
@@ -636,7 +636,7 @@ void hpGemUIExtentions::LDOSIntegrand(const Base::HpgemUI::ElementT* element, co
     //cout<<ret<<std::endl;
 }
 
-void hpGemUIExtentions::makeFunctionValue(Vec eigenVector, LinearAlgebra::NumericalVector& result)
+void hpGemUIExtentions::makeFunctionValue(Vec eigenVector, LinearAlgebra::MiddleSizeVector& result)
 {
     Vec scaledVec;
     double partialResult;
@@ -1012,7 +1012,7 @@ void hpGemUIExtentions::solveEigenvalues()
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     ierr_ = VecSetUp(waveVec);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-    LinearAlgebra::NumericalVector k(3);
+    LinearAlgebra::MiddleSizeVector k(3);
     k[0] = M_PI / 20.;
     k[1] = 0;
     k[2] = 0;
@@ -1259,7 +1259,7 @@ void hpGemUIExtentions::solveDOS()
     std::valarray<PetscScalar> blockvalues(degreesOfFreedomPerElement * degreesOfFreedomPerElement);
     int measureAmount = 0;
     std::vector<double> eigenvalues;
-    std::vector<LinearAlgebra::NumericalVector> functionValues;
+    std::vector<LinearAlgebra::MiddleSizeVector> functionValues;
     std::vector<IS> xboundaryRow, xboundaryCol, yboundaryRow, yboundaryCol, zboundaryRow, zboundaryCol;
     findBoundaryBlocks(xboundaryRow, xboundaryCol, yboundaryRow, yboundaryCol, zboundaryRow, zboundaryCol);
     KspaceData brillouinZone(5);
@@ -1348,7 +1348,7 @@ void hpGemUIExtentions::solveDOS()
         //if SLEPSc manages to find some of the zero eigenvalues they should be skipped
         if (eigenvalue.real() > 1e-6)
         {
-            LinearAlgebra::NumericalVector functionvalue;
+            LinearAlgebra::MiddleSizeVector functionvalue;
             //makeFunctionValue(eigenVectors[i],functionvalue);
             if (eigenvalue.real() < target.real())
             {
@@ -1377,7 +1377,7 @@ void hpGemUIExtentions::solveDOS()
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     ierr_ = VecSetUp(waveVec);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-    LinearAlgebra::NumericalVector k(3);
+    LinearAlgebra::MiddleSizeVector k(3);
     k[0] = M_PI / 60;
     k[1] = 0;
     k[2] = 0;
@@ -1506,7 +1506,7 @@ void hpGemUIExtentions::solveDOS()
             CHKERRABORT(PETSC_COMM_WORLD, ierr_);
             if (eigenvalue.real() > 1e-6)
             {
-                LinearAlgebra::NumericalVector functionvalue;
+                LinearAlgebra::MiddleSizeVector functionvalue;
                 //makeFunctionValue(eigenVectors[j],functionvalue);
                 if (eigenvalue.real() < target.real())
                 {
@@ -1548,7 +1548,7 @@ void hpGemUIExtentions::solveDOS()
     ierr_ = MatDestroy(&product);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     
-    LinearAlgebra::NumericalVector result(meshes_[0]->getNumberOfElements());
+    LinearAlgebra::MiddleSizeVector result(meshes_[0]->getNumberOfElements());
     for (int i = 0; i < 1001; ++i)
     {
         brillouinZone.getIntegral(double(i) / 100., result);
@@ -1560,12 +1560,12 @@ void hpGemUIExtentions::solveDOS()
 }
 
 //this is where you specify an initial condition
-void hpGemUIExtentions::initialConditions(const PointPhysicalT& p, LinearAlgebra::NumericalVector& ret)
+void hpGemUIExtentions::initialConditions(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     hpGemUIExtentions::exactSolution(p, 0, ret);
 }
 
-void hpGemUIExtentions::initialConditionsDeriv(const PointPhysicalT& p, LinearAlgebra::NumericalVector& ret)
+void hpGemUIExtentions::initialConditionsDeriv(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     ret[0] = 0;
     ret[1] = 0;
@@ -1577,7 +1577,7 @@ void hpGemUIExtentions::initialConditionsDeriv(const PointPhysicalT& p, LinearAl
  * assumes that the source term can be split is a spatial part and a time part
  */
 
-void hpGemUIExtentions::sourceTerm(const PointPhysicalT& p, LinearAlgebra::NumericalVector& ret)
+void hpGemUIExtentions::sourceTerm(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     //  ret[0]=0;
     // ret[1]=0;
@@ -1588,7 +1588,7 @@ void hpGemUIExtentions::sourceTerm(const PointPhysicalT& p, LinearAlgebra::Numer
     ret *= M_PI * M_PI * 2 - 1;
 }
 
-void hpGemUIExtentions::initialExactSolution(const PointPhysicalT& p, LinearAlgebra::NumericalVector &ret)
+void hpGemUIExtentions::initialExactSolution(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector &ret)
 {
     //ret[0]=sin(M_PI*2*p[1])*sin(M_PI*2*p[2]);
     //ret[1]=sin(M_PI*2*p[2])*sin(M_PI*2*p[0]);
@@ -1601,18 +1601,18 @@ void hpGemUIExtentions::initialExactSolution(const PointPhysicalT& p, LinearAlge
     // 	  		  ret[2]=0;
 }
 
-void hpGemUIExtentions::boundaryConditions(const Geometry::PointPhysical &p, LinearAlgebra::NumericalVector &ret)
+void hpGemUIExtentions::boundaryConditions(const Geometry::PointPhysical &p, LinearAlgebra::MiddleSizeVector &ret)
 {
     initialExactSolution(p, ret);
 }
 
-void hpGemUIExtentions::anonymous1::elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret)
+void hpGemUIExtentions::anonymous1::elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret)
 {
     //std::cout<<"Anonymous 1 called for element integration"<<std::endl;
     ret.resize(element->getNrOfBasisFunctions(), element->getNrOfBasisFunctions());
     //cout<<"\nIn the element integrand for the mass matrix for element id: "<<element->getID();
     ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
-    LinearAlgebra::NumericalVector phi_i(3), phi_j(3);
+    LinearAlgebra::MiddleSizeVector phi_i(3), phi_j(3);
     //std::vector<LinearAlgebra::NumericalVector> functionValues;
     //info->makeFunctionValuesVector(element,p,functionValues);
     for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
@@ -1630,12 +1630,12 @@ void hpGemUIExtentions::anonymous1::elementIntegrand(const Base::HpgemUI::Elemen
     }
 }
 
-void hpGemUIExtentions::anonymous2::elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret)
+void hpGemUIExtentions::anonymous2::elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret)
 {
     //cout<<"\nIn the element integrand for the stiffness matrix for element id: "<<element->getID();
     ret.resize(element->getNrOfBasisFunctions(), element->getNrOfBasisFunctions());
     //ElementInfos* info = static_cast<ElementInfos*> (const_cast<ElementT*>(element)->getUserData());
-    LinearAlgebra::NumericalVector phi_i(3), phi_j(3);
+    LinearAlgebra::MiddleSizeVector phi_i(3), phi_j(3);
     //std::vector<LinearAlgebra::NumericalVector> functionCurls;
     //info->makeFunctionCurlsVector(element,p,functionCurls);
     for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
@@ -1653,13 +1653,13 @@ void hpGemUIExtentions::anonymous2::elementIntegrand(const ElementT* element, co
     }
 }
 
-void hpGemUIExtentions::anonymous3::elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::NumericalVector& ret)
+void hpGemUIExtentions::anonymous3::elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     ret.resize(element->getNrOfBasisFunctions());
     //ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
     PointPhysicalT pPhys(3);
     element->referenceToPhysical(p, pPhys);
-    LinearAlgebra::NumericalVector val(3), phi(3);
+    LinearAlgebra::MiddleSizeVector val(3), phi(3);
     //std::vector<LinearAlgebra::NumericalVector> functionValues;
     //info->makeFunctionValuesVector(element,p,functionValues);
     sourceTerm(pPhys, val);
@@ -1672,13 +1672,13 @@ void hpGemUIExtentions::anonymous3::elementIntegrand(const ElementT* element, co
     }
 }
 
-void hpGemUIExtentions::anonymous4::elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::NumericalVector& ret)
+void hpGemUIExtentions::anonymous4::elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     
     ret.resize(element->getNrOfBasisFunctions());
     PointPhysicalT pPhys(3);
     element->referenceToPhysical(p, pPhys);
-    LinearAlgebra::NumericalVector val(3), phi(3);
+    LinearAlgebra::MiddleSizeVector val(3), phi(3);
     initialConditions(pPhys, val);
     
     for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
@@ -1691,7 +1691,7 @@ void hpGemUIExtentions::anonymous4::elementIntegrand(const Base::HpgemUI::Elemen
     //Called twice for fill matrices of both Initial Conditions as well as Initial Conditions Deriv.
 }
 
-void hpGemUIExtentions::anonymous5::elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::NumericalVector& ret)
+void hpGemUIExtentions::anonymous5::elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     ret.resize(element->getNrOfBasisFunctions());
     //ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
@@ -1699,7 +1699,7 @@ void hpGemUIExtentions::anonymous5::elementIntegrand(const Base::HpgemUI::Elemen
     element->referenceToPhysical(p, pPhys);
     //std::vector<LinearAlgebra::NumericalVector> functionValues;
     //info->makeFunctionValuesVector(element,p,functionValues);
-    LinearAlgebra::NumericalVector val(3), phi(3);
+    LinearAlgebra::MiddleSizeVector val(3), phi(3);
     initialConditionsDeriv(pPhys, val);
     for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
     {
@@ -1710,7 +1710,7 @@ void hpGemUIExtentions::anonymous5::elementIntegrand(const Base::HpgemUI::Elemen
     }
 }
 
-void hpGemUIExtentions::anonymous6::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointFaceReferenceT& p, LinearAlgebra::Matrix& ret)
+void hpGemUIExtentions::anonymous6::faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointFaceReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret)
 {
     
     //int n = face->getPtrElementLeft()->getNrOfBasisFunctions();
@@ -1719,7 +1719,7 @@ void hpGemUIExtentions::anonymous6::faceIntegrand(const FaceT* face, const Linea
     int M = face->getNrOfBasisFunctions();
     
     ret.resize(M, M);
-    LinearAlgebra::NumericalVector phi_i_normal(3), phi_j_normal(3), phi_i_curl(3), phi_j_curl(3);
+    LinearAlgebra::MiddleSizeVector phi_i_normal(3), phi_j_normal(3), phi_i_curl(3), phi_j_curl(3);
     for (int i = 0; i < M; ++i)
     {
         face->basisFunctionCurl(i, p, phi_i_curl);
@@ -1740,7 +1740,7 @@ void hpGemUIExtentions::anonymous6::faceIntegrand(const FaceT* face, const Linea
     }
 }
 
-void hpGemUIExtentions::anonymous7::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret)
+void hpGemUIExtentions::anonymous7::faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret)
 {
     //cout<<"\nIn the face integrand for the stiffness matrix (IP-only part) for element id: "<<face->getPtrElementLeft()->getID();
     
@@ -1749,7 +1749,7 @@ void hpGemUIExtentions::anonymous7::faceIntegrand(const FaceT* face, const Linea
     int M = face->getNrOfBasisFunctions();
     ret.resize(M, M);
     
-    LinearAlgebra::NumericalVector phi_i(3), phi_j(3);
+    LinearAlgebra::MiddleSizeVector phi_i(3), phi_j(3);
     for (int i = 0; i < M; ++i)
     {
         face->basisFunctionNormal(i, normal, p, phi_i);
@@ -1765,7 +1765,7 @@ void hpGemUIExtentions::anonymous7::faceIntegrand(const FaceT* face, const Linea
     
 }
 
-void hpGemUIExtentions::anonymous8::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointElementReferenceT& p, LinearAlgebra::NumericalVector& ret)
+void hpGemUIExtentions::anonymous8::faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     
     ElementT* left = const_cast<ElementT*>(face->getPtrElementLeft());
@@ -1774,13 +1774,13 @@ void hpGemUIExtentions::anonymous8::faceIntegrand(const FaceT* face, const Linea
     
     PointPhysicalT PPhys(3);
     left->referenceToPhysical(PLeft, PPhys);
-    LinearAlgebra::NumericalVector normedNormal(3);
+    LinearAlgebra::MiddleSizeVector normedNormal(3);
     
     normedNormal[0] = (normal * (1 / Base::L2Norm(normal)))[0];
     normedNormal[1] = (normal * (1 / Base::L2Norm(normal)))[1];
     normedNormal[2] = (normal * (1 / Base::L2Norm(normal)))[2];
     
-    LinearAlgebra::NumericalVector val(3), phi(3), phi_curl(3), dummy(3);
+    LinearAlgebra::MiddleSizeVector val(3), phi(3), phi_curl(3), dummy(3);
     
     boundaryConditions(PPhys, dummy); //assumes the initial conditions and the boundary conditions match
             
@@ -1800,7 +1800,7 @@ void hpGemUIExtentions::anonymous8::faceIntegrand(const FaceT* face, const Linea
     
 }
 
-void hpGemUIExtentions::anonymous9::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointElementReferenceT& p, LinearAlgebra::Matrix& ret)
+void hpGemUIExtentions::anonymous9::faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret)
 {
     //cout<<"\nIn the face integrand for the stiffness matrix (BR-only part) for element id: "<<face->getPtrElementLeft()->getID();
     ElementT* right;
@@ -1828,7 +1828,7 @@ void hpGemUIExtentions::anonymous9::faceIntegrand(const FaceT* face, const Linea
     
     ret.resize(M, M);
     
-    LinearAlgebra::NumericalVector phi_i(3), phi_j(3);
+    LinearAlgebra::MiddleSizeVector phi_i(3), phi_j(3);
     
     for (int i = 0; i < M; ++i)
     {
@@ -1855,7 +1855,7 @@ void hpGemUIExtentions::anonymous9::faceIntegrand(const FaceT* face, const Linea
     
 }
 
-void hpGemUIExtentions::anonymous10::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointElementReferenceT& p, LinearAlgebra::NumericalVector& ret)
+void hpGemUIExtentions::anonymous10::faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     
     int n = face->getPtrElementLeft()->getNrOfBasisFunctions();
@@ -1866,13 +1866,13 @@ void hpGemUIExtentions::anonymous10::faceIntegrand(const FaceT* face, const Line
     
     PointPhysicalT PPhys(3);
     left->referenceToPhysical(PLeft, PPhys);
-    LinearAlgebra::NumericalVector normedNormal(3);
+    LinearAlgebra::MiddleSizeVector normedNormal(3);
     
     normedNormal[0] = (normal * (1 / Base::L2Norm(normal)))[0];
     normedNormal[1] = (normal * (1 / Base::L2Norm(normal)))[1];
     normedNormal[2] = (normal * (1 / Base::L2Norm(normal)))[2];
     
-    LinearAlgebra::NumericalVector val(3), dummy(3), phi(3);
+    LinearAlgebra::MiddleSizeVector val(3), dummy(3), phi(3);
     boundaryConditions(PPhys, dummy); //assumes the initial conditions and the boundary conditions match
     OuterProduct(normedNormal, dummy, val);
     //std::cout<<val<<std::endl;
@@ -1887,7 +1887,7 @@ void hpGemUIExtentions::anonymous10::faceIntegrand(const FaceT* face, const Line
     }
 }
 
-void hpGemUIExtentions::anonymous11::faceIntegrand(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointElementReferenceT& p, LinearAlgebra::NumericalVector& ret)
+void hpGemUIExtentions::anonymous11::faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     
     int n = face->getPtrElementLeft()->getNrOfBasisFunctions();
@@ -1898,13 +1898,13 @@ void hpGemUIExtentions::anonymous11::faceIntegrand(const FaceT* face, const Line
     
     PointPhysicalT PPhys(3);
     left->referenceToPhysical(PLeft, PPhys);
-    LinearAlgebra::NumericalVector normedNormal(3);
+    LinearAlgebra::MiddleSizeVector normedNormal(3);
     
     normedNormal[0] = (normal * (1 / Base::L2Norm(normal)))[0];
     normedNormal[1] = (normal * (1 / Base::L2Norm(normal)))[1];
     normedNormal[2] = (normal * (1 / Base::L2Norm(normal)))[2];
     
-    LinearAlgebra::NumericalVector val(3), dummy(3), phi_curl(3);
+    LinearAlgebra::MiddleSizeVector val(3), dummy(3), phi_curl(3);
     boundaryConditions(PPhys, dummy); //assumes the initial conditions and the boundary conditions match
     OuterProduct(normedNormal, dummy, val);
     //std::cout<<val<<std::endl;

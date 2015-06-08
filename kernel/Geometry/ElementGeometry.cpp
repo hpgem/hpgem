@@ -60,116 +60,6 @@ namespace Geometry
 {
     class ElementGeometry;
     
-    ReferenceGeometry *
-    ElementGeometry::createReferenceGeometry(std::size_t size, std::size_t DIM)
-    {
-        switch (size)
-        { 
-            //select a proper type based on the number of nodes a reference geometry should have
-            case 2:
-                logger.assert(DIM==1, "This Dimension does not contain entities with 2 nodes");
-                logger(VERBOSE, "ElementGeometry created a reference line.");
-                return &ReferenceLine::Instance();
-            case 3:
-                logger.assert(DIM==2, "This Dimension does not contain entities with 3 nodes");
-                logger(VERBOSE, "ElementGeometry created a reference triangle.");
-                return &ReferenceTriangle::Instance();
-            case 4:
-                if (DIM == 2)
-                {
-                    logger(VERBOSE, "ElementGeometry created a reference square.");
-                    return &ReferenceSquare::Instance();
-                }
-                else if (DIM == 3)
-                {
-                    logger(VERBOSE, "ElementGeometry created a reference tetrahedron.");
-                    return &ReferenceTetrahedron::Instance();
-                }
-                else
-                {
-                    logger(ERROR, "This dimension does not contain entities with 4 nodes. \n");
-                }
-                break;
-            case 5:
-                logger.assert(DIM==3, "This Dimension does not contain entities with 5 nodes");
-                logger(VERBOSE, "ElementGeometry created a reference pyramid.");
-                return &ReferencePyramid::Instance();
-            case 6:
-                logger.assert(DIM==3, "This Dimension does not contain entities with 6 nodes");
-                logger(VERBOSE, "ElementGeometry created a reference triangular prism.");
-                return &ReferenceTriangularPrism::Instance();
-            case 8:
-                logger.assert(DIM==3, "This Dimension does not contain entities with 8 nodes");
-                logger(VERBOSE, "ElementGeometry created a reference cube.");
-                return &ReferenceCube::Instance();
-            case 16:
-                logger.assert(DIM==4, "This Dimension does not contain entities with 16 nodes");
-                logger(VERBOSE, "ElementGeometry created a reference hypercube.");
-                return &ReferenceHypercube::Instance();
-            default:
-                logger(FATAL, "No know entities contain this many nodes. \n");
-        }
-        return 0;
-    }
-    
-    PhysicalGeometry *
-    ElementGeometry::createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const geo)
-    {
-        logger.assert(geo!=nullptr, "Invalid reference geometry passed");
-        return new PhysicalGeometry(globalNodeIndexes, nodes, geo);
-    }
-    
-    MappingReferenceToPhysical *
-    ElementGeometry::createMappings(std::size_t size, std::size_t DIM, const PhysicalGeometry * const pGeo)
-    {
-        logger.assert(pGeo!=nullptr, "Invalid physical geometry passed");
-        switch (size)
-        {
-            case 2:
-                logger.assert(DIM==1, "This Dimension does not contain entities with 2 nodes");
-                logger(VERBOSE, "ElementGeometry created a mapping for a line.");
-                return new Geometry::MappingToPhysHypercubeLinear<1>(pGeo);
-            case 3:
-                logger.assert(DIM==2, "This Dimension does not contain entities with 3 nodes");
-                logger(VERBOSE, "ElementGeometry created a mapping for a triangle.");
-                return new Geometry::MappingToPhysSimplexLinear<2>(pGeo);
-            case 4:
-                if (DIM == 2)
-                {
-                    logger(VERBOSE, "ElementGeometry created a mapping for a square.");
-                    return new Geometry::MappingToPhysHypercubeLinear<2>(pGeo);
-                }
-                else if (DIM == 3)
-                {
-                    logger(VERBOSE, "ElementGeometry created a mapping for a tetrahedron.");
-                    return new Geometry::MappingToPhysSimplexLinear<3>(pGeo);
-                }
-                else
-                {
-                    logger(ERROR, "This dimension does not contain entities with 4 nodes. \n");
-                }
-                break;
-            case 5:
-                logger.assert(DIM==3, "This Dimension does not contain entities with 5 nodes");
-                logger(VERBOSE, "ElementGeometry created a mapping for a pyramid.");
-                return new Geometry::MappingToPhysPyramid(pGeo);
-            case 6:
-                logger.assert(DIM==3, "This Dimension does not contain entities with 6 nodes");
-                logger(VERBOSE, "ElementGeometry created a mapping for a triangular prism.");
-                return new Geometry::MappingToPhysTriangularPrism(pGeo);
-            case 8:
-                logger.assert(DIM==3, "This Dimension does not contain entities with 8 nodes");
-                logger(VERBOSE, "ElementGeometry created a mapping for a cube.");
-                return new Geometry::MappingToPhysHypercubeLinear<3>(pGeo);
-            case 16:
-                logger.assert(DIM==4, "This Dimension does not contain entities with 16 nodes");
-                logger(VERBOSE, "ElementGeometry created a mapping for a hypercube.");
-                return new Geometry::MappingToPhysHypercubeLinear<4>(pGeo);
-            default:
-                logger(FATAL, "No know entities contain this many nodes. \n");
-        }
-        return 0;
-    }
     
     std::ostream& operator<<(std::ostream& os, const ElementGeometry& elementGeometry)
     {
@@ -187,21 +77,37 @@ namespace Geometry
         return os;
     }
     
-    ElementGeometry::ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, VectorOfPhysicalPointsT& nodes)
-            : referenceGeometry_(ElementGeometry::createReferenceGeometry(globalNodeIndexes.size(), nodes[0].size())),
-        physicalGeometry_(ElementGeometry::createPhysicalGeometry(globalNodeIndexes, nodes, referenceGeometry_)), 
-        referenceToPhysicalMapping_(ElementGeometry::createMappings(globalNodeIndexes.size(), nodes[0].size(), physicalGeometry_)), 
-        refinementGeometry_(nullptr) //refinement is turned off by default, to  enable it one needs to call enableRefinement
-    {
-    }
-    
     /// Copy constructor that actually makes a deep copy
     ElementGeometry::ElementGeometry(const ElementGeometry& other)
             : referenceGeometry_(other.referenceGeometry_), 
-        physicalGeometry_(ElementGeometry::createPhysicalGeometry(other.physicalGeometry_->getNodeIndexes(), other.physicalGeometry_->getNodes(), referenceGeometry_)), 
-        referenceToPhysicalMapping_(ElementGeometry::createMappings(other.physicalGeometry_->getNodeIndexes().size(), other.physicalGeometry_->getNodePtr(0)->size(), physicalGeometry_)),
         refinementGeometry_(other.refinementGeometry_) //refinement is turned off by default, to  enable it one needs to call enableRefinement
     {
+        //we have to un-hide the template arguments to make a copy :(
+        switch(referenceGeometry_->getGeometryType())
+        {
+            case ReferenceGeometryType::LINE:
+                physicalGeometry_ = createPhysicalGeometry<1>(other.physicalGeometry_->getNodeIndexes(), static_cast<PhysicalGeometry<1>* >(other.physicalGeometry_)->getNodes(), referenceGeometry_);
+                referenceToPhysicalMapping_ = createMappings<1>(other.physicalGeometry_->getNodeIndexes().size(), static_cast<PhysicalGeometry<1>* >(physicalGeometry_));
+                break;
+            case ReferenceGeometryType::SQUARE:
+            case ReferenceGeometryType::TRIANGLE:
+                physicalGeometry_ = createPhysicalGeometry<2>(other.physicalGeometry_->getNodeIndexes(), static_cast<PhysicalGeometry<2>* >(other.physicalGeometry_)->getNodes(), referenceGeometry_);
+                referenceToPhysicalMapping_ = createMappings<2>(other.physicalGeometry_->getNodeIndexes().size(), static_cast<PhysicalGeometry<2>* >(physicalGeometry_));
+                break;
+            case ReferenceGeometryType::TETRAHEDRON:
+            case ReferenceGeometryType::CUBE:
+            case ReferenceGeometryType::TRIANGULARPRISM:
+            case ReferenceGeometryType::PYRAMID:
+                physicalGeometry_ = createPhysicalGeometry<3>(other.physicalGeometry_->getNodeIndexes(), static_cast<PhysicalGeometry<3>* >(other.physicalGeometry_)->getNodes(), referenceGeometry_);
+                referenceToPhysicalMapping_ = createMappings<3>(other.physicalGeometry_->getNodeIndexes().size(), static_cast<PhysicalGeometry<3>* >(physicalGeometry_));
+                break;
+            case ReferenceGeometryType::HYPERCUBE:
+                physicalGeometry_ = createPhysicalGeometry<4>(other.physicalGeometry_->getNodeIndexes(), static_cast<PhysicalGeometry<4>* >(other.physicalGeometry_)->getNodes(), referenceGeometry_);
+                referenceToPhysicalMapping_ = createMappings<4>(other.physicalGeometry_->getNodeIndexes().size(), static_cast<PhysicalGeometry<4>* >(physicalGeometry_));
+                break;
+            case ReferenceGeometryType::POINT:
+                logger(ERROR, "-1 dimensional faces are not allowed!");
+        }
     }
     
     ElementGeometry::~ElementGeometry()
@@ -226,13 +132,13 @@ namespace Geometry
     
     /// Returns a pointer to the physicalGeometry object.
     
-    const PhysicalGeometry *
+    const PhysicalGeometryBase *
     ElementGeometry::getPhysicalGeometry() const
     {
         return physicalGeometry_;
     }
     
-    PhysicalGeometry *
+    PhysicalGeometryBase *
     ElementGeometry::getPhysicalGeometry()
     {
         return physicalGeometry_;
@@ -258,23 +164,6 @@ namespace Geometry
     ElementGeometry::getRefinementGeometry() const
     {
         return refinementGeometry_;
-    }
-    
-    /// This method gets a PointReference, which specifies a coordinate in the ReferenceGeometry,
-    /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
-    /// given the mapping.
-    
-    PointPhysical ElementGeometry::referenceToPhysical(const PointReference& pointReference) const
-    {
-        return referenceToPhysicalMapping_->transform(pointReference);
-    }
-    
-    /// This method gets a PointReference and returns the corresponding jacobian of the
-    /// referenceToPhysicalMapping.
-    
-    Jacobian ElementGeometry::calcJacobian(const PointReference& pointReference) const
-    {
-        return referenceToPhysicalMapping_->calcJacobian(pointReference);
     }
     
     std::size_t ElementGeometry::getNrOfNodes() const

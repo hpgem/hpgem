@@ -23,6 +23,7 @@
 #define GaussQuadratureRulesForTriangularPrism_h
 //---------------------------------------------------------------------------
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
+#include "Geometry/PointReference.h"
 #include <vector>
 
 //---------------------------------------------------------------------------
@@ -36,7 +37,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static TriPrism_1_1& Instance()
         {
@@ -59,7 +60,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -67,7 +68,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static TriPrism_3_8& Instance()
         {
@@ -90,7 +91,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[8];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -98,7 +99,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static TriPrism_5_21& Instance()
         {
@@ -121,7 +122,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[21];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -129,7 +130,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static TriPrism_7_64& Instance()
         {
@@ -152,7 +153,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[64];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
 
 //---------------------------------------------------------------------------

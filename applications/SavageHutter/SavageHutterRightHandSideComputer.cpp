@@ -25,32 +25,33 @@
 #include "Base/L2Norm.h"
 #include "Geometry/Mappings/MappingReferenceToPhysical.h"
 
-using LinearAlgebra::NumericalVector;
+using LinearAlgebra::MiddleSizeVector;
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
-NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElement
-(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const NumericalVector &solutionCoefficients)
+MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElement
+(Base::PhysicalElement<DIM>& element, const double &time, const MiddleSizeVector &solutionCoefficients)
 {
-    const std::size_t numBasisFuncs = ptrElement->getNrOfBasisFunctions();
+    const std::size_t numBasisFuncs = element.getElement()->getNrOfBasisFunctions();
     
-    NumericalVector integrand(numOfVariables_ * numBasisFuncs);
-    const NumericalVector numericalSolution = computeNumericalSolution(ptrElement, pRef, solutionCoefficients);
-    const NumericalVector physicalFlux = computePhysicalFlux(numericalSolution);
-    const Geometry::PointPhysical pPhys = ptrElement->getReferenceToPhysicalMap()->transform(pRef);
-    const NumericalVector source = computeSourceTerm(numericalSolution, pPhys, time);
+    MiddleSizeVector& integrand = element.getResultVector();
+    //todo: computeNumericalSolution can probably gain from using Physicalelement
+    const MiddleSizeVector numericalSolution = computeNumericalSolution(element.getElement(), element.getPointReference(), solutionCoefficients);
+    const MiddleSizeVector physicalFlux = computePhysicalFlux(numericalSolution);
+    const PointPhysicalT& pPhys = element.getPointPhysical();
+    const MiddleSizeVector source = computeSourceTerm(numericalSolution, pPhys, time);
     //logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
     
     // Compute integrand on the physical element.
     std::size_t iVB; // Index for both basis function and variable
     for (std::size_t iB = 0; iB < numBasisFuncs; iB++) // Index for basis function
     {
-        iVB = ptrElement->convertToSingleIndex(iB, 0);
-        integrand(iVB) = physicalFlux(0) * ptrElement->basisFunctionDeriv(iB, pRef)(0);
-        integrand(iVB) += source(0) * ptrElement->basisFunction(iB, pRef);
+        iVB = element.getElement()->convertToSingleIndex(iB, 0);
+        integrand(iVB) = physicalFlux(0) * element.basisFunctionDeriv(iB)(0);
+        integrand(iVB) += source(0) * element.basisFunction(iB);
 
-        iVB = ptrElement->convertToSingleIndex(iB, 1);
-        integrand(iVB) = physicalFlux(1) * ptrElement->basisFunctionDeriv(iB, pRef)(0);
-        integrand(iVB) += source(1) * ptrElement->basisFunction(iB, pRef);
+        iVB = element.getElement()->convertToSingleIndex(iB, 1);
+        integrand(iVB) = physicalFlux(1) * element.basisFunctionDeriv(iB)(0);
+        integrand(iVB) += source(1) * element.basisFunction(iB);
     }
     
     logger(DEBUG, "Integrand on element: %", integrand);
@@ -58,39 +59,35 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnEleme
 }
 
 /// \details The integrand for the reference face is the same as the physical face, but scaled with the reference-to-physical face scale. This face scale is absorbed in the normal vector, since it is relatively cheap to compute the normal vector with a length (L2-norm) equal to the reference-to-physical face scale.
-NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
-( const Base::Face *ptrFace, const Base::Side &iSide, const NumericalVector &normalVec, const Geometry::PointReference &pRef, const NumericalVector &solutionCoefficientsLeft, const NumericalVector &solutionCoefficientsRight)
+MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
+( Base::PhysicalFace<DIM>& face, const Base::Side &iSide, const MiddleSizeVector &solutionCoefficientsLeft, const MiddleSizeVector &solutionCoefficientsRight)
 {
-    logger.assert(ptrFace != nullptr, "gave an empty face");
-    logger.assert(ptrFace->getPtrElementLeft() != nullptr, "left element is nullptr");
-    logger.assert(ptrFace->getPtrElementRight() != nullptr, "right element is nullptr");
-    logger.assert(ptrFace->getPtrElement(iSide) != nullptr, "acquired an empty element for face %", ptrFace->getID());
-    double normal = normalVec(0);
-    const std::size_t numTestBasisFuncs = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
-    const std::size_t numBasisFuncsLeft = ptrFace->getPtrElement(Base::Side::LEFT)->getNrOfBasisFunctions();
-    const std::size_t numBasisFuncsRight = ptrFace->getPtrElement(Base::Side::RIGHT)->getNrOfBasisFunctions();
+    double normal = face.getNormalVector()[0];
+    const std::size_t numTestBasisFuncs = face.getFace()->getPtrElement(iSide)->getNrOfBasisFunctions();
+    const std::size_t numBasisFuncsLeft = face.getFace()->getPtrElement(Base::Side::LEFT)->getNrOfBasisFunctions();
+    const std::size_t numBasisFuncsRight = face.getFace()->getPtrElement(Base::Side::RIGHT)->getNrOfBasisFunctions();
 
-    NumericalVector solutionLeft(2);
+    MiddleSizeVector solutionLeft(2);
     for (std::size_t i = 0; i < numBasisFuncsLeft; ++i)
     {
         for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
         {
-            std::size_t iVB = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, iVar);
-            solutionLeft(iVar) += solutionCoefficientsLeft(iVB) * ptrFace->basisFunction(Base::Side::LEFT, i, pRef);
+            std::size_t iVB = face.getFace()->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, iVar);
+            solutionLeft(iVar) += solutionCoefficientsLeft(iVB) * face.basisFunction(Base::Side::LEFT, i);
         }
     }
 
-    NumericalVector solutionRight(2);
+    MiddleSizeVector solutionRight(2);
     for (std::size_t i = 0; i < numBasisFuncsRight; ++i)
     {
         for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
         {
-            std::size_t iVB = ptrFace->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(i, iVar);
-            solutionRight(iVar) += solutionCoefficientsRight(iVB) * ptrFace->basisFunction(Base::Side::RIGHT, i, pRef);
+            std::size_t iVB = face.getFace()->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(i, iVar);
+            solutionRight(iVar) += solutionCoefficientsRight(iVB) * face.basisFunction(Base::Side::RIGHT, i);
         }
     }
-    logger(DEBUG, "face: %, uL: %, uR:%", ptrFace->getID(), solutionLeft, solutionRight);
-    NumericalVector flux(2);
+    logger(DEBUG, "face: %, uL: %, uR:%", face.getFace()->getID(), solutionLeft, solutionRight);
+    MiddleSizeVector flux(2);
     if (normal > 0)
     {
         flux = localLaxFriedrichsFlux(solutionLeft, solutionRight);
@@ -104,39 +101,38 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
     {
         normal *= -1;
     }
-    NumericalVector integrand(numOfVariables_ * numTestBasisFuncs); // Integrand value based on n number of testbasisfunctions from element corresponding to side iSide
+    MiddleSizeVector& integrand = face.getResultVector(iSide); // Integrand value based on n number of testbasisfunctions from element corresponding to side iSide
 
     for (std::size_t iFun = 0; iFun < numTestBasisFuncs; ++iFun)
     {
         for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
         {
-            std::size_t iVarFun = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iFun, iVar);
-            integrand(iVarFun) = -flux(iVar) * ptrFace->basisFunction(iSide, iFun, ptrFace->getReferenceGeometry()->getCenter()) * normal;
+            std::size_t iVarFun = face.getFace()->getPtrElement(iSide)->convertToSingleIndex(iFun, iVar);
+            const PointReferenceOnFaceT& center = face.getFace()->getReferenceGeometry()->getCenter();
+            integrand(iVarFun) = -flux(iVar) * face.getFace()->basisFunction(iSide, iFun, center) * normal;
         }
     }
     
     return integrand;
 }
 
-NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
+MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
     (
-     const Base::Face *ptrFace,
-     const NumericalVector &normalVec,
-     const Geometry::PointReference &pRef,
-     const NumericalVector &solutionCoefficients
+     Base::PhysicalFace<DIM>& face,
+     const MiddleSizeVector &solutionCoefficients
      )
 {
-    double normal = normalVec(0);
-    const std::size_t numBasisFuncs = ptrFace->getNrOfBasisFunctions();
-    NumericalVector solution(2);
+    double normal = face.getNormalVector()[0];
+    const std::size_t numBasisFuncs = face.getFace()->getNrOfBasisFunctions();
+    MiddleSizeVector solution(2);
     for (std::size_t i = 0; i < numBasisFuncs; ++i)    
     {
-        std::size_t iH = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, 0);
-        solution(0) += solutionCoefficients(iH) * ptrFace->basisFunction(i, pRef);
-        std::size_t iHu = ptrFace->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, 1);
-        solution(1) += solutionCoefficients(iHu) * ptrFace->basisFunction(i, pRef);
+        std::size_t iH = face.getFace()->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, 0);
+        solution(0) += solutionCoefficients(iH) * face.basisFunction(i);
+        std::size_t iHu = face.getFace()->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(i, 1);
+        solution(1) += solutionCoefficients(iHu) * face.basisFunction(i);
     }
-    NumericalVector flux(2);
+    MiddleSizeVector flux(2);
     double u = 0;
     if (solution(0) > 1e-14)
     {
@@ -153,21 +149,22 @@ NumericalVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFa
         flux = localLaxFriedrichsFlux(getInflowBC(), solution);
     }
     
-    NumericalVector integrand(numOfVariables_ * numBasisFuncs);
+    MiddleSizeVector integrand(numOfVariables_ * numBasisFuncs);
 
     for (std::size_t iFun = 0; iFun < numBasisFuncs; ++iFun)
     {
         for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
         {
-            std::size_t iVarFun = ptrFace->getPtrElementLeft()->convertToSingleIndex(iFun, iVar);
-            integrand(iVarFun) = -flux(iVar) * ptrFace->basisFunction(iFun, ptrFace->getReferenceGeometry()->getCenter()) * normal;
+            std::size_t iVarFun = face.getFace()->getPtrElementLeft()->convertToSingleIndex(iFun, iVar);
+            const PointReferenceOnFaceT& center = face.getFace()->getReferenceGeometry()->getCenter();
+            integrand(iVarFun) = -flux(iVar) * face.getFace()->basisFunction(iFun, center) * normal;
         }
     }
     
     return integrand;
 }
 
-NumericalVector SavageHutterRightHandSideComputer::computePhysicalFlux(const NumericalVector &numericalSolution)
+MiddleSizeVector SavageHutterRightHandSideComputer::computePhysicalFlux(const MiddleSizeVector &numericalSolution)
 {    
     const double h = numericalSolution(0);
     const double hu = numericalSolution(1);
@@ -176,14 +173,14 @@ NumericalVector SavageHutterRightHandSideComputer::computePhysicalFlux(const Num
     {
         u = hu/h;
     }
-    NumericalVector flux(2);
+    MiddleSizeVector flux(2);
     flux(0) = hu;
     flux(1) = hu * u + epsilon_/2 * std::cos(theta_) * h * h;
     logger(DEBUG, "flux values: %, %", flux(0), flux(1));
     return flux;
 }
 
-NumericalVector SavageHutterRightHandSideComputer::computeSourceTerm(const NumericalVector& numericalSolution, const Geometry::PointPhysical& pPhys, const double time)
+MiddleSizeVector SavageHutterRightHandSideComputer::computeSourceTerm(const MiddleSizeVector& numericalSolution, const PointPhysicalT& pPhys, const double time)
 {
     logger.assert(theta_ < M_PI / 2, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
@@ -197,10 +194,10 @@ NumericalVector SavageHutterRightHandSideComputer::computeSourceTerm(const Numer
     const int signU = (numericalSolution(1) > 0) ? 1 : -1;
     double sourceX = h * std::sin(theta_) - h * mu * signU * std::cos(theta_);
     logger(DEBUG, "Source: %, h: %", sourceX, h);
-    return NumericalVector({0, sourceX});
+    return MiddleSizeVector({0, sourceX});
 }
 
-NumericalVector SavageHutterRightHandSideComputer::computeNumericalSolution(const Base::Element *ptrElement, const Geometry::PointReference &pRef, const NumericalVector& solutionCoefficients)
+MiddleSizeVector SavageHutterRightHandSideComputer::computeNumericalSolution(const Base::Element *ptrElement, const PointReferenceT &pRef, const MiddleSizeVector& solutionCoefficients)
 {    
     logger.assert(1 == pRef.size(), "Empty reference point given.");
     const std::size_t numBasisFuns = ptrElement->getNrOfBasisFunctions();
@@ -214,10 +211,10 @@ NumericalVector SavageHutterRightHandSideComputer::computeNumericalSolution(cons
         hu += solutionCoefficients(iHu) * ptrElement->basisFunction(i, pRef);
     }
     logger(DEBUG, "h: %, hu: %", h, hu);
-    return NumericalVector({h,hu});
+    return MiddleSizeVector({h,hu});
 }
 
-NumericalVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const NumericalVector& numericalSolutionLeft, const NumericalVector& numericalSolutionRight)
+MiddleSizeVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight)
 {
     double uLeft = 0;
     if (numericalSolutionLeft(0) > 1e-10)
@@ -234,21 +231,21 @@ NumericalVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const 
     const double alpha = std::max(std::abs(uLeft) + std::sqrt(epsilon_ * numericalSolutionLeft(0)), 
                       std::abs(uRight) + std::sqrt(epsilon_ * numericalSolutionRight(0)));
         
-    NumericalVector diffSolutions = numericalSolutionRight - numericalSolutionLeft;
+    MiddleSizeVector diffSolutions = numericalSolutionRight - numericalSolutionLeft;
     
-    const NumericalVector numericalFlux = 0.5 * 
+    const MiddleSizeVector numericalFlux = 0.5 * 
         (computePhysicalFlux(numericalSolutionLeft) + computePhysicalFlux(numericalSolutionRight)
             - alpha * (diffSolutions));
     
     return numericalFlux;
 }
 
-double SavageHutterRightHandSideComputer::computeFriction(const NumericalVector& numericalSolution)
+double SavageHutterRightHandSideComputer::computeFriction(const MiddleSizeVector& numericalSolution)
 {
     return std::tan(theta_);
 }
 
-LinearAlgebra::NumericalVector SavageHutterRightHandSideComputer::getInflowBC()
+LinearAlgebra::MiddleSizeVector SavageHutterRightHandSideComputer::getInflowBC()
 {
-    return LinearAlgebra::NumericalVector({0.1, 0});
+    return LinearAlgebra::MiddleSizeVector({0.1, 0});
 }

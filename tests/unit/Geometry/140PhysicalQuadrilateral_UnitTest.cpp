@@ -35,9 +35,9 @@ int main()
 {
     
     std::vector<std::size_t> pointIndexes;
-    std::vector<Geometry::PointPhysical> nodes;
+    std::vector<Geometry::PointPhysical<2> > nodes;
     
-    Geometry::PointPhysical point(2);
+    Geometry::PointPhysical<2> point;
     
     pointIndexes.push_back(4);
     pointIndexes.push_back(7);

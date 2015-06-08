@@ -21,10 +21,11 @@
 #ifndef FaceCacheData_h
 #define FaceCacheData_h
 
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -36,20 +37,24 @@ namespace Base
     struct FaceCacheData
     {
         explicit FaceCacheData(std::size_t DIM)
-                : Normal(DIM)
         {
         }
         
         FaceCacheData(const FaceCacheData &other) = default;
         
         // cache data
-        LinearAlgebra::NumericalVector Normal;
+        //storing the normal as a SmallVector will cause a cascade of templated classes
+        //storing the normal as a MiddleSizeVector will cause conflicts with complex PETSc
+        //LinearAlgebra::SmallVector<DIM> Normal;
         double L2Normal;
 
         // calculate the cache data
-        void operator()(const Base::Face& fa, const Geometry::PointReference& p);
+        template<std::size_t DIM>
+        void operator()(const Base::Face& fa, const Geometry::PointReference<DIM>& p);
         
     };
 }
+
+#include "FaceCacheData_Impl.h"
 
 #endif

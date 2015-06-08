@@ -41,7 +41,7 @@ void testRule(QuadratureRules::GaussQuadratureRule& test)
     for (std::size_t i = 0; i < test.nrOfPoints(); ++i)
     {
         integrated += test.weight(i);
-        const Geometry::PointReference& point = test.getPoint(i);
+        const Geometry::PointReference<0>& point = test.getPoint(i);
     }
     logger.assert_always((std::abs(integrated - 1) < 1e-12), "integration");
 }

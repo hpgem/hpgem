@@ -27,7 +27,7 @@
 
 namespace Geometry
 {
-    class PhysicalGeometry;
+    class PhysicalGeometryBase;
 }
 
 namespace Output
@@ -46,28 +46,28 @@ namespace Output
             return theInstance;
         }
         
-        void acceptG(const Geometry::PhysicalGeometry* geo);
+        void acceptG(const Geometry::PhysicalGeometryBase* geo);
         
         /// \brief Choose node sequence for the hexahedron.
-        void acceptHexahedronGeometry(const Geometry::PhysicalGeometry*) override final;
+        void acceptHexahedronGeometry(const Geometry::PhysicalGeometryBase*) override final;
 
         /// \brief Choose node sequence for the prism.
-        void acceptTriangularPrismGeometry(const Geometry::PhysicalGeometry*) override final;
+        void acceptTriangularPrismGeometry(const Geometry::PhysicalGeometryBase*) override final;
 
         /// \brief Choose node sequence for the pyramid.
-        void acceptPyramidGeometry(const Geometry::PhysicalGeometry*) override final;
+        void acceptPyramidGeometry(const Geometry::PhysicalGeometryBase*) override final;
 
         /// \brief Choose node sequence for the tetrahedron.
-        void acceptTetrahedronGeometry(const Geometry::PhysicalGeometry*) override final;
+        void acceptTetrahedronGeometry(const Geometry::PhysicalGeometryBase*) override final;
 
         /// \brief Choose node sequence for quadrilateral.
-        void acceptQuadrilateralGeometry(const Geometry::PhysicalGeometry*) override final;
+        void acceptQuadrilateralGeometry(const Geometry::PhysicalGeometryBase*) override final;
 
         /// \brief Choose node sequence for triangle.
-        void acceptTriangleGeometry(const Geometry::PhysicalGeometry*) override final;
+        void acceptTriangleGeometry(const Geometry::PhysicalGeometryBase*) override final;
 
         /// \brief Choose node sequence for line.
-        void acceptLineGeometry(const Geometry::PhysicalGeometry*) override final;
+        void acceptLineGeometry(const Geometry::PhysicalGeometryBase*) override final;
 
         /// \brief Check whether all nodes of current shape have been used.
         bool more() const;

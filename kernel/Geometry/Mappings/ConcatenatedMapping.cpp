@@ -27,15 +27,51 @@
 namespace Geometry
 {
     
-    const PointReference& ConcatenatedMapping::transform(const PointReference& pIn) const
+    const PointReference<1>& ConcatenatedMapping::transform(const PointReference<0>& pIn) const
+    {
+        return map2_.transform(map1_.transform(pIn));
+    }
+
+    const PointReference<2>& ConcatenatedMapping::transform(const PointReference<1>& pIn) const
+    {
+        return map2_.transform(map1_.transform(pIn));
+    }
+
+    const PointReference<3>& ConcatenatedMapping::transform(const PointReference<2>& pIn) const
+    {
+        return map2_.transform(map1_.transform(pIn));
+    }
+
+    const PointReference<4>& ConcatenatedMapping::transform(const PointReference<3>& pIn) const
     {
         return map2_.transform(map1_.transform(pIn));
     }
     
-    Jacobian ConcatenatedMapping::calcJacobian(const PointReference& p) const
+    Jacobian<0, 1> ConcatenatedMapping::calcJacobian(const PointReference<0>& p) const
     {
-        Jacobian j1 = map1_.calcJacobian(p);
-        Jacobian j2 = map2_.calcJacobian(map1_.transform(p));
+        Jacobian<0, 0> j1 = map1_.calcJacobian(p);
+        Jacobian<0, 1> j2 = map2_.calcJacobian(map1_.transform(p));
+        return j2.multiplyJacobiansInto(j1);
+    }
+
+    Jacobian<1, 2> ConcatenatedMapping::calcJacobian(const PointReference<1>& p) const
+    {
+        Jacobian<1, 1> j1 = map1_.calcJacobian(p);
+        Jacobian<1, 2> j2 = map2_.calcJacobian(map1_.transform(p));
+        return j2.multiplyJacobiansInto(j1);
+    }
+
+    Jacobian<2, 3> ConcatenatedMapping::calcJacobian(const PointReference<2>& p) const
+    {
+        Jacobian<2, 2> j1 = map1_.calcJacobian(p);
+        Jacobian<2, 3> j2 = map2_.calcJacobian(map1_.transform(p));
+        return j2.multiplyJacobiansInto(j1);
+    }
+
+    Jacobian<3, 4> ConcatenatedMapping::calcJacobian(const PointReference<3>& p) const
+    {
+        Jacobian<3, 3> j1 = map1_.calcJacobian(p);
+        Jacobian<3, 4> j2 = map2_.calcJacobian(map1_.transform(p));
         return j2.multiplyJacobiansInto(j1);
     }
     

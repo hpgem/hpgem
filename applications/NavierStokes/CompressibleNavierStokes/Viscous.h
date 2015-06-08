@@ -22,70 +22,72 @@
 #ifndef VISCOUS_H_
 #define VISCOUS_H_
 
+#include "CompressibleDimension.h"
+
 class Viscous
 {
 public:
 
-	Viscous(const CompressibleNavierStokes& instance);
+	Viscous(CompressibleNavierStokes& instance);
 
-	void setInverseStabilityMassMatrix(LinearAlgebra::Matrix &inverseStabilityMassMatrix);
+	void setInverseStabilityMassMatrix(LinearAlgebra::MiddleSizeMatrix &inverseStabilityMassMatrix);
 
     /// *****************************************
     /// ***      flux function functions      ***
     /// *****************************************
 
 	/// Computes the temperature based on the pressure
-	double computeTemperature(const LinearAlgebra::NumericalVector qSolution, const double pressure);
+	double computeTemperature(const LinearAlgebra::MiddleSizeVector qSolution, const double pressure);
 
 	/// Computes the viscosity as function of temperature, based on Sutherlands law.
 	double computeViscosity(double temperature);
 
 	/// Computes ATensor_ for a given partialState (containing velocities and total Energy), viscosity, kappa and c_v
-	std::vector<LinearAlgebra::Matrix> computeATensor( const LinearAlgebra::NumericalVector partialState, const double viscosity);
+	std::vector<LinearAlgebra::MiddleSizeMatrix> computeATensor( const LinearAlgebra::MiddleSizeVector partialState, const double viscosity);
 
-	LinearAlgebra::Matrix computeATensorMatrixContraction(const std::vector<LinearAlgebra::Matrix> ATensor, const LinearAlgebra::Matrix matrix);
+	LinearAlgebra::MiddleSizeMatrix computeATensorMatrixContraction(const std::vector<LinearAlgebra::MiddleSizeMatrix> ATensor, const LinearAlgebra::MiddleSizeMatrix matrix);
 
     /// *****************************************
     /// ***   Element integration functions   ***
     /// *****************************************
 
 	/// Computes the integrand used in the element integration routine.
-	LinearAlgebra::NumericalVector integrandAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector qSolution, const LinearAlgebra::Matrix qSolutionJacobian, const double pressure, const LinearAlgebra::NumericalVector partialState, const Geometry::PointReference &pRef);
+	LinearAlgebra::MiddleSizeVector integrandAtElement(Base::PhysicalElement<DIM>& element, const LinearAlgebra::MiddleSizeVector qSolution, const LinearAlgebra::MiddleSizeMatrix qSolutionJacobian, const double pressure, const LinearAlgebra::MiddleSizeVector partialState);
 
     /// *****************************************
     /// ***    face integration functions     ***
     /// *****************************************
 
 	//Computes the fluxFunction in the stability parameter calculation used for the integrand
-	void computeStabilityFluxFunction(const std::vector<LinearAlgebra::Matrix> &ATensorInternal, const std::vector<LinearAlgebra::Matrix> &ATensorExternal, const LinearAlgebra::NumericalVector &stateInternal, const LinearAlgebra::NumericalVector &stateExternal, const LinearAlgebra::NumericalVector &normalInternal);
+	void computeStabilityFluxFunction(const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorInternal, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorExternal, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const LinearAlgebra::MiddleSizeVector &normalInternal);
 
 	//Computes the integrand required for the stability parameter calculations
-	LinearAlgebra::NumericalVector integrandStabilityRightHandSideOnRefFace(const Base::Face *ptrFace, const Base::Side side, const LinearAlgebra::Matrix stabilityFluxFunction, const std::size_t iD, const Geometry::PointReference &pRef);
+	LinearAlgebra::MiddleSizeVector integrandStabilityRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const Base::Side side, const LinearAlgebra::MiddleSizeMatrix stabilityFluxFunction, const std::size_t iD);
 
 	//Computes the rhs by integrating the rhs integrand
-	LinearAlgebra::NumericalVector computeRhs(const Base::Face *ptrFace, const Base::Side side, const LinearAlgebra::Matrix stabilityFluxFunction, const std::size_t iD);
+	LinearAlgebra::MiddleSizeVector computeRhs(const Base::Face* face, const Base::Side side, const LinearAlgebra::MiddleSizeMatrix stabilityFluxFunction, const std::size_t iD);
 
 	//Computes the stability parameters
-	LinearAlgebra::Matrix computeStabilityParameters(const Base::Face *ptrFace, Base::Side iSide, const std::vector<LinearAlgebra::Matrix> ATensorInternal,	const std::vector<LinearAlgebra::Matrix> ATensorExternal, const LinearAlgebra::NumericalVector stateInternal, const LinearAlgebra::NumericalVector stateExternal, const LinearAlgebra::NumericalVector normalInternal, const Geometry::PointReference &pRef);
+	LinearAlgebra::MiddleSizeMatrix computeStabilityParameters(const Base::Face *ptrFace, Base::Side iSide, const std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorInternal,	const std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorExternal, const LinearAlgebra::MiddleSizeVector stateInternal, const LinearAlgebra::MiddleSizeVector stateExternal, const LinearAlgebra::SmallVector<DIM> normalInternal, const Geometry::PointReference<DIM - 1> &pRef);
 
 	/// computes the fluxFunction for the auxilliary values at the face
-	LinearAlgebra::Matrix computeAuxilliaryFlux(const Base::Face *ptrFace, Base::Side iSide, const LinearAlgebra::NumericalVector stateInternal, const LinearAlgebra::NumericalVector stateExternal, const double pressureInternal, const double pressureExternal, const LinearAlgebra::NumericalVector partialStateInternal, const LinearAlgebra::NumericalVector partialStateExternal, const LinearAlgebra::Matrix stateJacobianInternal, const LinearAlgebra::Matrix stateJacobianExternal,  const LinearAlgebra::NumericalVector normalInternal, const Geometry::PointReference &pRef);
+	LinearAlgebra::MiddleSizeMatrix computeAuxilliaryFlux(const Base::Face *ptrFace, Base::Side iSide, const LinearAlgebra::MiddleSizeVector stateInternal, const LinearAlgebra::MiddleSizeVector stateExternal, const double pressureInternal, const double pressureExternal, const LinearAlgebra::MiddleSizeVector partialStateInternal, const LinearAlgebra::MiddleSizeVector partialStateExternal, const LinearAlgebra::MiddleSizeMatrix stateJacobianInternal, const LinearAlgebra::MiddleSizeMatrix stateJacobianExternal,  const LinearAlgebra::MiddleSizeVector normalInternal, const Geometry::PointReference<DIM - 1> &pRef);
 
 	/// computes the viscous integral at the face, based on the viscous fluxes
-	LinearAlgebra::NumericalVector integrandViscousAtFace(const Base::Face *ptrFace, const Base::Side &iSide, LinearAlgebra::NumericalVector qSolutionInternal, LinearAlgebra::NumericalVector qSolutionExternal, double pressure, LinearAlgebra::NumericalVector partialState, const LinearAlgebra::NumericalVector normal, const Geometry::PointReference &pRef);
+	LinearAlgebra::MiddleSizeVector integrandViscousAtFace(Base::PhysicalFace<DIM>& face, const Base::Side &iSide, LinearAlgebra::MiddleSizeVector qSolutionInternal, LinearAlgebra::MiddleSizeVector qSolutionExternal, double pressure, LinearAlgebra::MiddleSizeVector partialState);
 
 	/// computes the auxilliary integral at the face, based on the auxilliary values
-	LinearAlgebra::NumericalVector integrandAuxilliaryAtFace(const Base::Face *ptrFace, const Base::Side &iSide, LinearAlgebra::NumericalVector stateInternal, const LinearAlgebra::NumericalVector stateExternal, const double pressureInternal, const double pressureExternal, const LinearAlgebra::NumericalVector partialStateInternal, const LinearAlgebra::NumericalVector partialStateExternal, const LinearAlgebra::NumericalVector normalInternal, const LinearAlgebra::Matrix stateJacobianInternal, const LinearAlgebra::Matrix stateJacobianExternal, const Geometry::PointReference &pRef);
+	LinearAlgebra::MiddleSizeVector integrandAuxilliaryAtFace(Base::PhysicalFace<DIM>& face, const Base::Side &iSide, LinearAlgebra::MiddleSizeVector stateInternal, const LinearAlgebra::MiddleSizeVector stateExternal, const double pressureInternal, const double pressureExternal, const LinearAlgebra::MiddleSizeVector partialStateInternal, const LinearAlgebra::MiddleSizeVector partialStateExternal, const LinearAlgebra::MiddleSizeMatrix stateJacobianInternal, const LinearAlgebra::MiddleSizeMatrix stateJacobianExternal);
 private:
-	const CompressibleNavierStokes& instance_;
+	CompressibleNavierStokes& instance_;
 
 	const double PrInv_; //Inverse of Pr
 	const double cp_;
-	std::vector<LinearAlgebra::Matrix> ATensorInternal_;
-	std::vector<LinearAlgebra::Matrix> ATensorExternal_;
-	LinearAlgebra::Matrix stabilityMassMatrix_; //Note: this breaks down if p is not the same in all elements.
-	LinearAlgebra::Matrix stabilityFluxFunctionInternal_;
-	LinearAlgebra::Matrix stabilityFluxFunctionExternal_;
+	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorInternal_;
+	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorExternal_;
+	LinearAlgebra::MiddleSizeMatrix stabilityMassMatrix_; //Note: this breaks down if p is not the same in all elements.
+	LinearAlgebra::MiddleSizeMatrix stabilityFluxFunctionInternal_;
+	LinearAlgebra::MiddleSizeMatrix stabilityFluxFunctionExternal_;
 };
 
 #endif /* VISCOUS_H_ */

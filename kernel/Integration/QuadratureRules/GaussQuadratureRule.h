@@ -28,7 +28,7 @@ namespace Geometry
 {
     // forward declaration
     class ReferenceGeometry;
-    class PointReference;
+    class PointReferenceBase;
 }
 
 namespace QuadratureRules
@@ -59,7 +59,7 @@ namespace QuadratureRules
         virtual double weight(std::size_t) const = 0;
 
         //! Return the coordinates of the point with the given index.
-        virtual const Geometry::PointReference& getPoint(std::size_t) const = 0;
+        virtual const Geometry::PointReferenceBase& getPoint(std::size_t) const = 0;
 
         //! Each rule also knows which ReferenceGeometry it is meant for.
         virtual Geometry::ReferenceGeometry* forReferenceGeometry() const = 0;

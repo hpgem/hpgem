@@ -42,6 +42,7 @@
 
 //special flags
 auto& isDone = Base::register_argument<bool>('\0', "", "Signals the end of the arguments passed to hpGEM, the rest will be passed to linked libraries", false, false);
+auto& warnCrash = Base::register_argument<bool>('\0', "crashOnWarn", "Tell hpGEM to crash when the logger issues warnings \n(useful in combination with a debugger to quickly find the source of warnings)", false, false);
 
 std::map<std::string, Base::Detail::CommandLineOptionBase*>&
 Base::Detail::getCLOMapping_long()
@@ -96,6 +97,11 @@ void Base::parse_options(int argc, char** argv)
     hasParsed = true;
     int count = parser.go();
     
+    if(warnCrash.getValue())
+    {
+        loggerOutput->onWarn = loggerOutput->onFatal;
+    }
+
     //move the name of the program to the new 'beginning' of the arguments
     argv[count] = argv[0];
 

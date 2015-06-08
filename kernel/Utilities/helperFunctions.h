@@ -25,6 +25,7 @@
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -39,9 +40,9 @@ namespace Utilities
     
     double LegendrePolynomialDerivative(std::size_t degree, double x);
     
-    double baricentric_3D(std::size_t node, const Geometry::PointReference& p);
+    double baricentric_3D(std::size_t node, const Geometry::PointReference<3>& p);
     
-    double baricentric_2D(std::size_t node, const Geometry::PointReference& p);
+    double baricentric_2D(std::size_t node, const Geometry::PointReference<2>& p);
     
     double baricentricDeriv(std::size_t node, std::size_t direction);
 }

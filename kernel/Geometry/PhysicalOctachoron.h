@@ -28,10 +28,10 @@ namespace Geometry
     
     /// \deprecated just pass a referenceHypercube to the constructor of a PhysicalGeometry
     /// if you want to create an octachoron
-    class PhysicalOctachoron : public PhysicalGeometry
+    class PhysicalOctachoron : public PhysicalGeometry<4>
     {
     public:
-        PhysicalOctachoron(const std::vector<std::size_t>&, std::vector<PointPhysical> &);
+        PhysicalOctachoron(const std::vector<std::size_t>&, std::vector<PointPhysical<4> > &);
     };
 
 }

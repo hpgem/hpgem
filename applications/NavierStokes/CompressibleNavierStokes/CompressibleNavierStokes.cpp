@@ -25,14 +25,13 @@
 
 CompressibleNavierStokes::CompressibleNavierStokes
 (
-const std::size_t dimension,
 const std::size_t numOfVariables,
 const double endTime,
 const std::size_t polynomialOrder,
 const Base::ButcherTableau * const ptrButcherTableau
 ) :
-HpgemAPISimplified(dimension, numOfVariables, polynomialOrder, ptrButcherTableau),
-DIM_(dimension),
+HpgemAPISimplified<DIM>(numOfVariables, polynomialOrder, ptrButcherTableau),
+DIM_(DIM),
 numOfVariables_(numOfVariables),
 inviscidTerms_(*this),
 viscousTerms_(*this)
@@ -40,16 +39,17 @@ viscousTerms_(*this)
 }
 
 // todo: Opmaak van deze file
+// todo: DIM_
 // todo: check for the use of const in function names
 // todo: check if thigns are passed by reference
 // todo: rewrite qSolution to state
 // todo: think beter about function names, reorganise code
 
 /// \brief General mesh description
-Base::RectangularMeshDescriptor CompressibleNavierStokes::createMeshDescription(const std::size_t numOfElementPerDirection)
+Base::RectangularMeshDescriptor<DIM> CompressibleNavierStokes::createMeshDescription(const std::size_t numOfElementPerDirection)
 {
     // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
-    Base::RectangularMeshDescriptor description(DIM_);
+    Base::RectangularMeshDescriptor<DIM> description;
     for (std::size_t i = 0; i < DIM_; ++i)
     {
         description.bottomLeft_[i] = 0;
@@ -64,11 +64,11 @@ Base::RectangularMeshDescriptor CompressibleNavierStokes::createMeshDescription(
 void CompressibleNavierStokes::setStabilityMassMatrix()
 {
 	//For a single element create the mass matrix: note this breaks down with p-refinement or limiters
-	LinearAlgebra::Matrix stabilityMassMatrix  = computeMassMatrixAtElement(meshes_[0]->getElementsList()[0]);
+	LinearAlgebra::MiddleSizeMatrix stabilityMassMatrix  = computeMassMatrixAtElement(meshes_[0]->getElementsList()[0]);
 	viscousTerms_.setInverseStabilityMassMatrix(stabilityMassMatrix);
 }
 
-double CompressibleNavierStokes::computePressure(const LinearAlgebra::NumericalVector &qSolution)
+double CompressibleNavierStokes::computePressure(const LinearAlgebra::MiddleSizeVector &qSolution)
 {
 	//Compute pressure term
 	double pressure = 0.0;
@@ -89,10 +89,10 @@ double CompressibleNavierStokes::computePressure(const LinearAlgebra::NumericalV
 /// *****************************************
 
 ///  \brief Constructs the solution based on the solutionCoefficients.
-LinearAlgebra::NumericalVector CompressibleNavierStokes::computeSolutionOnElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef)
+LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeSolutionOnElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM> &pRef)
 {
 		std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
-		LinearAlgebra::NumericalVector elementSolution(numOfVariables_);
+		LinearAlgebra::MiddleSizeVector elementSolution(numOfVariables_);
 		std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
 		for(std::size_t iV = 0; iV < numOfVariables_; iV++)
@@ -108,13 +108,13 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::computeSolutionOnElemen
 		return elementSolution;
 }
 
-LinearAlgebra::Matrix CompressibleNavierStokes::computeSolutionJacobianAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef)
+LinearAlgebra::MiddleSizeMatrix CompressibleNavierStokes::computeSolutionJacobianAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM> &pRef)
 {
 		std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
 		std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
-		LinearAlgebra::Matrix solutionGradient(numOfVariables_,DIM_);
-		LinearAlgebra::NumericalVector gradientBasisFunction(DIM_);
+		LinearAlgebra::MiddleSizeMatrix solutionGradient(numOfVariables_,DIM_);
+		LinearAlgebra::MiddleSizeVector gradientBasisFunction(DIM_);
 
 		for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++) //Note, For the current purpose the derivative of rhoE is not required.
 		{
@@ -132,9 +132,9 @@ LinearAlgebra::Matrix CompressibleNavierStokes::computeSolutionJacobianAtElement
 		return solutionGradient;
 }
 
-LinearAlgebra::NumericalVector CompressibleNavierStokes::computePartialState(const LinearAlgebra::NumericalVector qSolution)
+LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computePartialState(const LinearAlgebra::MiddleSizeVector qSolution)
 {
-	LinearAlgebra::NumericalVector partialState(DIM_ + 2);
+	LinearAlgebra::MiddleSizeVector partialState(DIM_ + 2);
 	double q1Inverse = 1.0/qSolution(0);
 
 	partialState(0) = qSolution(0);
@@ -148,44 +148,46 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::computePartialState(con
 }
 
 /// \brief computes the source at an element
-LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandSourceAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector qSolution, const double pressureTerm, const double &time, const Geometry::PointReference &pRef)
+LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtElement(Base::PhysicalElement<DIM>& element, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time)
 {
-	std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+	std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
 	std::size_t iVB;
 
-	LinearAlgebra::NumericalVector integrandSource(numOfVariables_ * numOfBasisFunctions);
+	LinearAlgebra::MiddleSizeVector integrandSource(numOfVariables_ * numOfBasisFunctions);
 
 	//Empty source function: Put your own source function here.
 
 	return integrandSource;
 }
 
-LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients)
+LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandRightHandSideOnRefElement(Base::PhysicalElement<DIM>& element, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
+    const Base::Element* ptrElement = element.getElement();
+    const Geometry::PointReference<DIM>& pRef = element.getPointReference();
 	//reconstruct the solution, partial state jacobian and pressure at pRef
 	//todo: check if partialState and its Jacobian can somehow be computed efficiently together
-	const LinearAlgebra::NumericalVector qSolution = computeSolutionOnElement(ptrElement, solutionCoefficients, pRef);
-	const LinearAlgebra::Matrix qSolutionJacobian = computeSolutionJacobianAtElement(ptrElement, solutionCoefficients, pRef);
-	const LinearAlgebra::NumericalVector partialState = computePartialState(qSolution);
+	const LinearAlgebra::MiddleSizeVector qSolution = computeSolutionOnElement(ptrElement, solutionCoefficients, pRef);
+	const LinearAlgebra::MiddleSizeMatrix qSolutionJacobian = computeSolutionJacobianAtElement(ptrElement, solutionCoefficients, pRef);
+	const LinearAlgebra::MiddleSizeVector partialState = computePartialState(qSolution);
 	const double pressure = computePressure(qSolution);
 
 	//Compute inviscid terms
-	LinearAlgebra::NumericalVector integrandInviscid = inviscidTerms_.integrandAtElement(ptrElement, time, pRef, pressure, qSolution);
+	LinearAlgebra::MiddleSizeVector integrandInviscid = inviscidTerms_.integrandAtElement(element, time, pressure, qSolution);
 
 	//Compute viscous terms
-	LinearAlgebra::NumericalVector integrandViscous = viscousTerms_.integrandAtElement(ptrElement,  qSolution, qSolutionJacobian, pressure, partialState, pRef);
+	LinearAlgebra::MiddleSizeVector integrandViscous = viscousTerms_.integrandAtElement(element,  qSolution, qSolutionJacobian, pressure, partialState);
 
 	//Compute source terms
-	LinearAlgebra::NumericalVector integrandSource = integrandSourceAtElement(ptrElement, qSolution, pressure, time, pRef);
+	LinearAlgebra::MiddleSizeVector integrandSource = integrandSourceAtElement(element, qSolution, pressure, time);
 
     return integrandInviscid + integrandViscous + integrandSource;
 
 }
 
-LinearAlgebra::NumericalVector CompressibleNavierStokes::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
+LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
 {
-	std::function<LinearAlgebra::NumericalVector(const Base::Element*, const Geometry::PointReference &)> integrandFunction = [=](const Base::Element *El, const Geometry::PointReference & pRef) -> LinearAlgebra::NumericalVector
-	    {   return this->integrandRightHandSideOnRefElement(El, time, pRef, solutionCoefficients);};
+	std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM> &)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector
+	    {   return this->integrandRightHandSideOnRefElement(element, time, solutionCoefficients);};
 
     return elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
 
@@ -195,13 +197,13 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::computeRightHandSideAtE
 /// ***    face integration functions     ***
 /// *****************************************
 
-LinearAlgebra::Matrix CompressibleNavierStokes::computeSolutionJacobianAtFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef)
+LinearAlgebra::MiddleSizeMatrix CompressibleNavierStokes::computeSolutionJacobianAtFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM - 1> &pRef)
 {
 	std::size_t numOfBasisFunctions =  ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
 	std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
-	LinearAlgebra::Matrix solutionGradient(numOfVariables_,DIM_);
-	LinearAlgebra::NumericalVector gradientBasisFunction(DIM_);
+	LinearAlgebra::MiddleSizeMatrix solutionGradient(numOfVariables_,DIM_);
+	LinearAlgebra::MiddleSizeVector gradientBasisFunction(DIM_);
 
 	for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++) //Note, For the current purpose the derivative of rhoE is not required.
 	{
@@ -219,10 +221,10 @@ LinearAlgebra::Matrix CompressibleNavierStokes::computeSolutionJacobianAtFace(co
 	return solutionGradient;
 }
 
-LinearAlgebra::NumericalVector CompressibleNavierStokes::computeSolutionOnFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef) const
+LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeSolutionOnFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM - 1> &pRef) const
 {
 	std::size_t numOfBasisFunctions =  ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
-	LinearAlgebra::NumericalVector elementSolution(numOfVariables_);
+	LinearAlgebra::MiddleSizeVector elementSolution(numOfVariables_);
 	std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
 	for(std::size_t iV = 0; iV < numOfVariables_; iV++)
@@ -239,40 +241,42 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::computeSolutionOnFace(c
 }
 
 /// \brief Compute the integrand for the right hand side for the reference face corresponding to an external face.
-LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients)
+LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
 
 	//Compute inviscid terms
-	LinearAlgebra::NumericalVector integrandInviscid = inviscidTerms_.integrandAtFace(ptrFace, time, pRef, solutionCoefficients);
+	LinearAlgebra::MiddleSizeVector integrandInviscid = inviscidTerms_.integrandAtFace(face, time, solutionCoefficients);
 
 	//Compute viscous terms
 	//todo: write viscousTerms_.integrandAtFace()
-	LinearAlgebra::NumericalVector integrandViscous = integrandInviscid; //integrandViscousAtFace();
+	LinearAlgebra::MiddleSizeVector integrandViscous = integrandInviscid; //integrandViscousAtFace();
 
 	//Compute support variable terms
 	//todo: write viscousTerms_.SupportAtFace()
-	LinearAlgebra::NumericalVector integrandSupport = integrandInviscid; // integrandSupportAtFace();
+	LinearAlgebra::MiddleSizeVector integrandSupport = integrandInviscid; // integrandSupportAtFace();
 
 	return  integrandInviscid + integrandViscous + integrandSupport;
 }
 
 /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-   LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficientsLeft, const LinearAlgebra::NumericalVector &solutionCoefficientsRight)
+   LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
    {
+       const Base::Face* ptrFace = face.getFace();
+       const Geometry::PointReference<DIM - 1>& pRef = face.getPointReference();
 		//reconstruct the solution, partial state Jacobian and pressure at pRef, left and right of the interface
-		const LinearAlgebra::NumericalVector stateLeft = computeSolutionOnFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, pRef);
-		const LinearAlgebra::NumericalVector stateRight = computeSolutionOnFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsRight, pRef);
-		const LinearAlgebra::Matrix stateJacobianLeft = computeSolutionJacobianAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, pRef);
-		const LinearAlgebra::Matrix stateJacobianRight = computeSolutionJacobianAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsRight, pRef);
+		const LinearAlgebra::MiddleSizeVector stateLeft = computeSolutionOnFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, pRef);
+		const LinearAlgebra::MiddleSizeVector stateRight = computeSolutionOnFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsRight, pRef);
+		const LinearAlgebra::MiddleSizeMatrix stateJacobianLeft = computeSolutionJacobianAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, pRef);
+		const LinearAlgebra::MiddleSizeMatrix stateJacobianRight = computeSolutionJacobianAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsRight, pRef);
 
 		//Determine internal and external solutions
-		LinearAlgebra::NumericalVector stateInternal;
-		LinearAlgebra::NumericalVector stateExternal;
-		LinearAlgebra::Matrix stateJacobianInternal;
-		LinearAlgebra::Matrix stateJacobianExternal;
-		LinearAlgebra::NumericalVector normalInternal;
-		LinearAlgebra::NumericalVector normalExternal;
-		LinearAlgebra::NumericalVector normal = ptrFace->getNormalVector(pRef);
+		LinearAlgebra::MiddleSizeVector stateInternal;
+		LinearAlgebra::MiddleSizeVector stateExternal;
+		LinearAlgebra::MiddleSizeMatrix stateJacobianInternal;
+		LinearAlgebra::MiddleSizeMatrix stateJacobianExternal;
+		LinearAlgebra::MiddleSizeVector normalInternal;
+		LinearAlgebra::MiddleSizeVector normalExternal;
+		LinearAlgebra::MiddleSizeVector normal = ptrFace->getNormalVector(pRef);
 		double area = Base::L2Norm(normal);
 		if (iSide == Base::Side::RIGHT)
 		{
@@ -293,19 +297,19 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandRightHandSideO
 
 		const double pressureInternal = computePressure(stateInternal);
 		const double pressureExternal = computePressure(stateExternal);
-		const LinearAlgebra::NumericalVector partialStateInternal = computePartialState(stateInternal);
-		const LinearAlgebra::NumericalVector partialStateExternal = computePartialState(stateExternal);
+		const LinearAlgebra::MiddleSizeVector partialStateInternal = computePartialState(stateInternal);
+		const LinearAlgebra::MiddleSizeVector partialStateExternal = computePartialState(stateExternal);
 
 		//Compute inviscid terms
-		LinearAlgebra::NumericalVector integrandInviscid = inviscidTerms_.integrandAtFace(ptrFace, time, pRef, iSide, stateInternal, stateExternal, normalInternal);
+		LinearAlgebra::MiddleSizeVector integrandInviscid = inviscidTerms_.integrandAtFace(face, time, iSide, stateInternal, stateExternal);
 
 		//Compute viscous terms
-		LinearAlgebra::NumericalVector integrandViscous = viscousTerms_.integrandViscousAtFace(ptrFace, iSide, stateInternal, stateExternal, pressureInternal, partialStateInternal, normalInternal, pRef);
+		LinearAlgebra::MiddleSizeVector integrandViscous = viscousTerms_.integrandViscousAtFace(face, iSide, stateInternal, stateExternal, pressureInternal, partialStateInternal);
 
 		//Compute support variable terms
 		//todo: write out the integral as summ, see if things cancel
 		//todo: Integrate over whole face in one go? More efficient?
-		LinearAlgebra::NumericalVector integrandAuxilliary = viscousTerms_.integrandAuxilliaryAtFace(ptrFace, iSide, stateInternal, stateExternal, pressureInternal, pressureExternal, partialStateInternal, partialStateExternal,  normalInternal, stateJacobianInternal, stateJacobianExternal, pRef);
+		LinearAlgebra::MiddleSizeVector integrandAuxilliary = viscousTerms_.integrandAuxilliaryAtFace(face, iSide, stateInternal, stateExternal, pressureInternal, pressureExternal, partialStateInternal, partialStateExternal, stateJacobianInternal, stateJacobianExternal);
 
 		// Note: correct with area, because the integration uses area, this might be avoided in future
 		return  (integrandInviscid + integrandViscous + integrandAuxilliary)*area;
@@ -313,22 +317,22 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandRightHandSideO
    }
 
    /// \brief Compute the right-hand side corresponding to a boundary face
-   LinearAlgebra::NumericalVector CompressibleNavierStokes::computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::NumericalVector &solutionCoefficients, const double time)
+   LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
    {
 	    // Define the integrand function for the right hand side for the reference face.
-	    std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference &pRef) -> LinearAlgebra::NumericalVector
-	    {   return this->integrandRightHandSideOnRefFace(ptrFace, time, pRef, solutionCoefficients);};
+	    std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&)> integrandFunction = [=](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
+	    {   return this->integrandRightHandSideOnRefFace(face, time, solutionCoefficients);};
 
-	    return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+	    return faceIntegrator_.integrate(ptrFace, integrandFunction);
    }
 
    /// \brief Compute the right-hand side corresponding to an internal face
-   LinearAlgebra::NumericalVector CompressibleNavierStokes::computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::NumericalVector &solutionCoefficientsLeft, LinearAlgebra::NumericalVector &solutionCoefficientsRight, const double time)
+   LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time)
    {
 	    // Define the integrand function for the right hand side for the reference face.
-	    std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference &pRef) -> LinearAlgebra::NumericalVector
-	    {   return this->integrandRightHandSideOnRefFace(ptrFace, time, pRef, side, solutionCoefficientsLeft, solutionCoefficientsRight);};
-	    return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+	    std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&)> integrandFunction = [=](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
+	    {   return this->integrandRightHandSideOnRefFace(face, time, side, solutionCoefficientsLeft, solutionCoefficientsRight);};
+	    return faceIntegrator_.integrate(ptrFace, integrandFunction);
    }
 
 
@@ -337,9 +341,9 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandRightHandSideO
    /// ***    		Various Functions        ***
    /// *****************************************
 
-   LinearAlgebra::NumericalVector CompressibleNavierStokes::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
+   LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
    {
-		LinearAlgebra::NumericalVector exactSolution(numOfVariables_);
+		LinearAlgebra::MiddleSizeVector exactSolution(numOfVariables_);
 
 		double amplitude = 0.2;
 		double frequency = 2.0*M_PI;
@@ -363,13 +367,13 @@ LinearAlgebra::NumericalVector CompressibleNavierStokes::integrandRightHandSideO
    }
 
    /// \brief Compute the initial solution at a given point in space and time.
-   LinearAlgebra::NumericalVector CompressibleNavierStokes::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
+   LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
    {
        return getExactSolution(pPhys, startTime, orderTimeDerivative);
    }
 
    /// \brief Computes the error for output purposes
-   LinearAlgebra::NumericalVector CompressibleNavierStokes::Error(const double time)
+   LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::Error(const double time)
    {
 	   return computeMaxError(solutionTimeLevel_, time);
    }

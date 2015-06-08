@@ -28,7 +28,7 @@
 #include "Geometry/ReferenceGeometry.h"
 #include "Base/ElementCacheData.h"
 
-void OuterProduct(const LinearAlgebra::NumericalVector& a, const LinearAlgebra::NumericalVector& b, LinearAlgebra::NumericalVector& ret)
+void OuterProduct(const LinearAlgebra::MiddleSizeVector& a, const LinearAlgebra::MiddleSizeVector& b, LinearAlgebra::MiddleSizeVector& ret)
 {
     ret.resize(3);
     //direct computation using the definition
@@ -90,7 +90,7 @@ double Base::Basis_Curl_Bari::evalDeriv2(const Base::BaseBasisFunction::PointRef
     return (VertexNr == 3) - (VertexNr == 0);
 }
 
-void Base::Basis_Curl_Bari::evalDeriv(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::NumericalVector& ret)
+void Base::Basis_Curl_Bari::evalDeriv(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret)
 {
     ret.resize(3);
     if (VertexNr == 0)
@@ -137,9 +137,9 @@ Base::Basis_Curl_Edge::Basis_Curl_Edge(int degree, int localFirstVertex, int loc
 {
 }
 
-void Base::Basis_Curl_Edge::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::Basis_Curl_Edge::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
-    LinearAlgebra::NumericalVector dummy(3); //dummy vectors are used to store parial results
+    LinearAlgebra::MiddleSizeVector dummy(3); //dummy vectors are used to store parial results
     Basis_Curl_Bari::barycentricFunctions[o].evalDeriv(p, ret);
     Basis_Curl_Bari::barycentricFunctions[i].evalDeriv(p, dummy);
     ret *= Basis_Curl_Bari::barycentricFunctions[i].eval(p); //use only *= and += and so on near numerical vectors or you will be rapidly creating
@@ -165,9 +165,9 @@ void Base::Basis_Curl_Edge::eval(const Base::BaseBasisFunction::PointReferenceT&
     }
 }
 
-void Base::Basis_Curl_Edge::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::Basis_Curl_Edge::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
-    LinearAlgebra::NumericalVector dummy(3), dummy2(3);
+    LinearAlgebra::MiddleSizeVector dummy(3), dummy2(3);
     ret.resize(3);
     switch (deg)
     {
@@ -185,7 +185,7 @@ void Base::Basis_Curl_Edge::evalCurl(const Base::BaseBasisFunction::PointReferen
         default:
             Basis_Curl_Bari::barycentricFunctions[o].evalDeriv(p, dummy);
             Basis_Curl_Bari::barycentricFunctions[i].evalDeriv(p, dummy2);
-            LinearAlgebra::NumericalVector dummy3(3), dummy4(dummy2);
+            LinearAlgebra::MiddleSizeVector dummy3(3), dummy4(dummy2);
             dummy4 -= dummy; //dummy4=nambla(labda_i-labda_o)
             double valI(Basis_Curl_Bari::barycentricFunctions[i].eval(p)), valO(Basis_Curl_Bari::barycentricFunctions[o].eval(p));
             OuterProduct(dummy2, dummy, ret);
@@ -228,16 +228,16 @@ Base::Basis_Curl_Edge_Face::Basis_Curl_Edge_Face(int degree, int localOpposingVe
     }
 }
 
-void Base::Basis_Curl_Edge_Face::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::Basis_Curl_Edge_Face::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
     Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p, ret);
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)), valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p));
     ret *= valA * valB * LegendrePolynomial(deg - 2, valB - valA);
 }
 
-void Base::Basis_Curl_Edge_Face::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::Basis_Curl_Edge_Face::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
-    LinearAlgebra::NumericalVector dummy(3), dummy2(3), dummy3(3);
+    LinearAlgebra::MiddleSizeVector dummy(3), dummy2(3), dummy3(3);
     ret.resize(3);
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)), valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p));
     Basis_Curl_Bari::barycentricFunctions[a].evalDeriv(p, dummy);
@@ -286,7 +286,7 @@ Base::Basis_Curl_Face::Basis_Curl_Face(int degree1, int degree2, int localOpposi
     }
 }
 
-void Base::Basis_Curl_Face::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::Basis_Curl_Face::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
     ret.resize(3);
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)), valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p)), valC(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
@@ -296,10 +296,10 @@ void Base::Basis_Curl_Face::eval(const Base::BaseBasisFunction::PointReferenceT&
     ret *= valA * valB * valC * LegendrePolynomial(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA);
 }
 
-void Base::Basis_Curl_Face::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::Basis_Curl_Face::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)), valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p)), valC(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
-    LinearAlgebra::NumericalVector dummy(3), dummy2(3), dummy3(3);
+    LinearAlgebra::MiddleSizeVector dummy(3), dummy2(3), dummy3(3);
     ret.resize(3);
     dummy[0] = (b == 1 - a == 1);
     dummy[1] = (b == 2);
@@ -347,17 +347,17 @@ Base::Basis_Curl_Face_interior::Basis_Curl_Face_interior(int degree1, int degree
     }
 }
 
-void Base::Basis_Curl_Face_interior::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::Basis_Curl_Face_interior::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)), valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p)), valC(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
     Basis_Curl_Bari::barycentricFunctions[d].evalDeriv(p, ret);
     ret *= valA * valB * valC * LegendrePolynomial(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA);
 }
 
-void Base::Basis_Curl_Face_interior::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::Basis_Curl_Face_interior::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)), valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p)), valC(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
-    LinearAlgebra::NumericalVector dummy(3), dummy2(3), dummy3(3);
+    LinearAlgebra::MiddleSizeVector dummy(3), dummy2(3), dummy3(3);
     ret.resize(3);
     Basis_Curl_Bari::barycentricFunctions[d].evalDeriv(p, dummy);
     Basis_Curl_Bari::barycentricFunctions[a].evalDeriv(p, dummy2);
@@ -387,7 +387,7 @@ Base::Basis_Curl_interior::Basis_Curl_interior(int degree1, int degree2, int deg
 {
 }
 
-void Base::Basis_Curl_interior::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::Basis_Curl_interior::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
     ret.resize(3);
     ret[0] = 0;
@@ -398,10 +398,10 @@ void Base::Basis_Curl_interior::eval(const Base::BaseBasisFunction::PointReferen
     ret *= val0 * val1 * val2 * val3 * LegendrePolynomial(deg1, val1 - val0) * LegendrePolynomial(deg2, val2 - val0) * LegendrePolynomial(deg3, val3 - val0);
 }
 
-void Base::Basis_Curl_interior::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::NumericalVector& ret) const
+void Base::Basis_Curl_interior::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
 {
     double val0(Basis_Curl_Bari::barycentricFunctions[0].eval(p)), val1(Basis_Curl_Bari::barycentricFunctions[1].eval(p)), val2(Basis_Curl_Bari::barycentricFunctions[2].eval(p)), val3(Basis_Curl_Bari::barycentricFunctions[3].eval(p));
-    LinearAlgebra::NumericalVector dummy(3), dummy2(3), dummy3(3);
+    LinearAlgebra::MiddleSizeVector dummy(3), dummy2(3), dummy3(3);
     dummy[0] = 0;
     dummy[1] = 0;
     dummy[2] = 0;

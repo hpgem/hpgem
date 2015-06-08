@@ -69,7 +69,7 @@ int main()
     Base::Side jS = sR;
     std::size_t iVB = 0;
     std::size_t jVB = 0;
-    std::size_t z = 0;
+    LinearAlgebra::MiddleSizeMatrix::type z = 0;
     for (std::size_t i = 0; i < nDOFLeft + nDOFRight; i++)
     {
         if (i < nDOFLeft)
@@ -97,7 +97,7 @@ int main()
             }
             
             z = i * 10 + j;
-            z = z * 100 + z;
+            z = z * 100. + z;
             
             logger.assert_always(F2.getElementMatrix(iS, jS)(iVB, jVB) == z, "Face matrix is wrong");
             logger.assert_always(F3(i, j) == z, "Face matrix is wrong");

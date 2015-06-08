@@ -25,7 +25,7 @@
 #include "Mappings/MappingToRefSquareToSquare.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferencePoint.h"
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "Logger.h"
 
 namespace Geometry
@@ -42,7 +42,7 @@ namespace Geometry
     std::size_t ReferenceSquare::localNodeIndexes_[4][2] = { {0, 1}, {0, 2}, {1, 3}, {2, 3}, };
     
     ReferenceSquare::ReferenceSquare()
-            : ReferenceGeometry(4, 2, ReferenceGeometryType::SQUARE, {0., 0.}), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(4, 2, ReferenceGeometryType::SQUARE, {0., 0.}), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance()), points_(4)
     {
         name = "ReferenceSquare";
         // See MappingLineToSquare.h for further info.                 Ref.Line     Ref.Sqr.Side
@@ -63,13 +63,14 @@ namespace Geometry
                 
         // We set the actual coordinates (see top comment for drawing).
         
-        points_[0] = PointReferenceFactory::instance()->makePoint({-1., -1.});
-        points_[1] = PointReferenceFactory::instance()->makePoint({ 1., -1.});
-        points_[2] = PointReferenceFactory::instance()->makePoint({-1.,  1.});
-        points_[3] = PointReferenceFactory::instance()->makePoint({ 1.,  1.});
+        points_[0] = PointReferenceFactory<2>::instance()->makePoint({-1., -1.});
+        points_[1] = PointReferenceFactory<2>::instance()->makePoint({ 1., -1.});
+        points_[2] = PointReferenceFactory<2>::instance()->makePoint({-1.,  1.});
+        points_[3] = PointReferenceFactory<2>::instance()->makePoint({ 1.,  1.});
+        center_ = PointReferenceFactory<2>::instance()->makePoint();
     }
     
-    bool ReferenceSquare::isInternalPoint(const PointReference& p) const
+    bool ReferenceSquare::isInternalPoint(const PointReference<2>& p) const
     {
         logger.assert(p.size()==2, "The passed reference point has the wrong dimension");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.));
@@ -78,8 +79,8 @@ namespace Geometry
     std::ostream& operator<<(std::ostream& os, const ReferenceSquare& square)
     {
         os << square.getName() << "={";
-        ReferenceSquare::const_iterator it = square.points_.begin();
-        ReferenceSquare::const_iterator end = square.points_.end();
+        auto it = square.points_.begin();
+        auto end = square.points_.end();
         
         for (; it != end; ++it)
         {
@@ -139,7 +140,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<0>*
     ReferenceSquare::getCodim0MappingPtr(const std::size_t i) const
     {
         logger.assert((i < 8), "ERROR: Asked for a mappingSquareToSquare larger than 7. There are only 8.\n");
@@ -157,7 +158,7 @@ namespace Geometry
         logger.assert((faceIndex < 4), "ERROR: Asked for a square face index larger than 3. There are only 4 faces in a square.\n");
         return referenceGeometryCodim1Ptr_;
     }
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<1>*
     ReferenceSquare::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         logger.assert((faceIndex < 4), "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square.\n");
@@ -172,7 +173,7 @@ namespace Geometry
     // =============================== Refinement mappings =====================================
     
     //! Transform a reference point using refinement mapping
-    void ReferenceSquare::refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const
+    void ReferenceSquare::refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<2>& p, PointReference<2>& pMap) const
     {
         switch (refineType)
         {
@@ -234,7 +235,7 @@ namespace Geometry
     }
     
     //! Transformation matrix of this refinement when located on the LEFT side
-    void ReferenceSquare::getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
+    void ReferenceSquare::getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
         Q.resize(3, 3);
         Q = 0.;
@@ -312,7 +313,7 @@ namespace Geometry
     }
     
     //! Transformation matrix of this refinement when located on the RIGHT side
-    void ReferenceSquare::getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
+    void ReferenceSquare::getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
         Q.resize(3, 3);
         Q = 0.;
@@ -390,13 +391,13 @@ namespace Geometry
     
     //! Refinement mapping on codim1 for a given refinement on codim0
     //! Note: this should also applied on other dimensions
-    void ReferenceSquare::getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+    void ReferenceSquare::getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
     }
     
     //! Refinement mapping on codim1 for a given refinement on codim0
     //! Note: this should also applied on other dimensions
-    void ReferenceSquare::getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+    void ReferenceSquare::getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
     }
 

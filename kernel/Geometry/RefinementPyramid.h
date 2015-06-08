@@ -30,10 +30,10 @@ namespace Geometry
     class RefinementPyramid : public Geometry::RefinementGeometry
     {
     public:
-        using VectorOfPointPhysicalsT = std::vector<PointPhysical>;
+        using VectorOfPointPhysicalsT = std::vector<const PointPhysicalBase*>;
         
         // Constructors.
-        RefinementPyramid(const ReferenceGeometry* const referenceGeometry, const PhysicalGeometry* const physicalGeometry)
+        RefinementPyramid(const ReferenceGeometry* const referenceGeometry, const PhysicalGeometryBase* const physicalGeometry)
                 : physicalGeometry_(physicalGeometry), referenceGeometry_(referenceGeometry)
         {
             std::cout << "RefinementPyramid(referenceGeometry, physicalGeometry)\n";
@@ -69,8 +69,9 @@ namespace Geometry
         /// New physical nodes due to refinement to the nodes vector
         /// \param newPoints On input, this vector contains the element's physical nodes.  
         /// On exit, the new physical nodes are added.
-        virtual void getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const
+        virtual VectorOfPointPhysicalsT getAllNodes(std::size_t refineType) const
         {
+            return VectorOfPointPhysicalsT();
         }
         
         /// Number of sub-elements due to the refinement
@@ -115,7 +116,7 @@ namespace Geometry
         
         /// The physicalGeometry object contains pointers to the actual physical nodes, and
         /// a container of global node indexes.
-        const PhysicalGeometry* physicalGeometry_;
+        const PhysicalGeometryBase* physicalGeometry_;
 
         /// The corresponding referenceGeometry object
         const ReferenceGeometry* const referenceGeometry_;

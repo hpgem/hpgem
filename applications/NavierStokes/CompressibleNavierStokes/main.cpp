@@ -24,7 +24,9 @@
 #include <iostream>
 #include <chrono>
 
-auto& dimension = Base::register_argument<std::size_t>('D', "dim", "number of dimensions in the problem");
+//todo: decide if choosing the dimension during run time is worth the design overhead
+//todo: some integrands might be able to make better use of PhysicalFace and PhysicalElement
+//auto& dimension = Base::register_argument<std::size_t>('D', "dim", "number of dimensions in the problem");
 auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 
@@ -55,17 +57,17 @@ int main (int argc, char **argv){
     std::vector<std::string> variableNames;
     variableNames.push_back("q1");
 
-    for(std::size_t i = 1; i <= dimension.getValue()+1; i++) // +1 is for the energy equation
+    for(std::size_t i = 1; i <= DIM+1; i++) // +1 is for the energy equation
     {
         std::string variableName = "q" + std::to_string(i+1);
         variableNames.push_back(variableName);
     }
 
     // Calculate number of variables
-    const std::size_t numOfVariables = 2+dimension.getValue();
+    const std::size_t numOfVariables = 2+DIM;
 
     // Create problem solver 'test', that can solve the compressible Navier-Stokes equations.
-    CompressibleNavierStokes test(dimension.getValue(), numOfVariables, endTime.getValue(), polynomialOrder.getValue(), ptrButcherTableau);
+    CompressibleNavierStokes test(numOfVariables, endTime.getValue(), polynomialOrder.getValue(), ptrButcherTableau);
 
     // Create the mesh, a simple square domain
     test.createMesh(numOfElements.getValue(), meshType);
@@ -77,7 +79,7 @@ int main (int argc, char **argv){
     test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
 
     //Compute errors at the end of the simulation
-    LinearAlgebra::NumericalVector maxError = test.Error(endTime.getValue());
+    LinearAlgebra::MiddleSizeVector maxError = test.Error(endTime.getValue());
     std::cout << maxError << std::endl;
 
     // Measure elapsed time

@@ -30,12 +30,11 @@ namespace Geometry
     class RefinementHypercube : public Geometry::RefinementGeometry
     {
     public:
-        using PointT = Point;
-        using PointPhysicalT = PointPhysical;
-        using PointReferenceT = PointReference;
-        using PhysicalGeometryT = PhysicalGeometry;
+        using PointPhysicalT = PointPhysicalBase;
+        using PointReferenceT = PointReferenceBase;
+        using PhysicalGeometryT = PhysicalGeometryBase;
         using ReferenceGeometryT = ReferenceGeometry;
-        using VectorOfPointPhysicalsT = std::vector<PointPhysicalT>;
+        using VectorOfPointPhysicalsT = std::vector<const PointPhysicalT*>;
         using VectorOfIndicesT = std::vector<std::size_t>;
 
         /// Constructors.
@@ -76,8 +75,9 @@ namespace Geometry
         /// New physical nodes due to refinement to the nodes vector
         /// \param newPoints On input, this vector contains the element's physical nodes.  
         /// On exit, the new physical nodes are added.
-        virtual void getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const
+        virtual VectorOfPointPhysicalsT getAllNodes(std::size_t refineType) const
         {
+            return VectorOfPointPhysicalsT();
         }
         
         /// Number of sub-elements due to the refinement

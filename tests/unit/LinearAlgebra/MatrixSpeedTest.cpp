@@ -22,7 +22,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 
 using namespace ::std;
 

@@ -50,7 +50,6 @@
 
 struct SHConstructorStruct
 {
-    std::size_t dimension;
     std::size_t numOfVariables;
     std::size_t polyOrder;
     std::size_t numElements;
@@ -60,10 +59,10 @@ struct SHConstructorStruct
 
 //todo: make the functions override final, but at the moment my parser does not 
 //understand the override and final keywords, which makes development harder
-class SavageHutter : public Base::HpgemAPISimplified
+class SavageHutter : public Base::HpgemAPISimplified<DIM>
 {
 public:
-    SavageHutter(const std::size_t dimension, const std::size_t numOfVariables,
+    SavageHutter(const std::size_t numOfVariables,
             const std::size_t polynomialOrder,
             const Base::ButcherTableau * const ptrButcherTableau);
     
@@ -73,10 +72,10 @@ public:
     SavageHutter(const SHConstructorStruct& inputValues);
 
     /// \brief Create a domain
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection);
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection);
 
     /// \brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
+    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
     
     /// \brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID)
@@ -87,19 +86,19 @@ public:
         }
     }
 
-    LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
 
     /// \brief Compute the right-hand side corresponding to an internal face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace(Base::Face *ptrFace,
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace,
             const Base::Side side,
-            LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
-            LinearAlgebra::NumericalVector &solutionCoefficientsRight,
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
             const double time);
     
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
         (
          Base::Face *ptrFace,
-         LinearAlgebra::NumericalVector &solutionCoefficients,
+         LinearAlgebra::MiddleSizeVector &solutionCoefficients,
          const double time
          );
 
@@ -111,23 +110,29 @@ public:
     void limitSolution();
     
     ///Auxiliary function for checking if a limiter should be used.
-    LinearAlgebra::NumericalVector computeVelocity(LinearAlgebra::NumericalVector numericalSolution);
+    LinearAlgebra::MiddleSizeVector computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution);
     
     ///Auxiliary function for checking if a limiter should be used.
-    LinearAlgebra::NumericalVector computeNormOfAverageOfSolutionInElement(const Base::Element *element);
+    LinearAlgebra::MiddleSizeVector computeNormOfAverageOfSolutionInElement(const Base::Element *element);
     
     ///If a limiter should be used, use the min-mod limiter. Save the values of 
     ///the left side and right side in the struct LimiterData.
     void limitWithMinMod(Base::Element *element, const std::size_t iVar);
     
+    void tasksBeforeSolving() override final
+    {
+        //todo: for one face integral you used referenceFaceIntegral (which does not scale with the magnitude of the normal) and for the other you used integrate (which does scale)
+        //so it is not clear to me whether or not you need scaling. Please fix as needed
+        this->faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
+        Base::HpgemAPISimplified<DIM>::tasksBeforeSolving();
+    }
+
     int sign(const double x)
     {
         return ((x < 0)? -1 : 1);
     }
     
 private:
-    /// Dimension of the domain
-    const std::size_t DIM_;
 
     /// Number of variables
     const std::size_t numOfVariables_;

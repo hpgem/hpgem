@@ -23,7 +23,8 @@
 #define REFERENCETOREFERENCEM_H_
 
 #include "MappingInterface.h"
-#include <unordered_map>
+#include "Geometry/PointReferenceFactory.h"
+#include <map>
 
 namespace Geometry
 {
@@ -44,12 +45,42 @@ namespace Geometry
      declared here because, in contrast to Ref2PhysSpaceMapping, it concerns RefSpacePoint objects
      as both arguments. */
 
-    class MappingReferenceToReference : public MappingInterface
+    template<int codim>
+    class MappingReferenceToReference : public MappingInterface<codim>
     {
     public:
-        virtual const PointReference& transform(const Geometry::PointReference&) const = 0;
-    protected:
-        std::unordered_map<const PointReference*, const PointReference*> transformedCoordinates;
+        virtual const PointReference<0 + codim>& transform(const Geometry::PointReference<0>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return *PointReferenceFactory<0 + codim>::instance()->makePoint();
+        }
+
+        virtual const PointReference<1 + codim>& transform(const Geometry::PointReference<1>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return *PointReferenceFactory<1 + codim>::instance()->makePoint();
+        }
+
+        virtual const PointReference<2 + codim>& transform(const Geometry::PointReference<2>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return *PointReferenceFactory<2 + codim>::instance()->makePoint();
+        }
+
+        virtual const PointReference<3 + codim>& transform(const Geometry::PointReference<3>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return *PointReferenceFactory<3 + codim>::instance()->makePoint();
+        }
+
+        virtual const PointReference<4 + codim>& transform(const Geometry::PointReference<4>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return *PointReferenceFactory<4 + codim>::instance()->makePoint();
+        }
+
+    //protected:
+    //    std::map<const PointReference*, const PointReference*> transformedCoordinates;
     };
 }
 #endif /* REFERENCETOPHYSICALM_H_ */

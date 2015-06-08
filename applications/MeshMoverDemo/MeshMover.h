@@ -24,12 +24,12 @@
 
 #include "Base/MeshMoverBase.h"
 
-class MeshMover : public Base::MeshMoverBase
+class MeshMover : public Base::MeshMoverBase<2>
 {
     
 public:
     
-    using PointPhysicalT = Geometry::PointPhysical;
+    using PointPhysicalT = Geometry::PointPhysical<2>;
 
 public:
     

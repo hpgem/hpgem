@@ -11,7 +11,7 @@
 // To declare Physical and reference space points
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PointReference.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include "InitialConditions.h"
 
@@ -25,7 +25,7 @@ using std::ifstream;
 using std::istream;
 using std::ostream;
 
-class TecplotWriteFunction : public Output::TecplotSingleElementWriter
+class TecplotWriteFunction : public Output::TecplotSingleElementWriter<3>
 {
     
     // 	double exactSolutionP(const PhysSpacePoint<dim>& pPhys)
@@ -52,17 +52,17 @@ class TecplotWriteFunction : public Output::TecplotSingleElementWriter
 public:
     
     TecplotWriteFunction(ofstream* energyFile, ofstream* divFile, ofstream* energyExfile, const ExactSolutionBase* vel, ofstream* file1Dx, ofstream* file1D, ofstream* file1DEx, ofstream* l2File)
-            : velocity_(vel), maxError_(0), maxErrorU_(0), file1Dx_(file1Dx), file1D_(file1D), file1DEx_(file1DEx), energyFile_(energyFile), divFile_(divFile), energyExfile_(energyExfile), l2errorfile_(l2File), maxErrorPoint_(3)
+            : velocity_(vel), maxError_(0), maxErrorU_(0), file1Dx_(file1Dx), file1D_(file1D), file1DEx_(file1DEx), energyFile_(energyFile), divFile_(divFile), energyExfile_(energyExfile), l2errorfile_(l2File), maxErrorPoint_()
     {
         *energyFile_ << "Time" << " , " << "Energy" << endl;
         *energyExfile_ << "Time" << " , " << "EnergyEx" << endl;
         *divFile_ << "Time" << " , " << "DIV" << endl;
     }
-    void writeToTecplotFile(const Base::Element* element, const PointReference& pRef, ostream& os)
+    void writeToTecplotFile(const Base::Element* element, const PointReference<3>& pRef, ostream& os)
     {
         double lambda, u, uExact, lambdaExact, v, w, energy, vExact, wExact;
         double energyExact, uError, vError, wError;
-        LinearAlgebra::NumericalVector sol = element->getSolution(0, pRef);
+        LinearAlgebra::MiddleSizeVector sol = element->getSolution(0, pRef);
 //        data.extractState(p, s);
 //        
         lambda = sol[3];
@@ -75,7 +75,7 @@ public:
         energy = 0;
 //        energyExact = 0;//data.energyExact_;
 //        
-        PointPhysical pPhys = element->referenceToPhysical(pRef);
+        PointPhysical<3> pPhys = element->referenceToPhysical(pRef);
 //        
         uExact = velocity_->getU(pPhys, time_); //exactSolutionU(pPhys);
         vExact = velocity_->getV(pPhys, time_); //exactSolutionV(pPhys);
@@ -153,7 +153,7 @@ public:
     double maxErrorV_;
     double maxErrorW_;
 
-    PointPhysical maxErrorPoint_;
+    PointPhysical<3> maxErrorPoint_;
 
     void setOutputFiles(ofstream* file1Dx, ofstream* file1D, ofstream* file1DEx)
     {

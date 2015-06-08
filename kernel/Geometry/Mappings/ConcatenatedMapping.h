@@ -42,11 +42,12 @@ namespace Geometry
      *  the ConcatenatedMapping must not exceed the one of the component
      *  mappings, but this is hardly possible for reasons in the mathematical
      *  usage. */
-    class ConcatenatedMapping : public MappingReferenceToReference
+    //tailored to use cases we currently need; should be made more flexible as needed
+    class ConcatenatedMapping : public MappingReferenceToReference<1>
     {
     public:
         //! Ctor gets two references to existing mappings.
-        ConcatenatedMapping(const MappingReferenceToReference& m1, const MappingReferenceToReference& m2)
+        ConcatenatedMapping(const MappingReferenceToReference<0>& m1, const MappingReferenceToReference<1>& m2)
                 : map1_(m1), map2_(m2)
         {
         }
@@ -54,16 +55,22 @@ namespace Geometry
         ConcatenatedMapping(const ConcatenatedMapping &other) = default;
                 
         //! Transformation is simply via the intermediate space.
-        const PointReference& transform(const PointReference& pIn) const override final;
+        const PointReference<1>& transform(const PointReference<0>& pIn) const override final;
+        const PointReference<2>& transform(const PointReference<1>& pIn) const override final;
+        const PointReference<3>& transform(const PointReference<2>& pIn) const override final;
+        const PointReference<4>& transform(const PointReference<3>& pIn) const override final;
 
         //! To compute the Jacobian, the two component ones have to multiplied.
-        Jacobian calcJacobian(const PointReference& p) const override final;
+        Jacobian<0, 1> calcJacobian(const PointReference<0>& p) const override final;
+        Jacobian<1, 2> calcJacobian(const PointReference<1>& p) const override final;
+        Jacobian<2, 3> calcJacobian(const PointReference<2>& p) const override final;
+        Jacobian<3, 4> calcJacobian(const PointReference<3>& p) const override final;
 
         std::size_t getTargetDimension() const override final;
 
     private:
-        const MappingReferenceToReference& map1_;
-        const MappingReferenceToReference& map2_;
+        const MappingReferenceToReference<0>& map1_;
+        const MappingReferenceToReference<1>& map2_;
     };
 
 } // close namespace Geometry

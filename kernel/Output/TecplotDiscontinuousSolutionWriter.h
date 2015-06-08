@@ -33,20 +33,24 @@
 
 namespace Base
 {
+    template<std::size_t DIM>
     class MeshManipulator;
     class Element;
 }
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
 namespace Output
 {
+    template<std::size_t DIM>
     class TecplotSingleElementWriter;
     
     //! \brief This class prints the nodes and the solution in every element in Tecplot format.
+    template<std::size_t DIM>
     class TecplotDiscontinuousSolutionWriter
     {
     public:
@@ -60,10 +64,10 @@ namespace Output
 
         /// Write a zone with data from the current mesh to the stream held by the object.
         ///\deprecated please use the other write instead
-        void write(const Base::MeshManipulator* mesh, const std::string& zoneTitle, const bool sameGeometry, TecplotSingleElementWriter* writeDataClass, const double time = 0);
+        void write(const Base::MeshManipulator<DIM>* mesh, const std::string& zoneTitle, const bool sameGeometry, TecplotSingleElementWriter<DIM>* writeDataClass, const double time = 0);
         
         /// Write a zone with data from the current mesh to the stream held by the object.
-        void write(const Base::MeshManipulator* mesh, const std::string& zoneTitle, const bool sameGeometry, std::function<void(const Base::Element*, const Geometry::PointReference&, std::ostream&)>, const double time = 0);
+        void write(const Base::MeshManipulator<DIM>* mesh, const std::string& zoneTitle, const bool sameGeometry, std::function<void(const Base::Element*, const Geometry::PointReference<DIM>&, std::ostream&)>, const double time = 0);
 
         ~TecplotDiscontinuousSolutionWriter()
         {
@@ -90,4 +94,6 @@ namespace Output
         std::size_t* dimNrs;
     };
 }
+
+#include "TecplotDiscontinuousSolutionWriter_Impl.h"
 #endif

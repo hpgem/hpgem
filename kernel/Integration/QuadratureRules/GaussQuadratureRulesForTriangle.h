@@ -23,6 +23,7 @@
 #define GaussQuadratureRulesForTriangle_h
 //---------------------------------------------------------------------------
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
+#include "Geometry/PointReference.h"
 #include <vector>
 
 //---------------------------------------------------------------------------
@@ -36,7 +37,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static Tn2_1_1& Instance()
         {
@@ -59,7 +60,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<2>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -67,7 +68,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static Tn2_2_3& Instance()
         {
@@ -90,7 +91,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[3];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<2>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -98,7 +99,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static Tn2_3_4& Instance()
         {
@@ -121,7 +122,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[4];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<2>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -129,7 +130,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static Tn2_4_6& Instance()
         {
@@ -152,7 +153,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[6];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<2>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -160,7 +161,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static T2_5_7& Instance()
         {
@@ -183,7 +184,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[7];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<2>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -191,7 +192,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static T2_6_12& Instance()
         {
@@ -214,7 +215,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[12];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<2>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -222,7 +223,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static T2_7_13& Instance()
         {
@@ -245,7 +246,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[13];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<2>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -253,7 +254,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static T2_8_16& Instance()
         {
@@ -276,7 +277,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[16];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<2>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -284,7 +285,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static T2_9_19& Instance()
         {
@@ -307,7 +308,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[19];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<2>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -315,7 +316,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static T2_10_25& Instance()
         {
@@ -338,7 +339,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[25];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<2>*> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -346,7 +347,7 @@ namespace QuadratureRules
     {
     public:
         using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static T2_11_28& Instance()
         {
@@ -369,7 +370,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[28];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<2>*> gp_;
     };
 
 //---------------------------------------------------------------------------

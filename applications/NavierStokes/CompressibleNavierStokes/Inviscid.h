@@ -22,6 +22,8 @@
 #ifndef INVISCID_H_
 #define INVISCID_H_
 
+#include "CompressibleDimension.h"
+
 class Inviscid
 {
 public:
@@ -32,20 +34,20 @@ public:
     /// *****************************************
 
     /// Compute integrand of righthandside on an element
-    LinearAlgebra::NumericalVector integrandAtElement(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const double pressureTerm, const LinearAlgebra::NumericalVector &qSolution);
+    LinearAlgebra::MiddleSizeVector integrandAtElement(Base::PhysicalElement<DIM>& element, const double &time, const double pressureTerm, const LinearAlgebra::MiddleSizeVector &qSolution);
 
     /// *****************************************
     /// ***    face integration functions     ***
     /// *****************************************
 
     /// \brief Compute the Roe Riemann Flux.
-    LinearAlgebra::NumericalVector RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qReconstructionLeft, const LinearAlgebra::NumericalVector &qReconstructionRight, const LinearAlgebra::NumericalVector &normal);
+    LinearAlgebra::MiddleSizeVector RoeRiemannFluxFunction(const LinearAlgebra::MiddleSizeVector &qReconstructionLeft, const LinearAlgebra::MiddleSizeVector &qReconstructionRight, const LinearAlgebra::SmallVector<DIM>& normal);
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
-	LinearAlgebra::NumericalVector integrandAtFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
+	LinearAlgebra::MiddleSizeVector integrandAtFace(Base::PhysicalFace<DIM>& face, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients);
 
 	/// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-	LinearAlgebra::NumericalVector integrandAtFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const Base::Side &iSide, const LinearAlgebra::NumericalVector &qSolutionInternal, const LinearAlgebra::NumericalVector &qSolutionExternal, const LinearAlgebra::NumericalVector &normal);
+	LinearAlgebra::MiddleSizeVector integrandAtFace(Base::PhysicalFace<DIM>& face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &qSolutionInternal, const LinearAlgebra::MiddleSizeVector &qSolutionExternal);
 
 private:
 	const CompressibleNavierStokes& instance_;

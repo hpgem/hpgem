@@ -58,7 +58,7 @@ namespace QuadratureRules
         return weight_[i];
     }
     
-    const Geometry::PointReference&
+    const Geometry::PointReferenceBase&
     Pyramid_1_4::getPoint(std::size_t i) const
     {
         logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
@@ -75,16 +75,16 @@ namespace QuadratureRules
             : name_("Pyramid_1_1"), refGeoPtr_(&ReferencePyramid::Instance()), gp_(0)
     {
         weight_[0] = ((2.0) * (2.0)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.4850054945e-1)), (0.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.4850054945e-1)), (0.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[1] = ((2.0) * (2.0)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.2386007376)), (0.0) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.2386007376)), (0.0) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[2] = ((2.0) * (2.0)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.5170472951)), (0.0) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.5170472951)), (0.0) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[3] = ((2.0) * (2.0)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.7958514179)), (0.0) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.7958514179)), (0.0) * (1. - (0.7958514179)), 0.7958514179}));
         
     }
     
@@ -115,7 +115,7 @@ namespace QuadratureRules
         return weight_[i];
     }
     
-    const Geometry::PointReference&
+    const Geometry::PointReferenceBase&
     Pyramid_3_16::getPoint(std::size_t i) const
     {
         logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
@@ -132,52 +132,52 @@ namespace QuadratureRules
             : name_("Pyramid_3_1"), refGeoPtr_(&ReferencePyramid::Instance()), gp_(0)
     {
         weight_[0] = ((1.0) * (1.0)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), (-std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), (-std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[1] = ((1.0) * (1.0)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), (-std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), (-std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[2] = ((1.0) * (1.0)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), (+std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), (+std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[3] = ((1.0) * (1.0)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), (+std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), (+std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[4] = ((1.0) * (1.0)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), (-std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), (-std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[5] = ((1.0) * (1.0)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), (-std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), (-std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[6] = ((1.0) * (1.0)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), (+std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), (+std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[7] = ((1.0) * (1.0)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), (+std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), (+std::sqrt(3.0) / 3.0) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[8] = ((1.0) * (1.0)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), (-std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), (-std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[9] = ((1.0) * (1.0)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), (-std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), (-std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[10] = ((1.0) * (1.0)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), (+std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), (+std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[11] = ((1.0) * (1.0)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), (+std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), (+std::sqrt(3.0) / 3.0) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[12] = ((1.0) * (1.0)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), (-std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), (-std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[13] = ((1.0) * (1.0)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), (-std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), (-std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[14] = ((1.0) * (1.0)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), (+std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), (+std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[15] = ((1.0) * (1.0)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), (+std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), (+std::sqrt(3.0) / 3.0) * (1. - (0.7958514179)), 0.7958514179}));
         
     }
     
@@ -208,7 +208,7 @@ namespace QuadratureRules
         return weight_[i];
     }
     
-    const Geometry::PointReference&
+    const Geometry::PointReferenceBase&
     Pyramid_5_36::getPoint(std::size_t i) const
     {
         logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
@@ -225,112 +225,112 @@ namespace QuadratureRules
             : name_("Pyramid_5_1"), refGeoPtr_(&ReferencePyramid::Instance()), gp_(0)
     {
         weight_[0] = ((5. / 9.) * (5. / 9.)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[1] = ((8. / 9.) * (5. / 9.)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.4850054945e-1)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.4850054945e-1)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[2] = ((5. / 9.) * (5. / 9.)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[3] = ((5. / 9.) * (8. / 9.)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (0.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (0.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[4] = ((8. / 9.) * (8. / 9.)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.4850054945e-1)), (0.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.4850054945e-1)), (0.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[5] = ((5. / 9.) * (8. / 9.)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (0.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (0.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[6] = ((5. / 9.) * (5. / 9.)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[7] = ((8. / 9.) * (5. / 9.)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.4850054945e-1)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.4850054945e-1)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[8] = ((5. / 9.) * (5. / 9.)) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[9] = ((5. / 9.) * (5. / 9.)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[10] = ((8. / 9.) * (5. / 9.)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.2386007376)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.2386007376)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[11] = ((5. / 9.) * (5. / 9.)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[12] = ((5. / 9.) * (8. / 9.)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), (0.0) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), (0.0) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[13] = ((8. / 9.) * (8. / 9.)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.2386007376)), (0.0) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.2386007376)), (0.0) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[14] = ((5. / 9.) * (8. / 9.)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), (0.0) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), (0.0) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[15] = ((5. / 9.) * (5. / 9.)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[16] = ((8. / 9.) * (5. / 9.)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.2386007376)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.2386007376)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[17] = ((5. / 9.) * (5. / 9.)) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[18] = ((5. / 9.) * (5. / 9.)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[19] = ((8. / 9.) * (5. / 9.)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.5170472951)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.5170472951)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[20] = ((5. / 9.) * (5. / 9.)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[21] = ((5. / 9.) * (8. / 9.)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), (0.0) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), (0.0) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[22] = ((8. / 9.) * (8. / 9.)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.5170472951)), (0.0) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.5170472951)), (0.0) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[23] = ((5. / 9.) * (8. / 9.)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), (0.0) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), (0.0) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[24] = ((5. / 9.) * (5. / 9.)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[25] = ((8. / 9.) * (5. / 9.)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.5170472951)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.5170472951)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[26] = ((5. / 9.) * (5. / 9.)) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[27] = ((5. / 9.) * (5. / 9.)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[28] = ((8. / 9.) * (5. / 9.)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.7958514179)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.7958514179)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[29] = ((5. / 9.) * (5. / 9.)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[30] = ((5. / 9.) * (8. / 9.)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), (0.0) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), (0.0) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[31] = ((8. / 9.) * (8. / 9.)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.7958514179)), (0.0) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.7958514179)), (0.0) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[32] = ((5. / 9.) * (8. / 9.)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), (0.0) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), (0.0) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[33] = ((5. / 9.) * (5. / 9.)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[34] = ((8. / 9.) * (5. / 9.)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.0) * (1. - (0.7958514179)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.7958514179)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[35] = ((5. / 9.) * (5. / 9.)) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), (+std::sqrt(3.0 / 5.0)) * (1. - (0.7958514179)), 0.7958514179}));
         
     }
     
@@ -361,7 +361,7 @@ namespace QuadratureRules
         return weight_[i];
     }
     
-    const Geometry::PointReference&
+    const Geometry::PointReferenceBase&
     Pyramid_7_48::getPoint(std::size_t i) const
     {
         logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
@@ -378,148 +378,148 @@ namespace QuadratureRules
             : name_("Pyramid_7_1"), refGeoPtr_(&ReferencePyramid::Instance()), gp_(0)
     {
         weight_[0] = (98. / 405.) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt(6. / 7.))) * (1. - (0.4850054945e-1)), (0.) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt(6. / 7.))) * (1. - (0.4850054945e-1)), (0.) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[1] = (98. / 405.) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt(6. / 7.))) * (1. - (0.4850054945e-1)), (0.) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt(6. / 7.))) * (1. - (0.4850054945e-1)), (0.) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[2] = (98. / 405.) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.) * (1. - (0.4850054945e-1)), (+(std::sqrt(6. / 7.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.) * (1. - (0.4850054945e-1)), (+(std::sqrt(6. / 7.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[3] = (98. / 405.) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.) * (1. - (0.4850054945e-1)), (-(std::sqrt(6. / 7.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.) * (1. - (0.4850054945e-1)), (-(std::sqrt(6. / 7.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[4] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[5] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[6] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[7] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[8] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[9] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[10] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[11] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.1108884156);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
         
         weight_[12] = (98. / 405.) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt(6. / 7.))) * (1. - (0.2386007376)), (0.) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt(6. / 7.))) * (1. - (0.2386007376)), (0.) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[13] = (98. / 405.) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt(6. / 7.))) * (1. - (0.2386007376)), (0.) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt(6. / 7.))) * (1. - (0.2386007376)), (0.) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[14] = (98. / 405.) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.) * (1. - (0.2386007376)), (+(std::sqrt(6. / 7.))) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.) * (1. - (0.2386007376)), (+(std::sqrt(6. / 7.))) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[15] = (98. / 405.) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.) * (1. - (0.2386007376)), (-(std::sqrt(6. / 7.))) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.) * (1. - (0.2386007376)), (-(std::sqrt(6. / 7.))) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[16] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[17] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[18] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[19] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[20] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[21] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[22] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[23] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.1434587898);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.2386007376)), 0.2386007376}));
         
         weight_[24] = (98. / 405.) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt(6. / 7.))) * (1. - (0.5170472951)), (0.) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt(6. / 7.))) * (1. - (0.5170472951)), (0.) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[25] = (98. / 405.) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt(6. / 7.))) * (1. - (0.5170472951)), (0.) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt(6. / 7.))) * (1. - (0.5170472951)), (0.) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[26] = (98. / 405.) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.) * (1. - (0.5170472951)), (+(std::sqrt(6. / 7.))) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.) * (1. - (0.5170472951)), (+(std::sqrt(6. / 7.))) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[27] = (98. / 405.) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.) * (1. - (0.5170472951)), (-(std::sqrt(6. / 7.))) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.) * (1. - (0.5170472951)), (-(std::sqrt(6. / 7.))) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[28] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[29] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[30] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[31] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[32] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[33] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[34] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[35] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.6863388717e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.5170472951)), 0.5170472951}));
         
         weight_[36] = (98. / 405.) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt(6. / 7.))) * (1. - (0.7958514179)), (0.) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt(6. / 7.))) * (1. - (0.7958514179)), (0.) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[37] = (98. / 405.) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt(6. / 7.))) * (1. - (0.7958514179)), (0.) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt(6. / 7.))) * (1. - (0.7958514179)), (0.) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[38] = (98. / 405.) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.) * (1. - (0.7958514179)), (+(std::sqrt(6. / 7.))) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.) * (1. - (0.7958514179)), (+(std::sqrt(6. / 7.))) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[39] = (98. / 405.) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(0.) * (1. - (0.7958514179)), (-(std::sqrt(6. / 7.))) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.) * (1. - (0.7958514179)), (-(std::sqrt(6. / 7.))) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[40] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[41] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[42] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (+(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[43] = ((178981. + 2769. * std::sqrt(583.)) / 472230.) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (-(std::sqrt((114. - 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[44] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[45] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[46] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (+(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
         
         weight_[47] = ((178981. - 2769. * std::sqrt(583.)) / 472230.) * (0.1035224075e-1);
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
+        gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), (-(std::sqrt((114. + 3. * std::sqrt(583.)) / 287.))) * (1. - (0.7958514179)), 0.7958514179}));
         
     }
 

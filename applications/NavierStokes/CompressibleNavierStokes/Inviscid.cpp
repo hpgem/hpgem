@@ -27,14 +27,16 @@ Inviscid::Inviscid(const CompressibleNavierStokes& instance) : instance_(instanc
 {
 }
 
-LinearAlgebra::NumericalVector Inviscid::integrandAtElement(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const double pressureTerm, const LinearAlgebra::NumericalVector &qSolution)
+LinearAlgebra::MiddleSizeVector Inviscid::integrandAtElement(Base::PhysicalElement<DIM>& element, const double &time, const double pressureTerm, const LinearAlgebra::MiddleSizeVector &qSolution)
 {
+    const Base::Element* ptrElement = element.getElement();
+    const Geometry::PointReference<DIM>& pRef = element.getPointReference();
 	// Get the number of basis functions in an element.
 	std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
 
 	//Create data structures for calculating the integrand
-	LinearAlgebra::NumericalVector integrand(instance_.numOfVariables_ * numOfBasisFunctions); //The final integrand value will be stored in this vector
-	LinearAlgebra::NumericalVector gradientBasisFunction(instance_.DIM_); //Gradient function based on the number of dimensions
+	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_ * numOfBasisFunctions); //The final integrand value will be stored in this vector
+	LinearAlgebra::MiddleSizeVector gradientBasisFunction(instance_.DIM_); //Gradient function based on the number of dimensions
 
 	//Create temporary result values
 	double integrandTerm = 0.0;
@@ -81,13 +83,13 @@ LinearAlgebra::NumericalVector Inviscid::integrandAtElement(const Base::Element 
 }
 
 //Compute the Roe Riemann Flux function
-LinearAlgebra::NumericalVector Inviscid::RoeRiemannFluxFunction(const LinearAlgebra::NumericalVector &qSolutionLeft, const LinearAlgebra::NumericalVector &qSolutionRight, const LinearAlgebra::NumericalVector &normal)
+LinearAlgebra::MiddleSizeVector Inviscid::RoeRiemannFluxFunction(const LinearAlgebra::MiddleSizeVector &qSolutionLeft, const LinearAlgebra::MiddleSizeVector &qSolutionRight, const LinearAlgebra::SmallVector<DIM> &normal)
 {
 
-	   LinearAlgebra::NumericalVector qDifference = qSolutionRight - qSolutionLeft;
+	   LinearAlgebra::MiddleSizeVector qDifference = qSolutionRight - qSolutionLeft;
 
 	   //Compute the Roe average state
-	   LinearAlgebra::NumericalVector qAverage(instance_.DIM_+1);
+	   LinearAlgebra::MiddleSizeVector qAverage(instance_.DIM_+1);
 	   double zL = std::sqrt(qSolutionLeft(0));
 	   double zR = std::sqrt(qSolutionRight(0));
 	   double tmp1 = 1.0/(qSolutionLeft(0) + zL*zR);
@@ -167,7 +169,7 @@ LinearAlgebra::NumericalVector Inviscid::RoeRiemannFluxFunction(const LinearAlge
 	   const double abv7 = abv2*abv4*ovaAvg + abv3*abv5;
 
 	   //Compute the Roe Riemann Flux function: h(u_L,u_R) = 0.5*(F(u_L) + F(u_R) - |A|(u_R - u_L))
-	   LinearAlgebra::NumericalVector flux(instance_.DIM_ + 2);
+	   LinearAlgebra::MiddleSizeVector flux(instance_.DIM_ + 2);
 
 	    double pLR = pressureLeft + pressureRight;
 
@@ -199,14 +201,16 @@ LinearAlgebra::NumericalVector Inviscid::RoeRiemannFluxFunction(const LinearAlge
 }
 
 /// \brief Compute the integrand for the right hand side for the reference face corresponding to an external face.
-LinearAlgebra::NumericalVector Inviscid::integrandAtFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients)
+LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(Base::PhysicalFace<DIM>& face, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
+    const Base::Face* ptrFace = face.getFace();
+    const Geometry::PointReference<DIM - 1>& pRef = face.getPointReference();
 	   //Get the number of basis functions
 	   std::size_t numOfBasisFunctionsLeft= ptrFace->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
 
-	   LinearAlgebra::NumericalVector integrand(instance_.numOfVariables_*numOfBasisFunctionsLeft);
-	   LinearAlgebra::NumericalVector qReconstructionLeft(instance_.numOfVariables_);
-	   LinearAlgebra::NumericalVector qReconstructionRight(instance_.numOfVariables_);
+	   LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfBasisFunctionsLeft);
+	   LinearAlgebra::MiddleSizeVector qReconstructionLeft(instance_.numOfVariables_);
+	   LinearAlgebra::MiddleSizeVector qReconstructionRight(instance_.numOfVariables_);
 
 	   //todo: this has been computed already in previous step: remove it to reduce code duplication
 	   //Compute left and right states
@@ -230,11 +234,11 @@ LinearAlgebra::NumericalVector Inviscid::integrandAtFace(const Base::Face *ptrFa
 	   qReconstructionRight(instance_.DIM_+1) = qReconstructionLeft(instance_.DIM_+1);
 
 	   // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-	   LinearAlgebra::NumericalVector normal = ptrFace->getNormalVector(pRef);
+	   LinearAlgebra::MiddleSizeVector normal = ptrFace->getNormalVector(pRef);
 
 
 	   //Compute flux
-	   LinearAlgebra::NumericalVector flux = RoeRiemannFluxFunction(qReconstructionRight, qReconstructionLeft, normal);
+	   LinearAlgebra::MiddleSizeVector flux = RoeRiemannFluxFunction(qReconstructionRight, qReconstructionLeft, normal);
 
 	   //todo: Other implementation is simply to put the flux to zero. No mass, momentum and energy should get out. This saves computational time
 
@@ -253,15 +257,18 @@ LinearAlgebra::NumericalVector Inviscid::integrandAtFace(const Base::Face *ptrFa
 }
 
 /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-LinearAlgebra::NumericalVector Inviscid::integrandAtFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const Base::Side &iSide, const LinearAlgebra::NumericalVector &qSolutionInternal, const LinearAlgebra::NumericalVector &qSolutionExternal, const LinearAlgebra::NumericalVector &normal)
+LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(Base::PhysicalFace<DIM>& face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &qSolutionInternal, const LinearAlgebra::MiddleSizeVector &qSolutionExternal)
 {
+    const Base::Face* ptrFace = face.getFace();
+    const Geometry::PointReference<DIM - 1>& pRef = face.getPointReference();
+    LinearAlgebra::SmallVector<DIM> normal = face.getUnitNormalVector();
 	   //Get the number of basis functions
 	   std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
 
-	   LinearAlgebra::NumericalVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
+	   LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
 
 	   //Compute flux
-	   LinearAlgebra::NumericalVector flux = RoeRiemannFluxFunction(qSolutionInternal, qSolutionExternal, normal);
+	   LinearAlgebra::MiddleSizeVector flux = RoeRiemannFluxFunction(qSolutionInternal, qSolutionExternal, normal);
 
 	   // Compute integrand on the reference element.
 	   std::size_t iVB; // Index for both variable and basis function.

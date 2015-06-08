@@ -18,12 +18,16 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifdef HPGEM_USE_MPI
+//something breaks if this in included later on
+#include <mpi.h>
+#endif
 
 #include "HEuler.h"
 #include "Base/RectangularMeshDescriptor.h"
 
 HEuler::HEuler(HEulerGlobalVariables* global, const HEulerConfigurationData* config)
-        : Base::HpgemAPIBase(global, config), P_(), Q_()
+        : Base::HpgemAPIBase<3>(global, config), P_(), Q_()
 {
     switch (config->solutionType_)
     {
@@ -116,7 +120,7 @@ void HEuler::printFullMatrixInfo(Mat& matrix, const string& name)
 
 bool HEuler::initialiseMesh()
 {
-    RectangularMeshDescriptor rectangularMesh(3);
+    RectangularMeshDescriptor<3> rectangularMesh;
     
     const HEulerConfigurationData* config = static_cast<const HEulerConfigurationData*>(configData_);
     
@@ -159,8 +163,10 @@ bool HEuler::initialiseMesh()
 }
 
 void //computes the mass matrix
-HEuler::elementIntegrand(const Base::Element* element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix)
+HEuler::elementIntegrand(Base::PhysicalElement<3>& el, LinearAlgebra::MiddleSizeMatrix& massMatrix)
 {
+    const Base::Element* element = el.getElement();
+    const Geometry::PointReference<3>& p = el.getPointReference();
     unsigned int numOfDegreesOfFreedom = element->getNrOfBasisFunctions();
     
     massMatrix.resize(numOfDegreesOfFreedom, numOfDegreesOfFreedom);
@@ -178,10 +184,12 @@ HEuler::elementIntegrand(const Base::Element* element, const PointReferenceT& p,
     }
 }
 
-void HEuler::calculateLocalEnergy(const Base::Element& element, const PointReferenceT& p, double& returnValue)
+void HEuler::calculateLocalEnergy(Base::PhysicalElement<3>& el, double& returnValue)
 {
+    const Base::Element* element = el.getElement();
+    const Geometry::PointReference<3>& p = el.getPointReference();
     double extra = 0;
-    Base::Element::SolutionVector solution = element.getSolution(0, p);
+    Base::Element::SolutionVector solution = element->getSolution(0, p);
     
     HEulerConfigurationData::SolutionType sType = static_cast<const HEulerConfigurationData*>(configData_)->solutionType_;
     
@@ -192,20 +200,22 @@ void HEuler::calculateLocalEnergy(const Base::Element& element, const PointRefer
     returnValue = 0.5 * (solution[1] * solution[1] + solution[2] * solution[2] + solution[3] * solution[3]) + extra;
 }
 
-void HEuler::elementIntegrand(const Base::Element* element, const PointReferenceT& p, ElementIntegralData& returnObject)
+void HEuler::elementIntegrand(Base::PhysicalElement<3>& el, ElementIntegralData& returnObject)
 {
+    const Base::Element* element = el.getElement();
+    const Geometry::PointReference<3>& p = el.getPointReference();
     
     unsigned int numberOfDegreesOfFreedom = element->getNrOfBasisFunctions();
     
-    LinearAlgebra::Matrix& xDerReturnData = returnObject.xGrad_;
-    LinearAlgebra::Matrix& yDerReturnData = returnObject.yGrad_;
-    LinearAlgebra::Matrix& zDerReturnData = returnObject.zGrad_;
+    LinearAlgebra::MiddleSizeMatrix& xDerReturnData = returnObject.xGrad_;
+    LinearAlgebra::MiddleSizeMatrix& yDerReturnData = returnObject.yGrad_;
+    LinearAlgebra::MiddleSizeMatrix& zDerReturnData = returnObject.zGrad_;
     
     xDerReturnData.resize(numberOfDegreesOfFreedom, numberOfDegreesOfFreedom);
     yDerReturnData.resize(numberOfDegreesOfFreedom, numberOfDegreesOfFreedom);
     zDerReturnData.resize(numberOfDegreesOfFreedom, numberOfDegreesOfFreedom);
     
-    LinearAlgebra::NumericalVector grads(3);
+    LinearAlgebra::MiddleSizeVector grads(3);
     
     for (unsigned int i = 0; i < numberOfDegreesOfFreedom; ++i)
     {
@@ -222,8 +232,11 @@ void HEuler::elementIntegrand(const Base::Element* element, const PointReference
     }
 }
 
-void HEuler::faceIntegrand(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& p, FluxData& ret)
+void HEuler::faceIntegrand(Base::PhysicalFace<3>& fa, FluxData& ret)
 {
+    const Base::Face* face = fa.getFace();
+    LinearAlgebra::SmallVector<DIM> normal = fa.getNormalVector();
+    const Geometry::PointReference<2>& p = fa.getPointReference();
     ret.resize(face->getNrOfBasisFunctions());
     if (face->isInternal())
     {
@@ -241,17 +254,17 @@ void HEuler::faceIntegrand(const Base::Face* face, const LinearAlgebra::Numerica
         const Base::Element* const left = face->getPtrElementLeft();
         const Base::Element* const right = face->getPtrElementRight();
         
-        const Geometry::PointReference& pL = face->mapRefFaceToRefElemL(p);
-        const Geometry::PointReference& pR = face->mapRefFaceToRefElemR(p);
+        const Geometry::PointReference<3>& pL = face->mapRefFaceToRefElemL(p);
+        const Geometry::PointReference<3>& pR = face->mapRefFaceToRefElemR(p);
         
         for (int j = 0; j < numberOfDegreesOfFreedom; ++j)
         {
             bFL = left->basisFunction(j, pL);
             bFR = right->basisFunction(j, pR);
             
-            LinearAlgebra::Matrix& leftReturnData = ret.left_[j];
+            LinearAlgebra::MiddleSizeMatrix& leftReturnData = ret.left_[j];
             
-            LinearAlgebra::Matrix& rightReturnData = ret.right_[j];
+            LinearAlgebra::MiddleSizeMatrix& rightReturnData = ret.right_[j];
             
             for (unsigned int i = 0; i < numberOfDegreesOfFreedom; ++i)
             {
@@ -656,7 +669,7 @@ void HEuler::createIncompressibleSystem()
     ElementIntegralData gradMass;
     bool useCache = false;
     ElementIntegralT elIntegral(useCache);
-    using Integrand = void (HEuler::*)(const Base::Element* , const PointReferenceT&, ElementIntegralData&);
+    using Integrand = void (HEuler::*)(Base::PhysicalElement<3>&, ElementIntegralData&);
     Integrand gradMassInteg = &HEuler::elementIntegrand;
     
     std::cout << " - : Element Integration started\n";
@@ -1149,7 +1162,7 @@ void HEuler::createCompressibleSystem()
     ElementIntegralData gradMass;
     bool useCache = false;
     ElementIntegralT elIntegral(useCache);
-    using Integrand = void (HEuler::*)(const Base::Element* , const PointReferenceT&, ElementIntegralData&);
+    using Integrand = void (HEuler::*)(Base::PhysicalElement<3>&, ElementIntegralData&);
     Integrand gradMassInteg = &HEuler::elementIntegrand;
     
     std::cout << " - : Element Integration started\n";
@@ -1433,14 +1446,14 @@ void HEuler::initialConditions()
     
     ElementIntegralT elIntegral(useCache);
     
-    using Integrand = void (HEuler::*)(const Base::Element* , const PointReferenceT&, LinearAlgebra::Matrix&);
+    using Integrand = void (HEuler::*)(const Base::Element* , const PointReferenceT&, LinearAlgebra::MiddleSizeMatrix&);
     //Integrand massMatrixIntegrand = &HEuler::calculateMassMatrix;
     
-    LinearAlgebra::NumericalVector rightHand(ldof);
+    LinearAlgebra::MiddleSizeVector rightHand(ldof);
     
     Base::Element::SolutionVector numerical(ldof);
     
-    LinearAlgebra::Matrix invMassM(ldof, ldof);
+    LinearAlgebra::MiddleSizeMatrix invMassM(ldof, ldof);
     
     cout << "ldof=" << ldof << endl;
     
@@ -1457,10 +1470,10 @@ void HEuler::initialConditions()
         
         elemData = new HEulerElementData(ldof);
         
-        LinearAlgebra::Matrix& massMatrix = elemData->massMatrix_;
-        LinearAlgebra::Matrix& invMassM = elemData->invMassMatrix_;
+        LinearAlgebra::MiddleSizeMatrix& massMatrix = elemData->massMatrix_;
+        LinearAlgebra::MiddleSizeMatrix& invMassM = elemData->invMassMatrix_;
         
-        massMatrix = elIntegral.integrate<LinearAlgebra::Matrix>(elem, this);
+        massMatrix = elIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>(elem, this);
         
         invMassM = massMatrix.inverse();
         
@@ -1761,7 +1774,7 @@ void HEuler::output(double time)
     std::ofstream file3D;
     file3D.open(outFile.c_str());
     
-    Output::TecplotDiscontinuousSolutionWriter out(file3D, "RectangularMesh", "012", outputFormat);
+    Output::TecplotDiscontinuousSolutionWriter<3> out(file3D, "RectangularMesh", "012", outputFormat);
     
     TecplotWriteFunction userWriteFunction(&energyFile, &divFile, &energyExfile, exactSolution_, &file1Dx0, &file1D0, &file1DEx0, &l2ErrorFile);
     userWriteFunction.time_ = time;

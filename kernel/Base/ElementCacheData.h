@@ -21,8 +21,11 @@
 #ifndef ElementCacheData_h
 #define ElementCacheData_h
 
+#include <cstdlib>
+
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -36,7 +39,8 @@ namespace Base
     public:
         
         // calculate the cache data
-        void operator()(const Base::Element *el, const Geometry::PointReference &p);
+        template<std::size_t DIM>
+        void operator()(const Base::Element *el, const Geometry::PointReference<DIM> &p);
         
         ElementCacheData() = default;
         ElementCacheData(const ElementCacheData &other) = default;
@@ -46,5 +50,7 @@ namespace Base
         double absDetJac_;
     };
 }
+
+#include "ElementCacheData_Impl.h"
 
 #endif

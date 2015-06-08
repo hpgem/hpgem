@@ -30,7 +30,6 @@
 namespace Base
 {
     class Element;
-    class ShortTermStorageElementBase;
 }
 
 namespace QuadratureRules
@@ -40,24 +39,25 @@ namespace QuadratureRules
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 namespace Integration
 {
-    template<class returntrait1>
+    template<class returntrait1, std::size_t DIM>
     class ElementIntegrandBase;
     
+    template<std::size_t DIM>
     class ElementIntegral
     {
     public:
         using QuadratureRulesT = QuadratureRules::GaussQuadratureRule;
-        using PointReferenceT = Geometry::PointReference;
     public:
         
         //! \brief Construct an ElementIntegral, either with or without cache.
@@ -80,29 +80,29 @@ namespace Integration
         //! \brief Set recompute the cache OFF.
         void recomputeCacheOff();
 
-        ///\brief provide an Element wrapper that can be used to store transformed function data
-        ///this wrapper is responsible for transforming the functions to the reference coordinates
-        ///the default is suitable for 2D H1 conforming bases (no transformation for values and multiply with Jac^-T for derivatives)
-        ///this class will take over responsibility for the data management
-        void setStorageWrapper(Base::ShortTermStorageElementBase *transform);
+        void setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform);
+
+        Base::CoordinateTransformation<DIM>& getTransformation();
+
+        Base::PhysicalElement<DIM>& getPhysicalElement();
 
         //! \brief Directly integrate the integrand and return ReturnTrait1.
         //! ReturnTrait1 needs to have the function LinearAlgebra::axpy() implemented
         template<class ReturnTrait1>
-        ReturnTrait1 integrate(Base::Element* el, ElementIntegrandBase<ReturnTrait1>* integrand, const QuadratureRulesT * const qdrRule = nullptr);
+        ReturnTrait1 integrate(Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRulesT * const qdrRule = nullptr);
 
         template<class ReturnType>
-        ReturnType integrate(Base::Element* el, std::function<ReturnType(const Base::Element*, const Geometry::PointReference&)> integrand, const QuadratureRulesT * const qdrRule = nullptr);
+        ReturnType integrate(Base::Element* el, std::function<ReturnType(Base::PhysicalElement<DIM>&)> integrand, const QuadratureRulesT * const qdrRule = nullptr);
 
         /// \brief Compute the integral on a reference element. IntegrandType needs to have the function LinearAlgebra::axpy() implemented.
         template<typename IntegrandType>
-        IntegrandType referenceElementIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference &)> integrandFunction);
+        IntegrandType referenceElementIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType()> integrandFunction);
 
     private:
         
         bool useCache_;
 
-        Base::ShortTermStorageElementBase* localElement_;
+        Base::PhysicalElement<DIM> element_;
     };
 
 } // close namespace Integration

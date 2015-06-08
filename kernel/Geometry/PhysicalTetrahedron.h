@@ -29,7 +29,7 @@ namespace Geometry
     
     /// \deprecated just pass a referenceCube to the constructor of a PhysicalGeometry
     /// if you want to create a hexahedron
-    class PhysicalTetrahedron : public PhysicalGeometry
+    class PhysicalTetrahedron : public PhysicalGeometry<3>
     {
 
     public:

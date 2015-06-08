@@ -23,7 +23,7 @@
 
 #include "Logger.h"
 #include "Geometry/RefinementLine.h"
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 
 #include "PointPhysical.h"
 #include "ReferenceLine.h"
@@ -40,23 +40,22 @@ namespace Geometry
             return 0;
     }
     
-    void RefinementLine::getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const
+    std::vector<const PointPhysicalBase*> RefinementLine::getAllNodes(std::size_t refineType) const
     {
         // get all element's nodes
-        nodes.clear();
-        PointPhysicalT p(1);
+        std::vector<const PointPhysicalBase*> nodes;
         for (std::size_t i = 0; i < referenceGeometry_->getNumberOfNodes(); ++i)
         {
-            p = physicalGeometry_->getLocalNodeCoordinates(i);
-            nodes.push_back(p);
+            nodes.push_back(&physicalGeometry_->getLocalNodeCoordinates(i));
         }
         
         // add new nodes
         if (refineType == 0)
         {
             // r0: split into 2 subelements
-            nodes.push_back(0.5 * (nodes[0] + nodes[1])); // between 0-1
+            nodes.push_back(new PointPhysical<1>(0.5 * (*static_cast<const PointPhysical<1>*>(nodes[0]) + *static_cast<const PointPhysical<1>*>(nodes[1])))); // between 0-1
         }
+        return nodes;
     }
     
     std::size_t RefinementLine::nrOfSubElements(std::size_t refineType) const

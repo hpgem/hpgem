@@ -22,6 +22,7 @@
 #define GaussQuadratureRulesForPyramid_h
 //---------------------------------------------------------------------------
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
+#include "Geometry/PointReference.h"
 #include <vector>
 
 //---------------------------------------------------------------------------
@@ -35,7 +36,7 @@ namespace QuadratureRules
     class Pyramid_1_4 : public GaussQuadratureRule
     {
     public:
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Pyramid_1_4& Instance()
@@ -59,14 +60,14 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[4];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class Pyramid_3_16 : public GaussQuadratureRule
     {
     public:
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Pyramid_3_16& Instance()
@@ -90,14 +91,14 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[16];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class Pyramid_5_36 : public GaussQuadratureRule
     {
     public:
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Pyramid_5_36& Instance()
@@ -121,14 +122,14 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[36];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class Pyramid_7_48 : public GaussQuadratureRule
     {
     public:
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Pyramid_7_48& Instance()
@@ -152,7 +153,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[48];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
 
 //---------------------------------------------------------------------------

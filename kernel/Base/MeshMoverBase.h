@@ -23,18 +23,20 @@
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointPhysical;
 }
 
 namespace Base
 {
-    
+
+    template<std::size_t DIM>
     class MeshMoverBase
     {
         
     public:
         
-        using PointPhysicalT = Geometry::PointPhysical;
+        using PointPhysicalT = Geometry::PointPhysical<DIM>;
 
     public:
         

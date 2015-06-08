@@ -32,6 +32,7 @@ namespace Base
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -47,9 +48,9 @@ namespace Utilities
             logger.assert(node < 2, "A line only has 2 nodes");
         }
         
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<1>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<1>& p) const;
     private:
         int nodePosition_;
     };
@@ -62,9 +63,9 @@ namespace Utilities
         {
         }
         
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<1>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<1>& p) const;
     private:
         std::size_t polynomialOrder_;
     };

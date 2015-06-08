@@ -18,12 +18,15 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+
+#include "PhysicalElement.h"
 #include "FaceData.h"
 #include <iostream>
 
 #include "FaceCacheData.h"
-#include "LinearAlgebra/Matrix.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Logger.h"
 
 Base::FaceData::FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors)
@@ -38,8 +41,8 @@ Base::FaceData::FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatric
 }
 
 Base::FaceData::FaceData(const FaceData& other)
-: userData_(other.userData_), faceMatrix_(other.faceMatrix_), faceVector_(other.faceVector_),
-    residual_(other.residual_), vecCacheData_(other.vecCacheData_)
+: vecCacheData_(other.vecCacheData_), userData_(other.userData_), faceMatrix_(other.faceMatrix_),
+    faceVector_(other.faceVector_), residual_(other.residual_)
 {
 }
 
@@ -50,7 +53,7 @@ Base::FaceData::FaceData(const FaceData& other)
 /// this class has no access to these numbers, we will assume the number of basis
 /// functions are the same on both sides and the input matrix should be a square 
 /// matrix. 
-void Base::FaceData::setFaceMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID)
+void Base::FaceData::setFaceMatrix(const LinearAlgebra::MiddleSizeMatrix& matrix, std::size_t matrixID)
 {
     if (matrixID >= faceMatrix_.size())
     {
@@ -86,7 +89,7 @@ void Base::FaceData::setFaceMatrix(const Base::FaceMatrix &faceMatrix, std::size
 /// \details To convert a face matrix into a standard matrix is slow and inefficient.
 /// It is advised to use the other version of this function that returns a FaceMatrix.
 /// This is actually a dated function and should be removed.
-LinearAlgebra::Matrix Base::FaceData::getFaceMatrixMatrix(std::size_t matrixID) const
+LinearAlgebra::MiddleSizeMatrix Base::FaceData::getFaceMatrixMatrix(std::size_t matrixID) const
 {
     // Check if there are enough faces matrices stored.
     logger.assert(matrixID < faceMatrix_.size(), "Not enough face matrices stored.");
@@ -103,7 +106,7 @@ const Base::FaceMatrix & Base::FaceData::getFaceMatrix(std::size_t matrixID) con
     return faceMatrix_[matrixID];
 }
 
-void Base::FaceData::setFaceVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID)
+void Base::FaceData::setFaceVector(const LinearAlgebra::MiddleSizeVector& vector, std::size_t vectorID)
 {
     if (vectorID >= faceVector_.size())
     {
@@ -114,18 +117,18 @@ void Base::FaceData::setFaceVector(const LinearAlgebra::NumericalVector& vector,
     faceVector_[vectorID] = vector;
 }
 
-LinearAlgebra::NumericalVector Base::FaceData::getFaceVector(std::size_t vectorID) const
+LinearAlgebra::MiddleSizeVector Base::FaceData::getFaceVector(std::size_t vectorID) const
 {
     logger.assert(vectorID < faceVector_.size(), "insufficient face vectors stored");
     return faceVector_[vectorID];
 }
 
-const LinearAlgebra::NumericalVector& Base::FaceData::getResidue() const
+const LinearAlgebra::MiddleSizeVector& Base::FaceData::getResidue() const
 {
     return residual_;
 }
 
-void Base::FaceData::setResidue(LinearAlgebra::NumericalVector& residue)
+void Base::FaceData::setResidue(LinearAlgebra::MiddleSizeVector& residue)
 {
     residual_ = residue;
 }
@@ -138,4 +141,9 @@ std::size_t Base::FaceData::getNumberFaceMatrices() const
 std::size_t Base::FaceData::getNumberFaceVectors() const
 {
     return faceVector_.size();
+}
+
+Base::FaceData::VecCacheT& Base::FaceData::getVecCacheData()
+{
+    return vecCacheData_;
 }

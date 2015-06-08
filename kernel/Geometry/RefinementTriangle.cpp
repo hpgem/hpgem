@@ -23,7 +23,7 @@
 
 #include "Logger.h"
 #include "Geometry/RefinementTriangle.h"
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 
 #include "PointPhysical.h"
 #include "PointReference.h"
@@ -48,38 +48,37 @@ namespace Geometry
         return 0;
     }
     
-    void RefinementTriangle::getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const
+    std::vector<const PointPhysicalBase*> RefinementTriangle::getAllNodes(std::size_t refineType) const
     {
         // get all element's nodes
-        nodes.clear();
-        PointPhysicalT p(2);
+        std::vector<const PointPhysicalBase*> nodes;
         for (std::size_t i = 0; i < referenceGeometry_->getNumberOfNodes(); ++i)
         {
-            p = physicalGeometry_->getLocalNodeCoordinates(i);
-            nodes.push_back(p);
+            nodes.push_back(&physicalGeometry_->getLocalNodeCoordinates(i));
         }
         
         // add new nodes
         switch (refineType)
         {
             case 0: // r0: face-0 refinement, split into 2 subelements
-                nodes.push_back(0.5 * (nodes[0] + nodes[1])); // between 0-1
+                nodes.push_back(new PointPhysical<2>(0.5 * (*static_cast<const PointPhysical<2>*>(nodes[0]) + *static_cast<const PointPhysical<2>*>(nodes[1])))); // between 0-1
                 break;
                 
             case 1: // r1: face-1 refinement, split into 2 subelements
-                nodes.push_back(0.5 * (nodes[0] + nodes[2])); // between 0-2
+                nodes.push_back(new PointPhysical<2>(0.5 * (*static_cast<const PointPhysical<2>*>(nodes[0]) + *static_cast<const PointPhysical<2>*>(nodes[2])))); // between 0-2
                 break;
                 
             case 2: // r2: face-2 refinement, split into 2 subelements
-                nodes.push_back(0.5 * (nodes[1] + nodes[2])); // between 1-2
+                nodes.push_back(new PointPhysical<2>(0.5 * (*static_cast<const PointPhysical<2>*>(nodes[1]) + *static_cast<const PointPhysical<2>*>(nodes[2])))); // between 1-2
                 break;
                 
             case 3: // r3: all-faces refinement, split into 4 subelements
-                nodes.push_back(0.5 * (nodes[0] + nodes[1])); // between 0-1
-                nodes.push_back(0.5 * (nodes[0] + nodes[2])); // between 0-2
-                nodes.push_back(0.5 * (nodes[1] + nodes[2])); // between 1-2
+                nodes.push_back(new PointPhysical<2>(0.5 * (*static_cast<const PointPhysical<2>*>(nodes[0]) + *static_cast<const PointPhysical<2>*>(nodes[1])))); // between 0-1
+                nodes.push_back(new PointPhysical<2>(0.5 * (*static_cast<const PointPhysical<2>*>(nodes[0]) + *static_cast<const PointPhysical<2>*>(nodes[2])))); // between 0-2
+                nodes.push_back(new PointPhysical<2>(0.5 * (*static_cast<const PointPhysical<2>*>(nodes[1]) + *static_cast<const PointPhysical<2>*>(nodes[2])))); // between 1-2
                 break;
         }
+        return nodes;
     }
     
     std::size_t RefinementTriangle::nrOfSubElements(std::size_t refineType) const

@@ -67,7 +67,7 @@ namespace QuadratureRules
         
         double weight(std::size_t i) const override final;
 
-        const Geometry::PointReference& getPoint(std::size_t i) const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
 
         Geometry::ReferenceGeometry* forReferenceGeometry() const override final
         {
@@ -80,7 +80,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         Geometry::ReferenceGeometry * const refGeoPtr_;
-        std::vector<const Geometry::PointReference*> gp_;
+        std::vector<const Geometry::PointReference<0>*> gp_;
     };
 
 } /* namespace QuadratureRules */

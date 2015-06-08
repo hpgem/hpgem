@@ -35,7 +35,7 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference& MappingToRefTriangleToTriangle0::transform(const Geometry::PointReference& p1) const
+    const PointReference<2>& MappingToRefTriangleToTriangle0::transform(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         try
@@ -44,15 +44,15 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({p1[0], p1[1]});
+            const_cast<std::map<const PointReference<2>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({p1[0], p1[1]});
             return *transformedCoordinates.at(&p1);
         }
     }
     
-    Jacobian MappingToRefTriangleToTriangle0::calcJacobian(const Geometry::PointReference& p1) const
+    Jacobian<2, 2> MappingToRefTriangleToTriangle0::calcJacobian(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        Jacobian jacobian(2, 2);
+        Jacobian<2, 2> jacobian;
         jacobian(0, 0) = 1.0;
         jacobian(0, 1) = 0.0;
         jacobian(1, 0) = 0.0;
@@ -74,7 +74,7 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference& MappingToRefTriangleToTriangle1::transform(const Geometry::PointReference& p1) const
+    const PointReference<2>& MappingToRefTriangleToTriangle1::transform(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         try
@@ -83,15 +83,15 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({p1[1], p1[0]});
+            const_cast<std::map<const PointReference<2>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({p1[1], p1[0]});
             return *transformedCoordinates.at(&p1);
         }
     }
     
-    Jacobian MappingToRefTriangleToTriangle1::calcJacobian(const Geometry::PointReference& p1) const
+    Jacobian<2, 2> MappingToRefTriangleToTriangle1::calcJacobian(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        Jacobian jacobian(2, 2);
+        Jacobian<2, 2> jacobian;
         jacobian(0, 0) = 0.0;
         jacobian(0, 1) = 1.0;
         jacobian(1, 0) = 1.0;
@@ -113,7 +113,7 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference& MappingToRefTriangleToTriangle2::transform(const Geometry::PointReference& p1) const
+    const PointReference<2>& MappingToRefTriangleToTriangle2::transform(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         try
@@ -122,15 +122,15 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({1. - p1[0] - p1[1], p1[0]});
+            const_cast<std::map<const PointReference<2>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({1. - p1[0] - p1[1], p1[0]});
             return *transformedCoordinates.at(&p1);
         }
     }
     
-    Jacobian MappingToRefTriangleToTriangle2::calcJacobian(const Geometry::PointReference& p1) const
+    Jacobian<2, 2> MappingToRefTriangleToTriangle2::calcJacobian(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        Jacobian jacobian(2, 2);
+        Jacobian<2, 2> jacobian;
         jacobian(0, 0) = -1.0;
         jacobian(0, 1) = -1.0;
         jacobian(1, 0) = 1.0;
@@ -152,7 +152,7 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference& MappingToRefTriangleToTriangle3::transform(const Geometry::PointReference& p1) const
+    const PointReference<2>& MappingToRefTriangleToTriangle3::transform(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         try
@@ -161,15 +161,15 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({1. - p1[0] - p1[1], p1[1]});
+            const_cast<std::map<const PointReference<2>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({1. - p1[0] - p1[1], p1[1]});
             return *transformedCoordinates.at(&p1);
         }
     }
     
-    Jacobian MappingToRefTriangleToTriangle3::calcJacobian(const Geometry::PointReference& p1) const
+    Jacobian<2, 2> MappingToRefTriangleToTriangle3::calcJacobian(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        Jacobian jacobian(2, 2);
+        Jacobian<2, 2> jacobian;
         jacobian(0, 0) = -1.0;
         jacobian(0, 1) = -1.0;
         jacobian(1, 0) = 0.0;
@@ -191,7 +191,7 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference& MappingToRefTriangleToTriangle4::transform(const Geometry::PointReference& p1) const
+    const PointReference<2>& MappingToRefTriangleToTriangle4::transform(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         try
@@ -200,15 +200,15 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({p1[0], 1. - p1[0] - p1[1]});
+            const_cast<std::map<const PointReference<2>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({p1[0], 1. - p1[0] - p1[1]});
             return *transformedCoordinates.at(&p1);
         }
     }
     
-    Jacobian MappingToRefTriangleToTriangle4::calcJacobian(const Geometry::PointReference& p1) const
+    Jacobian<2, 2> MappingToRefTriangleToTriangle4::calcJacobian(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        Jacobian jacobian(2, 2);
+        Jacobian<2, 2> jacobian;
         jacobian(0, 0) = 1.0;
         jacobian(0, 1) = 0.0;
         jacobian(1, 0) = -1.0;
@@ -230,7 +230,7 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference& MappingToRefTriangleToTriangle5::transform(const Geometry::PointReference& p1) const
+    const PointReference<2>& MappingToRefTriangleToTriangle5::transform(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
         try
@@ -239,15 +239,15 @@ namespace Geometry
         }
         catch (std::out_of_range&)
         {
-            const_cast<std::unordered_map<const PointReference*, const PointReference*>&>(transformedCoordinates)[&p1] = PointReferenceFactory::instance()->makePoint({p1[1], 1. - p1[0] - p1[1]});
+            const_cast<std::map<const PointReference<2>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({p1[1], 1. - p1[0] - p1[1]});
             return *transformedCoordinates.at(&p1);
         }
     }
     
-    Jacobian MappingToRefTriangleToTriangle5::calcJacobian(const Geometry::PointReference& p1) const
+    Jacobian<2, 2> MappingToRefTriangleToTriangle5::calcJacobian(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        Jacobian jacobian(2, 2);
+        Jacobian<2, 2> jacobian;
         jacobian(0, 0) = 0.0;
         jacobian(0, 1) = 1.0;
         jacobian(1, 0) = -1.0;

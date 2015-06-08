@@ -30,7 +30,10 @@
 /// \brief Template for basis PDE problems that can be solved using HpgemAPISimplified.
 /// \details This file is meant as a template for basic PDE problems that can be solved using HpgemAPISimplified. When creating a solver for a certain PDE with HpgemAPISimplified one can copy this file and fill in the blanks. Also see the documentation of HpgemAPISimplified for an overview of all the functionalities it offers.
 
-class ExampleProblem : public Base::HpgemAPISimplified
+//it is also possible to template ExampleProblem on the dimension if you want more flexibility, but if you do so you must prefix identifiers defined in the API with 'this->' due to the name look-up rules for templated classes
+const std::size_t DIM = 2;
+
+class ExampleProblem : public Base::HpgemAPISimplified<DIM>
 {
 public:
     // constructor.
@@ -41,23 +44,22 @@ public:
     /// \param[in] numOfTimeLevels Number of time levels. If a butcherTableau is set and the number of time levels is too low, this will be corrected automatically.
     ExampleProblem
     (
-     const std::size_t dimension,
      const std::size_t numberOfUnknowns,
      const std::size_t polynomialOrder,
      const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
      const std::size_t numOfTimeLevels = 1
      ) :
-    HpgemAPISimplified(dimension, numberOfUnknowns, polynomialOrder, ptrButcherTableau, numOfTimeLevels)
+    Base::HpgemAPISimplified<DIM>(numberOfUnknowns, polynomialOrder, ptrButcherTableau, numOfTimeLevels)
     {
         // Look at the constructor of HpgemAPISimplified to see what arguments are optional.
         logger(ERROR, "Remove this message. Make sure the constructor of this class is adapted to your purposes.");
     }
     
     /// \brief Create a rectangular mesh description
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        Base::RectangularMeshDescriptor description(configData_->dimension_);
+        Base::RectangularMeshDescriptor<DIM> description;
         
         for (std::size_t i = 0; i < configData_->dimension_; ++i)
         {
@@ -75,9 +77,9 @@ public:
     }
     
     /// \brief Compute the real solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override final
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override final
     {
-        LinearAlgebra::NumericalVector exactSolution(configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector exactSolution(configData_->numberOfUnknowns_);
         
         // Implement here your exact solution if you have one. Otherwise delete this entire function.
         logger(ERROR, "No exact solution implemented.");
@@ -86,9 +88,9 @@ public:
     }
     
     /// \brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative) override final
+    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative) override final
     {
-        LinearAlgebra::NumericalVector initialSolution(configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector initialSolution(configData_->numberOfUnknowns_);
         
         // Compute the initial solution here
         logger(ERROR, "No initial solution implemented.");
@@ -97,10 +99,10 @@ public:
     }
     
     /// \brief Compute the right-hand side corresponding to an element
-    LinearAlgebra::NumericalVector computeRightHandSideAtElement
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement
     (
      Base::Element *ptrElement,
-     LinearAlgebra::NumericalVector &solutionCoefficients,
+     LinearAlgebra::MiddleSizeVector &solutionCoefficients,
      const double time
      ) override final
     {
@@ -108,7 +110,7 @@ public:
         std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
         
         // Declare the right-hand side at the element.
-        LinearAlgebra::NumericalVector rightHandSideAtElement(configData_->numberOfUnknowns_ * numOfBasisFunctions);
+        LinearAlgebra::MiddleSizeVector rightHandSideAtElement(configData_->numberOfUnknowns_ * numOfBasisFunctions);
         
         // Compute the right hand side at the element here.
         logger(ERROR, "No function for computing the right-hand side at an element implemented.");
@@ -117,10 +119,10 @@ public:
     }
 
     /// \brief Compute the right-hand side corresponding to a boundary face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
     (
      Base::Face *ptrFace,
-     LinearAlgebra::NumericalVector &solutionCoefficients,
+     LinearAlgebra::MiddleSizeVector &solutionCoefficients,
      const double time
      ) override final
     {
@@ -128,7 +130,7 @@ public:
         std::size_t numOfBasisFunctions = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions();
         
         // Declare the right-hand side at the boundary face.
-        LinearAlgebra::NumericalVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numOfBasisFunctions);
+        LinearAlgebra::MiddleSizeVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numOfBasisFunctions);
         
         // Compute the right hand side at the boundary face here.
         logger(ERROR, "No function for computing the right-hand side at a boundary face implemented.");
@@ -137,12 +139,12 @@ public:
     }
     
     /// \brief Compute the right-hand side corresponding to an internal face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
     (
      Base::Face *ptrFace,
      const Base::Side side,
-     LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
-     LinearAlgebra::NumericalVector &solutionCoefficientsRight,
+     LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+     LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
      const double time
      ) override final
     {
@@ -150,7 +152,7 @@ public:
         std::size_t numOfBasisFunctions = ptrFace->getPtrElement(side)->getNrOfBasisFunctions();
         
         // Declare the right-hand side at the internal face.
-        LinearAlgebra::NumericalVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numOfBasisFunctions);
+        LinearAlgebra::MiddleSizeVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numOfBasisFunctions);
         
         // Compute the right hand side at the internal face here.
         logger(ERROR, "No function for computing the right-hand side at an internal face implemented.");
@@ -176,8 +178,7 @@ auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "poly
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    // Set parameters for the PDE.
-    const std::size_t dimension = 2;    // 1 or 2 or 3
+    // Set parameters for the PDE. (dimension is set at the beginning of the file)
     const std::size_t numberOfVariables = 1;
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;    // Either TRIANGULAR or RECTANGULAR.
     const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
@@ -192,7 +193,7 @@ int main(int argc, char **argv)
     }
 
     // Create a problem solver, that can solve the implemented problem. Chooes your own name for the object.
-    ExampleProblem problemSolver(dimension, numberOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
+    ExampleProblem problemSolver(numberOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
 
     // Create the mesh
     problemSolver.createMesh(numOfElements.getValue(), meshType);

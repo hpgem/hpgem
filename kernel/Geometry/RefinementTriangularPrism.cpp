@@ -57,78 +57,76 @@ namespace Geometry
         return 0;
     }
     
-    void RefinementTriangularPrism::getAllNodes(std::size_t refineType, VectorOfPointPhysicalsT& nodes) const
+    std::vector<const PointPhysicalBase*> RefinementTriangularPrism::getAllNodes(std::size_t refineType) const
     {
         // get all element's nodes
-        nodes.clear();
-        PointPhysicalT p(3);
+        std::vector<const PointPhysicalBase*> nodes;
         for (std::size_t i = 0; i < referenceGeometry_->getNumberOfNodes(); ++i)
         {
-            p = physicalGeometry_->getLocalNodeCoordinates(i);
-            nodes.push_back(p);
+            nodes.push_back(&physicalGeometry_->getLocalNodeCoordinates(i));
         }
         
         // add new nodes
         switch (refineType)
         {
             case 0: // r0: face-2 refinement, split into 2 subelements
-                nodes.push_back(0.5 * (nodes[0] + nodes[2])); // between 0-2
-                nodes.push_back(0.5 * (nodes[3] + nodes[5])); // between 3-5
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[2])))); // between 0-2
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 3-5
                 break;
                 
             case 1: // r1: face-3 refinement, split into 2 subelements
-                nodes.push_back(0.5 * (nodes[0] + nodes[1])); // between 0-1
-                nodes.push_back(0.5 * (nodes[3] + nodes[4])); // between 3-4
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[1])))); // between 0-1
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[4])))); // between 3-4
                 break;
                 
             case 2: // r2: face-4 refinement, split into 2 subelements
-                nodes.push_back(0.5 * (nodes[1] + nodes[2])); // between 1-2
-                nodes.push_back(0.5 * (nodes[4] + nodes[5])); // between 4-5
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[2])))); // between 1-2
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 4-5
                 break;
                 
             case 3: // r3: face-234 refinement, split into 2 subelements
-                nodes.push_back(0.5 * (nodes[0] + nodes[3])); // between 0-3
-                nodes.push_back(0.5 * (nodes[1] + nodes[4])); // between 1-4
-                nodes.push_back(0.5 * (nodes[2] + nodes[5])); // between 2-5
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[3])))); // between 0-3
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[4])))); // between 1-4
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[2]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 2-5
                 break;
                 
             case 4: // r4: all-faces refinement, split into 4 subelements
-                nodes.push_back(0.5 * (nodes[0] + nodes[1])); // between 0-1
-                nodes.push_back(0.5 * (nodes[0] + nodes[2])); // between 0-2
-                nodes.push_back(0.5 * (nodes[1] + nodes[2])); // between 1-2
-                        
-                nodes.push_back(0.5 * (nodes[3] + nodes[4])); // between 3-4
-                nodes.push_back(0.5 * (nodes[3] + nodes[5])); // between 3-5
-                nodes.push_back(0.5 * (nodes[4] + nodes[5])); // between 4-5
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[1])))); // between 0-1
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[2])))); // between 0-2
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[2])))); // between 1-2
+
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[4])))); // between 3-4
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 3-5
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 4-5
                 break;
                 
             case 5: // r5: split into 3 hexahedron elements
-                nodes.push_back(0.5 * (nodes[0] + nodes[1])); // between 0-1
-                nodes.push_back(0.5 * (nodes[0] + nodes[2])); // between 0-2
-                nodes.push_back(0.5 * (nodes[1] + nodes[2])); // between 1-2
-                nodes.push_back((1. / 3.) * (nodes[0] + nodes[1] + nodes[2])); // centroid of triangle 0-1-2
-                        
-                nodes.push_back(0.5 * (nodes[3] + nodes[4])); // between 3-4
-                nodes.push_back(0.5 * (nodes[3] + nodes[5])); // between 3-5
-                nodes.push_back(0.5 * (nodes[4] + nodes[5])); // between 4-5
-                nodes.push_back((1. / 3.) * (nodes[3] + nodes[4] + nodes[5])); // centroid of triangle 3-4-5
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[1])))); // between 0-1
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[2])))); // between 0-2
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[2])))); // between 1-2
+                nodes.push_back(new PointPhysical<3>(1./3. * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[2])))); // between 0-1-2
+
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[4])))); // between 3-4
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 3-5
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 4-5
+                nodes.push_back(new PointPhysical<3>(1./3. * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 3-4-5
                 break;
                 
             case 6: // r6: split into hexahedron and triangular-prism elements
-                nodes.push_back(0.5 * (nodes[0] + nodes[1])); // between 0-1
-                nodes.push_back(0.5 * (nodes[1] + nodes[2])); // between 1-2
-                nodes.push_back(0.5 * (nodes[3] + nodes[4])); // between 3-4
-                nodes.push_back(0.5 * (nodes[4] + nodes[5])); // between 4-5
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[1])))); // between 0-1
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[2])))); // between 1-2
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[4])))); // between 3-4
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 4-5
                 break;
                 
             case 7: // r7: split into hexahedron and triangular-prism elements
-                nodes.push_back(0.5 * (nodes[0] + nodes[2])); // between 0-2
-                nodes.push_back(0.5 * (nodes[1] + nodes[2])); // between 1-2
-                nodes.push_back(0.5 * (nodes[3] + nodes[5])); // between 3-5
-                nodes.push_back(0.5 * (nodes[4] + nodes[5])); // between 4-5
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[0]) + *static_cast<const PointPhysical<3>*>(nodes[2])))); // between 0-2
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[1]) + *static_cast<const PointPhysical<3>*>(nodes[2])))); // between 1-2
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[3]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 3-5
+                nodes.push_back(new PointPhysical<3>(0.5 * (*static_cast<const PointPhysical<3>*>(nodes[4]) + *static_cast<const PointPhysical<3>*>(nodes[5])))); // between 4-5
                 break;
         }
-        
+        return nodes;
     }
     
     std::size_t RefinementTriangularPrism::nrOfSubElements(std::size_t refineType) const

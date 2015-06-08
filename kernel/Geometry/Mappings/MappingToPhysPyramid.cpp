@@ -29,17 +29,17 @@
 
 namespace Geometry
 {
-    MappingToPhysPyramid::MappingToPhysPyramid(const PhysicalGeometry* const physicalGeometry)
+    MappingToPhysPyramid::MappingToPhysPyramid(const PhysicalGeometry<3>* const physicalGeometry)
+        : MappingReferenceToPhysical(physicalGeometry)
     {
         logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
-        MappingReferenceToPhysical::setNodesPtr(&physicalGeometry->getNodes());
-        reinit(physicalGeometry);
+        reinit();
     }
     
-    PointPhysical MappingToPhysPyramid::transform(const PointReference& pR) const
+    PointPhysical<3> MappingToPhysPyramid::transform(const PointReference<3>& pR) const
     {
         logger.assert(pR.size()==3, "Reference point has the wrong dimension");
-        PointPhysical pP(3);
+        PointPhysical<3> pP;
         const double t1 = pR[0] * pR[1];
         const double t2 = pR[0] * pR[1] * pR[2] / (1 - pR[2] + 1e-50); //prevents trouble at the tip of the pyramid
                 
@@ -51,21 +51,21 @@ namespace Geometry
         f8[3] = 0.25 * (1. - pR[0] + pR[1] - t1 - pR[2] - t2);
         f8[4] = 0.25 * (1. + pR[0] + pR[1] + t1 - pR[2] + t2);
         
-        PointPhysical p(3);
+        PointPhysical<3> p;
         
         pP[0] = pP[1] = pP[2] = 0.0;
         
         for (std::size_t i = 0; i < 5; ++i)
         {
-            p = getNodeCoordinates(globalNodeIndices_[i]);
+            p = geometry->getLocalNodeCoordinates(i);
             pP += f8[i] * p;
         }
         return pP;
     }
-    Jacobian MappingToPhysPyramid::calcJacobian(const PointReference& pR) const
+    Jacobian<3, 3> MappingToPhysPyramid::calcJacobian(const PointReference<3>& pR) const
     {
         logger.assert(pR.size()==3, "Reference point has the wrong dimension");
-        Jacobian jacobian(3, 3);
+        Jacobian<3, 3> jacobian;
         std::vector<double> df_dxi0(5), df_dxi1(5), df_dxi2(5);
         
         const double dt6dx0 = pR[1] * pR[2] / (1. - pR[2]);
@@ -90,9 +90,9 @@ namespace Geometry
         df_dxi2[3] = 0.25 * (-1. - dt6dx2);
         df_dxi2[4] = 0.25 * (-1. + dt6dx2);
         
-        PointPhysical d_dxi0(3);
-        PointPhysical d_dxi1(3);
-        PointPhysical d_dxi2(3);
+        PointPhysical<3> d_dxi0;
+        PointPhysical<3> d_dxi1;
+        PointPhysical<3> d_dxi2;
         
         for (std::size_t i = 0; i < 3; ++i)
         {
@@ -101,11 +101,11 @@ namespace Geometry
             d_dxi2[i] = 0.;
         }
         
-        PointPhysical p(3);
+        PointPhysical<3> p;
         
         for (std::size_t i = 0; i < 5; ++i)
         {
-            p = getNodeCoordinates(globalNodeIndices_[i]);
+            p = geometry->getLocalNodeCoordinates(i);
             
             d_dxi0 += df_dxi0[i] * p;
             d_dxi1 += df_dxi1[i] * p;
@@ -121,17 +121,11 @@ namespace Geometry
         return jacobian;
     }
     
-    void MappingToPhysPyramid::reinit(const PhysicalGeometry* const physicalGeometry)
+    void MappingToPhysPyramid::reinit()
     {
-        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
-        globalNodeIndices_.resize(5);
-        for (std::size_t i = 0; i < 5; ++i)
-        {
-            globalNodeIndices_[i] = physicalGeometry->getNodeIndex(i);
-        }
     }
     
-    bool MappingToPhysPyramid::isValidPoint(const PointReference& pointReference) const
+    bool MappingToPhysPyramid::isValidPoint(const PointReference<3>& pointReference) const
     {
         logger.assert(pointReference.size()==3, "Reference point has the wrong dimension");
         static const double eps = 1.e-14;

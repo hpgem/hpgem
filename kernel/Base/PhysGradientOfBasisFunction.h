@@ -27,11 +27,13 @@
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    template<std::size_t DIM>
+    class SmallVector;
 }
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -47,11 +49,10 @@ namespace Utilities
      *  to the one in reference space (which can be harvested by evaluating the
      *  derivatives of basis functions). Hence this class computes the
      *  reference space gradient, transforms it with the Jacobian of the mapping
-     *  and thus yields the physical space gradient. */
+     *  and thus yields the physical space gradient.
+     *  \deprecated functionality is specific for H1 conforming basisfunctions*/
     struct PhysGradientOfBasisFunction
     {
-        using PointReferenceT = Geometry::PointReference;
-        using RetType = LinearAlgebra::NumericalVector;
 
         PhysGradientOfBasisFunction(const Base::Element* e, const Base::BaseBasisFunction* function)
                 : myElement_(e), myFunction_(function)
@@ -61,7 +62,8 @@ namespace Utilities
         }
         
         //! Evaluation operator, also compatible with integration routines.
-        RetType operator ()(const PointReferenceT& p) const;
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM> operator ()(const Geometry::PointReference<DIM>& p) const;
 
     private:
         const Base::Element* myElement_;
@@ -69,5 +71,7 @@ namespace Utilities
     };
 
 } // namespace
+
+#include "PhysGradientOfBasisFunction_Impl.h"
 
 #endif /* defined(____PhysGradientOfBasisFunction__) */

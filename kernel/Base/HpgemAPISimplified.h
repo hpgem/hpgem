@@ -38,6 +38,7 @@
 
 namespace Integration
 {
+    template<std::size_t DIM>
     class FaceIntegral;
 }
 
@@ -79,14 +80,19 @@ namespace Base
      */
     /** \details For an example of using this interface see the application class 'AcousticWave'.
      */
-    
-    class HpgemAPISimplified : public HpgemAPIBase, public Output::TecplotSingleElementWriter
+
+    template<std::size_t DIM>
+    class HpgemAPISimplified : public HpgemAPIBase<DIM>, public Output::TecplotSingleElementWriter<DIM>
     {
     public:
+
+        using typename HpgemAPIBase<DIM>::PointPhysicalT;
+        using typename HpgemAPIBase<DIM>::PointReferenceT;
+        using typename HpgemAPIBase<DIM>::PointReferenceOnFaceT;
+
         // Constructor
         HpgemAPISimplified
         (
-         const std::size_t dimension,
          const std::size_t numberOfUnknowns,
          const std::size_t polynomialOrder,
          const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
@@ -94,12 +100,13 @@ namespace Base
          );
         
         HpgemAPISimplified(const HpgemAPISimplified &other) = delete;
+        virtual ~HpgemAPISimplified() = default;
 
         /// \brief Create a mesh description
-        virtual Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection)
+        virtual Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection)
         {
             logger(ERROR, "No routine for creating the domain implemented.");
-            Base::RectangularMeshDescriptor description(configData_->dimension_);
+            Base::RectangularMeshDescriptor<DIM> description;
             return description;
         }
         
@@ -107,87 +114,87 @@ namespace Base
         virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType);
         
         /// \brief Compute the exact solution at a given point in space and time.
-        virtual LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
+        virtual LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No exact solution implemented.");
-            LinearAlgebra::NumericalVector realSolution(configData_->numberOfUnknowns_);
+            LinearAlgebra::MiddleSizeVector realSolution(this->configData_->numberOfUnknowns_);
             return realSolution;
         }
         
         /// \brief Compute the initial solution at a given point in space and time.
-        virtual LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
+        virtual LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
         {
             logger(ERROR, "No initial solution implemented.");
-            LinearAlgebra::NumericalVector initialSolution(configData_->numberOfUnknowns_);
+            LinearAlgebra::MiddleSizeVector initialSolution(this->configData_->numberOfUnknowns_);
             return initialSolution;
         }
         
         /// \brief Compute the mass matrix for a single element.
-        virtual LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement);
+        virtual LinearAlgebra::MiddleSizeMatrix computeMassMatrixAtElement(Base::Element *ptrElement);
         
         /// \brief Solve the mass matrix equations for a single element.
         /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$ for a single element, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix. The input is the right hand side here called 'solutionCoefficients' and the result is returned in this same vector.
-        virtual void solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients);
+        virtual void solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients);
 
         /// \brief Solve the mass matrix equations.
         virtual void solveMassMatrixEquations(const std::size_t timeLevel);
 
         /// \brief Integrate the initial solution at a single element.
-        virtual LinearAlgebra::NumericalVector integrateInitialSolutionAtElement( Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
+        virtual LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement( Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
         
         /// \brief Integrate the initial solution.
         void integrateInitialSolution(const std::size_t timeLevelResult, const double startTime, const std::size_t orderTimeDerivative);
 
         /// \brief Integrate the square of some norm of the error on a single element.
-        virtual LinearAlgebra::NumericalVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
+        virtual LinearAlgebra::MiddleSizeVector::type integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
         /// \brief Compute the (weighted) L2-norm of the error.
-        double computeTotalError(const std::size_t solutionTimeLevel, const double time);
+        LinearAlgebra::MiddleSizeVector::type computeTotalError(const std::size_t solutionTimeLevel, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error at an element.
-        virtual LinearAlgebra::NumericalVector computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
+        virtual LinearAlgebra::MiddleSizeVector computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error.
-        LinearAlgebra::NumericalVector computeMaxError(const std::size_t solutionTimeLevel, const double time);
+        LinearAlgebra::MiddleSizeVector computeMaxError(const std::size_t solutionTimeLevel, const double time);
         
         /// \brief Compute the right-hand side corresponding to an element
-        virtual LinearAlgebra::NumericalVector computeRightHandSideAtElement
+        virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement
         (
          Base::Element *ptrElement,
-         LinearAlgebra::NumericalVector &solutionCoefficients,
+         LinearAlgebra::MiddleSizeVector &solutionCoefficients,
          const double time
         )
         {
             logger(ERROR, "No function for computing the right-hand side at an element implemented.");
-            LinearAlgebra::NumericalVector rightHandSideAtElement;
+            LinearAlgebra::MiddleSizeVector rightHandSideAtElement;
             return rightHandSideAtElement;
         }
         
         /// \brief Compute the right-hand side corresponding to a boundary face
-        virtual LinearAlgebra::NumericalVector computeRightHandSideAtFace
+        virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
         (
          Base::Face *ptrFace,
-         LinearAlgebra::NumericalVector &solutionCoefficients,
+         LinearAlgebra::MiddleSizeVector &solutionCoefficients,
          const double time
          )
         {
             logger(ERROR, "No function for computing the right-hand side at a boundary face implemented.");
-            LinearAlgebra::NumericalVector rightHandSideFace;
+            LinearAlgebra::MiddleSizeVector rightHandSideFace;
             return rightHandSideFace;
         }
         
         /// \brief Compute the right-hand side corresponding to an internal face
-        virtual LinearAlgebra::NumericalVector computeRightHandSideAtFace
+        virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
         (
          Base::Face *ptrFace,
          const Base::Side side,
-         LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
-         LinearAlgebra::NumericalVector &solutionCoefficientsRight,
+         LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+         LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
          const double time
          )
         {
             logger(ERROR, "No function for computing the right-hand side at an internal face implemented.");
-            LinearAlgebra::NumericalVector rightHandSideFace;
+            LinearAlgebra::MiddleSizeVector rightHandSideFace;
             return rightHandSideFace;
         }
         
@@ -195,7 +202,7 @@ namespace Base
         virtual void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time);
 
         /// \brief Get a linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels.
-        LinearAlgebra::NumericalVector getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels);
+        LinearAlgebra::MiddleSizeVector getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels);
 
         /// \brief Compute the right hand side for the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
         virtual void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time);
@@ -227,7 +234,7 @@ namespace Base
         /// \brief Write output to a tecplot file.
         virtual void writeToTecplotFile(const Element *ptrElement, const PointReferenceT &pRef, std::ostream &out) override;
         
-        void VTKWrite(Output::VTKTimeDependentWriter& out, double t, std::size_t timeLevel)
+        void VTKWrite(Output::VTKTimeDependentWriter<DIM>& out, double t, std::size_t timeLevel)
         {
             //you would say this could be done more efficiently, but p.first has different types each time
             for (auto p : VTKDoubleWrite_)
@@ -289,35 +296,37 @@ namespace Base
         std::vector<std::string> variableNames_;
         
         /// Integrator for the elements
-        Integration::ElementIntegral elementIntegrator_;
+        Integration::ElementIntegral<DIM> elementIntegrator_;
         
         /// Integrator for the faces
-        Integration::FaceIntegral faceIntegrator_;
+        Integration::FaceIntegral<DIM> faceIntegrator_;
         
     private:
         /// \brief Define how the solution should be written in the VTK files.
         /// \details For an example of using this function, see for example the application 'TutorialAdvection' to find out how to use this function.
-        void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
         {
             VTKDoubleWrite_.push_back( {function, name});
         }
         
-        void registerVTKWriteFunction(std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        void registerVTKWriteFunction(std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
         {
             VTKVectorWrite_.push_back( {function, name});
         }
         
-        void registerVTKWriteFunction(std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)> function, std::string name)
+        void registerVTKWriteFunction(std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
         {
             VTKMatrixWrite_.push_back( {function, name});
         }
         
-        std::vector<std::pair<std::function<double(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKDoubleWrite_;
-        std::vector<std::pair<std::function<LinearAlgebra::NumericalVector(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKVectorWrite_;
-        std::vector<std::pair<std::function<LinearAlgebra::Matrix(Base::Element*, const Geometry::PointReference&, std::size_t)>, std::string> > VTKMatrixWrite_;
+        std::vector<std::pair<std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKDoubleWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKVectorWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKMatrixWrite_;
         
     };
 }
+
+#include "HpgemAPISimplified_Impl.h"
 
 #endif
 

@@ -15,13 +15,13 @@ using namespace std;
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PointReference.h"
 #include "Base/Element.h"
-#include  "LinearAlgebra/NumericalVector.h"
+#include  "LinearAlgebra/MiddleSizeVector.h"
 #include "Integration/ElementIntegrandBase.h"
 
 class ExactSolutionBase
 {
 public:
-    using PointPhysicalT = Geometry::PointPhysical;
+    using PointPhysicalT = Geometry::PointPhysical<3>;
 public:
     ExactSolutionBase()
     {
@@ -486,8 +486,8 @@ public:
     
     using PointPhysicalT = ExactSolutionBase::PointPhysicalT;
     using ElementT = Base::Element;
-    using PointReferenceT = Geometry::PointReference;
-    using ReturnType = LinearAlgebra::NumericalVector;
+    using PointReferenceT = Geometry::PointReference<3>;
+    using ReturnType = LinearAlgebra::MiddleSizeVector;
 public:
     
     InitCond(const ExactSolutionBase* init)
@@ -495,66 +495,70 @@ public:
     {
     }
     
-    virtual void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r) const = 0;
+    virtual void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r) const = 0;
 
 protected:
     const ExactSolutionBase* const velocity_;
 };
 
-class InitCondU : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+class InitCondU : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, 3>
 {
 public:
-    using ReturnType = LinearAlgebra::NumericalVector;
+    using ReturnType = LinearAlgebra::MiddleSizeVector;
 public:
     InitCondU(const ExactSolutionBase* init);
 
-    void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r) const;
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r)
+    void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r) const;
+    void elementIntegrand(Base::PhysicalElement<3>& el, LinearAlgebra::MiddleSizeVector& r)
     {
-        operator()(element, p, r);
+        //todo: could be improved to make better use of PhysicalElement
+        operator()(el.getElement(), el.getPointReference(), r);
     }
 };
 
 // initial condition for v
-class InitCondV : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+class InitCondV : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, 3>
 {
 public:
     
     InitCondV(const ExactSolutionBase* init);
 
-    void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r) const;
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r)
+    void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r) const;
+    void elementIntegrand(Base::PhysicalElement<3>& el, LinearAlgebra::MiddleSizeVector& r)
     {
-        operator()(element, p, r);
+        //todo: could be improved to make better use of PhysicalElement
+        operator()(el.getElement(), el.getPointReference(), r);
     }
 };
 // 
 
 // initial condition for w
-class InitCondW : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+class InitCondW : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, 3>
 {
 public:
     InitCondW(const ExactSolutionBase* init);
 
-    void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r) const;
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r)
+    void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r) const;
+    void elementIntegrand(Base::PhysicalElement<3>& el, LinearAlgebra::MiddleSizeVector& r)
     {
-        operator()(element, p, r);
+        //todo: could be improved to make better use of PhysicalElement
+        operator()(el.getElement(), el.getPointReference(), r);
     }
     
 };
 
 // initial condition for Lambda, in the compressible set-up used as densitu /rho
-class InitCondLambda : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+class InitCondLambda : public InitCond, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, 3>
 {
 public:
     
     InitCondLambda(const ExactSolutionBase* init);
 
-    void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r) const;
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::NumericalVector& r)
+    void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r) const;
+    void elementIntegrand(Base::PhysicalElement<3>& el, LinearAlgebra::MiddleSizeVector& r)
     {
-        operator()(element, p, r);
+        //todo: could be improved to make better use of PhysicalElement
+        operator()(el.getElement(), el.getPointReference(), r);
     }
     
 };

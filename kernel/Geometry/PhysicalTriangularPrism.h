@@ -29,11 +29,11 @@ namespace Geometry
 
     /// \deprecated just pass a referenceTriangularPrism to the constructor of a PhysicalGeometry
     /// if you want to create a triangular prism
-    class PhysicalTriangularPrism : public PhysicalGeometry
+    class PhysicalTriangularPrism : public PhysicalGeometry<3>
     {
     public:
         
-        PhysicalTriangularPrism(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
+        PhysicalTriangularPrism(const std::vector<std::size_t>&, std::vector<PointPhysical<3> >&);
     };
 }
 #endif

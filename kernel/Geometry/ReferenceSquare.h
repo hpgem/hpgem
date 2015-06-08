@@ -53,10 +53,26 @@ namespace Geometry
         ReferenceSquare(const ReferenceSquare& copy) = delete;
 
         //! (see ReferenceGeometry.h)
-        bool isInternalPoint(const PointReference& point) const override final;
+        bool isInternalPoint(const PointReference<2>& point) const override final;
         
         //! Output routine.
         friend std::ostream& operator<<(std::ostream& os, const ReferenceSquare& point);
+
+        const PointReferenceBase& getCenter() const override final
+        {
+            return *center_;
+        }
+
+        std::size_t getNumberOfNodes() const override final
+        {
+            return 4;
+        }
+
+        const PointReferenceBase& getNode(const std::size_t& i) const override final
+        {
+            logger.assert(i < getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
+            return *points_[i];
+        }
 
         // ================================== Codimension 0 ========================================
         
@@ -64,7 +80,7 @@ namespace Geometry
         std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const override final;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim0MappingPtr(const std::size_t) const override final;
+        const MappingReferenceToReference<0>* getCodim0MappingPtr(const std::size_t) const override final;
 
         using MappingCodimensions::getCodim0MappingPtr;
 
@@ -80,7 +96,7 @@ namespace Geometry
         std::vector<std::size_t> getCodim1EntityLocalIndices(const std::size_t) const override final;
 
         //! (see MappingCodimensions.h)
-        const MappingReferenceToReference* getCodim1MappingPtr(const std::size_t) const override final;
+        const MappingReferenceToReference<1>* getCodim1MappingPtr(const std::size_t) const override final;
 
         //! (see MappingCodimensions.h)
         const ReferenceGeometry* getCodim1ReferenceGeometry(const std::size_t) const override final;
@@ -104,21 +120,21 @@ namespace Geometry
         // =============================== Refinement mappings =====================================
         
         //! Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const override final;
+        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<2>& p, PointReference<2>& pMap) const override final;
 
         //! Transformation matrix of this refinement when located on the LEFT side
-        void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const override final;
+        void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const override final;
 
         //! Transformation matrix of this refinement when located on the RIGHT side
-        void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const override final;
+        void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const override final;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
         //! Note: this should also applied on other dimensions
-        void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const override final;
+        void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const override final;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
         //! Note: this should also applied on other dimensions
-        void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const override final;
+        void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const override final;
 
     private:
         
@@ -129,16 +145,20 @@ namespace Geometry
         static std::size_t localNodeIndexes_[4][2];
 
         //! Codimension 1 mappings, from a line to a square. TODO: Where is this used? clarify here.
-        const MappingReferenceToReference* mappingsLineToSquare_[4];
+        const MappingReferenceToReference<1>* mappingsLineToSquare_[4];
 
         //! Codimension 0 mappings, from a square to a square. TODO: Where is this used? clarifiy here.
-        const MappingReferenceToReference* mappingsSquareToSquare_[8];
+        const MappingReferenceToReference<0>* mappingsSquareToSquare_[8];
 
         //! Pointer to the Codimension 1 reference geometry, in this case, to ReferenceLine.
         ReferenceGeometry * const referenceGeometryCodim1Ptr_;
 
         //! List of valid quadrature rules for this reference geometry
         std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
+
+        std::vector<const PointReference<2>* > points_;
+
+        const PointReference<2>* center_;
     };
 
 }

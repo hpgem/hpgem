@@ -38,7 +38,8 @@ namespace Base
         ConfigurationData(const ConfigurationData &other) = default;
         ConfigurationData& operator=(const ConfigurationData &other) = default;
         
-        std::size_t dimension_;
+        //in some cases it is convenient to have non-template-based access to the dimension
+        const std::size_t dimension_;
         std::size_t numberOfUnknowns_;
         std::size_t numberOfBasisFunctions_;
         std::size_t numberOfTimeLevels_;

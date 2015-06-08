@@ -22,16 +22,16 @@
 #include "CompressibleNavierStokes.h"
 #include "Viscous.h"
 
-Viscous::Viscous(const CompressibleNavierStokes& instance) : instance_(instance), PrInv_(1/0.71), cp_(1000), ATensorInternal_(instance_.DIM_*instance_.DIM_), ATensorExternal_(instance_.DIM_*instance_.DIM_)
+Viscous::Viscous(CompressibleNavierStokes& instance) : instance_(instance), PrInv_(1/0.71), cp_(1000), ATensorInternal_(instance_.DIM_*instance_.DIM_), ATensorExternal_(instance_.DIM_*instance_.DIM_)
 {
 }
 
-double Viscous::computeTemperature(const LinearAlgebra::NumericalVector qSolution, const double pressure)
+double Viscous::computeTemperature(const LinearAlgebra::MiddleSizeVector qSolution, const double pressure)
 {
 	return pressure/qSolution(0)*instance_.gamma_/cp_; //T = p/(R*rho);
 }
 
-void Viscous::setInverseStabilityMassMatrix(LinearAlgebra::Matrix &stabilityMassMatrix)
+void Viscous::setInverseStabilityMassMatrix(LinearAlgebra::MiddleSizeMatrix &stabilityMassMatrix)
 {
 	stabilityMassMatrix_ = stabilityMassMatrix;
 }
@@ -48,12 +48,12 @@ double Viscous::computeViscosity(double temperature)
 }
 
 
-void Viscous::computeStabilityFluxFunction(const std::vector<LinearAlgebra::Matrix> &ATensorInternal, const std::vector<LinearAlgebra::Matrix> &ATensorExternal, const LinearAlgebra::NumericalVector &stateInternal, const LinearAlgebra::NumericalVector &stateExternal, const LinearAlgebra::NumericalVector &normalInternal)
+void Viscous::computeStabilityFluxFunction(const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorInternal, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorExternal, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const LinearAlgebra::MiddleSizeVector &normalInternal)
 {
 	//Compute velocity normal matrix
-	LinearAlgebra::Matrix velocityNormal(instance_.DIM_+2,instance_.DIM_);
-	LinearAlgebra::NumericalVector qSolutionDifference;
-	LinearAlgebra::NumericalVector stateDifference = stateInternal - stateExternal;
+	LinearAlgebra::MiddleSizeMatrix velocityNormal(instance_.DIM_+2,instance_.DIM_);
+	LinearAlgebra::MiddleSizeVector qSolutionDifference;
+	LinearAlgebra::MiddleSizeVector stateDifference = stateInternal - stateExternal;
 	Base::Side eSide;
 	for (std::size_t iV = 0; iV < instance_.numOfVariables_; iV++)
 	{
@@ -68,16 +68,17 @@ void Viscous::computeStabilityFluxFunction(const std::vector<LinearAlgebra::Matr
 	stabilityFluxFunctionExternal_ = computeATensorMatrixContraction(ATensorExternal, velocityNormal);
 }
 
-LinearAlgebra::NumericalVector Viscous::integrandStabilityRightHandSideOnRefFace(
-		const Base::Face *ptrFace,
+LinearAlgebra::MiddleSizeVector Viscous::integrandStabilityRightHandSideOnRefFace(
+		Base::PhysicalFace<DIM>& face,
 		const Base::Side side,
-		const LinearAlgebra::Matrix stabilityFluxFunction,
-		const std::size_t iD,
-		const Geometry::PointReference &pRef)
+		const LinearAlgebra::MiddleSizeMatrix stabilityFluxFunction,
+		const std::size_t iD)
 {
+    const Base::Face* ptrFace = face.getFace();
+    const Geometry::PointReference<DIM - 1>& pRef = face.getPointReference();
 	std::size_t numBasisFunctions = ptrFace->getPtrElement(side)->getNrOfBasisFunctions();
 	std::size_t pos;
-	LinearAlgebra::NumericalVector integrand(numBasisFunctions*instance_.numOfVariables_);
+	LinearAlgebra::MiddleSizeVector integrand(numBasisFunctions*instance_.numOfVariables_);
 
 	for (std::size_t iE = 0; iE < instance_.numOfVariables_; iE++)
 	{
@@ -92,22 +93,22 @@ LinearAlgebra::NumericalVector Viscous::integrandStabilityRightHandSideOnRefFace
 	return integrand*area;
 }
 
-LinearAlgebra::NumericalVector Viscous::computeRhs(const Base::Face *ptrFace, const Base::Side side, const LinearAlgebra::Matrix stabilityFluxFunction, const std::size_t iD)
+LinearAlgebra::MiddleSizeVector Viscous::computeRhs(const Base::Face *ptrFace, const Base::Side side, const LinearAlgebra::MiddleSizeMatrix stabilityFluxFunction, const std::size_t iD)
 {
 	//Integrate the required rhs
-    std::function<LinearAlgebra::NumericalVector(const Geometry::PointReference &)> integrandFunction = [=](const Geometry::PointReference &pRef) -> LinearAlgebra::NumericalVector
-    {   return this->integrandStabilityRightHandSideOnRefFace(ptrFace, side, stabilityFluxFunction, iD, pRef);};
-	return instance_.faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+    std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&)> integrandFunction = [=](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
+    {   return this->integrandStabilityRightHandSideOnRefFace(face, side, stabilityFluxFunction, iD);};
+	return instance_.faceIntegrator_.integrate(ptrFace, integrandFunction);
 }
 
-LinearAlgebra::Matrix Viscous::computeStabilityParameters(
+LinearAlgebra::MiddleSizeMatrix Viscous::computeStabilityParameters(
 		const Base::Face *ptrFace, Base::Side iSide,
-		const std::vector<LinearAlgebra::Matrix> ATensorInternal,
-		const std::vector<LinearAlgebra::Matrix> ATensorExternal,
-		const LinearAlgebra::NumericalVector stateInternal,
-		const LinearAlgebra::NumericalVector stateExternal,
-		const LinearAlgebra::NumericalVector normalInternal,
-		const Geometry::PointReference &pRef)
+		const std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorInternal,
+		const std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorExternal,
+		const LinearAlgebra::MiddleSizeVector stateInternal,
+		const LinearAlgebra::MiddleSizeVector stateExternal,
+		const LinearAlgebra::SmallVector<DIM> normalInternal,
+		const Geometry::PointReference<DIM - 1> &pRef)
 {
 	Base::Side eSide;
 	std::size_t numOfTestBasisFunctionsInternal;
@@ -127,13 +128,13 @@ LinearAlgebra::Matrix Viscous::computeStabilityParameters(
 	}
 
 	//Create datastructures
-	LinearAlgebra::Matrix stabilityParametersAverage(instance_.numOfVariables_,instance_.DIM_);
-	LinearAlgebra::NumericalVector stabilityParametersInternal(instance_.numOfVariables_);
-	LinearAlgebra::NumericalVector stabilityParametersExternal(instance_.numOfVariables_);
-	LinearAlgebra::NumericalVector rhsInternal(numOfTestBasisFunctionsInternal);
-	LinearAlgebra::NumericalVector rhsExternal(numOfTestBasisFunctionsExternal);
-	LinearAlgebra::NumericalVector stabilityParameterCoefficientsInternal;
-	LinearAlgebra::NumericalVector stabilityParameterCoefficientsExternal;
+	LinearAlgebra::MiddleSizeMatrix stabilityParametersAverage(instance_.numOfVariables_,instance_.DIM_);
+	LinearAlgebra::MiddleSizeVector stabilityParametersInternal(instance_.numOfVariables_);
+	LinearAlgebra::MiddleSizeVector stabilityParametersExternal(instance_.numOfVariables_);
+	LinearAlgebra::MiddleSizeVector rhsInternal(numOfTestBasisFunctionsInternal);
+	LinearAlgebra::MiddleSizeVector rhsExternal(numOfTestBasisFunctionsExternal);
+	LinearAlgebra::MiddleSizeVector stabilityParameterCoefficientsInternal;
+	LinearAlgebra::MiddleSizeVector stabilityParameterCoefficientsExternal;
 
 
 
@@ -166,7 +167,7 @@ LinearAlgebra::Matrix Viscous::computeStabilityParameters(
 	return stabilityParametersAverage;
 }
 
-std::vector<LinearAlgebra::Matrix> Viscous::computeATensor( const LinearAlgebra::NumericalVector partialState, const double viscosity)
+std::vector<LinearAlgebra::MiddleSizeMatrix> Viscous::computeATensor( const LinearAlgebra::MiddleSizeVector partialState, const double viscosity)
 {
 	//todo: note that the kinetic velocity must be computed for a wide range of problems. Fix this.
 	//todo: remove the kinetic velocity in this computation.
@@ -174,7 +175,7 @@ std::vector<LinearAlgebra::Matrix> Viscous::computeATensor( const LinearAlgebra:
 	//todo: division by rho has to be computed an aweful lot of times
 	//todo: Check if this also works correctly in 3D
 
-	std::vector<LinearAlgebra::Matrix> ATensor(instance_.DIM_*instance_.DIM_);
+	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensor(instance_.DIM_*instance_.DIM_);
 	double velocityNormSquared;
 	double thermalFactor = instance_.gamma_*viscosity/PrInv_;
 
@@ -186,8 +187,8 @@ std::vector<LinearAlgebra::Matrix> Viscous::computeATensor( const LinearAlgebra:
 		velocityNormSquared += partialState(iD+1)*partialState(iD+1);
 	}
 
-	LinearAlgebra::Matrix APartial1(instance_.DIM_+2,instance_.DIM_+2);
-	LinearAlgebra::Matrix APartial2(instance_.DIM_+2,instance_.DIM_+2);
+	LinearAlgebra::MiddleSizeMatrix APartial1(instance_.DIM_+2,instance_.DIM_+2);
+	LinearAlgebra::MiddleSizeMatrix APartial2(instance_.DIM_+2,instance_.DIM_+2);
 
 	//A11 A22 en A33: For documentation see the full matrix in Klaij et al. 2006
 	for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
@@ -279,13 +280,13 @@ std::vector<LinearAlgebra::Matrix> Viscous::computeATensor( const LinearAlgebra:
 	return ATensor;
 }
 
-LinearAlgebra::Matrix Viscous::computeATensorMatrixContraction(const std::vector<LinearAlgebra::Matrix> ATensor, const LinearAlgebra::Matrix matrix)
+LinearAlgebra::MiddleSizeMatrix Viscous::computeATensorMatrixContraction(const std::vector<LinearAlgebra::MiddleSizeMatrix> ATensor, const LinearAlgebra::MiddleSizeMatrix matrix)
 {
 	//todo: verify this function
 	//todo: this is the naief implementation: write a quicker one. There are many zero multiplications in this function. That is a waste of computational effort
 	//todo: this is probably quicker in fortran
 	//A_ikrs = A_(iV)(iD)(iVm)(iDm)
-	LinearAlgebra::Matrix result(instance_.numOfVariables_,instance_.DIM_);
+	LinearAlgebra::MiddleSizeMatrix result(instance_.numOfVariables_,instance_.DIM_);
 	double pos;
 
 	for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
@@ -306,14 +307,16 @@ LinearAlgebra::Matrix Viscous::computeATensorMatrixContraction(const std::vector
 	return result;
 }
 
-LinearAlgebra::NumericalVector Viscous::integrandAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector qSolution, const LinearAlgebra::Matrix qSolutionJacobian, const double pressure, const LinearAlgebra::NumericalVector partialState, const Geometry::PointReference &pRef)
+LinearAlgebra::MiddleSizeVector Viscous::integrandAtElement(Base::PhysicalElement<DIM>& element, const LinearAlgebra::MiddleSizeVector qSolution, const LinearAlgebra::MiddleSizeMatrix qSolutionJacobian, const double pressure, const LinearAlgebra::MiddleSizeVector partialState)
 {
+    const Base::Element* ptrElement = element.getElement();
+    const Geometry::PointReference<DIM>& pRef = element.getPointReference();
 	// Get the number of basis functions in an element.
 	std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
 
 	// Create data structures for calculating the integrand
-	LinearAlgebra::NumericalVector integrand(instance_.numOfVariables_ * numOfBasisFunctions);
-	LinearAlgebra::NumericalVector gradientBasisFunction;
+	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_ * numOfBasisFunctions);
+	LinearAlgebra::MiddleSizeVector gradientBasisFunction;
 	std::size_t iVB;
 
 
@@ -323,7 +326,7 @@ LinearAlgebra::NumericalVector Viscous::integrandAtElement(const Base::Element *
 	ATensorInternal_ = computeATensor(partialState, viscosity);
 
 	// Compute flux (A_ikrs*Ur,s)
-	LinearAlgebra::Matrix fluxFunction = computeATensorMatrixContraction(ATensorInternal_, qSolutionJacobian);
+	LinearAlgebra::MiddleSizeMatrix fluxFunction = computeATensorMatrixContraction(ATensorInternal_, qSolutionJacobian);
 
 	for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++) // for all basis functions
 	{
@@ -341,11 +344,14 @@ LinearAlgebra::NumericalVector Viscous::integrandAtElement(const Base::Element *
 	return integrand;
 }
 
-LinearAlgebra::NumericalVector Viscous::integrandViscousAtFace(const Base::Face *ptrFace, const Base::Side &iSide, LinearAlgebra::NumericalVector qSolutionInternal, LinearAlgebra::NumericalVector qSolutionExternal, double pressure, LinearAlgebra::NumericalVector partialState, const LinearAlgebra::NumericalVector normal, const Geometry::PointReference &pRef)
+LinearAlgebra::MiddleSizeVector Viscous::integrandViscousAtFace(Base::PhysicalFace<DIM>& face, const Base::Side &iSide, LinearAlgebra::MiddleSizeVector qSolutionInternal, LinearAlgebra::MiddleSizeVector qSolutionExternal, double pressure, LinearAlgebra::MiddleSizeVector partialState)
 {
+    const Base::Face* ptrFace = face.getFace();
+    const Geometry::PointReference<DIM - 1>& pRef = face.getPointReference();
+    LinearAlgebra::SmallVector<DIM> normal = face.getUnitNormalVector();
 	//Compute velocity normal matrix
-	LinearAlgebra::Matrix velocityNormal(instance_.DIM_+2,instance_.DIM_);
-	LinearAlgebra::NumericalVector qSolutionDifference;
+	LinearAlgebra::MiddleSizeMatrix velocityNormal(instance_.DIM_+2,instance_.DIM_);
+	LinearAlgebra::MiddleSizeVector qSolutionDifference;
 	qSolutionDifference = qSolutionInternal - qSolutionExternal;
 	for (std::size_t iV = 0; iV < instance_.numOfVariables_; iV++)
 	{
@@ -360,12 +366,12 @@ LinearAlgebra::NumericalVector Viscous::integrandViscousAtFace(const Base::Face 
 	double viscosity = computeViscosity(temperature);
 
 	ATensorInternal_ = computeATensor(partialState, viscosity);
-	LinearAlgebra::Matrix fluxFunction = computeATensorMatrixContraction(ATensorInternal_, velocityNormal);
+	LinearAlgebra::MiddleSizeMatrix fluxFunction = computeATensorMatrixContraction(ATensorInternal_, velocityNormal);
 
 	//Compute integrand
 	std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
-	LinearAlgebra::NumericalVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
-	LinearAlgebra::NumericalVector gradientBasisFunction;
+	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
+	LinearAlgebra::MiddleSizeVector gradientBasisFunction;
 	std::size_t iEB; // Index for both variable and basis function.
 
 	for (std::size_t iB = 0; iB < numOfTestBasisFunctions; iB++) // for all basis functions
@@ -383,25 +389,25 @@ LinearAlgebra::NumericalVector Viscous::integrandViscousAtFace(const Base::Face 
 	return -integrand;
 }
 
-LinearAlgebra::Matrix Viscous::computeAuxilliaryFlux(
+LinearAlgebra::MiddleSizeMatrix Viscous::computeAuxilliaryFlux(
 		const Base::Face *ptrFace,
 		Base::Side iSide,
-		const LinearAlgebra::NumericalVector stateInternal,
-		const LinearAlgebra::NumericalVector stateExternal,
+		const LinearAlgebra::MiddleSizeVector stateInternal,
+		const LinearAlgebra::MiddleSizeVector stateExternal,
 		const double pressureInternal,
 		const double pressureExternal,
-		const LinearAlgebra::NumericalVector partialStateInternal,
-		const LinearAlgebra::NumericalVector partialStateExternal,
-		const LinearAlgebra::Matrix stateJacobianInternal,
-		const LinearAlgebra::Matrix stateJacobianExternal,
-		const LinearAlgebra::NumericalVector normalInternal,
-		const Geometry::PointReference &pRef)
+		const LinearAlgebra::MiddleSizeVector partialStateInternal,
+		const LinearAlgebra::MiddleSizeVector partialStateExternal,
+		const LinearAlgebra::MiddleSizeMatrix stateJacobianInternal,
+		const LinearAlgebra::MiddleSizeMatrix stateJacobianExternal,
+		const LinearAlgebra::MiddleSizeVector normalInternal,
+		const Geometry::PointReference<DIM - 1> &pRef)
 {
 	double eta = 3.0; //stability value hard coded
-	LinearAlgebra::Matrix fluxInternal;
-	LinearAlgebra::Matrix fluxExternal;
-	LinearAlgebra::Matrix stabilityFlux;
-	LinearAlgebra::Matrix AuxilliaryFlux;
+	LinearAlgebra::MiddleSizeMatrix fluxInternal;
+	LinearAlgebra::MiddleSizeMatrix fluxExternal;
+	LinearAlgebra::MiddleSizeMatrix stabilityFlux;
+	LinearAlgebra::MiddleSizeMatrix AuxilliaryFlux;
 
 	//Compute A and A contraction with velocitynormal matrix
 	double temperatureInternal = computeTemperature(stateInternal, pressureInternal);
@@ -423,14 +429,17 @@ LinearAlgebra::Matrix Viscous::computeAuxilliaryFlux(
 	return AuxilliaryFlux;
 }
 
-LinearAlgebra::NumericalVector Viscous::integrandAuxilliaryAtFace(const Base::Face *ptrFace, const Base::Side &iSide, LinearAlgebra::NumericalVector stateInternal, const LinearAlgebra::NumericalVector stateExternal, const double pressureInternal, const double pressureExternal, const LinearAlgebra::NumericalVector partialStateInternal, const LinearAlgebra::NumericalVector partialStateExternal, const LinearAlgebra::NumericalVector normalInternal, const LinearAlgebra::Matrix stateJacobianInternal, const LinearAlgebra::Matrix stateJacobianExternal, const Geometry::PointReference &pRef)
+LinearAlgebra::MiddleSizeVector Viscous::integrandAuxilliaryAtFace(Base::PhysicalFace<DIM>& face, const Base::Side &iSide, LinearAlgebra::MiddleSizeVector stateInternal, const LinearAlgebra::MiddleSizeVector stateExternal, const double pressureInternal, const double pressureExternal, const LinearAlgebra::MiddleSizeVector partialStateInternal, const LinearAlgebra::MiddleSizeVector partialStateExternal, const LinearAlgebra::MiddleSizeMatrix stateJacobianInternal, const LinearAlgebra::MiddleSizeMatrix stateJacobianExternal)
 {
-	LinearAlgebra::Matrix fluxFunction = computeAuxilliaryFlux(ptrFace, iSide, stateInternal, stateExternal, pressureInternal, pressureExternal, partialStateInternal, partialStateExternal, stateJacobianInternal, stateJacobianExternal, normalInternal, pRef);
+    const Base::Face* ptrFace = face.getFace();
+    const Geometry::PointReference<DIM - 1>& pRef = face.getPointReference();
+    LinearAlgebra::SmallVector<DIM> normalInternal = face.getUnitNormalVector();
+	LinearAlgebra::MiddleSizeMatrix fluxFunction = computeAuxilliaryFlux(ptrFace, iSide, stateInternal, stateExternal, pressureInternal, pressureExternal, partialStateInternal, partialStateExternal, stateJacobianInternal, stateJacobianExternal, normalInternal, pRef);
 
 	//Compute integrand
 	std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
-	LinearAlgebra::NumericalVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
-	LinearAlgebra::NumericalVector partialIntegrand(instance_.numOfVariables_);
+	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
+	LinearAlgebra::MiddleSizeVector partialIntegrand(instance_.numOfVariables_);
 	std::size_t iEB;
 
 	for (std::size_t iV = 0; iV < instance_.numOfVariables_; iV++)

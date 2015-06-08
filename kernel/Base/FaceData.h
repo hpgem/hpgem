@@ -25,13 +25,12 @@
 //----------------------------------------------------------------
 #include <vector>
 #include "Base/FaceMatrix.h"
-#include "LinearAlgebra/Matrix.h"
-#include "LinearAlgebra/NumericalVector.h"
-#include "FaceCacheData.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 namespace Base
@@ -51,35 +50,30 @@ namespace Base
         
         FaceData(const FaceData& other);
         
-        virtual ~FaceData()
-        {
-        }
+        virtual ~FaceData() = default;
 
         /// \brief Sets face matrix number 'matrixID' using a standard matrix.
         /// \deprecated For safety and also efficiency it is advised to use the other version
         /// of this function instead, which takes a FaceMatrix as input. This is actually
         /// a dated function and should be removed.
-        void setFaceMatrix(const LinearAlgebra::Matrix& matrix, std::size_t matrixID = 0);
+        void setFaceMatrix(const LinearAlgebra::MiddleSizeMatrix& matrix, std::size_t matrixID = 0);
 
         /// \brief Sets face matrix number 'matrixID' using a standard matrix.
         void setFaceMatrix(const FaceMatrix &faceMatrix, std::size_t matrixID = 0);
 
         /// \brief Gets face matrix number 'matrixID' and return it as a standard matrix. It is advised to use the other version instead, which returns a FaceMatrix.
-        virtual LinearAlgebra::Matrix getFaceMatrixMatrix(std::size_t matrixID = 0) const;
+        LinearAlgebra::MiddleSizeMatrix getFaceMatrixMatrix(std::size_t matrixID = 0) const;
 
         /// \brief Returns face matrix number 'matrixID'.
         const FaceMatrix & getFaceMatrix(std::size_t matrixID = 0) const;
 
-        void setFaceVector(const LinearAlgebra::NumericalVector& vector, std::size_t vectorID = 0);
+        void setFaceVector(const LinearAlgebra::MiddleSizeVector& vector, std::size_t vectorID = 0);
 
-        virtual LinearAlgebra::NumericalVector getFaceVector(std::size_t vectorID = 0) const;
+        LinearAlgebra::MiddleSizeVector getFaceVector(std::size_t vectorID = 0) const;
 
-        virtual VecCacheT& getVecCacheData()
-        {
-            return vecCacheData_;
-        }        
+        VecCacheT& getVecCacheData();
         
-        virtual UserFaceData* getUserData() const
+        UserFaceData* getUserData() const
         {
             return userData_;
         }
@@ -90,9 +84,9 @@ namespace Base
             userData_ = data;
         }
         
-        virtual const LinearAlgebra::NumericalVector& getResidue() const;
+        const LinearAlgebra::MiddleSizeVector& getResidue() const;
 
-        void setResidue(LinearAlgebra::NumericalVector& residue);
+        void setResidue(LinearAlgebra::MiddleSizeVector& residue);
         
         std::size_t getNumberFaceMatrices() const;
         std::size_t getNumberFaceVectors() const;
@@ -110,10 +104,10 @@ namespace Base
         std::vector<FaceMatrix> faceMatrix_;
         
         ///Stores face vector(s) for this face.
-        std::vector<LinearAlgebra::NumericalVector> faceVector_;
+        std::vector<LinearAlgebra::MiddleSizeVector> faceVector_;
 
         //A concatenation of the flux contributions to the residuals in the left and the right elements
-        LinearAlgebra::NumericalVector residual_;
+        LinearAlgebra::MiddleSizeVector residual_;
     };
 }
 #endif

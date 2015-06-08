@@ -30,11 +30,11 @@ namespace Geometry
     
     /// \deprecated just pass a referencePyramid to the constructor of a PhysicalGeometry
     /// if you want to create a pyramid
-    class PhysicalPyramid : public PhysicalGeometry
+    class PhysicalPyramid : public PhysicalGeometry<3>
     {
     public:
         
-        PhysicalPyramid(const std::vector<std::size_t>&, std::vector<PointPhysical>&);
+        PhysicalPyramid(const std::vector<std::size_t>&, std::vector<PointPhysical<3> >&);
     };
 }
 #endif

@@ -24,7 +24,7 @@
 #include "ReferenceLine.h"
 #include "Geometry/PointReference.h"
 #include "Mappings/MappingToRefFaceToTriangularPrism.h"
-#include "LinearAlgebra/Matrix.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 
 namespace Geometry
 {
@@ -33,16 +33,17 @@ namespace Geometry
     std::size_t ReferenceTriangularPrism::localNodesOnEdge_[9][2] = { {0, 1}, {0, 2}, {1, 2}, {3, 4}, {3, 5}, {4, 5}, {0, 3}, {1, 4}, {2, 5}};
     
     ReferenceTriangularPrism::ReferenceTriangularPrism()
-            : ReferenceGeometry(6, 3, ReferenceGeometryType::TRIANGULARPRISM, {1./3., 1./3., 0.}), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+            : ReferenceGeometry(6, 3, ReferenceGeometryType::TRIANGULARPRISM, {1./3., 1./3., 0.}), referenceGeometryCodim1TrianglePtr_(&ReferenceTriangle::Instance()), referenceGeometryCodim1SquarePtr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance()), points_(6)
     {
         name = "ReferenceTriangularPrism";
         
-        points_[0] = PointReferenceFactory::instance()->makePoint({0., 0., -1.});
-        points_[1] = PointReferenceFactory::instance()->makePoint({1., 0., -1.});
-        points_[2] = PointReferenceFactory::instance()->makePoint({0., 1., -1.});
-        points_[3] = PointReferenceFactory::instance()->makePoint({0., 0.,  1.});
-        points_[4] = PointReferenceFactory::instance()->makePoint({1., 0.,  1.});
-        points_[5] = PointReferenceFactory::instance()->makePoint({0., 1.,  1.});
+        points_[0] = PointReferenceFactory<3>::instance()->makePoint({0., 0., -1.});
+        points_[1] = PointReferenceFactory<3>::instance()->makePoint({1., 0., -1.});
+        points_[2] = PointReferenceFactory<3>::instance()->makePoint({0., 1., -1.});
+        points_[3] = PointReferenceFactory<3>::instance()->makePoint({0., 0.,  1.});
+        points_[4] = PointReferenceFactory<3>::instance()->makePoint({1., 0.,  1.});
+        points_[5] = PointReferenceFactory<3>::instance()->makePoint({0., 1.,  1.});
+        center_ = PointReferenceFactory<3>::instance()->makePoint({1./3., 1./3., 0.});
         
         /// Mappings between triangular prisms are not implemented
         mappingsTriangularPrismToTriangularPrism_[0] = 0;
@@ -54,7 +55,7 @@ namespace Geometry
         mappingsFaceToTriangularPrism_[4] = &MappingToRefFaceToTriangularPrism4::Instance();
     }
     
-    bool ReferenceTriangularPrism::isInternalPoint(const PointReference& p) const
+    bool ReferenceTriangularPrism::isInternalPoint(const PointReference<3>& p) const
     {
         logger.assert(p.size()==3, "The dimension of the reference point is incorrect");
         return ((-1. <= p[2]) && (1. >= p[2]) && (p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
@@ -63,8 +64,8 @@ namespace Geometry
     std::ostream& operator<<(std::ostream& os, const ReferenceTriangularPrism& prism)
     {
         os << prism.getName() << " = ( ";
-        ReferenceTriangularPrism::const_iterator it = prism.points_.begin();
-        ReferenceTriangularPrism::const_iterator end = prism.points_.end();
+        auto it = prism.points_.begin();
+        auto end = prism.points_.end();
         
         for (; it != end; ++it)
         {
@@ -84,7 +85,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<0>*
     ReferenceTriangularPrism::getCodim0MappingPtr(const std::size_t i) const
     {
         /// \TODO: Implement tetrahedron to tetrahedron mappings.
@@ -130,7 +131,7 @@ namespace Geometry
         return 0;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<1>*
     ReferenceTriangularPrism::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
         logger.assert((faceIndex < 5), "Asked for a square point index larger than 3. There are only 4 nodes in a square!.\n");
@@ -152,7 +153,7 @@ namespace Geometry
         return referenceGeometryCodim2Ptr_;
     }
     
-    const MappingReferenceToReference*
+    const MappingReferenceToReference<2>*
     ReferenceTriangularPrism::getCodim2MappingPtr(const std::size_t faceIndex) const
     {
         /// \TODO: Implement line to t.p. mappings.
@@ -170,7 +171,7 @@ namespace Geometry
     
     // =============================== Refinement mappings =====================================
     
-    void ReferenceTriangularPrism::refinementTransform(int refineType, std::size_t subElementIdx, const PointReference& p, PointReference& pMap) const
+    void ReferenceTriangularPrism::refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<3>& p, PointReference<3>& pMap) const
     {
         switch (refineType)
         {
@@ -391,7 +392,7 @@ namespace Geometry
         }
     } // end of refinementTransform
     
-    void ReferenceTriangularPrism::getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
+    void ReferenceTriangularPrism::getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
         Q.resize(4, 4);
         Q = 0.;
@@ -632,7 +633,7 @@ namespace Geometry
         }
     } // end of getRefinementMappingMatrixL
     
-    void ReferenceTriangularPrism::getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::Matrix& Q) const
+    void ReferenceTriangularPrism::getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
         Q.resize(4, 4);
         Q = 0.;
@@ -873,7 +874,7 @@ namespace Geometry
         }
     } // end of getRefinementMappingMatrixR
     
-    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
         int faRefinementType(-1);
         std::size_t subFaceIndex(0);
@@ -1041,7 +1042,7 @@ namespace Geometry
         }
     } // end of getCodim1RefinementMappingMatrixL
     
-    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::Matrix& Q) const
+    void ReferenceTriangularPrism::getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const
     {
         int faRefinementType(-1);
         std::size_t subFaceIndex(0);

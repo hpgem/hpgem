@@ -29,12 +29,11 @@ class CompressibleNavierStokes;
 #include "Inviscid.h"
 #include "Viscous.h"
 
-class CompressibleNavierStokes : public Base::HpgemAPISimplified
+class CompressibleNavierStokes : public Base::HpgemAPISimplified<DIM>
 {
 public:
 	CompressibleNavierStokes
 	(
-		const std::size_t dimension,
 		const std::size_t numOfVariables,
 		const double endTime,
 		const std::size_t polynomialOrder,
@@ -42,12 +41,12 @@ public:
 	);
 
     /// \brief Create a domain
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override;
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override;
 
     void setStabilityMassMatrix();
 
     // Computes pressure for a given solution q
-    double computePressure(const LinearAlgebra::NumericalVector &qSolution);
+    double computePressure(const LinearAlgebra::MiddleSizeVector &qSolution);
 
 
     /// *****************************************
@@ -55,59 +54,64 @@ public:
     /// *****************************************
 
     /// Compute source function at an element
-    LinearAlgebra::NumericalVector integrandSourceAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector qSolution, const double pressureTerm, const double &time, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeVector integrandSourceAtElement(Base::PhysicalElement<DIM>& element, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time);
 
     /// Compute solution at an element
-    LinearAlgebra::NumericalVector computeSolutionOnElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeVector computeSolutionOnElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM> &pRef);
 
     /// Compute solution derivatives at an element. Energy state is not included.
-    LinearAlgebra::Matrix computeSolutionJacobianAtElement(const Base::Element *ptrElement, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeMatrix computeSolutionJacobianAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM> &pRef);
 
     /// Compute the Jacobian of the velocities
-    LinearAlgebra::Matrix computePartialStateJacobian(const LinearAlgebra::Matrix qSolutionGradient, const LinearAlgebra::NumericalVector qSolution);
+    LinearAlgebra::MiddleSizeMatrix computePartialStateJacobian(const LinearAlgebra::MiddleSizeMatrix qSolutionGradient, const LinearAlgebra::MiddleSizeVector qSolution);
 
     /// Computes the partial States: all states except the density are divided by the density
-    LinearAlgebra::NumericalVector computePartialState(const LinearAlgebra::NumericalVector qSolution);
+    LinearAlgebra::MiddleSizeVector computePartialState(const LinearAlgebra::MiddleSizeVector qSolution);
 
     /// Compute integrand of righthandside on an element
-    LinearAlgebra::NumericalVector integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefElement(Base::PhysicalElement<DIM>& element, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients);
 
     /// \brief Compute the right hand side on an element
-    LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement,	LinearAlgebra::NumericalVector &solutionCoefficients, const double time) override;
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement,	LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override;
 
     /// *****************************************
     /// ***    face integration functions     ***
     /// *****************************************
 
     /// Compute solution at a face
-    LinearAlgebra::NumericalVector computeSolutionOnFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef) const;
+    LinearAlgebra::MiddleSizeVector computeSolutionOnFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM - 1> &pRef) const;
 
     /// Compute solution Jacobian on face
-    LinearAlgebra::Matrix computeSolutionJacobianAtFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficients, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeMatrix computeSolutionJacobianAtFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM - 1> &pRef);
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
-    LinearAlgebra::NumericalVector integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const LinearAlgebra::NumericalVector &solutionCoefficients);
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients);
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-    LinearAlgebra::NumericalVector integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const Geometry::PointReference &pRef, const Base::Side &iSide, const LinearAlgebra::NumericalVector &solutionCoefficientsLeft, const LinearAlgebra::NumericalVector &solutionCoefficientsRight);
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight);
 
     /// \brief Compute the right-hand side corresponding to a boundary face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::NumericalVector &solutionCoefficients, const double time) override final;
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
 
     /// \brief Compute the right-hand side corresponding to an internal face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::NumericalVector &solutionCoefficientsLeft, LinearAlgebra::NumericalVector &solutionCoefficientsRight, const double time) override final;
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time) override final;
 
 
     /// *****************************************
     /// ***    		Various Functions         ***
     /// *****************************************
 
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override final;
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override final;
 
     /// \brief Compute the initial solution at a given point in space and time.
-	LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
+	LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
 
-	LinearAlgebra::NumericalVector Error(const double time);
+	LinearAlgebra::MiddleSizeVector Error(const double time);
+
+	void beforeTimeIntegration()
+	{
+	    faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
+	}
 
 private:
     /// Dimension of the domain

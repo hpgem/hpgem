@@ -37,24 +37,21 @@ namespace Geometry
     class MappingToPhysPyramid : public MappingReferenceToPhysical
     {
     public:
-        MappingToPhysPyramid(const PhysicalGeometry* const physicalGeometry);
+        MappingToPhysPyramid(const PhysicalGeometry<3>* const physicalGeometry);
         
         MappingToPhysPyramid(const MappingToPhysPyramid &other) = default;
 
-        PointPhysical transform(const PointReference&) const override final;
+        PointPhysical<3> transform(const PointReference<3>&) const override final;
 
-        Jacobian calcJacobian(const PointReference&) const override final;
+        Jacobian<3, 3> calcJacobian(const PointReference<3>&) const override final;
 
-        void reinit(const PhysicalGeometry* const) override final;
+        void reinit() override final;
 
-        bool isValidPoint(const PointReference&) const;
+        bool isValidPoint(const PointReference<3>&) const;
         std::size_t getTargetDimension() const override final
         {
             return 3;
         }
-        
-    private:
-        std::vector<std::size_t> globalNodeIndices_;
     };
 }
 #endif

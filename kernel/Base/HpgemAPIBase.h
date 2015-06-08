@@ -32,22 +32,26 @@
 
 namespace Base
 {
+    template<std::size_t DIM>
     class MeshMoverBase;
+    template<std::size_t DIM>
     struct RectangularMeshDescriptor;
     struct GlobalData;
     struct ConfigurationData;
     
     /// Basic interface that can create meshes. This class can be used to construct more advanced interfaces.
+    template<std::size_t DIM>
     class HpgemAPIBase
     {
     public:
-        using ConstElementIterator = MeshManipulator::ConstElementIterator;
-        using ElementIterator = MeshManipulator::ElementIterator;
-        using ConstFaceIterator = MeshManipulator::ConstFaceIterator;
-        using FaceIterator = MeshManipulator::FaceIterator;
-        using VectorOfMeshManipulatorT = std::vector<MeshManipulator*>;
-        using PointPhysicalT = Geometry::PointPhysical;
-        using PointReferenceT = Geometry::PointReference;
+        using ConstElementIterator = typename MeshManipulator<DIM>::ConstElementIterator;
+        using ElementIterator = typename MeshManipulator<DIM>::ElementIterator;
+        using ConstFaceIterator = typename MeshManipulator<DIM>::ConstFaceIterator;
+        using FaceIterator = typename MeshManipulator<DIM>::FaceIterator;
+        using VectorOfMeshManipulatorT = std::vector<MeshManipulator<DIM>*>;
+        using PointPhysicalT = Geometry::PointPhysical<DIM>;
+        using PointReferenceT = Geometry::PointReference<DIM>;
+        using PointReferenceOnFaceT = Geometry::PointReference<DIM - 1>;
 
         using MeshId = std::size_t;
         using VectorOfUIntegers = std::vector<std::size_t>;
@@ -68,10 +72,10 @@ namespace Base
         HpgemAPIBase& operator=(const HpgemAPIBase &other) = delete;
 
         /// \brief Gives the pointer of meshMoverBase class to mesh.
-        virtual bool initialiseMeshMover(const MeshMoverBase* meshMoverBase, std::size_t meshID);
+        virtual bool initialiseMeshMover(const MeshMoverBase<DIM>* meshMoverBase, std::size_t meshID);
 
         /// Creating a mesh with in-house remesher.
-        MeshId addMesh(const RectangularMeshDescriptor& meshDescriptor, const MeshType& meshType = MeshType::RECTANGULAR, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
+        MeshId addMesh(const RectangularMeshDescriptor<DIM>& meshDescriptor, const MeshType& meshType = MeshType::RECTANGULAR, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
         
         /// Reading a mesh from a file, currently only Centaur is supported.
         MeshId addMesh(const String& fileName, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
@@ -100,5 +104,8 @@ namespace Base
         const ConfigurationData * const configData_;
     };
 }
+
+#include "HpgemAPIBase_Impl.h"
+
 #endif
 

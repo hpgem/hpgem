@@ -41,6 +41,9 @@
 #include "Integration/ElementIntegral.h"
 #include "Base/CommandLineOptions.h"
 
+// Choose the dimension (in this case 2)
+const std::size_t DIM = 2;
+
 ///\brief Tutorial for solving the Poisson equation using hpGEM. 
 ///
 ///In here, all methods that you use 
@@ -53,20 +56,19 @@
 ///The analytical solution of this problem is u(x,y) = sin(2pi x)cos(2pi y)
 ///The problem is discretised with the Interior Penalty Discontinuous Galerkin method.
 ///
-class TutorialPoisson : public Base::HpgemAPILinearSteadyState
+class TutorialPoisson : public Base::HpgemAPILinearSteadyState<DIM>
 {
 public:
     ///Constructor: assign the dimension, number of elements and maximum order 
     ///of basisfunctions. Furthermore, assign a value to the penalty parameter.
     ///n stands for number of elements, p stands for polynomial order.
     ///Lastly, construct the mesh with this number of elements and polynomial order.
-    TutorialPoisson(const std::size_t dimension, const std::size_t n, const std::size_t p) :
-    HpgemAPILinearSteadyState(dimension, 1, p, true, true),
+    TutorialPoisson(const std::size_t n, const std::size_t p) :
+    Base::HpgemAPILinearSteadyState<DIM>(1, p, true, true),
     n_(n),
-    p_(p),
-    DIM_(dimension)
+    p_(p)
     {
-        penalty_ = 3 * n_ * p_ * (p_ + DIM_ - 1) + 1;
+        penalty_ = 3 * n_ * p_ * (p_ + DIM - 1) + 1;
     }
     
     ///\brief set up the mesh  
@@ -75,13 +77,13 @@ public:
     ///We define the domain, number of elements in each direction and whether or
     ///no there are periodic boundary conditions. Then make a triangular mesh and 
     ///generate the basisfunctions on the reference domain.
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        Base::RectangularMeshDescriptor description(DIM_);
+        Base::RectangularMeshDescriptor<DIM> description;
         
         //this demo will use the square [0,1]^2
-        for (std::size_t i = 0; i < DIM_; ++i)
+        for (std::size_t i = 0; i < DIM; ++i)
         {
             //define the value of the bottom left corner in each dimension
             description.bottomLeft_[i] = 0;
@@ -101,19 +103,18 @@ public:
     ///\brief Compute the integrand for the stiffness matrix at the element.
     ///
     ///For every element, we want to compute the integral of grad(phi_i).grad(phi_j) for all combinations of i and j.
-    ///This function will compute the values of gradient(phi_i).gradient(phi_j) for all combinations of i and j for one element
-    ///and one reference point p. Then the integral can later be computed with appropriate (Gauss-)quadrature rules.
+    ///This function will compute the values of gradient(phi_i).gradient(phi_j) for all combinations of i and j for one element.
+    ///Then the integral can later be computed with appropriate (Gauss-)quadrature rules.
     ///The resulting matrix of values is then given in the matrix integrandVal, which we return.
-    ///Please note that you pass a reference point to the basisfunctions and the 
-    ///transformations are done internally.
-    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
+    ///hpGEM pretends the computations are done on a physical face (as opposed to a reference face), because this generally allows for easier expressions
+    LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM>& element) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
-        const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
+        const std::size_t numBasisFunctions = element.getElement()->getNrOfBasisFunctions();
         
-        //Create the integrandVal such that it contains as many rows and columns as
+        //Obtain the integrandVal such that it contains as many rows and columns as
         //the number of basisfunctions.
-        LinearAlgebra::Matrix integrandVal(numBasisFunctions, numBasisFunctions);
+        LinearAlgebra::MiddleSizeMatrix& integrandVal = element.getResultMatrix();
         
         for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
@@ -121,7 +122,7 @@ public:
             {
                 //Compute the value of gradient(phi_i).gradient(phi_j) at point p and 
                 //store it at the appropriate place in the matrix integrandVal.
-                integrandVal(j, i) = element->basisFunctionDeriv(i, point) * element->basisFunctionDeriv(j, point);
+                integrandVal(j, i) = element.basisFunctionDeriv(i) * element.basisFunctionDeriv(j);
             }
         }
         
@@ -134,52 +135,44 @@ public:
     /// -1/2 (normal_i phi_i * gradient phi_j) - 1/2 (normal_j phi_j * gradient phi_i) + penalty * (normal_i phi_i * normal_j phi_j)
     ///for all basisfunctions phi_i and phi_j that are non-zero on that face.
     ///For boundary faces, similar expressions can be obtained depending of the type of boundary condition.
-    ///This function will compute these integrands for all basisfunctions phi_i and phi_j
-    ///on a certain face at a reference point p. Then the integral can later be computed with appropriate (Gauss-)quadrature rules.  
+    ///This function will compute these integrands for all basisfunctions phi_i and phi_j.
+    ///Then the integral can later be computed with appropriate (Gauss-)quadrature rules.
     ///The resulting matrix of values is then given in the matrix integrandVal, which is returned.
-    ///Please note that you pass a reference point to the basisfunctions and the 
-    ///transformations are done internally.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
+    ///hpGEM pretends the computations are done on a physical face (as opposed to a reference face), because this generally allows for easier expressions
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(Base::PhysicalFace<DIM>& face) override final
     {
-        //Get the number of basis functions, first of both sides of the face and
-        //then only the basis functions associated with the left and right element.
-        std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
-        std::size_t nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
-        std::size_t nRight = 0;
-        if(face->isInternal())
-        {
-            nRight = face->getPtrElementLeft()->getNrOfBasisFunctions();
-        }
+        //Get the total number of basis functions of both sides of the face.
+        std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
         
-        //Create the FaceMatrix integrandVal with the correct size.
-        Base::FaceMatrix integrandVal(nLeft, nRight);
+        //get the FaceMatrix integrandVal with the correct size.
+        Base::FaceMatrix& integrandVal = face.getResultMatrix();
         
         //Initialize the vectors that contain gradient(phi_i), gradient(phi_j), normal_i phi_i and normal_j phi_j
-        LinearAlgebra::NumericalVector phiNormalI(DIM_), phiNormalJ(DIM_), phiDerivI(DIM_), phiDerivJ(DIM_);
+        LinearAlgebra::SmallVector<DIM> phiNormalI, phiNormalJ, phiDerivI, phiDerivJ;
         
-        //Transform the point from the reference value to its physical value.
+        //Obtain the physical coordinate that the integrator is currently processing.
         //This is necessary to check at which boundary we are if we are at a boundary face.
-        PointPhysicalT pPhys = face->referenceToPhysical(p);
+        const PointPhysicalT& pPhys = face.getPointPhysical();
         
         for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
-            phiNormalI = face->basisFunctionNormal(i, normal, p);
+            phiNormalI = face.basisFunctionUnitNormal(i);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
-            phiDerivI = face->basisFunctionDeriv(i, p);
+            phiDerivI = face.basisFunctionDeriv(i);
             
             for (std::size_t j = 0; j < numBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
-                phiNormalJ = face->basisFunctionNormal(j, normal, p);
+                phiNormalJ = face.basisFunctionUnitNormal(j);
                 //The gradient of basisfunction phi_j is computed at point p, the result is stored in phiDerivJ.
-                phiDerivJ = face->basisFunctionDeriv(j, p);
+                phiDerivJ = face.basisFunctionDeriv(j);
                 
                 //Switch to the correct type of face, and compute the integrand accordingly
                 //you could also compute the integrandVal by directly using face->basisFunctionDeriv
                 //and face->basisFunctionNormal in the following lines, but this results in very long expressions
                 //Internal face:
-                if (face->isInternal())
+                if (face.isInternal())
                 {
                     integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2 + penalty_ * phiNormalI * phiNormalJ;
                 }
@@ -201,9 +194,9 @@ public:
     
     /// \brief Define the exact solution
     /// \details In this case the exact solution is u(x,y) = sin(2pi x) * cos(2pi y).
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &p) override final
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &p) override final
     {
-        LinearAlgebra::NumericalVector exactSolution(1);
+        LinearAlgebra::MiddleSizeVector exactSolution(1);
         exactSolution[0] = std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
         return exactSolution;
     }
@@ -212,15 +205,15 @@ public:
     ///
     ///Define the source, which is the right hand side of laplacian(u) = f(x,y).
     ///Here: f(x,y) = -8pi^2 * sin(2pi x) * sin(2pi y).
-    LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &p) override final
+    LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &p) override final
     {
-        LinearAlgebra::NumericalVector sourceTerm(1);
+        LinearAlgebra::MiddleSizeVector sourceTerm(1);
         sourceTerm[0] = (-8 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
         return sourceTerm;
     }
     
     //For the right hand side, we also need to integrate over elements and faces. 
-    //This will be done in the two functions below.
+    //This will be done in the function below.
     //After they are computed, we have a vector, each element representing one basisfunction.
     
     /// \brief Compute the integrals of the right-hand side associated with faces.
@@ -229,21 +222,10 @@ public:
     ///integral on the right-hand side. However, in our application we do not have
     ///contributions for the boundary conditions, so the vector has only zeroes.
     ///The input/output structure is the same as the other faceIntegrand function.
-    LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
+    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(Base::PhysicalFace<DIM>& face) override final
     {
-        //Obtain the number of basisfunctions that are possibly non-zero
-        const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
-        //Resize the integrandVal such that it contains as many rows as 
-        //the number of basisfunctions.
-        LinearAlgebra::NumericalVector integrandVal(numBasisFunctions);
-        
-        //Compute the value of the integrand
-        //We have no rhs face integrals, so this is just 0.
-        for (std::size_t i = 0; i < numBasisFunctions; ++i)
-        {
-            integrandVal[i] = 0;
-        }
-        
+        //The prepared result vector is automatically zeroed out between computations, so we dont have to redo that here
+        LinearAlgebra::MiddleSizeVector& integrandVal = face.getResultVector();
         return integrandVal;
     }
         
@@ -254,7 +236,7 @@ public:
     ///The only thing this has to write in the file is the value of the solution.
     void writeToTecplotFile(const Base::Element* element, const PointReferenceT& point, std::ostream& out) override final
     {
-        LinearAlgebra::NumericalVector value(1);
+        LinearAlgebra::MiddleSizeVector value(1);
         value = element->getSolution(0, point);
         out << value[0];
     }
@@ -266,9 +248,6 @@ private:
 
     ///polynomial order of the approximation
     std::size_t p_;
-
-    ///Dimension of the domain, in this case 2
-    std::size_t DIM_;
 
     ///\brief Penalty parameter
     ///
@@ -288,8 +267,6 @@ auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order o
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    // Choose the dimension (2 or 3)
-    const std::size_t dimension = 2;
 
     // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
@@ -299,7 +276,7 @@ int main(int argc, char **argv)
     variableNames.push_back("u");
 
     //Make the object test with n elements in each direction and polynomial order p.
-    TutorialPoisson test(dimension, numBasisFuns.getValue(), p.getValue());
+    TutorialPoisson test(numBasisFuns.getValue(), p.getValue());
 
     //Create the mesh
     test.createMesh(numBasisFuns.getValue(), meshType);
