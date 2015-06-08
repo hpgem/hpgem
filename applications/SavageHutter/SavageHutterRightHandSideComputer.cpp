@@ -39,7 +39,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElem
     const MiddleSizeVector physicalFlux = computePhysicalFlux(numericalSolution);
     const PointPhysicalT& pPhys = element.getPointPhysical();
     const MiddleSizeVector source = computeSourceTerm(numericalSolution, pPhys, time);
-    logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
+    //logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
     
     // Compute integrand on the physical element.
     std::size_t iVB; // Index for both basis function and variable
@@ -138,7 +138,9 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     {
         u = solution(1)/solution(0);
     }
-    if (u*normal > 0) //outflow
+    
+    //if (u*normal > -1e-10) //outflow
+    if (normal > 0)
     {
         flux = localLaxFriedrichsFlux(solution, solution);
     }
@@ -183,7 +185,6 @@ MiddleSizeVector SavageHutterRightHandSideComputer::computeSourceTerm(const Midd
     logger.assert(theta_ < M_PI / 2, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
     const double hu = numericalSolution(1);
-    //logger.assert(std::abs(hu) < 1e-2, "analytical solution says hu = 0, but hu equals %", hu);
     double u = 0;
     if (h > 1e-10)
     {
@@ -246,5 +247,5 @@ double SavageHutterRightHandSideComputer::computeFriction(const MiddleSizeVector
 
 LinearAlgebra::MiddleSizeVector SavageHutterRightHandSideComputer::getInflowBC()
 {
-    return LinearAlgebra::MiddleSizeVector({1, 0});
+    return LinearAlgebra::MiddleSizeVector({0.1, 0});
 }

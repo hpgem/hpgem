@@ -40,7 +40,7 @@ numOfVariables_(numOfVariables)
 {
     rhsComputer_.numOfVariables_ = numOfVariables;
     rhsComputer_.epsilon_ = 1.0;
-    rhsComputer_.theta_ = 0; //M_PI / 6; //radians
+    rhsComputer_.theta_ = 0; //radians
 }
 
 SavageHutter::SavageHutter(const SHConstructorStruct& inputValues) :
@@ -49,7 +49,7 @@ numOfVariables_(inputValues.numOfVariables)
 {
     rhsComputer_.numOfVariables_ = inputValues.numOfVariables;
     rhsComputer_.epsilon_ = 1.0;
-    rhsComputer_.theta_ = 0; //M_PI / 6; //radians
+    rhsComputer_.theta_ = 0; //radians
     createMesh(inputValues.numElements, inputValues.meshType);
 }
 
@@ -62,7 +62,7 @@ Base::RectangularMeshDescriptor<DIM> SavageHutter::createMeshDescription(const s
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
         description.numElementsInDIM_[i] = numOfElementPerDirection;
-        description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
+        description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
     }
     return description;
 }
@@ -71,15 +71,15 @@ Base::RectangularMeshDescriptor<DIM> SavageHutter::createMeshDescription(const s
 LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     LinearAlgebra::MiddleSizeVector initialSolution(numOfVariables_);
-    if (pPhys[0] > 0.4 && pPhys[0] < 0.6)
+    
+    if (pPhys[0] < 0.5 && pPhys[0] > 0)
     {
-        initialSolution(0) = 1;
+        initialSolution(0) =  0.1;
     }
     else
     {
-        initialSolution(0) = 0.5;
+        initialSolution(0) = 0.01;
     }
-    initialSolution(1) = 0;
     return initialSolution;
 }
 /*********************Integrate over elements and faces************************/
@@ -240,11 +240,11 @@ void SavageHutter::useLimitierForElement(Base::Element *element)
 
     logger(DEBUG, "Integral over all inflow boundaries of difference for element %: %", element->getID(), totalIntegral);
 
-    //divide the integral by dx^{(p+1)/2}, the norm of {u,uh} and the size of the face
+    //divide the integral by dx^{(p+1)/2}, the norm of {h,hu} and the size of the face
     std::size_t p = configData_->polynomialOrder_;
-    ///\todo check if this definition of h is reasonable for other geometries than lines
+        ///\todo make dx the maximum of the edge-lengths
     const PointReferenceT& center = element->getReferenceGeometry()->getCenter();
-    const double dx = std::pow(2. * std::abs(element->calcJacobian(center).determinant()), 1./DIM);
+    const double dx = 2. * std::abs(element->calcJacobian(center).determinant());
     logger(DEBUG, "grid size: %", dx);
     totalIntegral /= std::pow(dx, (p + 1.) / 2);
 
@@ -259,7 +259,7 @@ void SavageHutter::useLimitierForElement(Base::Element *element)
     //compare this with 1: if >1, discontinuous, if <1 smooth
     for (std::size_t i = 0; i < numOfVariables_; ++i)
     {
-        if (totalIntegral(i) > 1)
+        if (std::abs(totalIntegral(i)) > 1)
         {
             logger(DEBUG, "Element % with variable % will be limited.", element->getID(), i);
             limitWithMinMod(element, i); //needs to be adapted for boundaries!
@@ -292,7 +292,7 @@ void SavageHutter::limitWithMinMod(Base::Element* element, const std::size_t iVa
     
     const PointReferenceT &pRef = element->getReferenceGeometry()->getCenter();
     const PointReferenceT &pRefFace = element->getFace(0)->getReferenceGeometry()->getCenter();
-    const PointReferenceT &pRefL = element->getReferenceGeometry()->getNode(0); //TODO: do this with getNodeCoordinates()
+    const PointReferenceT &pRefL = element->getReferenceGeometry()->getNode(0); 
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getNode(1);
     logger.assert(0 == pRef[0], "xi != 0");
     logger.assert(std::abs(-1  - pRefL[0]) < 1e-10, "xi_L != -1");    
@@ -300,26 +300,44 @@ void SavageHutter::limitWithMinMod(Base::Element* element, const std::size_t iVa
     
     //this does not work for first boundary, probably also not for triangular mesh.
     //maybe write getNeighbour(face)?
-    const Base::Element * const elemL = element->getFace(0)->getPtrElementLeft();
-    const Base::Element * const elemR = element->getFace(1)->getPtrElementRight();
+    const Base::Element *elemL;
+    const Base::Element *elemR;
+    if (element->getFace(0)->isInternal())
+        elemL  = element->getFace(0)->getPtrElementLeft();
+    else
+        return; //for now, just don't use the limiter here...
+    if (element->getFace(1)->isInternal())
+        elemR = element->getFace(1)->getPtrElementRight();
+    else
+        return; //for now, just don't use the limiter here...
 
     //check if left is indeed of the left side of right //TODO: this may be false for general meshes (or may even examine the same node twice)
     logger.assert((PointPhysicalT(elemL->getPhysicalGeometry()->getLocalNodeCoordinates(0)))[0] < PointPhysicalT(elemR->getPhysicalGeometry()->getLocalNodeCoordinates(0))[0], "elements left/right in wrong order");
 
-    const double u0 = element->getSolution(0, pRef)(iVar);
-    const double uElemR = elemR->getSolution(0, pRef)(iVar);
-    const double uElemL = elemL->getSolution(0, pRef)(iVar);
-    const double uPlus = element->getSolution(0, pRefR)(iVar) - u0;
-    const double uMinus = u0 - element->getSolution(0, pRefL)(iVar);
     
+    const double uPlus = element->getSolution(0, pRefR)(iVar);
+    const double uMinus = element->getSolution(0, pRefL)(iVar);
+    //TVB term
+    const double M = 10;
+    if (std::abs(uPlus - uMinus) < M * (2*element->calcJacobian(pRef).determinant())* (2*element->calcJacobian(pRef).determinant()))
+    {
+        return;
+    }
+    const double u0 = (uPlus + uMinus)/2;
+    const double uElemR = (elemR->getSolution(0, pRefR)(iVar) + elemR->getSolution(0, pRefL)(iVar))/2;
+    const double uElemL = (elemL->getSolution(0, pRefR)(iVar) + elemL->getSolution(0, pRefL)(iVar))/2;
+    logger(DEBUG, "coefficients: %", element->getTimeLevelData(0, iVar));
+    logger(DEBUG, "uPlus: %, basis function vals: %, %", uPlus , element->basisFunction(0,pRefR), element->basisFunction(1,pRefR));
+    logger(DEBUG, "uMinus: %, basis function vals: %, %", uMinus, element->basisFunction(0,pRefL), element->basisFunction(1,pRefL));
+    logger(DEBUG, "%, %, %",(uPlus - uMinus), uElemR - u0, u0 - uElemL);
+    logger(DEBUG, "u0: %, average of u: %, (uPlus+uMinus)/2: %", u0, computeNormOfAverageOfSolutionInElement(element)[iVar], (uPlus + uMinus)/2);
     double slope =  0;
     if (sign(uElemR - u0) == sign(u0 - uElemL) && sign(uElemR - u0) == sign(uPlus - uMinus))
     {
         slope = sign(uElemR - u0) * std::min(std::abs(uPlus - uMinus), std::min(std::abs(uElemR - u0), std::abs(u0 - uElemL)));
     }
     
-    //if ((slope - std::abs(uPlus - uMinus)) > 1e-10 )
-    if (true)
+    if (std::abs(slope - std::abs(uPlus - uMinus)) > 1e-10 )
     {
         //replace coefficients with "u0 + slope/2 * xi" coefficients
         // this is hard-coded for default-DG basis function set
@@ -331,7 +349,7 @@ void SavageHutter::limitWithMinMod(Base::Element* element, const std::size_t iVa
         coefficients[0] = coefficient0;
         coefficients[1] = coefficient1;
         element->setTimeLevelData(0, iVar, coefficients);
-        logger(DEBUG, "u's: %, %, %, coeffs: %, %", u0, uElemL, uElemR, coefficient0, coefficient1);
+        logger(DEBUG, "u's: %, %, %, coeffs: %, %", u0, uElemL, uElemR, coefficients);
         
     }
 }
