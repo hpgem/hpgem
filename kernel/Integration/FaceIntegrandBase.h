@@ -21,9 +21,13 @@
 #ifndef FaceIntegrandBase_h
 #define FaceIntegrandBase_h
 
+#include <cstdlib>
+
 namespace Base
 {
     class Face;
+    template<std::size_t DIM>
+    class PhysicalFace;
 }
 
 namespace LinearAlgebra
@@ -47,7 +51,7 @@ namespace Integration
     class FaceIntegrandBase
     {
     public:
-        virtual void faceIntegrand(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const Geometry::PointReference<DIM - 1>& p, T& ret) = 0;
+        virtual void faceIntegrand(Base::PhysicalFace<DIM>& face, T& ret) = 0;
         
         FaceIntegrandBase() = default;
         FaceIntegrandBase(const FaceIntegrandBase &other) = delete;

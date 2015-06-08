@@ -64,7 +64,7 @@ public:
     ///n stands for number of elements, p stands for polynomial order.
     ///Lastly, construct the mesh with this number of elements and polynomial order.
     PoissonTest(const std::size_t dimension, const std::size_t n, const std::size_t p) :
-    Base::HpgemAPILinearSteadyState<DIM>(dimension, 1, p, true, true),
+    Base::HpgemAPILinearSteadyState<DIM>(1, p, true, true),
     n_(n),
     p_(p)
     {
@@ -108,14 +108,14 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, which we return.
     ///Please note that you pass a reference point to the basisfunctions and the
     ///transformations are done internally.
-    LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
+    LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM>& element) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
-        const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
+        const std::size_t numBasisFunctions = element.getElement()->getNrOfBasisFunctions();
         
         //Create the integrandVal such that it contains as many rows and columns as
         //the number of basisfunctions.
-        LinearAlgebra::MiddleSizeMatrix integrandVal(numBasisFunctions, numBasisFunctions);
+        LinearAlgebra::MiddleSizeMatrix& integrandVal = element.getResultMatrix();
         
         for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
@@ -123,7 +123,7 @@ public:
             {
                 //Compute the value of gradient(phi_i).gradient(phi_j) at point p and
                 //store it at the appropriate place in the matrix integrandVal.
-                integrandVal(j, i) = element->basisFunctionDeriv(i, point) * element->basisFunctionDeriv(j, point);
+                integrandVal(j, i) = element.basisFunctionDeriv(i) * element.basisFunctionDeriv(j);
             }
         }
         
@@ -141,47 +141,41 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, which is returned.
     ///Please note that you pass a reference point to the basisfunctions and the
     ///transformations are done internally.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const PointReferenceOnFaceT& p) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(Base::PhysicalFace<DIM>& face) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
-        std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
-        std::size_t nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
-        std::size_t nRight = 0;
-        if(face->isInternal())
-        {
-            nRight = face->getPtrElementLeft()->getNrOfBasisFunctions();
-        }
+        std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
         
         //Create the FaceMatrix integrandVal with the correct size.
-        Base::FaceMatrix integrandVal(nLeft, nRight);
+        Base::FaceMatrix& integrandVal = face.getResultMatrix();
         
         //Initialize the vectors that contain gradient(phi_i), gradient(phi_j), normal_i phi_i and normal_j phi_j
         LinearAlgebra::SmallVector<DIM> phiNormalI, phiNormalJ, phiDerivI, phiDerivJ;
         
         //Transform the point from the reference value to its physical value.
         //This is necessary to check at which boundary we are if we are at a boundary face.
-        PointPhysicalT pPhys = face->referenceToPhysical(p);
+        const PointPhysicalT& pPhys = face.getPointPhysical();
         
         for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
-            phiNormalI = face->basisFunctionNormal(i, normal, p);
+            phiNormalI = face.basisFunctionUnitNormal(i);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
-            phiDerivI = face->basisFunctionDeriv(i, p);
+            phiDerivI = face.basisFunctionDeriv(i);
             
             for (std::size_t j = 0; j < numBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
-                phiNormalJ = face->basisFunctionNormal(j, normal, p);
+                phiNormalJ = face.basisFunctionUnitNormal(j);
                 //The gradient of basisfunction phi_j is computed at point p, the result is stored in phiDerivJ.
-                phiDerivJ = face->basisFunctionDeriv(j, p);
+                phiDerivJ = face.basisFunctionDeriv(j);
                 
                 //Switch to the correct type of face, and compute the integrand accordingly
                 //you could also compute the integrandVal by directly using face->basisFunctionDeriv
                 //and face->basisFunctionNormal in the following lines, but this results in very long expressions
                 //Internal face:
-                if (face->isInternal())
+                if (face.isInternal())
                 {
                     integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2 + penalty_ * phiNormalI * phiNormalJ;
                 }
@@ -231,10 +225,10 @@ public:
     ///integral on the right-hand side. However, in our application we do not have
     ///contributions for the boundary conditions, so the vector has only zeroes.
     ///The input/output structure is the same as the other faceIntegrand function.
-    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const PointReferenceOnFaceT& p) override final
+    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(Base::PhysicalFace<DIM>& face) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
-        const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
+        const std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
         //Resize the integrandVal such that it contains as many rows as
         //the number of basisfunctions.
         LinearAlgebra::MiddleSizeVector integrandVal(numBasisFunctions);

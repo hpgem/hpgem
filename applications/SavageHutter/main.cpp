@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     
     // Set parameters for the PDE.
     SHConstructorStruct inputVals;
-    inputVals.dimension = 1;
+    //DIM is declared in SavageHutterRightHandSideComputer.h
     inputVals.numOfVariables = 2;    
     inputVals.polyOrder = polynomialOrder.getValue();
     inputVals.numElements = numOfElements.getValue();

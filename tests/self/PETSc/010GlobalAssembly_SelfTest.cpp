@@ -43,14 +43,13 @@ public:
     using typename Base::HpgemAPIBase<DIM>::PointReferenceT;
     using typename Base::HpgemAPIBase<DIM>::PointReferenceOnFaceT;
 
-    PoissonTest(const std::size_t n, const std::size_t p, const std::size_t dimension, const Base::MeshType meshType) :
-    Base::HpgemAPILinearSteadyState<DIM>(dimension, 1, p, true, true),
+    PoissonTest(const std::size_t n, const std::size_t p, const Base::MeshType meshType) :
+    Base::HpgemAPILinearSteadyState<DIM>(1, p, true, true),
     n_(n),
     p_(p),
-    DIM_(dimension),
     totalError_(0)
     {
-        penalty_ = 3 * n_ * p_ * (p_ + DIM_ - 1) + 1;
+        penalty_ = 3 * n_ * p_ * (p_ + DIM - 1) + 1;
         this->createMesh(n_, meshType);
     }
     
@@ -60,7 +59,7 @@ public:
         //describes a rectangular domain
         Base::RectangularMeshDescriptor<DIM> description;
         
-        for (std::size_t i = 0; i < DIM_; ++i)
+        for (std::size_t i = 0; i < DIM; ++i)
         {
             //define the value of the bottom left corner in each dimension
             description.bottomLeft_[i] = 0;
@@ -78,14 +77,14 @@ public:
     }
     
     ///\brief Compute the integrand for the stiffness matrix at the element.
-    LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
+    LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM> &element) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
-        const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
+        const std::size_t numBasisFunctions = element.getElement()->getNrOfBasisFunctions();
         
         //Create the integrandVal such that it contains as many rows and columns as
         //the number of basisfunctions.
-        LinearAlgebra::MiddleSizeMatrix integrandVal(numBasisFunctions, numBasisFunctions);
+        LinearAlgebra::MiddleSizeMatrix& integrandVal = element.getResultMatrix();
         
         for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
@@ -93,7 +92,7 @@ public:
             {
                 //Compute the value of gradient(phi_i).gradient(phi_j) at point p and
                 //store it at the appropriate place in the matrix integrandVal.
-                integrandVal(j, i) = element->basisFunctionDeriv(i, point) * element->basisFunctionDeriv(j, point);
+                integrandVal(i, j) = element.basisFunctionDeriv(i) * element.basisFunctionDeriv(j);
             }
         }
         
@@ -101,47 +100,41 @@ public:
     }
     
     /// \brief Compute the integrand for the siffness matrix at the face.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const PointReferenceOnFaceT& p) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(Base::PhysicalFace<DIM> &face) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
-        std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
-        std::size_t nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
-        std::size_t nRight = 0;
-        if(face->isInternal())
-        {
-            nRight = face->getPtrElementLeft()->getNrOfBasisFunctions();
-        }
+        std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
         
         //Create the FaceMatrix integrandVal with the correct size.
-        Base::FaceMatrix integrandVal(nLeft, nRight);
+        Base::FaceMatrix& integrandVal = face.getResultMatrix();
         
         //Initialize the vectors that contain gradient(phi_i), gradient(phi_j), normal_i phi_i and normal_j phi_j
         LinearAlgebra::SmallVector<DIM> phiNormalI, phiNormalJ, phiDerivI, phiDerivJ;
         
         //Transform the point from the reference value to its physical value.
         //This is necessary to check at which boundary we are if we are at a boundary face.
-        PointPhysicalT pPhys = face->referenceToPhysical(p);
+        const PointPhysicalT& pPhys = face.getPointPhysical();
         
         for (int i = 0; i < numBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
-            phiNormalI = face->basisFunctionNormal(i, normal, p);
+            phiNormalI = face.basisFunctionUnitNormal(i);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
-            phiDerivI = face->basisFunctionDeriv(i, p);
+            phiDerivI = face.basisFunctionDeriv(i);
             
             for (int j = 0; j < numBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
-                phiNormalJ = face->basisFunctionNormal(j, normal, p);
+                phiNormalJ = face.basisFunctionUnitNormal(j);
                 //The gradient of basisfunction phi_j is computed at point p, the result is stored in phiDerivJ.
-                phiDerivJ = face->basisFunctionDeriv(j, p);
+                phiDerivJ = face.basisFunctionDeriv(j);
                 
                 //Switch to the correct type of face, and compute the integrand accordingly
                 //you could also compute the integrandVal by directly using face->basisFunctionDeriv
                 //and face->basisFunctionNormal in the following lines, but this results in very long expressions
                 //Internal face:
-                if (face->isInternal())
+                if (face.isInternal())
                 {
                     integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2 + penalty_ * phiNormalI * phiNormalJ;
                 }
@@ -186,11 +179,11 @@ public:
         LinearAlgebra::MiddleSizeVector sourceTerm(1);
         
         double ret = -std::sin(2 * M_PI * p[0]) * (4 * M_PI * M_PI);
-        if (DIM_ > 1)
+        if (DIM > 1)
         {
             ret *= std::cos(2 * M_PI * p[1]);
         }
-        if (DIM_ > 2)
+        if (DIM > 2)
         {
             ret *= std::cos(2 * M_PI * p[2]) * 3;
         }
@@ -200,13 +193,13 @@ public:
     }
     
     /// \brief Compute the integrals of the right-hand side associated with faces.
-    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const PointReferenceOnFaceT& p) override final
+    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(Base::PhysicalFace<DIM> &face) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
-        const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
+        const std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
         //Resize the integrandVal such that it contains as many rows as
         //the number of basisfunctions.
-        LinearAlgebra::MiddleSizeVector integrandVal(numBasisFunctions);
+        LinearAlgebra::MiddleSizeVector& integrandVal = face.getResultVector();
         
         //Compute the value of the integrand
         //We have no rhs face integrals, so this is just 0.
@@ -283,9 +276,6 @@ private:
     ///polynomial order of the approximation
     int p_;
     
-    ///Dimension of the domain, in this case 1 or 2
-    int DIM_;
-    
     ///\brief Penalty parameter
     ///
     ///Penalty parameter that is associated with the interior penalty discontinuous
@@ -303,43 +293,43 @@ int main(int argc, char** argv)
     Base::parse_options(argc, argv);
     //no 3D testing due to speed related issues
     
-    PoissonTest<1> test0(1, 2, 1, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test0(1, 2, Base::MeshType::RECTANGULAR);
     test0.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test0.getTotalError() - 0.35188045) < 1e-8), "comparison to old results");
     
-    PoissonTest<1> test1(2, 3, 1, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test1(2, 3, Base::MeshType::RECTANGULAR);
     test1.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test1.getTotalError() - 0.01607749) < 1e-8), "comparison to old results");
     
-    PoissonTest<1> test2(4, 4, 1, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test2(4, 4, Base::MeshType::RECTANGULAR);
     test2.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test2.getTotalError() - 0.00007200) < 1e-8), "comparison to old results");
     
-    PoissonTest<1> test3(8, 5, 1, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test3(8, 5, Base::MeshType::RECTANGULAR);
     test3.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test3.getTotalError() - 0.00000008) < 1e-8), "comparison to old results");
     
-    PoissonTest<1> test4(16, 1, 1, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test4(16, 1, Base::MeshType::RECTANGULAR);
     test4.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test4.getTotalError() - 0.00880380) < 1e-8), "comparison to old results");
     
-    PoissonTest<2> test5(1, 2, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test5(1, 2, Base::MeshType::TRIANGULAR);
     test5.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test5.getTotalError() - 0.17226144) < 1e-8), "comparison to old results");
     
-    PoissonTest<2> test6(2, 3, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test6(2, 3, Base::MeshType::TRIANGULAR);
     test6.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test6.getTotalError() - 0.01782337) < 1e-8), "comparison to old results");
     
-    PoissonTest<2> test7(4, 4, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test7(4, 4, Base::MeshType::TRIANGULAR);
     test7.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test7.getTotalError() - 0.00035302) < 1e-8), "comparison to old results");
     
-    PoissonTest<2> test8(8, 5, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test8(8, 5, Base::MeshType::TRIANGULAR);
     test8.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test8.getTotalError() - 0.00000061) < 1e-8), "comparison to old results");
     
-    PoissonTest<2> test9(16, 1, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test9(16, 1, Base::MeshType::TRIANGULAR);
     test9.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test9.getTotalError() - 0.00448270) < 1e-8), "comparison to old results");
     

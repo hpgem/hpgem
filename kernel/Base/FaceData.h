@@ -50,9 +50,7 @@ namespace Base
         
         FaceData(const FaceData& other);
         
-        virtual ~FaceData()
-        {
-        }
+        virtual ~FaceData() = default;
 
         /// \brief Sets face matrix number 'matrixID' using a standard matrix.
         /// \deprecated For safety and also efficiency it is advised to use the other version
@@ -64,18 +62,18 @@ namespace Base
         void setFaceMatrix(const FaceMatrix &faceMatrix, std::size_t matrixID = 0);
 
         /// \brief Gets face matrix number 'matrixID' and return it as a standard matrix. It is advised to use the other version instead, which returns a FaceMatrix.
-        virtual LinearAlgebra::MiddleSizeMatrix getFaceMatrixMatrix(std::size_t matrixID = 0) const;
+        LinearAlgebra::MiddleSizeMatrix getFaceMatrixMatrix(std::size_t matrixID = 0) const;
 
         /// \brief Returns face matrix number 'matrixID'.
         const FaceMatrix & getFaceMatrix(std::size_t matrixID = 0) const;
 
         void setFaceVector(const LinearAlgebra::MiddleSizeVector& vector, std::size_t vectorID = 0);
 
-        virtual LinearAlgebra::MiddleSizeVector getFaceVector(std::size_t vectorID = 0) const;
+        LinearAlgebra::MiddleSizeVector getFaceVector(std::size_t vectorID = 0) const;
 
-        virtual VecCacheT& getVecCacheData();
+        VecCacheT& getVecCacheData();
         
-        virtual UserFaceData* getUserData() const
+        UserFaceData* getUserData() const
         {
             return userData_;
         }
@@ -86,7 +84,7 @@ namespace Base
             userData_ = data;
         }
         
-        virtual const LinearAlgebra::MiddleSizeVector& getResidue() const;
+        const LinearAlgebra::MiddleSizeVector& getResidue() const;
 
         void setResidue(LinearAlgebra::MiddleSizeVector& residue);
         

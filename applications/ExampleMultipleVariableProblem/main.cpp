@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     if(solverId.getValue() == 1)
     {
         // Create problem solver 'test', that can solve the acoustic wave equations.
-        AcousticWaveLinear<dimension> test(dimension, numOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
+        AcousticWaveLinear<dimension> test(numOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
 
         // Create the mesh
         test.createMesh(numOfElements.getValue(), meshType);
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
     else
     {
         // Create problem solver 'test', that can solve the acoustic wave equations.
-        AcousticWave<dimension> test(dimension, numOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
+        AcousticWave<dimension> test(numOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
 
         // Create the mesh
         test.createMesh(numOfElements.getValue(), meshType);

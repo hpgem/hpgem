@@ -26,14 +26,12 @@
 template<std::size_t DIM>
 Euler<DIM>::Euler
 (
- const std::size_t dimension,
  const std::size_t numOfVariables,
  const double endTime,
  const std::size_t polynomialOrder,
  const Base::ButcherTableau * const ptrButcherTableau
 ) :
-Base::HpgemAPISimplified<DIM>(dimension, numOfVariables, polynomialOrder, ptrButcherTableau),
-DIM_(dimension),
+Base::HpgemAPISimplified<DIM>(numOfVariables, polynomialOrder, ptrButcherTableau),
 numOfVariables_(numOfVariables)
 {
 }
@@ -44,7 +42,7 @@ Base::RectangularMeshDescriptor<DIM> Euler<DIM>::createMeshDescription(const std
 {
     // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
     Base::RectangularMeshDescriptor<DIM> description;
-    for (std::size_t i = 0; i < DIM_; ++i)
+    for (std::size_t i = 0; i < DIM; ++i)
     {
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
@@ -82,11 +80,12 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeSolutionAtElement(const Base:
 
 /// \brief computes the source at an element
 template<std::size_t DIM>
-LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time, const PointReferenceT &pRef)
+LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(Base::PhysicalElement<DIM> &ptrElement, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time)
 {
-	std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+	std::size_t numOfBasisFunctions = ptrElement.getElement()->getNrOfBasisFunctions();
 	std::size_t iVB;
 
+	//getResultVector already contains partial computation from integrandRightHandSideOnRefElement
 	LinearAlgebra::MiddleSizeVector integrandSource(numOfVariables_ * numOfBasisFunctions);
 
 	return integrandSource;
@@ -94,14 +93,14 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(const Base:
 
 //NOTE: this function says RefElement, but it is on a physical element
 template<std::size_t DIM>
-LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const PointReferenceT &pRef, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
+LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefElement(Base::PhysicalElement<DIM> &ptrElement, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
 	// Get the number of basis functions in an element.
-	std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
+	std::size_t numOfBasisFunctions =  ptrElement.getElement()->getNrOfBasisFunctions();
 
 	//Create data structures for calculating the integrand
-	LinearAlgebra::MiddleSizeVector integrand(numOfVariables_ * numOfBasisFunctions); //The final integrand value will be stored in this vector
-	LinearAlgebra::MiddleSizeVector qSolution = computeSolutionAtElement(ptrElement, solutionCoefficients, pRef);
+	LinearAlgebra::MiddleSizeVector& integrand = ptrElement.getResultVector();
+	const LinearAlgebra::MiddleSizeVector& qSolution = ptrElement.getSolution();
 	LinearAlgebra::SmallVector<DIM> gradientBasisFunction; //Gradient function based on the number of dimensions
 
 	//Create temporary result values
@@ -113,50 +112,50 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefElement(c
 
 	//Compute pressure term
 	double q1Inverse = 1.0/qSolution(0);
-	for(std::size_t iD = 0; iD < DIM_; iD++)
+	for(std::size_t iD = 0; iD < DIM; iD++)
 	{
 		pressureTerm += qSolution(iD+1)*qSolution(iD+1); // (u^2 + v^2 + w^2)*rho^2
 	}
-	pressureTerm = (gamma_ -1)*(qSolution(DIM_+1) - 0.5*q1Inverse*(pressureTerm)); // (gamma-1)*rho*(e- (u^2 + v^2 + w^2)/2)
+	pressureTerm = (gamma_ -1)*(qSolution(DIM+1) - 0.5*q1Inverse*(pressureTerm)); // (gamma-1)*rho*(e- (u^2 + v^2 + w^2)/2)
 
 	logger.assert(pressureTerm > 0, "Negative pressure.");
 
 	// Compute the integrand for all equations
 	for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++) // For every basis function
 	{
-		gradientBasisFunction = ptrElement->basisFunctionDeriv(iB, pRef); // Compute the gradient of the ith test function
+		gradientBasisFunction = ptrElement.basisFunctionDeriv(iB); // Compute the gradient of the ith test function
 
-		for (std::size_t iD = 0; iD < DIM_; iD++) // For every dimension
+		for (std::size_t iD = 0; iD < DIM; iD++) // For every dimension
 		{
 
 			//Calculate convection terms
 			integrandTerm = qSolution(iD+1)*gradientBasisFunction(iD)*q1Inverse; // (u)*d(phi_iB)/dx or (v)*d(phi_iB)/dy
 
 			//Density integrand
-			iVB = ptrElement->convertToSingleIndex(iB,0);
+			iVB = ptrElement.getElement()->convertToSingleIndex(iB,0);
 			integrand(iVB) += qSolution(iD+1)*gradientBasisFunction(iD);//(iD); // rho*u*d(phi)/dx + rho*v*d(phi)/dy
 
 
-			for (std::size_t jD = 0; jD < DIM_; jD++)
+			for (std::size_t jD = 0; jD < DIM; jD++)
 			{
 				//Momentum integrand
-				iVB = ptrElement->convertToSingleIndex(iB,jD+1);
+				iVB = ptrElement.getElement()->convertToSingleIndex(iB,jD+1);
 				integrand(iVB) += qSolution(jD+1)*integrandTerm; //rho*u*u*d(phi)/dx + rho*u*v*d(phi)/dy
 			}
 
 			//Energy integrand
-			iVB = ptrElement->convertToSingleIndex(iB,DIM_+1);
-			integrand(iVB) += (qSolution(DIM_+1) + pressureTerm)*integrandTerm; // rho*u*h*d(phi_iB)/dx or rho*v*h*d(phi_iB)/dy
+			iVB = ptrElement.getElement()->convertToSingleIndex(iB,DIM+1);
+			integrand(iVB) += (qSolution(DIM+1) + pressureTerm)*integrandTerm; // rho*u*h*d(phi_iB)/dx or rho*v*h*d(phi_iB)/dy
 
 			//Calculate pressure terms in momentum equations
-			iVB = ptrElement->convertToSingleIndex(iB,iD+1);
+			iVB = ptrElement.getElement()->convertToSingleIndex(iB,iD+1);
 			integrand(iVB) += pressureTerm*gradientBasisFunction(iD);
 		}
 
 	}
 
 	//Compute source terms
-	LinearAlgebra::MiddleSizeVector integrandSource = integrandSourceAtElement(ptrElement, qSolution, pressureTerm, time, pRef);
+	LinearAlgebra::MiddleSizeVector integrandSource = integrandSourceAtElement(ptrElement, qSolution, pressureTerm, time);
 
     return integrand + integrandSource;
 
@@ -165,8 +164,8 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefElement(c
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
 {
-	std::function<LinearAlgebra::MiddleSizeVector(const Base::Element*, const PointReferenceT &)> integrandFunction = [&](const Base::Element *El, const PointReferenceT & pRef) -> LinearAlgebra::MiddleSizeVector
-	    {   return this->integrandRightHandSideOnRefElement(El, time, pRef, solutionCoefficients);};
+	std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&)> integrandFunction = [&](Base::PhysicalElement<DIM>& El) -> LinearAlgebra::MiddleSizeVector
+	    {   return this->integrandRightHandSideOnRefElement(El, time, solutionCoefficients);};
 
     return this->elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
 
@@ -190,7 +189,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
 	   LinearAlgebra::MiddleSizeVector qDifference = qSolutionRight - qSolutionLeft;
 
 	   //Compute the Roe average state
-	   LinearAlgebra::MiddleSizeVector qAverage(DIM_+1);
+	   LinearAlgebra::MiddleSizeVector qAverage(DIM+1);
 	   double zL = std::sqrt(qSolutionLeft(0));
 	   double zR = std::sqrt(qSolutionRight(0));
 	   double tmp1 = 1.0/(qSolutionLeft(0) + zL*zR);
@@ -202,29 +201,29 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
 	   double pressureLeft;
 	   double pressureRight;
 
-	   for (std::size_t iD = 0; iD < DIM_; iD++)
+	   for (std::size_t iD = 0; iD < DIM; iD++)
 	   {
 		   qAverage(iD) = qSolutionLeft(iD+1)*tmp1 + qSolutionRight(iD+1)*tmp2; // u_average
 		   ruSquaredLeft += qSolutionLeft(iD+1)*qSolutionLeft(iD+1); 			// Kinetic part of the left pressure term
 		   ruSquaredRight += qSolutionRight(iD+1)*qSolutionRight(iD+1);			// Kinetic part of the right pressure term
 	   }
 
-	   pressureLeft = (gamma_ - 1)*(qSolutionLeft(DIM_ + 1) - 0.5*ruSquaredLeft*rhoInverseLeft);
-	   pressureRight = (gamma_ - 1)*(qSolutionRight(DIM_ + 1) - 0.5*ruSquaredRight*rhoInverseRight);
+	   pressureLeft = (gamma_ - 1)*(qSolutionLeft(DIM + 1) - 0.5*ruSquaredLeft*rhoInverseLeft);
+	   pressureRight = (gamma_ - 1)*(qSolutionRight(DIM + 1) - 0.5*ruSquaredRight*rhoInverseRight);
 
-	   qAverage(DIM_) = (qSolutionLeft(DIM_+1) + pressureLeft)*tmp1 + (qSolutionRight(DIM_+1) + pressureRight)*tmp2; //H_average
+	   qAverage(DIM) = (qSolutionLeft(DIM+1) + pressureLeft)*tmp1 + (qSolutionRight(DIM+1) + pressureRight)*tmp2; //H_average
 
 	   //Compute useful variables for constructing the flux function
 	   double alphaAvg = 0.0;
 	   double unAvg = 0.0;
-	   for (std::size_t iD = 0; iD < DIM_; iD++)
+	   for (std::size_t iD = 0; iD < DIM; iD++)
 	   {
 		   alphaAvg += (qAverage(iD)*qAverage(iD));
 		   unAvg += qAverage(iD)*normal(iD);
 	   }
 	   alphaAvg *= 0.5;
 
-	   const double a2Avg = std::abs((gamma_ -1)*(qAverage(DIM_) - alphaAvg));
+	   const double a2Avg = std::abs((gamma_ -1)*(qAverage(DIM) - alphaAvg));
 	   const double aAvg = std::sqrt(a2Avg);
 	   const double ovaAvg = 1.0/aAvg;
 	   const double ova2Avg = 1.0/a2Avg;
@@ -258,25 +257,25 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
 
 	   double abv4 = alphaAvg*qDifference(0);
 	   double abv5 = -unAvg*qDifference(0);
-	   for (std::size_t iD = 0; iD < DIM_; iD++)
+	   for (std::size_t iD = 0; iD < DIM; iD++)
 	   {
 		   abv4 += -qAverage(iD)*qDifference(iD+1);
 		   abv5 += normal(iD)*qDifference(iD+1);
 	   }
-	   abv4 += qDifference(DIM_+1);
+	   abv4 += qDifference(DIM+1);
 	   abv4 *= (gamma_ -1);
 
 	   const double abv6 = abv3*abv4*ova2Avg + abv2*abv5*ovaAvg;
 	   const double abv7 = abv2*abv4*ovaAvg + abv3*abv5;
 
 	   //Compute the Roe Riemann Flux function: h(u_L,u_R) = 0.5*(F(u_L) + F(u_R) - |A|(u_R - u_L))
-	   LinearAlgebra::MiddleSizeVector flux(DIM_ + 2);
+	   LinearAlgebra::MiddleSizeVector flux(DIM + 2);
 
 	    double pLR = pressureLeft + pressureRight;
 
 	    double runR = 0.0;
 	    double runL = 0.0;
-	    for (std::size_t iD = 0; iD < DIM_; iD++)
+	    for (std::size_t iD = 0; iD < DIM; iD++)
 	    {
 	    	runL += qSolutionLeft(iD+1)*normal(iD);
 	    	runR += qSolutionRight(iD+1)*normal(iD);
@@ -289,13 +288,13 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
 	    flux(0) = (runL + runR - (lam3*qDifference(0) + abv6));
 
 	    //momentum equations
-	    for (std::size_t iD = 0; iD < DIM_; iD++)
+	    for (std::size_t iD = 0; iD < DIM; iD++)
 	    {
 	    	flux(iD+1) = runL*qSolutionLeft(iD+1)*rhoInverseLeft + runR*qSolutionRight(iD+1)*rhoInverseRight + pLR*normal(iD) - (lam3*qDifference(iD+1) + qAverage(iD)*abv6 + normal(iD)*abv7);
 	    }
 
 	    //energy equation
-	    flux(DIM_+1) = (unL*(qSolutionLeft(DIM_+1)+pressureLeft) + unR*(qSolutionRight(DIM_+1)+pressureRight) - (lam3*qDifference(DIM_+1) + qAverage(DIM_)*abv6 + unAvg*abv7));
+	    flux(DIM+1) = (unL*(qSolutionLeft(DIM+1)+pressureLeft) + unR*(qSolutionRight(DIM+1)+pressureRight) - (lam3*qDifference(DIM+1) + qAverage(DIM)*abv6 + unAvg*abv7));
 
 	    //Note: Twice the flux is computed above, hence the factor 0.5 in front of the equation
 	    //Note: Correction is made to the flux since F*n was computed above, where n is the normal unit vector
@@ -305,40 +304,41 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
 
    /// \brief Compute the integrand for the right hand side for the reference face corresponding to an external face.
     template<std::size_t DIM>
-   LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const PointReferenceOnFaceT &pRef, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
+   LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
    {
 	   //Get the number of basis functions
-	   std::size_t numOfBasisFunctionsLeft= ptrFace->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
+	   std::size_t numOfBasisFunctionsLeft= face.getFace()->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
 
-	   LinearAlgebra::MiddleSizeVector integrand(numOfVariables_*numOfBasisFunctionsLeft);
+	   LinearAlgebra::MiddleSizeVector& integrand = face.getResultVector();
 	   LinearAlgebra::MiddleSizeVector qReconstructionLeft(numOfVariables_);
 	   LinearAlgebra::MiddleSizeVector qReconstructionRight(numOfVariables_);
 
-	   //Compute left and right states
+	    // Compute the numerical solution at the given point.
 	    std::size_t jVB; // Index for both variable and basis function.
 	    for (std::size_t jV = 0; jV < numOfVariables_; jV++)
 	    {
 	        qReconstructionLeft(jV) = 0;
 	        for (std::size_t jB = 0; jB < numOfBasisFunctionsLeft; jB++)
 	        {
-	            jVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(jB, jV);
-	            qReconstructionLeft(jV) += ptrFace->basisFunction(Base::Side::LEFT, jB, pRef) * solutionCoefficients(jVB);
+	            jVB = face.getFace()->getPtrElementLeft()->convertToSingleIndex(jB, jV);
+	            qReconstructionLeft(jV) += face.basisFunction(Base::Side::LEFT, jB) * solutionCoefficients(jVB);
 	        }
 	    }
 
 	   // Boundary face is assumed to be a solid wall: set reflective solution on the other side
 	   qReconstructionRight(0) = qReconstructionLeft(0);
-	   for (std::size_t iD = 0; iD < DIM_; iD++)
+	   for (std::size_t iD = 0; iD < DIM; iD++)
 	   {
 		   qReconstructionRight(iD+1) = -qReconstructionLeft(iD+1);
 	   }
-	   qReconstructionRight(DIM_+1) = qReconstructionLeft(DIM_+1);
+	   qReconstructionRight(DIM+1) = qReconstructionLeft(DIM+1);
 
 	   // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-	   LinearAlgebra::SmallVector<DIM> normal = ptrFace->getNormalVector(pRef);
+	   LinearAlgebra::SmallVector<DIM> normal = face.getNormalVector();
 
 
 	   //Compute flux
+	   //todo:RoeRiemannFluxFunction might benefit from features of PhysicalFace
 	   LinearAlgebra::MiddleSizeVector flux = RoeRiemannFluxFunction(qReconstructionRight, qReconstructionLeft, normal);
 
 	   //todo: Other implementation is simply to put the flux to zero. No mass, momentum and energy should get out. This saves computational time
@@ -349,8 +349,8 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
 	   {
 	       for (std::size_t iV = 0; iV < numOfVariables_; iV++) // Index for direction
 	       {
-	           iVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(iB, iV);
-	           integrand(iVB) = -flux(iV)*ptrFace->basisFunction(Base::Side::LEFT, iB, pRef);
+	           iVB = face.getFace()->getPtrElementLeft()->convertToSingleIndex(iB, iV);
+	           integrand(iVB) = -flux(iV)*face.basisFunction(Base::Side::LEFT, iB);
 	       }
 	   }
 
@@ -359,20 +359,19 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
 
    /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
     template<std::size_t DIM>
-   LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const PointReferenceOnFaceT &pRef, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
+   LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM> &face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
    {
 	   //Get the number of basis functions
-	   std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
-	   std::size_t numOfSolutionBasisFunctionsLeft = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
-	   std::size_t numOfSolutionBasisFunctionsRight = ptrFace->getPtrElementRight()->getNrOfBasisFunctions(); //Get the number of basis functions on the right side
+	   std::size_t numOfTestBasisFunctions = face.getFace()->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
+	    std::size_t numOfSolutionBasisFunctionsLeft = face.getFace()->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
+	    std::size_t numOfSolutionBasisFunctionsRight = face.getFace()->getPtrElementRight()->getNrOfBasisFunctions(); //Get the number of basis functions on the right side
 
 
-	   LinearAlgebra::MiddleSizeVector integrand(numOfVariables_*numOfTestBasisFunctions);
+	   LinearAlgebra::MiddleSizeVector& integrand = face.getResultVector(iSide);
 	   LinearAlgebra::MiddleSizeVector qReconstructionLeft(numOfVariables_);
 	   LinearAlgebra::MiddleSizeVector qReconstructionRight(numOfVariables_);
 
-	   // /todo: Remove this to a seperate function to reduce code duplication
-	   //Compute left and right states
+	    // Compute the numerical solution at the given point at the left and right side.
 	    std::size_t jVB; // Index for both variable and basis function.
 	    for (std::size_t jV = 0; jV < numOfVariables_; jV++)
 	    {
@@ -380,21 +379,22 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
 	        qReconstructionRight(jV) = 0;
 	        for (std::size_t jB = 0; jB < numOfSolutionBasisFunctionsLeft; jB++)
 	        {
-	            jVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(jB, jV);
-	            qReconstructionLeft(jV) += ptrFace->basisFunction(Base::Side::LEFT, jB, pRef) * solutionCoefficientsLeft(jVB);
+	            jVB = face.getFace()->getPtrElementLeft()->convertToSingleIndex(jB, jV);
+	            qReconstructionLeft(jV) += face.basisFunction(Base::Side::LEFT, jB) * solutionCoefficientsLeft(jVB);
 	        }
 	        for (std::size_t jB = 0; jB < numOfSolutionBasisFunctionsRight; jB++)
 	        {
-	            jVB = ptrFace->getPtrElementRight()->convertToSingleIndex(jB, jV);
-	            qReconstructionRight(jV) += ptrFace->basisFunction(Base::Side::RIGHT, jB, pRef) * solutionCoefficientsRight(jVB);
+	            jVB = face.getFace()->getPtrElementRight()->convertToSingleIndex(jB, jV);
+	            qReconstructionRight(jV) += face.basisFunction(Base::Side::RIGHT, jB) * solutionCoefficientsRight(jVB);
 	        }
 	    }
 
 	   // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-	   LinearAlgebra::SmallVector<DIM> normal = ptrFace->getNormalVector(pRef);
+	   LinearAlgebra::SmallVector<DIM> normal = face.getNormalVector();
 
 	   //Compute flux
 	   LinearAlgebra::MiddleSizeVector flux;
+       //todo:RoeRiemannFluxFunction might benefit from features of PhysicalFace
 	   if (iSide == Base::Side::RIGHT)
 	   {
 		   flux = -RoeRiemannFluxFunction(qReconstructionLeft, qReconstructionRight, normal);
@@ -410,8 +410,8 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
 	   {
 	       for (std::size_t iV = 0; iV < numOfVariables_; iV++) // Index for direction
 	       {
-	           iVB = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iB, iV);
-	           integrand(iVB) = -flux(iV)*ptrFace->basisFunction(iSide, iB, pRef);
+	           iVB = face.getFace()->getPtrElement(iSide)->convertToSingleIndex(iB, iV);
+	           integrand(iVB) = -flux(iV)*face.basisFunction(iSide, iB);
 	       }
 	   }
 
@@ -427,10 +427,10 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
    LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
    {
 	    // Define the integrand function for the right hand side for the reference face.
-	    std::function<LinearAlgebra::MiddleSizeVector(const PointReferenceOnFaceT &)> integrandFunction = [&](const PointReferenceOnFaceT &pRef) -> LinearAlgebra::MiddleSizeVector
-	    {   return this->integrandRightHandSideOnRefFace(ptrFace, time, pRef, solutionCoefficients);};
+	    std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>& face)> integrandFunction = [&](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
+	    {   return this->integrandRightHandSideOnRefFace(face, time, solutionCoefficients);};
 
-	    return this->faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+	    return this->faceIntegrator_.integrate(ptrFace, integrandFunction);
    }
 
    /// \brief Compute the right-hand side corresponding to an internal face
@@ -438,15 +438,23 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
    LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time)
    {
 	    // Define the integrand function for the right hand side for the reference face.
-	    std::function<LinearAlgebra::MiddleSizeVector(const PointReferenceOnFaceT &)> integrandFunction = [&](const PointReferenceOnFaceT &pRef) -> LinearAlgebra::MiddleSizeVector
-	    {   return this->integrandRightHandSideOnRefFace(ptrFace, time, pRef, side, solutionCoefficientsLeft, solutionCoefficientsRight);};
-	    return this->faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+	    std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM> &)> integrandFunction = [&](Base::PhysicalFace<DIM> &face) -> LinearAlgebra::MiddleSizeVector
+	    {   return this->integrandRightHandSideOnRefFace(face, time, side, solutionCoefficientsLeft, solutionCoefficientsRight);};
+	    return this->faceIntegrator_.integrate(ptrFace, integrandFunction);
    }
 
 
    /// *****************************************
    /// ***    		Various Functions        ***
    /// *****************************************
+
+    template<std::size_t DIM>
+    void Euler<DIM>::tasksBeforeSolving()
+    {
+        this->faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
+        Base::HpgemAPISimplified<DIM>::tasksBeforeSolving();
+    }
+
 
     template<std::size_t DIM>
    LinearAlgebra::MiddleSizeVector Euler<DIM>::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
@@ -457,19 +465,19 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
 		double frequency = 2.0*M_PI;
 		double function = amplitude*std::cos(frequency*time);
 
-		for (std::size_t iD = 0; iD < DIM_; iD++)
+		for (std::size_t iD = 0; iD < DIM; iD++)
 		{
 			function *= std::cos(frequency*pPhys[iD]);
 		}
 
 		exactSolution(0) = 1.5 + function;
 
-		for (std::size_t iD = 0; iD < DIM_; iD++)
+		for (std::size_t iD = 0; iD < DIM; iD++)
 		{
 			exactSolution(iD+1) = function;
 		}
 
-		exactSolution(DIM_ + 1) = 30.0 + function;
+		exactSolution(DIM + 1) = 30.0 + function;
 
 	    return exactSolution;
    }

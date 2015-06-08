@@ -83,7 +83,6 @@ public:
 
     AcousticWave
     (
-     const std::size_t dimension,
      const std::size_t numOfVariables,
      const std::size_t polynomialOrder,
      const Base::ButcherTableau * const ptrButcherTableau
@@ -112,35 +111,32 @@ public:
     LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
 
     /// \brief Compute the integrand for the mass matrix for the reference element.
-    LinearAlgebra::MiddleSizeMatrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const PointReferenceT &pRef);
+    LinearAlgebra::MiddleSizeMatrix integrandMassMatrixOnRefElement(Base::PhysicalElement<DIM>& element);
 
     /// \brief Compute the integrand for the reference element for obtaining the initial solution.
-    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnRefElement(const Base::Element *ptrElement, const double &startTime, const PointReferenceT &pRef);
+    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnRefElement(Base::PhysicalElement<DIM>& element, const double &startTime);
 
     /// \brief Compute the integrand for the right hand side for the reference element.
     LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefElement
     (
-     const Base::Element *ptrElement,
+     Base::PhysicalElement<DIM>& element,
      const double &time,
-     const PointReferenceT &pRef,
      const LinearAlgebra::MiddleSizeVector &solutionCoefficients
      );
     
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
     LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace
     (
-     const Base::Face *ptrFace,
+     Base::PhysicalFace<DIM>& face,
      const double &time,
-     const PointReferenceOnFaceT &pRef,
      const LinearAlgebra::MiddleSizeVector &solutionCoefficients
      );
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
     LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace
     (
-     const Base::Face *ptrFace,
+     Base::PhysicalFace<DIM>& face,
      const double &time,
-     const PointReferenceOnFaceT &pRef,
      const Base::Side &iSide,
      const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
      const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight
@@ -149,9 +145,8 @@ public:
     /// \brief Compute the integrand for the reference element for computing the energy-norm of the error.
     double integrandErrorOnRefElement
     (
-     const Base::Element *ptrElement,
+     Base::PhysicalElement<DIM>& element,
      const double &time,
-     const PointReferenceT &pRef,
      const LinearAlgebra::MiddleSizeVector &solutionCoefficients
      );
 
@@ -197,6 +192,13 @@ public:
         {
             logger(INFO, "% time steps computed.", timeStepID);
         }
+    }
+
+    void tasksBeforeSolving() override final
+    {
+        this->elementIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
+        this->faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
+        Base::HpgemAPISimplified<DIM>::tasksBeforeSolving();
     }
 
 private:

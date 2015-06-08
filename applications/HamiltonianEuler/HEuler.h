@@ -169,8 +169,8 @@ public:
 class HEuler : public HpgemAPIBase<3>, public Integration::ElementIntegrandBase<ElementIntegralData, 3>, public Integration::FaceIntegrandBase<FluxData, 3>, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix, 3>
 {
 public:
-    using ElementIntegralT = Integration::ElementIntegral;
-    using FaceIntegralT = Integration::FaceIntegral;
+    using ElementIntegralT = Integration::ElementIntegral<3>;
+    using FaceIntegralT = Integration::FaceIntegral<3>;
     using ExactSolutionT = ExactSolutionBase;
     using PointReferenceOnTheFaceT = PointReference<2>;
 
@@ -186,13 +186,13 @@ public:
     bool initialiseMesh();
 
     ///calculates mass matrix
-    void elementIntegrand(const Base::Element* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeMatrix& massMatrix);
+    void elementIntegrand(Base::PhysicalElement<3>& el, LinearAlgebra::MiddleSizeMatrix& massMatrix);
 
-    void calculateLocalEnergy(const Base::Element& element, const PointReferenceT& p, double& returnValue);
+    void calculateLocalEnergy(Base::PhysicalElement<3>& el, double& returnValue);
 
-    void elementIntegrand(const Base::Element* element, const PointReferenceT& p, ElementIntegralData& returnObject);
+    void elementIntegrand(Base::PhysicalElement<3>& el, ElementIntegralData& returnObject);
 
-    void faceIntegrand(const Face* face, const LinearAlgebra::SmallVector<3>& normal, const PointReferenceOnTheFaceT& p, FluxData& ret);
+    void faceIntegrand(Base::PhysicalFace<3>& el, FluxData& ret);
 
     void createCompressibleSystem();
     void createIncompressibleSystem();

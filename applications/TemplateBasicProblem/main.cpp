@@ -44,13 +44,12 @@ public:
     /// \param[in] numOfTimeLevels Number of time levels. If a butcherTableau is set and the number of time levels is too low, this will be corrected automatically.
     ExampleProblem
     (
-     const std::size_t dimension,
      const std::size_t numberOfUnknowns,
      const std::size_t polynomialOrder,
      const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
      const std::size_t numOfTimeLevels = 1
      ) :
-    Base::HpgemAPISimplified<DIM>(dimension, numberOfUnknowns, polynomialOrder, ptrButcherTableau, numOfTimeLevels)
+    Base::HpgemAPISimplified<DIM>(numberOfUnknowns, polynomialOrder, ptrButcherTableau, numOfTimeLevels)
     {
         // Look at the constructor of HpgemAPISimplified to see what arguments are optional.
         logger(ERROR, "Remove this message. Make sure the constructor of this class is adapted to your purposes.");
@@ -194,7 +193,7 @@ int main(int argc, char **argv)
     }
 
     // Create a problem solver, that can solve the implemented problem. Chooes your own name for the object.
-    ExampleProblem problemSolver(DIM, numberOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
+    ExampleProblem problemSolver(numberOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
 
     // Create the mesh
     problemSolver.createMesh(numOfElements.getValue(), meshType);

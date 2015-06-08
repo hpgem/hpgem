@@ -78,7 +78,6 @@ namespace Base
         // Constructor
         HpgemAPILinearSteadyState
         (
-         const std::size_t dimension,
          const std::size_t numberOfUnknowns,
          const std::size_t polynomialOrder,
          const bool useSourceTerm = false,
@@ -138,7 +137,7 @@ namespace Base
         }
         
         /// \brief Compute the integrand for the source term at a face at the boundary.
-        virtual LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::SmallVector<DIM> &normal, const Geometry::PointReference<DIM - 1> &pRef)
+        virtual LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(Base::PhysicalFace<DIM> &face)
         {
             logger(ERROR, "No function for computing the integrand for the source term at a face at the domain boundary implemented.");
             LinearAlgebra::MiddleSizeVector integrandSourceTerm;
@@ -146,9 +145,9 @@ namespace Base
         }
         
         /// \brief Compute the integrand for the source term at a face at the boundary.
-        LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(const Base::Face *ptrFace, const LinearAlgebra::SmallVector<DIM> &normal, const Geometry::PointReference<DIM - 1> &pRef, const double time, const std::size_t orderTimeDerivative) override
+        LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(Base::PhysicalFace<DIM> &face, const double time, const std::size_t orderTimeDerivative) override
         {
-            return computeIntegrandSourceTermAtFace(ptrFace, normal, pRef);
+            return computeIntegrandSourceTermAtFace(face);
         }
         
         /// \brief Create and store the source terms.

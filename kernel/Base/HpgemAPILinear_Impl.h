@@ -53,7 +53,6 @@ namespace Base
     template<std::size_t DIM>
     HpgemAPILinear<DIM>::HpgemAPILinear
     (
-     const std::size_t dimension,
      const std::size_t numOfVariables,
      const std::size_t polynomialOrder,
      const Base::ButcherTableau * const ptrButcherTableau,
@@ -61,7 +60,7 @@ namespace Base
      const bool useSourceTerm,
      const bool useSourceTermAtBoundary
      ) :
-    HpgemAPISimplified<DIM>(dimension, numOfVariables, polynomialOrder, ptrButcherTableau, numOfTimeLevels),
+    HpgemAPISimplified<DIM>(numOfVariables, polynomialOrder, ptrButcherTableau, numOfTimeLevels),
     useSourceTerm_(useSourceTerm),
     useSourceTermAtBoundary_(useSourceTermAtBoundary),
     massMatrixID_(1),
@@ -119,8 +118,8 @@ namespace Base
     LinearAlgebra::MiddleSizeMatrix HpgemAPILinear<DIM>::computeStiffnessMatrixAtElement(Base::Element *ptrElement)
     {
         // Define a function for the integrand of the stiffness matrix at the element.
-        std::function<LinearAlgebra::MiddleSizeMatrix(const Base::Element *, const Geometry::PointReference<DIM> &)> integrandFunction = [=](const Base::Element *ptrElement, const Geometry::PointReference<DIM> &pRef) -> LinearAlgebra::MiddleSizeMatrix
-        {return this->computeIntegrandStiffnessMatrixAtElement(ptrElement, pRef);};
+        std::function<LinearAlgebra::MiddleSizeMatrix(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM> &element) -> LinearAlgebra::MiddleSizeMatrix
+        {return this->computeIntegrandStiffnessMatrixAtElement(element);};
         
         return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
     }
@@ -129,8 +128,8 @@ namespace Base
     Base::FaceMatrix HpgemAPILinear<DIM>::computeStiffnessMatrixAtFace(Base::Face *ptrFace)
     {
         // Define a function for the integrand of the stiffness matrix at a face.
-        std::function<Base::FaceMatrix(const Base::Face *, const LinearAlgebra::SmallVector<DIM> &, const Geometry::PointReference<DIM - 1> &)> integrandFunction = [=](const Base::Face *ptrFace, const LinearAlgebra::SmallVector<DIM> &normal, const Geometry::PointReference<DIM - 1> &pRef) -> Base::FaceMatrix
-        {return this->computeIntegrandStiffnessMatrixAtFace(ptrFace, normal, pRef);};
+        std::function<Base::FaceMatrix(Base::PhysicalFace<DIM> &)> integrandFunction = [=](Base::PhysicalFace<DIM> &face) -> Base::FaceMatrix
+        {return this->computeIntegrandStiffnessMatrixAtFace(face);};
         
         return this->faceIntegrator_.integrate(ptrFace, integrandFunction);
     }
@@ -139,8 +138,8 @@ namespace Base
     LinearAlgebra::MiddleSizeVector HpgemAPILinear<DIM>::integrateSourceTermAtFace(Base::Face *ptrFace, const double time, const std::size_t orderTimeDerivative)
     {
         // Define a function for the integrand of the stiffness matrix at a element.
-        std::function<LinearAlgebra::MiddleSizeVector(const Base::Face *, const LinearAlgebra::SmallVector<DIM> &, const Geometry::PointReference<DIM - 1> &)> integrandFunction = [=](const Base::Face *ptrFace, const LinearAlgebra::SmallVector<DIM> &normal, const Geometry::PointReference<DIM - 1> &pRef) -> LinearAlgebra::MiddleSizeVector
-        {return this->computeIntegrandSourceTermAtFace(ptrFace, normal, pRef, time, orderTimeDerivative);};
+        std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&)> integrandFunction = [=](Base::PhysicalFace<DIM> &face) -> LinearAlgebra::MiddleSizeVector
+        {return this->computeIntegrandSourceTermAtFace(face, time, orderTimeDerivative);};
         
         return this->faceIntegrator_.integrate(ptrFace, integrandFunction);
     }

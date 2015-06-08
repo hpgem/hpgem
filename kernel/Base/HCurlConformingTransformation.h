@@ -18,46 +18,44 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "FaceIntegral.h"
 
-#include "FaceCacheData.h"
+#ifndef HCURLCONFORMINGTRANSFORMATION_H_
+#define HCURLCONFORMINGTRANSFORMATION_H_
 
-namespace Integration
+#include <cstdlib>
+#include "LinearAlgebra/SmallVector.h"
+#include "CoordinateTransformation.h"
+
+namespace Base
 {
-    
-    class FaceIntegral;
-    
-    //! \brief Construct an FaceIntegral with cache on.
-    FaceIntegral::FaceIntegral(bool useCache)
-            : useCache_(useCache)
+    ///transforms vector functions and their curl in a conforming way
+    template<std::size_t DIM>
+    class HCurlConformingTransformation : public CoordinateTransformation<DIM>
     {
-    }
-    
-    //! \brief Free the memory used for the data storage.
-    FaceIntegral::~FaceIntegral()
-    {
-    }
-    
-    //! \brief Start caching (geometry) information now.
-    void FaceIntegral::cacheOn()
-    {
-        useCache_ = true;
-    }
-    
-    //! \brief Stop using cache.
-    void FaceIntegral::cacheOff()
-    {
-        useCache_ = false;
-    }
-    
-    //! \brief Force a recomputation of the cache, the next time it is needed
-    void FaceIntegral::recomputeCacheOn()
-    {
-    }
-    
-    //! \brief Stop forcing a recomputation of the cache
-    void FaceIntegral::recomputeCacheOff()
-    {
-    }
+    public:
+        LinearAlgebra::SmallVector<DIM> transform(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
+        {
+            element.getTransposeJacobian().solve(referenceData);
+            return referenceData;
+        }
 
+        LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
+        {
+            return element.getJacobian() * referenceData / element.getJacobianDet();
+        }
+
+        double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const override final
+        {
+            return element.getJacobianAbsDet();
+        }
+
+        double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final
+        {
+            return face.getSurfaceArea();
+        }
+    };
 }
+
+
+
+#endif /* HCURLCONFORMINGTRANSFORMATION_H_ */

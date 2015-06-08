@@ -29,12 +29,11 @@
 template<std::size_t DIM>
 AcousticWave<DIM>::AcousticWave
 (
- const std::size_t dimension,
  const std::size_t numOfVariables,
  const std::size_t polynomialOrder,
  const Base::ButcherTableau * const ptrButcherTableau
  ) :
-Base::HpgemAPISimplified<DIM>(dimension, numOfVariables, polynomialOrder, ptrButcherTableau),
+Base::HpgemAPISimplified<DIM>(numOfVariables, polynomialOrder, ptrButcherTableau),
 numOfVariables_(numOfVariables),
 cInv_(1.0)
 {
@@ -95,11 +94,11 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::getInitialSolution(const Poin
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
 template<std::size_t DIM>
-LinearAlgebra::MiddleSizeMatrix AcousticWave<DIM>::integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const PointReferenceT &pRef)
+LinearAlgebra::MiddleSizeMatrix AcousticWave<DIM>::integrandMassMatrixOnRefElement(Base::PhysicalElement<DIM>& element)
 {
-    std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
-    LinearAlgebra::MiddleSizeMatrix integrand(numOfVariables_ * numOfBasisFunctions, numOfVariables_ * numOfBasisFunctions);
-    PointPhysicalT pPhys = ptrElement->referenceToPhysical(pRef);
+    std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+    LinearAlgebra::MiddleSizeMatrix integrand = element.getResultMatrix();
+    const PointPhysicalT& pPhys = element.getPointPhysical();
     
     std::size_t iVB, jVB; // indices for both variable and basis function.
     for (std::size_t iV = 0; iV < numOfVariables_; iV++)
@@ -108,9 +107,9 @@ LinearAlgebra::MiddleSizeMatrix AcousticWave<DIM>::integrandMassMatrixOnRefEleme
         {
             for (std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
             {
-                iVB = ptrElement->convertToSingleIndex(iB, iV);
-                jVB = ptrElement->convertToSingleIndex(jB, iV);
-                integrand(iVB, jVB) = ptrElement->basisFunction(iB, pRef) * ptrElement->basisFunction(jB, pRef);
+                iVB = element.getElement()->convertToSingleIndex(iB, iV);
+                jVB = element.getElement()->convertToSingleIndex(jB, iV);
+                integrand(iVB, jVB) = element.basisFunction(iB) * element.basisFunction(jB);
                 if (iV > 0)
                 {
                     integrand(iVB, jVB) *= getCInv(pPhys);
@@ -120,8 +119,7 @@ LinearAlgebra::MiddleSizeMatrix AcousticWave<DIM>::integrandMassMatrixOnRefEleme
     }
     
     // Scale with the reference-to-physical element ratio.
-    Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
-    integrand *= std::abs(jac.determinant());
+    integrand *= element.getJacobianAbsDet();
     
     return integrand;
 }
@@ -129,13 +127,13 @@ LinearAlgebra::MiddleSizeMatrix AcousticWave<DIM>::integrandMassMatrixOnRefEleme
 /// \details The integrand for the initial solution is the exact solution at time 0 multiplied by a test function. The integrand is then scaled by the reference-to-physical element scale, since we compute the integral on a reference element.
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandInitialSolutionOnRefElement
-(const Base::Element *ptrElement, const double &startTime, const PointReferenceT &pRef)
+(Base::PhysicalElement<DIM>& element, const double &startTime)
 {
-    std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+    std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
     
-    LinearAlgebra::MiddleSizeVector integrand(numOfVariables_ * numOfBasisFunctions);
+    LinearAlgebra::MiddleSizeVector integrand = element.getResultVector();
     
-    PointPhysicalT pPhys = ptrElement->referenceToPhysical(pRef);
+    const PointPhysicalT& pPhys = element.getPointPhysical();
     
     LinearAlgebra::MiddleSizeVector initialSolution(getInitialSolution(pPhys, startTime));
     
@@ -144,8 +142,8 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandInitialSolutionOnRef
     {
         for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
         {
-            iVB = ptrElement->convertToSingleIndex(iB, iV);
-            integrand(iVB) = ptrElement->basisFunction(iB, pRef) * initialSolution(iV);
+            iVB = element.getElement()->convertToSingleIndex(iB, iV);
+            integrand(iVB) = element.basisFunction(iB) * initialSolution(iV);
             if (iV > 0)
             {
                 integrand(iVB) *= getCInv(pPhys);
@@ -154,19 +152,18 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandInitialSolutionOnRef
     }
     
     // Scale with the reference-to-physical element ratio.
-    Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
-    integrand *= std::abs(jac.determinant());
+    integrand *= element.getJacobianAbsDet();
     
     return integrand;
 }
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
 template<std::size_t DIM>
-LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const PointReferenceT &pRef, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
+LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefElement(Base::PhysicalElement<DIM>& element, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
-    std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+    std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
     
-    LinearAlgebra::MiddleSizeVector integrand(numOfVariables_ * numOfBasisFunctions);
+    LinearAlgebra::MiddleSizeVector integrand = element.getResultVector();
     
     LinearAlgebra::SmallVector<DIM> gradientBasisFunction;
     LinearAlgebra::SmallVector<DIM> gradientScalarFunction;
@@ -180,14 +177,14 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefEl
     }
     for (std::size_t jB = 0; jB < numOfBasisFunctions; jB++) // Index for basis functions
     {
-        gradientBasisFunction = ptrElement->basisFunctionDeriv(jB, pRef);
+        gradientBasisFunction = element.basisFunctionDeriv(jB);
         
         for (std::size_t jD = 0; jD < DIM; jD++) // Index for derivatives
         {
-            jVB = ptrElement->convertToSingleIndex(jB, 0);
+            jVB = element.getElement()->convertToSingleIndex(jB, 0);
             gradientScalarFunction(jD) += gradientBasisFunction(jD) * solutionCoefficients(jVB);
             
-            jVB = ptrElement->convertToSingleIndex(jB, jD + 1);
+            jVB = element.getElement()->convertToSingleIndex(jB, jD + 1);
             divergenceVectorFunction += gradientBasisFunction(jD) * solutionCoefficients(jVB);
         }
     }
@@ -196,19 +193,18 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefEl
     std::size_t iVB; // Index for both basis function and variable
     for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++) // Index for basis function
     {
-        iVB = ptrElement->convertToSingleIndex(iB, 0);
-        integrand(iVB) = ptrElement->basisFunction(iB, pRef) * divergenceVectorFunction;
+        iVB = element.getElement()->convertToSingleIndex(iB, 0);
+        integrand(iVB) = element.basisFunction(iB) * divergenceVectorFunction;
         
         for (std::size_t iD = 0; iD < DIM; iD++) // Index for derivative
         {
-            iVB = ptrElement->convertToSingleIndex(iB, iD + 1);
-            integrand(iVB) = ptrElement->basisFunction(iB, pRef) * gradientScalarFunction(iD);
+            iVB = element.getElement()->convertToSingleIndex(iB, iD + 1);
+            integrand(iVB) = element.basisFunction(iB) * gradientScalarFunction(iD);
         }
     }
     
     // Scale with the reference-to-physical element ratio.
-    Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
-    integrand *= std::abs(jac.determinant());
+    integrand *= element.getJacobianAbsDet();
     
     return integrand;
 }
@@ -217,15 +213,14 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefEl
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFace
 (
- const Base::Face *ptrFace,
+ Base::PhysicalFace<DIM>& face,
  const double &time,
- const PointReferenceOnFaceT &pRef,
  const LinearAlgebra::MiddleSizeVector &solutionCoefficients
  )
 {
-    std::size_t numOfBasisFunctions = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions();
+    std::size_t numOfBasisFunctions = face.getFace()->getPtrElementLeft()->getNrOfBasisFunctions();
     
-    LinearAlgebra::MiddleSizeVector integrand(numOfVariables_ * numOfBasisFunctions);
+    LinearAlgebra::MiddleSizeVector integrand = face.getResultVector();
     
     LinearAlgebra::MiddleSizeVector numericalSolution(numOfVariables_);
     
@@ -236,13 +231,13 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFa
         numericalSolution(jV) = 0;
         for (std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
         {
-            jVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(jB, jV);
-            numericalSolution(jV) += ptrFace->basisFunction(Base::Side::LEFT, jB, pRef) * solutionCoefficients(jVB);
+            jVB = face.getFace()->getPtrElementLeft()->convertToSingleIndex(jB, jV);
+            numericalSolution(jV) += face.basisFunction(Base::Side::LEFT, jB) * solutionCoefficients(jVB);
         }
     }
     
     // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-    LinearAlgebra::SmallVector<DIM> normal = ptrFace->getNormalVector(pRef);
+    LinearAlgebra::SmallVector<DIM> normal = face.getNormalVector();
     
     // Compute the jump of the vector function.
     double jumpVectorFunction = 0;
@@ -255,12 +250,12 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFa
     std::size_t iVB; // Index for both variable and basis function.
     for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
     {
-        iVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(iB, 0);
-        integrand(iVB) = - ptrFace->basisFunction(Base::Side::LEFT, iB, pRef) * jumpVectorFunction;
+        iVB = face.getFace()->getPtrElementLeft()->convertToSingleIndex(iB, 0);
+        integrand(iVB) = - face.basisFunction(Base::Side::LEFT, iB) * jumpVectorFunction;
         
         for (std::size_t iD = 0; iD < DIM; iD++) // Index for direction
         {
-            iVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(iB, iD + 1);
+            iVB = face.getFace()->getPtrElementLeft()->convertToSingleIndex(iB, iD + 1);
             integrand(iVB) = 0;
         }
     }
@@ -271,23 +266,22 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFa
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFace
 (
- const Base::Face *ptrFace,
+ Base::PhysicalFace<DIM>& face,
  const double &time,
- const PointReferenceOnFaceT &pRef,
  const Base::Side &iSide,
  const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
  const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight
  )
 {
-    std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
-    std::size_t numOfSolutionBasisFunctionsLeft = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
-    std::size_t numOfSolutionBasisFunctionsRight = ptrFace->getPtrElementRight()->getNrOfBasisFunctions(); //Get the number of basis functions on the right side
+    std::size_t numOfTestBasisFunctions = face.getFace()->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
+    std::size_t numOfSolutionBasisFunctionsLeft = face.getFace()->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
+    std::size_t numOfSolutionBasisFunctionsRight = face.getFace()->getPtrElementRight()->getNrOfBasisFunctions(); //Get the number of basis functions on the right side
     
-    LinearAlgebra::MiddleSizeVector integrand(numOfVariables_ * numOfTestBasisFunctions); // Integrand value based on n number of testbasisfunctions from element corresponding to side iSide
+    LinearAlgebra::MiddleSizeVector integrand = face.getResultVector(iSide); // Integrand value based on n number of testbasisfunctions from element corresponding to side iSide
     
     LinearAlgebra::MiddleSizeVector numericalSolutionLeft(numOfVariables_);
     LinearAlgebra::MiddleSizeVector numericalSolutionRight(numOfVariables_);
-    
+
     // Compute the numerical solution at the given point at the left and right side.
     std::size_t jVB; // Index for both variable and basis function.
     for (std::size_t jV = 0; jV < numOfVariables_; jV++)
@@ -296,18 +290,18 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFa
         numericalSolutionRight(jV) = 0;
         for (std::size_t jB = 0; jB < numOfSolutionBasisFunctionsLeft; jB++)
         {
-            jVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(jB, jV);
-            numericalSolutionLeft(jV) += ptrFace->basisFunction(Base::Side::LEFT, jB, pRef) * solutionCoefficientsLeft(jVB);
+            jVB = face.getFace()->getPtrElementLeft()->convertToSingleIndex(jB, jV);
+            numericalSolutionLeft(jV) += face.basisFunction(Base::Side::LEFT, jB) * solutionCoefficientsLeft(jVB);
         }
         for (std::size_t jB = 0; jB < numOfSolutionBasisFunctionsRight; jB++)
         {
-            jVB = ptrFace->getPtrElementRight()->convertToSingleIndex(jB, jV);
-            numericalSolutionRight(jV) += ptrFace->basisFunction(Base::Side::RIGHT, jB, pRef) * solutionCoefficientsRight(jVB);
+            jVB = face.getFace()->getPtrElementRight()->convertToSingleIndex(jB, jV);
+            numericalSolutionRight(jV) += face.basisFunction(Base::Side::RIGHT, jB) * solutionCoefficientsRight(jVB);
         }
     }
     
     // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-    LinearAlgebra::SmallVector<DIM> normal = ptrFace->getNormalVector(pRef);
+    LinearAlgebra::SmallVector<DIM> normal = face.getNormalVector();
     
     // Compute the jump of the scalar function and the vector function.
     LinearAlgebra::SmallVector<DIM> jumpScalarFunction;
@@ -322,13 +316,13 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFa
     std::size_t iVB; // Index for both variable and basis function.
     for (std::size_t iB = 0; iB < numOfTestBasisFunctions; iB++)
     {
-        iVB = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iB, 0);
-        integrand(iVB) = -0.5 * ptrFace->basisFunction(iSide, iB, pRef) * jumpVectorFunction;
+        iVB = face.getFace()->getPtrElement(iSide)->convertToSingleIndex(iB, 0);
+        integrand(iVB) = -0.5 * face.basisFunction(iSide, iB) * jumpVectorFunction;
         
         for (std::size_t iD = 0; iD < DIM; iD++) // Index for direction
         {
-            iVB = ptrFace->getPtrElement(iSide)->convertToSingleIndex(iB, iD + 1);
-            integrand(iVB) = -0.5 * ptrFace->basisFunction(iSide, iB, pRef) * jumpScalarFunction(iD);
+            iVB = face.getFace()->getPtrElement(iSide)->convertToSingleIndex(iB, iD + 1);
+            integrand(iVB) = -0.5 * face.basisFunction(iSide, iB) * jumpScalarFunction(iD);
         }
     }
     return integrand;
@@ -339,30 +333,20 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFa
 template<std::size_t DIM>
 double AcousticWave<DIM>::integrandErrorOnRefElement
 (
- const Base::Element *ptrElement,
+ Base::PhysicalElement<DIM>& element,
  const double &time,
- const PointReferenceT &pRef,
  const LinearAlgebra::MiddleSizeVector &solutionCoefficients
  )
 {
-    std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
-    
     double integrand = 0.;
     
-    PointPhysicalT pPhys = ptrElement->referenceToPhysical(pRef);
+    const PointPhysicalT& pPhys = element.getPointPhysical();
     
     LinearAlgebra::MiddleSizeVector realSolution(getExactSolution(pPhys, time));
-    LinearAlgebra::MiddleSizeVector numericalSolution(numOfVariables_);
+    const LinearAlgebra::MiddleSizeVector& numericalSolution = element.getSolution();
     
-    std::size_t jVB; // Index for both variable and basis function.
     for (std::size_t jV = 0; jV < numOfVariables_; jV++)
     {
-        numericalSolution(jV) = 0;
-        for (std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
-        {
-            jVB = ptrElement->convertToSingleIndex(jB, jV);
-            numericalSolution(jV) += ptrElement->basisFunction(jB, pRef) * solutionCoefficients(jVB);
-        }
         if (jV > 0)
         {
             integrand += std::pow(numericalSolution(jV) - realSolution(jV), 2);
@@ -374,8 +358,7 @@ double AcousticWave<DIM>::integrandErrorOnRefElement
     }
     
     // Scale with the reference-to-physical element ratio.
-    Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
-    integrand *= std::abs(jac.determinant());
+    integrand *= element.getJacobianAbsDet();
     
     return integrand;
 }
@@ -383,18 +366,18 @@ double AcousticWave<DIM>::integrandErrorOnRefElement
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix AcousticWave<DIM>::computeMassMatrixAtElement(Base::Element *ptrElement)
 {
-    std::function<LinearAlgebra::MiddleSizeMatrix(const PointReferenceT &)> integrandFunction = [=](const PointReferenceT & pRef) -> LinearAlgebra::MiddleSizeMatrix{ return this -> integrandMassMatrixOnRefElement(ptrElement, pRef);};
+    std::function<LinearAlgebra::MiddleSizeMatrix(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeMatrix{ return this -> integrandMassMatrixOnRefElement(element);};
     
-    return this->elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
 }
 
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
 {
     // Define the integrand function for the the initial solution integral.
-    std::function<LinearAlgebra::MiddleSizeVector(const PointReferenceT &)> integrandFunction = [=](const PointReferenceT & pRef) -> LinearAlgebra::MiddleSizeVector { return this -> integrandInitialSolutionOnRefElement(ptrElement, startTime, pRef);};
+    std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector { return this -> integrandInitialSolutionOnRefElement(element, startTime);};
     
-    return this->elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
 }
 
 /// \details The error is defined as error = realSolution - numericalSolution. The energy of the vector (u, s0, s1) is defined as u^2 + c^{-1} * |s|^2.
@@ -402,22 +385,22 @@ template<std::size_t DIM>
 double AcousticWave<DIM>::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, double time)
 {
     // Define the integrand function for the error energy.
-    std::function<double(const PointReferenceT &)> integrandFunction = [=](const PointReferenceT & pRef) -> double
+    std::function<double(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> double
     {
-        return this->integrandErrorOnRefElement(ptrElement, time, pRef, solutionCoefficients);
+        return this->integrandErrorOnRefElement(element, time, solutionCoefficients);
     };
     
-    return this->elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
 }
 
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
 {
     // Define the integrand function for the right hand side for the reference element.
-    std::function<LinearAlgebra::MiddleSizeVector(const PointReferenceT &)> integrandFunction = [=](const PointReferenceT & pRef) -> LinearAlgebra::MiddleSizeVector
-    {   return this->integrandRightHandSideOnRefElement(ptrElement, time, pRef, solutionCoefficients);};
+    std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector
+    {   return this->integrandRightHandSideOnRefElement(element, time, solutionCoefficients);};
     
-    return this->elementIntegrator_.referenceElementIntegral(ptrElement->getGaussQuadratureRule(), integrandFunction);
+    return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
 }
 
 template<std::size_t DIM>
@@ -429,10 +412,10 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::computeRightHandSideAtFace
  )
 {
     // Define the integrand function for the right hand side for the reference face.
-    std::function<LinearAlgebra::MiddleSizeVector(const PointReferenceOnFaceT &)> integrandFunction = [=](const PointReferenceOnFaceT &pRef) -> LinearAlgebra::MiddleSizeVector
-    {   return this->integrandRightHandSideOnRefFace(ptrFace, time, pRef, solutionCoefficients);};
+    std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&)> integrandFunction = [=](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
+    {   return this->integrandRightHandSideOnRefFace(face, time, solutionCoefficients);};
     
-    return this->faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+    return this->faceIntegrator_.integrate(ptrFace, integrandFunction);
 }
 
 template<std::size_t DIM>
@@ -446,10 +429,10 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::computeRightHandSideAtFace
  )
 {
     // Define the integrand function for the right hand side for the reference face.
-    std::function<LinearAlgebra::MiddleSizeVector(const PointReferenceOnFaceT &)> integrandFunction = [=](const PointReferenceOnFaceT &pRef) -> LinearAlgebra::MiddleSizeVector
-    {   return this->integrandRightHandSideOnRefFace(ptrFace, time, pRef, side, solutionCoefficientsLeft, solutionCoefficientsRight);};
+    std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&)> integrandFunction = [=](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
+    {   return this->integrandRightHandSideOnRefFace(face, time, side, solutionCoefficientsLeft, solutionCoefficientsRight);};
     
-    return this->faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+    return this->faceIntegrator_.integrate(ptrFace, integrandFunction);
 }
 
 

@@ -57,13 +57,12 @@ namespace Base
     template<std::size_t DIM>
     HpgemAPILinearSteadyState<DIM>::HpgemAPILinearSteadyState
     (
-     const std::size_t dimension,
      const std::size_t numOfVariables,
      const std::size_t polynomialOrder,
      const bool useSourceTerm,
      const bool useSourceTermAtBoundary
      ) :
-    HpgemAPILinear<DIM>(dimension, numOfVariables, polynomialOrder, Base::AllTimeIntegrators::Instance().getRule(1, 1), 1, useSourceTerm, useSourceTermAtBoundary),
+    HpgemAPILinear<DIM>(numOfVariables, polynomialOrder, Base::AllTimeIntegrators::Instance().getRule(1, 1), 1, useSourceTerm, useSourceTermAtBoundary),
     sourceElementVectorID_(0),
     sourceFaceVectorID_(0)
     {

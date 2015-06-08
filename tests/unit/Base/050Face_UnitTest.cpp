@@ -24,6 +24,8 @@
 //A lot of the functionality of Element, Face and Edge only makes sense if they are embedded in a larger mesh that is completely set up
 //Setting up a testing case to validate this functionality is as hard as generating a mesh. As such this functionality will be tested as
 //part of the mesh generation self tests
+
+#include "Base/PhysicalElement.h"
 #include "Base/Face.h"
 #include "Logger.h"
 

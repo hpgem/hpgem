@@ -35,7 +35,6 @@ public:
 
 	Euler
 	(
-	 const std::size_t dimension,
 	 const std::size_t numOfVariables,
 	 const double endTime,
 	 const std::size_t polynomialOrder,
@@ -51,13 +50,13 @@ public:
     /// *****************************************
 
     /// Compute source function at an element
-    LinearAlgebra::MiddleSizeVector integrandSourceAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time, const PointReferenceT &pRef);
+    LinearAlgebra::MiddleSizeVector integrandSourceAtElement(Base::PhysicalElement<DIM> &ptrElement, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time);
 
     /// Compute solution at an element
     LinearAlgebra::MiddleSizeVector computeSolutionAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const PointReferenceT &pRef);
 
     /// Compute integrand of righthandside on an element
-    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefElement(const Base::Element *ptrElement, const double &time, const PointReferenceT &pRef, const LinearAlgebra::MiddleSizeVector &solutionCoefficients);
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefElement(Base::PhysicalElement<DIM> &ptrElement, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients);
 
     /// \brief Compute the right hand side on an element
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement,	LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override;
@@ -70,10 +69,10 @@ public:
     LinearAlgebra::MiddleSizeVector RoeRiemannFluxFunction(const LinearAlgebra::MiddleSizeVector &qReconstructionLeft, const LinearAlgebra::MiddleSizeVector &qReconstructionRight, LinearAlgebra::SmallVector<DIM> &normal);
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
-    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const PointReferenceOnFaceT &pRef, const LinearAlgebra::MiddleSizeVector &solutionCoefficients);
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients);
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace(const Base::Face *ptrFace, const double &time, const PointReferenceOnFaceT &pRef, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight);
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight);
 
     /// \brief Compute the right-hand side corresponding to a boundary face
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
@@ -86,6 +85,8 @@ public:
     /// ***    		Various Functions         ***
     /// *****************************************
 
+    void tasksBeforeSolving() override final;
+
     LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override final;
 
     /// \brief Compute the initial solution at a given point in space and time.
@@ -95,8 +96,6 @@ public:
 
 
 private:
-    /// Dimension of the domain
-    const std::size_t DIM_;
 
     /// Specific heat ratio
     const double gamma_ = 1.4;

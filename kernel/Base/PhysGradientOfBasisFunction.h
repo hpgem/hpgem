@@ -49,7 +49,8 @@ namespace Utilities
      *  to the one in reference space (which can be harvested by evaluating the
      *  derivatives of basis functions). Hence this class computes the
      *  reference space gradient, transforms it with the Jacobian of the mapping
-     *  and thus yields the physical space gradient. */
+     *  and thus yields the physical space gradient.
+     *  \deprecated functionality is specific for H1 conforming basisfunctions*/
     struct PhysGradientOfBasisFunction
     {
 

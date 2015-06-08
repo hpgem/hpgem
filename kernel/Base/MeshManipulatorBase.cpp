@@ -42,6 +42,7 @@
 #include "Base/BasisFunctionSet.h"
 #include "ConfigurationData.h"
 #include "Element.h"
+#include "PhysicalElement.h"
 #include "Face.h"
 #include "MeshMoverBase.h"
 #include "AssembleBasisFunctionSet.h"

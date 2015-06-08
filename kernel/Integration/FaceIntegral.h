@@ -23,6 +23,7 @@
 
 #include <functional>
 
+#include "Base/PhysicalElement.h"
 #include "Base/Face.h"
 
 namespace LinearAlgebra
@@ -51,6 +52,7 @@ namespace Integration
     template<class ReturnType1, std::size_t DIM>
     class FaceIntegrandBase;
     
+    template<std::size_t DIM>
     class FaceIntegral
     {
     public:
@@ -77,22 +79,30 @@ namespace Integration
         //! \brief Stop using cache.
         void recomputeCacheOff();
 
+        void setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform);
+
+        Base::CoordinateTransformation<DIM>& getTransformation();
+
         //! \brief Do the face integration using given Gauss integration rule.
-        template<typename ReturnTrait1, std::size_t DIM>
+        template<typename ReturnTrait1>
         ReturnTrait1 integrate(Base::Face* fa, FaceIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRulesT* qdrRule = nullptr);
 
         //! \brief Nice version accepting an appropriate std::function
-        template<typename ReturnTrait1, std::size_t DIM>
-        ReturnTrait1 integrate(Base::Face* fa, std::function<ReturnTrait1(const Base::Face*, const LinearAlgebra::SmallVector<DIM>&, const Geometry::PointReference<DIM - 1>&)> integrandFunc, const QuadratureRulesT* qdrRule = nullptr);
+        template<typename ReturnTrait1>
+        ReturnTrait1 integrate(Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, const QuadratureRulesT* qdrRule = nullptr);
 
         /// \brief Compute the integral on a reference element. IntegrandType needs to have the function LinearAlgebra::axpy() implemented.
-        template<typename IntegrandType, std::size_t DIM>
-        IntegrandType referenceFaceIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference<DIM> &)> integrandFunction) const;
+        //need to know information about the face to perform the integration
+        //template<typename IntegrandType>
+        //IntegrandType referenceFaceIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType()> integrandFunction) const;
 
     private:
         
         bool useCache_;
-        
+
+        Base::PhysicalFace<DIM> internalFace_;
+        Base::PhysicalFace<DIM> boundaryFace_;
+
     };// class FaceIntegral
 
 }// close namespace Integration

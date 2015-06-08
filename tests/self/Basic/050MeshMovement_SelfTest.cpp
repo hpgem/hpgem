@@ -60,18 +60,19 @@ void testMesh(Base::MeshManipulator<DIM>* test)
 {
     class :public Integration::ElementIntegrandBase<double, DIM>
     {
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, double& ret)
+        void elementIntegrand(Base::PhysicalElement<DIM>& element, double& ret)
         {
             ret = 1;
         }
     } one;
+
     class :public Integration::ElementIntegrandBase<double, DIM>
     {
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, double& ret)
+        void elementIntegrand(Base::PhysicalElement<DIM>& element, double& ret)
         {
             ret = 0;
-            Geometry::PointPhysical<DIM> pPhys = el->referenceToPhysical(p);
-            for (std::size_t i = 0; i < p.size(); ++i)
+            const Geometry::PointPhysical<DIM>& pPhys = element.getPointPhysical();
+            for (std::size_t i = 0; i < pPhys.size(); ++i)
             {
                 ret += pPhys[i];
             }
@@ -79,17 +80,17 @@ void testMesh(Base::MeshManipulator<DIM>* test)
     } linear;
     class :public Integration::ElementIntegrandBase<double, DIM>
     {
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, double& ret)
+        void elementIntegrand(Base::PhysicalElement<DIM>& element, double& ret)
         {
             ret = 1;
-            Geometry::PointPhysical<DIM> pPhys = el->referenceToPhysical(p);
-            for (std::size_t i = 0; i < p.size(); ++i)
+            const Geometry::PointPhysical<DIM>& pPhys = element.getPointPhysical();
+            for (std::size_t i = 0; i < pPhys.size(); ++i)
             {
                 ret *= pPhys[i];
             }
         }
     } trilinear;
-    Integration::ElementIntegral elIntegral(false);
+    Integration::ElementIntegral<DIM> elIntegral(false);
     double total = 0;
     double result;
     for (Base::Element* element : test->getElementsList())

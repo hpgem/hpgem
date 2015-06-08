@@ -24,12 +24,10 @@ add_library(hpGEM_Base STATIC
  		Element.cpp
  		ElementData.cpp
                 ElementFactory.cpp
- 		${hpGEM_SOURCE_DIR}/kernel/Integration/ElementIntegral.cpp
  		Face.cpp
  		FaceData.cpp
                 FaceFactory.cpp
 		FaceMatrix.cpp
- 		${hpGEM_SOURCE_DIR}/kernel/Integration/FaceIntegral.cpp
  		Edge.cpp
  		Node.cpp
 		#miscellaneous required stuff

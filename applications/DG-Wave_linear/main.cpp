@@ -66,15 +66,15 @@ public:
     class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
     public:
-        void elementIntegrand(const Base::Element* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret) override final
+        void elementIntegrand(Base::PhysicalElement<DIM>& element, LinearAlgebra::MiddleSizeMatrix& ret) override final
         {
-            std::size_t numBasisFuns = element->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = element.getElement()->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
             for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
                 for (std::size_t j = 0; j <= i; ++j)
                 {
-                    ret(i, j) = ret(j, i) = element->basisFunctionDeriv(i, p) * element->basisFunctionDeriv(j, p);
+                    ret(i, j) = ret(j, i) = element.basisFunctionDeriv(i) * element.basisFunctionDeriv(j);
                 }
             }
         }
@@ -83,15 +83,15 @@ public:
     class : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
     public:
-        void faceIntegrand(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const PointReferenceOnFaceT& p, LinearAlgebra::MiddleSizeMatrix& ret) override final
+        void faceIntegrand(Base::PhysicalFace<DIM>& face, LinearAlgebra::MiddleSizeMatrix& ret) override final
         {
-            std::size_t numBasisFuns = face->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = face.getFace()->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
             for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
                 for (std::size_t j = 0; j < numBasisFuns; ++j)
                 { //the basis functions belonging to internal parameters are 0 on the free surface anyway.
-                    ret(i, j) = face->basisFunction(i, p) * face->basisFunction(j, p);
+                    ret(i, j) = face.basisFunction(i) * face.basisFunction(j);
                 }
             }
         }
@@ -121,16 +121,16 @@ public:
     class : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
-        void faceIntegrand(const Base::Face* element, const LinearAlgebra::SmallVector<DIM>&, const PointReferenceOnFaceT& p, LinearAlgebra::MiddleSizeVector& ret) override final
+        void faceIntegrand(Base::PhysicalFace<DIM>& face, LinearAlgebra::MiddleSizeVector& ret) override final
         {
-            PointPhysicalT pPhys = element->referenceToPhysical(p);
-            ret.resize(2 * element->getNrOfBasisFunctions());
+            const PointPhysicalT& pPhys = face.getPointPhysical();
+            ret.resize(2 * face.getFace()->getNrOfBasisFunctions());
             LinearAlgebra::MiddleSizeVector data;
             initialConditions(pPhys, data);
-            for (std::size_t i = 0; i < element->getNrOfBasisFunctions(); ++i)
+            for (std::size_t i = 0; i < face.getFace()->getNrOfBasisFunctions(); ++i)
             {
-                ret(i) = element->basisFunction(i, p) * data[0];
-                ret(i + element->getNrOfBasisFunctions()) = element->basisFunction(i, p) * data[1];
+                ret(i) = face.basisFunction(i) * data[0];
+                ret(i + face.getFace()->getNrOfBasisFunctions()) = face.basisFunction(i) * data[1];
             }
         }
     } interpolator;
@@ -138,15 +138,14 @@ public:
     class : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
-        void faceIntegrand(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const PointReferenceOnFaceT& p, LinearAlgebra::MiddleSizeVector& ret) override final
+        void faceIntegrand(Base::PhysicalFace<DIM>& face, LinearAlgebra::MiddleSizeVector& ret) override final
         {
-            PointPhysicalT pPhys = face->referenceToPhysical(p);
-            const PointReferenceT& pElement = face->mapRefFaceToRefElemL(p);
+            const PointPhysicalT& pPhys = face.getPointPhysical();
             ret.resize(2);
             static LinearAlgebra::MiddleSizeVector exact(2);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
             {
-                ret = face->getPtrElementLeft()->getSolution(0, pElement);
+                ret = face.getSolution(Base::Side::LEFT);
                 exactSolution(t, pPhys, exact);
                 ret -= exact;
                 ret[0] *= ret[0];
@@ -159,19 +158,14 @@ public:
     {
     public:
         
-        void faceIntegrand(const Base::Face* face, const LinearAlgebra::SmallVector<DIM>& normal, const PointReferenceOnFaceT& p, LinearAlgebra::MiddleSizeVector& ret) override final
+        void faceIntegrand(Base::PhysicalFace<DIM>& face, LinearAlgebra::MiddleSizeVector& ret) override final
         {
-            PointPhysicalT pPhys = face->referenceToPhysical(p);
+            const PointPhysicalT& pPhys = face.getPointPhysical();
             ret.resize(1);
-            static LinearAlgebra::MiddleSizeVector dummySolution(2), gradPhi(DIM), temp(DIM);
-            const LinearAlgebra::MiddleSizeVector& expansioncoefficients = face->getPtrElementLeft()->getTimeLevelData(0, 0);
+            static LinearAlgebra::MiddleSizeVector dummySolution(2);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
             {
-                dummySolution[0] = 0;
-                for (std::size_t i = 0; i < face->getNrOfBasisFunctions(); ++i)
-                {
-                    dummySolution[0] += face->basisFunction(i, p) * expansioncoefficients(i);
-                }
+                dummySolution = face.getSolution(Base::Side::LEFT);
                 ret[0] = dummySolution[0] * dummySolution[0];
                 ret[0] /= 2; //assumes g=1
             }
@@ -182,18 +176,10 @@ public:
     {
     public:
         
-        void elementIntegrand(const Base::Element* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) override final
+        void elementIntegrand(Base::PhysicalElement<DIM>& element, LinearAlgebra::MiddleSizeVector& ret) override final
         {
-            int numBasisFuns = element->getNrOfBasisFunctions();
             ret.resize(1);
-            LinearAlgebra::MiddleSizeVector gradPhi(DIM), temp(DIM);
-            const LinearAlgebra::MiddleSizeVector& expansioncoefficients = element->getTimeLevelData(0, 1);
-            for (std::size_t i = 0; i < numBasisFuns; ++i)
-            {
-                temp = element->basisFunctionDeriv(i, p);
-                temp *= expansioncoefficients(i);
-                gradPhi += temp;
-            }
+            LinearAlgebra::SmallVector<DIM> gradPhi = element.getSolutionDeriv()[1];
             ret[0] = (gradPhi * gradPhi) / 2;
         }
     } elementEnergy;
@@ -210,7 +196,7 @@ public:
     //assumes that 'all' means 'all relevant'; computes the mass matrix at the free surface
     void doAllFaceIntegration()
     {
-        Integration::FaceIntegral integral(false);
+        Integration::FaceIntegral<DIM> integral(false);
         PointPhysicalT pPhys;
         LinearAlgebra::MiddleSizeMatrix result;
         LinearAlgebra::MiddleSizeVector initialconditions;
@@ -238,7 +224,7 @@ public:
 
     void doAllElementIntegration()
     {
-        Integration::ElementIntegral integral(false);
+        Integration::ElementIntegral<DIM> integral(false);
         LinearAlgebra::MiddleSizeMatrix result;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
@@ -273,7 +259,7 @@ public:
 
     void printError()
     {
-        Integration::FaceIntegral integral(false);
+        Integration::FaceIntegral<DIM> integral(false);
         LinearAlgebra::MiddleSizeVector totalError(2), contribution(2);
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
@@ -287,8 +273,8 @@ public:
 
     void computeEnergy()
     {
-        Integration::ElementIntegral elIntegral(false);
-        Integration::FaceIntegral faIntegral(false);
+        Integration::ElementIntegral<DIM> elIntegral(false);
+        Integration::FaceIntegral<DIM> faIntegral(false);
         LinearAlgebra::MiddleSizeVector totalEnergy(1), contribution(1);
         for (Base::Face* face : meshes_[0]->getFacesList())
         {

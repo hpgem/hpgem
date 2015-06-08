@@ -182,39 +182,37 @@ namespace Geometry
         /// Don't use this copy constructor, but use the one with new elements instead
         FaceGeometry(const FaceGeometry &other) = delete;
 
-        virtual ~FaceGeometry()
-        {
-        }
+        virtual ~FaceGeometry() = default;
         
         /// Return the pointer to the left element geometry.
-        virtual const ElementGeometry* getElementGLeft() const
+        const ElementGeometry* getElementGLeft() const
         {
             return leftElementGeom_;
         }
         
         /// Return the pointer to the right element geometry, nullptr if inexistent for boundaries.
-        virtual const ElementGeometry* getPtrElementGRight() const
+        const ElementGeometry* getPtrElementGRight() const
         {
             return rightElementGeom_;
         }
         
         /// Return local face number of the face in the left element.
-        virtual std::size_t localFaceNumberLeft() const
+        std::size_t localFaceNumberLeft() const
         {
             return localFaceNumberLeft_;
         }
         /// Return local face number of the face in the right element.
-        virtual std::size_t localFaceNumberRight() const
+        std::size_t localFaceNumberRight() const
         {
             return localFaceNumberRight_;
         }
         
-        virtual FaceType getFaceType() const
+        FaceType getFaceType() const
         {
             return faceType_;
         }
         
-        virtual void setFaceType(const FaceType& newFace)
+        void setFaceType(const FaceType& newFace)
         {
             if (isInternal())
             {
@@ -229,12 +227,12 @@ namespace Geometry
             }
         }
         
-        virtual std::size_t getFaceToFaceMapIndex() const
+        std::size_t getFaceToFaceMapIndex() const
         {
             return faceToFaceMapIndex_;
         }
         
-        virtual const ReferenceFaceGeometryT* getReferenceGeometry() const;
+        const ReferenceFaceGeometryT* getReferenceGeometry() const;
 
         /** \brief Map a point in coordinates of the reference geometry of the face to
          *  the reference geometry of the left (L) element. */
@@ -256,10 +254,10 @@ namespace Geometry
         LinearAlgebra::SmallVector<DIM + 1> getNormalVector(const PointReference<DIM>& pRefFace) const;
 
         /// \brief Return the mapping of the reference face to the left reference element
-        virtual RefFaceToRefElementMappingPtr refFaceToRefElemMapL() const;
+        RefFaceToRefElementMappingPtr refFaceToRefElemMapL() const;
 
         /// \brief Return the mapping of the reference face to the right reference element.
-        virtual RefFaceToRefElementMappingPtr refFaceToRefElemMapR() const;
+        RefFaceToRefElementMappingPtr refFaceToRefElemMapR() const;
 
         /// \brief Returns the physical point corresponding to the given face reference point.
         template<std::size_t DIM>
@@ -277,15 +275,9 @@ namespace Geometry
         void printRefMatrix() const;
 
         /// \brief Returns true if the face is internal and false otherwise.
-        virtual bool isInternal() const;
+        bool isInternal() const;
 
     protected:
-        
-        ///\brief default constructor - for use with wrapper classes
-        FaceGeometry()
-                : leftElementGeom_(nullptr), rightElementGeom_(nullptr)
-        {
-        }
         
         /// pointer to the left element geometry
         const ElementGeometry* leftElementGeom_;

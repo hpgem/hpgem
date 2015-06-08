@@ -48,24 +48,22 @@ namespace Base
         
         ElementData(const ElementData& other);
 
-        virtual ~ElementData()
-        {
-        }
+        virtual ~ElementData() = default;
         
         /// \brief Set/update the element matrix.
         void setElementMatrix(const LinearAlgebra::MiddleSizeMatrix &, std::size_t matrixID = 0);
 
         /// \brief Get the element matrix corresponding to the given matrixiD.
-        virtual const LinearAlgebra::MiddleSizeMatrix &getElementMatrix(std::size_t matrixID = 0) const;
+        const LinearAlgebra::MiddleSizeMatrix &getElementMatrix(std::size_t matrixID = 0) const;
 
         /// \brief Get the element matrix corresponding to the given matrixiD.
-        virtual LinearAlgebra::MiddleSizeMatrix &getElementMatrix(std::size_t matrixID = 0);
+        LinearAlgebra::MiddleSizeMatrix &getElementMatrix(std::size_t matrixID = 0);
 
         /// \brief Set the element vector corresponding to the given vectorID.
-        virtual void setElementVector(const LinearAlgebra::MiddleSizeVector &vector, std::size_t vectorID = 0);
+        void setElementVector(const LinearAlgebra::MiddleSizeVector &vector, std::size_t vectorID = 0);
 
         /// \brief Get the element vector corresponding to the given vectorID.
-        virtual LinearAlgebra::MiddleSizeVector getElementVector(std::size_t vectorID = 0) const;
+        LinearAlgebra::MiddleSizeVector getElementVector(std::size_t vectorID = 0) const;
 
         /// \brief Sets (and creates if unavailable) the expansion coefficients corresponding to the given time level.
         void setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::MiddleSizeVector &val);
@@ -75,31 +73,31 @@ namespace Base
         LinearAlgebra::MiddleSizeVector& getTimeLevelDataVector(std::size_t timeLevel);
 
         /// \brief Specify a time level index and variable index, return a vector containing the corresponding expansion coefficients.
-        virtual const LinearAlgebra::MiddleSizeVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
+        const LinearAlgebra::MiddleSizeVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
 
         /// \brief Specify a time level index and a variable index (unknown), set the corresponding expansionCoefficients. Better use getTimeLevelDataVector if possible because that's faster!
         void setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::MiddleSizeVector &val);
         void setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::MiddleSizeVector &val);
 
         /// \brief Specify a time level index, a variable index and a basis function index, return the corresponding expansionCoefficient (double).
-        virtual LinearAlgebra::MiddleSizeVector::type getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const;
+        LinearAlgebra::MiddleSizeVector::type getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const;
 
         /// \brief Specify a time level index, a variable index and a basis function index, set the corresponding expansionCoefficient (double).
         void setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, double val);
 
-        virtual std::size_t getNrOfUnknows() const;
+        std::size_t getNrOfUnknows() const;
 
-        virtual std::size_t getNrOfBasisFunctions() const;
+        std::size_t getNrOfBasisFunctions() const;
 
         void setUserData(UserElementData* data);
 
-        virtual UserElementData* getUserData() const;
+        UserElementData* getUserData() const;
 
         /// \brief Convert the index corresponding to the basis function (iBasisFunction) 
         /// and the index corresponding to the variable (iVar) to a single index.
         /// \param[in] iVar The index corresponding to the variable.
         /// \param[in] iBasisFunction The index corresponding to the basisfunction.
-        virtual std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const
+        std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const
         {
             return iVar * nrOfBasisFunctions_ + iBasisFunction;
         }

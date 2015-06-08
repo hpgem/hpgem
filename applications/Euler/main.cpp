@@ -41,7 +41,7 @@ void doThings()
     // Calculate number of variables
     const std::size_t numOfVariables = 2+dimension.getValue();
 
-    Euler<DIM> test(dimension.getValue(), numOfVariables, endTime.getValue(), polynomialOrder.getValue(), ptrButcherTableau);
+    Euler<DIM> test(numOfVariables, endTime.getValue(), polynomialOrder.getValue(), ptrButcherTableau);
 
     // Create the mesh, a simple square domain
     test.createMesh(numOfElements.getValue(), meshType);

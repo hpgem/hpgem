@@ -32,25 +32,22 @@ using LinearAlgebra::MiddleSizeVector;
 /// \param[in] ptrButcherTableau Pointer to a Butcher Tableau used to do the time integration with a Runge-Kutta scheme. By default this is a RK4 scheme.
 SavageHutter::SavageHutter
 (
- const std::size_t dimension,
  const std::size_t numOfVariables,
  const std::size_t polynomialOrder,
  const Base::ButcherTableau * const ptrButcherTableau) :
-HpgemAPISimplified(dimension, numOfVariables, polynomialOrder, ptrButcherTableau),
-DIM_(dimension), numOfVariables_(numOfVariables)
+HpgemAPISimplified(numOfVariables, polynomialOrder, ptrButcherTableau),
+numOfVariables_(numOfVariables)
 {
     rhsComputer_.numOfVariables_ = numOfVariables;
-    rhsComputer_.DIM_ = dimension;
     rhsComputer_.epsilon_ = 1.0;
     rhsComputer_.theta_ = 0; //M_PI / 6; //radians
 }
 
 SavageHutter::SavageHutter(const SHConstructorStruct& inputValues) :
-HpgemAPISimplified(inputValues.dimension, inputValues.numOfVariables, inputValues.polyOrder, inputValues.ptrButcherTableau),
-DIM_(inputValues.dimension), numOfVariables_(inputValues.numOfVariables)
+HpgemAPISimplified(inputValues.numOfVariables, inputValues.polyOrder, inputValues.ptrButcherTableau),
+numOfVariables_(inputValues.numOfVariables)
 {
     rhsComputer_.numOfVariables_ = inputValues.numOfVariables;
-    rhsComputer_.DIM_ = inputValues.dimension;
     rhsComputer_.epsilon_ = 1.0;
     rhsComputer_.theta_ = 0; //M_PI / 6; //radians
     createMesh(inputValues.numElements, inputValues.meshType);
@@ -60,7 +57,7 @@ Base::RectangularMeshDescriptor<DIM> SavageHutter::createMeshDescription(const s
 {
     // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
     Base::RectangularMeshDescriptor<DIM> description;
-    for (std::size_t i = 0; i < DIM_; ++i)
+    for (std::size_t i = 0; i < DIM; ++i)
     {
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
@@ -90,9 +87,9 @@ LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhys
 LinearAlgebra::MiddleSizeVector SavageHutter::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
 {
     // Define the integrand function for the right hand side for the reference element.
-    const std::function < LinearAlgebra::MiddleSizeVector(const Base::Element*, const PointReferenceT &) > integrandFunction = [ = ](const Base::Element* elt, const PointReferenceT & pRef) -> LinearAlgebra::MiddleSizeVector
+    const std::function < LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&) > integrandFunction = [ = ](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector
     {   
-        return rhsComputer_.integrandRightHandSideOnElement(elt, time, pRef, solutionCoefficients);
+        return rhsComputer_.integrandRightHandSideOnElement(element, time, solutionCoefficients);
     };
 
     return elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
@@ -107,12 +104,12 @@ LinearAlgebra::MiddleSizeVector SavageHutter::computeRightHandSideAtFace
  )
 {
     //Faster for 1D: 
-    const std::function < LinearAlgebra::MiddleSizeVector(const PointReferenceOnFaceT &) > integrandFunction = [ = ](const PointReferenceOnFaceT & pRef) -> LinearAlgebra::MiddleSizeVector
+    const std::function < LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&) > integrandFunction = [ = ](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
     {   
-        return rhsComputer_.integrandRightHandSideOnRefFace(ptrFace, side, ptrFace->getNormalVector(pRef), pRef, solutionCoefficientsLeft, solutionCoefficientsRight);
+        return rhsComputer_.integrandRightHandSideOnRefFace(face, side, solutionCoefficientsLeft, solutionCoefficientsRight);
     };
 
-    return faceIntegrator_.referenceFaceIntegral(ptrFace->getGaussQuadratureRule(), integrandFunction);
+    return faceIntegrator_.integrate(ptrFace, integrandFunction);
 
     //Desirable syntax(does not compile)
     /*const std::function<LinearAlgebra::NumericalVector(const Base::Face *, const LinearAlgebra::NumericalVector &, const Geometry::PointReference &)> integrandFunction = 
@@ -131,10 +128,10 @@ LinearAlgebra::MiddleSizeVector SavageHutter::computeRightHandSideAtFace
  const double time
  )
 {
-    const std::function<LinearAlgebra::MiddleSizeVector(const Base::Face *, const LinearAlgebra::SmallVector<DIM> &, const PointReferenceOnFaceT &)> integrandFunction =
-        [ = ](const Base::Face *face, const LinearAlgebra::SmallVector<DIM> normal, const PointReferenceOnFaceT & pRef) -> LinearAlgebra::MiddleSizeVector
+    const std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&)> integrandFunction =
+        [ = ](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
         {
-            return rhsComputer_.integrandRightHandSideOnRefFace(face, normal, pRef, solutionCoefficients);
+            return rhsComputer_.integrandRightHandSideOnRefFace(face, solutionCoefficients);
         };
     return faceIntegrator_.integrate(ptrFace, integrandFunction, ptrFace->getGaussQuadratureRule());
 }
@@ -247,7 +244,7 @@ void SavageHutter::useLimitierForElement(Base::Element *element)
     std::size_t p = configData_->polynomialOrder_;
     ///\todo check if this definition of h is reasonable for other geometries than lines
     const PointReferenceT& center = element->getReferenceGeometry()->getCenter();
-    const double dx = std::pow(2. * std::abs(element->calcJacobian(center).determinant()), 1./DIM_);
+    const double dx = std::pow(2. * std::abs(element->calcJacobian(center).determinant()), 1./DIM);
     logger(DEBUG, "grid size: %", dx);
     totalIntegral /= std::pow(dx, (p + 1.) / 2);
 
@@ -306,8 +303,8 @@ void SavageHutter::limitWithMinMod(Base::Element* element, const std::size_t iVa
     const Base::Element * const elemL = element->getFace(0)->getPtrElementLeft();
     const Base::Element * const elemR = element->getFace(1)->getPtrElementRight();
 
-    //check if left is indeed of the left side of right
-    logger.assert((elemL->getPhysicalGeometry()->getLocalNodeCoordinates(0)) < (elemR->getPhysicalGeometry()->getLocalNodeCoordinates(0)), "elements left/right in wrong order");
+    //check if left is indeed of the left side of right //TODO: this may be false for general meshes (or may even examine the same node twice)
+    logger.assert((PointPhysicalT(elemL->getPhysicalGeometry()->getLocalNodeCoordinates(0)))[0] < PointPhysicalT(elemR->getPhysicalGeometry()->getLocalNodeCoordinates(0))[0], "elements left/right in wrong order");
 
     const double u0 = element->getSolution(0, pRef)(iVar);
     const double uElemR = elemR->getSolution(0, pRef)(iVar);
@@ -328,7 +325,7 @@ void SavageHutter::limitWithMinMod(Base::Element* element, const std::size_t iVa
         // this is hard-coded for default-DG basis function set
         double coefficient0 = u0 - slope/2;
         double coefficient1 = u0 + slope/2;
-        LinearAlgebra::NumericalVector coefficients = element->getTimeLevelData(0, iVar);
+        LinearAlgebra::MiddleSizeVector coefficients = element->getTimeLevelData(0, iVar);
         logger(DEBUG, "former coeffs: %", coefficients);
         coefficients *= 0;
         coefficients[0] = coefficient0;

@@ -49,17 +49,6 @@ namespace Base
     {        
     }
     
-    ///Very ugly default constructor that's only here because it is needed in
-    ///ShortTermStorageElementBase.
-    Element::Element()
-            : ElementData(0, 0, 0, 0, 0)
-    {
-    }
-    
-    Element::~Element()
-    {        
-    }
-    
     Element* Element::copyWithoutFacesEdgesNodes()
     {
         //Make a new element with the data and geometry of this element

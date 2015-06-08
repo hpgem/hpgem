@@ -41,8 +41,8 @@ namespace Base
     
     /// Face consists of FaceGeometry and probably FaceData, if needed. 
     ///FaceGeometry holds all FaceReference related data and appropriate mappings
-    //Programmer note: functions that are needed during integration should be overridden in ShortTermStorageFaceBase
-    class Face : public Geometry::FaceGeometry, public FaceData
+    //class is final as a reminder that the virtual default destructor should be added once something inherits from this class
+    class Face final: public Geometry::FaceGeometry, public FaceData
     {
     public:
         
@@ -72,36 +72,32 @@ namespace Base
         ///Copy constructor with new elements. It makes a copy of the face, but 
         ///with new elements assigned to it.
         Face(const Face& other, Element* elementL, const std::size_t localFaceL, Element* elementR, const std::size_t localFaceR);
-
-        virtual ~Face()
-        {
-        }
         
         /// Return the pointer to the left element.
-        virtual Element* getPtrElementLeft()
+        Element* getPtrElementLeft()
         {
             return elementLeft_;
         }
         
         /// Return the pointer to the right element, nullptr if inexistent for boundaries.
-        virtual Element* getPtrElementRight()
+        Element* getPtrElementRight()
         {
             return elementRight_;
         }
         
-        virtual const Element* getPtrElementLeft() const
+        const Element* getPtrElementLeft() const
         {
             return elementLeft_;
         }
         
         /// Return the pointer to the right element, nullptr if inexistent for boundaries.
-        virtual const Element* getPtrElementRight() const
+        const Element* getPtrElementRight() const
         {
             return elementRight_;
         }
         
         /// \brief Return the pointer to the element on side iSide.
-        virtual const Element* getPtrElement(Side iSide) const
+        const Element* getPtrElement(Side iSide) const
         {
             if (iSide == Side::LEFT)
             {
@@ -123,14 +119,9 @@ namespace Base
         }
         
         /// \brief Get a pointer to the quadrature rule used to do integration on this face.
-        virtual const FaceQuadratureRule* getGaussQuadratureRule() const
+        const FaceQuadratureRule* getGaussQuadratureRule() const
         {
             return quadratureRule_;
-        }
-        
-        virtual VecCacheT& getVecCacheData()
-        {
-            return vecCacheData_;
         }
         
         /// \brief Get the value of the basis function (corresponding to index i) at the physical point corresponding to reference point p.
@@ -170,9 +161,9 @@ namespace Base
         LinearAlgebra::SmallVector<DIM + 1> basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
         /// \brief Returns the sum of the number of basisfunctions of the adjacent elements.
-        virtual std::size_t getNrOfBasisFunctions() const;
+        std::size_t getNrOfBasisFunctions() const;
 
-        virtual std::size_t getLocalNrOfBasisFunctions() const
+        std::size_t getLocalNrOfBasisFunctions() const
         {
             return nrOfConformingDOFOnTheFace_;
         }
@@ -182,29 +173,22 @@ namespace Base
             nrOfConformingDOFOnTheFace_ = number;
         }
         
-        virtual std::size_t getID() const
+        std::size_t getID() const
         {
             return faceID_;
         }
         
         /// Specify a time level index, return a vector containing the data for that time level.
-        virtual LinearAlgebra::MiddleSizeVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
+        LinearAlgebra::MiddleSizeVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
 
         /// \brief Convert the side of the face, the index corresponding to the scalar basis function (scalarBasisFunctionId) and the index corresponding to the variable (varId) to a single index (faceBasisFunctionId).
-        virtual std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId = 0) const;
+        std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId = 0) const;
         
         /// \brief Convert the index of the basis (vector)function of the face (faceBasisFunctionId) to the corresponding side of the face.
-        virtual Side getSide(std::size_t faceBasisFunctionId) const;
+        Side getSide(std::size_t faceBasisFunctionId) const;
         
         /// \brief Convert the index of the basis (vector)function of the face (faceBasisFunctionId) to the index of the corresponding element basis (vector)function (elementBasisFunctionId).
-        virtual std::size_t getElementBasisFunctionId(std::size_t faceBasisFunctionId) const;
-
-    protected:
-        
-        ///\brief default constructor - for use with wrapper classes
-        Face() : FaceGeometry(), FaceData(0, 0, 0), elementLeft_(nullptr), elementRight_(nullptr), quadratureRule_(nullptr)
-        {
-        }
+        std::size_t getElementBasisFunctionId(std::size_t faceBasisFunctionId) const;
         
     private:
         

@@ -27,7 +27,9 @@
 #include "Geometry/ElementGeometry.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "BasisFunctionSet.h"
+
 //#include "PhysGradientOfBasisFunction.h"//included after class definition due to cross dependencies (needed for templated function definition)
+//#include "PhysicalElement.h"//included after class definition due to cross dependencies (needed for templated function definition)
 
 #include <vector>
 #include <iostream>
@@ -46,9 +48,11 @@ namespace Base
     class BasisFunctionSet;
     class ElementCacheData;
     class BaseBasisFunction;
+    template<std::size_t DIM>
+    class PhysicalElement;
 
-    //Programmer note: functions that are needed during integration should be overridden in ShortTermStorageFaceBase
-    class Element : public Geometry::ElementGeometry, public ElementData
+    //class is final as a reminder that the virtual default destructor should be added once something inherits from this class
+    class Element final: public Geometry::ElementGeometry, public ElementData
     {
     public:
         using ReferenceGeometryT = Geometry::ReferenceGeometry;
@@ -66,15 +70,13 @@ namespace Base
         Element(const std::vector<std::size_t>& globalNodeIndexes, const CollectionOfBasisFunctionSets *basisFunctionSet, std::vector<Geometry::PointPhysical<DIM> >& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrices = 0, std::size_t numberOfElementVectors = 0, const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
 
         Element(const Element &other) = delete;
-        Element& operator=(const Element &other) = delete;        
-        
-        virtual ~ Element();
+        Element& operator=(const Element &other) = delete;
         
         Element* copyWithoutFacesEdgesNodes();
 
-        virtual std::size_t getID() const;
+        std::size_t getID() const;
 
-        virtual std::size_t getID();
+        std::size_t getID();
 
         void setQuadratureRulesWithOrder(std::size_t quadrROrder);
 
@@ -87,9 +89,9 @@ namespace Base
         void setFaceBasisFunctionSet(std::size_t position, std::size_t localIndex);
 
         /// \brief Get a pointer to the quadrature rule used to do integration on this element.
-        virtual const GaussQuadratureRuleT* getGaussQuadratureRule() const;
+        const GaussQuadratureRuleT* getGaussQuadratureRule() const;
 
-        virtual VecCacheT& getVecCacheData();
+        VecCacheT& getVecCacheData();
 
         /// \brief Get the value of the basis function (corresponding to index i) at the physical point corresponding to reference point p.
         template<std::size_t DIM>
@@ -104,7 +106,7 @@ namespace Base
         double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p) const;
         
         /// \brief Get the gradient of the physical basis function (corresponding to index i) at the physical point corresponding to reference point p.
-        /// \details If some of the data needed for the reference to physical gradient mapping is already stored on a wrapper class, you can pass the class to this function for more efficient computation
+        /// \details WARNING: contrary to some previous versions of hpGEM, this will NOT do any coordinate transformations!!
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM> basisFunctionDeriv(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
@@ -113,13 +115,24 @@ namespace Base
         LinearAlgebra::SmallVector<DIM> basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
         /// \brief Get the solution at the given timeLevel at the physical point corresponding to reference point p.
+        /// \details This routine assumes the result of evaluating a basis function has to be transformed using the identity transformation
         template<std::size_t DIM>
         SolutionVector getSolution(std::size_t timeLevel, const Geometry::PointReference<DIM>& p) const;
 
         /// \brief Get the gradient of the solution at the given timeLevel at the physical point corresponding to reference point p.
-        /// \details returns a vector of gradients
+        /// \details returns a vector of gradients. This routine assumes the result of evaluating a gradient of a basis function has to be transformed using the identity transformation
         template<std::size_t DIM>
         std::vector<LinearAlgebra::SmallVector<DIM> > getSolutionGradient(std::size_t timeLevel, const Geometry::PointReference<DIM>& p) const;
+
+        /// \brief Get the solution at the given timeLevel at the physical point corresponding to reference point p.
+        /// \details uses the physical element for evaluation and transformation of the basis functions
+        template<std::size_t DIM>
+        SolutionVector getSolution(std::size_t timeLevel, PhysicalElement<DIM>& element) const;
+
+        /// \brief Get the gradient of the solution at the given timeLevel at the physical point corresponding to reference point p.
+        /// \details returns a vector of gradients. Uses the physical element for evaluation and transformation of gradients of the basis functions
+        template<std::size_t DIM>
+        std::vector<LinearAlgebra::SmallVector<DIM> > getSolutionGradient(std::size_t timeLevel, PhysicalElement<DIM>& element) const;
 
         void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution); ///\todo not implemented
                 
@@ -130,67 +143,62 @@ namespace Base
         void setNode(std::size_t localNodeNr, const Node* node);
 
         
-        virtual std::size_t getLocalNrOfBasisFunctions() const
+        std::size_t getLocalNrOfBasisFunctions() const
         {
             return nrOfDOFinTheElement_;
         }
         
-        virtual const Face* getFace(std::size_t localFaceNr) const
+        const Face* getFace(std::size_t localFaceNr) const
         {
             logger.assert(localFaceNr<getNrOfFaces(), "Asked for face %, but there are only % faces", localFaceNr, getNrOfFaces());
             return facesList_[localFaceNr];
         }
         
-        virtual const std::vector<const Face*> getFacesList() const
+        const std::vector<const Face*> getFacesList() const
         {
             return facesList_;
         }
 
-        virtual const Edge* getEdge(std::size_t localEdgeNr) const
+        const Edge* getEdge(std::size_t localEdgeNr) const
         {
             logger.assert(localEdgeNr<getNrOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNr, getNrOfEdges());
             return edgesList_[localEdgeNr];
         }
         
-        virtual const std::vector<const Edge*> getEdgesList() const
+        const std::vector<const Edge*> getEdgesList() const
         {
             return edgesList_;
         }
 
-        virtual const Node* getNode(std::size_t localNodeNr) const
+        const Node* getNode(std::size_t localNodeNr) const
         {
             logger.assert(localNodeNr<getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());
             return nodesList_[localNodeNr];
         }
         
-        virtual const std::vector<const Node*> getNodesList() const
+        const std::vector<const Node*> getNodesList() const
         {
             return nodesList_;
         }
 
-        virtual std::size_t getNrOfFaces() const
+        std::size_t getNrOfFaces() const
         {
             return facesList_.size();
         }
         
-        virtual std::size_t getNrOfEdges() const
+        std::size_t getNrOfEdges() const
         {
             return edgesList_.size();
         }
         
-        virtual std::size_t getNrOfNodes() const
+        std::size_t getNrOfNodes() const
         {
             return nodesList_.size();
         }
         
 #ifndef NDEBUG
-        virtual const Base::BaseBasisFunction* getBasisFunction(std::size_t i) const;
+        const Base::BaseBasisFunction* getBasisFunction(std::size_t i) const;
 #endif
-        
-    protected:
-        
-        ///\brief default constructor - for use with wrapper classes (that can delegate functionality of Element in another way)
-        Element();
 
     public:
         /// Output operator.        
@@ -228,6 +236,7 @@ namespace Base
     };
 }
 #include "PhysGradientOfBasisFunction.h"
+#include "PhysicalElement.h"
 namespace Base
 {
     /// \details The user does not need to worry about the contruction of elements. This is done by mesh-generators. For example the interface HpgemAPIBase can be used to create meshes.
@@ -385,8 +394,7 @@ namespace Base
                 std::size_t n = basisFunctionSet_->at(j)->size();
                 if (i - basePosition < n)
                 {
-                    Utilities::PhysGradientOfBasisFunction functionGradient(this, basisFunctionSet_->at(j)->operator[](i - basePosition));
-                    return functionGradient(p);
+                    return (*basisFunctionSet_->at(j))[i - basePosition]->evalDeriv(p);
                 }
                 else
                 {
@@ -435,6 +443,50 @@ namespace Base
             {
                 iVB = convertToSingleIndex(iB, iV);
                 solution[iV] += data(iVB) * basisFunctionDeriv(iB, p);
+            }
+        }
+        return solution;
+    }
+
+    template<std::size_t DIM>
+    Element::SolutionVector Element::getSolution(std::size_t timeLevel, PhysicalElement<DIM>& element) const
+    {
+        logger.assert(element.getElement() == this, "Cannot find the solution in a different element!");
+        std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
+        std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
+        SolutionVector solution(numberOfUnknows);
+
+        const LinearAlgebra::MiddleSizeVector& data = ElementData::getTimeLevelDataVector(timeLevel);
+
+        std::size_t iVB = 0;
+        for (std::size_t iV = 0; iV < numberOfUnknows; ++iV)
+        {
+            for (std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
+            {
+                iVB = convertToSingleIndex(iB, iV);
+                solution[iV] += data(iVB) * element.basisFunction(iB);
+            }
+        }
+        return solution;
+    }
+
+    template<std::size_t DIM>
+    std::vector<LinearAlgebra::SmallVector<DIM> > Element::getSolutionGradient(std::size_t timeLevel, PhysicalElement<DIM>& element) const
+    {
+        logger.assert(element.getElement() == this, "Cannot find the gradient of the solution in a different element!");
+        std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
+        std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
+        std::vector<LinearAlgebra::SmallVector<DIM> > solution(numberOfUnknows);
+
+        LinearAlgebra::MiddleSizeVector data = ElementData::getTimeLevelDataVector(timeLevel);
+
+        std::size_t iVB = 0;
+        for (std::size_t iV = 0; iV < numberOfUnknows; ++iV)
+        {
+            for (std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
+            {
+                iVB = convertToSingleIndex(iB, iV);
+                solution[iV] += data(iVB) * element.basisFunctionDeriv(iB);
             }
         }
         return solution;

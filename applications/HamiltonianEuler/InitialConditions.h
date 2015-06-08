@@ -509,9 +509,10 @@ public:
     InitCondU(const ExactSolutionBase* init);
 
     void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r) const;
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r)
+    void elementIntegrand(Base::PhysicalElement<3>& el, LinearAlgebra::MiddleSizeVector& r)
     {
-        operator()(element, p, r);
+        //todo: could be improved to make better use of PhysicalElement
+        operator()(el.getElement(), el.getPointReference(), r);
     }
 };
 
@@ -523,9 +524,10 @@ public:
     InitCondV(const ExactSolutionBase* init);
 
     void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r) const;
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r)
+    void elementIntegrand(Base::PhysicalElement<3>& el, LinearAlgebra::MiddleSizeVector& r)
     {
-        operator()(element, p, r);
+        //todo: could be improved to make better use of PhysicalElement
+        operator()(el.getElement(), el.getPointReference(), r);
     }
 };
 // 
@@ -537,9 +539,10 @@ public:
     InitCondW(const ExactSolutionBase* init);
 
     void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r) const;
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r)
+    void elementIntegrand(Base::PhysicalElement<3>& el, LinearAlgebra::MiddleSizeVector& r)
     {
-        operator()(element, p, r);
+        //todo: could be improved to make better use of PhysicalElement
+        operator()(el.getElement(), el.getPointReference(), r);
     }
     
 };
@@ -552,9 +555,10 @@ public:
     InitCondLambda(const ExactSolutionBase* init);
 
     void operator()(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r) const;
-    void elementIntegrand(const ElementT* element, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& r)
+    void elementIntegrand(Base::PhysicalElement<3>& el, LinearAlgebra::MiddleSizeVector& r)
     {
-        operator()(element, p, r);
+        //todo: could be improved to make better use of PhysicalElement
+        operator()(el.getElement(), el.getPointReference(), r);
     }
     
 };

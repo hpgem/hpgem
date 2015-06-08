@@ -48,7 +48,7 @@ class AdvectionTest : public Base::HpgemAPILinear<DIM>
 public:
     ///Constructor. Assign all private variables.
     AdvectionTest(std::size_t p) :
-    HpgemAPILinear<DIM>(DIM, 1, p)
+    HpgemAPILinear<DIM>(1, p)
     {
         //Choose the "direction" of the advection.
         //This cannot be implemented with iterators, and since the dimension is
@@ -86,15 +86,15 @@ public:
     ///basisfunctions phi_i and phi_j.
     ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
     ///so you wont have to do any transformations yourself
-    LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
+    LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM>& element) override final
     {
-        std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
-        LinearAlgebra::MiddleSizeMatrix  result(numBasisFuncs, numBasisFuncs, 0);
+        std::size_t numBasisFuncs = element.getElement()->getNrOfBasisFunctions();
+        LinearAlgebra::MiddleSizeMatrix&  result = element.getResultMatrix();
         for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
             for (std::size_t j = 0; j < numBasisFuncs; ++j)
             {
-                result(j, i) = element->basisFunction(i, point) * (a * element->basisFunctionDeriv(j, point));
+                result(j, i) = element.basisFunction(i) * (a * element.basisFunctionDeriv(j));
             }
         }
         
@@ -111,47 +111,41 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, to which we passed a reference when calling it.
     ///Please note that you pass a reference point to the basisfunctions and the
     ///transformations are done internally. The class FaceMatrix consists of four element matrices for internal faces and one element matrix for faces on the boundary. Each element matrix corresponds to a pair of two adjacent elements of the face.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face *face, const LinearAlgebra::SmallVector<DIM> &normal, const PointReferenceOnFaceT &point) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(Base::PhysicalFace<DIM>& face) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
-        std::size_t numBasisFuncs = face->getNrOfBasisFunctions();
-        std::size_t nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
-        std::size_t nRight = 0;
-        if(face->isInternal())
-        {
-            nRight = face->getPtrElementLeft()->getNrOfBasisFunctions();
-        }
+        std::size_t numBasisFuncs = face.getFace()->getNrOfBasisFunctions();
         
         //Resize the result to the correct size and set all elements to 0.
-        Base::FaceMatrix integrandVal(nLeft, nRight);
+        Base::FaceMatrix& integrandVal = face.getResultMatrix();
         integrandVal *= 0;
         
         //Check if the normal is in the same direction as the advection.
         //Note that normal does not have length 1!
-        const double A = (a * normal) / Base::L2Norm(normal);
+        const double A = a * face.getUnitNormalVector();
         
         //Compute all entries of the integrand at this point:
         for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
-            Base::Side sideBasisFunction = face->getSide(i);
+            Base::Side sideBasisFunction = face.getFace()->getSide(i);
             for (std::size_t j = 0; j < numBasisFuncs; ++j)
             {
                 //Give the terms of the upwind flux.
                 //Advection in the same direction as outward normal of the left element:
                 if ((A > 1e-12) && (sideBasisFunction == Base::Side::LEFT))
                 {
-                    integrandVal(j, i) = -(a * face->basisFunctionNormal(j, normal, point)) * face->basisFunction(i, point);
+                    integrandVal(j, i) = -(a * face.basisFunctionUnitNormal(j)) * face.basisFunction(i);
                 }
                 //Advection in the same direction as outward normal of right element:
                 else if ((A < -1e-12) && (sideBasisFunction == Base::Side::RIGHT))
                 {
-                    integrandVal(j, i) = -(a * face->basisFunctionNormal(j, normal, point)) * face->basisFunction(i, point);
+                    integrandVal(j, i) = -(a * face.basisFunctionUnitNormal(j)) * face.basisFunction(i);
                 }
                 //Advection orthogonal to normal:
                 else if (std::abs(A) < 1e-12)
                 {
-                    integrandVal(j, i) = -(a * face->basisFunctionNormal(j, normal, point)) * face->basisFunction(i, point) / 2.0;
+                    integrandVal(j, i) = -(a * face.basisFunctionUnitNormal(j)) * face.basisFunction(i) / 2.0;
                 }
             }
         }

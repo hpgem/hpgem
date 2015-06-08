@@ -41,18 +41,15 @@ private:
     /// \brief Compute the integrand for the right hand side for the reference element.
     MiddleSizeVector integrandRightHandSideOnElement
     (
-     const Base::Element *ptrElement,
+     Base::PhysicalElement<DIM>& element,
      const double &time,
-     const PointReferenceT &pRef,
      const MiddleSizeVector &solutionCoefficients
      );
     
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
     MiddleSizeVector integrandRightHandSideOnRefFace
     (
-     const Base::Face *ptrFace,
-     const LinearAlgebra::SmallVector<DIM> &normalVec,
-     const PointReferenceOnFaceT &pRef,
+     Base::PhysicalFace<DIM>& face,
      const MiddleSizeVector &solutionCoefficients
      );
 
@@ -60,10 +57,8 @@ private:
     /// Note that a face in 1D is a point.
     MiddleSizeVector integrandRightHandSideOnRefFace
     (
-     const Base::Face *ptrFace,
+     Base::PhysicalFace<DIM>& face,
      const Base::Side &iSide,
-     const LinearAlgebra::SmallVector<DIM> &normalVec,
-     const PointReferenceOnFaceT &pRef,
      const MiddleSizeVector &solutionCoefficientsLeft,
      const MiddleSizeVector &solutionCoefficientsRight
      );
@@ -76,7 +71,6 @@ private:
     LinearAlgebra::MiddleSizeVector getInflowBC();
     
     std::size_t numOfVariables_;
-    std::size_t DIM_;
     double epsilon_;
     double theta_; //in radians
 };

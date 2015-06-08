@@ -38,6 +38,7 @@
 
 namespace Integration
 {
+    template<std::size_t DIM>
     class FaceIntegral;
 }
 
@@ -92,7 +93,6 @@ namespace Base
         // Constructor
         HpgemAPISimplified
         (
-         const std::size_t dimension,
          const std::size_t numberOfUnknowns,
          const std::size_t polynomialOrder,
          const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
@@ -100,6 +100,7 @@ namespace Base
          );
         
         HpgemAPISimplified(const HpgemAPISimplified &other) = delete;
+        virtual ~HpgemAPISimplified() = default;
 
         /// \brief Create a mesh description
         virtual Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection)
@@ -295,10 +296,10 @@ namespace Base
         std::vector<std::string> variableNames_;
         
         /// Integrator for the elements
-        Integration::ElementIntegral elementIntegrator_;
+        Integration::ElementIntegral<DIM> elementIntegrator_;
         
         /// Integrator for the faces
-        Integration::FaceIntegral faceIntegrator_;
+        Integration::FaceIntegral<DIM> faceIntegrator_;
         
     private:
         /// \brief Define how the solution should be written in the VTK files.

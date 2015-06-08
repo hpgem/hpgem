@@ -53,6 +53,7 @@ namespace Integration
     template<class returntrait1, std::size_t DIM>
     class ElementIntegrandBase;
     
+    template<std::size_t DIM>
     class ElementIntegral
     {
     public:
@@ -79,21 +80,29 @@ namespace Integration
         //! \brief Set recompute the cache OFF.
         void recomputeCacheOff();
 
+        void setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform);
+
+        Base::CoordinateTransformation<DIM>& getTransformation();
+
+        Base::PhysicalElement<DIM>& getPhysicalElement();
+
         //! \brief Directly integrate the integrand and return ReturnTrait1.
         //! ReturnTrait1 needs to have the function LinearAlgebra::axpy() implemented
-        template<class ReturnTrait1, std::size_t DIM>
+        template<class ReturnTrait1>
         ReturnTrait1 integrate(Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRulesT * const qdrRule = nullptr);
 
-        template<class ReturnType, std::size_t DIM>
-        ReturnType integrate(Base::Element* el, std::function<ReturnType(const Base::Element*, const Geometry::PointReference<DIM>&)> integrand, const QuadratureRulesT * const qdrRule = nullptr);
+        template<class ReturnType>
+        ReturnType integrate(Base::Element* el, std::function<ReturnType(Base::PhysicalElement<DIM>&)> integrand, const QuadratureRulesT * const qdrRule = nullptr);
 
         /// \brief Compute the integral on a reference element. IntegrandType needs to have the function LinearAlgebra::axpy() implemented.
-        template<typename IntegrandType, std::size_t DIM>
-        IntegrandType referenceElementIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType(const Geometry::PointReference<DIM> &)> integrandFunction);
+        template<typename IntegrandType>
+        IntegrandType referenceElementIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType()> integrandFunction);
 
     private:
         
         bool useCache_;
+
+        Base::PhysicalElement<DIM> element_;
     };
 
 } // close namespace Integration

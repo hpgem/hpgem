@@ -82,7 +82,6 @@ public:
 
     AcousticWaveLinear
     (
-     const std::size_t dimension,
      const std::size_t numOfVariables,
      const std::size_t polynomialOrder,
      const Base::ButcherTableau * const ptrButcherTableau,
@@ -112,23 +111,22 @@ public:
     LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
     
     /// \brief Compute the integrand for the mass matrix for the reference element.
-    LinearAlgebra::MiddleSizeMatrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const PointReferenceT &pRef);
+    LinearAlgebra::MiddleSizeMatrix integrandMassMatrixOnRefElement(Base::PhysicalElement<DIM>& element);
     
     /// \brief Compute the integrand for the reference element for obtaining the initial solution.
-    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnRefElement(const Base::Element *ptrElement, const double &startTime, const PointReferenceT &pRef);
+    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnRefElement(Base::PhysicalElement<DIM>& element, const double &startTime);
     
     /// \brief Compute the integrand for the stiffness matrix for the reference element.
-    LinearAlgebra::MiddleSizeMatrix integrandStiffnessMatrixOnRefElement(const Base::Element *ptrElement, const PointReferenceT &pRef);
+    LinearAlgebra::MiddleSizeMatrix integrandStiffnessMatrixOnRefElement(Base::PhysicalElement<DIM>& element);
     
     /// \brief Compute the integrand for the stiffness matrix for the reference face corresponding to an internal face.
-    LinearAlgebra::MiddleSizeMatrix integrandStiffnessMatrixOnRefFace(const Base::Face *ptrFace, const PointReferenceOnFaceT &pRef, const Base::Side &iSide, const Base::Side &jSide);
+    LinearAlgebra::MiddleSizeMatrix integrandStiffnessMatrixOnRefFace(Base::PhysicalFace<DIM>& face, const Base::Side &iSide, const Base::Side &jSide);
     
     /// \brief Compute the integrand for the reference element for computing the energy-norm of the error.
     double integrandErrorOnRefElement
     (
-     const Base::Element *ptrElement,
+     Base::PhysicalElement<DIM>& element,
      const double &time,
-     const PointReferenceT &pRef,
      const LinearAlgebra::MiddleSizeVector &solutionCoefficients
      );
     
@@ -156,6 +154,13 @@ public:
     
     /// \brief Integrate the energy of the error on a single element.
     double integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, double time) override final;
+
+    void tasksBeforeSolving() override final
+    {
+        this->elementIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
+        this->faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
+        Base::HpgemAPILinear<DIM>::tasksBeforeSolving();
+    }
 
 private:
 

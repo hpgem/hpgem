@@ -123,14 +123,6 @@ namespace Geometry
     public:
         /// Output operator.
         friend std::ostream& operator <<(std::ostream& os, const ElementGeometry& elementGeometry);
-    protected:
-        
-        ///\brief default constructor - for use with wrapper classes (that can delegate functionality of ElementGeometry in another way)
-        
-        ElementGeometry()
-                : referenceGeometry_(nullptr), physicalGeometry_(nullptr), referenceToPhysicalMapping_(nullptr), refinementGeometry_(nullptr)
-        {
-        }
         
     private:
 

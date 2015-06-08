@@ -46,15 +46,15 @@ void testMesh(Base::MeshManipulator<DIM>* test)
     class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
         
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, LinearAlgebra::MiddleSizeVector& ret)
+        void elementIntegrand(Base::PhysicalElement<DIM>& element, LinearAlgebra::MiddleSizeVector& ret)
         {
-            std::size_t numBasisFuns = el->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = element.getElement()->getNrOfBasisFunctions();
             ret.resize(numBasisFuns);
-            Geometry::PointPhysical<DIM> pPhys = el->referenceToPhysical(p);
+            const Geometry::PointPhysical<DIM>& pPhys = element.getPointPhysical();
             for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
-                ret[i] = el->basisFunction(i, p);
-                for (std::size_t j = 0; j < p.size(); ++j)
+                ret[i] = element.basisFunction(i);
+                for (std::size_t j = 0; j < pPhys.size(); ++j)
                 {
                     ret[i] *= pPhys[j];
                 }
@@ -65,15 +65,15 @@ void testMesh(Base::MeshManipulator<DIM>* test)
     class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
         
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, LinearAlgebra::MiddleSizeMatrix& ret)
+        void elementIntegrand(Base::PhysicalElement<DIM>& element, LinearAlgebra::MiddleSizeMatrix& ret)
         {
-            std::size_t numBasisFuns = el->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = element.getElement()->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
             for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
                 for (std::size_t j = 0; j < numBasisFuns; ++j)
                 {
-                    ret(i, j) = el->basisFunction(i, p) * el->basisFunction(j, p);
+                    ret(i, j) = element.basisFunction(i) * element.basisFunction(j);
                 }
             }
         }
@@ -81,29 +81,15 @@ void testMesh(Base::MeshManipulator<DIM>* test)
     
     class : public Integration::ElementIntegrandBase<double, DIM>
     {
-        
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference<DIM>& p, double& ret)
+        void elementIntegrand(Base::PhysicalElement<DIM>& element, double& ret)
         {
-            std::size_t n = el->getNrOfBasisFunctions();
-            LinearAlgebra::SmallVector<DIM> temp1, temp2;
-            for (std::size_t i = 0; i < p.size(); ++i)
-            {
-                temp1[i] = 0;
-            }
-            for (std::size_t i = 0; i < n; ++i)
-            {
-                temp2 = el->basisFunctionDeriv(i, p);
-                temp1 += temp2 * std::real(el->getData(0, 0, i));
-                //std::cout<<temp2<<" "<<el->getData(0,0,i)<<std::endl;
-            }
-            ret = Base::L2Norm(temp1) * Base::L2Norm(temp1);
-            //std::cout<<std::endl;
-            //std::cout<<ret[0]<<std::endl;
+            LinearAlgebra::SmallVector<DIM> temp1 = element.getSolutionDeriv()[0];
+            ret = temp1 * temp1;
         }
     } integrating;
     
     std::cout.precision(14);
-    Integration::ElementIntegral elIntegral(false);
+    Integration::ElementIntegral<DIM> elIntegral(false);
     double total = 0;
     double result;
     LinearAlgebra::MiddleSizeVector  expansion;
