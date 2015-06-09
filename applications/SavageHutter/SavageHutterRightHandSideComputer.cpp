@@ -167,6 +167,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
 MiddleSizeVector SavageHutterRightHandSideComputer::computePhysicalFlux(const MiddleSizeVector &numericalSolution)
 {    
     const double h = numericalSolution(0);
+    logger.assert(h > -1e-16, "Negative height (%)", h);
     const double hu = numericalSolution(1);
     double u = 0;
     if (h > 1e-10)

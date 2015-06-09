@@ -104,7 +104,7 @@ public:
 
     ///At the beginning of each time step, it will be checked if a limiter should
     ///be used for this element. If so, it is saved in the LimiterData struct.
-    void useLimitierForElement(Base::Element *element);
+    void useLimiterForElement(Base::Element *element);
     
     void computeOneTimeStep(double &time, const double dt);
     void limitSolution();
@@ -112,8 +112,11 @@ public:
     ///Auxiliary function for checking if a limiter should be used.
     LinearAlgebra::MiddleSizeVector computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution);
     
-    ///Auxiliary function for checking if a limiter should be used.
-    LinearAlgebra::MiddleSizeVector computeNormOfAverageOfSolutionInElement(const Base::Element *element);
+    ///Compute the average of the height and discharge in the given element
+    LinearAlgebra::MiddleSizeVector computeAverageOfSolution(Base::Element *element);
+    
+    ///Compute the minimum of the height in the given element
+    double getMinimumHeight(const Base::Element *element);
     
     ///If a limiter should be used, use the min-mod limiter. Save the values of 
     ///the left side and right side in the struct LimiterData.
