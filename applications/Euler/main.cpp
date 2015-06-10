@@ -31,14 +31,34 @@ auto& startTime = Base::register_argument<double>('S', "startTime", "start time 
 auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 5.0);
 auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.001);
 
+template<std::size_t DIM>
+void doThings()
+{
+    // Set parameters for the PDE.
+    const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
+    const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(3,3,true);
+
+    // Calculate number of variables
+    const std::size_t numOfVariables = 2+dimension.getValue();
+
+    Euler<DIM> test(numOfVariables, endTime.getValue(), polynomialOrder.getValue(), ptrButcherTableau);
+
+    // Create the mesh, a simple square domain
+    test.createMesh(numOfElements.getValue(), meshType);
+
+    // Solve the problem over time interval [startTime,endTime].
+    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
+
+    //Compute errors at the end of the simulation
+    LinearAlgebra::MiddleSizeVector maxError = test.Error(endTime.getValue());
+    std::cout << maxError << std::endl;
+}
+
 int main (int argc, char **argv){
 
 	Base::parse_options(argc, argv);
 
 	logger(WARN,"WARNING: Timestep is determined a priori. Stability Criteria might not be satisfied!");
-    // Set parameters for the PDE.
-    const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
-    const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(3,3,true);
 
     //Set variable names and number of parameters
     std::vector<std::string> variableNames;
@@ -50,21 +70,26 @@ int main (int argc, char **argv){
         variableNames.push_back(variableName);
     }
 
-    // Calculate number of variables
-    const std::size_t numOfVariables = 2+dimension.getValue();
 
     // Create problem solver 'test', that can solve the euler equations.
-    Euler test(dimension.getValue(), numOfVariables, endTime.getValue(), polynomialOrder.getValue(), ptrButcherTableau);
-
-    // Create the mesh, a simple square domain
-    test.createMesh(numOfElements.getValue(), meshType);
-
-    // Solve the problem over time interval [startTime,endTime].
-    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
-
-    //Compute errors at the end of the simulation
-    LinearAlgebra::NumericalVector maxError = test.Error(endTime.getValue());
-    std::cout << maxError << std::endl;
+    //dimension.getValue() is not supported by current design
+    switch(dimension.getValue())
+    {
+        case 1:
+            doThings<1>();
+            break;
+        case 2:
+            doThings<2>();
+            break;
+        case 3:
+            doThings<3>();
+            break;
+        case 4:
+            doThings<4>();
+            break;
+        default:
+            logger(ERROR, "Please try to enter a dimension that is supporten by hpGEM");
+    }
 
     return 0;
 }

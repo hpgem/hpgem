@@ -33,6 +33,7 @@ namespace Base
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -48,11 +49,11 @@ namespace Utilities
             logger.assert(node < 3, "A triangle only has 3 nodes");
         }
         
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<2>& p) const;
 
     private:
         std::size_t node_;
@@ -68,11 +69,11 @@ namespace Utilities
             logger.assert(node1 < 3, "A triangle only has 3 nodes");
         }
         
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<2>& p) const;
 
     private:
         std::size_t node0_, node1_, polynomialOrder_;
@@ -86,11 +87,11 @@ namespace Utilities
         {
         }
         
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<2>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<2>& p) const;
 
     private:
         std::size_t polynomialOrder0_, polynomialOrder1_;

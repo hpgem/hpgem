@@ -37,10 +37,18 @@ int main()
     double coord3[] = {1.3, 2.3, 3.3};
     double coord4[] = {1.4, 2.4, 3.4, 4.4};
     
-    LinearAlgebra::NumericalVector vec0(coord0, 0), vec1(coord1, 1), vec2(coord2, 2), vec3(coord3, 3), vec4(coord4, 4);
+    LinearAlgebra::SmallVector<0> vec0(coord0);
+    LinearAlgebra::SmallVector<1> vec1(coord1);
+    LinearAlgebra::SmallVector<2> vec2(coord2);
+    LinearAlgebra::SmallVector<3> vec3(coord3);
+    LinearAlgebra::SmallVector<4> vec4(coord4);
     
     //testing constructors up to DIM=4
-    Point p0(0), p1(1), p2(2), p3(3), p4(4), pc0(coord0, 0), pc1(coord1, 1), pc2(coord2, 2), pc3(coord3, 3), pc4(coord4, 4), pp0(p0), pp1(p1), pp2(p2), pp3(p3), pp4(p4), pv0(vec0), pv1(vec1), pv2(vec2), pv3(vec3), pv4(vec4);
+    Point<0> p0, pc0(coord0), pp0(p0), pv0(vec0);
+    Point<1> p1, pc1(coord1), pp1(p1), pv1(vec1);
+    Point<2> p2, pc2(coord2), pp2(p2), pv2(vec2);
+    Point<3> p3, pc3(coord3), pp3(p3), pv3(vec3);
+    Point<4> p4, pc4(coord4), pp4(p4), pv4(vec4);
     
     //testing operator[]
     
@@ -161,23 +169,23 @@ int main()
     
     //testing operators
     
-    const Point pr0 = pc0 = p0;
-    const Point pr1 = pc1 = p1;
+    const Point<0> pr0 = pc0 = p0;
+    const Point<1> pr1 = pc1 = p1;
     logger.assert_always((std::abs(pc1[0] - 0.9) < 1e-12), "1D assignment operator");
     logger.assert_always((std::abs(pr1[0] - 0.9) < 1e-12), "1D assignment operator");
-    const Point pr2 = pc2 = p2;
+    const Point<2> pr2 = pc2 = p2;
     for (std::size_t i = 0; i < 2; ++i)
     {
         logger.assert_always((std::abs(pc2[i] - 0.8 - i) < 1e-12), "2D assignment operator");
         logger.assert_always((std::abs(pr2[i] - 0.8 - i) < 1e-12), "2D assignment operator");
     }
-    const Point pr3 = pc3 = p3;
+    const Point<3> pr3 = pc3 = p3;
     for (std::size_t i = 0; i < 3; ++i)
     {
         logger.assert_always((std::abs(pc3[i] - 0.7 - i) < 1e-12), "3D assignment operator");
         logger.assert_always((std::abs(pr3[i] - 0.7 - i) < 1e-12), "3D assignment operator");
     }
-    const Point pr4 = pc4 = p4;
+    const Point<4> pr4 = pc4 = p4;
     for (std::size_t i = 0; i < 4; ++i)
     {
         logger.assert_always((std::abs(pc4[i] - 0.6 - i) < 1e-12), "4D assignment operator");
@@ -189,7 +197,6 @@ int main()
     logger.assert_always((pr2 == pc2 && pc2 == pr2 && pc2 == p2 && !(pr2 == pv2 || pv2 == pr2 || p2 == pv2)), "2D equality operator");
     logger.assert_always((pr3 == pc3 && pc3 == pr3 && pc3 == p3 && !(pr3 == pv3 || pv3 == pr3 || p3 == pv3)), "3D equality operator");
     logger.assert_always((pr4 == pc4 && pc4 == pr4 && pc4 == p4 && !(pr4 == pv4 || pv4 == pr4 || p4 == pv4)), "4D equality operator");
-    logger.assert_always((!(pr0 == pv1 || pv1 == pr0 || p0 == p1 || pr0 == pv2 || pv2 == pr0 || p0 == p2 || pr0 == pv3 || pv3 == pr0 || p0 == p3 || pr0 == pv4 || pv4 == pr0 || p0 == p4 || pr1 == pv2 || pv2 == pr1 || p1 == p2 || pr1 == pv3 || pv3 == pr1 || p1 == p3 || pr1 == pv4 || pv4 == pr1 || p1 == p4 || pr2 == pv3 || pv3 == pr2 || p2 == p3 || pr2 == pv4 || pv4 == pr2 || p2 == p4 || pr3 == pv4 || pv4 == pr3 || p3 == p4)), "equality operator - different dimensions");
     
     pc0 += p0;
     pc1 += p1;

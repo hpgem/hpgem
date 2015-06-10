@@ -14,7 +14,7 @@
 namespace Output
 {
     ///\brief given a local node index in the node ordering VTK uses, return the local node index in hpGEM numbering
-    std::size_t tohpGEMOrdering(std::size_t VTKIndex, const Geometry::ReferenceGeometry* shape)
+    inline std::size_t tohpGEMOrdering(std::size_t VTKIndex, const Geometry::ReferenceGeometry* shape)
     {
         logger.assert(VTKIndex < shape->getNumberOfNodes(), "A % only has % indices", shape->getName(), shape->getNumberOfNodes());
         if (typeid(*shape) == typeid(Geometry::ReferenceSquare))

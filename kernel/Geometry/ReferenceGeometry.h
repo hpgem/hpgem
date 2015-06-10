@@ -33,7 +33,7 @@
 
 namespace LinearAlgebra
 {
-    class NumericalVector;
+    class MiddleSizeVector;
 }
 
 namespace QuadratureRules
@@ -49,11 +49,6 @@ namespace Base
 
 namespace Geometry
 {
-    class PointHasher
-    {
-    public:
-        std::size_t operator()(const Geometry::PointReference& point) const;
-    };
     
     enum class ReferenceGeometryType
     {
@@ -75,9 +70,6 @@ namespace Geometry
     {
     public:
         using String = std::string;
-        using VectorOfReferencePointsT = std::vector<const PointReference*>;
-        using iterator = VectorOfReferencePointsT::iterator;
-        using const_iterator = VectorOfReferencePointsT::const_iterator;
         using ListOfIndexesT = std::vector<std::size_t>;
 
     public:
@@ -87,26 +79,53 @@ namespace Geometry
         ReferenceGeometry(const ReferenceGeometry& other) = delete;
 
         /// \brief Check whether a given point is within the ReferenceGeometry.
-        virtual bool isInternalPoint(const PointReference& point) const = 0;
+        virtual bool isInternalPoint(const PointReference<0>& point) const
+        {
+            logger(ERROR, "You passed a point of the wrong dimension");
+            return false;
+        }
+
+        /// \brief Check whether a given point is within the ReferenceGeometry.
+        virtual bool isInternalPoint(const PointReference<1>& point) const
+        {
+            logger(ERROR, "You passed a point of the wrong dimension");
+            return false;
+        }
+
+        /// \brief Check whether a given point is within the ReferenceGeometry.
+        virtual bool isInternalPoint(const PointReference<2>& point) const
+        {
+            logger(ERROR, "You passed a point of the wrong dimension");
+            return false;
+        }
+
+        /// \brief Check whether a given point is within the ReferenceGeometry.
+        virtual bool isInternalPoint(const PointReference<3>& point) const
+        {
+            logger(ERROR, "You passed a point of the wrong dimension");
+            return false;
+        }
+
+        /// \brief Check whether a given point is within the ReferenceGeometry.
+        virtual bool isInternalPoint(const PointReference<4>& point) const
+        {
+            logger(ERROR, "You passed a point of the wrong dimension");
+            return false;
+        }
 
         /// \brief Each reference geometry knows its center of mass.
-        const PointReference& getCenter() const
-        {
-            return *center_;
-        }
+        virtual const PointReferenceBase& getCenter() const = 0;
 
         /// \brief Return number of nodes of the reference shape.
-        virtual std::size_t getNumberOfNodes() const
-        {
-            return points_.size();
-        }
+        virtual std::size_t getNumberOfNodes() const = 0;
+
         ReferenceGeometryType getGeometryType() const
         {
             return geometryType_;
         }
         
         /// \brief Given a local index, return (assign to point) the corresponding node.
-        const PointReference& getNode(const std::size_t& localIndex) const;
+        virtual const PointReferenceBase& getNode(const std::size_t& localIndex) const = 0;
 
         std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const
         {
@@ -128,12 +147,6 @@ namespace Geometry
         
     protected:
         ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT, std::initializer_list<double> center);
-
-        /// Container of the actual points (no reference).
-        VectorOfReferencePointsT points_;
-
-        /// Center of mass of the geometry
-        const PointReference* center_;
 
         /// An identifier of the type of referenceGeometry, that some say shouldn't be used.
         const ReferenceGeometryType geometryType_;

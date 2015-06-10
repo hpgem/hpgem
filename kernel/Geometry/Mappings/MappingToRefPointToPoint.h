@@ -38,12 +38,12 @@ namespace Geometry
      *
      */
 
-    class MappingToRefPointToPoint : public Geometry::MappingReferenceToReference
+    class MappingToRefPointToPoint : public Geometry::MappingReferenceToReference<0>
     {
     public:
         static const MappingToRefPointToPoint& Instance();
-        const PointReference& transform(const Geometry::PointReference& p1) const override final;
-        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        const PointReference<0>& transform(const Geometry::PointReference<0>& p1) const override final;
+        Jacobian<0, 0> calcJacobian(const Geometry::PointReference<0>&) const override final;
         std::size_t getTargetDimension() const override final
         {
             return 0;
@@ -52,6 +52,7 @@ namespace Geometry
         MappingToRefPointToPoint& operator=(const MappingToRefPointToPoint&) = delete;
     private:
         MappingToRefPointToPoint();
+        std::map<const PointReference<0>*, const PointReference<0>*> transformedCoordinates;
     };
 
 } /* namespace Geometry */

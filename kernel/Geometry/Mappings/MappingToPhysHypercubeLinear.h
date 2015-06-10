@@ -45,18 +45,18 @@ namespace Geometry
     {
         
     public:
-        MappingToPhysHypercubeLinear(const PhysicalGeometry* const &);
+        MappingToPhysHypercubeLinear(const PhysicalGeometry<1>* const &);
         MappingToPhysHypercubeLinear(const MappingToPhysHypercubeLinear<1> &other) = default;
-        PointPhysical transform(const PointReference&) const override final;
-        Jacobian calcJacobian(const PointReference&) const override final;
-        void reinit(const PhysicalGeometry* const) override final;
+        PointPhysical<1> transform(const PointReference<1>&) const override final;
+        Jacobian<1, 1> calcJacobian(const PointReference<1>&) const override final;
+        void reinit() override final;
         std::size_t getTargetDimension() const override final
         {
             return 1;
         }
         
     private:
-        bool isValidPoint(const PointReference&) const;
+        bool isValidPoint(const PointReference<1>&) const;
         double mid, slope;
     };
     
@@ -66,19 +66,19 @@ namespace Geometry
     {
     public:
         // Constructor.
-        MappingToPhysHypercubeLinear(const PhysicalGeometry* const &);
+        MappingToPhysHypercubeLinear(const PhysicalGeometry<2>* const &);
         MappingToPhysHypercubeLinear(const MappingToPhysHypercubeLinear<2> &other) = default;
-        PointPhysical transform(const PointReference&) const override final;
-        Jacobian calcJacobian(const PointReference&) const override final;
-        void reinit(const PhysicalGeometry* const) override final;
+        PointPhysical<2> transform(const PointReference<2>&) const override final;
+        Jacobian<2, 2> calcJacobian(const PointReference<2>&) const override final;
+        void reinit() override final;
         std::size_t getTargetDimension() const override final
         {
             return 2;
         }
         
     private:
-        bool isValidPoint(const PointReference&) const;
-        PointPhysical a0, a1, a2, a12;
+        bool isValidPoint(const PointReference<2>&) const;
+        PointPhysical<2> a0, a1, a2, a12;
     };
     
     // ~~~ Dimension 3 ~~~==========================================================================
@@ -87,19 +87,19 @@ namespace Geometry
     {
     public:
         // Constructor.
-        MappingToPhysHypercubeLinear(const PhysicalGeometry* const &);
+        MappingToPhysHypercubeLinear(const PhysicalGeometry<3>* const &);
         MappingToPhysHypercubeLinear(const MappingToPhysHypercubeLinear<3> &other) = default;
-        PointPhysical transform(const PointReference&) const override final;
-        Jacobian calcJacobian(const PointReference&) const override final;
-        void reinit(const PhysicalGeometry* const) override final;
+        PointPhysical<3> transform(const PointReference<3>&) const override final;
+        Jacobian<3, 3> calcJacobian(const PointReference<3>&) const override final;
+        void reinit() override final;
         std::size_t getTargetDimension() const override final
         {
             return 3;
         }
         
     private:
-        bool isValidPoint(const PointReference&) const;
-        PointPhysical a0, a1, a2, a3, a12, a23, a13, a123;
+        bool isValidPoint(const PointReference<3>&) const;
+        PointPhysical<3> a0, a1, a2, a3, a12, a23, a13, a123;
     };
     
     // ~~~ Dimension 4 ~~~==========================================================================
@@ -108,19 +108,19 @@ namespace Geometry
     {
     public:
         // Constructor.
-        MappingToPhysHypercubeLinear(const PhysicalGeometry* const &);
+        MappingToPhysHypercubeLinear(const PhysicalGeometry<4>* const &);
         MappingToPhysHypercubeLinear(const MappingToPhysHypercubeLinear<4> &other) = default;
-        PointPhysical transform(const PointReference&) const override final;
-        Jacobian calcJacobian(const PointReference&) const override final;
-        void reinit(const PhysicalGeometry* const) override final;
+        PointPhysical<4> transform(const PointReference<4>&) const override final;
+        Jacobian<4, 4> calcJacobian(const PointReference<4>&) const override final;
+        void reinit() override final;
         std::size_t getTargetDimension() const override final
         {
             return 4;
         }
         
     private:
-        bool isValidPoint(const PointReference&) const;
-        PointPhysical abar, a0, a1, a2, a3, a01, a02, a03, a12, a13, a23, a012, a013, a123, a230, a0123;
+        bool isValidPoint(const PointReference<4>&) const;
+        PointPhysical<4> abar, a0, a1, a2, a3, a01, a02, a03, a12, a13, a23, a012, a013, a123, a230, a0123;
     };
 }
 #endif

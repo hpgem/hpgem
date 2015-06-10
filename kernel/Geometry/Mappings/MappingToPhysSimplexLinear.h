@@ -47,20 +47,19 @@ namespace Geometry
     class MappingToPhysSimplexLinear : public MappingReferenceToPhysical
     {
     public:
-        MappingToPhysSimplexLinear(const PhysicalGeometry* const & pG)
-                : a(DIM + 1, DIM)
+        MappingToPhysSimplexLinear(const PhysicalGeometry<DIM>* const & pG)
+                : MappingReferenceToPhysical(pG)
         {
             logger.assert(pG!=nullptr, "Invalid physical geometry passed");
-            MappingReferenceToPhysical::setNodesPtr(&pG->getNodes());
-            reinit(pG);
+            reinit();
         }
                 
         MappingToPhysSimplexLinear(const MappingToPhysSimplexLinear<DIM> &other) 
-            : MappingReferenceToPhysical(other), a(other.a) { }
+            : MappingReferenceToPhysical(other){ }
 
-        PointPhysical transform(const PointReference&) const override final;
-        Jacobian calcJacobian(const PointReference&) const override final;
-        void reinit(const PhysicalGeometry* const) override final;
+        PointPhysical<DIM> transform(const PointReference<DIM>&) const override final;
+        Jacobian<DIM, DIM> calcJacobian(const PointReference<DIM>&) const override final;
+        void reinit() override final;
         std::size_t getTargetDimension() const override final
         {
             return DIM;
@@ -68,11 +67,6 @@ namespace Geometry
         
     private:
         //bool isValidPoint(const PointReferenceT&) const; ///\TODO: Implement this function.
-        //! ~OC~
-        //! \brief Mapping factors
-        //! \details In this case it is worth using an array for the mapping factors,
-        //! since they are just difference vectors (see loop in reinit)
-        std::vector<PointPhysical> a;
     };
 }
 #include "MappingToPhysSimplexLinear_Impl.h"

@@ -71,12 +71,17 @@
  \li The names for the output files are set using 'setOutputNames'.
  \li The function 'solve' is then used to solve the PDE.
  */
-class AcousticWaveLinear : public Base::HpgemAPILinear
+template<std::size_t DIM>
+class AcousticWaveLinear : public Base::HpgemAPILinear<DIM>
 {
 public:
+
+    using typename Base::HpgemAPIBase<DIM>::PointPhysicalT;
+    using typename Base::HpgemAPIBase<DIM>::PointReferenceT;
+    using typename Base::HpgemAPIBase<DIM>::PointReferenceOnFaceT;
+
     AcousticWaveLinear
     (
-     const std::size_t dimension,
      const std::size_t numOfVariables,
      const std::size_t polynomialOrder,
      const Base::ButcherTableau * const ptrButcherTableau,
@@ -84,7 +89,7 @@ public:
      );
     
     /// \brief Create a domain
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final;
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final;
     
     /// \brief Set the material parameter.
     /// \param[in] c Material parameter corresponding to the speed with which waves can propagate.
@@ -94,46 +99,45 @@ public:
     }
     
     /// \brief Get the material parameter c^{-1} at a given physical point.
-    double getCInv(const Geometry::PointPhysical &pPhys)
+    double getCInv(const PointPhysicalT &pPhys)
     {
         return cInv_;
     }
     
     /// \brief Compute the real solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
     
     /// \brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
+    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
     
     /// \brief Compute the integrand for the mass matrix for the reference element.
-    LinearAlgebra::Matrix integrandMassMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeMatrix integrandMassMatrixOnRefElement(Base::PhysicalElement<DIM>& element);
     
     /// \brief Compute the integrand for the reference element for obtaining the initial solution.
-    LinearAlgebra::NumericalVector integrandInitialSolutionOnRefElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeVector integrandInitialSolutionOnRefElement(Base::PhysicalElement<DIM>& element, const double &startTime);
     
     /// \brief Compute the integrand for the stiffness matrix for the reference element.
-    LinearAlgebra::Matrix integrandStiffnessMatrixOnRefElement(const Base::Element *ptrElement, const Geometry::PointReference &pRef);
+    LinearAlgebra::MiddleSizeMatrix integrandStiffnessMatrixOnRefElement(Base::PhysicalElement<DIM>& element);
     
     /// \brief Compute the integrand for the stiffness matrix for the reference face corresponding to an internal face.
-    LinearAlgebra::Matrix integrandStiffnessMatrixOnRefFace(const Base::Face *ptrFace, const Geometry::PointReference &pRef, const Base::Side &iSide, const Base::Side &jSide);
+    LinearAlgebra::MiddleSizeMatrix integrandStiffnessMatrixOnRefFace(Base::PhysicalFace<DIM>& face, const Base::Side &iSide, const Base::Side &jSide);
     
     /// \brief Compute the integrand for the reference element for computing the energy-norm of the error.
-    LinearAlgebra::NumericalVector integrandErrorOnRefElement
+    double integrandErrorOnRefElement
     (
-     const Base::Element *ptrElement,
+     Base::PhysicalElement<DIM>& element,
      const double &time,
-     const Geometry::PointReference &pRef,
-     const LinearAlgebra::NumericalVector &solutionCoefficients
+     const LinearAlgebra::MiddleSizeVector &solutionCoefficients
      );
     
     /// \brief Compute the mass matrix for a single element.
-    LinearAlgebra::Matrix computeMassMatrixAtElement(Base::Element *ptrElement) override final;
+    LinearAlgebra::MiddleSizeMatrix computeMassMatrixAtElement(Base::Element *ptrElement) override final;
     
     /// \brief Integrate the initial solution for a single element.
-    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override final;
+    LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative) override final;
     
     /// \brief Compute the stiffness matrix corresponding to an element.
-    LinearAlgebra::Matrix computeStiffnessMatrixAtElement(Base::Element *ptrElement) override final;
+    LinearAlgebra::MiddleSizeMatrix computeStiffnessMatrixAtElement(Base::Element *ptrElement) override final;
 
     /// \brief Compute the stiffness matrix corresponding to a face.
     Base::FaceMatrix computeStiffnessMatrixAtFace(Base::Face *ptrFace) override final;
@@ -149,11 +153,16 @@ public:
     }
     
     /// \brief Integrate the energy of the error on a single element.
-    LinearAlgebra::NumericalVector integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, double time) override final;
+    double integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, double time) override final;
+
+    void tasksBeforeSolving() override final
+    {
+        this->elementIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
+        this->faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
+        Base::HpgemAPILinear<DIM>::tasksBeforeSolving();
+    }
 
 private:
-/// Dimension of the domain
-const std::size_t DIM_;
 
 /// Number of variables
 const std::size_t numOfVariables_;
@@ -161,5 +170,7 @@ const std::size_t numOfVariables_;
 /// Material parameter c^{-1}
 double cInv_;
 };
+
+#include "AcousticWaveLinear_Impl.h"
 
 #endif

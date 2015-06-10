@@ -32,51 +32,51 @@
 namespace Utilities
 {
     
-    double BasisFunction2DVertexTriangle::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction2DVertexTriangle::evalDeriv0(const Geometry::PointReference<2>& p) const
     {
         return baricentricDeriv(node_, 0);
     }
     
-    double BasisFunction2DInteriorTriangle::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction2DInteriorTriangle::evalDeriv0(const Geometry::PointReference<2>& p) const
     {
         double x0 = baricentric_2D(0, p) - baricentric_2D(1, p);
         double x1 = baricentric_2D(1, p) - baricentric_2D(2, p);
         return baricentricDeriv(0, 0) * (baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(0, p) * baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1)) + baricentricDeriv(1, 0) * (baricentric_2D(0, p) * baricentric_2D(2, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(0, p) * baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(0, p) * baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1));
     }
     
-    double BasisFunction2DVertexTriangle::eval(const Geometry::PointReference& p) const
+    double BasisFunction2DVertexTriangle::eval(const Geometry::PointReference<2>& p) const
     {
         return baricentric_2D(node_, p);
     }
     
-    double BasisFunction2DInteriorTriangle::eval(const Geometry::PointReference& p) const
+    double BasisFunction2DInteriorTriangle::eval(const Geometry::PointReference<2>& p) const
     {
         double x0 = baricentric_2D(0, p) - baricentric_2D(1, p);
         double x1 = baricentric_2D(1, p) - baricentric_2D(2, p);
         return baricentric_2D(0, p) * baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1);
     }
     
-    double BasisFunction2DVertexTriangle::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction2DVertexTriangle::evalDeriv1(const Geometry::PointReference<2>& p) const
     {
         return baricentricDeriv(node_, 1);
     }
     
-    double BasisFunction2DFaceTriangle::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction2DFaceTriangle::evalDeriv1(const Geometry::PointReference<2>& p) const
     {
         return baricentricDeriv(node0_, 1) * (baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node1_, p) - baricentric_2D(node0_, p)) - baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_2D(node1_, p) - baricentric_2D(node0_, p))) + baricentricDeriv(node1_, 1) * (baricentric_2D(node0_, p) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node1_, p) - baricentric_2D(node0_, p)) + baricentric_2D(node1_, p) * baricentric_2D(node0_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_2D(node1_, p) - baricentric_2D(node0_, p)));
     }
     
-    double BasisFunction2DFaceTriangle::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction2DFaceTriangle::evalDeriv0(const Geometry::PointReference<2>& p) const
     {
         return baricentricDeriv(node0_, 0) * (baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node1_, p) - baricentric_2D(node0_, p)) - baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_2D(node1_, p) - baricentric_2D(node0_, p))) + baricentricDeriv(node1_, 0) * (baricentric_2D(node0_, p) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node1_, p) - baricentric_2D(node0_, p)) + baricentric_2D(node1_, p) * baricentric_2D(node0_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_2D(node1_, p) - baricentric_2D(node0_, p)));
     }
     
-    double BasisFunction2DFaceTriangle::eval(const Geometry::PointReference& p) const
+    double BasisFunction2DFaceTriangle::eval(const Geometry::PointReference<2>& p) const
     {
         return baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node1_, p) - baricentric_2D(node0_, p));
     }
     
-    double BasisFunction2DInteriorTriangle::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction2DInteriorTriangle::evalDeriv1(const Geometry::PointReference<2>& p) const
     {
         double x0 = baricentric_2D(0, p) - baricentric_2D(1, p);
         double x1 = baricentric_2D(1, p) - baricentric_2D(2, p);

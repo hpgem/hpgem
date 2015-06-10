@@ -27,7 +27,7 @@
 
 namespace Geometry
 {
-    PhysicalLine::PhysicalLine(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical>& nodes)
+    PhysicalLine::PhysicalLine(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical<1> >& nodes)
             : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceLine::Instance())
     {
     }

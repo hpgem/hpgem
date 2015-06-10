@@ -23,6 +23,7 @@
 #define GaussQuadratureRulesForHypercube_h
 //---------------------------------------------------------------------------
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
+#include "Geometry/PointReference.h"
 #include <vector>
 
 //---------------------------------------------------------------------------
@@ -34,7 +35,7 @@ namespace QuadratureRules
     class Cn4_1_1 : public GaussQuadratureRule
     {
     public:
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Cn4_1_1& Instance()
@@ -57,13 +58,13 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<4>*> gp_;
     };
 //---------------------------------------------------------------------------
     class Cn4_3_16 : public GaussQuadratureRule
     {
     public:
-        using PointReferenceT = PointReference;
+        using PointReferenceT = Geometry::PointReferenceBase;
         using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Cn4_3_16& Instance()
@@ -86,7 +87,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[16];
         ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReferenceT*> gp_;
+        std::vector<const Geometry::PointReference<4>*> gp_;
     };
 
 //---------------------------------------------------------------------------

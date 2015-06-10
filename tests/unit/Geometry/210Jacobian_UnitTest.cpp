@@ -33,7 +33,7 @@ int main()
     
     //square jacobians and determinants
     
-    Jacobian dim1(1, 1);
+    Jacobian<1, 1> dim1;
     
     dim1(0, 0) = 3.14;
     logger.assert_always((std::abs(dim1.determinant() - 3.14) < 1e-12), "1D determinant");
@@ -44,7 +44,7 @@ int main()
     dim1(0, 0) = -2.81;
     logger.assert_always((std::abs(dim1.determinant() + 2.81) < 1e-12), "1D determinant");
     
-    Jacobian dim2(2, 2);
+    Jacobian<2, 2> dim2;
     
     dim2(0, 0) = 1.;
     dim2(1, 0) = 2.;
@@ -58,7 +58,7 @@ int main()
     dim2(1, 1) = 4.;
     logger.assert_always((std::abs(dim2.determinant() + 10.) < 1e-12), "2D determinant");
     
-    Jacobian copy(dim2);
+    Jacobian<2, 2> copy(dim2);
     
     dim2(0, 0) = 1.;
     dim2(1, 0) = -2.;
@@ -103,12 +103,12 @@ int main()
     logger.assert_always((std::abs(dim2.determinant()) < 1e-12), "2D determinant");
     logger.assert_always((std::abs(copy.determinant() + 10.) < 1e-12), "copy constructor");
     
-    Jacobian product(2, 2);
+    Jacobian<2, 2> product;
     
     product = dim2.multiplyJacobiansInto(copy);
     logger.assert_always((product.getNCols() == 2 && product.getNRows() == 2 && std::abs(product.determinant()) < 1e-12), "multiply JacobiansInto - square matrixes");
     
-    Jacobian dim3(3, 3);
+    Jacobian<3, 3> dim3;
     dim3(0, 0) = 1.;
     dim3(1, 0) = 2.;
     dim3(2, 0) = 3.;
@@ -219,10 +219,10 @@ int main()
     dim3(2, 2) = -9.;
     logger.assert_always((std::abs(dim3.determinant() - 54.) < 1e-12), "3D determinant");
     
-    Jacobian rectangle21(2, 1);
-    Jacobian rectangle12(1, 2);
-    Jacobian rectangle32(3, 2);
-    Jacobian rectangle23(2, 3);
+    Jacobian<1, 2> rectangle21;
+    Jacobian<2, 1> rectangle12;
+    Jacobian<2, 3> rectangle32;
+    Jacobian<3, 2> rectangle23;
     
     rectangle21(0, 0) = 1.;
     rectangle21(1, 0) = 2.;
@@ -241,62 +241,18 @@ int main()
     rectangle23(1, 0) = 10.;
     rectangle23(1, 1) = 11.;
     rectangle23(1, 2) = 12.;
-    
-    product.resize(2, 1); //not sure if Jacobians are meant to be able to do this
             
-    product = dim2.multiplyJacobiansInto(rectangle21);
-    logger.assert_always((product.getNCols() == 1 && product.getNRows() == 2), "multiply JacobiansInto - square & rectangular matrixes");
-    product = rectangle21.multiplyJacobiansInto(dim1);
-    logger.assert_always((product.getNCols() == 1 && product.getNRows() == 2), "multiply JacobiansInto - square & rectangular matrixes");
+    auto product2 = rectangle21.multiplyJacobiansInto(dim1);
+    logger.assert_always((product2.getNCols() == 1 && product2.getNRows() == 2), "multiply JacobiansInto - square & rectangular matrixes");
     
-    product.resize(1, 2);
+    auto product4 = rectangle12.multiplyJacobiansInto(dim2);
+    logger.assert_always((product4.getNCols() == 2 && product4.getNRows() == 1), "multiply JacobiansInto - square & rectangular matrixes");
     
-    product = dim1.multiplyJacobiansInto(rectangle12);
-    logger.assert_always((product.getNCols() == 2 && product.getNRows() == 1), "multiply JacobiansInto - square & rectangular matrixes");
-    product = rectangle12.multiplyJacobiansInto(dim2);
-    logger.assert_always((product.getNCols() == 2 && product.getNRows() == 1), "multiply JacobiansInto - square & rectangular matrixes");
+    auto product6 = rectangle23.multiplyJacobiansInto(dim3);
+    logger.assert_always((product6.getNCols() == 3 && product6.getNRows() == 2), "multiply JacobiansInto - square & rectangular matrixes");
     
-    product.resize(2, 3);
-    
-    product = dim2.multiplyJacobiansInto(rectangle23);
-    logger.assert_always((product.getNCols() == 3 && product.getNRows() == 2), "multiply JacobiansInto - square & rectangular matrixes");
-    product = rectangle23.multiplyJacobiansInto(dim3);
-    logger.assert_always((product.getNCols() == 3 && product.getNRows() == 2), "multiply JacobiansInto - square & rectangular matrixes");
-    
-    product.resize(3, 2);
-    
-    product = dim3.multiplyJacobiansInto(rectangle32);
-    logger.assert_always((product.getNCols() == 2 && product.getNRows() == 3), "multiply JacobiansInto - square & rectangular matrixes");
-    product = rectangle32.multiplyJacobiansInto(dim2);
-    logger.assert_always((product.getNCols() == 2 && product.getNRows() == 3), "multiply JacobiansInto - square & rectangular matrixes");
-    
-    product.resize(1, 3);
-    
-    product = rectangle12.multiplyJacobiansInto(rectangle23);
-    logger.assert_always((product.getNCols() == 3 && product.getNRows() == 1), "multiply JacobiansInto - rectangular matrixes");
-    
-    product.resize(3, 1);
-    
-    product = rectangle32.multiplyJacobiansInto(rectangle21);
-    logger.assert_always((product.getNCols() == 1 && product.getNRows() == 3), "multiply JacobiansInto - rectangular matrixes");
-    
-    product.resize(1, 1);
-    
-    product = rectangle12.multiplyJacobiansInto(rectangle21);
-    std::cout << rectangle12 << std::endl << rectangle21 << std::endl << product << std::endl;
-    logger.assert_always((product.getNCols() == 1 && product.getNRows() == 1 && std::abs(product.determinant() - 11.) < 1e-12), "multiply JacobiansInto - rectangular matrixes");
-    
-    product.resize(2, 2);
-    
-    product = rectangle21.multiplyJacobiansInto(rectangle12);
-    logger.assert_always((product.getNCols() == 2 && product.getNRows() == 2 && std::abs(product.determinant()) < 1e-12), "multiply JacobiansInto - rectangular matrixes");
-    product = rectangle23.multiplyJacobiansInto(rectangle32);
-    logger.assert_always((product.getNCols() == 2 && product.getNRows() == 2 && std::abs(product.determinant() - 36.) < 1e-12), "multiply JacobiansInto - rectangular matrixes");
-    
-    product.resize(3, 3);
-    
-    product = rectangle32.multiplyJacobiansInto(rectangle23);
-    logger.assert_always((product.getNCols() == 3 && product.getNRows() == 3 && std::abs(product.determinant()) < 1e-12), "multiply JacobiansInto - rectangular matrixes");
+    auto product8 = rectangle32.multiplyJacobiansInto(dim2);
+    logger.assert_always((product8.getNCols() == 2 && product8.getNRows() == 3), "multiply JacobiansInto - square & rectangular matrixes");
     
     return 0;
 }

@@ -22,7 +22,7 @@
 #include "GaussQuadratureRulesForPoint.h"
 #include "Geometry/ReferencePoint.h"
 #include "Geometry/PointReference.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/PointReferenceFactory.h"
 #include "Logger.h"
 
@@ -35,7 +35,7 @@ namespace QuadratureRules
         return weight_[0];
     }
     
-    const Geometry::PointReference& Cn0_inf_1::getPoint(std::size_t i) const
+    const Geometry::PointReferenceBase& Cn0_inf_1::getPoint(std::size_t i) const
     {
         logger.assert(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
         //actually keep the point around while it is being used
@@ -47,7 +47,7 @@ namespace QuadratureRules
     {
         weight_[0] = 1;
         gp_.clear();
-        gp_.push_back(Geometry::PointReferenceFactory::instance()->makePoint(0));
+        gp_.push_back(Geometry::PointReferenceFactory<0>::instance()->makePoint(0));
     }
 
 }

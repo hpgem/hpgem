@@ -27,6 +27,7 @@
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointPhysical;
 }
 
@@ -37,6 +38,7 @@ namespace Base
     class Face;
     class Edge;
     class Node;
+    template<std::size_t DIM>
     class Mesh;
     
     class Submesh
@@ -48,7 +50,10 @@ namespace Base
         //Form a meta-physical point of view mesh is not derived from submesh 
         //(and it cannot provide the functionality of submesh), so currently this
         //is probably the best imperfect solution.
-        friend Mesh;
+        friend Mesh<1>;
+        friend Mesh<2>;
+        friend Mesh<3>;
+        friend Mesh<4>;
         friend std::vector<Submesh>::allocator_type;
 
         Submesh() = default;

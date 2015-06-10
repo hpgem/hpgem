@@ -22,7 +22,6 @@
 #include "Base/MeshManipulator.h"
 #include "Base/RectangularMeshDescriptor.h"
 #include "Integration/ElementIntegral.h"
-#include "Base/ShortTermStorageElementH1.h"
 #include "Integration/ElementIntegrandBase.h"
 
 #include "unordered_set"
@@ -40,21 +39,22 @@
 #include <cmath>
 
 //computes \int_\Omega (\nabla f)^2 dx by interpolating f and then integrating using basisFunctionDerivatives
-void testMesh(Base::MeshManipulator* test)
+template<std::size_t DIM>
+void testMesh(Base::MeshManipulator<DIM>* test)
 {
     
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
         
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        void elementIntegrand(Base::PhysicalElement<DIM>& element, LinearAlgebra::MiddleSizeVector& ret)
         {
-            std::size_t numBasisFuns = el->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = element.getElement()->getNrOfBasisFunctions();
             ret.resize(numBasisFuns);
-            Geometry::PointPhysical pPhys = el->referenceToPhysical(p);
+            const Geometry::PointPhysical<DIM>& pPhys = element.getPointPhysical();
             for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
-                ret[i] = el->basisFunction(i, p);
-                for (std::size_t j = 0; j < p.size(); ++j)
+                ret[i] = element.basisFunction(i);
+                for (std::size_t j = 0; j < pPhys.size(); ++j)
                 {
                     ret[i] *= pPhys[j];
                 }
@@ -62,78 +62,63 @@ void testMesh(Base::MeshManipulator* test)
         }
     } interpolation;
     
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
+    class : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
         
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::Matrix& ret)
+        void elementIntegrand(Base::PhysicalElement<DIM>& element, LinearAlgebra::MiddleSizeMatrix& ret)
         {
-            std::size_t numBasisFuns = el->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = element.getElement()->getNrOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
             for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
                 for (std::size_t j = 0; j < numBasisFuns; ++j)
                 {
-                    ret(i, j) = el->basisFunction(i, p) * el->basisFunction(j, p);
+                    ret(i, j) = element.basisFunction(i) * element.basisFunction(j);
                 }
             }
         }
     } massMatrix;
     
-    class : public Integration::ElementIntegrandBase<LinearAlgebra::NumericalVector>
+    class : public Integration::ElementIntegrandBase<double, DIM>
     {
-        
-        void elementIntegrand(const Base::Element* el, const Geometry::PointReference& p, LinearAlgebra::NumericalVector& ret)
+        void elementIntegrand(Base::PhysicalElement<DIM>& element, double& ret)
         {
-            ret.resize(1);
-            std::size_t n = el->getNrOfBasisFunctions();
-            LinearAlgebra::NumericalVector temp1(p.size()), temp2(p.size());
-            for (std::size_t i = 0; i < p.size(); ++i)
-            {
-                temp1[i] = 0;
-            }
-            for (std::size_t i = 0; i < n; ++i)
-            {
-                temp2 = el->basisFunctionDeriv(i, p);
-                temp1 += temp2 * el->getData(0, 0, i);
-                //std::cout<<temp2<<" "<<el->getData(0,0,i)<<std::endl;
-            }
-            ret[0] = Base::L2Norm(temp1) * Base::L2Norm(temp1);
-            //std::cout<<std::endl;
-            //std::cout<<ret[0]<<std::endl;
+            LinearAlgebra::SmallVector<DIM> temp1 = element.getSolutionDeriv()[0];
+            ret = temp1 * temp1;
         }
     } integrating;
     
     std::cout.precision(14);
-    Integration::ElementIntegral elIntegral(false);
-    elIntegral.setStorageWrapper(new Base::ShortTermStorageElementH1(test->dimension()));
+    Integration::ElementIntegral<DIM> elIntegral(false);
     double total = 0;
-    LinearAlgebra::NumericalVector result(1), expansion;
-    LinearAlgebra::Matrix M;
+    double result;
+    LinearAlgebra::MiddleSizeVector  expansion;
+    LinearAlgebra::MiddleSizeMatrix M;
     for (Base::Element* element : test->getElementsList())
     {
         expansion = elIntegral.integrate(element, &interpolation);
         M = elIntegral.integrate(element, &massMatrix);
         
-        //M.inverse(M);
-        //expansion = expansion * M;
         M.solve(expansion);
         element->setTimeLevelData(0, expansion);
         
         result = elIntegral.integrate(element, &integrating);
         
         //std::cout<<result[0]<<std::endl;
-        total += result[0];
+        total += result;
     }
     
     std::cout << total << " " << std::endl;
-    //logger.assert_always((std::abs(total - 4. / 3. + 1. / 3. * test->dimension()) < 1e-12), "derivatives");
+    logger.assert_always((std::abs(total - 4. / 3. + 1. / 3. * test->dimension()) < 1e-12), "derivatives");
 }
 
 int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
     // dim 1
-    Base::RectangularMeshDescriptor description1D(1), description2D(2), description3D(3);
+    Base::RectangularMeshDescriptor<1> description1D;
+    Base::RectangularMeshDescriptor<2> description2D;
+    Base::RectangularMeshDescriptor<3> description3D;
     description1D.bottomLeft_[0] = 0;
     description2D.bottomLeft_[0] = 0;
     description2D.bottomLeft_[1] = 0;
@@ -155,7 +140,7 @@ int main(int argc, char** argv)
     
     description1D.numElementsInDIM_[0] = 2;
     //1D triangular meshes dont exist
-    Base::MeshManipulator *test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    Base::MeshManipulator<1> *test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
     testMesh(test);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
@@ -164,9 +149,10 @@ int main(int argc, char** argv)
     test->useDefaultDGBasisFunctions();
     testMesh(test);
     
+    //somewhere a lookup-table does not get cleaned when a meshManipulator is deleted
     delete test;
     description1D.numElementsInDIM_[0] = 3;
-    test = new Base::MeshManipulator(new Base::ConfigurationData(1, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
     test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
     testMesh(test);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
@@ -181,81 +167,81 @@ int main(int argc, char** argv)
     description2D.numElementsInDIM_[0] = 2;
     description2D.numElementsInDIM_[1] = 3;
     
-    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
+    Base::MeshManipulator<2> *test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test2->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
     
-    testMesh(test);
+    testMesh(test2);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
-    testMesh(test);
-    test->useDefaultDGBasisFunctions();
-    testMesh(test);
+    test2->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
+    testMesh(test2);
+    test2->useDefaultDGBasisFunctions();
+    testMesh(test2);
     
-    delete test;
-    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
-    testMesh(test);
+    delete test2;
+    test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test2->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
+    testMesh(test2);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
-    testMesh(test);
-    test->useDefaultDGBasisFunctions();
-    testMesh(test);
+    test2->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
+    testMesh(test2);
+    test2->useDefaultDGBasisFunctions();
+    testMesh(test2);
     
-    delete test;
+    delete test2;
     description2D.numElementsInDIM_[0] = 3;
     description2D.numElementsInDIM_[1] = 2;
     
-    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
+    test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test2->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
     
-    testMesh(test);
+    testMesh(test2);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
-    testMesh(test);
-    test->useDefaultDGBasisFunctions();
-    testMesh(test);
+    test2->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
+    testMesh(test2);
+    test2->useDefaultDGBasisFunctions();
+    testMesh(test2);
     
-    delete test;
-    test = new Base::MeshManipulator(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
-    testMesh(test);
+    delete test2;
+    test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test2->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
+    testMesh(test2);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
-    testMesh(test);
-    test->useDefaultDGBasisFunctions();
-    testMesh(test);
+    test2->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
+    testMesh(test2);
+    test2->useDefaultDGBasisFunctions();
+    testMesh(test2);
     // dim 3
     
-    delete test;
+    delete test2;
     description3D.numElementsInDIM_[0] = 2;
     description3D.numElementsInDIM_[1] = 2;
     description3D.numElementsInDIM_[2] = 3;
     
     Base::ConfigurationData* configData = new Base::ConfigurationData(3, 1, 3, 1);
-    test = new Base::MeshManipulator(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 3, 0);
-    test->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    Base::MeshManipulator<3> *test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 3, 0);
+    test3->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     
-    testMesh(test);
+    testMesh(test3);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
-    testMesh(test);
-    test->useDefaultDGBasisFunctions();
-    testMesh(test);
+    test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
+    testMesh(test3);
+    test3->useDefaultDGBasisFunctions();
+    testMesh(test3);
     
-    delete test;
+    delete test3;
     delete configData;
     
     configData = new Base::ConfigurationData(3, 1, 2, 1);
-    test = new Base::MeshManipulator(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
-    testMesh(test);
+    test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    testMesh(test3);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
-    testMesh(test);
-    test->useDefaultDGBasisFunctions();
-    testMesh(test);
+    test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
+    testMesh(test3);
+    test3->useDefaultDGBasisFunctions();
+    testMesh(test3);
     
-    delete test;
+    delete test3;
     delete configData;
     
     description3D.numElementsInDIM_[0] = 2;
@@ -263,30 +249,30 @@ int main(int argc, char** argv)
     description3D.numElementsInDIM_[2] = 2;
     
     configData = new Base::ConfigurationData(3, 1, 3, 1);
-    test = new Base::MeshManipulator(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 3, 0);
-    test->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 3, 0);
+    test3->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     
-    testMesh(test);
+    testMesh(test3);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
-    testMesh(test);
-    test->useDefaultDGBasisFunctions();
-    testMesh(test);
+    test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
+    testMesh(test3);
+    test3->useDefaultDGBasisFunctions();
+    testMesh(test3);
     
-    delete test;
+    delete test3;
     delete configData;
     
     configData = new Base::ConfigurationData(3, 1, 2, 1);
-    test = new Base::MeshManipulator(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
-    testMesh(test);
+    test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    testMesh(test3);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
-    testMesh(test);
-    test->useDefaultDGBasisFunctions();
-    testMesh(test);
+    test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
+    testMesh(test3);
+    test3->useDefaultDGBasisFunctions();
+    testMesh(test3);
     
-    delete test;
+    delete test3;
     delete configData;
     
     description3D.numElementsInDIM_[0] = 3;
@@ -294,30 +280,30 @@ int main(int argc, char** argv)
     description3D.numElementsInDIM_[2] = 2;
     
     configData = new Base::ConfigurationData(3, 1, 3, 1);
-    test = new Base::MeshManipulator(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 3, 0);
-    test->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 3, 0);
+    test3->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
     
-    testMesh(test);
+    testMesh(test3);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
-    testMesh(test);
-    test->useDefaultDGBasisFunctions();
-    testMesh(test);
+    test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
+    testMesh(test3);
+    test3->useDefaultDGBasisFunctions();
+    testMesh(test3);
     
-    delete test;
+    delete test3;
     delete configData;
     
     configData = new Base::ConfigurationData(3, 1, 2, 1);
-    test = new Base::MeshManipulator(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
-    testMesh(test);
+    test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    testMesh(test3);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
-    testMesh(test);
-    test->useDefaultDGBasisFunctions();
-    testMesh(test);
+    test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
+    testMesh(test3);
+    test3->useDefaultDGBasisFunctions();
+    testMesh(test3);
     
-    delete test;
+    delete test3;
     delete configData;
     
     return 0;

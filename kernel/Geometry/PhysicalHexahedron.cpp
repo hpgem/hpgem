@@ -26,7 +26,7 @@
 
 namespace Geometry
 {
-    PhysicalHexahedron::PhysicalHexahedron(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical>& nodes)
+    PhysicalHexahedron::PhysicalHexahedron(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical<3 >>& nodes)
             : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceCube::Instance())
     {
     }

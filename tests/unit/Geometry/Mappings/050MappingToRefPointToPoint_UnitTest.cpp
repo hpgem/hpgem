@@ -28,30 +28,29 @@
 #include "Geometry/ReferencePoint.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
 
 int main()
 { //The 0D case is mostly testing if there are any crashing functions
 
-    Geometry::Point refPoint(0), point(0), compare(0);
+    Geometry::Point<0> refPoint, point, compare;
     
     Geometry::ReferencePoint& geom = Geometry::ReferencePoint::Instance();
     
-    const Geometry::MappingReferenceToReference* test = &Geometry::MappingToRefPointToPoint::Instance();
+    const Geometry::MappingReferenceToReference<0>* test = &Geometry::MappingToRefPointToPoint::Instance();
     
-    Geometry::Jacobian jac(0, 0);
+    Geometry::Jacobian<0, 0> jac;
     
-    point = test->transform(*Geometry::PointReferenceFactory::instance()->makePoint(refPoint));
-    logger.assert_always((geom.isInternalPoint(*Geometry::PointReferenceFactory::instance()->makePoint(refPoint)) == geom.isInternalPoint(*Geometry::PointReferenceFactory::instance()->makePoint(point))), "transform");
+    point = test->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
+    logger.assert_always((geom.isInternalPoint(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint)) == geom.isInternalPoint(*Geometry::PointReferenceFactory<0>::instance()->makePoint(point))), "transform");
     
-    jac = test->calcJacobian(*Geometry::PointReferenceFactory::instance()->makePoint(refPoint));
+    jac = test->calcJacobian(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
     
     for (std::size_t i = 0; i < geom.getNumberOfNodes(); ++i)
     {
-        refPoint = geom.getNode(i);
-        compare = geom.getNode(i);
-        point = test->transform(*Geometry::PointReferenceFactory::instance()->makePoint(refPoint));
+        geom.getNode(i);
+        point = test->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
     }
     
     logger.assert_always((test->getTargetDimension() == 0), "getTargetDimension");

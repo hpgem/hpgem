@@ -33,12 +33,6 @@ namespace Base
     {
     }
     
-    //!provide the non-constant information and get an Element!
-    Element* ElementFactory::makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical>& points, std::size_t elementcounter)
-    {
-        return new Element(globalNodeIndexes, basisFunctionSets_, points, unknowns_, timeLevels_, (*basisFunctionSets_)[0]->size(), elementcounter, numberOfElementMatrices_, numberOfElementVectors_);
-    }
-    
     //!mesh creation routines can use this to set their desired defaults
     void ElementFactory::setCollectionOfBasisFunctionSets(const CollectionOfBasisFunctionSets * functions)
     {

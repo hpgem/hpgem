@@ -21,7 +21,7 @@
 
 #include "Node.h"
 #include "Element.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "ElementCacheData.h"
 #include <algorithm>
 

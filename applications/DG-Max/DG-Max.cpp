@@ -134,8 +134,8 @@ public:
 void MatrixAssemblyIP::CompleteElementIntegrationIP(hpGemUIExtentions* matrixContainer)
 {
     
-    LinearAlgebra::Matrix matrix1(1, 1), matrix2(1, 1);
-    LinearAlgebra::NumericalVector vector1(1), vector2(1), vector3(1);
+    LinearAlgebra::MiddleSizeMatrix matrix1(1, 1), matrix2(1, 1);
+    LinearAlgebra::MiddleSizeVector vector1(1), vector2(1), vector3(1);
     
     Base::ShortTermStorageElementBase* localElement_;
     localElement_ = new Base::ShortTermStorageElementHcurl(3); // creating object for H curl transformation
@@ -148,26 +148,26 @@ void MatrixAssemblyIP::CompleteElementIntegrationIP(hpGemUIExtentions* matrixCon
         
         matrix1.resize((*it)->getNrOfBasisFunctions(), (*it)->getNrOfBasisFunctions());
         //std::cout<<"Matrix Resize done"<<std::endl;
-        elIntegral.integrate<LinearAlgebra::Matrix>((*it), &(matrixContainer->elementMassIntegrand), matrix1);
+        elIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it), &(matrixContainer->elementMassIntegrand), matrix1);
         //std::cout<<"Integral Called"<<std::endl;
         (*it)->setElementMatrix(matrix1, 0);
         
         //std::cout<<"FirstIntegrationDone"<<std::endl;
         
         matrix2.resize((*it)->getNrOfBasisFunctions(), (*it)->getNrOfBasisFunctions());
-        elIntegral.integrate<LinearAlgebra::Matrix>((*it), &(matrixContainer->elementStiffnessIntegrand), matrix2);
+        elIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it), &(matrixContainer->elementStiffnessIntegrand), matrix2);
         (*it)->setElementMatrix(matrix2, 1);
         
         vector1.resize((*it)->getNrOfBasisFunctions());
-        elIntegral.integrate<LinearAlgebra::NumericalVector>((*it), &(matrixContainer->initialConditionsIntegrand), vector1);
+        elIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it), &(matrixContainer->initialConditionsIntegrand), vector1);
         (*it)->setElementVector(vector1, 0);
         
         vector2.resize((*it)->getNrOfBasisFunctions());
-        elIntegral.integrate<LinearAlgebra::NumericalVector>((*it), &(matrixContainer->initialConditionsDerivIntegrand), vector2);
+        elIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it), &(matrixContainer->initialConditionsDerivIntegrand), vector2);
         (*it)->setElementVector(vector2, 1);
         
         vector3.resize((*it)->getNrOfBasisFunctions());
-        elIntegral.integrate<LinearAlgebra::NumericalVector>((*it), &(matrixContainer->elementSpaceIntegrand), vector3);
+        elIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it), &(matrixContainer->elementSpaceIntegrand), vector3);
         (*it)->setElementVector(vector3, 2);
         
     }
@@ -175,8 +175,8 @@ void MatrixAssemblyIP::CompleteElementIntegrationIP(hpGemUIExtentions* matrixCon
 
 void MatrixAssemblyIP::CompleteFaceIntegrationIP(hpGemUIExtentions* matrixContainer)
 {
-    LinearAlgebra::Matrix matrix(1, 1), matrix1(1, 1), matrix2(1, 1);
-    LinearAlgebra::NumericalVector vector0(1), vector1(1);
+    LinearAlgebra::MiddleSizeMatrix matrix(1, 1), matrix1(1, 1), matrix2(1, 1);
+    LinearAlgebra::MiddleSizeVector vector0(1), vector1(1);
     //std::cout<<"Complete Face Integration IP started"<<std::endl;
     
     Base::ShortTermStorageFaceBase* localFace_;
@@ -195,12 +195,12 @@ void MatrixAssemblyIP::CompleteFaceIntegrationIP(hpGemUIExtentions* matrixContai
             //matrix1.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions(), (*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions());
             matrix1.resize((*it)->getNrOfBasisFunctions(), (*it)->getNrOfBasisFunctions());
             
-            faIntegral.integrate<LinearAlgebra::Matrix>((*it), &(matrixContainer->faceStiffnessIntegrand), matrix1);
+            faIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it), &(matrixContainer->faceStiffnessIntegrand), matrix1);
             
             //matrix2.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions(), (*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions());
             matrix1.resize((*it)->getNrOfBasisFunctions(), (*it)->getNrOfBasisFunctions());
             
-            faIntegral.integrate<LinearAlgebra::Matrix>((*it), &(matrixContainer->faceStiffnessIntegrandIP), matrix2);
+            faIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it), &(matrixContainer->faceStiffnessIntegrandIP), matrix2);
             
             matrix = matrix1 + matrix2;
             
@@ -220,11 +220,11 @@ void MatrixAssemblyIP::CompleteFaceIntegrationIP(hpGemUIExtentions* matrixContai
             //std::cout<<"Boundary face"<<std::endl;
             matrix1.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(), (*it)->getPtrElementLeft()->getNrOfBasisFunctions());
             
-            faIntegral.integrate<LinearAlgebra::Matrix>((*it), &(matrixContainer->faceStiffnessIntegrand), matrix1);
+            faIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it), &(matrixContainer->faceStiffnessIntegrand), matrix1);
             
             matrix2.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(), (*it)->getPtrElementLeft()->getNrOfBasisFunctions());
             
-            faIntegral.integrate<LinearAlgebra::Matrix>((*it), &(matrixContainer->faceStiffnessIntegrandIP), matrix2);
+            faIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it), &(matrixContainer->faceStiffnessIntegrandIP), matrix2);
             
             matrix = matrix1 + matrix2;
             
@@ -233,7 +233,7 @@ void MatrixAssemblyIP::CompleteFaceIntegrationIP(hpGemUIExtentions* matrixContai
             // std::cout<<"Matrix1 has be set"<<std::endl;
             vector1.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions());
             
-            faIntegral.integrate<LinearAlgebra::NumericalVector>((*it), &(matrixContainer->faceSpaceIntegrandIP), vector1);
+            faIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it), &(matrixContainer->faceSpaceIntegrandIP), vector1);
             
             (*it)->setFaceVector(vector1, 0);
             

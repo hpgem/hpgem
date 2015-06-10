@@ -26,24 +26,14 @@
 #include <cmath>
 //------------------------------------------------------------------------------
 #include "L2Norm.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/PointPhysical.h"
 //------------------------------------------------------------------------------
 namespace Base
 {
-    double L2Norm(const LinearAlgebra::NumericalVector& v)
+    LinearAlgebra::MiddleSizeVector::type L2Norm(const LinearAlgebra::MiddleSizeVector& v)
     {
-        double retSquared(0);
-        for (std::size_t i = 0; i < v.size(); ++i)
-        {
-            retSquared += v[i] * v[i];
-        }
-        return std::sqrt(retSquared);
-    }
-    
-    double L2Norm(const Geometry::PointPhysical& v)
-    {
-        double retSquared(0);
+        LinearAlgebra::MiddleSizeVector::type retSquared(0);
         for (std::size_t i = 0; i < v.size(); ++i)
         {
             retSquared += v[i] * v[i];

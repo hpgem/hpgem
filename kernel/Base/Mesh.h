@@ -21,7 +21,9 @@
 
 #ifndef MESH_HPP
 #define	MESH_HPP
-
+#ifdef HPGEM_USE_MPI
+#include <mpi.h>
+#endif
 #include <vector>
 
 #include "Face.h"
@@ -31,6 +33,7 @@
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointPhysical;
 }
 
@@ -49,6 +52,7 @@ namespace Base
     };
     
     //class is made final so we don't have to create a v-table specifically for the destructor
+    template<std::size_t DIM>
     class Mesh final
     {
     public:
@@ -64,7 +68,7 @@ namespace Base
 
         void addEdge();
 
-        void addNodeCoordinate(Geometry::PointPhysical node);
+        void addNodeCoordinate(Geometry::PointPhysical<DIM> node);
 
         void addNode();
 
@@ -111,8 +115,8 @@ namespace Base
         const std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL) const;
         std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL);
 
-        const std::vector<Geometry::PointPhysical>& getNodeCoordinates() const;
-        std::vector<Geometry::PointPhysical>& getNodeCoordinates();
+        const std::vector<Geometry::PointPhysical<DIM> >& getNodeCoordinates() const;
+        std::vector<Geometry::PointPhysical<DIM> >& getNodeCoordinates();
 
         //********************************************************************************
         
@@ -239,10 +243,12 @@ namespace Base
         std::size_t nodeCounter_;
 
         //! Global vector of physical nodes. (physical location of vertices)
-        std::vector<Geometry::PointPhysical> points_;
+        std::vector<Geometry::PointPhysical<DIM> > points_;
     };
 
 }
+
+#include "Mesh_Impl.h"
 
 #endif	/* MESH_HPP */
 

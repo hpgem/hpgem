@@ -8,7 +8,7 @@ using std::string;
 
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotPhysicalGeometryIterator.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Base/GlobalData.h"
 #include "Base/ConfigurationData.h"
 #include "Base/HpgemAPIBase.h"
@@ -31,7 +31,7 @@ using namespace Base;
 
 const unsigned int DIM = 3;
 
-using VectorOfMatrices = std::vector<LinearAlgebra::Matrix>;
+using VectorOfMatrices = std::vector<LinearAlgebra::MiddleSizeMatrix>;
 struct ElementIntegralData
 {
     //optimize later!
@@ -49,9 +49,9 @@ struct ElementIntegralData
         zGrad_.axpy(a, x.zGrad_);
     }
     
-    LinearAlgebra::Matrix xGrad_;
-    LinearAlgebra::Matrix yGrad_;
-    LinearAlgebra::Matrix zGrad_;
+    LinearAlgebra::MiddleSizeMatrix xGrad_;
+    LinearAlgebra::MiddleSizeMatrix yGrad_;
+    LinearAlgebra::MiddleSizeMatrix zGrad_;
 };
 
 struct FluxData
@@ -63,8 +63,8 @@ struct FluxData
         
         for (unsigned int i = 0; i < nb; ++i)
         {
-            LinearAlgebra::Matrix& left = left_[i];
-            LinearAlgebra::Matrix& right = right_[i];
+            LinearAlgebra::MiddleSizeMatrix& left = left_[i];
+            LinearAlgebra::MiddleSizeMatrix& right = right_[i];
             
             left.resize(12, nb);
             right.resize(12, nb);
@@ -116,8 +116,8 @@ struct HEulerElementData : public UserElementData
     {
     }
     
-    LinearAlgebra::Matrix massMatrix_;
-    LinearAlgebra::Matrix invMassMatrix_;
+    LinearAlgebra::MiddleSizeMatrix massMatrix_;
+    LinearAlgebra::MiddleSizeMatrix invMassMatrix_;
 };
 
 struct HEulerGlobalVariables : public GlobalData
@@ -166,13 +166,13 @@ public:
     double onePeriod_;
 };
 
-class HEuler : public HpgemAPIBase, public Integration::ElementIntegrandBase<ElementIntegralData>, public Integration::FaceIntegrandBase<FluxData>, public Integration::ElementIntegrandBase<LinearAlgebra::Matrix>
+class HEuler : public HpgemAPIBase<3>, public Integration::ElementIntegrandBase<ElementIntegralData, 3>, public Integration::FaceIntegrandBase<FluxData, 3>, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix, 3>
 {
 public:
-    using ElementIntegralT = Integration::ElementIntegral;
-    using FaceIntegralT = Integration::FaceIntegral;
+    using ElementIntegralT = Integration::ElementIntegral<3>;
+    using FaceIntegralT = Integration::FaceIntegral<3>;
     using ExactSolutionT = ExactSolutionBase;
-    using PointReferenceOnTheFaceT = PointReference;
+    using PointReferenceOnTheFaceT = PointReference<2>;
 
     
 public:
@@ -186,13 +186,13 @@ public:
     bool initialiseMesh();
 
     ///calculates mass matrix
-    void elementIntegrand(const Base::Element* element, const PointReferenceT& p, LinearAlgebra::Matrix& massMatrix);
+    void elementIntegrand(Base::PhysicalElement<3>& el, LinearAlgebra::MiddleSizeMatrix& massMatrix);
 
-    void calculateLocalEnergy(const Base::Element& element, const PointReferenceT& p, double& returnValue);
+    void calculateLocalEnergy(Base::PhysicalElement<3>& el, double& returnValue);
 
-    void elementIntegrand(const Base::Element* element, const PointReferenceT& p, ElementIntegralData& returnObject);
+    void elementIntegrand(Base::PhysicalElement<3>& el, ElementIntegralData& returnObject);
 
-    void faceIntegrand(const Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceOnTheFaceT& p, FluxData& ret);
+    void faceIntegrand(Base::PhysicalFace<3>& el, FluxData& ret);
 
     void createCompressibleSystem();
     void createIncompressibleSystem();

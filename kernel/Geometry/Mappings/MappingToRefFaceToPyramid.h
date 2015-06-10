@@ -27,12 +27,12 @@
 namespace Geometry
 {
     // ~~~ index 0 ~~~==============================================================================
-    class MappingToRefFaceToPyramid0 : public MappingReferenceToReference
+    class MappingToRefFaceToPyramid0 : public MappingReferenceToReference<1>
     {
     public:
         static const MappingToRefFaceToPyramid0& Instance();
-        const PointReference& transform(const Geometry::PointReference& p1) const override final;
-        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        const PointReference<3>& transform(const Geometry::PointReference<2>& p1) const override final;
+        Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
             return 3;
@@ -41,16 +41,17 @@ namespace Geometry
         MappingToRefFaceToPyramid0& operator=(const MappingToRefFaceToPyramid0&) = delete;
     private:
         MappingToRefFaceToPyramid0();
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 1 ~~~==============================================================================
     
-    class MappingToRefFaceToPyramid1 : public MappingReferenceToReference
+    class MappingToRefFaceToPyramid1 : public MappingReferenceToReference<1>
     {
     public:
         static const MappingToRefFaceToPyramid1& Instance();
-        const PointReference& transform(const Geometry::PointReference& p1) const override final;
-        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        const PointReference<3>& transform(const Geometry::PointReference<2>& p1) const override final;
+        Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
             return 3;
@@ -59,16 +60,17 @@ namespace Geometry
         MappingToRefFaceToPyramid1& operator=(const MappingToRefFaceToPyramid1&) = delete;
     private:
         MappingToRefFaceToPyramid1();
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 2 ~~~==============================================================================
     
-    class MappingToRefFaceToPyramid2 : public MappingReferenceToReference
+    class MappingToRefFaceToPyramid2 : public MappingReferenceToReference<1>
     {
     public:
         static const MappingToRefFaceToPyramid2& Instance();
-        const PointReference& transform(const Geometry::PointReference& p1) const override final;
-        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        const PointReference<3>& transform(const Geometry::PointReference<2>& p1) const override final;
+        Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
             return 3;
@@ -77,16 +79,17 @@ namespace Geometry
         MappingToRefFaceToPyramid1& operator=(const MappingToRefFaceToPyramid2&) = delete;
     private:
         MappingToRefFaceToPyramid2();
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 3 ~~~==============================================================================
     
-    class MappingToRefFaceToPyramid3 : public MappingReferenceToReference
+    class MappingToRefFaceToPyramid3 : public MappingReferenceToReference<1>
     {
     public:
         static const MappingToRefFaceToPyramid3& Instance();
-        const PointReference& transform(const Geometry::PointReference& p1) const override final;
-        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        const PointReference<3>& transform(const Geometry::PointReference<2>& p1) const override final;
+        Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
             return 3;
@@ -95,16 +98,17 @@ namespace Geometry
         MappingToRefFaceToPyramid3& operator=(const MappingToRefFaceToPyramid3&) = delete;
     private:
         MappingToRefFaceToPyramid3();
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
     
     // ~~~ index 4 ~~~==============================================================================
     
-    class MappingToRefFaceToPyramid4 : public MappingReferenceToReference
+    class MappingToRefFaceToPyramid4 : public MappingReferenceToReference<1>
     {
     public:
         static const MappingToRefFaceToPyramid4& Instance();
-        const PointReference& transform(const Geometry::PointReference& p1) const override final;
-        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        const PointReference<3>& transform(const Geometry::PointReference<2>& p1) const override final;
+        Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
             return 3;
@@ -113,6 +117,7 @@ namespace Geometry
         MappingToRefFaceToPyramid4& operator=(const MappingToRefFaceToPyramid4&) = delete;
     private:
         MappingToRefFaceToPyramid4();
+        std::map<const PointReference<2>*, const PointReference<3>*> transformedCoordinates;
     };
 
 }

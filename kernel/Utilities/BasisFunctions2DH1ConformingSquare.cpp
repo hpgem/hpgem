@@ -33,17 +33,17 @@
 namespace Utilities
 {
     
-    double BasisFunction2DVertexSquare::eval(const Geometry::PointReference& p) const
+    double BasisFunction2DVertexSquare::eval(const Geometry::PointReference<2>& p) const
     {
         return (1 + nodePosition0_ * p[0]) * (1 + nodePosition1_ * p[1]) / 4.;
     }
     
-    double BasisFunction2DVertexSquare::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction2DVertexSquare::evalDeriv0(const Geometry::PointReference<2>& p) const
     {
         return nodePosition0_ * (1 + nodePosition1_ * p[1]) / 4.;
     }
     
-    double BasisFunction2DVertexSquare::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction2DVertexSquare::evalDeriv1(const Geometry::PointReference<2>& p) const
     {
         return nodePosition1_ * (1 + nodePosition0_ * p[0]) / 4.;
     }
@@ -58,17 +58,17 @@ namespace Utilities
         edgePosition_ = (node0 + node1 < 3) ? -1 : 1;
     }
     
-    double BasisFunction2DFaceSquare_0::eval(const Geometry::PointReference& p) const
+    double BasisFunction2DFaceSquare_0::eval(const Geometry::PointReference<2>& p) const
     {
         return (1 + edgePosition_ * p[1]) * (1 - p[0]) * (1 + p[0]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[0]) / 8.;
     }
     
-    double BasisFunction2DFaceSquare_0::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction2DFaceSquare_0::evalDeriv0(const Geometry::PointReference<2>& p) const
     {
         return (1 + edgePosition_ * p[1]) * (-p[0] * LobattoPolynomial(polynomialOrder_, mirroring_ * p[0]) + (1 - p[0]) * (1 + p[0]) * LobattoPolynomialDerivative(polynomialOrder_, mirroring_ * p[0]) * mirroring_ / 2.) / 4.;
     }
     
-    double BasisFunction2DFaceSquare_0::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction2DFaceSquare_0::evalDeriv1(const Geometry::PointReference<2>& p) const
     {
         return edgePosition_ * (1 - p[0]) * (1 + p[0]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[0]) / 8.;
     }
@@ -83,32 +83,32 @@ namespace Utilities
         edgePosition_ = (node0 + node1 < 3) ? -1 : 1;
     }
     
-    double BasisFunction2DFaceSquare_1::eval(const Geometry::PointReference& p) const
+    double BasisFunction2DFaceSquare_1::eval(const Geometry::PointReference<2>& p) const
     {
         return (1 + edgePosition_ * p[0]) * (1 - p[1]) * (1 + p[1]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[1]) / 8.;
     }
     
-    double BasisFunction2DFaceSquare_1::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction2DFaceSquare_1::evalDeriv0(const Geometry::PointReference<2>& p) const
     {
         return edgePosition_ * (1 - p[1]) * (1 + p[1]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[1]) / 8.;
     }
     
-    double BasisFunction2DFaceSquare_1::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction2DFaceSquare_1::evalDeriv1(const Geometry::PointReference<2>& p) const
     {
         return (1 + edgePosition_ * p[0]) * (-p[1] * LobattoPolynomial(polynomialOrder_, mirroring_ * p[1]) + (1 - p[1]) * (1 + p[1]) * LobattoPolynomialDerivative(polynomialOrder_, mirroring_ * p[1]) * mirroring_ / 2.) / 4.;
     }
     
-    double BasisFunction2DInteriorSquare::eval(const Geometry::PointReference& p) const
+    double BasisFunction2DInteriorSquare::eval(const Geometry::PointReference<2>& p) const
     {
         return (1 - p[0]) * (1 + p[0]) * (1 - p[1]) * (1 + p[1]) * LobattoPolynomial(polynomialOrder0_, p[0]) * LobattoPolynomial(polynomialOrder1_, p[1]) / 16.;
     }
     
-    double BasisFunction2DInteriorSquare::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction2DInteriorSquare::evalDeriv0(const Geometry::PointReference<2>& p) const
     {
         return LobattoPolynomial(polynomialOrder1_, p[1]) * (1 - p[1]) * (1 + p[1]) / 4. * (-p[0] * LobattoPolynomial(polynomialOrder0_, p[0]) / 2. + (1 - p[0]) * (1 + p[0]) * LobattoPolynomialDerivative(polynomialOrder0_, p[0]) / 4.);
     }
     
-    double BasisFunction2DInteriorSquare::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction2DInteriorSquare::evalDeriv1(const Geometry::PointReference<2>& p) const
     {
         return LobattoPolynomial(polynomialOrder0_, p[0]) * (1 - p[0]) * (1 + p[0]) / 4. * (-p[1] * LobattoPolynomial(polynomialOrder1_, p[1]) / 2. + (1 - p[1]) * (1 + p[1]) * LobattoPolynomialDerivative(polynomialOrder1_, p[1]) / 4.);
     }

@@ -19,8 +19,8 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AcousticWaveH
-#define AcousticWaveH
+#ifndef SavageHutterH
+#define SavageHutterH
 
 #include <fstream>
 #include <iomanip> 
@@ -46,24 +46,10 @@
 #include "SavageHutterRightHandSideComputer.h"
 
 #include "Logger.h"
-#include "Base/UserData.h"
 
-struct LimiterData : public UserElementData
-{
-    LimiterData()
-    {
-        isLimited = {false, false};
-        valLeft = {0, 0}; //make quiet NAN later
-        valRight = {0, 0};
-    }
-    std::vector<bool> isLimited;
-    std::vector<double> valLeft;
-    std::vector<double> valRight;
-};
 
 struct SHConstructorStruct
 {
-    std::size_t dimension;
     std::size_t numOfVariables;
     std::size_t polyOrder;
     std::size_t numElements;
@@ -73,10 +59,10 @@ struct SHConstructorStruct
 
 //todo: make the functions override final, but at the moment my parser does not 
 //understand the override and final keywords, which makes development harder
-class SavageHutter : public Base::HpgemAPISimplified
+class SavageHutter : public Base::HpgemAPISimplified<DIM>
 {
 public:
-    SavageHutter(const std::size_t dimension, const std::size_t numOfVariables,
+    SavageHutter(const std::size_t numOfVariables,
             const std::size_t polynomialOrder,
             const Base::ButcherTableau * const ptrButcherTableau);
     
@@ -84,27 +70,13 @@ public:
     ///constructor also constructs the mesh and couples an object LimiterData to
     ///each element.
     SavageHutter(const SHConstructorStruct& inputValues);
-    
-    ~SavageHutter()
-    {
-        for (Base::Element *element : meshes_[0] ->getElementsList())
-        {
-            delete element->getUserData();
-        }
-    }
 
     /// \brief Create a domain
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection);
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection);
 
     /// \brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::NumericalVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
-
-    /// \brief Compute the integrand for the reference element for obtaining the initial solution.
-    LinearAlgebra::NumericalVector integrandInitialSolutionOnElement(const Base::Element *ptrElement, const double &startTime, const Geometry::PointReference &pRef);
-
-    /// \brief Integrate the initial solution for a single element.
-    LinearAlgebra::NumericalVector integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
-
+    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
+    
     /// \brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID)
     {
@@ -114,47 +86,56 @@ public:
         }
     }
 
-    LinearAlgebra::NumericalVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::NumericalVector &solutionCoefficients, const double time);
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
 
     /// \brief Compute the right-hand side corresponding to an internal face
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace(Base::Face *ptrFace,
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace,
             const Base::Side side,
-            LinearAlgebra::NumericalVector &solutionCoefficientsLeft,
-            LinearAlgebra::NumericalVector &solutionCoefficientsRight,
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
             const double time);
     
-    LinearAlgebra::NumericalVector computeRightHandSideAtFace
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
         (
          Base::Face *ptrFace,
-         LinearAlgebra::NumericalVector &solutionCoefficients,
+         LinearAlgebra::MiddleSizeVector &solutionCoefficients,
          const double time
          );
 
     ///At the beginning of each time step, it will be checked if a limiter should
     ///be used for this element. If so, it is saved in the LimiterData struct.
-    void useLimitierForElement(Base::Element *element);
+    void useLimiterForElement(Base::Element *element);
     
     void computeOneTimeStep(double &time, const double dt);
     void limitSolution();
     
     ///Auxiliary function for checking if a limiter should be used.
-    LinearAlgebra::NumericalVector computeVelocity(LinearAlgebra::NumericalVector numericalSolution);
+    LinearAlgebra::MiddleSizeVector computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution);
     
-    ///Auxiliary function for checking if a limiter should be used.
-    LinearAlgebra::NumericalVector computeNormOfAverageOfSolutionInElement(const Base::Element *element);
+    ///Compute the average of the height and discharge in the given element
+    LinearAlgebra::MiddleSizeVector computeAverageOfSolution(Base::Element *element);
+    
+    ///Compute the minimum of the height in the given element
+    double getMinimumHeight(const Base::Element *element);
     
     ///If a limiter should be used, use the min-mod limiter. Save the values of 
     ///the left side and right side in the struct LimiterData.
     void limitWithMinMod(Base::Element *element, const std::size_t iVar);
     
+    void tasksBeforeSolving() override final
+    {
+        //todo: for one face integral you used referenceFaceIntegral (which does not scale with the magnitude of the normal) and for the other you used integrate (which does scale)
+        //so it is not clear to me whether or not you need scaling. Please fix as needed
+        this->faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
+        Base::HpgemAPISimplified<DIM>::tasksBeforeSolving();
+    }
+
     int sign(const double x)
     {
-        return ((x < 0)? -1 : 1) ;
+        return ((x < 0)? -1 : 1);
     }
     
 private:
-    /// Dimension of the domain
-    const std::size_t DIM_;
 
     /// Number of variables
     const std::size_t numOfVariables_;

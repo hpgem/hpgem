@@ -25,7 +25,7 @@
 
 namespace Geometry
 {
-    class PhysicalGeometry;
+    class PhysicalGeometryBase;
 }
 
 namespace Output
@@ -37,13 +37,13 @@ namespace Output
         
     public:
         
-        virtual void acceptTetrahedronGeometry(const Geometry::PhysicalGeometry*) = 0;
-        virtual void acceptPyramidGeometry(const Geometry::PhysicalGeometry*) = 0;
-        virtual void acceptTriangularPrismGeometry(const Geometry::PhysicalGeometry*) = 0;
-        virtual void acceptHexahedronGeometry(const Geometry::PhysicalGeometry*) = 0;
-        virtual void acceptQuadrilateralGeometry(const Geometry::PhysicalGeometry*) = 0;
-        virtual void acceptTriangleGeometry(const Geometry::PhysicalGeometry*) = 0;
-        virtual void acceptLineGeometry(const Geometry::PhysicalGeometry*) = 0;
+        virtual void acceptTetrahedronGeometry(const Geometry::PhysicalGeometryBase*) = 0;
+        virtual void acceptPyramidGeometry(const Geometry::PhysicalGeometryBase*) = 0;
+        virtual void acceptTriangularPrismGeometry(const Geometry::PhysicalGeometryBase*) = 0;
+        virtual void acceptHexahedronGeometry(const Geometry::PhysicalGeometryBase*) = 0;
+        virtual void acceptQuadrilateralGeometry(const Geometry::PhysicalGeometryBase*) = 0;
+        virtual void acceptTriangleGeometry(const Geometry::PhysicalGeometryBase*) = 0;
+        virtual void acceptLineGeometry(const Geometry::PhysicalGeometryBase*) = 0;
         virtual ~PhysicalGeometryAcceptor()
         {
         }

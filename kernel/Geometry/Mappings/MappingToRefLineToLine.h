@@ -39,12 +39,12 @@ namespace Geometry
      */
 
     // ~~~ index 0 ~~~=========================================================================== //
-    class MappingToRefLineToLine0 : public MappingReferenceToReference
+    class MappingToRefLineToLine0 : public MappingReferenceToReference<0>
     {
     public:
         static const MappingToRefLineToLine0& Instance();
-        const PointReference& transform(const Geometry::PointReference& p1) const override final;
-        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        const PointReference<1>& transform(const Geometry::PointReference<1>& p1) const override final;
+        Jacobian<1, 1> calcJacobian(const Geometry::PointReference<1>&) const override final;
         std::size_t getTargetDimension() const override final
         {
             return 1;
@@ -53,15 +53,16 @@ namespace Geometry
         MappingToRefLineToLine0& operator=(const MappingToRefLineToLine0&) = delete;
     private:
         MappingToRefLineToLine0();
+        std::map<const PointReference<1>*, const PointReference<1>*> transformedCoordinates;
     };
     
     // ~~~ index 1 ~~~=========================================================================== //
-    class MappingToRefLineToLine1 : public MappingReferenceToReference
+    class MappingToRefLineToLine1 : public MappingReferenceToReference<0>
     {
     public:
         static const MappingToRefLineToLine1& Instance();
-        const PointReference& transform(const Geometry::PointReference& p1) const override final;
-        Jacobian calcJacobian(const Geometry::PointReference&) const override final;
+        const PointReference<1>& transform(const Geometry::PointReference<1>& p1) const override final;
+        Jacobian<1, 1> calcJacobian(const Geometry::PointReference<1>&) const override final;
         std::size_t getTargetDimension() const override final
         {
             return 1;
@@ -70,6 +71,7 @@ namespace Geometry
         MappingToRefLineToLine1& operator=(const MappingToRefLineToLine1&) = delete;
     private:
         MappingToRefLineToLine1();
+        std::map<const PointReference<1>*, const PointReference<1>*> transformedCoordinates;
     };
 }
 #endif

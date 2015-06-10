@@ -27,6 +27,7 @@
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
     
     ///\brief make unique reference coordinates
@@ -35,6 +36,7 @@ namespace Geometry
     /// It is assumed reference points will not be created very often in a simulation, so this factory is allowed to be relatively slow
     /// returns pointer to const PointReference, because the PointReference might be used in a ton of other places (and I cant imagine why anyone would want to move them about)
     /// There is a tolerance for when points are considered the same in makePoint(Point)
+    template<std::size_t DIM>
     class PointReferenceFactory
     {
     public:
@@ -46,27 +48,27 @@ namespace Geometry
 
         void removeBasisFunctionData(const Base::BaseBasisFunction* function);
 
-        const PointReference* makePoint(const Point& p);
+        const PointReference<DIM>* makePoint(const Point<DIM>& p);
 
-        const PointReference* makePoint(std::size_t DIM)
+        const PointReference<DIM>* makePoint()
         {
-            return makePoint(Point(DIM));
+            return makePoint(Point<DIM>());
         }
 
 
-        const PointReference* makePoint(std::initializer_list<double> data)
+        const PointReference<DIM>* makePoint(std::initializer_list<double> data)
         {
-            return makePoint(Point(data));
+            return makePoint(data.begin());
         }
 
-        const PointReference* makePoint(double coords[], std::size_t DIM)
+        const PointReference<DIM>* makePoint(double coords[])
         {
-            return makePoint(Point(coords, DIM));
+            return makePoint(Point<DIM>(coords));
         }
 
-        const PointReference* makePoint(const LinearAlgebra::NumericalVector& coord)
+        const PointReference<DIM>* makePoint(const LinearAlgebra::SmallVector<DIM>& coord)
         {
-            return makePoint(Point(coord));
+            return makePoint(Point<DIM>(coord));
         }
 
     private:
@@ -75,9 +77,11 @@ namespace Geometry
         PointReferenceFactory(const PointReferenceFactory&) = delete;
         PointReferenceFactory(PointReferenceFactory&&) = delete;
 
-        std::vector<PointReference*> points_;
+        std::vector<PointReference<DIM>*> points_;
     };
 
 } /* namespace Geometry */
+
+#include "PointReferenceFactory_Impl.h"
 
 #endif /* POINTREFERENCEFACTORY_H_ */

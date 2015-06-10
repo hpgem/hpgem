@@ -41,12 +41,12 @@ int main(int argc, char **argv)
     
     // Set parameters for the PDE.
     SHConstructorStruct inputVals;
-    inputVals.dimension = 1;
+    //DIM is declared in SavageHutterRightHandSideComputer.h
     inputVals.numOfVariables = 2;    
     inputVals.polyOrder = polynomialOrder.getValue();
     inputVals.numElements = numOfElements.getValue();
     inputVals.meshType = Base::MeshType::RECTANGULAR; // Either TRIANGULAR or RECTANGULAR.
-    inputVals.ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
+    inputVals.ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4,4);
     
     //Construct the problem and output generator
     SavageHutter test(inputVals);    

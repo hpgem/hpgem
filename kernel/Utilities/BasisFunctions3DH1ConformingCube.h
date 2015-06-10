@@ -33,6 +33,7 @@ namespace Base
 
 namespace Geometry
 {
+    template<std::size_t DIM>
     class PointReference;
 }
 
@@ -44,13 +45,13 @@ namespace Utilities
     public:
         BasisFunction3DVertexCube(std::size_t node);
 
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv2(const Geometry::PointReference& p) const;
+        double evalDeriv2(const Geometry::PointReference<3>& p) const;
 
     private:
         int nodePosition0_, nodePosition1_, nodePosition2_;
@@ -61,13 +62,13 @@ namespace Utilities
     public:
         BasisFunction3DEdgeCube_0(std::size_t node0, std::size_t node1, std::size_t polynomialOrder);
 
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv2(const Geometry::PointReference& p) const;
+        double evalDeriv2(const Geometry::PointReference<3>& p) const;
 
     private:
         int edgePosition1_;
@@ -81,13 +82,13 @@ namespace Utilities
     public:
         BasisFunction3DEdgeCube_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder);
 
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv2(const Geometry::PointReference& p) const;
+        double evalDeriv2(const Geometry::PointReference<3>& p) const;
 
     private:
         int edgePosition0_;
@@ -101,13 +102,13 @@ namespace Utilities
     public:
         BasisFunction3DEdgeCube_2(std::size_t node0, std::size_t node1, std::size_t polynomialOrder);
 
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv2(const Geometry::PointReference& p) const;
+        double evalDeriv2(const Geometry::PointReference<3>& p) const;
 
     private:
         int edgePosition0_;
@@ -121,13 +122,13 @@ namespace Utilities
     public:
         BasisFunction3DFaceCube_0(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder1, std::size_t polynomialOrder2);
 
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv2(const Geometry::PointReference& p) const;
+        double evalDeriv2(const Geometry::PointReference<3>& p) const;
     private:
         int facePosition_;
         int mirroring1_;
@@ -141,13 +142,13 @@ namespace Utilities
     public:
         BasisFunction3DFaceCube_1(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder2);
 
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv2(const Geometry::PointReference& p) const;
+        double evalDeriv2(const Geometry::PointReference<3>& p) const;
     private:
         int facePosition_;
         int mirroring0_;
@@ -161,13 +162,13 @@ namespace Utilities
     public:
         BasisFunction3DFaceCube_2(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1);
 
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv2(const Geometry::PointReference& p) const;
+        double evalDeriv2(const Geometry::PointReference<3>& p) const;
     private:
         int facePosition_;
         int mirroring0_;
@@ -184,13 +185,13 @@ namespace Utilities
         {
         }
         
-        double eval(const Geometry::PointReference& p) const;
+        double eval(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv0(const Geometry::PointReference& p) const;
+        double evalDeriv0(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv1(const Geometry::PointReference& p) const;
+        double evalDeriv1(const Geometry::PointReference<3>& p) const;
 
-        double evalDeriv2(const Geometry::PointReference& p) const;
+        double evalDeriv2(const Geometry::PointReference<3>& p) const;
 
     private:
         std::size_t polynomialOrder0_, polynomialOrder1_, polynomialOrder2_;

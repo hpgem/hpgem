@@ -34,27 +34,26 @@
 //you should update the data file to reflect the updated result. Always confer with other developers if you do this.
 
 /// \brief Class for solving the Poisson problem using HpgemAPILinearSteadyState.
-class PoissonTest : public Base::HpgemAPILinearSteadyState
+class PoissonTest : public Base::HpgemAPILinearSteadyState<2>
 {
 public:
-    PoissonTest(const std::size_t n, const std::size_t p, const std::size_t dimension, const Base::MeshType meshType) :
-    HpgemAPILinearSteadyState(dimension, 1, p, true, true),
+    PoissonTest(const std::size_t n, const std::size_t p, const Base::MeshType meshType) :
+    HpgemAPILinearSteadyState(1, p, true, true),
     n_(n),
     p_(p),
-    DIM_(dimension),
     totalError_(0)
     {
-        penalty_ = 3 * n_ * p_ * (p_ + DIM_ - 1) + 1;
+        penalty_ = 3 * n_ * p_ * (p_ + 2 - 1) + 1;
         createMesh(n_, meshType);
     }
     
     ///\brief set up the mesh
-    Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<2> createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        Base::RectangularMeshDescriptor description(DIM_);
+        Base::RectangularMeshDescriptor<2> description;
         
-        for (std::size_t i = 0; i < DIM_; ++i)
+        for (std::size_t i = 0; i < 2; ++i)
         {
             //define the value of the bottom left corner in each dimension
             description.bottomLeft_[i] = 0;
@@ -72,14 +71,14 @@ public:
     }
     
     ///\brief Compute the integrand for the stiffness matrix at the element.
-    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
+    LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<2> &element) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
-        const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
+        const std::size_t numBasisFunctions = element.getElement()->getNrOfBasisFunctions();
         
         //Create the integrandVal such that it contains as many rows and columns as
         //the number of basisfunctions.
-        LinearAlgebra::Matrix integrandVal(numBasisFunctions, numBasisFunctions);
+        LinearAlgebra::MiddleSizeMatrix& integrandVal = element.getResultMatrix();
         
         for (std::size_t i = 0; i < numBasisFunctions; ++i)
         {
@@ -87,7 +86,7 @@ public:
             {
                 //Compute the value of gradient(phi_i).gradient(phi_j) at point p and
                 //store it at the appropriate place in the matrix integrandVal.
-                integrandVal(j, i) = element->basisFunctionDeriv(i, point) * element->basisFunctionDeriv(j, point);
+                integrandVal(j, i) = element.basisFunctionDeriv(i) * element.basisFunctionDeriv(j);
             }
         }
         
@@ -95,47 +94,41 @@ public:
     }
     
     /// \brief Compute the integrand for the siffness matrix at the face.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(Base::PhysicalFace<2> &face) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
-        std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
-        std::size_t nLeft = face->getPtrElementLeft()->getNrOfBasisFunctions();
-        std::size_t nRight = 0;
-        if(face->isInternal())
-        {
-            nRight = face->getPtrElementLeft()->getNrOfBasisFunctions();
-        }
+        std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
         
         //Create the FaceMatrix integrandVal with the correct size.
-        Base::FaceMatrix integrandVal(nLeft, nRight);
+        Base::FaceMatrix& integrandVal = face.getResultMatrix();
         
         //Initialize the vectors that contain gradient(phi_i), gradient(phi_j), normal_i phi_i and normal_j phi_j
-        LinearAlgebra::NumericalVector phiNormalI(DIM_), phiNormalJ(DIM_), phiDerivI(DIM_), phiDerivJ(DIM_);
+        LinearAlgebra::SmallVector<2> phiNormalI, phiNormalJ, phiDerivI, phiDerivJ;
         
         //Transform the point from the reference value to its physical value.
         //This is necessary to check at which boundary we are if we are at a boundary face.
-        PointPhysicalT pPhys = face->referenceToPhysical(p);
+        const PointPhysicalT& pPhys = face.getPointPhysical();
         
         for (int i = 0; i < numBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
-            phiNormalI = face->basisFunctionNormal(i, normal, p);
+            phiNormalI = face.basisFunctionUnitNormal(i);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
-            phiDerivI = face->basisFunctionDeriv(i, p);
+            phiDerivI = face.basisFunctionDeriv(i);
             
             for (int j = 0; j < numBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
-                phiNormalJ = face->basisFunctionNormal(j, normal, p);
+                phiNormalJ = face.basisFunctionUnitNormal(j);
                 //The gradient of basisfunction phi_j is computed at point p, the result is stored in phiDerivJ.
-                phiDerivJ = face->basisFunctionDeriv(j, p);
+                phiDerivJ = face.basisFunctionDeriv(j);
                 
                 //Switch to the correct type of face, and compute the integrand accordingly
                 //you could also compute the integrandVal by directly using face->basisFunctionDeriv
                 //and face->basisFunctionNormal in the following lines, but this results in very long expressions
                 //Internal face:
-                if (face->isInternal())
+                if (face.isInternal())
                 {
                     integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2 + penalty_ * phiNormalI * phiNormalJ;
                 }
@@ -156,9 +149,9 @@ public:
     }
     
     /// \brief Define the exact solution
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &p) override final
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &p) override final
     {
-        LinearAlgebra::NumericalVector exactSolution(1);
+        LinearAlgebra::MiddleSizeVector exactSolution(1);
         
         double ret = std::sin(2 * M_PI * p[0]);
         if (p.size() > 1)
@@ -175,16 +168,16 @@ public:
     }
     
     ///\brief Define the source term.
-    LinearAlgebra::NumericalVector getSourceTerm(const PointPhysicalT &p) override final
+    LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &p) override final
     {
-        LinearAlgebra::NumericalVector sourceTerm(1);
+        LinearAlgebra::MiddleSizeVector sourceTerm(1);
         
         double ret = -std::sin(2 * M_PI * p[0]) * (4 * M_PI * M_PI);
-        if (DIM_ > 1)
+        if (2 > 1)
         {
             ret *= std::cos(2 * M_PI * p[1]);
         }
-        if (DIM_ > 2)
+        if (2 > 2)
         {
             ret *= std::cos(2 * M_PI * p[2]) * 3;
         }
@@ -194,13 +187,13 @@ public:
     }
     
     /// \brief Compute the integrals of the right-hand side associated with faces.
-    LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
+    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(Base::PhysicalFace<2> &face) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
-        const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
+        const std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
         //Resize the integrandVal such that it contains as many rows as
         //the number of basisfunctions.
-        LinearAlgebra::NumericalVector integrandVal(numBasisFunctions);
+        LinearAlgebra::MiddleSizeVector& integrandVal = face.getResultVector();
         
         //Compute the value of the integrand
         //We have no rhs face integrals, so this is just 0.
@@ -248,15 +241,15 @@ public:
         x.writeTimeLevelData(solutionTimeLevel_);
         
         std::ofstream outFile("030TecplotOutput_SelfTest_output.dat");
-        Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
+        Output::TecplotDiscontinuousSolutionWriter<2> writeFunc(outFile, "test", "01", "value");
         writeFunc.write(meshes_[0], "monomial solution", false, this);
         
         if(doComputeError)
         {
-            double totalError = computeTotalError(solutionTimeLevel_, 0);
+            LinearAlgebra::MiddleSizeVector::type totalError = computeTotalError(solutionTimeLevel_, 0);
             totalError_ = totalError;
             logger(INFO, "Total error: %.", totalError);
-            LinearAlgebra::NumericalVector maxError = computeMaxError(solutionTimeLevel_, 0);
+            LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionTimeLevel_, 0);
             logger.assert(maxError.size() == configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), configData_->numberOfUnknowns_);
             for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV ++)
             {
@@ -268,7 +261,7 @@ public:
 #endif
     }
     
-    double getTotalError()
+    LinearAlgebra::MiddleSizeVector::type getTotalError()
     {
         return totalError_;
     }
@@ -281,9 +274,6 @@ private:
     ///polynomial order of the approximation
     int p_;
     
-    ///Dimension of the domain, in this case 2
-    int DIM_;
-    
     ///\brief Penalty parameter
     ///
     ///Penalty parameter that is associated with the interior penalty discontinuous
@@ -292,7 +282,7 @@ private:
     double penalty_;
     
     /// Weighted L2 norm of the error
-    double totalError_;
+    LinearAlgebra::MiddleSizeVector::type totalError_;
 };
 
 /*
@@ -492,7 +482,7 @@ int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
     
-    PoissonTest test8(8, 5, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest test8(8, 5, Base::MeshType::TRIANGULAR);
     test8.solveSteadyStateWithPetsc(true);
     //actual test is done by comparing output files
     return 0;

@@ -39,44 +39,50 @@ namespace Utilities
         node_ = node % 3;
     }
     
-    double BasisFunction3DVertexPrism::eval(const Geometry::PointReference& p) const
+    double BasisFunction3DVertexPrism::eval(const Geometry::PointReference<3>& p) const
     {
-        return baricentric_2D(node_, p) * (1 + nodePosition_ * p[2]) / 2.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        return baricentric_2D(node_, p2D) * (1 + nodePosition_ * p[2]) / 2.;
     }
     
-    double BasisFunction3DVertexPrism::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction3DVertexPrism::evalDeriv0(const Geometry::PointReference<3>& p) const
     {
         return baricentricDeriv(node_, 0) * (1 + nodePosition_ * p[2]) / 2.;
     }
     
-    double BasisFunction3DVertexPrism::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction3DVertexPrism::evalDeriv1(const Geometry::PointReference<3>& p) const
     {
         return baricentricDeriv(node_, 1) * (1 + nodePosition_ * p[2]) / 2.;
     }
     
-    double BasisFunction3DVertexPrism::evalDeriv2(const Geometry::PointReference& p) const
+    double BasisFunction3DVertexPrism::evalDeriv2(const Geometry::PointReference<3>& p) const
     {
-        return baricentric_2D(node_, p) * nodePosition_ / 2.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        return baricentric_2D(node_, p2D) * nodePosition_ / 2.;
     }
     
-    double BasisFunction3DEdgePrism_0::eval(const Geometry::PointReference& p) const
+    double BasisFunction3DEdgePrism_0::eval(const Geometry::PointReference<3>& p) const
     {
-        return (1 + edgePosition_ * p[2]) * baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p)) / 2.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        return (1 + edgePosition_ * p[2]) * baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)) / 2.;
     }
     
-    double BasisFunction3DEdgePrism_0::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction3DEdgePrism_0::evalDeriv0(const Geometry::PointReference<3>& p) const
     {
-        return (1 + edgePosition_ * p[2]) * baricentricDeriv(node0_, 0) * (baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p)) + baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p))) / 2. + (1 + edgePosition_ * p[2]) * baricentricDeriv(node1_, 0) * (baricentric_2D(node0_, p) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p)) - baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p))) / 2.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        return (1 + edgePosition_ * p[2]) * baricentricDeriv(node0_, 0) * (baricentric_2D(node1_, p2D) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)) + baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D))) / 2. + (1 + edgePosition_ * p[2]) * baricentricDeriv(node1_, 0) * (baricentric_2D(node0_, p2D) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)) - baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D))) / 2.;
     }
     
-    double BasisFunction3DEdgePrism_0::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction3DEdgePrism_0::evalDeriv1(const Geometry::PointReference<3>& p) const
     {
-        return (1 + edgePosition_ * p[2]) * baricentricDeriv(node0_, 1) * (baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p)) + baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p))) / 2. + (1 + edgePosition_ * p[2]) * baricentricDeriv(node1_, 1) * (baricentric_2D(node0_, p) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p)) - baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p))) / 2.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        return (1 + edgePosition_ * p[2]) * baricentricDeriv(node0_, 1) * (baricentric_2D(node1_, p2D) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)) + baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D))) / 2. + (1 + edgePosition_ * p[2]) * baricentricDeriv(node1_, 1) * (baricentric_2D(node0_, p2D) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)) - baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomialDerivative(polynomialOrder_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D))) / 2.;
     }
     
-    double BasisFunction3DEdgePrism_0::evalDeriv2(const Geometry::PointReference& p) const
+    double BasisFunction3DEdgePrism_0::evalDeriv2(const Geometry::PointReference<3>& p) const
     {
-        return edgePosition_ * baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p)) / 2.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        return edgePosition_ * baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomial(polynomialOrder_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)) / 2.;
     }
     
     BasisFunction3DEdgePrism_1::BasisFunction3DEdgePrism_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
@@ -88,24 +94,26 @@ namespace Utilities
         mirroring_ = node0 < node1 ? -1 : 1;
     }
     
-    double BasisFunction3DEdgePrism_1::eval(const Geometry::PointReference& p) const
+    double BasisFunction3DEdgePrism_1::eval(const Geometry::PointReference<3>& p) const
     {
-        return baricentric_2D(node_, p) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[2]) / 4.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        return baricentric_2D(node_, p2D) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[2]) / 4.;
     }
     
-    double BasisFunction3DEdgePrism_1::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction3DEdgePrism_1::evalDeriv0(const Geometry::PointReference<3>& p) const
     {
         return baricentricDeriv(node_, 0) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[2]) / 4.;
     }
     
-    double BasisFunction3DEdgePrism_1::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction3DEdgePrism_1::evalDeriv1(const Geometry::PointReference<3>& p) const
     {
         return baricentricDeriv(node_, 1) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder_, mirroring_ * p[2]) / 4.;
     }
     
-    double BasisFunction3DEdgePrism_1::evalDeriv2(const Geometry::PointReference& p) const
+    double BasisFunction3DEdgePrism_1::evalDeriv2(const Geometry::PointReference<3>& p) const
     {
-        return baricentric_2D(node_, p) * (-p[2] * LobattoPolynomial(polynomialOrder_, mirroring_ * p[2]) / 2. + (1 - p[2]) * (1 + p[2]) * LobattoPolynomialDerivative(polynomialOrder_, mirroring_ * p[2]) * mirroring_ / 4.);
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        return baricentric_2D(node_, p2D) * (-p[2] * LobattoPolynomial(polynomialOrder_, mirroring_ * p[2]) / 2. + (1 - p[2]) * (1 + p[2]) * LobattoPolynomialDerivative(polynomialOrder_, mirroring_ * p[2]) * mirroring_ / 4.);
     }
     
     BasisFunction3DFacePrism_0::BasisFunction3DFacePrism_0(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1)
@@ -119,28 +127,32 @@ namespace Utilities
         facePosition_ = (static_cast<int>(node0) / 3) * 2 - 1;
     }
     
-    double BasisFunction3DFacePrism_0::eval(const Geometry::PointReference& p) const
+    double BasisFunction3DFacePrism_0::eval(const Geometry::PointReference<3>& p) const
     {
-        double x0(baricentric_2D(node0_, p) - baricentric_2D(node1_, p)), x1(baricentric_2D(node1_, p) - baricentric_2D(node2_, p));
-        return (1 + facePosition_ * p[2]) * baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * baricentric_2D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) / 2.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        double x0(baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)), x1(baricentric_2D(node1_, p2D) - baricentric_2D(node2_, p2D));
+        return (1 + facePosition_ * p[2]) * baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) / 2.;
     }
     
-    double BasisFunction3DFacePrism_0::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction3DFacePrism_0::evalDeriv0(const Geometry::PointReference<3>& p) const
     {
-        double x0(baricentric_2D(node0_, p) - baricentric_2D(node1_, p)), x1(baricentric_2D(node1_, p) - baricentric_2D(node2_, p));
-        return (1 + facePosition_ * p[2]) * baricentricDeriv(node0_, 0) * (baricentric_2D(node1_, p) * baricentric_2D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * baricentric_2D(node2_, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1)) / 2. + (1 + facePosition_ * p[2]) * baricentricDeriv(node1_, 0) * (baricentric_2D(node0_, p) * baricentric_2D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * baricentric_2D(node2_, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * baricentric_2D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)) / 2. + (1 + facePosition_ * p[2]) * baricentricDeriv(node2_, 0) * (baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * baricentric_2D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)) / 2.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        double x0(baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)), x1(baricentric_2D(node1_, p2D) - baricentric_2D(node2_, p2D));
+        return (1 + facePosition_ * p[2]) * baricentricDeriv(node0_, 0) * (baricentric_2D(node1_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1)) / 2. + (1 + facePosition_ * p[2]) * baricentricDeriv(node1_, 0) * (baricentric_2D(node0_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)) / 2. + (1 + facePosition_ * p[2]) * baricentricDeriv(node2_, 0) * (baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)) / 2.;
     }
     
-    double BasisFunction3DFacePrism_0::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction3DFacePrism_0::evalDeriv1(const Geometry::PointReference<3>& p) const
     {
-        double x0(baricentric_2D(node0_, p) - baricentric_2D(node1_, p)), x1(baricentric_2D(node1_, p) - baricentric_2D(node2_, p));
-        return (1 + facePosition_ * p[2]) * baricentricDeriv(node0_, 1) * (baricentric_2D(node1_, p) * baricentric_2D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * baricentric_2D(node2_, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1)) / 2. + (1 + facePosition_ * p[2]) * baricentricDeriv(node1_, 1) * (baricentric_2D(node0_, p) * baricentric_2D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * baricentric_2D(node2_, p) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * baricentric_2D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)) / 2. + (1 + facePosition_ * p[2]) * baricentricDeriv(node2_, 1) * (baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * baricentric_2D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)) / 2.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        double x0(baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)), x1(baricentric_2D(node1_, p2D) - baricentric_2D(node2_, p2D));
+        return (1 + facePosition_ * p[2]) * baricentricDeriv(node0_, 1) * (baricentric_2D(node1_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1)) / 2. + (1 + facePosition_ * p[2]) * baricentricDeriv(node1_, 1) * (baricentric_2D(node0_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomialDerivative(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)) / 2. + (1 + facePosition_ * p[2]) * baricentricDeriv(node2_, 1) * (baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)) / 2.;
     }
     
-    double BasisFunction3DFacePrism_0::evalDeriv2(const Geometry::PointReference& p) const
+    double BasisFunction3DFacePrism_0::evalDeriv2(const Geometry::PointReference<3>& p) const
     {
-        double x0(baricentric_2D(node0_, p) - baricentric_2D(node1_, p)), x1(baricentric_2D(node1_, p) - baricentric_2D(node2_, p));
-        return facePosition_ * baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * baricentric_2D(node2_, p) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) / 2.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        double x0(baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)), x1(baricentric_2D(node1_, p2D) - baricentric_2D(node2_, p2D));
+        return facePosition_ * baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * baricentric_2D(node2_, p2D) * LobattoPolynomial(polynomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) / 2.;
     }
     
     BasisFunction3DFacePrism_1::BasisFunction3DFacePrism_1(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1)
@@ -165,48 +177,56 @@ namespace Utilities
         }
     }
     
-    double BasisFunction3DFacePrism_1::eval(const Geometry::PointReference& p) const
+    double BasisFunction3DFacePrism_1::eval(const Geometry::PointReference<3>& p) const
     {
-        return (1 + p[2]) * (1 - p[2]) * baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder0_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p)) * LobattoPolynomial(polynomialOrder1_, mirroring_ * p[2]) / 4.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        return (1 + p[2]) * (1 - p[2]) * baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomial(polynomialOrder0_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)) * LobattoPolynomial(polynomialOrder1_, mirroring_ * p[2]) / 4.;
     }
     
-    double BasisFunction3DFacePrism_1::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction3DFacePrism_1::evalDeriv0(const Geometry::PointReference<3>& p) const
     {
-        return (1 + p[2]) * (1 - p[2]) * LobattoPolynomial(polynomialOrder1_, mirroring_ * p[2]) * baricentricDeriv(node0_, 0) * (baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder0_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p)) + baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder0_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p))) / 4. + (1 + p[2]) * (1 - p[2]) * LobattoPolynomial(polynomialOrder1_, mirroring_ * p[2]) * baricentricDeriv(node1_, 0) * (baricentric_2D(node0_, p) * LobattoPolynomial(polynomialOrder0_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p)) - baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder0_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p))) / 4.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        return (1 + p[2]) * (1 - p[2]) * LobattoPolynomial(polynomialOrder1_, mirroring_ * p[2]) * baricentricDeriv(node0_, 0) * (baricentric_2D(node1_, p2D) * LobattoPolynomial(polynomialOrder0_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)) + baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomialDerivative(polynomialOrder0_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D))) / 4. + (1 + p[2]) * (1 - p[2]) * LobattoPolynomial(polynomialOrder1_, mirroring_ * p[2]) * baricentricDeriv(node1_, 0) * (baricentric_2D(node0_, p2D) * LobattoPolynomial(polynomialOrder0_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)) - baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomialDerivative(polynomialOrder0_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D))) / 4.;
     }
     
-    double BasisFunction3DFacePrism_1::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction3DFacePrism_1::evalDeriv1(const Geometry::PointReference<3>& p) const
     {
-        return (1 + p[2]) * (1 - p[2]) * LobattoPolynomial(polynomialOrder1_, mirroring_ * p[2]) * baricentricDeriv(node0_, 1) * (baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder0_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p)) + baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder0_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p))) / 4. + (1 + p[2]) * (1 - p[2]) * LobattoPolynomial(polynomialOrder1_, mirroring_ * p[2]) * baricentricDeriv(node1_, 1) * (baricentric_2D(node0_, p) * LobattoPolynomial(polynomialOrder0_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p)) - baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomialDerivative(polynomialOrder0_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p))) / 4.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        return (1 + p[2]) * (1 - p[2]) * LobattoPolynomial(polynomialOrder1_, mirroring_ * p[2]) * baricentricDeriv(node0_, 1) * (baricentric_2D(node1_, p2D) * LobattoPolynomial(polynomialOrder0_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)) + baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomialDerivative(polynomialOrder0_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D))) / 4. + (1 + p[2]) * (1 - p[2]) * LobattoPolynomial(polynomialOrder1_, mirroring_ * p[2]) * baricentricDeriv(node1_, 1) * (baricentric_2D(node0_, p2D) * LobattoPolynomial(polynomialOrder0_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)) - baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomialDerivative(polynomialOrder0_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D))) / 4.;
     }
     
-    double BasisFunction3DFacePrism_1::evalDeriv2(const Geometry::PointReference& p) const
+    double BasisFunction3DFacePrism_1::evalDeriv2(const Geometry::PointReference<3>& p) const
     {
-        return baricentric_2D(node0_, p) * baricentric_2D(node1_, p) * LobattoPolynomial(polynomialOrder0_, baricentric_2D(node0_, p) - baricentric_2D(node1_, p)) * (-p[2] * LobattoPolynomial(polynomialOrder1_, mirroring_ * p[2]) / 2. + (1 + p[2]) * (1 - p[2]) * LobattoPolynomialDerivative(polynomialOrder1_, mirroring_ * p[2]) * mirroring_ / 4.);
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        return baricentric_2D(node0_, p2D) * baricentric_2D(node1_, p2D) * LobattoPolynomial(polynomialOrder0_, baricentric_2D(node0_, p2D) - baricentric_2D(node1_, p2D)) * (-p[2] * LobattoPolynomial(polynomialOrder1_, mirroring_ * p[2]) / 2. + (1 + p[2]) * (1 - p[2]) * LobattoPolynomialDerivative(polynomialOrder1_, mirroring_ * p[2]) * mirroring_ / 4.);
     }
     
-    double BasisFunction3DInteriorPrism::eval(const Geometry::PointReference& p) const
+    double BasisFunction3DInteriorPrism::eval(const Geometry::PointReference<3>& p) const
     {
-        double x0(baricentric_2D(0, p) - baricentric_2D(1, p)), x1(baricentric_2D(1, p) - baricentric_2D(2, p));
-        return baricentric_2D(0, p) * baricentric_2D(1, p) * baricentric_2D(2, p) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, p[2]) / 4.;
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        double x0(baricentric_2D(0, p2D) - baricentric_2D(1, p2D)), x1(baricentric_2D(1, p2D) - baricentric_2D(2, p2D));
+        return baricentric_2D(0, p2D) * baricentric_2D(1, p2D) * baricentric_2D(2, p2D) * (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * LobattoPolynomial(polynomialOrder2_, p[2]) / 4.;
     }
     
-    double BasisFunction3DInteriorPrism::evalDeriv0(const Geometry::PointReference& p) const
+    double BasisFunction3DInteriorPrism::evalDeriv0(const Geometry::PointReference<3>& p) const
     {
-        double x0(baricentric_2D(0, p) - baricentric_2D(1, p)), x1(baricentric_2D(1, p) - baricentric_2D(2, p));
-        return (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder2_, p[2]) / 4. * (baricentricDeriv(0, 0) * (baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(0, p) * baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomialDerivative(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1)) + baricentricDeriv(1, 0) * (baricentric_2D(0, p) * baricentric_2D(2, p) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(0, p) * baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomialDerivative(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(0, p) * baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)));
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        double x0(baricentric_2D(0, p2D) - baricentric_2D(1, p2D)), x1(baricentric_2D(1, p2D) - baricentric_2D(2, p2D));
+        return (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder2_, p[2]) / 4. * (baricentricDeriv(0, 0) * (baricentric_2D(1, p2D) * baricentric_2D(2, p2D) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(0, p2D) * baricentric_2D(1, p2D) * baricentric_2D(2, p2D) * LobattoPolynomialDerivative(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1)) + baricentricDeriv(1, 0) * (baricentric_2D(0, p2D) * baricentric_2D(2, p2D) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(0, p2D) * baricentric_2D(1, p2D) * baricentric_2D(2, p2D) * LobattoPolynomialDerivative(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(0, p2D) * baricentric_2D(1, p2D) * baricentric_2D(2, p2D) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)));
     }
     
-    double BasisFunction3DInteriorPrism::evalDeriv1(const Geometry::PointReference& p) const
+    double BasisFunction3DInteriorPrism::evalDeriv1(const Geometry::PointReference<3>& p) const
     {
-        double x0(baricentric_2D(0, p) - baricentric_2D(1, p)), x1(baricentric_2D(1, p) - baricentric_2D(2, p));
-        return (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder2_, p[2]) / 4. * (baricentricDeriv(0, 1) * (baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(0, p) * baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomialDerivative(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1)) + baricentricDeriv(2, 1) * (baricentric_2D(0, p) * baricentric_2D(1, p) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(0, p) * baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)));
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        double x0(baricentric_2D(0, p2D) - baricentric_2D(1, p2D)), x1(baricentric_2D(1, p2D) - baricentric_2D(2, p2D));
+        return (1 - p[2]) * (1 + p[2]) * LobattoPolynomial(polynomialOrder2_, p[2]) / 4. * (baricentricDeriv(0, 1) * (baricentric_2D(1, p2D) * baricentric_2D(2, p2D) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) + baricentric_2D(0, p2D) * baricentric_2D(1, p2D) * baricentric_2D(2, p2D) * LobattoPolynomialDerivative(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1)) + baricentricDeriv(2, 1) * (baricentric_2D(0, p2D) * baricentric_2D(1, p2D) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) - baricentric_2D(0, p2D) * baricentric_2D(1, p2D) * baricentric_2D(2, p2D) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomialDerivative(polynomialOrder1_, x1)));
     }
     
-    double BasisFunction3DInteriorPrism::evalDeriv2(const Geometry::PointReference& p) const
+    double BasisFunction3DInteriorPrism::evalDeriv2(const Geometry::PointReference<3>& p) const
     {
-        double x0(baricentric_2D(0, p) - baricentric_2D(1, p)), x1(baricentric_2D(1, p) - baricentric_2D(2, p));
-        return baricentric_2D(0, p) * baricentric_2D(1, p) * baricentric_2D(2, p) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * (-p[2] * LobattoPolynomial(polynomialOrder2_, p[2]) / 2. + (1 - p[2]) * (1 + p[2]) * LobattoPolynomialDerivative(polynomialOrder2_, p[2]) / 4.);
+        const Geometry::PointReference<2>& p2D = *Geometry::PointReferenceFactory<2>::instance()->makePoint(p.getCoordinates().data());
+        double x0(baricentric_2D(0, p2D) - baricentric_2D(1, p2D)), x1(baricentric_2D(1, p2D) - baricentric_2D(2, p2D));
+        return baricentric_2D(0, p2D) * baricentric_2D(1, p2D) * baricentric_2D(2, p2D) * LobattoPolynomial(polnomialOrder0_, x0) * LobattoPolynomial(polynomialOrder1_, x1) * (-p[2] * LobattoPolynomial(polynomialOrder2_, p[2]) / 2. + (1 - p[2]) * (1 + p[2]) * LobattoPolynomialDerivative(polynomialOrder2_, p[2]) / 4.);
     }
     
     Base::BasisFunctionSet* createDGBasisFunctionSet3DH1ConformingPrism(std::size_t order)

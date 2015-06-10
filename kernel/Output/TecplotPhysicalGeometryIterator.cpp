@@ -97,7 +97,7 @@ namespace Output
         lineNodes.push_back(0);
     }
     
-    void TecplotPhysicalGeometryIterator::acceptG(const Geometry::PhysicalGeometry* geo)
+    void TecplotPhysicalGeometryIterator::acceptG(const Geometry::PhysicalGeometryBase* geo)
     {
         if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceLine))
         {
@@ -140,43 +140,43 @@ namespace Output
         }
     }
 
-    void TecplotPhysicalGeometryIterator::acceptHexahedronGeometry(const Geometry::PhysicalGeometry*)
+    void TecplotPhysicalGeometryIterator::acceptHexahedronGeometry(const Geometry::PhysicalGeometryBase*)
     {
         currentSequencePtr = &hexahedronNodes;
         currentNode = hexahedronNodes.size() - 1;
     }
     
-    void TecplotPhysicalGeometryIterator::acceptTriangularPrismGeometry(const Geometry::PhysicalGeometry*)
+    void TecplotPhysicalGeometryIterator::acceptTriangularPrismGeometry(const Geometry::PhysicalGeometryBase*)
     {
         currentSequencePtr = &triangularPrismNodes;
         currentNode = triangularPrismNodes.size() - 1;
     }
     
-    void TecplotPhysicalGeometryIterator::acceptPyramidGeometry(const Geometry::PhysicalGeometry*)
+    void TecplotPhysicalGeometryIterator::acceptPyramidGeometry(const Geometry::PhysicalGeometryBase*)
     {
         currentSequencePtr = &pyramidNodes;
         currentNode = pyramidNodes.size() - 1;
     }
     
-    void TecplotPhysicalGeometryIterator::acceptTetrahedronGeometry(const Geometry::PhysicalGeometry*)
+    void TecplotPhysicalGeometryIterator::acceptTetrahedronGeometry(const Geometry::PhysicalGeometryBase*)
     {
         currentSequencePtr = &tetrahedronNodes;
         currentNode = tetrahedronNodes.size() - 1;
     }
     
-    void TecplotPhysicalGeometryIterator::acceptQuadrilateralGeometry(const Geometry::PhysicalGeometry*)
+    void TecplotPhysicalGeometryIterator::acceptQuadrilateralGeometry(const Geometry::PhysicalGeometryBase*)
     {
         currentSequencePtr = &quadrilateralNodes;
         currentNode = quadrilateralNodes.size() - 1; // inverse transverse
     }
     
-    void TecplotPhysicalGeometryIterator::acceptTriangleGeometry(const Geometry::PhysicalGeometry*)
+    void TecplotPhysicalGeometryIterator::acceptTriangleGeometry(const Geometry::PhysicalGeometryBase*)
     {
         currentSequencePtr = &triangleNodes;
         currentNode = triangleNodes.size() - 1;
     }
     
-    void TecplotPhysicalGeometryIterator::acceptLineGeometry(const Geometry::PhysicalGeometry*)
+    void TecplotPhysicalGeometryIterator::acceptLineGeometry(const Geometry::PhysicalGeometryBase*)
     {
         currentSequencePtr = &lineNodes;
         currentNode = lineNodes.size() - 1;
