@@ -371,6 +371,8 @@ namespace Base
     inline LinearAlgebra::MiddleSizeMatrix& Base::PhysicalElement<DIM>::getResultMatrix()
     {
         logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert(hasElementMatrix, "Can only provide the matrix once per coordinate");
+        hasElementMatrix = false;
         return resultMatrix;
     }
     
@@ -378,6 +380,8 @@ namespace Base
     inline LinearAlgebra::MiddleSizeVector& Base::PhysicalElement<DIM>::getResultVector()
     {
         logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert(hasElementVector, "Can only provide the vector once per coordinate");
+        hasElementVector = false;
         return resultVector;
     }
     
