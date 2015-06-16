@@ -46,6 +46,8 @@ namespace Base
         PhysicalElement()
             :  transform_((new H1ConformingTransformation<DIM>())), hasPointReference(false), hasElement(false) // other data will get initialized when we have more info
         {
+                hasElementMatrix = false;
+                hasElementVector = false;
         }
 
         PhysicalElement(const PhysicalElement& other) = delete;
