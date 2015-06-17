@@ -65,7 +65,6 @@ private:
     
     MiddleSizeVector computePhysicalFlux(const MiddleSizeVector &numericalSolution);
     MiddleSizeVector computeSourceTerm(const MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys, const double time);
-    MiddleSizeVector computeNumericalSolution(const Base::Element *ptrElement, const PointReferenceT &pRef, const MiddleSizeVector& solutionCoefficients);
     MiddleSizeVector localLaxFriedrichsFlux(const MiddleSizeVector &numericalSolutionLeft, const MiddleSizeVector &NumericalSolutionRight);
     double computeFriction(const MiddleSizeVector &numericalSolution);
     LinearAlgebra::MiddleSizeVector getInflowBC();

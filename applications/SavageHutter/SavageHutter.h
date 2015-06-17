@@ -80,7 +80,7 @@ public:
     /// \brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID)
     {
-        if (timeStepID % 100 == 0)
+        if (timeStepID % 1 == 0)
         {
             logger(INFO, "% time steps computed.", timeStepID);
         }
@@ -132,8 +132,17 @@ public:
 
     int sign(const double x)
     {
+        if (std::abs(x) < 1e-10)
+            return 0;
         return ((x < 0)? -1 : 1);
     }
+    
+    LinearAlgebra::MiddleSizeVector projectOnBasisFuns(Base::Element *elt, std::function<double(const PointReferenceT&)> myFun);
+    
+    void changeHeight( Base::Element* element, double minimum);
+    
+    ///If all values are approximately 0, set all coefficients to 0.
+    void zeroMaker (Base::Element* element);
     
 private:
 
