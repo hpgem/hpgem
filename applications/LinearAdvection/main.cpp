@@ -58,7 +58,7 @@ public:
     {
         
         //describes a rectangular domain
-        RectangularMeshDescriptorT description(DIM_);
+        RectangularMeshDescriptor description(DIM_);
         
         //this demo will use a cube
         for (int i = 0; i < DIM_; ++i)

@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 //    logger(FATAL, "x is not supposed to be %!!!", x);
     logger(DEBUG, "You won't see me!");
     log(DEBUG, "But you will see me!");
-    logger(WARN, "Escapes are possible! %\% sure!", 100.01f);
+    logger(WARN, "Escapes are possible! %\\% sure!", 100.01f);
     
     //Usage case for redefining with an function
     loggerOutput->onWarn = logMessage;
@@ -65,8 +65,9 @@ int main(int argc, char** argv)
     log.assert_always(true, "Test %", 6);
 
     //test if the string parser works correctly (\ tends to accumulate exponentially as the amount of escape layers grows)
+    //note that placing \% in a string is technically implementation defined behaviour (to be avoided in portable code) (§2.14.3.3 of the c++11 standard draft)
     loggerOutput->onDebug = logTestMessage;
-    log(DEBUG, "If you don't like \\\\%, it is also possible to escape the \%, by substituting the % with a % manually", '%', "%");
+    log(DEBUG, "If you don't like \\\\\\\\\\%, it is also possible to escape the \\%, by substituting the % with a % manually", '%', "%");
     
     //Usage case for redefining with a lambda func
     loggerOutput->onFatal = [](std::string module, std::string message)
@@ -89,6 +90,6 @@ void logMessage(std::string module, std::string msg)
 
 void logTestMessage(std::string module, std::string msg)
 {
-    logger.assert_always(msg=="If you don't like \\%, it is also possible to escape the %, by substituting the % with a % manually", "% got processed wrong", msg);
+    logger.assert_always(msg=="If you don't like \\\\%, it is also possible to escape the %, by substituting the % with a % manually", "% got processed wrong", msg);
     logger(INFO, "% got processed correctly!", msg);
 }

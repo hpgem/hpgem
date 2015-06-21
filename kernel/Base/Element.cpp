@@ -63,6 +63,7 @@ namespace Base
         logger.assert(basisFunctionSet->size()>0, "Not enough basis function sets passed");
         logger(VERBOSE, "numberOfElementMatrixes: %", numberOfElementMatrixes);
         logger(VERBOSE, "numberOfElementVectors: %", numberOfElementVectors);
+        
         orderCoeff_ = 2; // for safety
         std::size_t numberOfBasisFunctions = 0;
         for (std::size_t i = 0; i < basisFunctionSetPositions_.size(); ++i)
@@ -86,8 +87,7 @@ namespace Base
     Element::Element(const ElementData& otherData, const ElementGeometry& otherGeometry)
         : ElementData(otherData),
         ElementGeometry(otherGeometry)
-    {
-        
+    {        
     }
     
     ///Very ugly default constructor that's only here because it is needed in
@@ -102,11 +102,10 @@ namespace Base
         
     }
     
-    Element* Element::copyWithoutFacesEdgesNodes(const std::size_t numToAddToId)
+    Element* Element::copyWithoutFacesEdgesNodes()
     {
         //Make a new element with the data and geometry of this element
         Element* newElement = new Element(*this, *this);
-        newElement->id_ = id_ + numToAddToId;
         
         //copy the pointers to singletons
         newElement->quadratureRule_ = quadratureRule_;
@@ -114,9 +113,15 @@ namespace Base
         
         //copy other data
         newElement->basisFunctionSetPositions_ = basisFunctionSetPositions_;
+        newElement->id_ = id_;
         newElement->nrOfDOFinTheElement_ = nrOfDOFinTheElement_;
         newElement->orderCoeff_ = orderCoeff_;
         newElement->vecCacheData_ = vecCacheData_;
+        
+        //allocate memory for nodesList, facesList and edgesList
+        newElement->nodesList_.resize(getNrOfNodes());
+        newElement->edgesList_.resize(getNrOfEdges());
+        newElement->facesList_.resize(getNrOfFaces());
         
         return newElement;
     }
@@ -419,6 +424,7 @@ namespace Base
         edgesList_[localEdgeNr] = edge;
     }
     
+    ///\bug IFCD: because of the assert, the if-block will never be entered.
     void Element::setNode(std::size_t localNodeNr, const Node* node)
     {
         logger.assert(localNodeNr < getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());

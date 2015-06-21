@@ -29,6 +29,7 @@
 #include "FaceCacheData.h"
 #include "Mesh.h"
 #include "GlobalNamespaceBase.h"
+#include "BasisFunctionSet.h"
 
 namespace Base
 {

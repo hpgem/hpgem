@@ -238,5 +238,12 @@ int main(int argc, char** argv)
     
     testMesh(test);
     logger.assert_always(test->getNumberOfElements() == 60, "number of elements");
+    
+    //test copy constructor of MeshManipulator, only for most difficult case
+    Base::MeshManipulator* test2 = new Base::MeshManipulator(*test);
+    testMesh(test);
+    logger.assert_always(test2->getNumberOfElements() == 60, "number of elements in copy");
+    
+    return 0;
 }
 

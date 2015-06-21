@@ -54,6 +54,10 @@ namespace Base
     class ShortTermStorageElementBase : public Element
     {
     public:
+        
+        using PhysicalGeometry = Geometry::PhysicalGeometry;
+        using RefinementGeometry = Geometry::RefinementGeometry;
+        
         //The user should be able to use this as if it were an Element, and it is
         //quicker in integration routines than Element, since it stores the values
         //of the transformed basisfunctions and derivatives of basisfunctions.
@@ -77,6 +81,9 @@ namespace Base
 
         Element& operator=(Element& element);
         
+        ///Copy constructor.
+        ///Note that this makes a shallow copy of the element (i.e. it only copies 
+        ///the pointer to the element), which is correct since this is a wrapper class.
         ShortTermStorageElementBase(const ShortTermStorageElementBase& copy)
                 : element_(copy.element_), currentPoint_(copy.currentPoint_), jac_(copy.jac_), useCache_(copy.useCache_), recomputeCache_(copy.recomputeCache_), currentPointIndex_(copy.currentPointIndex_)
         {
@@ -191,16 +198,31 @@ namespace Base
             return element_->getFace(localFaceNr);
         }
         
+        const std::vector<const Face*> getFacesList() const
+        {
+            return element_->getFacesList();
+        }
+
         const Edge* getEdge(std::size_t localEdgeNr) const override final
         {
             return element_->getEdge(localEdgeNr);
         }
         
+        virtual const std::vector<const Edge*> getEdgesList() const
+        {
+            return element_->getEdgesList();
+        }
+
         const Node* getNode(std::size_t localNodeNr) const override final
         {
             return element_->getNode(localNodeNr);
         }
         
+        virtual const std::vector<const Node*> getNodesList() const
+        {
+            return element_->getNodesList();
+        }
+
         std::size_t getNrOfFaces() const override final
         {
             return element_->getNrOfFaces();
@@ -274,12 +296,12 @@ namespace Base
             return element_->getReferenceToPhysicalMap();
         }
         
-        const PhysicalGeometryT * const getPhysicalGeometry() const override final
+        const PhysicalGeometry * const getPhysicalGeometry() const override final
         {
             return element_->getPhysicalGeometry();
         }
         
-        PhysicalGeometryT * const getPhysicalGeometry() override final
+        PhysicalGeometry * const getPhysicalGeometry() override final
         {
             return element_->getPhysicalGeometry();
         }
@@ -289,7 +311,7 @@ namespace Base
             return element_->getReferenceGeometry();
         }
         
-        const RefinementGeometryT* getRefinementGeometry() const override final
+        const RefinementGeometry* getRefinementGeometry() const override final
         {
             return element_->getRefinementGeometry();
         }

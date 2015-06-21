@@ -52,18 +52,27 @@ namespace Base
 
     public:
         
-        Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, Element* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfFaceVectors = 0);
+        Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, 
+                Element* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR, 
+                std::size_t faceID, std::size_t numberOfFaceMatrixes = 0, 
+                std::size_t numberOfFaceVectors = 0);
         
-        Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& ftype, std::size_t faceID, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
+        Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, 
+        const Geometry::FaceType& ftype, std::size_t faceID, 
+        std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
                 
         ///copy constructor should not be used: if adjacent elements are the same,
         ///then the Face already exists and there is no need for another, if 
         ///adjacent elements are different, the copy is not really a copy
         Face(const Face& other) = delete;
+        
+        ///Copy constructor with new elements. It makes a copy of the face, but 
+        ///with new elements assigned to it.
+        Face(const Face& other, Element* elementL, const std::size_t localFaceL, Element* elementR, const std::size_t localFaceR);
 
         virtual ~Face()
         {
-        }        
+        }
         
         /// Return the pointer to the left element.
         virtual Element* getPtrElementLeft()
@@ -182,6 +191,7 @@ namespace Base
         }
         
     private:
+        
 
         Element* elementLeft_;
         Element* elementRight_;
@@ -191,5 +201,4 @@ namespace Base
         std::size_t faceID_;
     };
 }
-;
 #endif

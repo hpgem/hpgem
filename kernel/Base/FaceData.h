@@ -49,9 +49,7 @@ namespace Base
     public:
         FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices = 0, std::size_t numberOfFaceVactors = 0);        
         
-        ///Since FaceData is only used in Face, and Face does not have a copy constructor
-        ///FaceData does not need a copy constructor.
-        FaceData(const FaceData& other) = delete;
+        FaceData(const FaceData& other);
 
         /// \brief Sets face matrix number 'matrixID' using a standard matrix.
         /// \deprecated For safety and also efficiency it is advised to use the other version
@@ -95,6 +93,9 @@ namespace Base
         virtual const LinearAlgebra::NumericalVector& getResidue() const;
 
         void setResidue(LinearAlgebra::NumericalVector& residue);
+        
+        std::size_t getNumberFaceMatrices() const;
+        std::size_t getNumberFaceVectors() const;
         
     protected:
         VecCacheT vecCacheData_;

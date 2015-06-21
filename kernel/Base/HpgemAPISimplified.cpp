@@ -49,7 +49,7 @@ namespace Base
     CommandLineOption<std::size_t>& numberOfSnapshots = Base::register_argument<std::size_t>(0, "nOutputFrames", "Number of frames to output", false, 1);
     CommandLineOption<double>& endTime = Base::register_argument<double>(0, "endTime", "end time of the simulation", false, 1);
     CommandLineOption<double>& startTime = Base::register_argument<double>(0, "startTime", "start time of the simulation", false, 0);
-    CommandLineOption<double>& dt = Base::register_argument<double>(0, "dt", "time step of the simulation", false);
+    CommandLineOption<double>& dt = Base::register_argument<double>(0, "dt", "time step of the simulation", false, 0.01);
     CommandLineOption<std::string>& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file (without extentions)", false, "output");
     
     /// \param[in] dimension Dimension of the domain
@@ -711,7 +711,7 @@ namespace Base
         variableNames_ = variableNames;
     }
     
-    void HpgemAPISimplified::writeToTecplotFile(const ElementT *ptrElement, const PointReferenceT &pRef, std::ostream &out)
+    void HpgemAPISimplified::writeToTecplotFile(const Element *ptrElement, const PointReferenceT &pRef, std::ostream &out)
     {
         std::size_t numOfVariables = configData_->numberOfUnknowns_;
         

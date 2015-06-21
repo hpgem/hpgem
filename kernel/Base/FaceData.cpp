@@ -37,6 +37,12 @@ Base::FaceData::FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatric
     
 }
 
+Base::FaceData::FaceData(const FaceData& other)
+: userData_(other.userData_), faceMatrix_(other.faceMatrix_), faceVector_(other.faceVector_),
+    residual_(other.residual_), vecCacheData_(other.vecCacheData_)
+{
+}
+
 /// \param[in] matrix The standard matrix used to set the FaceMatrix.
 /// \param[in] matrixID The index to specify which FaceMatrix should be set.
 /// \details To set a FaceMatrix using a standard matrix we must also know the 
@@ -124,3 +130,12 @@ void Base::FaceData::setResidue(LinearAlgebra::NumericalVector& residue)
     residual_ = residue;
 }
 
+std::size_t Base::FaceData::getNumberFaceMatrices() const
+{
+    return faceMatrix_.size();
+}
+
+std::size_t Base::FaceData::getNumberFaceVectors() const
+{
+    return faceVector_.size();
+}
