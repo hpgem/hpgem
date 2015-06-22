@@ -46,7 +46,6 @@ namespace Utilities
         {
             logger.assert(node < 2, "A line only has 2 nodes");
         }
-        
         double eval(const Geometry::PointReference& p) const;
 
         double evalDeriv0(const Geometry::PointReference& p) const;
