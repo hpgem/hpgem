@@ -594,7 +594,7 @@ namespace Base
         const auto& pushes = mesh.getPushElements();
         const auto& pulls = mesh.getPullElements();
 
-        //recieve first for lower overhead
+        //receive first for lower overhead
         for (const auto& it : pulls)
         {   
             for (Base::Element *ptrElement : it.second)
