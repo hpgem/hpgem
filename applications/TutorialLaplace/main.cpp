@@ -41,7 +41,7 @@
 #include "Integration/ElementIntegral.h"
 #include "Base/CommandLineOptions.h"
 
-///\brief Make the encapsulation for the DG problem. 
+///\brief Tutorial for solving the Poisson equation using hpGEM. 
 ///
 ///In here, all methods that you use 
 ///for the computations and output are defined.
@@ -60,11 +60,11 @@ public:
     ///of basisfunctions. Furthermore, assign a value to the penalty parameter.
     ///n stands for number of elements, p stands for polynomial order.
     ///Lastly, construct the mesh with this number of elements and polynomial order.
-    TutorialPoisson(const std::size_t n, const std::size_t p) :
-    HpgemAPILinearSteadyState(2, 1, p, true, true),
+    TutorialPoisson(const std::size_t dimension, const std::size_t n, const std::size_t p) :
+    HpgemAPILinearSteadyState(dimension, 1, p, true, true),
     n_(n),
     p_(p),
-    DIM_(2)
+    DIM_(dimension)
     {
         penalty_ = 3 * n_ * p_ * (p_ + DIM_ - 1) + 1;
     }
@@ -78,7 +78,7 @@ public:
     Base::RectangularMeshDescriptor createMeshDescription(const std::size_t numOfElementPerDirection) override final
     {
         //describes a rectangular domain
-        Base::RectangularMeshDescriptor description(DIM_);
+        RectangularMeshDescriptorT description(DIM_);
         
         //this demo will use the square [0,1]^2
         for (std::size_t i = 0; i < DIM_; ++i)
@@ -106,7 +106,7 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, which we return.
     ///Please note that you pass a reference point to the basisfunctions and the 
     ///transformations are done internally.
-    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const Base::Element *element, const PointReferenceT &point) override final
+    LinearAlgebra::Matrix computeIntegrandStiffnessMatrixAtElement(const ElementT *element, const PointReferenceT &point) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
         const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
@@ -139,7 +139,7 @@ public:
     ///The resulting matrix of values is then given in the matrix integrandVal, which is returned.
     ///Please note that you pass a reference point to the basisfunctions and the 
     ///transformations are done internally.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
+    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
@@ -161,14 +161,14 @@ public:
         //This is necessary to check at which boundary we are if we are at a boundary face.
         PointPhysicalT pPhys = face->referenceToPhysical(p);
         
-        for (std::size_t i = 0; i < numBasisFunctions; ++i)
+        for (int i = 0; i < numBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
             phiNormalI = face->basisFunctionNormal(i, normal, p);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
             phiDerivI = face->basisFunctionDeriv(i, p);
             
-            for (std::size_t j = 0; j < numBasisFunctions; ++j)
+            for (int j = 0; j < numBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
                 phiNormalJ = face->basisFunctionNormal(j, normal, p);
@@ -199,15 +199,6 @@ public:
         return integrandVal;
     }
     
-    /// \brief Define the exact solution
-    /// \details In this case the exact solution is u(x,y) = sin(2pi x) * cos(2pi y).
-    LinearAlgebra::NumericalVector getExactSolution(const PointPhysicalT &p) override final
-    {
-        LinearAlgebra::NumericalVector exactSolution(1);
-        exactSolution[0] = std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
-        return exactSolution;
-    }
-    
     ///\brief Define the source term.
     ///
     ///Define the source, which is the right hand side of laplacian(u) = f(x,y).
@@ -229,7 +220,7 @@ public:
     ///integral on the right-hand side. However, in our application we do not have
     ///contributions for the boundary conditions, so the vector has only zeroes.
     ///The input/output structure is the same as the other faceIntegrand function.
-    LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const Base::Face* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
+    LinearAlgebra::NumericalVector computeIntegrandSourceTermAtFace(const FaceT* face, const LinearAlgebra::NumericalVector& normal, const PointReferenceT& p) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
         const std::size_t numBasisFunctions = face->getNrOfBasisFunctions();
@@ -252,73 +243,23 @@ public:
     ///This function is used by other functions to write the tecplot file, so it is
     ///not a function to write the whole file.
     ///The only thing this has to write in the file is the value of the solution.
-    void writeToTecplotFile(const Base::Element* element, const PointReferenceT& point, std::ostream& out) override final
+    void writeToTecplotFile(const ElementT* element, const PointReferenceT& point, std::ostream& out) override final
     {
         LinearAlgebra::NumericalVector value(1);
         value = element->getSolution(0, point);
         out << value[0];
     }
-        
-    /*
-    /// \brief Solve the system
-    ///
-    /// This function contains a lot of PETSc code and should be automated in the future.
-    /// First compute all integrals and assemble the matrix and right-hand side vector.
-    /// Then solve this system with a krylov subspace method from the PETSc package.
-    /// Finally, write the solution and mesh to the Tecplot file output.dat.
-    bool solve()
-    {
-        //Compute all element integrals.
-        doAllElementIntegration();
-        //Compute all face integrals.
-        doAllFaceIntegration();
-        //Assemble the matrix A of the system Ax = b.
-        Utilities::GlobalPetscMatrix A(HpgemAPIBase::meshes_[0], 0, 0);
-        //Declare the vectors x and b of the system Ax = b.
-        Utilities::GlobalPetscVector b(HpgemAPIBase::meshes_[0], 0, 0), x(HpgemAPIBase::meshes_[0]);
-        
-        //Assemble the vector b. This is needed because Petsc assumes you don't know
-        //yet whether a vector is a variable or right-hand side the moment it is 
-        //declared.
-        b.assemble();
-        
-        //Make the Krylov supspace method
-        KSP ksp;
-        KSPCreate(PETSC_COMM_WORLD, &ksp);
-        //Tell ksp that it will solve the system Ax = b.
-        KSPSetOperators(ksp, A, A);
-        KSPSetFromOptions(ksp);
-        KSPSolve(ksp, b, x);
-        //Do PETSc magic, including solving.
-        KSPConvergedReason conferge;
-        KSPGetConvergedReason(ksp, &conferge);
-        int iterations;
-        KSPGetIterationNumber(ksp, &iterations);
-        std::cout << "KSP solver ended because of " << KSPConvergedReasons[conferge] << " in " << iterations << " iterations." << std::endl;
-        
-        //once PETSc is done, feed the data back into the elements
-        x.writeTimeLevelData(0);
-        
-        //so it can be used for post-processing
-        std::ofstream outFile("output.dat");
-        //write tecplot data
-        Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
-        writeFunc.write(meshes_[0], "discontinuous solution", false, this);
-     
-        return true;
-    }
-    */
     
 private:
     
     ///number of elements per cardinal direction
-    std::size_t n_;
+    int n_;
 
     ///polynomial order of the approximation
-    std::size_t p_;
+    int p_;
 
     ///Dimension of the domain, in this case 2
-    std::size_t DIM_;
+    int DIM_;
 
     ///\brief Penalty parameter
     ///
@@ -328,8 +269,8 @@ private:
     double penalty_;
 };
 
-auto& numBasisFuns = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
-auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
+auto& numBasisFuns = Base::register_argument<int>('n', "numElems", "number of elements per dimension", true);
+auto& p = Base::register_argument<int>('p', "order", "polynomial order of the solution", true);
 ///Example of using the Laplace class. 
 ///This implementation asks for commandline input arguments for the number of elements
 ///in each direction and the polynomial order. Then make the object test, initialise
@@ -337,28 +278,36 @@ auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order o
 ///necessary since we need to use the library PETSc in the solve routine.
 int main(int argc, char **argv)
 {
-    // Choose the dimension (2 or 3)
-    const std::size_t dimension = 2;
-
-    // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
-    const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
-
-    // Choose variable name(s). Since we have a scalar function, we only need to chooes one name.
-    std::vector<std::string> variableNames;
-    variableNames.push_back("u");
-
-    //Make the object test with n elements in each direction and polynomial order p.
-    TutorialPoisson test(dimension, numBasisFuns.getValue(), p.getValue());
-
-    //Create the mesh
-    test.createMesh(numBasisFuns.getValue(), meshType);
-
-    // Set the names for the output file
-    test.setOutputNames("output", "TutorialPoisson", "TutorialPoisson", variableNames);
-
-    //Solve the system.
-    test.solveSteadyStateWithPetsc(true);
-
-    return 0;
+    Base::parse_options(argc, argv);
+    try
+    {
+        // Choose the dimension (2 or 3)
+        const std::size_t dimension = 3;
+        
+        // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
+        const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
+        
+        // Choose variable name(s). Since we have a scalar function, we only need to chooes one name.
+        std::vector<std::string> variableNames;
+        variableNames.push_back("u");
+        
+        //Make the object test with n elements in each direction and polynomial order p.
+        TutorialPoisson test(dimension, numBasisFuns.getValue(), p.getValue());
+        
+        //Create the mesh
+        test.createMesh(numBasisFuns.getValue(), meshType);
+        
+        // Set the names for the output file
+        test.setOutputNames("output", "TutorialPoisson", "TutorialPoisson", variableNames);
+        
+        //Solve the system.
+        test.solveSteadyStateWithPetsc();
+        
+        return 0;
+    }
+    catch (const char* e)
+    {
+        std::cout << e;
+    }
 }
 
