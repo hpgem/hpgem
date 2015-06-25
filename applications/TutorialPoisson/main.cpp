@@ -41,10 +41,10 @@
 #include "Integration/ElementIntegral.h"
 #include "Base/CommandLineOptions.h"
 
+
 // Choose the dimension (in this case 2)
 const std::size_t DIM = 2;
-
-///\brief Tutorial for solving the Poisson equation using hpGEM. 
+///\brief Tutorial for solving the Poisson equation using hpGEM.
 ///
 ///In here, all methods that you use 
 ///for the computations and output are defined.
@@ -240,6 +240,56 @@ public:
         value = element->getSolution(0, point);
         out << value[0];
     }
+        
+    /*
+    /// \brief Solve the system
+    ///
+    /// This function contains a lot of PETSc code and should be automated in the future.
+    /// First compute all integrals and assemble the matrix and right-hand side vector.
+    /// Then solve this system with a krylov subspace method from the PETSc package.
+    /// Finally, write the solution and mesh to the Tecplot file output.dat.
+    bool solve()
+    {
+        //Compute all element integrals.
+        doAllElementIntegration();
+        //Compute all face integrals.
+        doAllFaceIntegration();
+        //Assemble the matrix A of the system Ax = b.
+        Utilities::GlobalPetscMatrix A(HpgemAPIBase::meshes_[0], 0, 0);
+        //Declare the vectors x and b of the system Ax = b.
+        Utilities::GlobalPetscVector b(HpgemAPIBase::meshes_[0], 0, 0), x(HpgemAPIBase::meshes_[0]);
+        
+        //Assemble the vector b. This is needed because Petsc assumes you don't know
+        //yet whether a vector is a variable or right-hand side the moment it is 
+        //declared.
+        b.assemble();
+        
+        //Make the Krylov supspace method
+        KSP ksp;
+        KSPCreate(PETSC_COMM_WORLD, &ksp);
+        //Tell ksp that it will solve the system Ax = b.
+        KSPSetOperators(ksp, A, A);
+        KSPSetFromOptions(ksp);
+        KSPSolve(ksp, b, x);
+        //Do PETSc magic, including solving.
+        KSPConvergedReason conferge;
+        KSPGetConvergedReason(ksp, &conferge);
+        int iterations;
+        KSPGetIterationNumber(ksp, &iterations);
+        std::cout << "KSP solver ended because of " << KSPConvergedReasons[conferge] << " in " << iterations << " iterations." << std::endl;
+        
+        //once PETSc is done, feed the data back into the elements
+        x.writeTimeLevelData(0);
+        
+        //so it can be used for post-processing
+        std::ofstream outFile("output.dat");
+        //write tecplot data
+        Output::TecplotDiscontinuousSolutionWriter writeFunc(outFile, "test", "01", "value");
+        writeFunc.write(meshes_[0], "discontinuous solution", false, this);
+     
+        return true;
+    }
+    */
     
 private:
     
@@ -266,7 +316,6 @@ auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order o
 ///necessary since we need to use the library PETSc in the solve routine.
 int main(int argc, char **argv)
 {
-    Base::parse_options(argc, argv);
 
     // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
