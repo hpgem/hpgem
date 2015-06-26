@@ -66,8 +66,8 @@ int main()
     
     for (std::size_t i = 0; i < fGeom.getNumberOfNodes(); ++i)
     {
-        refPoint = fGeom.getNode(i);
-        compare = eGeom.getNode(nodesAfterTransformation[i]);
+        refPoint = fGeom.getReferenceNodeCoordinate(i);
+        compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
         logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12), "transform");
@@ -97,8 +97,8 @@ int main()
     
     for (std::size_t i = 0; i < fGeom.getNumberOfNodes(); ++i)
     {
-        refPoint = fGeom.getNode(i);
-        compare = eGeom.getNode(nodesAfterTransformation[i]);
+        refPoint = fGeom.getReferenceNodeCoordinate(i);
+        compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
         logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12), "transform");
@@ -128,8 +128,8 @@ int main()
     
     for (std::size_t i = 0; i < fGeom.getNumberOfNodes(); ++i)
     {
-        refPoint = fGeom.getNode(i);
-        compare = eGeom.getNode(nodesAfterTransformation[i]);
+        refPoint = fGeom.getReferenceNodeCoordinate(i);
+        compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
         logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12), "transform");
@@ -159,8 +159,8 @@ int main()
     
     for (std::size_t i = 0; i < fGeom.getNumberOfNodes(); ++i)
     {
-        refPoint = fGeom.getNode(i);
-        compare = eGeom.getNode(nodesAfterTransformation[i]);
+        refPoint = fGeom.getReferenceNodeCoordinate(i);
+        compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
         logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12), "transform");

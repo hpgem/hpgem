@@ -73,8 +73,8 @@ int main()
     
     for (std::size_t i = 0; i < source->getNumberOfNodes(); ++i)
     {
-        orig0D = source->getNode(i);
-        compare1D = target->getNode(nodesAfterTransformation[i]);
+        orig0D = source->getReferenceNodeCoordinate(i);
+        compare1D = target->getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point1D = test->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig0D));
     }
     
@@ -107,8 +107,8 @@ int main()
     
     for (std::size_t i = 0; i < source->getNumberOfNodes(); ++i)
     {
-        orig1D = source->getNode(i);
-        compare2D = target->getNode(nodesAfterTransformation[i]);
+        orig1D = source->getReferenceNodeCoordinate(i);
+        compare2D = target->getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point2D = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig1D));
         logger.assert_always((std::abs(point2D[0] - compare2D[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point2D[1] - compare2D[1]) < 1e-12), "transform");
@@ -160,8 +160,8 @@ int main()
     
     for (std::size_t i = 0; i < source->getNumberOfNodes(); ++i)
     {
-        orig2D = source->getNode(i);
-        compare3D = target->getNode(nodesAfterTransformation[i]);
+        orig2D = source->getReferenceNodeCoordinate(i);
+        compare3D = target->getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point3D = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
         logger.assert_always((std::abs(point3D[0] - compare3D[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point3D[1] - compare3D[1]) < 1e-12), "transform");

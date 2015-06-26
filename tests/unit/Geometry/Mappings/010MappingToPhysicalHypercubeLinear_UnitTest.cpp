@@ -102,7 +102,7 @@ int main()
     
     for (std::size_t i = 0; i < rGeom.getNumberOfNodes(); ++i)
     {
-        refPoint1D = rGeom.getNode(i);
+        refPoint1D = rGeom.getReferenceNodeCoordinate(i);
         compare1D = pGeom.getLocalNodeCoordinates(i);
         point1D = mapping1D.transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint1D));
         logger.assert_always((std::abs(point1D[0] - compare1D[0]) < 1e-12), "transform");
@@ -179,7 +179,7 @@ int main()
     
     for (std::size_t i = 0; i < rGeom2D.getNumberOfNodes(); ++i)
     {
-        refPoint2D = rGeom2D.getNode(i);
+        refPoint2D = rGeom2D.getReferenceNodeCoordinate(i);
         compare2D = pGeom2D.getLocalNodeCoordinates(i);
         point2D = mapping2D.transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D));
         logger.assert_always((std::abs(point2D[0] - compare2D[0]) < 1e-12) && std::abs(point2D[1] - compare2D[1]) < 1e-12, "transform");
@@ -291,7 +291,7 @@ int main()
     
     for (std::size_t i = 0; i < rGeom3D.getNumberOfNodes(); ++i)
     {
-        refPoint3D = rGeom3D.getNode(i);
+        refPoint3D = rGeom3D.getReferenceNodeCoordinate(i);
         compare3D = pGeom3D.getLocalNodeCoordinates(i);
         point3D = mapping3D.transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
         logger.assert_always((std::abs(point3D[0] - compare3D[0]) < 1e-12) && std::abs(point3D[1] - compare3D[1]) < 1e-12 && std::abs(point3D[2] - compare3D[2]) < 1e-12, "transform");

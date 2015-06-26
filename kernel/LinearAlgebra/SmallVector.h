@@ -273,7 +273,10 @@ namespace LinearAlgebra
     MiddleSizeVector::MiddleSizeVector(const SmallVector<nRows>& other)
         : data_(other.data(), other.data() + nRows)
     {
-        logger(WARN, "Constructing middle size vector from small vector, consider using small vectors everywhere for fixed length vectors of size <= 4");
+        logger(WARN, "Constructing middle size vector from small vector, consider "
+            "using small vectors everywhere for fixed length vectors of size <= 4. "
+            "This warning might also be caused because of an operation between a "
+            "small vector and a middle size vector.");
     }
 #endif
 

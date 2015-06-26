@@ -75,13 +75,13 @@ int main()
     
     pTest = test.getCenter();
     logger.assert_always((test.isInternalPoint(*Geometry::PointReferenceFactory<2>::instance()->makePoint(pTest)) && std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1]) < 1e-12), "getCenter");
-    pTest = test.getNode(0);
+    pTest = test.getReferenceNodeCoordinate(0);
     logger.assert_always((std::abs(pTest[0] + 1) < 1e-12 && std::abs(pTest[1] + 1) < 1e-12), "getNode 0");
-    pTest = test.getNode(1);
+    pTest = test.getReferenceNodeCoordinate(1);
     logger.assert_always((std::abs(pTest[0] - 1) < 1e-12 && std::abs(pTest[1] + 1) < 1e-12), "getNode 1");
-    pTest = test.getNode(2);
+    pTest = test.getReferenceNodeCoordinate(2);
     logger.assert_always((std::abs(pTest[0] + 1) < 1e-12 && std::abs(pTest[1] - 1) < 1e-12), "getNode 2");
-    pTest = test.getNode(3);
+    pTest = test.getReferenceNodeCoordinate(3);
     logger.assert_always((std::abs(pTest[0] - 1) < 1e-12 && std::abs(pTest[1] - 1) < 1e-12), "getNode 3");
     std::cout << test.getName();
     
