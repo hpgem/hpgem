@@ -33,10 +33,13 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElem
 {
     const std::size_t numBasisFuncs = element.getElement()->getNrOfBasisFunctions();
     
-    MiddleSizeVector& integrand = element.getResultVector(); //just to have the correct length
-    const MiddleSizeVector numericalSolution = element.getSolution();
-    const MiddleSizeVector physicalFlux = computePhysicalFlux(numericalSolution);
+    MiddleSizeVector& integrand = element.getResultVector(); //just to have the correct length    
     const PointPhysicalT& pPhys = element.getPointPhysical();
+    const PointReferenceT& pRef = element.getPointReference();
+    const MiddleSizeVector numericalSolution = getSolution(element.getElement(), solutionCoefficients, pRef);
+    logger(DEBUG, "NumericalSolution: %,\n getSolution(timeLevel): %, %", numericalSolution,
+           element.getElement()->getSolution(0,pRef), element.getElement()->getSolution(1,pRef));
+    const MiddleSizeVector physicalFlux = computePhysicalFlux(numericalSolution);
     const MiddleSizeVector source = computeSourceTerm(numericalSolution, pPhys, time);
     logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
     
@@ -65,18 +68,45 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     const std::size_t numBasisFuncsLeft = face.getFace()->getPtrElement(Base::Side::LEFT)->getNrOfBasisFunctions();
     const std::size_t numBasisFuncsRight = face.getFace()->getPtrElement(Base::Side::RIGHT)->getNrOfBasisFunctions();
 
-    MiddleSizeVector solutionLeft = face.getSolution(Base::Side::LEFT);
-    MiddleSizeVector solutionRight = face.getSolution(Base::Side::RIGHT);
+    //MiddleSizeVector solutionLeft = face.getSolution(Base::Side::LEFT);
+    //MiddleSizeVector solutionRight = face.getSolution(Base::Side::RIGHT);
+    const Geometry::PointReference<0>& pRef = face.getPointReference();
+    const PointReferenceT& pRefL = face.getFace()->mapRefFaceToRefElemL(pRef);
+    const PointReferenceT& pRefR = face.getFace()->mapRefFaceToRefElemR(pRef);
+    MiddleSizeVector solutionLeft = getSolution(face.getFace()->getPtrElementLeft(), solutionCoefficientsLeft, pRefL);    
+    MiddleSizeVector solutionRight = getSolution(face.getFace()->getPtrElementRight(), solutionCoefficientsRight, pRefR);
+    
     
     logger(DEBUG, "face: %, uL: %, uR:%", face.getFace()->getID(), solutionLeft, solutionRight);
     MiddleSizeVector flux(2);
-    if (normal > 0)
+    
+    bool dryLeft = static_cast<DryFlag*>(face.getFace()->getPtrElementLeft()->getUserData())->isDry;
+    bool dryRight = static_cast<DryFlag*>(face.getFace()->getPtrElementRight()->getUserData())->isDry;
+    if (false && dryLeft && dryRight)
     {
-        flux = localLaxFriedrichsFlux(solutionLeft, solutionRight);
+        if (iSide == Base::Side::LEFT)
+        {
+            MiddleSizeVector solutionReflected = solutionLeft;
+            solutionReflected[1] *= -1;
+            flux = localLaxFriedrichsFlux(solutionLeft, solutionReflected);
+        }
+        else
+        {
+            MiddleSizeVector solutionReflected = solutionRight;
+            solutionReflected[1] *= -1;
+            flux = localLaxFriedrichsFlux(solutionRight, solutionReflected);
+        }
     }
     else
     {
-        flux = localLaxFriedrichsFlux(solutionRight, solutionLeft);
+        if (normal > 0)
+        {
+            flux = localLaxFriedrichsFlux(solutionLeft, solutionRight);
+        }
+        else
+        {
+            flux = localLaxFriedrichsFlux(solutionRight, solutionLeft);
+        }
     }
     
     if (iSide == Base::Side::RIGHT) //the normal is defined for the left element
@@ -106,11 +136,15 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
 {
     double normal = face.getNormalVector()[0];
     const std::size_t numBasisFuncs = face.getFace()->getNrOfBasisFunctions();
-    MiddleSizeVector solution = face.getSolution(Base::Side::LEFT); //note that at the boundary, the element is the left element by definition
+    
+    const Geometry::PointReference<0>& pRef = face.getPointReference();
+    //note that at the boundary, the element is the left element by definition
+    const PointReferenceT& pRefL = face.getFace()->mapRefFaceToRefElemL(pRef);
+    MiddleSizeVector solution = getSolution(face.getFace()->getPtrElementLeft(), solutionCoefficients, pRefL);
     
     MiddleSizeVector flux(2);
     double u = 0;
-    if (solution(0) > 1e-10)
+    if (solution(0) > 1e-5)
     {
         u = solution(1)/solution(0);
     }
@@ -143,32 +177,32 @@ MiddleSizeVector SavageHutterRightHandSideComputer::computePhysicalFlux(const Mi
 {    
     const double h = numericalSolution(0);
     logger.assert(h > -1e-16, "Negative height (%)", h);
-    const double hu = numericalSolution(1);
+    double hu = numericalSolution(1);
     double u = 0;
-    if (h > 1e-10)
+    if (h > 1e-5)
     {
         u = hu/h;
     }
     MiddleSizeVector flux(2);
     flux(0) = hu;
-    flux(1) = hu * u + epsilon_/2 * std::cos(theta_) * h * h;
+    flux(1) = hu * u + epsilon_/2 * std::cos(chuteAngle_) * h * h;
     logger(DEBUG, "flux values: %, %", flux(0), flux(1));
     return flux;
 }
 
 MiddleSizeVector SavageHutterRightHandSideComputer::computeSourceTerm(const MiddleSizeVector& numericalSolution, const PointPhysicalT& pPhys, const double time)
 {
-    logger.assert(theta_ < M_PI / 2, "Angle must be in radians, not degrees!");
+    logger.assert(chuteAngle_ < M_PI / 2, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
     const double hu = numericalSolution(1);
     double u = 0;
-    if (h > 1e-10)
+    if (h > 1e-5)
     {
         u = hu/h;
     }
     double mu = computeFriction(numericalSolution);
     const int signU = (u > -1e-16) ? 1 : -1;
-    double sourceX = h * std::sin(theta_) - h * mu * signU * std::cos(theta_);
+    double sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
     logger(DEBUG, "Source: %, h: %", sourceX, h);
     return MiddleSizeVector({0, sourceX});
 }
@@ -176,13 +210,13 @@ MiddleSizeVector SavageHutterRightHandSideComputer::computeSourceTerm(const Midd
 MiddleSizeVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight)
 {
     double uLeft = 0;
-    if (numericalSolutionLeft(0) > 1e-10)
+    if (numericalSolutionLeft(0) > 1e-5)
     {
         uLeft = numericalSolutionLeft(1) / numericalSolutionLeft(0);
     }
     
     double uRight = 0;
-    if (numericalSolutionRight(0) > 1e-10)
+    if (numericalSolutionRight(0) > 1e-5)
     {
         uRight = numericalSolutionRight(1) / numericalSolutionRight(0);
     }
@@ -203,10 +237,25 @@ MiddleSizeVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const
 
 double SavageHutterRightHandSideComputer::computeFriction(const MiddleSizeVector& numericalSolution)
 {
-    return std::tan(theta_);
+    return std::tan(chuteAngle_);
 }
 
 LinearAlgebra::MiddleSizeVector SavageHutterRightHandSideComputer::getInflowBC()
 {
     return LinearAlgebra::MiddleSizeVector({.1, 0});
+}
+
+MiddleSizeVector SavageHutterRightHandSideComputer::getSolution(const Base::Element *element, const MiddleSizeVector& solutionCoefficients, const PointReferenceT& pRef)
+{
+    const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
+    MiddleSizeVector solution(numOfVariables_);
+    for (std::size_t iFun = 0; iFun < numBasisFunctions; ++iFun)
+    {
+        for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
+        {
+            std::size_t iVB = element->convertToSingleIndex(iFun, iVar);
+            solution(iVar) += element->basisFunction(iFun, pRef)*solutionCoefficients(iVB);
+        }
+    }
+    return solution;
 }

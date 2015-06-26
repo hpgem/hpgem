@@ -27,6 +27,7 @@
 
 #include "Base/CommandLineOptions.h"
 #include "Base/ConfigurationData.h"
+#include "Base/UserData.h"
 #include "Base/Element.h"
 #include "Base/Face.h"
 #include "Base/HpgemAPISimplified.h"
@@ -57,6 +58,11 @@ struct SHConstructorStruct
     Base::ButcherTableau * ptrButcherTableau;
 };
 
+struct DryFlag : public UserElementData
+{
+    bool isDry;
+};
+
 //todo: make the functions override final, but at the moment my parser does not 
 //understand the override and final keywords, which makes development harder
 class SavageHutter : public Base::HpgemAPISimplified<DIM>
@@ -70,6 +76,14 @@ public:
     ///constructor also constructs the mesh and couples an object LimiterData to
     ///each element.
     SavageHutter(const SHConstructorStruct& inputValues);
+    
+    ~SavageHutter()
+    {
+        for (Base::Element *element : meshes_[0]->getElementsList())
+        {
+            delete (element->getUserData());
+        }
+    }
 
     /// \brief Create a domain
     Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection);
@@ -80,7 +94,7 @@ public:
     /// \brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID)
     {
-        if (timeStepID % 1 == 0)
+        if (timeStepID % 100 == 0)
         {
             logger(INFO, "% time steps computed.", timeStepID);
         }
@@ -110,13 +124,16 @@ public:
     void limitSolution();
     
     ///Auxiliary function for checking if a limiter should be used.
-    LinearAlgebra::MiddleSizeVector computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution);
+    LinearAlgebra::SmallVector<1> computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution);
     
     ///Compute the average of the height and discharge in the given element
     LinearAlgebra::MiddleSizeVector computeAverageOfSolution(Base::Element *element);
     
     ///Compute the minimum of the height in the given element
     double getMinimumHeight(const Base::Element *element);
+    
+    ///Compute the maximum of the height in the given element
+    double getMaximumHeight(const Base::Element *element);
     
     ///If a limiter should be used, use the min-mod limiter. Save the values of 
     ///the left side and right side in the struct LimiterData.
@@ -128,6 +145,29 @@ public:
         //so it is not clear to me whether or not you need scaling. Please fix as needed
         this->faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
         Base::HpgemAPISimplified<DIM>::tasksBeforeSolving();
+    }
+    
+    void initialDryWet()
+    {
+        for (Base::Element *elt : meshes_[0]->getElementsList())
+        {
+            logger(DEBUG, "coefficients: %", elt->getTimeLevelData(0));
+            DryFlag* flagStruct = static_cast<DryFlag*>(elt->getUserData());
+            if (computeAverageOfSolution(elt) (0) < minH_)
+            {
+                flagStruct->isDry = true;
+            }
+            else
+            {
+                flagStruct->isDry = false;
+            }
+        }
+    }
+    
+    void setInitialSolution(const std::size_t solutionTimeLevel, const double startTime, const std::size_t orderTimeDerivative) override final
+    {
+        Base::HpgemAPISimplified<DIM>::setInitialSolution(solutionTimeLevel, startTime, orderTimeDerivative);
+        initialDryWet();
     }
 
     int sign(const double x)
@@ -141,15 +181,17 @@ public:
     
     void changeHeight( Base::Element* element, double minimum);
     
-    ///If all values are approximately 0, set all coefficients to 0.
-    void zeroMaker (Base::Element* element);
+    void changeDischarge(Base::Element* element);
     
+    void isDryElement(Base::Element *elt);
 private:
 
     /// Number of variables
     const std::size_t numOfVariables_;
 
     SavageHutterRightHandSideComputer rhsComputer_;
+    
+    const double minH_;
     
     friend class SavageHutterRightHandSideComputer;
 

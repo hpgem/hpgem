@@ -36,21 +36,26 @@ SavageHutter::SavageHutter
  const std::size_t polynomialOrder,
  const Base::ButcherTableau * const ptrButcherTableau) :
 HpgemAPISimplified(numOfVariables, polynomialOrder, ptrButcherTableau),
-numOfVariables_(numOfVariables)
+numOfVariables_(numOfVariables), minH_(1e-5)
 {
     rhsComputer_.numOfVariables_ = numOfVariables;
     rhsComputer_.epsilon_ = 1.0;
-    rhsComputer_.theta_ = 0; //radians
+    rhsComputer_.chuteAngle_ = 0; //radians
 }
 
 SavageHutter::SavageHutter(const SHConstructorStruct& inputValues) :
 HpgemAPISimplified(inputValues.numOfVariables, inputValues.polyOrder, inputValues.ptrButcherTableau),
-numOfVariables_(inputValues.numOfVariables)
+numOfVariables_(inputValues.numOfVariables), minH_(1e-5)
 {
     rhsComputer_.numOfVariables_ = inputValues.numOfVariables;
     rhsComputer_.epsilon_ = 1.0;
-    rhsComputer_.theta_ = 0; //radians
+    rhsComputer_.chuteAngle_ = 0; //radians
     createMesh(inputValues.numElements, inputValues.meshType);
+    
+    for (Base::Element* elt : meshes_[0]->getElementsList())
+    {
+        elt->setUserData(new DryFlag);
+    }
 }
 
 Base::RectangularMeshDescriptor<DIM> SavageHutter::createMeshDescription(const std::size_t numOfElementPerDirection)
@@ -80,6 +85,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhys
     {
         initialSolution(0) = 0.;
     }
+    initialSolution(1) = 0;
     return initialSolution;
 }
 /*********************Integrate over elements and faces************************/
@@ -129,6 +135,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter::computeRightHandSideAtFace
 }
 
 /******************************Limiting****************************************/
+
 void SavageHutter::computeOneTimeStep(double &time, const double dt)
 {
     std::size_t numOfStages = ptrButcherTableau_->getNumStages();
@@ -170,8 +177,11 @@ void SavageHutter::limitSolution()
     {
         //don't use the slope limiter if the water height is adapted with the non-negativity limiter
         const double minimum = getMinimumHeight(element);
-        if (minimum < 0)
+        if (minimum < minH_)
+        {
             changeHeight(element, minimum);
+            changeDischarge(element);
+        }
         else
         {
             if (element->getNrOfBasisFunctions() > 1)
@@ -179,25 +189,9 @@ void SavageHutter::limitSolution()
                 useLimiterForElement(element);
             }
         }
-        
-            zeroMaker(element);
+        isDryElement(element);
     }
 }
-
-void SavageHutter::zeroMaker(Base::Element* element)
-{
-    LinearAlgebra::MiddleSizeVector average = computeAverageOfSolution(element);
-    std::size_t numBasisFuns = element->getNrOfBasisFunctions();
-    for (std::size_t i = 0; i < numOfVariables_; ++i)
-    {
-        if (std::abs(average(i)) < 1e-16)
-        {
-            logger(DEBUG, "making element % with variable % zero", element->getID(), i);
-            element->setTimeLevelData(0, i, 0.*LinearAlgebra::MiddleSizeVector(numBasisFuns));
-        }
-    }
-}
-
 
 ///\return Returns true if the element needs limiting and false if it does not need limiting.
 ///\details In here, the discontinuity detector of Krivodonova et. al (2004) is
@@ -225,8 +219,7 @@ void SavageHutter::useLimiterForElement(Base::Element *element)
         }
 
         //determine the direction of the flow across this face
-        LinearAlgebra::MiddleSizeVector velocity = computeVelocity(numericalSolution);
-
+        LinearAlgebra::SmallVector<1> velocity = computeVelocity(numericalSolution);
         //if this is an inflow face, integrate the difference in {h,hu} over the face
         if (velocity * normal < -1e-14)
         {
@@ -245,13 +238,13 @@ void SavageHutter::useLimiterForElement(Base::Element *element)
             }
             else
             {
-                //logger.assert(normal(0) < 0, "This should be an outflow boundary!");
                 numericalSolutionOther = rhsComputer_.getInflowBC();
             }
 
             ///\todo make this multi-dimensional by integrating over the face.
             totalIntegral += numericalSolution - numericalSolutionOther;
         }
+        
     }
 
     logger(DEBUG, "Integral over all inflow boundaries of difference for element %: %", element->getID(), totalIntegral);
@@ -277,25 +270,24 @@ void SavageHutter::useLimiterForElement(Base::Element *element)
     {
         if (std::abs(totalIntegral(i)) > 1)
         {
-            logger(INFO, "Element % with variable % will be limited.", element->getID(), i);
+            logger(DEBUG, "Element % with variable % will be limited.", element->getID(), i);
             limitWithMinMod(element, i); //needs to be adapted for boundaries!
         }
     }
 }
 
-LinearAlgebra::MiddleSizeVector SavageHutter::computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution)
+LinearAlgebra::SmallVector<1> SavageHutter::computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution)
 {
-    if (numericalSolution(0) < 1e-10)
+    if (numericalSolution(0) < 1e-5)
     {
-        return LinearAlgebra::MiddleSizeVector({0.});
+        return LinearAlgebra::SmallVector<1>({0.});
     }
     
-    return LinearAlgebra::MiddleSizeVector({numericalSolution(1) / numericalSolution(0)});
+    return LinearAlgebra::SmallVector<1>({numericalSolution(1) / numericalSolution(0)});
 }
 
 LinearAlgebra::MiddleSizeVector SavageHutter::computeAverageOfSolution(Base::Element* element)
 {
-    
     const std::function <LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&)> integrandFunction = 
     [ = ](Base::PhysicalElement<DIM>& elt) -> LinearAlgebra::MiddleSizeVector
     {
@@ -310,15 +302,16 @@ LinearAlgebra::MiddleSizeVector SavageHutter::computeAverageOfSolution(Base::Ele
     average /= Base::L2Norm(p1-p0);
     
     logger(DEBUG, "Average over element %: %", element->getID(), average);
-    logger.assert(average(0) > -1e-16, "Average water height negative on element %! (%)",element->getID(),  average);
+    logger.assert_always(average(0) > -1e-16, "Average water height negative on "
+    "element %! (%), u: %",element->getID(),  average, average(1)/average(0));
     return average;
 }
 
 void SavageHutter::limitWithMinMod(Base::Element* element, const std::size_t iVar)
 {    
     const Geometry::PointReference<0> &pRefFace = element->getFace(0)->getReferenceGeometry()->getCenter();
-    const PointReferenceT &pRefL = element->getReferenceGeometry()->getNode(0); 
-    const PointReferenceT &pRefR = element->getReferenceGeometry()->getNode(1);
+    const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
+    const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
     logger.assert(std::abs(-1  - pRefL[0]) < 1e-10, "xi_L != -1");    
     logger.assert(std::abs(1 - pRefR[0]) < 1e-10, "xi_R != 1");
     
@@ -373,8 +366,8 @@ void SavageHutter::limitWithMinMod(Base::Element* element, const std::size_t iVa
 double SavageHutter::getMinimumHeight(const Base::Element* element)
 {
     const Geometry::PointReference<DIM-1> &pRefFace = element->getFace(0)->getReferenceGeometry()->getCenter();
-    const PointReferenceT &pRefL = element->getReferenceGeometry()->getNode(0); 
-    const PointReferenceT &pRefR = element->getReferenceGeometry()->getNode(1);
+    const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
+    const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
     
     double minimum = std::min(element->getSolution(0,pRefL)(0), element->getSolution(0,pRefR)(0));
     for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
@@ -386,27 +379,73 @@ double SavageHutter::getMinimumHeight(const Base::Element* element)
     return minimum;
 }
 
-///Adapt the heigth as given in Xing et. al. (2010) 
+double SavageHutter::getMaximumHeight(const Base::Element* element)
+{
+    const Geometry::PointReference<DIM-1> &pRefFace = element->getFace(0)->getReferenceGeometry()->getCenter();
+    const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
+    const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
+    
+    double maximum = std::max(element->getSolution(0,pRefL)(0), element->getSolution(0,pRefR)(0));
+    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
+    {
+        const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
+        maximum = std::max(maximum, element->getSolution(0,pRef)(0));
+    }
+    logger(DEBUG, "Maximum in element %: %", element->getID(), maximum);
+    return maximum;
+}
+
+///Adapt the heigth as given in Bunya et. al. (2009) 
 ///\param[in] minimum the (negative) minimum height in the given element
 void SavageHutter::changeHeight( Base::Element* element, double minimum)
 {
     logger(DEBUG, "minimum before adaption in element %: %",element->getID(), minimum);
-    const double average = computeAverageOfSolution(element)(0);
-    const double theta = std::min(1.0, average/(average - minimum));
-    std::function<double(const PointReferenceT&)> newFun = [=] (const PointReferenceT& pRef){return theta*(element->getSolution(0,pRef)(0) - average) + average;};
+    const double averageH = computeAverageOfSolution(element)(0);
+    const double averageHU = computeAverageOfSolution(element)(1);
+    if (averageH < minH_)
+    {
+        //solution is constant with value average
+        LinearAlgebra::MiddleSizeVector newCoeffsH = projectOnBasisFuns(element, [=](const PointReferenceT& pRef){return averageH;});
+        element->setTimeLevelData(0,0,newCoeffsH);
+        return;
+    }
+    //squeeze around average, such that the minimum height is at least minH_
+    const double theta = 0;//std::min(1.0, (averageH - minH_)/(averageH - minimum));
+    logger(DEBUG, "Theta: %", theta);
+    std::function<double(const PointReferenceT&)> newFun = [=] (const PointReferenceT& pRef){return theta*(element->getSolution(0,pRef)(0) - averageH) + averageH;};
     LinearAlgebra::MiddleSizeVector newCoeffsH = projectOnBasisFuns(element, newFun);
     element->setTimeLevelData(0, 0, newCoeffsH);
-    newFun = [=] (const PointReferenceT& pRef){return theta*(element->getSolution(0,pRef)(1) - average) + average;};
-    const LinearAlgebra::MiddleSizeVector newcoeffsHU = projectOnBasisFuns(element, newFun);
-    element->setTimeLevelData(0, 1, newcoeffsHU);
-    double newMinimum = getMinimumHeight(element);
-    if (newMinimum < 0)
+    logger(DEBUG, "minimum after adaption: % (average %)", getMinimumHeight(element), averageH);
+}
+
+void SavageHutter::changeDischarge(Base::Element* element)
+{
+    
+    const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
+    const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
+    if (element->getSolution(0,pRefL)(0) <= minH_ && element->getSolution(0,pRefR)(0) <= minH_ )
     {
-        newCoeffsH[0] -= newMinimum;
-        newCoeffsH[1] -= newMinimum;
-        element->setTimeLevelData(0, 0, newCoeffsH);
+        LinearAlgebra::MiddleSizeVector newCoeffsHU = projectOnBasisFuns(element, [=](const PointReferenceT& pRef){return 0;});
+        element->setTimeLevelData(0,1,newCoeffsHU);
+        return;
     }
-    logger(DEBUG, "minimum after adaption: %", getMinimumHeight(element));
+    if (element->getSolution(0,pRefL)(0) > minH_ && element->getSolution(0,pRefR)(0) > minH_ )
+    {
+        return;
+    }
+    double huL = element->getSolution(0,pRefL)(1);
+    double huR = element->getSolution(0,pRefR)(1);
+    double average = (huL + huR) / 2;
+    double slope = 0;//(huL + huR)/2;
+
+    if (element->getSolution(0, pRefR)(0) <= minH_)
+    {
+        slope *= -1;
+    }
+    std::function<double(const PointReferenceT&) > newFun = [ = ] (const PointReferenceT & pRef){return average + slope * pRef[0];};
+    LinearAlgebra::MiddleSizeVector newCoeffs = projectOnBasisFuns(element, newFun);
+    element->setTimeLevelData(0, 1, newCoeffs);
+    logger(DEBUG, "Values of hu: [%,%]", element->getSolution(0,pRefL)(1), element->getSolution(0,pRefR)(1));
 }
 
 LinearAlgebra::MiddleSizeVector SavageHutter::projectOnBasisFuns(Base::Element *elt, std::function<double(const PointReferenceT&)> myFun)
@@ -436,4 +475,13 @@ LinearAlgebra::MiddleSizeVector SavageHutter::projectOnBasisFuns(Base::Element *
     }
     massMatrix.solve(projection);
     return projection;
+}
+
+//Note that this only holds for a flat bottom!
+void SavageHutter::isDryElement(Base::Element* elt)
+{
+    bool flag = static_cast<DryFlag*>(elt->getUserData())->isDry;
+    logger(DEBUG, "isDry: %", flag);
+    double averageH = computeAverageOfSolution(elt)(0);
+    flag = (averageH > minH_);
 }
