@@ -214,7 +214,7 @@ void Output::VTKSpecificTimeWriter<DIM>::write(std::function<double(Base::Elemen
     {
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getNode(tohpGEMOrdering(i, element->getReferenceGeometry()));
+            const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getReferenceNodeCoordinate(tohpGEMOrdering(i, element->getReferenceGeometry()));
             data.push_back(dataCompute(element, node, timelevel_));
         }
     }
@@ -239,7 +239,7 @@ void Output::VTKSpecificTimeWriter<DIM>::write(std::function<LinearAlgebra::Smal
     {
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getNode(i);
+            const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getReferenceNodeCoordinate(i);
             newData = dataCompute(element, node, timelevel_);
             for (std::size_t j = 0; j < newData.size(); ++j)
             {
@@ -272,7 +272,7 @@ void Output::VTKSpecificTimeWriter<DIM>::write(std::function<LinearAlgebra::Smal
     {
         for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
         {
-            const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getNode(i);
+            const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getReferenceNodeCoordinate(i);
             newData = dataCompute(element, node, timelevel_);
             std::size_t j = 0;
             for (; j < newData.getNRows(); ++j)

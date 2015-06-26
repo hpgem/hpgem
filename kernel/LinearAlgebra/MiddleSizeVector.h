@@ -145,13 +145,6 @@ namespace LinearAlgebra
         {
             return data_.data();
         }
-        
-        
-        friend MiddleSizeVector operator*(const type& left, const MiddleSizeVector& right);
-
-        friend MiddleSizeVector operator-(const MiddleSizeVector& right);
-
-        friend std::ostream& operator<<(std::ostream& os, const MiddleSizeVector& A);
 
     private:
 #ifdef LA_STL_VECTOR
@@ -161,6 +154,12 @@ namespace LinearAlgebra
 #endif
         
     };
+
+    MiddleSizeVector operator*(const MiddleSizeVector::type& left, const MiddleSizeVector& right);
+
+    MiddleSizeVector operator-(const MiddleSizeVector& right);
+
+    std::ostream& operator<<(std::ostream& os, const MiddleSizeVector& A);
 
 }
 #endif

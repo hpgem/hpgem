@@ -46,6 +46,10 @@ namespace Base
         PhysicalFace(bool forInternalFace)
             : left(), right(), transform_((new H1ConformingTransformation<DIM>())), isInternal_(forInternalFace), hasPointReference(false), hasFace(false)  //other fields will be initialized when we have more information
         {
+                hasFaceMatrix = false;
+                hasFaceVector = false;
+                hasLeftRightMatrix = false;
+                hasRightLeftMatrix = false;
         }
 
         PhysicalFace(const PhysicalFace&) = delete;

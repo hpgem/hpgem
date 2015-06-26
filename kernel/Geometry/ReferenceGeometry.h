@@ -125,7 +125,7 @@ namespace Geometry
         }
         
         /// \brief Given a local index, return (assign to point) the corresponding node.
-        virtual const PointReferenceBase& getNode(const std::size_t& localIndex) const = 0;
+        virtual const PointReferenceBase& getReferenceNodeCoordinate(const std::size_t& localIndex) const = 0;
 
         std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const
         {

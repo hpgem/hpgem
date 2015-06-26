@@ -75,14 +75,14 @@ int main()
     
     for (std::size_t i = 0; i < test->getReferenceGeometry()->getNumberOfNodes(); ++i)
     {
-        orig1D = test->getReferenceGeometry()->getNode(i);
-        compare1D = test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i]);
+        orig1D = test->getReferenceGeometry()->getReferenceNodeCoordinate(i);
+        compare1D = test->getElementGLeft()->getReferenceGeometry()->getReferenceNodeCoordinate(leftIndices[i]);
         compare1Dphys = test->getElementGLeft()->referenceToPhysical(*Geometry::PointReferenceFactory<1>::instance()->makePoint(compare1D));
         point1D = test->mapRefFaceToRefElemL(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig1D));
         point1Dphys = test->referenceToPhysical(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig1D));
         logger.assert_always((std::abs(compare1D[0] - point1D[0]) < 1e-12), "getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
         logger.assert_always((std::abs(compare1Dphys[0] - point1Dphys[0]) < 1e-12), "referenceToPhysical");
-        compare1D = test->getPtrElementGRight()->getReferenceGeometry()->getNode(rightIndices[i]);
+        compare1D = test->getPtrElementGRight()->getReferenceGeometry()->getReferenceNodeCoordinate(rightIndices[i]);
         compare1Dphys = test->getPtrElementGRight()->referenceToPhysical(*Geometry::PointReferenceFactory<1>::instance()->makePoint(compare1D));
         point1D = test->mapRefFaceToRefElemR(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig1D));
         logger.assert_always((std::abs(compare1D[0] - point1D[0]) < 1e-12), "getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
@@ -142,8 +142,8 @@ int main()
     
     for (std::size_t i = 0; i < test->getReferenceGeometry()->getNumberOfNodes(); ++i)
     {
-        orig2D = test->getReferenceGeometry()->getNode(i);
-        compare2D = test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i]);
+        orig2D = test->getReferenceGeometry()->getReferenceNodeCoordinate(i);
+        compare2D = test->getElementGLeft()->getReferenceGeometry()->getReferenceNodeCoordinate(leftIndices[i]);
         compare2Dphys = test->getElementGLeft()->referenceToPhysical(*Geometry::PointReferenceFactory<2>::instance()->makePoint(compare2D));
         point2D = test->mapRefFaceToRefElemL(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig2D));
         point2Dphys = test->referenceToPhysical(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig2D));
@@ -151,7 +151,7 @@ int main()
         logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12), "getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
         logger.assert_always((std::abs(compare2Dphys[0] - point2Dphys[0]) < 1e-12), "referenceToPhysical");
         logger.assert_always((std::abs(compare2Dphys[1] - point2Dphys[1]) < 1e-12), "referenceToPhysical");
-        compare2D = test->getPtrElementGRight()->getReferenceGeometry()->getNode(rightIndices[i]);
+        compare2D = test->getPtrElementGRight()->getReferenceGeometry()->getReferenceNodeCoordinate(rightIndices[i]);
         compare2Dphys = test->getPtrElementGRight()->referenceToPhysical(*Geometry::PointReferenceFactory<2>::instance()->makePoint(compare2D));
         point2D = test->mapRefFaceToRefElemR(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig2D));
         logger.assert_always((std::abs(compare2D[0] - point2D[0]) < 1e-12), "getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
@@ -183,8 +183,8 @@ int main()
     
     for (std::size_t i = 0; i < test->getReferenceGeometry()->getNumberOfNodes(); ++i)
     {
-        orig2D = test->getReferenceGeometry()->getNode(i);
-        compare2D = test->getElementGLeft()->getReferenceGeometry()->getNode(leftIndices[i]);
+        orig2D = test->getReferenceGeometry()->getReferenceNodeCoordinate(i);
+        compare2D = test->getElementGLeft()->getReferenceGeometry()->getReferenceNodeCoordinate(leftIndices[i]);
         compare2Dphys = test->getElementGLeft()->referenceToPhysical(*Geometry::PointReferenceFactory<2>::instance()->makePoint(compare2D));
         point2D = test->mapRefFaceToRefElemL(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig2D));
         point2Dphys = test->referenceToPhysical(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig2D));

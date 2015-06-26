@@ -102,7 +102,7 @@ namespace Output
                 
                 // For the solution data, write function of the user, however we pass a local
                 // coordinate of the current reference element
-                const Geometry::PointReference<DIM>& pRef = (*eltIterator)->getReferenceGeometry()->getNode(localNode);
+                const Geometry::PointReference<DIM>& pRef = (*eltIterator)->getReferenceGeometry()->getReferenceNodeCoordinate(localNode);
                 
                 // First write the (possibly reduced) coordinates of the point;
                 // note: PHYSICAL coordinates here!

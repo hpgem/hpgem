@@ -100,15 +100,15 @@ int main()
     
     pTest = test.getCenter(); ///\BUG it is not very clear to me where the center of a pyramid lies
     logger.assert_always((test.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(pTest)) && std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1]) < 1e-12) && std::abs(pTest[2] - 1. / 4.) < 1e-12, "getCenter");
-    pTest = test.getNode(0);
+    pTest = test.getReferenceNodeCoordinate(0);
     logger.assert_always((std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1]) < 1e-12 && std::abs(pTest[2] - 1) < 1e-12), "getNode 0");
-    pTest = test.getNode(1);
+    pTest = test.getReferenceNodeCoordinate(1);
     logger.assert_always((std::abs(pTest[0] + 1) < 1e-12 && std::abs(pTest[1] + 1) < 1e-12 && std::abs(pTest[2]) < 1e-12), "getNode 1");
-    pTest = test.getNode(2);
+    pTest = test.getReferenceNodeCoordinate(2);
     logger.assert_always((std::abs(pTest[0] - 1) < 1e-12 && std::abs(pTest[1] + 1) < 1e-12 && std::abs(pTest[2]) < 1e-12), "getNode 2");
-    pTest = test.getNode(3);
+    pTest = test.getReferenceNodeCoordinate(3);
     logger.assert_always((std::abs(pTest[0] + 1) < 1e-12 && std::abs(pTest[1] - 1) < 1e-12 && std::abs(pTest[2]) < 1e-12), "getNode 3");
-    pTest = test.getNode(4);
+    pTest = test.getReferenceNodeCoordinate(4);
     logger.assert_always((std::abs(pTest[0] - 1) < 1e-12 && std::abs(pTest[1] - 1) < 1e-12 && std::abs(pTest[2]) < 1e-12), "getNode 4");
     
     logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0) == 3), "getLocalNodeIndex 0"); //the nodes of the face must always be specified IN THIS SPECIFIC ORDER

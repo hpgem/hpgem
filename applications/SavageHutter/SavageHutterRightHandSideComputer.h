@@ -65,14 +65,14 @@ private:
     
     MiddleSizeVector computePhysicalFlux(const MiddleSizeVector &numericalSolution);
     MiddleSizeVector computeSourceTerm(const MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys, const double time);
-    MiddleSizeVector computeNumericalSolution(const Base::Element *ptrElement, const PointReferenceT &pRef, const MiddleSizeVector& solutionCoefficients);
     MiddleSizeVector localLaxFriedrichsFlux(const MiddleSizeVector &numericalSolutionLeft, const MiddleSizeVector &NumericalSolutionRight);
     double computeFriction(const MiddleSizeVector &numericalSolution);
-    LinearAlgebra::MiddleSizeVector getInflowBC();
-    
+    LinearAlgebra::MiddleSizeVector getInflowBC();    
+    MiddleSizeVector getSolution(const Base::Element *element, const MiddleSizeVector &solutionCoefficients, const PointReferenceT& pRef);    
+
     std::size_t numOfVariables_;
     double epsilon_;
-    double theta_; //in radians
+    double chuteAngle_; //in radians
 };
 
 #endif	/* SAVAGEHUTTERRIGHTHANDSIDECOMPUTER_H */

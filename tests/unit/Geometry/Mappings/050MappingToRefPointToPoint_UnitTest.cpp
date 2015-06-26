@@ -49,7 +49,7 @@ int main()
     
     for (std::size_t i = 0; i < geom.getNumberOfNodes(); ++i)
     {
-        geom.getNode(i);
+        geom.getReferenceNodeCoordinate(i);
         point = test->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
     }
     

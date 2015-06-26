@@ -43,7 +43,7 @@ int main()
     
     logger.assert_always((test.isInternalPoint(pTest)), "isInternalPoint");
     const Geometry::PointReference<0>& pTest1 = test.getCenter();
-    const Geometry::PointReference<0>& pTest2 = test.getNode(0);
+    const Geometry::PointReference<0>& pTest2 = test.getReferenceNodeCoordinate(0);
     std::cout << test.getName();
     
     //getLocalNodeIndex should always break since dimension -1 entities dont exist

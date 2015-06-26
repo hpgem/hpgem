@@ -306,8 +306,6 @@ namespace Base
             return 1.;
         }, double growFactor = 1.1, std::function<bool(Geometry::PointPhysical<DIM>)> isOnPeriodicBoundary = [](Geometry::PointPhysical<DIM>){return false;}, std::function<Geometry::PointPhysical<DIM>(Geometry::PointPhysical<DIM>)> mapPeriodicNode = nullptr, std::function<bool(Geometry::PointPhysical<DIM>)> isOnOtherPeriodicBoundary = [](Geometry::PointPhysical<DIM>){return false;}, std::function<Geometry::PointPhysical<DIM>(Geometry::PointPhysical<DIM>)> safeNonPeriodicNode = nullptr, std::vector<std::size_t> dontConnect = {});
 #endif
-        
-        friend std::ostream& operator<<(std::ostream& os, const MeshManipulator&);
 
         //! Set MeshMoverBase object pointer, for moving meshes if needed
         void setMeshMover(const MeshMoverBaseT * const meshMover);

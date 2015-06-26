@@ -37,7 +37,7 @@ namespace LinearAlgebra
     ///
     /// \details
     /// This implements a vector of doubles and all the standard operators for it.
-    /// Note it is encapulating a valarray for its data storage.
+    /// Note it is encapulating a std::array for its data storage.
     template<std::size_t nRows>
     class SmallVector
     {
@@ -273,7 +273,10 @@ namespace LinearAlgebra
     MiddleSizeVector::MiddleSizeVector(const SmallVector<nRows>& other)
         : data_(other.data(), other.data() + nRows)
     {
-        logger(WARN, "Constructing middle size vector from small vector, consider using small vectors everywhere for fixed length vectors of size <= 4");
+        logger(WARN, "Constructing middle size vector from small vector, consider "
+            "using small vectors everywhere for fixed length vectors of size <= 4. "
+            "This warning might also be caused because of an operation between a "
+            "small vector and a middle size vector.");
     }
 #endif
 

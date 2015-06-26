@@ -143,19 +143,19 @@ namespace Base
         virtual LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement( Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
         
         /// \brief Integrate the initial solution.
-        void integrateInitialSolution(const std::size_t timeLevelResult, const double startTime, const std::size_t orderTimeDerivative);
+        virtual void integrateInitialSolution(const std::size_t timeLevelResult, const double startTime, const std::size_t orderTimeDerivative);
 
         /// \brief Integrate the square of some norm of the error on a single element.
         virtual LinearAlgebra::MiddleSizeVector::type integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
         /// \brief Compute the (weighted) L2-norm of the error.
-        LinearAlgebra::MiddleSizeVector::type computeTotalError(const std::size_t solutionTimeLevel, const double time);
+        virtual LinearAlgebra::MiddleSizeVector::type computeTotalError(const std::size_t solutionTimeLevel, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error at an element.
         virtual LinearAlgebra::MiddleSizeVector computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error.
-        LinearAlgebra::MiddleSizeVector computeMaxError(const std::size_t solutionTimeLevel, const double time);
+        virtual LinearAlgebra::MiddleSizeVector computeMaxError(const std::size_t solutionTimeLevel, const double time);
         
         /// \brief Compute the right-hand side corresponding to an element
         virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement
@@ -202,22 +202,22 @@ namespace Base
         virtual void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time);
 
         /// \brief Get a linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels.
-        LinearAlgebra::MiddleSizeVector getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels);
+        virtual LinearAlgebra::MiddleSizeVector getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels);
 
         /// \brief Compute the right hand side for the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
         virtual void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time);
 
         /// \brief Synchronize between the different submeshes (when using MPI)
-        void synchronize(const std::size_t timeLevel);
+        virtual void synchronize(const std::size_t timeLevel);
 
         /// \brief Scale the solution coefficients of a given time level.
-        void scaleTimeLevel(const std::size_t timeLevel, const double scale);
+        virtual void scaleTimeLevel(const std::size_t timeLevel, const double scale);
 
         /// \brief scale and add solution coefficients of a certain time level to the coefficients of another time level.
-        void scaleAndAddTimeLevel(const std::size_t timeLevelToChange, const std::size_t timeLevelToAdd, const double scale);
+        virtual void scaleAndAddTimeLevel(const std::size_t timeLevelToChange, const std::size_t timeLevelToAdd, const double scale);
 
         /// \brief Set the initial numerical solution (w at t=0).
-        void setInitialSolution(const std::size_t solutionTimeLevel, const double startTime, const std::size_t orderTimeDerivative);
+        virtual void setInitialSolution(const std::size_t solutionTimeLevel, const double startTime, const std::size_t orderTimeDerivative);
 
         /// \brief Compute the time derivative for a given time level.
         virtual void computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time);
@@ -229,12 +229,12 @@ namespace Base
         virtual void computeOneTimeStep(double &time, const double dt);
         
         /// \brief Set output names.
-        void setOutputNames(std::string outputFileName, std::string internalFileTitle, std::string solutionTitle, std::vector<std::string> variableNames);
+        virtual void setOutputNames(std::string outputFileName, std::string internalFileTitle, std::string solutionTitle, std::vector<std::string> variableNames);
         
         /// \brief Write output to a tecplot file.
         virtual void writeToTecplotFile(const Element *ptrElement, const PointReferenceT &pRef, std::ostream &out) override;
         
-        void VTKWrite(Output::VTKTimeDependentWriter<DIM>& out, double t, std::size_t timeLevel)
+        virtual void VTKWrite(Output::VTKTimeDependentWriter<DIM>& out, double t, std::size_t timeLevel)
         {
             //you would say this could be done more efficiently, but p.first has different types each time
             for (auto p : VTKDoubleWrite_)

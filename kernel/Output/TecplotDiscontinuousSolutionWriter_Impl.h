@@ -183,7 +183,7 @@ namespace Output
                 
                 // For the solution data, write function of the user, however we pass a local
                 // coordinate of the current reference element
-                const Geometry::PointReference<DIM>& pRef = (*iterator)->getReferenceGeometry()->getNode(localNode);
+                const Geometry::PointReference<DIM>& pRef = (*iterator)->getReferenceGeometry()->getReferenceNodeCoordinate(localNode);
                 
                 if (!sameGeometry)
                 {
