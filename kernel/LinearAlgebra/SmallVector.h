@@ -37,7 +37,7 @@ namespace LinearAlgebra
     ///
     /// \details
     /// This implements a vector of doubles and all the standard operators for it.
-    /// Note it is encapulating a valarray for its data storage.
+    /// Note it is encapulating a std::array for its data storage.
     template<std::size_t nRows>
     class SmallVector
     {

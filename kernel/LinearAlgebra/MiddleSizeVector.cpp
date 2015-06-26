@@ -262,14 +262,7 @@ namespace LinearAlgebra
     
     MiddleSizeVector operator*(const MiddleSizeVector::type& left, const MiddleSizeVector& right)
     {
-        MiddleSizeVector result(right);
-#ifdef LA_STL_VECTOR
-        for (MiddleSizeVector::type& d : result.data_)
-            d *= left;
-#else
-        result.data_*=left;
-#endif
-        return result;
+        return right * left;
     }
     
     MiddleSizeVector operator-(const MiddleSizeVector& right)
@@ -280,11 +273,11 @@ namespace LinearAlgebra
     std::ostream& operator<<(std::ostream& os, const MiddleSizeVector& A)
     {
         os << '[';
-        for (std::size_t i = 0; i < A.data_.size() - 1; i++)
+        for (std::size_t i = 0; i < A.size() - 1; i++)
         {
             os << A(i) << ',';
         }
-        os << A(A.data_.size() - 1) << ']';
+        os << A(A.size() - 1) << ']';
         return os;
     }
 
