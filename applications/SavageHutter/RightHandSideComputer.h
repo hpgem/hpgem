@@ -33,6 +33,8 @@ public:
 
     RightHandSideComputer(std::size_t numVars)
     : numOfVariables_(numVars) { }
+    
+    virtual ~RightHandSideComputer(){ }
 
     /// \brief Purely virtual function to compute the integrand for the right hand side for the reference element.
     virtual MiddleSizeVector integrandRightHandSideOnElement

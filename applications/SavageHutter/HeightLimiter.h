@@ -26,6 +26,8 @@
 class HeightLimiter
 {
 public:
+    virtual ~HeightLimiter(){ }
+    
     virtual void limitHeight(Base::Element *element) = 0;
     virtual void limitDischarge(Base::Element *element) = 0;
 };

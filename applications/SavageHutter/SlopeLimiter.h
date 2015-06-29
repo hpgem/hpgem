@@ -31,6 +31,8 @@ public:
     
     virtual void limitSlope(Base::Element *elt) = 0;
     
+    virtual ~SlopeLimiter() { }
+    
 protected:
     std::size_t numOfVariables_;
 };

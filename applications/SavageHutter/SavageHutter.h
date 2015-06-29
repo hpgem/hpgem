@@ -61,9 +61,9 @@ struct SHConstructorStruct
     Base::ButcherTableau * ptrButcherTableau;
 };
 
+///\todo make parent which has all API-like methods with abstract createSlopeLimiter, createRHSComputer, createHeightLimiter.
+///Parent constructs these things, constructor of this class only calls constructor of parent.
 
-//todo: make the functions override final, but at the moment my parser does not 
-//understand the override and final keywords, which makes development harder
 class SavageHutter : public Base::HpgemAPISimplified<DIM>
 {
 public:
@@ -75,14 +75,18 @@ public:
     
     ~SavageHutter()
     {
-        //delete rhscomputer, slope limiter and non-negativity limiter
+        delete rhsComputer_;
+        delete slopeLimiter_;
+        delete heightLimiter_;
     }
+    
+    SlopeLimiter * createSlopeLimiter(const SHConstructorStruct &inputValues);
 
     /// \brief Create a domain
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection);
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final;
 
     /// \brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0);
+    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
     
     /// \brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID)
@@ -93,23 +97,23 @@ public:
         }
     }
 
-    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
 
     /// \brief Compute the right-hand side corresponding to an internal face
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace,
             const Base::Side side,
             LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
             LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
-            const double time);
+            const double time) override final;
     
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
         (
          Base::Face *ptrFace,
          LinearAlgebra::MiddleSizeVector &solutionCoefficients,
          const double time
-         );
+         ) override final;
     
-    void computeOneTimeStep(double &time, const double dt);
+    void computeOneTimeStep(double &time, const double dt) override final;
     void limitSolution();
     
     ///Compute the minimum of the height in the given element
@@ -119,25 +123,8 @@ public:
     {
         //todo: for one face integral you used referenceFaceIntegral (which does not scale with the magnitude of the normal) and for the other you used integrate (which does scale)
         //so it is not clear to me whether or not you need scaling. Please fix as needed
-        this->faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
+        faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
         Base::HpgemAPISimplified<DIM>::tasksBeforeSolving();
-    }
-    
-    void initialDryWet()
-    {
-        for (Base::Element *elt : meshes_[0]->getElementsList())
-        {
-            logger(DEBUG, "coefficients: %", elt->getTimeLevelData(0));
-            Helpers::DryFlag* flagStruct = static_cast<Helpers::DryFlag*>(elt->getUserData());
-            if (Helpers::computeAverageOfSolution<DIM>(elt, elementIntegrator_) (0) < minH_)
-            {
-                flagStruct->isDry = true;
-            }
-            else
-            {
-                flagStruct->isDry = false;
-            }
-        }
     }
     
 private:
@@ -152,8 +139,6 @@ private:
     HeightLimiter* heightLimiter_;
     
     const double minH_;
-    
-    LinearAlgebra::MiddleSizeVector inflowBC_;
     
 };
 

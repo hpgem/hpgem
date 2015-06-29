@@ -34,10 +34,17 @@ numOfVariables_(inputValues.numOfVariables), minH_(1e-5)
     createMesh(inputValues.numElements, inputValues.meshType);
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     
-    inflowBC_ = getInitialSolution(pPhys, 0.);
-    rhsComputer_ = new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1.0, 0., inflowBC_);
-    slopeLimiter_ = new TvbLimiterWithDetector1D(inputValues.numOfVariables, inflowBC_, configData_->polynomialOrder_);
+    LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0.);
+    rhsComputer_ = new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1.0, 0., inflowBC);
+    slopeLimiter_ = createSlopeLimiter(inputValues); 
     heightLimiter_ = new PositiveLayerLimiter(1e-5);
+}
+
+SlopeLimiter * SavageHutter::createSlopeLimiter(const SHConstructorStruct &inputValues)
+{
+    const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;    
+    LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0.);
+    return (new TvbLimiterWithDetector1D(inputValues.numOfVariables, inflowBC, inputValues.polyOrder));
 }
 
 Base::RectangularMeshDescriptor<DIM> SavageHutter::createMeshDescription(const std::size_t numOfElementPerDirection)
