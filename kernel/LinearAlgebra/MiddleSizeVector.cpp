@@ -34,9 +34,9 @@ namespace LinearAlgebra
     {
 
         ///This is the general scalar times vector + vector from blas, hence from blas level 1. Here we also use on a matrix by treating as a vector
-        int daxpy_(unsigned int* N, double* DA, double* DX, unsigned int* INCX, double* DY, unsigned int* INCY);
+        int daxpy_(int* N, double* DA, double* DX, int* INCX, double* DY, int* INCY);
         ///This is the general scalar times vector + vector from blas, hence from blas level 1. Here we also use on a matrix by treating as a vector
-        int zaxpy_(unsigned int* N, std::complex<double>* ZA, std::complex<double>* ZX, unsigned int* INCX, std::complex<double>* ZY, unsigned int* INCY);
+        int zaxpy_(int* N, std::complex<double>* ZA, std::complex<double>* ZX, int* INCX, std::complex<double>* ZY, int* INCY);
     
     }
     
@@ -172,9 +172,9 @@ namespace LinearAlgebra
     void MiddleSizeVector::axpy(type a, const MiddleSizeVector& x)
     {
         logger.assert(x.size() == data_.size(), "Vectors dont have the same size");
-        unsigned int size = data_.size();
+        int size = data_.size();
         
-        unsigned int i_one = 1;
+        int i_one = 1;
 #ifdef HPGEM_USE_COMPLEX_PETSC
         zaxpy_(&size, &a, const_cast<MiddleSizeVector *>(&x)->data_.data(), &i_one, ((*this).data_.data()), &i_one);
 #else

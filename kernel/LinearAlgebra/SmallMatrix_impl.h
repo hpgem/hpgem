@@ -34,7 +34,7 @@ namespace LinearAlgebra
        int dgemm_(const char *transA, const char *transB, int *M, int *N, int *k, double *alpha, double *A, int *LDA, double *B, int *LDB, double *beta, double *C, int *LDC);
 
        ///This is the gerneral scalar times vector + vector from blas, hence from blas level 1. Here we also use on a matrix by treating as a vector
-       int daxpy_(unsigned int* N, double* DA, double* DX, unsigned int* INCX, double* DY, unsigned int* INCY);
+       int daxpy_(int* N, double* DA, double* DX, int* INCX, double* DY, int* INCY);
 
        /// This is LU factorisation of the matrix A. This has been taken from LAPACK
        void dgetrf_(int* M, int *N, double* A, int* lda, int* IPIV, int* INFO);
