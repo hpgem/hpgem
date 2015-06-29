@@ -25,9 +25,10 @@
 #include <fstream>
 #include <iomanip> 
 
+#include "HelperFunctions.h"
+
 #include "Base/CommandLineOptions.h"
 #include "Base/ConfigurationData.h"
-#include "Base/UserData.h"
 #include "Base/Element.h"
 #include "Base/Face.h"
 #include "Base/HpgemAPISimplified.h"
@@ -35,20 +36,22 @@
 #include "Base/RectangularMeshDescriptor.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Geometry/PointReference.h"
+#include "Geometry/PointPhysical.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotSingleElementWriter.h"
-#include "Utilities/BasisFunctions1DH1ConformingLine.h"
-#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
-#include "Utilities/BasisFunctions3DH1ConformingCube.h"
-#include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "SavageHutterRightHandSideComputer.h"
 
 #include "Logger.h"
+#include "SlopeLimiter.h"
+#include "PositiveLayerLimiter.h"
 
 
+/// \param[in] numberOfVariables Number of variables in the PDE
+/// \param[in] polynomialOrder Polynomial order of the basis functions
+/// \param[in] useMatrixStorage Boolean to indicate if element and face matrices for the PDE should be stored
+/// \param[in] ptrButcherTableau Pointer to a Butcher Tableau used to do the time integration with a Runge-Kutta scheme. By default this is a RK4 scheme.
 struct SHConstructorStruct
 {
     std::size_t numOfVariables;
@@ -58,19 +61,12 @@ struct SHConstructorStruct
     Base::ButcherTableau * ptrButcherTableau;
 };
 
-struct DryFlag : public UserElementData
-{
-    bool isDry;
-};
 
 //todo: make the functions override final, but at the moment my parser does not 
 //understand the override and final keywords, which makes development harder
 class SavageHutter : public Base::HpgemAPISimplified<DIM>
 {
 public:
-    SavageHutter(const std::size_t numOfVariables,
-            const std::size_t polynomialOrder,
-            const Base::ButcherTableau * const ptrButcherTableau);
     
     ///Alternative constructor with less input parameters. Furthermore, this 
     ///constructor also constructs the mesh and couples an object LimiterData to
@@ -79,10 +75,7 @@ public:
     
     ~SavageHutter()
     {
-        for (Base::Element *element : meshes_[0]->getElementsList())
-        {
-            delete (element->getUserData());
-        }
+        //delete rhscomputer, slope limiter and non-negativity limiter
     }
 
     /// \brief Create a domain
@@ -115,29 +108,12 @@ public:
          LinearAlgebra::MiddleSizeVector &solutionCoefficients,
          const double time
          );
-
-    ///At the beginning of each time step, it will be checked if a limiter should
-    ///be used for this element. If so, it is saved in the LimiterData struct.
-    void useLimiterForElement(Base::Element *element);
     
     void computeOneTimeStep(double &time, const double dt);
     void limitSolution();
     
-    ///Auxiliary function for checking if a limiter should be used.
-    LinearAlgebra::SmallVector<1> computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution);
-    
-    ///Compute the average of the height and discharge in the given element
-    LinearAlgebra::MiddleSizeVector computeAverageOfSolution(Base::Element *element);
-    
     ///Compute the minimum of the height in the given element
     double getMinimumHeight(const Base::Element *element);
-    
-    ///Compute the maximum of the height in the given element
-    double getMaximumHeight(const Base::Element *element);
-    
-    ///If a limiter should be used, use the min-mod limiter. Save the values of 
-    ///the left side and right side in the struct LimiterData.
-    void limitWithMinMod(Base::Element *element, const std::size_t iVar);
     
     void tasksBeforeSolving() override final
     {
@@ -152,8 +128,8 @@ public:
         for (Base::Element *elt : meshes_[0]->getElementsList())
         {
             logger(DEBUG, "coefficients: %", elt->getTimeLevelData(0));
-            DryFlag* flagStruct = static_cast<DryFlag*>(elt->getUserData());
-            if (computeAverageOfSolution(elt) (0) < minH_)
+            Helpers::DryFlag* flagStruct = static_cast<Helpers::DryFlag*>(elt->getUserData());
+            if (Helpers::computeAverageOfSolution<DIM>(elt, elementIntegrator_) (0) < minH_)
             {
                 flagStruct->isDry = true;
             }
@@ -164,37 +140,21 @@ public:
         }
     }
     
-    void setInitialSolution(const std::size_t solutionTimeLevel, const double startTime, const std::size_t orderTimeDerivative) override final
-    {
-        Base::HpgemAPISimplified<DIM>::setInitialSolution(solutionTimeLevel, startTime, orderTimeDerivative);
-        initialDryWet();
-    }
-
-    int sign(const double x)
-    {
-        if (std::abs(x) < 1e-10)
-            return 0;
-        return ((x < 0)? -1 : 1);
-    }
-    
-    LinearAlgebra::MiddleSizeVector projectOnBasisFuns(Base::Element *elt, std::function<double(const PointReferenceT&)> myFun);
-    
-    void changeHeight( Base::Element* element, double minimum);
-    
-    void changeDischarge(Base::Element* element);
-    
-    void isDryElement(Base::Element *elt);
 private:
 
     /// Number of variables
     const std::size_t numOfVariables_;
 
-    SavageHutterRightHandSideComputer rhsComputer_;
+    RightHandSideComputer* rhsComputer_;
+    
+    SlopeLimiter* slopeLimiter_;
+    
+    HeightLimiter* heightLimiter_;
     
     const double minH_;
     
-    friend class SavageHutterRightHandSideComputer;
-
+    LinearAlgebra::MiddleSizeVector inflowBC_;
+    
 };
 
 #endif

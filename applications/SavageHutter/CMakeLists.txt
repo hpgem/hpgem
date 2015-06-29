@@ -5,6 +5,9 @@ include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
     if(NOT hpGEM_USE_COMPLEX_PETSC)
     
 add_executable(SavageHutter.out
+    HelperFunctions.cpp
+    TvbLimiterWithDetector1D.cpp
+    PositiveLayerLimiter.cpp
     SavageHutterRightHandSideComputer.cpp
 		SavageHutter.cpp
 		main.cpp
