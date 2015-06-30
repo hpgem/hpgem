@@ -22,6 +22,7 @@
 #ifndef RIGHTHANDSIDECOMPUTER_H
 #define	RIGHTHANDSIDECOMPUTER_H
 #include "LinearAlgebra/MiddleSizeVector.h"
+#include "Base/PhysicalElement.h"
 
 const std::size_t DIM = 1;
 

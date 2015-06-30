@@ -33,9 +33,9 @@ using PointReferenceT = Geometry::PointReference<1>;
 using PointPhysicalT = Geometry::PointPhysical<1>;
 
     TvbLimiterWithDetector1D(std::size_t numVars, LinearAlgebra::MiddleSizeVector inflowBC, std::size_t polynomialOrder) : 
-    SlopeLimiter(numVars), inflowBC_(inflowBC), polyOrder_(polynomialOrder), DIM(1) { }
+    SlopeLimiter(numVars), inflowBC_(inflowBC), polynomialOrder_(polynomialOrder), DIM(1) { }
     
-    void limitSlope(Base::Element *elt) override final;
+    void limitSlope(Base::Element *element) override final;
     
 private:   
     ///Auxiliary function for checking if a limiter should be used.
@@ -45,12 +45,9 @@ private:
     ///the left side and right side in the struct LimiterData.
     void limitWithMinMod(Base::Element *element, const std::size_t iVar);
     
-    ///\todo move this to Helpers
-    LinearAlgebra::MiddleSizeVector projectOnBasisFuns(Base::Element *elt, std::function<double(const PointReferenceT&)> myFun);
-    
     LinearAlgebra::MiddleSizeVector inflowBC_;
     
-    std::size_t polyOrder_;
+    std::size_t polynomialOrder_;
     
     /// Integrator for the elements
     Integration::ElementIntegral<1> elementIntegrator_;

@@ -22,124 +22,30 @@
 #ifndef SavageHutterH
 #define SavageHutterH
 
-#include <fstream>
-#include <iomanip> 
+#include "SavageHutterBase.h"
 
-#include "HelperFunctions.h"
-
-#include "Base/CommandLineOptions.h"
-#include "Base/ConfigurationData.h"
-#include "Base/Element.h"
-#include "Base/Face.h"
-#include "Base/HpgemAPISimplified.h"
-#include "Base/MpiContainer.h"
-#include "Base/RectangularMeshDescriptor.h"
-#include "Base/TimeIntegration/AllTimeIntegrators.h"
-#include "Geometry/PointReference.h"
-#include "Geometry/PointPhysical.h"
-#include "Integration/ElementIntegral.h"
-#include "Integration/FaceIntegral.h"
-#include "Output/TecplotDiscontinuousSolutionWriter.h"
-#include "Output/TecplotSingleElementWriter.h"
-#include "SavageHutterRightHandSideComputer.h"
-
-#include "Logger.h"
-#include "SlopeLimiter.h"
-#include "PositiveLayerLimiter.h"
-
-
-/// \param[in] numberOfVariables Number of variables in the PDE
-/// \param[in] polynomialOrder Polynomial order of the basis functions
-/// \param[in] useMatrixStorage Boolean to indicate if element and face matrices for the PDE should be stored
-/// \param[in] ptrButcherTableau Pointer to a Butcher Tableau used to do the time integration with a Runge-Kutta scheme. By default this is a RK4 scheme.
-struct SHConstructorStruct
-{
-    std::size_t numOfVariables;
-    std::size_t polyOrder;
-    std::size_t numElements;
-    Base::MeshType meshType;
-    Base::ButcherTableau * ptrButcherTableau;
-};
-
-///\todo make parent which has all API-like methods with abstract createSlopeLimiter, createRHSComputer, createHeightLimiter.
-///Parent constructs these things, constructor of this class only calls constructor of parent.
-
-class SavageHutter : public Base::HpgemAPISimplified<DIM>
+class SavageHutter : public SavageHutterBase
 {
 public:
     
-    ///Alternative constructor with less input parameters. Furthermore, this 
-    ///constructor also constructs the mesh and couples an object LimiterData to
-    ///each element.
+    ///\brief Constructor that takes an object specially designed to contain all values needed for construction of this kind of problem.
     SavageHutter(const SHConstructorStruct& inputValues);
     
-    ~SavageHutter()
-    {
-        delete rhsComputer_;
-        delete slopeLimiter_;
-        delete heightLimiter_;
-    }
+private:       
+    ///\brief Create the slope limiter that will be used in this simulation.
+    SlopeLimiter * createSlopeLimiter(const SHConstructorStruct &inputValues) override final;
     
-    SlopeLimiter * createSlopeLimiter(const SHConstructorStruct &inputValues);
+    ///\brief Create the non-negativity limiter that will be used in this simulation.
+    HeightLimiter * createHeightLimiter(const SHConstructorStruct &inputValues) override final;
+    
+    ///\brief Create the object that can compute the right hand side of the differential equation for this simulation.
+    RightHandSideComputer * createRightHandSideComputer(const SHConstructorStruct &inputValues) override final;
 
-    /// \brief Create a domain
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final;
-
-    /// \brief Compute the initial solution at a given point in space and time.
+    ///\brief Compute the initial solution at a given point in space and time.
     LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
     
-    /// \brief Show the progress of the time integration.
-    void showProgress(const double time, const std::size_t timeStepID)
-    {
-        if (timeStepID % 100 == 0)
-        {
-            logger(INFO, "% time steps computed.", timeStepID);
-        }
-    }
-
-    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
-
-    /// \brief Compute the right-hand side corresponding to an internal face
-    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace,
-            const Base::Side side,
-            LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
-            LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
-            const double time) override final;
-    
-    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
-        (
-         Base::Face *ptrFace,
-         LinearAlgebra::MiddleSizeVector &solutionCoefficients,
-         const double time
-         ) override final;
-    
-    void computeOneTimeStep(double &time, const double dt) override final;
-    void limitSolution();
-    
-    ///Compute the minimum of the height in the given element
-    double getMinimumHeight(const Base::Element *element);
-    
-    void tasksBeforeSolving() override final
-    {
-        //todo: for one face integral you used referenceFaceIntegral (which does not scale with the magnitude of the normal) and for the other you used integrate (which does scale)
-        //so it is not clear to me whether or not you need scaling. Please fix as needed
-        faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
-        Base::HpgemAPISimplified<DIM>::tasksBeforeSolving();
-    }
-    
-private:
-
-    /// Number of variables
-    const std::size_t numOfVariables_;
-
-    RightHandSideComputer* rhsComputer_;
-    
-    SlopeLimiter* slopeLimiter_;
-    
-    HeightLimiter* heightLimiter_;
-    
-    const double minH_;
-    
+    ///\brief Show the progress of the time integration.
+    void showProgress(const double time, const std::size_t timeStepID);
 };
 
 #endif

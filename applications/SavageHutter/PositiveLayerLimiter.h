@@ -33,19 +33,19 @@ public:
     PositiveLayerLimiter(const double layerThickness) : 
     minH_(layerThickness) { }
     
+    void limit(Base::Element *element) override final
+    {
+        limitHeight(element);
+        limitDischarge(element);
+    }
+    
+private:
     ///Adapt the height as given in Bunya et. al. (2009) 
-///\param[in] minimum the (negative) minimum height in the given element
     void limitHeight(Base::Element *element);
     void limitDischarge(Base::Element *element);
         
-private:
     ///Compute the minimum of the height in the given element
-    ///\todo move this to Helpers
-    double getMinimumHeight(const Base::Element *element);
-    
-    ///\todo move this to Helpers
-    LinearAlgebra::MiddleSizeVector projectOnBasisFuns(Base::Element *elt, std::function<double(const PointReferenceT&)> myFun);
-    
+    double getMinimumHeight(const Base::Element *element);   
     
     void isDryElement(Base::Element *elt);
     

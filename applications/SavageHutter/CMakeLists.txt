@@ -10,6 +10,7 @@ add_executable(SavageHutter.out
     PositiveLayerLimiter.cpp
     SavageHutterRightHandSideComputer.cpp
 		SavageHutter.cpp
+    SavageHutterBase.cpp
 		main.cpp
       		)
 target_link_libraries(SavageHutter.out hpGEM_Base Output)

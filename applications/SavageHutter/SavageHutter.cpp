@@ -20,55 +20,52 @@
  */
 
 #include "SavageHutter.h"
-#include "Geometry/PhysicalGeometry.h"
 #include "TvbLimiterWithDetector1D.h"
-#include <cmath>
+#include "PositiveLayerLimiter.h"
+#include "SavageHutterRightHandSideComputer.h"
 
 using LinearAlgebra::MiddleSizeVector;
 
-
+///\details Construct the simulation by constructing the basic functionality of SavageHutterBase and constructing the right hand side computer, slope limiter and non-negativity limiter.
 SavageHutter::SavageHutter(const SHConstructorStruct& inputValues) :
-HpgemAPISimplified(inputValues.numOfVariables, inputValues.polyOrder, inputValues.ptrButcherTableau),
-numOfVariables_(inputValues.numOfVariables), minH_(1e-5)
+SavageHutterBase(inputValues)
 {
-    createMesh(inputValues.numElements, inputValues.meshType);
-    const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
-    
-    LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0.);
-    rhsComputer_ = new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1.0, 0., inflowBC);
-    slopeLimiter_ = createSlopeLimiter(inputValues); 
-    heightLimiter_ = new PositiveLayerLimiter(1e-5);
+    rhsComputer_ = createRightHandSideComputer(inputValues);
+    slopeLimiter_ = createSlopeLimiter(inputValues);
+    heightLimiter_ = createHeightLimiter(inputValues);
 }
 
+///\details Actual creation of the slope limiter. The delete is called in the class SavageHutterBase, since that's also where the slope limiter resides.
 SlopeLimiter * SavageHutter::createSlopeLimiter(const SHConstructorStruct &inputValues)
 {
-    const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;    
+    const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0.);
     return (new TvbLimiterWithDetector1D(inputValues.numOfVariables, inflowBC, inputValues.polyOrder));
 }
 
-Base::RectangularMeshDescriptor<DIM> SavageHutter::createMeshDescription(const std::size_t numOfElementPerDirection)
+///\details Actual creation of the non-negativity limiter. The delete is called in the class SavageHutterBase, since that's also where the non-negativity limiter resides.
+HeightLimiter * SavageHutter::createHeightLimiter(const SHConstructorStruct& inputValues)
 {
-    // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
-    Base::RectangularMeshDescriptor<DIM> description;
-    for (std::size_t i = 0; i < DIM; ++i)
-    {
-        description.bottomLeft_[i] = 0;
-        description.topRight_[i] = 1;
-        description.numElementsInDIM_[i] = numOfElementPerDirection;
-        description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
-    }
-    return description;
+    return new PositiveLayerLimiter(dryLimit_);
 }
 
-/// \brief Compute the initial solution at a given point in space and time.
+///\details Actual creation of the right hand side computer. The delete is called in the class SavageHutterBase, since that's also where the right hand side computer resides.
+RightHandSideComputer * SavageHutter::createRightHandSideComputer(const SHConstructorStruct& inputValues)
+{
+    const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
+    LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0.);
+    //magic numbers: epsilon and chute angle (in radians)
+    return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1.0, 0., inflowBC);
+}
+
+/// \details Given the physical point in the domain and the start time of the simulation, compute the initial conditions for the simulation
 LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     LinearAlgebra::MiddleSizeVector initialSolution(numOfVariables_);
-    
+
     if (pPhys[0] < 0.5)
     {
-        initialSolution(0) =  .1;
+        initialSolution(0) = .1;
     }
     else
     {
@@ -77,122 +74,12 @@ LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhys
     initialSolution(1) = 0;
     return initialSolution;
 }
-/*********************Integrate over elements and faces************************/
 
-LinearAlgebra::MiddleSizeVector SavageHutter::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+///\details Show the number of time steps that have been computed on the console.
+void SavageHutter::showProgress(const double time, const std::size_t timeStepID)
 {
-    // Define the integrand function for the right hand side for the reference element.
-    const std::function < LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&) > integrandFunction = [ = ](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector
-    {   
-        return rhsComputer_->integrandRightHandSideOnElement(element, time, solutionCoefficients);
-    };
-
-    return elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
-}
-LinearAlgebra::MiddleSizeVector SavageHutter::computeRightHandSideAtFace
-(
- Base::Face *ptrFace,
- const Base::Side side,
- LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
- LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
- const double time
- )
-{
-    //Faster for 1D: 
-    const std::function < LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&) > integrandFunction = [ = ](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
-    {   
-        return rhsComputer_->integrandRightHandSideOnRefFace(face, side, solutionCoefficientsLeft, solutionCoefficientsRight);
-    };
-
-    return faceIntegrator_.integrate(ptrFace, integrandFunction);
-
-}
-
-LinearAlgebra::MiddleSizeVector SavageHutter::computeRightHandSideAtFace
-(
- Base::Face *ptrFace,
- LinearAlgebra::MiddleSizeVector &solutionCoefficients,
- const double time
- )
-{
-    const std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&)> integrandFunction =
-        [ = ](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
-        {
-            return rhsComputer_->integrandRightHandSideOnRefFace(face, solutionCoefficients);
-        };
-    return faceIntegrator_.integrate(ptrFace, integrandFunction, ptrFace->getGaussQuadratureRule());
-}
-
-/******************************Limiting****************************************/
-
-void SavageHutter::computeOneTimeStep(double &time, const double dt)
-{
-    std::size_t numOfStages = ptrButcherTableau_->getNumStages();
-
-    // Compute intermediate Runge-Kutta stages
-    for (std::size_t iStage = 0; iStage < numOfStages; iStage++)
+    if (timeStepID % 100 == 0)
     {
-        double stageTime = time + ptrButcherTableau_->getC(iStage) * dt;
-
-        std::vector<std::size_t> timeLevelsIn;
-        std::vector<double> coefficientsTimeLevels;
-
-        timeLevelsIn.push_back(solutionTimeLevel_);
-        coefficientsTimeLevels.push_back(1);
-        for (std::size_t jStage = 0; jStage < iStage; jStage++)
-        {
-            timeLevelsIn.push_back(intermediateTimeLevels_[jStage]);
-            coefficientsTimeLevels.push_back(dt * ptrButcherTableau_->getA(iStage, jStage));
-        }
-
-        computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime);
+        logger(INFO, "% time steps computed.", timeStepID);
     }
-
-    // Update the solution
-    for (std::size_t jStage = 0; jStage < numOfStages; jStage++)
-    {
-        scaleAndAddTimeLevel(solutionTimeLevel_, intermediateTimeLevels_[jStage], dt * ptrButcherTableau_->getB(jStage));
-    }
-
-    limitSolution();
-
-    // Update the time.
-    time += dt;
-}
-
-void SavageHutter::limitSolution()
-{
-    for (Base::Element *element : meshes_[0]->getElementsList())
-    {
-        //don't use the slope limiter if the water height is adapted with the non-negativity limiter
-        const double minimum = getMinimumHeight(element);
-        if (minimum < minH_)
-        {
-            heightLimiter_->limitHeight(element);
-            heightLimiter_->limitDischarge(element);
-        }
-        else
-        {
-            if (element->getNrOfBasisFunctions() > 1)
-            {
-                slopeLimiter_->limitSlope(element);
-            }
-        }
-    }
-}
-
-double SavageHutter::getMinimumHeight(const Base::Element* element)
-{
-    const Geometry::PointReference<0> &pRefFace = element->getFace(0)->getReferenceGeometry()->getCenter();
-    const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
-    const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-    
-    double minimum = std::min(element->getSolution(0,pRefL)(0), element->getSolution(0,pRefR)(0));
-    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
-    {
-        const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
-        minimum = std::min(minimum, element->getSolution(0,pRef)(0));
-    }
-    logger(DEBUG, "Minimum in element %: %", element->getID(), minimum);
-    return minimum;
 }

@@ -25,7 +25,7 @@
 ///\details In here, the discontinuity detector of Krivodonova et. al (2004) is
 ///implemented to determine whether or not the given element needs limiting. If
 ///limiting is needed, this function calls limitWithMinmod
-///\todo split!
+///\todo split into multiple functions
 void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
 {
     LinearAlgebra::MiddleSizeVector totalIntegral(numOfVariables_);
@@ -87,7 +87,7 @@ void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
     const Geometry::PointPhysical<1>& pPhys1 = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
     const double dx = Base::L2Norm(pPhys0 - pPhys1);
     logger(DEBUG, "grid size: %", dx);
-    totalIntegral /= std::pow(dx, (polyOrder_ + 1.) / 2);
+    totalIntegral /= std::pow(dx, (polynomialOrder_ + 1.) / 2);
 
     LinearAlgebra::MiddleSizeVector average = Helpers::computeAverageOfSolution<1>(element, elementIntegrator_);
     for (std::size_t i = 0; i < numOfVariables_; ++i)
@@ -103,7 +103,7 @@ void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
         if (std::abs(totalIntegral(i)) > 1)
         {
             logger(DEBUG, "Element % with variable % will be limited.", element->getID(), i);
-            //limitWithMinMod(element, i); //needs to be adapted for boundaries!
+            limitWithMinMod(element, i); //needs to be adapted for boundaries!
         }
     }
  
@@ -170,36 +170,7 @@ void TvbLimiterWithDetector1D::limitWithMinMod(Base::Element* element, const std
     {
         //replace coefficients with "u0 + slope/2 * xi" coefficients
         std::function<double(const PointReferenceT&)> newFun = [=] (const PointReferenceT& pRef) {return u0 + slope/2*pRef[0];};
-        LinearAlgebra::MiddleSizeVector newCoeffs = projectOnBasisFuns(element, newFun);
+        LinearAlgebra::MiddleSizeVector newCoeffs = Helpers::projectOnBasisFuns<1>(element, newFun, elementIntegrator_);
         element->setTimeLevelData(0, iVar, newCoeffs);
     }
-}
-
-LinearAlgebra::MiddleSizeVector TvbLimiterWithDetector1D::projectOnBasisFuns(Base::Element *elt, std::function<double(const PointReferenceT&)> myFun)
-{
-    const std::size_t numBasisFuns = elt->getNrOfBasisFunctions();
-    LinearAlgebra::MiddleSizeVector projection(numBasisFuns);
-    for (std::size_t i = 0; i < numBasisFuns; ++i)
-    {
-        const std::function < double(Base::PhysicalElement<1>&) > integrandFunction = [ = ](Base::PhysicalElement<1>& element) -> double
-        {   
-            return myFun(element.getPointReference())*element.basisFunction(i);
-        };
-        double val = elementIntegrator_.integrate(elt, integrandFunction, elt->getGaussQuadratureRule());
-        projection[i] = val;
-    }
-    LinearAlgebra::MiddleSizeMatrix massMatrix(numBasisFuns, numBasisFuns);
-    for (std::size_t i = 0; i < numBasisFuns; ++i)
-    {
-        for (std::size_t j = 0; j < numBasisFuns; ++j)
-        {
-            const std::function < double(Base::PhysicalElement<1>&) > massFun = [ = ](Base::PhysicalElement<1>& element) -> double
-            {   
-                return element.basisFunction(j)*element.basisFunction(i);
-            };
-            massMatrix(i,j) = elementIntegrator_.integrate(elt, massFun);
-        }
-    }
-    massMatrix.solve(projection);
-    return projection;
 }

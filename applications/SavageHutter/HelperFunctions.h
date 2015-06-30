@@ -54,7 +54,6 @@ namespace Helpers
     }
 
     ///Compute the average of the height and discharge in the given element
-
     template <std::size_t DIM>
     LinearAlgebra::MiddleSizeVector computeAverageOfSolution(Base::Element* element, Integration::ElementIntegral<DIM>& elementIntegrator)
     {
@@ -74,6 +73,34 @@ namespace Helpers
         logger.assert_always(average(0) > - 1e-16, "Average water height negative on "
             "element %! (%), u: %", element->getID(), average, average(1) / average(0));
         return average;
+    }
+
+    template <std::size_t DIM>
+    LinearAlgebra::MiddleSizeVector projectOnBasisFuns(Base::Element *elt, std::function<double(const Geometry::PointReference<DIM>&) > myFun, Integration::ElementIntegral<DIM>& elementIntegrator)
+    {
+        const std::size_t numBasisFuns = elt->getNrOfBasisFunctions();
+        LinearAlgebra::MiddleSizeVector projection(numBasisFuns);
+        for (std::size_t i = 0; i < numBasisFuns; ++ i)
+        {
+            const std::function < double(Base::PhysicalElement<1>&) > integrandFunction = [ = ](Base::PhysicalElement<1>& element) -> double {
+                return myFun(element.getPointReference()) * element.basisFunction(i);
+            };
+            double val = elementIntegrator.integrate(elt, integrandFunction, elt->getGaussQuadratureRule());
+            projection[i] = val;
+        }
+        LinearAlgebra::MiddleSizeMatrix massMatrix(numBasisFuns, numBasisFuns);
+        for (std::size_t i = 0; i < numBasisFuns; ++ i)
+        {
+            for (std::size_t j = 0; j < numBasisFuns; ++ j)
+            {
+                const std::function < double(Base::PhysicalElement<1>&) > massFun = [ = ](Base::PhysicalElement<1>& element) -> double {
+                    return element.basisFunction(j) * element.basisFunction(i);
+                };
+                massMatrix(i, j) = elementIntegrator.integrate(elt, massFun);
+            }
+        }
+        massMatrix.solve(projection);
+        return projection;
     }
 }
 #endif	/* HELPERFUNCTIONS_H */
