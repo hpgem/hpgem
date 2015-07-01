@@ -791,14 +791,14 @@ namespace Base
         face_ = face;
         if(!hasFace)
         {
-            std::size_t leftCoefficients = face->getPtrElementLeft()->getNrOfUnknows() * face->getPtrElementLeft()->getNrOfBasisFunctions();
+            std::size_t leftCoefficients = face->getPtrElementLeft()->getNrOfUnknowns() * face->getPtrElementLeft()->getNrOfBasisFunctions();
             nLeftBasisFunctions = face->getPtrElementLeft()->getNrOfBasisFunctions();
             std::size_t rightCoefficients = 0;
             std::size_t basisFunctions = face->getPtrElementLeft()->getNrOfBasisFunctions();
             if(isInternal_)
             {
                 basisFunctions += face->getPtrElementRight()->getNrOfBasisFunctions();
-                rightCoefficients = face->getPtrElementRight()->getNrOfUnknows() * face->getPtrElementRight()->getNrOfBasisFunctions();
+                rightCoefficients = face->getPtrElementRight()->getNrOfUnknowns() * face->getPtrElementRight()->getNrOfBasisFunctions();
             }
             resultMatrix.resize(leftCoefficients, rightCoefficients);
             leftRightMatrix.resize(leftCoefficients, rightCoefficients);
