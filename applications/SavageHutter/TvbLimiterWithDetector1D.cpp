@@ -30,6 +30,7 @@ void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
 {
     LinearAlgebra::MiddleSizeVector totalIntegral(numOfVariables_);
     LinearAlgebra::MiddleSizeVector numericalSolution(numOfVariables_);
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
 
     //For every face of this element, check the size of the jump
     for (const Base::Face *face : element->getFacesList())
@@ -38,14 +39,13 @@ void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
         const Geometry::PointReference<0>& pRefForInflowTest = face->getReferenceGeometry()->getCenter();
         Base::Side sideOfElement = (face->getPtrElementLeft() == element) ? Base::Side::LEFT : Base::Side::RIGHT;
         LinearAlgebra::SmallVector<1> normal = face->getNormalVector(pRefForInflowTest);
-        ///\todo Helpers::getSolution
         if (sideOfElement == Base::Side::LEFT)
         {
-            numericalSolution = face->getPtrElement(sideOfElement)->getSolution(0, face->mapRefFaceToRefElemL(pRefForInflowTest));
+            numericalSolution = Helpers::getSolution<1>(face->getPtrElement(sideOfElement), solutionCoefficients, face->mapRefFaceToRefElemL(pRefForInflowTest), numOfVariables_);
         }
         else
         {
-            numericalSolution = face->getPtrElement(sideOfElement)->getSolution(0, face->mapRefFaceToRefElemR(pRefForInflowTest));
+            numericalSolution = Helpers::getSolution<1>(face->getPtrElement(sideOfElement), solutionCoefficients, face->mapRefFaceToRefElemR(pRefForInflowTest), numOfVariables_);
             normal *= -1;
         }
 
@@ -60,11 +60,13 @@ void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
             {
                 if (sideOfElement == Base::Side::LEFT)
                 {
-                    numericalSolutionOther = face->getPtrElement(Base::Side::RIGHT)->getSolution(0, face->mapRefFaceToRefElemR(pRefForInflowTest));
+                    LinearAlgebra::MiddleSizeVector solutionCoefficientsOther = face->getPtrElement(Base::Side::RIGHT)->getTimeLevelDataVector(0);
+                    numericalSolutionOther = Helpers::getSolution<1>(face->getPtrElement(Base::Side::RIGHT), solutionCoefficientsOther, face->mapRefFaceToRefElemR(pRefForInflowTest), numOfVariables_);
                 }
                 else
                 {
-                    numericalSolutionOther = face->getPtrElement(Base::Side::LEFT)->getSolution(0, face->mapRefFaceToRefElemL(pRefForInflowTest));
+                    LinearAlgebra::MiddleSizeVector solutionCoefficientsOther = face->getPtrElement(Base::Side::LEFT)->getTimeLevelDataVector(0);
+                    numericalSolutionOther = Helpers::getSolution<1>(face->getPtrElement(Base::Side::LEFT), solutionCoefficientsOther, face->mapRefFaceToRefElemL(pRefForInflowTest), numOfVariables_);
                 }
             }
             else
@@ -89,7 +91,7 @@ void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
     logger(DEBUG, "grid size: %", dx);
     totalIntegral /= std::pow(dx, (polynomialOrder_ + 1.) / 2);
 
-    LinearAlgebra::MiddleSizeVector average = Helpers::computeAverageOfSolution<1>(element, elementIntegrator_);
+    LinearAlgebra::MiddleSizeVector average = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_);
     for (std::size_t i = 0; i < numOfVariables_; ++i)
     {
         if (average(i) > 1e-10)
@@ -121,6 +123,8 @@ LinearAlgebra::SmallVector<1> TvbLimiterWithDetector1D::computeVelocity(LinearAl
 
 void TvbLimiterWithDetector1D::limitWithMinMod(Base::Element* element, const std::size_t iVar)
 {    
+    
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
     const Geometry::PointReference<0> &pRefFace = element->getFace(0)->getReferenceGeometry()->getCenter();
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
@@ -143,23 +147,22 @@ void TvbLimiterWithDetector1D::limitWithMinMod(Base::Element* element, const std
     //check if left is indeed of the left side of right //TODO: this may be false for general meshes (or may even examine the same node twice)
     logger.assert((PointPhysicalT(elemL->getPhysicalGeometry()->getLocalNodeCoordinates(0)))[0] < PointPhysicalT(elemR->getPhysicalGeometry()->getLocalNodeCoordinates(0))[0], "elements left/right in wrong order");
 
-    
-    const double uPlus = element->getSolution(0, pRefR)(iVar);
-    const double uMinus = element->getSolution(0, pRefL)(iVar);
+    const double uPlus = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, numOfVariables_)(iVar);
+    const double uMinus = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, numOfVariables_)(iVar);
     //TVB term
-    const double M = 1;
+    const double M = 100;
     if (std::abs(uPlus - uMinus) < M * (2*element->calcJacobian(pRefL).determinant())* (2*element->calcJacobian(pRefL).determinant()))
     {
         return;
     }
-    const double u0 = Helpers::computeAverageOfSolution<1>(element, elementIntegrator_)(iVar);
-    const double uElemR = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemR), elementIntegrator_)(iVar);
-    const double uElemL = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemL), elementIntegrator_)(iVar);
+    const double u0 = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(iVar);
+    const double uElemR = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemR), solutionCoefficients, elementIntegrator_)(iVar);
+    const double uElemL = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemL), solutionCoefficients, elementIntegrator_)(iVar);
     logger(DEBUG, "coefficients: %", element->getTimeLevelData(0, iVar));
     logger(DEBUG, "uPlus: %, basis function vals: %, %", uPlus , element->basisFunction(0,pRefR), element->basisFunction(1,pRefR));
     logger(DEBUG, "uMinus: %, basis function vals: %, %", uMinus, element->basisFunction(0,pRefL), element->basisFunction(1,pRefL));
     logger(DEBUG, "%, %, %",(uPlus - uMinus), uElemR - u0, u0 - uElemL);
-    logger(DEBUG, "u0: %, average of u: %, (uPlus+uMinus)/2: %", u0, Helpers::computeAverageOfSolution<1>(element, elementIntegrator_)[iVar], (uPlus + uMinus)/2);
+    logger(DEBUG, "u0: %, average of u: %, (uPlus+uMinus)/2: %", u0, Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)[iVar], (uPlus + uMinus)/2);
     double slope =  0;
     if (Helpers::sign(uElemR - u0) == Helpers::sign(u0 - uElemL) && Helpers::sign(uElemR - u0) == Helpers::sign(uPlus - uMinus))
     {

@@ -26,12 +26,15 @@ double PositiveLayerLimiter::getMinimumHeight(const Base::Element* element)
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-    
-    double minimum = std::min(element->getSolution(0,pRefL)(0), element->getSolution(0,pRefR)(0));
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
+    const std::size_t numOfVariables = element->getNrOfUnknowns();
+    const double solutionLeft = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, numOfVariables)(0);
+    const double solutionRight = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, numOfVariables)(0);
+    double minimum = std::min(solutionLeft, solutionRight);
     for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
-        minimum = std::min(minimum, element->getSolution(0,pRef)(0));
+        minimum = std::min(minimum, Helpers::getSolution<1>(element, solutionCoefficients, pRef, numOfVariables)(0));
     }
     logger(DEBUG, "Minimum in element %: %", element->getID(), minimum);
     return minimum;
@@ -39,10 +42,10 @@ double PositiveLayerLimiter::getMinimumHeight(const Base::Element* element)
 
 void PositiveLayerLimiter::limitHeight(Base::Element* element)
 {
-    double minimum = getMinimumHeight(element);
+    double minimum = getMinimumHeight(element);    
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
     logger(DEBUG, "minimum before adaption in element %: %",element->getID(), minimum);
-    const double averageH = Helpers::computeAverageOfSolution<1>(element, elementIntegrator_)(0);
-    const double averageHU = Helpers::computeAverageOfSolution<1>(element, elementIntegrator_)(1);
+    const double averageH = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(0);
     if (averageH < minH_)
     {
         //solution is constant with value average
@@ -50,10 +53,7 @@ void PositiveLayerLimiter::limitHeight(Base::Element* element)
         element->setTimeLevelData(0,0,newCoeffsH);
         return;
     }
-    //squeeze around average, such that the minimum height is at least minH_
-    const double theta = 0;//std::min(1.0, (averageH - minH_)/(averageH - minimum));
-    logger(DEBUG, "Theta: %", theta);
-    std::function<double(const PointReferenceT&)> newFun = [=] (const PointReferenceT& pRef){return theta*(element->getSolution(0,pRef)(0) - averageH) + averageH;};
+    std::function<double(const PointReferenceT&)> newFun = [=] (const PointReferenceT& pRef){return averageH;};
     LinearAlgebra::MiddleSizeVector newCoeffsH = Helpers::projectOnBasisFuns<1>(element, newFun, elementIntegrator_);
     element->setTimeLevelData(0, 0, newCoeffsH);
     logger(DEBUG, "minimum after adaption: % (average %)", getMinimumHeight(element), averageH);
@@ -63,36 +63,40 @@ void PositiveLayerLimiter::limitDischarge(Base::Element* element)
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-    if (element->getSolution(0,pRefL)(0) <= minH_ && element->getSolution(0,pRefR)(0) <= minH_ )
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
+    const std::size_t numOfVariables = element->getNrOfUnknowns();
+    const double solutionLeft = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, numOfVariables)(0);
+    const double solutionRight = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, numOfVariables)(0);
+    if (solutionLeft <= minH_ && solutionRight <= minH_ )
     {
         LinearAlgebra::MiddleSizeVector newCoeffsHU = Helpers::projectOnBasisFuns<1>(element, [=](const PointReferenceT& pRef){return 0;}, elementIntegrator_);
         element->setTimeLevelData(0,1,newCoeffsHU);
         return;
     }
-    if (element->getSolution(0,pRefL)(0) > minH_ && element->getSolution(0,pRefR)(0) > minH_ )
+    if (solutionLeft > minH_ && solutionRight > minH_ )
     {
         return;
     }
-    double huL = element->getSolution(0,pRefL)(1);
-    double huR = element->getSolution(0,pRefR)(1);
+    double huL = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, numOfVariables)(1);
+    double huR = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, numOfVariables)(1);
     double average = (huL + huR) / 2;
     double slope = 0;//(huL + huR)/2;
 
-    if (element->getSolution(0, pRefR)(0) <= minH_)
+    if (solutionRight <= minH_)
     {
         slope *= -1;
     }
     std::function<double(const PointReferenceT&) > newFun = [ = ] (const PointReferenceT & pRef){return average + slope * pRef[0];};
     LinearAlgebra::MiddleSizeVector newCoeffs = Helpers::projectOnBasisFuns<1>(element, newFun, elementIntegrator_);
     element->setTimeLevelData(0, 1, newCoeffs);
-    logger(DEBUG, "Values of hu: [%,%]", element->getSolution(0,pRefL)(1), element->getSolution(0,pRefR)(1));
 }
 
 //Note that this only holds for a flat bottom!
-void PositiveLayerLimiter::isDryElement(Base::Element* elt)
+void PositiveLayerLimiter::isDryElement(Base::Element* element)
 {
-    bool flag = static_cast<Helpers::DryFlag*>(elt->getUserData())->isDry;
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
+    bool flag = static_cast<Helpers::DryFlag*>(element->getUserData())->isDry;
     logger(DEBUG, "isDry: %", flag);
-    double averageH = Helpers::computeAverageOfSolution<1>(elt, elementIntegrator_)(0);
+    double averageH = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(0);
     flag = (averageH > minH_);
 }

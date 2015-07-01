@@ -55,12 +55,13 @@ namespace Helpers
 
     ///Compute the average of the height and discharge in the given element
     template <std::size_t DIM>
-    LinearAlgebra::MiddleSizeVector computeAverageOfSolution(Base::Element* element, Integration::ElementIntegral<DIM>& elementIntegrator)
+    LinearAlgebra::MiddleSizeVector computeAverageOfSolution(Base::Element* element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, Integration::ElementIntegral<DIM>& elementIntegrator)
     {
+        std::size_t numOfVariables = element->getNrOfUnknowns();
         const std::function < LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&) > integrandFunction =
             [ = ](Base::PhysicalElement<DIM>& elt) -> LinearAlgebra::MiddleSizeVector {
-                LinearAlgebra::MiddleSizeVector solution = elt.getSolution();
-                logger(DEBUG, "Solution at quadrature point: %", elt.getSolution());
+                LinearAlgebra::MiddleSizeVector solution = Helpers::getSolution<DIM>(elt.getElement(), solutionCoefficients, elt.getPointReference(), numOfVariables);
+                logger(DEBUG, "Solution at quadrature point: %", solution);
                 return solution;
             };
         LinearAlgebra::MiddleSizeVector average = (elementIntegrator.integrate(element, integrandFunction, element->getGaussQuadratureRule()));
@@ -82,7 +83,8 @@ namespace Helpers
         LinearAlgebra::MiddleSizeVector projection(numBasisFuns);
         for (std::size_t i = 0; i < numBasisFuns; ++ i)
         {
-            const std::function < double(Base::PhysicalElement<1>&) > integrandFunction = [ = ](Base::PhysicalElement<1>& element) -> double {
+            const std::function < double(Base::PhysicalElement<1>&) > integrandFunction = [ = ](Base::PhysicalElement<1>& element) -> double 
+            {
                 return myFun(element.getPointReference()) * element.basisFunction(i);
             };
             double val = elementIntegrator.integrate(elt, integrandFunction, elt->getGaussQuadratureRule());
@@ -93,7 +95,8 @@ namespace Helpers
         {
             for (std::size_t j = 0; j < numBasisFuns; ++ j)
             {
-                const std::function < double(Base::PhysicalElement<1>&) > massFun = [ = ](Base::PhysicalElement<1>& element) -> double {
+                const std::function < double(Base::PhysicalElement<1>&) > massFun = [ = ](Base::PhysicalElement<1>& element) -> double 
+                {
                     return element.basisFunction(j) * element.basisFunction(i);
                 };
                 massMatrix(i, j) = elementIntegrator.integrate(elt, massFun);

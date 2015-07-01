@@ -80,7 +80,8 @@ private:
         ) override final;
 
     void computeOneTimeStep(double &time, const double dt) override final;
-    void limitSolution();
+    void limitSolutionOuterLoop();
+    void limitSolutionInnerLoop();
 
     ///Compute the minimum of the height in the given element
     double getMinimumHeight(const Base::Element *element);

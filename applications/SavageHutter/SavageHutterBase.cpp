@@ -1,5 +1,6 @@
 
 #include "SavageHutterBase.h"
+#include "HelperFunctions.h"
 
 
 SavageHutterBase::SavageHutterBase(const SHConstructorStruct& inputValues) :
@@ -93,6 +94,7 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
         }
 
         computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime);
+        limitSolutionInnerLoop();
     }
 
     // Update the solution
@@ -101,16 +103,18 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
         scaleAndAddTimeLevel(solutionTimeLevel_, intermediateTimeLevels_[jStage], dt * ptrButcherTableau_->getB(jStage));
     }
 
-    limitSolution();
+    limitSolutionOuterLoop();
 
     // Update the time.
     time += dt;
 }
 
-void SavageHutterBase::limitSolution()
+void SavageHutterBase::limitSolutionOuterLoop()
 {
+    
     for (Base::Element *element : meshes_[0]->getElementsList())
     {
+        LinearAlgebra::MiddleSizeVector solutionCoefficients = element->getTimeLevelDataVector(solutionTimeLevel_);
         //don't use the slope limiter if the water height is adapted with the non-negativity limiter
         const double minimum = getMinimumHeight(element);
         if (minimum < dryLimit_)
@@ -128,6 +132,23 @@ void SavageHutterBase::limitSolution()
     }
 }
 
+void SavageHutterBase::limitSolutionInnerLoop()
+{
+    for (Base::Element *element : meshes_[0]->getElementsList())
+    {
+        ///\todo set correct solution coefficients
+        //LinearAlgebra::MiddleSizeVector solutionCoefficients = ;
+        
+        ///\todo make height limiter dependent on solution coefficients
+        const double minimum = getMinimumHeight(element);
+        if (minimum < dryLimit_)
+        {
+            //heightLimiter_->limit(element);
+        }
+        
+    }
+}
+
 ///\details Compute the minimum height by checking the vertices of the element and the Gauss quadrature points in the element.
 ///While this does not guarantee to give the best result, it gives a good estimate.
 double SavageHutterBase::getMinimumHeight(const Base::Element* element)
@@ -135,12 +156,15 @@ double SavageHutterBase::getMinimumHeight(const Base::Element* element)
     ///\todo generalize for more than 1D
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-    
-    double minimum = std::min(element->getSolution(0,pRefL)(0), element->getSolution(0,pRefR)(0));
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
+    const std::size_t numOfVariables = element->getNrOfUnknowns();
+    const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);
+    const double solutionRight = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefR, numOfVariables)(0);
+    double minimum = std::min(solutionLeft, solutionRight);
     for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
-        minimum = std::min(minimum, element->getSolution(0,pRef)(0));
+        minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
     }
     logger(DEBUG, "Minimum in element %: %", element->getID(), minimum);
     return minimum;
