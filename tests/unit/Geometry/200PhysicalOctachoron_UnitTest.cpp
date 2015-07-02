@@ -143,17 +143,17 @@ int main()
     pointIndexes = test.getNodeIndexes();
     
     logger.assert_always((pointIndexes[0] == 4 && pointIndexes[1] == 7 && pointIndexes[2] == 10 && pointIndexes[3] == 11 && pointIndexes[4] == 12 && pointIndexes[5] == 13 && pointIndexes[6] == 14 && pointIndexes[7] == 15 && pointIndexes[8] == 16 && pointIndexes[9] == 17 && pointIndexes[10] == 18 && pointIndexes[11] == 19 && pointIndexes[12] == 20 && pointIndexes[13] == 21 && pointIndexes[14] == 22 && pointIndexes[15] == 23), "getNodeIndexes");
-    logger.assert_always((nodes == test.getNodes()), "getNodes");
+    logger.assert_always((nodes == test.getNodeCoordinates()), "getNodes");
     logger.assert_always((test.getNodeIndex(0) == 4 && test.getNodeIndex(1) == 7 && test.getNodeIndex(2) == 10 && test.getNodeIndex(3) == 11 && test.getNodeIndex(4) == 12 && test.getNodeIndex(5) == 13 && test.getNodeIndex(6) == 14 && test.getNodeIndex(7) == 15 && test.getNodeIndex(8) == 16 && test.getNodeIndex(9) == 17 && test.getNodeIndex(10) == 18 && test.getNodeIndex(11) == 19 && test.getNodeIndex(12) == 20 && test.getNodeIndex(13) == 21 && test.getNodeIndex(14) == 22 && test.getNodeIndex(15) == 23), "getNodeIndex");
     
     std::cout << test.getName();
     
-    point = *test.getNodePtr(test.getNodeIndex(0));
+    point = *test.getNodeCoordinatePtr(test.getNodeIndex(0));
     logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getNodePtr");
     logger.assert_always((std::abs(point[1] - 2.4) < 1e-12), "getNodePtr");
     logger.assert_always((std::abs(point[2] - 3.4) < 1e-12), "getNodePtr");
     logger.assert_always((std::abs(point[3] - 1.) < 1e-12), "getNodePtr");
-    point = *test.getNodePtr(test.getNodeIndex(1));
+    point = *test.getNodeCoordinatePtr(test.getNodeIndex(1));
     logger.assert_always((std::abs(point[0] - 1.7) < 1e-12), "getNodePtr");
     logger.assert_always((std::abs(point[1] - 2.7) < 1e-12), "getNodePtr");
     logger.assert_always((std::abs(point[2] - 3.7) < 1e-12), "getNodePtr");

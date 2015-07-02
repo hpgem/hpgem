@@ -86,23 +86,23 @@ namespace Geometry
         switch(referenceGeometry_->getGeometryType())
         {
             case ReferenceGeometryType::LINE:
-                physicalGeometry_ = createPhysicalGeometry<1>(other.physicalGeometry_->getNodeIndexes(), static_cast<PhysicalGeometry<1>* >(other.physicalGeometry_)->getNodes(), referenceGeometry_);
+                physicalGeometry_ = createPhysicalGeometry<1>(other.physicalGeometry_->getNodeIndexes(), static_cast<PhysicalGeometry<1>* >(other.physicalGeometry_)->getNodeCoordinates(), referenceGeometry_);
                 referenceToPhysicalMapping_ = createMappings<1>(other.physicalGeometry_->getNodeIndexes().size(), static_cast<PhysicalGeometry<1>* >(physicalGeometry_));
                 break;
             case ReferenceGeometryType::SQUARE:
             case ReferenceGeometryType::TRIANGLE:
-                physicalGeometry_ = createPhysicalGeometry<2>(other.physicalGeometry_->getNodeIndexes(), static_cast<PhysicalGeometry<2>* >(other.physicalGeometry_)->getNodes(), referenceGeometry_);
+                physicalGeometry_ = createPhysicalGeometry<2>(other.physicalGeometry_->getNodeIndexes(), static_cast<PhysicalGeometry<2>* >(other.physicalGeometry_)->getNodeCoordinates(), referenceGeometry_);
                 referenceToPhysicalMapping_ = createMappings<2>(other.physicalGeometry_->getNodeIndexes().size(), static_cast<PhysicalGeometry<2>* >(physicalGeometry_));
                 break;
             case ReferenceGeometryType::TETRAHEDRON:
             case ReferenceGeometryType::CUBE:
             case ReferenceGeometryType::TRIANGULARPRISM:
             case ReferenceGeometryType::PYRAMID:
-                physicalGeometry_ = createPhysicalGeometry<3>(other.physicalGeometry_->getNodeIndexes(), static_cast<PhysicalGeometry<3>* >(other.physicalGeometry_)->getNodes(), referenceGeometry_);
+                physicalGeometry_ = createPhysicalGeometry<3>(other.physicalGeometry_->getNodeIndexes(), static_cast<PhysicalGeometry<3>* >(other.physicalGeometry_)->getNodeCoordinates(), referenceGeometry_);
                 referenceToPhysicalMapping_ = createMappings<3>(other.physicalGeometry_->getNodeIndexes().size(), static_cast<PhysicalGeometry<3>* >(physicalGeometry_));
                 break;
             case ReferenceGeometryType::HYPERCUBE:
-                physicalGeometry_ = createPhysicalGeometry<4>(other.physicalGeometry_->getNodeIndexes(), static_cast<PhysicalGeometry<4>* >(other.physicalGeometry_)->getNodes(), referenceGeometry_);
+                physicalGeometry_ = createPhysicalGeometry<4>(other.physicalGeometry_->getNodeIndexes(), static_cast<PhysicalGeometry<4>* >(other.physicalGeometry_)->getNodeCoordinates(), referenceGeometry_);
                 referenceToPhysicalMapping_ = createMappings<4>(other.physicalGeometry_->getNodeIndexes().size(), static_cast<PhysicalGeometry<4>* >(physicalGeometry_));
                 break;
             case ReferenceGeometryType::POINT:

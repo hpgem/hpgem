@@ -78,16 +78,16 @@ int main()
     pointIndexes = test.getNodeIndexes();
     
     logger.assert_always((pointIndexes[0] == 4 && pointIndexes[1] == 7 && pointIndexes[2] == 10 && pointIndexes[3] == 11 && pointIndexes[4] == 12 && pointIndexes[5] == 13), "getNodeIndexes");
-    logger.assert_always((nodes == test.getNodes()), "getNodes");
+    logger.assert_always((nodes == test.getNodeCoordinates()), "getNodes");
     logger.assert_always((test.getNodeIndex(0) == 4 && test.getNodeIndex(1) == 7 && test.getNodeIndex(2) == 10 && test.getNodeIndex(3) == 11 && test.getNodeIndex(4) == 12 && test.getNodeIndex(5) == 13), "getNodeIndex");
     
     std::cout << test.getName();
     
-    point = *test.getNodePtr(test.getNodeIndex(0));
+    point = *test.getNodeCoordinatePtr(test.getNodeIndex(0));
     logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getNodePtr");
     logger.assert_always((std::abs(point[1] - 2.4) < 1e-12), "getNodePtr");
     logger.assert_always((std::abs(point[2] - 3.4) < 1e-12), "getNodePtr");
-    point = *test.getNodePtr(test.getNodeIndex(1));
+    point = *test.getNodeCoordinatePtr(test.getNodeIndex(1));
     logger.assert_always((std::abs(point[0] - 1.7) < 1e-12), "getNodePtr");
     logger.assert_always((std::abs(point[1] - 2.7) < 1e-12), "getNodePtr");
     logger.assert_always((std::abs(point[2] - 3.7) < 1e-12), "getNodePtr");

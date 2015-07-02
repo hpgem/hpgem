@@ -72,6 +72,7 @@ namespace Base
             return elements_;
         }
         
+        ///Get the local node number for this node at the given element.
         std::size_t getNodeNr(std::size_t i) const
         {
             logger.assert(i < getNrOfElements(), "Asked for element %, but there are only % elements", i, getNrOfElements());

@@ -89,10 +89,10 @@ namespace Geometry
         }
         
         /// \brief Given a global index, returns a pointer to the corresponding point.
-        virtual const PointPhysicalBase* getNodePtr(const std::size_t globalIndex) const = 0;
+        virtual const PointPhysicalBase* getNodeCoordinatePtr(const std::size_t globalIndex) const = 0;
         
         /// \brief Given a global index, returns a pointer to the corresponding point.
-        virtual PointPhysicalBase* getNodePtr(const std::size_t globalIndex) = 0;
+        virtual PointPhysicalBase* getNodeCoordinatePtr(const std::size_t globalIndex) = 0;
         
         /// \brief Returns the number of nodes of this geometry.
         std::size_t getNumberOfNodes() const

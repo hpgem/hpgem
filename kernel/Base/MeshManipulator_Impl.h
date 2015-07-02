@@ -1319,15 +1319,15 @@ namespace Base
             
             for (uint_fast32_t i = 0; i < numberOfBoundaryFaces; ++i)
             {
-                boundaryFaces[i].nodeList.resize(2);
-                centaurFile.read(reinterpret_cast<char*>(boundaryFaces[i].nodeList.data()), sizeof(std::uint32_t) * 2);
+                boundaryFaces[i].nodesList.resize(2);
+                centaurFile.read(reinterpret_cast<char*>(boundaryFaces[i].nodesList.data()), sizeof(std::uint32_t) * 2);
                 
-                boundaryFaces[i].nodeList[0] -= 1;
-                boundaryFaces[i].nodeList[1] -= 1;
+                boundaryFaces[i].nodesList[0] -= 1;
+                boundaryFaces[i].nodesList[1] -= 1;
                 
                 std::vector<std::size_t> candidateElements;
-                std::vector<std::size_t>& leftNodeElements = listOfElementsForEachNode[boundaryFaces[i].nodeList[0]];
-                std::vector<std::size_t>& rightNodeElements = listOfElementsForEachNode[boundaryFaces[i].nodeList[1]];
+                std::vector<std::size_t>& leftNodeElements = listOfElementsForEachNode[boundaryFaces[i].nodesList[0]];
+                std::vector<std::size_t>& rightNodeElements = listOfElementsForEachNode[boundaryFaces[i].nodesList[1]];
                 
                 std::set_intersection(leftNodeElements.begin(), leftNodeElements.end(), rightNodeElements.begin(), rightNodeElements.end(), std::back_inserter(candidateElements));
                 
@@ -1341,7 +1341,7 @@ namespace Base
                 for (std::size_t j = 0; j < current->getNrOfFaces(); ++j)
                 {
                     faceNodes = current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j);
-                    if ((faceNodes[0] == boundaryFaces[i].nodeList[0] || faceNodes[0] == boundaryFaces[i].nodeList[1]) && (faceNodes[1] == boundaryFaces[i].nodeList[0] || faceNodes[1] == boundaryFaces[i].nodeList[1]))
+                    if ((faceNodes[0] == boundaryFaces[i].nodesList[0] || faceNodes[0] == boundaryFaces[i].nodesList[1]) && (faceNodes[1] == boundaryFaces[i].nodesList[0] || faceNodes[1] == boundaryFaces[i].nodesList[1]))
                     {
                         boundaryFaces[i].localFaceIndex = j;
                     }
@@ -2000,16 +2000,16 @@ namespace Base
                 
                 centaurFile.read(reinterpret_cast<char*>(&nodalDescriptionOfTheFace[0]), sizeof(nodalDescriptionOfTheFace));
                 
-                boundarFaces[i].nodeList.resize(3);
-                boundarFaces[i].nodeList[0] = nodalDescriptionOfTheFace[0];
-                boundarFaces[i].nodeList[1] = nodalDescriptionOfTheFace[1];
-                boundarFaces[i].nodeList[2] = nodalDescriptionOfTheFace[2];
+                boundarFaces[i].nodesList.resize(3);
+                boundarFaces[i].nodesList[0] = nodalDescriptionOfTheFace[0];
+                boundarFaces[i].nodesList[1] = nodalDescriptionOfTheFace[1];
+                boundarFaces[i].nodesList[2] = nodalDescriptionOfTheFace[2];
                 
                 //three nodes will uniquely determine the face
                 auto& firstNodeList = listOfElementsForEachNode[nodalDescriptionOfTheFace[0]];
                 auto& secondNodeList = listOfElementsForEachNode[nodalDescriptionOfTheFace[1]];
                 auto& thirdNodeList = listOfElementsForEachNode[nodalDescriptionOfTheFace[2]];
-                std::vector<std::size_t> temp, candidates, nodes(boundarFaces->nodeList), intersect;
+                std::vector<std::size_t> temp, candidates, nodes(boundarFaces->nodesList), intersect;
                 std::sort(nodes.begin(), nodes.end());
                 std::set_intersection(firstNodeList.begin(), firstNodeList.end(), secondNodeList.begin(), secondNodeList.end(), std::back_inserter(temp));
                 std::set_intersection(temp.begin(), temp.end(), thirdNodeList.begin(), thirdNodeList.end(), std::back_inserter(candidates));
@@ -2032,12 +2032,12 @@ namespace Base
                         {
                             if (centaurFileType > 3)
                             {
-                                boundarFaces[i].nodeList.push_back(boundarFaces[i].nodeList[2]);
-                                boundarFaces[i].nodeList[2] = nodalDescriptionOfTheFace[3];
+                                boundarFaces[i].nodesList.push_back(boundarFaces[i].nodesList[2]);
+                                boundarFaces[i].nodesList[2] = nodalDescriptionOfTheFace[3];
                             }
                             else
                             {
-                                boundarFaces[i].nodeList.push_back(nodalDescriptionOfTheFace[3]);
+                                boundarFaces[i].nodesList.push_back(nodalDescriptionOfTheFace[3]);
                             }
                         }
                     }

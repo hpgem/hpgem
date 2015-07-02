@@ -164,7 +164,7 @@ namespace Base
         ///vector is initialized with space to store only expansion coefficients for one side and has no implied coupling with the long result vector
         LinearAlgebra::MiddleSizeVector& getResultVector(Side side);
 
-        ///check if this physicalface is meant for internal faces
+        ///check if this PhysicalFace is an internal face or a face on a periodic boundary.
         bool isInternal();
 
         const Face* getFace();

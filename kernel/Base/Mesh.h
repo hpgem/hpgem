@@ -243,7 +243,7 @@ namespace Base
         std::size_t nodeCounter_;
 
         //! Global vector of physical nodes. (physical location of vertices)
-        std::vector<Geometry::PointPhysical<DIM> > points_;
+        std::vector<Geometry::PointPhysical<DIM> > nodeCoordinates_;
     };
 
 }
