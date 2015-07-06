@@ -28,7 +28,8 @@ class HeightLimiter
 public:
     virtual ~HeightLimiter(){ }
     
-    virtual void limit(Base::Element *element) = 0;
+    ///This function changes the given solutionCoefficients!
+    virtual void limit(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoeffiecients) = 0;
 };
 
 #endif	/* HEIGHTLIMITER_H */

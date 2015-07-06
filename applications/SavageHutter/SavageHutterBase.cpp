@@ -4,8 +4,8 @@
 
 
 SavageHutterBase::SavageHutterBase(const SHConstructorStruct& inputValues) :
-HpgemAPISimplified(inputValues.numOfVariables, inputValues.polyOrder, inputValues.ptrButcherTableau),
-    numOfVariables_(inputValues.numOfVariables), dryLimit_(1e-5)
+HpgemAPISimplified(inputValues.numOfVariables, inputValues.polyOrder, inputValues.ptrButcherTableau, inputValues.ptrButcherTableau->getNumStages() + 2),
+    numOfVariables_(inputValues.numOfVariables), dryLimit_(1e-5), temporaryTimeLevel_(inputValues.ptrButcherTableau->getNumStages() + 1)
 {
     createMesh(inputValues.numElements, inputValues.meshType);
 }
@@ -94,7 +94,6 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
         }
 
         computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime);
-        limitSolutionInnerLoop();
     }
 
     // Update the solution
@@ -109,17 +108,61 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
     time += dt;
 }
 
+/// \details Make sure timeLevelResult is different from the timeLevelsIn.
+    void SavageHutterBase::computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
+    {
+        // Apply the right hand side corresponding to integration on the elements.
+        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
+        {
+            LinearAlgebra::MiddleSizeVector solutionCoefficients = getSolutionCoefficients(ptrElement, timeLevelsIn, coefficientsTimeLevels);
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew = ptrElement->getTimeLevelDataVector(timeLevelResult);
+            logger(DEBUG, "Before: %", solutionCoefficients);
+            heightLimiter_->limit(ptrElement, solutionCoefficients);
+            ptrElement->setTimeLevelDataVector(temporaryTimeLevel_, solutionCoefficients);
+            logger(DEBUG, "After: %", solutionCoefficients);
+            
+            solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time);
+        }
+        
+        // Apply the right hand side corresponding to integration on the faces.
+        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
+        {
+            if(ptrFace->isInternal())
+            {
+                //LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft(getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
+                //LinearAlgebra::MiddleSizeVector solutionCoefficientsRight(getSolutionCoefficients(ptrFace->getPtrElementRight(), timeLevelsIn, coefficientsTimeLevels));
+                LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft = ptrFace->getPtrElementLeft()->getTimeLevelDataVector(temporaryTimeLevel_);
+                LinearAlgebra::MiddleSizeVector solutionCoefficientsRight = ptrFace->getPtrElementRight()->getTimeLevelDataVector(temporaryTimeLevel_);
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
+                
+                solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
+                solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
+            }
+            else
+            {
+                LinearAlgebra::MiddleSizeVector solutionCoefficients = ptrFace->getPtrElementLeft()->getTimeLevelDataVector(temporaryTimeLevel_);
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                
+                solutionCoefficientsNew += computeRightHandSideAtFace(ptrFace, solutionCoefficients, time);
+            }
+        }
+        
+        synchronize(timeLevelResult);
+    }
+
 void SavageHutterBase::limitSolutionOuterLoop()
 {
     
     for (Base::Element *element : meshes_[0]->getElementsList())
     {
-        LinearAlgebra::MiddleSizeVector solutionCoefficients = element->getTimeLevelDataVector(solutionTimeLevel_);
         //don't use the slope limiter if the water height is adapted with the non-negativity limiter
         const double minimum = getMinimumHeight(element);
         if (minimum < dryLimit_)
         {
-            heightLimiter_->limit(element);
+            LinearAlgebra::MiddleSizeVector solutionCoefficients = element->getTimeLevelDataVector(0);
+            heightLimiter_->limit(element, solutionCoefficients);
+            element->setTimeLevelDataVector(0, solutionCoefficients);
         }
         else
         {
@@ -129,23 +172,6 @@ void SavageHutterBase::limitSolutionOuterLoop()
                 slopeLimiter_->limitSlope(element);
             }
         }
-    }
-}
-
-void SavageHutterBase::limitSolutionInnerLoop()
-{
-    for (Base::Element *element : meshes_[0]->getElementsList())
-    {
-        ///\todo set correct solution coefficients
-        //LinearAlgebra::MiddleSizeVector solutionCoefficients = ;
-        
-        ///\todo make height limiter dependent on solution coefficients
-        const double minimum = getMinimumHeight(element);
-        if (minimum < dryLimit_)
-        {
-            //heightLimiter_->limit(element);
-        }
-        
     }
 }
 

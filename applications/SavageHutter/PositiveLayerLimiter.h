@@ -24,6 +24,7 @@
 #include "HeightLimiter.h"
 
 #include "Integration/ElementIntegral.h"
+#include "HelperFunctions.h"
 
 class PositiveLayerLimiter : public HeightLimiter
 {
@@ -33,10 +34,32 @@ public:
     PositiveLayerLimiter(const double layerThickness) : 
     minH_(layerThickness) { }
     
-    void limit(Base::Element *element) override final
+    void limit(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients) override final
     {
-        limitHeight(element);
-        limitDischarge(element);
+        if (getMinimumHeight(element) >= minH_)
+            return;
+        
+        const double averageHeight = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(0);
+        const LinearAlgebra::MiddleSizeVector heightCoefficients = 
+            Helpers::projectOnBasisFuns<1>(element, [=](const PointReferenceT& pRef){return averageHeight;}, elementIntegrator_);
+        LinearAlgebra::MiddleSizeVector dischargeCoefficients;
+        if ( averageHeight < minH_)
+        {
+            dischargeCoefficients = Helpers::projectOnBasisFuns<1>(element, [=](const PointReferenceT& pRef){return 0;}, elementIntegrator_);
+        }
+        else
+        {
+            const double averageDischarge = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(1);
+            dischargeCoefficients = Helpers::projectOnBasisFuns<1>(element, [=](const PointReferenceT& pRef){return averageDischarge;}, elementIntegrator_);
+        }
+        
+        for (std::size_t iFun = 0; iFun < element->getNrOfBasisFunctions(); ++iFun)
+        {
+                std::size_t iVF = element->convertToSingleIndex(iFun, 0);
+                solutionCoefficients[iVF] = heightCoefficients[iFun];
+                iVF = element->convertToSingleIndex(iFun, 1);
+                solutionCoefficients[iVF] = dischargeCoefficients[iFun];
+        }
     }
     
 private:

@@ -93,7 +93,12 @@ private:
         faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
         Base::HpgemAPISimplified<DIM>::tasksBeforeSolving();
     }
-
+    
+    /// \details Make sure timeLevelResult is different from the timeLevelsIn.
+    void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time) override final;
+    
+    std::size_t temporaryTimeLevel_;
+    
 };
 
 #endif	/* SAVAGEHUTTERBASE_H */

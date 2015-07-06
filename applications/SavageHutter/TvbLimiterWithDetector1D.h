@@ -38,6 +38,11 @@ using PointPhysicalT = Geometry::PointPhysical<1>;
     void limitSlope(Base::Element *element) override final;
     
 private:   
+    
+    std::vector<bool> detectDiscontinuity(Base::Element *element);
+    
+    bool hasSmallSlope(Base::Element *element, std::size_t iVar);
+    
     ///Auxiliary function for checking if a limiter should be used.
     LinearAlgebra::SmallVector<1> computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution);
     

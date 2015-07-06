@@ -22,14 +22,26 @@
 #include "TvbLimiterWithDetector1D.h"
 #include "HelperFunctions.h"
 
+
+void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
+{
+    for (std::size_t i = 0; i < numOfVariables_; ++i)
+    {
+        if (detectDiscontinuity(element)[i] && !hasSmallSlope(element, i))
+        {
+            limitWithMinMod(element, i);
+        }
+    } 
+}
+
 ///\details In here, the discontinuity detector of Krivodonova et. al (2004) is
 ///implemented to determine whether or not the given element needs limiting. If
 ///limiting is needed, this function calls limitWithMinmod
-///\todo split into multiple functions
-void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
+std::vector<bool> TvbLimiterWithDetector1D::detectDiscontinuity(Base::Element* element)
 {
     LinearAlgebra::MiddleSizeVector totalIntegral(numOfVariables_);
     LinearAlgebra::MiddleSizeVector numericalSolution(numOfVariables_);
+    std::vector<bool> isDiscontinuous(numOfVariables_, false);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
 
     //For every face of this element, check the size of the jump
@@ -77,7 +89,6 @@ void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
             ///\todo make this multi-dimensional by integrating over the face.
             totalIntegral += numericalSolution - numericalSolutionOther;
         }
-        
     }
 
     logger(DEBUG, "Integral over all inflow boundaries of difference for element %: %", element->getID(), totalIntegral);
@@ -105,10 +116,11 @@ void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
         if (std::abs(totalIntegral(i)) > 1)
         {
             logger(DEBUG, "Element % with variable % will be limited.", element->getID(), i);
-            limitWithMinMod(element, i); //needs to be adapted for boundaries!
+            isDiscontinuous[i] = true;
         }
     }
  
+        return isDiscontinuous;
 }
 
 LinearAlgebra::SmallVector<1> TvbLimiterWithDetector1D::computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution)
@@ -121,11 +133,21 @@ LinearAlgebra::SmallVector<1> TvbLimiterWithDetector1D::computeVelocity(LinearAl
     return LinearAlgebra::SmallVector<1>({numericalSolution(1) / numericalSolution(0)});
 }
 
+bool TvbLimiterWithDetector1D::hasSmallSlope(Base::Element* element, std::size_t iVar)
+{
+    const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
+    const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
+    
+    const double uPlus = element->getSolution(0, pRefR)[iVar];
+    const double uMinus = element->getSolution(0, pRefL)[iVar];
+    const double M = 100;
+    return (std::abs(uPlus - uMinus) < M * (2*element->calcJacobian(pRefL).determinant())* (2*element->calcJacobian(pRefL).determinant()));
+}
+
 void TvbLimiterWithDetector1D::limitWithMinMod(Base::Element* element, const std::size_t iVar)
 {    
     
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
-    const Geometry::PointReference<0> &pRefFace = element->getFace(0)->getReferenceGeometry()->getCenter();
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
     logger.assert(std::abs(-1  - pRefL[0]) < 1e-10, "xi_L != -1");    
@@ -147,22 +169,16 @@ void TvbLimiterWithDetector1D::limitWithMinMod(Base::Element* element, const std
     //check if left is indeed of the left side of right //TODO: this may be false for general meshes (or may even examine the same node twice)
     logger.assert((PointPhysicalT(elemL->getPhysicalGeometry()->getLocalNodeCoordinates(0)))[0] < PointPhysicalT(elemR->getPhysicalGeometry()->getLocalNodeCoordinates(0))[0], "elements left/right in wrong order");
 
-    const double uPlus = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, numOfVariables_)(iVar);
-    const double uMinus = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, numOfVariables_)(iVar);
-    //TVB term
-    const double M = 100;
-    if (std::abs(uPlus - uMinus) < M * (2*element->calcJacobian(pRefL).determinant())* (2*element->calcJacobian(pRefL).determinant()))
-    {
-        return;
-    }
+    const double uPlus = element->getSolution(0, pRefR)[iVar];
+    const double uMinus = element->getSolution(0, pRefL)[iVar];
+    
     const double u0 = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(iVar);
     const double uElemR = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemR), solutionCoefficients, elementIntegrator_)(iVar);
     const double uElemL = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemL), solutionCoefficients, elementIntegrator_)(iVar);
     logger(DEBUG, "coefficients: %", element->getTimeLevelData(0, iVar));
     logger(DEBUG, "uPlus: %, basis function vals: %, %", uPlus , element->basisFunction(0,pRefR), element->basisFunction(1,pRefR));
     logger(DEBUG, "uMinus: %, basis function vals: %, %", uMinus, element->basisFunction(0,pRefL), element->basisFunction(1,pRefL));
-    logger(DEBUG, "%, %, %",(uPlus - uMinus), uElemR - u0, u0 - uElemL);
-    logger(DEBUG, "u0: %, average of u: %, (uPlus+uMinus)/2: %", u0, Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)[iVar], (uPlus + uMinus)/2);
+    logger(DEBUG, "Element %: %, %, %",element->getID(), (uPlus - uMinus), uElemR - u0, u0 - uElemL);
     double slope =  0;
     if (Helpers::sign(uElemR - u0) == Helpers::sign(u0 - uElemL) && Helpers::sign(uElemR - u0) == Helpers::sign(uPlus - uMinus))
     {
