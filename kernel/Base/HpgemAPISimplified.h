@@ -301,7 +301,6 @@ namespace Base
         /// Integrator for the faces
         Integration::FaceIntegral<DIM> faceIntegrator_;
         
-    private:
         /// \brief Define how the solution should be written in the VTK files.
         /// \details For an example of using this function, see for example the application 'TutorialAdvection' to find out how to use this function.
         void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
@@ -319,6 +318,7 @@ namespace Base
             VTKMatrixWrite_.push_back( {function, name});
         }
         
+    private:
         std::vector<std::pair<std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKDoubleWrite_;
         std::vector<std::pair<std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKVectorWrite_;
         std::vector<std::pair<std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKMatrixWrite_;
