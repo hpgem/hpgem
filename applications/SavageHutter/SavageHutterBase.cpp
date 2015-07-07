@@ -5,7 +5,7 @@
 
 SavageHutterBase::SavageHutterBase(const SHConstructorStruct& inputValues) :
 HpgemAPISimplified(inputValues.numOfVariables, inputValues.polyOrder, inputValues.ptrButcherTableau, inputValues.ptrButcherTableau->getNumStages() + 2),
-    numOfVariables_(inputValues.numOfVariables), dryLimit_(1e-5), temporaryTimeLevel_(inputValues.ptrButcherTableau->getNumStages() + 1)
+    numOfVariables_(inputValues.numOfVariables), dryLimit_(1e-5), temporaryTimeLevel_(inputValues.ptrButcherTableau->getNumStages() + 1), time_(0)
 {
     createMesh(inputValues.numElements, inputValues.meshType);
 }
@@ -106,6 +106,8 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
 
     // Update the time.
     time += dt;
+    time_ = time;
+    logger(DEBUG, "time: %",time_);
 }
 
 /// \details Make sure timeLevelResult is different from the timeLevelsIn.
@@ -129,8 +131,6 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
         {
             if(ptrFace->isInternal())
             {
-                //LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft(getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
-                //LinearAlgebra::MiddleSizeVector solutionCoefficientsRight(getSolutionCoefficients(ptrFace->getPtrElementRight(), timeLevelsIn, coefficientsTimeLevels));
                 LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft = ptrFace->getPtrElementLeft()->getTimeLevelDataVector(temporaryTimeLevel_);
                 LinearAlgebra::MiddleSizeVector solutionCoefficientsRight = ptrFace->getPtrElementRight()->getTimeLevelDataVector(temporaryTimeLevel_);
                 LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
@@ -169,7 +169,7 @@ void SavageHutterBase::limitSolutionOuterLoop()
             //only limit the slope when there is a slope, so not when the solution exists of piecewise constants.
             if (element->getNrOfBasisFunctions() > 1)
             {
-                slopeLimiter_->limitSlope(element);
+                //slopeLimiter_->limitSlope(element);
             }
         }
     }

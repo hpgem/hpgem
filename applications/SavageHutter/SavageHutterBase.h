@@ -55,6 +55,9 @@ protected:
 
     ///If the minimum height in an element is below this number, the element is considered to be dry.
     const double dryLimit_;
+    
+    
+    double time_;
 
 private:
     virtual SlopeLimiter * createSlopeLimiter(const SHConstructorStruct &inputValues) = 0;
@@ -98,6 +101,7 @@ private:
     void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time) override final;
     
     std::size_t temporaryTimeLevel_;
+    
     
 };
 

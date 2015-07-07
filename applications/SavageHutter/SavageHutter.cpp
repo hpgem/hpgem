@@ -61,25 +61,66 @@ RightHandSideComputer * SavageHutter::createRightHandSideComputer(const SHConstr
 /// \details Given the physical point in the domain and the start time of the simulation, compute the initial conditions for the simulation
 LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
-    LinearAlgebra::MiddleSizeVector initialSolution(numOfVariables_);
-
-    if (pPhys[0] < 0.5)
-    {
-        initialSolution(0) = .1;
-    }
-    else
-    {
-        initialSolution(0) = 0.;
-    }
-    initialSolution(1) = 0;
-    return initialSolution;
+    
+    return getExactSolution(pPhys, startTime);
 }
 
 ///\details Show the number of time steps that have been computed on the console.
 void SavageHutter::showProgress(const double time, const std::size_t timeStepID)
 {
-    if (timeStepID % 100 == 0)
+    if (timeStepID % 10000 == 0)
     {
         logger(INFO, "% time steps computed.", timeStepID);
     }
+}
+
+LinearAlgebra::MiddleSizeVector SavageHutter::getExactSolution(const PointPhysicalT& pPhys, const double& time, const std::size_t orderTimeDerivative)
+{
+    const double c0 = 0.7;
+    const double x = pPhys[0];
+    double h;
+    double u;
+    if (x <= 0.5 - c0 * time)
+    {
+        h = c0*c0;
+        u = 0;
+    }
+    else
+    {
+        if (x >= 0.5 + 2 * c0 * time)
+        {
+            h = 0;
+            u = 0;
+        }
+        else
+        {
+            h = 1./9. * ((x-0.5)/time - 2.*c0) * ((x-0.5)/time - 2.*c0);
+            
+            u = 2./3 * ((x-0.5)/time + c0);
+            logger(DEBUG, "analytical solution on x = %: %, %", x, h, h*u);
+        }
+    }
+    return LinearAlgebra::MiddleSizeVector({h, h*u});
+}
+
+void SavageHutter::registerVTKWriteFunctions()
+{
+    for (std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV++)
+    {
+        registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
+        {
+            return std::real(element->getSolution(timeLevel, pRef)[iV]);
+        }, variableNames_[iV]);
+
+    }
+    registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
+    {
+        const PointPhysicalT &pPhys = element->referenceToPhysical(pRef);
+                             return std::real(getExactSolution(pPhys, time_)[0]);
+    }, "analytical height");
+    registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
+    {
+        const PointPhysicalT &pPhys = element->referenceToPhysical(pRef);
+                             return std::real(getExactSolution(pPhys, time_)[1]);
+    }, "analytical discharge");
 }

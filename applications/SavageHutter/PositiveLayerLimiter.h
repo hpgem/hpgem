@@ -40,19 +40,36 @@ public:
             return;
         
         const double averageHeight = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(0);
-        const LinearAlgebra::MiddleSizeVector heightCoefficients = 
-            Helpers::projectOnBasisFuns<1>(element, [=](const PointReferenceT& pRef){return averageHeight;}, elementIntegrator_);
+        const double averageDischarge = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(1);  
+        LinearAlgebra::MiddleSizeVector heightCoefficients;
         LinearAlgebra::MiddleSizeVector dischargeCoefficients;
         if ( averageHeight < minH_)
         {
-            dischargeCoefficients = Helpers::projectOnBasisFuns<1>(element, [=](const PointReferenceT& pRef){return 0;}, elementIntegrator_);
+            heightCoefficients = 
+            Helpers::projectOnBasisFuns<1>(element, [=](const PointReferenceT& pRef){return averageHeight;}, elementIntegrator_);
+            dischargeCoefficients = Helpers::projectOnBasisFuns<1>(element, [ = ](const PointReferenceT & pRef){return 0;}, elementIntegrator_);
         }
         else
-        {
-            const double averageDischarge = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(1);
-            dischargeCoefficients = Helpers::projectOnBasisFuns<1>(element, [=](const PointReferenceT& pRef){return averageDischarge;}, elementIntegrator_);
+        {          
+            const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
+            const double solutionLeft = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, element->getNrOfUnknowns())(0);
+            const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
+            const double solutionRight = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, element->getNrOfUnknowns())(0);
+            double slopeDischarge = solutionRight - averageDischarge;
+            double slopeHeight = solutionLeft + solutionRight - 2*minH_;
+
+            if (solutionRight < minH_)
+            {
+                slopeHeight *= -1;
+            }
+            std::function<double(const PointReferenceT&) > heightFun = [ = ] (const PointReferenceT & pRef){return averageHeight + slopeHeight/2 * pRef[0];};
+            heightCoefficients = Helpers::projectOnBasisFuns<1>(element, heightFun, elementIntegrator_);
+            std::function<double(const PointReferenceT&) > dischargeFun = [ = ] (const PointReferenceT & pRef){return averageDischarge + slopeDischarge * pRef[0];};
+            dischargeCoefficients = Helpers::projectOnBasisFuns<1>(element, dischargeFun, elementIntegrator_);
+            logger(DEBUG, "averages: %", Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_));
+            logger(DEBUG, "slopes: [% %]", slopeHeight, slopeDischarge);
         }
-        
+
         for (std::size_t iFun = 0; iFun < element->getNrOfBasisFunctions(); ++iFun)
         {
                 std::size_t iVF = element->convertToSingleIndex(iFun, 0);

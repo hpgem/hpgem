@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     inputVals.polyOrder = polynomialOrder.getValue();
     inputVals.numElements = numOfElements.getValue();
     inputVals.meshType = Base::MeshType::RECTANGULAR; // Either TRIANGULAR or RECTANGULAR.
-    inputVals.ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4,4);
+    inputVals.ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(1,1);
     
     //Construct the problem and output generator
     SavageHutter test(inputVals);    
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     startClock = std::chrono::system_clock::now();
 
     // Solve the problem over time interval [startTime,endTime].
-    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), false);
+    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
 
     // Measure elapsed time
     endClock = std::chrono::system_clock::now();
