@@ -60,6 +60,49 @@ namespace Base
         {
             leftNodes.push_back(ptrElemL->getNode(localLeftNodes[i])->getID());
             rightNodes.push_back(ptrElemR->getNode(localRightNodes[i])->getID());
+            switch(ptrElemL->getGaussQuadratureRule()->dimension())
+            {
+                case 1:
+                    //condition must be checked for all nodes because some of them could be in the corner of a rotational symmetry
+                    if(Geometry::PointPhysical<1>(ptrElemL->getPhysicalGeometry()->getLocalNodeCoordinates(localLeftNodes[i])) !=
+                            Geometry::PointPhysical<1>(ptrElemR->getPhysicalGeometry()->getLocalNodeCoordinates(localRightNodes[i])))
+                    {
+                        //no periodic_subdomain here because the mesh gets split after everything is constructed
+                        setFaceType(Geometry::FaceType::PERIODIC_BC);
+                    }
+                    break;
+                case 2:
+                    //condition must be checked for all nodes because some of them could be in the corner of a rotational symmetry
+                    if(Geometry::PointPhysical<2>(ptrElemL->getPhysicalGeometry()->getLocalNodeCoordinates(localLeftNodes[i])) !=
+                            Geometry::PointPhysical<2>(ptrElemR->getPhysicalGeometry()->getLocalNodeCoordinates(localRightNodes[i])))
+                    {
+                        //no periodic_subdomain here because the mesh gets split after everything is constructed
+                        setFaceType(Geometry::FaceType::PERIODIC_BC);
+                    }
+                    break;
+                case 3:
+                    //condition must be checked for all nodes because some of them could be in the corner of a rotational symmetry
+                    if(Geometry::PointPhysical<3>(ptrElemL->getPhysicalGeometry()->getLocalNodeCoordinates(localLeftNodes[i])) !=
+                            Geometry::PointPhysical<3>(ptrElemR->getPhysicalGeometry()->getLocalNodeCoordinates(localRightNodes[i])))
+                    {
+                        //no periodic_subdomain here because the mesh gets split after everything is constructed
+                        setFaceType(Geometry::FaceType::PERIODIC_BC);
+                    }
+                    break;
+                case 4:
+                    //condition must be checked for all nodes because some of them could be in the corner of a rotational symmetry
+                    if(Geometry::PointPhysical<4>(ptrElemL->getPhysicalGeometry()->getLocalNodeCoordinates(localLeftNodes[i])) !=
+                            Geometry::PointPhysical<4>(ptrElemR->getPhysicalGeometry()->getLocalNodeCoordinates(localRightNodes[i])))
+                    {
+                        //no periodic_subdomain here because the mesh gets split after everything is constructed
+                        setFaceType(Geometry::FaceType::PERIODIC_BC);
+                    }
+                    break;
+                default:
+                    logger(ERROR, "hpGEM does not support elements of dimension %", ptrElemL->getGaussQuadratureRule()->dimension());
+            }
+
+
         }
         initialiseFaceToFaceMapIndex(leftNodes, rightNodes);
     }
