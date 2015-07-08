@@ -64,7 +64,7 @@ namespace Base
     
     struct HalfFaceDescription
     {
-        std::vector<std::size_t> nodeList;
+        std::vector<std::size_t> nodesList;
         std::size_t elementNum;
         std::size_t localFaceIndex;
     };

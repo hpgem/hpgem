@@ -45,7 +45,7 @@
 template<std::size_t DIM>
 void testMesh(Base::MeshManipulator<DIM>* test)
 {
-    std::unordered_set<std::size_t> elementIDs, faceIDs, edgeIDs, vertexIDs;
+    std::unordered_set<std::size_t> elementIDs, faceIDs, edgeIDs, nodeIDs;
     std::cout << test->getElementsList(Base::IteratorType::GLOBAL).size() << std::endl;
     std::cout << test->getElementsList(Base::IteratorType::LOCAL).size() << std::endl;
     for (Base::Element* element : test->getElementsList())
@@ -129,18 +129,18 @@ void testMesh(Base::MeshManipulator<DIM>* test)
             logger.assert_always((firstNodes.size() == otherNodes.size()), "edge positioning");
         }
     }
-    for (Base::Node* vertex : test->getNodesList())
+    for (Base::Node* node : test->getNodesList())
     {
-        logger.assert_always((vertexIDs.find(vertex->getID()) == vertexIDs.end()), "duplicate vertex ID");
-        vertexIDs.insert(vertex->getID());
-        logger.assert_always((vertex->getElement(0)->getNode(vertex->getNodeNr(0)) == vertex), "element<->vertex matching");
+        logger.assert_always((nodeIDs.find(node->getID()) == nodeIDs.end()), "duplicate node ID");
+        nodeIDs.insert(node->getID());
+        logger.assert_always((node->getElement(0)->getNode(node->getNodeNr(0)) == node), "element<->node matching");
         Geometry::PointPhysical<DIM> pFirst, pOther;
-        pFirst = vertex->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getNodeNr(0));
-        for (std::size_t i = 1; i < vertex->getNrOfElements(); ++i)
+        pFirst = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNr(0));
+        for (std::size_t i = 1; i < node->getNrOfElements(); ++i)
         {
-            logger.assert_always((vertex->getElement(i)->getNode(vertex->getNodeNr(i)) == vertex), "element<->vertex matching");
-            pOther = vertex->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(vertex->getNodeNr(i));
-            logger.assert_always((pFirst == pOther), "vertex positioning");
+            logger.assert_always((node->getElement(i)->getNode(node->getNodeNr(i)) == node), "element<->node matching");
+            pOther = node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNr(i));
+            logger.assert_always((pFirst == pOther), "node positioning");
         }
     }
     logger.assert_always((test->getNumberOfNodes() == test->getNumberOfNodeCoordinates()), "total amount of grid points (%) is not equal to the number of nodes (%)",

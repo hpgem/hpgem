@@ -224,6 +224,11 @@ namespace Base
         return nrOfUnknowns_;
     }
     
+    std::size_t ElementData::getNrOfUnknowns() const
+    {
+        return nrOfUnknowns_;
+    }
+    
     void ElementData::setUserData(UserElementData* data)
     {
         //the user may pass any kind of data he/she wants (including nullptr) even if this does not seem to make sense

@@ -45,12 +45,13 @@ namespace Geometry
      *
      * It contains only the global indexes of its points in globalNodeIndexes_. These global
      * indexes refer to the global node container, of which every PhysicalGeometry has a
-     * reference: nodes_.
+     * reference: nodeCoordinates_.
      *
      * It also contains a reference to the corresponding referenceGeometry.
      *
-     * ~ Point is the name of a class.               ~
-     * ~ Node is a point that belongs to a geometry. ~
+     * ~ Point is the name of a class.                          ~
+     * ~ Node is a point that belongs to a geometry.            ~
+     * ~ nodeCoordinate is the Point where the Node is located. ~
      */
     template<std::size_t DIM>
     class PhysicalGeometry : public PhysicalGeometryBase
@@ -61,10 +62,9 @@ namespace Geometry
 
     public:
         
-        /// \brief Constructor gets indexes of the nodes, a reference to the node container, and a pointer to the corresponding reference geometry.
-        
+        /// \brief Constructor gets indexes of the nodes, a reference to the node container, and a pointer to the corresponding reference geometry.        
         PhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const refG)
-                : PhysicalGeometryBase(globalNodeIndexes, refG), nodes_(nodes)
+                : PhysicalGeometryBase(globalNodeIndexes, refG), nodeCoordinates_(nodes)
         {
             logger.assert(refG!=nullptr, "Invalid reference geometry passed");
         }
@@ -72,29 +72,55 @@ namespace Geometry
         PhysicalGeometry(const PhysicalGeometry& other) = delete;
         
         /// \brief Returns a pointer to the global container of nodes.
-        VectorOfPhysicalPointsT& getNodes()
+        VectorOfPhysicalPointsT& getNodeCoordinates()
         {
-            return nodes_;
+            return nodeCoordinates_;
         }
         
         /// \brief Returns a constant pointer of the global container of nodes
-        const VectorOfPhysicalPointsT& getNodes() const
+        const VectorOfPhysicalPointsT& getNodeCoordinates() const
         {
-            return nodes_;
+            return nodeCoordinates_;
         }
         
         /// \brief Given a global index, returns a pointer to the corresponding point.
+        PointPhysicalBase* getNodeCoordinatePtr(const std::size_t globalIndex)
+        {
+            logger.assert(globalIndex < nodeCoordinates_.size(),"This mesh does not contain a node with index %",globalIndex);
+            return &(nodeCoordinates_[globalIndex]);
+        }
+        
+        /// \brief Given a global index, returns a pointer to the corresponding point.
+        const PointPhysicalBase* getNodeCoordinatePtr(const std::size_t globalIndex) const
+        {
+            logger.assert(globalIndex < nodeCoordinates_.size(),"This mesh does not contain a node with index %",globalIndex);
+            return &(nodeCoordinates_[globalIndex]);
+        }        
+        
+        /// \deprecated Not consistent with naming convention, please use getNodeCoordinates()
+        VectorOfPhysicalPointsT& getNodes()
+        {
+            return nodeCoordinates_;
+        }
+        
+        /// \deprecated Not consistent with naming convention, please use getNodeCoordinates()
+        VectorOfPhysicalPointsT& getNodes() const
+        {
+            return nodeCoordinates_;
+        }
+        
+        /// \deprecated Not consistent with naming convention, please use getNodeCoordinatePtr
         const PointPhysicalBase* getNodePtr(const std::size_t globalIndex) const
         {
-            logger.assert(globalIndex < nodes_.size(),"This mesh does not contain a node with index %",globalIndex);
-            return &(nodes_[globalIndex]);
+            logger.assert(globalIndex < nodeCoordinates_.size(),"This mesh does not contain a node with index %",globalIndex);
+            return &(nodeCoordinates_[globalIndex]);
         }
         
-        /// \brief Given a global index, returns a pointer to the corresponding point.
+        ///\deprecated Not consistent with naming convention, please use getNodeCoordinatePtr
         PointPhysicalBase* getNodePtr(const std::size_t globalIndex)
         {
-            logger.assert(globalIndex < nodes_.size(),"This mesh does not contain a node with index %",globalIndex);
-            return &(nodes_[globalIndex]);
+            logger.assert(globalIndex < nodeCoordinates_.size(),"This mesh does not contain a node with index %",globalIndex);
+            return &(nodeCoordinates_[globalIndex]);
         }
         
         /// \brief Given a local index, return the physical coordinates of the corresponding point.
@@ -111,8 +137,7 @@ namespace Geometry
         
     protected:
         /// Reference to the global node container.
-        VectorOfPhysicalPointsT& nodes_;
-
+        VectorOfPhysicalPointsT& nodeCoordinates_;
     };
 
 }

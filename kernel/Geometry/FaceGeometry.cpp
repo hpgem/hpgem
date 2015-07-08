@@ -88,14 +88,15 @@ namespace Geometry
     //! Return a Mapping
     FaceGeometry::RefFaceToRefElementMappingPtr FaceGeometry::refFaceToRefElemMapL() const
     {
-        return RefFaceToRefElementMappingPtr(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_));
+        //we abuse shared_ptr here to provide common behaviour with refFaceToRefElemMapR, but we don't actually want to delete the mapping when the shared_ptr is destroyed
+        return RefFaceToRefElementMappingPtr(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_), [](const MappingReferenceToReference<1>*){});
     }
     
     //! Return a mapping to the right reference element.
     typename FaceGeometry::RefFaceToRefElementMappingPtr FaceGeometry::refFaceToRefElemMapR() const
     {
         const MappingReferenceToReference<0> * const m1Ptr = this->getReferenceGeometry()->getCodim0MappingPtr(faceToFaceMapIndex_);
-        const MappingReferenceToReference<1> * const m2Ptr = leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_);
+        const MappingReferenceToReference<1> * const m2Ptr = rightElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_);
         
         return RefFaceToRefElementMappingPtr(new ConcatenatedMapping(*m1Ptr, *m2Ptr));
     }

@@ -59,6 +59,7 @@ namespace LinearAlgebra
         {
         }
 
+        //this constructor is implicit because both vector types should allow for the same mathematical operations, with the only potential difference being in the implementation
         SmallVector(const MiddleSizeVector& other)
             : data_()
         {

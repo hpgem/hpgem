@@ -34,6 +34,7 @@ auto& startTime = Base::register_argument<double>('S', "startTime", "start time 
 auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 0.001);
 auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.001);
 
+
 //This code does not work correctly yet!
 int main(int argc, char **argv)
 {
@@ -58,7 +59,7 @@ int main(int argc, char **argv)
     startClock = std::chrono::system_clock::now();
 
     // Solve the problem over time interval [startTime,endTime].
-    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), false);
+    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
 
     // Measure elapsed time
     endClock = std::chrono::system_clock::now();

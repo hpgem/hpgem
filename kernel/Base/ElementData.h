@@ -84,8 +84,11 @@ namespace Base
 
         /// \brief Specify a time level index, a variable index and a basis function index, set the corresponding expansionCoefficient (double).
         void setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, double val);
-
+        
+        ///\deprecated Spelling mistake, please use getNrOfUnknowns instead.
         std::size_t getNrOfUnknows() const;
+
+        std::size_t getNrOfUnknowns() const;
 
         std::size_t getNrOfBasisFunctions() const;
 

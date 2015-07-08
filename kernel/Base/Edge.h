@@ -33,9 +33,9 @@ namespace Base
     class Element;
     
     /**
-     * generic class that contains entities of codimension 2 or greater that are not vertexes.
-     * At the moment no integration takes place on edges, so they dont care about their own shape or
-     * position. They do know what elements are nearby so they can connent edge-based conforming
+     * generic class that contains entities of codimension 2 or greater that are not vertices.
+     * At the moment no integration takes place on edges, so they don't care about their own shape or
+     * position. They do know what elements are nearby so they can connect edge-based conforming
      * degrees of freedom to the proper elements.
      * \todo 4D support
      */

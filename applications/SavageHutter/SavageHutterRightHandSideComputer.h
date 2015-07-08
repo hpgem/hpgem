@@ -24,55 +24,57 @@
 
 #include "Base/Element.h"
 #include "Base/Face.h"
+#include "RightHandSideComputer.h"
 
-//first make it working in 1D, then fix for 2D
-const std::size_t DIM = 1;
 
 using LinearAlgebra::MiddleSizeVector;
 
-//the split into two classes does not really make life easier
-class SavageHutterRightHandSideComputer
+class SavageHutterRightHandSideComputer : public RightHandSideComputer
 {
-    friend class SavageHutter;
     using PointPhysicalT = Geometry::PointPhysical<DIM>;
     using PointReferenceT = Geometry::PointReference<DIM>;
-    using PointReferenceOnFaceT = Geometry::PointReference<DIM - 1>;
-private:
+    using PointReferenceOnFaceT = Geometry::PointReference<DIM - 1 >;
+
+public:
+
+    SavageHutterRightHandSideComputer(const std::size_t numOfVariables, const double epsilon, const double chuteAngle, const MiddleSizeVector inflowBC) :
+    RightHandSideComputer(numOfVariables), epsilon_(epsilon), chuteAngle_(chuteAngle), inflowBC_(inflowBC), minH_(1e-10) { }
+
     /// \brief Compute the integrand for the right hand side for the reference element.
     MiddleSizeVector integrandRightHandSideOnElement
     (
-     Base::PhysicalElement<DIM>& element,
-     const double &time,
-     const MiddleSizeVector &solutionCoefficients
-     );
-    
+        Base::PhysicalElement<DIM>& element,
+        const double &time,
+        const MiddleSizeVector &solutionCoefficients
+        ) override final;
+
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
     MiddleSizeVector integrandRightHandSideOnRefFace
     (
-     Base::PhysicalFace<DIM>& face,
-     const MiddleSizeVector &solutionCoefficients
-     );
+        Base::PhysicalFace<DIM>& face,
+        const MiddleSizeVector &solutionCoefficients
+        ) override final;
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
     /// Note that a face in 1D is a point.
     MiddleSizeVector integrandRightHandSideOnRefFace
     (
-     Base::PhysicalFace<DIM>& face,
-     const Base::Side &iSide,
-     const MiddleSizeVector &solutionCoefficientsLeft,
-     const MiddleSizeVector &solutionCoefficientsRight
-     );
-    
+        Base::PhysicalFace<DIM>& face,
+        const Base::Side &iSide,
+        const MiddleSizeVector &solutionCoefficientsLeft,
+        const MiddleSizeVector &solutionCoefficientsRight
+        ) override final;
+
+private:
     MiddleSizeVector computePhysicalFlux(const MiddleSizeVector &numericalSolution);
     MiddleSizeVector computeSourceTerm(const MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys, const double time);
     MiddleSizeVector localLaxFriedrichsFlux(const MiddleSizeVector &numericalSolutionLeft, const MiddleSizeVector &NumericalSolutionRight);
     double computeFriction(const MiddleSizeVector &numericalSolution);
-    LinearAlgebra::MiddleSizeVector getInflowBC();    
-    MiddleSizeVector getSolution(const Base::Element *element, const MiddleSizeVector &solutionCoefficients, const PointReferenceT& pRef);    
 
-    std::size_t numOfVariables_;
     double epsilon_;
     double chuteAngle_; //in radians
+    MiddleSizeVector inflowBC_;
+    double minH_; //below this height, don't divide by it, but set u to 0
 };
 
 #endif	/* SAVAGEHUTTERRIGHTHANDSIDECOMPUTER_H */

@@ -82,11 +82,16 @@ int main()
         point1Dphys = test->referenceToPhysical(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig1D));
         logger.assert_always((std::abs(compare1D[0] - point1D[0]) < 1e-12), "getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
         logger.assert_always((std::abs(compare1Dphys[0] - point1Dphys[0]) < 1e-12), "referenceToPhysical");
+        point1D = test->refFaceToRefElemMapL()->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig1D));
+        logger.assert_always((std::abs(compare1D[0] - point1D[0]) < 1e-12), "refFaceToRefElemMapL");
+
         compare1D = test->getPtrElementGRight()->getReferenceGeometry()->getReferenceNodeCoordinate(rightIndices[i]);
         compare1Dphys = test->getPtrElementGRight()->referenceToPhysical(*Geometry::PointReferenceFactory<1>::instance()->makePoint(compare1D));
         point1D = test->mapRefFaceToRefElemR(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig1D));
         logger.assert_always((std::abs(compare1D[0] - point1D[0]) < 1e-12), "getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
         logger.assert_always((std::abs(compare1Dphys[0] - point1Dphys[0]) < 1e-12), "referenceToPhysical"); //probably indirectly verified already, but this is the most important feature of a face
+        point1D = test->refFaceToRefElemMapR()->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig1D));
+        logger.assert_always((std::abs(compare1D[0] - point1D[0]) < 1e-12), "refFaceToRefElemMapR");
     }
     
     logger.assert_always((test->getFaceType() == Geometry::FaceType::INTERNAL), "Face type internal");
@@ -151,6 +156,10 @@ int main()
         logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12), "getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
         logger.assert_always((std::abs(compare2Dphys[0] - point2Dphys[0]) < 1e-12), "referenceToPhysical");
         logger.assert_always((std::abs(compare2Dphys[1] - point2Dphys[1]) < 1e-12), "referenceToPhysical");
+        point2D = test->refFaceToRefElemMapL()->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig2D));
+        logger.assert_always((std::abs(compare2D[0] - point2D[0]) < 1e-12), "refFaceToRefElemMapL");
+        logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12), "refFaceToRefElemMapL");
+
         compare2D = test->getPtrElementGRight()->getReferenceGeometry()->getReferenceNodeCoordinate(rightIndices[i]);
         compare2Dphys = test->getPtrElementGRight()->referenceToPhysical(*Geometry::PointReferenceFactory<2>::instance()->makePoint(compare2D));
         point2D = test->mapRefFaceToRefElemR(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig2D));
@@ -158,6 +167,9 @@ int main()
         logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12), "getPtrElementGRight or localFaceNumberRight or mapRefFaceToRefElemR or mapRefFaceToRefFace");
         logger.assert_always((std::abs(compare2Dphys[0] - point2Dphys[0]) < 1e-12), "referenceToPhysical"); //probably indirectly verified already, but this is the most important feature of a face
         logger.assert_always((std::abs(compare2Dphys[1] - point2Dphys[1]) < 1e-12), "referenceToPhysical");
+        point2D = test->refFaceToRefElemMapR()->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig2D));
+        logger.assert_always((std::abs(compare2D[0] - point2D[0]) < 1e-12), "refFaceToRefElemMapR");
+        logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12), "refFaceToRefElemMapR");
     }
     
     logger.assert_always((test->getFaceType() == Geometry::FaceType::INTERNAL), "Internal face type");
@@ -192,6 +204,9 @@ int main()
         logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12), "getElementGLeft or localFaceNumberLeft or mapRefFaceToRefElemL");
         logger.assert_always((std::abs(compare2Dphys[0] - point2Dphys[0]) < 1e-12), "referenceToPhysical");
         logger.assert_always((std::abs(compare2Dphys[1] - point2Dphys[1]) < 1e-12), "referenceToPhysical");
+        point2D = test->refFaceToRefElemMapL()->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig2D));
+        logger.assert_always((std::abs(compare2D[0] - point2D[0]) < 1e-12), "refFaceToRefElemMapL");
+        logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12), "refFaceToRefElemMapL");
     }
     
     logger.assert_always((test->getFaceType() == Geometry::FaceType::WALL_BC), "FaceType wall");

@@ -19,37 +19,46 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SavageHutterH
-#define SavageHutterH
+#ifndef TVBLIMITERWITHDETECTOR_H
+#define	TVBLIMITERWITHDETECTOR_H
 
-#include "SavageHutterBase.h"
+#include "SlopeLimiter.h"
+#include "Integration/ElementIntegral.h"
 
-class SavageHutter : public SavageHutterBase
+class TvbLimiterWithDetector1D : public SlopeLimiter
 {
 public:
     
-    ///\brief Constructor that takes an object specially designed to contain all values needed for construction of this kind of problem.
-    SavageHutter(const SHConstructorStruct& inputValues);
-    
-private:       
-    ///\brief Create the slope limiter that will be used in this simulation.
-    SlopeLimiter * createSlopeLimiter(const SHConstructorStruct &inputValues) override final;
-    
-    ///\brief Create the non-negativity limiter that will be used in this simulation.
-    HeightLimiter * createHeightLimiter(const SHConstructorStruct &inputValues) override final;
-    
-    ///\brief Create the object that can compute the right hand side of the differential equation for this simulation.
-    RightHandSideComputer * createRightHandSideComputer(const SHConstructorStruct &inputValues) override final;
+using PointReferenceT = Geometry::PointReference<1>;
+using PointPhysicalT = Geometry::PointPhysical<1>;
 
-    ///\brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
+    TvbLimiterWithDetector1D(std::size_t numVars, LinearAlgebra::MiddleSizeVector inflowBC, std::size_t polynomialOrder) : 
+    SlopeLimiter(numVars), inflowBC_(inflowBC), polynomialOrder_(polynomialOrder), DIM(1) { }
     
-    ///\brief Show the progress of the time integration.
-    void showProgress(const double time, const std::size_t timeStepID);
+    void limitSlope(Base::Element *element) override final;
     
-    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
+private:   
     
-    void registerVTKWriteFunctions() override final;
+    std::vector<bool> detectDiscontinuity(Base::Element *element);
+    
+    bool hasSmallSlope(Base::Element *element, std::size_t iVar);
+    
+    ///Auxiliary function for checking if a limiter should be used.
+    LinearAlgebra::SmallVector<1> computeVelocity(LinearAlgebra::MiddleSizeVector numericalSolution);
+    
+    ///If a limiter should be used, use the min-mod limiter. Save the values of 
+    ///the left side and right side in the struct LimiterData.
+    void limitWithMinMod(Base::Element *element, const std::size_t iVar);
+    
+    LinearAlgebra::MiddleSizeVector inflowBC_;
+    
+    std::size_t polynomialOrder_;
+    
+    /// Integrator for the elements
+    Integration::ElementIntegral<1> elementIntegrator_;
+    
+    const std::size_t DIM;
 };
 
-#endif
+#endif	/* TVBLIMITERWITHDETECTOR_H */
+

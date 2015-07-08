@@ -19,37 +19,52 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SavageHutterH
-#define SavageHutterH
+#ifndef RIGHTHANDSIDECOMPUTER_H
+#define	RIGHTHANDSIDECOMPUTER_H
+#include "LinearAlgebra/MiddleSizeVector.h"
+#include "Base/PhysicalElement.h"
 
-#include "SavageHutterBase.h"
+const std::size_t DIM = 1;
 
-class SavageHutter : public SavageHutterBase
+using LinearAlgebra::MiddleSizeVector;
+
+class RightHandSideComputer
 {
 public:
-    
-    ///\brief Constructor that takes an object specially designed to contain all values needed for construction of this kind of problem.
-    SavageHutter(const SHConstructorStruct& inputValues);
-    
-private:       
-    ///\brief Create the slope limiter that will be used in this simulation.
-    SlopeLimiter * createSlopeLimiter(const SHConstructorStruct &inputValues) override final;
-    
-    ///\brief Create the non-negativity limiter that will be used in this simulation.
-    HeightLimiter * createHeightLimiter(const SHConstructorStruct &inputValues) override final;
-    
-    ///\brief Create the object that can compute the right hand side of the differential equation for this simulation.
-    RightHandSideComputer * createRightHandSideComputer(const SHConstructorStruct &inputValues) override final;
 
-    ///\brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
+    RightHandSideComputer(std::size_t numVars)
+    : numOfVariables_(numVars) { }
     
-    ///\brief Show the progress of the time integration.
-    void showProgress(const double time, const std::size_t timeStepID);
+    virtual ~RightHandSideComputer(){ }
+
+    /// \brief Purely virtual function to compute the integrand for the right hand side for the reference element.
+    virtual MiddleSizeVector integrandRightHandSideOnElement
+    (
+        Base::PhysicalElement<DIM> &element,
+        const double &time,
+        const MiddleSizeVector &solutionCoefficients
+        ) = 0;
+
+    /// \brief Purely virtual function to compute the integrand for the right hand side for the reference face corresponding to a boundary face.
+    virtual MiddleSizeVector integrandRightHandSideOnRefFace
+    (
+        Base::PhysicalFace<DIM> &face,
+        const MiddleSizeVector &solutionCoefficients
+        ) = 0;
+
+    /// \brief Purely virtual function to compute the integrand for the right hand side for the reference face corresponding to an internal face.
+    virtual MiddleSizeVector integrandRightHandSideOnRefFace
+    (
+        Base::PhysicalFace<DIM> &face,
+        const Base::Side &iSide,
+        const MiddleSizeVector &solutionCoefficientsLeft,
+        const MiddleSizeVector &solutionCoefficientsRight
+        ) = 0;
     
-    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
-    
-    void registerVTKWriteFunctions() override final;
+
+protected:
+    std::size_t numOfVariables_;
 };
 
-#endif
+#endif	/* RIGHTHANDSIDECOMPUTER_H */
+

@@ -164,7 +164,7 @@ namespace Base
         ///vector is initialized with space to store only expansion coefficients for one side and has no implied coupling with the long result vector
         LinearAlgebra::MiddleSizeVector& getResultVector(Side side);
 
-        ///check if this physicalface is meant for internal faces
+        ///check if this PhysicalFace is an internal face or a face on a periodic boundary.
         bool isInternal();
 
         const Face* getFace();
@@ -791,14 +791,14 @@ namespace Base
         face_ = face;
         if(!hasFace)
         {
-            std::size_t leftCoefficients = face->getPtrElementLeft()->getNrOfUnknows() * face->getPtrElementLeft()->getNrOfBasisFunctions();
+            std::size_t leftCoefficients = face->getPtrElementLeft()->getNrOfUnknowns() * face->getPtrElementLeft()->getNrOfBasisFunctions();
             nLeftBasisFunctions = face->getPtrElementLeft()->getNrOfBasisFunctions();
             std::size_t rightCoefficients = 0;
             std::size_t basisFunctions = face->getPtrElementLeft()->getNrOfBasisFunctions();
             if(isInternal_)
             {
                 basisFunctions += face->getPtrElementRight()->getNrOfBasisFunctions();
-                rightCoefficients = face->getPtrElementRight()->getNrOfUnknows() * face->getPtrElementRight()->getNrOfBasisFunctions();
+                rightCoefficients = face->getPtrElementRight()->getNrOfUnknowns() * face->getPtrElementRight()->getNrOfBasisFunctions();
             }
             resultMatrix.resize(leftCoefficients, rightCoefficients);
             leftRightMatrix.resize(leftCoefficients, rightCoefficients);

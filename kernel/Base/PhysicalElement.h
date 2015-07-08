@@ -435,7 +435,7 @@ namespace Base
         theElement_ = element;
         if(!hasElement)
         {
-            std::size_t numEntries = theElement_->getNrOfBasisFunctions() * theElement_->getNrOfUnknows();
+            std::size_t numEntries = theElement_->getNrOfBasisFunctions() * theElement_->getNrOfUnknowns();
             resultMatrix.resize(numEntries, numEntries);
             resultVector.resize(numEntries);
             basisFunctionValue.resize(theElement_->getNrOfBasisFunctions());

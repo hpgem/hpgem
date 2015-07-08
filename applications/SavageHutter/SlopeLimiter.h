@@ -19,37 +19,22 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SavageHutterH
-#define SavageHutterH
+#ifndef SLOPELIMITER_H
+#define	SLOPELIMITER_H
+#include "Base/Element.h"
 
-#include "SavageHutterBase.h"
-
-class SavageHutter : public SavageHutterBase
+class SlopeLimiter
 {
 public:
+    SlopeLimiter(std::size_t numVars) :
+    numOfVariables_(numVars) { }
     
-    ///\brief Constructor that takes an object specially designed to contain all values needed for construction of this kind of problem.
-    SavageHutter(const SHConstructorStruct& inputValues);
+    virtual void limitSlope(Base::Element *elt) = 0;
     
-private:       
-    ///\brief Create the slope limiter that will be used in this simulation.
-    SlopeLimiter * createSlopeLimiter(const SHConstructorStruct &inputValues) override final;
+    virtual ~SlopeLimiter() { }
     
-    ///\brief Create the non-negativity limiter that will be used in this simulation.
-    HeightLimiter * createHeightLimiter(const SHConstructorStruct &inputValues) override final;
-    
-    ///\brief Create the object that can compute the right hand side of the differential equation for this simulation.
-    RightHandSideComputer * createRightHandSideComputer(const SHConstructorStruct &inputValues) override final;
-
-    ///\brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
-    
-    ///\brief Show the progress of the time integration.
-    void showProgress(const double time, const std::size_t timeStepID);
-    
-    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
-    
-    void registerVTKWriteFunctions() override final;
+protected:
+    std::size_t numOfVariables_;
 };
+#endif	/* SLOPELIMITER_H */
 
-#endif

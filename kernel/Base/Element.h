@@ -409,7 +409,7 @@ namespace Base
     template<std::size_t DIM>
     Element::SolutionVector Element::getSolution(std::size_t timeLevel, const Geometry::PointReference<DIM>& p) const
     {
-        std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
+        std::size_t numberOfUnknows = ElementData::getNrOfUnknowns();
         std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
         SolutionVector solution(numberOfUnknows);
 
@@ -430,7 +430,7 @@ namespace Base
     template<std::size_t DIM>
     std::vector<LinearAlgebra::SmallVector<DIM> > Element::getSolutionGradient(std::size_t timeLevel, const Geometry::PointReference<DIM>& p) const
     {
-        std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
+        std::size_t numberOfUnknows = ElementData::getNrOfUnknowns();
         std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
         std::vector<LinearAlgebra::SmallVector<DIM> > solution(numberOfUnknows);
 
@@ -452,7 +452,7 @@ namespace Base
     Element::SolutionVector Element::getSolution(std::size_t timeLevel, PhysicalElement<DIM>& element) const
     {
         logger.assert(element.getElement() == this, "Cannot find the solution in a different element!");
-        std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
+        std::size_t numberOfUnknows = ElementData::getNrOfUnknowns();
         std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
         SolutionVector solution(numberOfUnknows);
 
@@ -474,7 +474,7 @@ namespace Base
     std::vector<LinearAlgebra::SmallVector<DIM> > Element::getSolutionGradient(std::size_t timeLevel, PhysicalElement<DIM>& element) const
     {
         logger.assert(element.getElement() == this, "Cannot find the gradient of the solution in a different element!");
-        std::size_t numberOfUnknows = ElementData::getNrOfUnknows();
+        std::size_t numberOfUnknows = ElementData::getNrOfUnknowns();
         std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
         std::vector<LinearAlgebra::SmallVector<DIM> > solution(numberOfUnknows);
 

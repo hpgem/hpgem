@@ -52,7 +52,7 @@ namespace Base
     Mesh<DIM>::Mesh(const Mesh& orig)
             : hasToSplit_(true), localProcessorID_(orig.localProcessorID_),
         elementCounter_(0), faceCounter_(0), edgeCounter_(0), nodeCounter_(0), 
-        points_(orig.points_)
+        nodeCoordinates_(orig.nodeCoordinates_)
     {
         //Make elements. Note: each element gets a new unique ID
         for(Element* element : orig.elements_)
@@ -126,7 +126,7 @@ namespace Base
     template<std::size_t DIM>
     Element* Mesh<DIM>::addElement(const std::vector<std::size_t>& globalNodeIndexes)
     {
-        elements_.push_back(ElementFactory::instance().makeElement(globalNodeIndexes, points_, elementCounter_));
+        elements_.push_back(ElementFactory::instance().makeElement(globalNodeIndexes, nodeCoordinates_, elementCounter_));
         ++elementCounter_;
         hasToSplit_ = true;
         return elements_.back();
@@ -160,7 +160,7 @@ namespace Base
     template<std::size_t DIM>
     void Mesh<DIM>::addNodeCoordinate(Geometry::PointPhysical<DIM> node)
     {
-        points_.push_back(node);
+        nodeCoordinates_.push_back(node);
         //don't distribute the points here, it will confuse the elements
     }
     
@@ -258,7 +258,15 @@ namespace Base
                 
                 if (face->isInternal() && (partition[face->getPtrElementLeft()->getID()] != partition[face->getPtrElementRight()->getID()]))
                 {
-                    face->setFaceType(Geometry::FaceType::SUBDOMAIN_BOUNDARY);
+                    if(face->getFaceType()==Geometry::FaceType::INTERNAL)
+                    {
+                        face->setFaceType(Geometry::FaceType::SUBDOMAIN_BOUNDARY);
+                    }
+                    else
+                    {
+                        logger.assert(face->getFaceType()==Geometry::FaceType::PERIODIC_BC, "FaceType is not supposed to be % at this point", face->getFaceType());
+                        face->setFaceType(Geometry::FaceType::PERIODIC_SUBDOMAIN_BC);
+                    }
                     if (partition[face->getPtrElementLeft()->getID()] == pid)
                     {
                         //don't send to yourself, ask the element on the other side what pid to sent to
@@ -321,7 +329,7 @@ namespace Base
         faceCounter_ = 0;
         edgeCounter_ = 0;
         nodeCounter_ = 0;
-        points_.clear();
+        nodeCoordinates_.clear();
     }
 
     template<std::size_t DIM>
@@ -457,7 +465,7 @@ namespace Base
     {
         //for historic reasons points_ is referenced directly during element 
         //creation and therefore cannot be distributed
-        return points_;
+        return nodeCoordinates_;
     }
 
     template<std::size_t DIM>
@@ -465,7 +473,7 @@ namespace Base
     {
         //for historic reasons points_ is referenced directly during element 
         //creation and therefore cannot be distributed
-        return points_;
+        return nodeCoordinates_;
     }
 
 }

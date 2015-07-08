@@ -65,6 +65,7 @@ namespace LinearAlgebra
 
         MiddleSizeVector(std::initializer_list<type> t);
 
+        //this constructor is implicit because both vector types should allow for the same mathematical operations, with the only potential difference being in the implementation
         MiddleSizeVector(const MiddleSizeVector& other);
         
         MiddleSizeVector(MiddleSizeVector&& other);

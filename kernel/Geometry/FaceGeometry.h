@@ -102,9 +102,16 @@ namespace Geometry
     class ElementGeometry;
     class ReferenceGeometry;
     
+    ///FaceType provides a classification of faces. The following are distinguished
+    ///WALL_BC: Domain boundary (default set by internal mesh generators)
+    ///OPEN_BC: Domain boundary (can be set manually to signal a different boundary type)
+    ///INTERNAL: an internal face with nothing special going on
+    ///SUBDOMAIN_BOUNDARY: an internal face where the left element is not on the same processor as the right element
+    ///PERIODIC_BC: an internal face where the left element and the right element do not agree on the physical coordinates (usually caused by connecting the mesh across a periodic boundary) (used e.g. when splitting the face to create two extra coordinates instead of one)
+    ///PERIODIC_SUBDOMAIN_BC: a combination of SUBDOMAIN_BOUNDARY and PERIODIC_BC
     enum class FaceType
     {
-        OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL, SUBDOMAIN_BOUNDARY
+        OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL, SUBDOMAIN_BOUNDARY, PERIODIC_SUBDOMAIN_BC
     };
     
     //For sake of consistency, placed here.
@@ -118,11 +125,14 @@ namespace Geometry
             case FaceType::WALL_BC:
                 out << "Wall boundary condition";
                 break;
+            case FaceType::INTERNAL:
+                out << "Internal";
+                break;
             case FaceType::PERIODIC_BC:
                 out << "Periodic boundary condition";
                 break;
-            case FaceType::INTERNAL:
-                out << "Internal";
+            case FaceType::PERIODIC_SUBDOMAIN_BC:
+                out << "Periodic subdomain boundary";
                 break;
             case FaceType::SUBDOMAIN_BOUNDARY:
                 out << "Subdomain boundary";
