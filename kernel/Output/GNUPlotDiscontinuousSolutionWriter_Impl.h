@@ -87,7 +87,7 @@ namespace Output
         const ListOfElementsT& elements = mesh->getElementsList();
         
         //get the physical and reference coordinates of the first node of the first element.
-        Geometry::PointPhysical<DIM> pPhys((*elements.begin())->getPhysicalGeometry()->getNodePtr(0)->size());
+        Geometry::PointPhysical<DIM> pPhys;
         
         //Element cycle, print physical coordinates:
         for (typename ListOfElementsT::const_iterator eltIterator = elements.begin(); eltIterator != elements.end(); ++eltIterator)
