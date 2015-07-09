@@ -1,11 +1,10 @@
 include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
-#First declare the rules that will form the executable tests#
-#############################################################
+add_subdirectory(SlopeLimiters)
+add_subdirectory(HeightLimiters)
+
 add_executable(SavageHutter.out
     HelperFunctions.cpp
-    TvbLimiterWithDetector1D.cpp
-    PositiveLayerLimiter.cpp
     SavageHutterRightHandSideComputer.cpp
     SavageHutterRHS2D.cpp
 		SavageHutter.cpp

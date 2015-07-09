@@ -20,11 +20,11 @@
  */
 
 #include "SavageHutter.h"
-#include "TvbLimiterWithDetector1D.h"
-#include "PositiveLayerLimiter.h"
+#include "SlopeLimiters/TvbLimiterWithDetector1D.h"
+#include "HeightLimiters/PositiveLayerLimiter.h"
 #include "SavageHutterRightHandSideComputer.h"
-#include "EmptyHeightLimiter.h"
-#include "EmptySlopeLimiter.h"
+#include "HeightLimiters/EmptyHeightLimiter.h"
+#include "SlopeLimiters/EmptySlopeLimiter.h"
 #include "SavageHutterRHS2D.h"
 
 using LinearAlgebra::MiddleSizeVector;
