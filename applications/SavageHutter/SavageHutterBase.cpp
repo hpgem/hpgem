@@ -18,9 +18,11 @@ Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(con
     {
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
-        description.numElementsInDIM_[i] = numOfElementPerDirection;
-        description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
+        description.numElementsInDIM_[i] = 4;
+        description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
     }
+    description.numElementsInDIM_[0] = numOfElementPerDirection;
+    description.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
     return description;
 }
 
@@ -34,6 +36,7 @@ LinearAlgebra::MiddleSizeVector SavageHutterBase::computeRightHandSideAtElement(
         return rhsComputer_->integrandRightHandSideOnElement(element, time, solutionCoefficients);
     };
 
+    logger(DEBUG, "element integral on element %: %", ptrElement->getID(), elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule()));
     return elementIntegrator_.integrate(ptrElement, integrandFunction, ptrElement->getGaussQuadratureRule());
 }
 
@@ -52,6 +55,11 @@ LinearAlgebra::MiddleSizeVector SavageHutterBase::computeRightHandSideAtFace
         return rhsComputer_->integrandRightHandSideOnRefFace(face, side, solutionCoefficientsLeft, solutionCoefficientsRight);
     };
 
+    if (ptrFace->getPtrElementRight()->getID() == 5)
+    {
+        logger(DEBUG, "face integral on face %: %", ptrFace->getID(), faceIntegrator_.integrate(ptrFace, integrandFunction));
+        logger(DEBUG, "elements for face %: %, %", ptrFace->getID(), ptrFace->getPtrElementLeft()->getID(), ptrFace->getPtrElementRight()->getID());
+    }
     return faceIntegrator_.integrate(ptrFace, integrandFunction);
 
 }
@@ -169,7 +177,7 @@ void SavageHutterBase::limitSolutionOuterLoop()
             //only limit the slope when there is a slope, so not when the solution exists of piecewise constants.
             if (element->getNrOfBasisFunctions() > 1)
             {
-                //slopeLimiter_->limitSlope(element);
+                slopeLimiter_->limitSlope(element);
             }
         }
     }

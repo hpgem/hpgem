@@ -23,6 +23,9 @@
 #include "TvbLimiterWithDetector1D.h"
 #include "PositiveLayerLimiter.h"
 #include "SavageHutterRightHandSideComputer.h"
+#include "EmptyHeightLimiter.h"
+#include "EmptySlopeLimiter.h"
+#include "SavageHutterRHS2D.h"
 
 using LinearAlgebra::MiddleSizeVector;
 
@@ -40,40 +43,56 @@ SlopeLimiter * SavageHutter::createSlopeLimiter(const SHConstructorStruct &input
 {
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0.);
-    return (new TvbLimiterWithDetector1D(inputValues.numOfVariables, inflowBC, inputValues.polyOrder));
+    return (new EmptySlopeLimiter());
 }
 
 ///\details Actual creation of the non-negativity limiter. The delete is called in the class SavageHutterBase, since that's also where the non-negativity limiter resides.
 HeightLimiter * SavageHutter::createHeightLimiter(const SHConstructorStruct& inputValues)
 {
-    return new PositiveLayerLimiter(dryLimit_);
+    return new EmptyHeightLimiter();
 }
 
 ///\details Actual creation of the right hand side computer. The delete is called in the class SavageHutterBase, since that's also where the right hand side computer resides.
 RightHandSideComputer * SavageHutter::createRightHandSideComputer(const SHConstructorStruct& inputValues)
 {
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
-    LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0.);
+    LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0);
     //magic numbers: epsilon and chute angle (in radians)
-    return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1.0, 0., inflowBC);
+    if (DIM == 1)
+        return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1.0, 0., inflowBC);
+    
+    return new SavageHutterRHS2D(inputValues.numOfVariables, 1.0, 0., inflowBC);
 }
 
-/// \details Given the physical point in the domain and the start time of the simulation, compute the initial conditions for the simulation
-LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
-{
-    
-    return getExactSolution(pPhys, startTime);
-}
+
 
 ///\details Show the number of time steps that have been computed on the console.
 void SavageHutter::showProgress(const double time, const std::size_t timeStepID)
 {
-    if (timeStepID % 10000 == 0)
+    if (timeStepID % 100 == 0)
     {
         logger(INFO, "% time steps computed.", timeStepID);
     }
 }
 
+LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT& pPhys, const double& startTime, const std::size_t orderTimeDerivative)
+{
+    double h = 1;
+    if (pPhys[0] > 0.5)
+        h = 0.9;
+    LinearAlgebra::MiddleSizeVector initialCondition(numOfVariables_);
+    initialCondition(0) = h;
+    return initialCondition;
+}
+
+//Dam break
+/*
+\details Given the physical point in the domain and the start time of the simulation, compute the initial conditions for the simulation
+LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
+{
+    
+    return getExactSolution(pPhys, startTime);
+}
 LinearAlgebra::MiddleSizeVector SavageHutter::getExactSolution(const PointPhysicalT& pPhys, const double& time, const std::size_t orderTimeDerivative)
 {
     const double c0 = 0.7;
@@ -124,3 +143,4 @@ void SavageHutter::registerVTKWriteFunctions()
                              return std::real(getExactSolution(pPhys, time_)[1]);
     }, "analytical discharge");
 }
+*/

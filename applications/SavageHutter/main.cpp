@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     // Set parameters for the PDE.
     SHConstructorStruct inputVals;
     //DIM is declared in SavageHutterRightHandSideComputer.h
-    inputVals.numOfVariables = 2;    
+    inputVals.numOfVariables = DIM + 1;    
     inputVals.polyOrder = polynomialOrder.getValue();
     inputVals.numElements = numOfElements.getValue();
     inputVals.meshType = Base::MeshType::RECTANGULAR; // Either TRIANGULAR or RECTANGULAR.
@@ -51,15 +51,18 @@ int main(int argc, char **argv)
     
     //Construct the problem and output generator
     SavageHutter test(inputVals);    
-    std::vector<std::string> variableNames = {"h", "hu"};
-    test.setOutputNames("output", "SavageHutter", "SavageHutter", variableNames);
+    std::vector<std::string> variableNames = {"h", "hu", "hv"};
+    if (DIM == 1)
+        test.setOutputNames("output1", "SavageHutter", "SavageHutter", variableNames);
+    else
+        test.setOutputNames("output", "SavageHutter", "SavageHutter", variableNames);
 
     // Start measuring elapsed time
     std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
     startClock = std::chrono::system_clock::now();
 
     // Solve the problem over time interval [startTime,endTime].
-    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
+    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), false);
 
     // Measure elapsed time
     endClock = std::chrono::system_clock::now();

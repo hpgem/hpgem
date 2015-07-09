@@ -19,52 +19,63 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RIGHTHANDSIDECOMPUTER_H
-#define	RIGHTHANDSIDECOMPUTER_H
-#include "LinearAlgebra/MiddleSizeVector.h"
-#include "Base/PhysicalElement.h"
+#ifndef SAVAGEHUTTERRHS2D_H
+#define	SAVAGEHUTTERRHS2D_H
 
-const std::size_t DIM = 2;
+#include "Base/Element.h"
+#include "Base/Face.h"
+#include "RightHandSideComputer.h"
+
 
 using LinearAlgebra::MiddleSizeVector;
 
-class RightHandSideComputer
+class SavageHutterRHS2D : public RightHandSideComputer
 {
+    using PointPhysicalT = Geometry::PointPhysical<DIM>;
+    using PointReferenceT = Geometry::PointReference<DIM>;
+    using PointReferenceOnFaceT = Geometry::PointReference<DIM - 1 >;
+
 public:
 
-    RightHandSideComputer(std::size_t numVars)
-    : numOfVariables_(numVars) { }
-    
-    virtual ~RightHandSideComputer(){ }
+    SavageHutterRHS2D(const std::size_t numOfVariables, const double epsilon, const double chuteAngle, const MiddleSizeVector inflowBC) :
+    RightHandSideComputer(numOfVariables), epsilon_(epsilon), chuteAngle_(chuteAngle), inflowBC_(inflowBC), minH_(1e-10) { }
 
-    /// \brief Purely virtual function to compute the integrand for the right hand side for the reference element.
-    virtual MiddleSizeVector integrandRightHandSideOnElement
+    /// \brief Compute the integrand for the right hand side for the reference element.
+    MiddleSizeVector integrandRightHandSideOnElement
     (
-        Base::PhysicalElement<DIM> &element,
+        Base::PhysicalElement<DIM>& element,
         const double &time,
         const MiddleSizeVector &solutionCoefficients
-        ) = 0;
+        ) override final;
 
-    /// \brief Purely virtual function to compute the integrand for the right hand side for the reference face corresponding to a boundary face.
-    virtual MiddleSizeVector integrandRightHandSideOnRefFace
+    /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
+    MiddleSizeVector integrandRightHandSideOnRefFace
     (
-        Base::PhysicalFace<DIM> &face,
+        Base::PhysicalFace<DIM>& face,
         const MiddleSizeVector &solutionCoefficients
-        ) = 0;
+        ) override final;
 
-    /// \brief Purely virtual function to compute the integrand for the right hand side for the reference face corresponding to an internal face.
-    virtual MiddleSizeVector integrandRightHandSideOnRefFace
+    /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
+    /// Note that a face in 1D is a point.
+    MiddleSizeVector integrandRightHandSideOnRefFace
     (
-        Base::PhysicalFace<DIM> &face,
+        Base::PhysicalFace<DIM>& face,
         const Base::Side &iSide,
         const MiddleSizeVector &solutionCoefficientsLeft,
         const MiddleSizeVector &solutionCoefficientsRight
-        ) = 0;
-    
+        ) override final;
 
-protected:
-    std::size_t numOfVariables_;
+private:
+    MiddleSizeVector computePhysicalFlux(const MiddleSizeVector &numericalSolution);
+    MiddleSizeVector computeSourceTerm(const MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys, const double time);
+    MiddleSizeVector localLaxFriedrichsFlux(const MiddleSizeVector &numericalSolutionLeft, const MiddleSizeVector &NumericalSolutionRight, const LinearAlgebra::SmallVector<DIM>& normal);
+    double computeFriction(const MiddleSizeVector &numericalSolution);
+
+    double epsilon_;
+    double chuteAngle_; //in radians
+    MiddleSizeVector inflowBC_;
+    double minH_; //below this height, don't divide by it, but set u to 0
 };
 
-#endif	/* RIGHTHANDSIDECOMPUTER_H */
+#endif	/* SAVAGEHUTTERRHS2D_H */
 

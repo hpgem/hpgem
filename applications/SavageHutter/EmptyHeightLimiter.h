@@ -19,52 +19,21 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RIGHTHANDSIDECOMPUTER_H
-#define	RIGHTHANDSIDECOMPUTER_H
-#include "LinearAlgebra/MiddleSizeVector.h"
-#include "Base/PhysicalElement.h"
+#ifndef EMPTYHEIGHTLIMITER_H
+#define	EMPTYHEIGHTLIMITER_H
 
-const std::size_t DIM = 2;
+#include "HeightLimiter.h"
 
-using LinearAlgebra::MiddleSizeVector;
-
-class RightHandSideComputer
+class EmptyHeightLimiter : public HeightLimiter
 {
 public:
+    void limit(Base::Element* element, LinearAlgebra::MiddleSizeVector& solutionCoeffiecients) override final
+    {
+        
+    }
 
-    RightHandSideComputer(std::size_t numVars)
-    : numOfVariables_(numVars) { }
-    
-    virtual ~RightHandSideComputer(){ }
-
-    /// \brief Purely virtual function to compute the integrand for the right hand side for the reference element.
-    virtual MiddleSizeVector integrandRightHandSideOnElement
-    (
-        Base::PhysicalElement<DIM> &element,
-        const double &time,
-        const MiddleSizeVector &solutionCoefficients
-        ) = 0;
-
-    /// \brief Purely virtual function to compute the integrand for the right hand side for the reference face corresponding to a boundary face.
-    virtual MiddleSizeVector integrandRightHandSideOnRefFace
-    (
-        Base::PhysicalFace<DIM> &face,
-        const MiddleSizeVector &solutionCoefficients
-        ) = 0;
-
-    /// \brief Purely virtual function to compute the integrand for the right hand side for the reference face corresponding to an internal face.
-    virtual MiddleSizeVector integrandRightHandSideOnRefFace
-    (
-        Base::PhysicalFace<DIM> &face,
-        const Base::Side &iSide,
-        const MiddleSizeVector &solutionCoefficientsLeft,
-        const MiddleSizeVector &solutionCoefficientsRight
-        ) = 0;
-    
-
-protected:
-    std::size_t numOfVariables_;
 };
 
-#endif	/* RIGHTHANDSIDECOMPUTER_H */
+
+#endif	/* EMPTYHEIGHTLIMITER_H */
 
