@@ -25,75 +25,29 @@
 
 #include "Integration/ElementIntegral.h"
 #include "HelperFunctions.h"
+#include "../GlobalConstants.h"
 
 class PositiveLayerLimiter : public HeightLimiter
 {
 public:
-    using PointReferenceT = Geometry::PointReference<1>;
+    using PointReferenceT = Geometry::PointReference<DIM>;
     
     PositiveLayerLimiter(const double layerThickness) : 
     minH_(layerThickness) { }
     
-    void limit(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients) override final
-    {
-        if (getMinimumHeight(element) >= minH_)
-            return;
-        
-        const double averageHeight = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(0);
-        const double averageDischarge = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(1);  
-        LinearAlgebra::MiddleSizeVector heightCoefficients;
-        LinearAlgebra::MiddleSizeVector dischargeCoefficients;
-        if ( averageHeight < minH_)
-        {
-            heightCoefficients = 
-            Helpers::projectOnBasisFuns<1>(element, [=](const PointReferenceT& pRef){return averageHeight;}, elementIntegrator_);
-            dischargeCoefficients = Helpers::projectOnBasisFuns<1>(element, [ = ](const PointReferenceT & pRef){return 0;}, elementIntegrator_);
-        }
-        else
-        {          
-            const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
-            const double solutionLeft = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, element->getNrOfUnknowns())(0);
-            const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-            const double solutionRight = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, element->getNrOfUnknowns())(0);
-            double slopeDischarge = solutionRight - averageDischarge;
-            double slopeHeight = solutionLeft + solutionRight - 2*minH_;
-
-            if (solutionRight < minH_)
-            {
-                slopeHeight *= -1;
-            }
-            std::function<double(const PointReferenceT&) > heightFun = [ = ] (const PointReferenceT & pRef){return averageHeight + slopeHeight/2 * pRef[0];};
-            heightCoefficients = Helpers::projectOnBasisFuns<1>(element, heightFun, elementIntegrator_);
-            std::function<double(const PointReferenceT&) > dischargeFun = [ = ] (const PointReferenceT & pRef){return averageDischarge + slopeDischarge * pRef[0];};
-            dischargeCoefficients = Helpers::projectOnBasisFuns<1>(element, dischargeFun, elementIntegrator_);
-            logger(DEBUG, "averages: %", Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_));
-            logger(DEBUG, "slopes: [% %]", slopeHeight, slopeDischarge);
-        }
-
-        for (std::size_t iFun = 0; iFun < element->getNrOfBasisFunctions(); ++iFun)
-        {
-                std::size_t iVF = element->convertToSingleIndex(iFun, 0);
-                solutionCoefficients[iVF] = heightCoefficients[iFun];
-                iVF = element->convertToSingleIndex(iFun, 1);
-                solutionCoefficients[iVF] = dischargeCoefficients[iFun];
-        }
-    }
+    ///Adapt the height as given in Bunya et. al. (2009) 
+    void limit(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients) override final;
     
 private:
-    ///Adapt the height as given in Bunya et. al. (2009) 
-    void limitHeight(Base::Element *element);
-    void limitDischarge(Base::Element *element);
         
     ///Compute the minimum of the height in the given element
     double getMinimumHeight(const Base::Element *element);   
-    
-    void isDryElement(Base::Element *elt);
     
     ///depth of the shallow layer
     double minH_;
     
     /// Integrator for the elements
-    Integration::ElementIntegral<1> elementIntegrator_;
+    Integration::ElementIntegral<DIM> elementIntegrator_;
 };
 
 #endif	/* POSITIVELAYERLIMITER_H */

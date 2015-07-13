@@ -19,44 +19,31 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "PositiveLayerLimiter.h"
-
-void PositiveLayerLimiter::limit(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients)
+#include "AverageValuesNonNegativeLimiter.h"
+#include "../HelperFunctions.h"
+#include "../GlobalConstants.h"
+void AverageValuesNonNegativeLimiter::limit(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
-    if (getMinimumHeight(element) >= minH_)
+    const double minimumHeight = getMinimumHeight(element);
+    if (minimumHeight >= minH_)
         return;
 
+    logger(DEBUG, "solution coefficients before limiting element %: %", element->getID(), solutionCoefficients);
     const double averageHeight = Helpers::computeAverageOfSolution<DIM>(element, solutionCoefficients, elementIntegrator_)(0);
     const double averageDischarge = Helpers::computeAverageOfSolution<DIM>(element, solutionCoefficients, elementIntegrator_)(1);
+    logger(DEBUG, "average height: %", averageHeight);
     LinearAlgebra::MiddleSizeVector heightCoefficients;
     LinearAlgebra::MiddleSizeVector dischargeCoefficients;
-    if (averageHeight < minH_)
+
+    heightCoefficients =
+        Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageHeight;}, elementIntegrator_);
+    if (false && averageHeight < minH_)
     {
-        heightCoefficients =
-            Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageHeight;}, elementIntegrator_);
         dischargeCoefficients = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return 0;}, elementIntegrator_);
     }
     else
     {
-        const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
-        const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, element->getNrOfUnknowns())(0);
-        const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-        const double solutionRight = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefR, element->getNrOfUnknowns())(0);
-
-        double slopeDischarge = averageDischarge;
-        double slopeHeight = std::min((solutionLeft + solutionRight - 2 * minH_) / 2, averageHeight - minH_);
-
-        if (solutionRight < solutionLeft)
-        {
-            slopeHeight *= -1;
-            slopeDischarge *= -1;
-        }
-        std::function<double(const PointReferenceT&) > heightFun = [ = ] (const PointReferenceT & pRef){return averageHeight + slopeHeight * pRef[0];};
-        heightCoefficients = Helpers::projectOnBasisFuns<DIM>(element, heightFun, elementIntegrator_);
-        std::function<double(const PointReferenceT&) > dischargeFun = [ = ] (const PointReferenceT & pRef){return averageDischarge + slopeDischarge * pRef[0];};
-        dischargeCoefficients = Helpers::projectOnBasisFuns<DIM>(element, dischargeFun, elementIntegrator_);
-        logger(DEBUG, "averages: %", Helpers::computeAverageOfSolution<DIM>(element, solutionCoefficients, elementIntegrator_));
-        logger(DEBUG, "slopes: [% %]", slopeHeight, slopeDischarge);
+        dischargeCoefficients = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageDischarge;}, elementIntegrator_);
     }
 
     for (std::size_t iFun = 0; iFun < element->getNrOfBasisFunctions(); ++iFun)
@@ -66,9 +53,9 @@ void PositiveLayerLimiter::limit(Base::Element *element, LinearAlgebra::MiddleSi
         iVF = element->convertToSingleIndex(iFun, 1);
         solutionCoefficients[iVF] = dischargeCoefficients[iFun];
     }
+    logger(DEBUG, "solution coefficients after limiting element %: %", element->getID(), solutionCoefficients);
 }
-
-double PositiveLayerLimiter::getMinimumHeight(const Base::Element* element)
+double AverageValuesNonNegativeLimiter::getMinimumHeight(const Base::Element* element)
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
@@ -85,3 +72,4 @@ double PositiveLayerLimiter::getMinimumHeight(const Base::Element* element)
     logger(DEBUG, "Minimum in element %: %", element->getID(), minimum);
     return minimum;
 }
+

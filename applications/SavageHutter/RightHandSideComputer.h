@@ -23,8 +23,7 @@
 #define	RIGHTHANDSIDECOMPUTER_H
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Base/PhysicalElement.h"
-
-const std::size_t DIM = 2;
+#include "GlobalConstants.h"
 
 using LinearAlgebra::MiddleSizeVector;
 
