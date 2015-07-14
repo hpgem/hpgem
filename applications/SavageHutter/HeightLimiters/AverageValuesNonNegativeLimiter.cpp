@@ -30,20 +30,28 @@ void AverageValuesNonNegativeLimiter::limit(Base::Element *element, LinearAlgebr
 
     logger(DEBUG, "solution coefficients before limiting element %: %", element->getID(), solutionCoefficients);
     const double averageHeight = Helpers::computeAverageOfSolution<DIM>(element, solutionCoefficients, elementIntegrator_)(0);
-    const double averageDischarge = Helpers::computeAverageOfSolution<DIM>(element, solutionCoefficients, elementIntegrator_)(1);
+    const double averageDischargeX = Helpers::computeAverageOfSolution<DIM>(element, solutionCoefficients, elementIntegrator_)(1);
+    double averageDischargeY;
+    if (DIM == 2)    
+        averageDischargeY = Helpers::computeAverageOfSolution<DIM>(element, solutionCoefficients, elementIntegrator_)(2);
     logger(DEBUG, "average height: %", averageHeight);
     LinearAlgebra::MiddleSizeVector heightCoefficients;
-    LinearAlgebra::MiddleSizeVector dischargeCoefficients;
+    LinearAlgebra::MiddleSizeVector dischargeCoefficientsX;
+    LinearAlgebra::MiddleSizeVector dischargeCoefficientsY;
 
     heightCoefficients =
         Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageHeight;}, elementIntegrator_);
     if (false && averageHeight < minH_)
     {
-        dischargeCoefficients = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return 0;}, elementIntegrator_);
+        dischargeCoefficientsX = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return 0;}, elementIntegrator_);        
+        if (DIM == 2) 
+            dischargeCoefficientsY = dischargeCoefficientsX;
     }
     else
     {
-        dischargeCoefficients = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageDischarge;}, elementIntegrator_);
+        dischargeCoefficientsX = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageDischargeX;}, elementIntegrator_);
+        if (DIM == 2) 
+            dischargeCoefficientsY = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageDischargeY;}, elementIntegrator_);
     }
 
     for (std::size_t iFun = 0; iFun < element->getNrOfBasisFunctions(); ++iFun)
@@ -51,19 +59,27 @@ void AverageValuesNonNegativeLimiter::limit(Base::Element *element, LinearAlgebr
         std::size_t iVF = element->convertToSingleIndex(iFun, 0);
         solutionCoefficients[iVF] = heightCoefficients[iFun];
         iVF = element->convertToSingleIndex(iFun, 1);
-        solutionCoefficients[iVF] = dischargeCoefficients[iFun];
+        solutionCoefficients[iVF] = dischargeCoefficientsX[iFun];
+        if (DIM == 2)
+        {
+            iVF = element->convertToSingleIndex(iFun, 2);
+            solutionCoefficients[iVF] = dischargeCoefficientsY[iFun];
+        }
     }
     logger(DEBUG, "solution coefficients after limiting element %: %", element->getID(), solutionCoefficients);
 }
 double AverageValuesNonNegativeLimiter::getMinimumHeight(const Base::Element* element)
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
-    const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
     const std::size_t numOfVariables = element->getNrOfUnknowns();
-    const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);
-    const double solutionRight = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefR, numOfVariables)(0);
-    double minimum = std::min(solutionLeft, solutionRight);
+    const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);    
+    double minimum = solutionLeft;
+    for (std::size_t iPoint = 1; iPoint < element->getReferenceGeometry()->getNumberOfNodes(); ++iPoint)
+    {
+        const PointReferenceT &pRef = element->getReferenceGeometry()->getReferenceNodeCoordinate(iPoint);
+        minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
+    }
     for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);

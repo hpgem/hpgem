@@ -180,19 +180,23 @@ MiddleSizeVector SavageHutterRHS2D::computeSourceTerm(const MiddleSizeVector& nu
 MiddleSizeVector SavageHutterRHS2D::localLaxFriedrichsFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight,const LinearAlgebra::SmallVector<DIM>& normal)
 {
     double uLeft = 0;
+    double vLeft = 0;
     if (numericalSolutionLeft(0) > minH_)
     {
         uLeft = numericalSolutionLeft(1) / numericalSolutionLeft(0);
+        vLeft = numericalSolutionLeft(2) / numericalSolutionLeft(0);
     }
     
     double uRight = 0;
+    double vRight = 0;
     if (numericalSolutionRight(0) > minH_)
     {
         uRight = numericalSolutionRight(1) / numericalSolutionRight(0);
+        vRight = numericalSolutionRight(2) / numericalSolutionRight(0);
     }
     
-    const double alpha = std::max(std::abs(uLeft) + std::sqrt(epsilon_ * std::max(0.,numericalSolutionLeft(0))), 
-                      std::abs(uRight) + std::sqrt(epsilon_ * std::max(0.,numericalSolutionRight(0))));
+    const double alpha = std::max(std::max(std::abs(uLeft), std::abs(vLeft)) + std::sqrt(epsilon_ * std::max(0.,numericalSolutionLeft(0))), 
+                      std::max(std::abs(uRight), std::abs(vRight)) + std::sqrt(epsilon_ * std::max(0.,numericalSolutionRight(0))));
     
     logger(DEBUG, "alpha: %", alpha);
         
