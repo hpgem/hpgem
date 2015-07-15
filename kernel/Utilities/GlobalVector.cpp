@@ -432,10 +432,15 @@ namespace Utilities
         VecScatterDestroy(&scatter);
         
         std::vector<PetscInt> positions;
+        std::size_t totalPositions = 0;
+        for(Base::Element* element : theMesh_->getElementsList())
+        {
+            totalPositions += element->getNrOfBasisFunctions();
+        }
+        positions.reserve(totalPositions);
         for (Base::Element* element : theMesh_->getElementsList())
         {
             std::vector<PetscInt> newPositions = makePositionsInVector(element);
-            positions.reserve(positions.size() + newPositions.size());
             for (auto& a : newPositions)
             {
                 positions.push_back(a);

@@ -51,7 +51,7 @@ namespace Base
 
         double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final
         {
-            return face.getSurfaceArea();
+            return face.getRelativeSurfaceArea();
         }
     };
 }
