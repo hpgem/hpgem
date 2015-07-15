@@ -62,7 +62,7 @@ namespace Base
      const bool useSourceTerm,
      const bool useSourceTermAtBoundary
      ) :
-    HpgemAPILinear<DIM>(numOfVariables, polynomialOrder, Base::AllTimeIntegrators::Instance().getRule(1, 1), 1, useSourceTerm, useSourceTermAtBoundary),
+    HpgemAPILinear<DIM>(numOfVariables, polynomialOrder, Base::AllTimeIntegrators::Instance().getRule(1, 1, true), 1, useSourceTerm, useSourceTermAtBoundary),
     sourceElementVectorID_(0),
     sourceFaceVectorID_(0)
     {
