@@ -599,7 +599,7 @@ namespace Base
         {   
             for (Base::Element *ptrElement : it.second)
             {   
-                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_ , "Size of time level data vector is wrong.");
+                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == ptrElement->getNrOfBasisFunctions() * this->configData_->numberOfUnknowns_ , "Size of time level % data vector is wrong: % instead of %.", timeLevel, ptrElement->getTimeLevelDataVector(timeLevel).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
 
                 Base::MPIContainer::Instance().receive(ptrElement->getTimeLevelDataVector(timeLevel), it.first, ptrElement->getID());
             }
@@ -608,7 +608,7 @@ namespace Base
         {   
             for (Base::Element *ptrElement : it.second)
             {   
-                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_, "Size of time level data vector is wrong.");
+                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == ptrElement->getNrOfBasisFunctions() * this->configData_->numberOfUnknowns_, "Size of time level % data vector is wrong: % instead of %.", timeLevel, ptrElement->getTimeLevelDataVector(timeLevel).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
 
                 Base::MPIContainer::Instance().send(ptrElement->getTimeLevelDataVector(timeLevel), it.first, ptrElement->getID());
             }
