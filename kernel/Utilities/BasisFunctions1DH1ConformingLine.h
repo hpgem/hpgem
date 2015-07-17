@@ -28,6 +28,7 @@
 namespace Base
 {
     class BasisFunctionSet;
+    class OrientedBasisFunctionSet;
 }
 
 namespace Geometry
@@ -74,7 +75,7 @@ namespace Utilities
     
     Base::BasisFunctionSet* createInteriorBasisFunctionSet1DH1Line(std::size_t polynomialOrder);
     
-    std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet1DH1Line(std::size_t polynomialOrder);
+    std::vector<const Base::OrientedBasisFunctionSet*> createVertexBasisFunctionSet1DH1Line(std::size_t polynomialOrder);
 
 }
 

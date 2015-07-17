@@ -156,7 +156,7 @@ namespace Base
         MatScale(A,-1);
         //Declare the vectors x and b of the system Ax = b.
         Utilities::GlobalPetscVector b(HpgemAPIBase<DIM>::meshes_[0], sourceElementVectorID_, sourceFaceVectorID_), x(HpgemAPIBase<DIM>::meshes_[0]);
-        
+
         //Assemble the vector b. This is needed because Petsc assumes you don't know
         //yet whether a vector is a variable or right-hand side the moment it is
         //declared.

@@ -56,8 +56,18 @@ namespace Utilities
         GlobalVector(Base::MeshManipulatorBase* theMesh, int elementVectorID = 0, int faceVectorID = 0);
 
         ///for post-processing: puts the solution in the time-level data of the elements
-        virtual void writeTimeLevelData(std::size_t timeLevel, std::size_t variable = 0)=0;
-        virtual void constructFromTimeLevelData(std::size_t timelevel, std::size_t variable = 0)=0;
+        ///it is faster to write all data in one go instead of using this routine
+        virtual void writeTimeLevelData(std::size_t timeLevel, std::size_t variable)=0;
+
+        ///for post-processing: puts the solution in the time-level data of the elements
+        virtual void writeTimeLevelData(std::size_t timeLevel)=0;
+
+        ///collect data from a time level instead of element vectors and face vectors
+        ///it is faster to read all data in one go instead of using this routine
+        virtual void constructFromTimeLevelData(std::size_t timelevel, std::size_t variable)=0;
+
+        ///collect data from a time level instead of element vectors and face vectors
+        virtual void constructFromTimeLevelData(std::size_t timelevel)=0;
 
         ///(re-)collects element vectors and boundary information into this vector
         virtual void assemble()=0;
@@ -91,8 +101,10 @@ namespace Utilities
         GlobalPetscVector(Base::MeshManipulatorBase* theMesh, int elementVectorID = 0, int faceVectorID = 0);
         ~GlobalPetscVector();
 
-        void writeTimeLevelData(std::size_t timeLevel, std::size_t variable = 0);
-        void constructFromTimeLevelData(std::size_t timelevel, std::size_t variable = 0);
+        void writeTimeLevelData(std::size_t timeLevel, std::size_t variable);
+        void constructFromTimeLevelData(std::size_t timelevel, std::size_t variable);
+        void writeTimeLevelData(std::size_t timeLevel);
+        void constructFromTimeLevelData(std::size_t timelevel);
 
         void reset();
 

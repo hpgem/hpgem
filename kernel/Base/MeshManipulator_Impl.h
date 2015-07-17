@@ -288,14 +288,14 @@ namespace Base
                     case Geometry::ReferenceGeometryType::LINE:
                         shapeToElementIndex[type] = collBasisFSet_.size();
                         collBasisFSet_.emplace_back(Utilities::createInteriorBasisFunctionSet1DH1Line(configData_->polynomialOrder_));
-                        nrOfFaceSets[type] = 0;
-                        nrOfEdgeSets[type] = 0;
-                        nodeSet = Utilities::createVertexBasisFunctionSet1DH1Line(configData_->polynomialOrder_);
-                        for(const Base::BasisFunctionSet* set : nodeSet)
+                        faceSet = Utilities::createVertexBasisFunctionSet1DH1Line(configData_->polynomialOrder_);
+                        for(const Base::BasisFunctionSet* set : faceSet)
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - nrOfEdgeSets[type] - 1;
+                        nrOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                        nrOfEdgeSets[type] = 0;
+                        nrOfNodeSets[type] = 0;
                         break;
                     case Geometry::ReferenceGeometryType::SQUARE:
                         shapeToElementIndex[type] = collBasisFSet_.size();
@@ -462,13 +462,16 @@ namespace Base
         }
         for(Node* node : getNodesList(IteratorType::GLOBAL))
         {
-            for(std::size_t i = 0; i < node->getNrOfElements(); ++i)
+            if(DIM > 1)
             {
-                Element* element = node->getElement(i);
-                std::size_t nodeNr = node->getNodeNr(i);
-                auto type = element->getReferenceGeometry()->getGeometryType();
-                element->setVertexBasisFunctionSet(shapeToElementIndex[type] + nrOfFaceSets[type] + nrOfEdgeSets[type] + 1 + nodeNr, nodeNr);
-                node->setLocalNrOfBasisFunctions(collBasisFSet_[shapeToElementIndex[type] + nrOfFaceSets[type] + nrOfEdgeSets[type] + 1 + nodeNr]->size());
+                for(std::size_t i = 0; i < node->getNrOfElements(); ++i)
+                {
+                    Element* element = node->getElement(i);
+                    std::size_t nodeNr = node->getNodeNr(i);
+                    auto type = element->getReferenceGeometry()->getGeometryType();
+                    element->setVertexBasisFunctionSet(shapeToElementIndex[type] + nrOfFaceSets[type] + nrOfEdgeSets[type] + 1 + nodeNr, nodeNr);
+                    node->setLocalNrOfBasisFunctions(collBasisFSet_[shapeToElementIndex[type] + nrOfFaceSets[type] + nrOfEdgeSets[type] + 1 + nodeNr]->size());
+                }
             }
         }
     }
