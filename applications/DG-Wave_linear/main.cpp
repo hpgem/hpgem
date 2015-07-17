@@ -34,6 +34,7 @@
 #include "Base/Element.h"
 #include "Base/Face.h"
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
+#include "Output/VTKTimeDependentWriter.h"
 #include "Base/ElementCacheData.h"
 #include "Base/FaceCacheData.h"
 #include <cmath>
@@ -83,12 +84,14 @@ public:
         void elementIntegrand(Base::PhysicalElement<DIM>& element, LinearAlgebra::MiddleSizeMatrix& ret) override final
         {
             std::size_t numBasisFuns = element.getElement()->getNrOfBasisFunctions();
-            ret.resize(numBasisFuns, numBasisFuns);
+            ret.resize(numBasisFuns * element.getElement()->getNrOfUnknowns(), numBasisFuns * element.getElement()->getNrOfUnknowns());
             for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
                 for (std::size_t j = 0; j <= i; ++j)
                 {
-                    ret(i, j) = ret(j, i) = element.basisFunctionDeriv(i) * element.basisFunctionDeriv(j);
+                    ret(element.getElement()->convertToSingleIndex(i, 1), element.getElement()->convertToSingleIndex(j, 1)) =
+                            ret(element.getElement()->convertToSingleIndex(j, 1), element.getElement()->convertToSingleIndex(i, 1)) =
+                                    element.basisFunctionDeriv(i) * element.basisFunctionDeriv(j);
                 }
             }
         }
@@ -100,26 +103,19 @@ public:
         void faceIntegrand(Base::PhysicalFace<DIM>& face, LinearAlgebra::MiddleSizeMatrix& ret) override final
         {
             std::size_t numBasisFuns = face.getFace()->getNrOfBasisFunctions();
-            ret.resize(numBasisFuns, numBasisFuns);
+            ret.resize(numBasisFuns * face.getFace()->getPtrElementLeft()->getNrOfUnknowns(), numBasisFuns * face.getFace()->getPtrElementLeft()->getNrOfUnknowns());
             for (std::size_t i = 0; i < numBasisFuns; ++i)
             {
                 for (std::size_t j = 0; j < numBasisFuns; ++j)
                 { //the basis functions belonging to internal parameters are 0 on the free surface anyway.
-                    ret(i, j) = face.basisFunction(i) * face.basisFunction(j);
+                    for(std::size_t k = 0; k < face.getFace()->getPtrElementLeft()->getNrOfUnknowns(); ++k)
+                    {
+                        ret(face.getFace()->getPtrElementLeft()->convertToSingleIndex(i, k), face.getFace()->getPtrElementLeft()->convertToSingleIndex(j, k)) = face.basisFunction(i) * face.basisFunction(j);
+                    }
                 }
             }
         }
     } massIntegrand;
-
-    static void initialConditions(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector& ret)
-    {
-        ret.resize(2);
-        //ret[0]=cos(2*M_PI*p[0])*cosh(2*M_PI*(p[DIM-1]+1))/cosh(2*M_PI);//standing wave
-        //ret[1]=0;
-        double k = 2. * M_PI;
-        ret[0] = cosh(k * (p[DIM - 1] + 1)) * sin(-k * p[0]) * sqrt(k * tanh(k)) / cosh(k) * 0.001; //moving wave
-        ret[1] = cosh(k * (p[DIM - 1] + 1)) * cos(-k * p[0]) / cosh(k) * 0.001;
-    }
 
     static void exactSolution(const double t, const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector& ret)
     {
@@ -130,6 +126,17 @@ public:
         ret[0] = cosh(k * (p[DIM - 1] + 1)) * sin(sqrt(k * tanh(k)) * t - k * p[0]) * sqrt(k * tanh(k)) / cosh(k) * 0.001; //moving wave
         ret[1] = cosh(k * (p[DIM - 1] + 1)) * cos(sqrt(k * tanh(k)) * t - k * p[0]) / cosh(k) * 0.001;
         
+    }
+
+    static void initialConditions(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector& ret)
+    {
+        exactSolution(0,p,ret);
+        //ret.resize(2);
+        //ret[0]=cos(2*M_PI*p[0])*cosh(2*M_PI*(p[DIM-1]+1))/cosh(2*M_PI);//standing wave
+        //ret[1]=0;
+        //double k = 2. * M_PI;
+        //ret[0] = cosh(k * (p[DIM - 1] + 1)) * sin(-k * p[0]) * sqrt(k * tanh(k)) / cosh(k) * 0.001; //moving wave
+        //ret[1] = cosh(k * (p[DIM - 1] + 1)) * cos(-k * p[0]) / cosh(k) * 0.001;
     }
     
     class : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
@@ -143,8 +150,8 @@ public:
             initialConditions(pPhys, data);
             for (std::size_t i = 0; i < face.getFace()->getNrOfBasisFunctions(); ++i)
             {
-                ret(i) = face.basisFunction(i) * data[0];
-                ret(i + face.getFace()->getNrOfBasisFunctions()) = face.basisFunction(i) * data[1];
+                ret(face.getFace()->getPtrElementLeft()->convertToSingleIndex(i, 0)) = face.basisFunction(i) * data[0] * 2;
+                ret(face.getFace()->getPtrElementLeft()->convertToSingleIndex(i, 1)) = face.basisFunction(i) * data[1] * 2;
             }
         }
     } interpolator;
@@ -216,17 +223,17 @@ public:
         LinearAlgebra::MiddleSizeVector initialconditions;
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
-            const PointReferenceT& p = face->getReferenceGeometry()->getCenter();
+            const PointReferenceOnFaceT& p = face->getReferenceGeometry()->getCenter();
             pPhys = face->referenceToPhysical(p);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
             {
                 result = integral.integrate(face, &massIntegrand);
                 initialconditions = integral.integrate(face, &interpolator);
-                face->getPtrElementLeft()->setTimeLevelData(0, initialconditions);
+                face->getPtrElementLeft()->setTimeLevelDataVector(0, initialconditions);
             }
             else
             {
-                result.resize(face->getNrOfBasisFunctions(), face->getNrOfBasisFunctions());
+                result.resize(face->getNrOfBasisFunctions() * 2, face->getNrOfBasisFunctions() * 2);
                 for (std::size_t i = 0; i < result.size(); ++i)
                 {
                     result[i] = 0;
@@ -240,10 +247,13 @@ public:
     {
         Integration::ElementIntegral<DIM> integral(false);
         LinearAlgebra::MiddleSizeMatrix result;
+        LinearAlgebra::MiddleSizeVector zero;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
+            zero.resize(element->getNrOfUnknowns() * element->getNrOfBasisFunctions());
             result = integral.integrate(element, &stifnessIntegrand);
             element->setElementMatrix(result);
+            element->setTimeLevelDataVector(0, zero);
         }
     }
     
@@ -255,20 +265,18 @@ public:
         std::vector<int> facePositions;
         for (const Base::Face* face : meshes_[0]->getFacesList())
         {
-            const PointReferenceT& p = face->getReferenceGeometry()->getCenter();
+            const PointReferenceOnFaceT& p = face->getReferenceGeometry()->getCenter();
             pPhys = face->referenceToPhysical(p);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
             {
                 S.getMatrixBCEntries(face, numBasisFuns, facePositions);
             }
         }
-        ISCreateGeneral(PETSC_COMM_WORLD, numBasisFuns, &facePositions[0], PETSC_COPY_VALUES, surface);
+        ISCreateGeneral(PETSC_COMM_WORLD, numBasisFuns, facePositions.data(), PETSC_COPY_VALUES, surface);
         int totalFuncs;
         MatGetSize(S, &totalFuncs, PETSC_NULL);
-        ISSort(*surface);
+        ISSortRemoveDups(*surface);
         ISComplement(*surface, 0, totalFuncs, rest);
-        ISDestroy(surface);
-        ISComplement(*rest, 0, totalFuncs, surface); //the complement of the complement does not contain duplicates
     }
 
     void printError()
@@ -305,6 +313,19 @@ public:
         std::cout << "Energy: " << totalEnergy[0] << std::endl;
     }
 
+    void setUpSwap(Mat swap)
+    {
+        PetscInt n;
+        MatGetSize(swap, &n, PETSC_NULL);
+        for(std::size_t i = 0; i < n-1; i+=2)
+        {
+            MatSetValue(swap, i, i+1, 1., INSERT_VALUES);
+            MatSetValue(swap, i+1, i, 1., INSERT_VALUES);
+        }
+        MatAssemblyBegin(swap, MAT_FINAL_ASSEMBLY);
+        MatAssemblyEnd(swap, MAT_FINAL_ASSEMBLY);
+    }
+
     bool solve()
     {
         std::cout.precision(14);
@@ -313,24 +334,27 @@ public:
         
         Utilities::GlobalPetscVector eta(meshes_[0]), phi(meshes_[0]);
         Utilities::GlobalPetscMatrix M(meshes_[0], -1, 0), S(meshes_[0], 0, -1);
-        Vec phiS, phiOther, etaActually, interiorRHS, surfaceRHS;
-        Mat surfaceMass, interiorStifness, surfaceStifness, mixStifness, backStiffness;
+        Vec phiS, phiOther, etaActually, interiorRHS, surfaceRHS, surfaceExtra;
+        Mat surfaceMass, interiorStifness, surfaceStifness, mixStifness, backStiffness, swapSurfaceVars;
         
         IS isSurface, isRest;
         getSurfaceIS(S, &isSurface, &isRest);
         
         std::ofstream outFile("output.dat");
         Output::TecplotDiscontinuousSolutionWriter<DIM> writeFunc(outFile, "test", "01", "eta_num,phi_num,eta_exact,phi_exact");
+        Output::VTKTimeDependentWriter<DIM> paraWrite("output", meshes_[0]);
         
         //deal with initial conditions
         double g(1.), dt(M_PI / n_ / 2);
         eta.constructFromTimeLevelData(0, 0);
         phi.constructFromTimeLevelData(0, 1);
-        
+
         std::size_t numberOfSnapshots(65); //placeholder parameters
         std::size_t numberOfTimeSteps(n_ / 8);
         
         MatGetSubMatrix(M, isSurface, isSurface, MAT_INITIAL_MATRIX, &surfaceMass);
+        MatDuplicate(surfaceMass, MAT_DO_NOT_COPY_VALUES, &swapSurfaceVars);
+        setUpSwap(swapSurfaceVars);
         MatGetSubMatrix(S, isRest, isRest, MAT_INITIAL_MATRIX, &interiorStifness);
         MatGetSubMatrix(S, isSurface, isSurface, MAT_INITIAL_MATRIX, &surfaceStifness);
         MatGetSubMatrix(S, isRest, isSurface, MAT_INITIAL_MATRIX, &mixStifness);
@@ -351,6 +375,7 @@ public:
         VecGetSubVector(phi, isRest, &phiOther);
         VecGetSubVector(eta, isSurface, &etaActually);
         VecDuplicate(phiS, &surfaceRHS);
+        VecDuplicate(phiS, &surfaceExtra);
         VecDuplicate(phiOther, &interiorRHS);
         VecCopy(phiS, surfaceRHS);
         KSPSolve(surface, surfaceRHS, phiS);
@@ -370,6 +395,10 @@ public:
         phi.writeTimeLevelData(0, 1);
         
         writeFunc.write(meshes_[0], "solution at time 0", false, this);
+        std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> funcEta = [](Base::Element* element, const Geometry::PointReference<DIM>& p, std::size_t timeLevel)->double{return element->getSolution(timeLevel, p)[0];};
+        std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> funcPhi = [](Base::Element* element, const Geometry::PointReference<DIM>& p, std::size_t timeLevel)->double{return element->getSolution(timeLevel, p)[1];};
+        paraWrite.write(funcEta, "eta", t, 0);
+        paraWrite.write(funcPhi, "phi", t, 0);
         for (std::size_t i = 1; i < numberOfSnapshots; ++i)
         {
             VecGetSubVector(phi, isSurface, &phiS);
@@ -378,7 +407,8 @@ public:
             for (std::size_t j = 0; j < numberOfTimeSteps; ++j)
             {
                 t += dt;
-                VecAXPY(phiS, -g * dt / 2, etaActually); //(can in principle be combined with final step, but this makes output easier)
+                MatMult(swapSurfaceVars, etaActually, surfaceRHS);
+                VecAXPY(phiS, -g * dt / 2, surfaceRHS); //(can in principle be combined with final step, but this makes output easier)
                 MatMult(mixStifness, phiS, interiorRHS);
                 VecScale(interiorRHS, -1);
                 KSPSolve(interior, interiorRHS, phiOther);
@@ -386,16 +416,18 @@ public:
                 KSPGetIterationNumber(interior, &iterations);
                 std::cout << "Laplace problem: KSP solver ended because of " << KSPConvergedReasons[conferge] << " in " << iterations << " iterations." << std::endl;
                 
-                MatMult(backStiffness, phiOther, surfaceRHS);
-                MatMultAdd(surfaceStifness, phiS, surfaceRHS, surfaceRHS);
+                MatMult(backStiffness, phiOther, surfaceExtra);
+                MatMultAdd(surfaceStifness, phiS, surfaceExtra, surfaceExtra);
+                MatMult(swapSurfaceVars, surfaceExtra, surfaceRHS);
                 VecScale(surfaceRHS, dt);
                 MatMultAdd(surfaceMass, etaActually, surfaceRHS, surfaceRHS);
                 KSPSolve(surface, surfaceRHS, etaActually);
                 KSPGetConvergedReason(surface, &conferge);
                 KSPGetIterationNumber(surface, &iterations);
                 std::cout << "Updating \\eta: KSP solver ended because of " << KSPConvergedReasons[conferge] << " in " << iterations << " iterations." << std::endl;
-                
-                VecAXPY(phiS, -g * dt / 2, etaActually);
+
+                MatMult(swapSurfaceVars, etaActually, surfaceRHS);
+                VecAXPY(phiS, -g * dt / 2, surfaceRHS);
             }
             VecRestoreSubVector(phi, isSurface, &phiS);
             VecRestoreSubVector(phi, isRest, &phiOther);
@@ -403,6 +435,8 @@ public:
             eta.writeTimeLevelData(0, 0);
             phi.writeTimeLevelData(0, 1);
             writeFunc.write(meshes_[0], "solution at time t", false, this);
+            paraWrite.write(funcEta, "eta", t, 0);
+            paraWrite.write(funcPhi, "phi", t, 0);
             printError();
             computeEnergy();
         }
