@@ -78,49 +78,51 @@ namespace Utilities
     {
         logger.assert(element!=nullptr, "invalid element passed");
         //we need storage for the amount of basis functions to return
-        std::vector<PetscInt> positions(element->getNrOfBasisFunctions());
+        std::vector<PetscInt> positions(element->getNrOfBasisFunctions() * element->getNrOfUnknowns());
         
         auto pos = positions.begin();
-        
-        std::size_t numElementBasisFuncs = element->getLocalNrOfBasisFunctions();
-        //First step: construct ids for the functions of the current element itself
-        for (std::size_t i = 0; i < numElementBasisFuncs; ++i)
+        for(std::size_t index = 0; index < element->getNrOfUnknowns(); ++index)
         {
-            *pos = i + startPositionsOfElementsInTheVector_[element->getID()];
-            pos++;
-        }
-        
-        //Push forward our iterator
-        std::size_t numFaces = element->getPhysicalGeometry()->getNrOfFaces();
-        for (std::size_t i = 0; i < numFaces; ++i)
-        {
-            std::size_t numFaceBasisFuncs = element->getFace(i)->getLocalNrOfBasisFunctions();
-            for (std::size_t j = 0; j < numFaceBasisFuncs; ++j)
+            std::size_t numElementBasisFuncs = element->getLocalNrOfBasisFunctions();
+            //First step: construct ids for the functions of the current element itself
+            for (std::size_t i = 0; i < numElementBasisFuncs; ++i)
             {
-                *pos = j + startPositionsOfFacesInTheVector_[element->getFace(i)->getID()];
+                *pos = i + startPositionsOfElementsInTheVector_[element->getID()] + index * numElementBasisFuncs;
                 pos++;
             }
-        }
-        
-        std::size_t numEdges = element->getNrOfEdges();
-        for (std::size_t i = 0; i < numEdges; ++i)
-        {
-            std::size_t numEdgeBasisFuncs = element->getEdge(i)->getLocalNrOfBasisFunctions();
-            for (std::size_t j = 0; j < numEdgeBasisFuncs; ++j)
+
+            //Push forward our iterator
+            std::size_t numFaces = element->getPhysicalGeometry()->getNrOfFaces();
+            for (std::size_t i = 0; i < numFaces; ++i)
             {
-                *pos = j + startPositionsOfEdgesInTheVector_[element->getEdge(i)->getID()];
-                pos++;
+                std::size_t numFaceBasisFuncs = element->getFace(i)->getLocalNrOfBasisFunctions();
+                for (std::size_t j = 0; j < numFaceBasisFuncs; ++j)
+                {
+                    *pos = j + startPositionsOfFacesInTheVector_[element->getFace(i)->getID()] + index * numFaceBasisFuncs;
+                    pos++;
+                }
             }
-        }
-        
-        std::size_t numNodes = element->getNrOfNodes();
-        for (std::size_t i = 0; i < numNodes; ++i)
-        {
-            std::size_t numNodeBasisFuncs = element->getNode(i)->getLocalNrOfBasisFunctions();
-            for (std::size_t j = 0; j < numNodeBasisFuncs; ++j)
+
+            std::size_t numEdges = element->getNrOfEdges();
+            for (std::size_t i = 0; i < numEdges; ++i)
             {
-                *pos = j + startPositionsOfNodesInTheVector_[element->getNode(i)->getID()];
-                pos++;
+                std::size_t numEdgeBasisFuncs = element->getEdge(i)->getLocalNrOfBasisFunctions();
+                for (std::size_t j = 0; j < numEdgeBasisFuncs; ++j)
+                {
+                    *pos = j + startPositionsOfEdgesInTheVector_[element->getEdge(i)->getID()] + index * numEdgeBasisFuncs;
+                    pos++;
+                }
+            }
+
+            std::size_t numNodes = element->getNrOfNodes();
+            for (std::size_t i = 0; i < numNodes; ++i)
+            {
+                std::size_t numNodeBasisFuncs = element->getNode(i)->getLocalNrOfBasisFunctions();
+                for (std::size_t j = 0; j < numNodeBasisFuncs; ++j)
+                {
+                    *pos = j + startPositionsOfNodesInTheVector_[element->getNode(i)->getID()] + index * numNodeBasisFuncs;
+                    pos++;
+                }
             }
         }
         logger.assert(pos == positions.end(), "GlobalVector: did not process all elements correctly");
@@ -192,11 +194,12 @@ namespace Utilities
 #else
             startPositionsOfElementsInTheVector_[element->getID()] = totalNrOfDOF;
 #endif
-            totalNrOfDOF += element->getLocalNrOfBasisFunctions();
+            totalNrOfDOF += element->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns();
             for (std::size_t i = 0; i < element->getNrOfFaces(); ++i)
             {
                 //faces at the boundary of the subdomain should also be added only once, so add them here is the left element of the face is in the subdomain
-                if (element->getFace(i)->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY && element->getFace(i)->getPtrElementLeft() == element)
+                if ((element->getFace(i)->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || element->getFace(i)->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
+                        && element->getFace(i)->getPtrElementLeft() == element)
                 {
 #ifdef HPGEM_USE_MPI
                     *currentFaceNumber=element->getFace(i)->getID();
@@ -206,29 +209,25 @@ namespace Utilities
 #else
                     startPositionsOfFacesInTheVector_[element->getFace(i)->getID()] = totalNrOfDOF;
 #endif
-                    totalNrOfDOF += element->getFace(i)->getLocalNrOfBasisFunctions();
+                    totalNrOfDOF += element->getFace(i)->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns();
                 }
                 
             }
         }
-        //DIM == 1 faces and nodes are the same entities, skip one of them
-        if (DIM > 1)
+        for (Base::Face* face : theMesh_->getFacesList())
         {
-            for (Base::Face* face : theMesh_->getFacesList())
+            //skip faces at the subdomain boundary because we already treated them
+            if (face->getFaceType() != Geometry::FaceType::SUBDOMAIN_BOUNDARY && face->getFaceType() != Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
             {
-                //skip faces at the subdomain boundary because we already treated them
-                if (face->getFaceType() != Geometry::FaceType::SUBDOMAIN_BOUNDARY)
-                {
 #ifdef HPGEM_USE_MPI
-                    *currentFaceNumber=face->getID();
-                    *currentFacePosition=totalNrOfDOF;
-                    ++currentFaceNumber;
-                    ++currentFacePosition;
+                *currentFaceNumber=face->getID();
+                *currentFacePosition=totalNrOfDOF;
+                ++currentFaceNumber;
+                ++currentFacePosition;
 #else
-                    startPositionsOfFacesInTheVector_[face->getID()] = totalNrOfDOF;
+                startPositionsOfFacesInTheVector_[face->getID()] = totalNrOfDOF;
 #endif
-                    totalNrOfDOF += face->getLocalNrOfBasisFunctions();
-                }
+                totalNrOfDOF += face->getLocalNrOfBasisFunctions() * face->getPtrElementLeft()->getNrOfUnknowns();
             }
         }
         for (Base::Edge* edge : theMesh_->getEdgesList())
@@ -241,19 +240,23 @@ namespace Utilities
 #else
             startPositionsOfEdgesInTheVector_[edge->getID()] = totalNrOfDOF;
 #endif
-            totalNrOfDOF += edge->getLocalNrOfBasisFunctions();
+            totalNrOfDOF += edge->getLocalNrOfBasisFunctions() * edge->getElement(0)->getNrOfUnknowns();
         }
-        for (Base::Node* node : theMesh_->getNodesList())
+        //DIM == 1 faces and nodes are the same entities, skip one of them
+        if (DIM > 1)
         {
+            for (Base::Node* node : theMesh_->getNodesList())
+            {
 #ifdef HPGEM_USE_MPI
-            *currentNodeNumber=node->getID();
-            *currentNodePosition=totalNrOfDOF;
-            ++currentNodeNumber;
-            ++currentNodePosition;
+                *currentNodeNumber=node->getID();
+                *currentNodePosition=totalNrOfDOF;
+                ++currentNodeNumber;
+                ++currentNodePosition;
 #else
-            startPositionsOfNodesInTheVector_[node->getID()] = totalNrOfDOF;
+                startPositionsOfNodesInTheVector_[node->getID()] = totalNrOfDOF;
 #endif
-            totalNrOfDOF += node->getLocalNrOfBasisFunctions();
+                totalNrOfDOF += node->getLocalNrOfBasisFunctions() * node->getElement(0)->getNrOfUnknowns();
+            }
         }
         
 #ifdef HPGEM_USE_MPI
@@ -343,7 +346,7 @@ namespace Utilities
                 startOFNextDomain += MPISendNodeCounts[currentDomain+1];
                 offset = cumulativeDOF[currentDomain];
             }
-            logger.assert(*currentNodeNumber != std::numeric_limits<std::size_t>::max(), "currentNodeNumber = -1");
+            if (*currentNodeNumber != std::numeric_limits<std::size_t>::max())
             startPositionsOfNodesInTheVector_[*currentNodeNumber]=*currentNodePosition+offset;
         }
 #endif
@@ -406,12 +409,19 @@ namespace Utilities
         {
             std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
             std::vector<PetscInt> positions = makePositionsInVector(element);
-            elementData.resize(numBasisFuncs);
+            elementData.resize(numBasisFuncs * element->getNrOfUnknowns());
             for (std::size_t i = 0; i < numBasisFuncs; ++i)
             {
-                elementData[i] = element->getData(timelevel, solutionVar, i);
+                elementData[element->convertToSingleIndex(i, solutionVar)] = element->getData(timelevel, solutionVar, i);
+                for(std::size_t j = 0; j < element->getNrOfUnknowns(); ++j)
+                {
+                    if(j != solutionVar)
+                    {
+                        positions[element->convertToSingleIndex(i, j)] = -1;
+                    }
+                }
             }
-            int ierr = VecSetValues(b_, numBasisFuncs, positions.data(), elementData.data(), INSERT_VALUES);
+            int ierr = VecSetValues(b_, numBasisFuncs * element->getNrOfUnknowns(), positions.data(), elementData.data(), INSERT_VALUES);
             CHKERRV(ierr);
         }
         
@@ -420,7 +430,25 @@ namespace Utilities
         CHKERRV(ierr);
     }
     
-    void GlobalPetscVector::writeTimeLevelData(std::size_t timeLevel, std::size_t variable)
+    void GlobalPetscVector::constructFromTimeLevelData(std::size_t timelevel)
+    {
+        reset();
+
+        LinearAlgebra::MiddleSizeVector elementData;
+        for (Base::Element* element : theMesh_->getElementsList())
+        {
+            std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
+            std::vector<PetscInt> positions = makePositionsInVector(element);
+            int ierr = VecSetValues(b_, numBasisFuncs * element->getNrOfUnknowns(), positions.data(), element->getTimeLevelDataVector(timelevel).data(), INSERT_VALUES);
+            CHKERRV(ierr);
+        }
+
+        int ierr = VecAssemblyBegin(b_);
+        ierr = VecAssemblyEnd(b_);
+        CHKERRV(ierr);
+    }
+
+    void GlobalPetscVector::writeTimeLevelData(std::size_t timeLevel)
     {
         PetscScalar *data;
         
@@ -432,10 +460,15 @@ namespace Utilities
         VecScatterDestroy(&scatter);
         
         std::vector<PetscInt> positions;
+        std::size_t totalPositions = 0;
+        for(Base::Element* element : theMesh_->getElementsList())
+        {
+            totalPositions += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
+        }
+        positions.reserve(totalPositions);
         for (Base::Element* element : theMesh_->getElementsList())
         {
             std::vector<PetscInt> newPositions = makePositionsInVector(element);
-            positions.reserve(positions.size() + newPositions.size());
             for (auto& a : newPositions)
             {
                 positions.push_back(a);
@@ -455,36 +488,135 @@ namespace Utilities
         CHKERRV(ierr);
         for (Base::MeshManipulatorBase::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
         {
-            std::size_t numBasisFuns = (*it)->getNrOfBasisFunctions();
-            LinearAlgebra::MiddleSizeVector localData(&data[startPositionsOfElementsInTheVector_[(*it)->getID()]], (*it)->getLocalNrOfBasisFunctions());
-            localData.resize(numBasisFuns);
-            std::size_t runningTotal((*it)->getLocalNrOfBasisFunctions());
-            if (theMesh_->dimension() > 1)
+            LinearAlgebra::MiddleSizeVector localData((*it)->getNrOfBasisFunctions() * (*it)->getNrOfUnknowns());
+            std::size_t runningTotal = 0;
+            for(std::size_t index = 0; index < (*it)->getNrOfUnknowns(); ++index)
+            {
+                for(std::size_t i = 0; i < (*it)->getLocalNrOfBasisFunctions(); ++i)
+                {
+                    localData[runningTotal] = std::real(data[startPositionsOfElementsInTheVector_[(*it)->getID()] + i + index * (*it)->getLocalNrOfBasisFunctions()]);
+                    ++runningTotal;
+                }
                 for (std::size_t i = 0; i < (*it)->getPhysicalGeometry()->getNrOfFaces(); ++i)
                 {
                     for (std::size_t j = 0; j < (*it)->getFace(i)->getLocalNrOfBasisFunctions(); ++j)
                     {
-                        localData[runningTotal] = std::real(data[startPositionsOfFacesInTheVector_[(*it)->getFace(i)->getID()] + j]);
+                        localData[runningTotal] = std::real(data[startPositionsOfFacesInTheVector_[(*it)->getFace(i)->getID()] + j + index * (*it)->getFace(i)->getLocalNrOfBasisFunctions()]);
                         ++runningTotal;
                     }
                 }
-            for (std::size_t i = 0; i < (*it)->getNrOfEdges(); ++i)
-            {
-                for (std::size_t j = 0; j < (*it)->getEdge(i)->getLocalNrOfBasisFunctions(); ++j)
+                for (std::size_t i = 0; i < (*it)->getNrOfEdges(); ++i)
                 {
-                    localData[runningTotal] = std::real(data[startPositionsOfEdgesInTheVector_[(*it)->getEdge(i)->getID()] + j]);
-                    ++runningTotal;
+                    for (std::size_t j = 0; j < (*it)->getEdge(i)->getLocalNrOfBasisFunctions(); ++j)
+                    {
+                        localData[runningTotal] = std::real(data[startPositionsOfEdgesInTheVector_[(*it)->getEdge(i)->getID()] + j + index * (*it)->getEdge(i)->getLocalNrOfBasisFunctions()]);
+                        ++runningTotal;
+                    }
+                }
+                if (theMesh_->dimension() > 1)
+                {
+                    for (std::size_t i = 0; i < (*it)->getNrOfNodes(); ++i)
+                    {
+                        for (std::size_t j = 0; j < (*it)->getNode(i)->getLocalNrOfBasisFunctions(); ++j)
+                        {
+                            localData[runningTotal] = std::real(data[startPositionsOfNodesInTheVector_[(*it)->getNode(i)->getID()] + j + index * (*it)->getNode(i)->getLocalNrOfBasisFunctions()]);
+                            ++runningTotal;
+                        }
+                    }
                 }
             }
-            for (std::size_t i = 0; i < (*it)->getNrOfNodes(); ++i)
+            logger.assert(localData.size() == runningTotal, "not enough info to fill the vector");
+            (*it)->setTimeLevelDataVector(timeLevel, localData);
+        }
+        ierr = VecRestoreArray(localB, &data);
+        VecDestroy(&localB);
+        CHKERRV(ierr);
+    }
+
+    void GlobalPetscVector::writeTimeLevelData(std::size_t timeLevel, std::size_t unknown)
+    {
+        PetscScalar *data;
+
+        VecScatter scatter;
+        Vec localB;
+        //create a local vector...
+        VecScatterCreateToAll(b_, &scatter, &localB);
+        //we dont need the scatter context, just the vector
+        VecScatterDestroy(&scatter);
+
+        std::vector<PetscInt> positions;
+        std::size_t totalPositions = 0;
+        for(Base::Element* element : theMesh_->getElementsList())
+        {
+            totalPositions += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
+        }
+        positions.reserve(totalPositions);
+        for (Base::Element* element : theMesh_->getElementsList())
+        {
+            std::vector<PetscInt> newPositions = makePositionsInVector(element);
+            for (auto& a : newPositions)
             {
-                for (std::size_t j = 0; j < (*it)->getNode(i)->getLocalNrOfBasisFunctions(); ++j)
+                positions.push_back(a);
+            }
+        }
+
+        IS scatterIS;
+        ISCreateGeneral(PETSC_COMM_SELF, positions.size(), positions.data(), PETSC_COPY_VALUES, &scatterIS);
+        ISSortRemoveDups(scatterIS);
+        VecScatterCreate(b_, scatterIS, localB, scatterIS, &scatter);
+        VecScatterBegin(scatter, b_, localB, INSERT_VALUES, SCATTER_FORWARD);
+        VecScatterEnd(scatter, b_, localB, INSERT_VALUES, SCATTER_FORWARD);
+        VecScatterDestroy(&scatter);
+        ISDestroy(&scatterIS);
+
+        int ierr = VecGetArray(localB, &data);
+        CHKERRV(ierr);
+        for (Base::MeshManipulatorBase::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
+        {
+            LinearAlgebra::MiddleSizeVector localData((*it)->getNrOfBasisFunctions() * (*it)->getNrOfUnknowns());
+            std::size_t runningTotal = 0;
+            for(std::size_t index = 0; index < (*it)->getNrOfUnknowns(); ++index)
+            {
+                for(std::size_t i = 0; i < (*it)->getLocalNrOfBasisFunctions(); ++i)
                 {
-                    localData[runningTotal] = std::real(data[startPositionsOfNodesInTheVector_[(*it)->getNode(i)->getID()] + j]);
+                    localData[runningTotal] = std::real(data[startPositionsOfElementsInTheVector_[(*it)->getID()] + i + index * (*it)->getLocalNrOfBasisFunctions()]);
                     ++runningTotal;
                 }
+                for (std::size_t i = 0; i < (*it)->getPhysicalGeometry()->getNrOfFaces(); ++i)
+                {
+                    for (std::size_t j = 0; j < (*it)->getFace(i)->getLocalNrOfBasisFunctions(); ++j)
+                    {
+                        localData[runningTotal] = std::real(data[startPositionsOfFacesInTheVector_[(*it)->getFace(i)->getID()] + j + index * (*it)->getFace(i)->getLocalNrOfBasisFunctions()]);
+                        ++runningTotal;
+                    }
+                }
+                for (std::size_t i = 0; i < (*it)->getNrOfEdges(); ++i)
+                {
+                    for (std::size_t j = 0; j < (*it)->getEdge(i)->getLocalNrOfBasisFunctions(); ++j)
+                    {
+                        localData[runningTotal] = std::real(data[startPositionsOfEdgesInTheVector_[(*it)->getEdge(i)->getID()] + j + index * (*it)->getEdge(i)->getLocalNrOfBasisFunctions()]);
+                        ++runningTotal;
+                    }
+                }
+                if (theMesh_->dimension() > 1)
+                {
+                    for (std::size_t i = 0; i < (*it)->getNrOfNodes(); ++i)
+                    {
+                        for (std::size_t j = 0; j < (*it)->getNode(i)->getLocalNrOfBasisFunctions(); ++j)
+                        {
+                            localData[runningTotal] = std::real(data[startPositionsOfNodesInTheVector_[(*it)->getNode(i)->getID()] + j + index * (*it)->getNode(i)->getLocalNrOfBasisFunctions()]);
+                            ++runningTotal;
+                        }
+                    }
+                }
             }
-            (*it)->setTimeLevelData(timeLevel, variable, localData);
+            logger.assert(localData.size() == runningTotal, "not enough info to fill the vector");
+            LinearAlgebra::MiddleSizeVector singleUnknownData((*it)->getNrOfBasisFunctions());
+            for(std::size_t i = 0; i < (*it)->getNrOfBasisFunctions(); ++i)
+            {
+                singleUnknownData[i] = localData[(*it)->convertToSingleIndex(i, unknown)];
+            }
+            (*it)->setTimeLevelData(timeLevel, unknown, singleUnknownData);
         }
         ierr = VecRestoreArray(localB, &data);
         VecDestroy(&localB);

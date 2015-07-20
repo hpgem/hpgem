@@ -150,7 +150,13 @@ namespace Base
         const LinearAlgebra::SmallVector<DIM>& getUnitNormalVector();
 
         ///the length of the normal vector
-        double getSurfaceArea();
+        double getRelativeSurfaceArea();
+
+        ///\deprecated assumes the area of the reference geometry is 1
+        double getSurfaceArea()
+        {
+            return getRelativeSurfaceArea();
+        }
 
         ///note that this matrix and the side based result matrix have no implied coupling
         FaceMatrix& getResultMatrix();
@@ -630,13 +636,13 @@ namespace Base
         else
         {
             hasUnitNormal = true;
-            unitNormal = getNormalVector() / getSurfaceArea();
+            unitNormal = getNormalVector() / getRelativeSurfaceArea();
             return unitNormal;
         }
     }
     
     template<std::size_t DIM>
-    inline double Base::PhysicalFace<DIM>::getSurfaceArea()
+    inline double Base::PhysicalFace<DIM>::getRelativeSurfaceArea()
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasNormalNorm)

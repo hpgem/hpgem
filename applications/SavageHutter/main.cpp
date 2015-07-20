@@ -24,11 +24,12 @@
 
 #include "SavageHutter.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
+#include "GlobalConstants.h"
 
 #include "Logger.h"
 
 auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", false, 10);
-auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", false, 2);
+auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", false, 1);
 auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 1);
 auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
 auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 0.001);
@@ -42,8 +43,8 @@ int main(int argc, char **argv)
     
     // Set parameters for the PDE.
     SHConstructorStruct inputVals;
-    //DIM is declared in SavageHutterRightHandSideComputer.h
-    inputVals.numOfVariables = 2;    
+    //DIM is declared in GlobalConstants.h
+    inputVals.numOfVariables = DIM + 1;    
     inputVals.polyOrder = polynomialOrder.getValue();
     inputVals.numElements = numOfElements.getValue();
     inputVals.meshType = Base::MeshType::RECTANGULAR; // Either TRIANGULAR or RECTANGULAR.
@@ -51,8 +52,11 @@ int main(int argc, char **argv)
     
     //Construct the problem and output generator
     SavageHutter test(inputVals);    
-    std::vector<std::string> variableNames = {"h", "hu"};
-    test.setOutputNames("output", "SavageHutter", "SavageHutter", variableNames);
+    std::vector<std::string> variableNames = {"h", "hu", "hv"};
+    if (DIM == 1)
+        test.setOutputNames("output1", "SavageHutter", "SavageHutter", variableNames);
+    else
+        test.setOutputNames("output", "SavageHutter", "SavageHutter", variableNames);
 
     // Start measuring elapsed time
     std::chrono::time_point<std::chrono::system_clock> startClock, endClock;

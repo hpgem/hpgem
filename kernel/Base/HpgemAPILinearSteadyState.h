@@ -43,7 +43,7 @@ namespace Base
      
      Let \f$ f \f$ be a face and \f$ i_S \f$ the index of a side of the face (either left or right. Let \f$ (f,i_S) \f$ denote the element at side \f$ i_S \f$ of face \f$ f \f$ (at the boundary we only have a left side). We can write the DG scheme as follows \f[ -\sum_{j_V,j_B}S^e_{i_V,i_B;j_V.j_B}\bar{u}^e_{j_V.j_B} - \sum_{(f,i_S)=e, j_S,j_V,j_B} S^{f,i_S,j_S}_{i_V,i_B;j_V,j_B}\bar{u}^{(f,j_S)}_{j_V,j_B} = f^e_{i_V,i_B}(t) + f^f_{i_V,i_B}(t) \f] where \f$ S^e \f$ is the stiffness element matrix, \f$ S^f \f$ is the stiffness face matrix, \f$ f^e \f$ is the source term corresponding to an element and \f$ f^f \f$ is the source term corresponding to a boundary face.
      */
-    /** \details To solve some linear time depent PDE with this class you should at least do the following:
+    /** \details To solve some linear time depend PDE with this class you should at least do the following:
      * \li Create your own class that inherits this class.
      * \li Implement the function 'createMeshDescription' to create a mesh description (e.g. domain, number of elements, etc.).
      * \li Implement the function 'getSourceTerm' to define the source term (e.g. external force) if there is one.
@@ -57,9 +57,8 @@ namespace Base
      * \li Call the function 'setOutputNames' to set the names for the output files.
      * \li Call the function 'solveSteadyStateWithPetsc'.
      */
-    /** \details Some other thinsgs you can do:
+    /** \details Some other things you can do:
      * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
-     * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (by default this function computes the standard L2 inner product).
      * \li Implement the function 'computeMassMatrixAtElement' if you want to compute the mass matrix (by default a mass matrix is computed based on the L2 inner product).
      * \li Implement the function 'integrateSourceTermAtElement' to compute the source term at an element (if there is a source term, by default the L2 inner product is computed).
      * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element (by default the L2-norm is computed).

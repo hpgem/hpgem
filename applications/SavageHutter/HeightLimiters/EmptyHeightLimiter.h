@@ -19,43 +19,21 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef H1CONFORMINGTRANSFORMATION_H_
-#define H1CONFORMINGTRANSFORMATION_H_
+#ifndef EMPTYHEIGHTLIMITER_H
+#define	EMPTYHEIGHTLIMITER_H
 
-#include <cstdlib>
-#include "LinearAlgebra/SmallVector.h"
-#include "PhysicalElement.h"
+#include "HeightLimiter.h"
 
-namespace Base
+class EmptyHeightLimiter : public HeightLimiter
 {
-    ///the basic transformation that most users need (transforms functions and their derivatives in a conforming way)
-    template<std::size_t DIM>
-    class H1ConformingTransformation : public CoordinateTransformation<DIM>
+public:
+    void limit(Base::Element* element, LinearAlgebra::MiddleSizeVector& solutionCoeffiecients) override final
     {
-    public:
-        double transform(double referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return referenceData;
-        }
+        
+    }
 
-        LinearAlgebra::SmallVector<DIM> transformDeriv(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            element.getTransposeJacobian().solve(referenceData);
-            return referenceData;
-        }
-
-        double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const override final
-        {
-            return element.getJacobianAbsDet();
-        }
-
-        double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final
-        {
-            return face.getRelativeSurfaceArea();
-        }
-    };
-}
+};
 
 
+#endif	/* EMPTYHEIGHTLIMITER_H */
 
-#endif /* H1CONFORMINGTRANSFORMATION_H_ */

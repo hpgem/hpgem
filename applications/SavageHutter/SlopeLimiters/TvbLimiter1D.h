@@ -19,43 +19,27 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef H1CONFORMINGTRANSFORMATION_H_
-#define H1CONFORMINGTRANSFORMATION_H_
+#ifndef TVBLIMITER_H
+#define	TVBLIMITER_H
+#include "SlopeLimiter.h"
+#include "../HelperFunctions.h"
 
-#include <cstdlib>
-#include "LinearAlgebra/SmallVector.h"
-#include "PhysicalElement.h"
-
-namespace Base
+class TvbLimiter1D : public SlopeLimiter
 {
-    ///the basic transformation that most users need (transforms functions and their derivatives in a conforming way)
-    template<std::size_t DIM>
-    class H1ConformingTransformation : public CoordinateTransformation<DIM>
-    {
-    public:
-        double transform(double referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return referenceData;
-        }
+public:
+    
+    using PointReferenceT = Geometry::PointReference<1>;
+    using PointPhysicalT = Geometry::PointPhysical<1>;
+    TvbLimiter1D(std::size_t numOfVariables) : SlopeLimiter(numOfVariables){ }
+    
+    void limitSlope(Base::Element *element) override final;
+private:
+    void limitWithMinMod(Base::Element *element, const std::size_t iVar);
+    
+    bool hasSmallSlope(const Base::Element *element, const std::size_t iVar);
+    
+    Integration::ElementIntegral<1> elementIntegrator_;
+};
 
-        LinearAlgebra::SmallVector<DIM> transformDeriv(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            element.getTransposeJacobian().solve(referenceData);
-            return referenceData;
-        }
+#endif	/* TVBLIMITER_H */
 
-        double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const override final
-        {
-            return element.getJacobianAbsDet();
-        }
-
-        double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final
-        {
-            return face.getRelativeSurfaceArea();
-        }
-    };
-}
-
-
-
-#endif /* H1CONFORMINGTRANSFORMATION_H_ */

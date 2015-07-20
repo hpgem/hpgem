@@ -41,6 +41,9 @@ namespace Base
         //in some cases it is convenient to have non-template-based access to the dimension
         const std::size_t dimension_;
         std::size_t numberOfUnknowns_;
+
+        ///\deprecated the number of basis functions per element may depend on the element and/or on the unknown and cannot be represented as a constant for the entire mesh.
+        ///Number may be incorrect even when it is the same for all elements and all unknowns
         std::size_t numberOfBasisFunctions_;
         std::size_t numberOfTimeLevels_;
         std::size_t polynomialOrder_;

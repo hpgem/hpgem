@@ -49,42 +49,47 @@ namespace Utilities
     void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries)
     {
         logger.assert(face!=nullptr, "Invalid face passed");
-        std::size_t number = face->getLocalNrOfBasisFunctions();
-        numberOfEntries += number;
-        for (std::size_t i = 0; i < number; ++i)
+        for(std::size_t index = 0; index < face->getPtrElementLeft()->getNrOfUnknowns(); ++index)
         {
-            entries.push_back(startPositionsOfFacesInTheMatrix_[face->getID()] + i);
-        }
-        std::vector<std::size_t> nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft());
-        std::vector<std::size_t> edgeIndex(2);
-        for (std::size_t i = 0; i < face->getPtrElementLeft()->getNrOfEdges(); ++i)
-        {
-            edgeIndex = face->getPtrElementLeft()->getReferenceGeometry()->getCodim2EntityLocalIndices(i);
-            edgeIndex[0] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[0]);
-            edgeIndex[1] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[1]);
-            bool firstFound(false), secondFound(false);
-            for (std::size_t j = 0; j < nodeEntries.size(); ++j)
+            std::size_t number = face->getLocalNrOfBasisFunctions();
+            numberOfEntries += number;
+            for (std::size_t i = 0; i < number; ++i)
             {
-                if (nodeEntries[j] == edgeIndex[0])
-                    firstFound = true;
-                if (nodeEntries[j] == edgeIndex[1])
-                    secondFound = true;
+                entries.push_back(startPositionsOfFacesInTheMatrix_[face->getID()] + i + index * number);
             }
-            if (firstFound && secondFound)
+            std::vector<std::size_t> nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft());
+            std::vector<std::size_t> edgeIndex(2);
+            for (std::size_t i = 0; i < face->getPtrElementLeft()->getNrOfEdges(); ++i)
             {
-                numberOfEntries += face->getPtrElementLeft()->getEdge(i)->getLocalNrOfBasisFunctions();
-                for (std::size_t j = 0; j < face->getPtrElementLeft()->getEdge(i)->getLocalNrOfBasisFunctions(); ++j)
+                edgeIndex = face->getPtrElementLeft()->getReferenceGeometry()->getCodim2EntityLocalIndices(i);
+                edgeIndex[0] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[0]);
+                edgeIndex[1] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[1]);
+                bool firstFound(false), secondFound(false);
+                for (std::size_t j = 0; j < nodeEntries.size(); ++j)
                 {
-                    entries.push_back(startPositionsOfEdgesInTheMatrix_[face->getPtrElementLeft()->getEdge(i)->getID()] + j);
+                    if (nodeEntries[j] == edgeIndex[0])
+                        firstFound = true;
+                    if (nodeEntries[j] == edgeIndex[1])
+                        secondFound = true;
+                }
+                if (firstFound && secondFound)
+                {
+                    number = face->getPtrElementLeft()->getEdge(i)->getLocalNrOfBasisFunctions();
+                    numberOfEntries += number;
+                    for (std::size_t j = 0; j < number; ++j)
+                    {
+                        entries.push_back(startPositionsOfEdgesInTheMatrix_[face->getPtrElementLeft()->getEdge(i)->getID()] + j + index * number);
+                    }
                 }
             }
-        }
-        nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(face->localFaceNumberLeft());
-        for (std::size_t i : nodeEntries)
-        {
-            numberOfEntries += face->getPtrElementLeft()->getNode(i)->getLocalNrOfBasisFunctions();
-            for (std::size_t j = 0; j < face->getPtrElementLeft()->getNode(i)->getLocalNrOfBasisFunctions(); ++j)
-                entries.push_back(startPositionsOfNodesInTheMatrix_[face->getPtrElementLeft()->getNode(i)->getID()] + j);
+            nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(face->localFaceNumberLeft());
+            for (std::size_t i : nodeEntries)
+            {
+                number = face->getPtrElementLeft()->getNode(i)->getLocalNrOfBasisFunctions();
+                numberOfEntries += number;
+                for (std::size_t j = 0; j < number; ++j)
+                    entries.push_back(startPositionsOfNodesInTheMatrix_[face->getPtrElementLeft()->getNode(i)->getID()] + j + index * number);
+            }
         }
     }
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
@@ -122,49 +127,51 @@ namespace Utilities
     {
         logger.assert(element!=nullptr, "Invalid element passed");
         //we need storage for the amount of basis functions to return
-        std::vector<PetscInt> positions(element->getNrOfBasisFunctions());
+        std::vector<PetscInt> positions(element->getNrOfBasisFunctions() * element->getNrOfUnknowns());
         
         auto pos = positions.begin();
-        
-        std::size_t numElementBasisFuncs = element->getLocalNrOfBasisFunctions();
-        //First step: construct ids for the functions of the current element itself
-        for (std::size_t i = 0; i < numElementBasisFuncs; ++i)
+        for(std::size_t index = 0; index < element->getNrOfUnknowns(); ++index)
         {
-            *pos = i + startPositionsOfElementsInTheMatrix_[element->getID()];
-            pos++;
-        }
-        
-        //Push forward our iterator
-        std::size_t numFaces = element->getPhysicalGeometry()->getNrOfFaces();
-        for (std::size_t i = 0; i < numFaces; ++i)
-        {
-            std::size_t numFaceBasisFuncs = element->getFace(i)->getLocalNrOfBasisFunctions();
-            for (std::size_t j = 0; j < numFaceBasisFuncs; ++j)
+            std::size_t numElementBasisFuncs = element->getLocalNrOfBasisFunctions();
+            //First step: construct ids for the functions of the current element itself
+            for (std::size_t i = 0; i < numElementBasisFuncs; ++i)
             {
-                *pos = j + startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()];
+                *pos = i + startPositionsOfElementsInTheMatrix_[element->getID()] + index * numElementBasisFuncs;
                 pos++;
             }
-        }
-        
-        std::size_t numEdges = element->getNrOfEdges();
-        for (std::size_t i = 0; i < numEdges; ++i)
-        {
-            std::size_t numEdgeBasisFuncs = element->getEdge(i)->getLocalNrOfBasisFunctions();
-            for (std::size_t j = 0; j < numEdgeBasisFuncs; ++j)
+
+            //Push forward our iterator
+            std::size_t numFaces = element->getPhysicalGeometry()->getNrOfFaces();
+            for (std::size_t i = 0; i < numFaces; ++i)
             {
-                *pos = j + startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()];
-                pos++;
+                std::size_t numFaceBasisFuncs = element->getFace(i)->getLocalNrOfBasisFunctions();
+                for (std::size_t j = 0; j < numFaceBasisFuncs; ++j)
+                {
+                    *pos = j + startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + index * numFaceBasisFuncs;
+                    pos++;
+                }
             }
-        }
-        
-        std::size_t numNodes = element->getNrOfNodes();
-        for (std::size_t i = 0; i < numNodes; ++i)
-        {
-            std::size_t numNodeBasisFuncs = element->getNode(i)->getLocalNrOfBasisFunctions();
-            for (std::size_t j = 0; j < numNodeBasisFuncs; ++j)
+
+            std::size_t numEdges = element->getNrOfEdges();
+            for (std::size_t i = 0; i < numEdges; ++i)
             {
-                *pos = j + startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()];
-                pos++;
+                std::size_t numEdgeBasisFuncs = element->getEdge(i)->getLocalNrOfBasisFunctions();
+                for (std::size_t j = 0; j < numEdgeBasisFuncs; ++j)
+                {
+                    *pos = j + startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + index * numEdgeBasisFuncs;
+                    pos++;
+                }
+            }
+
+            std::size_t numNodes = element->getNrOfNodes();
+            for (std::size_t i = 0; i < numNodes; ++i)
+            {
+                std::size_t numNodeBasisFuncs = element->getNode(i)->getLocalNrOfBasisFunctions();
+                for (std::size_t j = 0; j < numNodeBasisFuncs; ++j)
+                {
+                    *pos = j + startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + index * numNodeBasisFuncs;
+                    pos++;
+                }
             }
         }
         logger.assert(pos == positions.end(), "Not all positions are processed.");
@@ -292,11 +299,12 @@ namespace Utilities
 #else
             startPositionsOfElementsInTheMatrix_[element->getID()] = totalNrOfDOF;
 #endif
-            totalNrOfDOF += element->getLocalNrOfBasisFunctions();
+            totalNrOfDOF += element->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns();
             for (std::size_t i = 0; i < element->getNrOfFaces(); ++i)
             {
-                //faces at the boundary of the subdomain should also be added only once, so add them here is the left element of the face is in the subdomain
-                if (element->getFace(i)->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY && element->getFace(i)->getPtrElementLeft() == element)
+                //faces at the boundary of the subdomain should also be added only once, so add them here if the left element of the face is in the subdomain
+                if ((element->getFace(i)->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || element->getFace(i)->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
+                        && element->getFace(i)->getPtrElementLeft() == element)
                 {
 #ifdef HPGEM_USE_MPI
                     *currentFaceNumber=element->getFace(i)->getID();
@@ -306,29 +314,25 @@ namespace Utilities
 #else
                     startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] = totalNrOfDOF;
 #endif
-                    totalNrOfDOF += element->getFace(i)->getLocalNrOfBasisFunctions();
+                    totalNrOfDOF += element->getFace(i)->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns();
                 }
                 
             }
         }
-        //DIM == 1 faces and nodes are the same entities, skip one of them
-        if (DIM > 1)
+        for (Base::Face* face : theMesh_->getFacesList())
         {
-            for (Base::Face* face : theMesh_->getFacesList())
+            //skip faces at the subdomain boundary because we already treated them
+            if (face->getFaceType() != Geometry::FaceType::SUBDOMAIN_BOUNDARY && face->getFaceType() != Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
             {
-                //skip faces at the subdomain boundary because we already treated them
-                if (face->getFaceType() != Geometry::FaceType::SUBDOMAIN_BOUNDARY)
-                {
 #ifdef HPGEM_USE_MPI
-                    *currentFaceNumber=face->getID();
-                    *currentFacePosition=totalNrOfDOF;
-                    ++currentFaceNumber;
-                    ++currentFacePosition;
+                *currentFaceNumber=face->getID();
+                *currentFacePosition=totalNrOfDOF;
+                ++currentFaceNumber;
+                ++currentFacePosition;
 #else
-                    startPositionsOfFacesInTheMatrix_[face->getID()] = totalNrOfDOF;
+                startPositionsOfFacesInTheMatrix_[face->getID()] = totalNrOfDOF;
 #endif
-                    totalNrOfDOF += face->getLocalNrOfBasisFunctions();
-                }
+                totalNrOfDOF += face->getLocalNrOfBasisFunctions() * face->getPtrElementLeft()->getNrOfUnknowns();
             }
         }
         for (Base::Edge* edge : theMesh_->getEdgesList())
@@ -341,19 +345,23 @@ namespace Utilities
 #else
             startPositionsOfEdgesInTheMatrix_[edge->getID()] = totalNrOfDOF;
 #endif
-            totalNrOfDOF += edge->getLocalNrOfBasisFunctions();
+            totalNrOfDOF += edge->getLocalNrOfBasisFunctions() * edge->getElement(0)->getNrOfUnknowns();
         }
-        for (Base::Node* node : theMesh_->getNodesList())
+        //DIM == 1 faces and nodes are the same entities, skip one of them
+        if (DIM > 1)
         {
+            for (Base::Node* node : theMesh_->getNodesList())
+            {
 #ifdef HPGEM_USE_MPI
-            *currentNodeNumber=node->getID();
-            *currentNodePosition=totalNrOfDOF;
-            ++currentNodeNumber;
-            ++currentNodePosition;
+                *currentNodeNumber=node->getID();
+                *currentNodePosition=totalNrOfDOF;
+                ++currentNodeNumber;
+                ++currentNodePosition;
 #else
-            startPositionsOfNodesInTheMatrix_[node->getID()] = totalNrOfDOF;
+                startPositionsOfNodesInTheMatrix_[node->getID()] = totalNrOfDOF;
 #endif
-            totalNrOfDOF += node->getLocalNrOfBasisFunctions();
+                totalNrOfDOF += node->getLocalNrOfBasisFunctions() * node->getElement(0)->getNrOfUnknowns();
+            }
         }
         
 #ifdef HPGEM_USE_MPI
@@ -364,7 +372,7 @@ namespace Utilities
                 "MPI is not at the correct face.");
         logger.assert(currentEdgeNumber == MPISendEdgeNumbers.begin() + MPISendEdgeStarts[rank+1],
                 "MPI is not at the correct edge.");
-        logger.assert(currentNodeNumber == MPISendNodeNumbers.begin() + MPISendNodeStarts[rank+1],
+        logger.assert(currentNodeNumber == MPISendNodeNumbers.begin() + MPISendNodeStarts[rank+1] || DIM == 1,
                 "MPI is not at the correct node.");
 
         logger.assert(currentElementPosition == MPISendElementPositions.begin() + MPISendElementStarts[rank+1],
@@ -373,7 +381,7 @@ namespace Utilities
                 "MPI is not at the correct face.");
         logger.assert(currentEdgePosition == MPISendEdgePositions.begin() + MPISendEdgeStarts[rank+1],
                 "MPI is not at the correct edge.");
-        logger.assert(currentNodePosition == MPISendNodePositions.begin() + MPISendNodeStarts[rank+1],
+        logger.assert(currentNodePosition == MPISendNodePositions.begin() + MPISendNodeStarts[rank+1] || DIM == 1,
                 "MPI is not at the correct node.");
 
         //offset by one to insert a zero at the front
@@ -462,7 +470,7 @@ namespace Utilities
                 startOFNextDomain += MPISendNodeCounts[currentDomain+1];
                 offset = cumulativeDOF[currentDomain];
             }
-            logger.assert(*currentNodeNumber != std::numeric_limits<std::size_t>::max(), "currentNodeNumber=-1");
+            if (*currentNodeNumber != std::numeric_limits<std::size_t>::max())
             startPositionsOfNodesInTheMatrix_[*currentNodeNumber]=*currentNodePosition+offset;
         }
         std::size_t MPIOffset = cumulativeDOF[rank];
@@ -476,28 +484,28 @@ namespace Utilities
         
         for (Base::Element* element : theMesh_->getElementsList())
         {
-            for (int j = 0; j < element->getLocalNrOfBasisFunctions(); ++j)
+            for (int j = 0; j < element->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns(); ++j)
             {
-                numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
+                numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
             }
             for (int i = 0; i < element->getReferenceGeometry()->getNrOfCodim1Entities(); ++i)
             {
                 //conforming contributions
-                for (int j = 0; j < element->getFace(i)->getLocalNrOfBasisFunctions(); ++j)
+                for (int j = 0; j < element->getFace(i)->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns(); ++j)
                 {
-                    numberOfPositionsPerRow[startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
+                    numberOfPositionsPerRow[startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
                 }
                 
                 //flux term for DG
-                for (int j = 0; j < element->getLocalNrOfBasisFunctions(); ++j)
+                for (int j = 0; j < element->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns(); ++j)
                 {
-                    if (element->getFace(i)->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY)
+                    if (element->getFace(i)->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || element->getFace(i)->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
                     {
-                        offDiagonalPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
+                        offDiagonalPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
                     }
                     else if (element->getFace(i)->isInternal())
                     {
-                        numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
+                        numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
                     }
                 }
             }
@@ -505,14 +513,14 @@ namespace Utilities
             {
                 for (int j = 0; j < element->getEdge(i)->getLocalNrOfBasisFunctions(); ++j)
                 {
-                    numberOfPositionsPerRow[startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
+                    numberOfPositionsPerRow[startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
                 }
             }
             for (int i = 0; i < element->getNrOfNodes(); ++i)
             {
                 for (int j = 0; j < element->getNode(i)->getLocalNrOfBasisFunctions(); ++j)
                 {
-                    numberOfPositionsPerRow[startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions();
+                    numberOfPositionsPerRow[startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
                 }
             }
         }

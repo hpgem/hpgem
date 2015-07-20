@@ -22,6 +22,7 @@
 #include "BasisFunctions1DH1ConformingLine.h"
 #include "helperFunctions.h"
 #include "Base/BasisFunctionSet.h"
+#include "Base/OrientedBasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 
 //only uses the constant basis functions
@@ -80,14 +81,14 @@ namespace Utilities
         return result;
     }
     
-    std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet1DH1Line(std::size_t polynomialOrder)
+    std::vector<const Base::OrientedBasisFunctionSet*> createVertexBasisFunctionSet1DH1Line(std::size_t polynomialOrder)
     {
         logger.assert(polynomialOrder > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
-        std::vector<const Base::BasisFunctionSet*> result;
-        Base::BasisFunctionSet* set(new Base::BasisFunctionSet(polynomialOrder));
+        std::vector<const Base::OrientedBasisFunctionSet*> result;
+        Base::OrientedBasisFunctionSet* set(new Base::OrientedBasisFunctionSet(polynomialOrder, 0, 0));
         set->addBasisFunction(new BasisFunction1DVertexLine(0));
         result.push_back(set);
-        set = new Base::BasisFunctionSet(polynomialOrder);
+        set = new Base::OrientedBasisFunctionSet(polynomialOrder, 0, 1);
         set->addBasisFunction(new BasisFunction1DVertexLine(1));
         result.push_back(set);
         return result;

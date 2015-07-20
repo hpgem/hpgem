@@ -27,12 +27,15 @@
 
 #include "Logger.h"
 
-/// \brief Template for basis PDE problems that can be solved using HpgemAPISimplified.
-/// \details This file is meant as a template for basic PDE problems that can be solved using HpgemAPISimplified. When creating a solver for a certain PDE with HpgemAPISimplified one can copy this file and fill in the blanks. Also see the documentation of HpgemAPISimplified for an overview of all the functionalities it offers.
-
 //it is also possible to template ExampleProblem on the dimension if you want more flexibility, but if you do so you must prefix identifiers defined in the API with 'this->' due to the name look-up rules for templated classes
 const std::size_t DIM = 2;
 
+/// \brief Template for basis PDE problems that can be solved using HpgemAPISimplified.
+/// \details This file is meant as a template for basic PDE problems that can be solved using HpgemAPISimplified.
+/// When creating a solver for a certain PDE with HpgemAPISimplified one can copy this folder and fill in the blanks.
+/// Please also change the name of the executable at the indicated locations in the CMakeLists.txt file.
+/// You may need to re-run cmake to cause your new application to be detected.
+/// Also see the documentation of HpgemAPISimplified for an overview of all the functionalities it offers.
 class ExampleProblem : public Base::HpgemAPISimplified<DIM>
 {
 public:

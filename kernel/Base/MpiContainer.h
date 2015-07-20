@@ -67,19 +67,28 @@ public:
     {   
         MPI::Datatype type;
 
-        communicator_.Bcast(t.data(), t.size(), Detail::toMPIType(*t.data()), id);
+        if(t.size() > 0)
+        {
+            communicator_.Bcast(t.data(), t.size(), Detail::toMPIType(*t.data()), id);
+        }
     }
 
     template<class T>
     void send(T& t, int to, int tag)
     {   
-        pending_.push_back(communicator_.Isend(t.data(), t.size(), Detail::toMPIType(*t.data()), to, tag ));
+        if(t.size() > 0)
+        {
+            pending_.push_back(communicator_.Isend(t.data(), t.size(), Detail::toMPIType(*t.data()), to, tag ));
+        }
     }
 
     template<class T>
     void receive(T& t, int to, int tag)
     {   
-        pending_.push_back(communicator_.Irecv((void *)t.data(), t.size(), Detail::toMPIType(*t.data()), to, tag ));
+        if(t.size() > 0)
+        {
+            pending_.push_back(communicator_.Irecv((void *)t.data(), t.size(), Detail::toMPIType(*t.data()), to, tag ));
+        }
     }
 
     void sync()

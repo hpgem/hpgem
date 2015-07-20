@@ -110,7 +110,7 @@ namespace Geometry
     
     bool FaceGeometry::isInternal() const
     {
-        if (faceType_ == FaceType::INTERNAL || faceType_ == FaceType::PERIODIC_BC || faceType_ == FaceType::SUBDOMAIN_BOUNDARY)
+        if (faceType_ == FaceType::INTERNAL || faceType_ == FaceType::PERIODIC_BC || faceType_ == FaceType::SUBDOMAIN_BOUNDARY || faceType_ == FaceType::PERIODIC_SUBDOMAIN_BC)
         {
             ///\todo move this assertion to the unit test
             logger.assert(rightElementGeom_ != nullptr, "There is no right element, so no internal face.");

@@ -69,6 +69,11 @@ namespace Helpers
         Geometry::PointPhysical<DIM> p0 = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
         Geometry::PointPhysical<DIM> p1 = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
         average /= Base::L2Norm(p1 - p0);
+        if (DIM == 2)
+        {            
+            Geometry::PointPhysical<DIM> p2 = element->getPhysicalGeometry()->getLocalNodeCoordinates(2);
+            average /= Base::L2Norm(p2-p0);
+        }
 
         logger(DEBUG, "Average over element %: %", element->getID(), average);
         logger.assert_always(average(0) > - 1e-16, "Average water height negative on "
@@ -83,7 +88,7 @@ namespace Helpers
         LinearAlgebra::MiddleSizeVector projection(numBasisFuns);
         for (std::size_t i = 0; i < numBasisFuns; ++ i)
         {
-            const std::function < double(Base::PhysicalElement<1>&) > integrandFunction = [ = ](Base::PhysicalElement<1>& element) -> double 
+            const std::function < double(Base::PhysicalElement<DIM>&) > integrandFunction = [ = ](Base::PhysicalElement<DIM>& element) -> double 
             {
                 return myFun(element.getPointReference()) * element.basisFunction(i);
             };
@@ -95,7 +100,7 @@ namespace Helpers
         {
             for (std::size_t j = 0; j < numBasisFuns; ++ j)
             {
-                const std::function < double(Base::PhysicalElement<1>&) > massFun = [ = ](Base::PhysicalElement<1>& element) -> double 
+                const std::function < double(Base::PhysicalElement<DIM>&) > massFun = [ = ](Base::PhysicalElement<DIM>& element) -> double 
                 {
                     return element.basisFunction(j) * element.basisFunction(i);
                 };

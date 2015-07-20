@@ -9,8 +9,8 @@
 #define	SAVAGEHUTTERBASE_H
 
 #include "RightHandSideComputer.h"
-#include "SlopeLimiter.h"
-#include "HeightLimiter.h"
+#include "SlopeLimiters/SlopeLimiter.h"
+#include "HeightLimiters/HeightLimiter.h"
 #include "Base/HpgemAPISimplified.h"
 
 /// \param[in] numberOfVariables Number of variables in the PDE
