@@ -112,7 +112,32 @@ namespace Base
         ///the element (elements have extra functions for users that need them)
         const Base::Element* getElement();
 
-        ///the transformation that was used to get from the reference element to the physical element
+        ///the number of basis functions that are nonzero in the element
+        std::size_t getNumOfBasisFunctions()
+        {
+            return theElement_->getNrOfBasisFunctions();
+        }
+
+        ///the number of unknowns present in the problem
+        std::size_t getNumOfUnknowns()
+        {
+            return theElement_->getNrOfUnknowns();
+        }
+
+        ///the id of the element
+        std::size_t getID()
+        {
+            return theElement_->getID();
+        }
+
+        ///combine a function index and a variable index to a single index that can be used for indexing matrices or vectors
+        std::size_t convertToSingleIndex(std::size_t functionId, std::size_t variableId)
+        {
+            //currently calling the function is too fast to be worth storing the variable
+            return theElement_->convertToSingleIndex(functionId, variableId);
+        }
+
+        ///the transformation that was used to get from the reference element to the physical element (should only be needed internally)
         const Base::CoordinateTransformation<DIM>* getTransformation();
 
         ///setters should only be needed internally

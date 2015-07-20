@@ -173,7 +173,48 @@ namespace Base
         ///check if this PhysicalFace is an internal face or a face on a periodic boundary.
         bool isInternal();
 
+        ///get the total number of basis functions that might be nonzero on the face
+        std::size_t getNumOfBasisFunctions()
+        {
+            return face_->getNrOfBasisFunctions();
+        }
+
+        /// get the number of variables present in the problem
+        std::size_t getNumOfUnknowns()
+        {
+            return face_->getPtrElementLeft()->getNrOfUnknowns();
+        }
+
+        ///convert a function index and a variable index to a single index in the contiguous numbering of the face
+        std::size_t convertToSingleIndex(Base::Side side, std::size_t functionId, std::size_t variableId)
+        {
+            return face_->convertToSingleIndex(side, functionId, variableId);
+        }
+
+        ///provides access to the left and right physical elements in case you need it
+        PhysicalElement<DIM>& getPhysicalElement(Base::Side side)
+        {
+            if(side == Base::Side::LEFT)
+            {
+                return left;
+            }
+            else
+            {
+                logger.assert(isInternal(), "This physical face is meant for boundaries and can only see left elements");
+                return right;
+            }
+        }
+
+        ///get the index of the face
+        std::size_t getID()
+        {
+            return face_->getID();
+        }
+
+        ///direct access to the underlying face in case it is needed
         const Face* getFace();
+
+        ///getTransform should only be needed internally
         const CoordinateTransformation<DIM>* getTransform();
 
         void setPointReference(const Geometry::PointReference<DIM - 1>& point);
