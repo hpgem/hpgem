@@ -79,8 +79,8 @@
 namespace Base
 {
 
-    MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrtixes, std::size_t numberOfFaceVectors)
-            : configData_(config), numberOfElementMatrices_(numberOfElementMatrixes), numberOfFaceMatrices_(numberOfFaceMatrtixes), numberOfElementVectors_(numberOfElementVectors), numberOfFaceVectors_(numberOfFaceVectors)
+    MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrtices, std::size_t numberOfFaceVectors)
+            : configData_(config), numberOfElementMatrices_(numberOfElementMatrices), numberOfFaceMatrices_(numberOfFaceMatrtices), numberOfElementVectors_(numberOfElementVectors), numberOfFaceVectors_(numberOfFaceVectors)
     {
         logger.assert(config!=nullptr, "Invalid configuration passed");
         logger.assert(orderOfFEM==config->polynomialOrder_, "Inconsistent redundant information passed");
@@ -93,11 +93,11 @@ namespace Base
         for (std::size_t i = 0; i < DIM; ++i)
         {
             if (i == 0)
-                logger(INFO, "Boundries: % in X direction", (periodicX_ ? "Periodic  " : "Solid Wall"));
+                logger(INFO, "Boundaries: % in X direction", (periodicX_ ? "Periodic  " : "Solid Wall"));
             if (i == 1)
-                logger(INFO, "Boundries: % in Y direction", (periodicY_ ? "Periodic  " : "Solid Wall"));
+                logger(INFO, "Boundaries: % in Y direction", (periodicY_ ? "Periodic  " : "Solid Wall"));
             if (i == 2)
-                logger(INFO, "Boundries: % in Z direction", (periodicZ_ ? "Periodic  " : "Solid Wall"));
+                logger(INFO, "Boundaries: % in Z direction", (periodicZ_ ? "Periodic  " : "Solid Wall"));
         }
         
         logger(INFO, "******Mesh creation is finished!**********");

@@ -2381,11 +2381,11 @@ namespace Base
         
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
-        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrices_);
         ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
-        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrices_);
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
         //periodic unstructured mesh generation not yet implemented
@@ -2712,11 +2712,11 @@ namespace Base
 
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
-        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrices_);
         ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
-        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrices_);
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
         for (Node* node : theMesh_.getNodesList(IteratorType::GLOBAL))
@@ -2744,7 +2744,7 @@ namespace Base
         
         //compute the lengths of the edges and how far the nodes have moved, to see if the nodes have moved so far that a retriangulation is in order
         double maxShift = 0;
-        //except dont bother if a retriangulation is in order anyway
+        //except don't bother if a retriangulation is in order anyway
         if (oldNodeLocations_.size() == theMesh_.getNodeCoordinates().size())
         {
             std::vector<double> unscaledShift {};
