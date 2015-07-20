@@ -43,7 +43,7 @@ namespace Base
     public:
         
         explicit Node(std::size_t ID)
-            : elements_(), localNodeNrs_(), nrOfConformingDOFOnTheNode_(0), ID_(ID) { }
+            : elements_(), localNodeNumbers_(), numberOfConformingDOFOnTheNode_(0), ID_(ID) { }
 
         //Since individual parts of the mesh should not be copied and there is no
         //need for a copy constructor of Node while copying a whole mesh, the copy
@@ -54,7 +54,7 @@ namespace Base
 
         std::size_t getLocalNrOfBasisFunctions() const
         {
-            return nrOfConformingDOFOnTheNode_;
+            return numberOfConformingDOFOnTheNode_;
         }
         
         std::size_t getID() const
@@ -76,21 +76,21 @@ namespace Base
         std::size_t getNodeNr(std::size_t i) const
         {
             logger.assert(i < getNrOfElements(), "Asked for element %, but there are only % elements", i, getNrOfElements());
-            return localNodeNrs_[i];
+            return localNodeNumbers_[i];
         }
         
         void setLocalNrOfBasisFunctions(std::size_t number)
         {
-            nrOfConformingDOFOnTheNode_ = number;
+            numberOfConformingDOFOnTheNode_ = number;
         }
     private:
         
         //provide information to map back to a unique corner of the element
         std::vector<Element*> elements_;
-        std::vector<std::size_t> localNodeNrs_;
+        std::vector<std::size_t> localNodeNumbers_;
 
         //number of basis-functions that are associated to this node (most likely 1(conforming) or 0(DG))
-        std::size_t nrOfConformingDOFOnTheNode_;
+        std::size_t numberOfConformingDOFOnTheNode_;
         std::size_t ID_;
     };
 

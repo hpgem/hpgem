@@ -44,7 +44,7 @@ namespace Base
     public:
         
         explicit Edge(std::size_t ID)
-                : nrOfConformingDOFOnTheEdge_(0), ID_(ID)
+                : numberOfConformingDOFOnTheEdge_(0), ID_(ID)
         {
         }     
                 
@@ -56,7 +56,7 @@ namespace Base
 
         std::size_t getLocalNrOfBasisFunctions() const
         {
-            return nrOfConformingDOFOnTheEdge_;
+            return numberOfConformingDOFOnTheEdge_;
         }
         
         std::size_t getID() const
@@ -84,7 +84,7 @@ namespace Base
         
         void setLocalNrOfBasisFunctions(std::size_t number)
         {
-            nrOfConformingDOFOnTheEdge_ = number;
+            numberOfConformingDOFOnTheEdge_ = number;
         }
         
     private:
@@ -93,7 +93,7 @@ namespace Base
         std::vector<std::size_t> localEdgeNrs_;
         std::vector<std::size_t> orientation_;
 
-        std::size_t nrOfConformingDOFOnTheEdge_;
+        std::size_t numberOfConformingDOFOnTheEdge_;
         std::size_t ID_;
     };
 

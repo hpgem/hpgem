@@ -79,8 +79,8 @@
 namespace Base
 {
 
-    MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrtixes, std::size_t nrOfFaceVectors)
-            : configData_(config), numberOfElementMatrixes_(nrOfElementMatrixes), numberOfFaceMatrixes_(nrOfFaceMatrtixes), numberOfElementVectors_(nrOfElementVectors), numberOfFaceVectors_(nrOfFaceVectors)
+    MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrtixes, std::size_t numberOfFaceVectors)
+            : configData_(config), numberOfElementMatrices_(numberOfElementMatrixes), numberOfFaceMatrices_(numberOfFaceMatrtixes), numberOfElementVectors_(numberOfElementVectors), numberOfFaceVectors_(numberOfFaceVectors)
     {
         logger.assert(config!=nullptr, "Invalid configuration passed");
         logger.assert(orderOfFEM==config->polynomialOrder_, "Inconsistent redundant information passed");
@@ -101,13 +101,13 @@ namespace Base
         }
         
         logger(INFO, "******Mesh creation is finished!**********");
-        logger(VERBOSE, "nrOfElementVector = %", nrOfElementVectors);
-        logger(VERBOSE, "nrOfFaceVector = %", nrOfFaceVectors);
+        logger(VERBOSE, "numberOfElementVectors = %", numberOfElementVectors);
+        logger(VERBOSE, "numberOfFaceVectors = %", numberOfFaceVectors);
     }
     
     MeshManipulatorBase::MeshManipulatorBase(const MeshManipulatorBase& other)
             : configData_(other.configData_), periodicX_(other.periodicX_), periodicY_(other.periodicY_), periodicZ_(other.periodicZ_),
-            numberOfElementMatrixes_(other.numberOfElementMatrixes_), numberOfFaceMatrixes_(other.numberOfFaceMatrixes_), numberOfElementVectors_(other.numberOfElementVectors_), numberOfFaceVectors_(other.numberOfFaceVectors_)
+            numberOfElementMatrices_(other.numberOfElementMatrices_), numberOfFaceMatrices_(other.numberOfFaceMatrices_), numberOfElementVectors_(other.numberOfElementVectors_), numberOfFaceVectors_(other.numberOfFaceVectors_)
     {        
     }
     

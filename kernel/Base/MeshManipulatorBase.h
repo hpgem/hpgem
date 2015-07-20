@@ -90,7 +90,7 @@ namespace Base
     public:
         /// idRangeBegin is the beginning of the range, from where the Element's ids should be assigned.
         /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
-        MeshManipulatorBase(const ConfigurationData* configData, BoundaryType xPer = BoundaryType::SOLID_WALL, BoundaryType yPer = BoundaryType::SOLID_WALL, BoundaryType zPer = BoundaryType::SOLID_WALL, std::size_t orderOfFEM = 1, std::size_t idRangeBegin = 0, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
+        MeshManipulatorBase(const ConfigurationData* configData, BoundaryType xPer = BoundaryType::SOLID_WALL, BoundaryType yPer = BoundaryType::SOLID_WALL, BoundaryType zPer = BoundaryType::SOLID_WALL, std::size_t orderOfFEM = 1, std::size_t idRangeBegin = 0, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
 
         MeshManipulatorBase(const MeshManipulatorBase& other);
 
@@ -173,8 +173,8 @@ namespace Base
         //! Periodicity in z-direction.
         bool periodicZ_;
         
-        std::size_t numberOfElementMatrixes_;
-        std::size_t numberOfFaceMatrixes_;
+        std::size_t numberOfElementMatrices_;
+        std::size_t numberOfFaceMatrices_;
         std::size_t numberOfElementVectors_;
         std::size_t numberOfFaceVectors_;
     };

@@ -90,8 +90,8 @@ namespace Integration
         ReturnType value, result;
         
         // number of Gauss quadrature points
-        std::size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
-        logger.assert(nrOfPoints > 0, "Did not get any points from qdrRuleLoc->nrOfPoints");
+        std::size_t numberOfPoints = qdrRuleLoc->nrOfPoints();
+        logger.assert(numberOfPoints > 0, "Did not get any points from qdrRuleLoc->nrOfPoints");
         
         // Initialize Gauss quadrature point
         const Geometry::PointReference<DIM>& p0 = qdrRuleLoc->getPoint(0);
@@ -108,7 +108,7 @@ namespace Integration
         
         // next Gauss points, again calculate the jacobian, value at gauss point and
         // add this value multiplied with jacobian and weight to result.
-        for (std::size_t i = 1; i < nrOfPoints; ++i)
+        for (std::size_t i = 1; i < numberOfPoints; ++i)
         {
             
             const Geometry::PointReference<DIM>& p = qdrRuleLoc->getPoint(i);

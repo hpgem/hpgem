@@ -165,12 +165,12 @@ namespace Base
 
         std::size_t getLocalNrOfBasisFunctions() const
         {
-            return nrOfConformingDOFOnTheFace_;
+            return numberOfConformingDOFOnTheFace_;
         }
         
         void setLocalNrOfBasisFunctions(std::size_t number)
         {
-            nrOfConformingDOFOnTheFace_ = number;
+            numberOfConformingDOFOnTheFace_ = number;
         }
         
         std::size_t getID() const
@@ -197,7 +197,7 @@ namespace Base
         Element* elementRight_;
         const FaceQuadratureRule* quadratureRule_;
 
-        std::size_t nrOfConformingDOFOnTheFace_;
+        std::size_t numberOfConformingDOFOnTheFace_;
         std::size_t faceID_;
     };
 }

@@ -45,7 +45,7 @@ namespace Base
     Face::Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, Element* ptrElemR, const LocalFaceNrTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
             : FaceGeometryT(ptrElemL, localFaceNumL, ptrElemR, localFaceNumR),
             FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknowns() + ptrElemR->getNrOfBasisFunctions() * ptrElemR->getNrOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), 
-            elementLeft_(ptrElemL), elementRight_(ptrElemR), nrOfConformingDOFOnTheFace_(0), faceID_(faceID)
+            elementLeft_(ptrElemL), elementRight_(ptrElemR), numberOfConformingDOFOnTheFace_(0), faceID_(faceID)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
         logger.assert(ptrElemR != nullptr, "Error: passing a boundary face to the constructor for internal faces!");
@@ -108,7 +108,7 @@ namespace Base
     }
     
     Face::Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
-            : FaceGeometryT(ptrElemL, localFaceNumL, faceType), FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(nullptr), nrOfConformingDOFOnTheFace_(0), faceID_(faceID)
+            : FaceGeometryT(ptrElemL, localFaceNumL, faceType), FaceData(ptrElemL->getNrOfBasisFunctions() * ptrElemL->getNrOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(nullptr), numberOfConformingDOFOnTheFace_(0), faceID_(faceID)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
         createQuadratureRules();
@@ -120,7 +120,7 @@ namespace Base
         FaceData(other),
         elementLeft_(elementL), elementRight_(elementR),
         quadratureRule_(other.quadratureRule_),
-        nrOfConformingDOFOnTheFace_(other.nrOfConformingDOFOnTheFace_), faceID_(other.faceID_)
+        numberOfConformingDOFOnTheFace_(other.numberOfConformingDOFOnTheFace_), faceID_(other.faceID_)
     {        
         logger.assert(elementL != nullptr, "Invalid element passed");
         logger(DEBUG, "Coupling (left) face % to element %", faceID_, elementL->getID());
