@@ -554,7 +554,7 @@ namespace Base
             }
             node->setLocalNrOfBasisFunctions(bFsets[0]->size());
         }
-        const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getNrOfNodes() * bFsets[0]->size();
+        const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getNumberOfNodes() * bFsets[0]->size();
     }
 
     template<std::size_t DIM>
@@ -651,7 +651,7 @@ namespace Base
     template<std::size_t DIM>
     void MeshManipulator<DIM>::setMeshMover(const MeshMoverBase<DIM>* meshMover)
     {
-        //can be set to nullptr if you dont want to move the mesh anymore
+        //can be set to nullptr if you don't want to move the mesh anymore
         meshMover_ = meshMover;
     }
 
@@ -1344,7 +1344,7 @@ namespace Base
                 Element* current = elementslist[candidateElements[0]];
                 std::vector<std::size_t> faceNodes(2);
                 
-                for (std::size_t j = 0; j < current->getNrOfFaces(); ++j)
+                for (std::size_t j = 0; j < current->getNumberOfFaces(); ++j)
                 {
                     faceNodes = current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j);
                     if ((faceNodes[0] == boundaryFaces[i].nodesList[0] || faceNodes[0] == boundaryFaces[i].nodesList[1]) && (faceNodes[1] == boundaryFaces[i].nodesList[0] || faceNodes[1] == boundaryFaces[i].nodesList[1]))
@@ -1551,7 +1551,7 @@ namespace Base
                 for (std::size_t j = 0; j < listOfElementsForEachNode[i].size(); ++j)
                 {
                     Element* current = elementslist[listOfElementsForEachNode[i][j]];
-                    for (std::size_t k = 0; k < current->getNrOfNodes(); ++k)
+                    for (std::size_t k = 0; k < current->getNumberOfNodes(); ++k)
                     {
                         //if we did not jet deal with this node and it is the correct one
                         if (current->getNode(k) == nullptr && current->getPhysicalGeometry()->getNodeIndex(k) == i)
@@ -2026,7 +2026,7 @@ namespace Base
                 
                 Element* current = elementsList[candidates[0]];
                 
-                for (std::size_t j = 0; j < current->getNrOfFaces(); ++j)
+                for (std::size_t j = 0; j < current->getNumberOfFaces(); ++j)
                 {
                     temp = current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j);
                     std::sort(temp.begin(), temp.end());
@@ -2347,7 +2347,7 @@ namespace Base
                 for (std::size_t j = 0; j < listOfElementsForEachNode[i].size(); ++j)
                 {
                     Element* current = elementsList[listOfElementsForEachNode[i][j]];
-                    for (std::size_t k = 0; k < current->getNrOfNodes(); ++k)
+                    for (std::size_t k = 0; k < current->getNumberOfNodes(); ++k)
                     {
                         //if we did not jet deal with this node and it is the correct one
                         if (current->getNode(k) == nullptr && current->getPhysicalGeometry()->getNodeIndex(k) == i)
@@ -3451,7 +3451,7 @@ namespace Base
         
         for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
         {
-            for (std::size_t i = 0; i < element->getNrOfFaces(); ++i)
+            for (std::size_t i = 0; i < element->getNumberOfFaces(); ++i)
             {
                 std::vector<const Node*> localNodes;
                 //if this face is not there yet
@@ -3511,7 +3511,7 @@ namespace Base
                         }
                         bool matchFound = false;
                         std::vector<std::size_t> otherNodeIndices;
-                        for (std::size_t j = 0; j < other->getNrOfFaces(); ++j)
+                        for (std::size_t j = 0; j < other->getNumberOfFaces(); ++j)
                         {
                             otherNodeIndices = other->getReferenceGeometry()->getCodim1EntityLocalIndices(j);
                             bool match = true;
@@ -3557,7 +3557,7 @@ namespace Base
             
             for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
             {
-                for (std::size_t i = 0; i < element->getNrOfEdges(); ++i)
+                for (std::size_t i = 0; i < element->getNumberOfEdges(); ++i)
                 {
                     if (element->getEdge(i) == nullptr)
                     {
@@ -3576,7 +3576,7 @@ namespace Base
                         for (std::size_t j = 1; j < candidates.size(); ++j)
                         {
                             Element* other = candidates[j];
-                            for (std::size_t k = 0; k < other->getNrOfEdges(); ++k)
+                            for (std::size_t k = 0; k < other->getNumberOfEdges(); ++k)
                             {
                                 otherNodeList = other->getReferenceGeometry()->getCodim2EntityLocalIndices(k);
                                 if ((other->getNode(otherNodeList[0]) == nodes[0] || other->getNode(otherNodeList[0]) == nodes[1]) && (other->getNode(otherNodeList[1]) == nodes[0] || other->getNode(otherNodeList[1]) == nodes[1]))

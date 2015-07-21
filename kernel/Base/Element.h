@@ -67,7 +67,16 @@ namespace Base
     public:
         
         template<std::size_t DIM>
-        Element(const std::vector<std::size_t>& globalNodeIndexes, const CollectionOfBasisFunctionSets *basisFunctionSet, std::vector<Geometry::PointPhysical<DIM> >& allNodes, std::size_t nrOfUnkowns, std::size_t nrOfTimeLevels, std::size_t nrOfBasisFunc, std::size_t id, std::size_t numberOfElementMatrices = 0, std::size_t numberOfElementVectors = 0, const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
+        Element(const std::vector<std::size_t>& globalNodeIndexes, 
+            const CollectionOfBasisFunctionSets *basisFunctionSet, 
+            std::vector<Geometry::PointPhysical<DIM> >& allNodes, 
+            std::size_t numberOfUnkowns, 
+            std::size_t numberOfTimeLevels, 
+            std::size_t numberOfBasisFunctions, 
+            std::size_t id, 
+            std::size_t numberOfElementMatrices = 0, 
+            std::size_t numberOfElementVectors = 0, 
+            const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
 
         Element(const Element &other) = delete;
         Element& operator=(const Element &other) = delete;
@@ -136,22 +145,27 @@ namespace Base
 
         void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution); ///\todo not implemented
                 
-        void setFace(std::size_t localFaceNr, const Face* face);
+        void setFace(std::size_t localFaceNumber, const Face* face);
 
-        void setEdge(std::size_t localEdgeNr, const Edge* edge);
+        void setEdge(std::size_t localEdgeNumber, const Edge* edge);
 
-        void setNode(std::size_t localNodeNr, const Node* node);
+        void setNode(std::size_t localNodeNumber, const Node* node);
 
-        
+        ///\deprecated Does not follow naming conventions, use getLocalNumberOfBasisFunctions instead
         std::size_t getLocalNrOfBasisFunctions() const
         {
-            return nrOfDOFinTheElement_;
+            return numberOfDOFinTheElement_;
         }
         
-        const Face* getFace(std::size_t localFaceNr) const
+        std::size_t getLocalNumberOfBasisFunctions() const
         {
-            logger.assert(localFaceNr<getNrOfFaces(), "Asked for face %, but there are only % faces", localFaceNr, getNrOfFaces());
-            return facesList_[localFaceNr];
+            return numberOfDOFinTheElement_;
+        }
+        
+        const Face* getFace(std::size_t localFaceNumber) const
+        {
+            logger.assert(localFaceNumber<getNumberOfFaces(), "Asked for face %, but there are only % faces", localFaceNumber, getNumberOfFaces());
+            return facesList_[localFaceNumber];
         }
         
         const std::vector<const Face*> getFacesList() const
@@ -159,10 +173,10 @@ namespace Base
             return facesList_;
         }
 
-        const Edge* getEdge(std::size_t localEdgeNr) const
+        const Edge* getEdge(std::size_t localEdgeNumber) const
         {
-            logger.assert(localEdgeNr<getNrOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNr, getNrOfEdges());
-            return edgesList_[localEdgeNr];
+            logger.assert(localEdgeNumber<getNumberOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNumber, getNumberOfEdges());
+            return edgesList_[localEdgeNumber];
         }
         
         const std::vector<const Edge*> getEdgesList() const
@@ -170,10 +184,10 @@ namespace Base
             return edgesList_;
         }
 
-        const Node* getNode(std::size_t localNodeNr) const
+        const Node* getNode(std::size_t localNodeNumber) const
         {
-            logger.assert(localNodeNr<getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());
-            return nodesList_[localNodeNr];
+            logger.assert(localNodeNumber<getNumberOfNodes(), "Asked for node %, but there are only % nodes", localNodeNumber, getNumberOfNodes());
+            return nodesList_[localNodeNumber];
         }
         
         const std::vector<const Node*> getNodesList() const
@@ -181,17 +195,35 @@ namespace Base
             return nodesList_;
         }
 
+        ///\deprecated Does not follow naming conventions, use getNumberOfFaces instead
         std::size_t getNrOfFaces() const
         {
             return facesList_.size();
         }
         
+        ///\deprecated Does not follow naming conventions, use getNumberOfEdges instead
         std::size_t getNrOfEdges() const
         {
             return edgesList_.size();
         }
         
+        ///\deprecated Does not follow naming conventions, use getNumberOfNodes instead
         std::size_t getNrOfNodes() const
+        {
+            return nodesList_.size();
+        }
+        
+        std::size_t getNumberOfFaces() const
+        {
+            return facesList_.size();
+        }
+        
+        std::size_t getNumberOfEdges() const
+        {
+            return edgesList_.size();
+        }
+        
+        std::size_t getNumberOfNodes() const
         {
             return nodesList_.size();
         }
@@ -228,7 +260,7 @@ namespace Base
         std::vector<const Node*> nodesList_;
 
         /// Degrees of freedom corresponding to this element. When using conforming basis functions only the basis functions with support on only this element are counted.
-        std::size_t nrOfDOFinTheElement_;
+        std::size_t numberOfDOFinTheElement_;
         
         /// Vector of data which the user might want to store. For example determinants of the Jacobian for each quadrature point.
         VecCacheT vecCacheData_;
@@ -244,21 +276,21 @@ namespace Base
     Element::Element(const VectorOfPointIndexesT& globalNodeIndexes,
                      const CollectionOfBasisFunctionSets *basisFunctionSet,
                      std::vector<Geometry::PointPhysical<DIM> >& allNodes,
-                     std::size_t nrOfUnkowns,
-                     std::size_t nrOfTimeLevels,
-                     std::size_t nrOfBasisFunc,
+                     std::size_t numberOfUnkowns,
+                     std::size_t numberOfTimeLevels,
+                     std::size_t numberOfBasisFuncs,
                      std::size_t id,
-                     std::size_t numberOfElementMatrixes,
+                     std::size_t numberOfElementMatrices,
                      std::size_t numberOfElementVectors,
                      const std::vector<int>& basisFunctionSetPositions)
             : ElementGeometryT(globalNodeIndexes, allNodes),
-        ElementData(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc, numberOfElementMatrixes, numberOfElementVectors),
+        ElementData(numberOfTimeLevels, numberOfUnkowns, numberOfBasisFuncs, numberOfElementMatrices, numberOfElementVectors),
         quadratureRule_(nullptr), basisFunctionSet_(basisFunctionSet),
         id_(id), basisFunctionSetPositions_(basisFunctionSetPositions), vecCacheData_()
     {
         logger.assert(basisFunctionSet!=nullptr, "Invalid basis function set passed");
         logger.assert(basisFunctionSet->size()>0, "Not enough basis function sets passed");
-        logger(VERBOSE, "numberOfElementMatrixes: %", numberOfElementMatrixes);
+        logger(VERBOSE, "numberOfElementMatrices: %", numberOfElementMatrices);
         logger(VERBOSE, "numberOfElementVectors: %", numberOfElementVectors);
 
         orderCoeff_ = 2; // for safety
@@ -273,10 +305,10 @@ namespace Base
                 numberOfBasisFunctions += basisFunctionSet_->at(basisFunctionSetPositions_[i])->size();
             }
         }
-        logger.assert(nrOfBasisFunc==numberOfBasisFunctions, "Redundant argument set to the wrong value");
+        logger.assert(numberOfBasisFunctions==numberOfBasisFunctions, "Redundant argument set to the wrong value");
         setNumberOfBasisFunctions(numberOfBasisFunctions);
         setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(basisFunctionSetPositions_[0])->getOrder() + 1);
-        nrOfDOFinTheElement_ = basisFunctionSet_->at(basisFunctionSetPositions_[0])->size();
+        numberOfDOFinTheElement_ = basisFunctionSet_->at(basisFunctionSetPositions_[0])->size();
         facesList_.assign(getReferenceGeometry()->getNrOfCodim1Entities(), nullptr);
         if (getReferenceGeometry()->getNrOfCodim3Entities() > 0)
         {
@@ -288,7 +320,7 @@ namespace Base
     template<std::size_t DIM>
     double Element::basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p) const
     {
-        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         logger.assert((jDir < p.size()), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
 
         int basePosition(0);
@@ -314,7 +346,7 @@ namespace Base
     template<std::size_t DIM>
     double Element::basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {
-        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const Base::BaseBasisFunction* function = nullptr;
         for (int j : basisFunctionSetPositions_)
         {
@@ -338,7 +370,7 @@ namespace Base
     template<std::size_t DIM>
     void Element::basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const
     {
-        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         int basePosition(0);
         for (int j : basisFunctionSetPositions_)
         {
@@ -361,7 +393,7 @@ namespace Base
     template<std::size_t DIM>
     LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {
-        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         int basePosition(0);
         for (int j : basisFunctionSetPositions_)
         {
@@ -385,7 +417,7 @@ namespace Base
     template<std::size_t DIM>
     LinearAlgebra::SmallVector<DIM> Element::basisFunctionDeriv(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {
-        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         int basePosition(0);
         for (int j : basisFunctionSetPositions_)
         {
@@ -409,8 +441,8 @@ namespace Base
     template<std::size_t DIM>
     Element::SolutionVector Element::getSolution(std::size_t timeLevel, const Geometry::PointReference<DIM>& p) const
     {
-        std::size_t numberOfUnknows = ElementData::getNrOfUnknowns();
-        std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
+        std::size_t numberOfUnknows = ElementData::getNumberOfUnknowns();
+        std::size_t numberOfBasisFunctions = ElementData::getNumberOfBasisFunctions();
         SolutionVector solution(numberOfUnknows);
 
         LinearAlgebra::MiddleSizeVector data = ElementData::getTimeLevelDataVector(timeLevel);
@@ -430,8 +462,8 @@ namespace Base
     template<std::size_t DIM>
     std::vector<LinearAlgebra::SmallVector<DIM> > Element::getSolutionGradient(std::size_t timeLevel, const Geometry::PointReference<DIM>& p) const
     {
-        std::size_t numberOfUnknows = ElementData::getNrOfUnknowns();
-        std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
+        std::size_t numberOfUnknows = ElementData::getNumberOfUnknowns();
+        std::size_t numberOfBasisFunctions = ElementData::getNumberOfBasisFunctions();
         std::vector<LinearAlgebra::SmallVector<DIM> > solution(numberOfUnknows);
 
         LinearAlgebra::MiddleSizeVector data = ElementData::getTimeLevelDataVector(timeLevel);
@@ -452,8 +484,8 @@ namespace Base
     Element::SolutionVector Element::getSolution(std::size_t timeLevel, PhysicalElement<DIM>& element) const
     {
         logger.assert(element.getElement() == this, "Cannot find the solution in a different element!");
-        std::size_t numberOfUnknows = ElementData::getNrOfUnknowns();
-        std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
+        std::size_t numberOfUnknows = ElementData::getNumberOfUnknowns();
+        std::size_t numberOfBasisFunctions = ElementData::getNumberOfBasisFunctions();
         SolutionVector solution(numberOfUnknows);
 
         const LinearAlgebra::MiddleSizeVector& data = ElementData::getTimeLevelDataVector(timeLevel);
@@ -474,8 +506,8 @@ namespace Base
     std::vector<LinearAlgebra::SmallVector<DIM> > Element::getSolutionGradient(std::size_t timeLevel, PhysicalElement<DIM>& element) const
     {
         logger.assert(element.getElement() == this, "Cannot find the gradient of the solution in a different element!");
-        std::size_t numberOfUnknows = ElementData::getNrOfUnknowns();
-        std::size_t numberOfBasisFunctions = ElementData::getNrOfBasisFunctions();
+        std::size_t numberOfUnknows = ElementData::getNumberOfUnknowns();
+        std::size_t numberOfBasisFunctions = ElementData::getNumberOfBasisFunctions();
         std::vector<LinearAlgebra::SmallVector<DIM> > solution(numberOfUnknows);
 
         LinearAlgebra::MiddleSizeVector data = ElementData::getTimeLevelDataVector(timeLevel);

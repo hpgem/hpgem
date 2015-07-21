@@ -48,25 +48,25 @@ void testMesh(Base::MeshManipulator<DIM>* test)
     {
         logger.assert_always(elementIDs.find(element->getID()) == elementIDs.end(), "duplicate element ID (%)", element->getID());
         elementIDs.insert(element->getID());
-        logger.assert_always(element->getNrOfFaces() == element->getReferenceGeometry()->getNrOfCodim1Entities(), "confusion about the number of faces");
+        logger.assert_always(element->getNumberOfFaces() == element->getReferenceGeometry()->getNrOfCodim1Entities(), "confusion about the number of faces");
         if (test->dimension() == 2)
         {
-            logger.assert_always(element->getNrOfEdges() == 0, "confusion about the number of edges");
+            logger.assert_always(element->getNumberOfEdges() == 0, "confusion about the number of edges");
         }
         else
         {
-            logger.assert_always(element->getNrOfEdges() == element->getReferenceGeometry()->getNrOfCodim2Entities(), "confusion about the number of edges");
+            logger.assert_always(element->getNumberOfEdges() == element->getReferenceGeometry()->getNrOfCodim2Entities(), "confusion about the number of edges");
         }
-        logger.assert_always(element->getNrOfNodes() == element->getReferenceGeometry()->getNumberOfNodes(), "confusion about the number of vertices");
-        for (std::size_t i = 0; i < element->getNrOfFaces(); ++i)
+        logger.assert_always(element->getNumberOfNodes() == element->getReferenceGeometry()->getNumberOfNodes(), "confusion about the number of vertices");
+        for (std::size_t i = 0; i < element->getNumberOfFaces(); ++i)
         {
             logger.assert_always(element->getFace(i) != nullptr, "missing Face");
         }
-        for (std::size_t i = 0; i < element->getNrOfEdges(); ++i)
+        for (std::size_t i = 0; i < element->getNumberOfEdges(); ++i)
         {
             logger.assert_always(element->getEdge(i) != nullptr, "missing Face");
         }
-        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
+        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
         {
             logger.assert_always(element->getNode(i) != nullptr, "missing Face");
         }
@@ -150,8 +150,8 @@ void testPointPhysicalsOfElementsOfCopiedMesh(Base::MeshManipulator<DIM>* mesh, 
     logger.assert_always(eltsMesh.size() == eltsMeshCopy.size(), "The copy does not have the same number of elements as the original MeshManipulator.");
     for (std::size_t i = 0; i < eltsMesh.size(); ++i)
     {
-        logger.assert_always(eltsMesh[i]->getNrOfNodes() == eltsMeshCopy[i]->getNrOfNodes(), "The points of Element % are different.", i);
-        for(std::size_t j = 0; j < eltsMesh[i]->getNrOfNodes(); ++j)
+        logger.assert_always(eltsMesh[i]->getNumberOfNodes() == eltsMeshCopy[i]->getNumberOfNodes(), "The points of Element % are different.", i);
+        for(std::size_t j = 0; j < eltsMesh[i]->getNumberOfNodes(); ++j)
         {
             const Geometry::PointPhysical<DIM>& first = eltsMesh[i]->getPhysicalGeometry()->getLocalNodeCoordinates(j);
             logger.assert_always(first == eltsMeshCopy[i]->getPhysicalGeometry()->getLocalNodeCoordinates(j), "The point % of Element % is different.", j, i);

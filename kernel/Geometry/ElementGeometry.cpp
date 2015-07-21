@@ -166,9 +166,14 @@ namespace Geometry
         return refinementGeometry_;
     }
     
-    std::size_t ElementGeometry::getNrOfNodes() const
+    std::size_t ElementGeometry::getNumberOfNodes() const
     {
         return physicalGeometry_->getNumberOfNodes();
+    }
+    
+    std::size_t ElementGeometry::getNrOfNodes() const
+    {
+        return getNumberOfNodes();
     }
 
 }

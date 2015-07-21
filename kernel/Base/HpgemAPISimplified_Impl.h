@@ -108,7 +108,7 @@ namespace Base
     LinearAlgebra::MiddleSizeMatrix HpgemAPISimplified<DIM>::computeMassMatrixAtElement(Base::Element *ptrElement)
     {
         // Get number of basis functions
-        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        std::size_t numOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
         
         // Make the mass matrix of the correct size and set all entries to zero.
         LinearAlgebra::MiddleSizeMatrix massMatrix(numOfBasisFunctions * this->configData_->numberOfUnknowns_, numOfBasisFunctions * this->configData_->numberOfUnknowns_, 0);
@@ -178,7 +178,7 @@ namespace Base
     LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
     {
         // Get number of basis functions
-        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        std::size_t numOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
         
         // Declare integral initial solution
         LinearAlgebra::MiddleSizeVector integralInitialSolution(numOfBasisFunctions * this->configData_->numberOfUnknowns_);
@@ -236,7 +236,7 @@ namespace Base
     LinearAlgebra::MiddleSizeVector::type HpgemAPISimplified<DIM>::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
-        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        std::size_t numOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
         
         // Declare integral initial solution
         LinearAlgebra::MiddleSizeVector::type integralError = 0.;
@@ -364,7 +364,7 @@ namespace Base
     LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
-        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        std::size_t numOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
         
         // Declare vector of maxima of the error.
         LinearAlgebra::MiddleSizeVector maxError(this->configData_->numberOfUnknowns_);

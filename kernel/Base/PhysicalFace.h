@@ -182,7 +182,7 @@ namespace Base
         /// get the number of variables present in the problem
         std::size_t getNumOfUnknowns()
         {
-            return face_->getPtrElementLeft()->getNrOfUnknowns();
+            return face_->getPtrElementLeft()->getNumberOfUnknowns();
         }
 
         ///convert a function index and a variable index to a single index in the contiguous numbering of the face
@@ -838,14 +838,14 @@ namespace Base
         face_ = face;
         if(!hasFace)
         {
-            std::size_t leftCoefficients = face->getPtrElementLeft()->getNrOfUnknowns() * face->getPtrElementLeft()->getNrOfBasisFunctions();
-            nLeftBasisFunctions = face->getPtrElementLeft()->getNrOfBasisFunctions();
+            std::size_t leftCoefficients = face->getPtrElementLeft()->getNumberOfUnknowns() * face->getPtrElementLeft()->getNumberOfBasisFunctions();
+            nLeftBasisFunctions = face->getPtrElementLeft()->getNumberOfBasisFunctions();
             std::size_t rightCoefficients = 0;
-            std::size_t basisFunctions = face->getPtrElementLeft()->getNrOfBasisFunctions();
+            std::size_t basisFunctions = face->getPtrElementLeft()->getNumberOfBasisFunctions();
             if(isInternal_)
             {
-                basisFunctions += face->getPtrElementRight()->getNrOfBasisFunctions();
-                rightCoefficients = face->getPtrElementRight()->getNrOfUnknowns() * face->getPtrElementRight()->getNrOfBasisFunctions();
+                basisFunctions += face->getPtrElementRight()->getNumberOfBasisFunctions();
+                rightCoefficients = face->getPtrElementRight()->getNumberOfUnknowns() * face->getPtrElementRight()->getNumberOfBasisFunctions();
             }
             resultMatrix.resize(leftCoefficients, rightCoefficients);
             leftRightMatrix.resize(leftCoefficients, rightCoefficients);

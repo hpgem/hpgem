@@ -49,7 +49,7 @@ namespace Utilities
     void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries)
     {
         logger.assert(face!=nullptr, "Invalid face passed");
-        for(std::size_t index = 0; index < face->getPtrElementLeft()->getNrOfUnknowns(); ++index)
+        for(std::size_t index = 0; index < face->getPtrElementLeft()->getNumberOfUnknowns(); ++index)
         {
             std::size_t number = face->getLocalNrOfBasisFunctions();
             numberOfEntries += number;
@@ -59,7 +59,7 @@ namespace Utilities
             }
             std::vector<std::size_t> nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft());
             std::vector<std::size_t> edgeIndex(2);
-            for (std::size_t i = 0; i < face->getPtrElementLeft()->getNrOfEdges(); ++i)
+            for (std::size_t i = 0; i < face->getPtrElementLeft()->getNumberOfEdges(); ++i)
             {
                 edgeIndex = face->getPtrElementLeft()->getReferenceGeometry()->getCodim2EntityLocalIndices(i);
                 edgeIndex[0] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[0]);

@@ -31,13 +31,13 @@
 
 namespace Base
 {
-    ElementData::ElementData(std::size_t timeLevels, std::size_t nrOfUnknowns, std::size_t nrOfBasisFunctions, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors)
-            : timeLevels_(timeLevels), numberOfUnknowns_(nrOfUnknowns), numberOfBasisFunctions_(nrOfBasisFunctions), expansionCoefficients_(timeLevels_), userData_(nullptr), elementMatrix_(nrOfElementMatrixes), elementVector_(nrOfElementVectors)
+    ElementData::ElementData(std::size_t timeLevels, std::size_t numberOfUnknowns, std::size_t numberOfBasisFunctions, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors)
+            : timeLevels_(timeLevels), numberOfUnknowns_(numberOfUnknowns), numberOfBasisFunctions_(numberOfBasisFunctions), expansionCoefficients_(timeLevels_), userData_(nullptr), elementMatrix_(numberOfElementMatrixes), elementVector_(numberOfElementVectors)
     {
         logger(VERBOSE, "In constructor of ElementData: ");
-        logger(VERBOSE, "nrOfElementMatrixes %", nrOfElementMatrixes);
+        logger(VERBOSE, "numberOfElementMatrixes %", numberOfElementMatrixes);
         logger(VERBOSE, "elementMatrix_ size %", elementMatrix_.size());
-        logger(VERBOSE, "nrOfElementVectors %", nrOfElementVectors);
+        logger(VERBOSE, "numberOfElementVectors %", numberOfElementVectors);
         logger(VERBOSE, "elementVector_ size = %", elementVector_.size());
     }
     
@@ -112,6 +112,11 @@ namespace Base
     }
     
     std::size_t ElementData::getNrOfBasisFunctions() const
+    {
+        return getNumberOfBasisFunctions();
+    }
+    
+    std::size_t ElementData::getNumberOfBasisFunctions() const
     {
         return numberOfBasisFunctions_;
     }
@@ -221,10 +226,15 @@ namespace Base
     
     std::size_t ElementData::getNrOfUnknows() const
     {
-        return numberOfUnknowns_;
+        return getNumberOfUnknowns();
     }
     
     std::size_t ElementData::getNrOfUnknowns() const
+    {
+        return getNumberOfUnknowns();
+    }
+    
+    std::size_t ElementData::getNumberOfUnknowns() const
     {
         return numberOfUnknowns_;
     }
