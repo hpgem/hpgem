@@ -56,7 +56,7 @@ HeightLimiter * SavageHutter::createHeightLimiter(const SHConstructorStruct& inp
 {
     if (inputValues.polyOrder == 0)
         return new EmptyHeightLimiter();
-    return new AverageValuesNonNegativeLimiter(1e-5);
+    return new PositiveLayerLimiter(1e-5);
 }
 
 ///\details Actual creation of the right hand side computer. The delete is called in the class SavageHutterBase, since that's also where the right hand side computer resides.
@@ -66,9 +66,9 @@ RightHandSideComputer * SavageHutter::createRightHandSideComputer(const SHConstr
     LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0);
     //magic numbers: epsilon and chute angle (in radians)
     if (DIM == 1)
-        return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1.0, 0., inflowBC);
+        return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 0.1, 32./180*M_PI, inflowBC);
     
-    return new SavageHutterRHS2D(inputValues.numOfVariables, 1.0, 0., inflowBC);
+    return new SavageHutterRHS2D(inputValues.numOfVariables, 1, 0., inflowBC);
 }
 
 
@@ -78,20 +78,35 @@ void SavageHutter::showProgress(const double time, const std::size_t timeStepID)
 {
     if (timeStepID % 100 == 0)
     {
-        //logger(INFO, "% time steps computed.", timeStepID);
+        logger(INFO, "% time steps computed.", timeStepID);
     }
 }
 
-/*LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT& pPhys, const double& startTime, const std::size_t orderTimeDerivative)
+void SavageHutter::applyInflowConditions()
 {
-    double h = 1;
-    if (pPhys[0] > 0.5)
-        h = 0.5;
+    if (false && DIM == 1)
+    {
+        Base::Element *element0 = meshes_[0]->getElementsList()[0];
+        const LinearAlgebra::MiddleSizeVector hCoeffs = Helpers::projectOnBasisFuns<DIM>(element0, [ = ](const PointReferenceT & pRef){return getInitialSolution(createMeshDescription(1).bottomLeft_, 0)(0);}, elementIntegrator_);
+        element0->setTimeLevelData(0, 0, hCoeffs);
+        const LinearAlgebra::MiddleSizeVector huCoeffs = Helpers::projectOnBasisFuns<DIM>(element0, [ = ](const PointReferenceT & pRef){return getInitialSolution(createMeshDescription(1).bottomLeft_, 0)(1);}, elementIntegrator_);
+        element0->setTimeLevelData(0, 1, huCoeffs);
+    }
+}
+
+LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT& pPhys, const double& startTime, const std::size_t orderTimeDerivative)
+{
+    double h = 0;
+    const double x = pPhys[0];
+    if (x > 0.5 && x < 2.5)
+        h = 1.-(x-1.5) * (x-1.5);
     LinearAlgebra::MiddleSizeVector initialCondition(numOfVariables_);
     initialCondition(0) = h;
+    initialCondition(1) = 0;
     return initialCondition;
-}*/
+}
 
+/*
 //Dam break
 ///\details Given the physical point in the domain and the start time of the simulation, compute the initial conditions for the simulation
 LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
@@ -149,3 +164,4 @@ void SavageHutter::registerVTKWriteFunctions()
                              return std::real(getExactSolution(pPhys, time_)[1]);
     }, "analytical discharge");
 }
+*/

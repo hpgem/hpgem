@@ -17,7 +17,7 @@ Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(con
     for (std::size_t i = 0; i < DIM; ++i)
     {
         description.bottomLeft_[i] = 0;
-        description.topRight_[i] = 1;
+        description.topRight_[i] = 10;
         description.numElementsInDIM_[i] = 4;
         description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
     }
@@ -109,6 +109,8 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
     {
         scaleAndAddTimeLevel(solutionTimeLevel_, intermediateTimeLevels_[jStage], dt * ptrButcherTableau_->getB(jStage));
     }
+    applyInflowConditions();
+    
 
     limitSolutionOuterLoop();
 
@@ -152,9 +154,9 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
                 LinearAlgebra::MiddleSizeVector solutionCoefficients = ptrFace->getPtrElementLeft()->getTimeLevelDataVector(temporaryTimeLevel_);
                 LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
                 
-                solutionCoefficientsNew += computeRightHandSideAtFace(ptrFace, solutionCoefficients, time);
+                    solutionCoefficientsNew += computeRightHandSideAtFace(ptrFace, solutionCoefficients, time);
+                }
             }
-        }
         
         synchronize(timeLevelResult);
     }
@@ -175,7 +177,7 @@ void SavageHutterBase::limitSolutionOuterLoop()
         else
         {
             //only limit the slope when there is a slope, so not when the solution exists of piecewise constants.
-            if (element->getNrOfBasisFunctions() > 1)
+            if (element->getNumberOfBasisFunctions() > 1)
             {
                 slopeLimiter_->limitSlope(element);
             }
@@ -191,7 +193,7 @@ double SavageHutterBase::getMinimumHeight(const Base::Element* element)
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
-    const std::size_t numOfVariables = element->getNrOfUnknowns();
+    const std::size_t numOfVariables = element->getNumberOfUnknowns();
     const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);
     const double solutionRight = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefR, numOfVariables)(0);
     double minimum = std::min(solutionLeft, solutionRight);

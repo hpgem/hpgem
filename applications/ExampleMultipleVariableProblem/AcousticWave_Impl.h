@@ -96,7 +96,7 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::getInitialSolution(const Poin
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix AcousticWave<DIM>::integrandMassMatrixOnRefElement(Base::PhysicalElement<DIM>& element)
 {
-    std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+    std::size_t numOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
     LinearAlgebra::MiddleSizeMatrix integrand = element.getResultMatrix();
     const PointPhysicalT& pPhys = element.getPointPhysical();
     
@@ -129,7 +129,7 @@ template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandInitialSolutionOnRefElement
 (Base::PhysicalElement<DIM>& element, const double &startTime)
 {
-    std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+    std::size_t numOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
     
     LinearAlgebra::MiddleSizeVector integrand = element.getResultVector();
     
@@ -161,7 +161,7 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandInitialSolutionOnRef
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefElement(Base::PhysicalElement<DIM>& element, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
-    std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+    std::size_t numOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
     
     LinearAlgebra::MiddleSizeVector integrand = element.getResultVector();
     
@@ -218,7 +218,7 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFa
  const LinearAlgebra::MiddleSizeVector &solutionCoefficients
  )
 {
-    std::size_t numOfBasisFunctions = face.getFace()->getPtrElementLeft()->getNrOfBasisFunctions();
+    std::size_t numOfBasisFunctions = face.getFace()->getPtrElementLeft()->getNumberOfBasisFunctions();
     
     LinearAlgebra::MiddleSizeVector integrand = face.getResultVector();
     
@@ -273,9 +273,9 @@ LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::integrandRightHandSideOnRefFa
  const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight
  )
 {
-    std::size_t numOfTestBasisFunctions = face.getFace()->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
-    std::size_t numOfSolutionBasisFunctionsLeft = face.getFace()->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
-    std::size_t numOfSolutionBasisFunctionsRight = face.getFace()->getPtrElementRight()->getNrOfBasisFunctions(); //Get the number of basis functions on the right side
+    std::size_t numOfTestBasisFunctions = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
+    std::size_t numOfSolutionBasisFunctionsLeft = face.getFace()->getPtrElementLeft()->getNumberOfBasisFunctions(); //Get the number of basis functions on the left
+    std::size_t numOfSolutionBasisFunctionsRight = face.getFace()->getPtrElementRight()->getNumberOfBasisFunctions(); //Get the number of basis functions on the right side
     
     LinearAlgebra::MiddleSizeVector integrand = face.getResultVector(iSide); // Integrand value based on n number of testbasisfunctions from element corresponding to side iSide
     

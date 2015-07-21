@@ -32,7 +32,7 @@ LinearAlgebra::MiddleSizeVector Inviscid::integrandAtElement(Base::PhysicalEleme
     const Base::Element* ptrElement = element.getElement();
     const Geometry::PointReference<DIM>& pRef = element.getPointReference();
 	// Get the number of basis functions in an element.
-	std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
+	std::size_t numOfBasisFunctions =  ptrElement->getNumberOfBasisFunctions();
 
 	//Create data structures for calculating the integrand
 	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_ * numOfBasisFunctions); //The final integrand value will be stored in this vector
@@ -206,7 +206,7 @@ LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(Base::PhysicalFace<DIM
     const Base::Face* ptrFace = face.getFace();
     const Geometry::PointReference<DIM - 1>& pRef = face.getPointReference();
 	   //Get the number of basis functions
-	   std::size_t numOfBasisFunctionsLeft= ptrFace->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
+	   std::size_t numOfBasisFunctionsLeft= ptrFace->getPtrElementLeft()->getNumberOfBasisFunctions(); //Get the number of basis functions on the left
 
 	   LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfBasisFunctionsLeft);
 	   LinearAlgebra::MiddleSizeVector qReconstructionLeft(instance_.numOfVariables_);
@@ -263,7 +263,7 @@ LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(Base::PhysicalFace<DIM
     const Geometry::PointReference<DIM - 1>& pRef = face.getPointReference();
     LinearAlgebra::SmallVector<DIM> normal = face.getUnitNormalVector();
 	   //Get the number of basis functions
-	   std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
+	   std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNumberOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
 
 	   LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
 

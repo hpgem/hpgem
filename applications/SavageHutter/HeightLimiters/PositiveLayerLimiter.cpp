@@ -39,9 +39,9 @@ void PositiveLayerLimiter::limit(Base::Element *element, LinearAlgebra::MiddleSi
     else
     {
         const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
-        const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, element->getNrOfUnknowns())(0);
+        const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, element->getNumberOfUnknowns())(0);
         const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-        const double solutionRight = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefR, element->getNrOfUnknowns())(0);
+        const double solutionRight = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefR, element->getNumberOfUnknowns())(0);
 
         double slopeDischarge = averageDischarge;
         double slopeHeight = std::min((solutionLeft + solutionRight - 2 * minH_) / 2, averageHeight - minH_);
@@ -59,7 +59,7 @@ void PositiveLayerLimiter::limit(Base::Element *element, LinearAlgebra::MiddleSi
         logger(DEBUG, "slopes: [% %]", slopeHeight, slopeDischarge);
     }
 
-    for (std::size_t iFun = 0; iFun < element->getNrOfBasisFunctions(); ++iFun)
+    for (std::size_t iFun = 0; iFun < element->getNumberOfBasisFunctions(); ++iFun)
     {
         std::size_t iVF = element->convertToSingleIndex(iFun, 0);
         solutionCoefficients[iVF] = heightCoefficients[iFun];
@@ -73,7 +73,7 @@ double PositiveLayerLimiter::getMinimumHeight(const Base::Element* element)
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
-    const std::size_t numOfVariables = element->getNrOfUnknowns();
+    const std::size_t numOfVariables = element->getNumberOfUnknowns();
     const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);
     const double solutionRight = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefR, numOfVariables)(0);
     double minimum = std::min(solutionLeft, solutionRight);

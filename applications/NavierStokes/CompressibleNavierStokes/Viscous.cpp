@@ -76,7 +76,7 @@ LinearAlgebra::MiddleSizeVector Viscous::integrandStabilityRightHandSideOnRefFac
 {
     const Base::Face* ptrFace = face.getFace();
     const Geometry::PointReference<DIM - 1>& pRef = face.getPointReference();
-	std::size_t numBasisFunctions = ptrFace->getPtrElement(side)->getNrOfBasisFunctions();
+	std::size_t numBasisFunctions = ptrFace->getPtrElement(side)->getNumberOfBasisFunctions();
 	std::size_t pos;
 	LinearAlgebra::MiddleSizeVector integrand(numBasisFunctions*instance_.numOfVariables_);
 
@@ -117,14 +117,14 @@ LinearAlgebra::MiddleSizeMatrix Viscous::computeStabilityParameters(
 	if (iSide == Base::Side::RIGHT)
 	{
 		eSide = Base::Side::LEFT;
-		numOfTestBasisFunctionsInternal = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
-		numOfTestBasisFunctionsExternal= ptrFace->getPtrElement(eSide)->getNrOfBasisFunctions();
+		numOfTestBasisFunctionsInternal = ptrFace->getPtrElement(iSide)->getNumberOfBasisFunctions();
+		numOfTestBasisFunctionsExternal= ptrFace->getPtrElement(eSide)->getNumberOfBasisFunctions();
 	}
 	else
 	{
 		eSide = Base::Side::RIGHT;
-		numOfTestBasisFunctionsInternal = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
-		numOfTestBasisFunctionsExternal = ptrFace->getPtrElement(eSide)->getNrOfBasisFunctions();
+		numOfTestBasisFunctionsInternal = ptrFace->getPtrElement(iSide)->getNumberOfBasisFunctions();
+		numOfTestBasisFunctionsExternal = ptrFace->getPtrElement(eSide)->getNumberOfBasisFunctions();
 	}
 
 	//Create datastructures
@@ -312,7 +312,7 @@ LinearAlgebra::MiddleSizeVector Viscous::integrandAtElement(Base::PhysicalElemen
     const Base::Element* ptrElement = element.getElement();
     const Geometry::PointReference<DIM>& pRef = element.getPointReference();
 	// Get the number of basis functions in an element.
-	std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+	std::size_t numOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
 
 	// Create data structures for calculating the integrand
 	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_ * numOfBasisFunctions);
@@ -369,7 +369,7 @@ LinearAlgebra::MiddleSizeVector Viscous::integrandViscousAtFace(Base::PhysicalFa
 	LinearAlgebra::MiddleSizeMatrix fluxFunction = computeATensorMatrixContraction(ATensorInternal_, velocityNormal);
 
 	//Compute integrand
-	std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
+	std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNumberOfBasisFunctions();
 	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
 	LinearAlgebra::MiddleSizeVector gradientBasisFunction;
 	std::size_t iEB; // Index for both variable and basis function.
@@ -437,7 +437,7 @@ LinearAlgebra::MiddleSizeVector Viscous::integrandAuxilliaryAtFace(Base::Physica
 	LinearAlgebra::MiddleSizeMatrix fluxFunction = computeAuxilliaryFlux(ptrFace, iSide, stateInternal, stateExternal, pressureInternal, pressureExternal, partialStateInternal, partialStateExternal, stateJacobianInternal, stateJacobianExternal, normalInternal, pRef);
 
 	//Compute integrand
-	std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
+	std::size_t numOfTestBasisFunctions = ptrFace->getPtrElement(iSide)->getNumberOfBasisFunctions();
 	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
 	LinearAlgebra::MiddleSizeVector partialIntegrand(instance_.numOfVariables_);
 	std::size_t iEB;

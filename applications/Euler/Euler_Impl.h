@@ -61,7 +61,7 @@ Base::RectangularMeshDescriptor<DIM> Euler<DIM>::createMeshDescription(const std
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector Euler<DIM>::computeSolutionAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const PointReferenceT &pRef)
 {
-		std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
+		std::size_t numOfBasisFunctions =  ptrElement->getNumberOfBasisFunctions();
 		LinearAlgebra::MiddleSizeVector elementSolution(numOfVariables_);
 		std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
@@ -82,7 +82,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeSolutionAtElement(const Base:
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(Base::PhysicalElement<DIM> &ptrElement, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time)
 {
-	std::size_t numOfBasisFunctions = ptrElement.getElement()->getNrOfBasisFunctions();
+	std::size_t numOfBasisFunctions = ptrElement.getElement()->getNumberOfBasisFunctions();
 	std::size_t iVB;
 
 	//getResultVector already contains partial computation from integrandRightHandSideOnRefElement
@@ -96,7 +96,7 @@ template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefElement(Base::PhysicalElement<DIM> &ptrElement, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
 	// Get the number of basis functions in an element.
-	std::size_t numOfBasisFunctions =  ptrElement.getElement()->getNrOfBasisFunctions();
+	std::size_t numOfBasisFunctions =  ptrElement.getElement()->getNumberOfBasisFunctions();
 
 	//Create data structures for calculating the integrand
 	LinearAlgebra::MiddleSizeVector& integrand = ptrElement.getResultVector();
@@ -307,7 +307,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
    LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
    {
 	   //Get the number of basis functions
-	   std::size_t numOfBasisFunctionsLeft= face.getFace()->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
+	   std::size_t numOfBasisFunctionsLeft= face.getFace()->getPtrElementLeft()->getNumberOfBasisFunctions(); //Get the number of basis functions on the left
 
 	   LinearAlgebra::MiddleSizeVector& integrand = face.getResultVector();
 	   LinearAlgebra::MiddleSizeVector qReconstructionLeft(numOfVariables_);
@@ -362,9 +362,9 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
    LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM> &face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
    {
 	   //Get the number of basis functions
-	   std::size_t numOfTestBasisFunctions = face.getFace()->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
-	    std::size_t numOfSolutionBasisFunctionsLeft = face.getFace()->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
-	    std::size_t numOfSolutionBasisFunctionsRight = face.getFace()->getPtrElementRight()->getNrOfBasisFunctions(); //Get the number of basis functions on the right side
+	   std::size_t numOfTestBasisFunctions = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
+	    std::size_t numOfSolutionBasisFunctionsLeft = face.getFace()->getPtrElementLeft()->getNumberOfBasisFunctions(); //Get the number of basis functions on the left
+	    std::size_t numOfSolutionBasisFunctionsRight = face.getFace()->getPtrElementRight()->getNumberOfBasisFunctions(); //Get the number of basis functions on the right side
 
 
 	   LinearAlgebra::MiddleSizeVector& integrand = face.getResultVector(iSide);

@@ -31,7 +31,7 @@ using LinearAlgebra::MiddleSizeVector;
 MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElement
 (Base::PhysicalElement<DIM>& element, const double &time, const MiddleSizeVector &solutionCoefficients)
 {
-    const std::size_t numBasisFuncs = element.getElement()->getNrOfBasisFunctions();
+    const std::size_t numBasisFuncs = element.getElement()->getNumberOfBasisFunctions();
     
     MiddleSizeVector& integrand = element.getResultVector(); //just to have the correct length    
     const PointPhysicalT& pPhys = element.getPointPhysical();
@@ -41,7 +41,8 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElem
            element.getElement()->getSolution(0,pRef), element.getElement()->getSolution(1,pRef));
     const MiddleSizeVector physicalFlux = computePhysicalFlux(numericalSolution);
     const MiddleSizeVector source = computeSourceTerm(numericalSolution, pPhys, time);
-    logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
+    logger(DEBUG, "source: %", source);
+    //logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
     
     // Compute integrand on the physical element.
     std::size_t iVB; // Index for both basis function and variable
@@ -64,7 +65,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
 ( Base::PhysicalFace<DIM>& face, const Base::Side &iSide, const MiddleSizeVector &solutionCoefficientsLeft, const MiddleSizeVector &solutionCoefficientsRight)
 {
     double normal = face.getNormalVector()[0];
-    const std::size_t numTestBasisFuncs = face.getFace()->getPtrElement(iSide)->getNrOfBasisFunctions();
+    const std::size_t numTestBasisFuncs = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions();
 
     //compute numerical solution at the left side and right side of this face
     const PointReferenceOnFaceT& pRef = face.getPointReference();
@@ -214,5 +215,5 @@ MiddleSizeVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const
 
 double SavageHutterRightHandSideComputer::computeFriction(const MiddleSizeVector& numericalSolution)
 {
-    return std::tan(chuteAngle_);
+    return std::tan(22./180*M_PI);
 }

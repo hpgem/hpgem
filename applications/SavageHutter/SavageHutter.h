@@ -47,9 +47,12 @@ private:
     ///\brief Show the progress of the time integration.
     void showProgress(const double time, const std::size_t timeStepID);
     
-    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
+    void applyInflowConditions() override final;
+
     
-    void registerVTKWriteFunctions() override final;
+    //LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
+    
+    //void registerVTKWriteFunctions() override final;
 };
 
 #endif

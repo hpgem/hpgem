@@ -44,6 +44,11 @@ protected:
     /// \brief Create a domain
     Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final;
     
+    virtual void applyInflowConditions()
+    {
+        
+    }
+    
     /// Number of variables
     const std::size_t numOfVariables_;
 

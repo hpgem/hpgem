@@ -91,7 +91,7 @@ double CompressibleNavierStokes::computePressure(const LinearAlgebra::MiddleSize
 ///  \brief Constructs the solution based on the solutionCoefficients.
 LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeSolutionOnElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM> &pRef)
 {
-		std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
+		std::size_t numOfBasisFunctions =  ptrElement->getNumberOfBasisFunctions();
 		LinearAlgebra::MiddleSizeVector elementSolution(numOfVariables_);
 		std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
@@ -110,7 +110,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeSolutionOnEleme
 
 LinearAlgebra::MiddleSizeMatrix CompressibleNavierStokes::computeSolutionJacobianAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM> &pRef)
 {
-		std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
+		std::size_t numOfBasisFunctions =  ptrElement->getNumberOfBasisFunctions();
 		std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
 		LinearAlgebra::MiddleSizeMatrix solutionGradient(numOfVariables_,DIM_);
@@ -150,7 +150,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computePartialState(co
 /// \brief computes the source at an element
 LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtElement(Base::PhysicalElement<DIM>& element, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time)
 {
-	std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+	std::size_t numOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
 	std::size_t iVB;
 
 	LinearAlgebra::MiddleSizeVector integrandSource(numOfVariables_ * numOfBasisFunctions);
@@ -199,7 +199,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAt
 
 LinearAlgebra::MiddleSizeMatrix CompressibleNavierStokes::computeSolutionJacobianAtFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM - 1> &pRef)
 {
-	std::size_t numOfBasisFunctions =  ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
+	std::size_t numOfBasisFunctions =  ptrFace->getPtrElement(iSide)->getNumberOfBasisFunctions();
 	std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
 	LinearAlgebra::MiddleSizeMatrix solutionGradient(numOfVariables_,DIM_);
@@ -223,7 +223,7 @@ LinearAlgebra::MiddleSizeMatrix CompressibleNavierStokes::computeSolutionJacobia
 
 LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeSolutionOnFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM - 1> &pRef) const
 {
-	std::size_t numOfBasisFunctions =  ptrFace->getPtrElement(iSide)->getNrOfBasisFunctions();
+	std::size_t numOfBasisFunctions =  ptrFace->getPtrElement(iSide)->getNumberOfBasisFunctions();
 	LinearAlgebra::MiddleSizeVector elementSolution(numOfVariables_);
 	std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
