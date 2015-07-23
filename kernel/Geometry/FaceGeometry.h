@@ -173,7 +173,7 @@ namespace Geometry
         using MatrixT = LinearAlgebra::MiddleSizeMatrix;
         using SetOfGlobalNodes = std::set<std::size_t>;
         using VectorOfLocalNodes = std::vector<std::size_t>;
-        using LocalFaceNrType = std::size_t;
+        using LocalFaceNumberType = std::size_t;
         using RefFaceToRefElementMappingPtr = std::shared_ptr<const MappingReferenceToReference<1> >;
         
         using ReferenceFaceGeometryT = ReferenceGeometry;
@@ -181,13 +181,13 @@ namespace Geometry
     public:
         ///Constructor for interior faces.
         //constructor will not initialize faceToFaceMapIndex, because it doesnt know how the elements are connected
-        FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometry* ptrElemRight, const LocalFaceNrType& localFaceNumR);
+        FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, ElementGeometry* ptrElemRight, const LocalFaceNumberType& localFaceNumberR);
 
         /// Constructor for boundary faces.
-        FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNrType&localFaceNumL, const FaceType& boundaryLabel);
+        FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, const FaceType& boundaryLabel);
         
         /// Copy constructor with new elements, for both internal and boundary faces.
-        FaceGeometry(const FaceGeometry& other, ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometry* ptrElemRight, const LocalFaceNrType& localFaceNumR);
+        FaceGeometry(const FaceGeometry& other, ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, ElementGeometry* ptrElemRight, const LocalFaceNumberType& localFaceNumberR);
         
         /// Don't use this copy constructor, but use the one with new elements instead
         FaceGeometry(const FaceGeometry &other) = delete;
@@ -296,10 +296,10 @@ namespace Geometry
         const ElementGeometry* rightElementGeom_;
 
         /// face index of the left element corresponding to this face
-        LocalFaceNrType localFaceNumberLeft_;
+        LocalFaceNumberType localFaceNumberLeft_;
         
         /// face index of the right element corresponding to this face
-        LocalFaceNrType localFaceNumberRight_;
+        LocalFaceNumberType localFaceNumberRight_;
 
         /// Index corresponding to a face-to-face mapping. 
         std::size_t faceToFaceMapIndex_;

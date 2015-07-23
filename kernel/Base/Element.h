@@ -305,7 +305,7 @@ namespace Base
                 numberOfBasisFunctions += basisFunctionSet_->at(basisFunctionSetPositions_[i])->size();
             }
         }
-        logger.assert(numberOfBasisFunctions==numberOfBasisFunctions, "Redundant argument set to the wrong value");
+        logger.assert(numberOfBasisFunctions==numberOfBasisFuncs, "Redundant argument set to the wrong value");
         setNumberOfBasisFunctions(numberOfBasisFunctions);
         setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(basisFunctionSetPositions_[0])->getOrder() + 1);
         numberOfDOFinTheElement_ = basisFunctionSet_->at(basisFunctionSetPositions_[0])->size();

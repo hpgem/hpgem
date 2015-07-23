@@ -172,7 +172,7 @@ namespace Base
         synchronize(timeLevel);
     }
     
-    /// \brief By default this function copmutes the integral of the inner product of the initial solution (for given order time derivative) and the test function on the element.
+    /// \brief By default this function computes the integral of the inner product of the initial solution (for given order time derivative) and the test function on the element.
     /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     template<std::size_t DIM>
     LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)

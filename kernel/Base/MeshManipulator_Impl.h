@@ -423,7 +423,7 @@ namespace Base
                 {
                     face->getPtrElementLeft()->setFaceBasisFunctionSet(i, faceNr);
                     //the number of basis functions depends on the shape of the face, not on the shape of the element
-                    face->setLocalNrOfBasisFunctions(collBasisFSet_[i]->size());
+                    face->setLocalNumberOfBasisFunctions(collBasisFSet_[i]->size());
                 }
             }
             if (face->isInternal())
@@ -521,7 +521,7 @@ namespace Base
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ = bFSet->size();
         for (Base::Face* face : getFacesList(IteratorType::GLOBAL))
         {
-            face->setLocalNrOfBasisFunctions(0);
+            face->setLocalNumberOfBasisFunctions(0);
         }
         for (Base::Edge* edge : getEdgesList(IteratorType::GLOBAL))
         {
@@ -588,7 +588,7 @@ namespace Base
                     }
                 }
             }
-            face->setLocalNrOfBasisFunctions(bFsets[0]->size());
+            face->setLocalNumberOfBasisFunctions(bFsets[0]->size());
         }
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getPhysicalGeometry()->getNrOfFaces() * bFsets[0]->size();
     }

@@ -42,7 +42,7 @@ namespace Base
     class Face;
     
     /// \details The user does not need to worry about the contruction of faces. This is done by mesh-generators. For example the interface HpgemAPIBase can be used to create meshes.
-    Face::Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, Element* ptrElemR, const LocalFaceNrTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
+    Face::Face(Element* ptrElemL, const LocalFaceNumberTypeT& localFaceNumL, Element* ptrElemR, const LocalFaceNumberTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
             : FaceGeometryT(ptrElemL, localFaceNumL, ptrElemR, localFaceNumR),
             FaceData(ptrElemL->getNumberOfBasisFunctions() * ptrElemL->getNumberOfUnknowns() + ptrElemR->getNumberOfBasisFunctions() * ptrElemR->getNumberOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), 
             elementLeft_(ptrElemL), elementRight_(ptrElemR), numberOfConformingDOFOnTheFace_(0), faceID_(faceID)
@@ -107,7 +107,7 @@ namespace Base
         initialiseFaceToFaceMapIndex(leftNodes, rightNodes);
     }
     
-    Face::Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
+    Face::Face(Element* ptrElemL, const LocalFaceNumberTypeT& localFaceNumL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
             : FaceGeometryT(ptrElemL, localFaceNumL, faceType), FaceData(ptrElemL->getNumberOfBasisFunctions() * ptrElemL->getNumberOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(nullptr), numberOfConformingDOFOnTheFace_(0), faceID_(faceID)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
@@ -150,7 +150,7 @@ namespace Base
         
     }
     
-    std::size_t Face::getNrOfBasisFunctions() const
+    std::size_t Face::getNumberOfBasisFunctions() const
     {
         if (isInternal())
         {
@@ -169,7 +169,7 @@ namespace Base
         LinearAlgebra::MiddleSizeVector resLeft = getPtrElementLeft()->getTimeLevelData(timeLevel, unknown);
         if (isInternal())
         {
-            std::size_t numBasisFuncs = getNrOfBasisFunctions();
+            std::size_t numBasisFuncs = getNumberOfBasisFunctions();
             std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNumberOfBasisFunctions();
             resLeft.resize(numBasisFuncs);
             LinearAlgebra::MiddleSizeVector resRight = getPtrElementRight()->getTimeLevelData(timeLevel, unknown);

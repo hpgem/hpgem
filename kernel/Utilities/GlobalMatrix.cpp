@@ -51,7 +51,7 @@ namespace Utilities
         logger.assert(face!=nullptr, "Invalid face passed");
         for(std::size_t index = 0; index < face->getPtrElementLeft()->getNumberOfUnknowns(); ++index)
         {
-            std::size_t number = face->getLocalNrOfBasisFunctions();
+            std::size_t number = face->getLocalNumberOfBasisFunctions();
             numberOfEntries += number;
             for (std::size_t i = 0; i < number; ++i)
             {

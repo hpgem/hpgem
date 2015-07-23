@@ -176,7 +176,7 @@ namespace Base
         ///get the total number of basis functions that might be nonzero on the face
         std::size_t getNumOfBasisFunctions()
         {
-            return face_->getNrOfBasisFunctions();
+            return face_->getNumberOfBasisFunctions();
         }
 
         /// get the number of variables present in the problem
@@ -325,7 +325,7 @@ namespace Base
         else
         {
             hasBasisFunctionNormal = true;
-            for(std::size_t j = 0; j < face_->getNrOfBasisFunctions(); ++j)
+            for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunctionNormal_[j] = getNormalVector() * basisFunction(j);
                 if(j >= nLeftBasisFunctions)
@@ -363,7 +363,7 @@ namespace Base
         else
         {
             hasBasisFunctionUnitNormal = true;
-            for(std::size_t j = 0; j < face_->getNrOfBasisFunctions(); ++j)
+            for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunctionUnitNormal_[j] = getUnitNormalVector() * basisFunction(j);
                 if(j >= nLeftBasisFunctions)
@@ -464,7 +464,7 @@ namespace Base
         else
         {
             hasVectorBasisFunctionNormal = true;
-            for(std::size_t j = 0; j < face_->getNrOfBasisFunctions(); ++j)
+            for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunction(i, result);
                 vectorBasisFunctionNormal_[j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>({{getNormalVector(), result}}).computeWedgeStuffVector();
@@ -505,7 +505,7 @@ namespace Base
         else
         {
             hasVectorBasisFunctionUnitNormal = true;
-            for(std::size_t j = 0; j < face_->getNrOfBasisFunctions(); ++j)
+            for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunction(i, result);
                 vectorBasisFunctionUnitNormal_[j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>({{getUnitNormalVector(), result}}).computeWedgeStuffVector();

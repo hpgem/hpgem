@@ -47,19 +47,19 @@ namespace Base
     public:
         
         using ElementGeometryT = Geometry::ElementGeometry;
-        using LocalFaceNrTypeT = Geometry::FaceGeometry::LocalFaceNrType;
+        using LocalFaceNumberTypeT = Geometry::FaceGeometry::LocalFaceNumberType;
         using CacheT = Base::FaceCacheData;
         using VecCacheT = std::vector<CacheT>;
         using FaceGeometryT = Geometry::FaceGeometry;
         using FaceQuadratureRule = QuadratureRules::GaussQuadratureRule;
 
     public:
-        Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, 
-                Element* ptrElemRight, const LocalFaceNrTypeT& localFaceNumR, 
+        Face(Element* ptrElemL, const LocalFaceNumberTypeT& localFaceNumL, 
+                Element* ptrElemRight, const LocalFaceNumberTypeT& localFaceNumR, 
                 std::size_t faceID, std::size_t numberOfFaceMatrixes = 0, 
                 std::size_t numberOfFaceVectors = 0);
         
-        Face(Element* ptrElemL, const LocalFaceNrTypeT& localFaceNumL, 
+        Face(Element* ptrElemL, const LocalFaceNumberTypeT& localFaceNumL, 
         const Geometry::FaceType& ftype, std::size_t faceID, 
         std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
                 
@@ -161,16 +161,34 @@ namespace Base
         LinearAlgebra::SmallVector<DIM + 1> basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
         /// \brief Returns the sum of the number of basisfunctions of the adjacent elements.
-        std::size_t getNrOfBasisFunctions() const;
+        std::size_t getNumberOfBasisFunctions() const;
 
-        std::size_t getLocalNrOfBasisFunctions() const
+        std::size_t getLocalNumberOfBasisFunctions() const
         {
             return numberOfConformingDOFOnTheFace_;
         }
         
-        void setLocalNrOfBasisFunctions(std::size_t number)
+        void setLocalNumberOfBasisFunctions(std::size_t number)
         {
             numberOfConformingDOFOnTheFace_ = number;
+        }
+        
+        ///\deprecated Does not conform naming conventions, use getNumberOfBasisFunctions instead.
+        std::size_t getNrOfBasisFunctions() const
+        {
+            return getNumberOfBasisFunctions();
+        }
+
+        ///\deprecated Does not conform naming conventions, use getLocalNumberOfBasisFunctions instead.
+        std::size_t getLocalNrOfBasisFunctions() const
+        {
+            return getLocalNumberOfBasisFunctions();
+        }
+        
+        ///\deprecated Does not conform naming conventions, use setLocalNumberOfBasisFunctions instead.
+        void setLocalNrOfBasisFunctions(std::size_t number)
+        {
+            setLocalNumberOfBasisFunctions(number);
         }
         
         std::size_t getID() const
@@ -207,7 +225,7 @@ namespace Base
     template<std::size_t DIM>
     double Face::basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {
-        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         std::size_t numBasisFuncs = getPtrElementLeft()->getNumberOfBasisFunctions();
         if (i < numBasisFuncs)
         {
@@ -222,7 +240,7 @@ namespace Base
     template<std::size_t DIM>
     void Face::basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM + 1>& ret) const
     {
-        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         std::size_t n(getPtrElementLeft()->getNumberOfBasisFunctions());
         if (i < n)
         {
@@ -256,7 +274,7 @@ namespace Base
     template<std::size_t DIM>
     LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionNormal(std::size_t i, const LinearAlgebra::SmallVector<DIM + 1>& normal, const Geometry::PointReference<DIM>& p) const
     {
-        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         LinearAlgebra::SmallVector<DIM + 1> ret;
         std::size_t n = getPtrElementLeft()->getNumberOfBasisFunctions();
         if (i < n)
@@ -295,7 +313,7 @@ namespace Base
     template<std::size_t DIM>
     double Face::basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p) const
     {
-        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         std::size_t n = getPtrElementLeft()->getNumberOfBasisFunctions();
         if (i < n)
         {
@@ -310,7 +328,7 @@ namespace Base
     template<std::size_t DIM>
     LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionDeriv(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {
-        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         std::size_t n = getPtrElementLeft()->getNumberOfBasisFunctions();
         if (i < n)
         {
@@ -344,7 +362,7 @@ namespace Base
     template<std::size_t DIM>
     LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {
-        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNumberOfBasisFunctions();
         if (i < numBasisFuncsLeft)
         {

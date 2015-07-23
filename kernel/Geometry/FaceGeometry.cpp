@@ -50,29 +50,29 @@ namespace Geometry
     ///directly used.) If a user want to directly use this class himself, he should be
     ///aware that this constructor assumes he will call initialiseFaceToFaceMapIndex
     ///before actually using the FaceGeometry.
-    FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, ElementGeometry* ptrElemR, const LocalFaceNrType& localFaceNumR)
-            : leftElementGeom_(ptrElemL), rightElementGeom_(ptrElemR), localFaceNumberLeft_(localFaceNumL), localFaceNumberRight_(localFaceNumR), faceToFaceMapIndex_(Geometry::MAXSIZET), faceType_(FaceType::INTERNAL)
+    FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, ElementGeometry* ptrElemR, const LocalFaceNumberType& localFaceNumberR)
+            : leftElementGeom_(ptrElemL), rightElementGeom_(ptrElemR), localFaceNumberLeft_(localFaceNumberL), localFaceNumberRight_(localFaceNumberR), faceToFaceMapIndex_(Geometry::MAXSIZET), faceType_(FaceType::INTERNAL)
     {
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
         logger.assert(ptrElemR!=nullptr, "This constructor is intended for internal faces");
     }
     
     //! Constructor for boundary faces.
-    FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, const FaceType& boundaryLabel)
-            : leftElementGeom_(ptrElemL), rightElementGeom_(nullptr), localFaceNumberLeft_(localFaceNumL), localFaceNumberRight_(Geometry::MAXSIZET), faceToFaceMapIndex_(0), faceType_(boundaryLabel)
+    FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, const FaceType& boundaryLabel)
+            : leftElementGeom_(ptrElemL), rightElementGeom_(nullptr), localFaceNumberLeft_(localFaceNumberL), localFaceNumberRight_(Geometry::MAXSIZET), faceToFaceMapIndex_(0), faceType_(boundaryLabel)
     {
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
     }
     
     FaceGeometry::FaceGeometry(const FaceGeometry& other, 
-                               ElementGeometry* ptrElemL, const LocalFaceNrType& localFaceNumL, 
-                               ElementGeometry* ptrElemRight, const LocalFaceNrType& localFaceNumR) 
+                               ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, 
+                               ElementGeometry* ptrElemRight, const LocalFaceNumberType& localFaceNumberR) 
     {
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
         leftElementGeom_ = ptrElemL;
         rightElementGeom_ = ptrElemRight;
-        localFaceNumberLeft_ = localFaceNumL;
-        localFaceNumberRight_ = localFaceNumR;
+        localFaceNumberLeft_ = localFaceNumberL;
+        localFaceNumberRight_ = localFaceNumberR;
         faceToFaceMapIndex_ = other.faceToFaceMapIndex_;
         faceType_ = other.faceType_;        
     }
