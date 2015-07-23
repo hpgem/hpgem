@@ -66,7 +66,7 @@ RightHandSideComputer * SavageHutter::createRightHandSideComputer(const SHConstr
     LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0);
     //magic numbers: epsilon and chute angle (in radians)
     if (DIM == 1)
-        return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 0.1, 32./180*M_PI, inflowBC);
+        return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 0.1, 45./180*M_PI, inflowBC);
     
     return new SavageHutterRHS2D(inputValues.numOfVariables, 1, 0., inflowBC);
 }
@@ -76,7 +76,7 @@ RightHandSideComputer * SavageHutter::createRightHandSideComputer(const SHConstr
 ///\details Show the number of time steps that have been computed on the console.
 void SavageHutter::showProgress(const double time, const std::size_t timeStepID)
 {
-    if (timeStepID % 100 == 0)
+    if (timeStepID % 1000 == 0)
     {
         logger(INFO, "% time steps computed.", timeStepID);
     }
@@ -106,8 +106,49 @@ LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhys
     return initialCondition;
 }
 
+///\details analytical solution for the parabolic cap
+LinearAlgebra::MiddleSizeVector SavageHutter::getExactSolution(const PointPhysicalT& pPhys, const double& time, const std::size_t orderTimeDerivative)
+{
+    //t = 1 only!
+    const double x = pPhys[0];
+    const double g = 1.0842493835;
+    const double chuteAngle = 30./180*M_PI;
+    const double frictionAngle = 22./180*M_PI;
+    const double angleTerm = std::sin(chuteAngle) - std::tan(frictionAngle)*std::cos(chuteAngle);
+    double h = 0;
+    if (x >.5*angleTerm + 1.5 - g && x < .5*angleTerm + 1.5 + g)
+        h = 1/g*(1-(1/g/g*(x - .5*angleTerm - 1.5)*(x - .5*angleTerm - 1.5)));
+    const double k = .1*std::sqrt(3.);
+    const double uTilde = std::sqrt(2*k/g*(g-1))*1/g*(x - .5*angleTerm - 1.5);
+    const double u = g*g*uTilde + g*g*angleTerm;
+    return LinearAlgebra::MiddleSizeVector({h, h*u});
+}
+
+void SavageHutter::registerVTKWriteFunctions()
+{
+    for (std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV++)
+    {
+        registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
+        {
+            return std::real(element->getSolution(timeLevel, pRef)[iV]);
+        }, variableNames_[iV]);
+
+    }
+    /*registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
+    {
+        const PointPhysicalT &pPhys = element->referenceToPhysical(pRef);
+                             return std::real(getExactSolution(pPhys, time_)[0]);
+    }, "analytical height");
+    
+    registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
+    {
+        const PointPhysicalT &pPhys = element->referenceToPhysical(pRef);
+                             return std::real(getExactSolution(pPhys, time_)[1]);
+    }, "analytical discharge");*/
+}
+
 /*
-//Dam break
+//Dam break, do not remove!
 ///\details Given the physical point in the domain and the start time of the simulation, compute the initial conditions for the simulation
 LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {    

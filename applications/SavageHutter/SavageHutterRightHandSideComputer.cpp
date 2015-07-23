@@ -40,6 +40,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElem
     logger(DEBUG, "NumericalSolution: %,\n getSolution(timeLevel): %, %", numericalSolution,
            element.getElement()->getSolution(0,pRef), element.getElement()->getSolution(1,pRef));
     const MiddleSizeVector physicalFlux = computePhysicalFlux(numericalSolution);
+    logger(DEBUG, "element: %", element.getID());
     const MiddleSizeVector source = computeSourceTerm(numericalSolution, pPhys, time);
     logger(DEBUG, "source: %", source);
     //logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
@@ -163,7 +164,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::computePhysicalFlux(const Mi
     }
     MiddleSizeVector flux(2);
     flux(0) = hu;
-    flux(1) = hu * u + epsilon_/2 * std::cos(chuteAngle_) * h * h;
+    flux(1) = hu * u * alpha_ + epsilon_/2 * std::cos(chuteAngle_) * h * h;
     logger(DEBUG, "flux values: %, %", flux(0), flux(1));
     return flux;
 }
@@ -178,7 +179,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::computeSourceTerm(const Midd
     {
         u = hu/h;
     }
-    double mu = computeFriction(numericalSolution);
+    double mu = computeFrictionExponential(numericalSolution);
     const int signU = Helpers::sign(u);
     double sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
     logger(DEBUG, "Source: %, h: %", sourceX, h);
@@ -213,7 +214,42 @@ MiddleSizeVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const
     return numericalFlux;
 }
 
-double SavageHutterRightHandSideComputer::computeFriction(const MiddleSizeVector& numericalSolution)
+double SavageHutterRightHandSideComputer::computeFrictionCoulomb(const MiddleSizeVector& numericalSolution)
 {
     return std::tan(22./180*M_PI);
+}
+
+/// Compute friction as described in Weinhart (2012), eq (50) with lambda = 1, d = 1
+double SavageHutterRightHandSideComputer::computeFriction(const MiddleSizeVector& numericalSolution)
+{
+    const double delta1 = 17.561 / 180 * M_PI ;
+    const double delta2 = 32.257 / 180 * M_PI;
+    const double A = 3.836;
+    const double beta = 0.191;
+    const double gamma = -.045;
+    const double d = 1.;
+    const double h = numericalSolution[0];
+    if (h < minH_)
+        return std::tan(delta1);
+    const double u  = numericalSolution[1] / h;
+    const double F = u /std::sqrt(epsilon_*std::cos(chuteAngle_) * h);
+    logger(DEBUG, "new friction: %, coulomb friction: %", std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))/(beta*h/(A*d*(F + gamma)) + 1), std::tan(chuteAngle_));
+    return std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))/(beta*h/(A*d*(F + gamma)) + 1);
+}
+
+/// Compute friction as in Anthony's draft, eq (3.9)
+double SavageHutterRightHandSideComputer::computeFrictionExponential(const MiddleSizeVector& numericalSolution)
+{
+    const double delta1 = 17.561 / 180 * M_PI ;
+    const double delta2 = 32.257 / 180 * M_PI;
+    const double beta = 0.5;
+    const double L = 1.;
+    const double h = numericalSolution[0];
+    if (h < minH_)
+        return std::tan(delta1);
+    const double u  = numericalSolution[1] / h;
+    if (std::abs(u) < 1e-16)
+        return std::tan(delta1);
+    logger(DEBUG, "new friction: %", std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))*std::exp(-beta*std::pow(epsilon_*h, 1.5)/(L * std::abs(u))));
+    return std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))*std::exp(-beta*std::pow(epsilon_*h, 1.5)/(L * std::abs(u)));
 }

@@ -38,7 +38,7 @@ class SavageHutterRightHandSideComputer : public RightHandSideComputer
 public:
 
     SavageHutterRightHandSideComputer(const std::size_t numOfVariables, const double epsilon, const double chuteAngle, const MiddleSizeVector inflowBC) :
-    RightHandSideComputer(numOfVariables), epsilon_(epsilon), chuteAngle_(chuteAngle), inflowBC_(inflowBC), minH_(1e-10) { }
+    RightHandSideComputer(numOfVariables), epsilon_(epsilon), chuteAngle_(chuteAngle), inflowBC_(inflowBC), minH_(1e-10), alpha_(1) { }
 
     /// \brief Compute the integrand for the right hand side for the reference element.
     MiddleSizeVector integrandRightHandSideOnElement
@@ -70,11 +70,15 @@ private:
     MiddleSizeVector computeSourceTerm(const MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys, const double time);
     MiddleSizeVector localLaxFriedrichsFlux(const MiddleSizeVector &numericalSolutionLeft, const MiddleSizeVector &NumericalSolutionRight);
     double computeFriction(const MiddleSizeVector &numericalSolution);
+    
+    double computeFrictionExponential(const MiddleSizeVector &numericalSolution);
+    double computeFrictionCoulomb(const MiddleSizeVector &numericalSolution);
 
     double epsilon_;
     double chuteAngle_; //in radians
     MiddleSizeVector inflowBC_;
     double minH_; //below this height, don't divide by it, but set u to 0
+    double alpha_;
 };
 
 #endif	/* SAVAGEHUTTERRIGHTHANDSIDECOMPUTER_H */

@@ -50,9 +50,9 @@ private:
     void applyInflowConditions() override final;
 
     
-    //LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
     
-    //void registerVTKWriteFunctions() override final;
+    void registerVTKWriteFunctions() override final;
 };
 
 #endif

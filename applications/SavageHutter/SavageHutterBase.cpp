@@ -22,7 +22,6 @@ Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(con
         description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
     }
     description.numElementsInDIM_[0] = numOfElementPerDirection;
-    description.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
     return description;
 }
 
