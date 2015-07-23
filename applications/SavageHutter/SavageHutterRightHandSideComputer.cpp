@@ -114,7 +114,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
      )
 {
     double normal = face.getNormalVector()[0];
-    const std::size_t numBasisFuncs = face.getFace()->getNrOfBasisFunctions();
+    const std::size_t numBasisFuncs = face.getFace()->getNumberOfBasisFunctions();
     
     const PointReferenceOnFaceT& pRef = face.getPointReference();
     //note that at the boundary, the element is the left element by definition
@@ -179,7 +179,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::computeSourceTerm(const Midd
     {
         u = hu/h;
     }
-    double mu = computeFrictionExponential(numericalSolution);
+    double mu = computeFrictionCoulomb(numericalSolution);
     const int signU = Helpers::sign(u);
     double sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
     logger(DEBUG, "Source: %, h: %", sourceX, h);

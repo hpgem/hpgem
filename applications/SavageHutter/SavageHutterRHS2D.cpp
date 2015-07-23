@@ -103,7 +103,7 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnRefFace
      )
 {
     double normalX = face.getNormalVector()[0];
-    const std::size_t numBasisFuncs = face.getFace()->getNrOfBasisFunctions();
+    const std::size_t numBasisFuncs = face.getFace()->getNumberOfBasisFunctions();
     
     const PointReferenceOnFaceT& pRef = face.getPointReference();
     //note that at the boundary, the element is the left element by definition

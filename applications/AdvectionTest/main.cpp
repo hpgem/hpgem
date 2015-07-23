@@ -115,7 +115,7 @@ public:
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
-        std::size_t numBasisFuncs = face.getFace()->getNrOfBasisFunctions();
+        std::size_t numBasisFuncs = face.getFace()->getNumberOfBasisFunctions();
         
         //Resize the result to the correct size and set all elements to 0.
         Base::FaceMatrix& integrandVal = face.getResultMatrix();

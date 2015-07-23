@@ -110,7 +110,7 @@ public:
     Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(Base::PhysicalFace<DIM>& face) override final
     {
         //Get the total number of basis functions of both sides of the face.
-        std::size_t numBasisFuncs = face.getFace()->getNrOfBasisFunctions();
+        std::size_t numBasisFuncs = face.getFace()->getNumberOfBasisFunctions();
         
         //get the result with the correct size and all elements set to 0.
         Base::FaceMatrix& integrandVal = face.getResultMatrix();

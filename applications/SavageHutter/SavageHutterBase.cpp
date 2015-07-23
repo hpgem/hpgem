@@ -17,9 +17,9 @@ Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(con
     for (std::size_t i = 0; i < DIM; ++i)
     {
         description.bottomLeft_[i] = 0;
-        description.topRight_[i] = 10;
+        description.topRight_[i] = 1;
         description.numElementsInDIM_[i] = 4;
-        description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
+        description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
     }
     description.numElementsInDIM_[0] = numOfElementPerDirection;
     return description;
@@ -107,9 +107,7 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
     for (std::size_t jStage = 0; jStage < numOfStages; jStage++)
     {
         scaleAndAddTimeLevel(solutionTimeLevel_, intermediateTimeLevels_[jStage], dt * ptrButcherTableau_->getB(jStage));
-    }
-    applyInflowConditions();
-    
+    }    
 
     limitSolutionOuterLoop();
 
