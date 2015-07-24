@@ -169,7 +169,7 @@ namespace Base
             solveMassMatrixEquationsAtElement(ptrElement, solutionCoefficients);
         }
         
-        synchronize(timeLevel);
+        this->synchronize(timeLevel);
     }
     
     /// \brief By default this function computes the integral of the inner product of the initial solution (for given order time derivative) and the test function on the element.
@@ -227,7 +227,7 @@ namespace Base
             solutionCoefficients = integrateInitialSolutionAtElement(ptrElement, initialTime, orderTimeDerivative);
         }
         
-        synchronize(timeLevelResult);
+        this->synchronize(timeLevelResult);
     }
     
     /// By default the square of the standard L2 norm is integrated.
@@ -527,7 +527,7 @@ namespace Base
             }
         }
         
-        synchronize(timeLevelResult);
+        this->synchronize(timeLevelResult);
     }
 
     template<std::size_t DIM>
@@ -580,41 +580,7 @@ namespace Base
             }
         }
         
-        synchronize(timeLevelResult);
-    }
-
-    template<std::size_t DIM>
-    void HpgemAPISimplified<DIM>::synchronize(const std::size_t timeLevel)
-    {
-#ifdef HPGEM_USE_MPI
-        //Now, set it up.
-        Base::MeshManipulator<DIM> * meshManipulator = this->meshes_[0];
-        Base::Submesh& mesh = meshManipulator->getMesh().getSubmesh();
-
-        const auto& pushes = mesh.getPushElements();
-        const auto& pulls = mesh.getPullElements();
-
-        //receive first for lower overhead
-        for (const auto& it : pulls)
-        {   
-            for (Base::Element *ptrElement : it.second)
-            {   
-                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == ptrElement->getNrOfBasisFunctions() * this->configData_->numberOfUnknowns_ , "Size of time level % data vector is wrong: % instead of %.", timeLevel, ptrElement->getTimeLevelDataVector(timeLevel).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
-
-                Base::MPIContainer::Instance().receive(ptrElement->getTimeLevelDataVector(timeLevel), it.first, ptrElement->getID());
-            }
-        }
-        for (const auto& it : pushes)
-        {   
-            for (Base::Element *ptrElement : it.second)
-            {   
-                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == ptrElement->getNrOfBasisFunctions() * this->configData_->numberOfUnknowns_, "Size of time level % data vector is wrong: % instead of %.", timeLevel, ptrElement->getTimeLevelDataVector(timeLevel).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
-
-                Base::MPIContainer::Instance().send(ptrElement->getTimeLevelDataVector(timeLevel), it.first, ptrElement->getID());
-            }
-        }
-        Base::MPIContainer::Instance().sync();
-#endif
+        this->synchronize(timeLevelResult);
     }
 
     template<std::size_t DIM>
@@ -625,7 +591,7 @@ namespace Base
             ptrElement->getTimeLevelDataVector(timeLevel) *= scale;
         }
         
-        synchronize(timeLevel);
+        this->synchronize(timeLevel);
     }
 
     template<std::size_t DIM>
@@ -636,7 +602,7 @@ namespace Base
             ptrElement->getTimeLevelDataVector(timeLevelToChange).axpy(scale, ptrElement->getTimeLevelDataVector(timeLevelToAdd));
         }
         
-        synchronize(timeLevelToChange);
+        this->synchronize(timeLevelToChange);
     }
 
     template<std::size_t DIM>
@@ -660,7 +626,7 @@ namespace Base
     {
         computeRightHandSide(timeLevelsIn, coefficientsTimeLevels, timeLevelResult, time);
         solveMassMatrixEquations(timeLevelResult);
-        synchronize(timeLevelResult);
+        this->synchronize(timeLevelResult);
     }
 
     template<std::size_t DIM>

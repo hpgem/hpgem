@@ -101,6 +101,40 @@ namespace Base
     }
 
     template<std::size_t DIM>
+    void HpgemAPIBase<DIM>::synchronize(const std::size_t timeLevel)
+    {
+#ifdef HPGEM_USE_MPI
+        //Now, set it up.
+        Base::MeshManipulator<DIM> * meshManipulator = this->meshes_[0];
+        Base::Submesh& mesh = meshManipulator->getMesh().getSubmesh();
+
+        const auto& pushes = mesh.getPushElements();
+        const auto& pulls = mesh.getPullElements();
+
+        //receive first for lower overhead
+        for (const auto& it : pulls)
+        {
+            for (Base::Element *ptrElement : it.second)
+            {
+                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == ptrElement->getNrOfBasisFunctions() * this->configData_->numberOfUnknowns_ , "Size of time level % data vector is wrong: % instead of %.", timeLevel, ptrElement->getTimeLevelDataVector(timeLevel).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
+
+                Base::MPIContainer::Instance().receive(ptrElement->getTimeLevelDataVector(timeLevel), it.first, ptrElement->getID());
+            }
+        }
+        for (const auto& it : pushes)
+        {
+            for (Base::Element *ptrElement : it.second)
+            {
+                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == ptrElement->getNrOfBasisFunctions() * this->configData_->numberOfUnknowns_, "Size of time level % data vector is wrong: % instead of %.", timeLevel, ptrElement->getTimeLevelDataVector(timeLevel).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
+
+                Base::MPIContainer::Instance().send(ptrElement->getTimeLevelDataVector(timeLevel), it.first, ptrElement->getID());
+            }
+        }
+        Base::MPIContainer::Instance().sync();
+#endif
+    }
+
+    template<std::size_t DIM>
     typename HpgemAPIBase<DIM>::ConstElementIterator HpgemAPIBase<DIM>::elementColBegin(MeshId mId) const
     {
         return meshes_[mId]->elementColBegin();
