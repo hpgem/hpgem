@@ -493,14 +493,14 @@ namespace Utilities
         std::size_t end = totalNrOfDOF + 1;
 #endif
         logger.assert(*std::min_element(startPositionsOfElementsInTheMatrix_.begin(), startPositionsOfElementsInTheMatrix_.end()) > -1, "Missing an element index");
-        logger.assert(DIM < 2 || *std::min_element(startPositionsOfFacesInTheMatrix_.begin(), startPositionsOfFacesInTheMatrix_.end()) > -1, "Missing a face index");
+        logger.assert(*std::min_element(startPositionsOfFacesInTheMatrix_.begin(), startPositionsOfFacesInTheMatrix_.end()) > -1, "Missing a face index");
         logger.assert(DIM < 3 || *std::min_element(startPositionsOfEdgesInTheMatrix_.begin(), startPositionsOfEdgesInTheMatrix_.end()) > -1, "Missing an edge index");
-        logger.assert(*std::min_element(startPositionsOfNodesInTheMatrix_.begin(), startPositionsOfNodesInTheMatrix_.end()) > -1, "Missing a node index");
+        logger.assert(DIM < 2 || *std::min_element(startPositionsOfNodesInTheMatrix_.begin(), startPositionsOfNodesInTheMatrix_.end()) > -1, "Missing node index %", std::min_element(startPositionsOfElementsInTheMatrix_.begin(), startPositionsOfElementsInTheMatrix_.end()) - startPositionsOfElementsInTheMatrix_.begin());
         //could be equal to totalNrOfDOF if there are no degrees of freedom accosiated with the element/face/w.e.
         logger.assert(*std::max_element(startPositionsOfElementsInTheMatrix_.begin(), startPositionsOfElementsInTheMatrix_.end()) < end, "Start of entries for element % out of bounds (%, with only % total entries)", std::max_element(startPositionsOfElementsInTheMatrix_.begin(), startPositionsOfElementsInTheMatrix_.end()) - startPositionsOfElementsInTheMatrix_.begin(), *std::max_element(startPositionsOfElementsInTheMatrix_.begin(), startPositionsOfElementsInTheMatrix_.end()), end - 1);
-        logger.assert(DIM < 2 || *std::max_element(startPositionsOfFacesInTheMatrix_.begin(), startPositionsOfFacesInTheMatrix_.end()) < end, "Missing a face index");
+        logger.assert(*std::max_element(startPositionsOfFacesInTheMatrix_.begin(), startPositionsOfFacesInTheMatrix_.end()) < end, "Missing a face index");
         logger.assert(DIM < 3 || *std::max_element(startPositionsOfEdgesInTheMatrix_.begin(), startPositionsOfEdgesInTheMatrix_.end()) < end, "Missing an edge index");
-        logger.assert(*std::max_element(startPositionsOfNodesInTheMatrix_.begin(), startPositionsOfNodesInTheMatrix_.end()) < end, "Missing a node index");
+        logger.assert(DIM < 2 || *std::max_element(startPositionsOfNodesInTheMatrix_.begin(), startPositionsOfNodesInTheMatrix_.end()) < end, "Missing a node index");
         
         //now construct the only bit of data where PETSc expects a local numbering...
         std::vector<PetscInt> numberOfPositionsPerRow(totalNrOfDOF, 0);
