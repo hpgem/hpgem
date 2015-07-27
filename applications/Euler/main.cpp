@@ -21,22 +21,23 @@
 
 #include "Euler.h"
 #include "Logger.h"
+#include <chrono>
 
 auto& dimension = Base::register_argument<std::size_t>('D', "dim", "number of dimensions in the problem");
 auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 
-auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 200);
+auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 1);
 auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
-auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 5.0);
-auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.001);
+auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 0.01);
+auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.0001);
 
 template<std::size_t DIM>
 void doThings()
 {
     // Set parameters for the PDE.
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
-    const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(3,3,true);
+    const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(2,2,true);
 
     // Calculate number of variables
     const std::size_t numOfVariables = 2+dimension.getValue();
@@ -55,6 +56,10 @@ void doThings()
 }
 
 int main (int argc, char **argv){
+
+    // Start measuring elapsed time
+    std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
+    startClock = std::chrono::system_clock::now();
 
 	Base::parse_options(argc, argv);
 
@@ -90,6 +95,11 @@ int main (int argc, char **argv){
         default:
             logger(ERROR, "Please try to enter a dimension that is supporten by hpGEM");
     }
+
+    // Measure elapsed time
+    endClock = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = endClock - startClock;
+    logger(INFO, "Elapsed time for solving the PDE: % s", elapsed_seconds.count());
 
     return 0;
 }
