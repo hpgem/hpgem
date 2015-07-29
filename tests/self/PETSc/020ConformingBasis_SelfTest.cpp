@@ -383,6 +383,26 @@ int main(int argc, char** argv)
     test9.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test9.getTotalError() - 0.00911139) < 1e-8), "comparison to old results");
     
+    PoissonTest<3> test10(1, 5, Base::MeshType::RECTANGULAR);
+    test10.solveSteadyStateWithPetsc(true);
+    logger.assert_always((std::abs(test10.getTotalError() - 0.0121718) < 1e-8), "comparison to old results");
+
+    PoissonTest<3> test11(2, 4, Base::MeshType::TRIANGULAR);
+    test11.solveSteadyStateWithPetsc(true);
+    logger.assert_always((std::abs(test11.getTotalError() - 0.0258013) < 1e-8), "comparison to old results");
+
+    PoissonTest<3> test12(4, 3, Base::MeshType::RECTANGULAR);
+    test12.solveSteadyStateWithPetsc(true);
+    logger.assert_always((std::abs(test12.getTotalError() - 0.000906667) < 1e-8), "comparison to old results");
+
+    PoissonTest<3> test13(8, 2, Base::MeshType::TRIANGULAR);
+    test13.solveSteadyStateWithPetsc(true);
+    logger.assert_always((std::abs(test13.getTotalError() - 0.00571684) < 1e-8), "comparison to old results");
+
+    PoissonTest<3> test14(16, 1, Base::MeshType::RECTANGULAR);
+    test14.solveSteadyStateWithPetsc(true);
+    logger.assert_always((std::abs(test14.getTotalError() - 0.00454794) < 1e-8), "comparison to old results");
+
     //no 3D testing due to speed related issues
     /*
     Laplace test0(1, 2, 1, Base::MeshType::RECTANGULAR);

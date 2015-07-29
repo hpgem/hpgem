@@ -96,6 +96,7 @@ namespace Base
 
         std::size_t getNumberOfUnknowns() const;
 
+        ///Returns the number of basis functions that are non-zero inside this element
         std::size_t getNumberOfBasisFunctions() const;
 
         void setUserData(UserElementData* data);

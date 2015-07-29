@@ -449,13 +449,13 @@ namespace Base
                 std::size_t edgeNr = edge->getEdgeNr(i);
                 std::size_t orientation = edge->getOrientation(i);
                 auto type = element->getReferenceGeometry()->getGeometryType();
-                for(std::size_t j = shapeToElementIndex[type] + numberOfFaceSets[type] + 1; j < shapeToElementIndex[type] + numberOfEdgeSets[type] + 1; ++j)
+                for(std::size_t j = shapeToElementIndex[type] + numberOfFaceSets[type] + 1; j < shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1; ++j)
                 {
-                    logger.assert(typeid(*collBasisFSet_[i]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
-                    if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[i].get())->checkOrientation(orientation, edgeNr))
+                    logger.assert(typeid(*collBasisFSet_[j]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
+                    if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[j].get())->checkOrientation(orientation, edgeNr))
                     {
-                        element->setFaceBasisFunctionSet(i, edgeNr);
-                        edge->setLocalNrOfBasisFunctions(collBasisFSet_[i]->size());
+                        element->setEdgeBasisFunctionSet(j, edgeNr);
+                        edge->setLocalNrOfBasisFunctions(collBasisFSet_[j]->size());
                     }
 
                 }

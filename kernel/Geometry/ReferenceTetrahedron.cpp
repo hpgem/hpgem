@@ -37,7 +37,7 @@ namespace Geometry
      */
     std::size_t ReferenceTetrahedron::localNodeIndexes_[4][3] = { {0, 3, 2}, {0, 1, 3}, {0, 2, 1}, {1, 2, 3}};
     
-    std::size_t ReferenceTetrahedron::localNodesOnEdge_[6][2] = { {0, 1}, {0, 2}, {0, 3}, {2, 3}, {1, 3}, {1, 2}, };
+    std::size_t ReferenceTetrahedron::localNodesOnEdge_[6][2] = { {0, 1}, {0, 2}, {0, 3}, {2, 3}, {1, 3}, {1, 2} };
     
     ReferenceTetrahedron::ReferenceTetrahedron()
             : /// Tetrahedron has four nodes 3D + 1
@@ -101,21 +101,21 @@ namespace Geometry
     
     std::vector<std::size_t> ReferenceTetrahedron::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 4), "ERROR: Index out of range. Tetrahedron has only 3 faces.\n");
+        logger.assert((faceIndex < 4), "ERROR: Index out of range. Tetrahedron has only 4 faces.\n");
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 3);
     }
     
     const ReferenceGeometry*
     ReferenceTetrahedron::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 4), "ERROR: Index out of range. Tetrahedron has only 3 faces.\n");
+        logger.assert((faceIndex < 4), "ERROR: Index out of range. Tetrahedron has only 4 faces.\n");
         return referenceGeometryCodim1Ptr_;
     }
     
     const MappingReferenceToReference<1>*
     ReferenceTetrahedron::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 4), "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square.\n");
+        logger.assert((faceIndex < 4), "ERROR: Index out of range. Tetrahedron has only 4 faces.\n");
         return mappingsTriangleToTetrahedron_[faceIndex];
     }
     

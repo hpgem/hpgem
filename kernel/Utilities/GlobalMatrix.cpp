@@ -517,19 +517,9 @@ namespace Utilities
                 //conforming contributions
                 for (int j = 0; j < element->getFace(i)->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns(); ++j)
                 {
-                    numberOfPositionsPerRow[startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
-                }
-                
-                //flux term for DG
-                for (int j = 0; j < element->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns(); ++j)
-                {
-                    if (element->getFace(i)->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || element->getFace(i)->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
+                    if(startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j < totalNrOfDOF + MPIOffset && MPIOffset < startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j + 1)
                     {
-                        offDiagonalPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
-                    }
-                    else if (element->getFace(i)->isInternal())
-                    {
-                        numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
+                        numberOfPositionsPerRow[startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
                     }
                 }
             }
@@ -537,7 +527,7 @@ namespace Utilities
             {
                 for (int j = 0; j < element->getEdge(i)->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns(); ++j)
                 {
-                    if(startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j - MPIOffset < totalNrOfDOF && -1 < startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j - MPIOffset)
+                    if(startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j < totalNrOfDOF + MPIOffset && MPIOffset < startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j + 1)
                     {
                         numberOfPositionsPerRow[startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
                     }
@@ -547,12 +537,73 @@ namespace Utilities
             {
                 for (int j = 0; j < element->getNode(i)->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns(); ++j)
                 {
-                    if(startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j - MPIOffset < totalNrOfDOF && -1 < startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j - MPIOffset)
-                    numberOfPositionsPerRow[startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
+                    if(startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j < totalNrOfDOF + MPIOffset && MPIOffset < startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j + 1)
+                    {
+                        numberOfPositionsPerRow[startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns();
+                    }
                 }
             }
         }
         
+        for(Base::Face* face : theMesh_->getFacesList())
+        {
+            if(face->isInternal())
+            {
+                std::vector<int>& changeVec = (face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC) ? offDiagonalPositionsPerRow : numberOfPositionsPerRow;
+                std::size_t nDuplicates = 0;
+                std::vector<int> duplicates;
+                getMatrixBCEntries(face, nDuplicates, duplicates);
+                for(Base::Element* element : {face->getPtrElementLeft(), face->getPtrElementRight()})
+                {
+                    for (int j = 0; j < element->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns(); ++j)
+                    {
+                        if(startPositionsOfElementsInTheMatrix_[element->getID()] + j < totalNrOfDOF + MPIOffset && MPIOffset < startPositionsOfElementsInTheMatrix_[element->getID()] + j + 1)
+                        {
+                            changeVec[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns() - nDuplicates;
+                        }
+                    }
+                    for (int i = 0; i < element->getReferenceGeometry()->getNrOfCodim1Entities(); ++i)
+                    {
+                        //conforming contributions
+                        for (int j = 0; j < element->getFace(i)->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns(); ++j)
+                        {
+                            if(startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j < totalNrOfDOF + MPIOffset && MPIOffset < startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j + 1)
+                            {
+                                changeVec[startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns() - nDuplicates;
+                            }
+                        }
+                    }
+                    for (int i = 0; i < element->getNrOfEdges(); ++i)
+                    {
+                        for (int j = 0; j < element->getEdge(i)->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns(); ++j)
+                        {
+                            if(startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j < totalNrOfDOF + MPIOffset && MPIOffset < startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j + 1)
+                            {
+                                changeVec[startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns() - nDuplicates;
+                            }
+                        }
+                    }
+                    for (int i = 0; i < element->getNrOfNodes(); ++i)
+                    {
+                        for (int j = 0; j < element->getNode(i)->getLocalNrOfBasisFunctions() * element->getNrOfUnknowns(); ++j)
+                        {
+                            if(startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j < totalNrOfDOF + MPIOffset && MPIOffset < startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j + 1)
+                            {
+                                changeVec[startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j - MPIOffset] += element->getNrOfBasisFunctions() * element->getNrOfUnknowns() - nDuplicates;
+                            }
+                        }
+                    }
+                }
+                for(std::size_t i : duplicates)
+                {
+                    if(i < totalNrOfDOF + MPIOffset && MPIOffset < i + 1)
+                    {
+                        changeVec[i-MPIOffset] -= face->getPtrElementLeft()->getNrOfBasisFunctions() * face->getPtrElementLeft()->getNrOfUnknowns() - nDuplicates;
+                    }
+                }
+            }
+        }
+
         for (int i = 0; i < totalNrOfDOF; ++i)
         {
             if (numberOfPositionsPerRow[i] > totalNrOfDOF)
@@ -563,7 +614,7 @@ namespace Utilities
         
         int ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNrOfDOF, totalNrOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
         CHKERRV(ierr);
-        MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE); //the estimate is known to be wrong for conforming cases
+        MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE); //the estimate is known to be wrong for mixed element cases and conforming parallel cases
         ierr = MatSetUp(A_);
         CHKERRV(ierr);
         reset();

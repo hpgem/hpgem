@@ -157,6 +157,7 @@ namespace Base
             return numberOfDOFinTheElement_;
         }
         
+        ///return the number of basis functions that are associated with this element only. This always includes functions with compact support on the interior of the element and DG basis function, but never include conforming basis functions that are nonzero on a face, edge or node
         std::size_t getLocalNumberOfBasisFunctions() const
         {
             return numberOfDOFinTheElement_;
