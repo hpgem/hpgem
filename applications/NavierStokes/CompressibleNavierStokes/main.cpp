@@ -25,15 +25,13 @@
 #include <chrono>
 
 //todo: decide if choosing the dimension during run time is worth the design overhead
-//todo: some integrands might be able to make better use of PhysicalFace and PhysicalElement
-//auto& dimension = Base::register_argument<std::size_t>('D', "dim", "number of dimensions in the problem");
 auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 
-auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 1);
+auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 100);
 auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
-auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 0.001);
-auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.001);
+auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false,  0.001);
+auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.00001);
 
 int main (int argc, char **argv){
 
@@ -42,13 +40,11 @@ int main (int argc, char **argv){
     startClock = std::chrono::system_clock::now();
 
 	// todo: Reduce the number of numericalvector creations
-	// todo: optimize the use of qinverse
 	// todo: optimize the code, placement of variables
 	// todo: make timestep CFL dependent
-	// todo: reorganise the code into more intuitief constructions
 	Base::parse_options(argc, argv);
 
-	logger(WARN,"WARNING: Timestep is determined a priori. Stability Criteria might not be satisfied!");
+	//logger(WARN,"WARNING: Timestep is determined a priori. Stability Criteria might not be satisfied!");
     // Set parameters for the PDE.
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
     const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(3,3,true);

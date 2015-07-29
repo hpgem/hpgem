@@ -77,7 +77,6 @@ int main (int argc, char **argv){
 
 
     // Create problem solver 'test', that can solve the euler equations.
-    //dimension.getValue() is not supported by current design
     switch(dimension.getValue())
     {
         case 1:
@@ -93,7 +92,7 @@ int main (int argc, char **argv){
             doThings<4>();
             break;
         default:
-            logger(ERROR, "Please try to enter a dimension that is supporten by hpGEM");
+            logger(ERROR, "Please try to enter a dimension that is supported by hpGEM");
     }
 
     // Measure elapsed time

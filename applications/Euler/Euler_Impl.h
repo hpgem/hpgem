@@ -494,6 +494,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
    LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM> &face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
    {
 	   //Get the number of basis functions
+    	//todo: rewrite the below lines into neater synteax
 	   std::size_t numOfTestBasisFunctions = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
 	    std::size_t numOfSolutionBasisFunctionsLeft = face.getFace()->getPtrElementLeft()->getNumberOfBasisFunctions(); //Get the number of basis functions on the left
 	    std::size_t numOfSolutionBasisFunctionsRight = face.getFace()->getPtrElementRight()->getNumberOfBasisFunctions(); //Get the number of basis functions on the right side
