@@ -6,6 +6,7 @@ add_subdirectory(HeightLimiters)
 add_executable(SavageHutter.out
     HelperFunctions.cpp
     SavageHutterRightHandSideComputer.cpp
+    BidisperseRHS1D.cpp
     SavageHutterRHS2D.cpp
 		SavageHutter.cpp
     SavageHutterBase.cpp

@@ -19,17 +19,13 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SAVAGEHUTTERRIGHTHANDSIDECOMPUTER_H
-#define	SAVAGEHUTTERRIGHTHANDSIDECOMPUTER_H
+#ifndef BIDISPERSERHS1D_H
+#define	BIDISPERSERHS1D_H
 
-#include "Base/Element.h"
-#include "Base/Face.h"
 #include "RightHandSideComputer.h"
 
 
-using LinearAlgebra::MiddleSizeVector;
-
-class SavageHutterRightHandSideComputer : public RightHandSideComputer
+class BidisperseRHS1D : public RightHandSideComputer
 {
     using PointPhysicalT = Geometry::PointPhysical<DIM>;
     using PointReferenceT = Geometry::PointReference<DIM>;
@@ -37,8 +33,8 @@ class SavageHutterRightHandSideComputer : public RightHandSideComputer
 
 public:
 
-    SavageHutterRightHandSideComputer(const std::size_t numOfVariables, const double epsilon, const double chuteAngle, const MiddleSizeVector inflowBC) :
-    RightHandSideComputer(numOfVariables), epsilon_(epsilon), chuteAngle_(chuteAngle), inflowBC_(inflowBC), minH_(1e-10), alpha_(4./3) { } //simple shear: 4./3, plug flow: 1, Bagnold: 5./4
+    BidisperseRHS1D(const std::size_t numOfVariables, const double epsilon, const double chuteAngle, const MiddleSizeVector inflowBC) :
+    RightHandSideComputer(numOfVariables), epsilon_(epsilon), chuteAngle_(chuteAngle), inflowBC_(inflowBC), minH_(1e-10), alpha_(0.5) { } //simple shear
 
     /// \brief Compute the integrand for the right hand side for the reference element.
     MiddleSizeVector integrandRightHandSideOnElement
@@ -64,18 +60,18 @@ public:
         const MiddleSizeVector &solutionCoefficientsLeft,
         const MiddleSizeVector &solutionCoefficientsRight
         ) override final;
-    
+
     void setInflowBC(MiddleSizeVector inflowBC) override final
     {
         inflowBC_ = inflowBC;
     }
-
+    
 private:
     MiddleSizeVector computePhysicalFlux(const MiddleSizeVector &numericalSolution);
     MiddleSizeVector computeSourceTerm(const MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys, const double time);
     MiddleSizeVector localLaxFriedrichsFlux(const MiddleSizeVector &numericalSolutionLeft, const MiddleSizeVector &NumericalSolutionRight);
-    double computeFriction(const MiddleSizeVector &numericalSolution);
     
+    double computeFriction(const MiddleSizeVector &numericalSolution);    
     double computeFrictionExponential(const MiddleSizeVector &numericalSolution);
     double computeFrictionCoulomb(const MiddleSizeVector &numericalSolution);
 
@@ -86,5 +82,5 @@ private:
     double alpha_;
 };
 
-#endif	/* SAVAGEHUTTERRIGHTHANDSIDECOMPUTER_H */
+#endif	/* BIDISPERSERHS1D_H */
 

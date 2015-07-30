@@ -64,6 +64,8 @@ private:
     virtual HeightLimiter * createHeightLimiter(const SHConstructorStruct &inputValues) = 0;
     virtual RightHandSideComputer * createRightHandSideComputer(const SHConstructorStruct &inputValues) = 0;
     
+    virtual void setInflowBC(double time) {  }
+    
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, 
     LinearAlgebra::MiddleSizeVector &solutionCoefficients, 
     const double time) override final;

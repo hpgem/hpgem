@@ -29,6 +29,7 @@
 #include "SlopeLimiters/TvbLimiter1D.h"
 #include "HeightLimiters/SqueezeLimiterWithLayer.h"
 #include "HeightLimiters/AverageValuesNonNegativeLimiter.h"
+#include "BidisperseRHS1D.h"
 
 using LinearAlgebra::MiddleSizeVector;
 
@@ -66,7 +67,7 @@ RightHandSideComputer * SavageHutter::createRightHandSideComputer(const SHConstr
     LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0);
     //magic numbers: epsilon and chute angle (in radians)
     if (DIM == 1)
-        return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 0.1, 30./180*M_PI, inflowBC);
+        return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1e-1, 90./180*M_PI, inflowBC);
     
     return new SavageHutterRHS2D(inputValues.numOfVariables, 1, 0., inflowBC);
 }
@@ -89,9 +90,17 @@ LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhys
     if (x > 0.5 && x < 2.5)
         h = 1.-(x-1.5) * (x-1.5);
     LinearAlgebra::MiddleSizeVector initialCondition(numOfVariables_);
-    initialCondition(0) = 1;
-    initialCondition(1) = 1.1;
+    initialCondition(0) = 0.;
+    initialCondition(1) = 0.;
     return initialCondition;
+}
+
+void SavageHutter::setInflowBC(double time)
+{
+    const double h = 1. - std::exp(-time/.1);
+    const double u = 1.;
+    const double eta = 0.5*h;
+    rhsComputer_->setInflowBC(MiddleSizeVector({h, h*u, eta}));
 }
 
 ///\details analytical solution for the parabolic cap
@@ -108,7 +117,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter::getExactSolution(const PointPhysic
         h = 1/g*(1-(1/g/g*(x - .5*angleTerm - 1.5)*(x - .5*angleTerm - 1.5)));
     const double k = .1*std::sqrt(3.);
     const double uTilde = std::sqrt(2*k/g*(g-1))*1/g*(x - .5*angleTerm - 1.5);
-    const double u = g*g*uTilde + g*g*angleTerm;
+    const double u = 0;//g*g*uTilde + g*g*angleTerm;
     return LinearAlgebra::MiddleSizeVector({h, h*u});
 }
 
@@ -125,7 +134,9 @@ void SavageHutter::registerVTKWriteFunctions()
     /*registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
     {
         const PointPhysicalT &pPhys = element->referenceToPhysical(pRef);
-                             return std::real(getExactSolution(pPhys, time_)[0]);
+        if (element->getSolution(timeLevel, pRef)[0] > 1e-5)
+            return std::real(getExactSolution(pPhys, time_)[0]);
+        return 0;
     }, "analytical height");
     
     registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
