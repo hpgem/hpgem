@@ -121,7 +121,7 @@ where $\gamma = \frac{c_p}{c_v}$ is the non-dimensional number related to compre
 The derivatives on the righthand side can easily be computed from the Jacobian of the state vector by product rule, i.e.
 \begin{equation}
 \label{e:partialStatederivative}
-\dx{E} = \frac{1}{\rho} \left[ \dx{\rho E} -- \dx{\rho} \right]
+\dx{E} = \frac{1}{\rho} \left[ \dx{\rho E} -E \dx{\rho} \right]
 \end{equation}
 
 Components of the shear stress tensor for a fluid are
@@ -635,6 +635,9 @@ A_z = u \mu \left( \dz{u} + \dx{w} \right)
 + \frac{\kappa}{c_v}\dz{T}
 \end{equation}
 It is possible to rewrite the viscous fluxfunction as a linear combination of the Jacobian of the state, $\nabla \mathbf{U}$. When writing the flux function in this manner, it is easier to write in Einstin summation convention...
+
+\chapter{Stability terms}
+
 
 %ADD REFERENCES!!
 \end{document}

@@ -92,13 +92,13 @@ public:
 	LinearAlgebra::MiddleSizeMatrix computeStabilityParameters(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorInternal,	const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorExternal, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const LinearAlgebra::SmallVector<DIM> &normalInternal);
 
 	/// \brief Computes the fluxFunction for the auxilliary values at an internal face
-	LinearAlgebra::MiddleSizeMatrix computeAuxilliaryFlux(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const double pressureInternal, const double pressureExternal, const LinearAlgebra::MiddleSizeVector &partialStateInternal, const LinearAlgebra::MiddleSizeVector &partialStateExternal, const LinearAlgebra::MiddleSizeMatrix &stateJacobianInternal, const LinearAlgebra::MiddleSizeMatrix &stateJacobianExternal,  const LinearAlgebra::SmallVector<DIM> &normalInternal);
+	LinearAlgebra::MiddleSizeMatrix computeAuxilliaryFlux(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const double pressureInternal, const double pressureExternal, const LinearAlgebra::MiddleSizeVector &partialStateInternal, const LinearAlgebra::MiddleSizeVector &partialStateExternal, const LinearAlgebra::MiddleSizeMatrix &stateJacobianInternal, const LinearAlgebra::MiddleSizeMatrix &stateJacobianExternal,  const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
 
 	/// \brief Computes the auxilliary integrand at an internal face
-	LinearAlgebra::MiddleSizeVector integrandAuxilliaryAtFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const double pressureInternal, const double pressureExternal, const LinearAlgebra::MiddleSizeVector &partialStateInternal, const LinearAlgebra::MiddleSizeVector &partialStateExternal, const LinearAlgebra::MiddleSizeMatrix &stateJacobianInternal, const LinearAlgebra::MiddleSizeMatrix &stateJacobianExternal);
+	LinearAlgebra::MiddleSizeVector integrandAuxilliaryAtFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const double pressureInternal, const double pressureExternal, const LinearAlgebra::MiddleSizeVector &partialStateInternal, const LinearAlgebra::MiddleSizeVector &partialStateExternal, const LinearAlgebra::MiddleSizeMatrix &stateJacobianInternal, const LinearAlgebra::MiddleSizeMatrix &stateJacobianExternal, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
 
 	/// \brief Computes the viscous integral at the face, based on the viscous fluxes
-	LinearAlgebra::MiddleSizeVector integrandViscousAtFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const double pressure, const LinearAlgebra::MiddleSizeVector &partialStateInternal);
+	LinearAlgebra::MiddleSizeVector integrandViscousAtFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const double pressure, const LinearAlgebra::MiddleSizeVector &partialStateInternal, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
 
 
 /*//todo: Delete this function
@@ -112,7 +112,7 @@ public:
     /// **************************************************
 
 	/// \brief Computes the integrand required for the stability parameter calculations
-	LinearAlgebra::MiddleSizeVector integrandStabilityRightHandSideOnRefFace(Base::PhysicalFace<DIM> &face, const Base::Side &side, const LinearAlgebra::MiddleSizeMatrix &stabilityFluxFunction, const std::size_t iD, const LinearAlgebra::SmallVector<DIM> &normalInternal);
+	LinearAlgebra::MiddleSizeVector integrandStabilityRightHandSideOnFace(Base::PhysicalFace<DIM> &face, const Base::Side &side, const LinearAlgebra::MiddleSizeMatrix &stabilityFluxFunction, const std::size_t iD, const LinearAlgebra::SmallVector<DIM> &normalInternal);
 
 	/// \brief Computes the rhs, for the system of equations solving the stability parameters, by integrating the rhs  stability parameter integrand
 	LinearAlgebra::MiddleSizeVector computeRhs(const Base::Face *ptrFace, const Base::Side &side, const LinearAlgebra::MiddleSizeMatrix &stabilityFluxFunction, const LinearAlgebra::SmallVector<DIM> &normalInternal, const std::size_t iD);
@@ -123,6 +123,9 @@ public:
 
 private:
 	CompressibleNavierStokes& instance_;
+
+	/// \var Integrator voor the stability parameters
+	Integration::FaceIntegral<DIM> stabilityFaceIntegrator_;
 
 	const double PrInv_; //Inverse of Pr
 	const double cp_;

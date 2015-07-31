@@ -90,14 +90,32 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(Base::Physi
 	//Convert pRef to pPhys
 	Geometry::PointPhysical<DIM> pPhys = Element.getPointPhysical();
 
+	//Calculate exactState
+	LinearAlgebra::MiddleSizeVector exactState(numOfVariables_);
+
+	double amplitude = 0.2;
+	double frequency = 2.0*M_PI;
+	double function = amplitude*std::cos(frequency*time);
+
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		function *= std::cos(frequency*pPhys[iD]);
+	}
+
+	exactState(0) = 1.5 + function;
+
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		exactState(iD+1) = function;
+	}
+
+	exactState(DIM + 1) = 30.0 + function;
 
 	//*********************************************************
 	//***	Calculate derivative terms for source function	***
 	//*********************************************************
 
 	//Calculate base source functions: S_t, S_x, S_y, S_z, see manual
-	double amplitude = 0.2;
-	double frequency = 2.0*M_PI;
 	LinearAlgebra::MiddleSizeVector sourceValue(DIM + 1);
 
 	//Add the time-dependent part of the function
@@ -128,14 +146,14 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(Base::Physi
 	//***	Calculate values for various source terms	***
 	//*****************************************************
 
-	double q1Inverse = 1.0/qSolution(0);
+	double inverseDensity = 1.0/exactState(0);
 
 	//Calculate Source term values: momentum convection
 	LinearAlgebra::SmallMatrix<DIM,DIM> sourceConvection; // d(rho*u^2)/dx or d(rho*v^2)/dy or d(rho*w^2)/dz on the diagonal and terms like d(rho*u*v)/dx and d(rho*w*u)/dz	on the off-diagonal
 
 	for (std::size_t iD = 0; iD < DIM; iD++)
 	{
-		sourceConvection(iD,iD) = (2.0*qSolution(iD+1) - qSolution(iD+1)*qSolution(iD+1)*q1Inverse)*sourceValue(iD+1)*q1Inverse; // d(rho*u^2)/dx or d(rho*v^2)/dy or d(rho*w^2)/dz
+		sourceConvection(iD,iD) = (2.0*exactState(iD+1) - exactState(iD+1)*exactState(iD+1)*inverseDensity)*sourceValue(iD+1)*inverseDensity; // d(rho*u^2)/dx or d(rho*v^2)/dy or d(rho*w^2)/dz
 	}
 	//off diagonal convection
 	for (std::size_t iD = 0; iD < DIM; iD++)
@@ -144,7 +162,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(Base::Physi
 		{
 			if (iD!=iD2)
 			{
-				sourceConvection(iD,iD2) = (qSolution(iD+1) + qSolution(iD2+1) - qSolution(iD+1)*qSolution(iD2+1)*q1Inverse)*sourceValue(iD2+1)*q1Inverse; // terms like d(rho*u*v)/dx and d(rho*w*u)/dz
+				sourceConvection(iD,iD2) = (exactState(iD+1) + exactState(iD2+1) - exactState(iD+1)*exactState(iD2+1)*inverseDensity)*sourceValue(iD2+1)*inverseDensity; // terms like d(rho*u*v)/dx and d(rho*w*u)/dz
 			}
 		}
 	}
@@ -155,7 +173,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(Base::Physi
 
 	for (std::size_t iD = 0; iD < DIM; iD++)
 	{
-		kineticPressure += (-qSolution(iD+1) + 0.5*qSolution(iD+1)*qSolution(iD+1)*q1Inverse)*q1Inverse;// part 1 of calculation
+		kineticPressure += (-exactState(iD+1) + 0.5*exactState(iD+1)*exactState(iD+1)*inverseDensity)*inverseDensity;// part 1 of calculation
 	}
 	for (std::size_t iD = 0; iD < DIM; iD++)
 	{
@@ -166,7 +184,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(Base::Physi
 	LinearAlgebra::MiddleSizeVector sourceEnthalpy(DIM);
 	for (std::size_t iD = 0; iD < DIM; iD++)
 	{
-		sourceEnthalpy(iD) = (qSolution(iD+1) + qSolution(DIM+1) - qSolution(iD+1)*qSolution(DIM+1)*q1Inverse + pressureTerm - qSolution(iD+1)*pressureTerm*q1Inverse)*sourceValue(iD+1)*q1Inverse + qSolution(iD+1)*q1Inverse*sourcePressure(iD); // d(rho*u*h)/dx or d(rho*v*h)/dy or d(rho*w*h)/dz
+		sourceEnthalpy(iD) = (exactState(iD+1) + exactState(DIM+1) - exactState(iD+1)*exactState(DIM+1)*inverseDensity + pressureTerm - exactState(iD+1)*pressureTerm*inverseDensity)*sourceValue(iD+1)*inverseDensity + exactState(iD+1)*inverseDensity*sourcePressure(iD); // d(rho*u*h)/dx or d(rho*v*h)/dy or d(rho*w*h)/dz
 	}
 
 	//*************************************************************************

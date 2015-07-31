@@ -75,7 +75,7 @@ public:
     LinearAlgebra::MiddleSizeVector integrandSourceAtElement(Base::PhysicalElement<DIM> &element, const LinearAlgebra::MiddleSizeVector &state, const double &pressureTerm, const double &time);
 
     /// \brief Compute integrand of righthandside on an element
-    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefElement(Base::PhysicalElement<DIM>& element, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnElement(Base::PhysicalElement<DIM>& element, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
 
     /// \brief Compute the right hand side on an element
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
@@ -97,8 +97,8 @@ public:
     /// ***    external face integration functions     ***
     /// **************************************************
 
-    /// \brief Compute the integrand for the right hand side for the reference face corresponding to an external face.
-    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
+    /// \brief Compute the integrand for the right hand side for the face corresponding to an external face.
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
 
     /// \brief Compute the right-hand side corresponding to an external face
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
@@ -107,8 +107,8 @@ public:
     /// ***    internal face integration functions     ***
     /// **************************************************
 
-    /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &stateCoefficientsRight);
+    /// \brief Compute the integrand for the right hand side for the face corresponding to an internal face.
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnFace(Base::PhysicalFace<DIM>& face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &stateCoefficientsRight);
 
     /// \brief Compute the right-hand side corresponding to an internal face
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time) override final;
@@ -130,11 +130,12 @@ public:
 	/// \brief Shows the progress in the terminal as output
 	void showProgress(const double time, const std::size_t timeStepID) override final;
 
+/*	deprecated
 	/// \brief Ensure that referenceIntegrate works correctly with the newly templated API. This is a hack.
 	void beforeTimeIntegration()
 	{
 	    faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
-	}
+	}*/
 
 private:
     /// \var Dimension of the domain
@@ -145,6 +146,10 @@ private:
 
     /// \var specific gas constant
     const double Rs_ = (1 - 1/gamma_)*1000; // cp-cv;
+
+    /// \var specific heat at constant pressure
+    //todo: remove this from viscous.cpp
+    const double cp_ = 1000;
 
 	/// \var Number of variables
 	const std::size_t numOfVariables_;

@@ -231,6 +231,7 @@ LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(Base::PhysicalFace<DIM
 	   }
 	   stateExternal(instance_.DIM_+1) = stateInternal(instance_.DIM_+1);
 
+	   //WARNING: not a unit normal vector here
 	   // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
 	   LinearAlgebra::MiddleSizeVector normalInternal = face.getNormalVector();
 	   LinearAlgebra::MiddleSizeVector unitNormalInternal = normalInternal/Base::L2Norm(normalInternal);
@@ -249,13 +250,20 @@ LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(Base::PhysicalFace<DIM
 	           integrand(iVB) = -flux(iV)*face.basisFunction(Base::Side::LEFT, iB);
 	       }
 	   }
+	   std::cout << "I should not be here" << std::endl;
 
 	   return  integrand;
 }
 
 /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
 
-LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(Base::PhysicalFace<DIM> &face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal)
+LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(
+		Base::PhysicalFace<DIM> &face,
+		const double &time,
+		const Base::Side &iSide,
+		const LinearAlgebra::MiddleSizeVector &stateInternal,
+		const LinearAlgebra::MiddleSizeVector &stateExternal,
+		const LinearAlgebra::SmallVector<DIM> &unitNormalInternal)
 {
 
 	   //Get the number of basis functions
@@ -273,14 +281,10 @@ LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(Base::PhysicalFace<DIM
 	       for (std::size_t iV = 0; iV < instance_.numOfVariables_; iV++) // Index for direction
 	       {
 	           iVB = face.getPhysicalElement(iSide).convertToSingleIndex(iB, iV);
-	           integrand(iVB) = -flux(iV)*face.basisFunction(iSide, iB);
+	           integrand(iVB) = flux(iV)*face.basisFunction(iSide, iB);
 	       }
 	   }
 
-	    if (integrand[0] != integrand[0])
-	    {
-	    	logger(ERROR,"integrand on ref face is nan");
-	    }
-	   return  integrand;
+	   return  -integrand;
 }
 
