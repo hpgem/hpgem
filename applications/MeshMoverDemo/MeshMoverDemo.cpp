@@ -25,9 +25,9 @@
 #include "Base/GlobalData.h"
 #include "Base/ConfigurationData.h"
 #include "Output/TecplotSingleElementWriter.h"
-
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotPhysicalGeometryIterator.h"
+#include "Output/VTKSpecificTimeWriter.h"
 using Base::RectangularMeshDescriptor;
 using Base::ConfigurationData;
 using Base::GlobalData;
@@ -44,6 +44,7 @@ public:
     }
 };
 
+///Demo of how a mesh mover can be used to create a non-rectangular domain. 
 class MeshMoverExampleProblem : public Base::HpgemAPIBase<2>
 {
     
@@ -53,6 +54,9 @@ public:
     {
     }
     
+    ///\brief Make the initial mesh.
+    /// Make the initial rectangular mesh and add it to the application. Also 
+    /// initialise the mesh mover of MeshMover.h and couple it to the mesh.
     bool initialise()
     {
         
@@ -67,23 +71,35 @@ public:
         
         Base::HpgemAPIBase<2>::MeshId id = addMesh(rectangularMesh);
         
-        //Set up the move of the mesh;
+        //Set up the move of the mesh; note that the mesh mover gets deleted in the mesh manipulator
         const MeshMover* meshMover = new MeshMover;
         initialiseMeshMover(meshMover, id);
         
         return true;
     }
     
+    ///\brief Write the mesh to output files. 
+    ///The file with extension .dat is meant to be used for Tecplot, the files 
+    ///with extensions .pvtu and .vtu can be read in for example Paraview or 
+    ///other applications that can read VTK files.
+    ///Note that we are only interested in the mesh, so the VTK file just plots
+    ///the value 0 in each point.
     void output()
     {
         std::ofstream file2D;
-        file2D.open("out.dat");
+        file2D.open("movedMesh.dat");
         Output::TecplotDiscontinuousSolutionWriter<2> out(file2D, "RectangularMesh", "01", "xy");
         
         Dummy d;
         out.write(meshes_[0], "holi", false, &d);
+        
+        Output::VTKSpecificTimeWriter<2> vtkOut("movedMesh", meshes_[0]);
+        std::function<double(Base::Element*, const Geometry::PointReference<2>&, std::size_t)> fun = 
+        [](Base::Element* elt, const Geometry::PointReference<2>& pRef, std::size_t i){return 0.;};
+        vtkOut.write(fun, "zero");
     }
     
+    ///\brief Move the mesh as described by the mesh mover.
     void solve()
     {
         
@@ -97,18 +113,18 @@ int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
     
-    Base::GlobalData globalData;
+    GlobalData* globalData = new GlobalData();
     
-    Base::ConfigurationData config(2, 1, 1, 1);
+    ConfigurationData* config = new ConfigurationData(2, 1, 1, 1);
     
-    config.numberOfUnknowns_ = 1;
-    config.numberOfTimeLevels_ = 1;
-    config.numberOfBasisFunctions_ = 1;
+    config->numberOfUnknowns_ = 1;
+    config->numberOfTimeLevels_ = 1;
+    config->numberOfBasisFunctions_ = 1;
     
-    globalData.numberOfUnknowns_ = 10;
-    globalData.numberOfTimeLevels_ = 1;
+    globalData->numberOfUnknowns_ = 10;
+    globalData->numberOfTimeLevels_ = 1;
     
-    MeshMoverExampleProblem problem(&globalData, &config);
+    MeshMoverExampleProblem problem(globalData, config);
     
     problem.initialise();
     
