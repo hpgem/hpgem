@@ -173,7 +173,48 @@ namespace Base
         ///check if this PhysicalFace is an internal face or a face on a periodic boundary.
         bool isInternal();
 
+        ///get the total number of basis functions that might be nonzero on the face
+        std::size_t getNumOfBasisFunctions()
+        {
+            return face_->getNumberOfBasisFunctions();
+        }
+
+        /// get the number of variables present in the problem
+        std::size_t getNumOfUnknowns()
+        {
+            return face_->getPtrElementLeft()->getNumberOfUnknowns();
+        }
+
+        ///convert a function index and a variable index to a single index in the contiguous numbering of the face
+        std::size_t convertToSingleIndex(Base::Side side, std::size_t functionId, std::size_t variableId)
+        {
+            return face_->convertToSingleIndex(side, functionId, variableId);
+        }
+
+        ///provides access to the left and right physical elements in case you need it
+        PhysicalElement<DIM>& getPhysicalElement(Base::Side side)
+        {
+            if(side == Base::Side::LEFT)
+            {
+                return left;
+            }
+            else
+            {
+                logger.assert(isInternal(), "This physical face is meant for boundaries and can only see left elements");
+                return right;
+            }
+        }
+
+        ///get the index of the face
+        std::size_t getID()
+        {
+            return face_->getID();
+        }
+
+        ///direct access to the underlying face in case it is needed
         const Face* getFace();
+
+        ///getTransform should only be needed internally
         const CoordinateTransformation<DIM>* getTransform();
 
         void setPointReference(const Geometry::PointReference<DIM - 1>& point);
@@ -284,7 +325,7 @@ namespace Base
         else
         {
             hasBasisFunctionNormal = true;
-            for(std::size_t j = 0; j < face_->getNrOfBasisFunctions(); ++j)
+            for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunctionNormal_[j] = getNormalVector() * basisFunction(j);
                 if(j >= nLeftBasisFunctions)
@@ -322,7 +363,7 @@ namespace Base
         else
         {
             hasBasisFunctionUnitNormal = true;
-            for(std::size_t j = 0; j < face_->getNrOfBasisFunctions(); ++j)
+            for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunctionUnitNormal_[j] = getUnitNormalVector() * basisFunction(j);
                 if(j >= nLeftBasisFunctions)
@@ -423,7 +464,7 @@ namespace Base
         else
         {
             hasVectorBasisFunctionNormal = true;
-            for(std::size_t j = 0; j < face_->getNrOfBasisFunctions(); ++j)
+            for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunction(i, result);
                 vectorBasisFunctionNormal_[j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>({{getNormalVector(), result}}).computeWedgeStuffVector();
@@ -464,7 +505,7 @@ namespace Base
         else
         {
             hasVectorBasisFunctionUnitNormal = true;
-            for(std::size_t j = 0; j < face_->getNrOfBasisFunctions(); ++j)
+            for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunction(i, result);
                 vectorBasisFunctionUnitNormal_[j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>({{getUnitNormalVector(), result}}).computeWedgeStuffVector();
@@ -797,14 +838,14 @@ namespace Base
         face_ = face;
         if(!hasFace)
         {
-            std::size_t leftCoefficients = face->getPtrElementLeft()->getNrOfUnknowns() * face->getPtrElementLeft()->getNrOfBasisFunctions();
-            nLeftBasisFunctions = face->getPtrElementLeft()->getNrOfBasisFunctions();
+            std::size_t leftCoefficients = face->getPtrElementLeft()->getNumberOfUnknowns() * face->getPtrElementLeft()->getNumberOfBasisFunctions();
+            nLeftBasisFunctions = face->getPtrElementLeft()->getNumberOfBasisFunctions();
             std::size_t rightCoefficients = 0;
-            std::size_t basisFunctions = face->getPtrElementLeft()->getNrOfBasisFunctions();
+            std::size_t basisFunctions = face->getPtrElementLeft()->getNumberOfBasisFunctions();
             if(isInternal_)
             {
-                basisFunctions += face->getPtrElementRight()->getNrOfBasisFunctions();
-                rightCoefficients = face->getPtrElementRight()->getNrOfUnknowns() * face->getPtrElementRight()->getNrOfBasisFunctions();
+                basisFunctions += face->getPtrElementRight()->getNumberOfBasisFunctions();
+                rightCoefficients = face->getPtrElementRight()->getNumberOfUnknowns() * face->getPtrElementRight()->getNumberOfBasisFunctions();
             }
             resultMatrix.resize(leftCoefficients, rightCoefficients);
             leftRightMatrix.resize(leftCoefficients, rightCoefficients);

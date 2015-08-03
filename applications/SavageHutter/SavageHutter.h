@@ -50,6 +50,9 @@ private:
     LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
     
     void registerVTKWriteFunctions() override final;
+    
+    void setInflowBC(double time) override final;
+
 };
 
 #endif

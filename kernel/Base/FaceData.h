@@ -88,8 +88,20 @@ namespace Base
 
         void setResidue(LinearAlgebra::MiddleSizeVector& residue);
         
-        std::size_t getNumberFaceMatrices() const;
-        std::size_t getNumberFaceVectors() const;
+        std::size_t getNumberOfFaceMatrices() const;
+        std::size_t getNumberOfFaceVectors() const;
+        
+        ///\deprecated Does not follow the naming convention, use getNumberOfFaceMatrices instead.
+        std::size_t getNumberFaceMatrices() const
+        {
+            return getNumberOfFaceMatrices();
+        }
+        
+        ///\deprecated Does not follow the naming convention, use getNumberOfFaceVectors instead.
+        std::size_t getNumberFaceVectors() const
+        {
+            return getNumberOfFaceVectors();
+        }
         
     protected:
         /// Vector of data which the user might want to store. For example determinants of the Jacobian for each quadrature point.

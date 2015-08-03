@@ -112,7 +112,32 @@ namespace Base
         ///the element (elements have extra functions for users that need them)
         const Base::Element* getElement();
 
-        ///the transformation that was used to get from the reference element to the physical element
+        ///the number of basis functions that are nonzero in the element
+        std::size_t getNumOfBasisFunctions()
+        {
+            return theElement_->getNumberOfBasisFunctions();
+        }
+
+        ///the number of unknowns present in the problem
+        std::size_t getNumOfUnknowns()
+        {
+            return theElement_->getNumberOfUnknowns();
+        }
+
+        ///the id of the element
+        std::size_t getID()
+        {
+            return theElement_->getID();
+        }
+
+        ///combine a function index and a variable index to a single index that can be used for indexing matrices or vectors
+        std::size_t convertToSingleIndex(std::size_t functionId, std::size_t variableId)
+        {
+            //currently calling the function is too fast to be worth storing the variable
+            return theElement_->convertToSingleIndex(functionId, variableId);
+        }
+
+        ///the transformation that was used to get from the reference element to the physical element (should only be needed internally)
         const Base::CoordinateTransformation<DIM>* getTransformation();
 
         ///setters should only be needed internally
@@ -165,7 +190,7 @@ namespace Base
         else
         {
             hasFunctionValue = true;
-            for(std::size_t j = 0; j < theElement_->getNrOfBasisFunctions(); ++j)
+            for(std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunctionValue[j] = transform_->transform(theElement_->basisFunction(j, *pointReference_), *this);
             }
@@ -186,7 +211,7 @@ namespace Base
         else
         {
             hasFunctionDeriv = true;
-            for(std::size_t j = 0; j < theElement_->getNrOfBasisFunctions(); ++j)
+            for(std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunctionDeriv_[j] = transform_->transformDeriv(theElement_->basisFunctionDeriv(j, *pointReference_), *this);
             }
@@ -206,7 +231,7 @@ namespace Base
         else
         {
             hasVectorFunctionValue = true;
-            for(std::size_t j = 0; j < theElement_->getNrOfBasisFunctions(); ++j)
+            for(std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j)
             {
                 theElement_->basisFunction(j, *pointReference_, vectorBasisFunctionValue[j]);
                 vectorBasisFunctionValue[j] = transform_->transform(vectorBasisFunctionValue[j], *this);
@@ -227,7 +252,7 @@ namespace Base
         else
         {
             hasFunctionCurl = true;
-            for(std::size_t j = 0; j < theElement_->getNrOfBasisFunctions(); ++j)
+            for(std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunctionCurl_[j] = transform_->transformCurl(theElement_->basisFunctionCurl(j, *pointReference_), *this);
             }
@@ -435,13 +460,13 @@ namespace Base
         theElement_ = element;
         if(!hasElement)
         {
-            std::size_t numEntries = theElement_->getNrOfBasisFunctions() * theElement_->getNrOfUnknowns();
+            std::size_t numEntries = theElement_->getNumberOfBasisFunctions() * theElement_->getNumberOfUnknowns();
             resultMatrix.resize(numEntries, numEntries);
             resultVector.resize(numEntries);
-            basisFunctionValue.resize(theElement_->getNrOfBasisFunctions());
-            vectorBasisFunctionValue.resize(theElement_->getNrOfBasisFunctions());
-            basisFunctionDeriv_.resize(theElement_->getNrOfBasisFunctions());
-            basisFunctionCurl_.resize(theElement_->getNrOfBasisFunctions());
+            basisFunctionValue.resize(theElement_->getNumberOfBasisFunctions());
+            vectorBasisFunctionValue.resize(theElement_->getNumberOfBasisFunctions());
+            basisFunctionDeriv_.resize(theElement_->getNumberOfBasisFunctions());
+            basisFunctionCurl_.resize(theElement_->getNumberOfBasisFunctions());
         }
         hasElement = true;
         //even if they are already computed, the information is now out of date

@@ -133,12 +133,12 @@ void Base::FaceData::setResidue(LinearAlgebra::MiddleSizeVector& residue)
     residual_ = residue;
 }
 
-std::size_t Base::FaceData::getNumberFaceMatrices() const
+std::size_t Base::FaceData::getNumberOfFaceMatrices() const
 {
     return faceMatrix_.size();
 }
 
-std::size_t Base::FaceData::getNumberFaceVectors() const
+std::size_t Base::FaceData::getNumberOfFaceVectors() const
 {
     return faceVector_.size();
 }

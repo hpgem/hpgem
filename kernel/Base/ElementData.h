@@ -44,7 +44,7 @@ namespace Base
         using MatrixT = LinearAlgebra::MiddleSizeMatrix;
         using VectorOfMatrices = std::vector<LinearAlgebra::MiddleSizeMatrix>;
 
-        ElementData(std::size_t timeLevels, std::size_t nrOfUnkowns, std::size_t nrOfBasisFunctions, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0);
+        ElementData(std::size_t timeLevels, std::size_t numberOfUnkowns, std::size_t numberOfBasisFunctions, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0);
         
         ElementData(const ElementData& other);
 
@@ -85,12 +85,19 @@ namespace Base
         /// \brief Specify a time level index, a variable index and a basis function index, set the corresponding expansionCoefficient (double).
         void setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, double val);
         
-        ///\deprecated Spelling mistake, please use getNrOfUnknowns instead.
+        ///\deprecated Spelling mistake, please use getNumberOfUnknowns instead.
         std::size_t getNrOfUnknows() const;
 
+        ///\deprecated Does not follow naming guidelines, use getNumberOfUnknowns instead.
         std::size_t getNrOfUnknowns() const;
 
+        ///\deprecated Does not follow naming guidelines, use getNumberOfBasisFunctions instead.
         std::size_t getNrOfBasisFunctions() const;
+
+        std::size_t getNumberOfUnknowns() const;
+
+        ///Returns the number of basis functions that are non-zero inside this element
+        std::size_t getNumberOfBasisFunctions() const;
 
         void setUserData(UserElementData* data);
 
@@ -102,7 +109,7 @@ namespace Base
         /// \param[in] iBasisFunction The index corresponding to the basisfunction.
         std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const
         {
-            return iVar * nrOfBasisFunctions_ + iBasisFunction;
+            return iVar * numberOfBasisFunctions_ + iBasisFunction;
         }
         
     protected:
@@ -113,10 +120,10 @@ namespace Base
         std::size_t timeLevels_;
         
         /// The number of variables (unknowns).
-        std::size_t nrOfUnknowns_;
+        std::size_t numberOfUnknowns_;
         
         /// The number of basis functions
-        std::size_t nrOfBasisFunctions_;
+        std::size_t numberOfBasisFunctions_;
 
         /// \brief Stores the expansion coefficients.
         /// \details The value expansionCoefficients_(iT)(iVB) is the expansion 

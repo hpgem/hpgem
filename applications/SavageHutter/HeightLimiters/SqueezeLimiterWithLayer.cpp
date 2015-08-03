@@ -41,24 +41,24 @@ void SqueezeLimiterWithLayer::limit(Base::Element *element, LinearAlgebra::Middl
     else
     {
         const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
-        const double solutionLeft = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, element->getNrOfUnknowns())(0);
+        const double solutionLeft = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, element->getNumberOfUnknowns())(0);
         const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-        const double solutionRight = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, element->getNrOfUnknowns())(0);
+        const double solutionRight = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, element->getNumberOfUnknowns())(0);
 
         double slopeDischarge = averageDischarge;
         double slopeHeight = std::min((solutionLeft + solutionRight - 2 * minH_) / 2, averageHeight - minH_);
         double squeezeFactorH = (averageHeight - minH_) / (averageHeight - minimumHeight);
         const PointReferenceT *pRef = (getMinimumHeightPoint(element));
-        double squeezeFactorHu = std::min(1., averageDischarge / (averageDischarge - Helpers::getSolution<1>(element, solutionCoefficients, *pRef, element->getNrOfUnknowns())(1)));
+        double squeezeFactorHu = std::min(1., averageDischarge / (averageDischarge - Helpers::getSolution<1>(element, solutionCoefficients, *pRef, element->getNumberOfUnknowns())(1)));
 
         std::function<double(const PointReferenceT&) > heightFun = [ = ] (const PointReferenceT & pRef)
         {
-            return averageHeight + squeezeFactorH * (Helpers::getSolution<1>(element, solutionCoefficients, pRef, element->getNrOfUnknowns())[0] - averageHeight);
+            return averageHeight + squeezeFactorH * (Helpers::getSolution<1>(element, solutionCoefficients, pRef, element->getNumberOfUnknowns())[0] - averageHeight);
         };
         heightCoefficients = Helpers::projectOnBasisFuns<1>(element, heightFun, elementIntegrator_);
         std::function<double(const PointReferenceT&) > dischargeFun = [ = ] (const PointReferenceT & pRef)
         {
-            return averageDischarge + squeezeFactorHu * (Helpers::getSolution<1>(element, solutionCoefficients, pRef, element->getNrOfUnknowns())[1] - averageDischarge);
+            return averageDischarge + squeezeFactorHu * (Helpers::getSolution<1>(element, solutionCoefficients, pRef, element->getNumberOfUnknowns())[1] - averageDischarge);
         };
         dischargeCoefficients = Helpers::projectOnBasisFuns<1>(element, dischargeFun, elementIntegrator_);
         logger(DEBUG, "averages: %", Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_));
@@ -67,7 +67,7 @@ void SqueezeLimiterWithLayer::limit(Base::Element *element, LinearAlgebra::Middl
         logger(DEBUG, "discharge coefficients: %", dischargeCoefficients);
     }
 
-    for (std::size_t iFun = 0; iFun < element->getNrOfBasisFunctions(); ++iFun)
+    for (std::size_t iFun = 0; iFun < element->getNumberOfBasisFunctions(); ++iFun)
     {
         std::size_t iVF = element->convertToSingleIndex(iFun, 0);
         solutionCoefficients[iVF] = heightCoefficients[iFun];
@@ -81,7 +81,7 @@ double SqueezeLimiterWithLayer::getMinimumHeight(const Base::Element* element)
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
-    const std::size_t numOfVariables = element->getNrOfUnknowns();
+    const std::size_t numOfVariables = element->getNumberOfUnknowns();
     const double solutionLeft = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, numOfVariables)(0);
     const double solutionRight = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, numOfVariables)(0);
     double minimum = std::min(solutionLeft, solutionRight);
@@ -99,7 +99,7 @@ const Geometry::PointReference<1>* SqueezeLimiterWithLayer::getMinimumHeightPoin
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
-    const std::size_t numOfVariables = element->getNrOfUnknowns();
+    const std::size_t numOfVariables = element->getNumberOfUnknowns();
     const double solutionLeft = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, numOfVariables)(0);
     const double solutionRight = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, numOfVariables)(0);
     double minimum = solutionLeft;

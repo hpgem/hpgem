@@ -80,6 +80,9 @@ namespace Base
         /// Reading a mesh from a file, currently only Centaur is supported.
         MeshId addMesh(const String& fileName, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
 
+        /// \brief Synchronize between the different submeshes (when using MPI)
+        virtual void synchronize(const std::size_t timeLevel);
+
         std::size_t getNumberOfElements(MeshId id) const
         {
             return meshes_[id]->getNumberOfElements();

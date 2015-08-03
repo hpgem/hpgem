@@ -24,7 +24,7 @@
 MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnElement
 (Base::PhysicalElement<DIM>& element, const double &time, const MiddleSizeVector &solutionCoefficients)
 {
-    const std::size_t numBasisFuncs = element.getElement()->getNrOfBasisFunctions();
+    const std::size_t numBasisFuncs = element.getElement()->getNumberOfBasisFunctions();
     
     MiddleSizeVector& integrand = element.getResultVector(); //just to have the correct length    
     const PointPhysicalT& pPhys = element.getPointPhysical();
@@ -57,7 +57,7 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnRefFace
 ( Base::PhysicalFace<DIM>& face, const Base::Side &iSide, const MiddleSizeVector &solutionCoefficientsLeft, const MiddleSizeVector &solutionCoefficientsRight)
 {
     LinearAlgebra::SmallVector<DIM> normal = face.getNormalVector();
-    const std::size_t numTestBasisFuncs = face.getFace()->getPtrElement(iSide)->getNrOfBasisFunctions();
+    const std::size_t numTestBasisFuncs = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions();
 
     //compute numerical solution at the left side and right side of this face
     const PointReferenceOnFaceT& pRef = face.getPointReference();
@@ -103,7 +103,7 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnRefFace
      )
 {
     double normalX = face.getNormalVector()[0];
-    const std::size_t numBasisFuncs = face.getFace()->getNrOfBasisFunctions();
+    const std::size_t numBasisFuncs = face.getFace()->getNumberOfBasisFunctions();
     
     const PointReferenceOnFaceT& pRef = face.getPointReference();
     //note that at the boundary, the element is the left element by definition

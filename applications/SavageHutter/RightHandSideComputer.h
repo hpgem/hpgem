@@ -60,6 +60,7 @@ public:
         const MiddleSizeVector &solutionCoefficientsRight
         ) = 0;
     
+    virtual void setInflowBC(MiddleSizeVector inflowBC){ }
 
 protected:
     std::size_t numOfVariables_;

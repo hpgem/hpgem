@@ -120,7 +120,7 @@ Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(const std::string& bas
     std::uint32_t totalElements {(std::uint32_t) mesh_->getElementsList().size()};
     for (Base::Element* element : mesh_->getElementsList())
     {
-        totalPoints_ += element->getNrOfNodes();
+        totalPoints_ += element->getNumberOfNodes();
     }
     localFile_ << "    <Piece NumberOfPoints=\"" << totalPoints_ << "\" NumberOfCells=\"" << totalElements << "\">" << std::endl;
     localFile_ << "      <Points>" << std::endl;
@@ -136,9 +136,9 @@ Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(const std::string& bas
     elementTypes.reserve(totalElements);
     for (Base::Element* element : mesh_->getElementsList())
     {
-        cumulativeNodesPerElement.push_back(element->getNrOfNodes() + cumulativeNodesPerElement.back());
+        cumulativeNodesPerElement.push_back(element->getNumberOfNodes() + cumulativeNodesPerElement.back());
         elementTypes.push_back(hpGEMToVTK.at(std::type_index(typeid(*element->getReferenceGeometry()))));
-        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
+        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
         {
             actualNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(tohpGEMOrdering(i, element->getReferenceGeometry()));
             for (std::size_t j = 0; j < DIM; ++j)
@@ -212,7 +212,7 @@ void Output::VTKSpecificTimeWriter<DIM>::write(std::function<double(Base::Elemen
     data.reserve(totalPoints_);
     for (Base::Element* element : mesh_->getElementsList())
     {
-        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
+        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
         {
             const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getReferenceNodeCoordinate(tohpGEMOrdering(i, element->getReferenceGeometry()));
             data.push_back(dataCompute(element, node, timelevel_));
@@ -237,7 +237,7 @@ void Output::VTKSpecificTimeWriter<DIM>::write(std::function<LinearAlgebra::Smal
     data.reserve(3 * totalPoints_);
     for (Base::Element* element : mesh_->getElementsList())
     {
-        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
+        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
         {
             const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getReferenceNodeCoordinate(i);
             newData = dataCompute(element, node, timelevel_);
@@ -270,7 +270,7 @@ void Output::VTKSpecificTimeWriter<DIM>::write(std::function<LinearAlgebra::Smal
     data.reserve(9 * totalPoints_);
     for (Base::Element* element : mesh_->getElementsList())
     {
-        for (std::size_t i = 0; i < element->getNrOfNodes(); ++i)
+        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
         {
             const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getReferenceNodeCoordinate(i);
             newData = dataCompute(element, node, timelevel_);

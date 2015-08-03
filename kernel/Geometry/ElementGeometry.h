@@ -99,15 +99,24 @@ namespace Geometry
 
         /// Returns a pointer to the physicalGeometry object.
         const PhysicalGeometryBase* getPhysicalGeometry() const;
+        
         /// Returns a pointer to the physicalGeometry object.
         PhysicalGeometryBase* getPhysicalGeometry();
-        /// Returns a pointer to the physicalGeometry object.
+        
+        /// Gets the number of nodes associated with this element.
+        std::size_t getNumberOfNodes() const;
+        
+        ///\deprecated Does not follow naming conventions, use getNumberOfNodes() instead.
         std::size_t getNrOfNodes() const;
+        
         /// Returns a pointer to the referenceGeometry object.
         const ReferenceGeometry* getReferenceGeometry() const;
+        
         ReferenceGeometry* getReferenceGeometry();
+        
         /// Returns a pointer to the refinementGeometry object.
         const RefinementGeometry* getRefinementGeometry() const;
+        
         /// This method gets a PointReference, which specifies a coordinate in the ReferenceGeometry,
         /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
         /// given the mapping.
@@ -157,16 +166,14 @@ namespace Geometry
     /// This method gets a PointReference, which specifies a coordinate in the ReferenceGeometry,
     /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
     /// given the mapping.
-
     template<std::size_t DIM>
     PointPhysical<DIM> ElementGeometry::referenceToPhysical(const PointReference<DIM>& pointReference) const
     {
         return referenceToPhysicalMapping_->transform(pointReference);
     }
 
-    /// This method gets a PointReference and returns the corresponding jacobian of the
+    /// This method gets a PointReference and returns the corresponding Jacobian of the
     /// referenceToPhysicalMapping.
-
     template<std::size_t DIM>
     Jacobian<DIM, DIM> ElementGeometry::calcJacobian(const PointReference<DIM>& pointReference) const
     {

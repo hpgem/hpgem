@@ -61,14 +61,14 @@ namespace Base
         //copy other data
         newElement->basisFunctionSetPositions_ = basisFunctionSetPositions_;
         newElement->id_ = id_;
-        newElement->nrOfDOFinTheElement_ = nrOfDOFinTheElement_;
+        newElement->numberOfDOFinTheElement_ = numberOfDOFinTheElement_;
         newElement->orderCoeff_ = orderCoeff_;
         newElement->vecCacheData_ = vecCacheData_;
         
         //allocate memory for nodesList, facesList and edgesList
-        newElement->nodesList_.resize(getNrOfNodes());
-        newElement->edgesList_.resize(getNrOfEdges());
-        newElement->facesList_.resize(getNrOfFaces());
+        newElement->nodesList_.resize(getNumberOfNodes());
+        newElement->edgesList_.resize(getNumberOfEdges());
+        newElement->facesList_.resize(getNumberOfFaces());
         
         return newElement;
     }
@@ -86,16 +86,16 @@ namespace Base
         }
         setNumberOfBasisFunctions(numberOfBasisFunctions);
         setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(position)->getOrder() + 1);
-        nrOfDOFinTheElement_ = basisFunctionSet_->at(position)->size();
+        numberOfDOFinTheElement_ = basisFunctionSet_->at(position)->size();
     }
     
     void Element::setFaceBasisFunctionSet(std::size_t position, std::size_t localFaceIndex)
     {
         logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
-        logger.assert(localFaceIndex < getNrOfFaces(), "Asked for face %, but there are only % faces", localFaceIndex, getNrOfFaces());
-        if (basisFunctionSetPositions_.size() < 1 + getNrOfFaces())
+        logger.assert(localFaceIndex < getNumberOfFaces(), "Asked for face %, but there are only % faces", localFaceIndex, getNumberOfFaces());
+        if (basisFunctionSetPositions_.size() < 1 + getNumberOfFaces())
         {
-            basisFunctionSetPositions_.resize(1 + getNrOfFaces(), -1);
+            basisFunctionSetPositions_.resize(1 + getNumberOfFaces(), -1);
         }
         basisFunctionSetPositions_[1 + localFaceIndex] = position;
         std::size_t numberOfBasisFunctions(0);
@@ -110,12 +110,12 @@ namespace Base
     void Element::setEdgeBasisFunctionSet(std::size_t position, std::size_t localEdgeIndex)
     {
         logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
-        logger.assert(localEdgeIndex < getNrOfEdges(), "Asked for edge %, but there are only % edges", localEdgeIndex, getNrOfEdges());
-        if (basisFunctionSetPositions_.size() < 1 + getNrOfFaces() + getNrOfEdges())
+        logger.assert(localEdgeIndex < getNumberOfEdges(), "Asked for edge %, but there are only % edges", localEdgeIndex, getNumberOfEdges());
+        if (basisFunctionSetPositions_.size() < 1 + getNumberOfFaces() + getNumberOfEdges())
         {
-            basisFunctionSetPositions_.resize(1 + getNrOfFaces() + getNrOfEdges(), -1);
+            basisFunctionSetPositions_.resize(1 + getNumberOfFaces() + getNumberOfEdges(), -1);
         }
-        basisFunctionSetPositions_[1 + getNrOfFaces() + localEdgeIndex] = position;
+        basisFunctionSetPositions_[1 + getNumberOfFaces() + localEdgeIndex] = position;
         std::size_t numberOfBasisFunctions(0);
         for (int i : basisFunctionSetPositions_)
         {
@@ -128,12 +128,12 @@ namespace Base
     void Element::setVertexBasisFunctionSet(std::size_t position, std::size_t localNodeIndex)
     {
         logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
-        logger.assert(localNodeIndex < getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeIndex, getNrOfNodes());
-        if (basisFunctionSetPositions_.size() < 1 + getNrOfFaces() + getNrOfEdges() + getNrOfNodes())
+        logger.assert(localNodeIndex < getNumberOfNodes(), "Asked for node %, but there are only % nodes", localNodeIndex, getNumberOfNodes());
+        if (basisFunctionSetPositions_.size() < 1 + getNumberOfFaces() + getNumberOfEdges() + getNumberOfNodes())
         {
-            basisFunctionSetPositions_.resize(1 + getNrOfFaces() + getNrOfEdges() + getNrOfNodes(), -1);
+            basisFunctionSetPositions_.resize(1 + getNumberOfFaces() + getNumberOfEdges() + getNumberOfNodes(), -1);
         }
-        basisFunctionSetPositions_[1 + getNrOfFaces() + getNrOfEdges() + localNodeIndex] = position;
+        basisFunctionSetPositions_[1 + getNumberOfFaces() + getNumberOfEdges() + localNodeIndex] = position;
         std::size_t numberOfBasisFunctions(0);
         for (int i : basisFunctionSetPositions_)
         {
@@ -177,7 +177,7 @@ namespace Base
 #ifndef NDEBUG
     const Base::BaseBasisFunction* Element::getBasisFunction(std::size_t i) const
     {
-        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         int basePosition = 0;
         for (int j : basisFunctionSetPositions_)
         {
@@ -198,39 +198,39 @@ namespace Base
     }
 #endif
     
-    void Element::setFace(std::size_t localFaceNr, const Face* face)
+    void Element::setFace(std::size_t localFaceNumber, const Face* face)
     {
-        logger.assert(localFaceNr < getNrOfFaces(), "Asked for face %, but there are only % faces", localFaceNr, getNrOfFaces());
+        logger.assert(localFaceNumber < getNumberOfFaces(), "Asked for face %, but there are only % faces", localFaceNumber, getNumberOfFaces());
         logger.assert(face!=nullptr, "Invalid face passed");
-        logger.assert((face->getPtrElementLeft() == this && face->localFaceNumberLeft() == localFaceNr) 
-                || (face->getPtrElementRight() == this && face->localFaceNumberRight() == localFaceNr),
+        logger.assert((face->getPtrElementLeft() == this && face->localFaceNumberLeft() == localFaceNumber) 
+                || (face->getPtrElementRight() == this && face->localFaceNumberRight() == localFaceNumber),
                       "You are only allowed to set a face to a local face index that matches");
-        if (facesList_.size() < localFaceNr + 1)
+        if (facesList_.size() < localFaceNumber + 1)
         {
-            logger(WARN, "Resizing the facesList, since it's smaller(%) than to localFaceNr + 1(%)", facesList_.size(), localFaceNr + 1);
-            facesList_.resize(localFaceNr + 1);
+            logger(WARN, "Resizing the facesList, since it's smaller(%) than to localFaceNumber + 1(%)", facesList_.size(), localFaceNumber + 1);
+            facesList_.resize(localFaceNumber + 1);
         }
-        facesList_[localFaceNr] = face;
+        facesList_[localFaceNumber] = face;
     }
     
-    void Element::setEdge(std::size_t localEdgeNr, const Edge* edge)
+    void Element::setEdge(std::size_t localEdgeNumber, const Edge* edge)
     {
-        logger.assert(localEdgeNr < getNrOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNr, getNrOfEdges());
+        logger.assert(localEdgeNumber < getNumberOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNumber, getNumberOfEdges());
         logger.assert(edge!=nullptr, "Invalid edge passed");
         //This if-statement is needed, since it could happen in 4D
-        if (edgesList_.size() < localEdgeNr + 1)
+        if (edgesList_.size() < localEdgeNumber + 1)
         {
-            edgesList_.resize(localEdgeNr + 1);
+            edgesList_.resize(localEdgeNumber + 1);
         }
-        edgesList_[localEdgeNr] = edge;
+        edgesList_[localEdgeNumber] = edge;
     }
     
-    void Element::setNode(std::size_t localNodeNr, const Node* node)
+    void Element::setNode(std::size_t localNodeNumber, const Node* node)
     {
         logger.assert(node!=nullptr, "Invalid node passed");
         logger.assert(std::find(nodesList_.begin(), nodesList_.end(), node) == nodesList_.end(), "Trying to add node %, but it was already added", node->getID());
-        logger.assert(localNodeNr < getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());
-        nodesList_[localNodeNr] = node;
+        logger.assert(localNodeNumber < getNumberOfNodes(), "Asked for node %, but there are only % nodes", localNodeNumber, getNumberOfNodes());
+        nodesList_[localNodeNumber] = node;
     }
 
     std::ostream& operator<<(std::ostream& os, const Element& element)

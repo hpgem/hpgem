@@ -48,7 +48,7 @@ void testMesh(Base::MeshManipulator<DIM>* test)
         
         void elementIntegrand(Base::PhysicalElement<DIM>& element, LinearAlgebra::MiddleSizeVector& ret)
         {
-            std::size_t numBasisFuns = element.getElement()->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = element.getElement()->getNumberOfBasisFunctions();
             ret.resize(numBasisFuns);
             const Geometry::PointPhysical<DIM>& pPhys = element.getPointPhysical();
             for (std::size_t i = 0; i < numBasisFuns; ++i)
@@ -67,7 +67,7 @@ void testMesh(Base::MeshManipulator<DIM>* test)
         
         void elementIntegrand(Base::PhysicalElement<DIM>& element, LinearAlgebra::MiddleSizeMatrix& ret)
         {
-            std::size_t numBasisFuns = element.getElement()->getNrOfBasisFunctions();
+            std::size_t numBasisFuns = element.getElement()->getNumberOfBasisFunctions();
             ret.resize(numBasisFuns, numBasisFuns);
             for (std::size_t i = 0; i < numBasisFuns; ++i)
             {

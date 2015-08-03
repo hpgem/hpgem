@@ -35,11 +35,10 @@ auto& startTime = Base::register_argument<double>('S', "startTime", "start time 
 auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 0.001);
 auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.001);
 
-
-//This code does not work correctly yet!
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
+    logger.assert_always(startTime.getValue() <= endTime.getValue(), "start time must be before end time!");
     
     // Set parameters for the PDE.
     SHConstructorStruct inputVals;
@@ -63,7 +62,7 @@ int main(int argc, char **argv)
     startClock = std::chrono::system_clock::now();
 
     // Solve the problem over time interval [startTime,endTime].
-    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
+    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), false);
 
     // Measure elapsed time
     endClock = std::chrono::system_clock::now();

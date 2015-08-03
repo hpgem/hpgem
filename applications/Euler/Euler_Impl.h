@@ -61,7 +61,7 @@ Base::RectangularMeshDescriptor<DIM> Euler<DIM>::createMeshDescription(const std
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector Euler<DIM>::computeSolutionAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const PointReferenceT &pRef)
 {
-		std::size_t numOfBasisFunctions =  ptrElement->getNrOfBasisFunctions();
+		std::size_t numOfBasisFunctions =  ptrElement->getNumberOfBasisFunctions();
 		LinearAlgebra::MiddleSizeVector elementSolution(numOfVariables_);
 		std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
@@ -80,13 +80,163 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeSolutionAtElement(const Base:
 
 /// \brief computes the source at an element
 template<std::size_t DIM>
-LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(Base::PhysicalElement<DIM> &ptrElement, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time)
+LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(Base::PhysicalElement<DIM> &Element, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time)
 {
-	std::size_t numOfBasisFunctions = ptrElement.getElement()->getNrOfBasisFunctions();
+	std::size_t numOfBasisFunctions = Element.getNumOfBasisFunctions();
 	std::size_t iVB;
 
-	//getResultVector already contains partial computation from integrandRightHandSideOnRefElement
 	LinearAlgebra::MiddleSizeVector integrandSource(numOfVariables_ * numOfBasisFunctions);
+
+	//Convert pRef to pPhys
+	Geometry::PointPhysical<DIM> pPhys = Element.getPointPhysical();
+
+	//Calculate exactState
+	LinearAlgebra::MiddleSizeVector exactState(numOfVariables_);
+
+	double amplitude = 0.2;
+	double frequency = 2.0*M_PI;
+	double function = amplitude*std::cos(frequency*time);
+
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		function *= std::cos(frequency*pPhys[iD]);
+	}
+
+	exactState(0) = 1.5 + function;
+
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		exactState(iD+1) = function;
+	}
+
+	exactState(DIM + 1) = 30.0 + function;
+
+	//*********************************************************
+	//***	Calculate derivative terms for source function	***
+	//*********************************************************
+
+	//Calculate base source functions: S_t, S_x, S_y, S_z, see manual
+	LinearAlgebra::MiddleSizeVector sourceValue(DIM + 1);
+
+	//Add the time-dependent part of the function
+	sourceValue(0) = -amplitude*frequency*std::sin(frequency*time);
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		sourceValue(iD + 1) = -amplitude*frequency*std::cos(frequency*time);
+	}
+
+	//Add the space-dependent part of the function
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		sourceValue(0) *= std::cos(frequency*pPhys[iD]);
+		sourceValue(iD+1) *= std::sin(frequency*pPhys[iD]);
+	}
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		for (std::size_t iD2 = 0; iD2 < DIM; iD2++)
+		{
+			if (iD != iD2)
+			{
+				sourceValue(iD+1) *= cos(frequency*pPhys[iD2]);
+			}
+		}
+	}
+
+	//*****************************************************
+	//***	Calculate values for various source terms	***
+	//*****************************************************
+
+	double inverseDensity = 1.0/exactState(0);
+
+	//Calculate Source term values: momentum convection
+	LinearAlgebra::SmallMatrix<DIM,DIM> sourceConvection; // d(rho*u^2)/dx or d(rho*v^2)/dy or d(rho*w^2)/dz on the diagonal and terms like d(rho*u*v)/dx and d(rho*w*u)/dz	on the off-diagonal
+
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		sourceConvection(iD,iD) = (2.0*exactState(iD+1) - exactState(iD+1)*exactState(iD+1)*inverseDensity)*sourceValue(iD+1)*inverseDensity; // d(rho*u^2)/dx or d(rho*v^2)/dy or d(rho*w^2)/dz
+	}
+	//off diagonal convection
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		for (std::size_t iD2 = 0; iD2 < DIM; iD2++)
+		{
+			if (iD!=iD2)
+			{
+				sourceConvection(iD,iD2) = (exactState(iD+1) + exactState(iD2+1) - exactState(iD+1)*exactState(iD2+1)*inverseDensity)*sourceValue(iD2+1)*inverseDensity; // terms like d(rho*u*v)/dx and d(rho*w*u)/dz
+			}
+		}
+	}
+
+	//Calculate Source term values: pressure
+	LinearAlgebra::MiddleSizeVector sourcePressure(DIM); // dp/dx or dp/dy or dp/dz;
+	double kineticPressure = 0.0; // This is the kinetic part of the pressure term;
+
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		kineticPressure += (-exactState(iD+1) + 0.5*exactState(iD+1)*exactState(iD+1)*inverseDensity)*inverseDensity;// part 1 of calculation
+	}
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		sourcePressure(iD) = (gamma_ -1)*(1 + kineticPressure)*sourceValue(iD+1); // dp/dx or dp/dy or dp/dz
+	}
+
+	//Calculate Source term values: Enthalpy convection
+	LinearAlgebra::MiddleSizeVector sourceEnthalpy(DIM);
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		sourceEnthalpy(iD) = (exactState(iD+1) + exactState(DIM+1) - exactState(iD+1)*exactState(DIM+1)*inverseDensity + pressureTerm - exactState(iD+1)*pressureTerm*inverseDensity)*sourceValue(iD+1)*inverseDensity + exactState(iD+1)*inverseDensity*sourcePressure(iD); // d(rho*u*h)/dx or d(rho*v*h)/dy or d(rho*w*h)/dz
+	}
+
+	//*************************************************************************
+	//***	Calculate the complete source functions used for integration	***
+	//*************************************************************************
+	double sDensity;
+	LinearAlgebra::MiddleSizeVector sMomentum(DIM);
+	double sEnergy;
+
+	// Add time derivative term
+	sDensity = sourceValue(0);
+	for (std::size_t iD = 0; iD < DIM; iD++)
+	{
+		sMomentum(iD) = sourceValue(0);
+	}
+	sEnergy = sourceValue(0);
+
+	// Add space terms
+	for (std::size_t iD = 0; iD < DIM ; iD++)
+	{
+		sDensity += sourceValue(iD+1);
+		for (std::size_t iD2 = 0; iD2 < DIM; iD2++)
+		{
+			sMomentum(iD) += sourceConvection(iD,iD2);
+		}
+		sMomentum(iD) += sourcePressure(iD);
+		sEnergy += sourceEnthalpy(iD);
+	}
+
+
+
+	//*********************************************************
+	//*** Calculate the integrand of the Source integral	***
+	//*********************************************************
+
+	for(std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+	{
+		// Density
+		iVB = Element.convertToSingleIndex(iB,0);
+		integrandSource(iVB) = sDensity*Element.basisFunction(iB);
+
+		// Momentum
+		for (std::size_t iD = 0; iD < DIM; iD++)
+		{
+			iVB = Element.convertToSingleIndex(iB,iD+1);
+			integrandSource(iVB) = sMomentum(iD)*Element.basisFunction(iB);
+		}
+
+		// Energy
+		iVB = Element.convertToSingleIndex(iB,DIM+1);
+		integrandSource(iVB) = sEnergy*Element.basisFunction(iB);
+	}
 
 	return integrandSource;
 }
@@ -96,7 +246,7 @@ template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefElement(Base::PhysicalElement<DIM> &ptrElement, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
 	// Get the number of basis functions in an element.
-	std::size_t numOfBasisFunctions =  ptrElement.getElement()->getNrOfBasisFunctions();
+	std::size_t numOfBasisFunctions =  ptrElement.getElement()->getNumberOfBasisFunctions();
 
 	//Create data structures for calculating the integrand
 	LinearAlgebra::MiddleSizeVector& integrand = ptrElement.getResultVector();
@@ -307,7 +457,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
    LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
    {
 	   //Get the number of basis functions
-	   std::size_t numOfBasisFunctionsLeft= face.getFace()->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
+	   std::size_t numOfBasisFunctionsLeft= face.getFace()->getPtrElementLeft()->getNumberOfBasisFunctions(); //Get the number of basis functions on the left
 
 	   LinearAlgebra::MiddleSizeVector& integrand = face.getResultVector();
 	   LinearAlgebra::MiddleSizeVector qReconstructionLeft(numOfVariables_);
@@ -362,9 +512,10 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
    LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM> &face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
    {
 	   //Get the number of basis functions
-	   std::size_t numOfTestBasisFunctions = face.getFace()->getPtrElement(iSide)->getNrOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
-	    std::size_t numOfSolutionBasisFunctionsLeft = face.getFace()->getPtrElementLeft()->getNrOfBasisFunctions(); //Get the number of basis functions on the left
-	    std::size_t numOfSolutionBasisFunctionsRight = face.getFace()->getPtrElementRight()->getNrOfBasisFunctions(); //Get the number of basis functions on the right side
+    	//todo: rewrite the below lines into neater synteax
+	   std::size_t numOfTestBasisFunctions = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions(); // Get the number of test basis functions on a given side, iSide
+	    std::size_t numOfSolutionBasisFunctionsLeft = face.getFace()->getPtrElementLeft()->getNumberOfBasisFunctions(); //Get the number of basis functions on the left
+	    std::size_t numOfSolutionBasisFunctionsRight = face.getFace()->getPtrElementRight()->getNumberOfBasisFunctions(); //Get the number of basis functions on the right side
 
 
 	   LinearAlgebra::MiddleSizeVector& integrand = face.getResultVector(iSide);
@@ -495,6 +646,14 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
    {
 	   return this->computeMaxError(this->solutionTimeLevel_, time);
    }
+
+    /// \brief Show the progress of the time integration.
+     template<std::size_t DIM>
+    void Euler<DIM>::showProgress(const double time, const std::size_t timeStepID)
+    {
+ 	   std::cout << "Time is " << time << std::endl;
+ 	   std::cout << "timeStepID is " << timeStepID << std::endl;
+    }
 
 
 

@@ -40,7 +40,7 @@ namespace Helpers
     template <std::size_t DIM>
     LinearAlgebra::MiddleSizeVector getSolution(const Base::Element *element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM>& pRef, const std::size_t numVariables)
     {
-        const std::size_t numBasisFunctions = element->getNrOfBasisFunctions();
+        const std::size_t numBasisFunctions = element->getNumberOfBasisFunctions();
         LinearAlgebra::MiddleSizeVector solution(numVariables);
         for (std::size_t iFun = 0; iFun < numBasisFunctions; ++ iFun)
         {
@@ -57,7 +57,7 @@ namespace Helpers
     template <std::size_t DIM>
     LinearAlgebra::MiddleSizeVector computeAverageOfSolution(Base::Element* element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, Integration::ElementIntegral<DIM>& elementIntegrator)
     {
-        std::size_t numOfVariables = element->getNrOfUnknowns();
+        std::size_t numOfVariables = element->getNumberOfUnknowns();
         const std::function < LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&) > integrandFunction =
             [ = ](Base::PhysicalElement<DIM>& elt) -> LinearAlgebra::MiddleSizeVector {
                 LinearAlgebra::MiddleSizeVector solution = Helpers::getSolution<DIM>(elt.getElement(), solutionCoefficients, elt.getPointReference(), numOfVariables);
@@ -76,7 +76,7 @@ namespace Helpers
         }
 
         logger(DEBUG, "Average over element %: %", element->getID(), average);
-        logger.assert_always(average(0) > - 1e-16, "Average water height negative on "
+        logger.assert_always(average(0) > - 1e-16, "Average height negative on "
             "element %! (%), u: %", element->getID(), average, average(1) / average(0));
         return average;
     }
@@ -84,7 +84,7 @@ namespace Helpers
     template <std::size_t DIM>
     LinearAlgebra::MiddleSizeVector projectOnBasisFuns(Base::Element *elt, std::function<double(const Geometry::PointReference<DIM>&) > myFun, Integration::ElementIntegral<DIM>& elementIntegrator)
     {
-        const std::size_t numBasisFuns = elt->getNrOfBasisFunctions();
+        const std::size_t numBasisFuns = elt->getNumberOfBasisFunctions();
         LinearAlgebra::MiddleSizeVector projection(numBasisFuns);
         for (std::size_t i = 0; i < numBasisFuns; ++ i)
         {

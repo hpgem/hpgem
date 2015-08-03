@@ -110,7 +110,7 @@ public:
      ) override final
     {
         // Compute the number of basis functions
-        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        std::size_t numOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
         
         // Declare the right-hand side at the element.
         LinearAlgebra::MiddleSizeVector rightHandSideAtElement(configData_->numberOfUnknowns_ * numOfBasisFunctions);
@@ -130,7 +130,7 @@ public:
      ) override final
     {
         // Compute the number of basis functions
-        std::size_t numOfBasisFunctions = ptrFace->getPtrElementLeft()->getNrOfBasisFunctions();
+        std::size_t numOfBasisFunctions = ptrFace->getPtrElementLeft()->getNumberOfBasisFunctions();
         
         // Declare the right-hand side at the boundary face.
         LinearAlgebra::MiddleSizeVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numOfBasisFunctions);
@@ -152,7 +152,7 @@ public:
      ) override final
     {
         // Compute the number of basis functions corresponding to the element at the given side.
-        std::size_t numOfBasisFunctions = ptrFace->getPtrElement(side)->getNrOfBasisFunctions();
+        std::size_t numOfBasisFunctions = ptrFace->getPtrElement(side)->getNumberOfBasisFunctions();
         
         // Declare the right-hand side at the internal face.
         LinearAlgebra::MiddleSizeVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numOfBasisFunctions);

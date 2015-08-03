@@ -71,6 +71,7 @@
 #include <iostream>
 #include <unordered_set>
 #include <array>
+#include <vector>
 #include <numeric>
 #include <type_traits>
 #include <typeinfo>
@@ -267,9 +268,9 @@ namespace Base
         }
         collBasisFSet_.clear();
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToElementIndex;
-        std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > nrOfFaceSets;
-        std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > nrOfEdgeSets;
-        std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > nrOfNodeSets;
+        std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > numberOfFaceSets;
+        std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > numberOfEdgeSets;
+        std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > numberOfNodeSets;
         for(Element* element : getElementsList(IteratorType::GLOBAL))
         {
             try
@@ -293,9 +294,9 @@ namespace Base
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
-                        nrOfEdgeSets[type] = 0;
-                        nrOfNodeSets[type] = 0;
+                        numberOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                        numberOfEdgeSets[type] = 0;
+                        numberOfNodeSets[type] = 0;
                         break;
                     case Geometry::ReferenceGeometryType::SQUARE:
                         shapeToElementIndex[type] = collBasisFSet_.size();
@@ -305,14 +306,14 @@ namespace Base
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
-                        nrOfEdgeSets[type] = 0;
+                        numberOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                        numberOfEdgeSets[type] = 0;
                         nodeSet = Utilities::createVertexBasisFunctionSet2DH1Square(configData_->polynomialOrder_);
                         for(const Base::BasisFunctionSet* set : nodeSet)
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - nrOfEdgeSets[type] - 1;
+                        numberOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - numberOfFaceSets[type] - numberOfEdgeSets[type] - 1;
                         break;
                     case Geometry::ReferenceGeometryType::TRIANGLE:
                         shapeToElementIndex[type] = collBasisFSet_.size();
@@ -322,14 +323,14 @@ namespace Base
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
-                        nrOfEdgeSets[type] = 0;
+                        numberOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                        numberOfEdgeSets[type] = 0;
                         nodeSet = Utilities::createVertexBasisFunctionSet2DH1Triangle(configData_->polynomialOrder_);
                         for(const Base::BasisFunctionSet* set : nodeSet)
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - nrOfEdgeSets[type] - 1;
+                        numberOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - numberOfFaceSets[type] - numberOfEdgeSets[type] - 1;
                         break;
                     case Geometry::ReferenceGeometryType::CUBE:
                         shapeToElementIndex[type] = collBasisFSet_.size();
@@ -339,19 +340,19 @@ namespace Base
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                        numberOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
                         edgeSet = Utilities::createEdgeBasisFunctionSet3DH1Cube(configData_->polynomialOrder_);
                         for(const Base::BasisFunctionSet* set : edgeSet)
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfEdgeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - 1;
+                        numberOfEdgeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - numberOfFaceSets[type] - 1;
                         nodeSet = Utilities::createVertexBasisFunctionSet3DH1Cube(configData_->polynomialOrder_);
                         for(const Base::BasisFunctionSet* set : nodeSet)
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - nrOfEdgeSets[type] - 1;
+                        numberOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - numberOfFaceSets[type] - numberOfEdgeSets[type] - 1;
                         break;
                     case Geometry::ReferenceGeometryType::TETRAHEDRON:
                         shapeToElementIndex[type] = collBasisFSet_.size();
@@ -361,19 +362,19 @@ namespace Base
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                        numberOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
                         edgeSet = Utilities::createEdgeBasisFunctionSet3DH1Tetrahedron(configData_->polynomialOrder_);
                         for(const Base::BasisFunctionSet* set : edgeSet)
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfEdgeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - 1;
+                        numberOfEdgeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - numberOfFaceSets[type] - 1;
                         nodeSet = Utilities::createVertexBasisFunctionSet3DH1Tetrahedron(configData_->polynomialOrder_);
                         for(const Base::BasisFunctionSet* set : nodeSet)
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - nrOfEdgeSets[type] - 1;
+                        numberOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - numberOfFaceSets[type] - numberOfEdgeSets[type] - 1;
                         break;
                     case Geometry::ReferenceGeometryType::TRIANGULARPRISM:
                         shapeToElementIndex[type] = collBasisFSet_.size();
@@ -383,19 +384,19 @@ namespace Base
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                        numberOfFaceSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
                         edgeSet = Utilities::createEdgeBasisFunctionSet3DH1ConformingPrism(configData_->polynomialOrder_);
                         for(const Base::BasisFunctionSet* set : edgeSet)
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfEdgeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - 1;
+                        numberOfEdgeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - numberOfFaceSets[type] - 1;
                         nodeSet = Utilities::createVertexBasisFunctionSet3DH1ConformingPrism(configData_->polynomialOrder_);
                         for(const Base::BasisFunctionSet* set : nodeSet)
                         {
                             collBasisFSet_.emplace_back(set);
                         }
-                        nrOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - nrOfFaceSets[type] - nrOfEdgeSets[type] - 1;
+                        numberOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - numberOfFaceSets[type] - numberOfEdgeSets[type] - 1;
                         break;
                     case Geometry::ReferenceGeometryType::PYRAMID:
                     case Geometry::ReferenceGeometryType::HYPERCUBE:
@@ -415,14 +416,14 @@ namespace Base
         {
             std::size_t faceNr = face->localFaceNumberLeft();
             auto type = face->getPtrElementLeft()->getReferenceGeometry()->getGeometryType();
-            for (std::size_t i = shapeToElementIndex[type] + 1; i < shapeToElementIndex[type] + nrOfFaceSets[type] + 1; ++i)
+            for (std::size_t i = shapeToElementIndex[type] + 1; i < shapeToElementIndex[type] + numberOfFaceSets[type] + 1; ++i)
             {
                 logger.assert(typeid(*collBasisFSet_[i]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
                 if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[i].get())->checkOrientation(0, faceNr))
                 {
                     face->getPtrElementLeft()->setFaceBasisFunctionSet(i, faceNr);
                     //the number of basis functions depends on the shape of the face, not on the shape of the element
-                    face->setLocalNrOfBasisFunctions(collBasisFSet_[i]->size());
+                    face->setLocalNumberOfBasisFunctions(collBasisFSet_[i]->size());
                 }
             }
             if (face->isInternal())
@@ -430,7 +431,7 @@ namespace Base
                 faceNr = face->localFaceNumberRight();
                 type = face->getPtrElementRight()->getReferenceGeometry()->getGeometryType();
                 std::size_t orientation = face->getFaceToFaceMapIndex();
-                for (std::size_t i = shapeToElementIndex[type] + 1; i < shapeToElementIndex[type] + nrOfFaceSets[type] + 1; ++i)
+                for (std::size_t i = shapeToElementIndex[type] + 1; i < shapeToElementIndex[type] + numberOfFaceSets[type] + 1; ++i)
                 {
                     logger.assert(typeid(*collBasisFSet_[i]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
                     if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[i].get())->checkOrientation(orientation, faceNr))
@@ -448,13 +449,13 @@ namespace Base
                 std::size_t edgeNr = edge->getEdgeNr(i);
                 std::size_t orientation = edge->getOrientation(i);
                 auto type = element->getReferenceGeometry()->getGeometryType();
-                for(std::size_t j = shapeToElementIndex[type] + nrOfFaceSets[type] + 1; j < shapeToElementIndex[type] + nrOfEdgeSets[type] + 1; ++j)
+                for(std::size_t j = shapeToElementIndex[type] + numberOfFaceSets[type] + 1; j < shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1; ++j)
                 {
-                    logger.assert(typeid(*collBasisFSet_[i]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
-                    if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[i].get())->checkOrientation(orientation, edgeNr))
+                    logger.assert(typeid(*collBasisFSet_[j]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
+                    if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[j].get())->checkOrientation(orientation, edgeNr))
                     {
-                        element->setFaceBasisFunctionSet(i, edgeNr);
-                        edge->setLocalNrOfBasisFunctions(collBasisFSet_[i]->size());
+                        element->setEdgeBasisFunctionSet(j, edgeNr);
+                        edge->setLocalNrOfBasisFunctions(collBasisFSet_[j]->size());
                     }
 
                 }
@@ -469,16 +470,16 @@ namespace Base
                     Element* element = node->getElement(i);
                     std::size_t nodeNr = node->getNodeNr(i);
                     auto type = element->getReferenceGeometry()->getGeometryType();
-                    element->setVertexBasisFunctionSet(shapeToElementIndex[type] + nrOfFaceSets[type] + nrOfEdgeSets[type] + 1 + nodeNr, nodeNr);
-                    node->setLocalNrOfBasisFunctions(collBasisFSet_[shapeToElementIndex[type] + nrOfFaceSets[type] + nrOfEdgeSets[type] + 1 + nodeNr]->size());
+                    element->setVertexBasisFunctionSet(shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1 + nodeNr, nodeNr);
+                    node->setLocalNrOfBasisFunctions(collBasisFSet_[shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1 + nodeNr]->size());
                 }
             }
         }
     }
 
     template<std::size_t DIM>
-    MeshManipulator<DIM>::MeshManipulator(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrtixes, std::size_t nrOfFaceVectors)
-    : MeshManipulatorBase(config, xPer, yPer, zPer, orderOfFEM, idRangeBegin, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrtixes, nrOfFaceVectors),
+    MeshManipulator<DIM>::MeshManipulator(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors)
+            : MeshManipulatorBase(config, xPer, yPer, zPer, orderOfFEM, idRangeBegin, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors),
     //activeMeshTree_(0),
     //numMeshTree_(0),
             meshMover_(nullptr)
@@ -533,7 +534,7 @@ namespace Base
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ = bFSet->size();
         for (Base::Face* face : getFacesList(IteratorType::GLOBAL))
         {
-            face->setLocalNrOfBasisFunctions(0);
+            face->setLocalNumberOfBasisFunctions(0);
         }
         for (Base::Edge* edge : getEdgesList(IteratorType::GLOBAL))
         {
@@ -566,7 +567,7 @@ namespace Base
             }
             node->setLocalNrOfBasisFunctions(bFsets[0]->size());
         }
-        const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getNrOfNodes() * bFsets[0]->size();
+        const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getNumberOfNodes() * bFsets[0]->size();
     }
 
     template<std::size_t DIM>
@@ -600,7 +601,7 @@ namespace Base
                     }
                 }
             }
-            face->setLocalNrOfBasisFunctions(bFsets[0]->size());
+            face->setLocalNumberOfBasisFunctions(bFsets[0]->size());
         }
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getPhysicalGeometry()->getNrOfFaces() * bFsets[0]->size();
     }
@@ -663,7 +664,7 @@ namespace Base
     template<std::size_t DIM>
     void MeshManipulator<DIM>::setMeshMover(const MeshMoverBase<DIM>* meshMover)
     {
-        //can be set to nullptr if you dont want to move the mesh anymore
+        //can be set to nullptr if you don't want to move the mesh anymore
         meshMover_ = meshMover;
     }
 
@@ -714,11 +715,11 @@ namespace Base
         logger.assert(linearNoElements.size()==configData_->dimension_, "There are amounts of elements spicified in % dimensions, but there are % dimensions", linearNoElements.size(), configData_->dimension_);
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
-        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrices_);
         ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
-        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrices_);
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
         logger.assert(linearNoElements.size() == DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
@@ -745,33 +746,33 @@ namespace Base
         
         //This stores the number of nodes in each coDIMension i.e. if you have 2 by 2 element it is 3 nodes 
         //nodeCoordinates mark physical location, notes mark connectivity-based location
-        std::vector<std::size_t> numOfNodeCoordinatesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM), numOfNodesInEachSubspace(DIM);
+        std::vector<std::size_t> numberOfNodeCoordinatesInEachSubspace(DIM), numberOfElementsInEachSubspace(DIM), numberOfNodesInEachSubspace(DIM);
         
-        numOfNodeCoordinatesInEachSubspace[0] = 1;
-        numOfNodesInEachSubspace[0] = 1;
-        numOfElementsInEachSubspace[0] = 1;
+        numberOfNodeCoordinatesInEachSubspace[0] = 1;
+        numberOfNodesInEachSubspace[0] = 1;
+        numberOfElementsInEachSubspace[0] = 1;
         
         //This will be the total number of nodes required in the problem
-        std::size_t totalNumOfNodeCoordinates, totalNumOfNodes, totalNumOfElements, nodesPerElement;
+        std::size_t totalNumberOfNodeCoordinates, totalNumberOfNodes, totalNumberOfElements, numberOfNodesPerElement;
         
-        totalNumOfNodeCoordinates = (linearNoElements[0] + 1);
-        totalNumOfNodes = (linearNoElements[0] + (periodicDIM[0] ? 0 : 1));
+        totalNumberOfNodeCoordinates = (linearNoElements[0] + 1);
+        totalNumberOfNodes = (linearNoElements[0] + (periodicDIM[0] ? 0 : 1));
         
-        totalNumOfElements = (linearNoElements[0]);
+        totalNumberOfElements = (linearNoElements[0]);
         
-        nodesPerElement = 2;
+        numberOfNodesPerElement = 2;
         std::size_t powerOf2;
         
         for (std::size_t iDIM = 1; iDIM < DIM; ++iDIM)
         {
-            totalNumOfNodeCoordinates *= (linearNoElements[iDIM] + 1);
-            totalNumOfNodes *= (linearNoElements[iDIM] + (periodicDIM[iDIM] ? 0 : 1));
-            totalNumOfElements *= (linearNoElements[iDIM]);
-            nodesPerElement *= 2;
+            totalNumberOfNodeCoordinates *= (linearNoElements[iDIM] + 1);
+            totalNumberOfNodes *= (linearNoElements[iDIM] + (periodicDIM[iDIM] ? 0 : 1));
+            totalNumberOfElements *= (linearNoElements[iDIM]);
+            numberOfNodesPerElement *= 2;
             
-            numOfElementsInEachSubspace[iDIM] = numOfElementsInEachSubspace[iDIM - 1] * (linearNoElements[iDIM - 1]);
-            numOfNodeCoordinatesInEachSubspace[iDIM] = numOfNodeCoordinatesInEachSubspace[iDIM - 1] * (linearNoElements[iDIM - 1] + 1);
-            numOfNodesInEachSubspace[iDIM] = numOfNodesInEachSubspace[iDIM - 1] * (linearNoElements[iDIM - 1] + (periodicDIM[iDIM - 1] ? 0 : 1));
+            numberOfElementsInEachSubspace[iDIM] = numberOfElementsInEachSubspace[iDIM - 1] * (linearNoElements[iDIM - 1]);
+            numberOfNodeCoordinatesInEachSubspace[iDIM] = numberOfNodeCoordinatesInEachSubspace[iDIM - 1] * (linearNoElements[iDIM - 1] + 1);
+            numberOfNodesInEachSubspace[iDIM] = numberOfNodesInEachSubspace[iDIM - 1] * (linearNoElements[iDIM - 1] + (periodicDIM[iDIM - 1] ? 0 : 1));
         }
         
         //temp point for storing the node locations
@@ -779,14 +780,14 @@ namespace Base
         
         //Stage 2 : Create the nodes
         //Now loop over all the nodes and calculate the coordinates for reach DIMension (this makes the algorithm independent of DIMension
-        for (std::size_t nodeIndex = 0; nodeIndex < totalNumOfNodeCoordinates; ++nodeIndex)
+        for (std::size_t nodeIndex = 0; nodeIndex < totalNumberOfNodeCoordinates; ++nodeIndex)
         {
             std::size_t nodeIndexRemain = nodeIndex;
             
             for (int iDIM = DIM - 1; iDIM > -1; --iDIM)
             {
-                x[iDIM] = bottomLeft[iDIM] + (nodeIndexRemain / numOfNodeCoordinatesInEachSubspace[iDIM] * delta_x[iDIM]);
-                nodeIndexRemain %= numOfNodeCoordinatesInEachSubspace[iDIM];
+                x[iDIM] = bottomLeft[iDIM] + (nodeIndexRemain / numberOfNodeCoordinatesInEachSubspace[iDIM] * delta_x[iDIM]);
+                nodeIndexRemain %= numberOfNodeCoordinatesInEachSubspace[iDIM];
             }
             
             //actually add the point
@@ -796,30 +797,30 @@ namespace Base
         
         //stage 2.5 : create the vertices
         
-        for (std::size_t nodeID = 0; nodeID < totalNumOfNodes; ++nodeID)
+        for (std::size_t nodeID = 0; nodeID < totalNumberOfNodes; ++nodeID)
         {
             theMesh_.addNode();
         }
         
         //Stage 3 : Create the elements
         
-        std::vector<std::size_t> elementNdId(DIM), nodeCoordinateNdId(DIM), nodeNdId(DIM), globalNodeCoordinateID(nodesPerElement), globalNodeID(nodesPerElement);
+        std::vector<std::size_t> elementNdId(DIM), nodeCoordinateNdId(DIM), nodeNdId(DIM), globalNodeCoordinateID(numberOfNodesPerElement), globalNodeID(numberOfNodesPerElement);
         
         auto& nodesList = getNodesList(IteratorType::GLOBAL);
         
         //elementNdId is DIM coordinate of the bottom left node i.e. in two (0,0), (1,0) ,(2,0) ... etc are the first three (if at least three elements in x)
-        for (std::size_t elementIndex = 0; elementIndex < totalNumOfElements; ++elementIndex)
+        for (std::size_t elementIndex = 0; elementIndex < totalNumberOfElements; ++elementIndex)
         {
             std::size_t numElementsRemaining = elementIndex;
             
             for (int iDIM = DIM - 1; iDIM > -1; --iDIM)
             {
-                elementNdId[iDIM] = numElementsRemaining / numOfElementsInEachSubspace[iDIM];
-                numElementsRemaining %= numOfElementsInEachSubspace[iDIM];
+                elementNdId[iDIM] = numElementsRemaining / numberOfElementsInEachSubspace[iDIM];
+                numElementsRemaining %= numberOfElementsInEachSubspace[iDIM];
             }
             
             // nodeNdId are the DIM coordinate of each node in the element with nodeNdId[0] being the bottom left
-            for (std::size_t i = 0; i < nodesPerElement; ++i)
+            for (std::size_t i = 0; i < numberOfNodesPerElement; ++i)
             {
                 powerOf2 = 1;
                 for (std::size_t iDIM = 0; iDIM < DIM; ++iDIM)
@@ -838,8 +839,8 @@ namespace Base
                 //Now map to the one DIMensional global ID
                 for (std::size_t iDIM = 1; iDIM < DIM; ++iDIM)
                 {
-                    globalNodeCoordinateID[i] += nodeCoordinateNdId[iDIM] * numOfNodeCoordinatesInEachSubspace[iDIM];
-                    globalNodeID[i] += nodeNdId[iDIM] * numOfNodesInEachSubspace[iDIM];
+                    globalNodeCoordinateID[i] += nodeCoordinateNdId[iDIM] * numberOfNodeCoordinatesInEachSubspace[iDIM];
+                    globalNodeID[i] += nodeNdId[iDIM] * numberOfNodesInEachSubspace[iDIM];
                 }
             }
             Element* newElement = addElement(globalNodeCoordinateID);
@@ -862,14 +863,14 @@ namespace Base
     {
         logger.assert(bottomLeft.size()==topRight.size(), "The corners of the mesh must have the same dimension");
         logger.assert(bottomLeft.size()==configData_->dimension_, "The corners of the mesh have the wrong dimension");
-        logger.assert(linearNoElements.size()==configData_->dimension_, "There are amounts of elements spicified in % dimensions, but there are % dimensions", linearNoElements.size(), configData_->dimension_);
+        logger.assert(linearNoElements.size()==configData_->dimension_, "There are amounts of elements specified in % dimensions, but there are % dimensions", linearNoElements.size(), configData_->dimension_);
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
-        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrices_);
         ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
-        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrices_);
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
         //Stage 0 : Check for required requirements
@@ -900,53 +901,55 @@ namespace Base
             delta_x[i] = (topRight[i] - bottomLeft[i]) / (linearNoElements[i]);
         }
         
-        std::vector<std::size_t> numOfNodeCoordinatesInEachSubspace(DIM), numOfNodesInEachSubspace(DIM), numOfElementsInEachSubspace(DIM);
+        std::vector<std::size_t> numberOfNodeCoordinatesInEachSubspace(DIM), numberOfNodesInEachSubspace(DIM), numberOfElementsInEachSubspace(DIM);
         
-        numOfNodeCoordinatesInEachSubspace[0] = 1;
-        numOfNodesInEachSubspace[0] = 1;
-        numOfElementsInEachSubspace[0] = 1;
+        numberOfNodeCoordinatesInEachSubspace[0] = 1;
+        numberOfNodesInEachSubspace[0] = 1;
+        numberOfElementsInEachSubspace[0] = 1;
         
-        std::size_t totalNumOfNodeCoordinates, totalNumOfElements, nodesPerElement, nodesPerGroup, trianglesPerRectangle, totalNumOfNodes;
+        std::size_t totalNumberOfNodeCoordinates, totalNumberOfElements;
+        std::size_t numberOfNodesPerElement, numberOfNodesPerGroup;
+        std::size_t numberOfTrianglesPerRectangle, totalNumberOfNodes;
         
-        totalNumOfNodeCoordinates = (linearNoElements[0] + 1);
-        totalNumOfNodes = (linearNoElements[0] + (periodicDIM[0] ? 0 : 1));
+        totalNumberOfNodeCoordinates = (linearNoElements[0] + 1);
+        totalNumberOfNodes = (linearNoElements[0] + (periodicDIM[0] ? 0 : 1));
         //'elements' in this counter denote groups of trianglesPerRectangle elements
-        totalNumOfElements = (linearNoElements[0]);
-        nodesPerElement = 2;
-        nodesPerGroup = 2;
-        trianglesPerRectangle = 1;
+        totalNumberOfElements = (linearNoElements[0]);
+        numberOfNodesPerElement = 2;
+        numberOfNodesPerGroup = 2;
+        numberOfTrianglesPerRectangle = 1;
         std::size_t powerOf2;
         
         //start with 1 because you want to ask for the entry at idim - 1
         for (std::size_t idim = 1; idim < DIM; ++idim)
         {
-            totalNumOfNodeCoordinates *= (linearNoElements[idim] + 1);
-            totalNumOfNodes *= (linearNoElements[idim] + (periodicDIM[idim] ? 0 : 1));
-            totalNumOfElements *= (linearNoElements[idim]);
-            nodesPerElement += 1;
-            nodesPerGroup *= 2;
-            trianglesPerRectangle += (2 * idim - 1);
-            numOfElementsInEachSubspace[idim] = numOfElementsInEachSubspace[idim - 1] * (linearNoElements[idim - 1]);
-            numOfNodeCoordinatesInEachSubspace[idim] = numOfNodeCoordinatesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + 1);
-            numOfNodesInEachSubspace[idim] = numOfNodesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + (periodicDIM[idim - 1] ? 0 : 1));
+            totalNumberOfNodeCoordinates *= (linearNoElements[idim] + 1);
+            totalNumberOfNodes *= (linearNoElements[idim] + (periodicDIM[idim] ? 0 : 1));
+            totalNumberOfElements *= (linearNoElements[idim]);
+            numberOfNodesPerElement += 1;
+            numberOfNodesPerGroup *= 2;
+            numberOfTrianglesPerRectangle += (2 * idim - 1);
+            numberOfElementsInEachSubspace[idim] = numberOfElementsInEachSubspace[idim - 1] * (linearNoElements[idim - 1]);
+            numberOfNodeCoordinatesInEachSubspace[idim] = numberOfNodeCoordinatesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + 1);
+            numberOfNodesInEachSubspace[idim] = numberOfNodesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + (periodicDIM[idim - 1] ? 0 : 1));
         }
         
         Geometry::PointPhysical<DIM> x;
         
         //Stage 2 : Create the nodes
         
-        for (std::size_t nodeIndex = 0; nodeIndex < totalNumOfNodeCoordinates; ++nodeIndex)
+        for (std::size_t nodeIndex = 0; nodeIndex < totalNumberOfNodeCoordinates; ++nodeIndex)
         {
             std::size_t nodeIndexRemain = nodeIndex;
             for (int idim = DIM - 1; idim > -1; --idim)
             {
-                x[idim] = bottomLeft[idim] + (nodeIndexRemain / numOfNodeCoordinatesInEachSubspace[idim] * delta_x[idim]);
-                nodeIndexRemain %= numOfNodeCoordinatesInEachSubspace[idim];
+                x[idim] = bottomLeft[idim] + (nodeIndexRemain / numberOfNodeCoordinatesInEachSubspace[idim] * delta_x[idim]);
+                nodeIndexRemain %= numberOfNodeCoordinatesInEachSubspace[idim];
             }
             theMesh_.addNodeCoordinate(x);
         }
         
-        for (std::size_t nodeIndex = 0; nodeIndex < totalNumOfNodes; ++nodeIndex)
+        for (std::size_t nodeIndex = 0; nodeIndex < totalNumberOfNodes; ++nodeIndex)
         {
             theMesh_.addNode();
         }
@@ -956,16 +959,16 @@ namespace Base
         //Stage 3 : Create the elements
         
         std::vector<std::size_t> elementNdId(DIM), nodeNdId(DIM), nodeCoordinateNdId(DIM);
-        std::vector<std::vector<std::size_t> > globalNodeID(trianglesPerRectangle);
-        std::vector<std::vector<std::size_t> > globalNodeCoordinateID(trianglesPerRectangle);
+        std::vector<std::vector<std::size_t> > globalNodeID(numberOfTrianglesPerRectangle);
+        std::vector<std::vector<std::size_t> > globalNodeCoordinateID(numberOfTrianglesPerRectangle);
         
-        for (std::size_t elementGroupIndex = 0; elementGroupIndex < totalNumOfElements; ++elementGroupIndex)
+        for (std::size_t elementGroupIndex = 0; elementGroupIndex < totalNumberOfElements; ++elementGroupIndex)
         {
             //first generate node indexes as if we are a cube
             //indicates if the element has to be rotated to make connecting faces; rotates the element 90 degrees along the y-axis if needed
             std::size_t rotate = 0;
             
-            for (std::size_t i = 0; i < trianglesPerRectangle; ++i)
+            for (std::size_t i = 0; i < numberOfTrianglesPerRectangle; ++i)
             {
                 globalNodeCoordinateID[i].clear();
                 globalNodeID[i].clear();
@@ -974,12 +977,12 @@ namespace Base
             
             for (int idim = DIM - 1; idim > -1; --idim)
             {
-                elementNdId[idim] = elementIndexRemainder / numOfElementsInEachSubspace[idim];
-                elementIndexRemainder %= numOfElementsInEachSubspace[idim];
+                elementNdId[idim] = elementIndexRemainder / numberOfElementsInEachSubspace[idim];
+                elementIndexRemainder %= numberOfElementsInEachSubspace[idim];
                 rotate = (elementNdId[idim] + rotate) % 2;
             }
             
-            for (std::size_t i = 0; i < nodesPerGroup; ++i)
+            for (std::size_t i = 0; i < numberOfNodesPerGroup; ++i)
             {
                 if (rotate == 0)
                 {
@@ -995,7 +998,7 @@ namespace Base
                 }
                 else
                 {
-                    powerOf2 = nodesPerGroup;
+                    powerOf2 = numberOfNodesPerGroup;
                     for (std::size_t idim = 0; idim < DIM; ++idim)
                     {
                         powerOf2 /= 2;
@@ -1010,8 +1013,8 @@ namespace Base
                 std::size_t nodeIndex = nodeNdId[0];
                 for (std::size_t idim = 1; idim < DIM; ++idim)
                 {
-                    nodeCoordinateIndex += nodeCoordinateNdId[idim] * numOfNodeCoordinatesInEachSubspace[idim];
-                    nodeIndex += nodeNdId[idim] * numOfNodesInEachSubspace[idim];
+                    nodeCoordinateIndex += nodeCoordinateNdId[idim] * numberOfNodeCoordinatesInEachSubspace[idim];
+                    nodeIndex += nodeNdId[idim] * numberOfNodesInEachSubspace[idim];
                 }
                 
                 //then cherrypick the element(s) these vertices should connect to (probably not the cleanest implementation; \bug doesn't work if DIM>3)
@@ -1036,7 +1039,7 @@ namespace Base
                         globalNodeCoordinateID[3].insert( ++(globalNodeCoordinateID[3].begin()), nodeCoordinateIndex);
                         break;
                     case 1:
-                        for (std::size_t j = 0; j < trianglesPerRectangle; ++j)
+                        for (std::size_t j = 0; j < numberOfTrianglesPerRectangle; ++j)
                         {
                             if (j != 3)
                             {
@@ -1046,7 +1049,7 @@ namespace Base
                         }
                         break;
                     case 2:
-                        for (std::size_t j = 0; j < trianglesPerRectangle; ++j)
+                        for (std::size_t j = 0; j < numberOfTrianglesPerRectangle; ++j)
                         {
                             if (j != 2)
                             {
@@ -1056,7 +1059,7 @@ namespace Base
                         }
                         break;
                     case 4:
-                        for (std::size_t j = 0; j < trianglesPerRectangle; ++j)
+                        for (std::size_t j = 0; j < numberOfTrianglesPerRectangle; ++j)
                         {
                             if (j != 1)
                             {
@@ -1066,7 +1069,7 @@ namespace Base
                         }
                         break;
                     case 7:
-                        for (std::size_t j = 0; j < trianglesPerRectangle; ++j)
+                        for (std::size_t j = 0; j < numberOfTrianglesPerRectangle; ++j)
                         {
                             if (j != 0)
                             {
@@ -1078,15 +1081,15 @@ namespace Base
                 } //switch
             } //for all vertices of the rectangle
             
-            for (std::size_t i = 0; i < trianglesPerRectangle; ++i)
+            for (std::size_t i = 0; i < numberOfTrianglesPerRectangle; ++i)
             {
                 Element* newElement = addElement(globalNodeCoordinateID[i]);
                 for (std::size_t j = 0; j < globalNodeID[i].size(); ++j)
                 {
                     logger.assert(i < globalNodeID.size(), "Requested node %, while there are only %", i, globalNodeID.size());
                     logger.assert(j < globalNodeID[i].size(), "Requested element %, but this node only has %.", j, globalNodeID[i].size());
-                    logger.assert(globalNodeID[i][j] < totalNumOfNodes, "Requested node %, while there are only %", globalNodeID[i][j], totalNumOfNodes);
-                    logger.assert(nodes.size() == totalNumOfNodes, "Number of vertices is wrong.");
+                    logger.assert(globalNodeID[i][j] < totalNumberOfNodes, "Requested node %, while there are only %", globalNodeID[i][j], totalNumberOfNodes);
+                    logger.assert(nodes.size() == totalNumberOfNodes, "Number of vertices is wrong.");
                     nodes[globalNodeID[i][j]]->addElement(newElement, j);
                 }
             }
@@ -1102,11 +1105,11 @@ namespace Base
     {
         //set to correct value in case some other meshManipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
-        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrices_);
         ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
-        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrices_);
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
         //First open the file
@@ -1354,7 +1357,7 @@ namespace Base
                 Element* current = elementslist[candidateElements[0]];
                 std::vector<std::size_t> faceNodes(2);
                 
-                for (std::size_t j = 0; j < current->getNrOfFaces(); ++j)
+                for (std::size_t j = 0; j < current->getNumberOfFaces(); ++j)
                 {
                     faceNodes = current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j);
                     if ((faceNodes[0] == boundaryFaces[i].nodesList[0] || faceNodes[0] == boundaryFaces[i].nodesList[1]) && (faceNodes[1] == boundaryFaces[i].nodesList[0] || faceNodes[1] == boundaryFaces[i].nodesList[1]))
@@ -1561,7 +1564,7 @@ namespace Base
                 for (std::size_t j = 0; j < listOfElementsForEachNode[i].size(); ++j)
                 {
                     Element* current = elementslist[listOfElementsForEachNode[i][j]];
-                    for (std::size_t k = 0; k < current->getNrOfNodes(); ++k)
+                    for (std::size_t k = 0; k < current->getNumberOfNodes(); ++k)
                     {
                         //if we did not jet deal with this node and it is the correct one
                         if (current->getNode(k) == nullptr && current->getPhysicalGeometry()->getNodeIndex(k) == i)
@@ -2036,7 +2039,7 @@ namespace Base
                 
                 Element* current = elementsList[candidates[0]];
                 
-                for (std::size_t j = 0; j < current->getNrOfFaces(); ++j)
+                for (std::size_t j = 0; j < current->getNumberOfFaces(); ++j)
                 {
                     temp = current->getPhysicalGeometry()->getGlobalFaceNodeIndices(j);
                     std::sort(temp.begin(), temp.end());
@@ -2357,7 +2360,7 @@ namespace Base
                 for (std::size_t j = 0; j < listOfElementsForEachNode[i].size(); ++j)
                 {
                     Element* current = elementsList[listOfElementsForEachNode[i][j]];
-                    for (std::size_t k = 0; k < current->getNrOfNodes(); ++k)
+                    for (std::size_t k = 0; k < current->getNumberOfNodes(); ++k)
                     {
                         //if we did not jet deal with this node and it is the correct one
                         if (current->getNode(k) == nullptr && current->getPhysicalGeometry()->getNodeIndex(k) == i)
@@ -2391,11 +2394,11 @@ namespace Base
         
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
-        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrices_);
         ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
-        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrices_);
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
         //periodic unstructured mesh generation not yet implemented
@@ -2722,11 +2725,11 @@ namespace Base
 
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
-        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrixes_);
+        ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrices_);
         ElementFactory::instance().setNumberOfVectors(numberOfElementVectors_);
         ElementFactory::instance().setNumberOfTimeLevels(configData_->numberOfTimeLevels_);
         ElementFactory::instance().setNumberOfUnknowns(configData_->numberOfUnknowns_);
-        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrixes_);
+        FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrices_);
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
         for (Node* node : theMesh_.getNodesList(IteratorType::GLOBAL))
@@ -2754,7 +2757,7 @@ namespace Base
         
         //compute the lengths of the edges and how far the nodes have moved, to see if the nodes have moved so far that a retriangulation is in order
         double maxShift = 0;
-        //except dont bother if a retriangulation is in order anyway
+        //except don't bother if a retriangulation is in order anyway
         if (oldNodeLocations_.size() == theMesh_.getNodeCoordinates().size())
         {
             std::vector<double> unscaledShift {};
@@ -3461,7 +3464,7 @@ namespace Base
         
         for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
         {
-            for (std::size_t i = 0; i < element->getNrOfFaces(); ++i)
+            for (std::size_t i = 0; i < element->getNumberOfFaces(); ++i)
             {
                 std::vector<const Node*> localNodes;
                 //if this face is not there yet
@@ -3521,7 +3524,7 @@ namespace Base
                         }
                         bool matchFound = false;
                         std::vector<std::size_t> otherNodeIndices;
-                        for (std::size_t j = 0; j < other->getNrOfFaces(); ++j)
+                        for (std::size_t j = 0; j < other->getNumberOfFaces(); ++j)
                         {
                             otherNodeIndices = other->getReferenceGeometry()->getCodim1EntityLocalIndices(j);
                             bool match = true;
@@ -3567,7 +3570,7 @@ namespace Base
             
             for (Element* element : theMesh_.getElementsList(IteratorType::GLOBAL))
             {
-                for (std::size_t i = 0; i < element->getNrOfEdges(); ++i)
+                for (std::size_t i = 0; i < element->getNumberOfEdges(); ++i)
                 {
                     if (element->getEdge(i) == nullptr)
                     {
@@ -3586,7 +3589,7 @@ namespace Base
                         for (std::size_t j = 1; j < candidates.size(); ++j)
                         {
                             Element* other = candidates[j];
-                            for (std::size_t k = 0; k < other->getNrOfEdges(); ++k)
+                            for (std::size_t k = 0; k < other->getNumberOfEdges(); ++k)
                             {
                                 otherNodeList = other->getReferenceGeometry()->getCodim2EntityLocalIndices(k);
                                 if ((other->getNode(otherNodeList[0]) == nodes[0] || other->getNode(otherNodeList[0]) == nodes[1]) && (other->getNode(otherNodeList[1]) == nodes[0] || other->getNode(otherNodeList[1]) == nodes[1]))

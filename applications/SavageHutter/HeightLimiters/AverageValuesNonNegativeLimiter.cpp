@@ -54,7 +54,7 @@ void AverageValuesNonNegativeLimiter::limit(Base::Element *element, LinearAlgebr
             dischargeCoefficientsY = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageDischargeY;}, elementIntegrator_);
     }
 
-    for (std::size_t iFun = 0; iFun < element->getNrOfBasisFunctions(); ++iFun)
+    for (std::size_t iFun = 0; iFun < element->getNumberOfBasisFunctions(); ++iFun)
     {
         std::size_t iVF = element->convertToSingleIndex(iFun, 0);
         solutionCoefficients[iVF] = heightCoefficients[iFun];
@@ -72,7 +72,7 @@ double AverageValuesNonNegativeLimiter::getMinimumHeight(const Base::Element* el
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
-    const std::size_t numOfVariables = element->getNrOfUnknowns();
+    const std::size_t numOfVariables = element->getNumberOfUnknowns();
     const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);    
     double minimum = solutionLeft;
     for (std::size_t iPoint = 1; iPoint < element->getReferenceGeometry()->getNumberOfNodes(); ++iPoint)

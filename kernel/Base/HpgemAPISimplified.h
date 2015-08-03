@@ -207,9 +207,6 @@ namespace Base
         /// \brief Compute the right hand side for the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
         virtual void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time);
 
-        /// \brief Synchronize between the different submeshes (when using MPI)
-        virtual void synchronize(const std::size_t timeLevel);
-
         /// \brief Scale the solution coefficients of a given time level.
         virtual void scaleTimeLevel(const std::size_t timeLevel, const double scale);
 

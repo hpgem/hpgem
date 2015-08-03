@@ -84,7 +84,7 @@ public:
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM>& element) override final
     {
         //we access the actual element to find the number of basis functions that are non-zero on this element
-        std::size_t numBasisFuncs = element.getElement()->getNrOfBasisFunctions();
+        std::size_t numBasisFuncs = element.getElement()->getNumberOfBasisFunctions();
         LinearAlgebra::MiddleSizeMatrix& result = element.getResultMatrix();
         for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
@@ -110,7 +110,7 @@ public:
     Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(Base::PhysicalFace<DIM>& face) override final
     {
         //Get the total number of basis functions of both sides of the face.
-        std::size_t numBasisFuncs = face.getFace()->getNrOfBasisFunctions();
+        std::size_t numBasisFuncs = face.getFace()->getNumberOfBasisFunctions();
         
         //get the result with the correct size and all elements set to 0.
         Base::FaceMatrix& integrandVal = face.getResultMatrix();

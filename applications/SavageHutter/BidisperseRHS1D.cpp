@@ -19,16 +19,13 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "SavageHutterRightHandSideComputer.h"
-#include "Logger.h"
-#include "Base/L2Norm.h"
-#include "Geometry/Mappings/MappingReferenceToPhysical.h"
+#include "BidisperseRHS1D.h"
 #include "HelperFunctions.h"
 
 using LinearAlgebra::MiddleSizeVector;
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
-MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElement
+MiddleSizeVector BidisperseRHS1D::integrandRightHandSideOnElement
 (Base::PhysicalElement<DIM>& element, const double &time, const MiddleSizeVector &solutionCoefficients)
 {
     const std::size_t numBasisFuncs = element.getElement()->getNumberOfBasisFunctions();
@@ -62,7 +59,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElem
 }
 
 /// \details The integrand for the reference face is the same as the physical face, but scaled with the reference-to-physical face scale. This face scale is absorbed in the normal vector, since it is relatively cheap to compute the normal vector with a length (L2-norm) equal to the reference-to-physical face scale.
-MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
+MiddleSizeVector BidisperseRHS1D::integrandRightHandSideOnRefFace
 ( Base::PhysicalFace<DIM>& face, const Base::Side &iSide, const MiddleSizeVector &solutionCoefficientsLeft, const MiddleSizeVector &solutionCoefficientsRight)
 {
     double normal = face.getNormalVector()[0];
@@ -107,7 +104,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     return integrand;
 }
 
-MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
+MiddleSizeVector BidisperseRHS1D::integrandRightHandSideOnRefFace
     (
      Base::PhysicalFace<DIM>& face,
      const MiddleSizeVector &solutionCoefficients
@@ -121,7 +118,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     const PointReferenceT& pRefL = face.getFace()->mapRefFaceToRefElemL(pRef);
     MiddleSizeVector solution = Helpers::getSolution<DIM>(face.getFace()->getPtrElementLeft(), solutionCoefficients, pRefL, numOfVariables_);
     
-    MiddleSizeVector flux(2);
+    MiddleSizeVector flux(3);
     double u = 0;
     if (solution(0) > minH_)
     {
@@ -152,26 +149,32 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     return integrand;
 }
 
-MiddleSizeVector SavageHutterRightHandSideComputer::computePhysicalFlux(const MiddleSizeVector &numericalSolution)
+MiddleSizeVector BidisperseRHS1D::computePhysicalFlux(const MiddleSizeVector &numericalSolution)
 {    
     const double h = numericalSolution(0);
     logger.assert(h > -1e-16, "Negative height (%)", h);
     const double hu = numericalSolution(1);
+    const double smallHeight = numericalSolution(2);
     double u = 0;
     if (h > minH_)
     {
         u = hu/h;
     }
-    MiddleSizeVector flux(2);
+    MiddleSizeVector flux(3);
     flux(0) = hu;
-    flux(1) = hu * u * alpha_ + epsilon_/2 * std::cos(chuteAngle_) * h * h;
-    logger(DEBUG, "flux values: %, %", flux(0), flux(1));
+    flux(1) = hu * u + epsilon_/2 * std::cos(chuteAngle_) * h * h;
+    flux(2) = smallHeight * u;
+    if (h>minH_)
+    {
+        flux(2) -= (1.-alpha_)*smallHeight * u * (1-smallHeight/h);
+    }
+    logger(DEBUG, "flux values: %, %", flux(0), flux(1), flux(2));
     return flux;
 }
 
-MiddleSizeVector SavageHutterRightHandSideComputer::computeSourceTerm(const MiddleSizeVector& numericalSolution, const PointPhysicalT& pPhys, const double time)
+MiddleSizeVector BidisperseRHS1D::computeSourceTerm(const MiddleSizeVector& numericalSolution, const PointPhysicalT& pPhys, const double time)
 {
-    logger.assert(chuteAngle_ < M_PI, "Angle must be in radians, not degrees!");
+    logger.assert(chuteAngle_ < M_PI / 2, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
     const double hu = numericalSolution(1);
     double u = 0;
@@ -179,14 +182,14 @@ MiddleSizeVector SavageHutterRightHandSideComputer::computeSourceTerm(const Midd
     {
         u = hu/h;
     }
-    double mu = computeFrictionCoulomb(numericalSolution);
+    double mu = computeFrictionExponential(numericalSolution);
     const int signU = Helpers::sign(u);
     double sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
     logger(DEBUG, "Source: %, h: %", sourceX, h);
-    return MiddleSizeVector({0, sourceX});
+    return MiddleSizeVector({0, sourceX, 0});
 }
 
-MiddleSizeVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight)
+MiddleSizeVector BidisperseRHS1D::localLaxFriedrichsFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight)
 {
     double uLeft = 0;
     if (numericalSolutionLeft(0) > minH_)
@@ -214,14 +217,13 @@ MiddleSizeVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const
     return numericalFlux;
 }
 
-double SavageHutterRightHandSideComputer::computeFrictionCoulomb(const MiddleSizeVector& numericalSolution)
+double BidisperseRHS1D::computeFrictionCoulomb(const MiddleSizeVector& numericalSolution)
 {
     return std::tan(22./180*M_PI);
 }
 
 /// Compute friction as described in Weinhart (2012), eq (50) with lambda = 1, d = 1
-/// Notice that the minus sign for gamma in eq (50) is wrong.
-double SavageHutterRightHandSideComputer::computeFriction(const MiddleSizeVector& numericalSolution)
+double BidisperseRHS1D::computeFriction(const MiddleSizeVector& numericalSolution)
 {
     const double delta1 = 17.561 / 180 * M_PI ;
     const double delta2 = 32.257 / 180 * M_PI;
@@ -234,23 +236,28 @@ double SavageHutterRightHandSideComputer::computeFriction(const MiddleSizeVector
         return std::tan(delta1);
     const double u  = numericalSolution[1] / h;
     const double F = u /std::sqrt(epsilon_*std::cos(chuteAngle_) * h);
-    logger(DEBUG, "new friction: %, coulomb friction: %", std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))/(beta*h/(A*d*(F + gamma)) + 1), std::tan(chuteAngle_));
+    logger(DEBUG, "new friction: %, coulomb friction: %", std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))/(beta*h/(A*d*(F - gamma)) + 1), std::tan(chuteAngle_));
     return std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))/(beta*h/(A*d*(F - gamma)) + 1);
 }
 
 /// Compute friction as in Anthony's draft, eq (3.9)
-double SavageHutterRightHandSideComputer::computeFrictionExponential(const MiddleSizeVector& numericalSolution)
+double BidisperseRHS1D::computeFrictionExponential(const MiddleSizeVector& numericalSolution)
 {
-    const double delta1 = 27. / 180 * M_PI ;
-    const double delta2 = 37. / 180 * M_PI;
+    double delta1 = 27. / 180 * M_PI ;
+    double delta2 = 37. / 180 * M_PI;
     const double beta = 0.136;
-    const double L = 2.;
+    const double L = 0.5;
     const double h = numericalSolution[0];
     if (h < minH_)
         return std::tan(delta1);
     const double u  = numericalSolution[1] / h;
+    const double eta = numericalSolution[2];
     if (std::abs(u) < 1e-16)
         return std::tan(delta1);
     logger(DEBUG, "new friction: %", std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))*std::exp(-beta*std::pow(epsilon_*h, 1.5)/(L * std::abs(u))));
-    return std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))*std::exp(-beta*std::pow(epsilon_*h, 1.5)/(L * std::abs(u)));
+    const double muLarge = std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))*std::exp(-beta*std::pow(epsilon_*h, 1.5)/(L * std::abs(u)));
+    delta1 = 20. / 180 * M_PI;
+    delta2 = 30. / 180 * M_PI;
+    const double muSmall = std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))*std::exp(-beta*std::pow(epsilon_*h, 1.5)/(L * std::abs(u)));
+    return (1 - eta/h) * muLarge + eta/h * muSmall;
 }

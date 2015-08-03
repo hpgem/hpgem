@@ -1,0 +1,643 @@
+\documentclass{report}
+
+\usepackage{amsmath}
+
+\newcommand{\dt}[1]{\frac{\partial #1}{\partial t}}
+\newcommand{\dx}[1]{\frac{\partial #1}{\partial x}}
+\newcommand{\dy}[1]{\frac{\partial #1}{\partial y}}
+\newcommand{\dz}[1]{\frac{\partial #1}{\partial z}}
+
+\begin{document}
+
+\chapter{Introduction}
+
+This report describes in detail the Navier-Stokes equation and it's application to DG methods.
+
+%Todo: 
+% Clarify what the Euler equations are
+% Add references
+
+\chapter{Navier-Stokes}
+\section{Compressible Navier-Stokes}
+In this section compressible Navier-Stokes is treated. A fluid is deemed to be compressible for $M > 0.3$ where $M$ is the ratio of the mean stream velocity and the speed of sound, known as the Mach number. In many practises compressibility effects are not present and hence incompressible flow can be assumed. The incompressible Navier-Stokes equations are given in section \ref{}. When modeling grains as a continum media however, they act like a compressible media ~\cite{} and hence the compressible Navier-Stokes equations are useful. In this document the compressible Navier-Stokes equation for an ideal are described. Extensions to grains can be found in ~\cite{}.
+
+The full Navier-Stokes equations are a system of equations describing mass, momentum and energy balance of an infinitesimal small volume of fluid. Derivation of the Navier-Stokes equations can be found in~\cite{}. The states of a fluid at a specific location is described by the state vector
+\begin{equation}
+\label{e:stateVector}
+\mathbf{U} =
+\left[
+\begin{array}{c}
+\rho 		\\
+\rho u	 	\\
+\rho v		\\
+\rho w		\\
+\rho E		\\
+\end{array}
+\right],
+\end{equation}
+where $\rho$ is the density of the fluid, $u$,$v$ and $w$ are the velocities in the $x$-, $y$- and $z$-direction and $E$ is the total energy of the system. The equations appear in quite some different forms in the literature, but in this report they will be given in the strong conservative form.
+
+\subsection{Mass balance}
+The mass equation is
+\begin{equation}
+\label{e:mass_balance}
+\dt{\rho} + \dx{\rho u} + \dy{\rho v} + \dz{\rho w} = 0
+\end{equation}
+The mass equation ensures that the only change in mass at a specific point in the domain at a certain time, is caused by advection of the mass. No mass can be created and hence the source term is zero.
+
+\subsection{Momentum balance}
+The momentum balance of the fluid volume gives an equation for every space dimension.
+For the x-direction:
+\begin{equation}
+\label{e:momentumBalance_X}
+\dt{\rho u} + \dx{\rho u^2} + \dy{\rho v u} + \dz{\rho w u} =
+-\dx{p} + \dx{\tau_{xx}} + \dy{\tau_{yx}} + \dz{\tau_{zx}} + S_x.
+\end{equation}
+In this equation $p$ is the pressure, $\tau$ is the shear stress tensor and $S_x$ is the source term in the x-direction. This could, for instance, be the gravity.
+In the other directions it is given by
+\begin{equation}
+\label{e:momentumBalance_Y}
+\dt{\rho v} + \dx{\rho u v} + \dy{\rho v^2} + \dz{\rho w v} =
+-\dy{p} + \dx{\tau_{xy}} + \dy{\tau_{yy}} + \dz{\tau_{zy}} + S_y.
+\end{equation}
+and
+\begin{equation}
+\label{e:momentumBalance_Z}
+\dt{\rho w} + \dx{\rho u w} + \dy{\rho v w} + \dz{\rho w^2} =
+-\dx{p} + \dx{\tau_{xz}} + \dy{\tau_{yz}} + \dz{\tau_{zz}} + S_z.
+\end{equation}
+
+These equations have two additional unknowns, the stress tensor $\tau$ and the pressure $p$. In order to keep the system in a closed form that can be solved, closure laws have to be applied. Closure laws will be elaborated in section \ref{}.
+
+\subsection{Energy balance}
+The energy equation ensures that no energy will be lost in the system. Disspation caused by viscosity in the momentum equation will be transfered into heat due to this equation. Also heat transport is included in the fluid, based on Fourier's law.
+\begin{equation}
+\label{e:energyBalance}
+\dt{\rho E} + \dx{\rho H u} + \dy{\rho H v} + \dz{\rho H w} 
+= \dx{A_x}
++ \dy{A_y} 
++ \dz{A_z},
+\end{equation}
+with
+\begin{equation}
+\label{e:energyBalance_Ax}
+A_x = u \tau_{xx} + v \tau_{yx} + w \tau_{zx} + \kappa\dx{T}
+\end{equation}
+\begin{equation}
+\label{e:energyBalance_Ay}
+A_y = u \tau_{xy} + v \tau_{yy} + w \tau_{zy} + \kappa\dy{T}
+\end{equation}
+\begin{equation}
+\label{e:energyBalance_Az}
+A_z = u \tau_{xz} + v \tau_{yz} + w \tau_{zz} + \kappa\dz{T}
+\end{equation}
+In these equations the enthaply is defined as $H = E + \frac{p}{\rho}$.
+
+\subsection{Closure laws}
+To close the system of equations given in the previous parts, closure relations are required. These relations are generally obtained from experimental or numerical data or from an analysis point of view. Depending on the given problem, there are different closure laws. Here the ideal gas closure laws are given (and in future grains ..?)
+\subsubsection{Ideal gas}
+For an ideal gas the pressure in the gas is given by the well known ideal gas law
+\begin{equation}
+\label{e:idealGasLaw}
+p = \rho R_s T,
+\end{equation}
+with $R_s = c_p - c_v$, the specific gas constant and $c_p$ and $c_v$ are the specific heat capacities for, respectively, constant pressure and constant volume. 
+
+The total internal energy of the system for a gas can be described by $e = c_vT$. The internal and external energy are related by the equation
+\begin{equation}
+\label{e:internalEnergy}
+e = E - \frac{u^2 + v^2 + w^2}{2}
+\end{equation}
+and with this expression the pressure can be rewritten as
+\begin{equation}
+\label{e:idealGasLaw2}
+p = (\gamma - 1)\left[ \rho E - \rho \frac{u^2 + v^2 + w^2}{2} \right],
+\end{equation}
+where $\gamma = \frac{c_p}{c_v}$ is the non-dimensional number related to compressibility. Additionaly the temperature derivative, which turns up in the energy equation, can now also be written as the derivative of the internal energy,
+\begin{equation}
+\label{e:temperature}
+\kappa\dx{T} =  \frac{\kappa}{c_v}\dx{e} = \dx{E} - u\dx{u} - v\dx{v} -w\dx{w}.
+\end{equation}
+The derivatives on the righthand side can easily be computed from the Jacobian of the state vector by product rule, i.e.
+\begin{equation}
+\label{e:partialStatederivative}
+\dx{E} = \frac{1}{\rho} \left[ \dx{\rho E} -E \dx{\rho} \right]
+\end{equation}
+
+Components of the shear stress tensor for a fluid are
+\begin{equation}
+\label{e:shearStressTensor}
+\tau_{ij} = 
+\lambda \mu \left (
+\dx{u} + \dy{v} + \dz{w}
+\right)
+\delta_{ij}
++
+\mu \left( 
+\frac{\partial u_j}{\partial x_i} + \frac{\partial u_i}{\partial x_j}
+\right),
+\end{equation}
+where $\mu$ is the viscosity coefficient and $\lambda$ is related to this viscosity by the Stokes hypothesis, $\lambda = - \frac{2}{3}$. The shear stress components depend on the velocity gradients in the flow. Note that these shear stress will be differentiated an additional time in the Navier-Stokes equations, so the contribution of the shear components to the Navier-Stokes equations are based on second order derivatives of the velocity. This is important for the discretisation of the Navier-Stokes equations.
+
+The viscosity in ideal gases is a function of the temperature which behaves relatively easy and can be described by Sutherlands law,
+\begin{equation}
+\label{e:SutherlandsLaw}
+\mu = \mu_{ref}  \frac{T_{ref} + T_s}{T + T_s} \left( \frac{T}{T_{ref}} \right)^\frac{3}{2},
+\end{equation}
+with values $\mu_{ref} = 0.000017894$ $Pa s$, $T_s = 110$ $K$ and $T_{ref} = 288.16$ $K$.
+
+\subsection{Compact form}
+The equations given in the previous section are very lengthy and impractical for mathematical analysis. In order to write the equations compactly note that they can be split two parts. The convection part, containing the first order derivatives and the pressure, and the viscosity part, containing second order derivatives. Here it is assumed that there are no source functions. The equation is split up in two parts since the first order and second order derivatives require different treatment in the discretisation process. The equations can now be compactly written as
+\begin{equation}
+\label{e:NavierStokesCompact}
+\dt{\mathbf{U}} + \nabla \cdot {F}_k(\mathbf{U}) - \nabla \cdot {F}_k^v(\mathbf{U},\mathbf{\nabla U}) = \mathbf{0},
+\end{equation}
+The inviscid vectors are given for clarity:
+
+\begin{center}
+\begin{tabular}{ccc}
+$
+{F}_{1} =
+\left[
+\begin{array}{c}
+\rho u		\\
+\rho u^2 + p	 	\\
+\rho vu		\\
+\rho wu		\\
+\rho H u 	\\
+\end{array}
+\right],$ & 
+$
+{F}_{2} =
+\left[
+\begin{array}{c}
+\rho v		\\
+\rho uv	 	\\
+\rho v^2	+ p	\\
+\rho wv		\\
+\rho H v	\\
+\end{array}
+\right],$ & 
+$
+{F}_{3} =
+\left[
+\begin{array}{c}
+\rho w		\\
+\rho uw	 	\\
+\rho vw		\\
+\rho w^2	+ p	\\
+\rho H w	\\
+\end{array}
+\right].$
+\end{tabular}
+\end{center}
+The viscous flux vectors of the Navier-Stokes equations are,
+\begin{equation*}
+{F}_{1}^v =
+\left[
+\begin{array}{c}
+0		\\
+\tau_{xx}	 	\\
+\tau_{yx}		\\
+\tau_{zx}		\\
+u\tau_{xx} + v\tau_{yx} + w\tau_{zx} + \kappa\dx{T}	\\
+\end{array}
+\right],
+\end{equation*}
+
+\begin{equation*}
+{F}_{2}^v =
+\left[
+\begin{array}{c}
+0		\\
+\tau_{xy}	 	\\
+\tau_{yy}		\\
+\tau_{zy}		\\
+u\tau_{xy} + v\tau_{yy} + w\tau_{zy} + \kappa\dy{T}	\\
+\end{array}
+\right],
+\end{equation*}
+
+\begin{equation*}
+{F}_{3}^v =
+\left[
+\begin{array}{c}
+0		\\
+\tau_{xz}	 	\\
+\tau_{yz}		\\
+\tau_{zz}		\\
+u\tau_{xz} + v\tau_{yz} + w\tau_{zz} + \kappa\dz{T}	\\
+\end{array}
+\right].
+\end{equation*}
+
+The viscous flux can be written as a linear combination of the Jacobian of the state vector. For ease of writing index notation is used, where recurring indices are summed. 
+\begin{equation}
+\label{e:Atensor}
+F^v_{ik} = A_{ikjm}(\mathbf{U})U_{j,m}
+\end{equation}
+For a clear description of this fourth order tensor, see~\cite{}.
+
+
+\subsection{Non-dimensional form}
+It is possible to rewrite the Navier-Stokes equations in such a way that it has no dimensions. When non-dimensionalising these equations several non-dimensional numbers turn up, such as the Reynolds number or the Mach number. Solutions to problems with the same dimensionless numbers are identical, and thus saving extra computations. Another benefit is that several variables can be scaled to ensure less numerical error due to rounding effects of the computer. In the latter case it is feasible to ensure that the state variables are of the same order.
+
+There are many ways to non-dimensionalise the Navier-Stokes equations. To keep the framework general, every variable is non-dimensionalised with a typical value, instead of picking reference variables. By choosing the correct typical values, different scalings can be obtained.
+
+The variables $rho,u,v,w,E,p,T, \mu, \kappa, x,y,z,t$ are non-dimensionalised in the form
+\begin{equation}
+\label{e:exampleNonDim}
+u = \tilde{u}u_t,
+\end{equation}
+where $\tilde{u}$ is the non dimensional variable and $u_t$ is the typical scaling value. Applying this to the mass balance equation, multiplying by $\frac{t_t}{\rho_t}$ and neglecting the tilde for convenience results in
+\begin{equation}
+\label{e:nonDimMassEquation}
+\dt{\rho} 
++ \frac{u_t t_t}{x_t}\dx{\rho u}
++ \frac{v_t t_t}{y_t}\dy{\rho v}
++ \frac{w_t t_t}{z_t}\dz{\rho w}
+\end{equation}
+Note that when the typical values are choosen to be one, the normal dimensional form of the Navier-Stokes equations is obtained. This way of non-dimensionalising is the most general form, however to keep the implementation of a solution algorithm reasonably easy, the velocities are scaled by $u_t$ only and the space variables by $x_t$ resulting in
+\begin{equation}
+\label{e:nonDimMassEquationEasy}
+\dt{\rho} + \frac{u_t t_t}{x_t}
+\left(
+\dx{\rho u}
++ \dy{\rho v}
++ \dz{\rho w}
+\right)
+\end{equation}
+Non-dimensionalising the momentum in the x-direction balances result in
+\begin{equation}
+\label{e:momentumBalance_XNonDim}
+\begin{array}{c}
+\dt{\rho u}
+ + \frac{u_t t_t}{x_t}\left [\dx{\rho u^2 + P_sp} + \dy{\rho v u} + \dz{\rho w u} \right] = \\
+ \frac{\mu_t t_t}{x_t^2 \rho_t}\left[ \dx{\tau_{xx}} + \dy{\tau_{yx}} + \dz{\tau_{zx}} \right]
+ + \frac{S_{x_t} t_t}{\rho_t u_t}S_x,
+ \end{array}
+\end{equation}
+with
+\begin{equation}
+P_s = \frac{p_t}{\rho_t u_t^2}.
+\end{equation}
+Momentum balances in the other directions have exactly the same non-dimensional numbers. Note that when $x_t = D$, $u_t = U_{\infty}$, $\mu_t = \mu_{\infty}$ and $t_t = \frac{D}{U_{\infty}}$ then the scaling factor infront of the shear stress terms turns into $\frac{1}{Re}$. Since the temperature will be scaled as well for the energy equation, the Sutherland's law, Eqn.~\ref{e:SutherlandsLaw} must be adapted resulting into
+\begin{equation}
+\label{e:SutherlandsLawScaled}
+\mu = \mu_{ref}  \frac{T_{ref} + T_s}{T T_t + T_s} \left( \frac{T T_t}{T_{ref}} \right)^\frac{3}{2},
+\end{equation}
+
+The energy equation is writtin in the form
+
+\begin{equation}
+\label{e:energyBalanceNonDim}
+\dt{\rho E}
+ + \frac{H_t u_t t_t}{E_t x_t}
+\left[
+\dx{\rho H u} + \dy{\rho H v} + \dz{\rho H w} 
+\right] =
+ \frac{\mu_t u_t^2 t_t}{\rho_t E_t x_t^2} 
+\left[
+\dx{A_x} + \dy{A_y} + \dz{A_z} 
+\right],
+\end{equation}
+with
+\begin{equation}
+\label{e:energyBalance_AxNonDim}
+A_x = u \tau_{xx} + v \tau_{yx} + w \tau_{zx} + T_s\dx{T},
+\end{equation}
+\begin{equation}
+\label{e:energyBalance_AyNonDim}
+A_y = u \tau_{xy} + v \tau_{yy} + w \tau_{zy} + T_s\dy{T},
+\end{equation}
+\begin{equation}
+\label{e:energyBalance_AzNonDim}
+A_z = u \tau_{xz} + v \tau_{yz} + w \tau_{zz} + T_s\dz{T},
+\end{equation}
+and
+\begin{equation}
+\label{e:temperatureScale}
+T_s = \frac{\kappa T_t}{\mu_t u_t^2}.
+\end{equation}
+Some definitions for convenience are given.
+\begin{equation}
+\label{e:dimGroup1}
+D_1 = \frac{u_t t_t}{x_t}
+\end{equation}
+\begin{equation}
+\label{e:dimGroup2}
+D_2 = \frac{\mu_t t_t}{x_t^2 \rho_t}
+\end{equation}
+\begin{equation}
+\label{e:dimGroup3}
+D_3 = \frac{H_t}{E_t}
+\end{equation}
+\begin{equation}
+\label{e:dimGroup4}
+D_4 = \frac{u_t^2}{E_t}
+\end{equation}
+The inviscid flux vectors can now be written as
+
+\begin{center}
+\begin{tabular}{ccc}
+$
+{F}_{1} = D_1
+\left[
+\begin{array}{c}
+\rho u		\\
+\rho u^2 + P_s p	 	\\
+\rho vu		\\
+\rho wu		\\
+D_3 \rho H u 	\\
+\end{array}
+\right],$ & 
+$
+{F}_{2} = D_1
+\left[
+\begin{array}{c}
+\rho v		\\
+\rho uv	 	\\
+\rho v^2	+ P_s p	\\
+\rho wv		\\
+D_3 \rho H v	\\
+\end{array}
+\right],$ & 
+$
+{F}_{3} = D_1
+\left[
+\begin{array}{c}
+\rho w		\\
+\rho uw	 	\\
+\rho vw		\\
+\rho w^2	+ P_s p	\\
+D_3 \rho H w	\\
+\end{array}
+\right].$
+\end{tabular}
+\end{center}
+
+The viscous flux vector can now be written as
+
+\begin{equation*}
+{F}_{1}^v = D_2
+\left[
+\begin{array}{c}
+0		\\
+\tau_{xx}	 	\\
+\tau_{yx}		\\
+\tau_{zx}		\\
+D_4\left[
+u\tau_{xx} + v\tau_{yx} + w\tau_{zx} + T_s\dx{T}
+\right]	\\
+\end{array}
+\right],
+\end{equation*}
+
+\begin{equation*}
+{F}_{2}^v = D_2
+\left[
+\begin{array}{c}
+0		\\
+\tau_{xy}	 	\\
+\tau_{yy}		\\
+\tau_{zy}		\\
+D_4 \left[
+u\tau_{xy} + v\tau_{yy} + w\tau_{zy} + T_s\dy{T}
+\right]	\\
+\end{array}
+\right],
+\end{equation*}
+
+\begin{equation*}
+{F}_{3}^v = D_2
+\left[
+\begin{array}{c}
+0		\\
+\tau_{xz}	 	\\
+\tau_{yz}		\\
+\tau_{zz}		\\
+D_4 \left[
+u\tau_{xz} + v\tau_{yz} + w\tau_{zz} + T_s\dz{T}
+\right]	\\
+\end{array}
+\right].
+\end{equation*}
+
+\section{Incompressible Navier-Stokes}
+\section{Local Averaged Navier-Stokes}
+
+
+\chapter{Solution Method}
+In this section the solution method and discretisation of the Navier-Stokes is explained. 
+\section{Discontinous Galerkin}
+%todo: add for all v_k to the equations and break them up in two rows
+The method used here to approximate a solution of the Navier-Stokes equations is known as Discontinous Galerking (DG) and is a type of Finite Element Method (FEM). This method does not solve the strong form of the differential equation, but the weakform, allowing for discontinuities in the solution. The difference between DG and Standard Galerkin is that the solution does not necessarily have to be continous. Benefits of this formulation are easy local grid refinement in terms of extra cells (h-refinement) or higher order approximations (p-refinement). Connection between neighbouring cells is obtained by Finite Volume Method (FVM) style flux functions. DG can therefore be seen as a hybrid FEM/FVM method.
+
+\section{Weak Formulation}
+Much research has been performed on solving the Navier-Stokes equations~\cite{} in a DG setting. In order to be able to solve the equations, space and time first need to be discretised. The Navier-Stokes equations are solved on a domain $\Omega$. The first step in the discretisation is to discretise this domain into elements such that $ \Omega = \sum_e \Omega_e$. The boundaries of an element is given by $\Gamma_e$ and they can either be an internal boundary $\Gamma_i$, neighbouring another element, or an external boundary. Boundary conditions are supplied on external boundaries and can be divided into two catagories: Dirichlet and Neuman boundaries. Their notation respectively is $\Gamma_D$ and $\Gamma_N$.
+
+The second step is to multiply Eqn.~\ref{e:NavierStokesCompact} by a test function $\mathbf{v} \in {\rm I\!R}^5$ and integrate it over an element. At this point is is convenient to switch to index notation. The resulting equation is
+\begin{equation}
+\label{e:weakForm1}
+\int_{\Omega_e} v_k \dt{U_k} \mathrm{d}\Omega
++ \int_{\Omega_e} v_k \partial_i {F}_{ik}(\mathbf{U}) \mathrm{d}\Omega
+- \int_{\Omega_e} v_k \partial_i {F}_{ik}^v(\mathbf{U},\mathbf{\nabla \mathbf{U}}) \mathrm{d}\Omega = 0.
+\end{equation}
+This equation is the general weak form of the Navier-Stokes equations, however it needs further modification to be of use in DG. Note that a distinction has been made between the inviscid flux and the viscid flux. This is because DG is specialised in hyperbolic equations concerning convection of states. This is inherited from FVM by coupling the elements with flux functions. The viscous terms are second derivatives of the state and therefore try to force the fluid in some kind of balance. The second derivatives have a rather big problem with discontinuous solutions and therefore need special treatment. It is reasonable to split up the discretisation in two parts resulting in
+\begin{equation}
+\label{e:weakForm2}
+\int_{\Omega_e} v_k \dt{U_k} \mathrm{d}\Omega
++ \mathbf{E}_e(\mathbf{v},\mathbf{U})
++ \mathbf{V}_e(\mathbf{v},\mathbf{U}) = 0.
+\end{equation} 
+Discretisation of the convection terms are elaborated in section \ref{ss:Euler} and discretisation of the viscous terms are given in section \ref{ss:ViscousTerms}.
+
+\subsection{Euler}
+\label{ss:Euler}
+The intergral $\mathbf{E}_e(\mathbf{v},\mathbf{U})$ in Eqn.~\ref{e:weakForm2} is an element integral, however in order to incorporate a flux function on the boundary it has to be rewritten such that a boundary integral is obtained. In order to do so realise that the product rule is
+\begin{equation}
+\partial_i (v_k F_{ik}) = F_{ik} \partial_i v_k + v_k \partial_i F_{ik}.
+\end{equation}
+Using the product rule, $\mathbf{E}_e(\mathbf{v},\mathbf{U})$ results in
+\begin{equation}
+\mathbf{E}_e(\mathbf{v},\mathbf{U}) = 
+\int_{\Omega_e} \partial_i (v_k {F}_{ik}(\mathbf{U})) \mathrm{d}\Omega
+- \int_{\Omega_e} {F}_{ik}(\mathbf{U}) \partial_i v_k \mathrm{d}\Omega
+\end{equation}
+The first term in this integral can be rewritten as a boundary integral by using the divergence theorem,
+\begin{equation}
+\label{e:weakFormEuler}
+\mathbf{E}_e(\mathbf{v},\mathbf{U}) = 
+\int_{\Gamma_e} v_k^{+} \hat{F}_{ik}(\mathbf{U}^{-},\mathbf{U}^{+}) n_i \mathrm{ds}
+- \int_{\Omega_e} {F}_{ik}(\mathbf{U}) \partial_i v_k \mathrm{d}\Omega,
+\end{equation}
+where $n_i$ is the unit outward normal vector component in the $i$th direction. The solution on the boundary of an element has not a single value, the neighbouring element has a solution on this boundary as well. It not trivial to understand what the flux function should be and hence the flux $\hat{F}_{ik}(\mathbf{U})$ is introduced. The flux will have to be some function of both traces on the boundary, or the element will be decoupled. In this equation $\mathbf{U}^{+}$ is the trace of the current element on the boundary and $\mathbf{U}^{-}$ is the trace of the neighbouring element. There exist many flux functions and some of them will be discussed in section \ref{s:fluxFunctions}.
+
+%Boundary conditions
+%Dirichlet, Neumann?
+\subsection{Viscous Terms}
+\label{ss:ViscousTerms}
+%todo: add introduction on how to solve elliptic differential equations and references
+Consider the viscous terms using Eqn.~\ref{e:Atensor},
+\begin{equation}
+\mathbf{V}_e(\mathbf{v},\mathbf{U}) = 
+- \int_{\Omega_e} v_k \partial_i ({A}_{ikjm} \partial_m U_{j}) \mathrm{d}\Omega.
+\end{equation}
+Due to the derivative of the states, the final result contains second derivatives. Solving equations containing second order derivatives generally is done by introducting auxilliary variables in order to reduce one second order derivative equation into a system of first order equations. This approach is used for the viscous fluxes here.
+Introducing the auxilliary variable $Q_{jm} = \partial_m U_j$, the equation becomes
+\begin{equation}
+\mathbf{V}_e(\mathbf{v},\mathbf{U}) = 
+- \int_{\Omega_e} v_k \partial_i ({A}_{ikjm} Q_{jm}) \mathrm{d}\Omega.
+\end{equation}
+This equation will now be rewritten such that it can be used in DG, by rewriting the element ingeral to a boundary integral. Using the product rule the equation becomes
+\begin{equation}
+\mathbf{V}_e(\mathbf{v},\mathbf{U}) = 
+- \int_{\Omega_e} \partial_i (v_k {A}_{ikjm} Q_{jm}) \mathrm{d}\Omega
++ \int_{\Omega_e} \partial_i v_k {A}_{ikjm} Q_{jm} \mathrm{d}\Omega.
+\end{equation}
+Using the divergence theorem the equation now becomes
+\begin{equation}
+\label{e:ViscousWeakFormPart1}
+\mathbf{V}_e(\mathbf{v},\mathbf{U}) = 
+- \int_{\Gamma_e} v_k^{+} \widehat{{{A}_{ikjm} Q_{jm}}} n_i \mathrm{ds}
++ \int_{\Omega_e} \partial_i v_k {A}_{ikjm} Q_{jm} \mathrm{d}\Omega.
+\end{equation}
+Note that this equation shows similar structure to that of Eqn.~\ref{e:weakFormEuler}, however the auxilliary variable is still unknown. This variable needs to be approximated on an element as well resulting in an additional weak form equation. In order to derive the weakform of this equation, introduce a testfunction $w_{jm}$, multiply the auxilliary variable with the testfunction and $A_{ikjm}$ and integrate over the element. The result is
+\begin{equation}
+\int_{\Omega_e} w_{ik} A_{ikjm} Q_{jm} \mathrm{d}\Omega 
+= \int_{\Omega_e} w_{ik} A_{ikjm} \partial_m U_j \mathrm{d}\Omega
+\end{equation}
+Applying the product rule,
+\begin{equation}
+\int_{\Omega_e} w_{ik} A_{ikjm} Q_{jm} \mathrm{d}\Omega 
+= \int_{\Omega_e} \partial_m ({w_{ik} A_{ikjm} U_j}) \mathrm{d}\Omega
+- \int_{\Omega_e} \partial_m (w_{ik} A_{ikjm}) U_j \mathrm{d}\Omega,
+\end{equation}
+and the divergence theorem,
+\begin{equation}
+\int_{\Omega_e} w_{ik} A_{ikjm} Q_{jm} \mathrm{d}\Omega 
+= \int_{\Gamma_e} {w_{ik} \widehat{A_{ikjm} U_j}} n_m \mathrm{ds}
+- \int_{\Omega_e} \partial_m (w_{ik} A_{ikjm}) U_j \mathrm{d}\Omega.
+\end{equation}
+Note that when the testfunction $w_{ik} = \partial_i v_k$ this equation can be substituted in Eqn.~\ref{e:ViscousWeakFormPart1} whichs results in
+\begin{equation}
+\label{e:ViscousWeakForm3}
+\mathbf{V}_e(\mathbf{v},\mathbf{U}) = 
+- \int_{\Gamma_e} v_k^{+} \widehat{{{A}_{ikjm} Q_{jm}}} n_i \mathrm{ds}
++ \int_{\Gamma_e} {\partial_i v_k \widehat{A_{ikjm} U_j}} n_m \mathrm{ds}
+- \int_{\Omega_e} \partial_m (\partial_i v_k A_{ikjm}) U_j \mathrm{d}\Omega.
+\end{equation}
+The last term in this equation can be rewritten by using the product rule and divergence theorem once again resulting in
+\begin{equation}
+\int_{\Omega_e} \partial_m (\partial_i v_k A_{ikjm}) U_j \mathrm{d}\Omega
+=  \int_{\Gamma_e} \partial_i v_k A_{ikjm} U_j n_m \mathrm{d}\Omega
+- \int_{\Omega_e} \partial_i v_k A_{ikjm} \partial_m U_j \mathrm{d}\Omega.
+\end{equation}
+Substituting this in Eqn.~\ref{e:ViscousWeakForm3} results in
+\begin{equation}
+\mathbf{V}_e(\mathbf{v},\mathbf{U}) = 
+- \int_{\Gamma_e} v_k^{+} \widehat{{{A}_{ikjm} Q_{jm}}} n_i \mathrm{ds}
+- \int_{\Gamma_e} \partial_i v_k (A_{ikjm}^+ U_j^{+} - \widehat{A_{ikjm} U_j})n_m \mathrm{d}\Omega
++ \int_{\Omega_e} \partial_i v_k A_{ikjm} \partial_m U_j \mathrm{d}\Omega.
+\end{equation}
+Note that in this weakform there are two flux functions that need to be defined. Many flux functions exist and they will be elaborated in section \ref{s:fluxFunctions}.
+
+\subsection{Final Weak Form}
+The final weak form of the Navier-Stokes equations is
+\begin{equation}
+\label{e:weakformFinal}
+\int_{\Omega_e} v_k \dt{U_k} \mathrm{d}\Omega
++ \mathbf{E}_e(\mathbf{v},\mathbf{U})
++ \mathbf{V}_e(\mathbf{v},\mathbf{U}) = 0.
+\end{equation}
+with
+\begin{equation}
+\mathbf{E}_e(\mathbf{v},\mathbf{U}) = 
+\int_{\Gamma_e} v_k^{+} \hat{F}_{ik}(\mathbf{U}^{-},\mathbf{U}^{+}) n_i \mathrm{ds}
+- \int_{\Omega_e} {F}_{ik}(\mathbf{U}) \partial_i v_k \mathrm{d}\Omega,
+\end{equation}
+and
+\begin{equation}
+\mathbf{V}_e(\mathbf{v},\mathbf{U}) = 
+- \int_{\Gamma_e} v_k^{+} \widehat{{{A}_{ikjm} Q_{jm}}} n_i \mathrm{ds}
+- \int_{\Gamma_e} \partial_i v_k (A_{ikjm}^+ U_j^{+} - \widehat{A_{ikjm} U_j})n_m \mathrm{d}\Omega
++ \int_{\Omega_e} \partial_i v_k A_{ikjm} \partial_m U_j \mathrm{d}\Omega.
+\end{equation}
+
+\section{Solution Method}
+In section \ref{} a weak form is derived that is suitable for the DG solution method. This section explains how to approximate the states based on the weak form. 
+
+The DG method discretises the domain in order to search for an approximate solution. In this framework an approximation to the states is searched for inside a Sobolev function space. %add more information of a Sobolev space (?)
+
+In general the approximation of a state is given by
+\begin{equation}
+U^h(\mathbf{x},t) = \sum_l U_l(t) \phi_l(\mathbf{x}).
+\end{equation}
+Here the superscript $h$ means the solution $U$ is approximated on an element of size $h$, functions $\phi_l$ are basis functions spanning the Sobolev space. In general these are polynomial functions of maximum order $p$. The state is therefore approximated by state coefficients as function of time, and basis functions as function of space. 
+
+I AM STILL TYPING THIS DOCUMENT, IT WILL GROW PRETTY BIG MKAY
+
+\section{Flux Functions}
+\label{s:fluxFunctions}
+The weak form of the Navier-Stokes equation given in Eqn.~\ref{e:weakformFinal} contains three fluxes, one for the inviscid part and two for the viscous part. In section \ref{ss:Inviscidflux} the inviscid flux is elaborated and in section \ref{ss:ViscousFluxes} the viscous fluxes are explained.
+
+\subsection{Inviscid Flux}
+\label{ss:Inviscidflux}
+Many flux functions exist in the literature, some important flux functions are the Godonov flux,Roe flux and lax-friedrichs flux. In ~\cite{} a review can be found on various fluxes. The choice of flux has major impact on the accuracy, computational effort and stability of the numerical code. The Lax-Friedrichs flux is easy to implement, but for low order DG it introduces a lot of artificial viscosity. This effects seem to reduce for high order DG. The Roe flux is an approximate Riemann solver, meaning it solves approximately a Riemann problem on the boundary. Solving the exact Riemann problem proves to be too computational expensive. The Roe flux is explained in detail in~\cite{}. For the Navier-Stokes solver the Roe flux is used.
+
+Roe flux ..
+
+\subsection{Viscous Fluxes}
+\label{ss:ViscousFluxes}
+
+
+\section{Boundary Conditions}
+This section explains how to go from the weakform to a system of equations using Basis functions and test functions. The
+
+\subsection{State Approximation}
+
+\subsection{Test Functions}
+
+\subsection{Time stepping}
+
+
+\section{Implementation in hpGEM}
+This section explains how the code is build up and some comments are given in order to understand it..
+
+This work uses roe flux
+
+\chapter{Results}
+\section{Simple shear problem}
+
+\chapter{Future possibilities}
+
+\begin{equation}
+\label{e:energyBalance_AxLong}
+A_x = \mu \left [
+u \left( (2+\lambda)\dx{u} + \lambda \dy{v} + \lambda \dz{w} \right)
++ v \left( \dx{v} + \dy{u} \right) 
++ w \left( \dx{w} + \dz{u} \right)
++ \frac{\kappa}{c_v} \dx{T}
+\right],
+\end{equation}
+\begin{equation}
+\label{e:energyBalance_AyLong}
+A_y = u \mu \left( \dy{u} + \dx{v} \right)
++ v \mu \left( \lambda \dx{u} + (2+\lambda)\dy{v} + \lambda \dz{w} \right)
++ w \mu \left( \dy{w} + \dz{v} \right)
++ \frac{\kappa}{c_v}\dy{T}
+\end{equation}
+\begin{equation}
+\label{e:energyBalance_AzLong}
+A_z = u \mu \left( \dz{u} + \dx{w} \right)
++ v \mu \left( \dz{v} + \dy{w} \right)
++ w \mu \left( \lambda\dx{u} + \lambda\dy{v} + (2+\lambda)\dz{w} \right)
++ \frac{\kappa}{c_v}\dz{T}
+\end{equation}
+It is possible to rewrite the viscous fluxfunction as a linear combination of the Jacobian of the state, $\nabla \mathbf{U}$. When writing the flux function in this manner, it is easier to write in Einstin summation convention...
+
+\chapter{Stability terms}
+
+
+%ADD REFERENCES!!
+\end{document}

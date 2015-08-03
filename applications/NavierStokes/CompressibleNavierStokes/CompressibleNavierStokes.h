@@ -45,53 +45,70 @@ public:
 
     void setStabilityMassMatrix();
 
-    // Computes pressure for a given solution q
-    double computePressure(const LinearAlgebra::MiddleSizeVector &qSolution);
+    /// \brief Computes pressure for a given state
+    double computePressure(const LinearAlgebra::MiddleSizeVector &state);
 
+    /// *************************************************
+    /// ***   Element integration support functions   ***
+    /// *************************************************
+
+    /// \brief Compute state at an element
+    LinearAlgebra::MiddleSizeVector computeStateOnElement(Base::PhysicalElement<DIM> &element, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
+
+    /// \brief Compute state derivatives at an element.
+    LinearAlgebra::MiddleSizeMatrix computeStateJacobianAtElement(Base::PhysicalElement<DIM> &element, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
+
+/*
+	//todo: Remove this function, it is outdated
+    /// Compute the Jacobian of the velocities
+    LinearAlgebra::MiddleSizeMatrix computePartialStateJacobian(const LinearAlgebra::MiddleSizeMatrix qSolutionGradient, const LinearAlgebra::MiddleSizeVector qSolution);
+*/
+
+    /// \brief Computes the partial states: all states except the density are divided by the density
+    LinearAlgebra::MiddleSizeVector computePartialState(const LinearAlgebra::MiddleSizeVector &state);
 
     /// *****************************************
     /// ***   Element integration functions   ***
     /// *****************************************
 
-    /// Compute source function at an element
-    LinearAlgebra::MiddleSizeVector integrandSourceAtElement(Base::PhysicalElement<DIM>& element, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time);
+    /// \brief Compute source function at an element
+    LinearAlgebra::MiddleSizeVector integrandSourceAtElement(Base::PhysicalElement<DIM> &element, const LinearAlgebra::MiddleSizeVector &state, const double &pressureTerm, const double &time);
 
-    /// Compute solution at an element
-    LinearAlgebra::MiddleSizeVector computeSolutionOnElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM> &pRef);
-
-    /// Compute solution derivatives at an element. Energy state is not included.
-    LinearAlgebra::MiddleSizeMatrix computeSolutionJacobianAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM> &pRef);
-
-    /// Compute the Jacobian of the velocities
-    LinearAlgebra::MiddleSizeMatrix computePartialStateJacobian(const LinearAlgebra::MiddleSizeMatrix qSolutionGradient, const LinearAlgebra::MiddleSizeVector qSolution);
-
-    /// Computes the partial States: all states except the density are divided by the density
-    LinearAlgebra::MiddleSizeVector computePartialState(const LinearAlgebra::MiddleSizeVector qSolution);
-
-    /// Compute integrand of righthandside on an element
-    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefElement(Base::PhysicalElement<DIM>& element, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients);
+    /// \brief Compute integrand of righthandside on an element
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnElement(Base::PhysicalElement<DIM>& element, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
 
     /// \brief Compute the right hand side on an element
-    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement,	LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override;
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
 
-    /// *****************************************
-    /// ***    face integration functions     ***
-    /// *****************************************
+    /// *************************************************
+    /// ***    face integration support functions     ***
+    /// *************************************************
 
-    /// Compute solution at a face
-    LinearAlgebra::MiddleSizeVector computeSolutionOnFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM - 1> &pRef) const;
+    /// \brief Compute state at a face
+    LinearAlgebra::MiddleSizeVector computeStateOnFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateCoefficients) const;
 
-    /// Compute solution Jacobian on face
-    LinearAlgebra::MiddleSizeMatrix computeSolutionJacobianAtFace(const Base::Face *ptrFace, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM - 1> &pRef);
+    /// \brief Compute state at a face
+    //LinearAlgebra::MiddleSizeVector computeStateOnFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, LinearAlgebra::MiddleSizeVector &stateCoefficients);
 
-    /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
-    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients);
+    /// \brief Compute state Jacobian on face
+    LinearAlgebra::MiddleSizeMatrix computeStateJacobianAtFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
 
-    /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace(Base::PhysicalFace<DIM>& face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight);
+    /// **************************************************
+    /// ***    external face integration functions     ***
+    /// **************************************************
 
-    /// \brief Compute the right-hand side corresponding to a boundary face
+    /// \brief Compute the integrand for the right hand side for the face corresponding to an external face.
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
+
+    /// \brief Compute the right-hand side corresponding to an external face
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
+
+    /// **************************************************
+    /// ***    internal face integration functions     ***
+    /// **************************************************
+
+    /// \brief Compute the integrand for the right hand side for the face corresponding to an internal face.
+    LinearAlgebra::MiddleSizeVector integrandRightHandSideOnFace(Base::PhysicalFace<DIM>& face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &stateCoefficientsRight);
 
     /// \brief Compute the right-hand side corresponding to an internal face
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time) override final;
@@ -101,36 +118,64 @@ public:
     /// ***    		Various Functions         ***
     /// *****************************************
 
+    /// \brief Computes the exact solution of the given problem (if it is avaiable)
     LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override final;
 
     /// \brief Compute the initial solution at a given point in space and time.
 	LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
 
+	/// \brief Computes the Error at the end of the simulation, compared to the exact solution
 	LinearAlgebra::MiddleSizeVector Error(const double time);
 
+	/// \brief Shows the progress in the terminal as output
+	void showProgress(const double time, const std::size_t timeStepID) override final;
+
+/*	deprecated
+	/// \brief Ensure that referenceIntegrate works correctly with the newly templated API. This is a hack.
 	void beforeTimeIntegration()
 	{
 	    faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
-	}
+	}*/
 
 private:
-    /// Dimension of the domain
+    /// \var Dimension of the domain
     const std::size_t DIM_;
 
-    /// Specific heat ratio
+    /// \var Specific heat ratio
     const double gamma_ = 1.4;
 
-	/// Number of variables
+    /// \var specific gas constant
+    const double Rs_ = (1 - 1/gamma_)*1000; // cp-cv;
+
+    /// \var specific heat at constant pressure
+    //todo: remove this from viscous.cpp
+    const double cp_ = 1000;
+
+	/// \var Number of variables
 	const std::size_t numOfVariables_;
 
-	/// Inviscid class, treating the inviscid part of the NS equations
+	/// \var Inviscid class, treating the inviscid part of the NS equations
 	Inviscid inviscidTerms_;
 
-	/// Viscous class, treating the viscosity part of the NS equations
+	/// \var Viscous class, treating the viscosity part of the NS equations
 	Viscous viscousTerms_;
+
+	/// Plate characteristics
+	const double uPlateTop_ = 0.0; 			//Velocity of the top plate
+	const double uPlateBottom_ = 0.0;		//Velocity of the bottom plate
+	const double tPlateTop_ = 288;			//temperature of the top plate
+	const double tPlateBottom_ = 288;		//temperature of the bottom plate
+
+	/// Simulation parameters
+	const double Tc_ = 3.0/5.0;
+
+	/// non-Dimensionless parameters
+	const double nonDIM1_ = 1.0;// //E0_/(uWall_ *uWall_); //Used for scaling the pressure correctly
 
 	friend class Inviscid;
 	friend class Viscous;
+
+
 
 
 };

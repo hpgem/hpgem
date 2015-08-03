@@ -76,7 +76,7 @@ namespace Integration
         ReturnTrait1 value, result;
         
         // number of Gauss quadrature points
-        std::size_t nrOfPoints = qdrRuleLoc->nrOfPoints();
+        std::size_t numberOfPoints = qdrRuleLoc->nrOfPoints();
         
         // Gauss quadrature point
         const Geometry::PointReference<DIM - 1>& p0 = qdrRuleLoc->getPoint(0);
@@ -88,7 +88,7 @@ namespace Integration
         result *= (qdrRuleLoc->weight(0) * face_->getTransform()->getIntegrandScaleFactor(*face_));
         
         // next Gauss points
-        for (std::size_t i = 1; i < nrOfPoints; ++i)
+        for (std::size_t i = 1; i < numberOfPoints; ++i)
         {
             const Geometry::PointReference<DIM - 1>& p = qdrRuleLoc->getPoint(i);
             face_->setPointReference(p);
@@ -112,7 +112,7 @@ namespace Integration
      \f[ \int_{F_{phys}} f_{phys}(x) \,dx = \int_{F_{ref}} f_{phys}(\phi(\xi)) |J| \,d\xi, \f]
      so \f$ f_{ref}(\xi) = f_{phys}(\phi(\xi)) |J| \f$. In some cases it is more advantageous to compute \f$ f_{ref}(\xi) \f$ instead of \f$ f_{phys}(x)\f$.
      
-     NOTE: do not mix up gradients of pyhsical and reference basis functions with integrals on physical and reference faces. If \f$ f_{phys}(x) \f$ contains a (physical) gradient of a physical basis function then so does \f$ f_{ref}(\xi) = f_{phys}(\phi(\xi)) |J| \f$. The difference is the input argument (reference point \f$ \xi \f$ instead of physical point \f$ x \f$ ) and the scaling \f$ |J| \f$. (Ofcourse it is possible to rewrite the gradient of a physical basis function in terms of the gradient of the corresponding reference basis function).
+     NOTE: do not mix up gradients of physical and reference basis functions with integrals on physical and reference faces. If \f$ f_{phys}(x) \f$ contains a (physical) gradient of a physical basis function then so does \f$ f_{ref}(\xi) = f_{phys}(\phi(\xi)) |J| \f$. The difference is the input argument (reference point \f$ \xi \f$ instead of physical point \f$ x \f$ ) and the scaling \f$ |J| \f$. (Ofcourse it is possible to rewrite the gradient of a physical basis function in terms of the gradient of the corresponding reference basis function).
      Need to know information about the face to do the integration
      */
     /*template<std::size_t DIM>

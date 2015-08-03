@@ -75,7 +75,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<1>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceLine) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNrOfNodes() == 2), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 2), "getNrOfNodes");
     
     for (orig1D[0] = -1.51; orig1D[0] < 1.51; orig1D[0] += 0.1)
     {
@@ -117,7 +117,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysSimplexLinear<2>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceTriangle) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNrOfNodes() == 3), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 3), "getNrOfNodes");
     
     for (orig2D[0] = -1.51; orig2D[0] < 1.51; orig2D[0] += 0.2)
     {
@@ -145,7 +145,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<2>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceSquare) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNrOfNodes() == 4), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 4), "getNrOfNodes");
     
     for (orig2D[0] = -1.51; orig2D[0] < 1.51; orig2D[0] += 0.2)
     {
@@ -212,7 +212,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysSimplexLinear<3>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceTetrahedron) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNrOfNodes() == 4), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 4), "getNrOfNodes");
     
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.3)
     {
@@ -249,7 +249,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysPyramid) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferencePyramid) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNrOfNodes() == 5), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 5), "getNrOfNodes");
     
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.3)
     {
@@ -286,7 +286,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysTriangularPrism) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceTriangularPrism) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNrOfNodes() == 6), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 6), "getNrOfNodes");
     
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.3)
     {
@@ -324,7 +324,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<3>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceCube) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNrOfNodes() == 8), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 8), "getNrOfNodes");
     
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.3)
     {
@@ -454,7 +454,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<4>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceHypercube) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNrOfNodes() == 16), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 16), "getNrOfNodes");
     
     for (orig4D[0] = -1.5189; orig4D[0] < 1.541; orig4D[0] += 0.4)
     {

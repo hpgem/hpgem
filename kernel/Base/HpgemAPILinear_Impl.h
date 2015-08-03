@@ -150,7 +150,7 @@ namespace Base
     LinearAlgebra::MiddleSizeVector HpgemAPILinear<DIM>::integrateSourceTermAtElement(Base::Element * ptrElement, const double time, const std::size_t orderTimeDerivative)
     {
         // Get number of basis functions
-        std::size_t numOfBasisFunctions = ptrElement->getNrOfBasisFunctions();
+        std::size_t numOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
         
         // Declare integral source term
         LinearAlgebra::MiddleSizeVector integralSourceTerm(numOfBasisFunctions * this->configData_->numberOfUnknowns_);

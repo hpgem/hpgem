@@ -1,3 +1,23 @@
+/*
+ This file forms part of hpGEM. This package has been developed over a number of years by various people at the University of Twente and a full list of contributors can be found at
+ http://hpgem.org/about-the-code/team
+ 
+ This code is distributed using BSD 3-Clause License. A copy of which can found below.
+ 
+ 
+ Copyright (c) 2014, University of Twente
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "SavageHutterBase.h"
 #include "HelperFunctions.h"
@@ -19,10 +39,9 @@ Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(con
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
         description.numElementsInDIM_[i] = 4;
-        description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
+        description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
     }
     description.numElementsInDIM_[0] = numOfElementPerDirection;
-    description.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
     return description;
 }
 
@@ -108,13 +127,14 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
     for (std::size_t jStage = 0; jStage < numOfStages; jStage++)
     {
         scaleAndAddTimeLevel(solutionTimeLevel_, intermediateTimeLevels_[jStage], dt * ptrButcherTableau_->getB(jStage));
-    }
+    }    
 
     limitSolutionOuterLoop();
 
     // Update the time.
     time += dt;
     time_ = time;
+    setInflowBC(time);
     logger(DEBUG, "time: %",time_);
 }
 
@@ -152,9 +172,9 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
                 LinearAlgebra::MiddleSizeVector solutionCoefficients = ptrFace->getPtrElementLeft()->getTimeLevelDataVector(temporaryTimeLevel_);
                 LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
                 
-                solutionCoefficientsNew += computeRightHandSideAtFace(ptrFace, solutionCoefficients, time);
+                    solutionCoefficientsNew += computeRightHandSideAtFace(ptrFace, solutionCoefficients, time);
+                }
             }
-        }
         
         synchronize(timeLevelResult);
     }
@@ -175,7 +195,7 @@ void SavageHutterBase::limitSolutionOuterLoop()
         else
         {
             //only limit the slope when there is a slope, so not when the solution exists of piecewise constants.
-            if (element->getNrOfBasisFunctions() > 1)
+            if (element->getNumberOfBasisFunctions() > 1)
             {
                 slopeLimiter_->limitSlope(element);
             }
@@ -191,7 +211,7 @@ double SavageHutterBase::getMinimumHeight(const Base::Element* element)
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
-    const std::size_t numOfVariables = element->getNrOfUnknowns();
+    const std::size_t numOfVariables = element->getNumberOfUnknowns();
     const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);
     const double solutionRight = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefR, numOfVariables)(0);
     double minimum = std::min(solutionLeft, solutionRight);

@@ -33,21 +33,23 @@ public:
     /// ***   Element integration functions   ***
     /// *****************************************
 
-    /// Compute integrand of righthandside on an element
-    LinearAlgebra::MiddleSizeVector integrandAtElement(Base::PhysicalElement<DIM>& element, const double &time, const double pressureTerm, const LinearAlgebra::MiddleSizeVector &qSolution);
+    /// \brief Compute integrand of righthandside on an element
+    LinearAlgebra::MiddleSizeVector integrandAtElement(Base::PhysicalElement<DIM> &element, const double &time, const double &pressureTerm, const LinearAlgebra::MiddleSizeVector &state);
 
     /// *****************************************
     /// ***    face integration functions     ***
     /// *****************************************
 
     /// \brief Compute the Roe Riemann Flux.
-    LinearAlgebra::MiddleSizeVector RoeRiemannFluxFunction(const LinearAlgebra::MiddleSizeVector &qReconstructionLeft, const LinearAlgebra::MiddleSizeVector &qReconstructionRight, const LinearAlgebra::SmallVector<DIM>& normal);
+    LinearAlgebra::MiddleSizeVector RoeRiemannFluxFunction(const LinearAlgebra::MiddleSizeVector &stateLeft, const LinearAlgebra::MiddleSizeVector &stateRight, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
 
-    /// \brief Compute the integrand for the right hand side for the reference face corresponding to a boundary face.
-	LinearAlgebra::MiddleSizeVector integrandAtFace(Base::PhysicalFace<DIM>& face, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients);
+
+    /// \brief Compute the integrand for the right hand side for the reference face corresponding to a external face.
+	LinearAlgebra::MiddleSizeVector integrandAtFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateInternal);
 
 	/// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-	LinearAlgebra::MiddleSizeVector integrandAtFace(Base::PhysicalFace<DIM>& face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &qSolutionInternal, const LinearAlgebra::MiddleSizeVector &qSolutionExternal);
+	LinearAlgebra::MiddleSizeVector integrandAtFace(Base::PhysicalFace<DIM> &face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
+
 
 private:
 	const CompressibleNavierStokes& instance_;

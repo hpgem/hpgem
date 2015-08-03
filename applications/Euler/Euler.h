@@ -50,7 +50,7 @@ public:
     /// *****************************************
 
     /// Compute source function at an element
-    LinearAlgebra::MiddleSizeVector integrandSourceAtElement(Base::PhysicalElement<DIM> &ptrElement, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time);
+    LinearAlgebra::MiddleSizeVector integrandSourceAtElement(Base::PhysicalElement<DIM> &Element, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time);
 
     /// Compute solution at an element
     LinearAlgebra::MiddleSizeVector computeSolutionAtElement(const Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const PointReferenceT &pRef);
@@ -93,6 +93,8 @@ public:
 	LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
 
 	LinearAlgebra::MiddleSizeVector Error(const double time);
+
+	void showProgress(const double time, const std::size_t timeStepID) override final;
 
 
 private:
