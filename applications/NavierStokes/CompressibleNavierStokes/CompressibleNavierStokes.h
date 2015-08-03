@@ -170,7 +170,12 @@ private:
 	const double Tc_ = 3.0/5.0;
 
 	/// non-Dimensionless parameters
-	const double nonDIM1_ = 1.0;// //E0_/(uWall_ *uWall_); //Used for scaling the pressure correctly
+	const double rho0_ = 1.225;
+	const double U0_ = 1.0;
+	const double E0_ = 1.225*1000/1.4*288;
+	const double H_ = 1.0;
+
+	const double nonDIM1_ = 1.0;//E0_/(U0_*U0_);// //E0_/(uWall_ *uWall_); //Used for scaling the pressure correctly
 
 	friend class Inviscid;
 	friend class Viscous;

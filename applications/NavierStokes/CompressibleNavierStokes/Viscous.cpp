@@ -170,10 +170,60 @@ std::vector<LinearAlgebra::MiddleSizeMatrix> Viscous::computeATensor(const Linea
 }
 
 
+//todo: fix this part, faster integration
 //A_ikrs = A_(iV)(iD)(iVm)(iDm)
-//This is a naive implementation, Many terms could be zero in this computation
-//todo: A quicker specialised function can be written to improve speed
+//This is a naive implementation
 LinearAlgebra::MiddleSizeMatrix Viscous::computeATensorMatrixContraction(
+		const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensor,
+		const LinearAlgebra::MiddleSizeMatrix &matrix)
+{
+	LinearAlgebra::MiddleSizeMatrix result(instance_.numOfVariables_,instance_.DIM_);
+	double pos;
+
+	for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
+	{
+		for (std::size_t iV = 0; iV < instance_.numOfVariables_; iV++)
+		{
+			for (std::size_t iDm = 0; iDm < instance_.DIM_; iDm++)
+			{
+				for (std::size_t iVm = 0; iVm < instance_.numOfVariables_; iVm++)
+				{
+					pos = (instance_.DIM_)*iD + iDm;
+					result(iV,iD) += ATensor[pos](iV,iVm)*matrix(iVm,iDm);
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+/*LinearAlgebra::MiddleSizeMatrix Viscous::computeATensorMatrixContraction(
+		const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensor,
+		const LinearAlgebra::MiddleSizeMatrix &matrix)
+{
+	LinearAlgebra::MiddleSizeMatrix result(instance_.numOfVariables_,instance_.DIM_);
+	double pos;
+
+	for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
+	{
+		for (std::size_t iV = 1; iV < instance_.numOfVariables_; iV++) // First row in A is always zero
+		{
+			for (std::size_t iDm = 0; iDm < instance_.DIM_; iDm++)
+			{
+				for (std::size_t iVm = 0; iVm < instance_.numOfVariables_; iVm++)
+				{
+					pos = (instance_.DIM_)*iD + iDm;
+					result(iV,iD) += ATensor[pos](iV,iVm)*matrix(iVm,iDm);
+				}
+			}
+		}
+	}
+
+	return result;
+}*/
+
+LinearAlgebra::MiddleSizeMatrix Viscous::computeATensorMatrixContractionFast(
 		const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensor,
 		const LinearAlgebra::MiddleSizeMatrix &matrix)
 {
@@ -403,8 +453,8 @@ void Viscous::computeStabilityFluxFunction(
 	//std::cout << "stateDifference: " << stateDifference << std::endl;
 	//std::cout << "velocityNormal: " << stateNormal << std::endl;
 	//std::cout << "normalInternal: " << normalInternal << std::endl;
-	stabilityFluxFunctionInternal_ = computeATensorMatrixContraction(ATensorInternal, stateNormal);
-	stabilityFluxFunctionExternal_ = computeATensorMatrixContraction(ATensorExternal, stateNormal);
+	stabilityFluxFunctionInternal_ = computeATensorMatrixContractionFast(ATensorInternal, stateNormal);
+	stabilityFluxFunctionExternal_ = computeATensorMatrixContractionFast(ATensorExternal, stateNormal);
 }
 
 //todo: rewrite such that it reduces the vector allocations by two
@@ -585,14 +635,14 @@ LinearAlgebra::MiddleSizeVector Viscous::integrandViscousAtFace(
 {
 
 	//Compute velocity normal matrix
-	LinearAlgebra::MiddleSizeMatrix velocityNormal(instance_.DIM_+2,instance_.DIM_);
+	LinearAlgebra::MiddleSizeMatrix stateNormal(instance_.DIM_+2,instance_.DIM_);
 	LinearAlgebra::MiddleSizeVector stateDifference;
 	stateDifference = stateInternal - stateExternal;
 	for (std::size_t iV = 0; iV < instance_.numOfVariables_; iV++)
 	{
 		for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
 		{
-			velocityNormal(iV,iD) = 0.5*stateDifference(iV)*unitNormalInternal(iD);
+			stateNormal(iV,iD) = 0.5*stateDifference(iV)*unitNormalInternal(iD);
 		}
 	}
 
@@ -601,7 +651,7 @@ LinearAlgebra::MiddleSizeVector Viscous::integrandViscousAtFace(
 	double viscosity = computeViscosity(temperature);
 
 	ATensorInternal_ = computeATensor(partialStateInternal, viscosity);
-	LinearAlgebra::MiddleSizeMatrix fluxFunction = computeATensorMatrixContraction(ATensorInternal_, velocityNormal);
+	LinearAlgebra::MiddleSizeMatrix fluxFunction = computeATensorMatrixContractionFast(ATensorInternal_, stateNormal);
 
 	//Compute integrand
 	std::size_t numOfTestBasisFunctions = face.getPhysicalElement(iSide).getNumOfBasisFunctions();

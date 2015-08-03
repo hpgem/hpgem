@@ -165,9 +165,10 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtEleme
 
 	//create datastructures
 	double A = 1.225;
-	double B = 1.225*cp_/gamma_;
+	double B = 239750.0;;
 	double C = 1.0; //std::exp(-1000*time);
 	double C_t = 0.0; //-1000*std::exp(-1000*time);
+	double D = 50.0;
 	double pi = M_PI;
 	LinearAlgebra::MiddleSizeVector zVal(4);
 	LinearAlgebra::MiddleSizeVector exactState(4);
@@ -194,8 +195,8 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtEleme
 
 	//compute state
 	exactState(0) = A + C*zVal(0);
-	exactState(1) = C*zVal(3);
-	exactState(2) = C*zVal(2);
+	exactState(1) = D + C*zVal(3);
+	exactState(2) = D + C*zVal(2);
 	exactState(3) = B + C*zVal(0);
 	double inverseDensity = 1.0/exactState(0);
 
@@ -416,6 +417,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtEleme
 						+ kappa*T_yy;
 
 
+
 	//*********************************
 	//***	Compute Source term		***
 	//*********************************
@@ -448,6 +450,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtEleme
 		iVB = element.convertToSingleIndex(iB,3);
 		integrandSource(iVB) = sEnergy*element.basisFunction(iB);
 	}
+
 
 
 	return integrandSource;
@@ -724,29 +727,29 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAt
 		exactSolution(DIM_ + 1) = exactSolution(0)*cp_/gamma_*288.0 + 0.5/exactSolution(0)*(exactSolution(1)*exactSolution(1) + exactSolution(2)*exactSolution(2)); // + 0.5*exactSolution(1)*exactSolution(1)/exactSolution(0); // + function;
 */
 
-/*		LinearAlgebra::MiddleSizeVector exactSolution(numOfVariables_);
 
-		double amplitude = 0.2;
-		double frequency = 2.0*M_PI;
-		double function = amplitude*std::cos(frequency*time);
 
-		for (std::size_t iD = 0; iD < DIM; iD++)
+/*		double Val = std::sqrt((pPhys[0]-0.5)*(pPhys[0]-0.5) + (pPhys[1]-0.5)*(pPhys[1]-0.5));
+
+		if (Val < 0.15)
 		{
-			function *= std::cos(frequency*pPhys[iD]);
+			exactSolution(0) = 1.5;
+		}
+		else
+		{
+			exactSolution(0) = 1;
 		}
 
-		exactSolution(0) = 1.5 + function;
 
-		for (std::size_t iD = 0; iD < DIM; iD++)
-		{
-			exactSolution(iD+1) = function;
-		}
+		exactSolution(1) = 0.0;
 
-		exactSolution(DIM + 1) = 30.0 + function;*/
+
+		exactSolution(DIM + 1) = exactSolution(0)*30.0;*/
 
 		double A = 1.225;
-		double B = 1.225*cp_/gamma_;
+		double B = 239750.0;
 		double C = 1.0; //std::exp(-1000*time);
+		double D = 50.0;
 		double pi = M_PI;
 		LinearAlgebra::MiddleSizeVector zVal(4);
 
@@ -759,8 +762,8 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAt
 
 		//compute state
 		exactSolution(0) = A + C*zVal(0);
-		exactSolution(1) = C*zVal(3);
-		exactSolution(2) = C*zVal(2);
+		exactSolution(1) = D + C*zVal(3);
+		exactSolution(2) = D + C*zVal(2);
 		exactSolution(3) = B + C*zVal(0);
 
 	    return exactSolution;

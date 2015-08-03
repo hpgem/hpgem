@@ -51,6 +51,8 @@ public:
 	/// \brief Computes a second order contraction between an ATensor and a matrix resulting in a matrix
 	LinearAlgebra::MiddleSizeMatrix computeATensorMatrixContraction(const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensor, const LinearAlgebra::MiddleSizeMatrix &matrix);
 
+	LinearAlgebra::MiddleSizeMatrix computeATensorMatrixContractionFast(const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensor, const LinearAlgebra::MiddleSizeMatrix &matrix);
+
 
     /// *****************************************
     /// ***   Element integration functions   ***
