@@ -63,7 +63,7 @@ int main (int argc, char **argv){
     const std::size_t numOfVariables = 2+DIM;
 
     // Create problem solver 'test', that can solve the compressible Navier-Stokes equations.
-    CompressibleNavierStokes test(numOfVariables, endTime.getValue(), polynomialOrder.getValue(), ptrButcherTableau);
+    CompressibleNavierStokes test(numOfVariables, endTime.getValue(), polynomialOrder.getValue(), ptrButcherTableau, true);
 
     // Create the mesh, a simple square domain
     test.createMesh(numOfElements.getValue(), meshType);

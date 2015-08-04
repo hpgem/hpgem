@@ -96,7 +96,8 @@ namespace Base
          const std::size_t numberOfUnknowns,
          const std::size_t polynomialOrder,
          const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
-         const std::size_t numOfTimeLevels = 1
+         const std::size_t numOfTimeLevels = 1,
+         const bool computeBothFaces = false
          );
         
         HpgemAPISimplified(const HpgemAPISimplified &other) = delete;
@@ -198,6 +199,20 @@ namespace Base
             return rightHandSideFace;
         }
         
+        /// \brief Compute the right-hand side corresponding to an internal face
+        virtual std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> computeBothRightHandSidesAtFace
+        (
+         Base::Face *ptrFace,
+         LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+         LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
+         const double time
+         )
+        {
+        	logger(WARN, "No function for computing both right-hand sides at an internal face implemented.");
+        	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> bothRightHandSidesFace;
+        	return bothRightHandSidesFace;
+        }
+
         /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
         virtual void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time);
 
@@ -298,6 +313,9 @@ namespace Base
         /// Integrator for the faces
         Integration::FaceIntegral<DIM> faceIntegrator_;
         
+        /// Compute faces seperately(false) or combined(true)
+        const bool computeBothFaces_;
+
         /// \brief Define how the solution should be written in the VTK files.
         /// \details For an example of using this function, see for example the application 'TutorialAdvection' to find out how to use this function.
         void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)

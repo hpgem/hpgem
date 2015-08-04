@@ -102,12 +102,11 @@ public:
 	/// \brief Computes the viscous integral at the face, based on the viscous fluxes
 	LinearAlgebra::MiddleSizeVector integrandViscousAtFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const double pressure, const LinearAlgebra::MiddleSizeVector &partialStateInternal, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
 
+	/// \brief Compute both the auxilliary face integral for the left element as the right element at the same time. (reducing flux calculations)
+	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsAuxilliaryAtFace(Base::PhysicalFace<DIM> &face, const LinearAlgebra::MiddleSizeVector &stateLeft, const LinearAlgebra::MiddleSizeVector &stateRight, const double pressureLeft, const double pressureRight, const LinearAlgebra::MiddleSizeVector &partialStateLeft, const LinearAlgebra::MiddleSizeVector &partialStateRight, const LinearAlgebra::MiddleSizeMatrix &stateJacobianLeft, const LinearAlgebra::MiddleSizeMatrix &stateJacobianRight);
 
-/*//todo: Delete this function
-
-	//Computes the fluxFunction in the stability parameter calculation used for the integrand
-	void computeStabilityFluxFunction(const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorInternal, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorExternal, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const LinearAlgebra::MiddleSizeVector &normalInternal);
-*/
+	/// \brief Compute both the viscous face integral for the left element as the right element at the same time. (reducing flux calculations)
+	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsViscousAtFace(Base::PhysicalFace<DIM> &face, const LinearAlgebra::MiddleSizeVector &stateLeft, const LinearAlgebra::MiddleSizeVector &stateRight, double pressureLeft, double pressureRight, const LinearAlgebra::MiddleSizeVector &partialStateLeft, const LinearAlgebra::MiddleSizeVector &partialStateRight);
 
     /// **************************************************
     /// ***    general face integration functions      ***
@@ -133,6 +132,8 @@ private:
 	const double cp_;
 	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorInternal_;
 	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorExternal_;
+	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorLeft_;
+	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorRight_;
 	LinearAlgebra::MiddleSizeMatrix stabilityMassMatrix_; //Note: this breaks down if p is not the same in all elements.
 	LinearAlgebra::MiddleSizeMatrix stabilityFluxFunctionInternal_;
 	LinearAlgebra::MiddleSizeMatrix stabilityFluxFunctionExternal_;

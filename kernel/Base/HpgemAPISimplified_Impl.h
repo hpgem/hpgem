@@ -40,6 +40,8 @@
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "LinearAlgebra/Axpy.h"
 
+#include <chrono> //todo for testing purposes, remove it after its completed (!!)
+
 #include "Logger.h"
 
 namespace Base
@@ -63,13 +65,15 @@ namespace Base
      const std::size_t numOfVariables,
      const std::size_t polynomialOrder,
      const Base::ButcherTableau * const ptrButcherTableau,
-     const std::size_t numOfTimeLevels
+     const std::size_t numOfTimeLevels,
+     const bool computeBothFaces
      ) :
     HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(DIM, numOfVariables, polynomialOrder, (ptrButcherTableau->getNumStages() + 1 > numOfTimeLevels) ? ptrButcherTableau->getNumStages() + 1 : numOfTimeLevels)),
     ptrButcherTableau_(ptrButcherTableau),
     outputFileName_("output"),
     internalFileTitle_("output"),
-    solutionTitle_("solution")
+    solutionTitle_("solution"),
+    computeBothFaces_(computeBothFaces)
     {
         solutionTimeLevel_ = 0;
         for (std::size_t i = 1; i < this->configData_->numberOfTimeLevels_; i++)
@@ -496,6 +500,7 @@ namespace Base
     template<std::size_t DIM>
     void HpgemAPISimplified<DIM>::computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
     {
+    	std::exit(-1);
         // Apply the right hand side corresponding to integration on the elements.
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
@@ -567,9 +572,18 @@ namespace Base
                 LinearAlgebra::MiddleSizeVector solutionCoefficientsRight(getSolutionCoefficients(ptrFace->getPtrElementRight(), timeLevelsIn, coefficientsTimeLevels));
                 LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
                 LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
-                
-                solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
-                solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
+
+                if (computeBothFaces_ == false)
+                {
+                	solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
+                	solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
+                }
+                else
+                {
+                	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> solutionCoefficients(computeBothRightHandSidesAtFace(ptrFace, solutionCoefficientsLeft, solutionCoefficientsRight, time));
+                	solutionCoefficientsLeftNew += solutionCoefficients.first;
+                	solutionCoefficientsRightNew += solutionCoefficients.second;
+                }
             }
             else
             {
