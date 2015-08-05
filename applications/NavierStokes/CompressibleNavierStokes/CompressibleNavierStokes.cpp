@@ -41,8 +41,6 @@ viscousTerms_(*this)
 {
 }
 
-// todo: rewrite all the normal vector queries etc.
-
 /// \brief General mesh description
 Base::RectangularMeshDescriptor<DIM> CompressibleNavierStokes::createMeshDescription(const std::size_t numOfElementPerDirection)
 {
@@ -461,7 +459,6 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandRightHandSide
 {
 
 	//reconstruct the solution, partial state jacobian and pressure at pRef
-	//todo: check if partialState and its Jacobian can somehow be computed efficiently together
 	const LinearAlgebra::MiddleSizeVector state = computeStateOnElement(element, stateCoefficients);
 	const LinearAlgebra::MiddleSizeMatrix stateJacobian = computeStateJacobianAtElement(element, stateCoefficients);
 	const LinearAlgebra::MiddleSizeVector partialState = computePartialState(state);
@@ -476,21 +473,6 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandRightHandSide
 	//Compute source terms
 	LinearAlgebra::MiddleSizeVector integrandSource = integrandSourceAtElement(element, state, pressure, time);
 
-	//DEBUG
-	//std::cout << "Element_Inviscid: " << integrandInviscid << std::endl;
-/*	std::size_t iVBx;
-	std::size_t iVBy;
-	LinearAlgebra::MiddleSizeVector integrandDif(element.getNumOfBasisFunctions());
-	for(std::size_t iB = 0; iB < element.getNumOfBasisFunctions(); iB++)
-		{
-			// Momentum x
-			iVBx = element.convertToSingleIndex(iB,1);
-			iVBy = element.convertToSingleIndex(iB,2);
-			integrandDif(iB) = integrandSource(iVBx) - integrandSource(iVBy);
-		}
-	std::cout << integrandDif << std::endl;*/
-	//std::cout << "Element_Viscous: " << integrandViscous << std::endl;
-	//std::cout << "Element_Source: " << integrandSource << std::endl;
     return (integrandInviscid + integrandViscous + integrandSource);
 
 }
@@ -630,70 +612,6 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAt
 /// ***    internal face integration functions     ***
 /// **************************************************
 
-/*/// \brief Compute the integrand for the right hand side for the face corresponding to an internal face.
-LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandRightHandSideOnFace(Base::PhysicalFace<DIM>& face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &stateCoefficientsRight)
-{
-	//reconstruct the solution, partial state Jacobian and pressure at pRef, left and right of the interface
-	const LinearAlgebra::MiddleSizeVector stateLeft = computeStateOnFace(face, Base::Side::LEFT, stateCoefficientsLeft);
-	const LinearAlgebra::MiddleSizeVector stateRight = computeStateOnFace(face, Base::Side::RIGHT, stateCoefficientsRight);
-	const LinearAlgebra::MiddleSizeMatrix stateJacobianLeft = computeStateJacobianAtFace(face, Base::Side::LEFT, stateCoefficientsLeft);
-	const LinearAlgebra::MiddleSizeMatrix stateJacobianRight = computeStateJacobianAtFace(face, Base::Side::RIGHT, stateCoefficientsRight);
-
-	//Determine internal and external solutions
-	LinearAlgebra::MiddleSizeVector stateInternal;
-	LinearAlgebra::MiddleSizeVector stateExternal;
-	LinearAlgebra::MiddleSizeMatrix stateJacobianInternal;
-	LinearAlgebra::MiddleSizeMatrix stateJacobianExternal;
-	LinearAlgebra::SmallVector<DIM> unitNormalInternal;
-	LinearAlgebra::SmallVector<DIM> unitNormalExternal;
-
-	if (iSide == Base::Side::RIGHT)
-	{
-		stateInternal = stateRight;
-		stateExternal = stateLeft;
-		stateJacobianInternal = stateJacobianRight;
-		stateJacobianExternal = stateJacobianLeft;
-		unitNormalInternal = -face.getUnitNormalVector();
-	}
-	else
-	{
-		stateInternal = stateLeft;
-		stateExternal = stateRight;
-		stateJacobianInternal = stateJacobianLeft;
-		stateJacobianExternal = stateJacobianRight;
-		unitNormalInternal = face.getUnitNormalVector();
-	}
-
-	const double pressureInternal = computePressure(stateInternal);
-	const double pressureExternal = computePressure(stateExternal);
-	const LinearAlgebra::MiddleSizeVector partialStateInternal = computePartialState(stateInternal);
-	const LinearAlgebra::MiddleSizeVector partialStateExternal = computePartialState(stateExternal);
-
-
-	//Compute inviscid terms
-	LinearAlgebra::MiddleSizeVector integrandInviscid = inviscidTerms_.integrandAtFace(face, time, iSide, stateInternal, stateExternal, unitNormalInternal);
-
-	//Compute viscous terms
-	LinearAlgebra::MiddleSizeVector integrandViscous = viscousTerms_.integrandViscousAtFace(face, iSide, stateInternal, stateExternal, pressureInternal, partialStateInternal, unitNormalInternal);
-
-	//Compute support variable terms
-	LinearAlgebra::MiddleSizeVector integrandAuxilliary = viscousTerms_.integrandAuxilliaryAtFace(face, iSide, stateInternal, stateExternal, pressureInternal, pressureExternal, partialStateInternal, partialStateExternal, stateJacobianInternal, stateJacobianExternal, unitNormalInternal);
-
-	return  integrandInviscid + integrandViscous + integrandAuxilliary;
-
-   }*/
-
-/*
-/// \brief Compute the right-hand side corresponding to an internal face
-LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time)
-{
-	// Define the integrand function for the right hand side for the face.
-	std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&)> integrandFunction = [=](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
-	    {   return this->integrandRightHandSideOnFace(face, time, side, solutionCoefficientsLeft, solutionCoefficientsRight);};
-	return faceIntegrator_.integrate(ptrFace, integrandFunction);
-}
-*/
-
 /// \brief Compute the integrand for the right hand side for the face corresponding to an internal face.
 std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> CompressibleNavierStokes::integrandsRightHandSideOnFace(
 		Base::PhysicalFace<DIM>& face,
@@ -713,15 +631,23 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Compr
 	const LinearAlgebra::MiddleSizeVector partialStateRight = computePartialState(stateRight);
 
 	//Compute ALeft and ARight
+	double temperatureLeft = viscousTerms_.computeTemperature(stateLeft,pressureLeft);
+	double temperatureRight = viscousTerms_.computeTemperature(stateRight,pressureRight);
+	double viscosityLeft = viscousTerms_.computeViscosity(temperatureLeft);
+	double viscosityRight = viscousTerms_.computeViscosity(temperatureRight);
+	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorLeft;
+	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorRight;
+	ATensorLeft = viscousTerms_.computeATensor(partialStateLeft, viscosityLeft);
+	ATensorRight = viscousTerms_.computeATensor(partialStateRight, viscosityRight);
 
 	//Compute inviscid terms
 	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsInviscid = inviscidTerms_.integrandsAtFace(face, time, stateLeft, stateRight);
 
 	//Compute viscous terms
-	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsViscous = viscousTerms_.integrandsViscousAtFace(face, stateLeft, stateRight, pressureLeft, pressureRight, partialStateLeft, partialStateRight);
+	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsViscous = viscousTerms_.integrandsViscousAtFace(face, stateLeft, stateRight, ATensorLeft, ATensorRight);
 
 	//Compute support variable terms
-	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsAuxilliary = viscousTerms_.integrandsAuxilliaryAtFace(face, stateLeft, stateRight, pressureLeft, pressureRight, partialStateLeft, partialStateRight, stateJacobianLeft, stateJacobianRight);
+	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsAuxilliary = viscousTerms_.integrandsAuxilliaryAtFace(face, stateLeft, stateRight, stateJacobianLeft, stateJacobianRight, ATensorLeft, ATensorRight);
 
 	//combine all integrands into one pair
 	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrands;

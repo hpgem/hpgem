@@ -294,15 +294,13 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Invis
 		const LinearAlgebra::MiddleSizeVector &stateLeft,
 		const LinearAlgebra::MiddleSizeVector &stateRight)
 {
-	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Integrands;
-
 	//Data structures for left and right integrand
 	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumOfBasisFunctions();
-	LinearAlgebra::MiddleSizeVector integrandLeft(instance_.numOfVariables_*numOfTestBasisFunctionsLeft);
-
 	std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumOfBasisFunctions();
-	LinearAlgebra::MiddleSizeVector integrandRight(instance_.numOfVariables_*numOfTestBasisFunctionsRight);
-
+	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrands(
+			std::piecewise_construct,
+			std::forward_as_tuple(instance_.numOfVariables_*numOfTestBasisFunctionsLeft),
+			std::forward_as_tuple(instance_.numOfVariables_*numOfTestBasisFunctionsRight));
 	std::size_t iVB;
 
 	//Compute left flux
@@ -315,15 +313,11 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Invis
 		for (std::size_t iV = 0; iV < instance_.numOfVariables_; iV++) // Index for direction
 		{
 			iVB = face.getPhysicalElement(Base::Side::LEFT).convertToSingleIndex(iB, iV);
-			integrandLeft(iVB) = -flux(iV)*face.basisFunction(Base::Side::LEFT, iB); // Minus sign because the integral is on the right hand side
-			integrandRight(iVB) = flux(iV)*face.basisFunction(Base::Side::RIGHT,iB);
+			integrands.first(iVB) = -flux(iV)*face.basisFunction(Base::Side::LEFT, iB); // Minus sign because the integral is on the right hand side
+			integrands.second(iVB) = flux(iV)*face.basisFunction(Base::Side::RIGHT,iB);
 		}
 	}
 
-	//Assign integrand values to pair
-	Integrands.first = integrandLeft;
-	Integrands.second = integrandRight;
-
-	return Integrands;
+	return integrands;
 }
 
