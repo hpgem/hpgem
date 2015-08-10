@@ -135,7 +135,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     }
     else //inflow
     {
-        flux = localLaxFriedrichsFlux(inflowBC_, solution);
+        flux = localLaxFriedrichsFlux(inflowBC_, inflowBC_);
     }
     
     MiddleSizeVector integrand(numOfVariables_ * numBasisFuncs);

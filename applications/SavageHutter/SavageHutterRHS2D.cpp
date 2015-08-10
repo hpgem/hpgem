@@ -102,7 +102,8 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnRefFace
      const MiddleSizeVector &solutionCoefficients
      )
 {
-    double normalX = face.getNormalVector()[0];
+    double normalX = face.getUnitNormalVector()[0];
+    double normalY = face.getUnitNormalVector()[1];
     const std::size_t numBasisFuncs = face.getFace()->getNumberOfBasisFunctions();
     
     const PointReferenceOnFaceT& pRef = face.getPointReference();
@@ -113,13 +114,25 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnRefFace
     MiddleSizeVector flux(3);
     
     //outflow
-    if (normalX > 0)
+    if (normalX > 0 && std::abs(normalY) < 1e-16 )
     {
         flux = localLaxFriedrichsFlux(solution, solution, face.getNormalVector());
     }
-    else //inflow
+    else if ( std::abs(normalY) < 1e-16) //inflow
     {
-        flux = localLaxFriedrichsFlux(solution, inflowBC_, face.getNormalVector());
+        flux = localLaxFriedrichsFlux(inflowBC_, inflowBC_, face.getNormalVector());
+    }
+    else //solid wall
+    {        
+        LinearAlgebra::SmallVector<DIM> velocity({solution[1]/solution[0], solution[2]/solution[0]});
+        LinearAlgebra::SmallVector<DIM> velocityReflected = velocity - 2 * (velocity * face.getUnitNormalVector())*face.getUnitNormalVector();
+        const MiddleSizeVector &reflection = MiddleSizeVector({solution[0], velocityReflected[0]*solution[0], velocityReflected[1]*solution[0]});
+        flux = localLaxFriedrichsFlux(solution, reflection, face.getNormalVector());
+        logger(DEBUG, "physical flux for solution and reflection: %, \t %", computePhysicalFlux(solution), computePhysicalFlux(reflection));
+        logger(DEBUG, "normal: %, discharge: %, reflected: %", face.getUnitNormalVector(), velocity, velocityReflected);
+        logger(DEBUG, "n.(hu,hv): %, n.reflection: %", face.getUnitNormalVector()*velocity, face.getUnitNormalVector()*velocityReflected);
+        logger(DEBUG, "Flux on solid wall of face %: % \n",face.getID(), flux, face.getUnitNormalVector());
+        logger(DEBUG, "one coordinate on face %: %, element: %", face.getID(), face.getPointPhysical(),face.getPhysicalElement(Base::Side::LEFT).getID());
     }
     
     MiddleSizeVector integrand(numOfVariables_ * numBasisFuncs);
@@ -165,39 +178,54 @@ MiddleSizeVector SavageHutterRHS2D::computeSourceTerm(const MiddleSizeVector& nu
     logger.assert(chuteAngle_ < M_PI / 2, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
     const double hu = numericalSolution(1);
+    const double hv = numericalSolution(2);
     double u = 0;
+    double v = 0;
     if (h > minH_)
     {
         u = hu/h;
+        v = hv/v;
     }
-    double mu = computeFriction(numericalSolution);
+    const double mu = computeFriction(numericalSolution);
     const int signU = Helpers::sign(u);
-    double sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
+    const int signV = Helpers::sign(v);
+    const double sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
+    const double sourceY = - h * mu * signV * std::cos(chuteAngle_);
     logger(DEBUG, "Source: %, h: %", sourceX, h);
-    return MiddleSizeVector({0, sourceX, 0});
+    return MiddleSizeVector({0, sourceX, sourceY});
 }
 
 MiddleSizeVector SavageHutterRHS2D::localLaxFriedrichsFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight,const LinearAlgebra::SmallVector<DIM>& normal)
 {
+    const double hLeft = numericalSolutionLeft[0];
+    const double hRight = numericalSolutionRight[0];
     double uLeft = 0;
     double vLeft = 0;
-    if (numericalSolutionLeft(0) > minH_)
+    if (hLeft > minH_)
     {
-        uLeft = numericalSolutionLeft(1) / numericalSolutionLeft(0);
-        vLeft = numericalSolutionLeft(2) / numericalSolutionLeft(0);
+        uLeft = numericalSolutionLeft(1) / hLeft;
+        vLeft = numericalSolutionLeft(2) / hLeft;
     }
     
     double uRight = 0;
     double vRight = 0;
-    if (numericalSolutionRight(0) > minH_)
+    if (hRight > minH_)
     {
-        uRight = numericalSolutionRight(1) / numericalSolutionRight(0);
-        vRight = numericalSolutionRight(2) / numericalSolutionRight(0);
+        uRight = numericalSolutionRight(1) / hRight;
+        vRight = numericalSolutionRight(2) / hRight;
     }
     
-    const double alpha = std::max(std::max(std::abs(uLeft), std::abs(vLeft)) + std::sqrt(epsilon_ * std::max(0.,numericalSolutionLeft(0))), 
-                      std::max(std::abs(uRight), std::abs(vRight)) + std::sqrt(epsilon_ * std::max(0.,numericalSolutionRight(0))));
+    //take the maximum of |u+-sqrt(epsilon cos(theta) h)| and |v+-sqrt(epsilon cos(theta) h)| for left and right side
+    const double eigenSpeed1 = std::max(std::abs(uLeft + std::sqrt(epsilon_ * std::cos(chuteAngle_) * hLeft)), std::abs(uLeft - std::sqrt(epsilon_ * std::cos(chuteAngle_) * hLeft)));
+    const double eigenSpeed2 = std::max(std::abs(vLeft + std::sqrt(epsilon_ * std::cos(chuteAngle_) * hLeft)), std::abs(vLeft - std::sqrt(epsilon_ * std::cos(chuteAngle_) * hLeft)));
+    const double eigenSpeed3 = std::max(std::abs(uRight + std::sqrt(epsilon_ * std::cos(chuteAngle_) * hRight)), std::abs(uRight - std::sqrt(epsilon_ * std::cos(chuteAngle_) * hRight)));
+    const double eigenSpeed4 = std::max(std::abs(vRight + std::sqrt(epsilon_ * std::cos(chuteAngle_) * hRight)), std::abs(vRight - std::sqrt(epsilon_ * std::cos(chuteAngle_) * hRight)));
     
+    //alpha is the maximum eigenvalue of the system
+    double alpha = std::max(eigenSpeed1, eigenSpeed2);
+    alpha  = std::max(alpha, eigenSpeed3);
+    alpha = std::max(alpha, eigenSpeed4);
+        
     logger(DEBUG, "alpha: %", alpha);
         
     MiddleSizeVector fluxLeft = computePhysicalFlux(numericalSolutionLeft);
@@ -223,5 +251,17 @@ MiddleSizeVector SavageHutterRHS2D::localLaxFriedrichsFlux(const MiddleSizeVecto
 
 double SavageHutterRHS2D::computeFriction(const MiddleSizeVector& numericalSolution)
 {
-    return std::tan(chuteAngle_);
+    const double delta1 = 17;
+    const double delta2 = 32;
+    const double h = numericalSolution[0];
+    if (h < 1e-10)
+        return std::tan(delta1);
+    const double u = numericalSolution[1] / h;
+    const double v = numericalSolution[2] / h;
+    const double froude = std::sqrt(u*u + v*v)/std::sqrt(epsilon_*std::cos(chuteAngle_)*h);
+    const double A = 3.836;
+    const double beta = 0.191;
+    const double gamma = -0.045;
+    
+    return std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))/(beta*h/(A*(froude - gamma)) + 1);
 }

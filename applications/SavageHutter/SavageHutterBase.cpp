@@ -21,6 +21,7 @@
 
 #include "SavageHutterBase.h"
 #include "HelperFunctions.h"
+#include "MeshMoverContraction.h"
 
 
 SavageHutterBase::SavageHutterBase(const SHConstructorStruct& inputValues) :
@@ -28,6 +29,18 @@ HpgemAPISimplified(inputValues.numOfVariables, inputValues.polyOrder, inputValue
     numOfVariables_(inputValues.numOfVariables), dryLimit_(1e-5), temporaryTimeLevel_(inputValues.ptrButcherTableau->getNumStages() + 1), time_(0)
 {
     createMesh(inputValues.numElements, inputValues.meshType);
+    if (DIM == 2)
+    {
+        //Set up the move of the mesh; note that the mesh mover gets deleted in the mesh manipulator
+        const MeshMoverContraction* meshMover = new MeshMoverContraction;
+        initialiseMeshMover(meshMover, 0);
+        meshes_[0]->move();
+        
+        for (Base::Element *element : meshes_[0]->getElementsList())
+        {
+            element->getReferenceToPhysicalMap()->reinit();
+        }
+    }
 }
 
 Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(const std::size_t numOfElementPerDirection)
@@ -38,9 +51,10 @@ Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(con
     {
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
-        description.numElementsInDIM_[i] = 4;
+        description.numElementsInDIM_[i] = 10;
         description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
     }
+    description.topRight_[0] = 5;
     description.numElementsInDIM_[0] = numOfElementPerDirection;
     return description;
 }
@@ -68,15 +82,14 @@ LinearAlgebra::MiddleSizeVector SavageHutterBase::computeRightHandSideAtFace
  const double time
  )
 {
-    //Faster for 1D: 
     const std::function < LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&) > integrandFunction = [ = ](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
     {   
         return rhsComputer_->integrandRightHandSideOnRefFace(face, side, solutionCoefficientsLeft, solutionCoefficientsRight);
     };
 
-    if (ptrFace->getPtrElementRight()->getID() == 5)
+    if (ptrFace->getPtrElementRight()->getID() == 11  || ptrFace->getPtrElementLeft()->getID() == 11)
     {
-        logger(DEBUG, "face integral on face %: %", ptrFace->getID(), faceIntegrator_.integrate(ptrFace, integrandFunction));
+        logger(DEBUG, "face integral on internal face %: %", ptrFace->getID(), faceIntegrator_.integrate(ptrFace, integrandFunction));
         logger(DEBUG, "elements for face %: %, %", ptrFace->getID(), ptrFace->getPtrElementLeft()->getID(), ptrFace->getPtrElementRight()->getID());
     }
     return faceIntegrator_.integrate(ptrFace, integrandFunction);
@@ -95,6 +108,12 @@ LinearAlgebra::MiddleSizeVector SavageHutterBase::computeRightHandSideAtFace
         {
             return rhsComputer_->integrandRightHandSideOnRefFace(face, solutionCoefficients);
         };
+        
+        
+    if (ptrFace->getPtrElementLeft()->getID() == 11)
+    {
+        logger(DEBUG, "face integral on boundary face %: %", ptrFace->getID(), faceIntegrator_.integrate(ptrFace, integrandFunction));
+    }
     return faceIntegrator_.integrate(ptrFace, integrandFunction, ptrFace->getGaussQuadratureRule());
 }
 
@@ -207,14 +226,16 @@ void SavageHutterBase::limitSolutionOuterLoop()
 ///While this does not guarantee to give the best result, it gives a good estimate.
 double SavageHutterBase::getMinimumHeight(const Base::Element* element)
 {
-    ///\todo generalize for more than 1D
-    const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
-    const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
+    const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
     const std::size_t numOfVariables = element->getNumberOfUnknowns();
-    const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);
-    const double solutionRight = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefR, numOfVariables)(0);
-    double minimum = std::min(solutionLeft, solutionRight);
+    const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);    
+    double minimum = solutionLeft;
+    for (std::size_t iPoint = 1; iPoint < element->getReferenceGeometry()->getNumberOfNodes(); ++iPoint)
+    {
+        const PointReferenceT &pRef = element->getReferenceGeometry()->getReferenceNodeCoordinate(iPoint);
+        minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
+    }
     for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
