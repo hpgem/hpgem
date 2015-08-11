@@ -65,10 +65,10 @@ RightHandSideComputer * SavageHutter::createRightHandSideComputer(const SHConstr
 {
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0);
-    inflowBC = MiddleSizeVector({1, 1, 0});
+    inflowBC = MiddleSizeVector({1, 1,0.5});
     //magic numbers: epsilon and chute angle (in radians)
     if (DIM == 1)
-        return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1e-1, 90./180*M_PI, inflowBC);
+        return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1e-1, 45./180*M_PI, inflowBC);
     
     return new SavageHutterRHS2D(inputValues.numOfVariables, 1, 30./180*M_PI, inflowBC);
 }
@@ -86,24 +86,26 @@ void SavageHutter::showProgress(const double time, const std::size_t timeStepID)
 
 LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT& pPhys, const double& startTime, const std::size_t orderTimeDerivative)
 {
-    double h = 0.5;
+    double h = 0;
     const double x = pPhys[0];
-    //if (x > 0.5 && x < 2.5)
-    //    h = 1.-(x-1.5) * (x-1.5);
+    if (x > 0.5 && x < 2.5)
+        h = 1.-(x-1.5) * (x-1.5);
+    if (x <= 1.5)
+        h = 1;
     LinearAlgebra::MiddleSizeVector initialCondition(numOfVariables_);
-    initialCondition(0) = h;
-    initialCondition(1) = h;
-    initialCondition(2) = 0;
+    initialCondition(0) = 1;
+    initialCondition(1) = 1;
+    initialCondition(2) = 0.5*h;
     return initialCondition;
 }
 
-/*void SavageHutter::setInflowBC(double time)
+void SavageHutter::setInflowBC(double time)
 {
-    const double h = 1. - std::exp(-time/.1);
+    const double h = 1;
     const double u = 1.;
-    const double eta = 0.5*h;
+    const double eta = 0.5;
     rhsComputer_->setInflowBC(MiddleSizeVector({h, h*u, eta}));
-}*/
+}
 
 ///\details analytical solution for the parabolic cap
 LinearAlgebra::MiddleSizeVector SavageHutter::getExactSolution(const PointPhysicalT& pPhys, const double& time, const std::size_t orderTimeDerivative)
@@ -133,7 +135,33 @@ void SavageHutter::registerVTKWriteFunctions()
         }, variableNames_[iV]);
 
     }
+    
+    registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
+        {
+        if (element->getSolution(timeLevel, pRef)[0] > 1e-5)
+            return std::real(element->getSolution(timeLevel, pRef)[1]/element->getSolution(timeLevel, pRef)[0]);
+        return 0;
+        }, "u");
+        
+    registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
+        {
+            const double h = element->getSolution(timeLevel, pRef)[0];
+            const double x = element->getReferenceToPhysicalMap()->transform(pRef)[0];
+            const double c = 1./2*(1 + .1*std::sqrt(2));
+            const double s = 1./std::sqrt(2)*(1 - std::sqrt(3));
+            const double third = .1*std::sqrt(2)/2;
+            const double second = s*x + c;
+            return std::real(third * h * h * h - second * h * h + 0.5);
+        }, "expression for analytic solution");
+    
     /*registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
+        {
+        if (element->getSolution(timeLevel, pRef)[0] > 1e-5)
+            return std::real(element->getSolution(timeLevel, pRef)[2]/element->getSolution(timeLevel, pRef)[0]);
+        return 0;
+        }, "fraction small particles");
+    
+    registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
     {
         const PointPhysicalT &pPhys = element->referenceToPhysical(pRef);
         if (element->getSolution(timeLevel, pRef)[0] > 1e-5)

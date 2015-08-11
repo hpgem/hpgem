@@ -132,7 +132,7 @@ MiddleSizeVector BidisperseRHS1D::integrandRightHandSideOnRefFace
     }
     else //inflow
     {
-        flux = localLaxFriedrichsFlux(inflowBC_, solution);
+        flux = localLaxFriedrichsFlux(inflowBC_, inflowBC_);
     }
     
     MiddleSizeVector integrand(numOfVariables_ * numBasisFuncs);
@@ -156,19 +156,17 @@ MiddleSizeVector BidisperseRHS1D::computePhysicalFlux(const MiddleSizeVector &nu
     const double hu = numericalSolution(1);
     const double smallHeight = numericalSolution(2);
     double u = 0;
+    double phi = 0;
     if (h > minH_)
     {
         u = hu/h;
+        phi = smallHeight/h;
     }
     MiddleSizeVector flux(3);
     flux(0) = hu;
     flux(1) = hu * u + epsilon_/2 * std::cos(chuteAngle_) * h * h;
-    flux(2) = smallHeight * u;
-    if (h>minH_)
-    {
-        flux(2) -= (1.-alpha_)*smallHeight * u * (1-smallHeight/h);
-    }
-    logger(DEBUG, "flux values: %, %", flux(0), flux(1), flux(2));
+    flux(2) = h*phi*u - (1-alpha_)*h*phi*u*(1-phi);
+    logger(DEBUG, "flux values: %", flux);
     return flux;
 }
 
@@ -182,7 +180,7 @@ MiddleSizeVector BidisperseRHS1D::computeSourceTerm(const MiddleSizeVector& nume
     {
         u = hu/h;
     }
-    double mu = computeFrictionExponential(numericalSolution);
+    double mu = computeFrictionCoulomb(numericalSolution);
     const int signU = Helpers::sign(u);
     double sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
     logger(DEBUG, "Source: %, h: %", sourceX, h);

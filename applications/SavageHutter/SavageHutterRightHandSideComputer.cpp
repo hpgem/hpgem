@@ -216,7 +216,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const
 
 double SavageHutterRightHandSideComputer::computeFrictionCoulomb(const MiddleSizeVector& numericalSolution)
 {
-    return std::tan(22./180*M_PI);
+    return std::tan(60./180*M_PI);
 }
 
 /// Compute friction as described in Weinhart (2012), eq (50) with lambda = 1, d = 1

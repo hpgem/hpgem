@@ -38,7 +38,7 @@ class SavageHutterRightHandSideComputer : public RightHandSideComputer
 public:
 
     SavageHutterRightHandSideComputer(const std::size_t numOfVariables, const double epsilon, const double chuteAngle, const MiddleSizeVector inflowBC) :
-    RightHandSideComputer(numOfVariables), epsilon_(epsilon), chuteAngle_(chuteAngle), inflowBC_(inflowBC), minH_(1e-10), alpha_(4./3) { } //simple shear: 4./3, plug flow: 1, Bagnold: 5./4
+    RightHandSideComputer(numOfVariables), epsilon_(epsilon), chuteAngle_(chuteAngle), inflowBC_(inflowBC), minH_(1e-10), alpha_(1) { } //simple shear: 4./3, plug flow: 1, Bagnold: 5./4
 
     /// \brief Compute the integrand for the right hand side for the reference element.
     MiddleSizeVector integrandRightHandSideOnElement

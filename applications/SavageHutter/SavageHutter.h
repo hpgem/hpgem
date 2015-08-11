@@ -51,10 +51,7 @@ private:
     
     void registerVTKWriteFunctions() override final;
     
-    void setInflowBC(double time) override final
-    {
-        
-    }
+    void setInflowBC(double time) override final;
 
 };
 
