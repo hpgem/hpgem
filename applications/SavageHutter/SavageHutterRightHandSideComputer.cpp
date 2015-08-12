@@ -129,8 +129,18 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     }
     
     //outflow
-    if (normal > 0)
+    if (normal*solution(1) > 0)
     {
+        MiddleSizeVector ghostSolution = solution;
+        const Base::Face *otherFace = face.getPhysicalElement(Base::Side::LEFT).getElement()->getFace(0);
+        logger(DEBUG, "face before last: %, position %", otherFace->getID(), otherFace->referenceToPhysical(pRef));
+        ghostSolution += otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef));
+        ghostSolution -= otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef));
+        logger(DEBUG, "solution: %, ghostSolution: % \n", solution, ghostSolution);
+        if (solution[1]/solution[0] < std::sqrt(solution[0]*std::cos(chuteAngle_)*epsilon_))
+        {
+            logger(INFO, "reached subcritical!");
+        }
         flux = localLaxFriedrichsFlux(solution, solution);
     }
     else //inflow
