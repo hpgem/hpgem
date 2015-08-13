@@ -497,10 +497,10 @@ namespace Base
     }
     
     /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
+    /// \deprecated please use the other computeRightHandSide instead (freekjan:(@sjoerd) is this actually deprecated?)
     template<std::size_t DIM>
     void HpgemAPISimplified<DIM>::computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
     {
-    	std::exit(-1);
         // Apply the right hand side corresponding to integration on the elements.
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {

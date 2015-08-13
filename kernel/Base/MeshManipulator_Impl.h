@@ -478,8 +478,8 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    MeshManipulator<DIM>::MeshManipulator(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrtixes, std::size_t numberOfFaceVectors)
-            : MeshManipulatorBase(config, xPer, yPer, zPer, orderOfFEM, idRangeBegin, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrtixes, numberOfFaceVectors),
+    MeshManipulator<DIM>::MeshManipulator(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors)
+            : MeshManipulatorBase(config, xPer, yPer, zPer, orderOfFEM, idRangeBegin, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors),
             meshMover_(nullptr)
     {
         logger.assert(DIM == config->dimension_, "Invalid configuration passed");

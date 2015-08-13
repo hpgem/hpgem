@@ -35,6 +35,7 @@
 #include "Geometry/PointReference.h"
 #include <Logger.h>
 #include <numeric>
+#include "petscis.h"
 
 namespace Utilities
 {
