@@ -66,7 +66,6 @@ namespace Base
         LinearAlgebra::MiddleSizeVector getElementVector(std::size_t vectorID = 0) const;
 
         
-        /*
         /// \brief Set the expansion coefficients corresponding to the given time level.
         void setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::MiddleSizeVector &val);
 
@@ -86,7 +85,6 @@ namespace Base
         
         /// \brief Specify a time level index, a variable index and a basis function index, set the corresponding expansionCoefficient (double).
         void setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, double val);
-        */
          
         
         /// \brief Set the number of time integration vectors.

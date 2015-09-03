@@ -147,7 +147,7 @@ namespace Base
         }
     }
     
-    /*
+    
     template<std::size_t DIM>
     void HpgemAPIBase<DIM>::copyTimeIntegrationToTimeLevelData(std::size_t timeIntegrationVectorId, std::size_t timeLevel)
     {
@@ -165,7 +165,7 @@ namespace Base
             ptrElement->getTimeIntegrationVector(timeIntegrationVectorId) = ptrElement->getTimeLevelDataVector(timeLevel);
         }
     }
-     */
+    
 
     template<std::size_t DIM>
     typename HpgemAPIBase<DIM>::ConstElementIterator HpgemAPIBase<DIM>::elementColBegin(MeshId mId) const

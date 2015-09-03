@@ -123,7 +123,6 @@ namespace Base
     }
     
     
-    /*
     /// \param[in] timeLevel Index corresponding to the time level.
     /// \param[in] unknown Index corresponding to the variable.
     /// \param[in] basisFunction Index corresponding to the basisFunction.
@@ -225,7 +224,6 @@ namespace Base
         }
         return expansionCoefficients_[timeLevel];
     }
-    */
     
     
     
