@@ -57,7 +57,8 @@ int main(int argc, char** argv)
     mesh.useDefaultDGBasisFunctions();
     for(Base::Element* element : mesh.getElementsList())
     {
-        element->setTimeLevelData(0, {{0., 1., 2., 3.}});
+        element->setNumberOfTimeIntegrationVectors(1);
+        element->setTimeIntegrationSubvector(0, 0, {{0., 1., 2., 3.}});
     }
     testData(mesh);
     //increase the number of iterations if this test is failing inconsistently

@@ -91,6 +91,10 @@ public:
         this->addMesh(description, meshType, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
         this->meshes_[0]->useDefaultConformingBasisFunctions();
         
+        // Set the number of time integration vectors according to the size of the Butcher tableau.
+        this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);
+        
+        // Plot info about the mesh
         std::size_t nElements = this->meshes_[0]->getNumberOfElements();
         logger(VERBOSE, "Total number of elements: %", nElements);
     }
@@ -295,14 +299,14 @@ public:
         KSPGetIterationNumber(ksp, &iterations);
         logger(INFO, "KSP solver ended because of % in % iterations.", KSPConvergedReasons[converge], iterations);
         
-        x.writeTimeLevelData(this->solutionTimeLevel_);
+        x.writeTimeIntegrationVector(this->solutionVectorId_);
         
         if(doComputeError)
         {
-            LinearAlgebra::MiddleSizeVector::type totalError = this->computeTotalError(this->solutionTimeLevel_, 0);
+            LinearAlgebra::MiddleSizeVector::type totalError = this->computeTotalError(this->solutionVectorId_, 0);
             totalError_ = totalError;
             logger(INFO, "Total error: %.", totalError);
-            LinearAlgebra::MiddleSizeVector maxError = this->computeMaxError(this->solutionTimeLevel_, 0);
+            LinearAlgebra::MiddleSizeVector maxError = this->computeMaxError(this->solutionVectorId_, 0);
             logger.assert(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), this->configData_->numberOfUnknowns_);
             for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV ++)
             {

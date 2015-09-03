@@ -736,7 +736,7 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Compr
    /// \brief Computes the error for output purposes
    LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::Error(const double time)
    {
-	   return computeMaxError(solutionTimeLevel_, time);
+	   return computeMaxError(solutionVectorId_, time);
    }
 
    /// \brief Show the progress of the time integration.

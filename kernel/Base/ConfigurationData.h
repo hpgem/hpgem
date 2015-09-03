@@ -29,7 +29,7 @@ namespace Base
     struct ConfigurationData
     {
         
-        ConfigurationData(std::size_t DIMension, std::size_t numberOfUnknowns, std::size_t polynomialOrder, std::size_t numberOfTimeLevels = 1)
+        ConfigurationData(std::size_t DIMension, std::size_t numberOfUnknowns, std::size_t polynomialOrder, std::size_t numberOfTimeLevels = 0)
                 : dimension_(DIMension), numberOfUnknowns_(numberOfUnknowns), numberOfTimeLevels_(numberOfTimeLevels), polynomialOrder_(polynomialOrder)
         {
         }

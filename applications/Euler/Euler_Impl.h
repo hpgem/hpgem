@@ -644,7 +644,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::
     template<std::size_t DIM>
    LinearAlgebra::MiddleSizeVector Euler<DIM>::Error(const double time)
    {
-	   return this->computeMaxError(this->solutionTimeLevel_, time);
+	   return this->computeMaxError(this->solutionVectorId_, time);
    }
 
     /// \brief Show the progress of the time integration.

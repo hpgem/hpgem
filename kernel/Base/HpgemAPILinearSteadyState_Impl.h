@@ -62,7 +62,7 @@ namespace Base
      const bool useSourceTerm,
      const bool useSourceTermAtBoundary
      ) :
-    HpgemAPILinear<DIM>(numOfVariables, polynomialOrder, Base::AllTimeIntegrators::Instance().getRule(1, 1, true), 1, useSourceTerm, useSourceTermAtBoundary),
+    HpgemAPILinear<DIM>(numOfVariables, polynomialOrder, 1, 0, useSourceTerm, useSourceTermAtBoundary),
     sourceElementVectorID_(0),
     sourceFaceVectorID_(0)
     {
@@ -83,6 +83,10 @@ namespace Base
         this->addMesh(description, meshType, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
         this->meshes_[0]->useDefaultDGBasisFunctions();
         
+        // Set the number of time integration vectors according to the size of the Butcher tableau.
+        this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);
+        
+        // Plot info about the mesh
         std::size_t nElements = this->meshes_[0]->getNumberOfElements();
         logger(VERBOSE, "Total number of elements: %", nElements);
     }
@@ -177,17 +181,17 @@ namespace Base
         KSPGetIterationNumber(ksp, &iterations);
         logger(INFO, "KSP solver ended because of % in % iterations.", KSPConvergedReasons[converge], iterations);
         
-        x.writeTimeLevelData(this->solutionTimeLevel_);
+        x.writeTimeIntegrationVector(this->solutionVectorId_);
         
         tecplotWriter.write(this->meshes_[0], this->solutionTitle_, false, this, 0);
-        this->VTKWrite(VTKWriter, 0, this->solutionTimeLevel_);
+        this->VTKWrite(VTKWriter, 0, this->solutionVectorId_);
         
         // Compute the energy norm of the error
         if(doComputeError)
         {
-            LinearAlgebra::MiddleSizeVector::type totalError = this->computeTotalError(this->solutionTimeLevel_, 0);
+            LinearAlgebra::MiddleSizeVector::type totalError = this->computeTotalError(this->solutionVectorId_, 0);
             logger(INFO, "Total error: %.", totalError);
-            LinearAlgebra::MiddleSizeVector maxError = this->computeMaxError(this->solutionTimeLevel_, 0);
+            LinearAlgebra::MiddleSizeVector maxError = this->computeMaxError(this->solutionVectorId_, 0);
             logger.assert(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), this->configData_->numberOfUnknowns_);
             for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV ++)
             {

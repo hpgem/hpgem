@@ -229,7 +229,7 @@ public:
             {
                 result = integral.integrate(face, &massIntegrand);
                 initialconditions = integral.integrate(face, &interpolator);
-                face->getPtrElementLeft()->setTimeLevelDataVector(0, initialconditions);
+                face->getPtrElementLeft()->setTimeIntegrationVector(0, initialconditions);
             }
             else
             {
@@ -253,7 +253,7 @@ public:
             zero.resize(element->getNrOfUnknowns() * element->getNrOfBasisFunctions());
             result = integral.integrate(element, &stifnessIntegrand);
             element->setElementMatrix(result);
-            element->setTimeLevelDataVector(0, zero);
+            element->setTimeIntegrationVector(0, zero);
         }
     }
     
@@ -346,8 +346,8 @@ public:
         
         //deal with initial conditions
         double g(1.), dt(M_PI / n_ / 2);
-        eta.constructFromTimeLevelData(0, 0);
-        phi.constructFromTimeLevelData(0, 1);
+        eta.constructFromTimeIntegrationVector(0, 0);
+        phi.constructFromTimeIntegrationVector(0, 1);
 
         std::size_t numberOfSnapshots(65); //placeholder parameters
         std::size_t numberOfTimeSteps(n_ / 8);
@@ -391,12 +391,12 @@ public:
         VecRestoreSubVector(phi, isSurface, &phiS);
         VecRestoreSubVector(phi, isRest, &phiOther);
         
-        eta.writeTimeLevelData(0, 0);
-        phi.writeTimeLevelData(0, 1);
+        eta.writeTimeIntegrationVector(0, 0);
+        phi.writeTimeIntegrationVector(0, 1);
         
         writeFunc.write(meshes_[0], "solution at time 0", false, this);
-        std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> funcEta = [](Base::Element* element, const Geometry::PointReference<DIM>& p, std::size_t timeLevel)->double{return element->getSolution(timeLevel, p)[0];};
-        std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> funcPhi = [](Base::Element* element, const Geometry::PointReference<DIM>& p, std::size_t timeLevel)->double{return element->getSolution(timeLevel, p)[1];};
+        std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> funcEta = [](Base::Element* element, const Geometry::PointReference<DIM>& p, std::size_t timeIntegrationVectorId)->double{return element->getSolution(timeIntegrationVectorId, p)[0];};
+        std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> funcPhi = [](Base::Element* element, const Geometry::PointReference<DIM>& p, std::size_t timeIntegrationVectorId)->double{return element->getSolution(timeIntegrationVectorId, p)[1];};
         paraWrite.write(funcEta, "eta", t, 0);
         paraWrite.write(funcPhi, "phi", t, 0);
         for (std::size_t i = 1; i < numberOfSnapshots; ++i)
@@ -432,8 +432,8 @@ public:
             VecRestoreSubVector(phi, isSurface, &phiS);
             VecRestoreSubVector(phi, isRest, &phiOther);
             VecRestoreSubVector(eta, isSurface, &etaActually);
-            eta.writeTimeLevelData(0, 0);
-            phi.writeTimeLevelData(0, 1);
+            eta.writeTimeIntegrationVector(0, 0);
+            phi.writeTimeIntegrationVector(0, 1);
             writeFunc.write(meshes_[0], "solution at time t", false, this);
             paraWrite.write(funcEta, "eta", t, 0);
             paraWrite.write(funcPhi, "phi", t, 0);

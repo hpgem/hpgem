@@ -81,8 +81,19 @@ namespace Base
         MeshId addMesh(const String& fileName, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
 
         /// \brief Synchronize between the different submeshes (when using MPI)
-        virtual void synchronize(const std::size_t timeLevel);
+        virtual void synchronize(const std::size_t timeIntegrationVectorId);
 
+        /// \brief Set the number of time integration vectors for every element.
+        void setNumberOfTimeIntegrationVectorsGlobally(std::size_t numberOfTimeIntegrationVectors);
+        
+        /*
+        /// \brief Copy the data of a time integration vector to the data of a certain time level.
+        void copyTimeIntegrationToTimeLevelData(std::size_t timeIntegrationVectorId, std::size_t timeLevel);
+        
+        /// \brief Copy the data of a time level to a time integration vector.
+        void copyTimeLevelToTimeIntegrationData(std::size_t timeLevel, std::size_t timeIntegrationVectorId);
+         */
+        
         std::size_t getNumberOfElements(MeshId id) const
         {
             return meshes_[id]->getNumberOfElements();
@@ -105,6 +116,10 @@ namespace Base
 
         GlobalData * const globalData_;
         const ConfigurationData * const configData_;
+        
+        /// \brief Number of time integration vectors for every element.
+        /// \details Use this constant if the number of time integration vectors is the same for all elements. This is the case for many standard time integation methods. However, for some methods, like local time-stepping methods or hybrid time integration methods, the required number of time integration vectors can differ per element.
+        std::size_t globalNumberOfTimeIntegrationVectors_;
     };
 }
 

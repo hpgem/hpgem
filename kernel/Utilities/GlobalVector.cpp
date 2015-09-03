@@ -401,7 +401,7 @@ namespace Utilities
         CHKERRV(ierr);
     }
     
-    void GlobalPetscVector::constructFromTimeLevelData(std::size_t timelevel, std::size_t solutionVar)
+    void GlobalPetscVector::constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t solutionVar)
     {
         reset();
         
@@ -413,7 +413,7 @@ namespace Utilities
             elementData.resize(numBasisFuncs * element->getNrOfUnknowns());
             for (std::size_t i = 0; i < numBasisFuncs; ++i)
             {
-                elementData[element->convertToSingleIndex(i, solutionVar)] = element->getData(timelevel, solutionVar, i);
+                elementData[element->convertToSingleIndex(i, solutionVar)] = element->getTimeIntegrationData(timeIntegrationVectorId, solutionVar, i);
                 for(std::size_t j = 0; j < element->getNrOfUnknowns(); ++j)
                 {
                     if(j != solutionVar)
@@ -431,7 +431,7 @@ namespace Utilities
         CHKERRV(ierr);
     }
     
-    void GlobalPetscVector::constructFromTimeLevelData(std::size_t timelevel)
+    void GlobalPetscVector::constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId)
     {
         reset();
 
@@ -440,7 +440,7 @@ namespace Utilities
         {
             std::size_t numBasisFuncs = element->getNrOfBasisFunctions();
             std::vector<PetscInt> positions = makePositionsInVector(element);
-            int ierr = VecSetValues(b_, numBasisFuncs * element->getNrOfUnknowns(), positions.data(), element->getTimeLevelDataVector(timelevel).data(), INSERT_VALUES);
+            int ierr = VecSetValues(b_, numBasisFuncs * element->getNrOfUnknowns(), positions.data(), element->getTimeIntegrationVector(timeIntegrationVectorId).data(), INSERT_VALUES);
             CHKERRV(ierr);
         }
 
@@ -449,7 +449,7 @@ namespace Utilities
         CHKERRV(ierr);
     }
 
-    void GlobalPetscVector::writeTimeLevelData(std::size_t timeLevel)
+    void GlobalPetscVector::writeTimeIntegrationVector(std::size_t timeIntegrationVectorId)
     {
         PetscScalar *data;
         
@@ -527,14 +527,14 @@ namespace Utilities
                 }
             }
             logger.assert(localData.size() == runningTotal, "not enough info to fill the vector");
-            (*it)->setTimeLevelDataVector(timeLevel, localData);
+            (*it)->setTimeIntegrationVector(timeIntegrationVectorId, localData);
         }
         ierr = VecRestoreArray(localB, &data);
         VecDestroy(&localB);
         CHKERRV(ierr);
     }
 
-    void GlobalPetscVector::writeTimeLevelData(std::size_t timeLevel, std::size_t unknown)
+    void GlobalPetscVector::writeTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t unknown)
     {
         PetscScalar *data;
 
@@ -617,7 +617,7 @@ namespace Utilities
             {
                 singleUnknownData[i] = localData[(*it)->convertToSingleIndex(i, unknown)];
             }
-            (*it)->setTimeLevelData(timeLevel, unknown, singleUnknownData);
+            (*it)->setTimeIntegrationSubvector(timeIntegrationVectorId, unknown, singleUnknownData);
         }
         ierr = VecRestoreArray(localB, &data);
         VecDestroy(&localB);

@@ -96,7 +96,16 @@ namespace Base
          const std::size_t numberOfUnknowns,
          const std::size_t polynomialOrder,
          const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
-         const std::size_t numOfTimeLevels = 1,
+         const std::size_t numberOfTimeLevels = 0,
+         const bool computeBothFaces = false
+         );
+        
+        HpgemAPISimplified
+        (
+         const std::size_t numberOfUnknowns,
+         const std::size_t polynomialOrder,
+         const std::size_t globalNumberOfTimeIntegrationVectors,
+         const std::size_t numberOfTimeLevels = 0,
          const bool computeBothFaces = false
          );
         
@@ -113,6 +122,7 @@ namespace Base
         
         /// \brief Create the mesh.
         virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType);
+        
         
         /// \brief Compute the exact solution at a given point in space and time.
         virtual LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
@@ -138,25 +148,25 @@ namespace Base
         virtual void solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients);
 
         /// \brief Solve the mass matrix equations.
-        virtual void solveMassMatrixEquations(const std::size_t timeLevel);
+        virtual void solveMassMatrixEquations(const std::size_t timeIntegrationVectorId);
 
         /// \brief Integrate the initial solution at a single element.
         virtual LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement( Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
         
         /// \brief Integrate the initial solution.
-        virtual void integrateInitialSolution(const std::size_t timeLevelResult, const double startTime, const std::size_t orderTimeDerivative);
+        virtual void integrateInitialSolution(const std::size_t resultVectorId, const double startTime, const std::size_t orderTimeDerivative);
 
         /// \brief Integrate the square of some norm of the error on a single element.
         virtual LinearAlgebra::MiddleSizeVector::type integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
         /// \brief Compute the (weighted) L2-norm of the error.
-        virtual LinearAlgebra::MiddleSizeVector::type computeTotalError(const std::size_t solutionTimeLevel, const double time);
+        virtual LinearAlgebra::MiddleSizeVector::type computeTotalError(const std::size_t solutionVectorId, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error at an element.
         virtual LinearAlgebra::MiddleSizeVector computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error.
-        virtual LinearAlgebra::MiddleSizeVector computeMaxError(const std::size_t solutionTimeLevel, const double time);
+        virtual LinearAlgebra::MiddleSizeVector computeMaxError(const std::size_t solutionVectorId, const double time);
         
         /// \brief Compute the right-hand side corresponding to an element
         virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement
@@ -213,29 +223,29 @@ namespace Base
         	return bothRightHandSidesFace;
         }
 
-        /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'. Make sure timeLevelIn is different from timeLevelResult.
-        virtual void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time);
+        /// \brief Compute the right hand side for the DG function with coefficients given by the time integration vector with index 'inputVectorId'. Store the result in the time integration vector with index 'resultVectorId'. Make sure inputVectorId is different from resultVectorId.
+        virtual void computeRightHandSide(const std::size_t inputVectorId, const std::size_t resultVectorId, const double time);
 
-        /// \brief Get a linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels.
-        virtual LinearAlgebra::MiddleSizeVector getSolutionCoefficients(const Base::Element *ptrElement, const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels);
+        /// \brief Get a linear combination of time integration vectors with indices 'inputVectorIds' and with coefficients given in coefficientsInputVectors.
+        virtual LinearAlgebra::MiddleSizeVector getLinearCombinationOfVectors(const Base::Element *ptrElement, const std::vector<std::size_t> inputVectorIds, const std::vector<double> coefficientsInputVectors);
 
-        /// \brief Compute the right hand side for the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
-        virtual void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time);
+        /// \brief Compute the right hand side for the DG function with coefficients given by a linear combination of time integration vectors. Store the result at time integration vector with index 'resultVectorId'.
+        virtual void computeRightHandSide(const std::vector<std::size_t> inputVectorIds, const std::vector<double> coefficientsInputVectors, const std::size_t resultVectorId, const double time);
 
-        /// \brief Scale the solution coefficients of a given time level.
-        virtual void scaleTimeLevel(const std::size_t timeLevel, const double scale);
+        /// \brief Scale the time integration vector with index 'timeIntegrationVectorId'.
+        virtual void scaleVector(const std::size_t timeIntegrationVectorId, const double scale);
 
-        /// \brief scale and add solution coefficients of a certain time level to the coefficients of another time level.
-        virtual void scaleAndAddTimeLevel(const std::size_t timeLevelToChange, const std::size_t timeLevelToAdd, const double scale);
+        /// \brief scale and add a certain time integartion vector and add it to another time integration vector.
+        virtual void scaleAndAddVector(const std::size_t vectorToChangeId, const std::size_t vectorToAddId, const double scale);
 
         /// \brief Set the initial numerical solution (w at t=0).
-        virtual void setInitialSolution(const std::size_t solutionTimeLevel, const double startTime, const std::size_t orderTimeDerivative);
+        virtual void setInitialSolution(const std::size_t solutionVectorId, const double startTime, const std::size_t orderTimeDerivative);
 
-        /// \brief Compute the time derivative for a given time level.
-        virtual void computeTimeDerivative(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time);
+        /// \brief Compute the time derivative for a given time integration vector.
+        virtual void computeTimeDerivative(const std::size_t inputVectorId, const std::size_t resultVectorId, const double time);
 
         /// \brief Compute the time derivative for a given linear combination of solutions at different time levels.
-        virtual void computeTimeDerivative(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time);
+        virtual void computeTimeDerivative(const std::vector<std::size_t> inputVectorIds, const std::vector<double> coefficientsInputVectors, const std::size_t resultVectorId, const double time);
         
         /// \brief Compute one time step, using a Runge-Kutta scheme.
         virtual void computeOneTimeStep(double &time, const double dt);
@@ -246,20 +256,20 @@ namespace Base
         /// \brief Write output to a tecplot file.
         virtual void writeToTecplotFile(const Element *ptrElement, const PointReferenceT &pRef, std::ostream &out) override;
         
-        virtual void VTKWrite(Output::VTKTimeDependentWriter<DIM>& out, double t, std::size_t timeLevel)
+        virtual void VTKWrite(Output::VTKTimeDependentWriter<DIM>& out, double t, std::size_t timeIntegrationVectorId)
         {
             //you would say this could be done more efficiently, but p.first has different types each time
             for (auto p : VTKDoubleWrite_)
             {
-                out.write(p.first, p.second, t, timeLevel);
+                out.write(p.first, p.second, t, timeIntegrationVectorId);
             }
             for (auto p : VTKVectorWrite_)
             {
-                out.write(p.first, p.second, t, timeLevel);
+                out.write(p.first, p.second, t, timeIntegrationVectorId);
             }
             for (auto p : VTKMatrixWrite_)
             {
-                out.write(p.first, p.second, t, timeLevel);
+                out.write(p.first, p.second, t, timeIntegrationVectorId);
             }
         }
         
@@ -289,11 +299,11 @@ namespace Base
         /// Butcher tableau for time integration. The integration method is assumed to be explicit.
         const Base::ButcherTableau * const ptrButcherTableau_;
         
-        /// Index to indicate where the coefficients for the solution are stored.
-        std::size_t solutionTimeLevel_;
+        /// Index to indicate which time integration vector corresponds to the solution.
+        std::size_t solutionVectorId_;
         
-        /// Indices to indicate where the intermediate results are stored.
-        std::vector<std::size_t> intermediateTimeLevels_;
+        /// Indices to indicate which time integration vectors correspond to intermediate results.
+        std::vector<std::size_t> auxiliaryVectorIds_;
         
         /// Name of the complete output file (including extensions like .dat).
         std::string outputFileName_;
@@ -313,7 +323,7 @@ namespace Base
         /// Integrator for the faces
         Integration::FaceIntegral<DIM> faceIntegrator_;
         
-        /// Compute faces seperately(false) or combined(true)
+        /// Compute integrands for the test functions on each sides of the face simultaneously (true) or seperately (false)
         const bool computeBothFaces_;
 
         /// \brief Define how the solution should be written in the VTK files.

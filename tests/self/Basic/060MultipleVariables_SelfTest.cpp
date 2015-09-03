@@ -45,7 +45,7 @@ int main()
     // Build two square elements and one face in between them.
     const std::size_t dimension = 2;
     const std::size_t nrOfUnknowns = 5;
-    const std::size_t nrOfTimeLevels = 2;
+    const std::size_t nrOfTimeIntegrationVectors = 2;
     const std::size_t nrOfBasisFunctions = 3;
     const std::size_t basisFunctionOrder = 1;
     const std::size_t elementIdLeft = 0;
@@ -108,8 +108,8 @@ int main()
     std::vector<std::shared_ptr<const Base::BasisFunctionSet>> *pBasisFunctionSetVector = &basisFunctionSetVector;
     
     std::cout << "Build elements.\n";
-    Base::Element elementLeft(pointIndicesLeft, pBasisFunctionSetVector, pointsPhysical, nrOfUnknowns, nrOfTimeLevels, nrOfBasisFunctions, elementIdLeft);
-    Base::Element elementRight(pointIndicesRight, pBasisFunctionSetVector, pointsPhysical, nrOfUnknowns, nrOfTimeLevels, nrOfBasisFunctions, elementIdRight);
+    Base::Element elementLeft(pointIndicesLeft, pBasisFunctionSetVector, pointsPhysical, nrOfUnknowns, 0, nrOfBasisFunctions, elementIdLeft);
+    Base::Element elementRight(pointIndicesRight, pBasisFunctionSetVector, pointsPhysical, nrOfUnknowns, 0, nrOfBasisFunctions, elementIdRight);
     
     std::cout << "Build nodes.\n";
     Base::Node node0(0);
@@ -140,7 +140,7 @@ int main()
     std::size_t iVB;
     std::size_t iV;
     std::size_t iB;
-    std::size_t iTimeLevel = 0;
+    std::size_t iVector = 0;
     
     std::cout << "Do tests for the elements.\n";
     // Test ElementData::convertToSingleIndex.
@@ -171,12 +171,13 @@ int main()
             expansionCoefficients(iVB) = iV + 1; // Some arbitrary value
         }
     }
-    elementRight.setTimeLevelDataVector(iTimeLevel, expansionCoefficients);
-    LinearAlgebra::MiddleSizeVector testVector = elementRight.getTimeLevelDataVector(iTimeLevel);
+    elementRight.setNumberOfTimeIntegrationVectors(nrOfTimeIntegrationVectors);
+    elementRight.setTimeIntegrationVector(iVector, expansionCoefficients);
+    LinearAlgebra::MiddleSizeVector testVector = elementRight.getTimeIntegrationVector(iVector);
     logger.assert_always(testVector == expansionCoefficients, "Expansion coefficients incorrect: % != %", testVector, expansionCoefficients);
     
     const Geometry::PointReference<dimension>& pointReference = *Geometry::PointReferenceFactory<dimension>::instance()->makePoint(coords0);
-    LinearAlgebra::MiddleSizeVector solutionVector = elementRight.getSolution(iTimeLevel, pointReference);
+    LinearAlgebra::MiddleSizeVector solutionVector = elementRight.getSolution(iVector, pointReference);
     for (iV = 0; iV < nrOfUnknowns; iV++)
     {
         logger.assert_always(solutionVector(iV) == (iV + 1.) * solutionVector(0), "Solution vector test failed (%): % != (% + 1) * %", iV, solutionVector(iV), iV, solutionVector(0));

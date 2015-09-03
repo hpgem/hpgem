@@ -100,7 +100,8 @@ void testMesh(Base::MeshManipulator<DIM>* test)
         M = elIntegral.integrate(element, &massMatrix);
         
         M.solve(expansion);
-        element->setTimeLevelData(0, expansion);
+        element->setNumberOfTimeIntegrationVectors(1);
+        element->setTimeIntegrationVector(0, expansion);
         
         result = elIntegral.integrate(element, &integrating);
         

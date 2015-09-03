@@ -57,7 +57,7 @@ namespace Base
         const LinearAlgebra::MiddleSizeMatrix &getElementMatrix(std::size_t matrixID = 0) const;
 
         /// \brief Get the element matrix corresponding to the given matrixiD.
-        LinearAlgebra::MiddleSizeMatrix &getElementMatrix(std::size_t matrixID = 0);
+        LinearAlgebra::MiddleSizeMatrix & getElementMatrix(std::size_t matrixID = 0);
 
         /// \brief Set the element vector corresponding to the given vectorID.
         void setElementVector(const LinearAlgebra::MiddleSizeVector &vector, std::size_t vectorID = 0);
@@ -65,7 +65,9 @@ namespace Base
         /// \brief Get the element vector corresponding to the given vectorID.
         LinearAlgebra::MiddleSizeVector getElementVector(std::size_t vectorID = 0) const;
 
-        /// \brief Sets (and creates if unavailable) the expansion coefficients corresponding to the given time level.
+        
+        /*
+        /// \brief Set the expansion coefficients corresponding to the given time level.
         void setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::MiddleSizeVector &val);
 
         /// \brief Returns a reference to the expansion coefficients corresponding to the given time level.
@@ -81,9 +83,43 @@ namespace Base
 
         /// \brief Specify a time level index, a variable index and a basis function index, return the corresponding expansionCoefficient (double).
         LinearAlgebra::MiddleSizeVector::type getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const;
-
+        
         /// \brief Specify a time level index, a variable index and a basis function index, set the corresponding expansionCoefficient (double).
         void setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, double val);
+        */
+         
+        
+        /// \brief Set the number of time integration vectors.
+        void setNumberOfTimeIntegrationVectors(const std::size_t numberOfTimeIntegrationVectors)
+        {
+            timeIntegrationVectors_.resize(numberOfTimeIntegrationVectors, LinearAlgebra::MiddleSizeVector(numberOfUnknowns_ * numberOfBasisFunctions_));
+        }
+        
+        /// \brief Get the number of time integration vectors.
+        std::size_t getNumberOfTimeIntegrationVectors()
+        {
+            return timeIntegrationVectors_.size();
+        }
+        
+        /// \brief Return a reference to a time integration vector.
+        const LinearAlgebra::MiddleSizeVector & getTimeIntegrationVector(std::size_t timeIntegrationVectorId) const;
+        LinearAlgebra::MiddleSizeVector& getTimeIntegrationVector(std::size_t timeIntegrationVectorId);
+        
+        /// \brief Set a time integration vector corresponding to the given id.
+        void setTimeIntegrationVector(std::size_t timeIntegrationVectorId, LinearAlgebra::MiddleSizeVector &val);
+
+        /// \brief Return a subvector corresponding to the given unknown (variable id).
+        const LinearAlgebra::MiddleSizeVector getTimeIntegrationSubvector(std::size_t timeIntegrationVectorId, std::size_t unknown) const;
+        
+        /// \brief Set a subvector corresponding to the given unknown (variable id).
+        void setTimeIntegrationSubvector(std::size_t timeIntegrationVectorId, std::size_t unknown, LinearAlgebra::MiddleSizeVector val);
+    
+        /// \brief Return the value corresponding to the given time integration vector index, unknown (variable id) and basis function index
+        LinearAlgebra::MiddleSizeVector::type getTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction);
+        
+        /// \brief Set the value corresponding to the given time integration vector index, unknown (variable id) and basis function index
+        void setTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction, double val);
+        
         
         ///\deprecated Spelling mistake, please use getNumberOfUnknowns instead.
         std::size_t getNrOfUnknows() const;
@@ -126,14 +162,22 @@ namespace Base
         std::size_t numberOfBasisFunctions_;
 
         /// \brief Stores the expansion coefficients.
-        /// \details The value expansionCoefficients_(iT)(iVB) is the expansion 
-        /// coefficient corresponding to the solution at time level iT and vector 
+        /// \details The value expansionCoefficients_[iT](iVB) is the expansion
+        /// coefficient corresponding to the solution at time level iT and vector-
         /// basisfunction iVB. Index iVB satisfies iVB = convertToSingleIndex(iB,iV), 
-        /// where iB is the index corresponding to the basis function and iV the
+        /// where iB is the index corresponding to the scalar basis function and iV the
         /// index corresponding to the variable.
         std::vector<LinearAlgebra::MiddleSizeVector> expansionCoefficients_;
+        
+        /// \brief Vectors used for the time integration
+        /// \details The value timeIntegrationVectors_[i](iVB) is the expansion
+        /// coefficient corresponding to vector i and vector-basisfunction iVB.
+        /// Index iVB satisfies iVB = convertToSingleIndex(iB,iV),
+        /// where iB is the index corresponding to the scalar basis function and iV the
+        /// index corresponding to the variable.
+        std::vector<LinearAlgebra::MiddleSizeVector> timeIntegrationVectors_;
 
-        ///Stores polymorphic pointer to UserDefined Data, internally not used. 
+        ///Stores polymorphic pointer to UserDefined Data, internally not used.
         ///Used only outside of the Kernel.
         UserElementData* userData_;
 

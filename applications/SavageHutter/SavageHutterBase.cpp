@@ -131,21 +131,21 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
         std::vector<std::size_t> timeLevelsIn;
         std::vector<double> coefficientsTimeLevels;
 
-        timeLevelsIn.push_back(solutionTimeLevel_);
+        timeLevelsIn.push_back(solutionVectorId_);
         coefficientsTimeLevels.push_back(1);
         for (std::size_t jStage = 0; jStage < iStage; jStage++)
         {
-            timeLevelsIn.push_back(intermediateTimeLevels_[jStage]);
+            timeLevelsIn.push_back(auxiliaryVectorIds_[jStage]);
             coefficientsTimeLevels.push_back(dt * ptrButcherTableau_->getA(iStage, jStage));
         }
 
-        computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, intermediateTimeLevels_[iStage], stageTime);
+        computeTimeDerivative(timeLevelsIn, coefficientsTimeLevels, auxiliaryVectorIds_[iStage], stageTime);
     }
 
     // Update the solution
     for (std::size_t jStage = 0; jStage < numOfStages; jStage++)
     {
-        scaleAndAddTimeLevel(solutionTimeLevel_, intermediateTimeLevels_[jStage], dt * ptrButcherTableau_->getB(jStage));
+        scaleAndAddVector(solutionVectorId_, auxiliaryVectorIds_[jStage], dt * ptrButcherTableau_->getB(jStage));
     }    
 
     limitSolutionOuterLoop();
@@ -163,11 +163,11 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
         // Apply the right hand side corresponding to integration on the elements.
         for (Base::Element *ptrElement : meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector solutionCoefficients = getSolutionCoefficients(ptrElement, timeLevelsIn, coefficientsTimeLevels);
-            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew = ptrElement->getTimeLevelDataVector(timeLevelResult);
+            LinearAlgebra::MiddleSizeVector solutionCoefficients = getLinearCombinationOfVectors(ptrElement, timeLevelsIn, coefficientsTimeLevels);
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew = ptrElement->getTimeIntegrationVector(timeLevelResult);
             logger(DEBUG, "Before: %", solutionCoefficients);
             heightLimiter_->limit(ptrElement, solutionCoefficients);
-            ptrElement->setTimeLevelDataVector(temporaryTimeLevel_, solutionCoefficients);
+            ptrElement->setTimeIntegrationVector(temporaryTimeLevel_, solutionCoefficients);
             logger(DEBUG, "After: %", solutionCoefficients);
             
             solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time);
@@ -178,18 +178,18 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
         {
             if(ptrFace->isInternal())
             {
-                LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft = ptrFace->getPtrElementLeft()->getTimeLevelDataVector(temporaryTimeLevel_);
-                LinearAlgebra::MiddleSizeVector solutionCoefficientsRight = ptrFace->getPtrElementRight()->getTimeLevelDataVector(temporaryTimeLevel_);
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft = ptrFace->getPtrElementLeft()->getTimeIntegrationVector(temporaryTimeLevel_);
+                LinearAlgebra::MiddleSizeVector solutionCoefficientsRight = ptrFace->getPtrElementRight()->getTimeIntegrationVector(temporaryTimeLevel_);
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeIntegrationVector(timeLevelResult));
                 
                 solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
                 solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
             }
             else
             {
-                LinearAlgebra::MiddleSizeVector solutionCoefficients = ptrFace->getPtrElementLeft()->getTimeLevelDataVector(temporaryTimeLevel_);
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector solutionCoefficients = ptrFace->getPtrElementLeft()->getTimeIntegrationVector(temporaryTimeLevel_);
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(timeLevelResult));
                 
                     solutionCoefficientsNew += computeRightHandSideAtFace(ptrFace, solutionCoefficients, time);
                 }
@@ -207,9 +207,9 @@ void SavageHutterBase::limitSolutionOuterLoop()
         const double minimum = getMinimumHeight(element);
         if (minimum < dryLimit_)
         {
-            LinearAlgebra::MiddleSizeVector solutionCoefficients = element->getTimeLevelDataVector(0);
+            LinearAlgebra::MiddleSizeVector solutionCoefficients = element->getTimeIntegrationVector(0);
             heightLimiter_->limit(element, solutionCoefficients);
-            element->setTimeLevelDataVector(0, solutionCoefficients);
+            element->setTimeIntegrationVector(0, solutionCoefficients);
         }
         else
         {
@@ -227,7 +227,7 @@ void SavageHutterBase::limitSolutionOuterLoop()
 double SavageHutterBase::getMinimumHeight(const Base::Element* element)
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
-    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
     const std::size_t numOfVariables = element->getNumberOfUnknowns();
     const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);    
     double minimum = solutionLeft;

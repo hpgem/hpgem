@@ -196,8 +196,8 @@ namespace Base
             return faceID_;
         }
         
-        /// Specify a time level index, return a vector containing the data for that time level.
-        LinearAlgebra::MiddleSizeVector getTimeLevelData(std::size_t timeLevel, std::size_t unknown = 0) const;
+        /// Specify a time integration vector id, return a vector containing the data for that time integration vector.
+        LinearAlgebra::MiddleSizeVector getTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t unknown = 0) const;
 
         /// \brief Convert the side of the face, the index corresponding to the scalar basis function (scalarBasisFunctionId) and the index corresponding to the variable (varId) to a single index (faceBasisFunctionId).
         std::size_t convertToSingleIndex(Side side, std::size_t scalarBasisFunctionId, std::size_t varId = 0) const;
