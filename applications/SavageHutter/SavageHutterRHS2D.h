@@ -69,6 +69,7 @@ private:
     MiddleSizeVector computePhysicalFlux(const MiddleSizeVector &numericalSolution);
     MiddleSizeVector computeSourceTerm(const MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys, const double time);
     MiddleSizeVector localLaxFriedrichsFlux(const MiddleSizeVector &numericalSolutionLeft, const MiddleSizeVector &NumericalSolutionRight, const LinearAlgebra::SmallVector<DIM>& normal);
+    MiddleSizeVector hllcFlux(const MiddleSizeVector &numericalSolutionLeft, const MiddleSizeVector &NumericalSolutionRight, const LinearAlgebra::SmallVector<DIM>& normal);
     double computeFriction(const MiddleSizeVector &numericalSolution);
 
     double epsilon_;

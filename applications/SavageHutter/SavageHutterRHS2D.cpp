@@ -56,7 +56,6 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnElement
 MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnRefFace
 (Base::PhysicalFace<DIM>& face, const Base::Side &iSide, const MiddleSizeVector &solutionCoefficientsLeft, const MiddleSizeVector &solutionCoefficientsRight)
 {
-    LinearAlgebra::SmallVector<DIM> normal = face.getNormalVector();
     const std::size_t numTestBasisFuncs = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions();
 
     //compute numerical solution at the left side and right side of this face
@@ -68,18 +67,16 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnRefFace
 
     logger(DEBUG, "face: %, uL: %, uR:%", face.getFace()->getID(), solutionLeft, solutionRight);
 
+
+    MiddleSizeVector flux = hllcFlux(solutionLeft, solutionRight, face.getUnitNormalVector());
+
     if (iSide == Base::Side::RIGHT) //the normal is defined for the left element
     {
-        normal *= -1;
+        flux *= -1 * Base::L2Norm(face.getNormalVector());
     }
-
-    MiddleSizeVector flux = localLaxFriedrichsFlux(solutionLeft, solutionRight, normal);
-
-    if (face.getFace()->getID() == 14)
+    else
     {
-        logger(DEBUG, "flux on face %: %", face.getFace()->getID(), flux);
-        logger(DEBUG, "numerical solutions on face %: %, %", face.getFace()->getID(), solutionLeft, solutionRight);
-        logger(DEBUG, "normal on face %: %", face.getFace()->getID(), normal);
+        flux *= Base::L2Norm(face.getNormalVector());
     }
 
     MiddleSizeVector& integrand = face.getResultVector(iSide); // Integrand value based on n number of testbasisfunctions from element corresponding to side iSide
@@ -203,7 +200,7 @@ MiddleSizeVector SavageHutterRHS2D::computeSourceTerm(const MiddleSizeVector& nu
     logger(DEBUG, "Source: %, h: %", sourceX, h);
     logger(DEBUG, "u, v: %, %", u, v);
     logger(DEBUG, "u/|u|: %, v/|v|: %", uNormalized, vNormalized);
-    return MiddleSizeVector({0, sourceX, sourceY});
+    return MiddleSizeVector({0, 0, 0});
 }
 
 MiddleSizeVector SavageHutterRHS2D::localLaxFriedrichsFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight,const LinearAlgebra::SmallVector<DIM>& normal)
@@ -258,6 +255,54 @@ MiddleSizeVector SavageHutterRHS2D::localLaxFriedrichsFlux(const MiddleSizeVecto
         (fluxNormalLeft + fluxNormalRight - alpha * (diffSolutions));
 
     return numericalFlux;
+}
+
+///The HLLC flux is a Riemann solver
+MiddleSizeVector SavageHutterRHS2D::hllcFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight, const LinearAlgebra::SmallVector<DIM>& normal)
+{
+    logger.assert(Base::L2Norm(normal) == 1, "hllc flux needs unit normal vector");
+    const double nx = normal[0];
+    const double ny = normal[1];
+    const double hLeft = numericalSolutionLeft[0];
+    const double hRight = numericalSolutionRight[0];
+    double uLeft = 0;
+    double vLeft = 0;
+    if (hLeft > minH_)
+    {
+        uLeft = numericalSolutionLeft(1) / hLeft;
+        vLeft = numericalSolutionLeft(2) / hLeft;
+    }
+    double uRight = 0;
+    double vRight = 0;
+    if (hRight > minH_)
+    {
+        uRight = numericalSolutionRight(1) / hRight;
+        vRight = numericalSolutionRight(2) / hRight;
+    }
+    MiddleSizeVector fluxLeft = computePhysicalFlux(numericalSolutionLeft);
+    MiddleSizeVector fluxNormalLeft(numOfVariables_);
+    MiddleSizeVector fluxRight = computePhysicalFlux(numericalSolutionRight);
+    MiddleSizeVector fluxNormalRight(numOfVariables_);
+    for (std::size_t i = 0; i < numOfVariables_; ++i)
+    {
+        fluxNormalLeft(i) = fluxLeft(2 * i) * nx + fluxLeft(2 * i + 1) * ny;
+        fluxNormalRight(i) = fluxRight(2 * i) * nx + fluxRight(2 * i + 1) * ny;
+    }
+    double normalSpeedLeft = uLeft * nx + vLeft * ny;
+    double normalSpeedRight = uRight * nx + vRight * ny;
+    double phaseSpeedLeft = std::sqrt(epsilon_ * std::cos(chuteAngle_) * hLeft);
+    double phaseSpeedRight = std::sqrt(epsilon_ * std::cos(chuteAngle_) * hRight);
+    double sl=std::min(normalSpeedLeft-phaseSpeedLeft, normalSpeedRight-phaseSpeedRight);
+    double sr=std::max(normalSpeedLeft+phaseSpeedLeft, normalSpeedRight+phaseSpeedRight);
+    if (sl >= 0)
+    {
+        return fluxNormalLeft;
+    }
+    if (sr <= 0)
+    {
+        return fluxNormalRight;
+    }
+	return ((sr*fluxNormalLeft-sl*fluxNormalRight+sl*sr*(numericalSolutionRight-numericalSolutionLeft))/(sr-sl));
 }
 
 double SavageHutterRHS2D::computeFriction(const MiddleSizeVector& numericalSolution)
