@@ -37,13 +37,8 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElem
     const PointPhysicalT& pPhys = element.getPointPhysical();
     const PointReferenceT& pRef = element.getPointReference();
     const MiddleSizeVector numericalSolution = Helpers::getSolution<DIM>(element.getElement(), solutionCoefficients, pRef, numOfVariables_);
-    logger(DEBUG, "NumericalSolution: %,\n getSolution(timeLevel): %, %", numericalSolution,
-           element.getElement()->getSolution(0,pRef), element.getElement()->getSolution(1,pRef));
     const MiddleSizeVector physicalFlux = computePhysicalFlux(numericalSolution);
-    logger(DEBUG, "element: %", element.getID());
     const MiddleSizeVector source = computeSourceTerm(numericalSolution, pPhys, time);
-    logger(DEBUG, "source: %", source);
-    //logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
     
     // Compute integrand on the physical element.
     std::size_t iVB; // Index for both basis function and variable
@@ -57,7 +52,6 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnElem
         }
     }
     
-    logger(DEBUG, "Integrand on element: %", integrand);
     return integrand;
 }
 
@@ -75,7 +69,6 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     MiddleSizeVector solutionLeft = Helpers::getSolution<DIM>(face.getFace()->getPtrElementLeft(), solutionCoefficientsLeft, pRefL, numOfVariables_);    
     MiddleSizeVector solutionRight = Helpers::getSolution<DIM>(face.getFace()->getPtrElementRight(), solutionCoefficientsRight, pRefR, numOfVariables_);
     
-    logger(DEBUG, "face: %, uL: %, uR:%", face.getFace()->getID(), solutionLeft, solutionRight);
     MiddleSizeVector flux(2);
     
     if (normal > 0)
@@ -86,8 +79,6 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     {
         flux = localLaxFriedrichsFlux(solutionRight, solutionLeft);
     }
-    
-    logger(DEBUG, "flux on face %: %",face.getFace()->getID(), flux);
     
     if (iSide == Base::Side::RIGHT) //the normal is defined for the left element
     {
@@ -272,7 +263,6 @@ double SavageHutterRightHandSideComputer::computeFriction(const MiddleSizeVector
         return std::tan(delta1);
     const double u  = numericalSolution[1] / h;
     const double F = u /std::sqrt(epsilon_*std::cos(chuteAngle_) * h);
-    logger(DEBUG, "new friction: %, coulomb friction: %", std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))/(beta*h/(A*d*(F + gamma)) + 1), std::tan(chuteAngle_));
     return std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))/(beta*h/(A*d*(F - gamma)) + 1);
 }
 
@@ -289,6 +279,5 @@ double SavageHutterRightHandSideComputer::computeFrictionExponential(const Middl
     const double u  = numericalSolution[1] / h;
     if (std::abs(u) < 1e-16)
         return std::tan(delta1);
-    logger(DEBUG, "new friction: %", std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))*std::exp(-beta*std::pow(epsilon_*h, 1.5)/(L * std::abs(u))));
     return std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))*std::exp(-beta*std::pow(epsilon_*h, 1.5)/(L * std::abs(u)));
 }

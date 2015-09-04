@@ -25,8 +25,8 @@
 
 
 SavageHutterBase::SavageHutterBase(const SHConstructorStruct& inputValues) :
-HpgemAPISimplified(inputValues.numOfVariables, inputValues.polyOrder, inputValues.ptrButcherTableau, inputValues.ptrButcherTableau->getNumStages() + 2),
-    numOfVariables_(inputValues.numOfVariables), dryLimit_(1e-5), temporaryTimeLevel_(inputValues.ptrButcherTableau->getNumStages() + 1), time_(0)
+HpgemAPISimplified(inputValues.numOfVariables, inputValues.polyOrder, inputValues.ptrButcherTableau),
+    numOfVariables_(inputValues.numOfVariables), dryLimit_(1e-5), time_(0)
 {
     createMesh(inputValues.numElements, inputValues.meshType);
     if (DIM == 2)
@@ -51,7 +51,7 @@ Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(con
     {
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
-        description.numElementsInDIM_[i] = 10;
+        description.numElementsInDIM_[i] = 20;
         description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
     }
     description.topRight_[0] = 5;
@@ -87,11 +87,6 @@ LinearAlgebra::MiddleSizeVector SavageHutterBase::computeRightHandSideAtFace
         return rhsComputer_->integrandRightHandSideOnRefFace(face, side, solutionCoefficientsLeft, solutionCoefficientsRight);
     };
 
-    if (ptrFace->getPtrElementRight()->getID() == 11  || ptrFace->getPtrElementLeft()->getID() == 11)
-    {
-        logger(DEBUG, "face integral on internal face %: %", ptrFace->getID(), faceIntegrator_.integrate(ptrFace, integrandFunction));
-        logger(DEBUG, "elements for face %: %, %", ptrFace->getID(), ptrFace->getPtrElementLeft()->getID(), ptrFace->getPtrElementRight()->getID());
-    }
     return faceIntegrator_.integrate(ptrFace, integrandFunction);
 
 }
@@ -109,11 +104,6 @@ LinearAlgebra::MiddleSizeVector SavageHutterBase::computeRightHandSideAtFace
             return rhsComputer_->integrandRightHandSideOnRefFace(face, solutionCoefficients);
         };
         
-        
-    if (ptrFace->getPtrElementLeft()->getID() == 11)
-    {
-        logger(DEBUG, "face integral on boundary face %: %", ptrFace->getID(), faceIntegrator_.integrate(ptrFace, integrandFunction));
-    }
     return faceIntegrator_.integrate(ptrFace, integrandFunction, ptrFace->getGaussQuadratureRule());
 }
 
@@ -124,6 +114,7 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
     std::size_t numOfStages = ptrButcherTableau_->getNumStages();
 
     // Compute intermediate Runge-Kutta stages
+    ///\todo think of something for height limiter with higher order RK methods
     for (std::size_t iStage = 0; iStage < numOfStages; iStage++)
     {
         double stageTime = time + ptrButcherTableau_->getC(iStage) * dt;
@@ -154,49 +145,7 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
     time += dt;
     time_ = time;
     setInflowBC(time);
-    logger(DEBUG, "time: %",time_);
 }
-
-/// \details Make sure timeLevelResult is different from the timeLevelsIn.
-    void SavageHutterBase::computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
-    {
-        // Apply the right hand side corresponding to integration on the elements.
-        for (Base::Element *ptrElement : meshes_[0]->getElementsList())
-        {
-            LinearAlgebra::MiddleSizeVector solutionCoefficients = getLinearCombinationOfVectors(ptrElement, timeLevelsIn, coefficientsTimeLevels);
-            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew = ptrElement->getTimeIntegrationVector(timeLevelResult);
-            logger(DEBUG, "Before: %", solutionCoefficients);
-            heightLimiter_->limit(ptrElement, solutionCoefficients);
-            ptrElement->setTimeIntegrationVector(temporaryTimeLevel_, solutionCoefficients);
-            logger(DEBUG, "After: %", solutionCoefficients);
-            
-            solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time);
-        }
-        
-        // Apply the right hand side corresponding to integration on the faces.
-        for (Base::Face *ptrFace : meshes_[0]->getFacesList())
-        {
-            if(ptrFace->isInternal())
-            {
-                LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft = ptrFace->getPtrElementLeft()->getTimeIntegrationVector(temporaryTimeLevel_);
-                LinearAlgebra::MiddleSizeVector solutionCoefficientsRight = ptrFace->getPtrElementRight()->getTimeIntegrationVector(temporaryTimeLevel_);
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(timeLevelResult));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeIntegrationVector(timeLevelResult));
-                
-                solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
-                solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
-            }
-            else
-            {
-                LinearAlgebra::MiddleSizeVector solutionCoefficients = ptrFace->getPtrElementLeft()->getTimeIntegrationVector(temporaryTimeLevel_);
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(timeLevelResult));
-                
-                    solutionCoefficientsNew += computeRightHandSideAtFace(ptrFace, solutionCoefficients, time);
-                }
-            }
-        
-        synchronize(timeLevelResult);
-    }
 
 void SavageHutterBase::limitSolutionOuterLoop()
 {
@@ -241,6 +190,5 @@ double SavageHutterBase::getMinimumHeight(const Base::Element* element)
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
         minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
     }
-    logger(DEBUG, "Minimum in element %: %", element->getID(), minimum);
     return minimum;
 }

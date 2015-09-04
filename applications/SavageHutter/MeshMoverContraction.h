@@ -42,10 +42,10 @@ public:
     void movePoint(PointPhysicalT& point) const override final
     {
         logger.assert(2 == DIM, "Called mesh mover for contraction while DIM != 2");
-        const double xBegin = 5;
-        const double xMiddle = 7;
-        const double xEnd = 9;
-        const double contractionWidth = 1.0;        
+        const double xBegin = 1.2;
+        const double xMiddle = 2.2;
+        const double xEnd = 3.2;
+        const double contractionWidth = 0.8;        
         
         const double distFirst = xMiddle - xBegin;
         const double distSecond = xEnd - xMiddle;

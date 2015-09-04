@@ -31,7 +31,6 @@
 /// \param[in] polynomialOrder Polynomial order of the basis functions
 /// \param[in] useMatrixStorage Boolean to indicate if element and face matrices for the PDE should be stored
 /// \param[in] ptrButcherTableau Pointer to a Butcher Tableau used to do the time integration with a Runge-Kutta scheme. By default this is a RK4 scheme.
-
 struct SHConstructorStruct
 {
     std::size_t numOfVariables;
@@ -105,20 +104,6 @@ private:
     ///Compute the minimum of the height in the given element
     double getMinimumHeight(const Base::Element *element);
 
-    void tasksBeforeSolving() override final
-    {
-        //todo: for one face integral you used referenceFaceIntegral (which does not scale with the magnitude of the normal) and for the other you used integrate (which does scale)
-        //so it is not clear to me whether or not you need scaling. Please fix as needed
-        faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::DoNotScaleIntegrands<DIM>(new Base::H1ConformingTransformation<DIM>())));
-        Base::HpgemAPISimplified<DIM>::tasksBeforeSolving();
-    }
-    
-    /// \details Make sure timeLevelResult is different from the timeLevelsIn.
-    void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time) override final;
-    
-    std::size_t temporaryTimeLevel_;
-    
-    
 };
 
 #endif	/* SAVAGEHUTTERBASE_H */

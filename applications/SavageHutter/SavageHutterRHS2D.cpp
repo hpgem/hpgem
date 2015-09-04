@@ -30,10 +30,8 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnElement
     const PointPhysicalT& pPhys = element.getPointPhysical();
     const PointReferenceT& pRef = element.getPointReference();
     const MiddleSizeVector numericalSolution = Helpers::getSolution<DIM>(element.getElement(), solutionCoefficients, pRef, numOfVariables_);
-    logger(DEBUG, "NumericalSolution: %,", numericalSolution);
     const MiddleSizeVector physicalFlux = computePhysicalFlux(numericalSolution);
     const MiddleSizeVector source = computeSourceTerm(numericalSolution, pPhys, time);
-    logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
 
     // Compute integrand on the physical element.
     std::size_t iVB; // Index for both basis function and variable
@@ -47,8 +45,6 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnElement
             integrand(iVB) += source(iV) * element.basisFunction(iB);
         }
     }
-
-    logger(DEBUG, "Integrand on element: %", integrand);
     return integrand;
 }
 
@@ -65,18 +61,11 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnRefFace
     MiddleSizeVector solutionLeft = Helpers::getSolution<DIM>(face.getFace()->getPtrElementLeft(), solutionCoefficientsLeft, pRefL, numOfVariables_);
     MiddleSizeVector solutionRight = Helpers::getSolution<DIM>(face.getFace()->getPtrElementRight(), solutionCoefficientsRight, pRefR, numOfVariables_);
 
-    logger(DEBUG, "face: %, uL: %, uR:%", face.getFace()->getID(), solutionLeft, solutionRight);
-
-
     MiddleSizeVector flux = hllcFlux(solutionLeft, solutionRight, face.getUnitNormalVector());
 
     if (iSide == Base::Side::RIGHT) //the normal is defined for the left element
     {
-        flux *= -1 * Base::L2Norm(face.getNormalVector());
-    }
-    else
-    {
-        flux *= Base::L2Norm(face.getNormalVector());
+        flux *= -1;
     }
 
     MiddleSizeVector& integrand = face.getResultVector(iSide); // Integrand value based on n number of testbasisfunctions from element corresponding to side iSide
@@ -89,7 +78,6 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnRefFace
             integrand(iVarFun) = -flux(iVar) * face.basisFunction(iSide, iFun);
         }
     }
-    logger(DEBUG, "integrand on internal face %: %", face.getFace()->getID(), integrand);
     return integrand;
 }
 
@@ -111,25 +99,21 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnRefFace
     MiddleSizeVector flux(3);
 
     //outflow
-    if (normalX > 0 && std::abs(normalY) < 1e-16)
+    if (normalX > 0 && std::abs(normalY) < 1e-10)
     {
-        flux = localLaxFriedrichsFlux(solution, solution, face.getNormalVector());
+        logger.assert_always( solution[1]/solution[0] - std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0]) > 0, "subcritical outflow");
+        flux = hllcFlux(solution, solution, face.getUnitNormalVector());
     }
     else if (std::abs(normalY) < 1e-16) //inflow
     {
-        flux = localLaxFriedrichsFlux(inflowBC_, inflowBC_, face.getNormalVector());
+        flux = hllcFlux(inflowBC_, inflowBC_, face.getUnitNormalVector());
     }
     else //solid wall
     {
         LinearAlgebra::SmallVector<DIM> velocity({solution[1] / solution[0], solution[2] / solution[0]});
         LinearAlgebra::SmallVector<DIM> velocityReflected = velocity - 2 * (velocity * face.getUnitNormalVector()) * face.getUnitNormalVector();
         const MiddleSizeVector &reflection = MiddleSizeVector({solution[0], velocityReflected[0] * solution[0], velocityReflected[1] * solution[0]});
-        flux = localLaxFriedrichsFlux(solution, reflection, face.getNormalVector());
-        logger(DEBUG, "physical flux for solution and reflection: %, \t %", computePhysicalFlux(solution), computePhysicalFlux(reflection));
-        logger(DEBUG, "normal: %, discharge: %, reflected: %", face.getUnitNormalVector(), velocity, velocityReflected);
-        logger(DEBUG, "n.(hu,hv): %, n.reflection: %", face.getUnitNormalVector() * velocity, face.getUnitNormalVector() * velocityReflected);
-        logger(DEBUG, "Flux on solid wall of face %: % \n", face.getID(), flux, face.getUnitNormalVector());
-        logger(DEBUG, "one coordinate on face %: %, element: %", face.getID(), face.getPointPhysical(), face.getPhysicalElement(Base::Side::LEFT).getID());
+        flux = hllcFlux(solution, reflection, face.getUnitNormalVector());
     }
 
     MiddleSizeVector integrand(numOfVariables_ * numBasisFuncs);
@@ -176,35 +160,31 @@ MiddleSizeVector SavageHutterRHS2D::computeSourceTerm(const MiddleSizeVector& nu
     const double h = numericalSolution(0);
     const double hu = numericalSolution(1);
     const double hv = numericalSolution(2);
+    
     double u = 0;
     double v = 0;
-
-    double uNormalized = 0;
-    double vNormalized = 0;
     if (h > minH_)
     {
         u = hu / h;
         v = hv / h;
     }
 
+    double uNormalized = 0;
+    double vNormalized = 0;
     if (Base::L2Norm({u, v}) > 1e-16)
     {
         uNormalized = u / Base::L2Norm({u, v});
         vNormalized = v / Base::L2Norm({u, v});
     }
     const double mu = computeFriction(numericalSolution);
-    const int signU = Helpers::sign(u);
-    const int signV = Helpers::sign(v);
     const double sourceX = h * std::sin(chuteAngle_) - h * mu * uNormalized * std::cos(chuteAngle_);
     const double sourceY = -h * mu * vNormalized * std::cos(chuteAngle_);
-    logger(DEBUG, "Source: %, h: %", sourceX, h);
-    logger(DEBUG, "u, v: %, %", u, v);
-    logger(DEBUG, "u/|u|: %, v/|v|: %", uNormalized, vNormalized);
     return MiddleSizeVector({0, 0, 0});
 }
 
 MiddleSizeVector SavageHutterRHS2D::localLaxFriedrichsFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight,const LinearAlgebra::SmallVector<DIM>& normal)
 {
+    logger.assert(std::abs(Base::L2Norm(normal) - 1) < 1e-16, "LLF flux needs a unit normal vector");
     const double hLeft = numericalSolutionLeft[0];
     const double hRight = numericalSolutionRight[0];
     double uLeft = 0;
@@ -234,30 +214,23 @@ MiddleSizeVector SavageHutterRHS2D::localLaxFriedrichsFlux(const MiddleSizeVecto
     alpha = std::max(alpha, eigenSpeed3);
     alpha = std::max(alpha, eigenSpeed4);
 
-    logger(DEBUG, "alpha: %", alpha);
-
     MiddleSizeVector fluxLeft = computePhysicalFlux(numericalSolutionLeft);
-    MiddleSizeVector fluxNormalLeft(numOfVariables_);
     MiddleSizeVector fluxRight = computePhysicalFlux(numericalSolutionRight);
+    MiddleSizeVector fluxNormalLeft(numOfVariables_);
     MiddleSizeVector fluxNormalRight(numOfVariables_);
-    logger(DEBUG, "physical fluxes: %, %", fluxLeft, fluxRight);
     for (std::size_t i = 0; i < numOfVariables_; ++i)
     {
         fluxNormalLeft(i) = fluxLeft(2 * i) * normal(0) + fluxLeft(2 * i + 1) * normal(1);
         fluxNormalRight(i) = fluxRight(2 * i) * normal(0) + fluxRight(2 * i + 1) * normal(1);
     }
 
-    logger(DEBUG, "normal times physical fluxes: %, %", fluxNormalLeft, fluxNormalRight);
-    MiddleSizeVector diffSolutions = numericalSolutionRight - numericalSolutionLeft;
-    diffSolutions = diffSolutions * normal(0) + diffSolutions * normal(1);
-
     const MiddleSizeVector numericalFlux = 0.5 *
-        (fluxNormalLeft + fluxNormalRight - alpha * (diffSolutions));
+        (fluxNormalLeft + fluxNormalRight - alpha * (numericalSolutionRight - numericalSolutionLeft));
 
     return numericalFlux;
 }
 
-///The HLLC flux is a Riemann solver
+///The HLLC flux is an approximate Riemann solver
 MiddleSizeVector SavageHutterRHS2D::hllcFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight, const LinearAlgebra::SmallVector<DIM>& normal)
 {
     logger.assert(Base::L2Norm(normal) == 1, "hllc flux needs unit normal vector");
@@ -280,8 +253,8 @@ MiddleSizeVector SavageHutterRHS2D::hllcFlux(const MiddleSizeVector& numericalSo
         vRight = numericalSolutionRight(2) / hRight;
     }
     MiddleSizeVector fluxLeft = computePhysicalFlux(numericalSolutionLeft);
-    MiddleSizeVector fluxNormalLeft(numOfVariables_);
     MiddleSizeVector fluxRight = computePhysicalFlux(numericalSolutionRight);
+    MiddleSizeVector fluxNormalLeft(numOfVariables_);
     MiddleSizeVector fluxNormalRight(numOfVariables_);
     for (std::size_t i = 0; i < numOfVariables_; ++i)
     {

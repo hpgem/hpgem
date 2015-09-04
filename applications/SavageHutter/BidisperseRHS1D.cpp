@@ -24,7 +24,9 @@
 
 using LinearAlgebra::MiddleSizeVector;
 
-/// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
+/// \details The integrand for the reference element is the same as the physical 
+///element, but scaled with the reference-to-physical element scale, 
+///which is the determinant of the jacobian of the reference-to-physical element mapping.
 MiddleSizeVector BidisperseRHS1D::integrandRightHandSideOnElement
 (Base::PhysicalElement<DIM>& element, const double &time, const MiddleSizeVector &solutionCoefficients)
 {
@@ -34,13 +36,8 @@ MiddleSizeVector BidisperseRHS1D::integrandRightHandSideOnElement
     const PointPhysicalT& pPhys = element.getPointPhysical();
     const PointReferenceT& pRef = element.getPointReference();
     const MiddleSizeVector numericalSolution = Helpers::getSolution<DIM>(element.getElement(), solutionCoefficients, pRef, numOfVariables_);
-    logger(DEBUG, "NumericalSolution: %,\n getSolution(timeLevel): %, %", numericalSolution,
-           element.getElement()->getSolution(0,pRef), element.getElement()->getSolution(1,pRef));
     const MiddleSizeVector physicalFlux = computePhysicalFlux(numericalSolution);
-    logger(DEBUG, "element: %", element.getID());
     const MiddleSizeVector source = computeSourceTerm(numericalSolution, pPhys, time);
-    logger(DEBUG, "source: %", source);
-    //logger.assert(Base::L2Norm(source) < 1e-10, "Source non-zero: %", source);
     
     // Compute integrand on the physical element.
     std::size_t iVB; // Index for both basis function and variable
@@ -54,11 +51,13 @@ MiddleSizeVector BidisperseRHS1D::integrandRightHandSideOnElement
         }
     }
     
-    logger(DEBUG, "Integrand on element: %", integrand);
     return integrand;
 }
 
-/// \details The integrand for the reference face is the same as the physical face, but scaled with the reference-to-physical face scale. This face scale is absorbed in the normal vector, since it is relatively cheap to compute the normal vector with a length (L2-norm) equal to the reference-to-physical face scale.
+/// \details The integrand for the reference face is the same as the physical face,
+//but scaled with the reference-to-physical face scale. This face scale is absorbed 
+///in the normal vector, since it is relatively cheap to compute the normal vector
+///with a length (L2-norm) equal to the reference-to-physical face scale.
 MiddleSizeVector BidisperseRHS1D::integrandRightHandSideOnRefFace
 ( Base::PhysicalFace<DIM>& face, const Base::Side &iSide, const MiddleSizeVector &solutionCoefficientsLeft, const MiddleSizeVector &solutionCoefficientsRight)
 {
@@ -72,7 +71,6 @@ MiddleSizeVector BidisperseRHS1D::integrandRightHandSideOnRefFace
     MiddleSizeVector solutionLeft = Helpers::getSolution<DIM>(face.getFace()->getPtrElementLeft(), solutionCoefficientsLeft, pRefL, numOfVariables_);    
     MiddleSizeVector solutionRight = Helpers::getSolution<DIM>(face.getFace()->getPtrElementRight(), solutionCoefficientsRight, pRefR, numOfVariables_);
     
-    logger(DEBUG, "face: %, uL: %, uR:%", face.getFace()->getID(), solutionLeft, solutionRight);
     MiddleSizeVector flux(2);
     
     if (normal > 0)
@@ -83,8 +81,6 @@ MiddleSizeVector BidisperseRHS1D::integrandRightHandSideOnRefFace
     {
         flux = localLaxFriedrichsFlux(solutionRight, solutionLeft);
     }
-    
-    logger(DEBUG, "flux on face %: %",face.getFace()->getID(), flux);
     
     if (iSide == Base::Side::RIGHT) //the normal is defined for the left element
     {
@@ -166,7 +162,6 @@ MiddleSizeVector BidisperseRHS1D::computePhysicalFlux(const MiddleSizeVector &nu
     flux(0) = hu;
     flux(1) = hu * u + epsilon_/2 * std::cos(chuteAngle_) * h * h;
     flux(2) = h*phi*u - (1-alpha_)*h*phi*u*(1-phi);
-    logger(DEBUG, "flux values: %", flux);
     return flux;
 }
 
@@ -183,7 +178,6 @@ MiddleSizeVector BidisperseRHS1D::computeSourceTerm(const MiddleSizeVector& nume
     double mu = computeFrictionCoulomb(numericalSolution);
     const int signU = Helpers::sign(u);
     double sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
-    logger(DEBUG, "Source: %, h: %", sourceX, h);
     return MiddleSizeVector({0, sourceX, 0});
 }
 
@@ -204,13 +198,9 @@ MiddleSizeVector BidisperseRHS1D::localLaxFriedrichsFlux(const MiddleSizeVector&
     const double alpha = std::max(std::abs(uLeft) + std::sqrt(epsilon_ * std::max(0.,numericalSolutionLeft(0))), 
                       std::abs(uRight) + std::sqrt(epsilon_ * std::max(0.,numericalSolutionRight(0))));
     
-    logger(DEBUG, "alpha: %", alpha);
-        
-    logger(DEBUG, "physical fluxes: %, %", computePhysicalFlux(numericalSolutionLeft), computePhysicalFlux(numericalSolutionRight));
-    MiddleSizeVector diffSolutions = numericalSolutionRight - numericalSolutionLeft;
     const MiddleSizeVector numericalFlux = 0.5 * 
         (computePhysicalFlux(numericalSolutionLeft) + computePhysicalFlux(numericalSolutionRight)
-            - alpha * (diffSolutions));
+            - alpha * (numericalSolutionRight - numericalSolutionLeft));
     
     return numericalFlux;
 }
@@ -234,7 +224,6 @@ double BidisperseRHS1D::computeFriction(const MiddleSizeVector& numericalSolutio
         return std::tan(delta1);
     const double u  = numericalSolution[1] / h;
     const double F = u /std::sqrt(epsilon_*std::cos(chuteAngle_) * h);
-    logger(DEBUG, "new friction: %, coulomb friction: %", std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))/(beta*h/(A*d*(F - gamma)) + 1), std::tan(chuteAngle_));
     return std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))/(beta*h/(A*d*(F - gamma)) + 1);
 }
 
@@ -252,7 +241,6 @@ double BidisperseRHS1D::computeFrictionExponential(const MiddleSizeVector& numer
     const double eta = numericalSolution[2];
     if (std::abs(u) < 1e-16)
         return std::tan(delta1);
-    logger(DEBUG, "new friction: %", std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))*std::exp(-beta*std::pow(epsilon_*h, 1.5)/(L * std::abs(u))));
     const double muLarge = std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))*std::exp(-beta*std::pow(epsilon_*h, 1.5)/(L * std::abs(u)));
     delta1 = 20. / 180 * M_PI;
     delta2 = 30. / 180 * M_PI;
