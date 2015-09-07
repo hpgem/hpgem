@@ -467,7 +467,7 @@ namespace Base
             for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunction(i, result);
-                vectorBasisFunctionNormal_[j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>({{getNormalVector(), result}}).computeWedgeStuffVector();
+                vectorBasisFunctionNormal_[j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>{{getNormalVector(), result}}.computeWedgeStuffVector();
                 if(j >= nLeftBasisFunctions)
                 {
                     vectorBasisFunctionNormal_[j] *= -1.;
@@ -508,7 +508,7 @@ namespace Base
             for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunction(i, result);
-                vectorBasisFunctionUnitNormal_[j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>({{getUnitNormalVector(), result}}).computeWedgeStuffVector();
+                vectorBasisFunctionUnitNormal_[j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>{{getUnitNormalVector(), result}}.computeWedgeStuffVector();
                 if(j >= nLeftBasisFunctions)
                 {
                     vectorBasisFunctionUnitNormal_[j] *= -1.;

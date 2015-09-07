@@ -281,7 +281,6 @@ namespace Base
         {
             timeIntegrationVectors_[timeIntegrationVectorId].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
         }
-        timeIntegrationVectors_[timeIntegrationVectorId] = val;
         for(std::size_t iB = 0; iB < numberOfBasisFunctions_; iB++) // iB = iBasisFunction
         {
             timeIntegrationVectors_[timeIntegrationVectorId](convertToSingleIndex(iB, unknown)) = val(iB);

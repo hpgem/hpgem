@@ -141,9 +141,12 @@ namespace Base
         {
             logger(ERROR, "Error no mesh created : You need to create at least one mesh to set the number of time integration vectors");
         }
-        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList(IteratorType::GLOBAL))
+        for(auto mesh : this->meshes_)
         {
-            ptrElement->setNumberOfTimeIntegrationVectors(numberOfTimeIntegrationVectors);
+            for (Base::Element *ptrElement : mesh->getElementsList(IteratorType::GLOBAL))
+            {
+                ptrElement->setNumberOfTimeIntegrationVectors(numberOfTimeIntegrationVectors);
+            }
         }
     }
     
