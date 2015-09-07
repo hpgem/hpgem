@@ -51,6 +51,7 @@ public:
     DGWave(std::size_t n, std::size_t p)
             : HpgemAPIBase<DIM>(new Base::GlobalData(), new Base::ConfigurationData(DIM, 2, p)), n_(n), p_(p)
     {
+        logger.assert_always(n > 7, "This application assumes there are at least 8 elements in the x-direction");
     }
     
     ///set up the mesh
@@ -68,6 +69,7 @@ public:
         description.numElementsInDIM_[DIM - 1] /= 8;
         description.boundaryConditions_[DIM - 1] = Base::BoundaryType::SOLID_WALL;
         addMesh(description, Base::MeshType::RECTANGULAR, 1, 1, 1, 1);
+        setNumberOfTimeIntegrationVectorsGlobally(1);
         meshes_[0]->setDefaultBasisFunctionSet(Utilities::createInteriorBasisFunctionSet2DH1Square(p_));
         std::vector<const Base::BasisFunctionSet*> bFsets;
         bFsets = Utilities::createVertexBasisFunctionSet2DH1Square(p_);
@@ -455,7 +457,7 @@ private:
 
 double DGWave::t = 0;
 
-auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
+auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements in the x-direction", true);
 auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
 
 int main(int argc, char **argv)
