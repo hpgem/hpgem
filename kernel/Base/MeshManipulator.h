@@ -114,7 +114,10 @@ namespace Base
 
         /// \brief automatically creates the DG basis function set most appropriate for the shape of the element and sets that set as the basis function set to use
         /// \details This function takes the default conforming basis functions and cuts them off at element boundaries. The resulting basis functions have much better
-        /// conditioning properties than monomials. Due to the nature of DG, this creates 'interior' basis functions only (All basis functions are associated with the element)
+        /// conditioning properties than monomials. Due to the nature of DG, this creates 'interior' basis functions only. (All basis functions are associated with the element)
+        /// It is allowed to change the basis function during a computation, but you have to re-initialise the expansion coefficients, since they are expected to change
+        /// such that the current solution stays the same. (Stored old solutions are not affected, but they may require a change back to the original basis functions before being
+        /// usable again)
         void useDefaultDGBasisFunctions();
 
         /// \brief automatically creates conforming basis functions, even for mixed meshes
@@ -123,6 +126,9 @@ namespace Base
         /// associations (GlobalPETScMatrix does this). If you are building such an assembly structure yourself you may assume that the basisFunctions are indexed such that
         /// interior basis functions of the element are first. They are followed by the face basis functions(ordered by local face number primary and the different basis functions secondary)
         /// They are followed by the edge basis functions (using the same ordering) and finally the nodal basis functions (also using the same ordering)
+        /// It is allowed to change the basis function during a computation, but you have to re-initialise the expansion coefficients, since they are expected to change
+        /// such that the current solution stays the same. (Stored old solutions are not affected, but they may require a change back to the original basis functions before being
+        /// usable again)
         void useDefaultConformingBasisFunctions();
 
         ElementT* addElement(const VectorOfPointIndicesT& globalNodeIndexes);

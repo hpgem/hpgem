@@ -65,12 +65,20 @@ int main(int argc, char** argv)
     for(std::size_t i = 0; i < 1000; ++i)
     {
         mesh.useDefaultDGBasisFunctions();
+        for(Base::Element* element : mesh.getElementsList())
+        {
+            element->setTimeIntegrationSubvector(0, 0, {{0., 1., 2., 3.}});
+        }
         testData(mesh);
     }
     //for a single element conforming basis functions happen to be the same
     for(std::size_t i = 0; i < 1000; ++i)
     {
         mesh.useDefaultConformingBasisFunctions();
+        for(Base::Element* element : mesh.getElementsList())
+        {
+            element->setTimeIntegrationSubvector(0, 0, {{0., 1., 2., 3.}});
+        }
         testData(mesh);
     }
     delete config;

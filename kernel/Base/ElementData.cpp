@@ -110,6 +110,10 @@ namespace Base
     void ElementData::setNumberOfBasisFunctions(std::size_t number)
     {
         numberOfBasisFunctions_ = number;
+        for(auto& vector : timeIntegrationVectors_)
+        {
+            vector.resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+        }
     }
     
     std::size_t ElementData::getNrOfBasisFunctions() const
