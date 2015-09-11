@@ -85,7 +85,7 @@ double SqueezeLimiterWithLayer::getMinimumHeight(const Base::Element* element)
     const double solutionLeft = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, numOfVariables)(0);
     const double solutionRight = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, numOfVariables)(0);
     double minimum = std::min(solutionLeft, solutionRight);
-    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
+    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->getNumberOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
         minimum = std::min(minimum, Helpers::getSolution<1>(element, solutionCoefficients, pRef, numOfVariables)(0));
@@ -109,7 +109,7 @@ const Geometry::PointReference<1>* SqueezeLimiterWithLayer::getMinimumHeightPoin
         minimum = solutionRight;
         minPoint = &pRefR;
     }
-    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
+    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->getNumberOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
          if (minimum > Helpers::getSolution<1>(element, solutionCoefficients, pRef, numOfVariables)(0))

@@ -80,7 +80,7 @@ double AverageValuesNonNegativeLimiter::getMinimumHeight(const Base::Element* el
         const PointReferenceT &pRef = element->getReferenceGeometry()->getReferenceNodeCoordinate(iPoint);
         minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
     }
-    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
+    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->getNumberOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
         minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
