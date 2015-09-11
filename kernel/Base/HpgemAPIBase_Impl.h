@@ -62,11 +62,11 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    typename HpgemAPIBase<DIM>::MeshId HpgemAPIBase<DIM>::addMesh(const RectangularMeshDescriptor<DIM>& meshDscr, const MeshType& meshType, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
+    typename HpgemAPIBase<DIM>::MeshId HpgemAPIBase<DIM>::addMesh(const RectangularMeshDescriptor<DIM>& meshDscr, const MeshType& meshType, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
     {
         std::size_t numOfMeshes = meshes_.size();
         MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_, meshDscr.boundaryConditions_[0],
-                                                    (configData_->dimension_ > 1) ? meshDscr.boundaryConditions_[1] : BoundaryType::SOLID_WALL, (configData_->dimension_ > 2) ? meshDscr.boundaryConditions_[2] : BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
+                                                    (configData_->dimension_ > 1) ? meshDscr.boundaryConditions_[1] : BoundaryType::SOLID_WALL, (configData_->dimension_ > 2) ? meshDscr.boundaryConditions_[2] : BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, numberOfElementMatrixes, numberOfElementVectors, numberOfFaceMatrixes, numberOfFaceVectors);
         
         if (meshType == MeshType::RECTANGULAR)
         {
@@ -89,10 +89,10 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    typename HpgemAPIBase<DIM>::MeshId HpgemAPIBase<DIM>::addMesh(const std::string& fileName, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
+    typename HpgemAPIBase<DIM>::MeshId HpgemAPIBase<DIM>::addMesh(const std::string& fileName, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
     {
         std::size_t numOfMeshes = meshes_.size();
-        MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
+        MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, numberOfElementMatrixes, numberOfElementVectors, numberOfFaceMatrixes, numberOfFaceVectors);
         mesh->readCentaurMesh(fileName);                             //boundary information (^) is ignored
         mesh->getElementsList();
         meshes_.push_back(mesh);

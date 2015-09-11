@@ -36,7 +36,7 @@ namespace Output
 
     template<std::size_t DIM>
     TecplotDiscontinuousSolutionWriter<DIM>::TecplotDiscontinuousSolutionWriter(std::ostream& output, const std::string& fileTitle, const std::string& dimensionsToWrite, const std::string& variableString)
-            : output_(output), previousNrOfElements_(0), previousNrOfNodes_(0), nDimensionsToWrite_(dimensionsToWrite.length())
+            : output_(output), previousNumberOfElements_(0), previousNumberOfNodes_(0), numberOfDimensionsToWrite_(dimensionsToWrite.length())
     {
         logger.assert_always(output.good(), "Something is not so good about the given output stream");
         // element type for a given dimension as index
@@ -46,18 +46,18 @@ namespace Output
         elementType_[3] = "FEBRICK";
         elementType_[4] = "UNKNOWN";
         
-        dimNrs = new std::size_t[nDimensionsToWrite_];
-        for (std::size_t i = 0; i < nDimensionsToWrite_; ++i)
+        dimensionNumbers = new std::size_t[numberOfDimensionsToWrite_];
+        for (std::size_t i = 0; i < numberOfDimensionsToWrite_; ++i)
         {
             std::istringstream istr(dimensionsToWrite.substr(i, 1));
-            istr >> dimNrs[i];
+            istr >> dimensionNumbers[i];
         }
         
         output_ << "TITLE = \"" << fileTitle << "\"\n";
         output_ << "VARIABLES = ";
-        for (std::size_t i = 0; i < nDimensionsToWrite_; ++i)
+        for (std::size_t i = 0; i < numberOfDimensionsToWrite_; ++i)
         {
-            output_ << "\"x" << dimNrs[i] << "\", ";
+            output_ << "\"x" << dimensionNumbers[i] << "\", ";
         }
         output_ << makeTecplotVariableString(variableString) << "\n";
     }
@@ -122,15 +122,15 @@ namespace Output
         std::streamoff posNumberOfElements(0);
         
         // Zone header.
-        output_ << "ZONE T = \"" << zoneTitle << "\"" << ", STRANDID = 1" << ", SOLUTIONTIME = " << time << ", ZONETYPE = " << elementType_[nDimensionsToWrite_] << ", DATAPACKING = POINT";
+        output_ << "ZONE T = \"" << zoneTitle << "\"" << ", STRANDID = 1" << ", SOLUTIONTIME = " << time << ", ZONETYPE = " << elementType_[numberOfDimensionsToWrite_] << ", DATAPACKING = POINT";
         output_ << ", N = ";
         
         if (sameGeometry)
         {
             // If the same geometry is used then we write the old counts for elements and nodes
             // into the header
-            output_ << previousNrOfNodes_ << ", E = " << previousNrOfElements_ << ", D = (";
-            for (std::size_t ii = 1; ii <= nDimensionsToWrite_; ++ii)
+            output_ << previousNumberOfNodes_ << ", E = " << previousNumberOfElements_ << ", D = (";
+            for (std::size_t ii = 1; ii <= numberOfDimensionsToWrite_; ++ii)
             {
                 output_ << ii << ",";
             }
@@ -147,8 +147,8 @@ namespace Output
             output_ << "          \n";
         }
         
-        std::size_t totalNrOfNodes = 0;
-        std::size_t totalNrOfElements = 0;
+        std::size_t totalNumberOfNodes = 0;
+        std::size_t totalNumberOfElements = 0;
         
         // Iterate over elements and write the solution at the vertices.
         // We do this by getting the element list from the mesh, and then iterating over the
@@ -158,7 +158,7 @@ namespace Output
         using ElementT = Base::Element;
         using ListOfElementsT = std::vector<ElementT*>;
         
-        std::size_t nrOfNodes; // i.e. on one element
+        std::size_t numberOfNodes; // i.e. on one element
         TecplotPhysicalGeometryIterator& nodeIt = TecplotPhysicalGeometryIterator::Instance();
         
         const ListOfElementsT& elements = mesh->getElementsList();
@@ -169,17 +169,17 @@ namespace Output
         
         for (typename ListOfElementsT::const_iterator iterator = elements.begin(), end = elements.end(); iterator != end; ++iterator)
         {
-            totalNrOfElements++;
-            nrOfNodes = 0;
+            totalNumberOfElements++;
+            numberOfNodes = 0;
             // Tell the TecplotPhysicalGeometryIterator which shape is to be iterated next
             nodeIt.acceptG((*iterator)->getPhysicalGeometry());
             
             // Cycle through nodes
             while (nodeIt.more())
             {
-                const std::size_t localNode = nodeIt.getNodeNr();
+                const std::size_t localNode = nodeIt.getNodeNumber();
                 
-                nrOfNodes++;
+                numberOfNodes++;
                 
                 // For the solution data, write function of the user, however we pass a local
                 // coordinate of the current reference element
@@ -191,11 +191,11 @@ namespace Output
                     // note: PHYSICAL coordinates here!                    
                     pPhys = (*iterator)->referenceToPhysical(pRef);
                     
-                    for (std::size_t i = 0; i < nDimensionsToWrite_; ++i)
+                    for (std::size_t i = 0; i < numberOfDimensionsToWrite_; ++i)
                     {
                         output_.precision(6);
                         output_.width(12);
-                        output_ << pPhys[dimNrs[i]] << ' ';
+                        output_ << pPhys[dimensionNumbers[i]] << ' ';
                     }
                 }
                 
@@ -209,7 +209,7 @@ namespace Output
             } // 'nodes of element' loop
             
             
-            totalNrOfNodes += nrOfNodes;
+            totalNumberOfNodes += numberOfNodes;
         }
         
         // 2. Print global node numbers per element.
@@ -219,24 +219,24 @@ namespace Output
             
             // Node count PER ELEMENT (one global node can count several times locally).
             // (Basically we just write an ascending series of numbers).
-            for (std::size_t elementCounter = 0; elementCounter < totalNrOfElements; elementCounter++)
+            for (std::size_t elementCounter = 0; elementCounter < totalNumberOfElements; elementCounter++)
             {
-                for (std::size_t j = 0; j < ( 1UL << nDimensionsToWrite_); ++j) // number of vertices
+                for (std::size_t j = 0; j < ( 1UL << numberOfDimensionsToWrite_); ++j) // number of vertices
                 {
                     output_ << countNumberOfNodes++ << " ";
                 }
                 output_ << "\n";
             }
             
-            previousNrOfElements_ = totalNrOfElements;
-            previousNrOfNodes_ = totalNrOfNodes;
+            previousNumberOfElements_ = totalNumberOfElements;
+            previousNumberOfNodes_ = totalNumberOfNodes;
             
             // Write the number of elements and nodes to the blank space at the beginning of the zone
             const std::streamoff currentFilePos = output_.tellp();
             output_.seekp(posNumberOfNodes);
-            output_ << previousNrOfNodes_;
+            output_ << previousNumberOfNodes_;
             output_.seekp(posNumberOfElements);
-            output_ << previousNrOfElements_;
+            output_ << previousNumberOfElements_;
             output_.seekp(currentFilePos);
         }
         output_.flush();

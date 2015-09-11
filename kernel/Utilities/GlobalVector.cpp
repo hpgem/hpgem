@@ -35,7 +35,9 @@
 #include "Geometry/PointReference.h"
 #include <Logger.h>
 #include <numeric>
-#include "petscis.h"
+#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
+    #include "petscis.h"
+#endif
 
 namespace Utilities
 {

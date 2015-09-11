@@ -75,10 +75,10 @@ namespace Base
         virtual bool initialiseMeshMover(const MeshMoverBase<DIM>* meshMoverBase, std::size_t meshID);
 
         /// Creating a mesh with in-house remesher.
-        MeshId addMesh(const RectangularMeshDescriptor<DIM>& meshDescriptor, const MeshType& meshType = MeshType::RECTANGULAR, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
+        MeshId addMesh(const RectangularMeshDescriptor<DIM>& meshDescriptor, const MeshType& meshType = MeshType::RECTANGULAR, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
         
         /// Reading a mesh from a file, currently only Centaur is supported.
-        MeshId addMesh(const String& fileName, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
+        MeshId addMesh(const String& fileName, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
 
         /// \brief Synchronize between the different submeshes (when using MPI)
         virtual void synchronize(const std::size_t timeIntegrationVectorId);

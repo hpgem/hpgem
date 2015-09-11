@@ -161,7 +161,7 @@ namespace Base
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        std::size_t numOfQuadPoints = ptrQdrRule->getNumberOfPoints();
         
         // For each quadrature point, compute the value of the product of the
         // basisfunctions, then add it with the correct weight to massMatrix
@@ -231,7 +231,7 @@ namespace Base
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        std::size_t numOfQuadPoints = ptrQdrRule->getNumberOfPoints();
         
         // For each quadrature point, compute the value of the product of the
         // test function and the initial solution, then add it with the correct weight to the integral solution.
@@ -289,7 +289,7 @@ namespace Base
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        std::size_t numOfQuadPoints = ptrQdrRule->getNumberOfPoints();
         
         // For each quadrature point, compute the square of the error, then add it with the correct weight to the integral solution.
         for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
@@ -415,7 +415,7 @@ namespace Base
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        std::size_t numOfQuadPoints = ptrQdrRule->getNumberOfPoints();
         
         // For each quadrature point update the maxima of the error.
         for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)

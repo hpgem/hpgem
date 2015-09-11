@@ -53,7 +53,14 @@ namespace QuadratureRules
         virtual std::size_t order() const = 0;
 
         //! Return the number of points used in the quadrature.
-        virtual std::size_t nrOfPoints() const = 0;
+        virtual std::size_t getNumberOfPoints() const = 0;
+        
+        //! Return the number of points used in the quadrature.
+        //! \deprecated use getNumberOfPoints instead.
+        std::size_t nrOfPoints() const
+        {
+            return getNumberOfPoints();
+        }
 
         //! Return the weight attached to the function value of the requested point number.
         virtual double weight(std::size_t) const = 0;

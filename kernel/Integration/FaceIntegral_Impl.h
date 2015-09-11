@@ -76,7 +76,7 @@ namespace Integration
         ReturnTrait1 value, result;
         
         // number of Gauss quadrature points
-        std::size_t numberOfPoints = qdrRuleLoc->nrOfPoints();
+        std::size_t numberOfPoints = qdrRuleLoc->getNumberOfPoints();
         
         // Gauss quadrature point
         const Geometry::PointReference<DIM - 1>& p0 = qdrRuleLoc->getPoint(0);
@@ -131,7 +131,7 @@ namespace Integration
          ReturnTrait1 value, result;
 
          // number of Gauss quadrature points
-         std::size_t numberOfPoints = qdrRuleLoc->nrOfPoints();
+         std::size_t numberOfPoints = qdrRuleLoc->getNumberOfPoints();
 
          // Gauss quadrature point
          const Geometry::PointReference<DIM - 1>& p0 = qdrRuleLoc->getPoint(0);
@@ -179,7 +179,7 @@ namespace Integration
         //inform the interested user that his integrand will be multiplied by 1 instead of l2NormNormal
         Base::CoordinateTransformation<DIM> oldTransform = face_.getTransformation();
         face_.setTransformation(Base::DoNotScaleIntegrands<DIM>(oldTransform));
-        std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
+        std::size_t numOfPoints = ptrQdrRule->getNumberOfPoints();
         std::size_t iPoint = 0; // Index for the quadrature points.
         
         const Geometry::PointReference<DIM - 1>& pRef0 = ptrQdrRule->getPoint(iPoint);

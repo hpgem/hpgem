@@ -47,21 +47,21 @@ namespace QuadratureRules
         return 3;
     }
     
-    std::size_t Pyramid_1_4::nrOfPoints() const
+    std::size_t Pyramid_1_4::getNumberOfPoints() const
     {
         return 4;
     }
     
     double Pyramid_1_4::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     Pyramid_1_4::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -104,21 +104,21 @@ namespace QuadratureRules
         return 3;
     }
     
-    std::size_t Pyramid_3_16::nrOfPoints() const
+    std::size_t Pyramid_3_16::getNumberOfPoints() const
     {
         return 16;
     }
     
     double Pyramid_3_16::weight(std::size_t i) const    
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     Pyramid_3_16::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -197,21 +197,21 @@ namespace QuadratureRules
         return 3;
     }
     
-    std::size_t Pyramid_5_36::nrOfPoints() const
+    std::size_t Pyramid_5_36::getNumberOfPoints() const
     {
         return 36;
     }
     
     double Pyramid_5_36::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     Pyramid_5_36::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -350,21 +350,21 @@ namespace QuadratureRules
         return 3;
     }
     
-    std::size_t Pyramid_7_48::nrOfPoints() const
+    std::size_t Pyramid_7_48::getNumberOfPoints() const
     {
         return 48;
     }
     
     double Pyramid_7_48::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     Pyramid_7_48::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     

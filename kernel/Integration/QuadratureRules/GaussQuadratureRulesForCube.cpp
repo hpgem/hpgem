@@ -48,7 +48,7 @@ namespace QuadratureRules
     }
 
     std::size_t
-    Cn3_1_1::nrOfPoints() const
+    Cn3_1_1::getNumberOfPoints() const
     {
         return 1;
     }
@@ -102,7 +102,7 @@ namespace QuadratureRules
     }
 
     std::size_t
-    Cn3_3_4::nrOfPoints() const
+    Cn3_3_4::getNumberOfPoints() const
     {
         return 8;
     }
@@ -177,7 +177,7 @@ namespace QuadratureRules
     }
 
     std::size_t
-    Cn3_5_9::nrOfPoints() const
+    Cn3_5_9::getNumberOfPoints() const
     {
         return 27;
     }
@@ -309,7 +309,7 @@ namespace QuadratureRules
     }
 
     std::size_t
-    C3_7_2::nrOfPoints() const
+    C3_7_2::getNumberOfPoints() const
     {
         return 64;
     }
@@ -339,11 +339,11 @@ namespace QuadratureRules
     {
         std::size_t position(0);
         C1_7_4& ruleForLine = C1_7_4::Instance();
-        for(std::size_t i = 0; i < ruleForLine.nrOfPoints(); ++i)
+        for(std::size_t i = 0; i < ruleForLine.getNumberOfPoints(); ++i)
         {
-            for(std::size_t j = 0; j < ruleForLine.nrOfPoints(); ++j)
+            for(std::size_t j = 0; j < ruleForLine.getNumberOfPoints(); ++j)
             {
-                for(std::size_t k = 0; k < ruleForLine.nrOfPoints(); ++k)
+                for(std::size_t k = 0; k < ruleForLine.getNumberOfPoints(); ++k)
                 {
                     weight_[position] = ruleForLine.weight(i) * ruleForLine.weight(j) * ruleForLine.weight(k);
                     gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(i))[0], static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(j))[0], static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(k))[0]}));
@@ -374,7 +374,7 @@ namespace QuadratureRules
     }
 
     std::size_t
-    C3_9_2::nrOfPoints() const
+    C3_9_2::getNumberOfPoints() const
     {
         return 125;
     }
@@ -404,11 +404,11 @@ namespace QuadratureRules
     {
         std::size_t position(0);
         C1_9_5& ruleForLine = C1_9_5::Instance();
-        for(std::size_t i = 0; i < ruleForLine.nrOfPoints(); ++i)
+        for(std::size_t i = 0; i < ruleForLine.getNumberOfPoints(); ++i)
         {
-            for(std::size_t j = 0; j < ruleForLine.nrOfPoints(); ++j)
+            for(std::size_t j = 0; j < ruleForLine.getNumberOfPoints(); ++j)
             {
-                for(std::size_t k = 0; k < ruleForLine.nrOfPoints(); ++k)
+                for(std::size_t k = 0; k < ruleForLine.getNumberOfPoints(); ++k)
                 {
                     weight_[position] = ruleForLine.weight(i) * ruleForLine.weight(j) * ruleForLine.weight(k);
                     gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(i))[0], static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(j))[0], static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(k))[0]}));
@@ -439,7 +439,7 @@ namespace QuadratureRules
     }
 
     std::size_t
-    C3_11_2::nrOfPoints() const
+    C3_11_2::getNumberOfPoints() const
     {
         return 216;
     }
@@ -469,11 +469,11 @@ namespace QuadratureRules
     {
         std::size_t position(0);
         C1_11_6& ruleForLine = C1_11_6::Instance();
-        for(std::size_t i = 0; i < ruleForLine.nrOfPoints(); ++i)
+        for(std::size_t i = 0; i < ruleForLine.getNumberOfPoints(); ++i)
         {
-            for(std::size_t j = 0; j < ruleForLine.nrOfPoints(); ++j)
+            for(std::size_t j = 0; j < ruleForLine.getNumberOfPoints(); ++j)
             {
-                for(std::size_t k = 0; k < ruleForLine.nrOfPoints(); ++k)
+                for(std::size_t k = 0; k < ruleForLine.getNumberOfPoints(); ++k)
                 {
                     weight_[position] = ruleForLine.weight(i) * ruleForLine.weight(j) * ruleForLine.weight(k);
                     gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(i))[0], static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(j))[0], static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(k))[0]}));

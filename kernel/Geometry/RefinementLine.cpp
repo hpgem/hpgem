@@ -32,7 +32,7 @@
 
 namespace Geometry
 {
-    std::size_t RefinementLine::nrOfNewNodes(std::size_t refineType) const
+    std::size_t RefinementLine::getNumberOfNewNodes(std::size_t refineType) const
     {
         if (refineType == 0)
             return 1;
@@ -58,7 +58,7 @@ namespace Geometry
         return nodes;
     }
     
-    std::size_t RefinementLine::nrOfSubElements(std::size_t refineType) const
+    std::size_t RefinementLine::getNumberOfSubElements(std::size_t refineType) const
     {
         if (refineType == 0)
             return 2;
@@ -68,7 +68,7 @@ namespace Geometry
     
     void RefinementLine::subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const
     {
-        logger.assert((iSubElement < nrOfSubElements(refineType)), "RefinementQuadrilateral: invalid sub-element index while getting its local node indices!");
+        logger.assert((iSubElement < getNumberOfSubElements(refineType)), "RefinementQuadrilateral: invalid sub-element index while getting its local node indices!");
         
         LocalNodeIdx.clear();
         if (refineType == 0)
@@ -112,7 +112,7 @@ namespace Geometry
         } // end if
     }
     
-    std::size_t RefinementLine::nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
+    std::size_t RefinementLine::getNumberOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
     {
         if (refineType == 0)
             return 1;
@@ -138,7 +138,7 @@ namespace Geometry
         } // end if
     }
     
-    std::size_t RefinementLine::getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
+    std::size_t RefinementLine::getLocalSubFaceNumber(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
     {
         return localFaceNr;
     }

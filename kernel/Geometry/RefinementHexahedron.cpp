@@ -31,7 +31,7 @@
 
 namespace Geometry
 {
-    std::size_t RefinementHexahedron::nrOfNewNodes(std::size_t refineType) const
+    std::size_t RefinementHexahedron::getNumberOfNewNodes(std::size_t refineType) const
     {
         switch (refineType)
         {
@@ -154,7 +154,7 @@ namespace Geometry
         return nodes;
     }
     
-    std::size_t RefinementHexahedron::nrOfSubElements(std::size_t refineType) const
+    std::size_t RefinementHexahedron::getNumberOfSubElements(std::size_t refineType) const
     {
         std::size_t nrSubElements(0);
         
@@ -187,7 +187,7 @@ namespace Geometry
     
     void RefinementHexahedron::subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const
     {
-        logger.assert((iSubElement < nrOfSubElements(refineType)), "RefinementHexahedron: invalid sub-element index while getting its local node indices!");
+        logger.assert((iSubElement < getNumberOfSubElements(refineType)), "RefinementHexahedron: invalid sub-element index while getting its local node indices!");
         
         LocalNodeIdx.clear();
         switch (refineType)
@@ -661,7 +661,7 @@ namespace Geometry
         } // end of switch
     }
     
-    std::size_t RefinementHexahedron::nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
+    std::size_t RefinementHexahedron::getNumberOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
     {
         switch (refineType)
         {
@@ -1000,7 +1000,7 @@ namespace Geometry
         } // end switch refinement
     }
     
-    std::size_t RefinementHexahedron::getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
+    std::size_t RefinementHexahedron::getLocalSubFaceNumber(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
     {
         return localFaceNr;
     }

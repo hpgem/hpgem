@@ -62,7 +62,7 @@ namespace Geometry
         
         /// Number of new nodes due to the refinement that should be added to
         /// the vector of localNodeIndices
-        virtual std::size_t nrOfNewNodes(std::size_t refineType) const
+        virtual std::size_t getNumberOfNewNodes(std::size_t refineType) const
         {
             return 0;
         }
@@ -76,7 +76,7 @@ namespace Geometry
         }
         
         /// Number of sub-elements due to the refinement
-        virtual std::size_t nrOfSubElements(std::size_t refineType) const
+        virtual std::size_t getNumberOfSubElements(std::size_t refineType) const
         {
             return 0;
         }
@@ -92,7 +92,7 @@ namespace Geometry
         }
         
         /// Number of sub-elements on a parent's face.
-        virtual std::size_t nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
+        virtual std::size_t getNumberOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
         {
             return 0;
         }
@@ -103,7 +103,7 @@ namespace Geometry
         }
         
         /// Get sub-face's local face number of on a parent's face.
-        virtual std::size_t getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
+        virtual std::size_t getLocalSubFaceNumber(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
         {
             return 0;
         }

@@ -31,7 +31,7 @@
 
 namespace Geometry
 {
-    std::size_t RefinementQuadrilateral::nrOfNewNodes(std::size_t refineType) const
+    std::size_t RefinementQuadrilateral::getNumberOfNewNodes(std::size_t refineType) const
     {
         if (refineType == 2)
             return 5;
@@ -72,7 +72,7 @@ namespace Geometry
         return nodes;
     }
     
-    std::size_t RefinementQuadrilateral::nrOfSubElements(std::size_t refineType) const
+    std::size_t RefinementQuadrilateral::getNumberOfSubElements(std::size_t refineType) const
     {
         if (refineType == 2)
             return 4;
@@ -82,7 +82,7 @@ namespace Geometry
     
     void RefinementQuadrilateral::subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const
     {
-        logger.assert((iSubElement < nrOfSubElements(refineType)), "RefinementQuadrilateral: invalid sub-element index while getting its local node indices!");
+        logger.assert((iSubElement < getNumberOfSubElements(refineType)), "RefinementQuadrilateral: invalid sub-element index while getting its local node indices!");
         
         LocalNodeIdx.clear();
         switch (refineType)
@@ -233,7 +233,7 @@ namespace Geometry
         } // end of switch
     }
     
-    std::size_t RefinementQuadrilateral::nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
+    std::size_t RefinementQuadrilateral::getNumberOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
     {
         switch (refineType)
         {
@@ -342,7 +342,7 @@ namespace Geometry
         }
     }
     
-    std::size_t RefinementQuadrilateral::getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
+    std::size_t RefinementQuadrilateral::getLocalSubFaceNumber(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
     {
         return localFaceNr;
     }

@@ -32,7 +32,7 @@
 
 namespace Geometry
 {
-    std::size_t RefinementTriangle::nrOfNewNodes(std::size_t refineType) const
+    std::size_t RefinementTriangle::getNumberOfNewNodes(std::size_t refineType) const
     {
         switch (refineType)
         {
@@ -81,7 +81,7 @@ namespace Geometry
         return nodes;
     }
     
-    std::size_t RefinementTriangle::nrOfSubElements(std::size_t refineType) const
+    std::size_t RefinementTriangle::getNumberOfSubElements(std::size_t refineType) const
     {
         switch (refineType)
         {
@@ -99,7 +99,7 @@ namespace Geometry
     
     void RefinementTriangle::subElementLocalNodeIndices(std::size_t refineType, std::size_t iSubElement, VectorOfIndicesT& LocalNodeIdx) const
     {
-        logger.assert((iSubElement < nrOfSubElements(refineType)), "RefinementQuadrilateral: invalid sub-element index while getting its local node indices!");
+        logger.assert((iSubElement < getNumberOfSubElements(refineType)), "RefinementQuadrilateral: invalid sub-element index while getting its local node indices!");
         
         LocalNodeIdx.clear();
         switch (refineType)
@@ -271,7 +271,7 @@ namespace Geometry
         } // end of switch
     }
     
-    std::size_t RefinementTriangle::nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
+    std::size_t RefinementTriangle::getNumberOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
     {
         switch (refineType)
         {
@@ -400,7 +400,7 @@ namespace Geometry
         }
     }
     
-    std::size_t RefinementTriangle::getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
+    std::size_t RefinementTriangle::getLocalSubFaceNumber(std::size_t refineType, std::size_t localFaceNr, std::size_t subElementIdx) const
     {
         return localFaceNr;
     }

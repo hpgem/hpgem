@@ -60,7 +60,7 @@ namespace QuadratureRules
             return 0;
         }
         
-        std::size_t nrOfPoints() const override final
+        std::size_t getNumberOfPoints() const override final
         {
             return 1;
         }

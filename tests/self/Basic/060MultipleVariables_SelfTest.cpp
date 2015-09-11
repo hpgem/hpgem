@@ -44,16 +44,16 @@ int main()
     
     // Build two square elements and one face in between them.
     const std::size_t dimension = 2;
-    const std::size_t nrOfUnknowns = 5;
-    const std::size_t nrOfTimeIntegrationVectors = 2;
-    const std::size_t nrOfBasisFunctions = 3;
+    const std::size_t numberOfUnknowns = 5;
+    const std::size_t numberOfTimeIntegrationVectors = 2;
+    const std::size_t numberOfBasisFunctions = 3;
     const std::size_t basisFunctionOrder = 1;
     const std::size_t elementIdLeft = 0;
     const std::size_t elementIdRight = 1;
     const std::size_t elementLeftFaceId = 3;
     const std::size_t elementRightFaceId = 0;
     const std::size_t faceId = 0;
-    const std::size_t nrOfFaceMatrices = 1;
+    const std::size_t numberOfFaceMatrices = 1;
     
     std::vector<std::size_t> pointIndicesLeft;
     pointIndicesLeft.push_back(0);
@@ -108,8 +108,8 @@ int main()
     std::vector<std::shared_ptr<const Base::BasisFunctionSet>> *pBasisFunctionSetVector = &basisFunctionSetVector;
     
     std::cout << "Build elements.\n";
-    Base::Element elementLeft(pointIndicesLeft, pBasisFunctionSetVector, pointsPhysical, nrOfUnknowns, 0, nrOfBasisFunctions, elementIdLeft);
-    Base::Element elementRight(pointIndicesRight, pBasisFunctionSetVector, pointsPhysical, nrOfUnknowns, 0, nrOfBasisFunctions, elementIdRight);
+    Base::Element elementLeft(pointIndicesLeft, pBasisFunctionSetVector, pointsPhysical, numberOfUnknowns, 0, numberOfBasisFunctions, elementIdLeft);
+    Base::Element elementRight(pointIndicesRight, pBasisFunctionSetVector, pointsPhysical, numberOfUnknowns, 0, numberOfBasisFunctions, elementIdRight);
     
     std::cout << "Build nodes.\n";
     Base::Node node0(0);
@@ -133,7 +133,7 @@ int main()
     node5.addElement(&elementRight, 3);
     
     std::cout << "Build face.\n";
-    Base::Face face(&elementLeft, elementLeftFaceId, &elementRight, elementRightFaceId, faceId, nrOfFaceMatrices);
+    Base::Face face(&elementLeft, elementLeftFaceId, &elementRight, elementRightFaceId, faceId, numberOfFaceMatrices);
     
     // Declare indices.
     std::size_t i;
@@ -144,58 +144,58 @@ int main()
     
     std::cout << "Do tests for the elements.\n";
     // Test ElementData::convertToSingleIndex.
-    /* Every pair (iV,iB) should be mapped to a unique index iVB. Here iV = 0 .. nrOfUnknowns - 1 is the index corresponding to the variable and iB = 0 .. nrOfBasisFunctions - 1 is the index corresponding to the basis function.
+    /* Every pair (iV,iB) should be mapped to a unique index iVB. Here iV = 0 .. numberOfUnknowns - 1 is the index corresponding to the variable and iB = 0 .. numberOfBasisFunctions - 1 is the index corresponding to the basis function.
      */
-    std::vector<bool> checkMappingElementIndex(nrOfBasisFunctions * nrOfUnknowns, false);
-    for (iV = 0; iV < nrOfUnknowns; iV++)
+    std::vector<bool> checkMappingElementIndex(numberOfBasisFunctions * numberOfUnknowns, false);
+    for (iV = 0; iV < numberOfUnknowns; iV++)
     {
-        for (iB = 0; iB < nrOfBasisFunctions; iB++)
+        for (iB = 0; iB < numberOfBasisFunctions; iB++)
         {
             iVB = elementLeft.convertToSingleIndex(iB, iV);
             std::cout << "iV: " << iV << " ,iB: " << iB << " ,iVB: " << iVB << "\n";
             checkMappingElementIndex[iVB] = true;
         }
     }
-    for (iVB = 0; iVB < nrOfBasisFunctions * nrOfUnknowns; iVB++)
+    for (iVB = 0; iVB < numberOfBasisFunctions * numberOfUnknowns; iVB++)
     {
         logger.assert_always(checkMappingElementIndex[iVB], "Element mapping index check failed: %", iVB);
     }
     
     // Test Element::getSolution.
-    LinearAlgebra::MiddleSizeVector expansionCoefficients(nrOfBasisFunctions * nrOfUnknowns);
-    for (iV = 0; iV < nrOfUnknowns; iV++)
+    LinearAlgebra::MiddleSizeVector expansionCoefficients(numberOfBasisFunctions * numberOfUnknowns);
+    for (iV = 0; iV < numberOfUnknowns; iV++)
     {
-        for (iB = 0; iB < nrOfBasisFunctions; iB++)
+        for (iB = 0; iB < numberOfBasisFunctions; iB++)
         {
             iVB = elementLeft.convertToSingleIndex(iB, iV);
             expansionCoefficients(iVB) = iV + 1; // Some arbitrary value
         }
     }
-    elementRight.setNumberOfTimeIntegrationVectors(nrOfTimeIntegrationVectors);
+    elementRight.setNumberOfTimeIntegrationVectors(numberOfTimeIntegrationVectors);
     elementRight.setTimeIntegrationVector(iVector, expansionCoefficients);
     LinearAlgebra::MiddleSizeVector testVector = elementRight.getTimeIntegrationVector(iVector);
     logger.assert_always(testVector == expansionCoefficients, "Expansion coefficients incorrect: % != %", testVector, expansionCoefficients);
     
     const Geometry::PointReference<dimension>& pointReference = *Geometry::PointReferenceFactory<dimension>::instance()->makePoint(coords0);
     LinearAlgebra::MiddleSizeVector solutionVector = elementRight.getSolution(iVector, pointReference);
-    for (iV = 0; iV < nrOfUnknowns; iV++)
+    for (iV = 0; iV < numberOfUnknowns; iV++)
     {
         logger.assert_always(solutionVector(iV) == (iV + 1.) * solutionVector(0), "Solution vector test failed (%): % != (% + 1) * %", iV, solutionVector(iV), iV, solutionVector(0));
     }
     
     std::cout << "Do tests for the face.\n";
     // Test Face::convertToSingleIndex.
-    /* Every triple (iS,iV,iB) should be mapped to a unique index i. Here iS = LEFT,RIGHT is the index corresponding to the side of the face, iV = 0 .. nrOfUnknowns - 1 is the index corresponding to the variable and iB = 0 .. nrOfBasisFunctions - 1 is the index corresponding to the basis function.
+    /* Every triple (iS,iV,iB) should be mapped to a unique index i. Here iS = LEFT,RIGHT is the index corresponding to the side of the face, iV = 0 .. numberOfUnknowns - 1 is the index corresponding to the variable and iB = 0 .. numberOfBasisFunctions - 1 is the index corresponding to the basis function.
      */
-    std::vector<bool> checkMappingFaceIndex(nrOfBasisFunctions * nrOfUnknowns * 2, false);
+    std::vector<bool> checkMappingFaceIndex(numberOfBasisFunctions * numberOfUnknowns * 2, false);
     std::vector<Base::Side> allSides;
     allSides.push_back(Base::Side::LEFT);
     allSides.push_back(Base::Side::RIGHT);
     for (Base::Side iS : allSides)
     {
-        for (iV = 0; iV < nrOfUnknowns; iV++)
+        for (iV = 0; iV < numberOfUnknowns; iV++)
         {
-            for (iB = 0; iB < nrOfBasisFunctions; iB++)
+            for (iB = 0; iB < numberOfBasisFunctions; iB++)
             {
                 i = face.convertToSingleIndex(iS, iB, iV);
                 if (iS == Base::Side::LEFT)
@@ -207,7 +207,7 @@ int main()
             }
         }
     }
-    for (i = 0; i < nrOfBasisFunctions * nrOfUnknowns * 2; i++)
+    for (i = 0; i < numberOfBasisFunctions * numberOfUnknowns * 2; i++)
     {
         logger.assert_always(checkMappingFaceIndex[i], "Face mapping index failed: %", i);
     }

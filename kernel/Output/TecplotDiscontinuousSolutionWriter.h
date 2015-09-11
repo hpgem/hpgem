@@ -74,7 +74,7 @@ namespace Output
             //assertion is technically checking internal state, but the writability of the filesystem may change outside the influence of this class
             logger.assert_always(output_.good(), "Something is not so good about the output stream");
             output_.flush();
-            delete[] dimNrs;
+            delete[] dimensionNumbers;
         }
         
     private:
@@ -83,15 +83,15 @@ namespace Output
 
         std::ostream& output_;
 
-        std::size_t previousNrOfElements_;
+        std::size_t previousNumberOfElements_;
 
-        std::size_t previousNrOfNodes_;
+        std::size_t previousNumberOfNodes_;
 
         std::string elementType_[5];
 
-        const std::size_t nDimensionsToWrite_;
+        const std::size_t numberOfDimensionsToWrite_;
 
-        std::size_t* dimNrs;
+        std::size_t* dimensionNumbers;
     };
 }
 

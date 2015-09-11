@@ -190,7 +190,7 @@ namespace Base
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        std::size_t numOfQuadPoints = ptrQdrRule->getNumberOfPoints();
         
         // For each quadrature point, compute the value of the product of the
         // test function and the source term, then add it with the correct weight to the integral solution.
