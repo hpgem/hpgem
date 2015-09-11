@@ -179,13 +179,13 @@ namespace Integration
         //inform the interested user that his integrand will be multiplied by 1 instead of l2NormNormal
         Base::CoordinateTransformation<DIM> oldTransform = face_.getTransformation();
         face_.setTransformation(Base::DoNotScaleIntegrands<DIM>(oldTransform));
-        std::size_t numOfPoints = ptrQdrRule->getNumberOfPoints();
+        std::size_t numberOfPoints = ptrQdrRule->getNumberOfPoints();
         std::size_t iPoint = 0; // Index for the quadrature points.
         
         const Geometry::PointReference<DIM - 1>& pRef0 = ptrQdrRule->getPoint(iPoint);
         face_.setPointReference(pRef0);
         IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction());
-        for (iPoint = 1; iPoint < numOfPoints; iPoint++)
+        for (iPoint = 1; iPoint < numberOfPoints; iPoint++)
         {
             const Geometry::PointReference<DIM - 1>& pRef = ptrQdrRule->getPoint(iPoint);
             face_.setPointReference(pRef);

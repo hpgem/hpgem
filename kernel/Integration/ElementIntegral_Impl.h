@@ -139,13 +139,13 @@ namespace Integration
     template<typename IntegrandType>
     IntegrandType ElementIntegral<DIM>::referenceElementIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType()> integrandFunction)
     {
-        std::size_t numOfPoints = ptrQdrRule->getNumberOfPoints();
+        std::size_t numberOfPoints = ptrQdrRule->getNumberOfPoints();
         std::size_t iPoint = 0; // Index for the quadrature points.
         
         const Geometry::PointReference<DIM>& pRef0 = ptrQdrRule->getPoint(iPoint);
         element_.setPointReference(pRef0);
         IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction());
-        for (iPoint = 1; iPoint < numOfPoints; iPoint++)
+        for (iPoint = 1; iPoint < numberOfPoints; iPoint++)
         {
             const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(iPoint);
             element_.setPointReference(pRef);
