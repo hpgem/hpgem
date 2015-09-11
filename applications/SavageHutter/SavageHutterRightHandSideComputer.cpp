@@ -150,21 +150,38 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
         
         //logger(INFO, "new flux %", flux);
         logger(DEBUG, "solution: %, otherSideSolution: % \n", solution, otherSideSolution);
+        //subcritical
         if (solution[1]/solution[0] < std::sqrt(solution[0]*std::cos(chuteAngle_)*epsilon_))
         {
-            logger(DEBUG, "reached subcritical!");
-            //ghostSolution =  6*otherSideSolution - 15*twoBackSolution + 20*threeBackSolution - 15*fourBackSolution + 6*fiveBackSolution - 1*sixBackSolution;
-            ghostSolution[1] += solution[0] * 2*std::sqrt(solution[0]*std::cos(chuteAngle_)*epsilon_);
-            logger(DEBUG, "difference solution and ghost solution: %", solution - ghostSolution);
-        
+            double huNew = 1;
+            double hNew = 1.14;//bisectionHFinder(huNew, solution);
+            double uNew = solution[1] / solution[0] + 2*std::sqrt(epsilon_*std::cos(chuteAngle_))*(std::sqrt(solution[0]) - std::sqrt(hNew));
+            auto stateNew = MiddleSizeVector({hNew, hNew * uNew});
+            flux = localLaxFriedrichsFlux(solution, stateNew);
+            
+            logger(INFO, "reached subcritical! old state: % new state: %",solution, stateNew);
+        }
+        else
+        {            
+            flux = localLaxFriedrichsFlux(solution, solution);
         }
         //flux = computePhysicalFlux(ghostSolution);
-        flux = localLaxFriedrichsFlux(solution, solution);
         //logger(INFO, "old flux %", flux);
     }
     else //inflow
     {
-        flux = localLaxFriedrichsFlux(inflowBC_, inflowBC_);
+        //subcritical
+        if (solution[1]/solution[0] < std::sqrt(solution[0]*std::cos(chuteAngle_)*epsilon_))
+        {
+            double hNew = inflowBC_[0];
+            double uNew = solution[1] / solution[0] - 2*std::sqrt(epsilon_*std::cos(chuteAngle_))*(std::sqrt(solution[0]) - std::sqrt(hNew));
+            auto stateNew = MiddleSizeVector({hNew, hNew * uNew});
+            flux = localLaxFriedrichsFlux(solution, stateNew);
+        }
+        else
+        {            
+            flux = localLaxFriedrichsFlux(inflowBC_, inflowBC_);
+        }
     }
     
     MiddleSizeVector integrand(numOfVariables_ * numBasisFuncs);
