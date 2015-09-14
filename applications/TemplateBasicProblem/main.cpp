@@ -49,7 +49,7 @@ public:
     (
      const std::size_t numberOfUnknowns,
      const std::size_t polynomialOrder,
-     const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
+     const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(4, 4),
      const std::size_t numOfTimeLevels = 1
      ) :
     Base::HpgemAPISimplified<DIM>(numberOfUnknowns, polynomialOrder, ptrButcherTableau, numOfTimeLevels)
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
     // Set parameters for the PDE. (dimension is set at the beginning of the file)
     const std::size_t numberOfVariables = 1;
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;    // Either TRIANGULAR or RECTANGULAR.
-    const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4);
+    const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(4, 4);
     const bool doComputeError = false;  // Set to true if you want to compute the error. (Requires exact solution)
 
     std::vector<std::string> variableNames(numberOfVariables);

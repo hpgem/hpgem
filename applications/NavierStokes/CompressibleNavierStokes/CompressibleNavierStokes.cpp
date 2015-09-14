@@ -30,7 +30,7 @@ CompressibleNavierStokes::CompressibleNavierStokes
 const std::size_t numOfVariables,
 const double endTime,
 const std::size_t polynomialOrder,
-const Base::ButcherTableau * const ptrButcherTableau,
+const TimeIntegration::ButcherTableau * const ptrButcherTableau,
 const bool computeBothFaces
 ) :
 HpgemAPISimplified<DIM>(numOfVariables, polynomialOrder, ptrButcherTableau, 1, computeBothFaces),

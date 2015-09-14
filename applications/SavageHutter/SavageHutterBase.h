@@ -37,7 +37,7 @@ struct SHConstructorStruct
     std::size_t polyOrder;
     std::size_t numElements;
     Base::MeshType meshType;
-    Base::ButcherTableau * ptrButcherTableau;
+    TimeIntegration::ButcherTableau * ptrButcherTableau;
 };
 
 class SavageHutterBase : public Base::HpgemAPISimplified<DIM>

@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     inputVals.polyOrder = polynomialOrder.getValue();
     inputVals.numElements = numOfElements.getValue();
     inputVals.meshType = Base::MeshType::RECTANGULAR; // Either TRIANGULAR or RECTANGULAR.
-    inputVals.ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(1,1);
+    inputVals.ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(1,1);
     
     //Construct the problem and output generator
     SavageHutter test(inputVals);    

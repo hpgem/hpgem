@@ -38,7 +38,7 @@ public:
 	 const std::size_t numOfVariables,
 	 const double endTime,
 	 const std::size_t polynomialOrder,
-	 const Base::ButcherTableau * const ptrButcherTableau
+	 const TimeIntegration::ButcherTableau * const ptrButcherTableau
 	);
 
     /// \brief Create a domain
