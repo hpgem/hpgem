@@ -19,43 +19,46 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SavageHutterH
-#define SavageHutterH
+#ifndef MESHMOVERCONTRACTION_HPP_
+#define MESHMOVERCONTRACTION_HPP_
 
-#include "SavageHutterBase.h"
+#include "Base/MeshMoverBase.h"
 
-class SavageHutter : public SavageHutterBase
+class MeshMoverContraction : public Base::MeshMoverBase<DIM>
 {
+    
 public:
     
-    ///\brief Constructor that takes an object specially designed to contain all values needed for construction of this kind of problem.
-    SavageHutter(const SHConstructorStruct& inputValues);
+    using PointPhysicalT = Geometry::PointPhysical<DIM>;
     
-private:       
-    ///\brief Create the slope limiter that will be used in this simulation.
-    SlopeLimiter * createSlopeLimiter(const SHConstructorStruct &inputValues) override final;
-    
-    ///\brief Create the non-negativity limiter that will be used in this simulation.
-    HeightLimiter * createHeightLimiter(const SHConstructorStruct &inputValues) override final;
-    
-    ///\brief Create the object that can compute the right hand side of the differential equation for this simulation.
-    RightHandSideComputer * createRightHandSideComputer(const SHConstructorStruct &inputValues) override final;
-
-    ///\brief Compute the initial solution at a given point in space and time.
-    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
-    
-    ///\brief Show the progress of the time integration.
-    void showProgress(const double time, const std::size_t timeStepID);
-    
-    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
-    
-    void registerVTKWriteFunctions() override final;
-    
-    void setInflowBC(double time) override final
+    MeshMoverContraction()
     {
-        
+    }
+    
+    virtual ~MeshMoverContraction()
+    {
     }
 
+    void movePoint(PointPhysicalT& point) const override final
+    {
+        logger.assert(2 == DIM, "Called mesh mover for contraction while DIM != 2");
+        const double xBegin = 1.2;
+        const double xMiddle = 2.2;
+        const double xEnd = 3.2;
+        const double contractionWidth = 0.8;        
+        
+        const double distFirst = xMiddle - xBegin;
+        const double distSecond = xEnd - xMiddle;
+        const double indentationWidth = (1. - contractionWidth) / 2;
+        if (point[0] > xBegin && point[0] < xMiddle)
+        {
+            point[1] = (indentationWidth + point[1] * contractionWidth)  - (point[1] - (indentationWidth + point[1] * contractionWidth))* ((point[0] - xMiddle)/distFirst );
+        }
+        if (point[0] >= xMiddle && point[0] <= xEnd)
+        {
+            point[1] = (indentationWidth + point[1] * contractionWidth)  + (point[1] - (indentationWidth + point[1] * contractionWidth))* ((point[0] - xMiddle)/distSecond );
+        }
+    }
 };
 
-#endif
+#endif /* MESHMOVER_HPP_ */

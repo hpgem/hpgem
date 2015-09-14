@@ -49,7 +49,7 @@ namespace QuadratureRules
     }
 
     std::size_t
-    Cn4_1_1::nrOfPoints() const
+    Cn4_1_1::getNumberOfPoints() const
     {
         return 1;
     }
@@ -103,7 +103,7 @@ namespace QuadratureRules
     }
 
     std::size_t
-    Cn4_3_16::nrOfPoints() const
+    Cn4_3_16::getNumberOfPoints() const
     {
         return 16;
     }

@@ -71,7 +71,7 @@ void AverageValuesNonNegativeLimiter::limit(Base::Element *element, LinearAlgebr
 double AverageValuesNonNegativeLimiter::getMinimumHeight(const Base::Element* element)
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
-    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
     const std::size_t numOfVariables = element->getNumberOfUnknowns();
     const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);    
     double minimum = solutionLeft;
@@ -80,7 +80,7 @@ double AverageValuesNonNegativeLimiter::getMinimumHeight(const Base::Element* el
         const PointReferenceT &pRef = element->getReferenceGeometry()->getReferenceNodeCoordinate(iPoint);
         minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
     }
-    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
+    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->getNumberOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
         minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));

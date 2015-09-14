@@ -46,21 +46,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t Tn2_1_1::nrOfPoints() const
+    std::size_t Tn2_1_1::getNumberOfPoints() const
     {
         return 1;
     }
     
     double Tn2_1_1::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     Tn2_1_1::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -94,21 +94,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t Tn2_2_3::nrOfPoints() const
+    std::size_t Tn2_2_3::getNumberOfPoints() const
     {
         return 3;
     }
     
     double Tn2_2_3::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     Tn2_2_3::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -148,21 +148,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t Tn2_3_4::nrOfPoints() const
+    std::size_t Tn2_3_4::getNumberOfPoints() const
     {
         return 4;
     }
     
     double Tn2_3_4::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     Tn2_3_4::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -205,21 +205,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t Tn2_4_6::nrOfPoints() const
+    std::size_t Tn2_4_6::getNumberOfPoints() const
     {
         return 6;
     }
     
     double Tn2_4_6::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     Tn2_4_6::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -268,21 +268,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t T2_5_7::nrOfPoints() const
+    std::size_t T2_5_7::getNumberOfPoints() const
     {
         return 7;
     }
     
     double T2_5_7::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     T2_5_7::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -334,21 +334,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t T2_6_12::nrOfPoints() const
+    std::size_t T2_6_12::getNumberOfPoints() const
     {
         return 12;
     }
     
     double T2_6_12::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     T2_6_12::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -415,21 +415,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t T2_7_13::nrOfPoints() const
+    std::size_t T2_7_13::getNumberOfPoints() const
     {
         return 13;
     }
     
     double T2_7_13::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     T2_7_13::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -499,21 +499,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t T2_8_16::nrOfPoints() const
+    std::size_t T2_8_16::getNumberOfPoints() const
     {
         return 16;
     }
     
     double T2_8_16::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     T2_8_16::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -592,21 +592,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t T2_9_19::nrOfPoints() const
+    std::size_t T2_9_19::getNumberOfPoints() const
     {
         return 19;
     }
     
     double T2_9_19::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     T2_9_19::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -694,21 +694,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t T2_10_25::nrOfPoints() const
+    std::size_t T2_10_25::getNumberOfPoints() const
     {
         return 25;
     }
     
     double T2_10_25::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     T2_10_25::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -814,21 +814,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t T2_11_28::nrOfPoints() const
+    std::size_t T2_11_28::getNumberOfPoints() const
     {
         return 28;
     }
     
     double T2_11_28::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     T2_11_28::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     

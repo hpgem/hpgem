@@ -47,21 +47,21 @@ namespace QuadratureRules
         return 3;
     }
     
-    std::size_t TriPrism_1_1::nrOfPoints() const
+    std::size_t TriPrism_1_1::getNumberOfPoints() const
     {
         return 1;
     }
     
     double TriPrism_1_1::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     TriPrism_1_1::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -95,21 +95,21 @@ namespace QuadratureRules
         return 3;
     }
     
-    std::size_t TriPrism_3_8::nrOfPoints() const
+    std::size_t TriPrism_3_8::getNumberOfPoints() const
     {
         return 8;
     }
     
     double TriPrism_3_8::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     TriPrism_3_8::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -164,21 +164,21 @@ namespace QuadratureRules
         return 3;
     }
     
-    std::size_t TriPrism_5_21::nrOfPoints() const
+    std::size_t TriPrism_5_21::getNumberOfPoints() const
     {
         return 21;
     }
     
     double TriPrism_5_21::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     TriPrism_5_21::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -272,21 +272,21 @@ namespace QuadratureRules
         return 3;
     }
     
-    std::size_t TriPrism_7_64::nrOfPoints() const
+    std::size_t TriPrism_7_64::getNumberOfPoints() const
     {
         return 64;
     }
     
     double TriPrism_7_64::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     TriPrism_7_64::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     

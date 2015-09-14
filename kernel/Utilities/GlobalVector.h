@@ -55,19 +55,19 @@ namespace Utilities
         ///because some vectors (like the solution of the linear problem) are filled by external means
         GlobalVector(Base::MeshManipulatorBase* theMesh, int elementVectorID = 0, int faceVectorID = 0);
 
-        ///for post-processing: puts the solution in the time-level data of the elements
+        ///for post-processing: puts the solution in the time integration vector of the elements
         ///it is faster to write all data in one go instead of using this routine
-        virtual void writeTimeLevelData(std::size_t timeLevel, std::size_t variable)=0;
+        virtual void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable)=0;
 
-        ///for post-processing: puts the solution in the time-level data of the elements
-        virtual void writeTimeLevelData(std::size_t timeLevel)=0;
+        ///for post-processing: puts the solution in the time integration vector of the elements
+        virtual void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId)=0;
 
-        ///collect data from a time level instead of element vectors and face vectors
+        ///collect data from a time integration vector instead of element vectors and face vectors
         ///it is faster to read all data in one go instead of using this routine
-        virtual void constructFromTimeLevelData(std::size_t timelevel, std::size_t variable)=0;
+        virtual void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable)=0;
 
-        ///collect data from a time level instead of element vectors and face vectors
-        virtual void constructFromTimeLevelData(std::size_t timelevel)=0;
+        ///collect data from a time integration vector instead of element vectors and face vectors
+        virtual void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId)=0;
 
         ///(re-)collects element vectors and boundary information into this vector
         virtual void assemble()=0;
@@ -101,10 +101,10 @@ namespace Utilities
         GlobalPetscVector(Base::MeshManipulatorBase* theMesh, int elementVectorID = 0, int faceVectorID = 0);
         ~GlobalPetscVector();
 
-        void writeTimeLevelData(std::size_t timeLevel, std::size_t variable);
-        void constructFromTimeLevelData(std::size_t timelevel, std::size_t variable);
-        void writeTimeLevelData(std::size_t timeLevel);
-        void constructFromTimeLevelData(std::size_t timelevel);
+        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable);
+        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable);
+        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId);
+        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId);
 
         void reset();
 

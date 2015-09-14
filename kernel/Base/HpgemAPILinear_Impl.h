@@ -47,7 +47,7 @@ namespace Base
     /// \param[in] numOfVariables Number of variables in the PDE
     /// \param[in] polynomialOrder Polynomial order of the basis functions
     /// \param[in] ptrButcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
-    /// \param[in] numOfTimeLevels Number of time levels. If a butcherTableau is set and the number of time levels is too low, this will be corrected automatically.
+    /// \param[in] numberOfTimeLevels Number of time levels.
     /// \param[in] useSourceTerm Boolean to indicate if there is a source term.
     /// \param[in] useSourceTermAtBoundary Boolean to indicate if there is a source term at the domain boundary.
     template<std::size_t DIM>
@@ -56,11 +56,37 @@ namespace Base
      const std::size_t numOfVariables,
      const std::size_t polynomialOrder,
      const Base::ButcherTableau * const ptrButcherTableau,
-     const std::size_t numOfTimeLevels,
+     const std::size_t numberOfTimeLevels,
      const bool useSourceTerm,
      const bool useSourceTermAtBoundary
      ) :
-    HpgemAPISimplified<DIM>(numOfVariables, polynomialOrder, ptrButcherTableau, numOfTimeLevels),
+    HpgemAPISimplified<DIM>(numOfVariables, polynomialOrder, ptrButcherTableau, numberOfTimeLevels),
+    useSourceTerm_(useSourceTerm),
+    useSourceTermAtBoundary_(useSourceTermAtBoundary),
+    massMatrixID_(1),
+    stiffnessElementMatrixID_(0),
+    stiffnessFaceMatrixID_(0)
+    {
+    }
+    
+    /// \param[in] dimension Dimension of the domain
+    /// \param[in] numOfVariables Number of variables in the PDE
+    /// \param[in] polynomialOrder Polynomial order of the basis functions
+    /// \param[in] ptrButcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
+    /// \param[in] numberOfTimeLevels Number of time levels.
+    /// \param[in] useSourceTerm Boolean to indicate if there is a source term.
+    /// \param[in] useSourceTermAtBoundary Boolean to indicate if there is a source term at the domain boundary.
+    template<std::size_t DIM>
+    HpgemAPILinear<DIM>::HpgemAPILinear
+    (
+     const std::size_t numOfVariables,
+     const std::size_t polynomialOrder,
+     const std::size_t globalNummberOfTimeIntegrationVectors,
+     const std::size_t numberOfTimeLevels,
+     const bool useSourceTerm,
+     const bool useSourceTermAtBoundary
+     ) :
+    HpgemAPISimplified<DIM>(numOfVariables, polynomialOrder, globalNummberOfTimeIntegrationVectors, numberOfTimeLevels),
     useSourceTerm_(useSourceTerm),
     useSourceTermAtBoundary_(useSourceTermAtBoundary),
     massMatrixID_(1),
@@ -84,6 +110,10 @@ namespace Base
         this->addMesh(description, meshType, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
         this->meshes_[0]->useDefaultDGBasisFunctions();
         
+        // Set the number of time integration vectors according to the size of the Butcher tableau.
+        this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);
+        
+        // Plot info about the mesh
         std::size_t nElements = this->meshes_[0]->getNumberOfElements();
         logger(VERBOSE, "Total number of elements: %", nElements);
     }
@@ -101,17 +131,17 @@ namespace Base
     
     /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix.
     template<std::size_t DIM>
-    void HpgemAPILinear<DIM>::solveMassMatrixEquations(const std::size_t timeLevel)
+    void HpgemAPILinear<DIM>::solveMassMatrixEquations(const std::size_t timeIntegrationVectorId)
     {
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevel));
+            LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId));
             
             const LinearAlgebra::MiddleSizeMatrix &massMatrix(ptrElement->getElementMatrix(massMatrixID_));
             massMatrix.solve(solutionCoefficients);
         }
         
-        this->synchronize(timeLevel);
+        this->synchronize(timeIntegrationVectorId);
     }
 
     template<std::size_t DIM>
@@ -160,7 +190,7 @@ namespace Base
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numOfQuadPoints = ptrQdrRule->nrOfPoints();
+        std::size_t numOfQuadPoints = ptrQdrRule->getNumberOfPoints();
         
         // For each quadrature point, compute the value of the product of the
         // test function and the source term, then add it with the correct weight to the integral solution.
@@ -219,15 +249,15 @@ namespace Base
         }
     }
     
-    /// \details Make sure timeLevelIn is different from timeLevelResult.
+    /// \details Make sure inputVectorId is different from resultVectorId.
     template<std::size_t DIM>
-    void HpgemAPILinear<DIM>::multiplyStiffnessMatrices(const std::size_t timeLevelIn, const std::size_t timeLevelResult)
+    void HpgemAPILinear<DIM>::multiplyStiffnessMatrices(const std::size_t inputVectorId, const std::size_t resultVectorId)
     {
         // Multiply the stiffness matrices corresponding to the elements.
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeLevelDataVector(timeLevelIn));
-            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
+            LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeIntegrationVector(inputVectorId));
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeIntegrationVector(resultVectorId));
             
             solutionCoefficientsNew = ptrElement->getElementMatrix(stiffnessElementMatrixID_) * solutionCoefficients;
         }
@@ -237,10 +267,10 @@ namespace Base
         {
             if(ptrFace->isInternal())
             {
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelIn));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelIn));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(inputVectorId));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(inputVectorId));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
                 
                 const Base::FaceMatrix &stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
                 
@@ -249,8 +279,8 @@ namespace Base
             }
             else
             {
-                LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelIn));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(inputVectorId));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
                 
                 const LinearAlgebra::MiddleSizeMatrix &stiffnessMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_).getElementMatrix(Base::Side::LEFT, Base::Side::LEFT);
                 
@@ -258,18 +288,18 @@ namespace Base
             }
         }
         
-        this->synchronize(timeLevelResult);
+        this->synchronize(resultVectorId);
     }
     
-    /// \details Make sure timeLevelsIn are different from timeLevelResult.
+    /// \details Make sure inputVectorIds are different from resultVectorId.
     template<std::size_t DIM>
-    void HpgemAPILinear<DIM>::multiplyStiffnessMatrices(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult)
+    void HpgemAPILinear<DIM>::multiplyStiffnessMatrices(const std::vector<std::size_t> inputVectorIds, const std::vector<double> coefficientsInputVectors, const std::size_t resultVectorId)
     {
         // Multiply the stiffness matrices corresponding to the elements.
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector solutionCoefficients(this->getSolutionCoefficients(ptrElement, timeLevelsIn, coefficientsTimeLevels));
-            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
+            LinearAlgebra::MiddleSizeVector solutionCoefficients(this->getLinearCombinationOfVectors(ptrElement, inputVectorIds, coefficientsInputVectors));
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeIntegrationVector(resultVectorId));
             
             solutionCoefficientsNew = ptrElement->getElementMatrix(stiffnessElementMatrixID_) * solutionCoefficients;
         }
@@ -279,10 +309,10 @@ namespace Base
         {
             if(ptrFace->isInternal())
             {
-                LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft(this->getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
-                LinearAlgebra::MiddleSizeVector solutionCoefficientsRight(this->getSolutionCoefficients(ptrFace->getPtrElementRight(), timeLevelsIn, coefficientsTimeLevels));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft(this->getLinearCombinationOfVectors(ptrFace->getPtrElementLeft(), inputVectorIds, coefficientsInputVectors));
+                LinearAlgebra::MiddleSizeVector solutionCoefficientsRight(this->getLinearCombinationOfVectors(ptrFace->getPtrElementRight(), inputVectorIds, coefficientsInputVectors));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
                 
                 const Base::FaceMatrix &stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
                 
@@ -293,8 +323,8 @@ namespace Base
             }
             else
             {
-                LinearAlgebra::MiddleSizeVector solutionCoefficients(this->getSolutionCoefficients(ptrFace->getPtrElementLeft(), timeLevelsIn, coefficientsTimeLevels));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector solutionCoefficients(this->getLinearCombinationOfVectors(ptrFace->getPtrElementLeft(), inputVectorIds, coefficientsInputVectors));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
                 
                 const LinearAlgebra::MiddleSizeMatrix &stiffnessMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_).getElementMatrix(Base::Side::LEFT, Base::Side::LEFT);
                 
@@ -302,66 +332,66 @@ namespace Base
             }
         }
         
-        this->synchronize(timeLevelResult);
+        this->synchronize(resultVectorId);
     }
 
     template<std::size_t DIM>
-    void HpgemAPILinear<DIM>::addSourceTerm(const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
+    void HpgemAPILinear<DIM>::addSourceTerm(const std::size_t resultVectorId, const double time, const std::size_t orderTimeDerivative)
     {
         
         // Add the source terms corresponding to the elements.
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeLevelDataVector(timeLevelResult));
+            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeIntegrationVector(resultVectorId));
             
             solutionCoefficientsNew += integrateSourceTermAtElement(ptrElement, time, orderTimeDerivative);
         }
-        this->synchronize(timeLevelResult);
+        this->synchronize(resultVectorId);
     }
 
     template<std::size_t DIM>
-    void HpgemAPILinear<DIM>::addSourceTermAtBoundary(const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative)
+    void HpgemAPILinear<DIM>::addSourceTermAtBoundary(const std::size_t resultVectorId, const double time, const std::size_t orderTimeDerivative)
     {
         // Add the source terms corresponding to the faces at the boundary
         for (Base::Face *ptrFace : this->meshes_[0]->getFacesList())
         {
             if(!ptrFace->isInternal())
             {
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeLevelDataVector(timeLevelResult));
+                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
                 
                 solutionCoefficientsNew += integrateSourceTermAtFace(ptrFace, time, orderTimeDerivative);
             }
         }
-        this->synchronize(timeLevelResult);
+        this->synchronize(resultVectorId);
     }
     
-    /// \details Make sure timeLevelIn is different from timeLevelResult.
+    /// \details Make sure inputVectorId is different from resultVectorId.
     template<std::size_t DIM>
-    void HpgemAPILinear<DIM>::computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time)
+    void HpgemAPILinear<DIM>::computeRightHandSide(const std::size_t inputVectorId, const std::size_t resultVectorId, const double time)
     {
-        multiplyStiffnessMatrices(timeLevelIn, timeLevelResult);
+        multiplyStiffnessMatrices(inputVectorId, resultVectorId);
         if(useSourceTerm_)
         {
-            addSourceTerm(timeLevelResult, time, 0);
+            addSourceTerm(resultVectorId, time, 0);
         }
         if(useSourceTermAtBoundary_)
         {
-            addSourceTermAtBoundary(timeLevelResult, time, 0);
+            addSourceTermAtBoundary(resultVectorId, time, 0);
         }
     }
     
-    /// \details Make sure timeLevelResult is different from the timeLevelsIn.
+    /// \details Make sure resultVectorId is different from the inputVectorIds.
     template<std::size_t DIM>
-    void HpgemAPILinear<DIM>::computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time)
+    void HpgemAPILinear<DIM>::computeRightHandSide(const std::vector<std::size_t> inputVectorIds, const std::vector<double> coefficientsInputVectors, const std::size_t resultVectorId, const double time)
     {
-        multiplyStiffnessMatrices(timeLevelsIn, coefficientsTimeLevels, timeLevelResult);
+        multiplyStiffnessMatrices(inputVectorIds, coefficientsInputVectors, resultVectorId);
         if(useSourceTerm_)
         {
-            addSourceTerm(timeLevelResult, time, 0);
+            addSourceTerm(resultVectorId, time, 0);
         }
         if(useSourceTermAtBoundary_)
         {
-            addSourceTermAtBoundary(timeLevelResult, time, 0);
+            addSourceTermAtBoundary(resultVectorId, time, 0);
         }
     }
 

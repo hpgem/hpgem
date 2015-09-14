@@ -38,7 +38,7 @@ void TvbLimiter1D::limitSlope(Base::Element* element)
 void TvbLimiter1D::limitWithMinMod(Base::Element* element, const std::size_t iVar)
 {    
     
-    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
     logger.assert(std::abs(-1  - pRefL[0]) < 1e-10, "xi_L != -1");    
@@ -65,7 +65,7 @@ void TvbLimiter1D::limitWithMinMod(Base::Element* element, const std::size_t iVa
     const double u0 = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(iVar);
     const double uElemR = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemR), solutionCoefficients, elementIntegrator_)(iVar);
     const double uElemL = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemL), solutionCoefficients, elementIntegrator_)(iVar);
-    logger(DEBUG, "coefficients: %", element->getTimeLevelData(0, iVar));
+    logger(DEBUG, "coefficients: %", element->getTimeIntegrationSubvector(0, iVar));
     logger(DEBUG, "uPlus: %, basis function vals: %, %", uPlus , element->basisFunction(0,pRefR), element->basisFunction(1,pRefR));
     logger(DEBUG, "uMinus: %, basis function vals: %, %", uMinus, element->basisFunction(0,pRefL), element->basisFunction(1,pRefL));
     logger(INFO, "Element %: %, %, %",element->getID(), (uPlus - uMinus), uElemR - u0, u0 - uElemL);
@@ -80,7 +80,7 @@ void TvbLimiter1D::limitWithMinMod(Base::Element* element, const std::size_t iVa
         //replace coefficients with "u0 + slope/2 * xi" coefficients
         std::function<double(const PointReferenceT&)> newFun = [=] (const PointReferenceT& pRef) {return u0 + slope*pRef[0];};
         LinearAlgebra::MiddleSizeVector newCoeffs = Helpers::projectOnBasisFuns<1>(element, newFun, elementIntegrator_);
-        element->setTimeLevelData(0, iVar, newCoeffs);
+        element->setTimeIntegrationSubvector(0, iVar, newCoeffs);
         logger(INFO, "element % is being limited.", element->getID());
     }
 }

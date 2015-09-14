@@ -179,9 +179,6 @@ int main()
     delete test;
     delete right;
     left = new Geometry::ElementGeometry(pointIndexes, nodes2D);
-    pointIndexes[2] = 10;
-    pointIndexes[3] = 11;
-    right = new Geometry::ElementGeometry(pointIndexes, nodes2D);
     
     test = new Geometry::FaceGeometry(left, 1, Geometry::FaceType::WALL_BC);
     

@@ -76,7 +76,7 @@ namespace Integration
         ReturnTrait1 value, result;
         
         // number of Gauss quadrature points
-        std::size_t numberOfPoints = qdrRuleLoc->nrOfPoints();
+        std::size_t numberOfPoints = qdrRuleLoc->getNumberOfPoints();
         
         // Gauss quadrature point
         const Geometry::PointReference<DIM - 1>& p0 = qdrRuleLoc->getPoint(0);
@@ -101,6 +101,63 @@ namespace Integration
         return result;
     } // function
     
+    //dim denotes the dimension of the ELEMENT here
+     template<std::size_t DIM>
+     template<typename ReturnTrait1>
+     ReturnTrait1 FaceIntegral<DIM>::integratePair(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, const QuadratureRulesT* const qdrRule)
+     {
+         logger.assert(fa!=nullptr, "Invalid face detected");
+         Base::PhysicalFace<DIM>* face_;
+         //treat internal and boundary faces separately to prevent permanent resizing of the relevant data structures
+         if(fa->isInternal())
+         {
+             face_ = &internalFace_;
+             face_->setFace(fa);
+         }
+         else
+         {
+             face_ = &boundaryFace_;
+             face_->setFace(fa);
+         }
+         face_->setFace(fa);
+         //quadrature rule is allowed to be equal to nullptr!
+         const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? fa->getGaussQuadratureRule() : qdrRule);
+
+         // check whether the GaussIntegrationRule is actually for the
+         // Element's ReferenceGeometry
+         logger.assert((qdrRuleLoc->forReferenceGeometry() == fa->getReferenceGeometry()), "FaceIntegral: " + qdrRuleLoc->getName() + " rule is not for THIS ReferenceGeometry!");
+
+         // value returned by the integrand
+         ReturnTrait1 value, result;
+
+         // number of Gauss quadrature points
+         std::size_t numberOfPoints = qdrRuleLoc->getNumberOfPoints();
+
+         // Gauss quadrature point
+         const Geometry::PointReference<DIM - 1>& p0 = qdrRuleLoc->getPoint(0);
+
+         face_->setPointReference(p0);
+
+         // first Gauss point;
+         result = integrandFunc(*face_);
+         result.first *= (qdrRuleLoc->weight(0) * face_->getTransform()->getIntegrandScaleFactor(*face_));
+         result.second *= (qdrRuleLoc->weight(0) * face_->getTransform()->getIntegrandScaleFactor(*face_));
+
+         // next Gauss points
+         for (std::size_t i = 1; i < numberOfPoints; ++i)
+         {
+             const Geometry::PointReference<DIM - 1>& p = qdrRuleLoc->getPoint(i);
+             face_->setPointReference(p);
+             value = integrandFunc(*face_);
+
+             //Y = alpha * X + Y
+             LinearAlgebra::axpy(qdrRuleLoc->weight(i) * face_->getTransform()->getIntegrandScaleFactor(*face_), value.first, result.first);
+             LinearAlgebra::axpy(qdrRuleLoc->weight(i) * face_->getTransform()->getIntegrandScaleFactor(*face_), value.second, result.second);
+
+         }
+         return result;
+     } // function
+
     // \param[in] ptrQdrRule A pointer to a quadrature rule used for the integration.
     // \param[in] integrandFunction A function that is integrated on the reference face. It takes as input argument a reference point and returns an object of the class <IntegrandType>.
     /*
@@ -122,13 +179,13 @@ namespace Integration
         //inform the interested user that his integrand will be multiplied by 1 instead of l2NormNormal
         Base::CoordinateTransformation<DIM> oldTransform = face_.getTransformation();
         face_.setTransformation(Base::DoNotScaleIntegrands<DIM>(oldTransform));
-        std::size_t numOfPoints = ptrQdrRule->nrOfPoints();
+        std::size_t numberOfPoints = ptrQdrRule->getNumberOfPoints();
         std::size_t iPoint = 0; // Index for the quadrature points.
         
         const Geometry::PointReference<DIM - 1>& pRef0 = ptrQdrRule->getPoint(iPoint);
         face_.setPointReference(pRef0);
         IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction());
-        for (iPoint = 1; iPoint < numOfPoints; iPoint++)
+        for (iPoint = 1; iPoint < numberOfPoints; iPoint++)
         {
             const Geometry::PointReference<DIM - 1>& pRef = ptrQdrRule->getPoint(iPoint);
             face_.setPointReference(pRef);

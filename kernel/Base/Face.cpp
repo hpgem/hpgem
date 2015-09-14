@@ -162,17 +162,17 @@ namespace Base
         }
     }
     
-    ///Get the time level data from both elements and concatenate them. 
+    ///Get the time integration vectors from both elements and concatenate them.
     ///Note that we assume that the data is stored as column "vectors".
-    LinearAlgebra::MiddleSizeVector Face::getTimeLevelData(std::size_t timeLevel, std::size_t unknown) const
+    LinearAlgebra::MiddleSizeVector Face::getTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t unknown) const
     {
-        LinearAlgebra::MiddleSizeVector resLeft = getPtrElementLeft()->getTimeLevelData(timeLevel, unknown);
+        LinearAlgebra::MiddleSizeVector resLeft = getPtrElementLeft()->getTimeIntegrationSubvector(timeIntegrationVectorId, unknown);
         if (isInternal())
         {
             std::size_t numBasisFuncs = getNumberOfBasisFunctions();
             std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNumberOfBasisFunctions();
             resLeft.resize(numBasisFuncs);
-            LinearAlgebra::MiddleSizeVector resRight = getPtrElementRight()->getTimeLevelData(timeLevel, unknown);
+            LinearAlgebra::MiddleSizeVector resRight = getPtrElementRight()->getTimeIntegrationSubvector(timeIntegrationVectorId, unknown);
             for (std::size_t i = numBasisFuncsLeft; i < numBasisFuncs; ++i)
             {
                 resLeft[i] = resRight[i - numBasisFuncsLeft];

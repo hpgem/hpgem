@@ -37,7 +37,8 @@ public:
 		const std::size_t numOfVariables,
 		const double endTime,
 		const std::size_t polynomialOrder,
-		const Base::ButcherTableau * const ptrButcherTableau
+		const Base::ButcherTableau * const ptrButcherTableau,
+		const bool computeBothFaces
 	);
 
     /// \brief Create a domain
@@ -97,22 +98,36 @@ public:
     /// ***    external face integration functions     ***
     /// **************************************************
 
-    /// \brief Compute the integrand for the right hand side for the face corresponding to an external face.
+/*    /// \brief Compute the integrand for the right hand side for the face corresponding to an external face.
     LinearAlgebra::MiddleSizeVector integrandRightHandSideOnFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
 
     /// \brief Compute the right-hand side corresponding to an external face
-    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;*/
 
     /// **************************************************
     /// ***    internal face integration functions     ***
     /// **************************************************
 
+
+/*
     /// \brief Compute the integrand for the right hand side for the face corresponding to an internal face.
     LinearAlgebra::MiddleSizeVector integrandRightHandSideOnFace(Base::PhysicalFace<DIM>& face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &stateCoefficientsRight);
+*/
 
     /// \brief Compute the right-hand side corresponding to an internal face
-    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time) override final;
+    /// Note: this line is only required to avoid a designed safety error in hpGEM (hack)
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, const Base::Side side, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time) override final
+    		{
+    		LinearAlgebra::MiddleSizeVector empty;
+    		return empty;
+    		}
 
+
+    /// \brief Compute integrands on both sides of an internal face
+    std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsRightHandSideOnFace(Base::PhysicalFace<DIM>& face, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &stateCoefficientsRight);
+
+    /// \brief Compute the right-hand side corresponding to an internal face. Computing both left and right face integrals
+    std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> computeBothRightHandSidesAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time) override final;
 
     /// *****************************************
     /// ***    		Various Functions         ***
@@ -170,7 +185,12 @@ private:
 	const double Tc_ = 3.0/5.0;
 
 	/// non-Dimensionless parameters
-	const double nonDIM1_ = 1.0;// //E0_/(uWall_ *uWall_); //Used for scaling the pressure correctly
+	const double rho0_ = 1.225;
+	const double U0_ = 1.0;
+	const double E0_ = 1.225*1000/1.4*288;
+	const double H_ = 1.0;
+
+	const double nonDIM1_ = 1.0;//E0_/(U0_*U0_);// //E0_/(uWall_ *uWall_); //Used for scaling the pressure correctly
 
 	friend class Inviscid;
 	friend class Viscous;

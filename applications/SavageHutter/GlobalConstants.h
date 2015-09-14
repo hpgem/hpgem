@@ -26,7 +26,7 @@
 ///Do not put unnecessary variables in here!
 
 ///\brief The dimension of the domain. Is a template parameter for points, normal vectors and applications in general.
-const std::size_t DIM = 1;
+const std::size_t DIM = 2;
 
 #endif	/* GLOBALCONSTANTS_H */
 

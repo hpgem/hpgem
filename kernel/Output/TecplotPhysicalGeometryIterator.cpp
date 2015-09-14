@@ -188,7 +188,7 @@ namespace Output
         return (currentNode >= 0);
     }
     
-    std::size_t TecplotPhysicalGeometryIterator::getNodeNr()
+    std::size_t TecplotPhysicalGeometryIterator::getNodeNumber()
     {
         return currentSequencePtr->operator[](currentNode--);
     }

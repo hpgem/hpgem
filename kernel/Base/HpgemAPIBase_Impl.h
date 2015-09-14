@@ -62,11 +62,11 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    typename HpgemAPIBase<DIM>::MeshId HpgemAPIBase<DIM>::addMesh(const RectangularMeshDescriptor<DIM>& meshDscr, const MeshType& meshType, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
+    typename HpgemAPIBase<DIM>::MeshId HpgemAPIBase<DIM>::addMesh(const RectangularMeshDescriptor<DIM>& meshDscr, const MeshType& meshType, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
     {
         std::size_t numOfMeshes = meshes_.size();
         MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_, meshDscr.boundaryConditions_[0],
-                                                    (configData_->dimension_ > 1) ? meshDscr.boundaryConditions_[1] : BoundaryType::SOLID_WALL, (configData_->dimension_ > 2) ? meshDscr.boundaryConditions_[2] : BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
+                                                    (configData_->dimension_ > 1) ? meshDscr.boundaryConditions_[1] : BoundaryType::SOLID_WALL, (configData_->dimension_ > 2) ? meshDscr.boundaryConditions_[2] : BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, numberOfElementMatrixes, numberOfElementVectors, numberOfFaceMatrixes, numberOfFaceVectors);
         
         if (meshType == MeshType::RECTANGULAR)
         {
@@ -89,10 +89,10 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    typename HpgemAPIBase<DIM>::MeshId HpgemAPIBase<DIM>::addMesh(const std::string& fileName, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
+    typename HpgemAPIBase<DIM>::MeshId HpgemAPIBase<DIM>::addMesh(const std::string& fileName, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
     {
         std::size_t numOfMeshes = meshes_.size();
-        MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors);
+        MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, numberOfElementMatrixes, numberOfElementVectors, numberOfFaceMatrixes, numberOfFaceVectors);
         mesh->readCentaurMesh(fileName);                             //boundary information (^) is ignored
         mesh->getElementsList();
         meshes_.push_back(mesh);
@@ -101,7 +101,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    void HpgemAPIBase<DIM>::synchronize(const std::size_t timeLevel)
+    void HpgemAPIBase<DIM>::synchronize(const std::size_t timeIntegrationVectorId)
     {
 #ifdef HPGEM_USE_MPI
         //Now, set it up.
@@ -116,23 +116,59 @@ namespace Base
         {
             for (Base::Element *ptrElement : it.second)
             {
-                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == ptrElement->getNrOfBasisFunctions() * this->configData_->numberOfUnknowns_ , "Size of time level % data vector is wrong: % instead of %.", timeLevel, ptrElement->getTimeLevelDataVector(timeLevel).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
+                logger.assert(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size() == ptrElement->getNrOfBasisFunctions() * this->configData_->numberOfUnknowns_ , "Size of time integration vector % is wrong: % instead of %.", timeIntegrationVectorId, ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
 
-                Base::MPIContainer::Instance().receive(ptrElement->getTimeLevelDataVector(timeLevel), it.first, ptrElement->getID());
+                Base::MPIContainer::Instance().receive(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId), it.first, ptrElement->getID());
             }
         }
         for (const auto& it : pushes)
         {
             for (Base::Element *ptrElement : it.second)
             {
-                logger.assert(ptrElement->getTimeLevelDataVector(timeLevel).size() == ptrElement->getNrOfBasisFunctions() * this->configData_->numberOfUnknowns_, "Size of time level % data vector is wrong: % instead of %.", timeLevel, ptrElement->getTimeLevelDataVector(timeLevel).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
+                logger.assert(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size() == ptrElement->getNrOfBasisFunctions() * this->configData_->numberOfUnknowns_, "Size of time integration vector % is wrong: % instead of %.", timeIntegrationVectorId, ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
 
-                Base::MPIContainer::Instance().send(ptrElement->getTimeLevelDataVector(timeLevel), it.first, ptrElement->getID());
+                Base::MPIContainer::Instance().send(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId), it.first, ptrElement->getID());
             }
         }
         Base::MPIContainer::Instance().sync();
 #endif
     }
+    
+    template<std::size_t DIM>
+    void HpgemAPIBase<DIM>::setNumberOfTimeIntegrationVectorsGlobally(std::size_t numberOfTimeIntegrationVectors)
+    {
+        if (HpgemAPIBase<DIM>::meshes_.size() == 0)
+        {
+            logger(ERROR, "Error no mesh created : You need to create at least one mesh to set the number of time integration vectors");
+        }
+        for(auto mesh : this->meshes_)
+        {
+            for (Base::Element *ptrElement : mesh->getElementsList(IteratorType::GLOBAL))
+            {
+                ptrElement->setNumberOfTimeIntegrationVectors(numberOfTimeIntegrationVectors);
+            }
+        }
+    }
+    
+    
+    template<std::size_t DIM>
+    void HpgemAPIBase<DIM>::copyTimeIntegrationToTimeLevelData(std::size_t timeIntegrationVectorId, std::size_t timeLevel)
+    {
+        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
+        {
+            ptrElement->getTimeLevelDataVector(timeLevel) = ptrElement->getTimeIntegrationVector(timeIntegrationVectorId);
+        }
+    }
+    
+    template<std::size_t DIM>
+    void HpgemAPIBase<DIM>::copyTimeLevelToTimeIntegrationData(std::size_t timeLevel, std::size_t timeIntegrationVectorId)
+    {
+        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
+        {
+            ptrElement->getTimeIntegrationVector(timeIntegrationVectorId) = ptrElement->getTimeLevelDataVector(timeLevel);
+        }
+    }
+    
 
     template<std::size_t DIM>
     typename HpgemAPIBase<DIM>::ConstElementIterator HpgemAPIBase<DIM>::elementColBegin(MeshId mId) const

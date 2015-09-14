@@ -440,13 +440,13 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    Element::SolutionVector Element::getSolution(std::size_t timeLevel, const Geometry::PointReference<DIM>& p) const
+    Element::SolutionVector Element::getSolution(std::size_t timeIntegrationVectorId, const Geometry::PointReference<DIM>& p) const
     {
         std::size_t numberOfUnknows = ElementData::getNumberOfUnknowns();
         std::size_t numberOfBasisFunctions = ElementData::getNumberOfBasisFunctions();
         SolutionVector solution(numberOfUnknows);
 
-        LinearAlgebra::MiddleSizeVector data = ElementData::getTimeLevelDataVector(timeLevel);
+        LinearAlgebra::MiddleSizeVector data = ElementData::getTimeIntegrationVector(timeIntegrationVectorId);
 
         std::size_t iVB = 0;
         for (std::size_t iV = 0; iV < numberOfUnknows; ++iV)
@@ -461,13 +461,13 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    std::vector<LinearAlgebra::SmallVector<DIM> > Element::getSolutionGradient(std::size_t timeLevel, const Geometry::PointReference<DIM>& p) const
+    std::vector<LinearAlgebra::SmallVector<DIM> > Element::getSolutionGradient(std::size_t timeIntegrationVectorId, const Geometry::PointReference<DIM>& p) const
     {
         std::size_t numberOfUnknows = ElementData::getNumberOfUnknowns();
         std::size_t numberOfBasisFunctions = ElementData::getNumberOfBasisFunctions();
         std::vector<LinearAlgebra::SmallVector<DIM> > solution(numberOfUnknows);
 
-        LinearAlgebra::MiddleSizeVector data = ElementData::getTimeLevelDataVector(timeLevel);
+        LinearAlgebra::MiddleSizeVector data = ElementData::getTimeIntegrationVector(timeIntegrationVectorId);
 
         std::size_t iVB = 0;
         for (std::size_t iV = 0; iV < numberOfUnknows; ++iV)
@@ -482,14 +482,14 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    Element::SolutionVector Element::getSolution(std::size_t timeLevel, PhysicalElement<DIM>& element) const
+    Element::SolutionVector Element::getSolution(std::size_t timeIntegrationVectorId, PhysicalElement<DIM>& element) const
     {
         logger.assert(element.getElement() == this, "Cannot find the solution in a different element!");
         std::size_t numberOfUnknows = ElementData::getNumberOfUnknowns();
         std::size_t numberOfBasisFunctions = ElementData::getNumberOfBasisFunctions();
         SolutionVector solution(numberOfUnknows);
 
-        const LinearAlgebra::MiddleSizeVector& data = ElementData::getTimeLevelDataVector(timeLevel);
+        const LinearAlgebra::MiddleSizeVector& data = ElementData::getTimeIntegrationVector(timeIntegrationVectorId);
 
         std::size_t iVB = 0;
         for (std::size_t iV = 0; iV < numberOfUnknows; ++iV)
@@ -504,14 +504,14 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    std::vector<LinearAlgebra::SmallVector<DIM> > Element::getSolutionGradient(std::size_t timeLevel, PhysicalElement<DIM>& element) const
+    std::vector<LinearAlgebra::SmallVector<DIM> > Element::getSolutionGradient(std::size_t timeIntegrationVectorId, PhysicalElement<DIM>& element) const
     {
         logger.assert(element.getElement() == this, "Cannot find the gradient of the solution in a different element!");
         std::size_t numberOfUnknows = ElementData::getNumberOfUnknowns();
         std::size_t numberOfBasisFunctions = ElementData::getNumberOfBasisFunctions();
         std::vector<LinearAlgebra::SmallVector<DIM> > solution(numberOfUnknows);
 
-        LinearAlgebra::MiddleSizeVector data = ElementData::getTimeLevelDataVector(timeLevel);
+        LinearAlgebra::MiddleSizeVector data = ElementData::getTimeIntegrationVector(timeIntegrationVectorId);
 
         std::size_t iVB = 0;
         for (std::size_t iV = 0; iV < numberOfUnknows; ++iV)

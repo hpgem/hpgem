@@ -97,13 +97,27 @@ namespace Geometry
         //---------------------- Refinement definitions -----------------------------------------
         
         //! \brief Number of new nodes due to the refinement that should be added to the vector of localNodeIndices
-        virtual std::size_t nrOfNewNodes(std::size_t) const = 0;
+        virtual std::size_t getNumberOfNewNodes(std::size_t) const = 0;
+        
+        //! \brief Number of new nodes due to the refinement that should be added to the vector of localNodeIndices
+        //! \deprecated Use getNumberOfNewNodes instead
+        std::size_t nrOfNewNodes(std::size_t refineType) const
+        {
+            return getNumberOfNewNodes(refineType);
+        }
 
         //! \brief Get all physical nodes: existing nodes and new nodes to be added.
         virtual std::vector<const PointPhysicalBase*> getAllNodes(std::size_t) const = 0;
 
         //! \brief Number of sub-elements due to the refinement
-        virtual std::size_t nrOfSubElements(std::size_t) const = 0;
+        virtual std::size_t getNumberOfSubElements(std::size_t) const = 0;
+        
+        //! \brief Number of sub-elements due to the refinement
+        //! \deprecated Use getNumberOfSubElements instead
+        std::size_t nrOfSubElements(std::size_t refineType) const
+        {
+            return getNumberOfSubElements(refineType);
+        }
 
         //! \brief Assembly nodes for sub-element
         virtual void subElementLocalNodeIndices(std::size_t, std::size_t, VectorOfIndicesT& LocalNodeIdx) const = 0;
@@ -112,13 +126,27 @@ namespace Geometry
         virtual void adjacentSubElementsPairs(std::size_t, VectorOfIndicesT& elemIdx1, VectorOfIndicesT& localFaceIdx1, VectorOfIndicesT& elemIdx2, VectorOfIndicesT& localFaceIdx2) const = 0;
 
         //! \brief Number of sub-elements on a particular parent's face.
-        virtual std::size_t nrOfSubElementsOnFace(std::size_t, std::size_t faLocalIndex) const = 0;
+        virtual std::size_t getNumberOfSubElementsOnFace(std::size_t, std::size_t faLocalIndex) const = 0;
+        
+        //! \brief Number of sub-elements on a particular parent's face.
+        //! \deprecated Use getNumberOfSubElementsOnFace instead
+        std::size_t nrOfSubElementsOnFace(std::size_t refineType, std::size_t faLocalIndex) const
+        {
+            return getNumberOfSubElementsOnFace(refineType, faLocalIndex);
+        }
 
         //! \brief Get sub-elements' local index on a particular parent's face.
         virtual void subElementsOnFace(std::size_t, std::size_t faLocalIndex, VectorOfIndicesT& LocalNodeIdx) const = 0;
 
         //! \brief Get sub-face's local face number of on a particular parent's face.
-        virtual std::size_t getLocalSubFaceNr(std::size_t, std::size_t localFaceNr, std::size_t subElementIdx) const = 0;
+        virtual std::size_t getLocalSubFaceNumber(std::size_t, std::size_t localFaceNumber, std::size_t subElementIdx) const = 0;
+        
+        //! \brief Get sub-face's local face number of on a particular parent's face.
+        //! \deprecated Use getLocalSubFaceNumber instead
+        std::size_t getLocalSubFaceNr(std::size_t refineType, std::size_t localFaceNumber, std::size_t subElementIdx) const
+        {
+            return getLocalSubFaceNumber(refineType, localFaceNumber, subElementIdx);
+        }
 
     protected:
         //! \brief Default constructor.

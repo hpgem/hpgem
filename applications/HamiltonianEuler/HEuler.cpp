@@ -557,13 +557,13 @@ void HEuler::calculatePressure(const Mat& A, const Mat& Ah, const Vec& UCorrecte
         for (int i = 0; i < nb; ++i)
         {
             //cout << "p="<<XTEMP1[pos+i]<<endl;
-            element->setData(0, 3, i, -XTEMP1[pos + i]); //set lambda
+            element->setTimeIntegrationData(0, 3, i, -XTEMP1[pos + i]); //set lambda
                     
-            element->setData(0, 0, i, XTEMP[pos + i]); //set U
+            element->setTimeIntegrationData(0, 0, i, XTEMP[pos + i]); //set U
                     
-            element->setData(0, 1, i, XTEMP[Nu + pos + i]); //set V
+            element->setTimeIntegrationData(0, 1, i, XTEMP[Nu + pos + i]); //set V
                     
-            element->setData(0, 2, i, XTEMP[Nu + Nv + pos + i]); //set W
+            element->setTimeIntegrationData(0, 2, i, XTEMP[Nu + Nv + pos + i]); //set W
                     
         }
     }
@@ -688,18 +688,18 @@ void HEuler::createIncompressibleSystem()
         
         for (unsigned int i = 0; i < nb; ++i)
         {
-            u = element->getData(0, 0, i);
+            u = element->getTimeIntegrationData(0, 0, i);
             
             VecSetValue(UInit, pos + i, u, INSERT_VALUES);
             
-            v = element->getData(0, 1, i);
+            v = element->getTimeIntegrationData(0, 1, i);
             VecSetValue(UInit, Nu + pos + i, v, INSERT_VALUES);
             
-            w = element->getData(0, 2, i);
+            w = element->getTimeIntegrationData(0, 2, i);
             ;
             VecSetValue(UInit, Nu + Nv + pos + i, w, INSERT_VALUES);
             
-            lambda = element->getData(0, 3, i);
+            lambda = element->getTimeIntegrationData(0, 3, i);
             ;
             
 //            VecSetValue(Lambda, pos+i, lambda, INSERT_VALUES);
@@ -1483,25 +1483,25 @@ void HEuler::initialConditions()
         
         numerical = invMassM * rightHand; // projection of U
                 
-        elem->setTimeLevelData(0, 0, numerical);
+        elem->setTimeIntegrationSubvector(0, 0, numerical);
         
         rightHand = elIntegral.integrate(elem, &vEx);
         
         numerical = invMassM * rightHand; // projection of V
                 
-        elem->setTimeLevelData(0, 1, numerical);
+        elem->setTimeIntegrationSubvector(0, 1, numerical);
         
         rightHand = elIntegral.integrate(elem, &wEx);
         
         numerical = invMassM * rightHand; // projection of W
-        elem->setTimeLevelData(0, 2, numerical);
+        elem->setTimeIntegrationSubvector(0, 2, numerical);
         
         rightHand = elIntegral.integrate(elem, &pOrRhoEx);
         
         numerical = invMassM * rightHand; // projection of P
                 
         //cout << "P="<<numerical<<endl;
-        elem->setTimeLevelData(0, 3, numerical);
+        elem->setTimeIntegrationSubvector(0, 3, numerical);
     }
     
     cout << "finish calculations of inital condition!" << endl;
@@ -1553,21 +1553,21 @@ void HEuler::solve()
         
         for (int i = 0; i < nb; ++i)
         {
-            u = element->getData(0, 0, i);
+            u = element->getTimeIntegrationData(0, 0, i);
             VecSetValue(Lambda, pos + i, u, INSERT_VALUES);
             VecSetValue(UExact, pos + i, u, INSERT_VALUES);
             
-            v = element->getData(0, 1, i);
+            v = element->getTimeIntegrationData(0, 1, i);
             ;
             VecSetValue(Lambda, Nu + pos + i, v, INSERT_VALUES);
             VecSetValue(UExact, Nu + pos + i, v, INSERT_VALUES);
             
-            w = element->getData(0, 2, i);
+            w = element->getTimeIntegrationData(0, 2, i);
             ;
             VecSetValue(UExact, Nu + Nv + pos + i, w, INSERT_VALUES);
             VecSetValue(Lambda, Nu + Nv + pos + i, w, INSERT_VALUES);
             
-            l = element->getData(0, 3, i);
+            l = element->getTimeIntegrationData(0, 3, i);
             ;
             if (config->solutionType_ == HEulerConfigurationData::COMPRESSIBLE_WALLS || config->solutionType_ == HEulerConfigurationData::COMPRESSIBLE_PERIODIC)
                 VecSetValue(UExact, Nu + Nv + Nw + pos + i, l, INSERT_VALUES);
@@ -1710,21 +1710,21 @@ void HEuler::solve()
             
             for (int i = 0; i < nb; ++i)
             {
-                element->setData(0, 3, i, XTEMP[Nu + Nv + Nw + pos + i]); //set rho
+                element->setTimeIntegrationData(0, 3, i, XTEMP[Nu + Nv + Nw + pos + i]); //set rho
                         
                 if (config->solutionType_ == HEulerConfigurationData::COMPRESSIBLE_WALLS || config->solutionType_ == HEulerConfigurationData::COMPRESSIBLE_PERIODIC)
                 {
                     VecSetValue(UExact, Nu + Nv + Nw + pos + i, XTEMP[Nu + Nv + Nw + pos + i], INSERT_VALUES);
                 }
-                element->setData(0, 0, i, XTEMP[pos + i]); //set U
+                element->setTimeIntegrationData(0, 0, i, XTEMP[pos + i]); //set U
                         
                 VecSetValue(UExact, pos + i, XTEMP[pos + i], INSERT_VALUES);
                 
-                element->setData(0, 1, i, XTEMP[Nu + pos + i]); //set V
+                element->setTimeIntegrationData(0, 1, i, XTEMP[Nu + pos + i]); //set V
                         
                 VecSetValue(UExact, Nu + pos + i, XTEMP[Nu + pos + i], INSERT_VALUES);
                 
-                element->setData(0, 2, i, XTEMP[Nu + Nv + pos + i]); //set W
+                element->setTimeIntegrationData(0, 2, i, XTEMP[Nu + Nv + pos + i]); //set W
                         
                 VecSetValue(UExact, Nu + Nv + pos + i, XTEMP[Nu + Nv + pos + i], INSERT_VALUES);
             }

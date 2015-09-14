@@ -78,13 +78,24 @@ namespace Base
         using typename HpgemAPIBase<DIM>::PointPhysicalT;
         using typename HpgemAPIBase<DIM>::PointReferenceT;
         using typename HpgemAPIBase<DIM>::PointReferenceOnFaceT;
+        
         // Constructor
         HpgemAPILinear
         (
          const std::size_t numberOfUnknowns,
          const std::size_t polynomialOrder,
          const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
-         const std::size_t numOfTimeLevels = 1,
+         const std::size_t numberOfTimeLevels = 0,
+         const bool useSourceTerm = false,
+         const bool useSourceTermAtBoundary = false
+         );
+        
+        HpgemAPILinear
+        (
+         const std::size_t numberOfUnknowns,
+         const std::size_t polynomialOrder,
+         const std::size_t globalNummberOfTimeIntegrationVectors,
+         const std::size_t numberOfTimeLevels = 0,
          const bool useSourceTerm = false,
          const bool useSourceTermAtBoundary = false
          );
@@ -119,7 +130,7 @@ namespace Base
         virtual void createMassMatrices();
         
         /// \brief Solve the mass matrix equations.
-        void solveMassMatrixEquations(const std::size_t timeLevel) override;
+        void solveMassMatrixEquations(const std::size_t timeIntegrationVectorId) override;
         
         /// \brief Compute the integrand for the stiffness matrix.
         virtual LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM> &element)
@@ -160,23 +171,23 @@ namespace Base
         /// \brief Integrate the source term at a boundary face.
         virtual LinearAlgebra::MiddleSizeVector integrateSourceTermAtFace(Base::Face *ptrFace, const double time, const std::size_t orderTimeDerivative);
         
-        /// \brief Multiply the stiffness matrices with the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'.
-        virtual void multiplyStiffnessMatrices(const std::size_t timeLevelIn, const std::size_t timeLevelResult);
+        /// \brief Multiply the stiffness matrices with the time integration vector with index 'inputVectorId' and store the result at time integration vector with index 'resultVectorId'.
+        virtual void multiplyStiffnessMatrices(const std::size_t inputVectorId, const std::size_t resultVectorId);
         
-        /// \brief Multiply the stiffness matrices with the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
-        virtual void multiplyStiffnessMatrices(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult);
+        /// \brief Multiply the stiffness matrices with the linear combination of time integration vectors with indices 'inputVectorIds', with coefficients given in 'coefficientsInputVectors'. Store the result at time integration vector with index 'resultVectorId'.
+        virtual void multiplyStiffnessMatrices(const std::vector<std::size_t> inputVectorIds, const std::vector<double> coefficientsInputVectors, const std::size_t resultVectorId);
         
-        /// \brief Add the source term to the solution at time level 'timeLevelResult'.
-        virtual void addSourceTerm(const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
+        /// \brief Add the source term to the time integration vector with index 'resultVectorId'.
+        virtual void addSourceTerm(const std::size_t resultVectorId, const double time, const std::size_t orderTimeDerivative);
         
-        /// \brief Add the source term at the boundary of the domain to the solution at time level 'timeLevelResult'.
-        virtual void addSourceTermAtBoundary(const std::size_t timeLevelResult, const double time, const std::size_t orderTimeDerivative);
+        /// \brief Add the source term at the boundary of the domain to the time integration vector with index 'resultVectorId'.
+        virtual void addSourceTermAtBoundary(const std::size_t resultVectorId, const double time, const std::size_t orderTimeDerivative);
         
-        /// \brief Compute the right hand side for the solution at time level 'timeLevelIn' and store the result at time level 'timeLevelResult'.
-        void computeRightHandSide(const std::size_t timeLevelIn, const std::size_t timeLevelResult, const double time) override;
+        /// \brief Compute the right hand side for the DG function with coefficients given by the time integration vector with index 'inputVectorId' and store the result at the time integration vector with index 'resultVectorId'.
+        void computeRightHandSide(const std::size_t inputVectorId, const std::size_t resultVectorId, const double time) override;
         
-        /// \brief Compute the right hand side for the linear combination of solutions at time level 'timeLevelIn' with coefficients given in coefficientsTimeLevels. Store the result at time level 'timeLevelResult'.
-        void computeRightHandSide(const std::vector<std::size_t> timeLevelsIn, const std::vector<double> coefficientsTimeLevels, const std::size_t timeLevelResult, const double time) override;
+        /// \brief Compute the right hand side for the DG function with coefficients given by a linear combination of time integration vectors with indices 'inputVectorIds' and with coefficients given in 'coefficientsInputVectors'. Store the result at the time integration vector with index 'resultVectorId'.
+        void computeRightHandSide(const std::vector<std::size_t> inputVectorId, const std::vector<double> coefficientsInputVectors, const std::size_t resultVectorId, const double time) override;
         
         /// \brief Create and Store things before solving the problem.
         void tasksBeforeSolving() override;

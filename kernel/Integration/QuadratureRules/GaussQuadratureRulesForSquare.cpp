@@ -48,21 +48,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t Cn2_1_1::nrOfPoints() const
+    std::size_t Cn2_1_1::getNumberOfPoints() const
     {
         return 1;
     }
     
     double Cn2_1_1::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     Cn2_1_1::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -96,21 +96,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t Cn2_3_4::nrOfPoints() const
+    std::size_t Cn2_3_4::getNumberOfPoints() const
     {
         return 4;
     }
     
     double Cn2_3_4::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     Cn2_3_4::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -153,21 +153,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t Cn2_5_9::nrOfPoints() const
+    std::size_t Cn2_5_9::getNumberOfPoints() const
     {
         return 9;
     }
     
     double Cn2_5_9::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     Cn2_5_9::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -225,21 +225,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t C2_7_4::nrOfPoints() const
+    std::size_t C2_7_4::getNumberOfPoints() const
     {
         return 16;
     }
     
     double C2_7_4::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     C2_7_4::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -318,21 +318,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t C2_9_5::nrOfPoints() const
+    std::size_t C2_9_5::getNumberOfPoints() const
     {
         return 25;
     }
     
     double C2_9_5::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     C2_9_5::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -347,9 +347,9 @@ namespace QuadratureRules
     {
         std::size_t position(0);
         C1_9_5& ruleForLine = C1_9_5::Instance();
-        for (std::size_t i = 0; i < ruleForLine.nrOfPoints(); ++i)
+        for (std::size_t i = 0; i < ruleForLine.getNumberOfPoints(); ++i)
         {
-            for (std::size_t j = 0; j < ruleForLine.nrOfPoints(); ++j)
+            for (std::size_t j = 0; j < ruleForLine.getNumberOfPoints(); ++j)
             {
                 weight_[position] = ruleForLine.weight(i) * ruleForLine.weight(j);
                 gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({static_cast<const PointReference<1>&>(ruleForLine.getPoint(i))[0], static_cast<const PointReference<1>&>(ruleForLine.getPoint(j))[0]}));
@@ -375,21 +375,21 @@ namespace QuadratureRules
         return 2;
     }
     
-    std::size_t C2_11_6::nrOfPoints() const
+    std::size_t C2_11_6::getNumberOfPoints() const
     {
         return 36;
     }
     
     double C2_11_6::weight(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::weight - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::weight - wrong index!", name_);
         return weight_[i];
     }
     
     const Geometry::PointReferenceBase&
     C2_11_6::getPoint(std::size_t i) const
     {
-        logger.assert(i < nrOfPoints(), "%::getPoint - wrong index!", name_);
+        logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
         return *gp_[i];
     }
     
@@ -404,9 +404,9 @@ namespace QuadratureRules
     {
         std::size_t position(0);
         C1_11_6& ruleForLine = C1_11_6::Instance();
-        for (std::size_t i = 0; i < ruleForLine.nrOfPoints(); ++i)
+        for (std::size_t i = 0; i < ruleForLine.getNumberOfPoints(); ++i)
         {
-            for (std::size_t j = 0; j < ruleForLine.nrOfPoints(); ++j)
+            for (std::size_t j = 0; j < ruleForLine.getNumberOfPoints(); ++j)
             {
                 weight_[position] = ruleForLine.weight(i) * ruleForLine.weight(j);
                 gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({static_cast<const PointReference<1>&>(ruleForLine.getPoint(i))[0], static_cast<const PointReference<1>&>(ruleForLine.getPoint(j))[0]}));

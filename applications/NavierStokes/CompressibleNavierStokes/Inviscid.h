@@ -50,6 +50,8 @@ public:
 	/// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
 	LinearAlgebra::MiddleSizeVector integrandAtFace(Base::PhysicalFace<DIM> &face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
 
+	/// \brief Compute both the face integral for the left element as the right element at the same time. (reducing flux calculations)
+	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsAtFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateLeft, const LinearAlgebra::MiddleSizeVector &stateRight);
 
 private:
 	const CompressibleNavierStokes& instance_;

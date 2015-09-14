@@ -44,7 +44,6 @@ Output::VTKTimeDependentWriter<DIM>::VTKTimeDependentWriter(std::string baseFile
             {
                 logger(FATAL, "failed to open main paraview output file %.pvd", baseFileName);
             }
-            exit(1);
         }
         masterFile_ << "<?xml version=\"1.0\"?>" << std::endl;
         masterFile_ << "<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"" << (Detail::isBigEndian() ? "BigEndian" : "LittleEndian") << "\">" << std::endl;

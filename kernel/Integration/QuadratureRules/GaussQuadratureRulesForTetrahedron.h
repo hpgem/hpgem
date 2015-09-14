@@ -48,7 +48,7 @@ namespace QuadratureRules
         std::string getName() const override final;
         std::size_t order() const override final;
         std::size_t dimension() const override final;
-        std::size_t nrOfPoints() const override final;
+        std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
         const PointReferenceT& getPoint(std::size_t i) const override final;
         ReferenceGeometryT* forReferenceGeometry() const override final;
@@ -79,7 +79,7 @@ namespace QuadratureRules
         std::string getName() const override final;
         std::size_t order() const override final;
         std::size_t dimension() const override final;
-        std::size_t nrOfPoints() const override final;
+        std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
         const PointReferenceT& getPoint(std::size_t i) const override final;
         ReferenceGeometryT* forReferenceGeometry() const override final;
@@ -110,7 +110,7 @@ namespace QuadratureRules
         std::string getName() const override final;
         std::size_t order() const override final;
         std::size_t dimension() const override final;
-        std::size_t nrOfPoints() const override final;
+        std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
         const PointReferenceT& getPoint(std::size_t i) const override final;
         ReferenceGeometryT* forReferenceGeometry() const override final;
@@ -141,7 +141,7 @@ namespace QuadratureRules
         std::string getName() const override final;
         std::size_t order() const override final;
         std::size_t dimension() const override final;
-        std::size_t nrOfPoints() const override final;
+        std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
         const PointReferenceT& getPoint(std::size_t i) const override final;
         ReferenceGeometryT* forReferenceGeometry() const override final;
@@ -172,7 +172,7 @@ namespace QuadratureRules
         std::string getName() const override final;
         std::size_t order() const override final;
         std::size_t dimension() const override final;
-        std::size_t nrOfPoints() const override final;
+        std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
         const PointReferenceT& getPoint(std::size_t i) const override final;
         ReferenceGeometryT* forReferenceGeometry() const override final;
@@ -203,7 +203,7 @@ namespace QuadratureRules
         std::string getName() const override final;
         std::size_t order() const override final;
         std::size_t dimension() const override final;
-        std::size_t nrOfPoints() const override final;
+        std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
         const PointReferenceT& getPoint(std::size_t i) const override final;
         ReferenceGeometryT* forReferenceGeometry() const override final;
@@ -234,7 +234,7 @@ namespace QuadratureRules
         std::string getName() const override final;
         std::size_t order() const override final;
         std::size_t dimension() const override final;
-        std::size_t nrOfPoints() const override final;
+        std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
         const PointReferenceT& getPoint(std::size_t i) const override final;
         ReferenceGeometryT* forReferenceGeometry() const override final;
@@ -265,7 +265,7 @@ namespace QuadratureRules
         std::string getName() const override final;
         std::size_t order() const override final;
         std::size_t dimension() const override final;
-        std::size_t nrOfPoints() const override final;
+        std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
         const PointReferenceT& getPoint(std::size_t i) const override final;
         ReferenceGeometryT* forReferenceGeometry() const override final;
@@ -296,7 +296,7 @@ namespace QuadratureRules
         std::string getName() const override final;
         std::size_t order() const override final;
         std::size_t dimension() const override final;
-        std::size_t nrOfPoints() const override final;
+        std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
         const PointReferenceT& getPoint(std::size_t i) const override final;
         ReferenceGeometryT* forReferenceGeometry() const override final;
@@ -327,7 +327,7 @@ namespace QuadratureRules
         std::string getName() const override final;
         std::size_t order() const override final;
         std::size_t dimension() const override final;
-        std::size_t nrOfPoints() const override final;
+        std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
         const PointReferenceT& getPoint(std::size_t i) const override final;
         ReferenceGeometryT* forReferenceGeometry() const override final;

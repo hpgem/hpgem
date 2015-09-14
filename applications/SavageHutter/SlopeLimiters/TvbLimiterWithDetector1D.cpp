@@ -42,7 +42,7 @@ std::vector<bool> TvbLimiterWithDetector1D::detectDiscontinuity(Base::Element* e
     LinearAlgebra::MiddleSizeVector totalIntegral(numOfVariables_);
     LinearAlgebra::MiddleSizeVector numericalSolution(numOfVariables_);
     std::vector<bool> isDiscontinuous(numOfVariables_, false);
-    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
 
     //For every face of this element, check the size of the jump
     for (const Base::Face *face : element->getFacesList())
@@ -72,12 +72,12 @@ std::vector<bool> TvbLimiterWithDetector1D::detectDiscontinuity(Base::Element* e
             {
                 if (sideOfElement == Base::Side::LEFT)
                 {
-                    LinearAlgebra::MiddleSizeVector solutionCoefficientsOther = face->getPtrElement(Base::Side::RIGHT)->getTimeLevelDataVector(0);
+                    LinearAlgebra::MiddleSizeVector solutionCoefficientsOther = face->getPtrElement(Base::Side::RIGHT)->getTimeIntegrationVector(0);
                     numericalSolutionOther = Helpers::getSolution<1>(face->getPtrElement(Base::Side::RIGHT), solutionCoefficientsOther, face->mapRefFaceToRefElemR(pRefForInflowTest), numOfVariables_);
                 }
                 else
                 {
-                    LinearAlgebra::MiddleSizeVector solutionCoefficientsOther = face->getPtrElement(Base::Side::LEFT)->getTimeLevelDataVector(0);
+                    LinearAlgebra::MiddleSizeVector solutionCoefficientsOther = face->getPtrElement(Base::Side::LEFT)->getTimeIntegrationVector(0);
                     numericalSolutionOther = Helpers::getSolution<1>(face->getPtrElement(Base::Side::LEFT), solutionCoefficientsOther, face->mapRefFaceToRefElemL(pRefForInflowTest), numOfVariables_);
                 }
             }
@@ -147,7 +147,7 @@ bool TvbLimiterWithDetector1D::hasSmallSlope(Base::Element* element, std::size_t
 void TvbLimiterWithDetector1D::limitWithMinMod(Base::Element* element, const std::size_t iVar)
 {    
     
-    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
     logger.assert(std::abs(-1  - pRefL[0]) < 1e-10, "xi_L != -1");    
@@ -175,7 +175,7 @@ void TvbLimiterWithDetector1D::limitWithMinMod(Base::Element* element, const std
     const double u0 = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(iVar);
     const double uElemR = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemR), solutionCoefficients, elementIntegrator_)(iVar);
     const double uElemL = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemL), solutionCoefficients, elementIntegrator_)(iVar);
-    logger(DEBUG, "coefficients: %", element->getTimeLevelData(0, iVar));
+    logger(DEBUG, "coefficients: %", element->getTimeIntegrationSubvector(0, iVar));
     logger(DEBUG, "uPlus: %, basis function vals: %, %", uPlus , element->basisFunction(0,pRefR), element->basisFunction(1,pRefR));
     logger(DEBUG, "uMinus: %, basis function vals: %, %", uMinus, element->basisFunction(0,pRefL), element->basisFunction(1,pRefL));
     logger(INFO, "Element %: %, %, %",element->getID(), (uPlus - uMinus), uElemR - u0, u0 - uElemL);
@@ -190,7 +190,7 @@ void TvbLimiterWithDetector1D::limitWithMinMod(Base::Element* element, const std
         //replace coefficients with "u0 + slope/2 * xi" coefficients
         std::function<double(const PointReferenceT&)> newFun = [=] (const PointReferenceT& pRef) {return u0 + slope*pRef[0];};
         LinearAlgebra::MiddleSizeVector newCoeffs = Helpers::projectOnBasisFuns<1>(element, newFun, elementIntegrator_);
-        element->setTimeLevelData(0, iVar, newCoeffs);
+        element->setTimeIntegrationSubvector(0, iVar, newCoeffs);
         logger(INFO, "Element % is limited, slope %!", element->getID(), slope);
     }
 }

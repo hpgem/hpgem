@@ -80,12 +80,12 @@ double SqueezeLimiterWithLayer::getMinimumHeight(const Base::Element* element)
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
     const std::size_t numOfVariables = element->getNumberOfUnknowns();
     const double solutionLeft = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, numOfVariables)(0);
     const double solutionRight = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, numOfVariables)(0);
     double minimum = std::min(solutionLeft, solutionRight);
-    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
+    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->getNumberOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
         minimum = std::min(minimum, Helpers::getSolution<1>(element, solutionCoefficients, pRef, numOfVariables)(0));
@@ -98,7 +98,7 @@ const Geometry::PointReference<1>* SqueezeLimiterWithLayer::getMinimumHeightPoin
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeLevelDataVector(0);
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
     const std::size_t numOfVariables = element->getNumberOfUnknowns();
     const double solutionLeft = Helpers::getSolution<1>(element, solutionCoefficients, pRefL, numOfVariables)(0);
     const double solutionRight = Helpers::getSolution<1>(element, solutionCoefficients, pRefR, numOfVariables)(0);
@@ -109,7 +109,7 @@ const Geometry::PointReference<1>* SqueezeLimiterWithLayer::getMinimumHeightPoin
         minimum = solutionRight;
         minPoint = &pRefR;
     }
-    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->nrOfPoints(); ++p)
+    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->getNumberOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
          if (minimum > Helpers::getSolution<1>(element, solutionCoefficients, pRef, numOfVariables)(0))

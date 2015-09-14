@@ -91,7 +91,6 @@ Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(const std::string& bas
             {
                 logger(FATAL, "failed to open main paraview output file %.pvtu", baseName);
             }
-            exit(1);
         }
         masterFile_ << "<?xml version=\"1.0\"?>" << std::endl;
         masterFile_ << "<VTKFile type=\"PUnstructuredGrid\" version=\"0.1\" byte_order=\"" << (Detail::isBigEndian() ? "BigEndian" : "LittleEndian") << "\">" << std::endl;

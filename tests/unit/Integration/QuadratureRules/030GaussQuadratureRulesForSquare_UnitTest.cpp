@@ -45,7 +45,7 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOr
     for (std::size_t i = 0; i < functions->size(); ++i)
     {
         double integrated = 0;
-        for (std::size_t j = 0; j < test.nrOfPoints(); ++j)
+        for (std::size_t j = 0; j < test.getNumberOfPoints(); ++j)
         {
             const Geometry::PointReference<2>& point = test.getPoint(j);
             integrated += test.weight(j) * functions->eval(i, point);

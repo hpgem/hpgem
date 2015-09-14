@@ -98,7 +98,7 @@ namespace Output
             // Cycle through nodes
             while (nodeIt.more())
             {
-                const std::size_t localNode = nodeIt.getNodeNr();
+                const std::size_t localNode = nodeIt.getNodeNumber();
                 
                 // For the solution data, write function of the user, however we pass a local
                 // coordinate of the current reference element

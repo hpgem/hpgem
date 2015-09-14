@@ -238,7 +238,7 @@ public:
         KSPGetIterationNumber(ksp, &iterations);
         logger(INFO, "KSP solver ended because of % in % iterations.", KSPConvergedReasons[converge], iterations);
         
-        x.writeTimeLevelData(solutionTimeLevel_);
+        x.writeTimeIntegrationVector(solutionVectorId_);
         
         std::ofstream outFile("030TecplotOutput_SelfTest_output.dat");
         Output::TecplotDiscontinuousSolutionWriter<2> writeFunc(outFile, "test", "01", "value");
@@ -246,10 +246,10 @@ public:
         
         if(doComputeError)
         {
-            LinearAlgebra::MiddleSizeVector::type totalError = computeTotalError(solutionTimeLevel_, 0);
+            LinearAlgebra::MiddleSizeVector::type totalError = computeTotalError(solutionVectorId_, 0);
             totalError_ = totalError;
             logger(INFO, "Total error: %.", totalError);
-            LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionTimeLevel_, 0);
+            LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionVectorId_, 0);
             logger.assert(maxError.size() == configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), configData_->numberOfUnknowns_);
             for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV ++)
             {

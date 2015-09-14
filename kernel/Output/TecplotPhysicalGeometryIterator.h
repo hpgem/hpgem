@@ -73,7 +73,7 @@ namespace Output
         bool more() const;
 
         /// \brief Return the current node number.
-        std::size_t getNodeNr();
+        std::size_t getNodeNumber();
 
     private:
         TecplotPhysicalGeometryIterator();

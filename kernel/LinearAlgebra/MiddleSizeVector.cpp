@@ -273,11 +273,15 @@ namespace LinearAlgebra
     std::ostream& operator<<(std::ostream& os, const MiddleSizeVector& A)
     {
         os << '[';
-        for (std::size_t i = 0; i < A.size() - 1; i++)
+        for (std::size_t i = 0; i < A.size(); i++)
         {
-            os << A(i) << ',';
+            if(i != 0)
+            {
+                os << ", ";
+            }
+            os << A(i);
         }
-        os << A(A.size() - 1) << ']';
+        os << ']';
         return os;
     }
 

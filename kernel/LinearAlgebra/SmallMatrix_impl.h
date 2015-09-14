@@ -253,7 +253,7 @@ namespace LinearAlgebra
         int nrhs = nRHS;
         int info;
 
-        int IPIV[n];
+        int IPIV[nRows];
         SmallMatrix<nRows, nCols> matThis = *this;
         dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
     }
@@ -267,7 +267,7 @@ namespace LinearAlgebra
         int nrhs = 1;
         int info;
 
-        int IPIV[n];
+        int IPIV[nRows];
         SmallMatrix matThis = *this;
         dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
     }
