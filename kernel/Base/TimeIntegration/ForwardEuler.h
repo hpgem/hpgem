@@ -25,7 +25,7 @@
 #include <vector>
 #include "ButcherTableau.h"
 
-namespace Base
+namespace TimeIntegration
 {
     
     class ForwardEuler : public ButcherTableau

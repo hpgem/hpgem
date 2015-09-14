@@ -24,7 +24,7 @@
 
 #include <vector>
 
-namespace Base
+namespace TimeIntegration
 {
     /** \brief Basic container for Butcher's tableaus.
      *
@@ -47,6 +47,12 @@ namespace Base
         {
         }
     };
+}
+
+namespace Base
+{
+    /// \deprecated reinsert namespace TimeIntegration into Base to conform with previous location
+    using namespace TimeIntegration;
 }
 
 #endif	/* BUTCHERTABLEAU_HPP */

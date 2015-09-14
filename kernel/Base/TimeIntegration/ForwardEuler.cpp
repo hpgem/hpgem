@@ -22,7 +22,7 @@
 #include "ForwardEuler.h"
 #include "Logger.h"
 
-namespace Base
+namespace TimeIntegration
 {
     ForwardEuler::ForwardEuler()
     {

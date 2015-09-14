@@ -22,7 +22,7 @@
 #include "RK2TVD.h"
 #include "Logger.h"
 
-namespace Base {
+namespace TimeIntegration {
 
 RK2TVD::RK2TVD()
 {

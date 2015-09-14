@@ -84,7 +84,7 @@ namespace Base
         (
          const std::size_t numberOfUnknowns,
          const std::size_t polynomialOrder,
-         const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
+         const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(4, 4),
          const std::size_t numberOfTimeLevels = 0,
          const bool useSourceTerm = false,
          const bool useSourceTermAtBoundary = false

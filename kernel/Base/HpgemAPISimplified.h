@@ -95,7 +95,7 @@ namespace Base
         (
          const std::size_t numberOfUnknowns,
          const std::size_t polynomialOrder,
-         const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
+         const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(4, 4),
          const std::size_t numberOfTimeLevels = 0,
          const bool computeBothFaces = false
          );
@@ -297,7 +297,7 @@ namespace Base
         
     protected:
         /// Butcher tableau for time integration. The integration method is assumed to be explicit.
-        const Base::ButcherTableau * const ptrButcherTableau_;
+        const TimeIntegration::ButcherTableau * const ptrButcherTableau_;
         
         /// Index to indicate which time integration vector corresponds to the solution.
         std::size_t solutionVectorId_;
