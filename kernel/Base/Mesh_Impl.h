@@ -194,7 +194,7 @@ namespace Base
             float imbalance = 1.001;//explicitly put the default for later manipulation
             int totalCutSize;//output
             
-            std::vector<int> xadj(numberOfElements + 1);//for some reason c-style arrays break somewhere near 1e6 faces in a mesh, so use vectors
+            std::vector<int> xadj(numberOfElements + 1);//make sure not to put this data on the stack
             std::vector<int> adjncy(2 * faces_.size());//if this basic connectivity structure turns out to be very slow for conforming meshes, some improvements can be made
             int connectionsUsed(0), xadjCounter(0);
             for (Element* element : elements_)
@@ -228,7 +228,7 @@ namespace Base
             metisOptions[METIS_OPTION_RTYPE] = METIS_RTYPE_FM;
 
             //the empty arguments provide options for fine-tuning the weights of nodes, edges and processors, these are currently assumed to be the same
-            METIS_PartGraphKway(&numberOfElements, &one, &xadj[0], &adjncy[0], NULL, NULL, NULL, &nProcs, NULL, &imbalance, metisOptions, &totalCutSize, &partition[0]);
+            METIS_PartGraphKway(&numberOfElements, &one, xadj.data(), adjncy.data(), NULL, NULL, NULL, &nProcs, NULL, &imbalance, metisOptions, &totalCutSize, partition.data());
             //mpiCommunicator.Bcast((void *)&partition[0],partition.size(),MPI::INT,0);//broadcast the computed partition to all the nodes
             logger(INFO, "Done splitting mesh.");
 
@@ -270,6 +270,7 @@ namespace Base
                     if (partition[face->getPtrElementLeft()->getID()] == pid)
                     {
                         //don't send to yourself, ask the element on the other side what pid to sent to
+                        //use the private addPush and addPull because they are more efficient
                         submeshes_.addPush(face->getPtrElementLeft(), partition[face->getPtrElementRight()->getID()]);
                         //if you receive, the source is the owner of the element
                         submeshes_.addPull(face->getPtrElementRight(), partition[face->getPtrElementRight()->getID()]);

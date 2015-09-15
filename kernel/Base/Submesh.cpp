@@ -75,6 +75,108 @@ namespace Base
         nodes_.clear();
         pullElements_.clear();
         pushElements_.clear();
+        otherPulls_.clear();
     }
 
+    void Submesh::processPullRequests()
+    {
+        //without MPI this routine promises to do nothing
+#ifdef HPGEM_USE_MPI
+        if(otherPulls_.size() > 0)
+        {
+            //reconstruct element->processor mapping
+            MPIContainer& container = MPIContainer::Instance();
+            std::size_t n = container.getNumProcessors();
+            std::size_t rank = container.getProcessorID();
+            std::vector<int> numberOfElements(n + 1, 0), cumulativeNumberOfElements(n + 1);
+            auto& comm = container.getComm();
+            numberOfElements[rank+1] = elements_.size()+1;
+            comm.Allgather(MPI_IN_PLACE, 1, Base::Detail::toMPIType(*numberOfElements.data()), numberOfElements.data()+1, 1, Base::Detail::toMPIType(*numberOfElements.data()));
+            std::partial_sum(numberOfElements.begin(), numberOfElements.end(), cumulativeNumberOfElements.begin());
+            std::vector<std::size_t> elementIDs(cumulativeNumberOfElements[n]);
+            auto IDIterator = elementIDs.begin() + cumulativeNumberOfElements[rank];
+            for(Element* element: elements_)
+            {
+                *IDIterator = element->getID();
+                IDIterator++;
+            }
+            //sentinel
+            *IDIterator = std::numeric_limits<std::size_t>::max();
+            std::sort(elementIDs.begin() + cumulativeNumberOfElements[rank], elementIDs.begin() + cumulativeNumberOfElements[rank+1]);
+            comm.Allgatherv(MPI_IN_PLACE, 0, Base::Detail::toMPIType(n), elementIDs.data(), numberOfElements.data()+1 ,cumulativeNumberOfElements.data(), Base::Detail::toMPIType(n));
+
+            //insert pull requests
+            std::vector<std::vector<std::size_t>::iterator> searchIterators(n);
+            //warning: this maps the pid where the data is to be pushed from to element id
+            //(this is the processor the data is to be pushed to; usually this works the other way around)
+            std::vector<std::vector<std::size_t> > newPushes(n);
+            for(std::size_t i = 0; i < n; ++i)
+            {
+                searchIterators[i] = elementIDs.begin() + cumulativeNumberOfElements[i];
+            }
+            for(Element* element : otherPulls_)
+            {
+                for(std::size_t i = 0; i < n; ++i)
+                {
+                    if(i != rank)
+                    {
+                        while(*searchIterators[i] < element->getID())
+                        {
+                            searchIterators[i]++;
+                        }
+                        if(*searchIterators[i] == element->getID())
+                        {
+                            //this is one of the elements we are trying to pull
+                            addPull(element, i);
+                            newPushes[i].push_back(element->getID());
+                        }
+                    }
+                }
+            }
+
+            //communicate again to process push requests
+            std::vector<std::size_t> sendBuffer;
+            std::vector<int> numberOfSendElements(n + 1, 0), numberOfRecieveElements(n + 1, 0);
+            for(std::size_t i = 0; i < n; ++i)
+            {
+                numberOfSendElements[i + 1] = newPushes[i].size();
+                for(std::size_t id : newPushes[i])
+                {
+                    sendBuffer.push_back(id);
+                }
+            }
+            std::vector<int> cumulativeNumberOfSendElements(n + 1), cumulativeNumberOfRecieveElements(n + 1);
+            std::partial_sum(numberOfSendElements.begin(), numberOfSendElements.end(), cumulativeNumberOfSendElements.begin());
+            comm.Alltoall(numberOfSendElements.data()+1, 1, Base::Detail::toMPIType(*numberOfElements.data()),
+                          numberOfRecieveElements.data()+1, 1, Base::Detail::toMPIType(*numberOfElements.data()));
+            std::partial_sum(numberOfRecieveElements.begin(), numberOfRecieveElements.end(), cumulativeNumberOfRecieveElements.begin());
+            std::vector<std::size_t> recieveBuffer(cumulativeNumberOfRecieveElements[n]);
+            comm.Alltoallv(sendBuffer.data(), numberOfSendElements.data()+1, cumulativeNumberOfSendElements.data(), Base::Detail::toMPIType(n),
+                           recieveBuffer.data(), numberOfRecieveElements.data()+1, cumulativeNumberOfRecieveElements.data(), Base::Detail::toMPIType(n));
+            auto pushIterator = recieveBuffer.begin();
+            for(std::size_t i = 0; i < n; ++i)
+            {
+                for(;pushIterator!=recieveBuffer.begin() + cumulativeNumberOfRecieveElements[i+1];++pushIterator)
+                {
+                    auto candidate = std::find_if(elements_.begin(), elements_.end(), [&](Element* a){return a->getID() == *pushIterator;});
+                    logger.assert(candidate != elements_.end(), "element with ID % does not belong here", *pushIterator);
+                    addPush(*candidate, i);
+                }
+            }
+            otherPulls_.clear();
+        }
+#endif
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+

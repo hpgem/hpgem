@@ -43,45 +43,27 @@ namespace Base
     
     class Submesh
     {
-    private:
-        //Design note: Mesh is a friend of this class, because we want mesh to 
-        //access the functionality of the Submesh, not because of mesh messing 
-        //with private data members.
-        //Form a meta-physical point of view mesh is not derived from submesh 
-        //(and it cannot provide the functionality of submesh), so currently this
-        //is probably the best imperfect solution.
-        friend Mesh<1>;
-        friend Mesh<2>;
-        friend Mesh<3>;
-        friend Mesh<4>;
-        friend std::vector<Submesh>::allocator_type;
-
-        Submesh() = default;
-        Submesh(const Submesh& orig) = delete;
-
-        //! adds an element to this submesh
-        void add(Element* element);
-
-        //! adds a push or pull element. Make sure to add push elements after you fill this list of element belonging to this submesh
-        //! processorID is the 0 based index of the processor that will be communicated with about this element
-        void addPush(Element* element, int processorID);
-        void addPull(Element* element, int processorID);
-
-        //! adds a face to this submesh
-        //note that interfacial faces should appear in the submesh of both their left and right element
-        void add(Face* face);
-
-        //! adds an edge to this submesh
-        //note that interfacial edges should appear in the submeshes of one their adjacent elements
-        void add(Edge* edge);
-
-        //! adds a node to this submesh
-        //note that interfacial edges should appear in the submeshes of one their adjacent elements
-        void add(Node* node);
-
-        //! signals the submesh to prepare for a redistribution (user has to make sure non-geometric data is also redistributed properly)
-        void clear();
     public:
+        /// \brief request to receive data from an element that does not neighbor this partition
+        /// \details this partition will receive data about the element on all following communication
+        /// elements directly neighboring this partition are required for common flux computations
+        /// have already been added by default and don't have to be added again. This method is intended
+        /// to facilitate use of non-local information. Passing an element twice or passing an element
+        /// that is inside your partition will not have any detrimental effects on communication times.
+        /// For example, if you need information from the next-nearest neighbors of your elements
+        /// you can simply pass all neighbors of all neighbors of every element in your partition.
+        /// Calling this routine intermittently can be expensive, multiple calls should be clustered between
+        /// synchronization steps where possible
+        void addPullElement(Element* element)
+        {
+            logger.assert(element!=nullptr, "Invalid element passed");
+            if(!std::binary_search(otherPulls_.begin(), otherPulls_.end(), element, [](Element* a, Element* b)->bool{return a->getID() < b->getID();}))
+            {
+                otherPulls_.push_back(element);
+                std::inplace_merge(otherPulls_.begin(), otherPulls_.end() - 1, otherPulls_.end(), [](Element* a, Element* b)->bool{return a->getID() < b->getID();});
+            }
+        }
+
         //! Get const list of elements
         const std::vector<Element*>& getElementsList() const
         {
@@ -126,17 +108,59 @@ namespace Base
             return nodes_;
         }
         
-        const std::map<int, std::vector<Element*> > & getPullElements() const
+        const std::map<int, std::vector<Element*> > & getPullElements()
         {
+            processPullRequests();
             return pullElements_;
         }
         
-        const std::map<int, std::vector<Element*> > & getPushElements() const
+        const std::map<int, std::vector<Element*> > & getPushElements()
         {
+            processPullRequests();
             return pushElements_;
         }
-        
     private:
+        //Design note: Mesh is a friend of this class, because we want mesh to
+        //access all functionality of the Submesh, not because of mesh messing
+        //with private data members.
+        //Form a meta-physical point of view mesh is not derived from submesh
+        //(and it cannot provide the functionality of submesh), so currently this
+        //is probably the best imperfect solution.
+        friend Mesh<1>;
+        friend Mesh<2>;
+        friend Mesh<3>;
+        friend Mesh<4>;
+        friend std::vector<Submesh>::allocator_type;
+
+        Submesh() = default;
+        Submesh(const Submesh& orig) = delete;
+
+        //! adds an element to this submesh
+        void add(Element* element);
+
+        //! adds a push or pull element. Make sure to add push elements after you fill the list of element belonging to this submesh
+        //! processorID is the 0 based index of the processor that will be communicated with about this element
+        void addPush(Element* element, int processorID);
+        void addPull(Element* element, int processorID);
+
+        //! looks up processor IDs for new pull requests and adds them to the lists of push and pull elements
+        void processPullRequests();
+
+        //! adds a face to this submesh
+        //note that interfacial faces should appear in the submesh of both their left and right element
+        void add(Face* face);
+
+        //! adds an edge to this submesh
+        //note that interfacial edges should appear in the submeshes of one their adjacent elements
+        void add(Edge* edge);
+
+        //! adds a node to this submesh
+        //note that interfacial edges should appear in the submeshes of one their adjacent elements
+        void add(Node* node);
+
+        //! signals the submesh to prepare for a redistribution (user has to make sure non-geometric data is also redistributed properly)
+        void clear();
+        
         //! List of all elements. 
         ///\todo: this should be replaced by the mesh-tree structure
         std::vector<Element*> elements_;
@@ -163,6 +187,9 @@ namespace Base
         //! Tracks the shadow elements of other processes (that need their elements send to another processor each update step)
         //! pushElement_[i] constains the list of all elements that send info to another process
         std::map<int, std::vector<Element*> > pushElements_;
+
+        //! List of elements that should be a shadow element, but are not coupled to a partition yet
+        std::vector<Element*> otherPulls_;
     };
 
 }
