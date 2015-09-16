@@ -28,6 +28,7 @@
 #include "Geometry/Jacobian.h"
 #include "CoordinateTransformation.h"
 #include "H1ConformingTransformation.h"
+#include "HCurlConformingTransformation.h"
 
 namespace Base
 {

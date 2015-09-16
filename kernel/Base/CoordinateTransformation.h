@@ -75,5 +75,4 @@ namespace Base
 }
 
 
-
 #endif /* COORDINATETRANSFORMATION_H_ */

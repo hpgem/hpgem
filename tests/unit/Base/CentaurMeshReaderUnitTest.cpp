@@ -47,17 +47,18 @@ public:
 //Also test the copy constructor of Mesh/MeshManipulator here after this test has been fixed.
 int main()
 {
-    /*    Base::ConfigurationData config(3,1,1);
+    /*
+    Base::ConfigurationData config(3, 1, 1);
      
      config.numberOfUnknowns_       = 1;
      config.numberOfTimeLevels_     = 1;
      config.numberOfBasisFunctions_ = 1;
      
-     Base::MeshManipulator<2> myTwoDDemoMesh(&config, 1,1);
+    Base::MeshManipulator<2> myTwoDDemoMesh(&config, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
      
      std::stringstream filename;
      
-     filename << getCMAKE_hpGEM_SOURCE_DIR() << "/tests/files/centaurQuadMinimum.hyb";
+     filename << getCMAKE_hpGEM_SOURCE_DIR() << "Users/devashishd/trunk_new/tests/files/centaurQuadMinimum.hyb";
 
      myTwoDDemoMesh.readCentaurMesh(filename.str());
      
@@ -70,17 +71,17 @@ int main()
      
      Output::TecplotDiscontinuousSolutionWriter<2> out(file2D,"QuadMinimum Test Mesh","01","xy");
      Dummy d;
-     out.write(&myTwoDDemoMesh,"holi",false, d);
+    out.write(&myTwoDDemoMesh,"holi",false, {d});
      
      file2D.close();
      
      //Now do it again with a more complicated mesh
      
-     Base::MeshManipulator<2> triQuadTwoDDemoMesh(&config,1,1);
+    Base::MeshManipulator<2> triQuadTwoDDemoMesh(&config, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
      
      std::stringstream filename2;
      
-     filename2 << getCMAKE_hpGEM_SOURCE_DIR() << "/tests/files/centaurMinimum.hyb";
+     filename2 << getCMAKE_hpGEM_SOURCE_DIR() << "Users/devashishd/trunk_new/tests/files/centaurMinimum.hyb";
      
      cout << "filename " << filename2.str() <<endl;
      
@@ -94,6 +95,6 @@ int main()
      out2.write(&triQuadTwoDDemoMesh,"holi",false,d);
      
      file2D.close();
-     
      */
+    
 }

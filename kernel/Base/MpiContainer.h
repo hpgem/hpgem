@@ -14,6 +14,7 @@
 
 #include <type_traits>
 #include <vector>
+#include <complex>
 
 namespace Base
 {
@@ -42,6 +43,13 @@ namespace Base
     toMPIType(T t)
     {   
         return MPI::Datatype::Match_size(MPI_TYPECLASS_REAL,sizeof(T));
+    }
+        
+    template<class T>
+    typename std::enable_if<std::is_floating_point<T>::value, MPI::Datatype>::type
+    toMPIType(std::complex<T> t)
+    {
+        return MPI::Datatype::Match_size(MPI_TYPECLASS_COMPLEX,sizeof(std::complex<T>));
     }
     
     

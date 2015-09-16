@@ -71,7 +71,7 @@ namespace Base
     
     //class is made final so we don't have to create a v-table specifically for the destructor
     template<std::size_t DIM>
-    class MeshManipulator final : public MeshManipulatorBase
+    class MeshManipulator : public MeshManipulatorBase //remove the word final after MeshManipulator
     {
     public:
         

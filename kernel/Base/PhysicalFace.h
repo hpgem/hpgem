@@ -33,6 +33,7 @@ namespace Base
     class CoordinateTransformation;
     template<std::size_t DIM>
     class H1ConformingTransformation;
+    
 
     //class is final as a reminder that there is no virtual destructor
     //note that none of the functions in here is marked const, because a PhysicalFace reserves the right to alter its internal state to optimize future repeated calls
@@ -453,7 +454,7 @@ namespace Base
     }
     
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::basisFunctionNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
+    inline void Base::PhysicalFace<DIM>::basisFunctionNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result) //Needed for DGMax
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasVectorBasisFunctionNormal)
@@ -511,7 +512,8 @@ namespace Base
                 vectorBasisFunctionUnitNormal_[j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>{{getUnitNormalVector(), result}}.computeWedgeStuffVector();
                 if(j >= nLeftBasisFunctions)
                 {
-                    vectorBasisFunctionUnitNormal_[j] *= -1.;
+                    vectorBasisFunctionUnitNormal_[j] *= -1.; //current
+                    
                 }
             }
             result = vectorBasisFunctionUnitNormal_[i];

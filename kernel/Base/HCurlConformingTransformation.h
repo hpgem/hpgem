@@ -35,13 +35,13 @@ namespace Base
     public:
         LinearAlgebra::SmallVector<DIM> transform(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
         {
-            element.getTransposeJacobian().solve(referenceData);
+        element.getTransposeJacobian().solve(referenceData);
             return referenceData;
         }
 
         LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
         {
-            return element.getJacobian() * referenceData / element.getJacobianDet();
+            return element.getJacobian() * referenceData / element.getJacobianAbsDet();
         }
 
         double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const override final
@@ -56,6 +56,7 @@ namespace Base
     };
 }
 
+        
 
 
 #endif /* HCURLCONFORMINGTRANSFORMATION_H_ */

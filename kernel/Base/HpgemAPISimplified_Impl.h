@@ -355,21 +355,25 @@ namespace Base
             }
             else if(world_rank == iRank)
             {   
-                errorToAdd = totalError;
+                if(imag(totalError) == 0)
+                errorToAdd = real(totalError);
                 MPI_Send(&errorToAdd, 1, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD);
             }
         }
 
         if(world_rank == 0)
         {
-            if(totalError >= 0)
-            {   
+            if(imag(totalError) == 0)
+            {
+                if(real(totalError) >= 0)
+                {
                 error = std::sqrt(totalError);
-            }
-            else
-            {   
+                }
+                else
+                {
                 logger(WARN,"Warning: the computed total error is negative.");
                 error = std::sqrt(-totalError);
+                }
             }
         }
         
@@ -491,7 +495,7 @@ namespace Base
                 MPI_Recv(maxErrorToReceive, this->configData_->numberOfUnknowns_, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                 {
-                    if(maxErrorToReceive[iV] > maxError(iV))
+                    if(std::real(maxErrorToReceive[iV]) > std::real(maxError(iV)))
                     {
                         maxError(iV) = maxErrorToReceive[iV];
                     }
@@ -502,7 +506,9 @@ namespace Base
                 double maxErrorToSend[this->configData_->numberOfUnknowns_];
                 for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                 {
-                    maxErrorToSend[iV] = maxError(iV);
+                    if(std::imag(maxError(iV)) == 0)
+                    maxErrorToSend[iV] = std::real(maxError(iV));
+                
                 }
                 MPI_Send(maxErrorToSend, this->configData_->numberOfUnknowns_, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD);
             }
@@ -515,7 +521,8 @@ namespace Base
                 double maxErrorToSend[this->configData_->numberOfUnknowns_];
                 for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                 {
-                    maxErrorToSend[iV] = maxError(iV);
+                    if(std::imag(maxError(iV))== 0)
+                    maxErrorToSend[iV] = std::real(maxError(iV));
                 }
                 MPI_Send(maxErrorToSend, this->configData_->numberOfUnknowns_, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD);
             }

@@ -33,7 +33,11 @@ namespace Geometry
     template<std::size_t DIM>
     class PointReference;
 }
-
+namespace LinearAlgebra
+{
+    class MiddleSizeMatrix;
+    class MiddleSizeVector;
+}
 namespace Integration
 {
     

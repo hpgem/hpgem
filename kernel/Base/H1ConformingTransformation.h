@@ -35,7 +35,7 @@ namespace Base
     public:
         double transform(double referenceData, PhysicalElement<DIM>& element) const override final
         {
-            return referenceData;
+        return referenceData;
         }
 
         LinearAlgebra::SmallVector<DIM> transformDeriv(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
