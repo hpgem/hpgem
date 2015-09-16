@@ -24,12 +24,13 @@
 
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
-#include "Base/ShortTermStorageElementHcurl.h"
-#include "Base/ShortTermStorageFaceHcurl.h"
+#include "Base/HCurlConformingTransformation.h"
+
 
 #include "Base/Face.h"
 #include "Base/Element.h"
-#include "LinearAlgebra/NumericalVector.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
+#include "LinearAlgebra/SmallVector.h"
 
 class hpGemUIExtentions;
 class DGMax;
@@ -52,10 +53,10 @@ public:
     {
     }
     
-    virtual void fillMatrices(hpGemUIExtentions* matrixContainer);
+    void fillMatrices(hpGemUIExtentions* matrixContainer);
     void CompleteElementIntegrationIP(hpGemUIExtentions*);
     void CompleteFaceIntegrationIP(hpGemUIExtentions*);
-    
+    ~MatrixAssemblyIP();
 };
 
 /*

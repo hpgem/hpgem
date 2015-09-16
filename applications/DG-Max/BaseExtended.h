@@ -25,10 +25,12 @@
 //This file contains all the fiddly bits about interpolation and filling matrices and stuff
 
 #include "Base/MeshManipulator.h"
+#include "Integration/ElementIntegrandBase.h"
+#include "Integration/FaceIntegrandBase.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
 #include "Base/HpgemAPIBase.h"
-#include <Base/Norm2.h>
+//#include <Base/Norm2.h>
 #include <petscksp.h>
 #include <slepceps.h>
 #include <fstream>
@@ -36,20 +38,25 @@
 #include <ctime>
 #include "ElementInfos.h"
 #include "Output/TecplotSingleElementWriter.h"
-
+#include "Base/Element.h"
+#include "Base/Face.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 #include "petscksp.h"
 #include "MatrixAssembly.h"
+#include "LinearAlgebra/SmallVector.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
+#include "BasisFunctionCollection_Curl.h"
 
-#include "BasisFunctionCollection_Curl.h"//TODO fix project set-up
+
 using basisFunctionT = Base::threeDBasisFunction;
 
 using ElementT = Base::Element;
 using FaceT = Base::Face;
-using PointPhysicalT = Geometry::PointPhysical;
-using PointElementReferenceT = Geometry::PointReference;
-using PointFaceReferenceT = Geometry::PointReference;
+using PointPhysicalT = Geometry::PointPhysical<DIM>;
+using PointElementReferenceT = Geometry::PointReference<DIM>;
+using PointFaceReferenceT = Geometry::PointReference<DIM>;
 //typedef std::list<Base::Face<3>* >::iterator FaceIteratorT;
 
 class MatrixAssembly;
@@ -60,7 +67,7 @@ namespace Integration
 
 //face-integrand
 /*template <template<unsigned int> class B, typename T>
- struct ReturnTrait1<void (B::*)(const FaceT*, const PointPhysicalT&, const PointFaceReferenceT&, T& )> {
+ struct ReturnTrait1<void (B::*)(const FaceT*, const Geometry::PointPhysical<DIM>&, const PointFaceReferenceT&, T& )> {
  typedef T ReturnType;
  };
  
@@ -103,7 +110,7 @@ private:
 /**
  * This class provides some significant extentions to HpgemUI that may also be useful for other problems
  */
-class hpGemUIExtentions : public Base::HpgemAPIBase, Output::TecplotSingleElementWriter, Integration::ElementIntegrandBase<errorData>, Integration::FaceIntegrandBase<errorData>
+class hpGemUIExtentions : public Base::HpgemAPIBase<DIM>, Output::TecplotSingleElementWriter<DIM>, Integration::ElementIntegrandBase<errorData, DIM>, Integration::FaceIntegrandBase<errorData, DIM>
 {
     
 public:
@@ -146,15 +153,15 @@ public:
      * this will only have an effect on the accuracy of your error estimates
      * as a temporary solution remember to also update the exact solution in fillMatrices.cpp otherwise the final result will be incorrect
      */
-    static void exactSolution(const PointPhysicalT& p, const double t, LinearAlgebra::MiddleSizeVector &ret);
+    static void exactSolution(const Geometry::PointPhysical<DIM>& p, const double t, LinearAlgebra::SmallVector<DIM>& ret);
 
     /**
      * this is where you choose the curl of the solution of your problem
      * this will only have an effect on the accuracy of your error estimates
      */
-    static void exactSolutionCurl(const PointPhysicalT& p, const double t, LinearAlgebra::MiddleSizeVector &ret);
+    static void exactSolutionCurl(const Geometry::PointPhysical<DIM>& p, const double t, LinearAlgebra::SmallVector<DIM>& ret);
 
-    using ElementFunction = void(hpGemUIExtentions::*)(const ElementT*, const PointElementReferenceT&, LinearAlgebra::MiddleSizeMatrix&);
+    //using ElementFunction = void(hpGemUIExtentions::*)(const ElementT*, const PointElementReferenceT&, LinearAlgebra::Matrix&);
 
     /**
      * integrand for the filling of the mass matrix M
@@ -164,7 +171,7 @@ public:
      */
     //virtual void elementIntegrand(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret)=0;
     //virtual void elementStiffnessIntegrand(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret)=0;
-    using FaceFunction = void (hpGemUIExtentions::*)(const FaceT* , const PointPhysicalT&, const PointFaceReferenceT&, LinearAlgebra::MiddleSizeMatrix&); //check again
+    //using FaceFunction = void (hpGemUIExtentions::*)(const FaceT* , const Geometry::PointPhysical<DIM>&, const PointFaceReferenceT&, LinearAlgebra::Matrix&); //check again
     
     /**
      * integrand for the filling of the face contibutions to the stiffness matrix S, without any penalty terms
@@ -174,28 +181,28 @@ public:
      * For internal faces the integration expects that this matrix contains first contributions associated with the left element and then with the right element
      */
     //virtual void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
-    //virtual void faceIntegrandIPPart(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
-    //virtual void faceIntegrandBRPart(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
+    //virtual void faceIntegrandIPPart(const FaceT *face, const Geometry::PointPhysical<DIM> &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
+    //virtual void faceIntegrandBRPart(const FaceT *face, const Geometry::PointPhysical<DIM> &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret)=0;
     /**
      * provides the exact solution, for comparison purposes. If no exact solution is implemented this function produces nonsense.
      * \param [in] p the point where the exact solution is wanted
      * \param [in] t the time when the exact solution is wanted
      * \param [out] ret the exact field at p, accoriding to analytical predicions
      */
-    //virtual void exactSolution(const PointPhysicalT& p, const double t, LinearAlgebra::NumericalVector &ret) {}
+    //virtual void exactSolution(const Geometry::PointPhysical<DIM>& p, const double t, LinearAlgebra::NumericalVector &ret) {}
     /**
      * provides the curl of the exact solution, for comparison purposes. If no exact curl is implemented this function produces nonsense.
      * \param [in] p the point where the exact solution is wanted
      * \param [in] t the time when the exact solution is wanted
      * \param [out] ret the exact field at p, accoriding to analytical predicions
      */
-    // virtual void exactSolutionCurl(const PointPhysicalT& p, const double t, LinearAlgebra::NumericalVector &ret) {}
+    // virtual void exactSolutionCurl(const Geometry::PointPhysical<DIM>& p, const double t, LinearAlgebra::NumericalVector &ret) {}
     /**
      * provides the initial condition for the time dependent solution
      * \param [in] p the point where the initial condition is wanted
      * \param [out] ret the initial field at p
      */
-    // virtual void initialConditions(const PointPhysicalT &p, LinearAlgebra::NumericalVector &ret)=0;
+    // virtual void initialConditions(const Geometry::PointPhysical<DIM> &p, LinearAlgebra::NumericalVector &ret)=0;
     /**
      * integrand used for the computation of the initial expansion coefficients
      * maps the reference point and the element to physical coordinates and then uses this to call the user provided initial conditions
@@ -208,19 +215,19 @@ public:
      */
     //virtual double sourceTermTime(const double t)=0;
     //void sourceTerm(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret);
-    //void sourceTermBoundaryIP(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret);
+    //void sourceTermBoundaryIP(const FaceT *face, const Geometry::PointPhysical<DIM> &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret);
     /**
      * Integrand used for the computation of the boundary contributions to the RHS. This will be scaled by the same time dependent factor as in the source therm, just like in the original code by Domokos.
      * This version computes the terms that are common to both the Brezzi flux and the Interior Penalty flux
      */
     //void faceIntegrand(const FaceT *face, const LinearAlgebra::NumericalVector &normal, const PointFaceReferenceT &p, LinearAlgebra::NumericalVector &ret);
-    //void sourceTermBoundaryBR(const FaceT *face, const PointPhysicalT &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret);
+    //void sourceTermBoundaryBR(const FaceT *face, const Geometry::PointPhysical<DIM> &normal, const PointFaceReferenceT &p, LinearAlgebra::Matrix &ret);
     /**
      * Provides the time derivative of the initial solution
      * \param [in] p The point in space where the initial solution is to be evaluated.
      * \param [out] ret The time derivative of the source term.
      */
-    //virtual void initialConditionsDeriv(const PointPhysicalT &p, LinearAlgebra::NumericalVector &ret)=0;
+    //virtual void initialConditionsDeriv(const Geometry::PointPhysical<DIM> &p, LinearAlgebra::NumericalVector &ret)=0;
     /**
      * Integrand used for the computation of the time derivative of the initial solution
      * maps the reference point and the element to physical coordinates and then uses this to call the user provided initial conditions
@@ -234,7 +241,8 @@ public:
      * \param [in] t the timelevel that is wanted in the output.
      * \param output an output stream ready to accept the solution values
      */
-    void writeToTecplotFile(const ElementT* element, const PointElementReferenceT& p, std::ostream& output);
+    
+    void writeToTecplotFile(const Base::Element*, const PointReferenceT&, std::ostream&);
 
     //tecplotwriter is also avaiable in the hpGEM kernel
     //void writeTecplotFile(const MeshManipulatorT& mesh, const char* zonetitle, const int timelevel, std::ofstream& file, const bool existingFile);
@@ -242,20 +250,20 @@ public:
     /**
      * Integrand for the computation of the L^2 and the Hcurl error
      */
-    void elementIntegrand(const ElementT *element, const PointElementReferenceT &p, errorData &ret);
+    void elementIntegrand(Base::PhysicalElement<DIM>& el, errorData& ret);
 
     /**
      * Integrand for the comutation of the jump part of the DG error
      */
-    void faceIntegrand(const FaceT *face, const LinearAlgebra::MiddleSizeVector &normal, const PointFaceReferenceT &p, errorData &ret);
+    void faceIntegrand(Base::PhysicalFace<DIM>& fa, errorData& ret);
 
-    void LDOSIntegrand(const ElementT *element, const PointElementReferenceT &p, double &ret);
+    void LDOSIntegrand(Base::PhysicalElement<DIM>& el, double& ret);
 
     /**
      * Function for the computation of some usefull errors measures. Currently computes the L2 norm, the HCurl and the DG norm norm.
      * This function does not guarantee correct results if the exact solution is not known
      */
-    void computeErrors(MeshManipulatorT& Mesh, int timelevel, double& L2Norm, double& InfNorm, double& HCurlNorm, double& DGNorm);
+    void computeErrors(Base::MeshManipulator<DIM>& Mesh, int timelevel, double& L2Norm, double& InfNorm, double& HCurlNorm, double& DGNorm);
 
     /**
      * Writes a tecplot-readable file with the solution on some time-levels and uses PETSc to display the errors.
@@ -270,7 +278,7 @@ public:
      * This constructor is extremely bare bones: it only guarantees PETSc dataTypes exists, not that they are
      * actually usefull for computations or storing data.
      */
-    hpGemUIExtentions(int argc, char** argv, MaxwellData* globalConfig, Base::ConfigurationData* elementConfig, MatrixAssembly* fluxType);
+    hpGemUIExtentions(MaxwellData* globalConfig, Base::ConfigurationData* elementConfig, MatrixAssembly* fluxType);
 
     /**
      * Deconstructor cleans up again and logs performance statistics of PETSc
@@ -280,12 +288,12 @@ public:
     /**
      * Wrapper for protected function in superclass
      */
-    MeshId addMesh(MeshManipulatorT* mesh);
+    MeshId addMesh(Base::MeshManipulator<DIM>* mesh);
 
     /**
      * makes a matrix with the shifts
      */
-    void makeShiftMatrix(LinearAlgebra::MiddleSizeVector& direction, Vec& waveVecMatrix);
+    void makeShiftMatrix(LinearAlgebra::SmallVector<DIM>& direction, Vec& waveVecMatrix);
 
     /**
      * Tell PETSc the places where special care must be taken because of periodic boundary conditions
@@ -327,91 +335,91 @@ public:
      */
     void makeFunctionValue(Vec eigenVector, LinearAlgebra::MiddleSizeVector& result);
 
-    class anonymous1 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
+    class anonymous1 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
     public:
         
-        void elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret);
+        void elementIntegrand(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeMatrix& ret);
     } elementMassIntegrand;
 
-    class anonymous2 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
+    class anonymous2 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
     public:
         
-        void elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret);
+        void elementIntegrand(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeMatrix& ret);
     } elementStiffnessIntegrand;
 
-    class anonymous3 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
+    class anonymous3 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
         
-        void elementIntegrand(const ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
+        void elementIntegrand(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeVector& ret);
     } elementSpaceIntegrand;
 
-    class anonymous4 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
+    class anonymous4 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
         
-        void elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
+        void elementIntegrand(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeVector& ret);
     } initialConditionsIntegrand;
 
-    class anonymous5 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector>
+    class anonymous5 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
         
-        void elementIntegrand(const Base::HpgemUI::ElementT* element, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
+        void elementIntegrand(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeVector& ret);
     } initialConditionsDerivIntegrand;
 
-    class anonymous6 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
+    class anonymous6 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
     public:
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointFaceReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret);
+        void faceIntegrand(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret);
     } faceStiffnessIntegrand;
 
-    class anonymous7 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
+    class anonymous7 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret);
+        void faceIntegrand(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret);
     } faceStiffnessIntegrandIP;
 
-    class anonymous8 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector>
+    class anonymous8 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
+        void faceIntegrand(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeVector& ret);
     } faceSpaceIntegrandIP;
 
-    class anonymous9 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix>
+    class anonymous9 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeMatrix& ret);
+        void faceIntegrand(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret);
     } faceStiffnessIntegrandBR;
 
-    class anonymous10 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector>
+    class anonymous10 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
+        void faceIntegrand(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeVector& ret);
     } faceSpaceIntegrandBR;
 
-    class anonymous11 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector>
+    class anonymous11 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
         
-        void faceIntegrand(const FaceT* face, const LinearAlgebra::MiddleSizeVector& normal, const PointElementReferenceT& p, LinearAlgebra::MiddleSizeVector& ret);
+        void faceIntegrand(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeVector& ret);
     } faceSpaceIntegrand;
 
-    static void initialConditions(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector& ret);
+    static void initialConditions(const PointPhysicalT& p, LinearAlgebra::SmallVector<DIM>& ret);
 
-    static void initialConditionsDeriv(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector& ret);
+    static void initialConditionsDeriv(const PointPhysicalT& p, LinearAlgebra::SmallVector<DIM>& ret);
 
-    static void sourceTerm(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector& ret);
+    static void sourceTerm(const Geometry::PointPhysical<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret);
 
-    static void initialExactSolution(const PointPhysicalT& p, LinearAlgebra::MiddleSizeVector &ret);
+    static void initialExactSolution(const Geometry::PointPhysical<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret);
 
-    static void boundaryConditions(const Geometry::PointPhysical &p, LinearAlgebra::MiddleSizeVector &ret);
+    static void boundaryConditions(const Geometry::PointPhysical<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret);
     
 };
 

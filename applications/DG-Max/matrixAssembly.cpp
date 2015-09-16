@@ -38,8 +38,8 @@
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
 #include "Base/Face.h"
-#include "Base/ShortTermStorageElementHcurl.h"
-#include "Base/ShortTermStorageFaceHcurl.h"
+#include "Base/ShortTermStorageElementHCurl.h"
+#include "Base/ShortTermStorageFaceHCurl.h"
 
 //cannot understand about the elementMatrixId and faceMatrisID as well as elementVectorId and faceVectorID
 // since in DGMax, we  have n number of elements from o to 1 and the number n has to be supplied by the User
@@ -70,7 +70,7 @@
  //Mass Matrix initiated
  
  Base::ShortTermStorageElementBase* localElement_;
- localElement_ = new Base::ShortTermStorageElementHcurl(3); // creating object for H curl transformation
+ localElement_ = new Base::ShortTermStorageElementHCurl(3); // creating object for H curl transformation
  Integration::ElementIntegral elIntegral(false);
  elIntegral.setStorageWrapper(localElement_);
  
@@ -112,7 +112,7 @@
  }
  
  Base::ShortTermStorageFaceBase* localFace_;
- localFace_ = new Base::ShortTermStorageFaceHcurl(3); // creating object for H curl transformation
+ localFace_ = new Base::ShortTermStorageFaceHCurl(3); // creating object for H curl transformation
  
  Integration::FaceIntegral faIntegral(false);
  
@@ -185,12 +185,12 @@
  LinearAlgebra::NumericalVector vector(1);
  
  Base::ShortTermStorageElementBase* localElement_;
- localElement_ = new Base::ShortTermStorageElementHcurl(3); // creating object for H curl transformation
+ localElement_ = new Base::ShortTermStorageElementHCurl(3); // creating object for H curl transformation
  Integration::ElementIntegral elIntegral(false);
  elIntegral.setStorageWrapper(localElement_);
  
  Base::ShortTermStorageFaceBase* localFace_;
- localFace_ = new Base::ShortTermStorageFaceHcurl(3); // creating object for H curl transformation
+ localFace_ = new Base::ShortTermStorageFaceHCurl(3); // creating object for H curl transformation
  Integration::FaceIntegral faIntegral(false);
  faIntegral.setStorageWrapper(localFace_);
  
@@ -239,7 +239,7 @@
  void MatrixAssemblyIP::CompleteElementIntegrationIP(DGMax* matrixContainer)
  {
  Base::ShortTermStorageElementBase* localElement_;
- localElement_ = new Base::ShortTermStorageElementHcurl(3); // creating object for H curl transformation
+ localElement_ = new Base::ShortTermStorageElementHCurl(3); // creating object for H curl transformation
  Integration::ElementIntegral elIntegral(false);
  elIntegral.setStorageWrapper(localElement_);
  
@@ -270,7 +270,7 @@
  void MatrixAssemblyIP::CompleteFaceIntegrationIP(DGMax* matrixContainer)
  {
  Base::ShortTermStorageFaceBase* localFace_;
- localFace_ = new Base::ShortTermStorageFaceHcurl(3); // creating object for H curl transformation
+ localFace_ = new Base::ShortTermStorageFaceHCurl(3); // creating object for H curl transformation
  Integration::FaceIntegral faIntegral(false);
  faIntegral.setStorageWrapper(localFace_);
  

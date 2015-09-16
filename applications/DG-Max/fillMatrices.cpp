@@ -26,8 +26,8 @@
 #include "Integration/ElementIntegral.h"
 #include "Base/FaceCacheData.h"
 #include "Base/ElementCacheData.h"
-#include "Base/ShortTermStorageElementHcurl.h"
-#include "Base/ShortTermStorageFaceHcurl.h"
+#include "Base/ShortTermStorageElementHCurl.h"
+#include "Base/ShortTermStorageFaceHCurl.h"
 /*
  //  this is where you choose the solution of your problem
  //  this will only have an effect on the accuracy of your error estimates
@@ -271,7 +271,7 @@
  //hpGemUIExtentions::ElementFunction elF = &hpGemUIExtentions::elementMassIntegrand;
  
  Base::ShortTermStorageElementBase* localElement_;
- localElement_ = new Base::ShortTermStorageElementHcurl(3); // creating object for H curl transformation
+ localElement_ = new Base::ShortTermStorageElementHCurl(3); // creating object for H curl transformation
  Integration::ElementIntegral elIntegral(false);
  elIntegral.setStorageWrapper(localElement_);
  
@@ -282,9 +282,11 @@
  if(((*it)->getID())/(numberOfElements/TotalAmountOfProcessors+1)==localProcessorNumber) {
  matrix.resize((*it)->getNrOfBasisFunctions(),(*it)->getNrOfBasisFunctions());
  elIntegral.integrate<LinearAlgebra::Matrix>((*it),matrixContainer,matrix);
+ //MATRIX INVERSE IMPLEMENTED TODAY
  if(matrixContainer->MHasToBeInverted_) {
  matrix.inverse(matrix);
  }
+
  int places[]= {(int)(*it)->getID()};
  for(int i=0; i<(*it)->getNrOfBasisFunctions()*(*it)->getNrOfBasisFunctions(); ++i) {
  tempComplexArray[i]=matrix[i];//the real<->complex conflict should probably be solved in some other way
@@ -312,7 +314,7 @@
  //hpGemUIExtentions::FaceFunction faF = &hpGemUIExtentions::faceIntegrand;
  
  Base::ShortTermStorageFaceBase* localFace_;
- localFace_ = new Base::ShortTermStorageFaceHcurl(3); // creating object for H curl transformation
+ localFace_ = new Base::ShortTermStorageFaceHCurl(3); // creating object for H curl transformation
  
  Integration::FaceIntegral faIntegral(false);
  
@@ -641,7 +643,7 @@
  //hpGemUIExtentions::ElementFunction elF = &hpGemUIExtentions::elementMassIntegrand;
  PetscScalar *tempComplexArray=new PetscScalar[4*matrixContainer->getConfigData()->numberOfBasisFunctions_*matrixContainer->getConfigData()->numberOfBasisFunctions_];
  Base::ShortTermStorageElementBase* localElement_;
- localElement_ = new Base::ShortTermStorageElementHcurl(3); // creating object for H curl transformation
+ localElement_ = new Base::ShortTermStorageElementHCurl(3); // creating object for H curl transformation
  Integration::ElementIntegral elIntegral(false);
  
  elIntegral.setStorageWrapper(localElement_);
@@ -681,7 +683,7 @@
  }
  //hpGemUIExtentions::FaceFunction faF = &hpGemUIExtentions::faceIntegrand;
  Base::ShortTermStorageFaceBase* localFace_;
- localFace_ = new Base::ShortTermStorageFaceHcurl(3); // creating object for H curl transformation
+ localFace_ = new Base::ShortTermStorageFaceHCurl(3); // creating object for H curl transformation
  
  Integration::FaceIntegral faIntegral(false);
  
