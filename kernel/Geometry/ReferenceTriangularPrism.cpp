@@ -45,9 +45,6 @@ namespace Geometry
         points_[5] = PointReferenceFactory<3>::instance()->makePoint({0., 1.,  1.});
         center_ = PointReferenceFactory<3>::instance()->makePoint({1./3., 1./3., 0.});
         
-        /// Mappings between triangular prisms are not implemented
-        mappingsTriangularPrismToTriangularPrism_[0] = 0;
-        
         mappingsFaceToTriangularPrism_[0] = &MappingToRefFaceToTriangularPrism0::Instance();
         mappingsFaceToTriangularPrism_[1] = &MappingToRefFaceToTriangularPrism1::Instance();
         mappingsFaceToTriangularPrism_[2] = &MappingToRefFaceToTriangularPrism2::Instance();
@@ -80,7 +77,6 @@ namespace Geometry
     
     std::size_t ReferenceTriangularPrism::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
-        /// \TODO: Implement tetrahedron to tetrahedron mappings.
         logger(FATAL, "ReferenceTriangularPrism::getCodim0MappingIndex: T.p to t.p mappings do not exist.\n");
         return 0;
     }
@@ -88,7 +84,6 @@ namespace Geometry
     const MappingReferenceToReference<0>*
     ReferenceTriangularPrism::getCodim0MappingPtr(const std::size_t i) const
     {
-        /// \TODO: Implement tetrahedron to tetrahedron mappings.
         logger(FATAL, "ReferenceTetrahedron::getCodim0MappingPtr: T.p to T.p mappings do not exist.\n");
         return 0;
     }
@@ -156,7 +151,6 @@ namespace Geometry
     const MappingReferenceToReference<2>*
     ReferenceTriangularPrism::getCodim2MappingPtr(const std::size_t faceIndex) const
     {
-        /// \TODO: Implement line to t.p. mappings.
         logger(FATAL, "ReferenceTriangularPrism::getCodim2MappingPtr: Line to TP mappings do not exist.\n");
         return 0;
     }

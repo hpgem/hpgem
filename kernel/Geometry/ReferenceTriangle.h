@@ -154,10 +154,10 @@ namespace Geometry
         //! See top comment for the corresponding numbering.
         static std::size_t localNodeIndexes_[3][2];
 
-        //! Codimension 1 mappings, from a line to a triangle. TODO: Where is this used? clarify here.
+        //! Codimension 1 mappings, from a line to a triangle. (used to map a coorinate from a face to an element)
         const MappingReferenceToReference<1>* mappingsLineToTriangle_[3];
 
-        //! Codimension 0 mappings, from a triangle to a triangle. TODO: Where is this used? clarifiy here.
+        //! Codimension 0 mappings, from a triangle to a triangle. (Used to rotate the face when the left and right elements dont think it has the same orientation)
         const MappingReferenceToReference<0>* mappingsTriangleToTriangle_[6];
 
         //! Pointer to the Codimension 1 reference geometry, in this case, to ReferenceLine.

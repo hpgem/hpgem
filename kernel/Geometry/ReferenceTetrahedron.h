@@ -168,9 +168,9 @@ namespace Geometry
         static std::size_t localNodeIndexes_[4][3];
         static std::size_t localNodesOnEdge_[6][2];
 
-        //! Codimension 1 mappings, from a square to a tetrahedron face. TODO: Where is this used? clarify here.
+        //! Codimension 1 mappings, from a square to a tetrahedron face. (used to map a coordinate from a face to an element)
         const MappingReferenceToReference<1>* mappingsTriangleToTetrahedron_[4];
-        const MappingReferenceToReference<0>* mappingsTetrahedronToTetrahedron_[1];
+        //const MappingReferenceToReference<0>* mappingsTetrahedronToTetrahedron_[1];
 
         //! Pointer to the Codimension 1 reference geometry.
         ReferenceGeometry* const referenceGeometryCodim1Ptr_;

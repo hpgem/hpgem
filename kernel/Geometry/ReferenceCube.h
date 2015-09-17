@@ -162,10 +162,10 @@ namespace Geometry
         //! The nodes on edge contains the local index of the two nodes in every edge.
         static std::size_t localNodesOnEdge_[12][2]; //!< 12 edges with 2 nodes
         
-        //! Codimension 1 mappings, from a line to a square. TODO: Where is this used? clarify here.
+        //! Codimension 1 mappings, from a square to a cube. (Used to map a coordinate on a face to a coordinate on an element)
         const MappingReferenceToReference<1>* mappingsSquareToCube_[6];
 
-        //! Codimension 0 mappings, from a square to a square. TODO: Where is this used? clarifiy here.
+        //! Codimension 0 mappings, from a cube to a cube. (Used to rotate the face when the left and right elements dont think it has the same orientation)
         const MappingReferenceToReference<0>* mappingsCubeToCube_[8];
 
         //! Pointer to the Codimension 1 reference geometry, in this case, to ReferenceSquare.

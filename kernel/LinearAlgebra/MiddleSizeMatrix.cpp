@@ -72,6 +72,7 @@ namespace LinearAlgebra
     MiddleSizeMatrix::MiddleSizeMatrix(const std::size_t n, const std::size_t m)
             : data_(n * m), nRows_(n), nCols_(m)
     {
+        logger.assert(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
     }
     
     /// \param[in]  n The number of rows the matrix will have
@@ -89,6 +90,7 @@ namespace LinearAlgebra
 #endif
                     nRows_(n), nCols_(m)
     {
+        logger.assert(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
     }
     
     /// \param[in] Matrix A i.e. the matrix to be copies.
@@ -105,6 +107,7 @@ namespace LinearAlgebra
     MiddleSizeMatrix::MiddleSizeMatrix(const MiddleSizeVector& list)
             : data_(list.data(), list.data() + list.size()), nRows_(list.size()), nCols_(1)
     {
+        logger.assert(list.size() <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
     }
 
     MiddleSizeMatrix::MiddleSizeMatrix(std::initializer_list<MiddleSizeMatrix> list)
@@ -115,6 +118,7 @@ namespace LinearAlgebra
             logger.assert(nRows_ == mat.getNRows(), "Can only construct a matrix from vectors of the same size");
             nCols_ += mat.getNCols();
         }
+        logger.assert(nRows_ <= std::numeric_limits<int>::max() && nCols_ <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
         data_.resize(nRows_ * nCols_);
         auto inserter = data_.begin();
         for(MiddleSizeMatrix mat : list)
@@ -230,6 +234,11 @@ namespace LinearAlgebra
             logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
             return MiddleSizeVector(0);
         }
+        if (nCols_ == 0)
+        {
+            logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
+            return MiddleSizeVector(nRows_);
+        }
         int nr = nRows_;
         int nc = nCols_;
         
@@ -261,6 +270,12 @@ namespace LinearAlgebra
             logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
             return MiddleSizeVector(0);
         }
+        if (nCols_ == 0)
+        {
+            logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
+            return MiddleSizeVector(nRows_);
+        }
+
         int nr = nRows_;
         int nc = nCols_;
 
@@ -289,7 +304,12 @@ namespace LinearAlgebra
     MiddleSizeMatrix MiddleSizeMatrix::operator*(const MiddleSizeMatrix &other)
     {
         logger.assert(nCols_ == other.nRows_, "Inner dimensions not equal.");
-        
+
+        if (nCols_ == 0)
+        {
+            logger(WARN, "Trying to multiply a matrix with a matrix without any columns.");
+            return MiddleSizeMatrix(nRows_, other.getNCols());
+        }
         int i = nRows_;
         int j = nCols_;
         int k = other.getNCols();
@@ -314,7 +334,12 @@ namespace LinearAlgebra
     {
         
         logger.assert(nCols_ == other.nRows_, "Inner dimensions are not the same.");
-        
+
+        if (nCols_ == 0)
+        {
+            logger(WARN, "Trying to multiply a matrix with a matrix without any columns.");
+            return MiddleSizeMatrix(nRows_, other.getNCols());
+        }
         int i = nRows_;
         int j = nCols_;
         int k = other.getNCols();
@@ -453,6 +478,7 @@ namespace LinearAlgebra
     /// \param[in] m the number of columns in the new matrix
     void MiddleSizeMatrix::resize(std::size_t n, std::size_t m)
     {
+        logger.assert(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
         nRows_ = n;
         nCols_ = m;
         if (n * m != data_.size())
@@ -466,6 +492,7 @@ namespace LinearAlgebra
     void MiddleSizeMatrix::concatenate(const MiddleSizeMatrix& other)
     {
         logger.assert(nCols_ == other.nCols_, "Number of columns is not the same.");
+        logger.assert(nRows_+other.nRows_ <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
         
 #ifdef LA_STL_VECTOR
         std::vector<type> data_new(nCols_ * (nRows_ + other.nRows_));
@@ -532,30 +559,28 @@ namespace LinearAlgebra
     }
     
     /// return Matrix which is the LUfactorisation of the current matrix
-    ///\bug allocates a potentially large array (iPivot) on the stack
     MiddleSizeMatrix MiddleSizeMatrix::LUfactorisation() const
     {
         
         int nr = nRows_;
         int nc = nCols_;
         int nPivot = std::min(nRows_, nCols_);
-        int iPivot[nPivot];
+        std::vector<int> iPivot(nPivot);
         
         MiddleSizeMatrix result(*this);
         
         int info;
 
 #ifdef HPGEM_USE_COMPLEX_PETSC
-        zgetrf_(&nr, &nc, result.data(), &nr, iPivot, &info);
+        zgetrf_(&nr, &nc, result.data(), &nr, iPivot.data(), &info);
 #else
-        dgetrf_(&nr, &nc, result.data(), &nr, iPivot, &info);
+        dgetrf_(&nr, &nc, result.data(), &nr, iPivot.data(), &info);
 #endif
         
         return result;
     }
     
     /// \param[out] result this is the inverse of the current matrix
-    ///\bug allocates a potentially large array (iPivot) on the stack
     MiddleSizeMatrix MiddleSizeMatrix::inverse() const
     {
         logger.assert(nRows_ == nCols_, "Cannot invert a non-square matrix");
@@ -565,7 +590,7 @@ namespace LinearAlgebra
         int nc = nCols_;
         
         int nPivot = std::min(nRows_, nCols_);
-        int iPivot[nPivot];
+        std::vector<int> iPivot(nPivot);
         
         int info = 0;
         
@@ -574,11 +599,11 @@ namespace LinearAlgebra
         MiddleSizeMatrix work(nRows_, nCols_);
 
 #ifdef HPGEM_USE_COMPLEX_PETSC
-        zgetrf_(&nr, &nc, result.data(), &nr, iPivot, &info);
-        zgetri_(&nc, result.data(), &nc, iPivot, work.data(), &lwork, &info);
+        zgetrf_(&nr, &nc, result.data(), &nr, iPivot.data(), &info);
+        zgetri_(&nc, result.data(), &nc, iPivot.data(), work.data(), &lwork, &info);
 #else
-        dgetrf_(&nr, &nc, result.data(), &nr, iPivot, &info);
-        dgetri_(&nc, result.data(), &nc, iPivot, work.data(), &lwork, &info);
+        dgetrf_(&nr, &nc, result.data(), &nr, iPivot.data(), &info);
+        dgetri_(&nc, result.data(), &nc, iPivot.data(), work.data(), &lwork, &info);
 #endif
 
         
@@ -599,7 +624,6 @@ namespace LinearAlgebra
     }
 
     /// \param[in,out] B. On enter is B in Ax=B and on exit is x.
-    ///\bug allocates a potentially large array (IPIV) on the stack
     void MiddleSizeMatrix::solve(MiddleSizeMatrix& B) const
     {
         logger.assert(nRows_ == nCols_, "can only solve for square matrixes");
@@ -609,18 +633,17 @@ namespace LinearAlgebra
         int nrhs = B.getNCols();
         int info;
         
-        int IPIV[n];
+        std::vector<int> IPIV(n);
         
         MiddleSizeMatrix matThis = *this;
 
 #ifdef HPGEM_USE_COMPLEX_PETSC
-        zgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
+        zgesv_(&n, &nrhs, matThis.data(), &n, IPIV.data(), B.data(), &n, &info);
 #else
-        dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
+        dgesv_(&n, &nrhs, matThis.data(), &n, IPIV.data(), B.data(), &n, &info);
 #endif
     }
 
-    ///\bug allocates a potentially large array (IPIV) on the stack
     void MiddleSizeMatrix::solve(MiddleSizeVector& b) const
     {
         logger.assert(nRows_ == nCols_, "can only solve for square matrixes");
@@ -630,14 +653,14 @@ namespace LinearAlgebra
         int nrhs = 1;
         int info;
         
-        int IPIV[n];
+        std::vector<int> IPIV(n);
         
         MiddleSizeMatrix matThis = *this;
 
 #ifdef HPGEM_USE_COMPLEX_PETSC
-        zgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
+        zgesv_(&n, &nrhs, matThis.data(), &n, IPIV.data(), b.data(), &n, &info);
 #else
-        dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
+        dgesv_(&n, &nrhs, matThis.data(), &n, IPIV.data(), b.data(), &n, &info);
 #endif
     }
     

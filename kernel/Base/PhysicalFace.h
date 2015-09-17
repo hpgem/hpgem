@@ -39,7 +39,7 @@ namespace Base
     //note that none of the functions in here is marked const, because a PhysicalFace reserves the right to alter its internal state to optimize future repeated calls
     //note that names in this class match the names in Face unless this makes no sense
     //when you use a physical face in the kernel be careful to avoid infinite recursion
-    ///\TODO generalize implementation to support the cached data
+    ///\todo generalize implementation to support the cached data
     template<std::size_t DIM>
     class PhysicalFace final
     {

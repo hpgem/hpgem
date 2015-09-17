@@ -40,8 +40,6 @@
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "LinearAlgebra/Axpy.h"
 
-#include <chrono> //todo for testing purposes, remove it after its completed (!!)
-
 #include "Logger.h"
 
 namespace Base
@@ -355,17 +353,17 @@ namespace Base
             }
             else if(world_rank == iRank)
             {   
-                if(imag(totalError) == 0)
-                errorToAdd = real(totalError);
+                if(std::imag(totalError) == 0)
+                errorToAdd = std::real(totalError);
                 MPI_Send(&errorToAdd, 1, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD);
             }
         }
 
         if(world_rank == 0)
         {
-            if(imag(totalError) == 0)
+            if(std::imag(totalError) == 0)
             {
-                if(real(totalError) >= 0)
+                if(std::real(totalError) >= 0)
                 {
                 error = std::sqrt(totalError);
                 }

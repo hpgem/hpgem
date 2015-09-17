@@ -143,7 +143,8 @@ namespace Base
         template<std::size_t DIM>
         std::vector<LinearAlgebra::SmallVector<DIM> > getSolutionGradient(std::size_t timeLevel, PhysicalElement<DIM>& element) const;
 
-        void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution); ///\todo not implemented
+        ///\todo not implemented
+        void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution);
                 
         void setFace(std::size_t localFaceNumber, const Face* face);
 

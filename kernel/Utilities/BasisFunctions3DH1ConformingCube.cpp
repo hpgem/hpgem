@@ -438,7 +438,7 @@ namespace Utilities
     {
         logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
-        Base::OrientedBasisFunctionSet* set; //todo write clever code
+        Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
         std::vector<std::size_t> vectorOfPointIndices(4);
         vectorOfPointIndices = cube.getCodim1EntityLocalIndices(0);

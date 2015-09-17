@@ -144,10 +144,10 @@ namespace Geometry
         //! See top comment for the corresponding numbering.
         static std::size_t localNodeIndexes_[4][2];
 
-        //! Codimension 1 mappings, from a line to a square. TODO: Where is this used? clarify here.
+        //! Codimension 1 mappings, from a line to a square. (Used to map a cooridate from a face to an element)
         const MappingReferenceToReference<1>* mappingsLineToSquare_[4];
 
-        //! Codimension 0 mappings, from a square to a square. TODO: Where is this used? clarifiy here.
+        //! Codimension 0 mappings, from a square to a square. (Used to rotate the face when the left and right elements dont think it has the same orientation)
         const MappingReferenceToReference<0>* mappingsSquareToSquare_[8];
 
         //! Pointer to the Codimension 1 reference geometry, in this case, to ReferenceLine.

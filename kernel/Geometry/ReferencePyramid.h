@@ -179,11 +179,11 @@ namespace Geometry
         //! Pointer to the Codimension 2 reference geometry, in this case, to ReferenceLine.
         ReferenceGeometry* const referenceGeometryCodim2Ptr_;
 
-        //! Codimension 1 mappings, from a line to a square. TODO: Where is this used? clarify here.
+        //! Codimension 1 mappings, from a face to a pyramid. (used to map a coordinate to a pyramid from one of its faces)
         const MappingReferenceToReference<1>* mappingsFaceToPyramid_[5];
 
-        //! Codimension 0 mappings, from a square to a square. TODO: Where is this used? clarifiy here.
-        const MappingReferenceToReference<0>* mappingsPyramidToPyramid_[1];
+        //! Codimension 0 mappings, from a Pyramid to a pyramid. Only needed when an element has a pyramid as a face.
+        //const MappingReferenceToReference<0>* mappingsPyramidToPyramid_[1];
 
         //! List of valid quadrature rules for this reference geometry
         std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;

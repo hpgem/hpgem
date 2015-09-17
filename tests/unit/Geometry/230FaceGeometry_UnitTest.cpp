@@ -65,8 +65,8 @@ int main()
     leftIndices.resize(1);
     rightIndices.resize(1);
     
-    ///\TODO test the normal vector
-    //todo also test individual functions
+    ///\todo test the normal vector
+    ///\todo also test individual functions
     
     leftIndices = test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft());
     rightIndices = test->getPtrElementGRight()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberRight());
@@ -137,8 +137,8 @@ int main()
     leftIndices.resize(2);
     rightIndices.resize(2);
     
-    ///\TODO test the normal vector
-    //todo also test individual functions
+    ///\todo test the normal vector
+    ///\todo also test individual functions
     
     leftIndices = test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft());
     rightIndices = test->getPtrElementGRight()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberRight());
@@ -185,8 +185,8 @@ int main()
     leftIndices.resize(2);
     rightIndices.resize(2);
     
-    ///\TODO test the normal vector
-    //todo also test individual functions
+    ///\todo test the normal vector
+    ///\todo also test individual functions
     
     leftIndices = test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft());
     

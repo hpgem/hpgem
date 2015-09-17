@@ -188,8 +188,6 @@ int main()
     logger.assert_always((test.getNumberOfNodes() == 4), "number of nodes");
     logger.assert_always((test.getGeometryType() == Geometry::ReferenceGeometryType::SQUARE), "type of geometry");
     
-    ///\TODO if it is decided that getBasisFunctionValue and getBasisFucntionDerivative remain here, test them
-    
-    ///\TODO testing that the refinement maps behave exactly like the forwarded calls of this class
+    ///\todo testing that the refinement maps behave exactly like the forwarded calls of this class
 }
 

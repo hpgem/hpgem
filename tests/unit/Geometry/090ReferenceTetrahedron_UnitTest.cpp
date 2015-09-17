@@ -184,7 +184,8 @@ int main()
     logger.assert_always((test.getGaussQuadratureRule(5)->order() >= 5), "quadrature rules");
     logger.assert_always((test.getGaussQuadratureRule(7)->order() >= 7), "quadrature rules");
     logger.assert_always((test.getGaussQuadratureRule(9)->order() >= 9), "quadrature rules");
-    //assert(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));///\TODO implement more quadrature rules
+    ///\todo implement more quadrature rules
+    //assert(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));
     
     //testing functionality of abstract parent classes
     
@@ -192,8 +193,7 @@ int main()
     logger.assert_always((test.getGeometryType() == Geometry::ReferenceGeometryType::TETRAHEDRON), "type of geometry");
     
     return (0);
-    ///\TODO if it is decided that getBasisFunctionValue and getBasisFucntionDerivative remain here, test them
     
-    ///\TODO testing that the refinement maps behave exactly like the forwarded calls of this class
+    ///\todo testing that the refinement maps behave exactly like the forwarded calls of this class
 }
 

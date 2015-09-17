@@ -125,8 +125,9 @@ int main()
     testRule(QuadratureRules::TriPrism_1_1::Instance(), 1);
     testRule(QuadratureRules::TriPrism_3_8::Instance(), 3);
     testRule(QuadratureRules::TriPrism_5_21::Instance(), 5);
-    testRule(QuadratureRules::TriPrism_7_64::Instance(), 7); ///\TODO not accurate enough
-    ///\TODO there are no quadrature rules for higher order prisms
+    ///\todo not accurate enough
+    testRule(QuadratureRules::TriPrism_7_64::Instance(), 7);
+    ///\todo there are no quadrature rules for higher order prisms
     
     return 0;
 }

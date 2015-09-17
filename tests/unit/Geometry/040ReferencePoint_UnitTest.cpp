@@ -67,8 +67,6 @@ int main()
     logger.assert_always((test.getNumberOfNodes() == 1), "number of nodes");
     logger.assert_always((test.getGeometryType() == Geometry::ReferenceGeometryType::POINT), "type of geometry");
     
-    //getBasisFunctionValue and getBasisFunctionDerivative require 0D basisfunctions to be implemented
-    
-    ///\TODO testing that the refinement maps behave exactly like the forwarded calls of this class
+    ///\todo testing that the refinement maps behave exactly like the forwarded calls of this class
 }
 

@@ -321,7 +321,8 @@ int main()
     //other codimensions are not implemented
     
     logger.assert_always((test.getGaussQuadratureRule(3)->order() >= 3), "quadrature rules");
-    //assert(("quadrature rules",test.getGaussQuadratureRule(5)->order()>=5));///\TODO implement more quadrature rules
+    ///\todo implement more quadrature rules
+    //assert(("quadrature rules",test.getGaussQuadratureRule(5)->order()>=5));
     //assert(("quadrature rules",test.getGaussQuadratureRule(7)->order()>=7));
     //assert(("quadrature rules",test.getGaussQuadratureRule(9)->order()>=9));
     //assert(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));
@@ -331,8 +332,6 @@ int main()
     logger.assert_always((test.getNumberOfNodes() == 16), "number of nodes");
     logger.assert_always((test.getGeometryType() == Geometry::ReferenceGeometryType::HYPERCUBE), "type of geometry");
     
-    ///\TODO if it is decided that getBasisFunctionValue and getBasisFucntionDerivative remain here, test them
-    
-    ///\TODO testing that the refinement maps behave exactly like the forwarded calls of this class
+    ///\todo testing that the refinement maps behave exactly like the forwarded calls of this class
 }
 

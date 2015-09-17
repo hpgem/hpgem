@@ -55,9 +55,6 @@ namespace Geometry
         mappingsTriangleToTetrahedron_[1] = &MappingToRefTriangleToTetrahedron1::Instance();
         mappingsTriangleToTetrahedron_[2] = &MappingToRefTriangleToTetrahedron2::Instance();
         mappingsTriangleToTetrahedron_[3] = &MappingToRefTriangleToTetrahedron3::Instance();
-        
-        /// TODO: Implement MappingTetrahedronToTetrahedron.
-        mappingsTetrahedronToTetrahedron_[0] = 0;
     }
     
     bool ReferenceTetrahedron::isInternalPoint(const PointReference<3>& p) const
@@ -92,7 +89,6 @@ namespace Geometry
     const MappingReferenceToReference<0>*
     ReferenceTetrahedron::getCodim0MappingPtr(const std::size_t i) const
     {
-        /// \TODO: Implement tetrahedron to tetrahedron mappings.
         logger(FATAL, "ERROR: Tetrahedron to tetrahedron mappings do not exist.\n");
         return 0;
     }
@@ -137,7 +133,6 @@ namespace Geometry
     const MappingReferenceToReference<2>*
     ReferenceTetrahedron::getCodim2MappingPtr(const std::size_t faceIndex) const
     {
-        /// \TODO: Implement line to tetrahedron mappings.
         logger(FATAL, "ERROR: Line to tetrahedron mappings do not exist.\n");
         return 0;
     }

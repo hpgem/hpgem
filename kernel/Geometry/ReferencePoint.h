@@ -110,8 +110,9 @@ namespace Geometry
         /// \brief List of valid quadrature rules for this reference geometry
         std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
 
-        //! Codimension 0 mappings, from a line to a line. TODO: Where is this used? clarify here.
-        const MappingReferenceToReference<0>* mappingsPointToPoint_; //!< codim0
+        //! Codimension 0 mappings, from a line to a line. Used to rotate the face when the left and right elements dont think it has the same orientation
+        /// Provided for consistency with other dimensions
+        const MappingReferenceToReference<0>* mappingsPointToPoint_;
         
         std::vector<const PointReference<0>* > points_;
 

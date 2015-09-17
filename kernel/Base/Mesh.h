@@ -224,11 +224,11 @@ namespace Base
 
         Submesh submeshes_;
         //! List of all elements. 
-        //! \TODO: this should be replaced by the mesh-tree structure
+        //! \todo: this should be replaced by the mesh-tree structure
         std::vector<Element*> elements_;
 
         //! List of all faces. 
-        //! \TODO: this should be replaced by the mesh-tree structure
+        //! \todo: this should be replaced by the mesh-tree structure
         std::vector<Face*> faces_;
 
         //! List of all edges.

@@ -295,8 +295,9 @@ int main()
     testRule(QuadratureRules::T3_7_31::Instance(), 7);
     testRule(QuadratureRules::T3_8_43::Instance(), 8);
     testRule(QuadratureRules::T3_9_53::Instance(), 9);
-    testRule(QuadratureRules::T3_10_126::Instance(), 10); ///\TODO implement 11th order quadrature
-            
+    testRule(QuadratureRules::T3_10_126::Instance(), 10);
+    ///\todo implement 11th order quadrature
+
     return 0;
 }
 

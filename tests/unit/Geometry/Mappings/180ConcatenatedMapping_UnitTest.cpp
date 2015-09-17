@@ -82,10 +82,12 @@ int main()
     
     //1->1->2
     
+    source = &Geometry::ReferenceLine::Instance();
     target = &Geometry::ReferenceSquare::Instance();
     Geometry::Jacobian<1, 2> jac2;
     delete test;
     test = new Geometry::ConcatenatedMapping(Geometry::MappingToRefLineToLine1::Instance(), Geometry::MappingToRefLineToSquare3::Instance());
+    nodesAfterTransformation.resize(2);
     nodesAfterTransformation[0] = 3;
     nodesAfterTransformation[1] = 2;
     
@@ -118,10 +120,12 @@ int main()
     
     //2->2->3
     
+    source = &Geometry::ReferenceSquare::Instance();
     target = &Geometry::ReferenceCube::Instance();
     Geometry::Jacobian<2, 3> jac3;
     delete test;
     test = new Geometry::ConcatenatedMapping(Geometry::MappingToRefSquareToSquare3::Instance(), Geometry::MappingToRefSquareToCube2::Instance());
+    nodesAfterTransformation.resize(4);
     nodesAfterTransformation[0] = 4;
     nodesAfterTransformation[1] = 0;
     nodesAfterTransformation[2] = 6;
@@ -172,14 +176,20 @@ int main()
     
     //3->3->4
     
+    source = &Geometry::ReferenceCube::Instance();
     target = &Geometry::ReferenceHypercube::Instance();
     Geometry::Jacobian<3, 4> jac4;
     delete test;
     test = new Geometry::ConcatenatedMapping(Geometry::MappingToRefCubeToCube3::Instance(), Geometry::MappingToRefCubeToHypercube7::Instance());
-    nodesAfterTransformation[0] = 4;
-    nodesAfterTransformation[1] = 0;
-    nodesAfterTransformation[2] = 6;
-    nodesAfterTransformation[3] = 2;
+    nodesAfterTransformation.resize(8);
+    nodesAfterTransformation[0] = 12;
+    nodesAfterTransformation[1] = 13;
+    nodesAfterTransformation[2] = 8;
+    nodesAfterTransformation[3] = 9;
+    nodesAfterTransformation[4] = 14;
+    nodesAfterTransformation[5] = 15;
+    nodesAfterTransformation[6] = 10;
+    nodesAfterTransformation[7] = 11;
     
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.6)
     {
@@ -229,15 +239,16 @@ int main()
         }
     }
     
-    /*for(std::size_t i=0;i<source->getNumberOfNodes();++i){///\TODO figure out how the cube->cube maps actually map their nodes
-     source->getNode(i,orig3D);
-     target->getNode(nodesAfterTransformation[i],compare4D);
-     test->transform(orig3D,point4D);
-     logger.assert_always(("transform",std::abs(point4D[0]-compare4D[0])<1e-12));
-     logger.assert_always(("transform",std::abs(point4D[1]-compare4D[1])<1e-12));
-     logger.assert_always(("transform",std::abs(point4D[2]-compare4D[2])<1e-12));
-     logger.assert_always(("transform",std::abs(point4D[3]-compare4D[3])<1e-12));
-     }*/
+    for (std::size_t i = 0; i < source->getNumberOfNodes(); ++i)
+    {
+        orig3D = source->getReferenceNodeCoordinate(i);
+        compare4D = target->getReferenceNodeCoordinate(nodesAfterTransformation[i]);
+        point4D = test->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+        logger.assert_always((std::abs(point4D[0] - compare4D[0]) < 1e-12), "transform");
+        logger.assert_always((std::abs(point4D[1] - compare4D[1]) < 1e-12), "transform");
+        logger.assert_always((std::abs(point4D[2] - compare4D[2]) < 1e-12), "transform");
+        logger.assert_always((std::abs(point4D[3] - compare4D[3]) < 1e-12), "transform");
+    }
 
     logger.assert_always((test->getTargetDimension() == 4), "getTargetDimension");
     return 0;

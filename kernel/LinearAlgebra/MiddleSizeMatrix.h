@@ -55,7 +55,6 @@ namespace LinearAlgebra
     ///     1   3
     /// Examples for the implementation are given in the unit test (../tests/unit/LinearAlgebra/MatrixUnitTest).
     /// \bug valarray does not compile, since data() is not defined on it
-    /// \todo number of rows/columns is saved as a std::size_t, but to BLAS is limited to 32 bits (not sure if signed or unsigned)
     /// implement fall-back routines for matrices that are too large. Note that in this situation dense data storage may not be the best option
     class MiddleSizeMatrix
     {
