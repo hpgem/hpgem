@@ -21,26 +21,18 @@ add_library(hpGEM_Base STATIC
  		${hpGEM_SOURCE_DIR}/kernel/Base/BasisFunctionSet.cpp	
  		BaseBasisFunction.cpp	  
 		CommandLineOptions.cpp
-		PhysGradientOfBasisFunction_Impl.h
  		Element.cpp
  		ElementData.cpp
                 ElementFactory.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Integration/ElementIntegral_Impl.h
  		Face.cpp
  		FaceData.cpp
                 FaceFactory.cpp
 		FaceMatrix.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Integration/FaceIntegral_Impl.h
  		Edge.cpp
  		Node.cpp
-		HpgemAPIBase_Impl.h
-		HpgemAPILinear_Impl.h
-		HpgemAPILinearSteadyState_Impl.h
 		HpgemAPISimplified.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulatorBase.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulator_Impl.h
-		Mesh_Impl.h
                 Submesh.cpp
         	${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp

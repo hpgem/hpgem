@@ -105,7 +105,7 @@ namespace Base
 
         MeshManipulator(const MeshManipulator& other);
 
-        ~MeshManipulator();
+        virtual ~MeshManipulator();
 
         /// creates some cheap, easy to construct basis function set (monomials) to use as a placeholder
         /// \bug this function needs to exist because elements must have a set of basis functions at all time

@@ -48,7 +48,7 @@ namespace Integration
      * the return type, which is given in the final parameter, and inheriting multiple instances.
      * \deprecated Please use an std::function to pass the integrand to FaceIntegral::integrate.
      */
-    template<class T, std::size_t DIM>
+    template<typename T, std::size_t DIM>
     class FaceIntegrandBase
     {
     public:

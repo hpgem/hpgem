@@ -327,77 +327,47 @@ namespace Base
     template<std::size_t DIM>
     LinearAlgebra::MiddleSizeVector::type HpgemAPISimplified<DIM>::computeTotalError(const std::size_t solutionVectorId, const double time)
     {
-        LinearAlgebra::MiddleSizeVector::type totalError = 0;
+        LinearAlgebra::MiddleSizeVector::type localError = 0, totalError = 0;
         
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
             LinearAlgebra::MiddleSizeVector &solutionCoefficients = ptrElement->getTimeIntegrationVector(solutionVectorId);
-            totalError += integrateErrorAtElement(ptrElement, solutionCoefficients, time);
+            localError += integrateErrorAtElement(ptrElement, solutionCoefficients, time);
         }
         
         LinearAlgebra::MiddleSizeVector::type error;
         
 #ifdef HPGEM_USE_MPI
-        int world_rank;
-        MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-        int world_size;
-        MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+        int world_rank = MPIContainer::Instance().getProcessorID();
+        auto& comm = MPIContainer::Instance().getComm();
 
-        double errorToAdd;
-        for(std::size_t iRank = 1; iRank < world_size; iRank++)
-        {   
-            if(world_rank == 0)
-            {   
-                MPI_Recv(&errorToAdd, 1, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                totalError += errorToAdd;
-            }
-            else if(world_rank == iRank)
-            {   
-                if(std::imag(totalError) == 0)
-                errorToAdd = std::real(totalError);
-                MPI_Send(&errorToAdd, 1, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD);
-            }
-        }
+        comm.Reduce(&localError, &totalError, 1, Base::Detail::toMPIType(totalError), MPI::SUM, 0);
 
         if(world_rank == 0)
         {
-            if(std::imag(totalError) == 0)
+            logger.assert(std::abs(std::imag(totalError)) < 1e-12, "The computed error has an imaginairy component");
+            if(std::real(totalError) >= 0)
             {
-                if(std::real(totalError) >= 0)
-                {
                 error = std::sqrt(totalError);
-                }
-                else
-                {
+            }
+            else
+            {
                 logger(WARN,"Warning: the computed total error is negative.");
                 error = std::sqrt(-totalError);
-                }
             }
         }
-        
-        
-        for(std::size_t iRank = 1; iRank < world_size; iRank++)
-        {
-            if(world_rank == 0)
-            {
-                MPI_Send(&error, 1, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD);
-            }
-            else if(world_rank == iRank)
-            {
-                MPI_Recv(&error, 1, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            }
-        }
+        MPIContainer::Instance().broadcast(error, 0);
         return error;
 #else
         
-        if (std::real(totalError) >= 0)
+        if (std::real(localError) >= 0)
         {
-            error = std::sqrt(totalError);
+            error = std::sqrt(localError);
         }
         else
         {
             logger(WARN, "Warning: the computed total error is negative.");
-            error = std::sqrt(-totalError);
+            error = std::sqrt(-localError);
         }
         return error;
 #endif
@@ -479,61 +449,13 @@ namespace Base
         }
         
 #ifdef HPGEM_USE_MPI
-        int world_rank;
-        MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-        int world_size;
-        MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-        
-        
-        for(std::size_t iRank = 1; iRank < world_size; iRank++)
-        {
-            if(world_rank == 0)
-            {
-                double maxErrorToReceive[this->configData_->numberOfUnknowns_];
-                MPI_Recv(maxErrorToReceive, this->configData_->numberOfUnknowns_, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
-                {
-                    if(std::real(maxErrorToReceive[iV]) > std::real(maxError(iV)))
-                    {
-                        maxError(iV) = maxErrorToReceive[iV];
-                    }
-                }
-            }
-            else if(world_rank == iRank)
-            {
-                double maxErrorToSend[this->configData_->numberOfUnknowns_];
-                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
-                {
-                    if(std::imag(maxError(iV)) == 0)
-                    maxErrorToSend[iV] = std::real(maxError(iV));
-                
-                }
-                MPI_Send(maxErrorToSend, this->configData_->numberOfUnknowns_, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD);
-            }
-        }
-        
-        for(std::size_t iRank = 1; iRank < world_size; iRank++)
-        {
-            if(world_rank == 0)
-            {
-                double maxErrorToSend[this->configData_->numberOfUnknowns_];
-                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
-                {
-                    if(std::imag(maxError(iV))== 0)
-                    maxErrorToSend[iV] = std::real(maxError(iV));
-                }
-                MPI_Send(maxErrorToSend, this->configData_->numberOfUnknowns_, MPI_DOUBLE, iRank, iRank, MPI_COMM_WORLD);
-            }
-            else if(world_rank == iRank)
-            {
-                double maxErrorToReceive[this->configData_->numberOfUnknowns_];
-                MPI_Recv(maxErrorToReceive, this->configData_->numberOfUnknowns_, MPI_DOUBLE, 0, iRank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
-                {
-                    maxError(iV) = maxErrorToReceive[iV];
-                }
-            }
-        }
+        auto& comm = MPIContainer::Instance().getComm();
+
+        auto recieveError = maxError;
+        comm.Reduce(maxError.data(), recieveError.data(), maxError.size(), Base::Detail::toMPIType(*maxError.data()), MPI::MAX, 0);
+        maxError = recieveError;
+
+        MPIContainer::Instance().broadcast(maxError, 0);
         return maxError;
 #else
         return maxError;
