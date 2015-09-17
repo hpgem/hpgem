@@ -7,7 +7,7 @@ include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 #'NOT hpGEM_USE_COMPLEX_PETSC', 'hpGEM_USE_PETSC'          and 'hpGEM_USE_COMPLEX_PETSC'
 # (no PETSC) (default)        ,  (PETSc with real numbers) and (PETSC with complex numbers)
 #When hpGEM is configured to interact with a complex build of PETSc some of its internal data
-#structrues will also use complex numbers. This is why applications that don't need PETSc
+#structures will also use complex numbers. This is why applications that don't need PETSc
 #are disabled for this case.
 if(NOT hpGEM_USE_COMPLEX_PETSC)
    
