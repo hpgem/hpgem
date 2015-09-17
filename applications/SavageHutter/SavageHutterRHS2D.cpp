@@ -179,7 +179,7 @@ MiddleSizeVector SavageHutterRHS2D::computeSourceTerm(const MiddleSizeVector& nu
     const double mu = computeFriction(numericalSolution);
     const double sourceX = h * std::sin(chuteAngle_) - h * mu * uNormalized * std::cos(chuteAngle_);
     const double sourceY = -h * mu * vNormalized * std::cos(chuteAngle_);
-    return MiddleSizeVector({0, 0, 0});
+    return MiddleSizeVector({0, sourceX, sourceY});
 }
 
 MiddleSizeVector SavageHutterRHS2D::localLaxFriedrichsFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight,const LinearAlgebra::SmallVector<DIM>& normal)
@@ -280,9 +280,10 @@ MiddleSizeVector SavageHutterRHS2D::hllcFlux(const MiddleSizeVector& numericalSo
 
 double SavageHutterRHS2D::computeFriction(const MiddleSizeVector& numericalSolution)
 {
-    const double delta1 = 17;
-    const double delta2 = 32;
+    const double delta1 = 17./180 * M_PI;
+    const double delta2 = 32./180 * M_PI;
     const double h = numericalSolution[0];
+    const double hScaledWithParticleSize = h/80;
     if (h < 1e-10)
         return std::tan(delta1);
     const double u = numericalSolution[1] / h;

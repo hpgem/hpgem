@@ -24,6 +24,9 @@
 
 #include "Base/MeshMoverBase.h"
 
+/// MeshMoverContraction moves the grid such that a contraction in the domain arises
+/// If you want only the first half of the contraction, set xMiddle to the end of the
+/// domain.
 class MeshMoverContraction : public Base::MeshMoverBase<DIM>
 {
     
@@ -42,9 +45,9 @@ public:
     void movePoint(PointPhysicalT& point) const override final
     {
         logger.assert(2 == DIM, "Called mesh mover for contraction while DIM != 2");
-        const double xBegin = 1.2;
-        const double xMiddle = 2.2;
-        const double xEnd = 3.2;
+        const double xBegin = 1;
+        const double xMiddle = 5;
+        const double xEnd = 100;
         const double contractionWidth = 0.8;        
         
         const double distFirst = xMiddle - xBegin;
