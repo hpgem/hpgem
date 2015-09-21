@@ -135,7 +135,7 @@ int main()
     std::vector<std::size_t> faceIndices(4);
     //codim0maps dont exist so they dont need to be found properly
     
-    logger.assert_always((test.getNrOfCodim1Entities() == 5 && test.getNrOfCodim2Entities() == 8) && test.getNrOfCodim3Entities() == 5, "higher codimensional entities");
+    logger.assert_always((test.getNumberOfCodim1Entities() == 5 && test.getNumberOfCodim2Entities() == 8) && test.getNumberOfCodim3Entities() == 5, "higher codimensional entities");
     logger.assert_always((test.getCodim1ReferenceGeometry(0) == &Geometry::ReferenceSquare::Instance() && test.getCodim1ReferenceGeometry(1) == &Geometry::ReferenceTriangle::Instance() && test.getCodim1ReferenceGeometry(2) == &Geometry::ReferenceTriangle::Instance() && test.getCodim1ReferenceGeometry(3) == &Geometry::ReferenceTriangle::Instance() && test.getCodim1ReferenceGeometry(4) == &Geometry::ReferenceTriangle::Instance()), "getCodim1ReferenceGeometry");
     logger.assert_always((test.getCodim2ReferenceGeometry(0) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(1) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(2) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(3) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(4) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(5) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(6) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(7) == &Geometry::ReferenceLine::Instance()), "getCodim2ReferenceGeometry");
     logger.assert_always((test.getCodim1MappingPtr(0) == &Geometry::MappingToRefFaceToPyramid0::Instance()), "getCodim1MappingPtr");

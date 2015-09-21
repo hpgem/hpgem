@@ -277,7 +277,7 @@ namespace Utilities
         {
             Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
             std::vector<std::size_t> vectorOfPointIndices(4);
-            for (std::size_t i = 0; i < cube.getNrOfCodim3Entities(); ++i)
+            for (std::size_t i = 0; i < cube.getNumberOfCodim3Entities(); ++i)
             {
                 result->addBasisFunction(new BasisFunction3DVertexCube(i));
             }
@@ -367,7 +367,7 @@ namespace Utilities
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set;
         Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
-        for (std::size_t i = 0; i < cube.getNrOfCodim3Entities(); ++i)
+        for (std::size_t i = 0; i < cube.getNumberOfCodim3Entities(); ++i)
         {
             set = new Base::BasisFunctionSet(order);
             set->addBasisFunction(new BasisFunction3DVertexCube(i));

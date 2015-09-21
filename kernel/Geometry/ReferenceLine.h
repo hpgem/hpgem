@@ -88,7 +88,7 @@ namespace Geometry
         // ================================== Codimension 1 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getNrOfCodim1Entities() const override final
+        std::size_t getNumberOfCodim1Entities() const override final
         {
             return 2;
         }

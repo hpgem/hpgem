@@ -54,7 +54,7 @@ int main()
     
     logger.assert_always((test.getCodim0MappingPtr(test.getCodim0MappingIndex(base, transformed)) == &Geometry::MappingToRefPointToPoint::Instance()), "getCodim0MappingIndex&Ptr");
     logger.assert_always((test.getCodim0MappingPtr(base, transformed) == &Geometry::MappingToRefPointToPoint::Instance()), "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getNrOfCodim1Entities() == 0 && test.getNrOfCodim2Entities() == 0) && test.getNrOfCodim3Entities() == 0, "higher codimensional entities");
+    logger.assert_always((test.getNumberOfCodim1Entities() == 0 && test.getNumberOfCodim2Entities() == 0) && test.getNumberOfCodim3Entities() == 0, "higher codimensional entities");
     
     logger.assert_always((test.getGaussQuadratureRule(3)->order() >= 3), "quadrature rules");
     logger.assert_always((test.getGaussQuadratureRule(5)->order() >= 5), "quadrature rules");

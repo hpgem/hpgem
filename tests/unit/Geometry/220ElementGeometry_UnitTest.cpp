@@ -75,7 +75,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<1>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceLine) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNumberOfNodes() == 2), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 2), "getNumberOfNodes");
     
     for (orig1D[0] = -1.51; orig1D[0] < 1.51; orig1D[0] += 0.1)
     {
@@ -87,7 +87,7 @@ int main()
         jac = test->calcJacobian(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig1D));
         logger.assert_always((std::abs(jac[0] - jaccompare[0]) < 1e-12), "calcJacobian");
     }
-    std::cout << *test << std::endl;
+    logger(INFO, "%", *test);
     
     //dim2
     std::vector<Geometry::PointPhysical<2> > nodes2D;
@@ -117,7 +117,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysSimplexLinear<2>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceTriangle) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNumberOfNodes() == 3), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 3), "getNumberOfNodes");
     
     for (orig2D[0] = -1.51; orig2D[0] < 1.51; orig2D[0] += 0.2)
     {
@@ -136,7 +136,7 @@ int main()
             logger.assert_always((std::abs(jac2[3] - jaccompare2[3]) < 1e-12), "calcJacobian");
         }
     }
-    std::cout << *test << std::endl;
+    logger(INFO, "%", *test);
     
     pointIndexes.push_back(11);
     
@@ -145,7 +145,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<2>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceSquare) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNumberOfNodes() == 4), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 4), "getNumberOfNodes");
     
     for (orig2D[0] = -1.51; orig2D[0] < 1.51; orig2D[0] += 0.2)
     {
@@ -164,7 +164,7 @@ int main()
             logger.assert_always((std::abs(jac2[3] - jaccompare2[3]) < 1e-12), "calcJacobian");
         }
     }
-    std::cout << *test << std::endl;
+    logger(INFO, "%", *test);
     
     //dim 3
     
@@ -212,7 +212,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysSimplexLinear<3>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceTetrahedron) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNumberOfNodes() == 4), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 4), "getNumberOfNodes");
     
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.3)
     {
@@ -240,7 +240,7 @@ int main()
             }
         }
     }
-    std::cout << *test << std::endl;
+    logger(INFO, "%", *test);
     
     pointIndexes.push_back(12);
     
@@ -249,7 +249,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysPyramid) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferencePyramid) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNumberOfNodes() == 5), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 5), "getNumberOfNodes");
     
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.3)
     {
@@ -277,7 +277,7 @@ int main()
             }
         }
     }
-    std::cout << *test << std::endl;
+    logger(INFO, "%", *test);
     
     pointIndexes.push_back(13);
     
@@ -286,7 +286,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysTriangularPrism) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceTriangularPrism) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNumberOfNodes() == 6), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 6), "getNumberOfNodes");
     
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.3)
     {
@@ -314,7 +314,7 @@ int main()
             }
         }
     }
-    std::cout << *test << std::endl;
+    logger(INFO, "%", *test);
     
     pointIndexes.push_back(14);
     pointIndexes.push_back(15);
@@ -324,7 +324,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<3>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceCube) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNumberOfNodes() == 8), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 8), "getNumberOfNodes");
     
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.3)
     {
@@ -352,7 +352,7 @@ int main()
             }
         }
     }
-    std::cout << *test << std::endl;
+    logger(INFO, "%", *test);
     
     std::vector<Geometry::PointPhysical<4> > nodes4D;
     
@@ -454,7 +454,7 @@ int main()
     
     logger.assert_always((typeid(Geometry::MappingToPhysHypercubeLinear<4>) == typeid(*test->getReferenceToPhysicalMap())), "getReferenceToPhysicalMap");
     logger.assert_always((typeid(Geometry::ReferenceHypercube) == typeid(*test->getReferenceGeometry())), "getReferenceGeometry");
-    logger.assert_always((test->getNumberOfNodes() == 16), "getNrOfNodes");
+    logger.assert_always((test->getNumberOfNodes() == 16), "getNumberOfNodes");
     
     for (orig4D[0] = -1.5189; orig4D[0] < 1.541; orig4D[0] += 0.4)
     {
@@ -493,7 +493,8 @@ int main()
             }
         }
     }
-    std::cout << *test << std::endl;
+    logger(INFO, "%", *test);
+    delete test;
     
     return 0;
 }

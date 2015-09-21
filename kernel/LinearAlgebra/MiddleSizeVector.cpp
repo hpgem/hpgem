@@ -20,8 +20,9 @@
  */
 
 #include "MiddleSizeVector.h"
-
 #include "Logger.h"
+
+#include <limits>
 
 namespace LinearAlgebra
 {

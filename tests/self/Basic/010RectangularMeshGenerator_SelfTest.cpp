@@ -52,14 +52,14 @@ void testMesh(Base::MeshManipulator<DIM>* test)
     {
         logger.assert_always((elementIDs.find(element->getID()) == elementIDs.end()), "duplicate element ID");
         elementIDs.insert(element->getID());
-        logger.assert_always((element->getNumberOfFaces() == element->getReferenceGeometry()->getNrOfCodim1Entities()), "confusion about the number of faces");
+        logger.assert_always((element->getNumberOfFaces() == element->getReferenceGeometry()->getNumberOfCodim1Entities()), "confusion about the number of faces");
         if (test->dimension() == 2)
         {
             logger.assert_always((element->getNumberOfEdges() == 0), "confusion about the number of edges");
         }
         else
         {
-            logger.assert_always((element->getNumberOfEdges() == element->getReferenceGeometry()->getNrOfCodim2Entities()), "confusion about the number of edges");
+            logger.assert_always((element->getNumberOfEdges() == element->getReferenceGeometry()->getNumberOfCodim2Entities()), "confusion about the number of edges");
         }
         logger.assert_always((element->getNumberOfNodes() == element->getReferenceGeometry()->getNumberOfNodes()), "confusion about the number of vertices");
         for (std::size_t i = 0; i < element->getNumberOfFaces(); ++i)

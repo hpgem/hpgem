@@ -134,7 +134,7 @@ namespace Geometry
         /// \brief Returns the number of faces via a call to ReferenceGeometry->getNrOfCodim1Entities();
         std::size_t getNrOfFaces() const
         {
-            return refGeometry_->getNrOfCodim1Entities();
+            return refGeometry_->getNumberOfCodim1Entities();
         }
 
         /// \brief Returns a reference to the corresponding reference geometry.

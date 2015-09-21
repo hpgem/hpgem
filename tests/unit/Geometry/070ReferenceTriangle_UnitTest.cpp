@@ -127,7 +127,7 @@ int main()
     logger.assert_always((test.getCodim0MappingPtr(test.getCodim0MappingIndex(base, transformed)) == &Geometry::MappingToRefTriangleToTriangle5::Instance()), "getCodim0MappingIndex&Ptr");
     logger.assert_always((test.getCodim0MappingPtr(base, transformed) == &Geometry::MappingToRefTriangleToTriangle5::Instance()), "getCodim0MappingIndex&Ptr");
     
-    logger.assert_always((test.getNrOfCodim1Entities() == 3 && test.getNrOfCodim2Entities() == 3) && test.getNrOfCodim3Entities() == 0, "higher codimensional entities");
+    logger.assert_always((test.getNumberOfCodim1Entities() == 3 && test.getNumberOfCodim2Entities() == 3) && test.getNumberOfCodim3Entities() == 0, "higher codimensional entities");
     logger.assert_always((test.getCodim1ReferenceGeometry(0) == &Geometry::ReferenceLine::Instance() && test.getCodim1ReferenceGeometry(1) == &Geometry::ReferenceLine::Instance() && test.getCodim1ReferenceGeometry(2) == &Geometry::ReferenceLine::Instance()), "getCodim1ReferenceGeometry");
     logger.assert_always((test.getCodim2ReferenceGeometry(0) == &Geometry::ReferencePoint::Instance() && test.getCodim2ReferenceGeometry(1) == &Geometry::ReferencePoint::Instance() && test.getCodim2ReferenceGeometry(2) == &Geometry::ReferencePoint::Instance()), "getCodim2ReferenceGeometry");
     logger.assert_always((test.getCodim1MappingPtr(0) == &Geometry::MappingToRefLineToTriangle0::Instance()), "getCodim1MappingPtr");

@@ -311,10 +311,10 @@ namespace Base
         setNumberOfBasisFunctions(numberOfBasisFunctions);
         setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(basisFunctionSetPositions_[0])->getOrder() + 1);
         numberOfDOFinTheElement_ = basisFunctionSet_->at(basisFunctionSetPositions_[0])->size();
-        facesList_.assign(getReferenceGeometry()->getNrOfCodim1Entities(), nullptr);
-        if (getReferenceGeometry()->getNrOfCodim3Entities() > 0)
+        facesList_.assign(getReferenceGeometry()->getNumberOfCodim1Entities(), nullptr);
+        if (getReferenceGeometry()->getNumberOfCodim3Entities() > 0)
         {
-            edgesList_.assign(getReferenceGeometry()->getNrOfCodim2Entities(), nullptr);
+            edgesList_.assign(getReferenceGeometry()->getNumberOfCodim2Entities(), nullptr);
         }
         nodesList_.assign(getReferenceGeometry()->getNumberOfNodes(), nullptr);
     }
