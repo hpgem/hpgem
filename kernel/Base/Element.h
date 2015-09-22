@@ -273,7 +273,7 @@ namespace Base
 #include "PhysicalElement.h"
 namespace Base
 {
-    /// \details The user does not need to worry about the contruction of elements. This is done by mesh-generators. For example the interface HpgemAPIBase can be used to create meshes.
+    /// \details The user does not need to worry about the construction of elements. This is done by mesh-generators. For example the interface HpgemAPIBase can be used to create meshes.
     template<std::size_t DIM>
     Element::Element(const VectorOfPointIndexesT& globalNodeIndexes,
                      const CollectionOfBasisFunctionSets *basisFunctionSet,

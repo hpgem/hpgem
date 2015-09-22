@@ -99,14 +99,28 @@ namespace Base
             return getNodeCoordinates().size();
         }
         
-        //! Get const list of elements
+        /// Get a vector of elements. If the IteratorType is LOCAL, get all elements
+        /// on the core you're working on. If the IteratorType is GLOBAL, get all 
+        /// elements in the mesh. Usually an application uses only the local elements,
+        /// but after for example changing a mesh, the iterator type should be global
+        /// to get all elements.
         const std::vector<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) const;
-        //! Get non-const list of elements
+        
+        /// Get a vector of elements. If the IteratorType is LOCAL, get all elements
+        /// on the core you're working on. If the IteratorType is GLOBAL, get all 
+        /// elements in the mesh. Usually an application uses only the local elements,
+        /// but after for example changing a mesh, the iterator type should be global
+        /// to get all elements.
         std::vector<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL);
 
-        //! Get const list of faces
+        /// Get a vector of faces. If the IteratorType is LOCAL, get all faces of the elements
+        /// on the core you're working on. If the IteratorType is GLOBAL, get all 
+        /// faces in the mesh. Usually an application uses only the local faces.
         const std::vector<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) const;
-        //! Get non-const list of faces
+        
+        /// Get a vector of faces. If the IteratorType is LOCAL, get all faces of the elements
+        /// on the core you're working on. If the IteratorType is GLOBAL, get all 
+        /// faces in the mesh. Usually an application uses only the local faces.
         std::vector<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL);
 
         const std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const;

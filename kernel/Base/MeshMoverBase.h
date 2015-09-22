@@ -30,6 +30,22 @@ namespace Geometry
 namespace Base
 {
 
+    ///\brief Base for a class that can move the grid. 
+    ///\details To move the grid, this class provides the purely virtual function movePoint
+    ///that moves each point in the mesh separately. This function needs to be
+    ///implemented by the application developer. To use this class, it is usually
+    ///easiest to call the function MeshManipulator::move(), which calls movePoint
+    ///for all points in that mesh.
+    ///After a mesh has been moved, the function Element::reinit() should be 
+    ///called for all elements in the mesh of which at least one point has moved.
+    ///For example, the code to move a mesh can look like:\n
+    ///     const MeshMoverUser* meshMover = new MeshMoverUser;                                   \n
+    ///     initialiseMeshMover(meshMover, 0);                                                    \n
+    ///     meshes_[0]->move();                                                                   \n
+    ///     for (Base::Element *element : meshes_[0]->getElementsList(Base::IteratorType::GLOBAL))\n
+    ///     {                                                                                     \n
+    ///          element->getReferenceToPhysicalMap()->reinit();                                  \n
+    ///     }                                                                                     \n
     template<std::size_t DIM>
     class MeshMoverBase
     {
