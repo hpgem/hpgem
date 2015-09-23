@@ -144,6 +144,10 @@ option(hpGEM_USE_QHULL "Include QHull this will allow unstructured mesh generati
 option(hpGEM_USE_PETSC "Include PETSC this is required for GlobalAssemble" OFF)
 option(hpGEM_USE_COMPLEX_PETSC "Include a more complex version of PETSc instead" OFF)
 option(hpGEM_USE_SLEPC "Include SLEPC this is needed for some applications" OFF)
+option(hpGEM_USE_EXTERNAL_BLAS "Try to use a version of BLAS optimised for your system" ON)
+mark_as_advanced(hpGEM_USE_EXTERNAL_BLAS)
+option(hpGEM_USE_EXTERNAL_LAPACK "Try to use a version of LAPACK optimised for your system" ON)
+mark_as_advanced(hpGEM_USE_EXTERNAL_LAPACK)
 option(hpGEM_USE_STL_VECTOR_FOR_LA "Will swap the internal storage of the linear algebra from being based on valarray to STL vector" ON)
 mark_as_advanced(hpGEM_USE_STL_VECTOR_FOR_LA)
 if(hpGEM_USE_STL_VECTOR_FOR_LA)
@@ -279,6 +283,22 @@ if(hpGEM_USE_SLEPC)
                message(FATAL_ERROR
                        "The option you have chosen requires SLEPc and you do not have this installed. Please install")
         endif()
+endif()
+
+if(hpGEM_USE_EXTERNAL_BLAS)
+    FIND_PACKAGE(BLAS QUIET)
+    if(NOT BLAS_FOUND)
+        message(SYSTEM "Could not find external BLAS, using reference implementation instead")
+        set(hpGEM_USE_EXTERNAL_BLAS OFF CACHE BOOL "Try to use a version of BLAS optimised for your system" FORCE)
+    endif()
+endif()
+
+if(hpGEM_USE_EXTERNAL_LAPACK)
+    FIND_PACKAGE(LAPACK QUIET)
+    if(NOT LAPACK_FOUND)
+        message(SYSTEM "Could not find external LAPACK, using reference implementation instead")
+        set(hpGEM_USE_EXTERNAL_LAPACK OFF CACHE BOOL "Try to use a version of LAPACK optimised for your system" FORCE)
+    endif()
 endif()
 
 
