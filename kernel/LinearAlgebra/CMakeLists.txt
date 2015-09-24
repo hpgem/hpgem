@@ -36,11 +36,11 @@ elseif(NOT hpGEM_USE_EXTERNAL_LAPACK)
         zgesv.f zgetrs.f
         MiddleSizeVector.cpp
         MiddleSizeMatrix.cpp)
-    target_link_libraries(LinearAlgebra BLAS)
+    target_link_libraries(LinearAlgebra ${BLAS_LIBRARIES})
 else()
     add_library(LinearAlgebra SHARED 
         MiddleSizeVector.cpp
         MiddleSizeMatrix.cpp)
-    target_link_libraries(LinearAlgebra BLAS LAPACK)
+    target_link_libraries(LinearAlgebra ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 endif()
 target_link_libraries(LinearAlgebra Logger)
