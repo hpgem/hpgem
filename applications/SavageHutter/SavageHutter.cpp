@@ -55,7 +55,7 @@ SlopeLimiter * SavageHutter::createSlopeLimiter(const SHConstructorStruct &input
 ///\details Actual creation of the non-negativity limiter. The delete is called in the class SavageHutterBase, since that's also where the non-negativity limiter resides.
 HeightLimiter * SavageHutter::createHeightLimiter(const SHConstructorStruct& inputValues)
 {
-    if (inputValues.polyOrder == 0)
+    if (true || inputValues.polyOrder == 0)
         return new EmptyHeightLimiter();
     return new PositiveLayerLimiter(1e-5);
 }
@@ -69,7 +69,7 @@ RightHandSideComputer * SavageHutter::createRightHandSideComputer(const SHConstr
     if (DIM == 1)
         return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1e-1, 45./180*M_PI, inflowBC);
     
-    return new SavageHutterRHS2D(inputValues.numOfVariables, 5e-1, 45./180*M_PI, inflowBC);
+    return new SavageHutterRHS2D(inputValues.numOfVariables, 0.8, 28./180*M_PI, inflowBC);
 }
 
 
@@ -86,11 +86,11 @@ void SavageHutter::showProgress(const double time, const std::size_t timeStepID)
 LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT& pPhys, const double& startTime, const std::size_t orderTimeDerivative)
 {
     double h = 0.5;
-    double hu = 0.5;
+    double hu = 1;
     const double x = pPhys[0];
-    if (x <= 0.1)
+    if (x <= 0.5)
     {
-        hu = 1;
+        hu = 2.521353341;
         h = 1;
     }
     LinearAlgebra::MiddleSizeVector initialCondition(numOfVariables_);

@@ -51,6 +51,8 @@ public:
         delete slopeLimiter_;
         delete heightLimiter_;
     }
+    
+    std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> widthAverage();
 
 protected:
 

@@ -22,6 +22,7 @@
 #include "SavageHutterBase.h"
 #include "HelperFunctions.h"
 #include "MeshMoverContraction.h"
+#include "Base/CommandLineOptions.h"
 
 
 SavageHutterBase::SavageHutterBase(const SHConstructorStruct& inputValues) :
@@ -36,7 +37,7 @@ HpgemAPISimplified(inputValues.numOfVariables, inputValues.polyOrder, inputValue
         initialiseMeshMover(meshMover, 0);
         meshes_[0]->move();
         
-        for (Base::Element *element : meshes_[0]->getElementsList())
+        for (Base::Element *element : meshes_[0]->getElementsList(Base::IteratorType::GLOBAL))
         {
             element->getReferenceToPhysicalMap()->reinit();
         }
@@ -54,7 +55,7 @@ Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(con
         description.numElementsInDIM_[i] = 20;
         description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
     }
-    description.topRight_[0] = 5;
+    description.topRight_[0] = 14;
     description.numElementsInDIM_[0] = numOfElementPerDirection;
     return description;
 }
@@ -191,4 +192,59 @@ double SavageHutterBase::getMinimumHeight(const Base::Element* element)
         minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
     }
     return minimum;
+}
+
+///\details function that computes the width-average of the solution by simply adding
+/// the values of all elements and then divide by the number of nodes that have been
+/// added. Finally, each point is multiplied by the width of the chute at that point.
+// Sorry for the ugliness...
+std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutterBase::widthAverage()
+{
+    //add all values at a certain x-coordinate. To do that, first check if this value
+    //of x is already in the vector. If not, make a pair of this x-value and the value of the variables
+    //if there was already an entry for this x, add the value of the current point
+    std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> totals;    
+    for (Base::Element* element : meshes_[0]->getElementsList(Base::IteratorType::GLOBAL))
+    {
+        const Geometry::ReferenceGeometry *referenceElement = element->getReferenceGeometry();
+        for (std::size_t i = 0; i < referenceElement->getNumberOfNodes(); ++i)
+        {
+            const Geometry::PointReference<DIM> &nodeReference = referenceElement->getReferenceNodeCoordinate(i);
+            LinearAlgebra::MiddleSizeVector value = element->getSolution(0, nodeReference);
+            const Geometry::PointPhysical<DIM> node = element->referenceToPhysical(nodeReference);
+            
+            const auto xPosInVector = std::find_if(totals.begin(), totals.end(), [=](const std::pair<double, LinearAlgebra::MiddleSizeVector> current){return std::abs(current.first - (node)[0]) < 1e-10;});
+            if (xPosInVector == totals.end())
+            {
+                totals.push_back(std::make_pair(node[0], value));
+            }
+            else
+            {
+                (*xPosInVector).second += value;
+            }
+        }
+        
+    }    
+    
+    //Since we're using a rectangular grid, we can get the number of nodes in x direction and y direction
+    //The number of elements in x direction is given by the user in the commandline.
+    extern Base::CommandLineOption<std::size_t>& numOfElements;
+    const std::size_t nodesInXDirection = numOfElements.getValue() + 1;
+    const std::size_t elementsInYDirection = meshes_[0]->getNumberOfElements(Base::IteratorType::GLOBAL) / (nodesInXDirection - 1);
+    
+    //divide by the number of times a value for the given x-point is added
+    //then multiply with the width of the chute, which is given by the meshmover
+    const MeshMoverContraction meshMover;
+    (*totals.begin()).second *= 2;
+    (totals.back()).second *= 2;
+    for (std::pair<double, LinearAlgebra::MiddleSizeVector> &val : totals)
+    {
+        val.second /= 4*elementsInYDirection;
+        val.second *= meshMover.computeWidth(val.first);
+        logger(DEBUG, "x: %, average: %, width: %", val.first, val.second, meshMover.computeWidth(val.first));
+        
+    }
+    //just make sure we did not forget any points or that points that are the same have been put in different rows
+    logger.assert(totals.size() == nodesInXDirection, "wrong number of points in vector of width-averaging");
+    return totals;
 }

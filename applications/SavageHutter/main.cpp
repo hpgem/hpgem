@@ -21,6 +21,7 @@
 
 #include <chrono>
 #include <fstream>
+#include <iomanip>
 
 #include "SavageHutter.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
@@ -56,13 +57,25 @@ int main(int argc, char **argv)
         test.setOutputNames("output1", "SavageHutter", "SavageHutter", variableNames);
     else
         test.setOutputNames("output", "SavageHutter", "SavageHutter", variableNames);
-
+    
     // Start measuring elapsed time
     std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
     startClock = std::chrono::system_clock::now();
 
     // Solve the problem over time interval [startTime,endTime].
     test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), false);
+    auto widthValues = test.widthAverage();
+    
+    std::ofstream widthFile("widthFile.dat");
+    for (auto myPair : widthValues)
+    {
+        widthFile << myPair.first;
+        for (std::size_t i = 0; i < inputVals.numOfVariables; ++i)
+        {
+            widthFile << '\t' << std::setw(10) << myPair.second[i];
+        }
+        widthFile << '\n';
+    }
 
     // Measure elapsed time
     endClock = std::chrono::system_clock::now();
