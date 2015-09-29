@@ -89,6 +89,13 @@ public:
     }
 
     template<typename T>
+    typename std::enable_if<std::is_scalar<T>::value, void>::type
+    broadcast(std::complex<T>& t, int id)
+    {
+        communicator_.Bcast(&t, 1, Detail::toMPIType(t), id);
+    }
+
+    template<typename T>
     typename std::enable_if<!std::is_scalar<T>::value, void>::type
     send(T& t, int to, int tag)
     {   
@@ -106,6 +113,13 @@ public:
     }
 
     template<typename T>
+    typename std::enable_if<std::is_scalar<T>::value, void>::type
+    send(std::complex<T>& t, int to, int tag)
+    {
+        pending_.push_back(communicator_.Isend(&t, 1, Detail::toMPIType(t), to, tag ));
+    }
+
+    template<typename T>
     typename std::enable_if<!std::is_scalar<T>::value, void>::type
     receive(T& t, int to, int tag)
     {   
@@ -118,6 +132,13 @@ public:
     template<typename T>
     typename std::enable_if<std::is_scalar<T>::value, void>::type
     receive(T& t, int to, int tag)
+    {
+        pending_.push_back(communicator_.Irecv((void *)&t, 1, Detail::toMPIType(t), to, tag ));
+    }
+
+    template<typename T>
+    typename std::enable_if<std::is_scalar<T>::value, void>::type
+    receive(std::complex<T>& t, int to, int tag)
     {
         pending_.push_back(communicator_.Irecv((void *)&t, 1, Detail::toMPIType(t), to, tag ));
     }

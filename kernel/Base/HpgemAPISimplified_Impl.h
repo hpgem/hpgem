@@ -423,7 +423,19 @@ namespace Base
         
         return maxError;
     }
-    
+
+#ifdef HPGEM_USE_MPI
+    void computeMPIMaximum(const void* in, void* inout, int len, const MPI::Datatype& type)
+    {
+        for(int i = 0; i < len; i++)
+        {
+            logger.assert(std::abs(std::imag(reinterpret_cast<LinearAlgebra::MiddleSizeVector::type*>(inout)[i]))<1e-12, "can only do this for complex numbers");
+            logger.assert(std::abs(std::imag(reinterpret_cast<const LinearAlgebra::MiddleSizeVector::type*>(in)[i]))<1e-12, "can only do this for complex numbers");
+            reinterpret_cast<LinearAlgebra::MiddleSizeVector::type*>(inout)[i] = std::max(std::real(reinterpret_cast<LinearAlgebra::MiddleSizeVector::type*>(inout)[i]), std::real(reinterpret_cast<const LinearAlgebra::MiddleSizeVector::type*>(in)[i]));
+        }
+    }
+#endif
+
     /// \param[in] solutionVectorId Time level where the solution is stored.
     /// \param[in] time Time corresponding to the current solution.
     template<std::size_t DIM>
@@ -451,12 +463,12 @@ namespace Base
 #ifdef HPGEM_USE_MPI
         auto& comm = MPIContainer::Instance().getComm();
 
-        auto recieveError = maxError;
-        comm.Reduce(maxError.data(), recieveError.data(), maxError.size(), Base::Detail::toMPIType(*maxError.data()), MPI::MAX, 0);
-        maxError = recieveError;
+        MPI::Op myMax;
+        myMax.Init(computeMPIMaximum,true);
 
-        MPIContainer::Instance().broadcast(maxError, 0);
-        return maxError;
+        auto recieveError = maxError;
+        comm.Allreduce(maxError.data(), recieveError.data(), maxError.size(), Base::Detail::toMPIType(*maxError.data()), myMax);
+        return recieveError;
 #else
         return maxError;
 #endif
