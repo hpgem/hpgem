@@ -31,6 +31,7 @@
 
 #include "Base/Element.h"
 #include <typeinfo>
+#include <typeindex>
 
 #include "Base/AssembleBasisFunctionSet.h"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.h"
@@ -106,7 +107,9 @@ int main()
     logger.assert_always((test.getGaussQuadratureRule()->order() >= 8), "setQuadratureRule");
     
     test.setGaussQuadratureRule(&QuadratureRules::Cn3_3_4::Instance());
-    logger.assert_always((typeid(*test.getGaussQuadratureRule()) == typeid(QuadratureRules::Cn3_3_4::Instance())), "setQuadratureRule");
+    const QuadratureRules::GaussQuadratureRule& rule = *test.getGaussQuadratureRule();
+    ///\todo figure out why the '::Instance' alters the typeid (it also alters the hash_code of the typeid)
+    logger.assert_always((typeid(rule) == typeid(QuadratureRules::Cn3_3_4::Instance())), "setQuadratureRule");
     
     //check set*BasisFunctionSet without breaking preconditions...
     

@@ -7,6 +7,10 @@ set(hpGEM_VERSION_MINOR 0)
 #Directory were the external cmake modules are stored
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/conf/cmake/Modules/")
 
+#allow dynamically locating dynamic libraries if cmake and the OS support it
+if(${CMAKE_VERSION} VERSION_GREATER 2.8.12)
+    set(CMAKE_MACOSX_RPATH 1)
+endif()
 
 enable_testing()
 

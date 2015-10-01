@@ -425,7 +425,7 @@ namespace Base
     }
 
 #ifdef HPGEM_USE_MPI
-    void computeMPIMaximum(const void* in, void* inout, int len, const MPI::Datatype& type)
+    inline void computeMPIMaximum(const void* in, void* inout, int len, const MPI::Datatype& type)
     {
         for(int i = 0; i < len; i++)
         {

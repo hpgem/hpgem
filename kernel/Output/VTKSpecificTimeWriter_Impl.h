@@ -136,7 +136,8 @@ Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(const std::string& bas
     for (Base::Element* element : mesh_->getElementsList())
     {
         cumulativeNodesPerElement.push_back(element->getNumberOfNodes() + cumulativeNodesPerElement.back());
-        elementTypes.push_back(hpGEMToVTK.at(std::type_index(typeid(*element->getReferenceGeometry()))));
+        const Geometry::ReferenceGeometry& referenceGeometry = *element->getReferenceGeometry();
+        elementTypes.push_back(hpGEMToVTK.at(std::type_index(typeid(referenceGeometry))));
         for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
         {
             actualNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(tohpGEMOrdering(i, element->getReferenceGeometry()));
