@@ -14,3 +14,4 @@ ENDFOREACH()
 #now add all the application
 FOREACH( application ${applications} )
   ADD_SUBDIRECTORY( ${application} )
+ENDFOREACH()
